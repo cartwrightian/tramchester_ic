@@ -36,7 +36,7 @@ public class TramRouteHelper {
         for (KnownTramRoute knownRoute : knownTramRoutes) {
             final Set<Route> routesByShortName = routeRepository.findRoutesByShortName(MutableAgency.METL, knownRoute.shortName()).
                             stream().
-                            filter(route -> IdForDTO.createFor(route).getActualId().contains(knownRoute.direction().getSuffix())).
+                            //filter(route -> IdForDTO.createFor(route).getActualId().contains(knownRoute.direction().getSuffix())).
                             collect(Collectors.toSet());
             map.put(knownRoute, routesByShortName);
         }

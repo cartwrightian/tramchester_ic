@@ -15,6 +15,7 @@ import com.tramchester.domain.time.ProvidesNow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -34,10 +35,10 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     private final CompositeIdMap<Platform, MutablePlatform> platforms; // platformId -> platform
     private final IdMap<RouteStation> routeStations; // routeStationId - > RouteStation
     private final CompositeIdMap<Agency, MutableAgency> agencies; // agencyId -> agencies
-    private final Set<DataSourceInfo> dataSourceInfos;
+    private final Map<DataSourceID, DataSourceInfo> dataSourceInfos;
 
     // data source name -> feedinfo (if present)
-    private final Map<DataSourceID, FeedInfo> feedInfoMap;
+    private final Map<DataSourceID, DateRangeAndVersion> feedInfoMap;
     private final String sourceName;
 
     /**
@@ -55,7 +56,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
         platforms = new CompositeIdMap<>();
         routeStations = new IdMap<>();
         agencies = new CompositeIdMap<>();
-        dataSourceInfos = new HashSet<>();
+        dataSourceInfos = new HashMap<>();
         feedInfoMap = new HashMap<>();
 
     }
@@ -70,12 +71,12 @@ public class TransportDataContainer implements TransportData, WriteableTransport
                 copyOf(dataContainer.platforms),
                 copyOf(dataContainer.routeStations),
                 copyOf(dataContainer.agencies),
-                new HashSet<>(dataContainer.dataSourceInfos),
+                new HashMap<>(dataContainer.dataSourceInfos),
                 copyOf(dataContainer.feedInfoMap),
                 dataContainer.sourceName);
     }
 
-    private static Map<DataSourceID, FeedInfo> copyOf(Map<DataSourceID, FeedInfo> feedInfoMap) {
+    private static Map<DataSourceID, DateRangeAndVersion> copyOf(Map<DataSourceID, DateRangeAndVersion> feedInfoMap) {
         return new HashMap<>(feedInfoMap);
     }
 
@@ -90,8 +91,8 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     private TransportDataContainer(ProvidesNow providesNow, CompositeIdMap<Trip, MutableTrip> trips, CompositeIdMap<Station, MutableStation> stationsById,
                                    CompositeIdMap<Service, MutableService> services, CompositeIdMap<Route, MutableRoute> routes,
                                    CompositeIdMap<Platform, MutablePlatform> platforms, IdMap<RouteStation> routeStations,
-                                   CompositeIdMap<Agency, MutableAgency> agencies, Set<DataSourceInfo> dataSourceInfos,
-                                   Map<DataSourceID, FeedInfo> feedInfoMap, String sourceName) {
+                                   CompositeIdMap<Agency, MutableAgency> agencies, Map<DataSourceID,DataSourceInfo> dataSourceInfos,
+                                   Map<DataSourceID, DateRangeAndVersion> feedInfoMap, String sourceName) {
         this.providesNow = providesNow;
         this.trips = trips;
         this.stationsById = stationsById;
@@ -350,14 +351,15 @@ public class TransportDataContainer implements TransportData, WriteableTransport
         return noDayServices;
     }
 
+    @Deprecated
     @Override
     public Set<DataSourceInfo> getDataSourceInfo() {
-        return Collections.unmodifiableSet(dataSourceInfos);
+        return Set.copyOf(dataSourceInfos.values());
     }
 
     @Override
     public LocalDateTime getNewestModTimeFor(TransportMode mode) {
-        Optional<LocalDateTime> result = this.dataSourceInfos.stream().
+        Optional<LocalDateTime> result = this.dataSourceInfos.values().stream().
                 filter(info -> info.getModes().contains(mode)).
                 map(DataSourceInfo::getLastModTime).max(Comparator.naturalOrder());
         if (result.isEmpty()) {
@@ -478,16 +480,45 @@ public class TransportDataContainer implements TransportData, WriteableTransport
 
     @Override
     public void addDataSourceInfo(DataSourceInfo dataSourceInfo) {
-        dataSourceInfos.add(dataSourceInfo);
+        dataSourceInfos.put(dataSourceInfo.getID(), dataSourceInfo);
     }
 
     @Override
-    public Map<DataSourceID, FeedInfo> getFeedInfos() {
-        return feedInfoMap;
+    public DateRangeAndVersion getDateRangeAndVersionFor(DataSourceID dataSourceID) {
+        if (feedInfoMap.containsKey(dataSourceID)) {
+            return feedInfoMap.get(dataSourceID);
+        }
+        DataSourceInfo dataSourceInfo = dataSourceInfos.get(dataSourceID);
+        LocalDate expiryDate = findLastExpiryDate(dataSourceID);
+        return new RangeAndVersion(dataSourceInfo.getVersion(), dataSourceInfo.getLastModTime().toLocalDate(), expiryDate);
     }
 
     @Override
-    public void addFeedInfo(DataSourceID name, FeedInfo feedInfo) {
+    public boolean hasDateRangeAndVersionFor(DataSourceID dataSourceID) {
+        return dataSourceInfos.containsKey(dataSourceID);
+    }
+
+    private LocalDate findLastExpiryDate(DataSourceID dataSourceId) {
+        Set<ServiceCalendar> inScope = services.getValues().stream().
+                filter(service -> service.getDataSourceId().equals(dataSourceId)).
+                map(MutableService::getCalendar).
+                collect(Collectors.toSet());
+
+        if (inScope.isEmpty()) {
+            logger.info("Found no services for " + dataSourceId);
+        }
+
+        Optional<TramDate> last = inScope.stream().map(serviceCalendar -> serviceCalendar.getDateRange().getEndDate()).
+                max(TramDate::compareTo);
+        if (last.isEmpty()) {
+            throw new RuntimeException("Cannot compute expiry date for " + dataSourceId + " with calendaers " + inScope);
+        }
+        return last.get().toLocalDate();
+
+    }
+
+    @Override
+    public void addFeedInfo(DataSourceID name, DateRangeAndVersion feedInfo) {
         logger.info("Added " + feedInfo.toString());
         feedInfoMap.put(name, feedInfo);
     }
@@ -523,5 +554,34 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     @Override
     public int hashCode() {
         return Objects.hash(trips, stationsById, services, routes, platforms, routeStations, agencies, dataSourceInfos, feedInfoMap, sourceName);
+    }
+
+    private class RangeAndVersion implements DateRangeAndVersion {
+
+        private final String version;
+        private final LocalDate validFrom;
+        private final LocalDate validUntil;
+
+        private RangeAndVersion(String version, LocalDate validFrom, LocalDate validUntil) {
+            this.version = version;
+            this.validFrom = validFrom;
+            this.validUntil = validUntil;
+        }
+
+
+        @Override
+        public String getVersion() {
+            return version;
+        }
+
+        @Override
+        public LocalDate validFrom() {
+            return validFrom;
+        }
+
+        @Override
+        public LocalDate validUntil() {
+            return validUntil;
+        }
     }
 }

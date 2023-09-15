@@ -22,10 +22,7 @@ import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.HashSet;
@@ -71,10 +68,10 @@ public class RouteRepositoryTest {
 
     @Test
     void shouldGetRouteWithHeadsigns() {
-        Route result = routeHelper.getOneRoute(AshtonUnderLyneManchesterEccles, when);
-        assertEquals("Ashton Under Lyne - Manchester - Eccles", result.getName());
+        Route result = routeHelper.getOneRoute(EcclesManchesterAshtonUnderLyne, when);
+        assertEquals("Eccles - Manchester - Ashton Under Lyne", result.getName());
         assertEquals(TestEnv.MetAgency(),result.getAgency());
-        assertTrue(IdForDTO.createFor(result).getActualId().startsWith("METLBLUE:I:"));
+        //assertTrue(IdForDTO.createFor(result).getActualId().startsWith("METLBLUE:I:"));
         assertTrue(TransportMode.isTram(result));
     }
 
@@ -92,30 +89,43 @@ public class RouteRepositoryTest {
 
     }
 
+    @Disabled("appear to be no longer present")
     @Test
     void extraRouteAtShudehillTowardsEcclesFromVictoria() {
-        Route towardsEcclesRoute = routeRepository.getRouteById(Route.createId("METLBLUE:I:CURRENT"));
+        Route towardsEcclesRoute = routeHelper.getOneRoute(EcclesManchesterAshtonUnderLyne, when);
+                //routeRepository.getRouteById(Route.createId("METLBLUE:I:CURRENT"));
+
         List<Trip> ecclesTripsViaShudehill = towardsEcclesRoute.getTrips().stream().
-                filter(trip -> trip.callsAt(Shudehill)).collect(Collectors.toList());
+                filter(trip -> trip.getStopCalls().getFirstStop().getStationId().equals(Ashton.getId())).
+                filter(trip -> trip.callsAt(Shudehill)).toList();
 
         List<StopCall> fromVictoria = ecclesTripsViaShudehill.stream().
                 map(trip -> trip.getStopCalls().getFirstStop()).
                 filter(stopCall -> stopCall.getStationId().equals(Victoria.getId())).
-                collect(Collectors.toList());
+                toList();
 
         assertEquals(fromVictoria.size(), ecclesTripsViaShudehill.size(), ecclesTripsViaShudehill.toString());
     }
 
+    @Disabled("appear to be no longer present")
     @Test
     void extraRouteAtShudehillFromEcclesToVictoria() {
-        Route towardsEcclesRoute = routeRepository.getRouteById(Route.createId("METLBLUE:O:CURRENT"));
-        List<Trip> ecclesTripsViaShudehill = towardsEcclesRoute.getTrips().stream().
-                filter(trip -> trip.getStopCalls().callsAt(Shudehill)).collect(Collectors.toList());
+        Route ecclesRoute = routeHelper.getOneRoute(EcclesManchesterAshtonUnderLyne, when);
+                //routeRepository.getRouteById(Route.createId("METLBLUE:O:CURRENT"));
+
+        List<Trip> ecclesTripsViaShudehill = ecclesRoute.getTrips().stream().
+                filter(trip -> trip.getStopCalls().getFirstStop().getStationId().equals(Ashton.getId())).
+                filter(trip -> trip.getStopCalls().callsAt(Shudehill)).
+                toList();
+
+        assertFalse(ecclesTripsViaShudehill.isEmpty());
 
         List<StopCall> toVictoria = ecclesTripsViaShudehill.stream().
                 map(trip -> trip.getStopCalls().getLastStop()).
                 filter(stopCall -> stopCall.getStationId().equals(Victoria.getId())).
-                collect(Collectors.toList());
+                toList();
+
+        assertFalse(toVictoria.isEmpty());
 
         assertEquals(toVictoria.size(), ecclesTripsViaShudehill.size(), ecclesTripsViaShudehill.toString());
     }
@@ -127,11 +137,13 @@ public class RouteRepositoryTest {
 
         Station endOfLine = stationRepository.getStationById(Altrincham.getId());
 
-        assertFalse(endOfLine.servesRouteDropOff(fromAltrincamToBury));
+        // As routes no longer directional this doesn't work at the route level any more
+
+        //assertFalse(endOfLine.servesRouteDropOff(fromAltrincamToBury));
         assertTrue(endOfLine.servesRoutePickup(fromAltrincamToBury));
 
         assertTrue(endOfLine.servesRouteDropOff(fromBuryToAltrincham));
-        assertFalse(endOfLine.servesRoutePickup(fromBuryToAltrincham));
+        //assertFalse(endOfLine.servesRoutePickup(fromBuryToAltrincham));
 
         // should serve both routes fully
         Station notEndOfLine = stationRepository.getStationById(NavigationRoad.getId());

@@ -45,7 +45,7 @@ class PlatformStopCallsTest {
         platformD = MutablePlatform.buildForTFGMTram("statD1", stationD.fake(),
                 stationD.getLatLong(), DataSourceID.unknown, NaptanArea.invalidId());
 
-        Service service = MutableService.build(Service.createId("svc1"));
+        Service service = MutableService.build(Service.createId("svc1"), DataSourceID.tfgm);
         trip = MutableTrip.build(Trip.createId("tripId"), "headSign", service,
                 TestEnv.getTramTestRoute());
 

@@ -185,7 +185,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         }
 
         try(Timing ignored = new Timing(logger,"time and update for trips for " + agency.getId())) {
-            getRoutesForAgency(agency).parallel().forEach(route -> {
+            // removed the parallel
+            getRoutesForAgency(agency).forEach(route -> {
                 try (Transaction tx = graphDatabase.beginTx()) {
                     createMinuteNodesAndRecordUpdatesForTrips(tx, route, builderCache);
                     tx.commit();

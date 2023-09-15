@@ -27,10 +27,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.HashMap;
-import java.util.Map;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.domain.time.TramTime.of;
@@ -91,10 +88,10 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
 
         container.addAgency(agency);
 
-        MutableService serviceA = new MutableService(TramTransportDataForTest.serviceAId);
-        MutableService serviceB = new MutableService(TramTransportDataForTest.serviceBId);
-        MutableService serviceC = new MutableService(TramTransportDataForTest.serviceCId);
-        MutableService serviceD = new MutableService(TramTransportDataForTest.serviceDId);
+        MutableService serviceA = new MutableService(TramTransportDataForTest.serviceAId, dataSourceID);
+        MutableService serviceB = new MutableService(TramTransportDataForTest.serviceBId, dataSourceID);
+        MutableService serviceC = new MutableService(TramTransportDataForTest.serviceCId, dataSourceID);
+        MutableService serviceD = new MutableService(TramTransportDataForTest.serviceDId, dataSourceID);
 
         TramDate startDate = TramDate.of(2014, 2, 10);
         TramDate endDate = TramDate.of(2020, 8, 15);
@@ -359,17 +356,6 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
 
         public Route getRouteD() {
             return getRouteById(ManchesterAirportWythenshaweVictoria.getFakeId());
-        }
-
-        @Override
-        public Map<DataSourceID, FeedInfo> getFeedInfos() {
-            FeedInfo info = new FeedInfo("publisherName", "publisherUrl", "timezone", "lang",
-                    LocalDate.of(2016, 5, 25),
-                    LocalDate.of(2016, 6, 30), "version");
-
-            Map<DataSourceID, FeedInfo> result = new HashMap<>();
-            result.put(DataSourceID.unknown, info);
-            return result;
         }
 
     }

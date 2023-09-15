@@ -94,7 +94,7 @@ class StageDTOFactoryTest extends EasyMockSupport {
     @Test
     void shouldCreateStageDTOCorrectlyForTransportStage() {
         Route testRoute = TestEnv.getTramTestRoute();
-        Service service = MutableService.build(Service.createId("svcId"));
+        Service service = MutableService.build(Service.createId("svcId"), DataSourceID.tfgm);
         Trip trip = MutableTrip.build(Trip.createId("tripId"), "headSign", service, testRoute);
 
         List<Integer> stopCallIndexes = Arrays.asList(1,2,3,4);

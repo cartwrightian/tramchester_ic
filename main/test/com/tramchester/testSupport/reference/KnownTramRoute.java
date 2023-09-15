@@ -10,7 +10,6 @@ import java.time.DayOfWeek;
 import java.util.EnumSet;
 import java.util.Set;
 
-import static com.tramchester.domain.reference.RouteDirection.Inbound;
 import static com.tramchester.domain.reference.RouteDirection.Outbound;
 import static java.lang.String.format;
 
@@ -20,25 +19,25 @@ import static java.lang.String.format;
  */
 public enum KnownTramRoute {
 
-    AltrinchamPiccadilly("Purple Line", Inbound, "Altrincham - Piccadilly"),
+    //AltrinchamPiccadilly("Purple Line", Inbound, "Altrincham - Piccadilly"),
     PiccadillyAltrincham("Purple Line", Outbound, "Piccadilly - Altrincham"),
 
-    AltrinchamManchesterBury("Green Line", Inbound, "Altrincham - Manchester - Bury"),
+    //AltrinchamManchesterBury("Green Line", Inbound, "Altrincham - Manchester - Bury"),
     BuryManchesterAltrincham("Green Line", Outbound, "Bury - Manchester - Altrincham"),
 
-    AshtonUnderLyneManchesterEccles("Blue Line", Inbound, "Ashton Under Lyne - Manchester - Eccles"),
+    //AshtonUnderLyneManchesterEccles("Blue Line", Inbound, "Ashton Under Lyne - Manchester - Eccles"),
     EcclesManchesterAshtonUnderLyne("Blue Line", Outbound, "Eccles - Manchester - Ashton Under Lyne"),
 
-    BuryPiccadilly("Yellow Line", Inbound,"Bury - Piccadilly"),
+    //BuryPiccadilly("Yellow Line", Inbound,"Bury - Piccadilly"),
     PiccadillyBury("Yellow Line", Outbound, "Piccadilly - Bury"),
 
-    EastDidisburyManchesterShawandCromptonRochdale("Pink Line", Inbound, "East Didsbury - Manchester - Shaw and Crompton - Rochdale"),
+    //EastDidisburyManchesterShawandCromptonRochdale("Pink Line", Inbound, "East Didsbury - Manchester - Shaw and Crompton - Rochdale"),
     RochdaleShawandCromptonManchesterEastDidisbury("Pink Line", Outbound, "Rochdale - Shaw and Crompton - Manchester - East Didsbury"),
 
-    ManchesterAirportWythenshaweVictoria("Navy Line", Inbound, "Manchester Airport - Wythenshawe - Victoria"),
+    //ManchesterAirportWythenshaweVictoria("Navy Line", Inbound, "Manchester Airport - Wythenshawe - Victoria"),
     VictoriaWythenshaweManchesterAirport("Navy Line", Outbound, "Victoria - Wythenshawe - Manchester Airport"),
 
-    TheTraffordCentreCornbrook("Red Line", Inbound, "The Trafford Centre - Cornbrook"),
+    //TheTraffordCentreCornbrook("Red Line", Inbound, "The Trafford Centre - Cornbrook"),
     CornbrookTheTraffordCentre("Red Line", Outbound, "Cornbrook - The Trafford Centre");
 
     private final IdFor<Route> fakeId;
@@ -46,32 +45,29 @@ public enum KnownTramRoute {
     private final String shortName;
     private final String longName;
 
+    // tram route merge workaround, TODO inline these at some point?
+    public static final KnownTramRoute AltrinchamPiccadilly = KnownTramRoute.PiccadillyAltrincham;
+    public static final KnownTramRoute AltrinchamManchesterBury = KnownTramRoute.BuryManchesterAltrincham;
+    public static final KnownTramRoute AshtonUnderLyneManchesterEccles = KnownTramRoute.EcclesManchesterAshtonUnderLyne;
+    public static final KnownTramRoute BuryPiccadilly = KnownTramRoute.PiccadillyBury;
+    public static final KnownTramRoute EastDidisburyManchesterShawandCromptonRochdale = KnownTramRoute.RochdaleShawandCromptonManchesterEastDidisbury;
+    public static final KnownTramRoute ManchesterAirportWythenshaweVictoria = KnownTramRoute.VictoriaWythenshaweManchesterAirport;
+    public static final KnownTramRoute TheTraffordCentreCornbrook = KnownTramRoute.CornbrookTheTraffordCentre;
+
+
     public static Set<KnownTramRoute> getFor(TramDate date) {
         EnumSet<KnownTramRoute> routes = EnumSet.noneOf(KnownTramRoute.class);
 
-        TramDate lateMayBankHol2023 = TramDate.of(2023,5,29);
-
-        // do it this way so can tune based on closures etc.
-        routes.add(ManchesterAirportWythenshaweVictoria);
         routes.add(VictoriaWythenshaweManchesterAirport);
-        routes.add(TheTraffordCentreCornbrook);
         routes.add(CornbrookTheTraffordCentre);
-        routes.add(EastDidisburyManchesterShawandCromptonRochdale);
         routes.add(RochdaleShawandCromptonManchesterEastDidisbury);
-        routes.add(AshtonUnderLyneManchesterEccles);
         routes.add(EcclesManchesterAshtonUnderLyne);
-        routes.add(BuryPiccadilly);
         routes.add(PiccadillyBury);
-        routes.add(AltrinchamPiccadilly);
         routes.add(PiccadillyAltrincham);
 
-//        routes.add(BuryManchesterAltrincham);
-//        routes.add(AltrinchamManchesterBury);
-
-        // nothing on tfgm website about this, but routes not present for sundays.....?
-        if (! (date.getDayOfWeek().equals(DayOfWeek.SUNDAY) || date.equals(lateMayBankHol2023))) {
+        if (!date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
+            // not docuemented anywhere, but does not appear any trams on this route on Sundays
             routes.add(BuryManchesterAltrincham);
-            routes.add(AltrinchamManchesterBury);
         }
 
         return routes;
@@ -109,9 +105,11 @@ public enum KnownTramRoute {
         return Route.createId(stationId);
     }
 
-    public RouteDirection direction() {
-        return direction;
-    }
+    // no longer used since tfgm data format changes
+
+//    public RouteDirection direction() {
+//        return direction;
+//    }
 
     public TransportMode mode() { return TransportMode.Tram; }
 

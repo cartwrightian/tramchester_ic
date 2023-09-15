@@ -6,7 +6,7 @@ import com.tramchester.dataimport.data.ParsesDate;
 import java.time.LocalDate;
 
 @SuppressWarnings("unused")
-public class FeedInfo extends ParsesDate {
+public class FeedInfo extends ParsesDate implements DateRangeAndVersion {
 
     //feed_publisher_name,feed_publisher_url,feed_timezone,feed_lang,feed_valid_from,feed_valid_to,feed_version
 
@@ -49,14 +49,17 @@ public class FeedInfo extends ParsesDate {
         this.validUntil = parseDate(text);
     }
 
+    @Override
     public String getVersion() {
         return version;
     }
 
+    @Override
     public LocalDate validFrom() {
         return validFrom;
     }
 
+    @Override
     public LocalDate validUntil() {
         return validUntil;
     }

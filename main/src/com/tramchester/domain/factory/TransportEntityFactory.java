@@ -50,7 +50,7 @@ public abstract class TransportEntityFactory {
     }
 
     public MutableService createService(IdFor<Service> serviceId) {
-        return new MutableService(serviceId);
+        return new MutableService(serviceId, getDataSourceId());
     }
 
     public MutableTrip createTrip(TripData tripData, MutableService service, Route route, TransportMode transportMode) {

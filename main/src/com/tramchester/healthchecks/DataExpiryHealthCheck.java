@@ -2,6 +2,7 @@ package com.tramchester.healthchecks;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.DateRangeAndVersion;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.ServiceTimeLimits;
 import com.tramchester.domain.time.ProvidesNow;
@@ -15,12 +16,12 @@ import static java.lang.String.format;
 public class DataExpiryHealthCheck extends TramchesterHealthCheck {
     private static final Logger logger = LoggerFactory.getLogger(DataExpiryHealthCheck.class);
 
-    private final FeedInfo feedInfo;
+    private final DateRangeAndVersion feedInfo;
     private final TramchesterConfig config;
     private final DataSourceID name;
     private final ProvidesNow providesNow;
 
-    public DataExpiryHealthCheck(FeedInfo feedInfo, DataSourceID name, ProvidesNow providesNow, TramchesterConfig config,
+    public DataExpiryHealthCheck(DateRangeAndVersion feedInfo, DataSourceID name, ProvidesNow providesNow, TramchesterConfig config,
                                  ServiceTimeLimits serviceTimeLimits) {
         super(serviceTimeLimits);
         this.feedInfo = feedInfo;

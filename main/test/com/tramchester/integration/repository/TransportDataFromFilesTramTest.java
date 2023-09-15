@@ -43,6 +43,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.time.DayOfWeek;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -118,11 +119,13 @@ public class TransportDataFromFilesTramTest {
 
     }
 
-    @Disabled("feedinfo no longer provided for tfgm")
     @Test
-    void shouldGetFeedInfo() {
-        FeedInfo result = transportData.getFeedInfos().get(DataSourceID.tfgm);
-        assertEquals("https://www.tfgm.com", result.getPublisherUrl(), result.toString());
+    void shouldGetDateRangeAndVersion() {
+        DateRangeAndVersion result = transportData.getDateRangeAndVersionFor(DataSourceID.tfgm);
+        LocalDate localDate = when.toLocalDate();
+        assertTrue(result.validUntil().isAfter(localDate));
+        assertTrue(result.validFrom().isBefore(localDate) || result.validFrom().equals(localDate));
+        assertFalse(result.getVersion().isEmpty());
     }
 
     @Test
@@ -183,7 +186,7 @@ public class TransportDataFromFilesTramTest {
 
         Set<String> uniqueRouteNames = callingRoutes.stream().map(Route::getName).collect(Collectors.toSet());
 
-        assertEquals(4, uniqueRouteNames.size(), uniqueRouteNames.toString());
+        assertEquals(2, uniqueRouteNames.size(), uniqueRouteNames.toString());
     }
 
     @Test
@@ -194,7 +197,7 @@ public class TransportDataFromFilesTramTest {
                 map(routeStation -> Pair.of(routeStation.getStationId(), routeStation.getRoute().getName())).
                 collect(Collectors.toSet());
 
-        assertEquals(2, routeStationPairs.size(), routeStationPairs.toString());
+        assertEquals(1, routeStationPairs.size(), routeStationPairs.toString());
 
         Set<String> routeNames =
                 routeStations.stream().
@@ -225,6 +228,7 @@ public class TransportDataFromFilesTramTest {
         assertTrue(noDropOffs.isEmpty(), noDropOffs.toString());
     }
 
+    @Disabled("No longer a route")
     @Test
     void shouldHaveExpectedStationsForGreenFromAlty() {
         Route green = routeHelper.getOneRoute(AltrinchamManchesterBury, when);
@@ -258,17 +262,18 @@ public class TransportDataFromFilesTramTest {
         IdSet<Station> dropOffs = allStations.stream().filter(station -> station.servesRouteDropOff(green)).collect(IdSet.collector());
 
         // 24 -> 25
-        assertEquals(24, dropOffs.size(), dropOffs.toString());
-        assertFalse(dropOffs.contains(Bury.getId()));
+        assertEquals(25, dropOffs.size(), dropOffs.toString());
+        // in new data Bury is dropoff since no direction to routes....
+        //assertFalse(dropOffs.contains(Bury.getId()));
         assertTrue(dropOffs.contains(Altrincham.getId()));
         assertTrue(dropOffs.contains(Cornbrook.getId()));
         assertTrue(dropOffs.contains(Shudehill.getId()));
 
         IdSet<Station> pickUps = allStations.stream().filter(station -> station.servesRoutePickup(green)).collect(IdSet.collector());
 
-        assertEquals(24, pickUps.size(), pickUps.toString());
+        assertEquals(25, pickUps.size(), pickUps.toString());
         assertTrue(pickUps.contains(Bury.getId()));
-        assertFalse(pickUps.contains(Altrincham.getId()));
+        //assertFalse(pickUps.contains(Altrincham.getId()));
         assertTrue(pickUps.contains(Cornbrook.getId()));
         assertTrue(pickUps.contains(Shudehill.getId()));
 
@@ -283,7 +288,8 @@ public class TransportDataFromFilesTramTest {
                 map(routeStation -> Pair.of(routeStation.getStationId(), routeStation.getRoute().getName())).
                 collect(Collectors.toSet());
 
-        assertEquals(8, routeStationPairs.size(), routeStations.toString());
+        // 8 -> 4
+        assertEquals(4, routeStationPairs.size(), routeStations.toString());
 
         Set<String> routeNames =
                 routeStations.stream().

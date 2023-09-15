@@ -23,10 +23,7 @@ import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
 import org.apache.commons.lang3.tuple.Pair;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.EnumSet;
@@ -169,7 +166,7 @@ public class RouteCostMatrixTest {
 
         RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
 
-        TramDate outOfRangeDate = TestEnv.testDay().plusWeeks(3 * 52);
+        TramDate outOfRangeDate = TestEnv.testDay().plusWeeks(11 * 52);
         IndexedBitSet dateOverlaps = routeMatrix.createOverlapMatrixFor(outOfRangeDate, modes);
 
         assertEquals(0, dateOverlaps.numberOfBitsSet());
@@ -195,7 +192,8 @@ public class RouteCostMatrixTest {
 
         // ignore data and mode here
         IndexedBitSet dateOverlaps = routeMatrix.createOverlapMatrixFor(date, modes);
-        assertEquals(196, dateOverlaps.numberOfBitsSet());
+        // 196 -> 49
+        assertEquals(49, dateOverlaps.numberOfBitsSet());
 
         PathResults results = routeMatrix.getInterchangesFor(indexPair, dateOverlaps, interchangeStation -> true);
 
@@ -203,7 +201,7 @@ public class RouteCostMatrixTest {
 
         assertEquals(2, results.getDepth());
 
-        assertEquals(7, results.numberPossible(), results.toString()); // two sets of changes needed
+        assertEquals(4, results.numberPossible(), results.toString()); // two sets of changes needed
     }
 
     @Test
@@ -348,11 +346,12 @@ public class RouteCostMatrixTest {
     @Test
     void shouldGetBitsSetIfAlreadySetForLowerDepth() {
         Route routeA = routeHelper.getOneRoute(TheTraffordCentreCornbrook, date);
-        Route routeB = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
+        Route routeB = routeHelper.getOneRoute(BuryManchesterAltrincham, date);
 
         RouteIndexPair indexPair = routeIndex.getPairFor(RoutePair.of(routeA, routeB));
 
         int firstDepth = routeMatrix.getConnectionDepthFor(routeA, routeB);
+        // since changes now the same depth
         assertEquals(1, firstDepth);
 
         // set for depth 1, so ought to be set for all subsequent depths

@@ -1,12 +1,12 @@
 package com.tramchester.dataimport.rail;
 
 import com.tramchester.dataimport.rail.records.BasicSchedule;
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.MutableService;
 import com.tramchester.domain.dates.MutableServiceCalendar;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.repository.WriteableTransportData;
 import org.jetbrains.annotations.NotNull;
@@ -71,12 +71,12 @@ public class RailServiceGroups {
                 collect(Collectors.toSet());
     }
 
-    MutableService getOrCreateService(final BasicSchedule schedule, final boolean isOverlay) {
+    MutableService getOrCreateService(final BasicSchedule schedule, final boolean isOverlay, DataSourceID dataSourceId) {
         final String uniqueTrainId = schedule.getUniqueTrainId();
 
         final IdFor<Service> serviceId = getServiceIdFor(schedule, isOverlay);
 
-        final MutableService service = new MutableService(serviceId);
+        final MutableService service = new MutableService(serviceId, dataSourceId);
         final DateRange scheduleDateRange = schedule.getDateRange();
         final MutableServiceCalendar calendar = new MutableServiceCalendar(scheduleDateRange, schedule.getDaysOfWeek());
         service.setCalendar(calendar);

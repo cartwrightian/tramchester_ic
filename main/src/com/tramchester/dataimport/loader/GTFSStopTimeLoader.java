@@ -26,7 +26,7 @@ import java.util.stream.Stream;
 import static java.lang.String.format;
 
 public class GTFSStopTimeLoader {
-    private static final Logger logger = LoggerFactory.getLogger(StopDataLoader.class);
+    private static final Logger logger = LoggerFactory.getLogger(GTFSStopTimeLoader.class);
 
     private final WriteableTransportData buildable;
     private final TransportEntityFactory factory;

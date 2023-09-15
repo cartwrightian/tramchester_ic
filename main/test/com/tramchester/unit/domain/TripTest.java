@@ -28,7 +28,7 @@ class TripTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        Service service = MutableService.build(Service.createId("svcId"));
+        Service service = MutableService.build(Service.createId("svcId"), DataSourceID.tfgm);
 
         trip = new MutableTrip(Trip.createId("tripId"),"headSign", service, TestEnv.getTramTestRoute(), Tram);
 
@@ -146,7 +146,7 @@ class TripTest {
 
     @Test
     void shouldKnowIfTramTrip() {
-        Service service = MutableService.build(Service.createId("svcId"));
+        Service service = MutableService.build(Service.createId("svcId"), DataSourceID.tfgm);
 
         Trip tripA = MutableTrip.build(Trip.createId("tripId"), "headSign", service, TestEnv.getTramTestRoute());
         assertTrue(TransportMode.isTram(tripA));

@@ -9,7 +9,6 @@ import com.tramchester.domain.id.CompositeIdMap;
 import com.tramchester.domain.id.IdMap;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.time.ProvidesNow;
-import com.tramchester.repository.StationAvailabilityRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataContainer;
 import com.tramchester.repository.WriteableTransportData;
@@ -133,8 +132,10 @@ public class PopulateTransportDataFromSources implements TransportDataFactory {
             Optional<FeedInfo> maybeFeedinfo = dataSource.getFeedInfoStream().findFirst();
             maybeFeedinfo.ifPresent(feedInfo -> {
                 logger.info("Updating data source info from " + feedInfo);
-                writeableTransportData.addDataSourceInfo(new DataSourceInfo(dataSourceInfoID, feedInfo.getVersion(),
-                        dataSourceInfo.getLastModTime(), dataSource.getDataSourceInfo().getModes()));
+                DataSourceInfo updatedDataSourceInfo = new DataSourceInfo(dataSourceInfoID, feedInfo.getVersion(),
+                        dataSourceInfo.getLastModTime(), dataSource.getDataSourceInfo().getModes());
+
+                writeableTransportData.addDataSourceInfo(updatedDataSourceInfo);
                 writeableTransportData.addFeedInfo(dataSourceInfoID, feedInfo);
             });
 

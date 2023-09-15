@@ -39,7 +39,7 @@ class ServiceTest {
 
     @Test
     void shouldNoticeNoDatesSet() {
-        MutableService service = new MutableService(Service.createId("svcXXX"));
+        MutableService service = new MutableService(Service.createId("svcXXX"), DataSourceID.tfgm);
         assertFalse(service.hasCalendar());
 
         TramDate startDate = TramDate.of(2014, 10, 5);
@@ -61,7 +61,7 @@ class ServiceTest {
                 dataSourceId, "2", areaId, nearShudehill.latLong(), nearShudehill.grid(), isMarkedInterchange);
 
         Route route = TestEnv.getTramTestRoute();
-        MutableService service = new MutableService(Service.createId("svcA"));
+        MutableService service = new MutableService(Service.createId("svcA"), DataSourceID.tfgm);
 
         final MutableTrip tripA = new MutableTrip(Trip.createId("tripA"), "headSignA", service, route, Tram);
 
@@ -91,7 +91,7 @@ class ServiceTest {
                 dataSourceId, "2", areaId, nearShudehill.latLong(), nearShudehill.grid(), isMarkedInterchange);
 
         Route route = TestEnv.getTramTestRoute();
-        MutableService service = new MutableService(Service.createId("svcA"));
+        MutableService service = new MutableService(Service.createId("svcA"), DataSourceID.tfgm);
 
         final MutableTrip tripA = new MutableTrip(Trip.createId("tripA"), "headSignA", service, route, Tram);
 

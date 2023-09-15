@@ -55,11 +55,16 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
     @Override
     public MutableRoute createRoute(GTFSTransportationType routeType, RouteData routeData, MutableAgency agency) {
 
-        IdFor<Route> routeId = RouteIdSwapWorkaround.getCorrectIdFor(routeData);
+        IdFor<Route> routeId = getCorrectIdFor(routeData);
 
         String routeName = routeData.getLongName();
         return new MutableRoute(routeId, routeData.getShortName().trim(), routeName, agency,
                 GTFSTransportationType.toTransportMode(routeType));
+    }
+
+    private IdFor<Route> getCorrectIdFor(RouteData routeData) {
+        final String idText = routeData.getId();
+        return Route.createId(idText);
     }
 
     @Override
@@ -213,53 +218,53 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
 
     // Inbound vs Outbound are no longer a thing in the latest tfgm data
 
-    @Deprecated
-    private static class RouteIdSwapWorkaround {
-        private final String idPrefixFromData;
-        private final String replacementPrefix;
-        private final String mustMatchLongName;
-
-        private static final Map<String, RouteIdSwapWorkaround> mapping;
-
-        static {
-            List<RouteIdSwapWorkaround> table = Arrays.asList(
-                    of("METLRED:I:", "METLRED:O:", "Cornbrook - The Trafford Centre"),
-                    of("METLRED:O:", "METLRED:I:", "The Trafford Centre - Cornbrook"),
-                    of("METLNAVY:I:", "METLNAVY:O:", "Victoria - Wythenshawe - Manchester Airport"),
-                    of("METLNAVY:O:", "METLNAVY:I:", "Manchester Airport - Wythenshawe - Victoria"));
-            mapping = new HashMap<>();
-            table.forEach(item -> mapping.put(item.mustMatchLongName, item));
-        }
-
-        private static RouteIdSwapWorkaround of(String idPrefixFromData, String replacementPrefix, String mustMatchLongName) {
-            return new RouteIdSwapWorkaround(idPrefixFromData, replacementPrefix, mustMatchLongName);
-        }
-
-        private RouteIdSwapWorkaround(String idPrefixFromData, String replacementPrefix, String mustMatchLongName) {
-            this.idPrefixFromData = idPrefixFromData;
-            this.replacementPrefix = replacementPrefix;
-            this.mustMatchLongName = mustMatchLongName;
-        }
-
-        public static IdFor<Route> getCorrectIdFor(final RouteData routeData) {
-            final String idText = routeData.getId();
-            final String longName = routeData.getLongName();
-            if (!mapping.containsKey(longName)) {
-                return Route.createId(idText);
-            }
-
-            final String routeIdAsString = routeData.getId();
-            RouteIdSwapWorkaround workaroundForLongname = mapping.get(longName);
-            if (routeIdAsString.startsWith(workaroundForLongname.idPrefixFromData)) {
-                String replacementIdAsString = routeIdAsString.replace(workaroundForLongname.idPrefixFromData, workaroundForLongname.replacementPrefix);
-                logger.warn(format("Workaround for route ID issue, replaced %s with %s", routeIdAsString, replacementIdAsString));
-                return Route.createId(replacementIdAsString);
-            } else {
-                logger.warn("Workaround for " + routeData + " no longer needed?");
-                return Route.createId(idText);
-            }
-
-        }
-    }
+//    @Deprecated
+//    private static class RouteIdSwapWorkaround {
+//        private final String idPrefixFromData;
+//        private final String replacementPrefix;
+//        private final String mustMatchLongName;
+//
+//        private static final Map<String, RouteIdSwapWorkaround> mapping;
+//
+//        static {
+//            List<RouteIdSwapWorkaround> table = Arrays.asList(
+//                    of("METLRED:I:", "METLRED:O:", "Cornbrook - The Trafford Centre"),
+//                    of("METLRED:O:", "METLRED:I:", "The Trafford Centre - Cornbrook"),
+//                    of("METLNAVY:I:", "METLNAVY:O:", "Victoria - Wythenshawe - Manchester Airport"),
+//                    of("METLNAVY:O:", "METLNAVY:I:", "Manchester Airport - Wythenshawe - Victoria"));
+//            mapping = new HashMap<>();
+//            table.forEach(item -> mapping.put(item.mustMatchLongName, item));
+//        }
+//
+//        private static RouteIdSwapWorkaround of(String idPrefixFromData, String replacementPrefix, String mustMatchLongName) {
+//            return new RouteIdSwapWorkaround(idPrefixFromData, replacementPrefix, mustMatchLongName);
+//        }
+//
+//        private RouteIdSwapWorkaround(String idPrefixFromData, String replacementPrefix, String mustMatchLongName) {
+//            this.idPrefixFromData = idPrefixFromData;
+//            this.replacementPrefix = replacementPrefix;
+//            this.mustMatchLongName = mustMatchLongName;
+//        }
+//
+//        public static IdFor<Route> getCorrectIdFor(final RouteData routeData) {
+//            final String idText = routeData.getId();
+//            final String longName = routeData.getLongName();
+//            if (!mapping.containsKey(longName)) {
+//                return Route.createId(idText);
+//            }
+//
+//            final String routeIdAsString = routeData.getId();
+//            RouteIdSwapWorkaround workaroundForLongname = mapping.get(longName);
+//            if (routeIdAsString.startsWith(workaroundForLongname.idPrefixFromData)) {
+//                String replacementIdAsString = routeIdAsString.replace(workaroundForLongname.idPrefixFromData, workaroundForLongname.replacementPrefix);
+//                logger.warn(format("Workaround for route ID issue, replaced %s with %s", routeIdAsString, replacementIdAsString));
+//                return Route.createId(replacementIdAsString);
+//            } else {
+//                logger.warn("Workaround for " + routeData + " no longer needed?");
+//                return Route.createId(idText);
+//            }
+//
+//        }
+//    }
 
 }

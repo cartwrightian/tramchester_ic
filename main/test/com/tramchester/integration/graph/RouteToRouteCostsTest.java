@@ -23,10 +23,7 @@ import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.time.Duration;
@@ -110,6 +107,7 @@ public class RouteToRouteCostsTest {
         assertEquals(0, getMinCost(routesCostRepository.getNumberOfChanges(routeA, routeA, date, timeRange, modes)));
     }
 
+    @Disabled("no longer such a concept")
     @Test
     void shouldComputeCostsRouteOtherDirection() {
         Route routeA = routeHelper.getOneRoute(ManchesterAirportWythenshaweVictoria, date);
@@ -259,11 +257,10 @@ public class RouteToRouteCostsTest {
 
         Station navigationRoad = NavigationRoad.from(stationRepository);
 
-        // disruption week of 28/11
-        TramDate nextWeek = this.date.plusWeeks(1);
-        NumberOfChanges changes = routesCostRepository.getNumberOfChanges(altrincham, navigationRoad, modes, nextWeek, timeRange);
+//        TramDate nextWeek = this.date.plusWeeks(1);
+        NumberOfChanges changes = routesCostRepository.getNumberOfChanges(altrincham, navigationRoad, modes, date, timeRange);
 
-        assertEquals(0, getMinCost(changes), "On " + nextWeek + " " + changes);
+        assertEquals(0, getMinCost(changes), "On " + date + " " + changes);
     }
 
     @Test

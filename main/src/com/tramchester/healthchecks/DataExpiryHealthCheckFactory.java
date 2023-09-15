@@ -2,6 +2,8 @@ package com.tramchester.healthchecks;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.DateRangeAndVersion;
 import com.tramchester.domain.ServiceTimeLimits;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.repository.TransportData;
@@ -47,14 +49,26 @@ public class DataExpiryHealthCheckFactory implements HealthCheckFactory {
 
     @PostConstruct
     public void start() {
-        transportData.getFeedInfos().forEach((name, feedInfo) -> {
-            if (feedInfo.validUntil()!=null) {
-                TramchesterHealthCheck healthCheck = new DataExpiryHealthCheck(feedInfo, name, providesNow, config, serviceTimeLimits);
+
+        for (DataSourceID dataSourceID : DataSourceID.values()) {
+            if (transportData.hasDateRangeAndVersionFor(dataSourceID)) {
+                DateRangeAndVersion dateRangeAndVersion = transportData.getDateRangeAndVersionFor(dataSourceID);
+                TramchesterHealthCheck healthCheck = new DataExpiryHealthCheck(dateRangeAndVersion, dataSourceID, providesNow, config, serviceTimeLimits);
                 healthChecks.add(healthCheck);
-            } else {
-                logger.warn("Cannot add healthcheck for " + feedInfo + " since 'valid until' is missing");
+            } else
+            {
+                logger.warn("Cannot add healthcheck for " + dataSourceID);
             }
-        });
+        }
+
+//        transportData.getDateRangesAndVersions().forEach((name, feedInfo) -> {
+//            if (feedInfo.validUntil()!=null) {
+//                TramchesterHealthCheck healthCheck = new DataExpiryHealthCheck(feedInfo, name, providesNow, config, serviceTimeLimits);
+//                healthChecks.add(healthCheck);
+//            } else {
+//                logger.warn("Cannot add healthcheck for " + feedInfo + " since 'valid until' is missing");
+//            }
+//        });
     }
 
 }

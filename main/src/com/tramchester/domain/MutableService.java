@@ -5,7 +5,6 @@ import com.tramchester.domain.dates.MutableServiceCalendar;
 import com.tramchester.domain.dates.ServiceCalendar;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
@@ -22,9 +21,11 @@ public class MutableService implements Service {
     private MutableServiceCalendar calendar;
     private TramTime startTime;
     private TramTime finishTime;
+    private final DataSourceID dataSourceId;
 
-    public MutableService(IdFor<Service> serviceId) {
+    public MutableService(IdFor<Service> serviceId, DataSourceID dataSourceId) {
         this.serviceId = serviceId;
+        this.dataSourceId = dataSourceId;
         calendar = null;
         startTime = null;
         finishTime = null;
@@ -33,8 +34,8 @@ public class MutableService implements Service {
     }
 
     // test support
-    public static Service build(IdFor<Service> serviceId) {
-        return new MutableService(serviceId);
+    public static Service build(IdFor<Service> serviceId, DataSourceID dataSourceId) {
+        return new MutableService(serviceId, dataSourceId);
     }
 
     public static IdFor<Service> createId(String text) {
@@ -151,6 +152,11 @@ public class MutableService implements Service {
             computeFinishTime();
         }
         return finishTime;
+    }
+
+    @Override
+    public DataSourceID getDataSourceId() {
+        return dataSourceId;
     }
 
     @Override

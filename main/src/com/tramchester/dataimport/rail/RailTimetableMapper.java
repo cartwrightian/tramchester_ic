@@ -310,7 +310,7 @@ public class RailTimetableMapper {
             // this is so routes that start and/or finish out-of-bounds are named correctly
             final IdFor<Route> routeId = railRouteIdRepository.getRouteIdFor(agencyId, allCalledAtStations);
 
-            final MutableService service = railServiceGroups.getOrCreateService(basicSchedule, isOverlay);
+            final MutableService service = railServiceGroups.getOrCreateService(basicSchedule, isOverlay, DataSourceID.rail);
             final MutableRoute route = getOrCreateRoute(routeId, rawService, mutableAgency, mode, allCalledAtStations);
 
             route.addService(service);

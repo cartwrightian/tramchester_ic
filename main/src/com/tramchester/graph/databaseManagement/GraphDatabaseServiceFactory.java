@@ -81,7 +81,7 @@ public class GraphDatabaseServiceFactory implements DatabaseEventListener {
                     setConfig(GraphDatabaseSettings.pagecache_memory, neo4jPagecacheMemory).
 
                     // dbms.memory.transaction.total.max
-                    setConfig(GraphDatabaseSettings.memory_transaction_global_max_size,SettingValueParsers.BYTES.parse("540m")).
+                    setConfig(GraphDatabaseSettings.memory_transaction_global_max_size,SettingValueParsers.BYTES.parse("600m")).
 
                     // NOTE: dbms.memory.transaction.total.max is 70% of heap size limit
                     setConfig(BootloaderSettings.max_heap_size, SettingValueParsers.BYTES.parse("580m")).

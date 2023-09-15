@@ -56,9 +56,9 @@ class TramRouteHelperTest {
                 assertEquals(TestEnv.MetAgency(), route.getAgency(), "agency wrong" + route.getAgency());
                 assertEquals(knownRoute.shortName(), route.getShortName(), "shortname " + route.getShortName());
 
-                final String id = IdForDTO.createFor(route).getActualId();
-                final String suffix = knownRoute.direction().getSuffix();
-                assertTrue(id.contains(suffix), id + " does not contain " + suffix);
+                //final String id = IdForDTO.createFor(route).getActualId();
+                //final String suffix = knownRoute.direction().getSuffix();
+                //assertTrue(id.contains(suffix), id + " does not contain " + suffix);
             });
         }
     }

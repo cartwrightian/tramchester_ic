@@ -24,10 +24,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.HashMap;
-import java.util.Map;
 
 import static com.tramchester.domain.reference.GTFSPickupDropoffType.Regular;
 import static com.tramchester.domain.reference.TransportMode.Bus;
@@ -89,9 +86,9 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
         container.addAgency(ferryAgency);
         container.addAgency(warringtonsOwnBuses);
 
-        MutableService serviceA = new MutableService(MixedTransportTestData.serviceAId);
-        MutableService serviceB = new MutableService(MixedTransportTestData.serviceBId);
-        MutableService serviceC = new MutableService(MixedTransportTestData.serviceCId);
+        MutableService serviceA = new MutableService(MixedTransportTestData.serviceAId, DataSourceID.tfgm);
+        MutableService serviceB = new MutableService(MixedTransportTestData.serviceBId, DataSourceID.tfgm);
+        MutableService serviceC = new MutableService(MixedTransportTestData.serviceCId, DataSourceID.tfgm);
 
         TramDate startDate = TramDate.of(2014, 2, 10);
         TramDate endDate = TramDate.of(2020, 8, 15);
@@ -267,17 +264,6 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
 
         public Station getFourthStation() {
             return getStationById(Station.createId(STATION_FOUR));
-        }
-
-        @Override
-        public Map<DataSourceID, FeedInfo> getFeedInfos() {
-            FeedInfo info = new FeedInfo("publisherName", "publisherUrl", "timezone", "lang",
-                    LocalDate.of(2016, 5, 25),
-                    LocalDate.of(2016, 6, 30), "version");
-
-            Map<DataSourceID, FeedInfo> result = new HashMap<>();
-            result.put(DataSourceID.unknown, info);
-            return result;
         }
 
     }

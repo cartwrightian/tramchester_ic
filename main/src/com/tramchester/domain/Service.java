@@ -27,4 +27,6 @@ public interface Service extends HasId<Service>, GraphProperty, CoreDomain, Cros
 
     TramTime getFinishTime();
 
+    DataSourceID getDataSourceId();
+
 }

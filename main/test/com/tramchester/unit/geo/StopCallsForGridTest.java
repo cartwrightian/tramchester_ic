@@ -1,6 +1,7 @@
 package com.tramchester.unit.geo;
 
 import com.tramchester.domain.BoxWithServiceFrequency;
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.MutableService;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.dates.TramDate;
@@ -42,7 +43,7 @@ public class StopCallsForGridTest extends EasyMockSupport {
     @BeforeEach
     void beforeEachTest() {
 
-        Service service = MutableService.build(Service.createId("serviceZZZ"));
+        Service service = MutableService.build(Service.createId("serviceZZZ"), DataSourceID.tfgm);
         trip = MutableTrip.build(Trip.createId("trip999"), "headsign", service, TestEnv.getTramTestRoute());
 
         stationLocations = createMock(StationLocations.class);

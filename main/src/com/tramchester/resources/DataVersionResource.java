@@ -3,6 +3,7 @@ package com.tramchester.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.google.inject.Inject;
 import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.DateRangeAndVersion;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.presentation.DTO.DataVersionDTO;
 import com.tramchester.repository.ProvidesFeedInfo;
@@ -20,7 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Path("/datainfo")
@@ -41,14 +41,16 @@ public class DataVersionResource implements APIResource {
     @ApiResponse(content = @Content(schema = @Schema(implementation = FeedInfo.class)))
     @CacheControl(maxAge = 5, maxAgeUnit = TimeUnit.MINUTES)
     public Response get() {
-        Map<DataSourceID, FeedInfo> map = providesFeedInfo.getFeedInfos();
-        FeedInfo feedinfo = map.get(DataSourceID.tfgm);
+//        Map<DataSourceID, DateRangeAndVersion> map = providesFeedInfo.getDateRangesAndVersions();
+//        DateRangeAndVersion rangeAndVersion = map.get(DataSourceID.tfgm);
 
-        if (feedinfo==null) {
-            logger.error("No feedinfo found for tfgm");
+        DateRangeAndVersion rangeAndVersion = providesFeedInfo.getDateRangeAndVersionFor(DataSourceID.tfgm);
+
+        if (rangeAndVersion==null) {
+            logger.error("No range/version found for tfgm");
             return Response.status(Response.Status.NOT_FOUND).build();
         }
-        DataVersionDTO dataVersionDTO = new DataVersionDTO(feedinfo);
+        DataVersionDTO dataVersionDTO = new DataVersionDTO(rangeAndVersion);
         return Response.ok(dataVersionDTO).build();
     }
 }

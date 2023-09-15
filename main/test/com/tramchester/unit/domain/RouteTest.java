@@ -94,7 +94,7 @@ class RouteTest {
 
         MutableRoute route = createRoute(routeId, "code", "name");
 
-        MutableService service = new MutableService(serviceId);
+        MutableService service = new MutableService(serviceId, DataSourceID.tfgm);
         MutableServiceCalendar calendar = new MutableServiceCalendar(DateRange.of(startDate, endDate), ALL_DAYS);
         service.setCalendar(calendar);
 
@@ -125,7 +125,7 @@ class RouteTest {
 
         MutableRoute route = createRoute(routeId, "code", "name");
 
-        MutableService service = new MutableService(serviceId);
+        MutableService service = new MutableService(serviceId, DataSourceID.tfgm);
         MutableServiceCalendar calendar = new MutableServiceCalendar(DateRange.of(startDate, endDate), NO_DAYS);
         TramDate extraRunningDate = TramDate.of(2020, 11, 10);
         calendar.includeExtraDate(extraRunningDate);
@@ -145,7 +145,7 @@ class RouteTest {
 
         TramDate notRunningDate = TramDate.of(2020, 11, 10);
 
-        MutableService service = new MutableService(serviceId);
+        MutableService service = new MutableService(serviceId, DataSourceID.tfgm);
         MutableServiceCalendar calendar = new MutableServiceCalendar(DateRange.of(startDate, endDate), ALL_DAYS);
         calendar.excludeDate(notRunningDate);
         service.setCalendar(calendar);
@@ -157,7 +157,7 @@ class RouteTest {
 
 
     private MutableService createService(TramDate startDate, TramDate endDate, String serviceId, EnumSet<DayOfWeek> daysOfWeek) {
-        MutableService service = new MutableService(Service.createId(serviceId));
+        MutableService service = new MutableService(Service.createId(serviceId), DataSourceID.tfgm);
         MutableServiceCalendar calendar = new MutableServiceCalendar(DateRange.of(startDate, endDate), daysOfWeek);
         service.setCalendar(calendar);
         return service;

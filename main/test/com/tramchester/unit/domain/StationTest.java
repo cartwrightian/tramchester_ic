@@ -153,7 +153,7 @@ class StationTest {
 
     @NotNull
     private MutableService createService(EnumSet<DayOfWeek> days, DateRange dateRange, String serviceId) {
-        MutableService service = new MutableService(Service.createId(serviceId));
+        MutableService service = new MutableService(Service.createId(serviceId), DataSourceID.tfgm);
         MutableServiceCalendar serviceCalendar = new MutableServiceCalendar(dateRange, days);
         service.setCalendar(serviceCalendar);
         return service;

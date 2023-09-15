@@ -77,7 +77,7 @@ class KnownTramRouteTest {
     }
 
     @Test
-    void shouldHaveShortNameAndDirectionMatching() {
+    void shouldHaveShortNameMatching() {
         // Assumes long name match, if this fails get shouldHaveCorrectLongNamesForKnownRoutesForDates working first
 
         TramDate start = TramDate.from(TestEnv.LocalNow());
@@ -94,9 +94,9 @@ class KnownTramRouteTest {
                 Route loadedRoute = findLoadedFor.get(0);
                 assertEquals(loadedRoute.getShortName(), knownTramRoute.shortName(), prefix + "short name incorrect for " + knownTramRoute);
 
-                IdForDTO idForDTO = IdForDTO.createFor(loadedRoute);
-                assertTrue(idForDTO.getActualId().contains(knownTramRoute.direction().getSuffix()),
-                        prefix + "direction incorrect for " + knownTramRoute + " " + knownTramRoute.direction() +" and ID " + idForDTO);
+//                IdForDTO idForDTO = IdForDTO.createFor(loadedRoute);
+//                assertTrue(idForDTO.getActualId().contains(knownTramRoute.direction().getSuffix()),
+//                        prefix + "direction incorrect for " + knownTramRoute + " " + knownTramRoute.direction() +" and ID " + idForDTO);
             });
         });
     }
