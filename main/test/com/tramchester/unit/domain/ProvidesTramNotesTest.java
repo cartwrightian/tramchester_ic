@@ -239,7 +239,7 @@ class ProvidesTramNotesTest extends EasyMockSupport {
     void shouldNotAddMessageIfNotMessageForJourney() {
         EasyMock.expect(platformMessageSource.isEnabled()).andReturn(true);
 
-        VehicleStage stageA = createStageWithBoardingPlatform("platformId", nearPiccGardens);
+        VehicleStage stageA = createStageWithBoardingPlatform("1", nearPiccGardens);
 
         TramTime queryTime = TramTime.of(8,11);
         TramDate date = providesLocalNow.getTramDate();
@@ -272,7 +272,7 @@ class ProvidesTramNotesTest extends EasyMockSupport {
     void shouldNotAddMessageIfNotMessageIfNotTimelTime() {
         EasyMock.expect(platformMessageSource.isEnabled()).andReturn(true);
 
-        VehicleStage stageA = createStageWithBoardingPlatform("platformId", nearPiccGardens);
+        VehicleStage stageA = createStageWithBoardingPlatform("1", nearPiccGardens);
 
         TramTime queryTime = TramTime.ofHourMins(lastUpdate.toLocalTime().minusHours(4));
         TramDate serviceDate = TramDate.from(lastUpdate);
@@ -307,7 +307,7 @@ class ProvidesTramNotesTest extends EasyMockSupport {
     void shouldNotAddMessageIfNotMessageIfNotTimelyDate() {
         EasyMock.expect(platformMessageSource.isEnabled()).andReturn(true);
 
-        VehicleStage stageA = createStageWithBoardingPlatform("platformId", nearPiccGardens);
+        VehicleStage stageA = createStageWithBoardingPlatform("1", nearPiccGardens);
 
         TramDate localDate = TramDate.from(lastUpdate).plusDays(2);
         //TramServiceDate queryDate = new TramServiceDate(localDate);
@@ -450,22 +450,21 @@ class ProvidesTramNotesTest extends EasyMockSupport {
 
     private PlatformMessage createPlatformMessage(LocalDateTime lastUpdate, TramStations tramStation, String message) {
 
-        Station station = tramStation.fakeWithPlatform(tramStation.getRawId() + "1",
-                tramStation.getLatLong(), DataSourceID.unknown, NaptanArea.invalidId());
+        Station station = tramStation.fakeWithPlatform("1", tramStation.getLatLong(), DataSourceID.unknown, NaptanArea.invalidId());
 
         Platform platform = TestEnv.findOnlyPlatform(station);
         return new PlatformMessage(platform, message, lastUpdate, station, "displayId");
     }
 
-    private VehicleStage createStageWithBoardingPlatform(String platformId, KnownLocations location) {
-        return createStageWithBoardingPlatform(platformId, location.latLong());
+    private VehicleStage createStageWithBoardingPlatform(String platformNumber, KnownLocations location) {
+        return createStageWithBoardingPlatform(platformNumber, location.latLong());
     }
 
-    private VehicleStage createStageWithBoardingPlatform(String platformId, TramStations tramStation) {
-        return createStageWithBoardingPlatform(platformId, tramStation.getLatLong());
+    private VehicleStage createStageWithBoardingPlatform(String platformNumber, TramStations tramStation) {
+        return createStageWithBoardingPlatform(platformNumber, tramStation.getLatLong());
     }
 
-    private VehicleStage createStageWithBoardingPlatform(String platformId, LatLong latLong) {
+    private VehicleStage createStageWithBoardingPlatform(String platformNumber, LatLong latLong) {
         TramTime departTime = TramTime.of(11,22);
         Service service = MutableService.build(Service.createId("serviceId"));
         Trip trip = MutableTrip.build(Trip.createId("tripId"), "headSign", service,
@@ -474,7 +473,7 @@ class ProvidesTramNotesTest extends EasyMockSupport {
         // TODO
         List<Integer> passedStations = new ArrayList<>();
 
-        final Station firstStation = Ashton.fakeWithPlatform(platformId,  latLong, DataSourceID.unknown, NaptanArea.invalidId());
+        final Station firstStation = Ashton.fakeWithPlatform(platformNumber,  latLong, DataSourceID.unknown, NaptanArea.invalidId());
 
         VehicleStage vehicleStage = new VehicleStage(firstStation, TestEnv.getTramTestRoute(), Tram,
                 trip, departTime, createStationFor(PiccadillyGardens), passedStations);

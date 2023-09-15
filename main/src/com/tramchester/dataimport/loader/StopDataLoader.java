@@ -57,9 +57,9 @@ public class StopDataLoader {
     }
 
     private void preLoadStation(PreloadedStationsAndPlatforms allStations, StopData stopData, TransportEntityFactory factory) {
-        String stopId = stopData.getId();
+        //String stopId = stopData.getId();
 
-        IdFor<Station> stationId = factory.formStationId(stopId);
+        IdFor<Station> stationId = factory.formStationId(stopData);
 
         if (allStations.hasId(stationId)) {
             allStations.updateStation(stationId, stopData);

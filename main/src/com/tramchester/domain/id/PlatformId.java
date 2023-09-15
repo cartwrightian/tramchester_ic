@@ -10,25 +10,27 @@ public class PlatformId extends ContainsId<Platform> {
     private final String platformNumber;
     private final StringIdFor<Platform> containedId;
 
-    private PlatformId(String stationText, String platformNumber) {
-        containedId = new StringIdFor<>(stationText + platformNumber, Platform.class);
+//    private PlatformId(String stationText, String platformNumber) {
+//        containedId = new StringIdFor<>(stationText + platformNumber, Platform.class);
+//        this.platformNumber = platformNumber;
+//    }
+
+//    @Deprecated
+//    public static PlatformId createId(String text, String platformNumber) {
+//        return new PlatformId(text, platformNumber);
+//    }
+
+    private PlatformId(IdFor<Station> stationId, String platformNumber) {
+        this.containedId = StringIdFor.concat(stationId, platformNumber, Platform.class);
         this.platformNumber = platformNumber;
     }
 
-    @Deprecated
-    public static PlatformId createId(String text, String platformNumber) {
-        return new PlatformId(text, platformNumber);
+    public static PlatformId createId(Station station, String platformNumber) {
+        return new PlatformId(station.getId(), platformNumber);
     }
 
-    public static PlatformId createId(IdFor<Station> originalStationId, final String platformNumber) {
-        StringIdFor<Station> stationId = (StringIdFor<Station>) originalStationId;
-        final String stationIdText = stationId.getContainedId();
-        final String updatedPlatformNumber = platformNumber.replace(stationIdText,"");
-        if (updatedPlatformNumber.isEmpty()) {
-            throw new RuntimeException("Resulting platform number is empty for " + originalStationId + " and " + platformNumber);
-        }
-
-        return new PlatformId(stationIdText, updatedPlatformNumber);
+    public static PlatformId createId(IdFor<Station> stationId, String platformNumber) {
+        return new PlatformId(stationId, platformNumber);
     }
 
     public static <FROM extends CoreDomain,TO extends CoreDomain> IdFor<TO> convert(IdFor<FROM> original, Class<TO> domainType) {
@@ -42,6 +44,7 @@ public class PlatformId extends ContainsId<Platform> {
             throw new RuntimeException(original + " is not a PlatformId");
         }
     }
+
 
     @Override
     public String getGraphId() {

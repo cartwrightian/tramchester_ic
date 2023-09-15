@@ -13,14 +13,16 @@ class AgencyDataParserTest extends ParserTestCSVHelper<AgencyData> {
 
     @BeforeEach
     void beforeEach() {
-        super.before(AgencyData.class, "agency_id,agency_name,agency_url,agency_timezone,agency_lang");
+        super.before(AgencyData.class, "agency_id,agency_name,agency_url,agency_timezone,agency_lang,agency_phone,agency_fare_url,agency_email,agency_noc");
+        //"agency_id,agency_name,agency_url,agency_timezone,agency_lang");
     }
 
     @Test
     void shouldParseAnAgency() {
-        AgencyData agencyData = parse("GMS,Stagecoach Manchester,http://www.tfgm.com,Europe/London,en");
+        AgencyData agencyData = parse("7778465,Bee Network,https://www.beenetwork.com,Europe/London,,,,,BNSM");
+                // "GMS,Stagecoach Manchester,http://www.tfgm.com,Europe/London,en");
 
-        assertEquals(Agency.createId("GMS"), agencyData.getId());
-        assertEquals("Stagecoach Manchester", agencyData.getName());
+        assertEquals(Agency.createId("7778465"), agencyData.getId());
+        assertEquals("Bee Network", agencyData.getName());
     }
 }

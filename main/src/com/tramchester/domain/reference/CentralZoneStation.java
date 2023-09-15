@@ -42,7 +42,4 @@ public enum CentralZoneStation {
         ids = Arrays.stream(CentralZoneStation.values()).map(CentralZoneStation::getId).collect(IdSet.idCollector());
     }
 
-    public IdFor<Platform> getPlatformId(String platform) {
-        return PlatformId.createId(getId(), platform);
-    }
 }

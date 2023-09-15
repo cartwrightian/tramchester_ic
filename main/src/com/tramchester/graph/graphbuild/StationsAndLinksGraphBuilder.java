@@ -235,6 +235,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
             setProperty(platformNode, platform);
             setProperty(platformNode, station);
 
+            setPlatformNumber(platformNode, platform);
             setTransportMode(station, platformNode);
 
             routeBuilderCache.putPlatform(platform.getId(), platformNode);

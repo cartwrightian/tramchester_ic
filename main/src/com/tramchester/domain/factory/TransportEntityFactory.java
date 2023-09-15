@@ -63,7 +63,7 @@ public abstract class TransportEntityFactory {
 
         IdFor<NaptanArea> areaId = NaptanArea.invalidId();
         GridPosition position = CoordinateTransforms.getGridPosition(stopData.getLatLong());
-        return new MutableStation(stationId, areaId, stopData.getName(), stopData.getLatLong(), position, getDataSourceId());
+        return new MutableStation(stationId, areaId, stopData.getName(), stopData.getLatLong(), position, getDataSourceId(), stopData.getCode());
     }
 
     public RouteStation createRouteStation(Station station, Route route) {
@@ -92,11 +92,15 @@ public abstract class TransportEntityFactory {
         return Route.createId(routeIdText);
     }
 
-    public abstract IdFor<Station> formStationId(String stopId);
+    public abstract IdFor<Station> formStationId(StopData stopData);
+
+    public abstract IdFor<Station> formStationId(StopTimeData stopTimeData);
 
     public Optional<MutablePlatform> maybeCreatePlatform(StopData stopData, Station station) {
         return Optional.empty();
     }
+
+    public abstract IdFor<Platform> getPlatformId(StopTimeData stopTimeData, Station station);
 
     public static IdFor<NaptanArea> chooseArea(NaptanRepository naptanRespository, IdSet<NaptanArea> areaCodes) {
         if (areaCodes.isEmpty()) {
@@ -116,4 +120,5 @@ public abstract class TransportEntityFactory {
         logger.error(message);
         throw new RuntimeException(message);
     }
+
 }

@@ -55,8 +55,9 @@ class StationDepartureMapperTest {
         final DepartureDTO departureDTO = new DepartureDTO(NavigationRoad.fake(), dueTram, lastUpdate);
 
         List<DepartureDTO> dueTrams = Collections.singletonList(departureDTO);
-        IdForDTO platforId = new IdForDTO(PlatformId.createId(stationId, "platformId"));
-        departures.add(new StationDepartureInfoDTO("lineName", platforId,
+        PlatformId platformId = PlatformId.createId(stationId, "platformId");
+        IdForDTO idForDTO = new IdForDTO(platformId);
+        departures.add(new StationDepartureInfoDTO("lineName", idForDTO,
                 "messageTxt", dueTrams, lastUpdate, "displayId",  "Navigation Road"));
     }
 

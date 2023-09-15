@@ -229,8 +229,13 @@ public class GraphProps {
 
     public static PlatformId getPlatformIdFrom(Entity entity) {
         IdFor<Station> stationId = getStationIdFrom(entity);
-        String platformIdText  =  entity.getProperty(PLATFORM_ID.getText()).toString();
-        return PlatformId.createId(stationId, platformIdText);
+        //String platformIdText  =  entity.getProperty(PLATFORM_ID.getText()).toString();
+        String platformNumber = entity.getProperty(PLATFORM_NUMBER.getText()).toString();
+        return PlatformId.createId(stationId, platformNumber);
+    }
+
+    public static void setPlatformNumber(Entity entity, Platform platform) {
+        entity.setProperty(PLATFORM_NUMBER.getText(), platform.getPlatformNumber());
     }
 
     public static EnumSet<GraphLabel> getLabelsFor(Node node) {

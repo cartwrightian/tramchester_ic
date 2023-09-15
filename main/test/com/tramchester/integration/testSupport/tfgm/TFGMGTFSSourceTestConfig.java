@@ -60,7 +60,7 @@ public class TFGMGTFSSourceTestConfig implements GTFSSourceConfig {
 
     @Override
     public boolean getHasFeedInfo() {
-        return true;
+        return false;
     }
 
     @Override

@@ -222,11 +222,11 @@ class JourneyTest {
     void shouldHaveCallingPlatformIds() {
         final TramTime departureTimeA = queryTime.plusMinutes(10);
 
-        final Station alty = Altrincham.fakeWithPlatform("platformId1",  nearAltrincham.latLong(),
+        final Station alty = Altrincham.fakeWithPlatform("1",  nearAltrincham.latLong(),
                 DataSourceID.unknown, NaptanArea.invalidId());
         final Platform platform1 = TestEnv.findOnlyPlatform(alty);
 
-        final Station stPeters = StPetersSquare.fakeWithPlatform("platformId2", nearStPetersSquare.latLong(),
+        final Station stPeters = StPetersSquare.fakeWithPlatform("2", nearStPetersSquare.latLong(),
                 DataSourceID.unknown, NaptanArea.invalidId());
         final Platform platform2 = TestEnv.findOnlyPlatform(stPeters);
 

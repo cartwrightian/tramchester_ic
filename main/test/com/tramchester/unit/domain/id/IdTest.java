@@ -12,7 +12,6 @@ class IdTest {
 
     private final IdFor<Station> idA = Station.createId("1234");
     private final IdFor<Station> idAA = Station.createId("1234");
-    private final IdFor<Station> idB = Station.createId("0BCD");
     private final IdFor<Station> idC = Station.createId("5678");
 
     @Test

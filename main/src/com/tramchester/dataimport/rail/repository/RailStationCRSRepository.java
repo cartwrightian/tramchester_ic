@@ -40,6 +40,12 @@ public class RailStationCRSRepository implements CRSRepository {
         toStation.put(crs, station);
     }
 
+    /***
+     * Use station.getCode()
+     * @param station the station
+     * @return the crs code
+     */
+    @Deprecated
     public String getCRSFor(Station station) {
         return toCrs.get(station.getId());
     }

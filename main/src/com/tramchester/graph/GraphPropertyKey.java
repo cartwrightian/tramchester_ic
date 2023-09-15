@@ -3,6 +3,7 @@ package com.tramchester.graph;
 public enum GraphPropertyKey {
     STATION_ID("station_id"),
     PLATFORM_ID("platform_id"),
+    PLATFORM_NUMBER("platform_number"),
     ROUTE_STATION_ID("route_station_id"),
     TRIP_ID("trip_id"),
     ROUTE_ID("route_id"),

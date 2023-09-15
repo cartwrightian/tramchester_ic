@@ -104,11 +104,6 @@ public class StopTimeData {
         return GTFSPickupDropoffType.fromString(dropOffType);
     }
 
-    // that stopId equals platform id is specific to tfgm
-//    public IdFor<Platform> getPlatformId() {
-//        return Platform.createId(stopId);
-//    }
-
     public boolean isValid() {
         return getArrivalTime().isValid() && getDepartureTime().isValid();
     }

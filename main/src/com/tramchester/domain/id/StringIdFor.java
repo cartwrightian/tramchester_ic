@@ -3,6 +3,7 @@ package com.tramchester.domain.id;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.CoreDomain;
+import com.tramchester.domain.Platform;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.GraphPropertyKey;
 import org.neo4j.graphdb.Entity;
@@ -46,6 +47,17 @@ public class StringIdFor<T extends CoreDomain> implements IdFor<T> {
 
     public static <T extends CoreDomain> IdSet<T> createIds(Set<String> items, Class<T> domainClass) {
         return items.stream().map(item -> StringIdFor.createId(item, domainClass)).collect(IdSet.idCollector());
+    }
+
+    public static <DEST extends CoreDomain, SOURCE extends CoreDomain> StringIdFor<DEST> concat(IdFor<SOURCE> originalId, String text, Class<DEST> domainType) {
+        StringIdFor<SOURCE> originalStringId = (StringIdFor<SOURCE>) originalId;
+        String newId = originalStringId.theId + text;
+        return new StringIdFor<>(newId, domainType);
+    }
+
+    public static String removeIdFrom(final String text, final IdFor<?> id) {
+        StringIdFor<?> originalStringId = (StringIdFor<?>) id;
+        return text.replace(originalStringId.theId, "");
     }
 
     String getContainedId() {

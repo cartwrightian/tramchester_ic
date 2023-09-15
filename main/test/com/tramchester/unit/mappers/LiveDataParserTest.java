@@ -58,11 +58,11 @@ class LiveDataParserTest extends EasyMockSupport {
         AgencyRepository agencyRepository = createMock(AgencyRepository.class);
         platformRepository = createMock(PlatformRepository.class);
 
-        Station mediaCity = MediaCityUK.fakeWithPlatform("9400ZZMAMCU2", MediaCityUK.getLatLong(),
+        Station mediaCity = MediaCityUK.fakeWithPlatform("2", MediaCityUK.getLatLong(),
                 DataSourceID.unknown, NaptanArea.invalidId());
         platformMC = TestEnv.findOnlyPlatform(mediaCity);
 
-        Station airport = ManAirport.fakeWithPlatform("9400ZZMAAIR1",
+        Station airport = ManAirport.fakeWithPlatform("1",
                 ManAirport.getLatLong(), DataSourceID.unknown, NaptanArea.invalidId());
         final Platform platformAirport = TestEnv.findOnlyPlatform(airport);
 
@@ -192,8 +192,8 @@ class LiveDataParserTest extends EasyMockSupport {
                  }
                 """;
 
-        PlatformId platformId = PlatformId.createId(MediaCityUK.getId(), "5");
-        EasyMock.expect(platformRepository.hasPlatformId(platformId)).andReturn(false);
+        PlatformId platformIdA = PlatformId.createId(MediaCityUK.getId(), "5");
+        EasyMock.expect(platformRepository.hasPlatformId(platformIdA)).andReturn(false);
 
         replayAll();
         parser.start();

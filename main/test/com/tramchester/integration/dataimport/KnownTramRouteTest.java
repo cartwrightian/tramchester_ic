@@ -71,7 +71,7 @@ class KnownTramRouteTest {
 
             Set<String> mismatch = SetUtils.disjunction(loadedLongNames, knownTramOnDates);
 
-            assertTrue(mismatch.isEmpty(), "on " + date + " MISMATCH \n" + mismatch + " between LOADED \n" + loadedLongNames + " AND \n" + knownTramOnDates);
+            assertTrue(mismatch.isEmpty(), "on " + date + " MISMATCH \n" + mismatch + "\n between LOADED \n" + loadedLongNames + " AND \n" + knownTramOnDates);
         });
 
     }

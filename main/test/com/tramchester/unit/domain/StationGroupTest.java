@@ -28,7 +28,7 @@ class StationGroupTest {
     void shouldHaveCorrectValuesForOneStation() {
         LatLong latLong = new LatLong(-2.0, 2.3);
         MutableStation stationA = StationHelper.forTestMutable("id", "area", "stopName",
-                latLong, dataSourceID);
+                latLong, dataSourceID, "stationCode");
 
         //Service service = MutableService.build(Service.createId("serviceId"));
 
@@ -72,7 +72,7 @@ class StationGroupTest {
 //        Service service = MutableService.build(StringIdFor.createId("serviceId"));
 
         MutableStation stationA = StationHelper.forTestMutable("idA", "areaA", "stopNameA",
-                new LatLong(2, 4), dataSourceID);
+                new LatLong(2, 4), dataSourceID, "stationCodeA");
         Route routeA = TestEnv.getTramTestRoute(Route.createId("routeA"), "routeName");
 
         stationA.addRouteDropOff(routeA);
@@ -81,7 +81,7 @@ class StationGroupTest {
         stationA.addPlatform(platformA);
 
         MutableStation stationB = StationHelper.forTestMutable("idB", "areaB", "stopNameB",
-                new LatLong(4, 8), dataSourceID);
+                new LatLong(4, 8), dataSourceID, "stationCodeB");
         Route routeB = MutableRoute.getRoute(Route.createId("routeB"), "routeCodeB", "routeNameB", TestEnv.StagecoachManchester, Bus);
         stationB.addRouteDropOff(routeB);
         stationB.addRoutePickUp(routeA);
@@ -128,11 +128,11 @@ class StationGroupTest {
         //Service service = MutableService.build(Service.createId("serviceId"));
 
         MutableStation stationA = StationHelper.forTestMutable("idA", "areaA", "stopNameA",
-                new LatLong(2, 4), dataSourceID);
+                new LatLong(2, 4), dataSourceID, "stationCodeA");
         Route routeA = TestEnv.getTramTestRoute(Route.createId("routeA"), "routeName");
 
         MutableStation stationB = StationHelper.forTestMutable("idB", "areaB", "stopNameB",
-                new LatLong(4, 8), dataSourceID);
+                new LatLong(4, 8), dataSourceID, "stationCodeB");
         Route routeB = MutableRoute.getRoute(Route.createId("routeB"), "routeCodeB",
                 "routeNameB", TestEnv.StagecoachManchester, Bus);
 
@@ -157,10 +157,10 @@ class StationGroupTest {
         final LatLong positionB = new LatLong(2, 5);
 
         Station stationA = StationHelper.forTest("idA", "areaA", "stopNameA",
-                positionA, dataSourceID);
+                positionA, dataSourceID, "stationCodeA");
 
         Station stationB = StationHelper.forTest("idB", "areaB", "stopNameB",
-                positionB, dataSourceID);
+                positionB, dataSourceID, "stationCodeB");
 
         IdFor<NaptanArea> areaId = NaptanArea.createId("areaId");
 

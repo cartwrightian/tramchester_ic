@@ -40,14 +40,14 @@ class LocationDTOTest {
     void shouldCreateDTOAsExpected() {
 
         MutableStation testStation = StationHelper.forTestMutable("9400ZZMAALT", "Altrincham area", "Altrincham",
-                nearAltrincham, DataSourceID.tfgm);
+                nearAltrincham, DataSourceID.tfgm, "stationCode");
 
         testStation.addRouteDropOff(TestEnv.getTramTestRoute(Route.createId("routeIdA"), "routeNameA"));
         testStation.addRoutePickUp(TestEnv.getTramTestRoute(Route.createId("routeIdB"), "routeNameB"));
 
-        testStation.addPlatform(MutablePlatform.buildForTFGMTram("9400ZZMAALT1", testStation, new LatLong(1.2, 1),
+        testStation.addPlatform(MutablePlatform.buildForTFGMTram("1", testStation, new LatLong(1.2, 1),
                 DataSourceID.unknown, NaptanArea.invalidId()));
-        testStation.addPlatform(MutablePlatform.buildForTFGMTram("9400ZZMAALT2", testStation, new LatLong(1.1, 1),
+        testStation.addPlatform(MutablePlatform.buildForTFGMTram("2", testStation, new LatLong(1.1, 1),
                 DataSourceID.unknown, NaptanArea.invalidId()));
 
         LocationDTO dto = factory.createLocationDTO(testStation); //new LocationDTO(testStation);
@@ -67,7 +67,7 @@ class LocationDTOTest {
         assertEquals(2, dto.getPlatforms().size());
 
         Optional<PlatformDTO> findPlatformOne = getPlatformById(dto, TramStations.Altrincham.getRawId() + "1");
-        assertTrue(findPlatformOne.isPresent());
+        assertTrue(findPlatformOne.isPresent(), "expected platform not found in " + dto);
         PlatformDTO platformDTOA = findPlatformOne.get();
         assertEquals("Altrincham platform 1", platformDTOA.getName());
         assertEquals("1", platformDTOA.getPlatformNumber());

@@ -99,12 +99,6 @@ public enum TramStations implements FakeStation, HasId<Station> {
         return new LatLong(lat, lon);
     }
 
-//    public static Set<Station> allFrom(StationRepository stationRepository, TramStations... tramStations) {
-//        return Arrays.stream(tramStations).
-//                map(tramStation -> stationRepository.getStationById(tramStation.getId()))
-//                .collect(Collectors.toSet());
-//    }
-
     @Override
     public String getRawId() {
         return id;
@@ -120,8 +114,8 @@ public enum TramStations implements FakeStation, HasId<Station> {
         return latlong;
     }
 
-    public IdFor<Platform> createIdFor(String platform) {
-        return PlatformId.createId(getId(), platform);
+    public IdFor<Platform> createIdFor(String platformNumber) {
+        return PlatformId.createId(getId(), platformNumber);
         //return Platform.createId(getRawId()+platform);
     }
 
@@ -135,16 +129,20 @@ public enum TramStations implements FakeStation, HasId<Station> {
         return new IdForDTO(id);
     }
 
+    public String getCode() {
+        return getRawId();
+    }
+
     @NotNull
     private MutableStation createMutable() {
         GridPosition grid = CoordinateTransforms.getGridPosition(latlong);
-        return new MutableStation(getId(), NaptanArea.invalidId(), name, latlong, grid, DataSourceID.tfgm);
+        return new MutableStation(getId(), NaptanArea.invalidId(), name, latlong, grid, DataSourceID.tfgm, getCode());
     }
 
     public Station fakeWithPlatform(String platformNumber, LatLong latLong, DataSourceID dataSourceID,
                                     IdFor<NaptanArea> naptanAreaId) {
         MutableStation station = createMutable();
-        PlatformId platformId = PlatformId.createId(station.getId(), platformNumber);
+        PlatformId platformId = PlatformId.createId(station, platformNumber);
         final Platform platform = MutablePlatform.buildForTFGMTram(platformId, station,
                 latLong, dataSourceID, naptanAreaId);
         station.addPlatform(platform);

@@ -14,32 +14,35 @@ class StopDataParserTest extends ParserTestCSVHelper<StopData> {
 
     @BeforeEach
     void beforeEach() {
-        super.before(StopData.class, "stop_id,stop_code,stop_name,stop_lat,stop_lon,stop_url");
+        super.before(StopData.class, "stop_id,stop_code,stop_name,stop_desc,stop_lat,stop_lon,zone_id,stop_url,location_type,parent_station");
+        //"stop_id,stop_code,stop_name,stop_lat,stop_lon,stop_url");
     }
 
     @Test
     void shouldParseTramStop() {
 
-        String tramStop = "9400ZZMAWYT1,mantwjdw,Wythenshawe Town Centre (Manchester Metrolink),53.38001047220,-2.26370992844";
+        //String tramStop = "9400ZZMAWYT1,mantwjdw,Wythenshawe Town Centre (Manchester Metrolink),53.38001047220,-2.26370992844";
+        String tramStop = "123629,9400ZZMAWYT1,Wythenshawe Town Centre (Manchester Metrolink),,53.38006450285,-2.26366516426,,,,";
         StopData stopData = parse(tramStop);
 
-        assertThat(stopData.getId()).isEqualTo("9400ZZMAWYT1");
-        assertThat(stopData.getCode()).isEqualTo("mantwjdw");
+        assertThat(stopData.getId()).isEqualTo("123629");
+        assertThat(stopData.getCode()).isEqualTo("9400ZZMAWYT1");
         assertThat(stopData.getName()).isEqualTo("Wythenshawe Town Centre (Manchester Metrolink)");
-        assertThat(stopData.getLatLong().getLat()).isEqualTo(53.38001047220);
-        assertThat(stopData.getLatLong().getLon()).isEqualTo(-2.26370992844);
+        assertThat(stopData.getLatLong().getLat()).isEqualTo(53.38006450285);
+        assertThat(stopData.getLatLong().getLon()).isEqualTo(-2.26366516426);
     }
 
     @Test
     void shouldParseTFGMBusStop() {
-        String tfgmBusStop = "1800NEH0341,,Evesham Road,53.53488245121,-2.18746922864";
+        //String tfgmBusStop = "1800NEH0341,,Evesham Road,53.53488245121,-2.18746922864";
+        String tfgmBusStop = "118916,1800NEH0341,Evesham Road,,53.534885,-2.187454,,,,";
         StopData stopData = parse(tfgmBusStop);
 
-        assertThat(stopData.getId()).isEqualTo("1800NEH0341");
-        assertThat(stopData.getCode()).isEqualTo("");
+        assertThat(stopData.getId()).isEqualTo("118916");
+        assertThat(stopData.getCode()).isEqualTo("1800NEH0341");
         assertThat(stopData.getName()).isEqualTo("Evesham Road");
-        assertThat(stopData.getLatLong().getLat()).isEqualTo(53.53488245121);
-        assertThat(stopData.getLatLong().getLon()).isEqualTo(-2.18746922864);
+        assertThat(stopData.getLatLong().getLat()).isEqualTo(53.534885);
+        assertThat(stopData.getLatLong().getLon()).isEqualTo(-2.187454);
         assertTrue(stopData.getLatLong().isValid());
     }
 

@@ -46,7 +46,7 @@ class SortsPositionsTest {
         stationNearShudehill = dataForTest.getInterchange();   // near Shudehill
         StationNearStockportBus = dataForTest.getFifthStation();  // nearStockportBus
 
-        alsoNearAlty = StationHelper.forTestMutable("ALSO1122", "area2", "alsoNearAltr", nearAltrincham, DataSourceID.tfgm);
+        alsoNearAlty = StationHelper.forTestMutable("ALSO1122", "area2", "alsoNearAltr", nearAltrincham, DataSourceID.tfgm, "stationCode");
 
         dataForTest.addStation(alsoNearAlty);
     }

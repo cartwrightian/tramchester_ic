@@ -20,7 +20,7 @@ public class SimpleInterchangeStationTest {
 
         IdFor<Station> stationId = Station.createId("stationId");
         MutableStation station = new MutableStation(stationId, NaptanArea.createId("naptanId"),
-                "station name", nearStPetersSquare.latLong(), nearStPetersSquare.grid(),  DataSourceID.tfgm);
+                "station name", nearStPetersSquare.latLong(), nearStPetersSquare.grid(),  DataSourceID.tfgm, "code");
         station.addRouteDropOff(routeOne);
         station.addRoutePickUp(routeTwo);
 

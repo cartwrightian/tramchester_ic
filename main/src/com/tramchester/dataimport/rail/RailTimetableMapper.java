@@ -501,7 +501,7 @@ public class RailTimetableMapper {
             final String originLocationPlatform = originLocation.getPlatform();
             final String platformNumber = originLocationPlatform.isEmpty() ? "UNK" : originLocationPlatform;
 
-            final PlatformId platformId = PlatformId.createId(originStation.getId(), platformNumber);
+            final PlatformId platformId = PlatformId.createId(originStation, platformNumber);
 
             final MutablePlatform platform;
             if (platformLookup.containsKey(platformId)) {

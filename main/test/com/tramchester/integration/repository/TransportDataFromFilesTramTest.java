@@ -17,6 +17,7 @@ import com.tramchester.domain.dates.TramDateSet;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
@@ -103,20 +104,25 @@ public class TransportDataFromFilesTramTest {
         assertEquals(1, transportData.getAgencies().stream().filter(agency -> agency.getTransportModes().contains(Tram)).count());
         assertEquals(NUM_TFGM_TRAM_STATIONS, transportData.getStations(EnumSet.of(Tram)).size());
 
+        int expected = 199;
+        assertEquals(expected, transportData.getPlatforms(EnumSet.of(Tram)).size());
+    }
+
+    @Test
+    void shouldHaveExpectedNumRoutes() {
         Set<String> uniqueNames = transportData.getRoutesRunningOn(when).stream().
                 filter(route -> route.getTransportMode()==Tram).
                 map(Route::getName).collect(Collectors.toSet());
 
         assertEquals(KnownTramRoute.numberOn(when), uniqueNames.size(), uniqueNames.toString());
 
-        int expected = 199;
-        assertEquals(expected, transportData.getPlatforms(EnumSet.of(Tram)).size());
     }
 
+    @Disabled("feedinfo no longer provided for tfgm")
     @Test
     void shouldGetFeedInfo() {
         FeedInfo result = transportData.getFeedInfos().get(DataSourceID.tfgm);
-        assertEquals("https://www.tfgm.com", result.getPublisherUrl());
+        assertEquals("https://www.tfgm.com", result.getPublisherUrl(), result.toString());
     }
 
     @Test
@@ -127,7 +133,7 @@ public class TransportDataFromFilesTramTest {
 
         //List<Agency> agencies = new ArrayList<>(agencySet);
         assertEquals(1, agencies.size()); // just MET for trams
-        assertIdEquals("METL", agencies.get(0).getId());
+        assertIdEquals("7778482", agencies.get(0).getId());
         assertEquals("Metrolink", agencies.get(0).getName());
     }
 
@@ -306,9 +312,9 @@ public class TransportDataFromFilesTramTest {
 
         assertEquals(results.size(), onCorrectDate, "should all be on the specified date");
 
-        TramDate noTrams = nextSaturday.plusWeeks(2*52);
+        TramDate noTrams = nextSaturday.plusWeeks(11*52);
         results = transportData.getServicesOnDate(noTrams);
-        assertTrue(results.isEmpty());
+        assertTrue(results.isEmpty(), "not empty, got " + results);
     }
 
     @Test
@@ -511,7 +517,7 @@ public class TransportDataFromFilesTramTest {
 
     @Test
     void shouldHavePlatformAndAreaForCityCenter() {
-        IdFor<Platform> platformId = StPetersSquare.getPlatformId("3");
+        IdFor<Platform> platformId = PlatformId.createId(StPetersSquare.getId(), "3");
 
         //assertTrue(transportData.hasPlatformId(id));
         Platform platform = transportData.getPlatformById(platformId);

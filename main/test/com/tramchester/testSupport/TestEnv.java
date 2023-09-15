@@ -11,6 +11,8 @@ import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
 import com.tramchester.domain.*;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.factory.TransportEntityFactory;
+import com.tramchester.domain.factory.TransportEntityFactoryForTFGM;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.PlatformId;
@@ -214,11 +216,12 @@ public class TestEnv {
         return System.getenv("CIRCLECI") != null;
     }
 
-    public static PlatformStopCall createTramStopCall(Trip trip, String stopId, TramStations tramStation, int seq, TramTime arrive,
+    public static PlatformStopCall createTramStopCall(Trip trip, String stopCode, TramStations tramStation, int seq, TramTime arrive,
                                                       TramTime depart) {
         final Station station = tramStation.fake();
 
-        PlatformId platformId = PlatformId.createId(station.getId(), stopId);
+        //PlatformId platformId = new PlatformId(station.getId(), stopId);
+        PlatformId platformId = TransportEntityFactoryForTFGM.createPlatformId(station.getId(), stopCode);
         Platform platform = MutablePlatform.buildForTFGMTram(platformId, station, tramStation.getLatLong(),
                 DataSourceID.unknown, NaptanArea.invalidId());
         GTFSPickupDropoffType pickupDropoff = GTFSPickupDropoffType.Regular;
@@ -310,6 +313,7 @@ public class TestEnv {
     }
 
     public static Platform createPlatformFor(Station station, String platformNumber) {
+        //PlatformId platformId = new PlatformId(station.getId(), platformNumber);
         PlatformId platformId = PlatformId.createId(station.getId(), platformNumber);
         return MutablePlatform.buildForTFGMTram(platformId, station, station.getLatLong(),
                 station.getDataSourceID(), station.getAreaId());

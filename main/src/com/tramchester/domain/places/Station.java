@@ -44,6 +44,8 @@ public interface Station extends Location<Station> {
 
     Set<Agency> getAgencies();
 
+    String getCode();
+
     @Override
     Set<Platform> getPlatforms();
 

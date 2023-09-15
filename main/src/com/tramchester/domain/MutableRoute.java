@@ -173,13 +173,13 @@ public class MutableRoute implements Route {
     }
 
     private static class RouteCalendar {
-        private final Route parent;
+        private final Route parentRoute;
         private AggregateServiceCalendar serviceCalendar;
 
         private boolean loaded;
 
-        RouteCalendar(Route parent) {
-            this.parent = parent;
+        RouteCalendar(Route parentRoute) {
+            this.parentRoute = parentRoute;
             loaded = false;
         }
 
@@ -193,7 +193,7 @@ public class MutableRoute implements Route {
             if (loaded) {
                 return;
             }
-            final Set<ServiceCalendar> calendars = parent.getServices().stream().
+            final Set<ServiceCalendar> calendars = parentRoute.getServices().stream().
                     map(Service::getCalendar).
                     collect(Collectors.toSet());
             serviceCalendar = new AggregateServiceCalendar(calendars);
@@ -220,7 +220,7 @@ public class MutableRoute implements Route {
         @Override
         public String toString() {
             return "RouteCalendar{" +
-                    "parent=" + parent.getId() +
+                    "parent=" + parentRoute.getId() +
                     ", serviceCalendar=" + serviceCalendar +
                     ", loaded=" + loaded +
                     '}';

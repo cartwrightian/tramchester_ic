@@ -28,7 +28,7 @@ class AcceptanceTestEnvironmentVarsPreCheck {
     private void assertPathValid(String envVarName) {
         Path path = TestEnv.getPathFromEnv(envVarName);
         if (path != null) {
-            Assertions.assertTrue(Files.exists(path), "Check failed for "+ envVarName);
+            Assertions.assertTrue(Files.exists(path), "File exists Check failed for "+ envVarName + " path was " +path);
         }
     }
 

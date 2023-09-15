@@ -90,8 +90,8 @@ public class GTFSStopTimeLoader {
         }
 
         public void loadStopTimeData(StopTimeData stopTimeData) {
-            final String stopId = stopTimeData.getStopId();
-            final IdFor<Station> stationId = factory.formStationId(stopId);
+            //final String stopId = stopTimeData.getStopId();
+            final IdFor<Station> stationId = factory.formStationId(stopTimeData);
             final IdFor<Trip> stopTripId = Trip.createId(stopTimeData.getTripId());
 
             if (preloadStations.hasId(stationId)) {
@@ -197,10 +197,14 @@ public class GTFSStopTimeLoader {
         private StopCall createStopCall(StopTimeData stopTimeData, Route route, Trip trip, Station station) {
             TransportMode transportMode = route.getTransportMode();
 
+            // this is tfgm specific
             if (dataSourceConfig.getTransportModesWithPlatforms().contains(transportMode)) {
-                String stopId = stopTimeData.getStopId();
 
-                IdFor<Platform> platformId = PlatformId.createId(station.getId(), stopId);
+                IdFor<Platform> platformId = factory.getPlatformId(stopTimeData, station);
+
+//                String stopId = stopTimeData.getStopId();
+//
+//                IdFor<Platform> platformId = PlatformId.createId(station.getId(), stopId);
 
                 if (buildable.hasPlatformId(platformId)) {
                     MutablePlatform platform = buildable.getMutablePlatform(platformId);
@@ -213,8 +217,6 @@ public class GTFSStopTimeLoader {
                     if (stopTimeData.getDropOffType().isDropOff()) {
                         platform.addRouteDropOff(route);
                     }
-
-                    //platform.addRoute(route);
 
                     return factory.createPlatformStopCall(trip, platform, station, stopTimeData);
                 } else {

@@ -1,7 +1,9 @@
 package com.tramchester.unit.domain.id;
 
+import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.PlatformId;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.Test;
@@ -13,18 +15,20 @@ public class PlatformIdTest {
     @Test
     void shouldRemoveStationFromPlatformNumberIfPresent() {
         IdFor<Station> stationId = TramStations.ImperialWarMuseum.getId();
-        String platformNumber = "9400ZZMAIWM1";
+        String platformNumber = "1";
         PlatformId platformId = PlatformId.createId(stationId, platformNumber);
 
         assertEquals("1", platformId.getNumber());
     }
 
     @Test
-    void shouldNotRemoveStationFromPlatformNumberIfNoMatch() {
+    void shouldHaveExpectedContainedId() {
         IdFor<Station> stationId = TramStations.ImperialWarMuseum.getId();
-        String platformNumber = "42";
+        String platformNumber = "1";
         PlatformId platformId = PlatformId.createId(stationId, platformNumber);
 
-        assertEquals("42", platformId.getNumber());
+        StringIdFor<Platform> expected = StringIdFor.concat(stationId, "1", Platform.class);
+        assertEquals(expected, platformId);
     }
+
 }

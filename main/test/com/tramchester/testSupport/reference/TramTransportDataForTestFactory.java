@@ -229,7 +229,8 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
 
     private MutableStation createStation(String station, IdFor<NaptanArea> areaId, String stationName, KnownLocations knownLocation,
                                          DataSourceID dataSourceID) {
-        return new MutableStation(Station.createId(station), areaId, stationName, knownLocation.latLong(), knownLocation.grid(), dataSourceID);
+        return new MutableStation(Station.createId(station), areaId, stationName, knownLocation.latLong(), knownLocation.grid(),
+                dataSourceID, station);
     }
 
     private MutableRoute createTramRoute(KnownTramRoute knownRoute) {

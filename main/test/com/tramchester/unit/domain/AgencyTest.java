@@ -11,10 +11,11 @@ class AgencyTest {
     @Test
     void shouldIdMetrolinkAgency() {
         // New ID
-        assertTrue(Agency.IsMetrolink(Agency.createId("METL")));
+        assertTrue(Agency.IsMetrolink(Agency.createId("7778482")));
 
-        // Old ID
+        // Old IDs
         assertFalse(Agency.IsMetrolink(Agency.createId("MET")));
+        assertFalse(Agency.IsMetrolink(Agency.createId("METL")));
 
     }
 }

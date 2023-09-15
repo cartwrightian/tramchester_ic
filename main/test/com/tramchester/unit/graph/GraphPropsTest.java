@@ -191,6 +191,7 @@ public class GraphPropsTest {
 
         GraphProps.setProperty(node, station);
         GraphProps.setProperty(node, platform);
+        GraphProps.setPlatformNumber(node, platform);
 
         IdFor<Platform> platformId = GraphProps.getPlatformIdFrom(node);
 

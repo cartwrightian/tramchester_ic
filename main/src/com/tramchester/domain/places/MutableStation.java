@@ -25,6 +25,7 @@ public class MutableStation implements Station {
     private final IdFor<NaptanArea> areaId;
     private final IdFor<Station> id;
     private final String name;
+    private final String code;
     private final LatLong latLong;
     private final GridPosition gridPosition;
     private final Set<Platform> platforms;
@@ -38,20 +39,22 @@ public class MutableStation implements Station {
     private final Duration changeTimeNeeded;
 
     public MutableStation(IdFor<Station> id, IdFor<NaptanArea> areaId, String stationName, LatLong latLong, GridPosition gridPosition,
-                          DataSourceID dataSourceID) {
+                          DataSourceID dataSourceID, String code) {
         // todo default change duration from config for the data source?
         this(id, areaId, stationName, latLong, gridPosition, dataSourceID, false,
-                Duration.ofMinutes(DEFAULT_MIN_CHANGE_TIME));
+                Duration.ofMinutes(DEFAULT_MIN_CHANGE_TIME), code);
     }
 
     // for some data sources we know if station is an interchange
     public MutableStation(IdFor<Station> id, IdFor<NaptanArea> areaId, String stationName, LatLong latLong, GridPosition gridPosition,
-                          DataSourceID dataSourceID, boolean isMarkedInterchange, Duration changeTimeNeeded) {
+                          DataSourceID dataSourceID, boolean isMarkedInterchange, Duration changeTimeNeeded,
+                          String code) {
         this.areaId = areaId;
         this.gridPosition = gridPosition;
         this.dataSourceID = dataSourceID;
         this.isMarkedInterchange = isMarkedInterchange;
         this.changeTimeNeeded = changeTimeNeeded;
+        this.code = code;
         platforms = new HashSet<>();
         servesRoutesPickup = new HashSet<>();
         servesRoutesDropoff = new HashSet<>();
@@ -66,7 +69,7 @@ public class MutableStation implements Station {
 
     public static Station Unknown(DataSourceID dataSourceID) {
         return new MutableStation(StringIdFor.createId("unknown", Station.class), NaptanArea.Invalid().getId(), "Unknown",
-                LatLong.Invalid, GridPosition.Invalid, dataSourceID, false, Duration.ZERO);
+                LatLong.Invalid, GridPosition.Invalid, dataSourceID, false, Duration.ZERO, "unknown");
     }
 
     @Override
@@ -97,6 +100,11 @@ public class MutableStation implements Station {
     @Override
     public EnumSet<TransportMode> getTransportModes() {
         return modes;
+    }
+
+    @Override
+    public String getCode() {
+        return code;
     }
 
     @Override
@@ -225,6 +233,7 @@ public class MutableStation implements Station {
                 "areaId='" + areaId + '\'' +
                 ", id='" + id + '\'' +
                 ", name='" + name + '\'' +
+                ", stationCode='" + code + '\'' +
                 ", latLong=" + latLong +
                 ", mode=" + getTransportModes() +
                 ", platforms=" + HasId.asIds(platforms) +

@@ -70,9 +70,9 @@ public class MutablePlatform implements Platform {
                 areaId, latLong, gridPosition, isMarkedInterchange);
     }
 
-    public static Platform buildForTFGMTram(String platformIdText, Station station, LatLong latLong, DataSourceID dataSourceId,
+    public static Platform buildForTFGMTram(String platformNummber, Station station, LatLong latLong, DataSourceID dataSourceId,
                                             IdFor<NaptanArea> areaId) {
-        PlatformId platformId = PlatformId.createId(station.getId(), platformIdText);
+        PlatformId platformId = PlatformId.createId(station, platformNummber);
         return buildForTFGMTram(platformId, station, latLong, dataSourceId, areaId);
     }
 

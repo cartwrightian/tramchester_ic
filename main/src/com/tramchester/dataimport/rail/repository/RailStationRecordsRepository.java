@@ -144,7 +144,8 @@ public class RailStationRecordsRepository {
 
         Duration minChangeTime = Duration.ofMinutes(record.getMinChangeTime());
 
-        return new MutableStation(id, areaId, name, latLong, grid, DataSourceID.rail, isInterchange, minChangeTime);
+        return new MutableStation(id, areaId, name, latLong, grid, DataSourceID.rail, isInterchange, minChangeTime,
+                record.getCRS());
     }
 
     private GridPosition convertToOsGrid(int easting, int northing) {
