@@ -272,11 +272,9 @@ public class RouteToRouteCostsTest {
 
         Station navigationRoad = NavigationRoad.from(stationRepository);
 
-        // disruption week of 28/11
-        TramDate nextWeek = this.date.plusWeeks(1);
-        NumberOfChanges changes = routesCostRepository.getNumberOfChanges(altrincham, navigationRoad, modes, nextWeek, timeRange);
+        NumberOfChanges changes = routesCostRepository.getNumberOfChanges(altrincham, navigationRoad, modes, date, timeRange);
 
-        assertEquals(0, getMinCost(changes), "On " + nextWeek+ " " + changes);
+        assertEquals(0, getMinCost(changes), "On " + date+ " " + changes);
     }
 
     private int getMinCost(NumberOfChanges routesCostRepository) {

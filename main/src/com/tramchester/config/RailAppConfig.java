@@ -66,7 +66,7 @@ public class RailAppConfig extends Configuration implements RailConfig {
     }
 
     @Override
-    public Set<TransportMode> getModes() {
+    public EnumSet<TransportMode> getModes() {
         return modes;
     }
 

@@ -79,8 +79,8 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
         Set<DataSourceInfo> dataSourceInfo = new HashSet<>();
         Map<String, String> versionMap = new HashMap<>();
 
-        dataSourceInfo.add(new DataSourceInfo(tfgm, "v1.1", LocalDateTime.MIN, Collections.singleton(Tram)));
-        dataSourceInfo.add(new DataSourceInfo(naptanxml, "v2.3", LocalDateTime.MIN, Collections.singleton(Bus)));
+        dataSourceInfo.add(new DataSourceInfo(tfgm, "v1.1", LocalDateTime.MIN, EnumSet.of(Tram)));
+        dataSourceInfo.add(new DataSourceInfo(naptanxml, "v2.3", LocalDateTime.MIN, EnumSet.of(Bus)));
 
         versionMap.put("tfgm", "v1.1");
         versionMap.put("naptanxml", "v2.3");
@@ -104,8 +104,8 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
         Set<DataSourceInfo> dataSourceInfo = new HashSet<>();
         Map<String, String> versionMap = new HashMap<>();
 
-        dataSourceInfo.add(new DataSourceInfo(tfgm, "v1.2", LocalDateTime.MIN, Collections.singleton(Tram)));
-        dataSourceInfo.add(new DataSourceInfo(naptanxml, "v2.3", LocalDateTime.MIN, Collections.singleton(Bus)));
+        dataSourceInfo.add(new DataSourceInfo(tfgm, "v1.2", LocalDateTime.MIN, EnumSet.of(Tram)));
+        dataSourceInfo.add(new DataSourceInfo(naptanxml, "v2.3", LocalDateTime.MIN, EnumSet.of(Bus)));
 
         versionMap.put("tfgm", "v1.1");
         versionMap.put("naptanxml", "v2.3");
@@ -129,8 +129,8 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
         Set<DataSourceInfo> dataSourceInfo = new HashSet<>();
         Map<String, String> versionMap = new HashMap<>();
 
-        dataSourceInfo.add(new DataSourceInfo(tfgm, "v1.2", LocalDateTime.MIN, Collections.singleton(Tram)));
-        dataSourceInfo.add(new DataSourceInfo(naptanxml, "v2.3", LocalDateTime.MIN, Collections.singleton(Bus)));
+        dataSourceInfo.add(new DataSourceInfo(tfgm, "v1.2", LocalDateTime.MIN, EnumSet.of(Tram)));
+        dataSourceInfo.add(new DataSourceInfo(naptanxml, "v2.3", LocalDateTime.MIN, EnumSet.of(Bus)));
 
         versionMap.put("tfgm", "v1.1");
 
@@ -153,7 +153,7 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
         Set<DataSourceInfo> dataSourceInfo = new HashSet<>();
         Map<String, String> versionMap = new HashMap<>();
 
-        dataSourceInfo.add(new DataSourceInfo(tfgm, "v1.2", LocalDateTime.MIN, Collections.singleton(Tram)));
+        dataSourceInfo.add(new DataSourceInfo(tfgm, "v1.2", LocalDateTime.MIN, EnumSet.of(Tram)));
 
         versionMap.put("tfgm", "v1.1");
         versionMap.put("naptanxml", "v2.3");

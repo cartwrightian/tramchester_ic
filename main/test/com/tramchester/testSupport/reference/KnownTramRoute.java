@@ -46,13 +46,21 @@ public enum KnownTramRoute {
     private final String longName;
 
     // tram route merge workaround, TODO inline these at some point?
+    @Deprecated
     public static final KnownTramRoute AltrinchamPiccadilly = KnownTramRoute.PiccadillyAltrincham;
+    @Deprecated
     public static final KnownTramRoute AltrinchamManchesterBury = KnownTramRoute.BuryManchesterAltrincham;
+    @Deprecated
     public static final KnownTramRoute AshtonUnderLyneManchesterEccles = KnownTramRoute.EcclesManchesterAshtonUnderLyne;
+    @Deprecated
     public static final KnownTramRoute BuryPiccadilly = KnownTramRoute.PiccadillyBury;
+    @Deprecated
     public static final KnownTramRoute EastDidisburyManchesterShawandCromptonRochdale = KnownTramRoute.RochdaleShawandCromptonManchesterEastDidisbury;
+    @Deprecated
     public static final KnownTramRoute ManchesterAirportWythenshaweVictoria = KnownTramRoute.VictoriaWythenshaweManchesterAirport;
+    @Deprecated
     public static final KnownTramRoute TheTraffordCentreCornbrook = KnownTramRoute.CornbrookTheTraffordCentre;
+    @Deprecated
 
 
     public static Set<KnownTramRoute> getFor(TramDate date) {

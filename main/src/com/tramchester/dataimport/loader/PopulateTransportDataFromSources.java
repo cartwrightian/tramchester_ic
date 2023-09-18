@@ -136,7 +136,7 @@ public class PopulateTransportDataFromSources implements TransportDataFactory {
                         dataSourceInfo.getLastModTime(), dataSource.getDataSourceInfo().getModes());
 
                 writeableTransportData.addDataSourceInfo(updatedDataSourceInfo);
-                writeableTransportData.addFeedInfo(dataSourceInfoID, feedInfo);
+                writeableTransportData.addDateRangeAndVersionFor(dataSourceInfoID, feedInfo);
             });
 
         } else {

@@ -55,6 +55,11 @@ public class ServedRoute {
             TimeRange nextDayRange = range.forFollowingDay();
             TramDate followingDay = date.plusDays(1);
             results.addAll(getRouteForDateAndTimeRange(followingDay, nextDayRange, modes));
+        } else {
+            // Cope with services from previous day that run into current date and range
+            TramDate previousDay = date.minusDays(1);
+            TimeRange previousDayRange = range.transposeToNextDay();
+            results.addAll(getRouteForDateAndTimeRange(previousDay, previousDayRange, modes));
         }
         return results;
     }
@@ -64,18 +69,21 @@ public class ServedRoute {
     private Set<Route> getRouteForDateAndTimeRange(TramDate date, TimeRange range, Set<TransportMode> modes) {
         return routeAndServices.stream().
                 filter(routeAndService -> routeAndService.isAvailableOn(date)).
-                filter(routeAndService -> timeWindows.get(routeAndService).anyOverlap(range)).
+                filter(routeAndService -> hasTimeRangerOverlap(range, routeAndService)).
                 map(RouteAndService::getRoute).
                 filter(route -> modes.contains(route.getTransportMode())).
                 collect(Collectors.toSet());
     }
 
+    private boolean hasTimeRangerOverlap(TimeRange range, RouteAndService routeAndService) {
+        return timeWindows.get(routeAndService).anyOverlap(range);
+    }
 
     public boolean anyAvailable(TramDate when, TimeRange timeRange, Set<TransportMode> requestedModes) {
         return routeAndServices.stream().
                 filter(routeAndService -> requestedModes.contains(routeAndService.getTransportMode())).
                 filter(routeAndService -> routeAndService.isAvailableOn(when)).
-                anyMatch(routeAndService -> timeWindows.get(routeAndService).anyOverlap(timeRange));
+                anyMatch(routeAndService -> hasTimeRangerOverlap(timeRange, routeAndService));
     }
 
     /***

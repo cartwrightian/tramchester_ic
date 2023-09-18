@@ -12,13 +12,14 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.tramchester.testSupport.reference.KnownTramRoute.CornbrookTheTraffordCentre;
 import static com.tramchester.testSupport.reference.KnownTramRoute.TheTraffordCentreCornbrook;
 import static com.tramchester.testSupport.reference.TramStations.TraffordCentre;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class RouteDTOTest {
 
-    private final static KnownTramRoute knownRoute = TheTraffordCentreCornbrook;
+    private final static KnownTramRoute knownRoute = CornbrookTheTraffordCentre;
 
 
     @Test
@@ -29,7 +30,7 @@ class RouteDTOTest {
         stations.add(new LocationRefWithPosition(TraffordCentre.fake()));
         RouteDTO routeDTO = new RouteDTO(getRoute(), stations);
 
-        assertEquals("TheTraffordCentreCornbrook", routeDTO.getRouteName());
+        assertEquals("CornbrookTheTraffordCentre", routeDTO.getRouteName());
         assertEquals(knownRoute.shortName(), routeDTO.getShortName());
         assertEquals(TransportMode.Tram, routeDTO.getTransportMode());
 

@@ -78,8 +78,8 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
 
         MutableRoute routeA = createTramRoute(CornbrookTheTraffordCentre);
         MutableRoute routeB = createTramRoute(RochdaleShawandCromptonManchesterEastDidisbury);
-        MutableRoute routeC = createTramRoute(EastDidisburyManchesterShawandCromptonRochdale);
-        MutableRoute routeD = createTramRoute(ManchesterAirportWythenshaweVictoria);
+        MutableRoute routeC = createTramRoute(EcclesManchesterAshtonUnderLyne);
+        MutableRoute routeD = createTramRoute(VictoriaWythenshaweManchesterAirport);
 
         agency.addRoute(routeA);
         agency.addRoute(routeB);
@@ -350,13 +350,13 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
             return getRouteById(RochdaleShawandCromptonManchesterEastDidisbury.getFakeId());
         }
 
-        public Route getRouteC() {
-            return getRouteById(EastDidisburyManchesterShawandCromptonRochdale.getFakeId());
-        }
-
-        public Route getRouteD() {
-            return getRouteById(ManchesterAirportWythenshaweVictoria.getFakeId());
-        }
+//        public Route getRouteC() {
+//            return getRouteById(EastDidisburyManchesterShawandCromptonRochdale.getFakeId());
+//        }
+//
+//        public Route getRouteD() {
+//            return getRouteById(ManchesterAirportWythenshaweVictoria.getFakeId());
+//        }
 
     }
 }

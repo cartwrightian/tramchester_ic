@@ -3,7 +3,6 @@ package com.tramchester.healthchecks;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.DateRangeAndVersion;
-import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.ServiceTimeLimits;
 import com.tramchester.domain.time.ProvidesNow;
 import org.slf4j.Logger;
@@ -18,14 +17,14 @@ public class DataExpiryHealthCheck extends TramchesterHealthCheck {
 
     private final DateRangeAndVersion feedInfo;
     private final TramchesterConfig config;
-    private final DataSourceID name;
+    private final DataSourceID dataSourceID;
     private final ProvidesNow providesNow;
 
-    public DataExpiryHealthCheck(DateRangeAndVersion feedInfo, DataSourceID name, ProvidesNow providesNow, TramchesterConfig config,
+    public DataExpiryHealthCheck(DateRangeAndVersion rangeAndVersion, DataSourceID dataSourceID, ProvidesNow providesNow, TramchesterConfig config,
                                  ServiceTimeLimits serviceTimeLimits) {
         super(serviceTimeLimits);
-        this.feedInfo = feedInfo;
-        this.name = name;
+        this.feedInfo = rangeAndVersion;
+        this.dataSourceID = dataSourceID;
         this.providesNow = providesNow;
         this.config = config;
     }
@@ -46,21 +45,21 @@ public class DataExpiryHealthCheck extends TramchesterHealthCheck {
             return Result.unhealthy(msg);
         }
 
-        logger.info(format("Checking if %s data is expired or will expire with %d days of %s", name, days, validUntil));
+        logger.info(format("Checking if %s data is expired or will expire with %d days of %s", dataSourceID, days, validUntil));
 
         if (currentDate.isAfter(validUntil) || currentDate.isEqual(validUntil)) {
-            String message = name + " data expired on " + validUntil;
+            String message = dataSourceID + " data expired on " + validUntil;
             logger.error(message);
             return Result.unhealthy(message);
         }
 
         LocalDate boundary = validUntil.minusDays(days);
         if (currentDate.isAfter(boundary) || currentDate.isEqual(boundary)) {
-            String message = name + " data will expire on " + validUntil;
+            String message = dataSourceID + " data will expire on " + validUntil;
             return Result.unhealthy(message);
         }
 
-        String message = name + " data is not due to expire until " + validUntil;
+        String message = dataSourceID + " data is not due to expire until " + validUntil;
         logger.info(message);
         return Result.healthy(message);
     }

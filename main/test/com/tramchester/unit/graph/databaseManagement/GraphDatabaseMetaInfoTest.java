@@ -119,8 +119,8 @@ public class GraphDatabaseMetaInfoTest extends EasyMockSupport {
     @Test
     void shouldCreateVersionsNode() {
         Set<DataSourceInfo> sourceInfo = new HashSet<>();
-        sourceInfo.add(new DataSourceInfo(tfgm, "4.3", LocalDateTime.MAX, Collections.singleton(Tram)));
-        sourceInfo.add(new DataSourceInfo(naptanxml, "9.6", LocalDateTime.MIN, Collections.singleton(Bus)));
+        sourceInfo.add(new DataSourceInfo(tfgm, "4.3", LocalDateTime.MAX, EnumSet.of(Tram)));
+        sourceInfo.add(new DataSourceInfo(naptanxml, "9.6", LocalDateTime.MIN, EnumSet.of(Bus)));
 
         EasyMock.expect(transaction.createNode(GraphLabel.VERSION)).andReturn(node);
         node.setProperty("tfgm", "4.3");

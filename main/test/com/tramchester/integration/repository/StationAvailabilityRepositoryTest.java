@@ -71,7 +71,6 @@ public class StationAvailabilityRepositoryTest {
         availabilityRepository = componentContainer.get(StationAvailabilityRepository.class);
         closedStationRepository = componentContainer.get(ClosedStationsRepository.class);
 
-
         RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
         tramRouteHelper = new TramRouteHelper(routeRepository);
 
@@ -108,8 +107,6 @@ public class StationAvailabilityRepositoryTest {
     @DataExpiryCategory
     @Test
     void shouldHaveExpectedRoutesAvailableForDatesAndTimeRangesOverMidnight() {
-
-        // earier to diagnose using end of line station
         Station altrincham = Altrincham.from(stationRepository);
 
         long maxDuration = config.getMaxJourneyDuration();
@@ -122,9 +119,17 @@ public class StationAvailabilityRepositoryTest {
         Set<Route> overMidnightResults = availabilityRepository.getPickupRoutesFor(altrincham, when, timeRangeCrossMidnight, modes);
         assertFalse(overMidnightResults.isEmpty(), "for " + timeRangeCrossMidnight + " missing routes over mid-night from " + altrincham);
 
-        TramDate date = when.plusWeeks(1); // disruption 28/11/22
+    }
+
+    @DataExpiryCategory
+    @Test
+    void shouldHaveExpectedRoutesAvailableForDatesAndTimeRangesAfterMidnight() {
+        Station altrincham = Altrincham.from(stationRepository);
+
+        long maxDuration = config.getMaxJourneyDuration();
+
         TimeRange timeRangeATMidnight = TimeRange.of(TramTime.of(0, 0), Duration.ZERO, Duration.ofMinutes(maxDuration));
-        Set<Route> atMidnightResults = availabilityRepository.getPickupRoutesFor(altrincham, date, timeRangeATMidnight, modes);
+        Set<Route> atMidnightResults = availabilityRepository.getPickupRoutesFor(altrincham, when, timeRangeATMidnight, modes);
         assertFalse(atMidnightResults.isEmpty(), "for " + timeRangeATMidnight + " missing routes over mid-night from " + altrincham.getId());
     }
 

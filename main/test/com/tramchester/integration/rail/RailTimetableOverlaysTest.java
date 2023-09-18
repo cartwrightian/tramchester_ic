@@ -16,6 +16,7 @@ import org.junit.jupiter.api.*;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
@@ -83,8 +84,8 @@ public class RailTimetableOverlaysTest {
                 }
 
                 @Override
-                public Set<TransportMode> getModes() {
-                    return Collections.singleton(TransportMode.Train);
+                public EnumSet<TransportMode> getModes() {
+                    return EnumSet.of(TransportMode.Train);
                 }
 
                 @Override

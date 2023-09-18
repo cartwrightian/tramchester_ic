@@ -7,6 +7,7 @@ import com.tramchester.domain.reference.TransportMode;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -53,8 +54,8 @@ public class TestRailConfig implements RailConfig {
         }
 
     @Override
-    public Set<TransportMode> getModes() {
-        return new HashSet<>(Arrays.asList(Train, RailReplacementBus));
+    public EnumSet<TransportMode> getModes() {
+        return EnumSet.of(Train, RailReplacementBus);
     }
 
     @Override

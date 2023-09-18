@@ -55,20 +55,21 @@ public class DataExpiryHealthCheckFactory implements HealthCheckFactory {
                 DateRangeAndVersion dateRangeAndVersion = transportData.getDateRangeAndVersionFor(dataSourceID);
                 TramchesterHealthCheck healthCheck = new DataExpiryHealthCheck(dateRangeAndVersion, dataSourceID, providesNow, config, serviceTimeLimits);
                 healthChecks.add(healthCheck);
-            } else
-            {
+            } else {
                 logger.warn("Cannot add healthcheck for " + dataSourceID);
             }
         }
+    }
+}
 
-//        transportData.getDateRangesAndVersions().forEach((name, feedInfo) -> {
-//            if (feedInfo.validUntil()!=null) {
-//                TramchesterHealthCheck healthCheck = new DataExpiryHealthCheck(feedInfo, name, providesNow, config, serviceTimeLimits);
+//        for(DateRangeAndVersion dateRangeAndVersion : transportData.getDateRangeAndVersion()) {
+//            if (dateRangeAndVersion.validUntil()!=null) {
+//                TramchesterHealthCheck healthCheck = new DataExpiryHealthCheck(dateRangeAndVersion, name, providesNow, config, serviceTimeLimits);
 //                healthChecks.add(healthCheck);
 //            } else {
 //                logger.warn("Cannot add healthcheck for " + feedInfo + " since 'valid until' is missing");
 //            }
 //        });
-    }
+//    }
 
-}
+

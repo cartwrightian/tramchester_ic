@@ -38,7 +38,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     private final Map<DataSourceID, DataSourceInfo> dataSourceInfos;
 
     // data source name -> feedinfo (if present)
-    private final Map<DataSourceID, DateRangeAndVersion> feedInfoMap;
+    private final Map<DataSourceID, DateRangeAndVersion> dateRangeAndVersionMap;
     private final String sourceName;
 
     /**
@@ -57,7 +57,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
         routeStations = new IdMap<>();
         agencies = new CompositeIdMap<>();
         dataSourceInfos = new HashMap<>();
-        feedInfoMap = new HashMap<>();
+        dateRangeAndVersionMap = new HashMap<>();
 
     }
 
@@ -72,7 +72,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
                 copyOf(dataContainer.routeStations),
                 copyOf(dataContainer.agencies),
                 new HashMap<>(dataContainer.dataSourceInfos),
-                copyOf(dataContainer.feedInfoMap),
+                copyOf(dataContainer.dateRangeAndVersionMap),
                 dataContainer.sourceName);
     }
 
@@ -92,7 +92,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
                                    CompositeIdMap<Service, MutableService> services, CompositeIdMap<Route, MutableRoute> routes,
                                    CompositeIdMap<Platform, MutablePlatform> platforms, IdMap<RouteStation> routeStations,
                                    CompositeIdMap<Agency, MutableAgency> agencies, Map<DataSourceID,DataSourceInfo> dataSourceInfos,
-                                   Map<DataSourceID, DateRangeAndVersion> feedInfoMap, String sourceName) {
+                                   Map<DataSourceID, DateRangeAndVersion> dateRangeAndVersionMap, String sourceName) {
         this.providesNow = providesNow;
         this.trips = trips;
         this.stationsById = stationsById;
@@ -102,7 +102,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
         this.routeStations = routeStations;
         this.agencies = agencies;
         this.dataSourceInfos = dataSourceInfos;
-        this.feedInfoMap = feedInfoMap;
+        this.dateRangeAndVersionMap = dateRangeAndVersionMap;
         this.sourceName = sourceName;
     }
 
@@ -118,7 +118,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
         platforms.clear();
         routeStations.clear();
         agencies.clear();
-        feedInfoMap.clear();
+        dateRangeAndVersionMap.clear();
         logger.info("stopped");
     }
 
@@ -132,7 +132,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
         logger.info(format("%s services", services.size()));
         logger.info(format("%s trips", trips.size()));
         logger.info(format("%s calling points", countStopCalls(trips)));
-        logger.info(format("%s feedinfos", feedInfoMap.size()));
+        logger.info(format("%s feedinfos", dateRangeAndVersionMap.size()));
     }
 
     private long countStopCalls(CompositeIdMap<Trip,MutableTrip> trips) {
@@ -480,13 +480,17 @@ public class TransportDataContainer implements TransportData, WriteableTransport
 
     @Override
     public void addDataSourceInfo(DataSourceInfo dataSourceInfo) {
-        dataSourceInfos.put(dataSourceInfo.getID(), dataSourceInfo);
+        DataSourceID id = dataSourceInfo.getID();
+        if (dataSourceInfos.containsKey(id)) {
+            throw new RuntimeException("Cannot add multiple instances of dataSourceId, already had " + id);
+        }
+        dataSourceInfos.put(id, dataSourceInfo);
     }
 
     @Override
     public DateRangeAndVersion getDateRangeAndVersionFor(DataSourceID dataSourceID) {
-        if (feedInfoMap.containsKey(dataSourceID)) {
-            return feedInfoMap.get(dataSourceID);
+        if (dateRangeAndVersionMap.containsKey(dataSourceID)) {
+            return dateRangeAndVersionMap.get(dataSourceID);
         }
         DataSourceInfo dataSourceInfo = dataSourceInfos.get(dataSourceID);
         LocalDate expiryDate = findLastExpiryDate(dataSourceID);
@@ -518,9 +522,12 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     }
 
     @Override
-    public void addFeedInfo(DataSourceID name, DateRangeAndVersion feedInfo) {
-        logger.info("Added " + feedInfo.toString());
-        feedInfoMap.put(name, feedInfo);
+    public void addDateRangeAndVersionFor(DataSourceID dataSourceID, DateRangeAndVersion rangeAndVersion) {
+        logger.info("Added " + rangeAndVersion.toString());
+        if (dateRangeAndVersionMap.containsKey(dataSourceID)) {
+            throw new RuntimeException("Cannot add duplicate info for " + dataSourceID);
+        }
+        dateRangeAndVersionMap.put(dataSourceID, rangeAndVersion);
     }
 
     @Override
@@ -535,7 +542,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
                 ",\n routeStations=" + routeStations +
                 ",\n agencies=" + agencies +
                 ",\n dataSourceInfos=" + dataSourceInfos +
-                ",\n feedInfoMap=" + feedInfoMap +
+                ",\n feedInfoMap=" + dateRangeAndVersionMap +
                 ",\n sourceName='" + sourceName + '\'' +
                 '}';
     }
@@ -547,13 +554,13 @@ public class TransportDataContainer implements TransportData, WriteableTransport
         TransportDataContainer that = (TransportDataContainer) o;
         return trips.equals(that.trips) && stationsById.equals(that.stationsById) && services.equals(that.services) &&
                 routes.equals(that.routes) && platforms.equals(that.platforms) && routeStations.equals(that.routeStations) &&
-                agencies.equals(that.agencies) && dataSourceInfos.equals(that.dataSourceInfos) && feedInfoMap.equals(that.feedInfoMap) &&
+                agencies.equals(that.agencies) && dataSourceInfos.equals(that.dataSourceInfos) && dateRangeAndVersionMap.equals(that.dateRangeAndVersionMap) &&
                 sourceName.equals(that.sourceName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(trips, stationsById, services, routes, platforms, routeStations, agencies, dataSourceInfos, feedInfoMap, sourceName);
+        return Objects.hash(trips, stationsById, services, routes, platforms, routeStations, agencies, dataSourceInfos, dateRangeAndVersionMap, sourceName);
     }
 
     private class RangeAndVersion implements DateRangeAndVersion {

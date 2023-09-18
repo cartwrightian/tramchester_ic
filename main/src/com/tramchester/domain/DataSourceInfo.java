@@ -3,6 +3,7 @@ package com.tramchester.domain;
 import com.tramchester.domain.reference.TransportMode;
 
 import java.time.LocalDateTime;
+import java.util.EnumSet;
 import java.util.Set;
 
 public class DataSourceInfo {
@@ -10,9 +11,9 @@ public class DataSourceInfo {
     private final DataSourceID sourceID;
     private final String version;
     private final LocalDateTime lastModTime;
-    private final Set<TransportMode> modes;
+    private final EnumSet<TransportMode> modes;
 
-    public DataSourceInfo(DataSourceID sourceID, String version, LocalDateTime lastModTime, Set<TransportMode> modes) {
+    public DataSourceInfo(DataSourceID sourceID, String version, LocalDateTime lastModTime, EnumSet<TransportMode> modes) {
         this.sourceID = sourceID;
         this.version = version;
         this.lastModTime = lastModTime;
@@ -31,7 +32,7 @@ public class DataSourceInfo {
         return lastModTime;
     }
 
-    public Set<TransportMode> getModes() {
+    public EnumSet<TransportMode> getModes() {
         return modes;
     }
 

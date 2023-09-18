@@ -6,6 +6,7 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.DateRangeAndVersion;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.presentation.DTO.DataVersionDTO;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.repository.ProvidesFeedInfo;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+import java.util.EnumSet;
 import java.util.concurrent.TimeUnit;
 
 @Path("/datainfo")
@@ -41,8 +43,6 @@ public class DataVersionResource implements APIResource {
     @ApiResponse(content = @Content(schema = @Schema(implementation = FeedInfo.class)))
     @CacheControl(maxAge = 5, maxAgeUnit = TimeUnit.MINUTES)
     public Response get() {
-//        Map<DataSourceID, DateRangeAndVersion> map = providesFeedInfo.getDateRangesAndVersions();
-//        DateRangeAndVersion rangeAndVersion = map.get(DataSourceID.tfgm);
 
         DateRangeAndVersion rangeAndVersion = providesFeedInfo.getDateRangeAndVersionFor(DataSourceID.tfgm);
 

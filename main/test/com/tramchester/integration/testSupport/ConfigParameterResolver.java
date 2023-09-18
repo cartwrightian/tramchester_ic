@@ -23,9 +23,11 @@ public class ConfigParameterResolver implements ParameterResolver {
     @Override
     public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
         Set<String> tags = extensionContext.getTags();
-        if (tags.contains(GMTest.class.getSimpleName())) {
-            return new RailAndTramGreaterManchesterConfig();
-        }
+
+        // TODO Renable this
+//        if (tags.contains(GMTest.class.getSimpleName())) {
+//            return new RailAndTramGreaterManchesterConfig();
+//        }
 
         Optional<String> override = extensionContext.getConfigurationParameter(PARAMETER_KEY);
         if (override.isPresent()) {

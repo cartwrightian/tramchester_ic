@@ -84,7 +84,7 @@ class GraphDatabaseStartStopTest extends EasyMockSupport {
     void shouldStartLifeCycleManagerCleanExistingFile() {
 
         LocalDateTime lastModTime = LocalDateTime.now();
-        Set<TransportMode> modes = Collections.singleton(TransportMode.Tram);
+        EnumSet<TransportMode> modes = EnumSet.of(TransportMode.Tram);
 
         namesAndVersions.add(new DataSourceInfo(SRC_1_NAME, VERSION_1_VALID, lastModTime, modes));
 
@@ -107,7 +107,7 @@ class GraphDatabaseStartStopTest extends EasyMockSupport {
         Files.delete(dbConfig.getDbPath());
 
         LocalDateTime lastModTime = LocalDateTime.now();
-        Set<TransportMode> modes = Collections.singleton(TransportMode.Tram);
+        EnumSet<TransportMode> modes = EnumSet.of(TransportMode.Tram);
 
         namesAndVersions.add(new DataSourceInfo(SRC_1_NAME, VERSION_1_VALID, lastModTime, modes));
 
@@ -129,7 +129,7 @@ class GraphDatabaseStartStopTest extends EasyMockSupport {
     void shouldStartLifeCycleManagerNotCleanExistingFile() {
 
         LocalDateTime lastModTime = LocalDateTime.now();
-        Set<TransportMode> modes = Collections.singleton(TransportMode.Tram);
+        EnumSet<TransportMode> modes = EnumSet.of(TransportMode.Tram);
 
         namesAndVersions.add(new DataSourceInfo(SRC_1_NAME, VERSION_1_VALID, lastModTime, modes));
 

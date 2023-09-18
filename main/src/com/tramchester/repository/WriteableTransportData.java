@@ -32,7 +32,7 @@ public interface WriteableTransportData {
 
     void addDataSourceInfo(DataSourceInfo dataSourceInfo);
 
-    void addFeedInfo(DataSourceID name, DateRangeAndVersion feedInfo);
+    void addDateRangeAndVersionFor(DataSourceID name, DateRangeAndVersion feedInfo);
 
     ////
 

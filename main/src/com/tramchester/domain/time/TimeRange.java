@@ -82,4 +82,15 @@ public class TimeRange {
         TramTime endTime = TramTime.of(end.getHourOfDay(), end.getMinuteOfHour());
         return TimeRange.of(TramTime.of(0,0), endTime);
     }
+
+    /***
+     * effectively moves range to same range but for the following day
+     * @return range transposed into following day
+     */
+    public TimeRange transposeToNextDay() {
+        if (intoNextDay()) {
+            throw new RuntimeException("Cannot call for a range that is already into following day");
+        }
+        return TimeRange.of(TramTime.nextDay(begin), TramTime.nextDay(end));
+    }
 }
