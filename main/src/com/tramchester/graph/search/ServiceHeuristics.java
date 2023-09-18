@@ -131,6 +131,7 @@ public class ServiceHeuristics {
 
         final int hourAtNode = GraphLabel.getHourFrom(labels);
 
+        // TODO Need better way to handle this
         final TramTime beginWindow = hourAtNode==0 ? TramTime.nextDay(0,0) : TramTime.of(hourAtNode, 0);
 
         final TimeRange windowForWait = TimeRange.of(beginWindow, Duration.ofMinutes(maxWait), Duration.ZERO);

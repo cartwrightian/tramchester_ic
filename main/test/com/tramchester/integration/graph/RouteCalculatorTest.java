@@ -355,19 +355,20 @@ public class RouteCalculatorTest {
 
     @Test
     void shouldHandleAtMidnightDirectCornbrookStPeters() {
-        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(0,0), maxNumResults);
+        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.nextDay(0,0), maxNumResults);
         assertGetAndCheckJourneys(journeyRequest, Cornbrook, StPetersSquare);
     }
 
     @Test
     void shouldHandlePastMidnightDirectCornbrookStPeters() {
-        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(0,1), maxNumResults);
+        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.nextDay(0,1), maxNumResults);
         assertGetAndCheckJourneys(journeyRequest, Cornbrook, StPetersSquare);
     }
 
     @Test
     void shouldHandleAtMidnightDirectAltrinchamNavigation() {
-        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(0,0), maxNumResults);
+        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.nextDay(0,0), maxNumResults);
+        //journeyRequest.setDiag(true);
         assertGetAndCheckJourneys(journeyRequest, Altrincham, NavigationRoad);
     }
 
@@ -379,7 +380,7 @@ public class RouteCalculatorTest {
 
     @Test
     void shouldHandlePastMidnightDirectAltrinchamNavigation() {
-        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(0,1), maxNumResults);
+        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.nextDay(0,1), maxNumResults);
         assertGetAndCheckJourneys(journeyRequest, Altrincham, NavigationRoad);
     }
 
