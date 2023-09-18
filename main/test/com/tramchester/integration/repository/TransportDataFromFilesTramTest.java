@@ -386,10 +386,34 @@ public class TransportDataFromFilesTramTest {
         for (Route route : routes) {
             List<StopCalls.StopLeg> over = route.getTrips().stream().flatMap(trip -> trip.getStopCalls().getLegs(false).stream()).
                     filter(stopLeg -> stopLeg.getCost().compareTo(Duration.ofMinutes(12*24)) > 0).
-                    collect(Collectors.toList());
+                    toList();
             assertTrue(over.isEmpty(), over.toString());
         }
 
+    }
+
+    // to get diagnose issues with new GTFS data and no jounreys alty to Navigation Rd post midnight
+    @Test
+    void shouldHaveTripsFromAltrinchamPostMidnight() {
+        Set<Trip> fromAlty = transportData.getTrips().stream().
+                filter(trip -> !trip.isFiltered()).
+                filter(trip -> trip.operatesOn(when)).
+                filter(trip -> trip.firstStation().equals(Altrincham.getId())).collect(Collectors.toSet());
+
+        assertFalse(fromAlty.isEmpty());
+
+        TimeRange range = TimeRange.of(TramTime.of(0,1), Duration.ZERO, Duration.ofMinutes(config.getMaxWait()));
+        TimeRange nextRange = range.transposeToNextDay();
+
+        Set<Trip> atTime = fromAlty.stream().
+                filter(trip -> range.contains(trip.departTime()) || nextRange.contains(trip.departTime())).collect(Collectors.toSet());
+
+        assertFalse(atTime.isEmpty());
+
+        HasId<Station> navigationRd = NavigationRoad.from(transportData);
+        Set<Trip> calls = atTime.stream().filter(trip -> trip.callsAt(navigationRd)).collect(Collectors.toSet());
+
+        assertEquals(4, calls.size(), HasId.asIds(calls));
     }
 
     @DataExpiryCategory
@@ -446,7 +470,7 @@ public class TransportDataFromFilesTramTest {
         List<TramTime> times = IntStream.range(earlistHour, latestHour).boxed().
                 map(hour -> TramTime.of(hour, 0)).
                 sorted().
-                collect(Collectors.toList());
+                toList();
 
         int maxwait = 25;
 
@@ -537,7 +561,7 @@ public class TransportDataFromFilesTramTest {
 
         // Makes sure none are missing from the data
         List<Station> filteredStations = transportData.getStations(EnumSet.of(Tram)).stream()
-                .filter(TramStations::isEndOfLine).collect(Collectors.toList());
+                .filter(TramStations::isEndOfLine).toList();
 
         assertEquals(TramStations.EndOfTheLine.size(), filteredStations.size());
     }
@@ -623,7 +647,7 @@ public class TransportDataFromFilesTramTest {
         Set<Service> services = toMediaCity.stream().
                 map(Trip::getService).collect(Collectors.toSet());
 
-        TramDate nextTuesday = TestEnv.testTramDay();
+        TramDate nextTuesday = TestEnv.testDay();
 
         Set<Service> onDay = services.stream().
                 filter(service -> service.getCalendar().operatesOn(nextTuesday)).
@@ -657,7 +681,7 @@ public class TransportDataFromFilesTramTest {
 
         // reduce the trips to the ones for the right route on the monday by filtering by service ID
         List<Trip> filteredTrips = origTrips.stream().filter(trip -> mondayServices.contains(trip.getService().getId())).
-                collect(Collectors.toList());
+                toList();
 
         assertFalse(filteredTrips.isEmpty(), "No trips for velopark on " + aMonday);
 
