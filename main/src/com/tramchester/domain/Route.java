@@ -3,8 +3,10 @@ package com.tramchester.domain;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.CrossesDay;
 import com.tramchester.domain.dates.DateRange;
@@ -45,4 +47,5 @@ public interface Route extends HasId<Route>, HasTransportMode, GraphProperty, Co
         return StringIdFor.createId(text, Route.class);
     }
 
+    IdSet<Station> getStartStations();
 }

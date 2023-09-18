@@ -16,6 +16,7 @@ import com.tramchester.repository.ServiceRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StopCallRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -56,7 +57,7 @@ public class StopCallRepositoryTest {
 
     @Test
     void shouldGetStopCallsForAStation() {
-        final TramDate date = TestEnv.testTramDay();
+        final TramDate date = TestEnv.testDay();
         Set<Service> servicesForDate = serviceRepository.getServicesOnDate(date);
 
         final IdFor<Station> stationId = TramStations.ManAirport.getId();
@@ -81,12 +82,13 @@ public class StopCallRepositoryTest {
                 count();
         assertEquals(results.size(), correctTimes);
 
-        assertEquals(5, results.size(), results.toString());
+        assertEquals(10, results.size(), results.toString());
     }
 
     @Test
     void shouldGetCostsForAStopCall() {
-        Route route = routeRepository.getRouteById(Route.createId("METLGREE:I:CURRENT"));
+        Route route = routeRepository.getRouteById(KnownTramRoute.BuryManchesterAltrincham.getId());
+        assertNotNull(route);
 
         Station alty = stationRepository.getStationById(TramStations.Altrincham.getId());
         Station navigationRoad = stationRepository.getStationById(TramStations.NavigationRoad.getId());

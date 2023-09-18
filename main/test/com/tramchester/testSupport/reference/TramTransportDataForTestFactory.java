@@ -231,7 +231,7 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
     }
 
     private MutableRoute createTramRoute(KnownTramRoute knownRoute) {
-        return new MutableRoute(knownRoute.getFakeId(), knownRoute.shortName(), knownRoute.name(), TestEnv.MetAgency(),
+        return new MutableRoute(knownRoute.getId(), knownRoute.shortName(), knownRoute.name(), TestEnv.MetAgency(),
                 knownRoute.mode());
     }
 
@@ -343,11 +343,11 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         }
 
         public Route getRouteA() {
-            return getRouteById(CornbrookTheTraffordCentre.getFakeId());
+            return getRouteById(CornbrookTheTraffordCentre.getId());
         }
 
         public Route getRouteB() {
-            return getRouteById(RochdaleShawandCromptonManchesterEastDidisbury.getFakeId());
+            return getRouteById(RochdaleShawandCromptonManchesterEastDidisbury.getId());
         }
 
 //        public Route getRouteC() {

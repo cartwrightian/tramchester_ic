@@ -27,8 +27,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class RouteCalculationCombinations {
 
@@ -68,6 +67,9 @@ public class RouteCalculationCombinations {
     private Map<StationIdPair, JourneyOrNot> validateAllHaveAtLeastOneJourney(Set<StationIdPair> stationIdPairs,
                                                                              JourneyRequest journeyRequest, boolean check) {
 
+        if (stationIdPairs.isEmpty()) {
+            fail("no station pairs");
+        }
         long openPairs = stationIdPairs.stream().filter(stationIdPair -> bothOpen(stationIdPair, journeyRequest)).count();
         assertNotEquals(0, openPairs);
 

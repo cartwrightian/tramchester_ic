@@ -189,7 +189,7 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         JourneyRequest journeyRequest = new JourneyRequest(date, queryTime, arriveBy, maxChanges,
                 maxJourneyDuration,  config.getMaxNumResults(), modes);
 
-        logger.info(format("Plan journey from %s to %s on %s", start, dest, journeyRequest));
+        logger.info(format("Plan journey from %s to %s on %s", start.getId(), dest.getId(), journeyRequest));
 
         return locToLocPlanner.quickestRouteForLocation(tx, start, dest, journeyRequest).
                 filter(journey -> !journey.getStages().isEmpty()).

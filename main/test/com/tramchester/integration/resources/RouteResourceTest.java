@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.TestEnv.dateFormatDashes;
 import static com.tramchester.testSupport.reference.KnownTramRoute.ManchesterAirportWythenshaweVictoria;
+import static com.tramchester.testSupport.reference.KnownTramRoute.VictoriaWythenshaweManchesterAirport;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
@@ -54,7 +55,7 @@ class RouteResourceTest {
 
         TramDate today = TramDate.from(TestEnv.LocalNow());
 
-        Route expectedAirportRoute = tramRouteHelper.getOneRoute(ManchesterAirportWythenshaweVictoria, today);
+        Route expectedAirportRoute = tramRouteHelper.getOneRoute(VictoriaWythenshaweManchesterAirport, today);
 
         List<RouteDTO> routes = getRouteResponse(); // uses current date server side
 
@@ -68,14 +69,15 @@ class RouteResourceTest {
 
         routes.forEach(route -> assertFalse(route.getStations().isEmpty(), "Route no stations "+route.getRouteName()));
 
-        RouteDTO airportRoute = routes.stream().
+        RouteDTO startsFromAirport = routes.stream().
                 filter(routeDTO -> routeDTO.getRouteID().equals(IdForDTO.createFor(expectedAirportRoute))).
+                filter(routeDTO -> routeDTO.getStartStation().equals(TramStations.ManAirport.getIdForDTO())).
                 findFirst().orElseThrow();
 
-        assertTrue(airportRoute.isTram());
-        assertEquals(ManchesterAirportWythenshaweVictoria.shortName(), airportRoute.getShortName().trim());
+        assertTrue(startsFromAirport.isTram());
+        assertEquals(VictoriaWythenshaweManchesterAirport.shortName(), startsFromAirport.getShortName().trim());
 
-        List<LocationRefWithPosition> airportRouteStations = airportRoute.getStations();
+        List<LocationRefWithPosition> airportRouteStations = startsFromAirport.getStations();
 
         List<IdForDTO> ids = airportRouteStations.stream().
                 map(LocationRefDTO::getId).toList();
@@ -88,9 +90,10 @@ class RouteResourceTest {
     void shouldListStationsInOrder() {
         List<RouteDTO> routes = getRouteResponse();
 
-        // TODO could be a mistake in the data, but the station order is flipped Summer2020, was Airport->Victoria route
         List<RouteDTO> airRoutes = routes.stream().
-                filter(routeDTO -> routeDTO.getRouteName().equals(ManchesterAirportWythenshaweVictoria.longName())).toList();
+                filter(routeDTO -> routeDTO.getRouteName().equals(VictoriaWythenshaweManchesterAirport.longName())).
+                filter(routeDTO -> routeDTO.getStartStation().equals(TramStations.ManAirport.getIdForDTO())).
+                toList();
 
         assertEquals(1, airRoutes.size());
 
@@ -120,7 +123,9 @@ class RouteResourceTest {
 
         assertFalse(results.isEmpty());
 
-        assertEquals(expected.size(), results.size());
+        Set<IdForDTO> uniqueRouteIds = results.stream().map(dto -> dto.getRouteID()).collect(Collectors.toSet());
+
+        assertEquals(expected.size(), uniqueRouteIds.size());
 
 
     }

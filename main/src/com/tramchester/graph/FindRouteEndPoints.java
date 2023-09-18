@@ -16,6 +16,7 @@ import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
 
+// TODO Only used for test support: move
 public class FindRouteEndPoints {
     private static final Logger logger = LoggerFactory.getLogger(FindRouteEndPoints.class);
     private final GraphDatabase graphDatabase;

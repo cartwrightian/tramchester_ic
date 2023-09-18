@@ -7,6 +7,7 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdForDTO;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.integration.testSupport.ConfigParameterResolver;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -54,6 +55,24 @@ class KnownTramRouteTest {
     void setUp() {
         when = TestEnv.testDay();
         routeRepository = componentContainer.get(RouteRepository.class);
+    }
+
+    @Test
+    void shouldHaveCorrectIds() {
+        TramDate start = TramDate.from(TestEnv.LocalNow());
+
+        DateRange dateRange = DateRange.of(start, when);
+
+        dateRange.stream().forEach(date -> {
+            IdSet<Route> loadedIds = getLoadedTramRoutes(date).collect(IdSet.collector());
+
+            IdSet<Route> knownTramOnDates = KnownTramRoute.getFor(date).stream().map(KnownTramRoute::getId).
+                    collect(IdSet.idCollector());
+
+            IdSet<Route> mismatch = IdSet.disjunction(loadedIds, knownTramOnDates);
+
+            assertTrue(mismatch.isEmpty(), "on " + date + " MISMATCH \n" + mismatch + "\n between LOADED \n" + loadedIds + " AND \n" + knownTramOnDates);
+        });
     }
 
     /// Note: START HERE when diagnosing

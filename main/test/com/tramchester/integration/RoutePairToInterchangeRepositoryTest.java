@@ -84,13 +84,15 @@ public class RoutePairToInterchangeRepositoryTest {
 
         IdSet<Station> stationIds = interchanges.stream().map(InterchangeStation::getStation).collect(IdSet.collector());
 
-        assertEquals(1, stationIds.size());
+        // 1 -> 2 with data changes
+        assertEquals(2, stationIds.size(), stationIds.toString());
         assertTrue(stationIds.contains(Cornbrook.getId()), stationIds.toString());
+        assertTrue(stationIds.contains(Deansgate.getId()), stationIds.toString());
     }
 
     @Test
     void shouldGetExpectedMultipleInterchangesBetweenRoutes() {
-        Route ashtonToEccles = routeHelper.getOneRoute(AshtonUnderLyneManchesterEccles, date);
+        Route ashtonToEccles = routeHelper.getOneRoute(EcclesManchesterAshtonUnderLyne, date);
         Route victoriaToAirport = routeHelper.getOneRoute(VictoriaWythenshaweManchesterAirport, date);
 
         RoutePair routeIndexPair = RoutePair.of(ashtonToEccles, victoriaToAirport);
@@ -101,13 +103,17 @@ public class RoutePairToInterchangeRepositoryTest {
 
         IdSet<Station> stationIds = interchanges.stream().map(InterchangeStation::getStation).collect(IdSet.collector());
 
-        assertEquals(4+1, stationIds.size(), stationIds.toString());
+        // 5 -> 6
+        assertEquals(6, stationIds.size(), stationIds.toString());
         assertTrue(stationIds.contains(StPetersSquare.getId()), stationIds.toString());
         assertTrue(stationIds.contains(Deansgate.getId()), stationIds.toString());
         assertTrue(stationIds.contains(Cornbrook.getId()), stationIds.toString());
         assertTrue(stationIds.contains(TraffordBar.getId()), stationIds.toString());
         // some ashton to eccles trams seem to call at market street, maybe to/from depot??
         assertTrue(stationIds.contains(MarketStreet.getId()), stationIds.toString());
+
+        assertTrue(stationIds.contains(Victoria.getId()), stationIds.toString());
+
 
     }
 

@@ -361,12 +361,13 @@ class TramGraphBuilderTest {
         List<Relationship> inbounds = graphQuery.getRouteStationRelationships(txn, routeStation, Direction.INCOMING);
 
         List<Relationship> graphTramsIntoStation = inbounds.stream().
-                filter(inbound -> inbound.isType(TransportRelationshipTypes.TRAM_GOES_TO)).collect(Collectors.toList());
+                filter(inbound -> inbound.isType(TransportRelationshipTypes.TRAM_GOES_TO)).toList();
 
         long boardingCount = inbounds.stream().
                 filter(relationship -> relationship.isType(TransportRelationshipTypes.BOARD)
                         || relationship.isType(TransportRelationshipTypes.INTERCHANGE_BOARD)).count();
-        assertEquals(1, boardingCount);
+        // now 2 due to one route station and N platforms
+        assertEquals(2, boardingCount);
 
         SortedSet<IdFor<Service>> graphInboundSvcIds = graphTramsIntoStation.stream().
                 map(GraphProps::getServiceId).collect(Collectors.toCollection(TreeSet::new));

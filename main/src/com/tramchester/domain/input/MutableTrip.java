@@ -174,4 +174,9 @@ public class MutableTrip implements Trip {
         return service.getCalendar().operatesOn(date);
     }
 
+    @Override
+    public IdFor<Station> firstStation() {
+        return stopCalls.getFirstStop().getStationId();
+    }
+
 }

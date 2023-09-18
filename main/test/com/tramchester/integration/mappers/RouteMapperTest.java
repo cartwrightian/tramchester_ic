@@ -5,6 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
@@ -12,8 +13,10 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.mappers.RoutesMapper;
 import com.tramchester.repository.RouteRepository;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.reference.KnownTramRoute;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,8 +27,7 @@ import java.util.List;
 
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class RouteMapperTest {
     private static ComponentContainer componentContainer;
@@ -46,7 +48,6 @@ class RouteMapperTest {
         date = TestEnv.testDay();
         mapper = componentContainer.get(RoutesMapper.class);
         tramRouteHelper = new TramRouteHelper(routeRepository);
-
     }
 
     @AfterAll
@@ -57,30 +58,34 @@ class RouteMapperTest {
     @Test
     void shouldGetRouteStationsInCorrectOrder() {
 
-        List<RouteDTO> dtos = mapper.getRouteDTOs(TestEnv.testDay());
+        List<RouteDTO> dtosForAirportLine = mapper.getRouteDTOs(TestEnv.testDay()).stream().
+                filter(dto -> dto.getRouteName().equals(VictoriaWythenshaweManchesterAirport.longName())).
+                toList();
 
-        Route fromAirportRoute = tramRouteHelper.getOneRoute(ManchesterAirportWythenshaweVictoria, date);
+        List<RouteDTO> startingFromAirport = dtosForAirportLine.stream().
+                filter(dto -> dto.getStartStation().equals(ManAirport.getIdForDTO())).toList();
 
-        RouteDTO query = new RouteDTO(fromAirportRoute, new LinkedList<>());
+        assertFalse(startingFromAirport.isEmpty(), dtosForAirportLine.toString());
 
-        int index = dtos.indexOf(query);
+        startingFromAirport.forEach(fromAirport -> {
+            List<LocationRefWithPosition> stations = fromAirport.getStations();
+            LocationRefWithPosition start = stations.get(0);
 
-        List<LocationRefWithPosition> stations = dtos.get(index).getStations();
-        LocationRefWithPosition stationRefWithPosition = stations.get(0);
-        assertEquals(ManAirport.getIdForDTO(), stationRefWithPosition.getId(), "for route " + fromAirportRoute);
-        TestEnv.assertLatLongEquals(ManAirport.getLatLong(), stationRefWithPosition.getLatLong(),
-                0.00001, "position");
-        assertTrue(stationRefWithPosition.getTransportModes().contains(TransportMode.Tram));
+            assertEquals(ManAirport.getIdForDTO(), start.getId(), "for route " + fromAirport);
+            TestEnv.assertLatLongEquals(ManAirport.getLatLong(), start.getLatLong(), 0.00001, "position");
+            assertTrue(start.getTransportModes().contains(TransportMode.Tram));
 
-        assertEquals(Victoria.getIdForDTO(), stations.get(stations.size()-1).getId());
+            assertEquals(Victoria.getIdForDTO(), stations.get(stations.size()-1).getId());
+        });
+
 
     }
 
     @Test
     void shouldHaveWorkaroundForAirportRouteIdsTransposedInData() {
-        Route fromAirportRoute = tramRouteHelper.getOneRoute(ManchesterAirportWythenshaweVictoria, date);
+        Route fromAirportRoute = tramRouteHelper.getOneRoute(VictoriaWythenshaweManchesterAirport, date);
 
-        List<Station> results = mapper.getStationsOn(fromAirportRoute, false);
+        List<Station> results = mapper.getStationsOn(fromAirportRoute, false, ManAirport.getId());
 
         assertEquals(ManAirport.getId(), results.get(0).getId());
         assertEquals(Victoria.getId(), results.get(results.size()-1).getId());
@@ -89,9 +94,9 @@ class RouteMapperTest {
 
     @Test
     void shouldHaveWorkaroundForTraffordCentreRouteIdsTransposedInData() {
-        Route fromTraffordCenter = tramRouteHelper.getOneRoute(TheTraffordCentreCornbrook, date);
+        Route fromTraffordCenter = tramRouteHelper.getOneRoute(CornbrookTheTraffordCentre, date);
 
-        List<Station> results = mapper.getStationsOn(fromTraffordCenter, false);
+        List<Station> results = mapper.getStationsOn(fromTraffordCenter, false, TraffordCentre.getId());
 
         assertEquals(TraffordCentre.getId(), results.get(0).getId(), HasId.asIds(results));
         Station seventhStopAfterTrafford = results.get(7);

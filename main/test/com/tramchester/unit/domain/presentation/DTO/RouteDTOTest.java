@@ -2,8 +2,8 @@ package com.tramchester.unit.domain.presentation.DTO;
 
 import com.tramchester.domain.MutableRoute;
 import com.tramchester.domain.Route;
-import com.tramchester.domain.presentation.DTO.RouteDTO;
 import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
+import com.tramchester.domain.presentation.DTO.RouteDTO;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownTramRoute;
@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.tramchester.testSupport.reference.KnownTramRoute.CornbrookTheTraffordCentre;
-import static com.tramchester.testSupport.reference.KnownTramRoute.TheTraffordCentreCornbrook;
 import static com.tramchester.testSupport.reference.TramStations.TraffordCentre;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -40,7 +39,7 @@ class RouteDTOTest {
     }
 
     public Route getRoute() {
-        return MutableRoute.getRoute(knownRoute.getFakeId(), knownRoute.shortName(), knownRoute.name(), TestEnv.MetAgency(),
+        return MutableRoute.getRoute(knownRoute.getId(), knownRoute.shortName(), knownRoute.name(), TestEnv.MetAgency(),
                 knownRoute.mode());
     }
 }

@@ -6,8 +6,11 @@ import com.tramchester.domain.dates.ServiceCalendar;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphPropertyKey;
 
@@ -162,6 +165,11 @@ public class MutableRoute implements Route {
     @Override
     public boolean isAvailableOn(TramDate date) {
         return routeCalendar.isAvailableOn(date);
+    }
+
+    @Override
+    public IdSet<Station> getStartStations() {
+        return trips.stream().map(Trip::firstStation).collect(IdSet.idCollector());
     }
 
     @Override

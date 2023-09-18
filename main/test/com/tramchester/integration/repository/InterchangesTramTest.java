@@ -8,7 +8,6 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.InterchangeType;
 import com.tramchester.domain.places.Station;
@@ -22,6 +21,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DualTest;
 import org.junit.jupiter.api.*;
@@ -29,11 +29,15 @@ import org.junit.jupiter.api.condition.DisabledIf;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.CentralZoneStation.StWerbergsRoad;
-import static com.tramchester.testSupport.reference.KnownTramRoute.*;
+import static com.tramchester.testSupport.reference.KnownTramRoute.RochdaleShawandCromptonManchesterEastDidisbury;
+import static com.tramchester.testSupport.reference.KnownTramRoute.VictoriaWythenshaweManchesterAirport;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -186,13 +190,13 @@ public class InterchangesTramTest {
         Station cornbrook = Cornbrook.from(stationRepository);
 
         Set<InterchangeStation> interchanges = interchangeRepository.getAllInterchanges();
-        List<Station> stations = interchanges.stream().map(InterchangeStation::getStation).collect(Collectors.toList());
+        List<Station> stations = interchanges.stream().map(InterchangeStation::getStation).toList();
 
         assertTrue(stations.contains(cornbrook));
 
         IdSet<Route> dropOffs = cornbrook.getDropoffRoutes().stream().collect(IdSet.collector());
 
-        assertTrue(dropOffs.contains(Route.createId("METLRED:I:CURRENT")), dropOffs.toString());
+        assertTrue(dropOffs.contains(KnownTramRoute.CornbrookTheTraffordCentre.getId()), dropOffs.toString());
     }
 
     @Test

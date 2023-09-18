@@ -341,19 +341,45 @@ public class RouteCalculatorTest {
     }
 
     @Test
-    void shouldHandleCrossingMidnightDirect() {
-        JourneyRequest journeyRequestA = standardJourneyRequest(when, TramTime.of(23,55), maxNumResults);
+    void shouldHandleCrossingMidnightDirectCornbrookStPeters() {
+        JourneyRequest journeyRequestA = standardJourneyRequest(when, TramTime.of(23, 55), maxNumResults);
         assertGetAndCheckJourneys(journeyRequestA, Cornbrook, StPetersSquare);
+    }
 
-        TramDate disurptionAvoidance = when.plusWeeks(1);
-        JourneyRequest journeyRequestB = standardJourneyRequest(disurptionAvoidance, TramTime.of(0,0), maxNumResults);
+    @Test
+    void shouldHandleCrossingMidnightDirectAltrinchamToNavigationRoad() {
+
+        JourneyRequest journeyRequestB = standardJourneyRequest(when, TramTime.of(23,55), maxNumResults);
         assertGetAndCheckJourneys(journeyRequestB, Altrincham, OldTrafford);
     }
 
     @Test
-    void shouldHandleAfterMidnightDirect() {
-        TramDate disuptionAvoidance = when.plusWeeks(1);
-        JourneyRequest journeyRequest = standardJourneyRequest(disuptionAvoidance, TramTime.of(0,0), maxNumResults);
+    void shouldHandleAtMidnightDirectCornbrookStPeters() {
+        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(0,0), maxNumResults);
+        assertGetAndCheckJourneys(journeyRequest, Cornbrook, StPetersSquare);
+    }
+
+    @Test
+    void shouldHandlePastMidnightDirectCornbrookStPeters() {
+        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(0,1), maxNumResults);
+        assertGetAndCheckJourneys(journeyRequest, Cornbrook, StPetersSquare);
+    }
+
+    @Test
+    void shouldHandleAtMidnightDirectAltrinchamNavigation() {
+        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(0,0), maxNumResults);
+        assertGetAndCheckJourneys(journeyRequest, Altrincham, NavigationRoad);
+    }
+
+    @Test
+    void shouldHandleJustBeforeMidnightDirectAltrinchamNavigation() {
+        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(23,59), maxNumResults);
+        assertGetAndCheckJourneys(journeyRequest, Altrincham, NavigationRoad);
+    }
+
+    @Test
+    void shouldHandlePastMidnightDirectAltrinchamNavigation() {
+        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(0,1), maxNumResults);
         assertGetAndCheckJourneys(journeyRequest, Altrincham, NavigationRoad);
     }
 

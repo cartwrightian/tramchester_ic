@@ -2,12 +2,11 @@ package com.tramchester.repository;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.FindRouteEndPoints;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,15 +23,13 @@ import java.util.Set;
 public class RouteEndRepository {
     private static final Logger logger = LoggerFactory.getLogger(RouteEndRepository.class);
 
-    private final FindRouteEndPoints findRouteEndPoints;
-    private final StationRepository stationRepository;
+    private final TripRepository tripRepository;
     private final Map<TransportMode,IdSet<Station>> beginOrEndOfRoutes;
     private final Set<TransportMode> enabledModes;
 
     @Inject
-    public RouteEndRepository(FindRouteEndPoints findRouteEndPoints, StationRepository stationRepository, TramchesterConfig config) {
-        this.findRouteEndPoints = findRouteEndPoints;
-        this.stationRepository = stationRepository;
+    public RouteEndRepository(TripRepository tripRepository, TramchesterConfig config) {
+        this.tripRepository = tripRepository;
         beginOrEndOfRoutes = new HashMap<>();
         enabledModes = config.getTransportModes();
     }
@@ -41,19 +38,35 @@ public class RouteEndRepository {
     public void start() {
         logger.info("start");
         for(TransportMode mode : enabledModes) {
-            IdSet<RouteStation> starts = findRouteEndPoints.searchForStarts(mode);
-            logger.info("Found " + starts.size() + " route start points");
-            IdSet<RouteStation> ends = findRouteEndPoints.searchForEnds(mode);
-            logger.info("Found " + ends.size() + " route end points");
 
-            IdSet<Station> stationIds = getStationIds(starts);
-            stationIds.addAll(getStationIds(ends));
+            IdSet<Station> begins = getBegins(mode);
+            IdSet<Station> ends = getEnds(mode);
 
-            beginOrEndOfRoutes.put(mode, stationIds);
-            logger.info("Found " + stationIds.size() + " ends of routes for " + mode);
+            IdSet<Station> beginsAndEnds = begins.addAll(ends);
+
+            beginOrEndOfRoutes.put(mode, beginsAndEnds);
+            logger.info("Found " + beginsAndEnds.size() + " ends of routes for " + mode);
         }
 
         logger.info("started");
+    }
+
+    private IdSet<Station> getBegins(TransportMode mode) {
+        return tripRepository.getTrips().stream().
+                filter(trip -> !trip.isFiltered()).
+                filter(trip -> trip.getTransportMode().equals(mode)).
+                map(trip -> trip.getStopCalls().getFirstStop()).
+                map(StopCall::getStation).
+                collect(IdSet.collector());
+    }
+
+    private IdSet<Station> getEnds(TransportMode mode) {
+        return tripRepository.getTrips().stream().
+                filter(trip -> !trip.isFiltered()).
+                filter(trip -> trip.getTransportMode().equals(mode)).
+                map(trip -> trip.getStopCalls().getFirstStop()).
+                map(StopCall::getStation).
+                collect(IdSet.collector());
     }
 
     @PreDestroy
@@ -64,22 +77,8 @@ public class RouteEndRepository {
         logger.info("stopped");
     }
 
-    private IdSet<Station> getStationIds(IdSet<RouteStation> starts) {
-        return starts.stream().
-                map(stationRepository::getRouteStationById).
-                map(RouteStation::getStationId).collect(IdSet.idCollector());
-    }
-
     public IdSet<Station> getStations(TransportMode mode) {
         return beginOrEndOfRoutes.get(mode);
     }
 
-//    public boolean isEndRoute(IdFor<Station> stationId) {
-//        for (TransportMode enabledMode : enabledModes) {
-//            if (beginOrEndOfRoutes.get(enabledMode).contains(stationId)) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
 }

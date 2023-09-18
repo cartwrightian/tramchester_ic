@@ -3,15 +3,11 @@ package com.tramchester.testSupport.reference;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.reference.RouteDirection;
 import com.tramchester.domain.reference.TransportMode;
 
 import java.time.DayOfWeek;
 import java.util.EnumSet;
 import java.util.Set;
-
-import static com.tramchester.domain.reference.RouteDirection.Outbound;
-import static java.lang.String.format;
 
 /**
  * see also TramRouteHelper
@@ -20,30 +16,31 @@ import static java.lang.String.format;
 public enum KnownTramRoute {
 
     //AltrinchamPiccadilly("Purple Line", Inbound, "Altrincham - Piccadilly"),
-    PiccadillyAltrincham("Purple Line", Outbound, "Piccadilly - Altrincham"),
+    PiccadillyAltrincham("Purple Line", "Piccadilly - Altrincham", "842"),
 
     //AltrinchamManchesterBury("Green Line", Inbound, "Altrincham - Manchester - Bury"),
-    BuryManchesterAltrincham("Green Line", Outbound, "Bury - Manchester - Altrincham"),
+    BuryManchesterAltrincham("Green Line", "Bury - Manchester - Altrincham", "841"),
 
     //AshtonUnderLyneManchesterEccles("Blue Line", Inbound, "Ashton Under Lyne - Manchester - Eccles"),
-    EcclesManchesterAshtonUnderLyne("Blue Line", Outbound, "Eccles - Manchester - Ashton Under Lyne"),
+    EcclesManchesterAshtonUnderLyne("Blue Line", "Eccles - Manchester - Ashton Under Lyne", "843"),
 
     //BuryPiccadilly("Yellow Line", Inbound,"Bury - Piccadilly"),
-    PiccadillyBury("Yellow Line", Outbound, "Piccadilly - Bury"),
+    PiccadillyBury("Yellow Line", "Piccadilly - Bury", "844"),
 
     //EastDidisburyManchesterShawandCromptonRochdale("Pink Line", Inbound, "East Didsbury - Manchester - Shaw and Crompton - Rochdale"),
-    RochdaleShawandCromptonManchesterEastDidisbury("Pink Line", Outbound, "Rochdale - Shaw and Crompton - Manchester - East Didsbury"),
+    RochdaleShawandCromptonManchesterEastDidisbury("Pink Line", "Rochdale - Shaw and Crompton - Manchester - East Didsbury", "845"),
 
     //ManchesterAirportWythenshaweVictoria("Navy Line", Inbound, "Manchester Airport - Wythenshawe - Victoria"),
-    VictoriaWythenshaweManchesterAirport("Navy Line", Outbound, "Victoria - Wythenshawe - Manchester Airport"),
+    VictoriaWythenshaweManchesterAirport("Navy Line", "Victoria - Wythenshawe - Manchester Airport", "848"),
 
     //TheTraffordCentreCornbrook("Red Line", Inbound, "The Trafford Centre - Cornbrook"),
-    CornbrookTheTraffordCentre("Red Line", Outbound, "Cornbrook - The Trafford Centre");
+    CornbrookTheTraffordCentre("Red Line", "Cornbrook - The Trafford Centre", "849");
 
-    private final IdFor<Route> fakeId;
-    private final RouteDirection direction;
+//    private final IdFor<Route> fakeId;
+//    private final RouteDirection direction;
     private final String shortName;
     private final String longName;
+    private final IdFor<Route> id;
 
     // tram route merge workaround, TODO inline these at some point?
     @Deprecated
@@ -60,8 +57,6 @@ public enum KnownTramRoute {
     public static final KnownTramRoute ManchesterAirportWythenshaweVictoria = KnownTramRoute.VictoriaWythenshaweManchesterAirport;
     @Deprecated
     public static final KnownTramRoute TheTraffordCentreCornbrook = KnownTramRoute.CornbrookTheTraffordCentre;
-    @Deprecated
-
 
     public static Set<KnownTramRoute> getFor(TramDate date) {
         EnumSet<KnownTramRoute> routes = EnumSet.noneOf(KnownTramRoute.class);
@@ -81,43 +76,15 @@ public enum KnownTramRoute {
         return routes;
     }
 
-    KnownTramRoute(String shortName, RouteDirection direction, String longName) {
+    KnownTramRoute(String shortName, String longName, String id) {
         this.longName = longName;
-        this.direction = direction;
         this.shortName = shortName;
-
-        // new format for IDs METLRED:I:xxxxxx
-        String idSuffix;
-        if (shortName.contains("Replacement") || shortName.contains("Replaement")) { // yep, typo in the source data
-            idSuffix = getSuffixFor(shortName);
-        } else {
-            int endIndex = Math.min(shortName.length(), 4);
-            idSuffix = shortName.toUpperCase().substring(0, endIndex).trim();
-        }
-        this.fakeId = createId(format("METL%s%sCURRENT", idSuffix, direction.getSuffix()));
-
+        this.id = Route.createId(id);
     }
 
     public static int numberOn(TramDate date) {
         return getFor(date).size();
     }
-
-    private String getSuffixFor(String shortName) {
-        return switch (shortName) {
-            case "Blue Line Bus Replacement" -> "MLDP";
-            default -> throw new RuntimeException("Unexpected replacement service short name" + shortName);
-        };
-    }
-
-    private IdFor<Route> createId(String stationId) {
-        return Route.createId(stationId);
-    }
-
-    // no longer used since tfgm data format changes
-
-//    public RouteDirection direction() {
-//        return direction;
-//    }
 
     public TransportMode mode() { return TransportMode.Tram; }
 
@@ -129,12 +96,11 @@ public enum KnownTramRoute {
         return shortName;
     }
 
-    public IdFor<Route> getFakeId() {
-        return fakeId;
-    }
-
     public String longName() {
         return longName;
     }
 
+    public IdFor<Route> getId() {
+        return id;
+    }
 }

@@ -4,6 +4,8 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
@@ -22,6 +24,7 @@ import javax.inject.Inject;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.tramchester.domain.id.HasId.asIds;
 import static java.lang.String.format;
 
 @LazySingleton
@@ -50,31 +53,47 @@ public class RoutesMapper {
 
     }
 
-    public List<RouteDTO> getRouteDTOs(TramDate effectiveOnDate) {
-        Set<Route> routesOnDate = routeRepository.getRoutesRunningOn(effectiveOnDate);
-        List<RouteDTO> dtos = routesOnDate.stream().
-                map(route -> new RouteDTO(route, getLocationsAlong(route, true))).
-                collect(Collectors.toList());
-        Set<String> uniqueNames = dtos.stream().map(RouteRefDTO::getRouteName).collect(Collectors.toSet());
-        if (uniqueNames.size() != dtos.size()) {
-            logger.warn(format("Got duplicate route names for routes %s on date %s",
-                    HasId.asIds(routesOnDate), effectiveOnDate));
-        }
-        return dtos;
+    public List<RouteDTO> getRouteDTOs(TramDate date) {
+        Set<Route> routesOnDate = routeRepository.getRoutesRunningOn(date);
+        logger.info("Get routeDTOs for " + date + " from " + asIds(routesOnDate));
+
+        List<RouteDTO> results = new ArrayList<>();
+
+        routesOnDate.forEach(route -> {
+            List<RouteDTO> dtosForRoute = getLocationsAlong(route, true);
+            results.addAll(dtosForRoute);
+        });
+
+
+        return results;
     }
 
     @NotNull
-    private List<LocationRefWithPosition> getLocationsAlong(Route route, boolean includeNotStopping) {
-        return getStationsOn(route, includeNotStopping).stream().
-                map(DTOFactory::createLocationRefWithPosition).
-                collect(Collectors.toList());
+    private List<RouteDTO> getLocationsAlong(Route route, boolean includeNotStopping) {
+        IdSet<Station> startStations = route.getStartStations();
+
+        List<RouteDTO> results = new ArrayList<>();
+
+        startStations.forEach(stationId -> {
+            List<LocationRefWithPosition> onRouteStartingFrom = getStationsOn(route, includeNotStopping, stationId).stream().
+                    map(DTOFactory::createLocationRefWithPosition).
+                    toList();
+            RouteDTO routeDTO = new RouteDTO(route, onRouteStartingFrom);
+            results.add(routeDTO);
+        });
+
+        logger.info("Found " + results.size() + " routeDTOS for route " + route.getId() + " and start stations " + startStations);
+
+        return results;
     }
 
-    // use for visualisation in the front-end routes map, this is approx. since some gtfs routes actually
-    // branch TODO Use query of the graph DB to get the "real" representation
-    public List<Station> getStationsOn(Route route, boolean includeNotStopping) {
+    // use for visualisation in the front-end routes map
+    public List<Station> getStationsOn(Route route, boolean includeNotStopping, IdFor<Station> startStation) {
         Set<Trip> tripsForRoute = route.getTrips();
-        Optional<Trip> maybeLongest = tripsForRoute.stream().
+
+        Set<Trip> startingAt = tripsForRoute.stream().filter(trip -> trip.firstStation().equals(startStation)).collect(Collectors.toSet());
+
+        Optional<Trip> maybeLongest = startingAt.stream().
                 max(Comparator.comparingLong(a -> a.getStopCalls().totalNumber()));
 
         if (maybeLongest.isEmpty()) {

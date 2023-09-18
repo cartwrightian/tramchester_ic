@@ -1,6 +1,9 @@
 package com.tramchester.domain.presentation.DTO;
 
 import com.tramchester.domain.Route;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdForDTO;
+import com.tramchester.domain.places.Station;
 
 import java.util.List;
 
@@ -27,5 +30,9 @@ public class RouteDTO extends RouteRefDTO {
         return "RouteDTO{" +
                 "stations=" + stations +
                 "} " + super.toString();
+    }
+
+    public IdForDTO getStartStation() {
+        return stations.get(0).getId();
     }
 }

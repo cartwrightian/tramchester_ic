@@ -48,7 +48,6 @@ public class ServedRoute {
     }
 
     // TODO Remove date filtering here?
-    // the number of hops....
     public Set<Route> getRoutes(TramDate date, TimeRange range, Set<TransportMode> modes) {
         Set<Route> results = getRouteForDateAndTimeRange(date, range, modes);
         if (range.intoNextDay()) {
@@ -75,15 +74,17 @@ public class ServedRoute {
                 collect(Collectors.toSet());
     }
 
-    private boolean hasTimeRangerOverlap(TimeRange range, RouteAndService routeAndService) {
-        return timeWindows.get(routeAndService).anyOverlap(range);
+    public boolean anyAvailable(TramDate when, TimeRange timeRange, Set<TransportMode> requestedModes) {
+        // todo optimise this
+        return !getRoutes(when, timeRange, requestedModes).isEmpty();
+//        return routeAndServices.stream().
+//                filter(routeAndService -> requestedModes.contains(routeAndService.getTransportMode())).
+//                filter(routeAndService -> routeAndService.isAvailableOn(when)).
+//                anyMatch(routeAndService -> hasTimeRangerOverlap(timeRange, routeAndService));
     }
 
-    public boolean anyAvailable(TramDate when, TimeRange timeRange, Set<TransportMode> requestedModes) {
-        return routeAndServices.stream().
-                filter(routeAndService -> requestedModes.contains(routeAndService.getTransportMode())).
-                filter(routeAndService -> routeAndService.isAvailableOn(when)).
-                anyMatch(routeAndService -> hasTimeRangerOverlap(timeRange, routeAndService));
+    private boolean hasTimeRangerOverlap(TimeRange range, RouteAndService routeAndService) {
+        return timeWindows.get(routeAndService).anyOverlap(range);
     }
 
     /***

@@ -107,9 +107,11 @@ public class JourneyPlannerResourceTest {
 
         Set<Integer> indexs = journeys.stream().map(JourneyDTO::getIndex).collect(Collectors.toSet());
         assertEquals(journeys.size(), indexs.size(), "mismatch on indexes " + indexs);
-        for (int i = 0; i < journeys.size(); i++) {
-            assertTrue(indexs.contains(i), "missing index " + i);
-        }
+
+        // not meaningful to assert on these due to filtering out of duplicates
+//        for (int i = 0; i < journeys.size(); i++) {
+//            assertTrue(indexs.contains(i), "missing index " + i + " in " + indexs);
+//        }
     }
 
     @Test
@@ -229,6 +231,7 @@ public class JourneyPlannerResourceTest {
             // multiple possible places to change depending on timetable etc
             assertThat(secondStagePlatform.getName(), is(oneOf(
                     "Cornbrook platform 1",
+                              "Cornbrook platform 2",
                     "Deansgate-Castlefield platform 1",
                     "Piccadilly platform 1", // summer 2021 only?
                     "St Peter's Square platform 2")));

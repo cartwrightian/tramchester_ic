@@ -30,8 +30,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class GraphQueriesTests {
 
@@ -111,12 +110,15 @@ class GraphQueriesTests {
 
         IdSet<RouteStation> results = findRouteEndPoints.searchForEnds(Tram);
 
+        assertFalse(results.isEmpty());
+
         IdSet<Station> stationIds = results.stream().
                 map(stationRepository::getRouteStationById).map(RouteStation::getStationId).
                 collect(IdSet.idCollector());
 
         IdSet<Station> expectedStationIds = createSet(transportData.getFifthStation(), transportData.getLast(),
                 transportData.getFourthStation(), transportData.getFirstDup2Name());
+
         assertEquals(expectedStationIds, stationIds);
     }
 

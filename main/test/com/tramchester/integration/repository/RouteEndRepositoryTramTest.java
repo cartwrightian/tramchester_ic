@@ -15,6 +15,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static com.tramchester.testSupport.reference.TramStations.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class RouteEndRepositoryTramTest {
@@ -43,10 +44,12 @@ class RouteEndRepositoryTramTest {
     void shouldFindEndsOfLinesForTram() {
         IdSet<Station> results = endStationsRepository.getStations(TransportMode.Tram);
 
+        assertFalse(results.isEmpty());
+
         //assertTrue(results.contains(Cornbrook.getId()));
 
-        assertTrue(results.contains(Victoria.getId()));
-        assertTrue(results.contains(Piccadilly.getId()));
+        assertTrue(results.contains(Victoria.getId()), results.toString());
+        assertTrue(results.contains(Piccadilly.getId()), results.toString());
         IdSet<Station> eolIds = EndOfTheLine.stream().map(TramStations::getId).collect(IdSet.idCollector());
         assertTrue(results.containsAll(eolIds));
 

@@ -17,10 +17,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.time.Duration;
 import java.util.List;
@@ -105,8 +102,8 @@ public class RouteInterchangesTest {
         Set<Route> cornbrookDropofss = cornbrook.getDropoffRoutes().stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
 
         int throughRoutes = 6; // might not match the map, which includes psuedo-routes that are made of trams running part of an existing route
-        assertEquals(throughRoutes*2  , cornbrookPickups.size(), HasId.asIds(cornbrookPickups));
-        assertEquals(throughRoutes*2 , cornbrookDropofss.size(), HasId.asIds(cornbrookDropofss));
+        assertEquals(throughRoutes  , cornbrookPickups.size(), HasId.asIds(cornbrookPickups));
+        assertEquals(throughRoutes , cornbrookDropofss.size(), HasId.asIds(cornbrookDropofss));
 
         assertTrue(cornbrookPickups.contains(buryToAlty));
         assertTrue(cornbrookDropofss.contains(buryToAlty));
@@ -203,6 +200,7 @@ public class RouteInterchangesTest {
         );
     }
 
+    @Disabled("no longer applies with new route data")
     @Test
     void shouldGetMaxCostIfNoInterchangeBetweenStationAndEndOfTheRoute() {
 
