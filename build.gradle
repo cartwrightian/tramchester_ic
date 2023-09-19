@@ -169,7 +169,8 @@ distZip {
 }
 
 processResources {
-    dependsOn 'webpack'
+    // todo need to figure out where to add webpack depedency, don't want it running during unit etc
+    //dependsOn 'webpack'
     exclude('**/app/') // via webpack
     //exclude('build/resources/app/**')
 }
