@@ -338,7 +338,7 @@ class ConfigMismatchTest {
                 assertEquals(expectedDataSource.getStationClosures(), dataSourceConfig.getStationClosures(), "station closures");
             }
             assertEquals(expectedDataSource.getAddWalksForClosed(), dataSourceConfig.getAddWalksForClosed(), "AddWalksForClosed");
-
+            assertEquals(expectedDataSource.getHasFeedInfo(), dataSourceConfig.getHasFeedInfo(), "feedinfo mismatch");
             checkDataSourceConfig(expectedDataSource, dataSourceConfig);
         }
     }

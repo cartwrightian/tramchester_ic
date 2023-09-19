@@ -169,9 +169,9 @@ distZip {
 }
 
 processResources {
-    // todo need to figure out where to add webpack depedency, don't want it running during unit etc
+    // don't want webpack during unit tests etc, move to upload
     //dependsOn 'webpack'
-    exclude('**/app/') // via webpack
+    //exclude('**/app/') // via webpack
     //exclude('build/resources/app/**')
 }
 
@@ -210,6 +210,15 @@ task webpack(type: Exec, dependsOn: npmInstall) {
         commandLine "./node_modules/.bin/webpack"
     }
 }
+
+//distZip(dependsOn: webpack) {
+//    de
+//    exclude('**/app/') // via webpack
+//}
+
+applicationDistribution.exclude('**/app/')
+distZip.dependsOn('webpack')
+distTar.dependsOn('webpack')
 
 distributions {
     main {
@@ -710,6 +719,8 @@ task queryLiveDataArchiveStartScript(type: CreateStartScripts, dependsOn: compil
     applicationName = 'queryLiveData'
 }
 
+
+
 task copyIntoUploadDir(type: Copy, dependsOn: [zipDB, distZip]) {
     from 'build/distributions/database.zip'
     from 'build/distributions/tramchester-1.0.zip'
@@ -718,7 +729,7 @@ task copyIntoUploadDir(type: Copy, dependsOn: [zipDB, distZip]) {
     into 'build/distributions/uploadDir'
 }
 
-task uploadApp(type: S3Upload, dependsOn:copyIntoUploadDir) {
+task uploadApp(type: S3Upload, dependsOn: copyIntoUploadDir) {
     keyPrefix = s3prefix
     sourceDir = 'build/distributions/uploadDir'
 }

@@ -22,7 +22,7 @@ instanceDataUrl: http://169.254.169.254
 gtfsSourceConfig:
   - name: tfgm
     dataPath: data/tram
-    hasFeedInfo: true
+    hasFeedInfo: false
     transportModes: [ tram ]
     transportModesWithPlatforms: [ Tram ]
     initialWaitMinutes: 13
