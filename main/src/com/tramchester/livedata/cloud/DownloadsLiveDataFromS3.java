@@ -40,6 +40,8 @@ public class DownloadsLiveDataFromS3 {
     }
 
     public Stream<ArchivedStationDepartureInfoDTO> downloadFor(LocalDateTime start, Duration duration) {
+        guardForEnabled();
+
         logger.info("Download departure info from s3 for " + start + " and duration " + duration.getSeconds() + " seconds");
         final LocalDate end = start.plus(duration).toLocalDate();
         LocalDate current = start.toLocalDate();
@@ -53,6 +55,12 @@ public class DownloadsLiveDataFromS3 {
         }
 
         return downloadSelectedKeys(start, duration, inscopeKeys);
+    }
+
+    private void guardForEnabled() {
+        if (!isEnabled()) {
+            throw new RuntimeException("Not enabled");
+        }
     }
 
     private Stream<LiveDataRecordKey> getKeysFor(String prefix) {
@@ -69,6 +77,8 @@ public class DownloadsLiveDataFromS3 {
     }
 
     public Stream<ArchivedStationDepartureInfoDTO> downloadFor(LocalDateTime start, Duration duration, Duration samplePeriod) {
+        guardForEnabled();
+
         logger.info("Download departure info from s3 for %s and duration %d seconds sample window %s seconds".
                 formatted(start, duration.getSeconds(), samplePeriod.getSeconds()));
         final LocalDate end = start.plus(duration).toLocalDate();
@@ -164,37 +174,34 @@ public class DownloadsLiveDataFromS3 {
         return (date.isAfter(begin) && date.isBefore(end));
     }
 
-    private static class LiveDataRecordKey implements Comparable<LiveDataRecordKey> {
-        private final String text;
-        private final LocalDateTime time;
+    public boolean isEnabled() {
+        return s3Client.isEnabled();
+    }
 
-        private LiveDataRecordKey(String text, LocalDateTime time) {
-            this.text = text;
-            this.time = time;
-        }
+    private record LiveDataRecordKey(String text, LocalDateTime time) implements Comparable<LiveDataRecordKey> {
 
         public static LiveDataRecordKey Invalid() {
-            return new LiveDataRecordKey("", LocalDateTime.MIN);
-        }
+                return new LiveDataRecordKey("", LocalDateTime.MIN);
+            }
 
-        public boolean isValid() {
-            return !time.equals(LocalDateTime.MIN);
-        }
+            public boolean isValid() {
+                return !time.equals(LocalDateTime.MIN);
+            }
 
-        @Override
-        public int compareTo(@NotNull DownloadsLiveDataFromS3.LiveDataRecordKey other) {
-            return time.compareTo(other.time);
-        }
+            @Override
+            public int compareTo(@NotNull DownloadsLiveDataFromS3.LiveDataRecordKey other) {
+                return time.compareTo(other.time);
+            }
 
-        public LocalDateTime plus(Duration samplePeriod) {
-            return time.plus(samplePeriod);
-        }
+            public LocalDateTime plus(Duration samplePeriod) {
+                return time.plus(samplePeriod);
+            }
 
-        boolean isBetween(final LocalDateTime begin, final LocalDateTime end) {
-            return (time.equals(begin) || time.isAfter(begin))  && (time.isBefore(end));
-                    //&& (time.equals(end) || time.isBefore(end));
+            boolean isBetween(final LocalDateTime begin, final LocalDateTime end) {
+                return (time.equals(begin) || time.isAfter(begin)) && (time.isBefore(end));
+                //&& (time.equals(end) || time.isBefore(end));
+            }
         }
-    }
 
 
 }

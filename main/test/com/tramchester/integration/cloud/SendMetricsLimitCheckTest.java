@@ -1,6 +1,7 @@
 package com.tramchester.integration.cloud;
 
 import com.tramchester.cloud.SendMetricsToCloudWatch;
+import com.tramchester.testSupport.testTags.AWSMetricsTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import software.amazon.awssdk.services.cloudwatch.CloudWatchClient;
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 
+@AWSMetricsTest
 class SendMetricsLimitCheckTest {
 
     private CloudWatchClient client;

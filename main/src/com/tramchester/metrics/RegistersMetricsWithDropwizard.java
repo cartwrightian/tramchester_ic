@@ -2,8 +2,12 @@ package com.tramchester.metrics;
 
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.MetricRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RegistersMetricsWithDropwizard implements RegistersMetrics {
+    private static final Logger logger = LoggerFactory.getLogger(RegistersMetricsWithDropwizard.class);
+
     private final MetricRegistry metricRegistry;
 
     public RegistersMetricsWithDropwizard(MetricRegistry metricRegistry) {
@@ -20,6 +24,11 @@ public class RegistersMetricsWithDropwizard implements RegistersMetrics {
     }
 
     public void registerMetricsFor(HasMetrics hasMetrics) {
-        hasMetrics.registerMetrics(this);
+        if (hasMetrics.areMetricsEnabled()) {
+            hasMetrics.registerMetrics(this);
+        }
+        else {
+            logger.warn(hasMetrics.getClass().getCanonicalName() + " is not enabled");
+        }
     }
 }

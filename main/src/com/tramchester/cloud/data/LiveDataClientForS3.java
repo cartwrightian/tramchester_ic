@@ -69,7 +69,7 @@ public class LiveDataClientForS3  {
         return stream;
     }
 
-    public boolean isStarted() {
+    public boolean isEnabled() {
         return !bucket.isEmpty();
     }
 
@@ -86,10 +86,10 @@ public class LiveDataClientForS3  {
         return clientForS3.getKeysFor(bucket, prefix);
     }
 
-    public Stream<String> getAllKeysAsStream() {
-        logger.info("Getting all keys for " + bucket);
-        return clientForS3.getAllKeys(bucket);
-    }
+//    public Stream<String> getAllKeysAsStream() {
+//        logger.info("Getting all keys for " + bucket);
+//        return clientForS3.getAllKeys(bucket);
+//    }
 
     public interface ResponseMapper<T> {
         List<T> map(final String key, final byte[] bytes);

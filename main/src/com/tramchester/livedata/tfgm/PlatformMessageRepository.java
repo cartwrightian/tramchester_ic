@@ -60,7 +60,7 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
 
     @PostConstruct
     public void start() {
-        if (isEnabled()) {
+        if (areMetricsEnabled()) {
             cacheMetrics.register(this);
         } else {
             logger.warn("Disabled, live data is not configured");
@@ -73,6 +73,11 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
     }
 
     @Override
+    public boolean areMetricsEnabled() {
+        return isEnabled();
+    }
+
+    @Override
     public boolean isEnabled() {
         return config.liveTfgmTramDataEnabled();
     }
@@ -82,7 +87,7 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
      */
     @Override
     public int updateCache(List<TramStationDepartureInfo> departureInfos) {
-        if (!isEnabled()) {
+        if (!areMetricsEnabled()) {
             logger.error("Unexpected call of updateCache since live data is disabled");
         }
         logger.info("Updating cache");
@@ -157,7 +162,7 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
 
     @Override
     public List<PlatformMessage> messagesFor(Station station, TramDate when, TramTime queryTime) {
-        if (!isEnabled()) {
+        if (!areMetricsEnabled()) {
             return Collections.emptyList();
         }
 
@@ -172,9 +177,11 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
         return results;
     }
 
+
+
     @Override
     public Optional<PlatformMessage> messagesFor(IdFor<Platform> platformId, TramDate queryDate, TramTime queryTime) {
-        if (!isEnabled()) {
+        if (!areMetricsEnabled()) {
             return Optional.empty();
         }
 
@@ -229,7 +236,7 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
 
     // for healthcheck
     public int numberStationsWithMessages(LocalDateTime queryDateTime) {
-        if (!isEnabled()) {
+        if (!areMetricsEnabled()) {
             return 0;
         }
 

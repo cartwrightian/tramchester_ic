@@ -45,7 +45,7 @@ class CountsUploadedLiveDataTest extends EasyMockSupport {
         ArchivedStationDepartureInfoDTO item = new ArchivedStationDepartureInfoDTO();
         List<ArchivedStationDepartureInfoDTO> liveData = Collections.singletonList(item);
         Stream<ArchivedStationDepartureInfoDTO> liveDataSteam = liveData.stream();
-
+        EasyMock.expect(downloadsLiveData.isEnabled()).andReturn(true);
         EasyMock.expect(downloadsLiveData.downloadFor(checkTime, expectedDuration))
                 .andReturn(liveDataSteam);
 
@@ -59,6 +59,7 @@ class CountsUploadedLiveDataTest extends EasyMockSupport {
 
     @Test
     void shouldCountZeroIfNoDataFound() {
+        EasyMock.expect(downloadsLiveData.isEnabled()).andReturn(true);
         EasyMock.expect(downloadsLiveData.downloadFor(checkTime, expectedDuration))
                 .andReturn(Stream.empty());
 
@@ -77,6 +78,7 @@ class CountsUploadedLiveDataTest extends EasyMockSupport {
         Stream<ArchivedStationDepartureInfoDTO> liveDataSteam = liveData.stream();
 
         EasyMock.expect(providesLocalNow.getDateTime()).andStubReturn(checkTime);
+        EasyMock.expect(downloadsLiveData.isEnabled()).andReturn(true);
         EasyMock.expect(downloadsLiveData.downloadFor(checkTime, Duration.of(1, MINUTES)))
                 .andReturn(liveDataSteam);
 

@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class LiveDataS3UploadHealthCheckTest extends EasyMockSupport {
 
-    private final TramchesterConfig configuration = TestEnv.GET(new TestTramLiveDataConfig());
+    private final TramchesterConfig configuration = TestEnv.GET(new ConfigWithBucket());
     private LocalDateTime now;
     private ProvidesLocalNow providesLocalNow;
     private CountsUploadedLiveData countsUploadedLiveData;
@@ -71,5 +71,12 @@ class LiveDataS3UploadHealthCheckTest extends EasyMockSupport {
         verifyAll();
 
         assertFalse(result.isHealthy());
+    }
+
+    private static class ConfigWithBucket extends TestTramLiveDataConfig {
+        @Override
+        public String getS3Bucket() {
+            return "someBucketName";
+        }
     }
 }

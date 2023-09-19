@@ -58,7 +58,7 @@ class UploadsLiveDataTest extends EasyMockSupport {
         EasyMock.expect(s3Keys.createPrefix(lastUpdateTime.toLocalDate())).andReturn("prefix");
         EasyMock.expect(s3Keys.create(lastUpdateTime)).andReturn("key");
 
-        EasyMock.expect(clientForS3.isStarted()).andReturn(true);
+        EasyMock.expect(clientForS3.isEnabled()).andReturn(true);
         EasyMock.expect(clientForS3.itemExists("prefix","key")).andReturn(false);
         EasyMock.expect(mapper.map(dtos)).andReturn("someJson");
 
@@ -77,7 +77,7 @@ class UploadsLiveDataTest extends EasyMockSupport {
         EasyMock.expect(s3Keys.createPrefix(lastUpdateTime.toLocalDate())).andReturn("prefix");
         EasyMock.expect(s3Keys.create(lastUpdateTime)).andReturn("key");
 
-        EasyMock.expect(clientForS3.isStarted()).andReturn(true);
+        EasyMock.expect(clientForS3.isEnabled()).andReturn(true);
         EasyMock.expect(clientForS3.itemExists("prefix", "key")).andReturn(true);
 
         replayAll();
@@ -89,7 +89,7 @@ class UploadsLiveDataTest extends EasyMockSupport {
 
     @Test
     void shouldNotUploadIfEmptyList() {
-        EasyMock.expect(clientForS3.isStarted()).andReturn(true);
+        EasyMock.expect(clientForS3.isEnabled()).andReturn(true);
 
         replayAll();
         boolean result = uploadsLiveData.seenUpdate(Collections.emptyList());
@@ -100,7 +100,7 @@ class UploadsLiveDataTest extends EasyMockSupport {
 
     @Test
     void shouldNotUploadIfNotStarted() {
-        EasyMock.expect(clientForS3.isStarted()).andReturn(false);
+        EasyMock.expect(clientForS3.isEnabled()).andReturn(false);
 
         replayAll();
         boolean result = uploadsLiveData.seenUpdate(liveData);

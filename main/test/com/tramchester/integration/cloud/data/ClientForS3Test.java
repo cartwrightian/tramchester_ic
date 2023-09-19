@@ -7,6 +7,7 @@ import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.testTags.S3Test;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import software.amazon.awssdk.core.ResponseInputStream;
@@ -32,6 +33,7 @@ import java.util.zip.ZipInputStream;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.*;
 
+@S3Test
 public class ClientForS3Test {
     private static S3Client awsS3;
     private static S3Waiter s3Waiter;
@@ -39,6 +41,7 @@ public class ClientForS3Test {
 
     private static GuiceContainerDependencies componentContainer;
 
+    // TOOD Use a different bucket from the live data one
     private final static String BUCKET = "tramchestertestlivedatabucket";
     private static ClientForS3 clientForS3;
     private final Path testFilePath = Path.of("testFile.txt");

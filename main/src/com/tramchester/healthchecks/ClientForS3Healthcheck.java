@@ -29,14 +29,14 @@ public class ClientForS3Healthcheck extends TramchesterHealthCheck {
 
     @Override
     public boolean isEnabled() {
-        return config.getLiveDataConfig()!=null;
+        return clientForS3.isEnabled();
     }
 
     @Override
     protected Result check() {
         TfgmTramLiveDataConfig liveDataConfig = config.getLiveDataConfig();
 
-        if (clientForS3.isStarted()) {
+        if (clientForS3.isEnabled()) {
             return Result.healthy(format("Running for %s %s", liveDataConfig.getS3Bucket(),
                     liveDataConfig.getS3Prefix()));
         }

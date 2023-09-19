@@ -14,4 +14,8 @@ public interface TfgmTramLiveDataConfig {
     int getMaxNumberStationsWithoutData();
 
     String getS3Prefix();
+
+    default boolean isEnabled() {
+        return !getS3Bucket().isEmpty();
+    }
 }

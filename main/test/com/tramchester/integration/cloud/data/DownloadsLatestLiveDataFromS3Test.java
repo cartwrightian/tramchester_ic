@@ -9,6 +9,7 @@ import com.tramchester.livedata.cloud.DownloadsLiveDataFromS3;
 import com.tramchester.livedata.domain.DTO.archived.ArchivedStationDepartureInfoDTO;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestTramLiveDataConfig;
+import com.tramchester.testSupport.testTags.LiveDataS3UploadTest;
 import com.tramchester.testSupport.testTags.LiveDataTestCategory;
 import com.tramchester.testSupport.testTags.S3Test;
 import org.junit.jupiter.api.*;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@LiveDataS3UploadTest
 @S3Test
 class DownloadsLatestLiveDataFromS3Test {
     private static final int NUM_OF_DISPLAYS = 189;
@@ -50,7 +52,7 @@ class DownloadsLatestLiveDataFromS3Test {
         LocalDateTime start = TestEnv.LocalNow().minusHours(1);
         Duration duration = Duration.ofMinutes(1);
 
-        List<ArchivedStationDepartureInfoDTO> results = downloader.downloadFor(start, duration).collect(Collectors.toList());
+        List<ArchivedStationDepartureInfoDTO> results = downloader.downloadFor(start, duration).toList();
 
         assertFalse(results.isEmpty());
         assertTrue(results.size() >= NUM_OF_DISPLAYS, "Len was " + results.size());

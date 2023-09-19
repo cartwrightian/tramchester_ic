@@ -36,7 +36,10 @@ public class LiveDataS3UploadHealthCheck extends TramchesterHealthCheck {
 
     @Override
     public boolean isEnabled() {
-        return config!=null;
+        if (config==null) {
+            return false;
+        }
+        return config.isEnabled();
     }
 
     @PostConstruct
@@ -57,6 +60,10 @@ public class LiveDataS3UploadHealthCheck extends TramchesterHealthCheck {
 
     @Override
     public Result check() {
+        if (!isEnabled()) {
+            logger.warn("Not enabled");
+            return Result.healthy("Not enabled");
+        }
         logger.info("Check for live data in S3");
         LocalDateTime checkTime = providesNow.getDateTime().minus(checkDuration);
 

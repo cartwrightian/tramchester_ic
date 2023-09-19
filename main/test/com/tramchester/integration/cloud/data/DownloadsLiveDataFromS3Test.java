@@ -10,6 +10,7 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.livedata.domain.DTO.archived.ArchivedStationDepartureInfoDTO;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestTramLiveDataConfig;
+import com.tramchester.testSupport.testTags.LiveDataS3UploadTest;
 import com.tramchester.testSupport.testTags.S3Test;
 import org.junit.jupiter.api.*;
 
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@LiveDataS3UploadTest
 @S3Test
 class DownloadsLiveDataFromS3Test {
     private static final String PLACE = "ProdGreen";
@@ -55,11 +57,16 @@ class DownloadsLiveDataFromS3Test {
     }
 
     @Test
+    void shouldBeEnabled() {
+        assertTrue(downloader.isEnabled());
+    }
+
+    @Test
     void shouldDownloadHistoricalDataMin() {
         LocalDateTime start = LocalDateTime.of(TEST_DATE, LocalTime.of(0, 1));
         Duration duration = Duration.of(40, ChronoUnit.SECONDS);
 
-        List<ArchivedStationDepartureInfoDTO> results = downloader.downloadFor(start, duration).collect(Collectors.toList());
+        List<ArchivedStationDepartureInfoDTO> results = downloader.downloadFor(start, duration).toList();
 
         assertFalse(results.isEmpty());
         int assumedLen = NUM_OF_DISPLAYS * 4;
@@ -72,7 +79,7 @@ class DownloadsLiveDataFromS3Test {
 
         Duration duration = Duration.of(59, ChronoUnit.MINUTES).plusSeconds(59);
 
-        List<ArchivedStationDepartureInfoDTO> results = downloader.downloadFor(start, duration).collect(Collectors.toList());
+        List<ArchivedStationDepartureInfoDTO> results = downloader.downloadFor(start, duration).toList();
         assertFalse(results.isEmpty());
 
         int expectedRecords = NUM_OF_DISPLAYS * 360; // from S3 console prefix search
@@ -90,7 +97,7 @@ class DownloadsLiveDataFromS3Test {
         Duration duration = Duration.of(59, ChronoUnit.MINUTES).plusSeconds(59);
         Duration samplePeriod = Duration.ofMinutes(1);
 
-        List<ArchivedStationDepartureInfoDTO> results = downloader.downloadFor(start, duration, samplePeriod).collect(Collectors.toList());
+        List<ArchivedStationDepartureInfoDTO> results = downloader.downloadFor(start, duration, samplePeriod).toList();
         assertFalse(results.isEmpty());
 
         int expectedRecords = NUM_OF_DISPLAYS * 60;
@@ -119,7 +126,7 @@ class DownloadsLiveDataFromS3Test {
         LocalDateTime start = LocalDateTime.of(2020, 2, 27, 0, 1);
         Duration duration = Duration.of(1, ChronoUnit.DAYS);
 
-        List<ArchivedStationDepartureInfoDTO> results = downloader.downloadFor(start, duration).collect(Collectors.toList());
+        List<ArchivedStationDepartureInfoDTO> results = downloader.downloadFor(start, duration).toList();
 
         assertFalse(results.isEmpty());
         assertEquals(NUM_OF_DISPLAYS * keys.size(), results.size());

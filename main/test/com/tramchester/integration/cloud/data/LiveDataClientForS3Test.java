@@ -9,6 +9,7 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestOpenLdbConfig;
 import com.tramchester.testSupport.TestTramLiveDataConfig;
+import com.tramchester.testSupport.testTags.LiveDataS3UploadTest;
 import com.tramchester.testSupport.testTags.S3Test;
 import org.apache.commons.codec.binary.Base64;
 import org.junit.jupiter.api.*;
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@LiveDataS3UploadTest
 @S3Test
 class LiveDataClientForS3Test {
 

@@ -54,6 +54,8 @@ public class RegistersHealthchecks {
         if (healthCheck.isEnabled()) {
             CachingHealthCheck cachingHealthCheck = new CachingHealthCheck(healthCheck, cacheDuration, providesNow);
             healthChecks.add(cachingHealthCheck);
+        } else {
+            logger.info(healthCheck.getName() + " not enabled");
         }
     }
 

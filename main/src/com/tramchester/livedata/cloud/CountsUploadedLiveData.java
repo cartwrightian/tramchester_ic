@@ -26,19 +26,27 @@ public class CountsUploadedLiveData implements HasMetrics {
     }
 
     public long count(LocalDateTime checkTime, Duration checkDuration) {
-        final Stream<ArchivedStationDepartureInfoDTO> results = downloadsLiveData.downloadFor(checkTime, checkDuration);
-        final long count = results.count();
-        results.close();
-        return count;
+        if (downloadsLiveData.isEnabled()) {
+            final Stream<ArchivedStationDepartureInfoDTO> results = downloadsLiveData.downloadFor(checkTime, checkDuration);
+            final long count = results.count();
+            results.close();
+            return count;
+        }
+        return -1;
     }
 
     public Integer countNow() {
-        final long count =  count(providesNow.getDateTime(), Duration.of(1, MINUTES));
+        final long count = count(providesNow.getDateTime(), Duration.of(1, MINUTES));
         return Math.toIntExact(count);
     }
 
     @Override
     public void registerMetrics(RegistersMetrics registersMetrics) {
         registersMetrics.add(this, "liveData", "uploadsLastMinute", this::countNow);
+    }
+
+    @Override
+    public boolean areMetricsEnabled() {
+        return downloadsLiveData.isEnabled();
     }
 }

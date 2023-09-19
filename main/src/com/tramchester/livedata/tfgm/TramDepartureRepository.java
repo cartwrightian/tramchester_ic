@@ -211,6 +211,12 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, TramLi
         registersMetrics.add(this,"liveData", "stationsWithTrams", this::getNumStationsWithTramsNow);
     }
 
+    @Override
+    public boolean areMetricsEnabled() {
+        // todo should depend on whether live data enabled?
+        return true;
+    }
+
     private Integer getNumStationsWithDataNow() {
         return getNumStationsWithData(providesNow.getDateTime());
     }

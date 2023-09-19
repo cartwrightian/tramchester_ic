@@ -36,7 +36,7 @@ public class UploadsLiveData implements LiveDataObserver {
     }
 
     public boolean seenUpdate(Collection<TramStationDepartureInfo> stationDepartureInfos) {
-        if (!s3.isStarted()) {
+        if (!s3.isEnabled()) {
             logger.warn("S3 client not started, no live data will be archived");
             return false;
         }
