@@ -15,7 +15,7 @@ public class RailRemoteDataSourceConfig extends RemoteDataSourceConfig {
 
     private static final String CURRENT_PREFIX = "ttis"+VERSION;
 
-    private static final String RAIL_LATEST_ZIP = String.format("s3://tramchester2dist/railData/%s.zip", CURRENT_PREFIX);
+    private static final String RAIL_LATEST_ZIP = String.format("s3://tramchesternewdist/railData/%s.zip", CURRENT_PREFIX);
 
     private final String dataPath;
 

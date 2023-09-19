@@ -10,12 +10,8 @@ plugins {
 idea{
     module{
         inheritOutputDirs = true
-//        excludeDirs += file('src/resources/app')
-//        excludeDirs += file('src/resources/assets/swagger-ui')
-        //resourceDirs += file('build/resources/main/app')
     }
 }
-
 
 import com.mgd.core.gradle.*
 import io.mateo.cxf.codegen.wsdl2java.Wsdl2Java
@@ -34,11 +30,11 @@ def railCodeGenOutput = 'main/src/generated-live-rail-api/'
 def railLiveDataWSDL = 'config/OpenLDBWS.wsdl'
 
 s3 {
-    bucket = 'tramchester2dist'
+    bucket = 'tramchesternewdist'
 }
 
 // this is used in the generated dist zip filename
-version = 1.0
+version = buildNumber
 
 ext {
     dropwizardVersion = '4.0.1'
@@ -210,11 +206,6 @@ task webpack(type: Exec, dependsOn: npmInstall) {
         commandLine "./node_modules/.bin/webpack"
     }
 }
-
-//distZip(dependsOn: webpack) {
-//    de
-//    exclude('**/app/') // via webpack
-//}
 
 applicationDistribution.exclude('**/app/')
 distZip.dependsOn('webpack')
@@ -720,8 +711,6 @@ task queryLiveDataArchiveStartScript(type: CreateStartScripts, dependsOn: compil
     mainClass = 'com.tramchester.deployment.cli.QueryLiveDataArchiveCLI'
     applicationName = 'queryLiveData'
 }
-
-
 
 task copyIntoUploadDir(type: Copy, dependsOn: [zipDB, distZip]) {
     from 'build/distributions/database.zip'

@@ -42,7 +42,7 @@ remoteSources:
     dataPath: data/bus
     filename: tfgm_data.zip
   - name: rail
-    dataURL: s3://tramchester2dist/railData/ttis285.zip
+    dataURL: s3://tramchesternewdist/railData/ttis285.zip
     dataCheckURL: ""
     dataPath: data/rail
     filename: ttis236.zip

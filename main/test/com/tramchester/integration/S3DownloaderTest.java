@@ -54,8 +54,8 @@ public class S3DownloaderTest {
     }
 
     @Test
-    void shouldDownloadSomething() throws IOException, InterruptedException {
-        URI url = URI.create("s3://tramchester2dist/testing/ForTestSupport.txt");
+    void shouldDownloadSomething() throws IOException {
+        URI url = URI.create(TestEnv.getBucketUrl()+"testing/ForTestSupport.txt");
 
         LocalDateTime localModTime = LocalDateTime.MIN;
         URLStatus result = downloadAndModTime.getStatusFor(url, localModTime);

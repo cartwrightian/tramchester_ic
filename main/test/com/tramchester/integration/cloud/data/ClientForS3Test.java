@@ -42,7 +42,7 @@ public class ClientForS3Test {
     private static GuiceContainerDependencies componentContainer;
 
     // TOOD Use a different bucket from the live data one
-    private final static String BUCKET = "tramchestertestlivedatabucket";
+    private final static String BUCKET = "tramchestertestlivedatabucketnew";
     private static ClientForS3 clientForS3;
     private final Path testFilePath = Path.of("testFile.txt");
 

@@ -168,6 +168,6 @@ public abstract class TestConfig extends AppConfiguration {
 
     @Override
     public String getDistributionBucket() {
-        return "tramchester2dist";
+        return "tramchesternewdist";
     }
 }

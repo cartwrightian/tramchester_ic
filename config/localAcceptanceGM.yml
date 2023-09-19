@@ -12,7 +12,7 @@ staticAssetCacheTimeSeconds: 300
 graphDBConfig:
   graphName: databases/tramchesterAcceptance.db
   neo4jPagecacheMemory: 1000m
-distributionBucket: tramchester2dist
+distributionBucket: tramchesternewdist
 gtfsSourceConfig:
   -
     name: tfgm
@@ -33,7 +33,7 @@ gtfsSourceConfig:
     addWalksForClosed: true
 remoteSources:
   - name: rail
-    dataURL: s3://tramchester2dist/railData/ttis411.zip
+    dataURL: s3://tramchesternewdist/railData/ttis411.zip
     dataCheckURL: ""
     dataPath: data/rail
     filename: rail_data.zip

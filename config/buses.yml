@@ -18,7 +18,7 @@ staticAssetCacheTimeSeconds: 300
 graphDBConfig:
   graphName: buses.db
   neo4jPagecacheMemory: 300m
-distributionBucket: tramchester2dist
+distributionBucket: tramchesternewdist
 gtfsSourceConfig:
   -
     name: tfgm

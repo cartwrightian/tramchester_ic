@@ -80,7 +80,7 @@ public class TestEnv {
 
     public static final String MANCHESTER_AIRPORT_BUS_AREA = "180GMABS";
 
-    public static final String BACKUP_TIMETABLE_URL = "https://tramchester2dist.s3.eu-west-1.amazonaws.com/XXXX/tfgm_data.zip";
+    public static final String BACKUP_TIMETABLE_URL = "https://tramchesternewdist.s3.eu-west-1.amazonaws.com/XXXX/tfgm_data.zip";
 
     public static final String TFGM_TIMETABLE_URL = "https://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip";
 
@@ -349,6 +349,10 @@ public class TestEnv {
     @SafeVarargs
     public static <T extends CoreDomain> List<IdFor<T>> asList(HasId<T>... items) {
         return Arrays.stream(items).map(HasId::getId).collect(Collectors.toList());
+    }
+
+    public static String getBucketUrl() {
+        return "s3://tramchesternewdist/";
     }
 
     public static class Modes {
