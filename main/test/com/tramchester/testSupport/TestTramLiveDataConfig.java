@@ -29,8 +29,9 @@ public class TestTramLiveDataConfig implements TfgmTramLiveDataConfig {
         return System.getenv("TFGMAPIKEY");
     }
 
+    // upload disabled for now
     @Override
-    public String getS3Bucket() { return "tramchestertestlivedatabucket"; }
+    public String getS3Bucket() { return ""; }
 
     @Override
     public Long getRefreshPeriodSeconds() { return 20L; }

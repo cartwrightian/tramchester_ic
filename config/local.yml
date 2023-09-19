@@ -54,7 +54,7 @@ bounds:
 tfgmTramliveData:
   dataUrl: https://api.tfgm.com/odata/Metrolinks
   dataSubscriptionKey: ${TFGMAPIKEY:- ""}
-  s3Bucket: tramchesterlivedata
+  s3Bucket: ""
   s3Prefix: ${PLACE:- "test"}
   refreshPeriodSeconds: 20
   maxNumberStationsWithoutMessages: 10

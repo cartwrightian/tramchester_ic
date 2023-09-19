@@ -361,6 +361,7 @@ class ConfigMismatchTest {
             TfgmTramLiveDataConfig liveDataConfig = testConfig.getLiveDataConfig();
             assertEquals(expectedLiveDataConfig.getMaxNumberStationsWithoutMessages(), liveDataConfig.getMaxNumberStationsWithoutMessages());
             assertEquals(expectedLiveDataConfig.getMaxNumberStationsWithoutData(), liveDataConfig.getMaxNumberStationsWithoutData());
+            assertEquals(expectedLiveDataConfig.getS3Bucket().isEmpty(), liveDataConfig.getS3Bucket().isEmpty(), "s3 data upload disabled");
         } else {
             assertNull(testConfig.getLiveDataConfig());
         }
