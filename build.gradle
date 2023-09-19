@@ -405,6 +405,8 @@ task integration(type: Test, dependsOn: compileJava) {
         excludeTags "TrainTest"
         excludeTags "GMTest"
         excludeTags "EcclesToWeasteClosure2023Test"
+        excludeTags "LiveDataS3UploadTest"
+        excludeTags "AWSMetricsTest"
     }
     filter {
         includeTestsMatching "com.tramchester.integration.*"
