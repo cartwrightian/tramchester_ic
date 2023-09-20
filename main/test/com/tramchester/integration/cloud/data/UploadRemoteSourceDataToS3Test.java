@@ -187,6 +187,11 @@ class UploadRemoteSourceDataToS3Test {
         public boolean getIsS3() {
             return false;
         }
+
+        @Override
+        public String getModTimeCheckFilename() {
+            return "";
+        }
     }
 
 

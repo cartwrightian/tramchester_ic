@@ -396,6 +396,12 @@ public class ClientForS3 {
 
         BucketKey bucketKey = BucketKey.convertFromURI(uri);
 
+        if (!bucketKey.isValid()) {
+            String msg = "Bucket provided in URI is not valid " + uri;
+            logger.error(msg);
+            throw new RuntimeException(msg);
+        }
+
         GetObjectRequest getObjectRequest = createRequestFor(bucketKey);
         ResponseInputStream<GetObjectResponse> responseInputStream = s3Client.getObject(getObjectRequest);
 
@@ -451,6 +457,10 @@ public class ClientForS3 {
                     "bucket='" + bucket + '\'' +
                     ", key='" + key + '\'' +
                     '}';
+        }
+
+        public boolean isValid() {
+            return !(bucket.isEmpty() || key.isEmpty());
         }
     }
 

@@ -1,4 +1,4 @@
-package com.tramchester.testSupport.tfgm;
+package com.tramchester.integration.testSupport;
 
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.domain.DataSourceID;
@@ -7,30 +7,26 @@ import com.tramchester.testSupport.TestEnv;
 import java.nio.file.Path;
 import java.time.Duration;
 
-public class TFGMRemoteDataSourceConfig extends RemoteDataSourceConfig {
-    private final Path dataPath;
+public class DatabaseRemoteDataSourceConfig extends RemoteDataSourceConfig {
+    private final Path datapath;
 
-    public TFGMRemoteDataSourceConfig(String dataPath) {
-       this(Path.of(dataPath));
-    }
-
-    public TFGMRemoteDataSourceConfig(Path dataPath) {
-        this.dataPath = dataPath;
+    public DatabaseRemoteDataSourceConfig(Path datapath) {
+        this.datapath = datapath;
     }
 
     @Override
     public Path getDataPath() {
-        return dataPath;
+        return datapath;
     }
 
     @Override
     public String getDataCheckUrl() {
-        return TestEnv.TFGM_TIMETABLE_URL;
+        return TestEnv.DATABASE_REMOTE_URL;
     }
 
     @Override
     public String getDataUrl() {
-        return TestEnv.TFGM_TIMETABLE_URL;
+        return TestEnv.DATABASE_REMOTE_URL;
     }
 
     @Override
@@ -40,26 +36,21 @@ public class TFGMRemoteDataSourceConfig extends RemoteDataSourceConfig {
 
     @Override
     public String getDownloadFilename() {
-        return "tfgm_data.zip";
+        return "database.zip";
     }
 
     @Override
     public String getName() {
-        return "tfgm";
-    }
-
-    @Override
-    public DataSourceID getDataSourceId() {
-        return DataSourceID.tfgm;
+        return DataSourceID.database.name();
     }
 
     @Override
     public boolean getIsS3() {
-        return false;
+        return true;
     }
 
     @Override
     public String getModTimeCheckFilename() {
-        return "";
+        return "tramchester.db";
     }
 }

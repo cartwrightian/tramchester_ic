@@ -105,9 +105,10 @@ public class App extends Application<AppConfiguration>  {
     public void initialize(Bootstrap<AppConfiguration> bootstrap) {
         logger.info("init bootstrap");
 
+        EnvironmentVariableSubstitutor environmentVariableSubstitutor = new EnvironmentVariableSubstitutor(true, true);
         final SubstitutingSourceProvider substitutingSourceProvider = new SubstitutingSourceProvider(
                 bootstrap.getConfigurationSourceProvider(),
-                new EnvironmentVariableSubstitutor(false));
+                environmentVariableSubstitutor);
 
         bootstrap.setConfigurationSourceProvider(substitutingSourceProvider);
 

@@ -15,7 +15,7 @@ server:
 secureHost: tramchester.com
 staticAssetCacheTimeSeconds: 300
 graphDBConfig:
-  graphName: tramchester.db
+  graphName: databases/tramchester.db
   neo4jPagecacheMemory: 100m
 distributionBucket: tramchesternewdist
 instanceDataUrl: http://169.254.169.254
@@ -39,11 +39,18 @@ gtfsSourceConfig:
       fullyClosed: true
 remoteSources:
   - name: tfgm
-    dataURL: ${TRAM_DATAURL:- https://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip}
+    dataURL: ${TRAM_DATAURL:- s3://tramchesternewdist/dist/${RELEASE_NUMBER}/tfgm_data.zip}
     dataCheckURL: https://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip
     dataPath: data/tram
     filename: tfgm_data.zip
     defaultExpiryDays: 1
+  - name: database
+    dataURL: s3://tramchesternewdist/dist/${RELEASE_NUMBER}/database.zip
+    dataCheckURL: ""
+    dataPath: databases
+    filename: database.zip
+    defaultExpiryDays: 1
+    modTimeCheckFilename: tramchester.db
 cacheFolder: data/cache
 calcTimeoutMillis: 3500
 bounds:

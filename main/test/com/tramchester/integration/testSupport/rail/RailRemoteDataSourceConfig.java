@@ -66,4 +66,9 @@ public class RailRemoteDataSourceConfig extends RemoteDataSourceConfig {
     public String getFilePrefix() {
         return CURRENT_PREFIX.replace("ttis", "ttisf");
     }
+
+    @Override
+    public String getModTimeCheckFilename() {
+        return "";
+    }
 }

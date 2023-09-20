@@ -85,7 +85,7 @@ class ConfigMismatchTest {
         List<RemoteDataSourceConfig> dataSourceConfig = appConfig.getRemoteDataSourceConfig();
         List<RemoteDataSourceConfig> testDataSourceConfig = testConfig.getRemoteDataSourceConfig();
         assertEquals(dataSourceConfig.size(), testDataSourceConfig.size());
-        assertEquals(1, dataSourceConfig.size());
+        assertEquals(2, dataSourceConfig.size());
 
         assertRemoteSources(dataSourceConfig, testDataSourceConfig, 0);
     }
@@ -210,7 +210,7 @@ class ConfigMismatchTest {
         List<RemoteDataSourceConfig> dataSourceConfig = appConfig.getRemoteDataSourceConfig();
         List<RemoteDataSourceConfig> testDataSourceConfig = accTestConfig.getRemoteDataSourceConfig();
         assertEquals(dataSourceConfig.size(), testDataSourceConfig.size());
-        assertEquals(1, dataSourceConfig.size());
+        assertEquals(2, dataSourceConfig.size());
 
         assertRemoteSources(dataSourceConfig, testDataSourceConfig, 0);
     }
@@ -378,7 +378,7 @@ class ConfigMismatchTest {
         FileConfigurationSourceProvider fileProvider = new FileConfigurationSourceProvider();
 
         final SubstitutingSourceProvider provider = new SubstitutingSourceProvider(
-                fileProvider, new EnvironmentVariableSubstitutor(false));
+                fileProvider, new EnvironmentVariableSubstitutor(true, true));
 
         return factory.build(provider, fullPathToConfig.toString());
 

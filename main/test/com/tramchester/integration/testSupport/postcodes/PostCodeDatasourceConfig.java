@@ -44,4 +44,9 @@ public class PostCodeDatasourceConfig extends RemoteDataSourceConfig {
         return false;
     }
 
+    @Override
+    public String getModTimeCheckFilename() {
+        return "";
+    }
+
 }

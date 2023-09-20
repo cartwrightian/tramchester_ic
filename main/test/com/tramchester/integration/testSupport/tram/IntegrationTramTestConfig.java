@@ -6,6 +6,7 @@ import com.tramchester.config.TfgmTramLiveDataConfig;
 import com.tramchester.domain.StationClosures;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.integration.testSupport.DatabaseRemoteDataSourceConfig;
 import com.tramchester.integration.testSupport.GraphDBTestConfig;
 import com.tramchester.integration.testSupport.IntegrationTestConfig;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
@@ -16,6 +17,7 @@ import com.tramchester.testSupport.tfgm.TFGMRemoteDataSourceConfig;
 
 import java.nio.file.Path;
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -25,6 +27,7 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
 
     private final GTFSSourceConfig gtfsSourceConfig;
     protected final RemoteDataSourceConfig remoteTFGMConfig;
+    private final RemoteDataSourceConfig remoteDBSourceConfig;
     private final boolean liveDataEnabled;
 
     public IntegrationTramTestConfig() {
@@ -50,6 +53,7 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
                 TransportMode.Tram, AdditionalTramInterchanges.stations(), Collections.emptySet(), closedStations,
                 Duration.ofMinutes(13));
         remoteTFGMConfig = new TFGMRemoteDataSourceConfig("data/tram");
+        remoteDBSourceConfig = new DatabaseRemoteDataSourceConfig(Path.of("databases"));
     }
 
     @Override
@@ -59,7 +63,7 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
 
     @Override
     public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
-        return Collections.singletonList(remoteTFGMConfig); // naptan disabled for trams
+        return Arrays.asList(remoteTFGMConfig, remoteDBSourceConfig); // naptan disabled for trams
     }
 
     @Override
@@ -83,10 +87,10 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
             super(folder, dbFilename);
         }
 
-        @Override
-        public String getNeo4jPagecacheMemory() {
-            return "100m";
-        }
+//        @Override
+//        public String getNeo4jPagecacheMemory() {
+//            return "100m";
+//        }
     }
 
     @Override

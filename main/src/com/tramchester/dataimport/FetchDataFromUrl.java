@@ -90,15 +90,18 @@ public class FetchDataFromUrl {
             final String prefix = "Source " + dataSourceId + ": ";
             Path downloadDirectory = sourceConfig.getDataPath();
             Path destination = downloadDirectory.resolve(targetFile);
+            Path statusCheckFile = sourceConfig.hasModCheckFilename() ? downloadDirectory.resolve(sourceConfig.getModTimeCheckFilename()) : destination;
+            DestAndStatusCheckFile destAndStatusCheckFile = new DestAndStatusCheckFile(destination, statusCheckFile);
             try {
-                RefreshStatus refreshStatus = refreshDataIfNewerAvailable(sourceConfig, destination);
+                logger.info("Checking status for data source " + dataSourceId + " using  " + destAndStatusCheckFile);
+                RefreshStatus refreshStatus = refreshDataIfNewerAvailable(sourceConfig, destAndStatusCheckFile);
                 logger.info(format("%s Refresh status %s", prefix, refreshStatus));
                 switch (refreshStatus) {
                     case Refreshed -> {
-                        downloadedDataRepository.addFileFor(dataSourceId, destination);
+                        downloadedDataRepository.addFileFor(dataSourceId, destAndStatusCheckFile.destination);
                         downloadedDataRepository.markRefreshed(dataSourceId);
                     }
-                    case NoNeedToRefresh, NotExpired, UnableToCheck -> downloadedDataRepository.addFileFor(dataSourceId, destination);
+                    case NoNeedToRefresh, NotExpired, UnableToCheck -> downloadedDataRepository.addFileFor(dataSourceId, destAndStatusCheckFile.statusCheckFile);
                     case Missing -> logger.error("Unable to derive status for " + dataSourceId);
                 }
 
@@ -111,24 +114,24 @@ public class FetchDataFromUrl {
         });
     }
 
-    private RefreshStatus refreshDataIfNewerAvailable(RemoteDataSourceConfig sourceConfig, Path destination) throws IOException, InterruptedException {
+    private RefreshStatus refreshDataIfNewerAvailable(RemoteDataSourceConfig sourceConfig, DestAndStatusCheckFile destAndStatusCheckFile) throws IOException, InterruptedException {
         final DataSourceID dataSourceId = sourceConfig.getDataSourceId();
 
         logger.info("Refresh data if newer is available for " + dataSourceId);
 
-        final boolean filePresent = fetchFileModTime.exists(destination);
+        final boolean filePresent = fetchFileModTime.exists(destAndStatusCheckFile.statusCheckFile);
 
         if (filePresent) {
-            logger.info(format("Source %s file %s is present", dataSourceId, destination));
-            return refreshDataIfNewerAvailableHasFile(sourceConfig, destination);
+            logger.info(format("Source %s file %s is present", dataSourceId, destAndStatusCheckFile.statusCheckFile));
+            return refreshDataIfNewerAvailableHasFile(sourceConfig, destAndStatusCheckFile);
         } else {
-            logger.info(format("Source %s file %s is NOT present", dataSourceId, destination));
-            return refreshDataIfNewerAvailableNoFile(sourceConfig, destination);
+            logger.info(format("Source %s file %s is NOT present", dataSourceId, destAndStatusCheckFile.statusCheckFile));
+            return refreshDataIfNewerAvailableNoFile(sourceConfig, destAndStatusCheckFile);
         }
 
     }
 
-    private RefreshStatus refreshDataIfNewerAvailableNoFile(RemoteDataSourceConfig sourceConfig, Path destination) throws IOException, InterruptedException {
+    private RefreshStatus refreshDataIfNewerAvailableNoFile(RemoteDataSourceConfig sourceConfig, DestAndStatusCheckFile destAndStatusCheckFile) throws IOException, InterruptedException {
         DataSourceID dataSourceId = sourceConfig.getDataSourceId();
         URI originalURL = URI.create(sourceConfig.getDataUrl());
         boolean isS3 = sourceConfig.getIsS3();
@@ -138,16 +141,16 @@ public class FetchDataFromUrl {
         // download
         URLStatus status = getUrlStatus(originalURL, isS3, localModTime, dataSourceId);
         if (status == null) {
-            logger.warn(format("No local file %s and unable to check url status", destination));
+            logger.warn(format("No local file %s and unable to check url status", destAndStatusCheckFile));
             return RefreshStatus.Missing;
         }
 
         String actualURL = status.getActualURL();
         Path downloadDirectory = sourceConfig.getDataPath();
 
-        logger.info(dataSourceId + ": no local file " + destination + " so down loading new data from " + actualURL);
+        logger.info(dataSourceId + ": no local file " + destAndStatusCheckFile.statusCheckFile + " so down loading new data from " + actualURL);
         FileUtils.forceMkdir(downloadDirectory.toAbsolutePath().toFile());
-        if (downloadTo(destination, actualURL, isS3, localModTime).isOk()) {
+        if (downloadTo(destAndStatusCheckFile.destination, actualURL, isS3, localModTime).isOk()) {
             return RefreshStatus.Refreshed;
         } else {
             return RefreshStatus.Missing;
@@ -155,20 +158,20 @@ public class FetchDataFromUrl {
 
     }
 
-    private RefreshStatus refreshDataIfNewerAvailableHasFile(RemoteDataSourceConfig sourceConfig, Path existingFile) throws IOException, InterruptedException {
+    private RefreshStatus refreshDataIfNewerAvailableHasFile(RemoteDataSourceConfig sourceConfig, DestAndStatusCheckFile destAndStatusCheckFile) throws IOException, InterruptedException {
         // already has the source file locally
         DataSourceID dataSourceId = sourceConfig.getDataSourceId();
         boolean isS3 = sourceConfig.getIsS3();
 
-        LocalDateTime localMod = getFileModLocalTime(existingFile);
+        LocalDateTime localMod = getFileModLocalTime(destAndStatusCheckFile.statusCheckFile);
         LocalDateTime localNow = providesLocalNow.getDateTime();
 
         boolean expired = localMod.plus(sourceConfig.getDefaultExpiry()).isBefore(localNow);
-        logger.info(format("%s %s Local mod time: %s Current Local Time: %s ", dataSourceId, existingFile, localMod, localNow));
+        logger.info(format("%s %s Local mod time: %s Current Local Time: %s ", dataSourceId, destAndStatusCheckFile.statusCheckFile, localMod, localNow));
 
         // not locally expired, and no url available to check remotely for expiry
         if (sourceConfig.getDataCheckUrl().isBlank() && !expired) {
-            logger.info(format("%s file: %s is not expired, skip download", dataSourceId, existingFile));
+            logger.info(format("%s file: %s is not expired, skip download", dataSourceId, destAndStatusCheckFile));
             return RefreshStatus.NoNeedToRefresh;
         }
 
@@ -182,7 +185,7 @@ public class FetchDataFromUrl {
         if (serverMod.isEqual(LocalDateTime.MIN)) {
             logger.warn(format("%s: Unable to get mod time from server for %s", dataSourceId, actualURL));
             if (expired) {
-                boolean downloaded = attemptDownload(actualURL, existingFile, isS3, localMod);
+                boolean downloaded = attemptDownload(actualURL, destAndStatusCheckFile.destination, isS3, localMod);
                 if (downloaded) {
                     return RefreshStatus.Refreshed;
                 } else {
@@ -200,7 +203,7 @@ public class FetchDataFromUrl {
         try {
             if (serverMod.isAfter(localMod)) {
                 logger.warn(dataSourceId + ": server time is after local, downloading new data");
-                if (downloadTo(existingFile, actualURL, isS3, localMod).isOk()) {
+                if (downloadTo(destAndStatusCheckFile.destination, actualURL, isS3, localMod).isOk()) {
                     return RefreshStatus.Refreshed;
                 } else {
                     return RefreshStatus.Missing;
@@ -348,4 +351,22 @@ public class FetchDataFromUrl {
         }
     }
 
+    private class DestAndStatusCheckFile {
+        private final Path destination;
+        private final Path statusCheckFile;
+
+        public DestAndStatusCheckFile(Path destination, Path statusCheckFile) {
+
+            this.destination = destination;
+            this.statusCheckFile = statusCheckFile;
+        }
+
+        @Override
+        public String toString() {
+            return "DestAndStatusCheckFile{" +
+                    "destination=" + destination +
+                    ", statusCheckFile=" + statusCheckFile +
+                    '}';
+        }
+    }
 }

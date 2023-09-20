@@ -10,6 +10,7 @@ public enum DataSourceID {
     postcode,
     naptanxml, // Naptan (stops) data in xml form, cross references nptg
     rail, // AToC rail timetable data
+    database, // pre-built graph db for use during deployment
     unknown;
 
     private static final Logger logger = LoggerFactory.getLogger(DataSourceID.class);

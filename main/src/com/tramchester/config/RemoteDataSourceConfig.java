@@ -2,7 +2,9 @@ package com.tramchester.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.id.IdSet;
 import io.dropwizard.core.Configuration;
 
 import java.time.Duration;
@@ -19,12 +21,6 @@ public abstract class RemoteDataSourceConfig extends Configuration implements Ha
     // default expiry when cannot check mod time via http(s)
     public abstract Duration getDefaultExpiry();
 
-    /***
-     * Don't use this to get the actual downloaded filename, since this config can be blank to allow the remote
-     * filename from the data source to be used, instead use:
-     * @link com.tramchester.dataimport.RemoteDataRefreshed
-     * @return the value from config, which can be blank
-     */
     public abstract String getDownloadFilename();
 
     // TODO Should be RemoteDataSourceId
@@ -53,4 +49,15 @@ public abstract class RemoteDataSourceConfig extends Configuration implements Ha
                 "}";
     }
 
+    // if non-empty will be used in preference to getDownloadFilename for all local mod time checks
+    // so allows to check mod time against a contained file rather than a downloaded zip
+    public abstract String getModTimeCheckFilename();
+
+    public boolean hasModCheckFilename() {
+        String modCheckFilename = getModTimeCheckFilename();
+        if (modCheckFilename==null) {
+            return false;
+        }
+        return !modCheckFilename.isEmpty();
+    }
 }

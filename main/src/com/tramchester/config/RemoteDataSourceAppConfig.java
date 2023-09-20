@@ -37,6 +37,9 @@ public class RemoteDataSourceAppConfig extends RemoteDataSourceConfig {
     @JsonProperty(value = "defaultExpiryDays")
     private Integer defaultExpiryDays;
 
+    @JsonProperty(value = "modTimeCheckFilename")
+    private String modTimeCheckFilename;
+
     @Override
     public String getDataCheckUrl() {
         return dataCheckURL;
@@ -81,6 +84,12 @@ public class RemoteDataSourceAppConfig extends RemoteDataSourceConfig {
                 ", filename='" + filename + '\'' +
                 ", name='" + name + '\'' +
                 ", defaultExpiryDays=" + defaultExpiryDays +
-                "} " + super.toString();
+                ", modTimeCheckFilename='" + modTimeCheckFilename + '\'' +
+                '}';
+    }
+
+    @Override
+    public String getModTimeCheckFilename() {
+        return modTimeCheckFilename;
     }
 }
