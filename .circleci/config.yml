@@ -9,7 +9,8 @@ jobs:
       - image: circleci/openjdk:17-jdk-buster
     resource_class: medium
     working_directory: ~/repo
-
+    environment:
+      RELEASE_NUMBER: << pipeline.number >>
     steps:
       - checkout
       - restore_cache:
@@ -37,6 +38,7 @@ jobs:
       #JAVA_TOOL_OPTIONS: -Xmx3500m
       TERM: dumb
       AWS_REGION: eu-west-1
+      RELEASE_NUMBER: << pipeline.number >>
 
     steps:
       - checkout
@@ -57,12 +59,6 @@ jobs:
       - run:
           name: upload
           command: gradle upload --no-daemon
-      - run: mkdir -p workspace
-      - run: echo "export RELEASE_NUMBER=$CIRCLE_BUILD_NUM" > workspace/release_num.txt
-      - persist_to_workspace:
-          root: workspace
-          paths:
-           - release_num.txt
   acceptance:
     docker:
       - image: circleci/openjdk:17-jdk-buster-node-browsers
@@ -72,6 +68,7 @@ jobs:
     environment:
       TERM: dumb
       AWS_REGION: eu-west-1
+      RELEASE_NUMBER: << pipeline.number >>
     steps:
       - checkout
       - restore_cache:
@@ -80,15 +77,11 @@ jobs:
       - restore_cache:
           keys:
             - v2-npm-deps-{{ checksum "package-lock.json" }}
-      - attach_workspace:
-          # Must be absolute path or relative path from working_directory
-          at: workspace
       - run:
           name: deployDevForAcceptance
           environment:
             ENV: Dev
           command: |
-            source workspace/release_num.txt
             echo release number is $RELEASE_NUMBER
             gradle deploy updateLB tidy --no-daemon
       - run:
@@ -104,7 +97,6 @@ jobs:
             LANG: "en_GB.UTF-8"
             TZ: "Europe/London"
           command: |
-            source workspace/release_num.txt
             echo release number is $RELEASE_NUMBER
             export LANG="en_GB.UTF-8"
             gradle acceptance --no-daemon
@@ -113,7 +105,6 @@ jobs:
           environment:
             ENV: UAT
           command: |
-            source workspace/release_num.txt
             echo release number is $RELEASE_NUMBER
             gradle deploy updateLB tidy --no-daemon
       - run:
@@ -121,7 +112,6 @@ jobs:
           environment:
             ENV: Dev
           command: |
-            source workspace/release_num.txt
             echo release number is $RELEASE_NUMBER
             gradle undeploy --no-daemon
       - store_test_results:
@@ -135,6 +125,8 @@ jobs:
     # specify the version you desire here
       - image: circleci/openjdk:17-jdk-buster
     working_directory: ~/repo
+    environment:
+      RELEASE_NUMBER: << pipeline.number >>
     steps:
       - checkout
       # Download and cache dependencies
@@ -145,16 +137,12 @@ jobs:
           keys:
           - v2-npm-deps-{{ checksum "package-lock.json" }}
       - run: gradle dependencies --no-daemon
-      - attach_workspace:
-        # Must be absolute path or relative path from working_directory
-          at: workspace
       - run:
           name: deployProd
           environment:
             ENV: ProdGreen
             AWS_REGION: eu-west-1
           command: |
-            source workspace/release_num.txt
             echo release number is $RELEASE_NUMBER
             gradle deploy --no-daemon
             gradle updateLB --no-daemon
