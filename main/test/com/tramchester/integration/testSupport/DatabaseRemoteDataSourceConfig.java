@@ -31,7 +31,7 @@ public class DatabaseRemoteDataSourceConfig extends RemoteDataSourceConfig {
 
     @Override
     public Duration getDefaultExpiry() {
-        return Duration.ofDays(1);
+        return Duration.ofDays(0);
     }
 
     @Override
@@ -52,5 +52,11 @@ public class DatabaseRemoteDataSourceConfig extends RemoteDataSourceConfig {
     @Override
     public String getModTimeCheckFilename() {
         return "tramchester.db";
+    }
+
+    @Override
+    public boolean isMandatory() {
+        // will be recreated locally if missing
+        return false;
     }
 }

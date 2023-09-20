@@ -88,6 +88,7 @@ class ConfigMismatchTest {
         assertEquals(2, dataSourceConfig.size());
 
         assertRemoteSources(dataSourceConfig, testDataSourceConfig, 0);
+        assertRemoteSources(dataSourceConfig, testDataSourceConfig, 1);
     }
 
     @Test
@@ -187,13 +188,13 @@ class ConfigMismatchTest {
         final RemoteDataSourceConfig remoteSource = remoteSources.get(index);
         assertEquals(remoteSource.getName(), testRemoteSource.getName());
         assertEquals(remoteSource.getDataCheckUrl(), testRemoteSource.getDataCheckUrl());
-        //assertEquals(remoteSource.getDataUrl(), testRemoteSource.getDataUrl());
         assertEquals(remoteSource.getDataUrl(), testRemoteSource.getDataUrl(),
                 remoteSource.getDataUrl() + " not matching " + testRemoteSource.getDataUrl());
 
         assertEquals(remoteSource.getDownloadFilename(), testRemoteSource.getDownloadFilename(),
                 remoteSource.getDownloadFilename() + " did not contain " + testRemoteSource.getDownloadFilename());
-        assertEquals(remoteSource.getDefaultExpiry(), testRemoteSource.getDefaultExpiry());
+        assertEquals(remoteSource.getDefaultExpiry(), testRemoteSource.getDefaultExpiry(), "default expiry");
+        assertEquals(remoteSource.isMandatory(), testRemoteSource.isMandatory(), "mandatory");
     }
 
     @Test
@@ -213,6 +214,7 @@ class ConfigMismatchTest {
         assertEquals(2, dataSourceConfig.size());
 
         assertRemoteSources(dataSourceConfig, testDataSourceConfig, 0);
+        assertRemoteSources(dataSourceConfig, testDataSourceConfig, 1);
     }
 
     @Test

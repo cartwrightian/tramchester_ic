@@ -62,8 +62,12 @@ public class UnzipFetchedData  {
                 }
             } else {
                 String msg = "No file available for " + sourceId + " config was " + sourceConfig;
-                logger.error(msg);
-                throw new RuntimeException(msg); // fail fast
+                if (sourceConfig.isMandatory()) {
+                    logger.error(msg);
+                    throw new RuntimeException(msg); // fail fast
+                } else {
+                    logger.warn(msg + " but not marked mandatory");
+                }
             }
         });
     }

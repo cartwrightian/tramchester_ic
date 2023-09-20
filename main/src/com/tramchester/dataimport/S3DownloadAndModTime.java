@@ -3,8 +3,11 @@ package com.tramchester.dataimport;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.cloud.data.ClientForS3;
 import org.apache.http.HttpStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
@@ -12,6 +15,7 @@ import java.time.LocalDateTime;
 
 @LazySingleton
 public class S3DownloadAndModTime implements DownloadAndModTime {
+    private static final Logger logger = LoggerFactory.getLogger(S3DownloadAndModTime.class);
 
     private final ClientForS3 s3Client;
 
@@ -22,7 +26,12 @@ public class S3DownloadAndModTime implements DownloadAndModTime {
 
     @Override
     public URLStatus getStatusFor(URI url, LocalDateTime localModTime) {
-        return new URLStatus(url, HttpStatus.SC_OK, s3Client.getModTimeFor(url));
+        try {
+            return new URLStatus(url, HttpStatus.SC_OK, s3Client.getModTimeFor(url));
+        } catch (FileNotFoundException notFoundException) {
+            logger.warn("Missing resource ", notFoundException);
+            return new URLStatus(url, HttpStatus.SC_NOT_FOUND);
+        }
     }
 
     @Override

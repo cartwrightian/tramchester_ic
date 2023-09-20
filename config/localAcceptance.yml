@@ -49,10 +49,11 @@ remoteSources:
     defaultExpiryDays: 1
   - name: database
     dataURL: s3://tramchesternewdist/dist/${RELEASE_NUMBER}/database.zip
-    dataCheckURL: ""
+    dataCheckURL: s3://tramchesternewdist/dist/${RELEASE_NUMBER}/database.zip
     dataPath: databases
     filename: database.zip
-    defaultExpiryDays: 1
+    defaultExpiryDays: 0
+    mandatory: false
 cacheFolder: data/cache
 calcTimeoutMillis: 3500
 bounds:

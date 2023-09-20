@@ -343,7 +343,7 @@ public class ClientForS3 {
         return s3Client != null;
     }
 
-    public LocalDateTime getModTimeFor(URI url) {
+    public LocalDateTime getModTimeFor(URI url) throws FileNotFoundException {
         logger.info("Fetch Mod time for url " + url);
 
         if (!isStarted()) {
@@ -357,25 +357,33 @@ public class ClientForS3 {
         return LocalDateTime.ofInstant(lastModified, TramchesterConfig.TimeZoneId);
     }
 
-    private S3Object getS3ObjectFor(URI uri) {
+    private S3Object getS3ObjectFor(URI uri) throws FileNotFoundException {
         BucketKey bucketKey = BucketKey.convertFromURI(uri);
 
+        // max keys set 1 here
         ListObjectsV2Request request = ListObjectsV2Request.builder().
                 bucket(bucketKey.bucket).prefix(bucketKey.key).maxKeys(1).
                 build();
         ListObjectsV2Response response = s3Client.listObjectsV2(request);
 
-        if (response.keyCount()!=1) {
+        if (response.keyCount()==0) {
+            logger.warn("Could not get object for missing uri " + uri + " and key " + bucketKey);
+            throw new FileNotFoundException(uri.toString());
+        }
+
+        if (response.keyCount()>1) {
             logger.warn(format("Unexpected number of objects, needed 1 got %s for %s", response.keyCount(), bucketKey));
         }
 
-        if (response.contents().size()>=1) {
-            return response.contents().get(0);
-        } else {
-            final String message = format("Unable to fetch object from %s", bucketKey);
-            logger.error(message);
-            throw new RuntimeException(message);
-        }
+        return response.contents().get(0);
+
+//        if (response.contents().size()>=1) {
+//            return response.contents().get(0);
+//        } else {
+//            final String message = format("Unable to fetch object from %s", bucketKey);
+//            logger.error(message);
+//            throw new RuntimeException(message);
+//        }
     }
 
     private GetObjectRequest createRequestFor(BucketKey bucketKey) {

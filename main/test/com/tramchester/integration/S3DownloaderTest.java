@@ -14,7 +14,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @S3Test
 public class S3DownloaderTest {
@@ -69,6 +69,16 @@ public class S3DownloaderTest {
 
         assertTrue(temporaryFile.toFile().exists());
         assertTrue(temporaryFile.toFile().length()>0);
+    }
+
+    @Test
+    void shouldHaveExpectedStatusForMissingKey() {
+        URI url = URI.create(TestEnv.getBucketUrl() + "SHOULDBEMISSING");
+        LocalDateTime localModTime = LocalDateTime.MIN;
+        URLStatus result = downloadAndModTime.getStatusFor(url, localModTime);
+        assertFalse(result.isOk());
+
+        assertEquals(404,result.getStatusCode());
     }
 
 }

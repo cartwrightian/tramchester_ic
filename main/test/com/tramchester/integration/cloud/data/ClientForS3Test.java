@@ -17,6 +17,7 @@ import software.amazon.awssdk.services.s3.model.*;
 import software.amazon.awssdk.services.s3.waiters.S3Waiter;
 
 import java.io.ByteArrayInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
@@ -202,6 +203,15 @@ public class ClientForS3Test {
         LocalDateTime modTime = clientForS3.getModTimeFor(URI.create(urlText));
 
         assertEquals(dateTimeFromS3.toLocalDateTime(), modTime);
+    }
+
+    @Test
+    void shouldThrowForMissingKey() {
+        String key = "SHOULDNOTEXIST";
+        String urlText = format("s3://%s/%s", BUCKET, key);
+        FileNotFoundException expected = assertThrows(FileNotFoundException.class, () -> clientForS3.getModTimeFor(URI.create(urlText)));
+
+        assertEquals(urlText, expected.getMessage());
     }
 
     @Test

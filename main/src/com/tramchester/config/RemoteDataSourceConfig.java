@@ -46,6 +46,8 @@ public abstract class RemoteDataSourceConfig extends Configuration implements Ha
                 "isS3: '"+getIsS3()+"' " +
                 "dataPath: '"+getDataPath()+"' " +
                 "defaultExpiry: " + getDefaultExpiry() +
+                "mandatory" + isMandatory() +
+                "modTimeCheckFilename" + getModTimeCheckFilename() +
                 "}";
     }
 
@@ -59,5 +61,9 @@ public abstract class RemoteDataSourceConfig extends Configuration implements Ha
             return false;
         }
         return !modCheckFilename.isEmpty();
+    }
+
+    public boolean isMandatory() {
+        return true;
     }
 }

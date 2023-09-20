@@ -105,7 +105,6 @@ public class FetchDataFromUrl {
                     case Missing -> logger.error("Unable to derive status for " + dataSourceId);
                 }
 
-
             } catch (IOException | InterruptedException exception) {
                 logger.warn(prefix + "Unable to refresh data for config: " + sourceConfig, exception);
             } catch (ConnectionException connectionException) {

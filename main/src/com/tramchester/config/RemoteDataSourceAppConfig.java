@@ -40,6 +40,9 @@ public class RemoteDataSourceAppConfig extends RemoteDataSourceConfig {
     @JsonProperty(value = "modTimeCheckFilename")
     private String modTimeCheckFilename;
 
+    @JsonProperty(value = "mandatory")
+    private Boolean mandatory;
+
     @Override
     public String getDataCheckUrl() {
         return dataCheckURL;
@@ -76,20 +79,15 @@ public class RemoteDataSourceAppConfig extends RemoteDataSourceConfig {
     }
 
     @Override
-    public String toString() {
-        return "RemoteDataSourceAppConfig{" +
-                "dataCheckURL='" + dataCheckURL + '\'' +
-                ", dataURL='" + dataURL + '\'' +
-                ", dataPath=" + dataPath +
-                ", filename='" + filename + '\'' +
-                ", name='" + name + '\'' +
-                ", defaultExpiryDays=" + defaultExpiryDays +
-                ", modTimeCheckFilename='" + modTimeCheckFilename + '\'' +
-                '}';
+    public String getModTimeCheckFilename() {
+        return modTimeCheckFilename;
     }
 
     @Override
-    public String getModTimeCheckFilename() {
-        return modTimeCheckFilename;
+    public boolean isMandatory() {
+        if (mandatory==null) {
+            return true;
+        }
+        return mandatory;
     }
 }
