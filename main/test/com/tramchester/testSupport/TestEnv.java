@@ -86,8 +86,6 @@ public class TestEnv {
 
     public static final String NAPTAN_BASE_URL = "https://naptan.api.dft.gov.uk/v1/access-nodes"; // ?dataFormat=csv
 
-    public static final String DATABASE_REMOTE_URL = "s3://tramchesternewdist/dist/0/database.zip";
-
     public final static HashSet<GTFSTransportationType> tramAndBus =
             new HashSet<>(Arrays.asList(GTFSTransportationType.tram, GTFSTransportationType.bus));
 
@@ -355,6 +353,16 @@ public class TestEnv {
 
     public static String getBucketUrl() {
         return "s3://tramchesternewdist/";
+    }
+
+    public static String getDatabaseRemoteURL() {
+        String releaseNumber = System.getenv("RELEASE_NUMBER");
+        if (releaseNumber==null) {
+            releaseNumber="0";
+        }
+        // s3://tramchesternewdist/dist/0/database.zip
+        return String.format("%sdist/%s/database.zip", getBucketUrl(), releaseNumber);
+
     }
 
     public static class Modes {

@@ -21,12 +21,12 @@ public class DatabaseRemoteDataSourceConfig extends RemoteDataSourceConfig {
 
     @Override
     public String getDataCheckUrl() {
-        return TestEnv.DATABASE_REMOTE_URL;
+        return TestEnv.getDatabaseRemoteURL();
     }
 
     @Override
     public String getDataUrl() {
-        return TestEnv.DATABASE_REMOTE_URL;
+        return TestEnv.getDatabaseRemoteURL();
     }
 
     @Override

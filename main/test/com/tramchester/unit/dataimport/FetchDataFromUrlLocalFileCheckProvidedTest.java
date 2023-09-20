@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class FetchDataFromUrlLocalFileCheckProvidedTest extends EasyMockSupport {
 
     private final DataSourceID dataSourceID = DataSourceID.database;
-    private final URI expectedDownloadURL = URI.create(TestEnv.DATABASE_REMOTE_URL);
+    private final URI expectedDownloadURL = URI.create(TestEnv.getDatabaseRemoteURL());
 
     private FetchDataFromUrl fetchDataFromUrl;
     private FetchFileModTime fetchFileModTime;
