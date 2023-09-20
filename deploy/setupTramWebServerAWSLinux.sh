@@ -16,7 +16,7 @@ export PLACE=$(grep ENV "$userText" | cut -d = -f 2-)
 export BUILD=$(grep BUILD "$userText" | cut -d = -f 2-)
 export BUCKET=$(grep BUCKET "$userText" | cut -d = -f 2-)
 export TFGMAPIKEY=$(grep TFGMAPIKEY "$userText" | cut -d = -f 2-)
-export NESSUS_LINKING_KEY=$(grep NESSUS_LINKING_KEY "$userText" | cut -d = -f 2-)
+#export NESSUS_LINKING_KEY=$(grep NESSUS_LINKING_KEY "$userText" | cut -d = -f 2-)
 
 export ARTIFACTSURL=$S3URL/$BUCKET/dist/$BUILD
 
@@ -79,9 +79,9 @@ unzip database.zip
 chown -R ec2-user .
 
 ## install nessus agent if key is provided
-if [ "$NESSUS_LINKING_KEY" != '' ]; then
-  sudo -E bash ./$target/bin/nessus_agent_install.sh &
-fi
+#if [ "$NESSUS_LINKING_KEY" != '' ]; then
+#  sudo -E bash ./$target/bin/nessus_agent_install.sh &
+#fi
 
 # start
 export RAIL_WSDL=$target/config/OpenLDBWS.wsdl
