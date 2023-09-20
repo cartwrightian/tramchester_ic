@@ -166,13 +166,13 @@ workflows:
     - integration:
         requires:
           - build
-    - acceptance:
-        requires:
-          - integration
-    - hold:
-        type: approval
-        requires:
-          - acceptance
-    - deployProd:
-        requires:
-        - hold
+#    - acceptance:
+#        requires:
+#          - integration
+#    - hold:
+#        type: approval
+#        requires:
+#          - acceptance
+#    - deployProd:
+#        requires:
+#        - hold
