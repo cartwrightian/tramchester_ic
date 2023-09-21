@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -34,11 +35,28 @@ public class UploadRemoteSourceData {
 
     public boolean upload(String prefixForS3Key) {
         logger.info("Upload data sources to " + prefixForS3Key);
-        List<RemoteDataSourceConfig> remoteSources = config.getRemoteDataSourceConfig();
+        final List<RemoteDataSourceConfig> remoteSources = config.getRemoteDataSourceConfig();
+
+        Set<DataSourceID> toSkip = remoteSources.stream().
+                filter(RemoteDataSourceConfig::getSkipUpload).
+                map(RemoteDataSourceConfig::getDataSourceId).
+                collect(Collectors.toSet());
+
+        if (!toSkip.isEmpty()) {
+            logger.info("Will skipp uploading following sources " + toSkip);
+        }
+
         List<DataSourceID> remoteWithFiles = remoteSources.stream().
                 map(RemoteDataSourceConfig::getDataSourceId).
+                filter(id -> !toSkip.contains(id)).
                 filter(remoteDataRefreshed::hasFileFor).
                 toList();
+
+        if (remoteWithFiles.contains(DataSourceID.database)) {
+            logger.info("Skipping database source upload, has own upload mechanism");
+            remoteWithFiles.remove(DataSourceID.database);
+        }
+
         if (remoteWithFiles.isEmpty()) {
             logger.error("No remote sources had files");
         } else {

@@ -66,4 +66,8 @@ public abstract class RemoteDataSourceConfig extends Configuration implements Ha
     public boolean isMandatory() {
         return true;
     }
+
+    public boolean getSkipUpload() {
+        return false;
+    }
 }

@@ -64,6 +64,7 @@ remoteSources:
     defaultExpiryDays: 0
     modTimeCheckFilename: gm_rail.db
     mandatory: false
+    skipUpload: true
 rail:
   dataPath: data/rail
   version: 697

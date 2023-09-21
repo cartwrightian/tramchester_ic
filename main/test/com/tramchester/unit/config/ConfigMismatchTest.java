@@ -416,8 +416,8 @@ class ConfigMismatchTest {
 
     private void assertRemoteSources(List<RemoteDataSourceConfig> remoteSources, List<RemoteDataSourceConfig> testRemoteSources, DataSourceID dataSourceID) {
 
-        final RemoteDataSourceConfig testRemoteSource = getSourceFrom(remoteSources, dataSourceID); //testRemoteSources.get(index);
-        final RemoteDataSourceConfig remoteSource = getSourceFrom(testRemoteSources, dataSourceID); //remoteSources.get(index);
+        final RemoteDataSourceConfig testRemoteSource = getSourceFrom(remoteSources, dataSourceID);
+        final RemoteDataSourceConfig remoteSource = getSourceFrom(testRemoteSources, dataSourceID);
         assertEquals(remoteSource.getName(), testRemoteSource.getName(), "name for " + dataSourceID);
         assertEquals(remoteSource.getDataCheckUrl(), testRemoteSource.getDataCheckUrl(), "check url for " + dataSourceID);
         assertEquals(remoteSource.getDataUrl(), testRemoteSource.getDataUrl(),
@@ -427,6 +427,7 @@ class ConfigMismatchTest {
                 remoteSource.getDownloadFilename() + " did not contain " + testRemoteSource.getDownloadFilename() + " for " + dataSourceID);
         assertEquals(remoteSource.getDefaultExpiry(), testRemoteSource.getDefaultExpiry(), "default expiry for " + dataSourceID);
         assertEquals(remoteSource.isMandatory(), testRemoteSource.isMandatory(), "mandatory " + dataSourceID);
+        assertEquals(remoteSource.getSkipUpload(), testRemoteSource.getSkipUpload(), "skip upload " + dataSourceID);
     }
 
     private RemoteDataSourceConfig getSourceFrom(List<RemoteDataSourceConfig> remoteSources, DataSourceID dataSourceID) {

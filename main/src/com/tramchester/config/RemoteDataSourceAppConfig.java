@@ -43,6 +43,9 @@ public class RemoteDataSourceAppConfig extends RemoteDataSourceConfig {
     @JsonProperty(value = "mandatory")
     private Boolean mandatory;
 
+    @JsonProperty(value = "skipUpload")
+    private Boolean skipUpload;
+
     @Override
     public String getDataCheckUrl() {
         return dataCheckURL;
@@ -89,5 +92,13 @@ public class RemoteDataSourceAppConfig extends RemoteDataSourceConfig {
             return true;
         }
         return mandatory;
+    }
+
+    @Override
+    public boolean getSkipUpload() {
+        if (skipUpload==null) {
+            return false;
+        }
+        return skipUpload;
     }
 }

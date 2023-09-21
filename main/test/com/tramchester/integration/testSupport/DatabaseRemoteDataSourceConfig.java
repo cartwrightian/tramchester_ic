@@ -59,4 +59,10 @@ public class DatabaseRemoteDataSourceConfig extends RemoteDataSourceConfig {
         // will be recreated locally if missing
         return false;
     }
+
+    @Override
+    public boolean getSkipUpload() {
+        // sep upload mechanism for DB files
+        return true;
+    }
 }
