@@ -3,6 +3,7 @@ package com.tramchester.deployment.cli;
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.MetricRegistry;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tramchester.App;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.config.AppConfiguration;
@@ -48,9 +49,12 @@ public abstract class BaseCLI {
     private AppConfiguration loadConfigFromFile(Path config) throws IOException, ConfigurationException {
 
         FileConfigurationSourceProvider originalProvider = new FileConfigurationSourceProvider();
+
+        EnvironmentVariableSubstitutor environmentVariableSubstitutor = App.getEnvVarSubstitutor();
+
         SubstitutingSourceProvider provider = new SubstitutingSourceProvider(
                 originalProvider,
-                new EnvironmentVariableSubstitutor(false));
+                environmentVariableSubstitutor);
 
         YamlConfigurationFactory<AppConfiguration> factory = getValidatingFactory();
 

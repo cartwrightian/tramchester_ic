@@ -59,6 +59,10 @@ public class App extends Application<AppConfiguration>  {
 
     }
 
+    public static EnvironmentVariableSubstitutor getEnvVarSubstitutor() {
+        return new EnvironmentVariableSubstitutor(true, true);
+    }
+
     @Override
     public String getName() {
         return SERVICE_NAME;
@@ -105,7 +109,7 @@ public class App extends Application<AppConfiguration>  {
     public void initialize(Bootstrap<AppConfiguration> bootstrap) {
         logger.info("init bootstrap");
 
-        EnvironmentVariableSubstitutor environmentVariableSubstitutor = new EnvironmentVariableSubstitutor(true, true);
+        EnvironmentVariableSubstitutor environmentVariableSubstitutor = getEnvVarSubstitutor();
         final SubstitutingSourceProvider substitutingSourceProvider = new SubstitutingSourceProvider(
                 bootstrap.getConfigurationSourceProvider(),
                 environmentVariableSubstitutor);

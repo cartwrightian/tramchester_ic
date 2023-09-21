@@ -49,7 +49,7 @@ remoteSources:
     filename: rail_data.zip
     defaultExpiryDays: 1
   - name: tfgm
-    dataURL: ${TRAM_DATAURL:- https://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip}
+    dataURL: ${TRAM_DATAURL:- s3://tramchesternewdist/dist/${RELEASE_NUMBER}/tfgm_data.zip}
     dataCheckURL: https://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip
     dataPath: data/tram
     filename: tfgm_data.zip

@@ -2,6 +2,7 @@ package com.tramchester.unit.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tramchester.App;
 import com.tramchester.config.*;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.StationIdPair;
@@ -379,8 +380,7 @@ class ConfigMismatchTest {
 
         FileConfigurationSourceProvider fileProvider = new FileConfigurationSourceProvider();
 
-        final SubstitutingSourceProvider provider = new SubstitutingSourceProvider(
-                fileProvider, new EnvironmentVariableSubstitutor(true, true));
+        final SubstitutingSourceProvider provider = new SubstitutingSourceProvider(fileProvider, App.getEnvVarSubstitutor());
 
         return factory.build(provider, fullPathToConfig.toString());
 

@@ -174,6 +174,7 @@ public class FetchDataFromUrl {
             return RefreshStatus.NoNeedToRefresh;
         }
 
+        logger.info("Check remote status for originalURL:'"+sourceConfig.getDataUrl()+"'");
         URI originalURL = URI.create(sourceConfig.getDataUrl());
         URLStatus status = getUrlStatus(originalURL, isS3, localMod, dataSourceId);
         if (status == null) return RefreshStatus.UnableToCheck;

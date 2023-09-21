@@ -38,7 +38,7 @@ public class UploadRemoteSourceData {
         List<DataSourceID> remoteWithFiles = remoteSources.stream().
                 map(RemoteDataSourceConfig::getDataSourceId).
                 filter(remoteDataRefreshed::hasFileFor).
-                collect(Collectors.toList());
+                toList();
         if (remoteWithFiles.isEmpty()) {
             logger.error("No remote sources had files");
         } else {
