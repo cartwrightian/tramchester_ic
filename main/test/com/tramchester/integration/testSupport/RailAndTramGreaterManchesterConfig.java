@@ -32,7 +32,7 @@ public class RailAndTramGreaterManchesterConfig extends IntegrationTramTestConfi
 
     @Override
     public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
-        return Arrays.asList(railRemoteDataSource, remoteTFGMConfig, remoteNaptanXMLConfig, remoteNPTGconfig);
+        return Arrays.asList(railRemoteDataSource, remoteTFGMConfig, remoteNaptanXMLConfig, remoteNPTGconfig, remoteDBSourceConfig);
     }
 
     @Override

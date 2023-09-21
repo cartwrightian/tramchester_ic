@@ -33,7 +33,7 @@ gtfsSourceConfig:
     addWalksForClosed: true
 remoteSources:
   - name: rail
-    dataURL: s3://tramchesternewdist/railData/ttis411.zip
+    dataURL: ${RAIL_DATAURL:-s3://tramchesternewdist/railData/ttis697.zip}
     dataCheckURL: ""
     dataPath: data/rail
     filename: rail_data.zip
@@ -56,9 +56,17 @@ remoteSources:
     dataPath: data/nptg
     filename: Localities.csv
     defaultExpiryDays: 14
+  - name: database
+    dataURL: s3://tramchesternewdist/dist/${RELEASE_NUMBER}/database.zip
+    dataCheckURL: s3://tramchesternewdist/dist/${RELEASE_NUMBER}/database.zip
+    dataPath: databases
+    filename: database.zip
+    defaultExpiryDays: 0
+    modTimeCheckFilename: gm_rail.db
+    mandatory: false
 rail:
   dataPath: data/rail
-  version: 411
+  version: 697
   modes: [ Train, RailReplacementBus ]
   initialWaitMinutes: 60
 cacheFolder: data/cache

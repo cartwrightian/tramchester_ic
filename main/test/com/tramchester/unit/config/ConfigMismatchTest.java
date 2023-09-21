@@ -88,8 +88,8 @@ class ConfigMismatchTest {
         assertEquals(dataSourceConfig.size(), testDataSourceConfig.size());
         assertEquals(2, dataSourceConfig.size());
 
-        assertRemoteSources(dataSourceConfig, testDataSourceConfig, 0);
-        assertRemoteSources(dataSourceConfig, testDataSourceConfig, 1);
+        assertRemoteSources(dataSourceConfig, testDataSourceConfig, DataSourceID.tfgm);
+        assertRemoteSources(dataSourceConfig, testDataSourceConfig, DataSourceID.database);
     }
 
     @Test
@@ -115,9 +115,9 @@ class ConfigMismatchTest {
         assertEquals(remoteSources.size(), testRemoteSources.size());
         assertEquals(3, testRemoteSources.size());
 
-        assertRemoteSources(remoteSources, testRemoteSources, 0);
-        assertRemoteSources(remoteSources, testRemoteSources, 1);
-        assertRemoteSources(remoteSources, testRemoteSources, 2);
+        assertRemoteSources(remoteSources, testRemoteSources, DataSourceID.rail);
+        assertRemoteSources(remoteSources, testRemoteSources, DataSourceID.naptanxml);
+        assertRemoteSources(remoteSources, testRemoteSources, DataSourceID.nptg);
 
         RailConfig rail = appConfig.getRailConfig();
         RailConfig testRail = appConfig.getRailConfig();
@@ -135,6 +135,22 @@ class ConfigMismatchTest {
     }
 
     @Test
+    void shouldHaveCheckFilenameForDBSourceMatchDBNameForLocal() throws ConfigurationException, IOException {
+        AppConfiguration normalConfig = loadConfigFromFile("local.yml");
+
+        RemoteDataSourceConfig remoteConfig = getSourceFrom(normalConfig.getRemoteDataSourceConfig(), DataSourceID.database);
+        assertEquals(normalConfig.getGraphDBConfig().getDbPath(), remoteConfig.getDataPath().resolve(remoteConfig.getModTimeCheckFilename()));
+    }
+
+    @Test
+    void shouldHaveCheckFilenameForDBSourceMatchDBNameForGM() throws ConfigurationException, IOException {
+        AppConfiguration normalConfig = loadConfigFromFile("gm.yml");
+
+        RemoteDataSourceConfig remoteConfig = getSourceFrom(normalConfig.getRemoteDataSourceConfig(), DataSourceID.database);
+        assertEquals(normalConfig.getGraphDBConfig().getDbPath(), remoteConfig.getDataPath().resolve(remoteConfig.getModTimeCheckFilename()));
+    }
+
+    @Test
     void shouldHaveSameTFGMSourceConfigForNormalAndTrainEnabled() throws ConfigurationException, IOException {
         AppConfiguration normalConfig = loadConfigFromFile("local.yml");
         AppConfiguration gmConfig = loadConfigFromFile("gm.yml");
@@ -142,6 +158,10 @@ class ConfigMismatchTest {
         // TODO Which other parameters should be the same?
 
         checkGTFSSourceConfig(normalConfig, gmConfig, Category.Closures.not(EnumSet.noneOf(Category.class)));
+        assertRemoteSources(normalConfig.getRemoteDataSourceConfig(), gmConfig.getRemoteDataSourceConfig(), DataSourceID.tfgm);
+
+        // TODO add this
+        //assertRemoteSources(normalConfig.getRemoteDataSourceConfig(), gmConfig.getRemoteDataSourceConfig(), DataSourceID.database);
 
     }
 
@@ -164,12 +184,12 @@ class ConfigMismatchTest {
         assertEquals(appConfig.getQueryInterval(), testConfig.getQueryInterval(), "query interval mismatch");
 
         assertEquals(configRemoteSources.size(), testRemoteSources.size());
-        assertEquals(4, testRemoteSources.size());
+        assertEquals(5, testRemoteSources.size());
 
-        assertRemoteSources(configRemoteSources, testRemoteSources, 0);
-        assertRemoteSources(configRemoteSources, testRemoteSources, 1);
-        assertRemoteSources(configRemoteSources, testRemoteSources, 2);
-        assertRemoteSources(configRemoteSources, testRemoteSources, 3);
+        assertRemoteSources(configRemoteSources, testRemoteSources, DataSourceID.tfgm);
+        assertRemoteSources(configRemoteSources, testRemoteSources, DataSourceID.rail);
+        assertRemoteSources(configRemoteSources, testRemoteSources, DataSourceID.naptanxml);
+        assertRemoteSources(configRemoteSources, testRemoteSources, DataSourceID.nptg);
 
         RailConfig configRail = appConfig.getRailConfig();
         RailConfig testRail = testConfig.getRailConfig();
@@ -182,20 +202,6 @@ class ConfigMismatchTest {
 
         checkDataSourceConfig(configRail, testRail);
 
-    }
-
-    private void assertRemoteSources(List<RemoteDataSourceConfig> remoteSources, List<RemoteDataSourceConfig> testRemoteSources, int index) {
-        final RemoteDataSourceConfig testRemoteSource = testRemoteSources.get(index);
-        final RemoteDataSourceConfig remoteSource = remoteSources.get(index);
-        assertEquals(remoteSource.getName(), testRemoteSource.getName());
-        assertEquals(remoteSource.getDataCheckUrl(), testRemoteSource.getDataCheckUrl());
-        assertEquals(remoteSource.getDataUrl(), testRemoteSource.getDataUrl(),
-                remoteSource.getDataUrl() + " not matching " + testRemoteSource.getDataUrl());
-
-        assertEquals(remoteSource.getDownloadFilename(), testRemoteSource.getDownloadFilename(),
-                remoteSource.getDownloadFilename() + " did not contain " + testRemoteSource.getDownloadFilename());
-        assertEquals(remoteSource.getDefaultExpiry(), testRemoteSource.getDefaultExpiry(), "default expiry");
-        assertEquals(remoteSource.isMandatory(), testRemoteSource.isMandatory(), "mandatory");
     }
 
     @Test
@@ -214,8 +220,8 @@ class ConfigMismatchTest {
         assertEquals(dataSourceConfig.size(), testDataSourceConfig.size());
         assertEquals(2, dataSourceConfig.size());
 
-        assertRemoteSources(dataSourceConfig, testDataSourceConfig, 0);
-        assertRemoteSources(dataSourceConfig, testDataSourceConfig, 1);
+        assertRemoteSources(dataSourceConfig, testDataSourceConfig, DataSourceID.tfgm);
+        assertRemoteSources(dataSourceConfig, testDataSourceConfig, DataSourceID.database);
     }
 
     @Test
@@ -240,13 +246,16 @@ class ConfigMismatchTest {
         List<RemoteDataSourceConfig> dataSourceConfig = appConfig.getRemoteDataSourceConfig();
         List<RemoteDataSourceConfig> testDataSourceConfig = accTestConfig.getRemoteDataSourceConfig();
         assertEquals(dataSourceConfig.size(), testDataSourceConfig.size());
-        assertEquals(4, dataSourceConfig.size());
+        assertEquals(5, dataSourceConfig.size());
 
         // rail tested above
         //assertRemoteSources(dataSourceConfig, testDataSourceConfig, 0);
-        assertRemoteSources(dataSourceConfig, testDataSourceConfig, 1);
-        assertRemoteSources(dataSourceConfig, testDataSourceConfig, 2);
-        assertRemoteSources(dataSourceConfig, testDataSourceConfig, 3);
+        assertRemoteSources(dataSourceConfig, testDataSourceConfig, DataSourceID.rail);
+        assertRemoteSources(dataSourceConfig, testDataSourceConfig, DataSourceID.tfgm);
+        assertRemoteSources(dataSourceConfig, testDataSourceConfig, DataSourceID.naptanxml);
+        assertRemoteSources(dataSourceConfig, testDataSourceConfig, DataSourceID.nptg);
+        assertRemoteSources(dataSourceConfig, testDataSourceConfig, DataSourceID.database);
+
 
     }
 
@@ -403,6 +412,30 @@ class ConfigMismatchTest {
                 filter(Files::isRegularFile).
                 filter(path -> path.getFileName().toString().toLowerCase().endsWith(".yml")).
                 collect(Collectors.toSet());
+    }
+
+    private void assertRemoteSources(List<RemoteDataSourceConfig> remoteSources, List<RemoteDataSourceConfig> testRemoteSources, DataSourceID dataSourceID) {
+
+        final RemoteDataSourceConfig testRemoteSource = getSourceFrom(remoteSources, dataSourceID); //testRemoteSources.get(index);
+        final RemoteDataSourceConfig remoteSource = getSourceFrom(testRemoteSources, dataSourceID); //remoteSources.get(index);
+        assertEquals(remoteSource.getName(), testRemoteSource.getName(), "name for " + dataSourceID);
+        assertEquals(remoteSource.getDataCheckUrl(), testRemoteSource.getDataCheckUrl(), "check url for " + dataSourceID);
+        assertEquals(remoteSource.getDataUrl(), testRemoteSource.getDataUrl(),
+                remoteSource.getDataUrl() + " not matching " + testRemoteSource.getDataUrl() + " for " + dataSourceID);
+
+        assertEquals(remoteSource.getDownloadFilename(), testRemoteSource.getDownloadFilename(),
+                remoteSource.getDownloadFilename() + " did not contain " + testRemoteSource.getDownloadFilename() + " for " + dataSourceID);
+        assertEquals(remoteSource.getDefaultExpiry(), testRemoteSource.getDefaultExpiry(), "default expiry for " + dataSourceID);
+        assertEquals(remoteSource.isMandatory(), testRemoteSource.isMandatory(), "mandatory " + dataSourceID);
+    }
+
+    private RemoteDataSourceConfig getSourceFrom(List<RemoteDataSourceConfig> remoteSources, DataSourceID dataSourceID) {
+        List<RemoteDataSourceConfig> matched = remoteSources.stream().
+                filter(source -> source.getDataSourceId().equals(dataSourceID)).toList();
+        assertFalse(matched.isEmpty(), "Could not find a data source for " + dataSourceID);
+        assertEquals(1, matched.size(), "Wrong number of data sources matched");
+        return matched.get(0);
+
     }
 
 }

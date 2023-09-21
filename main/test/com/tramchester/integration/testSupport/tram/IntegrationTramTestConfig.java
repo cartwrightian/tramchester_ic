@@ -27,7 +27,7 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
 
     private final GTFSSourceConfig gtfsSourceConfig;
     protected final RemoteDataSourceConfig remoteTFGMConfig;
-    private final RemoteDataSourceConfig remoteDBSourceConfig;
+    protected final RemoteDataSourceConfig remoteDBSourceConfig;
     private final boolean liveDataEnabled;
 
     public IntegrationTramTestConfig() {
