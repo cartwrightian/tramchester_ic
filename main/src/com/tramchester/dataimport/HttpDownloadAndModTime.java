@@ -247,11 +247,11 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
         URLStatus result;
         if (serverModMillis>0) {
             result = new URLStatus(finalURL, statusCode, getLocalDateTime(serverModMillis));
-            if (!targetFile.setLastModified(serverModMillis)) {
-                logger.warn("Unable to set mod time on " + targetFile);
-            } else {
-                logger.info("Set mod time on " + targetFile + " to " + serverModDateTime);
-            }
+//            if (!targetFile.setLastModified(serverModMillis)) {
+//                logger.warn("Unable to set mod time on " + targetFile);
+//            } else {
+//                logger.info("Set mod time on " + targetFile + " to " + serverModDateTime);
+//            }
         } else {
             result = new URLStatus(finalURL, statusCode);
             logger.warn("Server mod time is zero, not updating local file mod time " + logSuffix);

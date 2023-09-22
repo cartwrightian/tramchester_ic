@@ -92,7 +92,6 @@ class FetchDataFromUrlLocalFileCheckProvidedTest extends EasyMockSupport {
 
     }
 
-
     @Test
     void shouldFetchIfModTimeIsNewer() throws IOException {
 
@@ -104,6 +103,7 @@ class FetchDataFromUrlLocalFileCheckProvidedTest extends EasyMockSupport {
         URLStatus status = new URLStatus(expectedDownloadURL, 200, startTime.plusMinutes(30));
         EasyMock.expect(s3Downloader.getStatusFor(expectedDownloadURL, startTime)).andReturn(status);
         EasyMock.expect(s3Downloader.downloadTo(destinationFile, expectedDownloadURL, startTime)).andReturn(status);
+        EasyMock.expect(fetchFileModTime.update(destinationFile, startTime.plusMinutes(30))).andReturn(true);
 
         replayAll();
         Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
@@ -121,6 +121,7 @@ class FetchDataFromUrlLocalFileCheckProvidedTest extends EasyMockSupport {
         EasyMock.expect(s3Downloader.getStatusFor(expectedDownloadURL, LocalDateTime.MIN)).andReturn(status);
 
         EasyMock.expect(s3Downloader.downloadTo(destinationFile, expectedDownloadURL, LocalDateTime.MIN)).andReturn(status);
+        EasyMock.expect(fetchFileModTime.update(destinationFile, startTime)).andReturn(true);
 
         replayAll();
         Assertions.assertAll(() -> fetchDataFromUrl.fetchData());

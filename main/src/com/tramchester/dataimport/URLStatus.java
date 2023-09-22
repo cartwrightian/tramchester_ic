@@ -33,6 +33,10 @@ public class URLStatus {
         return modTime;
     }
 
+    public boolean hasModTime() {
+        return !modTime.equals(LocalDateTime.MIN);
+    }
+
     public boolean isOk() {
         return HttpStatus.SC_OK == responseCode;
     }
@@ -83,5 +87,6 @@ public class URLStatus {
                 || code == HttpStatus.SC_MOVED_TEMPORARILY
                 || code == HttpStatus.SC_TEMPORARY_REDIRECT;
     }
+
 
 }

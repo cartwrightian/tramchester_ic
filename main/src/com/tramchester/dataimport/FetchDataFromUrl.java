@@ -239,11 +239,25 @@ public class FetchDataFromUrl {
                             LocalDateTime localModTime) throws IOException, InterruptedException {
         URI uri = URI.create(url);
 
+        URLStatus result;
+
         if (isS3) {
-            return s3Downloader.downloadTo(destination, uri, localModTime);
+            result = s3Downloader.downloadTo(destination, uri, localModTime);
         } else {
-            return downloadFollowRedirects(destination, uri, localModTime);
+            result = downloadFollowRedirects(destination, uri, localModTime);
         }
+
+        if (result.hasModTime()) {
+            LocalDateTime modTime = result.getModTime();
+            if (fetchFileModTime.update(destination, modTime)) {
+                logger.info(String.format("Updating mod time to %s for %s downloaded from %s", modTime, destination, uri));
+            } else {
+                logger.warn(String.format("Failed to update mod time to %s for %s downloaded from %s", modTime, destination, uri));
+            }
+        }
+
+        return result;
+
     }
 
     private URLStatus downloadFollowRedirects(Path destination, URI initialURL, LocalDateTime localModTime) throws IOException, InterruptedException {
