@@ -4,6 +4,7 @@ import com.google.common.collect.Streams;
 import com.google.common.io.ByteStreams;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.dataimport.FetchFileModTime;
 import com.tramchester.dataimport.URLStatus;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -31,6 +32,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
@@ -40,13 +42,16 @@ import static java.lang.String.format;
 
 @LazySingleton
 public class ClientForS3 {
+    public static final String ORIG_MOD_TIME_META_DATA_KEY = "original_mod_time";
     private static final Logger logger = LoggerFactory.getLogger(ClientForS3.class);
 
+    private final FetchFileModTime fetchFileModTime;
     protected S3Client s3Client;
     private MessageDigest messageDigest;
 
     @Inject
-    public ClientForS3() {
+    public ClientForS3(FetchFileModTime fetchFileModTime) {
+        this.fetchFileModTime = fetchFileModTime;
         s3Client = null;
     }
 
@@ -82,10 +87,12 @@ public class ClientForS3 {
             return false;
         }
 
+        LocalDateTime fileModTime = fetchFileModTime.getFor(fileToUpload);
+
         try {
             byte[] buffer = Files.readAllBytes(fileToUpload);
             String localMd5 = Base64.encodeBase64String(messageDigest.digest(buffer));
-            return uploadToS3(bucket, key, localMd5, RequestBody.fromBytes(buffer));
+            return uploadToS3(bucket, key, localMd5, RequestBody.fromBytes(buffer), fileModTime);
 
         } catch (IOException e) {
            logger.info("Unable to upload file " + fileToUpload.toAbsolutePath(), e);
@@ -100,6 +107,8 @@ public class ClientForS3 {
             return false;
         }
 
+        LocalDateTime fileModTime = fetchFileModTime.getFor(uploadFile);
+
         long originalSize = uploadFile.toFile().length();
 
         String entryName = uploadFile.getFileName().toString();
@@ -112,7 +121,7 @@ public class ClientForS3 {
             logger.info(format("File %s was compressed from %s to %s bytes", uploadFile, originalSize, buffer.length));
 
             String localMd5 = Base64.encodeBase64String(messageDigest.digest(buffer));
-            return uploadToS3(bucket, key, localMd5, RequestBody.fromBytes(buffer));
+            return uploadToS3(bucket, key, localMd5, RequestBody.fromBytes(buffer), fileModTime);
         } catch (IOException e) {
             logger.info("Unable to upload (zipped) file " + uploadFile.toAbsolutePath(), e);
 
@@ -147,7 +156,7 @@ public class ClientForS3 {
         return result;
     }
 
-    public boolean upload(String bucket, String key, String text) {
+    public boolean upload(String bucket, String key, String text, LocalDateTime modTimeMetaData) {
         if (!isStarted()) {
             logger.error("not started");
             return false;
@@ -168,19 +177,23 @@ public class ClientForS3 {
         String localMd5 = Base64.encodeBase64String(messageDigest.digest(bytes));
         final RequestBody requestBody = RequestBody.fromBytes(bytes);
 
-        return uploadToS3(bucket, key, localMd5, requestBody);
+        return uploadToS3(bucket, key, localMd5, requestBody, modTimeMetaData);
     }
 
-    private boolean uploadToS3(String bucket, String key, String localMd5, RequestBody requestBody) {
+    private boolean uploadToS3(String bucket, String key, String localMd5, RequestBody requestBody, LocalDateTime fileModTime) {
         if (!isStarted()) {
             logger.error("No started, uploadToS3");
             return false;
         }
 
+        Map<String, String> metaData= new HashMap<>();
+        metaData.put(ORIG_MOD_TIME_META_DATA_KEY, fileModTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+
         try {
             logger.debug("Uploading with MD5: " + localMd5);
             PutObjectRequest putObjectRequest = PutObjectRequest.builder().
                     bucket(bucket).
+                    metadata(metaData).
                     key(key).
                     build();
             s3Client.putObject(putObjectRequest, requestBody);
@@ -256,6 +269,10 @@ public class ClientForS3 {
         if (!isStarted()) {
             logger.error("not started, bucket exists");
             return false;
+        }
+
+        if (bucket.isEmpty()) {
+            throw new RuntimeException("Bucket name cannot be empty string");
         }
 
         try {
@@ -343,47 +360,57 @@ public class ClientForS3 {
         return s3Client != null;
     }
 
-    public LocalDateTime getModTimeFor(URI url) throws FileNotFoundException {
-        logger.info("Fetch Mod time for url " + url);
+    public LocalDateTime getModTimeFor(URI uri) throws FileNotFoundException {
+        logger.info("Fetch Mod time for url " + uri);
+        BucketKey bucketKey = BucketKey.convertFromURI(uri);
 
         if (!isStarted()) {
             logger.error("Not started");
             return LocalDateTime.MIN;
         }
 
-        S3Object s3Object = getS3ObjectFor(url);
+        try {
+            HeadObjectRequest headObjectRequest = HeadObjectRequest.builder().key(bucketKey.key).
+                    bucket(bucketKey.bucket).build();
+            HeadObjectResponse response = s3Client.headObject(headObjectRequest);
 
-        Instant lastModified = s3Object.lastModified();
-        return LocalDateTime.ofInstant(lastModified, TramchesterConfig.TimeZoneId);
-    }
+            ResponseFacade responseFacade = getResponseFacade(response);
 
-    private S3Object getS3ObjectFor(URI uri) throws FileNotFoundException {
-        BucketKey bucketKey = BucketKey.convertFromURI(uri);
+            return overrideModTimeIfMetaData(responseFacade, uri);
 
-        // max keys set 1 here
-        ListObjectsV2Request request = ListObjectsV2Request.builder().
-                bucket(bucketKey.bucket).prefix(bucketKey.key).maxKeys(1).
-                build();
-        ListObjectsV2Response response = s3Client.listObjectsV2(request);
-
-        if (response.keyCount()==0) {
+//            if (response.hasMetadata()) {
+//                Map<String, String> meta = response.metadata();
+//                if (meta.containsKey(ORIG_MOD_TIME_META_DATA_KEY)) {
+//                    String modTimeTxt = meta.get(ORIG_MOD_TIME_META_DATA_KEY);
+//                    logger.info("Metadata " + ORIG_MOD_TIME_META_DATA_KEY + " present with value " + modTimeTxt + " so using in preference to native S3 mod time for " + uri);
+//                    return LocalDateTime.parse(modTimeTxt, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+//                }
+//            }
+//
+//            logger.warn("No " + ORIG_MOD_TIME_META_DATA_KEY + " is present, fall back to native S3 mod time for " + uri);
+//            Instant lastModified = response.lastModified();
+//            return LocalDateTime.ofInstant(lastModified, TramchesterConfig.TimeZoneId);
+        }
+        catch(NoSuchKeyException noSuchKeyException) {
             logger.warn("Could not get object for missing uri " + uri + " and key " + bucketKey);
             throw new FileNotFoundException(uri.toString());
         }
 
-        if (response.keyCount()>1) {
-            logger.warn(format("Unexpected number of objects, needed 1 got %s for %s", response.keyCount(), bucketKey));
+    }
+
+    private LocalDateTime overrideModTimeIfMetaData(ResponseFacade response, URI uri) {
+        if (response.hasMetadata()) {
+            Map<String, String> meta = response.metadata();
+            if (meta.containsKey(ORIG_MOD_TIME_META_DATA_KEY)) {
+                String modTimeTxt = meta.get(ORIG_MOD_TIME_META_DATA_KEY);
+                logger.info("Metadata " + ORIG_MOD_TIME_META_DATA_KEY + " present with value " + modTimeTxt + " so using in preference to native S3 mod time for " + uri);
+                return LocalDateTime.parse(modTimeTxt, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+            }
         }
 
-        return response.contents().get(0);
-
-//        if (response.contents().size()>=1) {
-//            return response.contents().get(0);
-//        } else {
-//            final String message = format("Unable to fetch object from %s", bucketKey);
-//            logger.error(message);
-//            throw new RuntimeException(message);
-//        }
+        logger.warn("No " + ORIG_MOD_TIME_META_DATA_KEY + " is present, fall back to native S3 mod time for " + uri);
+        Instant lastModified = response.lastModified();
+        return LocalDateTime.ofInstant(lastModified, TramchesterConfig.TimeZoneId);
     }
 
     private GetObjectRequest createRequestFor(BucketKey bucketKey) {
@@ -415,14 +442,21 @@ public class ClientForS3 {
 
         GetObjectResponse response = responseInputStream.response();
         String remoteMD5 = getETagClean(response);
-        Instant modInstant = response.lastModified();
 
-        FileOutputStream output = new FileOutputStream(path.toFile());
+        ResponseFacade responseFacade = createResponseFacade(response);
+
+        LocalDateTime modTime = overrideModTimeIfMetaData(responseFacade, uri);
+
+        File file = path.toFile();
+        FileOutputStream output = new FileOutputStream(file);
         ByteStreams.copy(responseInputStream, output);
         responseInputStream.close();
         output.close();
 
-        InputStream writtenFile = new FileInputStream(path.toFile());
+        logger.info(format("Update downloaded file %s modtime to %s", path.toAbsolutePath(), modTime));
+        fetchFileModTime.update(path, modTime);
+
+        InputStream writtenFile = new FileInputStream(file);
         String localMd5 = DigestUtils.md5Hex(writtenFile);
         writtenFile.close();
 
@@ -433,43 +467,82 @@ public class ClientForS3 {
             logger.info(format("Downloaded to %s from %s MD5 match md5: '%s'", path.toAbsolutePath(), bucketKey, localMd5));
         }
 
-        return new URLStatus(uri, HttpStatus.SC_OK, getLocalDateTime(modInstant));
+        return new URLStatus(uri, HttpStatus.SC_OK, modTime);
     }
 
-    private LocalDateTime getLocalDateTime(Instant modInstant) {
-        return LocalDateTime.ofInstant(modInstant, TramchesterConfig.TimeZoneId);
-    }
+//    private LocalDateTime getLocalDateTime(Instant modInstant) {
+//        return LocalDateTime.ofInstant(modInstant, TramchesterConfig.TimeZoneId);
+//    }
 
-    private static class BucketKey {
-        private final String bucket;
-        private final String key;
-
-        public BucketKey(String bucket, String key) {
-            this.bucket = bucket;
-            this.key = key;
-        }
+    private record BucketKey(String bucket, String key) {
 
         private static BucketKey convertFromURI(URI uri) {
-            String scheme = uri.getScheme();
-            if (!"s3".equals(scheme)) {
-                throw new RuntimeException("s3 only, got "+scheme);
+                String scheme = uri.getScheme();
+                if (!"s3".equals(scheme)) {
+                    throw new RuntimeException("s3 only, got " + scheme);
+                }
+                String bucket = uri.getHost();
+                String key = uri.getPath().replaceFirst("/", "");
+                return new BucketKey(bucket, key);
             }
-            String bucket = uri.getHost();
-            String key = uri.getPath().replaceFirst("/", "");
-            return new BucketKey(bucket, key);
+
+            @Override
+            public String toString() {
+                return "BucketPrefixKey{" +
+                        "bucket='" + bucket + '\'' +
+                        ", key='" + key + '\'' +
+                        '}';
+            }
+
+            public boolean isValid() {
+                return !(bucket.isEmpty() || key.isEmpty());
+            }
         }
 
-        @Override
-        public String toString() {
-            return "BucketPrefixKey{" +
-                    "bucket='" + bucket + '\'' +
-                    ", key='" + key + '\'' +
-                    '}';
-        }
+    private interface ResponseFacade {
+        boolean hasMetadata();
+        Map<String, String> metadata();
+        Instant lastModified();
+    }
 
-        public boolean isValid() {
-            return !(bucket.isEmpty() || key.isEmpty());
-        }
+    @NotNull
+    private static ResponseFacade createResponseFacade(GetObjectResponse response) {
+        return new ResponseFacade() {
+            @Override
+            public boolean hasMetadata() {
+                return response.hasMetadata();
+            }
+
+            @Override
+            public Map<String, String> metadata() {
+                return response.metadata();
+            }
+
+            @Override
+            public Instant lastModified() {
+                return response.lastModified();
+            }
+        };
+    }
+
+    @NotNull
+    private static ResponseFacade getResponseFacade(HeadObjectResponse response) {
+        return new ResponseFacade() {
+            @Override
+            public boolean hasMetadata() {
+                return response.hasMetadata();
+            }
+
+            @Override
+            public Map<String, String> metadata() {
+                return response.metadata();
+            }
+
+            @Override
+            public Instant lastModified() {
+                return response.lastModified();
+            }
+        };
     }
 
     private static class KeyIterator implements Iterator<S3Object> {

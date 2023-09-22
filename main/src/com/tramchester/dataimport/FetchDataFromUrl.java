@@ -250,7 +250,7 @@ public class FetchDataFromUrl {
         if (result.hasModTime()) {
             LocalDateTime modTime = result.getModTime();
             if (fetchFileModTime.update(destination, modTime)) {
-                logger.info(String.format("Updating mod time to %s for %s downloaded from %s", modTime, destination, uri));
+                logger.info(String.format("Updated mod time to %s for %s downloaded from %s", modTime, destination, uri));
             } else {
                 logger.warn(String.format("Failed to update mod time to %s for %s downloaded from %s", modTime, destination, uri));
             }

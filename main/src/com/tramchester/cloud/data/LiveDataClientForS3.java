@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -78,8 +79,8 @@ public class LiveDataClientForS3  {
         return clientForS3.keyExists(bucket, prefix, item);
     }
 
-    public boolean upload(String key, String json) {
-        return clientForS3.upload(bucket, key, json);
+    public boolean upload(String key, String json, LocalDateTime modTime) {
+        return clientForS3.upload(bucket, key, json, modTime);
     }
 
     public Stream<String> getKeysFor(String prefix) {

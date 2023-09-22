@@ -5,8 +5,10 @@ import com.tramchester.cloud.data.LiveDataClientForS3;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.OpenLdbConfig;
 import com.tramchester.config.TfgmTramLiveDataConfig;
+import com.tramchester.dataimport.FetchFileModTime;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.TestConfig;
+import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestOpenLdbConfig;
 import com.tramchester.testSupport.TestTramLiveDataConfig;
 import com.tramchester.testSupport.testTags.LiveDataS3UploadTest;
@@ -34,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @S3Test
 class LiveDataClientForS3Test {
 
-    private static final String TEST_BUCKET_NAME = "tramchestertestlivedatabucket";
+    private static final String TEST_BUCKET_NAME = "tramchestertestlivedatabucketnew";
     private static final String PREFIX = "test";
     private static final String FULL_KEY = PREFIX+"/"+ "key";
 
@@ -53,7 +55,7 @@ class LiveDataClientForS3Test {
         s3TestSupport = new S3TestSupport(s3, s3Waiter, TEST_BUCKET_NAME);
         s3TestSupport.createOrCleanBucket();
 
-        clientForS3 = new ClientForS3();
+        clientForS3 = new ClientForS3(new FetchFileModTime());
         clientForS3.start();
     }
 
@@ -82,7 +84,7 @@ class LiveDataClientForS3Test {
     void shouldUploadOkIfBucketExist() throws IOException {
 
         String contents = "someJsonData";
-        boolean uploaded = liveDataClientForS3.upload(FULL_KEY, contents);
+        boolean uploaded = liveDataClientForS3.upload(FULL_KEY, contents, TestEnv.LocalNow());
         assertTrue(uploaded, "uploaded");
 
         ListObjectsRequest listRequest = ListObjectsRequest.builder().bucket(TEST_BUCKET_NAME).build();
@@ -110,7 +112,7 @@ class LiveDataClientForS3Test {
     void shouldReturnFalseIfNonExistentBucket() {
         LiveDataClientForS3 anotherClient = new LiveDataClientForS3(new NoSuchBucketExistsConfig(), clientForS3);
         anotherClient.start();
-        boolean uploaded = anotherClient.upload(FULL_KEY, "someText");
+        boolean uploaded = anotherClient.upload(FULL_KEY, "someText", TestEnv.LocalNow());
         anotherClient.stop();
         assertFalse(uploaded);
     }
@@ -151,7 +153,7 @@ class LiveDataClientForS3Test {
         LiveDataClientForS3.ResponseMapper<String> transformer = (receivedKey, receivedBytes) ->
                 Collections.singletonList(new String(receivedBytes, StandardCharsets.US_ASCII));
 
-        List<String> results = liveDataClientForS3.downloadAndMap(Collections.singleton(key), transformer).collect(Collectors.toList());
+        List<String> results = liveDataClientForS3.downloadAndMap(Collections.singleton(key), transformer).toList();
         assertEquals(1, results.size());
         assertEquals(payload, results.get(0));
     }

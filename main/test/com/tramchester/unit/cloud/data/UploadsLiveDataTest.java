@@ -62,7 +62,7 @@ class UploadsLiveDataTest extends EasyMockSupport {
         EasyMock.expect(clientForS3.itemExists("prefix","key")).andReturn(false);
         EasyMock.expect(mapper.map(dtos)).andReturn("someJson");
 
-        EasyMock.expect(clientForS3.upload("key", "someJson")).andReturn(true);
+        EasyMock.expect(clientForS3.upload("key", "someJson", lastUpdateTime)).andReturn(true);
 
         replayAll();
         boolean result = uploadsLiveData.seenUpdate(liveData);

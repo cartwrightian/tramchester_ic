@@ -713,7 +713,7 @@ task queryLiveDataArchiveStartScript(type: CreateStartScripts, dependsOn: compil
 
 task copyIntoUploadDir(type: Copy, dependsOn: [zipDB, distZip]) {
     from 'build/distributions/database.zip'
-    from 'build/distributions/tramchester-1.0.zip'
+    from 'build/distributions/tramchester-'+buildNumber+'.zip'
     from 'deploy/setupTramWebServerAWSLinux.sh'
     from 'deploy/cloudInitAWSLinux.txt'
     into 'build/distributions/uploadDir'

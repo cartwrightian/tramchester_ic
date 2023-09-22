@@ -2,6 +2,7 @@ package com.tramchester.integration.cloud.data;
 
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
+import com.tramchester.cloud.data.ClientForS3;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
@@ -21,8 +22,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -95,20 +101,24 @@ class UploadRemoteSourceDataToS3Test {
         final String text = "HereIsSomeTextForTheFile";
         Files.writeString( sourceFilePath, text);
 
+        LocalDateTime modTime = LocalDateTime.of(1975, 12, 30, 15, 35, 56);
+        long expectedMills = getEpochMilli(modTime);
+        assertTrue(sourceFilePath.toFile().setLastModified(expectedMills));
+
         boolean result = uploadRemoteData.upload(testPrefix);
         assertTrue(result);
 
         s3Waiter.waitUntilObjectExists(HeadObjectRequest.builder().bucket(TEST_BUCKET_NAME).key(key).build());
 
-        ListObjectsRequest listRequest = ListObjectsRequest.builder().bucket(TEST_BUCKET_NAME).build();
-        ListObjectsResponse currentContents = s3.listObjects(listRequest);
+        HeadObjectRequest headObjectRequest = HeadObjectRequest.builder().bucket(TEST_BUCKET_NAME).key(key).build();
+        HeadObjectResponse response = s3.headObject(headObjectRequest);
 
-        List<S3Object> summary = currentContents.contents();
-
-        assertEquals(1, summary.size());
-        String foundKey = summary.get(0).key();
-
-        assertEquals(key, foundKey);
+        assertTrue(response.hasMetadata());
+        Map<String, String> meta = response.metadata();
+        assertTrue(meta.containsKey(ClientForS3.ORIG_MOD_TIME_META_DATA_KEY));
+        String dateAsText = meta.get(ClientForS3.ORIG_MOD_TIME_META_DATA_KEY);
+        LocalDateTime remoteModTime = LocalDateTime.parse(dateAsText, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        assertEquals(modTime, remoteModTime);
 
         GetObjectRequest getRequest = GetObjectRequest.builder().bucket(TEST_BUCKET_NAME).key(key).build();
         ResponseInputStream<GetObjectResponse> inputStream = s3.getObject(getRequest);
@@ -149,6 +159,15 @@ class UploadRemoteSourceDataToS3Test {
         public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
             return Collections.singletonList(dataSource);
         }
+    }
+
+    private long getEpochMilli(LocalDateTime dateTime) {
+        ZonedDateTime zonedDateTime = dateTime.atZone(TramchesterConfig.TimeZoneId);
+        return zonedDateTime.toInstant().toEpochMilli();
+    }
+
+    private LocalDateTime toLocal(Instant instant) {
+        return LocalDateTime.ofInstant(instant, TramchesterConfig.TimeZoneId);
     }
 
     public static class DataSource extends RemoteDataSourceConfig {

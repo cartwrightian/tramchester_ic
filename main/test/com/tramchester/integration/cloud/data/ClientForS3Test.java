@@ -20,12 +20,13 @@ import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.*;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
@@ -93,7 +94,7 @@ public class ClientForS3Test {
 
         final String fullKey = "test/key";
         final String text = "someTextToPlaceInS3";
-        clientForS3.upload(BUCKET, fullKey, text);
+        clientForS3.upload(BUCKET, fullKey, text, TestEnv.LocalNow());
 
         s3Waiter.waitUntilObjectExists(HeadObjectRequest.builder().bucket(BUCKET).key(fullKey).build());
 
@@ -113,12 +114,16 @@ public class ClientForS3Test {
     }
 
     @Test
-    void shouldUploadFromFile() throws IOException {
+    void shouldUploadFromFile() throws IOException, URISyntaxException {
+
+        LocalDateTime originalModTime = LocalDateTime.of(1984, 10, 20, 21, 58, 59);
 
         final String text = "someTextInAFileToUploadToS3";
         Files.writeString(testFilePath, text);
 
         final String fullKey = "test/file";
+
+        testFilePath.toFile().setLastModified(originalModTime.atZone(TramchesterConfig.TimeZoneId).toInstant().toEpochMilli());
 
         clientForS3.upload(BUCKET, fullKey, testFilePath);
 
@@ -127,9 +132,20 @@ public class ClientForS3Test {
         // exists
         assertTrue(clientForS3.keyExists(BUCKET, "test", "file"));
 
+        HeadObjectRequest headRequest = HeadObjectRequest.builder().key(fullKey).bucket(BUCKET).build();
+        HeadObjectResponse response = awsS3.headObject(headRequest);
+
+        assertTrue(response.hasMetadata());
+        String modTimeAsTxt = response.metadata().get(ClientForS3.ORIG_MOD_TIME_META_DATA_KEY);
+        assertEquals(originalModTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), modTimeAsTxt);
+
         // get contents
         String resultText = getContentsOfKey(fullKey);
         assertEquals(text, resultText);
+
+        String urlText = format("s3://%s/%s", BUCKET, fullKey);
+        LocalDateTime modTimeFromClient = clientForS3.getModTimeFor(new URI(urlText));
+        assertEquals(originalModTime, modTimeFromClient);
 
         // delete
         awsS3.deleteObject(DeleteObjectRequest.builder().bucket(BUCKET).key(fullKey).build());
@@ -206,6 +222,31 @@ public class ClientForS3Test {
     }
 
     @Test
+    void shouldGetModTimeMetaDataOverride() throws IOException {
+        String key = "test/keyModTime";
+
+        LocalDateTime originalModTime = LocalDateTime.of(1984, 10, 20, 21, 58, 59);
+        String originalModTimeText = originalModTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+
+        Map<String, String> meta = new HashMap<>();
+        meta.put(ClientForS3.ORIG_MOD_TIME_META_DATA_KEY, originalModTimeText);
+        PutObjectRequest putReq = PutObjectRequest.builder().
+                bucket(BUCKET).key(key).
+                metadata(meta).
+                build();
+
+        awsS3.putObject(putReq, RequestBody.fromString("text1"));
+
+        s3Waiter.waitUntilObjectExists(HeadObjectRequest.builder().bucket(BUCKET).key(key).build());
+
+        String urlText = format("s3://%s/%s", BUCKET, key);
+        LocalDateTime modTime = clientForS3.getModTimeFor(URI.create(urlText));
+
+        assertEquals(originalModTime, modTime);
+    }
+
+
+    @Test
     void shouldThrowForMissingKey() {
         String key = "SHOULDNOTEXIST";
         String urlText = format("s3://%s/%s", BUCKET, key);
@@ -231,10 +272,16 @@ public class ClientForS3Test {
 
     @Test
     void shouldDownloadToFile() throws IOException {
+
+        LocalDateTime originalModTime = LocalDateTime.of(1984, 10, 20, 21, 58, 59);
+
         String key = "test/keyDownloadAndSave";
 
         final String text = "textToDownloadToAFile";
-        awsS3.putObject(PutObjectRequest.builder().bucket(BUCKET).key(key).build(), RequestBody.fromString(text));
+        Map<String, String> metaData = new HashMap<>();
+
+        metaData.put(ClientForS3.ORIG_MOD_TIME_META_DATA_KEY, originalModTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        awsS3.putObject(PutObjectRequest.builder().bucket(BUCKET).metadata(metaData).key(key).build(), RequestBody.fromString(text));
 
         s3Waiter.waitUntilObjectExists(HeadObjectRequest.builder().bucket(BUCKET).key(key).build());
 
@@ -246,6 +293,10 @@ public class ClientForS3Test {
         byte[] bytes = Files.readAllBytes(testFilePath);
         String result = new String(bytes);
         assertEquals(text, result);
+
+        long lastModMills = testFilePath.toFile().lastModified();
+        LocalDateTime lastModLocal = Instant.ofEpochMilli(lastModMills).atZone(TramchesterConfig.TimeZoneId).toLocalDateTime();
+        assertEquals(originalModTime, lastModLocal.truncatedTo(ChronoUnit.SECONDS));
     }
 
     @Test
