@@ -4,6 +4,7 @@ import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.module.blackbird.BlackbirdModule;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GTFSSourceConfig;
+import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.FetchFileModTime;
 import com.tramchester.dataimport.loader.files.TransportDataFromFileFactory;
@@ -49,9 +50,12 @@ public class TransportDataReaderFactory {
             logger.info("Creating reader for config " + sourceConfig.getName());
             Path path = sourceConfig.getDataPath();
 
+            // sanity check on remote data source being path matching up
             final DataSourceID dataSourceId = sourceConfig.getDataSourceId();
             if (tramchesterConfig.hasRemoteDataSourceConfig(dataSourceId)) {
-                Path remoteLoadPath = tramchesterConfig.getDataRemoteSourceConfig(dataSourceId).getDataPath();
+                RemoteDataSourceConfig dataRemoteSourceConfig = tramchesterConfig.getDataRemoteSourceConfig(dataSourceId);
+                Path remoteLoadPath = dataRemoteSourceConfig.getDataPath();
+                logger.info("Got remote data source config for " + dataSourceId + " from config " + dataRemoteSourceConfig);
                 if (!remoteLoadPath.equals(path)) {
                     throw new RuntimeException("Pass mismatch for gtfs and remote source configs: " + dataSourceId);
                 }
@@ -59,10 +63,8 @@ public class TransportDataReaderFactory {
                 logger.warn("No remote source config found for " + dataSourceId);
             }
 
-            DataSourceInfo dataSourceInfo = createSourceInfoFrom(sourceConfig);
-
             TransportDataFromFileFactory factory = new TransportDataFromFileFactory(path, mapper);
-            TransportDataReader transportLoader = new TransportDataReader(dataSourceInfo, factory, sourceConfig);
+            TransportDataReader transportLoader = new TransportDataReader(factory, sourceConfig, fetchFileModTime);
 
             dataReaders.add(transportLoader);
         });
@@ -80,14 +82,17 @@ public class TransportDataReaderFactory {
         return dataReaders;
     }
 
-    @NotNull
-    private DataSourceInfo createSourceInfoFrom(GTFSSourceConfig config) {
-        LocalDateTime modTime = fetchFileModTime.getFor(config);
-        DataSourceID dataSourceId = config.getDataSourceId();
-        String version = modTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-        return new DataSourceInfo(dataSourceId, version, modTime,
-                GTFSTransportationType.toTransportMode(config.getTransportGTFSModes()));
-    }
+    // moved into readers, cannot popupate this until after download etc of remote data sources
+//    @NotNull
+//    private DataSourceInfo createSourceInfoFrom(GTFSSourceConfig config) {
+//        LocalDateTime modTime = fetchFileModTime.getFor(config);
+//        DataSourceID dataSourceId = config.getDataSourceId();
+//        String version = modTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+//        DataSourceInfo dataSourceInfo = new DataSourceInfo(dataSourceId, version, modTime,
+//                GTFSTransportationType.toTransportMode(config.getTransportGTFSModes()));
+//        logger.info("Create datasource info for " + config + " " + dataSourceInfo);
+//        return dataSourceInfo;
+//    }
 
     public boolean hasReaders() {
         return !dataReaders.isEmpty();

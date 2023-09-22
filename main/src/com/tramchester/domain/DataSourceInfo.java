@@ -20,6 +20,11 @@ public class DataSourceInfo {
         this.modes = modes;
     }
 
+    public static DataSourceInfo updatedVersion(DataSourceInfo dataSourceInfo, String version) {
+        return new DataSourceInfo(dataSourceInfo.sourceID, version,
+                dataSourceInfo.lastModTime, dataSourceInfo.modes);
+    }
+
     public DataSourceID getID() {
         return sourceID;
     }

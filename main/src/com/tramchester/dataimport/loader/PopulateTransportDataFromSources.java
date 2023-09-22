@@ -60,7 +60,7 @@ public class PopulateTransportDataFromSources implements TransportDataFactory {
             logger.info("Load for gtfs sources");
             transportDataSourceFactory.forEach(transportDataSource -> load(transportDataSource, dataContainer));
         }
-        logger.info("Load for direct sources");
+        logger.info("Load for direct sources"); // for now this is just for rail data loading
         directDataSourceFactory.forEach(directDataSource -> {
             directDataSource.loadInto(dataContainer);
             dataContainer.addDataSourceInfo(directDataSource.getDataSourceInfo());
@@ -80,7 +80,7 @@ public class PopulateTransportDataFromSources implements TransportDataFactory {
 
         logger.info("Loading data for " + dataSourceInfo);
 
-        updateFeedInfoIfPresent(dataSource, writeableTransportData, dataSourceInfo, sourceConfig);
+        updateDataSourceInfo(dataSource, writeableTransportData, dataSourceInfo, sourceConfig);
 
         TransportEntityFactory entityFactory = dataSource.getEntityFactory();
 
@@ -123,19 +123,18 @@ public class PopulateTransportDataFromSources implements TransportDataFactory {
         logger.info("Finishing Loading data for " + dataSourceInfo);
     }
 
-    private void updateFeedInfoIfPresent(TransportDataSource dataSource, WriteableTransportData writeableTransportData,
-                                         DataSourceInfo dataSourceInfo, GTFSSourceConfig sourceConfig) {
+    private void updateDataSourceInfo(TransportDataSource dataSource, WriteableTransportData writeableTransportData,
+                                      DataSourceInfo dataSourceInfo, GTFSSourceConfig sourceConfig) {
         if(sourceConfig.getHasFeedInfo()) {
             DataSourceID dataSourceInfoID = dataSourceInfo.getID();
 
-            // replace version string (which is from mod time) with the one from the feedinfo file, if present
             Optional<FeedInfo> maybeFeedinfo = dataSource.getFeedInfoStream().findFirst();
+            if (maybeFeedinfo.isEmpty()) {
+                throw new RuntimeException("config returned feedinfo expected but not actually present");
+            }
             maybeFeedinfo.ifPresent(feedInfo -> {
-                logger.info("Updating data source info from " + feedInfo);
-                DataSourceInfo updatedDataSourceInfo = new DataSourceInfo(dataSourceInfoID, feedInfo.version(),
-                        dataSourceInfo.getLastModTime(), dataSource.getDataSourceInfo().getModes());
-
-                writeableTransportData.addDataSourceInfo(updatedDataSourceInfo);
+                DataSourceInfo replacementDataSourceInfo = DataSourceInfo.updatedVersion(dataSourceInfo, feedInfo.version());
+                writeableTransportData.addDataSourceInfo(replacementDataSourceInfo);
                 writeableTransportData.addDateRangeAndVersionFor(dataSourceInfoID, feedInfo);
             });
 

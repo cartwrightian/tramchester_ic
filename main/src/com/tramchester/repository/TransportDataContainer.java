@@ -354,7 +354,6 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     @Override
     public Set<DataSourceInfo> getDataSourceInfo() {
         return dataSourceInfos.getAll();
-        //return Set.copyOf(dataSourceInfos.values());
     }
 
     @Override

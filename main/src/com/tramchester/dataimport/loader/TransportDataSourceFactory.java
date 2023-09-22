@@ -5,6 +5,7 @@ import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.dataimport.UnzipFetchedData;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.factory.TransportEntityFactory;
 import com.tramchester.domain.factory.TransportEntityFactoryForTFGM;
@@ -71,8 +72,10 @@ public class TransportDataSourceFactory implements Iterable<TransportDataSource>
 
             TransportEntityFactory entityFactory = getEntityFactoryFor(sourceConfig);
 
+            DataSourceInfo dataSourceInfo = transportDataReader.getDataSourceInfo();
+
             TransportDataSource transportDataSource =
-                    new TransportDataSource(transportDataReader.getNameAndVersion(),
+                    new TransportDataSource(dataSourceInfo,
                             agencyData, stopData, routeData, tripData,
                             stopTimeData, calendarData, feedInfoData, calendarsDates, sourceConfig, entityFactory);
 
