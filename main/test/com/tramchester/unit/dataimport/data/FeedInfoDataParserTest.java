@@ -26,7 +26,7 @@ class FeedInfoDataParserTest extends ParserTestCSVHelper<FeedInfo> {
         assertThat(info.getPublisherUrl()).isEqualTo("feed_publisher_url");
         assertThat(info.getTimezone()).isEqualTo("feed_timezone");
         assertThat(info.getLang()).isEqualTo("feed_lang");
-        assertThat(info.getVersion()).isEqualTo("feed_version");
+        assertThat(info.version()).isEqualTo("feed_version");
         assertThat(info.validFrom()).isEqualTo(LocalDate.of(2016,5,30));
         assertThat(info.validUntil()).isEqualTo(LocalDate.of(2016,6,15));
     }

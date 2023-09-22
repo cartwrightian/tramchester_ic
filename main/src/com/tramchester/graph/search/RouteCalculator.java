@@ -86,14 +86,18 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         NumberOfChanges numberOfChanges =  routeToRouteCosts.getNumberOfChanges(start, destination,
                 journeyRequest.getRequestedModes(), date, journeyRequest.getTimeRange());
 
+        // route change calc issue, for media city to ashton line
+        // not clear if existing mechanism works now routes are bi-directional
         if (journeyRequest.getMaxChanges()>numberOfChanges.getMax()) {
             if (closedStationsRepository.hasClosuresOn(date)) {
-                logger.warn(format("Closures on in effect today %s so over ride max changes", journeyRequest.getDate()));
+                logger.warn(format("Closures in effect today %s so over ride max changes", journeyRequest.getDate()));
                 numberOfChanges.overrideMax(journeyRequest.getMaxChanges());
             }
             else {
-                logger.error(format("Computed max changes (%s) is less than requested number of changes (%s)",
+                logger.warn(format("Computed max changes (%s) is less than requested number of changes (%s)",
                         numberOfChanges.getMax(), journeyRequest.getMaxChanges()));
+                // TODO needed due to route change calc issue
+                numberOfChanges.overrideMax(journeyRequest.getMaxChanges());
             }
         }
 

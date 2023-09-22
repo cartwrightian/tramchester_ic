@@ -3,7 +3,7 @@ package com.tramchester.domain;
 import java.time.LocalDate;
 
 public interface DateRangeAndVersion {
-    String getVersion();
+    String version();
 
     LocalDate validFrom();
 

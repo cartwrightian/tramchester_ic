@@ -45,10 +45,10 @@ remoteSources:
     filename: tfgm_data.zip
     defaultExpiryDays: 1
   - name: naptanxml
-    dataURL: https://naptan.api.dft.gov.uk/v1/access-nodes?dataFormat=xml
+    dataURL: ${NAPTAN_DATAURL:- s3://tramchesternewdist/dist/${RELEASE_NUMBER}/NaPTAN.xml.zip}
     dataCheckURL: ""
     dataPath: data/naptan
-    filename: NaPTAN.xml
+    filename: ${NAPTAN_FILE:- NaPTAN.xml.zip}
     defaultExpiryDays: 14
   - name: nptg
     dataURL: https://beta-naptan.dft.gov.uk/Download/National/csv

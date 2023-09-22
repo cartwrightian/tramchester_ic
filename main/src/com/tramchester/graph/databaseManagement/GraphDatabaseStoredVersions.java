@@ -64,7 +64,8 @@ public class GraphDatabaseStoredVersions {
                     if (matches) {
                         logger.info("Got correct VERSION node value for " + sourceInfo);
                     } else {
-                        logger.warn(format("Mismatch on graph VERSION, got '%s' for %s", graphValue, sourceInfo));
+                        logger.warn(format("Mismatch on graph VERSION, got graph:'%s' datasource: %s for sourceinfo: %s",
+                                graphValue, sourceInfo.getVersion(), sourceInfo));
                     }
                 } else {
                     upToDate.put(sourceInfo, false);

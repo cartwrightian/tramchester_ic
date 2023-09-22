@@ -21,7 +21,7 @@ public class DataVersionDTO {
     public DataVersionDTO(DateRangeAndVersion dateRangeAndVersion) {
         this.validFrom = dateRangeAndVersion.validFrom();
         this.validUntil = dateRangeAndVersion.validUntil();
-        this.version = dateRangeAndVersion.getVersion();
+        this.version = dateRangeAndVersion.version();
     }
 
     public String getVersion() {

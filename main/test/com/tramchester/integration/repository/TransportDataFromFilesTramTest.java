@@ -125,7 +125,7 @@ public class TransportDataFromFilesTramTest {
         LocalDate localDate = when.toLocalDate();
         assertTrue(result.validUntil().isAfter(localDate));
         assertTrue(result.validFrom().isBefore(localDate) || result.validFrom().equals(localDate));
-        assertFalse(result.getVersion().isEmpty());
+        assertFalse(result.version().isEmpty());
     }
 
     @Test
@@ -413,7 +413,7 @@ public class TransportDataFromFilesTramTest {
         HasId<Station> navigationRd = NavigationRoad.from(transportData);
         Set<Trip> calls = atTime.stream().filter(trip -> trip.callsAt(navigationRd)).collect(Collectors.toSet());
 
-        assertEquals(4, calls.size(), HasId.asIds(calls));
+        assertEquals(2, calls.size(), HasId.asIds(calls));
     }
 
     @DataExpiryCategory

@@ -65,7 +65,7 @@ public class FetchDataFromUrl {
     public void start() {
         logger.info("start");
         if (this.configs==null) {
-            throw new RuntimeException("configs should be null, use empty list if not sources needed");
+            throw new RuntimeException("configs was null, use empty list if no sources needed");
         }
         fetchData();
         logger.info("started");
@@ -351,22 +351,14 @@ public class FetchDataFromUrl {
         }
     }
 
-    private class DestAndStatusCheckFile {
-        private final Path destination;
-        private final Path statusCheckFile;
-
-        public DestAndStatusCheckFile(Path destination, Path statusCheckFile) {
-
-            this.destination = destination;
-            this.statusCheckFile = statusCheckFile;
-        }
+    private record DestAndStatusCheckFile(Path destination, Path statusCheckFile) {
 
         @Override
-        public String toString() {
-            return "DestAndStatusCheckFile{" +
-                    "destination=" + destination +
-                    ", statusCheckFile=" + statusCheckFile +
-                    '}';
+            public String toString() {
+                return "DestAndStatusCheckFile{" +
+                        "destination=" + destination +
+                        ", statusCheckFile=" + statusCheckFile +
+                        '}';
+            }
         }
-    }
 }

@@ -9,6 +9,7 @@ import java.util.Set;
 
 @ImplementedBy(TransportData.class)
 public interface DataSourceRepository {
+    @Deprecated
     Set<DataSourceInfo> getDataSourceInfo();
     LocalDateTime getNewestModTimeFor(TransportMode mode);
 }

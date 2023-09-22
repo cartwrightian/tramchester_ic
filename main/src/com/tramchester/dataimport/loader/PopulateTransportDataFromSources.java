@@ -132,7 +132,7 @@ public class PopulateTransportDataFromSources implements TransportDataFactory {
             Optional<FeedInfo> maybeFeedinfo = dataSource.getFeedInfoStream().findFirst();
             maybeFeedinfo.ifPresent(feedInfo -> {
                 logger.info("Updating data source info from " + feedInfo);
-                DataSourceInfo updatedDataSourceInfo = new DataSourceInfo(dataSourceInfoID, feedInfo.getVersion(),
+                DataSourceInfo updatedDataSourceInfo = new DataSourceInfo(dataSourceInfoID, feedInfo.version(),
                         dataSourceInfo.getLastModTime(), dataSource.getDataSourceInfo().getModes());
 
                 writeableTransportData.addDataSourceInfo(updatedDataSourceInfo);

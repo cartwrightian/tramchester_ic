@@ -61,10 +61,10 @@ remoteSources:
     filename: ${NAPTAN_FILE:- NaPTAN.xml.zip}
     defaultExpiryDays: 14
   - name: nptg
-    dataURL: ${NPTG_DATAURL:- https://beta-naptan.dft.gov.uk/Download/National/csv}
+    dataURL: ${NPTG_DATAURL:- s3://tramchesternewdist/dist/${RELEASE_NUMBER}/Localities.csv.zip}
     dataCheckURL: ""
     dataPath: data/nptg
-    filename: Localities.csv
+    filename: ${NPTG_FILE:- Localities.csv.zip}
     defaultExpiryDays: 14
   - name: database
     dataURL: s3://tramchesternewdist/dist/${RELEASE_NUMBER}/database.zip

@@ -84,7 +84,8 @@ public class TransportDataReaderFactory {
     private DataSourceInfo createSourceInfoFrom(GTFSSourceConfig config) {
         LocalDateTime modTime = fetchFileModTime.getFor(config);
         DataSourceID dataSourceId = config.getDataSourceId();
-        return new DataSourceInfo(dataSourceId, modTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), modTime,
+        String version = modTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        return new DataSourceInfo(dataSourceId, version, modTime,
                 GTFSTransportationType.toTransportMode(config.getTransportGTFSModes()));
     }
 

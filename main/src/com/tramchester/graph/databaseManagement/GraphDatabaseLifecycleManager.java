@@ -47,7 +47,7 @@ public class GraphDatabaseLifecycleManager {
         cleanDB = !fileExists;
         GraphDatabaseService databaseService = serviceFactory.create();
 
-        if (fileExists && !storedVersions.upToDate(databaseService,dataSourceInfo)) {
+        if (fileExists && !storedVersions.upToDate(databaseService, dataSourceInfo)) {
             logger.warn("Graph is out of date, rebuild needed");
             cleanDB = true;
             serviceFactory.shutdownDatabase();

@@ -74,11 +74,11 @@ public class Unzipper {
 
     private void extractEntryTo(Path targetDirectory, ZipEntry zipEntry, ZipInputStream zipInputStream) throws IOException {
         Path target = targetDirectory.resolve(zipEntry.getName());
-        logger.info("Extracting entry " + toLogString(zipEntry));
+        logger.debug("Extracting entry " + toLogString(zipEntry));
 
         String absolutePath = target.toAbsolutePath().toString();
         if (zipEntry.isDirectory()) {
-            logger.info("Create directory " + absolutePath);
+            logger.debug("Create directory " + absolutePath);
             Files.createDirectories(target);
             return;
         }
@@ -98,7 +98,7 @@ public class Unzipper {
             boolean sizeMatches = checkFileSize(zipEntry, unpackTarget);
 
             if (modTimeMatches && sizeMatches) {
-                logger.info("Not over-writing " + absolutePath);
+                logger.debug("Not over-writing " + absolutePath);
                 return;
             }
             logger.warn("Deleting " + absolutePath);

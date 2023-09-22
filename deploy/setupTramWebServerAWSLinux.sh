@@ -78,11 +78,6 @@ unzip database.zip
 # fix ownership
 chown -R ec2-user .
 
-## install nessus agent if key is provided
-#if [ "$NESSUS_LINKING_KEY" != '' ]; then
-#  sudo -E bash ./$target/bin/nessus_agent_install.sh &
-#fi
-
 # start
 export RAIL_WSDL=$target/config/OpenLDBWS.wsdl
 logger Start tramchester

@@ -219,7 +219,6 @@ distributions {
             }
             into ('bin') {
                 from 'deploy/start.sh'
-                from 'deploy/nessus_agent_install.sh'
             }
         }
     }

@@ -50,7 +50,7 @@ public class FeedInfo extends ParsesDate implements DateRangeAndVersion {
     }
 
     @Override
-    public String getVersion() {
+    public String version() {
         return version;
     }
 

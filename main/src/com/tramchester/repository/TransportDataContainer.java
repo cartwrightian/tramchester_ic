@@ -15,7 +15,6 @@ import com.tramchester.domain.time.ProvidesNow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -35,7 +34,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     private final CompositeIdMap<Platform, MutablePlatform> platforms; // platformId -> platform
     private final IdMap<RouteStation> routeStations; // routeStationId - > RouteStation
     private final CompositeIdMap<Agency, MutableAgency> agencies; // agencyId -> agencies
-    private final Map<DataSourceID, DataSourceInfo> dataSourceInfos;
+    private final DataSourceInfoRepository dataSourceInfos;
 
     // data source name -> feedinfo (if present)
     private final Map<DataSourceID, DateRangeAndVersion> dateRangeAndVersionMap;
@@ -56,7 +55,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
         platforms = new CompositeIdMap<>();
         routeStations = new IdMap<>();
         agencies = new CompositeIdMap<>();
-        dataSourceInfos = new HashMap<>();
+        dataSourceInfos = new DataSourceInfoRepository(providesNow);
         dateRangeAndVersionMap = new HashMap<>();
 
     }
@@ -71,7 +70,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
                 copyOf(dataContainer.platforms),
                 copyOf(dataContainer.routeStations),
                 copyOf(dataContainer.agencies),
-                new HashMap<>(dataContainer.dataSourceInfos),
+                new DataSourceInfoRepository(dataContainer.dataSourceInfos),
                 copyOf(dataContainer.dateRangeAndVersionMap),
                 dataContainer.sourceName);
     }
@@ -91,7 +90,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     private TransportDataContainer(ProvidesNow providesNow, CompositeIdMap<Trip, MutableTrip> trips, CompositeIdMap<Station, MutableStation> stationsById,
                                    CompositeIdMap<Service, MutableService> services, CompositeIdMap<Route, MutableRoute> routes,
                                    CompositeIdMap<Platform, MutablePlatform> platforms, IdMap<RouteStation> routeStations,
-                                   CompositeIdMap<Agency, MutableAgency> agencies, Map<DataSourceID,DataSourceInfo> dataSourceInfos,
+                                   CompositeIdMap<Agency, MutableAgency> agencies, DataSourceInfoRepository dataSourceInfos,
                                    Map<DataSourceID, DateRangeAndVersion> dateRangeAndVersionMap, String sourceName) {
         this.providesNow = providesNow;
         this.trips = trips;
@@ -354,22 +353,13 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     @Deprecated
     @Override
     public Set<DataSourceInfo> getDataSourceInfo() {
-        return Set.copyOf(dataSourceInfos.values());
+        return dataSourceInfos.getAll();
+        //return Set.copyOf(dataSourceInfos.values());
     }
 
     @Override
     public LocalDateTime getNewestModTimeFor(TransportMode mode) {
-        Optional<LocalDateTime> result = this.dataSourceInfos.values().stream().
-                filter(info -> info.getModes().contains(mode)).
-                map(DataSourceInfo::getLastModTime).max(Comparator.naturalOrder());
-        if (result.isEmpty()) {
-            logger.error("Cannot find latest mod time for transport mode " + mode);
-            return providesNow.getDateTime();
-        } else {
-            LocalDateTime localDateTime = result.get();
-            logger.info("Newest mode time for " + mode.name() + " is " + localDateTime);
-            return localDateTime;
-        }
+        return dataSourceInfos.getNewestModTimeFor(mode);
     }
 
     @Override
@@ -480,11 +470,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
 
     @Override
     public void addDataSourceInfo(DataSourceInfo dataSourceInfo) {
-        DataSourceID id = dataSourceInfo.getID();
-        if (dataSourceInfos.containsKey(id)) {
-            throw new RuntimeException("Cannot add multiple instances of dataSourceId, already had " + id);
-        }
-        dataSourceInfos.put(id, dataSourceInfo);
+        dataSourceInfos.add(dataSourceInfo);
     }
 
     @Override
@@ -492,33 +478,16 @@ public class TransportDataContainer implements TransportData, WriteableTransport
         if (dateRangeAndVersionMap.containsKey(dataSourceID)) {
             return dateRangeAndVersionMap.get(dataSourceID);
         }
-        DataSourceInfo dataSourceInfo = dataSourceInfos.get(dataSourceID);
-        LocalDate expiryDate = findLastExpiryDate(dataSourceID);
-        return new RangeAndVersion(dataSourceInfo.getVersion(), dataSourceInfo.getLastModTime().toLocalDate(), expiryDate);
+        Set<ServiceCalendar> inScope = services.getValues().stream().
+                filter(service -> service.getDataSourceId().equals(dataSourceID)).
+                map(MutableService::getCalendar).
+                collect(Collectors.toSet());
+        return dataSourceInfos.getDateRangeAndVersionFor(dataSourceID, inScope);
     }
 
     @Override
     public boolean hasDateRangeAndVersionFor(DataSourceID dataSourceID) {
-        return dataSourceInfos.containsKey(dataSourceID);
-    }
-
-    private LocalDate findLastExpiryDate(DataSourceID dataSourceId) {
-        Set<ServiceCalendar> inScope = services.getValues().stream().
-                filter(service -> service.getDataSourceId().equals(dataSourceId)).
-                map(MutableService::getCalendar).
-                collect(Collectors.toSet());
-
-        if (inScope.isEmpty()) {
-            logger.info("Found no services for " + dataSourceId);
-        }
-
-        Optional<TramDate> last = inScope.stream().map(serviceCalendar -> serviceCalendar.getDateRange().getEndDate()).
-                max(TramDate::compareTo);
-        if (last.isEmpty()) {
-            throw new RuntimeException("Cannot compute expiry date for " + dataSourceId + " with calendaers " + inScope);
-        }
-        return last.get().toLocalDate();
-
+        return dataSourceInfos.has(dataSourceID);
     }
 
     @Override
@@ -563,32 +532,4 @@ public class TransportDataContainer implements TransportData, WriteableTransport
         return Objects.hash(trips, stationsById, services, routes, platforms, routeStations, agencies, dataSourceInfos, dateRangeAndVersionMap, sourceName);
     }
 
-    private class RangeAndVersion implements DateRangeAndVersion {
-
-        private final String version;
-        private final LocalDate validFrom;
-        private final LocalDate validUntil;
-
-        private RangeAndVersion(String version, LocalDate validFrom, LocalDate validUntil) {
-            this.version = version;
-            this.validFrom = validFrom;
-            this.validUntil = validUntil;
-        }
-
-
-        @Override
-        public String getVersion() {
-            return version;
-        }
-
-        @Override
-        public LocalDate validFrom() {
-            return validFrom;
-        }
-
-        @Override
-        public LocalDate validUntil() {
-            return validUntil;
-        }
-    }
 }
