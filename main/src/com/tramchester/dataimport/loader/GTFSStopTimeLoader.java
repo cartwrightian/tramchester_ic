@@ -40,24 +40,32 @@ public class GTFSStopTimeLoader {
 
     public IdMap<Service> load(Stream<StopTimeData> stopTimes, PreloadedStationsAndPlatforms preloadStations, TripAndServices tripAndServices) {
         String sourceName = dataSourceConfig.getName();
+        AtomicInteger invalidTimeCount = new AtomicInteger(0);
 
         StopTimeDataLoader stopTimeDataLoader = new StopTimeDataLoader(buildable, preloadStations, factory, dataSourceConfig, tripAndServices);
 
         logger.info("Loading stop times for " + sourceName);
         stopTimes.
-                filter(this::isValid).
+                filter(stopTimeData -> isValid(stopTimeData, invalidTimeCount)).
                 filter(stopTimeData -> tripAndServices.hasId(stopTimeData.getTripId())).
                 forEach(stopTimeDataLoader::loadStopTimeData);
 
         stopTimeDataLoader.close();
+
+        int count = invalidTimeCount.get();
+        if (count >0) {
+            logger.warn("Got " + count + " invalid stop times, each logged to debug. Likely due to the >24Hours issue");
+        }
+
         return stopTimeDataLoader.getAddedServices();
     }
 
-    private boolean isValid(StopTimeData stopTimeData) {
+    private boolean isValid(StopTimeData stopTimeData, AtomicInteger invalidTimeCount) {
         if (stopTimeData.isValid()) {
             return true;
         }
-        logger.warn("StopTimeData is invalid: " + stopTimeData);
+        invalidTimeCount.incrementAndGet();
+        logger.debug("StopTimeData is invalid: " + stopTimeData);
         return false;
     }
 

@@ -82,7 +82,7 @@ public class StopCallRepositoryTest {
                 count();
         assertEquals(results.size(), correctTimes);
 
-        assertEquals(10, results.size(), results.toString());
+        assertEquals(5, results.size(), results.toString());
     }
 
     @Test

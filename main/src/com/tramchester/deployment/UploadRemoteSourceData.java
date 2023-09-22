@@ -75,7 +75,7 @@ public class UploadRemoteSourceData {
         String filename = path.getFileName().toString();
 
         boolean result;
-        if (filename.toLowerCase().endsWith(".zip")) {
+        if (filename.toLowerCase().endsWith(".zip") || filename.toLowerCase().endsWith(".txt")) {
             result = uploadFileToS3.uploadFile(prefixForS3Key, path, true);
         } else {
             logger.info(String.format("Uploading %s with zip", filename));
