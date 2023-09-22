@@ -84,6 +84,22 @@ public class DataSourceInfoRepository {
         return new HashSet<>(theMap.values());
     }
 
+    public boolean isEmpty() {
+        return theMap.isEmpty();
+    }
+
+    public DataSourceInfo get(DataSourceID dataSourceID) {
+        return theMap.get(dataSourceID);
+    }
+
+    @Override
+    public String toString() {
+        return "DataSourceInfoRepository{" +
+                "theMap=" + theMap +
+                ", providesNow=" + providesNow +
+                '}';
+    }
+
     private record RangeAndVersion(String version, LocalDate validFrom,
                                    LocalDate validUntil) implements DateRangeAndVersion {
 

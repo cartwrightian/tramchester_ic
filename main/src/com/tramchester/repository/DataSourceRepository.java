@@ -1,6 +1,7 @@
 package com.tramchester.repository;
 
 import com.google.inject.ImplementedBy;
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.domain.reference.TransportMode;
 
@@ -11,5 +12,12 @@ import java.util.Set;
 public interface DataSourceRepository {
     @Deprecated
     Set<DataSourceInfo> getDataSourceInfo();
+
     LocalDateTime getNewestModTimeFor(TransportMode mode);
+
+    boolean hasDataSourceInfo();
+
+    String summariseDataSourceInfo();
+
+    DataSourceInfo getDataSourceInfo(DataSourceID dataSourceID);
 }

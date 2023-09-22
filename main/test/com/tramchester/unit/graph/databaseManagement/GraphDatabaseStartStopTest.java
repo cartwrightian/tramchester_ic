@@ -28,15 +28,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class GraphDatabaseStartStopTest extends EasyMockSupport {
 
-    private static final DataSourceID SRC_1_NAME = DataSourceID.rail;
-    private static final String VERSION_1_VALID = "version1";
-
-    private Set<DataSourceInfo> namesAndVersions;
-    private List<GTFSSourceConfig> dataSourceConfigs;
+ private List<GTFSSourceConfig> dataSourceConfigs;
     private GraphDatabase graphDatabase;
     private GraphDatabaseLifecycleManager lifecycleManager;
     private GraphDatabaseService graphDatabaseService;
     private GraphDBTestConfig dbConfig;
+    private DataSourceRepository dataSourceRepository;
 
     @BeforeEach
     void beforeEachTestRuns() throws IOException {
@@ -50,25 +47,13 @@ class GraphDatabaseStartStopTest extends EasyMockSupport {
             }
         };
 
-        namesAndVersions = new HashSet<>();
         dataSourceConfigs = new ArrayList<>();
-
-        DataSourceRepository repository = new DataSourceRepository() {
-            @Override
-            public Set<DataSourceInfo> getDataSourceInfo() {
-                return namesAndVersions;
-            }
-
-            @Override
-            public LocalDateTime getNewestModTimeFor(TransportMode mode) {
-                return null;
-            }
-        };
 
         lifecycleManager = createMock(GraphDatabaseLifecycleManager.class);
         graphDatabaseService = createMock(GraphDatabaseService.class);
+        dataSourceRepository = createMock(DataSourceRepository.class);
 
-        graphDatabase = new GraphDatabase(config, repository, lifecycleManager);
+        graphDatabase = new GraphDatabase(config, dataSourceRepository, lifecycleManager);
 
         final Path dbPath = dbConfig.getDbPath();
         Files.createDirectories(dbPath.getParent());
@@ -83,12 +68,7 @@ class GraphDatabaseStartStopTest extends EasyMockSupport {
     @Test
     void shouldStartLifeCycleManagerCleanExistingFile() {
 
-        LocalDateTime lastModTime = LocalDateTime.now();
-        EnumSet<TransportMode> modes = EnumSet.of(TransportMode.Tram);
-
-        namesAndVersions.add(new DataSourceInfo(SRC_1_NAME, VERSION_1_VALID, lastModTime, modes));
-
-        EasyMock.expect(lifecycleManager.startDatabase(namesAndVersions, dbConfig.getDbPath(), true)).
+        EasyMock.expect(lifecycleManager.startDatabase(dataSourceRepository, dbConfig.getDbPath(), true)).
                 andReturn(graphDatabaseService);
         EasyMock.expect(lifecycleManager.isCleanDB()).andReturn(true);
         lifecycleManager.stopDatabase();
@@ -106,12 +86,7 @@ class GraphDatabaseStartStopTest extends EasyMockSupport {
     void shouldStartLifeCycleNoFile() throws IOException {
         Files.delete(dbConfig.getDbPath());
 
-        LocalDateTime lastModTime = LocalDateTime.now();
-        EnumSet<TransportMode> modes = EnumSet.of(TransportMode.Tram);
-
-        namesAndVersions.add(new DataSourceInfo(SRC_1_NAME, VERSION_1_VALID, lastModTime, modes));
-
-        EasyMock.expect(lifecycleManager.startDatabase(namesAndVersions, dbConfig.getDbPath(), false)).
+        EasyMock.expect(lifecycleManager.startDatabase(dataSourceRepository, dbConfig.getDbPath(), false)).
                 andReturn(graphDatabaseService);
         EasyMock.expect(lifecycleManager.isCleanDB()).andReturn(true);
         lifecycleManager.stopDatabase();
@@ -128,12 +103,7 @@ class GraphDatabaseStartStopTest extends EasyMockSupport {
     @Test
     void shouldStartLifeCycleManagerNotCleanExistingFile() {
 
-        LocalDateTime lastModTime = LocalDateTime.now();
-        EnumSet<TransportMode> modes = EnumSet.of(TransportMode.Tram);
-
-        namesAndVersions.add(new DataSourceInfo(SRC_1_NAME, VERSION_1_VALID, lastModTime, modes));
-
-        EasyMock.expect(lifecycleManager.startDatabase(namesAndVersions,  dbConfig.getDbPath(), true)).
+        EasyMock.expect(lifecycleManager.startDatabase(dataSourceRepository,  dbConfig.getDbPath(), true)).
                 andReturn(graphDatabaseService);
         EasyMock.expect(lifecycleManager.isCleanDB()).andReturn(false);
         lifecycleManager.stopDatabase();

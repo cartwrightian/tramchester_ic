@@ -4,6 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.DataSourceInfo;
+import com.tramchester.repository.DataSourceRepository;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
@@ -29,7 +30,7 @@ public class GraphDatabaseStoredVersions {
         this.databaseMetaInfo = databaseMetaInfo;
     }
 
-    public boolean upToDate(GraphDatabaseService databaseService, Set<DataSourceInfo> dataSourceInfo) {
+    public boolean upToDate(GraphDatabaseService databaseService, DataSourceRepository dataSourceRepository) {
         logger.info("Checking graph version information ");
 
         // version -> flag
@@ -46,6 +47,8 @@ public class GraphDatabaseStoredVersions {
             }
 
             Map<String, String> versionsFromDB = databaseMetaInfo.getVersions(transaction);
+
+            Set<DataSourceInfo> dataSourceInfo = dataSourceRepository.getDataSourceInfo();
 
             if (versionsFromDB.size()!=dataSourceInfo.size()) {
                 logger.warn("VERSION node property mismatch, got " +versionsFromDB.size() + " expected " + dataSourceInfo.size());

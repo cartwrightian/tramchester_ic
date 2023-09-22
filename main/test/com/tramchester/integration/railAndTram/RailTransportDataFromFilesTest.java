@@ -234,14 +234,10 @@ public class RailTransportDataFromFilesTest {
 
     @Test
     void shouldHaveDatasourceInfo() {
-        Set<DataSourceInfo> infos = transportData.getDataSourceInfo();
-        assertFalse(infos.isEmpty());
+        assertTrue(transportData.hasDataSourceInfo());
 
-        Set<DataSourceID> sourceIds = infos.stream().map(DataSourceInfo::getID).collect(Collectors.toSet());
-        assertEquals(2, sourceIds.size(), infos.toString());
-
-        assertTrue(sourceIds.contains(DataSourceID.rail));
-        assertTrue(sourceIds.contains(DataSourceID.tfgm));
+        assertNotNull(transportData.getDataSourceInfo(DataSourceID.tfgm));
+        assertNotNull(transportData.getDataSourceInfo(DataSourceID.rail));
     }
 
     @Test

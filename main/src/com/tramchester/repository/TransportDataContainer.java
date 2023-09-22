@@ -363,6 +363,21 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     }
 
     @Override
+    public boolean hasDataSourceInfo() {
+        return !dataSourceInfos.isEmpty();
+    }
+
+    @Override
+    public String summariseDataSourceInfo() {
+        return dataSourceInfos.toString();
+    }
+
+    @Override
+    public DataSourceInfo getDataSourceInfo(DataSourceID dataSourceID) {
+        return dataSourceInfos.get(dataSourceID);
+    }
+
+    @Override
     public boolean hasServiceId(IdFor<Service> serviceId) {
         return services.hasId(serviceId);
     }

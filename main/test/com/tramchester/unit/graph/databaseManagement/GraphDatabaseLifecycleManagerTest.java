@@ -5,6 +5,7 @@ import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.graph.databaseManagement.GraphDatabaseLifecycleManager;
 import com.tramchester.graph.databaseManagement.GraphDatabaseServiceFactory;
 import com.tramchester.graph.databaseManagement.GraphDatabaseStoredVersions;
+import com.tramchester.repository.DataSourceRepository;
 import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
@@ -26,6 +27,7 @@ public class GraphDatabaseLifecycleManagerTest extends EasyMockSupport {
     private GraphDatabaseService graphDatabaseService;
 
     private final Path dbFile = Path.of("someFilename");
+    private DataSourceRepository dataSourceRepos;
 
     @BeforeEach
     public void onceBeforeEachTestRuns() {
@@ -35,18 +37,18 @@ public class GraphDatabaseLifecycleManagerTest extends EasyMockSupport {
         graphDatabaseService = createMock(GraphDatabaseService.class);
         serviceFactory = createMock(GraphDatabaseServiceFactory.class);
         storedVersions = createMock(GraphDatabaseStoredVersions.class);
+        dataSourceRepos = createMock(DataSourceRepository.class);
         graphDatabaseLifecycleManager = new GraphDatabaseLifecycleManager(config, serviceFactory, storedVersions);
     }
 
     @Test
     public void startImmediatelyIfExistsAndStoredVersionsOK() {
-        Set<DataSourceInfo> dataSourceInfo = new HashSet<>();
 
         EasyMock.expect(serviceFactory.create()).andReturn(graphDatabaseService);
-        EasyMock.expect(storedVersions.upToDate(graphDatabaseService, dataSourceInfo)).andReturn(true);
+        EasyMock.expect(storedVersions.upToDate(graphDatabaseService, dataSourceRepos)).andReturn(true);
 
         replayAll();
-        GraphDatabaseService result = graphDatabaseLifecycleManager.startDatabase(dataSourceInfo, dbFile, true);
+        GraphDatabaseService result = graphDatabaseLifecycleManager.startDatabase(dataSourceRepos, dbFile, true);
         verifyAll();
 
         assertSame(graphDatabaseService, result);
@@ -54,12 +56,11 @@ public class GraphDatabaseLifecycleManagerTest extends EasyMockSupport {
 
     @Test
     public void startImmediatelyIfNotExists() {
-        Set<DataSourceInfo> dataSourceInfo = new HashSet<>();
 
         EasyMock.expect(serviceFactory.create()).andReturn(graphDatabaseService);
 
         replayAll();
-        GraphDatabaseService result = graphDatabaseLifecycleManager.startDatabase(dataSourceInfo, dbFile, false);
+        GraphDatabaseService result = graphDatabaseLifecycleManager.startDatabase(dataSourceRepos, dbFile, false);
         verifyAll();
 
         assertSame(graphDatabaseService, result);
@@ -67,10 +68,9 @@ public class GraphDatabaseLifecycleManagerTest extends EasyMockSupport {
 
     @Test
     public void startAndThenStopIfExistsAndStoredVersionsStale() {
-        Set<DataSourceInfo> dataSourceInfo = new HashSet<>();
 
         EasyMock.expect(serviceFactory.create()).andReturn(graphDatabaseService);
-        EasyMock.expect(storedVersions.upToDate(graphDatabaseService, dataSourceInfo)).andReturn(false);
+        EasyMock.expect(storedVersions.upToDate(graphDatabaseService, dataSourceRepos)).andReturn(false);
         serviceFactory.shutdownDatabase();
         EasyMock.expectLastCall();
 
@@ -82,7 +82,7 @@ public class GraphDatabaseLifecycleManagerTest extends EasyMockSupport {
         EasyMock.expect(serviceFactory.create()).andReturn(graphDatabaseService);
 
         replayAll();
-        GraphDatabaseService result = graphDatabaseLifecycleManager.startDatabase(dataSourceInfo, dbFile, true);
+        GraphDatabaseService result = graphDatabaseLifecycleManager.startDatabase(dataSourceRepos, dbFile, true);
         verifyAll();
 
         assertSame(graphDatabaseService, result);

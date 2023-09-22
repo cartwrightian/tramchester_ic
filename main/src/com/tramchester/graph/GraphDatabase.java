@@ -3,7 +3,6 @@ package com.tramchester.graph;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.graph.databaseManagement.GraphDatabaseLifecycleManager;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.metrics.TimedTransaction;
@@ -17,7 +16,6 @@ import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.event.DatabaseEventContext;
 import org.neo4j.graphdb.event.DatabaseEventListener;
 import org.neo4j.graphdb.schema.Schema;
-import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 public class GraphDatabase implements DatabaseEventListener {
     private static final Logger logger = LoggerFactory.getLogger(GraphDatabase.class);
 
-    private final DataSourceRepository transportData;
+    private final DataSourceRepository dataSourceRepository;
     private final GraphDBConfig graphDBConfig;
     private final GraphDatabaseLifecycleManager lifecycleManager;
     private final TramchesterConfig tramchesterConfig;
@@ -43,9 +41,9 @@ public class GraphDatabase implements DatabaseEventListener {
     private GraphDatabaseService databaseService;
 
     @Inject
-    public GraphDatabase(TramchesterConfig configuration, DataSourceRepository transportData,
+    public GraphDatabase(TramchesterConfig configuration, DataSourceRepository dataSourceRepository,
                          GraphDatabaseLifecycleManager lifecycleManager) {
-        this.transportData = transportData;
+        this.dataSourceRepository = dataSourceRepository;
         this.tramchesterConfig = configuration;
         this.graphDBConfig = configuration.getGraphDBConfig();
         this.lifecycleManager = lifecycleManager;
@@ -56,10 +54,10 @@ public class GraphDatabase implements DatabaseEventListener {
     public void start() {
         if (tramchesterConfig.getPlanningEnabled()) {
             logger.info("start");
-            Set<DataSourceInfo> dataSourceInfo = transportData.getDataSourceInfo();
+            //Set<DataSourceInfo> dataSourceInfo = transportData.getDataSourceInfo();
             final Path dbPath = graphDBConfig.getDbPath();
             boolean fileExists = Files.exists(dbPath);
-            databaseService = lifecycleManager.startDatabase(dataSourceInfo, dbPath, fileExists);
+            databaseService = lifecycleManager.startDatabase(dataSourceRepository, dbPath, fileExists);
             logger.info("graph db started ");
         } else {
             logger.warn("Planning is disabled, not starting the graph database");

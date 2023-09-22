@@ -3,8 +3,8 @@ package com.tramchester.graph.databaseManagement;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.metrics.Timing;
+import com.tramchester.repository.DataSourceRepository;
 import org.apache.commons.io.FileUtils;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.slf4j.Logger;
@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Set;
 
 @LazySingleton
 public class GraphDatabaseLifecycleManager {
@@ -35,7 +34,7 @@ public class GraphDatabaseLifecycleManager {
         this.storedVersions = storedVersions;
     }
 
-    public GraphDatabaseService startDatabase(Set<DataSourceInfo> dataSourceInfo, Path graphFile, boolean fileExists) {
+    public GraphDatabaseService startDatabase(DataSourceRepository dataSourceRepository, Path graphFile, boolean fileExists) {
         logger.info("Create or load graph " + graphFile);
 
         if (fileExists) {
@@ -47,7 +46,7 @@ public class GraphDatabaseLifecycleManager {
         cleanDB = !fileExists;
         GraphDatabaseService databaseService = serviceFactory.create();
 
-        if (fileExists && !storedVersions.upToDate(databaseService, dataSourceInfo)) {
+        if (fileExists && !storedVersions.upToDate(databaseService, dataSourceRepository)) {
             logger.warn("Graph is out of date, rebuild needed");
             cleanDB = true;
             serviceFactory.shutdownDatabase();

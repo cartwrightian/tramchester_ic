@@ -3,6 +3,7 @@ package com.tramchester.unit.graph.databaseManagement;
 import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
 import com.tramchester.graph.graphbuild.GraphLabel;
+import com.tramchester.repository.DataSourceRepository;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
@@ -122,6 +123,9 @@ public class GraphDatabaseMetaInfoTest extends EasyMockSupport {
         sourceInfo.add(new DataSourceInfo(tfgm, "4.3", LocalDateTime.MAX, EnumSet.of(Tram)));
         sourceInfo.add(new DataSourceInfo(naptanxml, "9.6", LocalDateTime.MIN, EnumSet.of(Bus)));
 
+        DataSourceRepository dataSourceRepos = createMock(DataSourceRepository.class);
+        EasyMock.expect(dataSourceRepos.getDataSourceInfo()).andReturn(sourceInfo);
+
         EasyMock.expect(transaction.createNode(GraphLabel.VERSION)).andReturn(node);
         node.setProperty("tfgm", "4.3");
         EasyMock.expectLastCall();
@@ -129,7 +133,7 @@ public class GraphDatabaseMetaInfoTest extends EasyMockSupport {
         EasyMock.expectLastCall();
 
         replayAll();
-        databaseMetaInfo.createVersionNode(transaction, sourceInfo);
+        databaseMetaInfo.createVersionNode(transaction, dataSourceRepos);
         verifyAll();
     }
 

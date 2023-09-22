@@ -107,7 +107,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     }
 
     private void buildGraphwithFilter(GraphDatabase graphDatabase, GraphBuilderCache builderCache) {
-        logger.info("Building graph for data source: " + transportData.getDataSourceInfo());
+        logger.info("Building graph for data source: " + transportData.summariseDataSourceInfo());
         logMemory("Before graph build");
 
         try(Timing ignored = new Timing(logger, "Graph rebuild")) {
@@ -125,7 +125,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             }
 
             // only add version node if we manage to build graph, so partial builds that fail cause a rebuild
-            addVersionNode(graphDatabase, transportData.getDataSourceInfo());
+            addVersionNode(graphDatabase, transportData);
 
         } catch (Exception except) {
             logger.error("Exception while rebuilding the graph", except);
@@ -150,8 +150,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         }
     }
 
-    private void addVersionNode(GraphDatabase graphDatabase, Set<DataSourceInfo> infos) {
-        if (infos.isEmpty()) {
+    private void addVersionNode(GraphDatabase graphDatabase, DataSourceRepository infos) {
+        if (!infos.hasDataSourceInfo()) {
             logger.error("No data source info was provided, version will not be set in the DB");
             return;
         }

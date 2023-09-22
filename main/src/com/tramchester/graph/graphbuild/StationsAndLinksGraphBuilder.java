@@ -80,7 +80,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
     }
 
     private void buildGraphwithFilter(GraphDatabase graphDatabase, GraphBuilderCache builderCache) {
-        logger.info("Building graph for feedinfo: " + transportData.getDataSourceInfo());
+        logger.info("Building graph for feedinfo: " + transportData.summariseDataSourceInfo());
         logMemory("Before graph build");
 
         graphDatabase.createIndexs();

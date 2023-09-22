@@ -265,13 +265,9 @@ public class RailTransportDataFromFilesTest {
 
     @Test
     void shouldHaveDatasourceInfo() {
-        Set<DataSourceInfo> infos = transportData.getDataSourceInfo();
-        assertFalse(infos.isEmpty());
+        assertTrue(transportData.hasDataSourceInfo());
 
-        List<DataSourceInfo> dataSourceInfos = new ArrayList<>(infos);
-        assertEquals(1,dataSourceInfos.size());
-
-        DataSourceInfo info = dataSourceInfos.get(0);
+        DataSourceInfo info = transportData.getDataSourceInfo(DataSourceID.rail); //dataSourceInfos.get(0);
         assertEquals(DataSourceID.rail, info.getID());
         assertEquals(config.getRailConfig().getModes(), info.getModes());
 

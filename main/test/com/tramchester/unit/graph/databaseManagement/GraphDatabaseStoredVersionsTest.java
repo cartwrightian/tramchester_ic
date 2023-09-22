@@ -4,6 +4,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
 import com.tramchester.graph.databaseManagement.GraphDatabaseStoredVersions;
+import com.tramchester.repository.DataSourceRepository;
 import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
@@ -29,6 +30,7 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
     private GraphDatabaseService databaseService;
     private Transaction transaction;
     private TramchesterConfig config;
+    private DataSourceRepository dataSourceRepository;
 
     @BeforeEach
     public void beforeAnyTestsRun() {
@@ -38,12 +40,13 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
         databaseService = createMock(GraphDatabaseService.class);
         transaction = createMock(Transaction.class);
         storedVersions = new GraphDatabaseStoredVersions(config, databaseMetaInfo);
+        dataSourceRepository = createMock(DataSourceRepository.class);
+
 
     }
 
     @Test
     public void shouldOutOfDateIfNeighboursNot() {
-        Set<DataSourceInfo> dataSourceInfo = new HashSet<>();
 
         EasyMock.expect(databaseService.beginTx()).andReturn(transaction);
         EasyMock.expect(databaseMetaInfo.isNeighboursEnabled(transaction)).andReturn(!config.hasNeighbourConfig());
@@ -51,7 +54,7 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
         EasyMock.expectLastCall();
 
         replayAll();
-        boolean result = storedVersions.upToDate(databaseService, dataSourceInfo);
+        boolean result = storedVersions.upToDate(databaseService, dataSourceRepository);
         verifyAll();
 
         assertFalse(result);
@@ -59,7 +62,6 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
 
     @Test
     public void shouldOutOfDateIfVersionMissingFromDB() {
-        Set<DataSourceInfo> dataSourceInfo = new HashSet<>();
 
         EasyMock.expect(databaseService.beginTx()).andReturn(transaction);
         EasyMock.expect(databaseMetaInfo.isNeighboursEnabled(transaction)).andReturn(config.hasNeighbourConfig());
@@ -68,7 +70,7 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
         EasyMock.expectLastCall();
 
         replayAll();
-        boolean result = storedVersions.upToDate(databaseService, dataSourceInfo);
+        boolean result = storedVersions.upToDate(databaseService, dataSourceRepository);
         verifyAll();
 
         assertFalse(result);
@@ -82,6 +84,8 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
         dataSourceInfo.add(new DataSourceInfo(tfgm, "v1.1", LocalDateTime.MIN, EnumSet.of(Tram)));
         dataSourceInfo.add(new DataSourceInfo(naptanxml, "v2.3", LocalDateTime.MIN, EnumSet.of(Bus)));
 
+        EasyMock.expect(dataSourceRepository.getDataSourceInfo()).andReturn(dataSourceInfo);
+
         versionMap.put("tfgm", "v1.1");
         versionMap.put("naptanxml", "v2.3");
 
@@ -93,7 +97,7 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
         EasyMock.expectLastCall();
 
         replayAll();
-        boolean result = storedVersions.upToDate(databaseService, dataSourceInfo);
+        boolean result = storedVersions.upToDate(databaseService, dataSourceRepository);
         verifyAll();
 
         assertTrue(result);
@@ -106,6 +110,7 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
 
         dataSourceInfo.add(new DataSourceInfo(tfgm, "v1.2", LocalDateTime.MIN, EnumSet.of(Tram)));
         dataSourceInfo.add(new DataSourceInfo(naptanxml, "v2.3", LocalDateTime.MIN, EnumSet.of(Bus)));
+        EasyMock.expect(dataSourceRepository.getDataSourceInfo()).andReturn(dataSourceInfo);
 
         versionMap.put("tfgm", "v1.1");
         versionMap.put("naptanxml", "v2.3");
@@ -118,7 +123,7 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
         EasyMock.expectLastCall();
 
         replayAll();
-        boolean result = storedVersions.upToDate(databaseService, dataSourceInfo);
+        boolean result = storedVersions.upToDate(databaseService, dataSourceRepository);
         verifyAll();
 
         assertFalse(result);
@@ -131,6 +136,7 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
 
         dataSourceInfo.add(new DataSourceInfo(tfgm, "v1.2", LocalDateTime.MIN, EnumSet.of(Tram)));
         dataSourceInfo.add(new DataSourceInfo(naptanxml, "v2.3", LocalDateTime.MIN, EnumSet.of(Bus)));
+        EasyMock.expect(dataSourceRepository.getDataSourceInfo()).andReturn(dataSourceInfo);
 
         versionMap.put("tfgm", "v1.1");
 
@@ -142,7 +148,7 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
         EasyMock.expectLastCall();
 
         replayAll();
-        boolean result = storedVersions.upToDate(databaseService, dataSourceInfo);
+        boolean result = storedVersions.upToDate(databaseService, dataSourceRepository);
         verifyAll();
 
         assertFalse(result);
@@ -154,6 +160,7 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
         Map<String, String> versionMap = new HashMap<>();
 
         dataSourceInfo.add(new DataSourceInfo(tfgm, "v1.2", LocalDateTime.MIN, EnumSet.of(Tram)));
+        EasyMock.expect(dataSourceRepository.getDataSourceInfo()).andReturn(dataSourceInfo);
 
         versionMap.put("tfgm", "v1.1");
         versionMap.put("naptanxml", "v2.3");
@@ -166,7 +173,7 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
         EasyMock.expectLastCall();
 
         replayAll();
-        boolean result = storedVersions.upToDate(databaseService, dataSourceInfo);
+        boolean result = storedVersions.upToDate(databaseService, dataSourceRepository);
         verifyAll();
 
         assertFalse(result);

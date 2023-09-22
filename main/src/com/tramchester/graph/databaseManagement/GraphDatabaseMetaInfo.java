@@ -4,6 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
+import com.tramchester.repository.DataSourceRepository;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
@@ -49,9 +50,10 @@ public class GraphDatabaseMetaInfo {
         return versions;
     }
 
-    public void createVersionNode(Transaction tx, Set<DataSourceInfo> infos) {
-        logger.info("Setting version data in DB for " + infos);
+    public void createVersionNode(Transaction tx, DataSourceRepository dataSourceRepository) {
+        logger.info("Setting version data in DB for " + dataSourceRepository);
         Node node = tx.createNode(GraphLabel.VERSION);
-        infos.forEach(nameAndVersion -> GraphProps.setProp(node, nameAndVersion));
+        Set<DataSourceInfo> sourceInfo = dataSourceRepository.getDataSourceInfo();
+        sourceInfo.forEach(nameAndVersion -> GraphProps.setProp(node, nameAndVersion));
     }
 }
