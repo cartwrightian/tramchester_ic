@@ -227,7 +227,7 @@ public class JourneyPlannerResourceTest {
 
             // seems can be either 1 or 2
             String platformNumber = secondStagePlatform.getPlatformNumber();
-            assertTrue("12".contains(platformNumber));
+            assertTrue("12".contains(platformNumber), "unexpected platform number, got " + platformNumber);
             // multiple possible places to change depending on timetable etc
             assertThat(secondStagePlatform.getName(), is(oneOf(
                     "Cornbrook platform 1",
