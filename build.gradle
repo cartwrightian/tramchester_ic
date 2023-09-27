@@ -5,6 +5,7 @@ plugins {
     id 'java'
     id 'application'
     id 'idea'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
 }
 
 idea{
@@ -134,7 +135,7 @@ sourceSets {
             srcDirs = ['main/src']
         }
         resources {
-            srcDirs = ['main/src/resources']
+            srcDirs = ['main/src/resources','config']
         }
     }
     test {
@@ -160,6 +161,20 @@ tasks.register("railLiveDataCodeGen", Wsdl2Java) {
     }
 }
 
+jar {
+    manifest {
+        attributes 'Main-Class': 'com.tramchester.App'
+    }
+
+}
+
+shadowJar {
+    dependsOn 'distZip'
+    mergeServiceFiles()
+    zip64 true
+}
+
+
 distZip {
     dependsOn 'queryLiveDataArchiveStartScript'
 }
@@ -184,15 +199,7 @@ task npmInstall(type: Exec) {
     }
 }
 
-//jar {
-//    // TODO
-//    dependsOn 'webpack'
-//    // use the output of webpack, not the source files from resources
-//    into 'app', {
-//        from 'build/resources/webpack'
-//    }
-//    exclude('app/*')
-//}
+
 
 task webpack(type: Exec, dependsOn: npmInstall) {
     inputs.file("package.json")
@@ -823,6 +830,7 @@ task blockhost(dependsOn: cfnassist) {
         }
     }
 }
+
 
 
 

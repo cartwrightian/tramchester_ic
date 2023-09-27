@@ -18,19 +18,25 @@ import com.tramchester.metrics.RegistersMetricsWithDropwizard;
 import com.tramchester.repository.VersionRepository;
 import com.tramchester.resources.GraphDatabaseDependencyMarker;
 import io.dropwizard.assets.AssetsBundle;
+import io.dropwizard.configuration.ConfigurationSourceProvider;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
+import io.dropwizard.configuration.ResourceConfigurationSourceProvider;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.core.Application;
 import io.dropwizard.core.setup.Bootstrap;
 import io.dropwizard.core.setup.Environment;
 import io.dropwizard.jersey.setup.JerseyEnvironment;
 import io.dropwizard.jetty.MutableServletContextHandler;
+import io.dropwizard.lifecycle.ServerLifecycleListener;
 import io.dropwizard.lifecycle.setup.ScheduledExecutorServiceBuilder;
 import io.dropwizard.metrics.servlets.HealthCheckServlet;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import jakarta.servlet.DispatcherType;
 import org.eclipse.jetty.http.HttpCookie;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,9 +115,12 @@ public class App extends Application<AppConfiguration>  {
     public void initialize(Bootstrap<AppConfiguration> bootstrap) {
         logger.info("init bootstrap");
 
+        ConfigurationSourceProvider underlyingProvider = new FallbackConfigurationSourceProvider(bootstrap.getConfigurationSourceProvider(),
+            new ResourceConfigurationSourceProvider());
+
         EnvironmentVariableSubstitutor environmentVariableSubstitutor = getEnvVarSubstitutor();
         final SubstitutingSourceProvider substitutingSourceProvider = new SubstitutingSourceProvider(
-                bootstrap.getConfigurationSourceProvider(),
+                underlyingProvider,
                 environmentVariableSubstitutor);
 
         bootstrap.setConfigurationSourceProvider(substitutingSourceProvider);
@@ -163,8 +172,17 @@ public class App extends Application<AppConfiguration>  {
 
         logger.info("Add lifecycle event listener");
         environment.lifecycle().addEventListener(new LifeCycleHandler(container, executor));
-        environment.lifecycle().addServerLifecycleListener(server -> logger.info("Server has started " + server));
-
+        environment.lifecycle().addServerLifecycleListener(new ServerLifecycleListener() {
+               @Override
+               public void serverStarted(Server server) {
+                   logger.warn("Server has started " + server);
+                   for (Connector connector : server.getConnectors()) {
+                       if (connector instanceof ServerConnector serverConnector) {
+                           logger.warn("Connector:" + serverConnector.getName() + " port:" + serverConnector.getLocalPort());
+                       }
+                   }
+               }
+                                                           });
         logger.info("Add ELB header redirect");
         // Redirect http -> https based on header set by ELB
         final RedirectToHttpsUsingELBProtoHeader redirectHttpFilter = new RedirectToHttpsUsingELBProtoHeader(configuration);
