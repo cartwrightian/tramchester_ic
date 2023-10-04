@@ -1,6 +1,5 @@
 #!/bin/bash
-yum update
-rpm --import https://yum.corretto.aws/corretto.key
-curl -L -o /etc/yum.repos.d/corretto.repo https://yum.corretto.aws/corretto.repo
+logger tramchester initial updates/installs
 yum install -y java-17-amazon-corretto-devel
 yum install -y jq
+yum install -y amazon-cloudwatch-agent

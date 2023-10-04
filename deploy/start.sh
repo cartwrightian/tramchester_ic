@@ -1,6 +1,6 @@
 #!/bin/bash
 
-target=tramchester-1.0
+target=tramchester-"$RELEASE_NUMBER"
 logger -s Start ./$target/bin/tramchester for "$PLACE"
 
 LOGFILE=/home/ec2-user/server/logs/tramchester_local.log

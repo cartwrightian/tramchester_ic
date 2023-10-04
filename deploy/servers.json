@@ -5,20 +5,17 @@
 	"env":{ "Type":"String" }, 
 	"vpc":{ "Type":"String" }, 
 	"build":{ "Type":"String" }, 
-	"webSubnetA":{ "Type":"String", "Description":"::webSubnetZoneA" }, 
-	"webSubnetB":{ "Type":"String", "Description":"::webSubnetZoneB" }, 
-	"webSg":{ "Type":"String", "Description":"::sgWeb" }, 
+	"webSubnetA":{ "Type":"String", "Default":"subnet-0b94f571983767fff" },
+	"webSg":{ "Type":"String", "Default":"sg-0f3b7b98e89323c46" },
 	"webServerName":{ "Type":"String", "Default":"tramchesterWeb" }, 
 	"ami":{ "Type":"String", "Default":"ami-09f6caae59175ba13" },
 	"baseUrl":{ "Type":"String", "Default":"https://s3-eu-west-1.amazonaws.com" },
-	"bucketName":{"Type":"String", "Description":"::CFN_TAG"}, 
+	"bucketName":{"Type":"String", "Default":"tramchesternewdist"},
 	"bootstrapCloudInit":{"Type":"String", "Default":"cloudInitAWSLinux.txt"},
 	"bootstrapWebScript":{"Type":"String", "Default":"setupTramWebServerAWSLinux.sh"},
-	"keypairname": { "Type" : "String" , "Description" : "::CFN_TAG" },
+	"keypairname": { "Type" : "String" , "Default" : "tramchester_new" },
 	"TFGMAPIKEY": { "Type" : "String", "Description" : "::ENV", "NoEcho" : "true"},
-	"NESSUSINSTALLER": { "Type" : "String", "Description" : "::ENV", "NoEcho" : "true"},
-	"NESSUSLINKINGKEY": { "Type" : "String", "Description" : "::ENV", "NoEcho" : "true"},
-	"instanceProfile":{"Type":"String", "Description":"::InstanceProfile"} }, 
+	"instanceProfile":{"Type":"String", "Default":"tramchester_ec2_role"} },
 	"Mappings":{
 	"environMap":{
 		"Dev":{ "keyName":"tramchester2", "webSize":"t3.medium" },
@@ -62,7 +59,6 @@
 							"# ENV=", {"Ref":"env"}, "\n",
 							"# BUILD=", {"Ref":"build"}, "\n",
 							"# BUCKET=", {"Ref":"bucketName"}, "\n",
-							"# NESSUS_LINKING_KEY=", {"Ref":"NESSUSLINKINGKEY"}, "\n",
 							"# TFGMAPIKEY=", {"Ref":"TFGMAPIKEY"}, "\n"
 						]
 					]
@@ -86,62 +82,6 @@
 				}
 				},
 					{"Key":"CFN_ASSIST_TYPE", "Value":"web"},
-					{"Key":"NESSUS_INSTALLER", "Value": { "Ref":"NESSUSINSTALLER"}},
-					{"Key":"ENV", "Value":  { "Ref":"env"}},
-					{"Key":"BUILD", "Value": {"Ref":"build"}}
-			]
-		}
-	}, "TramWebServerB":{
-		"Type":"AWS::EC2::Instance", "Properties":{
-			"KeyName":{ "Ref":"keypairname" },  
-			"InstanceType":{
-				"Fn::FindInMap":[
-					"environMap", {
-						"Ref":"env"
-					}, "webSize"
-				]
-			}, "IamInstanceProfile":{
-				"Ref":"instanceProfile"
-			}, "ImageId":{
-				"Ref":"ami"
-			}, "UserData":{
-				"Fn::Base64":{
-					"Fn::Join":[
-						"", [
-							"#include", "\n",
-							{"Ref":"baseUrl"}, "/", {"Ref":"bucketName"}, "/dist/", {"Ref":"build"}, "/",
-							{"Ref":"bootstrapCloudInit"}, "\n",
-							{"Ref":"baseUrl"}, "/", {"Ref":"bucketName"}, "/dist/", {"Ref":"build"}, "/",
-							{"Ref":"bootstrapWebScript"}, "\n",
-							"# WAITURL=", {"Ref":"webDoneWaitHandle"}, "\n",
-							"# ENV=", {"Ref":"env"}, "\n",
-							"# BUILD=", {"Ref":"build"}, "\n" ,
-							"# BUCKET=", {"Ref":"bucketName"}, "\n",
-							"# NESSUS_LINKING_KEY=", {"Ref":"NESSUSLINKINGKEY"}, "\n" ,
-							"# TFGMAPIKEY=", {"Ref":"TFGMAPIKEY"}, "\n"
-						]
-					]
-				}
-			}, "SubnetId":{
-				"Ref":"webSubnetB"
-			}, "SecurityGroupIds":[
-				{
-					"Ref":"webSg"
-				}
-			], "Tags":[
-				{
-					"Key":"Name", "Value":{
-					"Fn::Join":[
-						"", [
-							{
-								"Ref":"webServerName"
-							}, "B"
-						]
-					]
-				}
-				},
-					{"Key":"CFN_ASSIST_TYPE", "Value":"web"},
-					{"Key":"NESSUS_INSTALLER", "Value": { "Ref":"NESSUSINSTALLER"}},
 					{"Key":"ENV", "Value":  { "Ref":"env"}},
 					{"Key":"BUILD", "Value": {"Ref":"build"}}
 			]
