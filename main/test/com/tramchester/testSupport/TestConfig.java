@@ -170,4 +170,9 @@ public abstract class TestConfig extends AppConfiguration {
     public String getDistributionBucket() {
         return "tramchesternewdist";
     }
+
+    @Override
+    public boolean redirectToSecure() {
+        return true;
+    }
 }
