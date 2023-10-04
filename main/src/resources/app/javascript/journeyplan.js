@@ -71,12 +71,12 @@ function queryLiveData(app, includeNotes) {
         modes = app.startStop.transportModes;
     }
 
-    var locationId;
-    if (locationType== app.myLocation.locationType) { //'MyLocation') {
-        const place = app.location; // should not have location place holder without a valid location
-        locationId = place.coords.latitude + ',' + place.coords.longitude
-    } else {
-        locationId = app.startStop.id;
+    var locationId = app.startStop.id;
+    if (app.myLocation != null) {
+        if (locationType == app.myLocation.locationType) { 
+            const place = app.location; // should not have location place holder without a valid location
+            locationId = place.coords.latitude + ',' + place.coords.longitude
+        } 
     }
 
     const query = {
