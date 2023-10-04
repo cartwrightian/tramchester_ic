@@ -54,12 +54,12 @@ public class AppConfiguration extends TramchesterConfig {
     private String secureHost;
 
     @NotNull
+    @JsonProperty("redirectToSecure")
+    private Boolean redirectToSecure;
+
+    @NotNull
     @JsonProperty("maxWait")
     private Integer maxWait;
-
-//    @NotNull
-//    @JsonProperty("maxInitialWait")
-//    private Integer maxInitialWait;
 
     @NotNull
     @JsonProperty("queryInterval")
@@ -196,6 +196,11 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public String getSecureHost() {
         return secureHost;
+    }
+
+    @Override
+    public boolean redirectToSecure() {
+        return redirectToSecure;
     }
 
     @Override

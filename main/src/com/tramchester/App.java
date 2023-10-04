@@ -183,10 +183,14 @@ public class App extends Application<AppConfiguration>  {
                    }
                }
                                                            });
-        logger.info("Add ELB header redirect");
-        // Redirect http -> https based on header set by ELB
-        final RedirectToHttpsUsingELBProtoHeader redirectHttpFilter = new RedirectToHttpsUsingELBProtoHeader(configuration);
-        applicationContext.addFilter(new FilterHolder(redirectHttpFilter), "/*", EnumSet.of(DispatcherType.REQUEST));
+        if (configuration.redirectToSecure()) {
+            logger.info("Add ELB header redirect");
+            // Redirect http -> https based on header set by ELB
+            final RedirectToHttpsUsingELBProtoHeader redirectHttpFilter = new RedirectToHttpsUsingELBProtoHeader(configuration);
+            applicationContext.addFilter(new FilterHolder(redirectHttpFilter), "/*", EnumSet.of(DispatcherType.REQUEST));
+        } else {
+            logger.warn("Redirection to secure host is currently disabled");
+        }
 
         // Redirect / -> /app
         logger.info("Add redirect from / to /app");

@@ -13,6 +13,7 @@ server:
     bufferSize: 8KiB
     minimumEntitySize: 160B
 secureHost: tramchester.com
+redirectToSecure: false
 staticAssetCacheTimeSeconds: 300
 graphDBConfig:
   graphName: databases/tramchester.db
@@ -83,7 +84,7 @@ walkingMPH: 3.0
 recentStopsToShow: 5
 dataExpiryThreadhold: 3
 changeAtInterchangeOnly: true
-sendCloudWatchMetrics: true
+sendCloudWatchMetrics: false
 cloudWatchMetricsFrequencyMinutes: 2
 
 swagger:

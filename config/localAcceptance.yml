@@ -17,6 +17,7 @@ server:
       - type: console
         threshold: INFO
 secureHost: tramchester.com
+redirectToSecure: true
 staticAssetCacheTimeSeconds: 300
 graphDBConfig:
   graphName: databases/tramchesterAcceptance.db

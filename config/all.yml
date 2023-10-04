@@ -12,7 +12,7 @@ server:
     enabled: true
     bufferSize: 8KiB
     minimumEntitySize: 160B
-
+redirectToSecure: true
 secureHost: tramchester.com
 staticAssetCacheTimeSeconds: 300
 graphDBConfig:
@@ -80,7 +80,7 @@ numOfNearestStopsForWalking: 50
 walkingMPH: 3.0
 recentStopsToShow: 5
 dataExpiryThreadhold: 3
-sendCloudWatchMetrics: true
+sendCloudWatchMetrics: false
 
 changeAtInterchangeOnly: true
 

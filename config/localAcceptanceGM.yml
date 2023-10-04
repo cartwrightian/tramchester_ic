@@ -6,7 +6,7 @@ server:
   connector:
     type: http
     port: 8080
-
+redirectToSecure: true
 secureHost: tramchester.com
 staticAssetCacheTimeSeconds: 300
 graphDBConfig:

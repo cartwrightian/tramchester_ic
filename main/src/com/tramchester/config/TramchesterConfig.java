@@ -186,4 +186,6 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
         TransportDataSourceConfig sourceConfig = getGetSourceConfigFor(sourceId);
         return sourceConfig.getMaxInitialWait();
     }
+
+    public abstract boolean redirectToSecure();
 }
