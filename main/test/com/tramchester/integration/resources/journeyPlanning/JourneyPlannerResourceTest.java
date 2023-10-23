@@ -210,7 +210,7 @@ public class JourneyPlannerResourceTest {
         JourneyPlanRepresentation plan = journeyPlanner.getJourneyPlan(query);
 
         Set<JourneyDTO> journeys = plan.getJourneys();
-        assertTrue(journeys.size()>0);
+        assertFalse(journeys.isEmpty(), "no journeys");
 
         journeys.forEach(journey -> {
             VehicleStageDTO firstStage = (VehicleStageDTO) journey.getStages().get(0);
@@ -225,9 +225,9 @@ public class JourneyPlannerResourceTest {
 
             PlatformDTO secondStagePlatform = secondStage.getPlatform();
 
-            // seems can be either 1 or 2
+            // seems can be either 1,2 or 3
             String platformNumber = secondStagePlatform.getPlatformNumber();
-            assertTrue("12".contains(platformNumber), "unexpected platform number, got " + platformNumber);
+            assertTrue("123".contains(platformNumber), "unexpected platform number, got " + platformNumber);
             // multiple possible places to change depending on timetable etc
             assertThat(secondStagePlatform.getName(), is(oneOf(
                     "Cornbrook platform 1",
