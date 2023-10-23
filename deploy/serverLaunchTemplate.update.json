@@ -1,10 +1,11 @@
 {
 	"AWSTemplateFormatVersion":"2010-09-09",
-		"Description":"Launch template for tramchester web server",
+		"Description":"SPIKE Launch template for tramchester web server",
 	"Parameters":{
 	"env":{ "Type":"String" }, 
 	"vpc":{ "Type":"String" }, 
-	"build":{ "Type":"String" }, 
+	"build":{ "Type":"String" },
+	"stackname": { "Type": "String", "Default":  "serverLaunchTemplate"},
 	"webSg":{ "Type":"String", "Default":"sg-0f3b7b98e89323c46" },
 	"ami":{ "Type":"String", "Default":"ami-09f6caae59175ba13" },
 	"baseUrl":{ "Type":"String", "Default":"https://s3-eu-west-1.amazonaws.com" },
@@ -101,7 +102,8 @@
 			},
 			"LaunchTemplateName" : {
 				"Fn::Join":[ "_", ["tramchesterLaunchTemplate", {"Ref":"env"}]]
-			}
+			},
+			"VersionDescription" : { "Ref":  "build" }
 		}
 	}
 

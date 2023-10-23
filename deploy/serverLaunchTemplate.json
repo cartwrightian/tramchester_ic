@@ -1,6 +1,6 @@
 {
 	"AWSTemplateFormatVersion":"2010-09-09",
-		"Description":"Initial setup of autoscaling for tramchester, use serverLaunchTemplate.update.json after",
+		"Description":"SPIKE Initial setup of autoscaling for tramchester, use serverLaunchTemplate.update.json after",
 	"Parameters":{
 	"env":{ "Type":"String" }, 
 	"vpc":{ "Type":"String" }, 
@@ -102,50 +102,6 @@
 			"LaunchTemplateName" : {
 				"Fn::Join": [ "_", ["tramchesterLaunchTemplate", {"Ref":"env"}]]
 			}
-		}
-	},
-	"ALBTargetGroup" : {
-		"Type" : "AWS::ElasticLoadBalancingV2::TargetGroup",
-		"Properties" : {
-			"HealthCheckEnabled": "True",
-			"Name": { "Fn::Join": [ "-", ["tramchesterTargetGroup", {"Ref":"env"}]] },
-			"Port": "8080",
-			"Protocol" : "HTTP",
-			"VpcId": { "Ref": "vpc"}
-		}
-
-	},
-	"AutoScalingGroup" : {
-		"Type" : "AWS::AutoScaling::AutoScalingGroup",
-		"Properties" : {
-			"AutoScalingGroupName": { "Fn::Join": [ "_", ["TramchesterWebAutoScaling", { "Ref": "env" }]] },
-			"DefaultInstanceWarmup": "300",
-			"HealthCheckGracePeriod": "300",
-			"DesiredCapacity": "1",
-			"HealthCheckType": "ELB",
-			"LaunchTemplate" : {
-				"LaunchTemplateId": { "Ref": "LaunchTemplate" },
-				"Version": { "Fn::GetAtt":[ "LaunchTemplate", "LatestVersionNumber" ]  }
-			},
-			"MaxSize": "2",
-			"MinSize": "1",
-			"TargetGroupARNs" : [ { "Fn::GetAtt" : [ "ALBTargetGroup", "TargetGroupArn" ] }],
-			"TerminationPolicies": ["OldestLaunchTemplate"],
-			"VPCZoneIdentifier": ["subnet-0b94f571983767fff","subnet-00b82ce35355d2048"]
-		}
-	},
-	"ALBlistener" : {
-		"Type" : "AWS::ElasticLoadBalancingV2::Listener",
-		"Properties" : {
-			"DefaultActions" : [
-				{
-					"Type" : "forward",
-					"TargetGroupArn" : { "Fn::GetAtt" : [ "ALBTargetGroup", "TargetGroupArn" ] }
-				}
-			],
-			"LoadBalancerArn" : "arn:aws:elasticloadbalancing:eu-west-1:619378453009:loadbalancer/app/tramchester-dev-ALB/acb6ba8b9bfb1103",
-			"Port" : "80",
-			"Protocol" : "HTTP"
 		}
 	}
 

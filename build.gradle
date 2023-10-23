@@ -20,7 +20,8 @@ import io.mateo.cxf.codegen.wsdl2java.Wsdl2Java
 mainClassName = 'com.tramchester.App'
 
 def candidate = System.getenv("CIRCLE_BUILD_NUM") ?: "0"
-// override build number if RELEASE_NUMBER set, needed because of way circle ci workflows operate
+// override build number if RELEASE_NUMBER set, needed because of way circle ci workflows operate, see also
+// .circleci/config.yml
 def buildNumber = System.getenv("RELEASE_NUMBER") ?: candidate
 def environment = System.getenv("ENV") ?: "Dev"
 def isWindows = System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')
@@ -770,7 +771,7 @@ task deployCDK(type: Exec, dependsOn: [npmInstall, classes]) {
 task updateLB(dependsOn: cfnassist) {
     doLast {
         ant.cfnassist(project: 'tramchesterB', env: environment, buildNumber: buildNumber, sns: 'true') {
-            ELBUpdate(typeTag: 'web')
+            TargetGroupUpdate(typeTag: 'web', port: '8080', )
         }
     }
 }

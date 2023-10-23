@@ -1,6 +1,6 @@
 {
 	"AWSTemplateFormatVersion":"2010-09-09",
-		"Description":"Launch template for tramchester web server INTIIAL Create only, use .update afterwards",
+		"Description":"SPIKE Initial setup of autoscaling for tramchester, use serverLaunchTemplate.update.json after",
 	"Parameters":{
 	"env":{ "Type":"String" }, 
 	"vpc":{ "Type":"String" }, 
@@ -23,87 +23,50 @@
 		}
 	},
 	"Resources":{
-	"LaunchTemplate": {
-		"Type" : "AWS::EC2::LaunchTemplate",
-		"Properties" : {
-			"LaunchTemplateData" : {
-				"KeyName":{ "Ref":"keypairname" },
-				"InstanceType":{
-					"Fn::FindInMap":[
-						"environMap", {
-							"Ref":"env"
-						}, "webSize"
-					]
-				}, "ImageId":{
-					"Ref":"ami"
-				}, "IamInstanceProfile":{
-					"Name": { "Ref":"instanceProfile" }
-				}, "UserData":{
-					"Fn::Base64":{
-						"Fn::Join":[
-							"", [
-								"#include", "\n",
-								{"Ref":"baseUrl"}, "/", {"Ref":"bucketName"}, "/dist/", {"Ref":"build"}, "/",
-								{"Ref":"bootstrapCloudInit"}, "\n",
-								{"Ref":"baseUrl"}, "/", {"Ref":"bucketName"}, "/dist/", {"Ref":"build"}, "/",
-								{"Ref":"bootstrapWebScript"}, "\n",
-								"# ENV=", {"Ref":"env"}, "\n",
-								"# BUILD=", {"Ref":"build"}, "\n",
-								"# BUCKET=", {"Ref":"bucketName"}, "\n",
-								"# TFGMAPIKEY=", {"Ref":"TFGMAPIKEY"}, "\n"
-							]
-						]
-					}
-				}, "SecurityGroupIds":[
+		"ALBTargetGroup" : {
+			"Type" : "AWS::ElasticLoadBalancingV2::TargetGroup",
+			"Properties" : {
+				"HealthCheckEnabled": "True",
+				"Name": { "Fn::Join": [ "-", ["tramchesterTargetGroup", {"Ref":"env"}]] },
+				"Port": "8080",
+				"Protocol" : "HTTP",
+				"VpcId": { "Ref": "vpc"}
+			}
+
+		},
+		"AutoScalingGroup" : {
+			"Type" : "AWS::AutoScaling::AutoScalingGroup",
+			"Properties" : {
+				"AutoScalingGroupName": { "Fn::Join": [ "_", ["TramchesterWebAutoScaling", { "Ref": "env" }]] },
+				"DefaultInstanceWarmup": "300",
+				"HealthCheckGracePeriod": "300",
+				"DesiredCapacity": "1",
+				"HealthCheckType": "ELB",
+				"LaunchTemplate" : {
+					"LaunchTemplateName": { "Fn::Join": [ "_", ["tramchesterLaunchTemplate", {"Ref":"env"}]] } ,
+					"Version": { "Fn::GetAtt":[ "LaunchTemplate", "LatestVersionNumber" ]  }
+				},
+				"MaxSize": "2",
+				"MinSize": "1",
+				"TargetGroupARNs" : [ { "Fn::GetAtt" : [ "ALBTargetGroup", "TargetGroupArn" ] }],
+				"TerminationPolicies": ["OldestLaunchTemplate"],
+				"VPCZoneIdentifier": ["subnet-0b94f571983767fff","subnet-00b82ce35355d2048"]
+			}
+		},
+		"ALBlistener" : {
+			"Type" : "AWS::ElasticLoadBalancingV2::Listener",
+			"Properties" : {
+				"DefaultActions" : [
 					{
-						"Ref":"webSg"
+						"Type" : "forward",
+						"TargetGroupArn" : { "Fn::GetAtt" : [ "ALBTargetGroup", "TargetGroupArn" ] }
 					}
-				], "TagSpecifications": [
-					{
-						"ResourceType": "instance",
-						"Tags": [
-							{
-								"Key": "Name",
-								"Value": {
-									"Fn::Join": [
-										"_",
-										[
-											"webserver",
-											{
-												"Ref": "env"
-											},
-											{
-												"Ref": "build"
-											}
-										]
-									]
-								}
-							},
-							{
-								"Key": "CFN_ASSIST_TYPE",
-								"Value": "web"
-							},
-							{
-								"Key": "ENV",
-								"Value": {
-									"Ref": "env"
-								}
-							},
-							{
-								"Key": "BUILD",
-								"Value": {
-									"Ref": "build"
-								}
-							}
-						]
-					}
-				]
-			},
-			"LaunchTemplateName" : {
-				"Fn::Join":[ "_", ["tramchesterLaunchTemplate", {"Ref":"env"}]]
+				],
+				"LoadBalancerArn" : "arn:aws:elasticloadbalancing:eu-west-1:619378453009:loadbalancer/app/tramchester-dev-ALB/acb6ba8b9bfb1103",
+				"Port" : "80",
+				"Protocol" : "HTTP"
 			}
 		}
-	}
 
 }, "Outputs":{}
 }
