@@ -1,37 +1,37 @@
 
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
-
-  "Description" : "NOT USED -- S3 Template for creating a bucket policy so a given IP can access the given bucket",
-
+  "Description" : "Register the s3 endpoint with bucket so have access from the VPC, NOTE: for now due via console",
   "Parameters" : {
-	"vpc" : { "Type" : "String" },
+    "vpc" : { "Type" : "String" },
     "env" : { "Type" : "String" },
-    "bucketName" : { "Type" : "String", "Default": "tramchester2dist" }
-   },
-
-   "Resources" : {
-
+    "bucketName" : { "Type" : "String", "Default": "tramchesternewdist" }
+  },
+  "Resources" : {
     "BucketPolicy" : {
-       "Type" : "AWS::S3::BucketPolicy",
-       "Properties" : {
-          "PolicyDocument" : {
-             "Id" :  "TramchesterBucketPolicy",
-             "Statement" : [ 
-		{
-                  "Sid"         : "Allow only specific IP read for VPCs ",
-                  "Action"      : [ "s3:GetObject" ],
-                  "Effect"      : "Allow",
-                  "Resource"    : { "Fn::Join" : ["", [ "arn:aws:s3:::", { "Ref" : "bucketName" } , "/*" ]] },
-                  "Condition"   : { 
-						"IpAddress": { "aws:SourceIp": ["52.16.114.47/32", "52.16.121.176/32" ] }
-						 },
-                  "Principal"   : { "AWS" : "*" } 
-		}
-		]
-         },
-         "Bucket" : { "Ref" : "bucketName" }
-       }
+      "Type" : "AWS::S3::BucketPolicy",
+      "Properties" : {
+        "Bucket" : { "Ref" : "bucketName" },
+        "PolicyDocument" : {
+          "Statement" : [
+            {
+              "Sid"         : { "Fn::Join": [ " ", [ "Allow S3 endpoint for env", { "Ref": "env" }, "vpdId",  { "Ref": "vpc" } ] ]},
+              "Action"      : [ "s3:GetObject" ],
+              "Effect"      : "Allow",
+              "Resource"    : [
+                { "Fn::Join" : ["", [ "arn:aws:s3:::", { "Ref" : "bucketName" } ]] },
+                { "Fn::Join" : ["", [ "arn:aws:s3:::", { "Ref" : "bucketName" } , "/*" ]] }
+              ],
+              "Condition" : {
+                "StringEquals": {
+                  "aws:SourceVpce": ["vpce-08c3094d4e3c7b76f", "vpce-0e2fe2808fa75d7b8"]
+                }
+              },
+              "Principal"   : { "AWS" : "*" }
+            }
+          ]
+        }
+      }
     }
   }
 }

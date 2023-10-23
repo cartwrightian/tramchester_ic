@@ -200,8 +200,6 @@ task npmInstall(type: Exec) {
     }
 }
 
-
-
 task webpack(type: Exec, dependsOn: npmInstall) {
     inputs.file("package.json")
     inputs.file("package-lock.json")
@@ -239,8 +237,8 @@ task cfnassist {
     doLast {
         ant.taskdef(name: 'cfnassist', classname: 'tw.com.ant.CfnAssistAntTask') {
             classpath {
-                fileset(dir: 'lib/cfnassist-1.2.85/lib/', includes: '*.jar')
-                dirset(dir: 'lib/cfnassist-1.2.85/conf/')
+                fileset(dir: 'lib/cfnassist-1.3.0/lib/', includes: '*.jar')
+                dirset(dir: 'lib/cfnassist-1.3.0/conf/')
             }
         }
     }

@@ -1,0 +1,28 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+		"Description" : "cfnassist: ALB",
+		"Parameters" : {
+			"env" : { "Type" : "String" },
+			"vpc" : { "Type" : "String" },
+			"lbSubnetA" : { "Type" : "String", "Description" : "::publicSubnetA" },
+			"lbSubnetB" : { "Type" : "String", "Description" : "::publicSubnetB" },
+			"sgLoadBalance" : { "Type" : "String", "Description" : "::ALBSecurityGroup" }
+		},
+		"Resources" : {
+			"loadBalancer": {
+				"Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+				"Properties": {
+					"Name": { "Fn::Join" : ["-", [ { "Ref": "env" } , "tramchester-ALB" ] ] },
+					"Subnets": [ { "Ref" : "lbSubnetA" }, { "Ref" : "lbSubnetB" } ],
+					"SecurityGroups" : [ { "Ref" : "sgLoadBalance" } ],
+					"Type" : "application",
+					"Scheme" : "internet-facing"
+				}
+			}
+		},
+	"Outputs" : {
+		"LoadBalanacerDNS" : { "Value" : { "Fn::GetAtt" : [ "loadBalancer", "DNSName" ] }, "Description":"::CFN_TAG" },
+		"LoadBalancerArn" : { "Value" : { "Fn::GetAtt" : [ "loadBalancer", "LoadBalancerArn" ] }, "Description":"::CFN_TAG" }
+	}
+
+}

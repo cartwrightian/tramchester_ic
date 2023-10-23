@@ -1,0 +1,25 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+		"Description" : "cfnassist: http listener",
+		"Parameters" : {
+			"env" : { "Type" : "String" },
+			"vpc" : { "Type" : "String" },
+			"subnet" : { "Type": "String", "Description" : "::subnetA" },
+			"securityGroup" : { "Type": "String", "Description" : "::instancesSecurityGroup" }
+		},
+		"Resources" : {
+			"instanceConnectEndpoint": {
+				"Type" : "AWS::EC2::InstanceConnectEndpoint",
+				"Properties" : {
+					"PreserveClientIp" : "false",
+					"SecurityGroupIds" : [
+						{"Ref" : "securityGroup" }
+					],
+					"SubnetId" : {"Ref": "subnet" },
+					"Tags": [
+						{ "Key" : "Name", "Value": { "Fn::Join" : ["_", [ { "Ref": "env" } , "instanceConnectEndpoint" ] ] } }
+					]
+				}
+			}
+		}
+}

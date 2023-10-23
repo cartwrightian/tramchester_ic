@@ -1,0 +1,29 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+		"Description" : "cfnassist: http listener",
+		"Parameters" : {
+			"env" : { "Type" : "String" },
+			"vpc" : { "Type" : "String" },
+			"LoadBalancerArn" : { "Type": "String", "Description" : "::CFN_TAG" },
+			"TargetGroupArn" : { "Type": "String", "Description" : "::CFN_TAG" }
+		},
+		"Resources" : {
+			"HTTPListener": {
+				"Type": "AWS::ElasticLoadBalancingV2::Listener",
+				"Properties": {
+					"Port" : "80",
+					"Protocol": "HTTP",
+					"LoadBalancerArn": { "Ref":  "LoadBalancerArn"},
+					"DefaultActions": [
+						{
+							"Type": "forward",
+							"TargetGroupArn": { "Ref":  "TargetGroupArn"}
+						}
+					]
+				}
+			}
+		},
+		"Outputs" : {
+			"HTTPListenerArn" : { "Value" : { "Fn::GetAtt" : [ "HTTPListener", "ListenerArn" ] }, "Description":"::CFN_TAG" }
+		}
+}

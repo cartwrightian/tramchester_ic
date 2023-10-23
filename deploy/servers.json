@@ -1,14 +1,14 @@
 {
 	"AWSTemplateFormatVersion":"2010-09-09",
-		"Description":"NOTE: Make sure vpc ID is added to S3 permissions on the Bucket itself",
+		"Description":"NOTE: Make sure vpc S3 endpoint ID is added to S3 permissions (and policy) on the Bucket itself",
 	"Parameters":{
 	"env":{ "Type":"String" }, 
 	"vpc":{ "Type":"String" }, 
 	"build":{ "Type":"String" }, 
-	"webSubnetA":{ "Type":"String", "Default":"subnet-0b94f571983767fff" },
-	"webSg":{ "Type":"String", "Default":"sg-0f3b7b98e89323c46" },
-	"webServerName":{ "Type":"String", "Default":"tramchesterWeb" }, 
-	"ami":{ "Type":"String", "Default":"ami-09f6caae59175ba13" },
+	"webSubnetA":{ "Type":"String", "Description":"::subnetA" },
+	"webSg":{ "Type":"String", "Description":"::instancesSecurityGroup" },
+	"webServerName":{ "Type":"String", "Default":"tramchesterWeb" },
+	"ami":{ "Type":"String", "Default":"ami-0dab0800aa38826f2" },
 	"baseUrl":{ "Type":"String", "Default":"https://s3-eu-west-1.amazonaws.com" },
 	"bucketName":{"Type":"String", "Default":"tramchesternewdist"},
 	"bootstrapCloudInit":{"Type":"String", "Default":"cloudInitAWSLinux.txt"},
@@ -18,9 +18,9 @@
 	"instanceProfile":{"Type":"String", "Default":"tramchester_ec2_role"} },
 	"Mappings":{
 	"environMap":{
-		"Dev":{ "keyName":"tramchester2", "webSize":"t3.medium" },
-		"UAT":{ "keyName":"tramchester2", "webSize":"t3.medium" },
-		"ProdGreen":{ "keyName":"tramchester2", "webSize":"t3.medium" },
+		"Dev":{ "keyName":"tramchester2", "webSize":"t2.micro" },
+		"UAT":{ "keyName":"tramchester2", "webSize":"t2.micro" },
+		"ProdGreen":{ "keyName":"tramchester2", "webSize":"t2.micro" },
 		"ProdBlue":{ "keyName":"tramchester2", "webSize":"t2.micro" }
 		}
 	},
@@ -73,10 +73,8 @@
 				{
 					"Key":"Name", "Value":{
 					"Fn::Join":[
-						"", [
-							{
-								"Ref":"webServerName"
-							}, "A"
+						"_", [
+							{"Ref":"env"}, {"Ref":"webServerName"}
 						]
 					]
 				}
