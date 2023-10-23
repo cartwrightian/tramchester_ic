@@ -5,11 +5,12 @@ logger -s Start ./$target/bin/tramchester for "$PLACE"
 
 LOGFILE=/home/ec2-user/server/logs/tramchester_local.log
 
-if [ "$PLACE" == 'UAT' ]; then
-  configFile=gm.yml
-else
-  configFile=local.yml
-fi
+configFile=local.yml
+
+# disabled for now, makes start up too slow on smaller instances
+#if [ "$PLACE" == 'UAT' ]; then
+#  configFile=gm.yml
+#fi
 
 CONFIG=./$target/config/$configFile
 

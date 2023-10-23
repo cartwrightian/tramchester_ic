@@ -8,7 +8,7 @@
 	"webSubnetA":{ "Type":"String", "Description":"::subnetA" },
 	"webSg":{ "Type":"String", "Description":"::instancesSecurityGroup" },
 	"webServerName":{ "Type":"String", "Default":"tramchesterWeb" },
-	"ami":{ "Type":"String", "Default":"ami-0dab0800aa38826f2" },
+	"ami":{ "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>", "Default" : "/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-ebs" },
 	"baseUrl":{ "Type":"String", "Default":"https://s3-eu-west-1.amazonaws.com" },
 	"bucketName":{"Type":"String", "Default":"tramchesternewdist"},
 	"bootstrapCloudInit":{"Type":"String", "Default":"cloudInitAWSLinux.txt"},
@@ -74,7 +74,7 @@
 					"Key":"Name", "Value":{
 					"Fn::Join":[
 						"_", [
-							{"Ref":"env"}, {"Ref":"webServerName"}
+							{"Ref":"env"}, {"Ref":"webServerName"}, {"Ref":"build"}
 						]
 					]
 				}
