@@ -1,0 +1,29 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+		"Description" : "Set up SG for web subnet",
+		"Parameters" : {
+			"env" : { "Type" : "String" },
+			"vpc" : { "Type" : "String" }
+		},
+		"Resources" : 
+		{
+			"instancesSecurityGroup": {
+				"Type": "AWS::EC2::SecurityGroup",
+				"Properties": {
+					"GroupDescription": "Web Server security group",
+					"VpcId" : { "Ref" : "vpc" },
+					"SecurityGroupIngress": [
+						{ "IpProtocol": "tcp", "FromPort": "22", "ToPort": "22", "CidrIp": "10.0.0.0/24" },
+						{ "IpProtocol": "tcp", "FromPort": "8080", "ToPort": "8080", "CidrIp": "0.0.0.0/0" }
+					],
+					"SecurityGroupEgress": [
+						{ "IpProtocol": "-1", "CidrIp": "0.0.0.0/0" }
+					],
+					"Tags": [
+						{ "Key" : "Name", "Value": { "Fn::Join" : ["_", [ { "Ref": "env" } , "instancesSecurityGroup" ] ] } }
+					]
+				}
+			}
+		}
+
+}

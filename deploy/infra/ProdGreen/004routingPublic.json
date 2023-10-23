@@ -1,0 +1,100 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+	"Description": "public subnet routing",
+	"Parameters": {
+		"env": {
+			"Type": "String"
+		},
+		"vpc": {
+			"Type": "String"
+		},
+		"publicSubnetA": {
+			"Type": "String",
+			"Description": "::publicSubnetA"
+		},
+		"publicSubnetB": {
+			"Type": "String",
+			"Description": "::publicSubnetB"
+		},
+		"public": {
+			"Type": "String",
+			"Description": "::public"
+		},
+		"internetGateway": {
+			"Type": "String",
+			"Description": "::internetGateway"
+		}
+	},
+	"Resources": {
+		"publicRouteTable": {
+			"Type": "AWS::EC2::RouteTable",
+			"Properties": {
+				"VpcId": {
+					"Ref": "vpc"
+				},
+				"Tags": [
+					{
+						"Key": "Name",
+						"Value": {
+							"Fn::Join": [
+								"_",
+								[
+									{
+										"Ref": "env"
+									},
+									"publicRouteTable"
+								]
+							]
+						}
+					}
+				]
+			}
+		},
+		"publicRouteDefault": {
+			"Type": "AWS::EC2::Route",
+			"Properties": {
+				"RouteTableId": {
+					"Ref": "publicRouteTable"
+				},
+				"DestinationCidrBlock": "0.0.0.0/0",
+				"GatewayId": {
+					"Ref": "internetGateway"
+				}
+			}
+		},
+		"publicSubnetBAssoc": {
+			"Type": "AWS::EC2::SubnetRouteTableAssociation",
+			"Properties": {
+				"SubnetId": {
+					"Ref": "publicSubnetB"
+				},
+				"RouteTableId": {
+					"Ref": "publicRouteTable"
+				}
+			}
+		},
+		"publicAssoc": {
+			"Type": "AWS::EC2::SubnetRouteTableAssociation",
+			"Properties": {
+				"SubnetId": {
+					"Ref": "public"
+				},
+				"RouteTableId": {
+					"Ref": "publicRouteTable"
+				}
+			}
+		},
+		"publicSubnetAAssoc": {
+			"Type": "AWS::EC2::SubnetRouteTableAssociation",
+			"Properties": {
+				"SubnetId": {
+					"Ref": "publicSubnetA"
+				},
+				"RouteTableId": {
+					"Ref": "publicRouteTable"
+				}
+			}
+		}
+	}
+}
+

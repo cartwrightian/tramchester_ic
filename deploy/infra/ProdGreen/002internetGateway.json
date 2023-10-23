@@ -7,7 +7,12 @@
   },
   "Resources" : {
     "internetGateway" : {
-         "Type" : "AWS::EC2::InternetGateway"
+         "Type" : "AWS::EC2::InternetGateway",
+         "Properties" : {
+           "Tags": [
+             { "Key" : "Name", "Value": { "Fn::Join" : ["_", [ { "Ref": "env" } , "internetGateway" ] ] } }
+           ]
+         }
      },
      "AttachGateway" : {
         "Type" : "AWS::EC2::VPCGatewayAttachment",

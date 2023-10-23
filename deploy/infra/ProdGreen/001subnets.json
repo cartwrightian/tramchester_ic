@@ -5,47 +5,63 @@
 			"env" : { "Type" : "String" },
 			"vpc" : { "Type" : "String" },
 			"zoneA" : { "Type" : "String" , "Description" : "::CFN_ZONE_A" },
-			"zoneB" : { "Type" : "String" , "Description" : "::CFN_ZONE_B" }
+			"zoneB" : { "Type" : "String" , "Description" : "::CFN_ZONE_B" },
+			"zoneC" : { "Type" : "String" , "Description" : "::CFN_ZONE_C" }
 		},
 		"Resources" : {
-			"webSubnetZoneA" : {
+			"publicSubnetA" : {
+				"Type" : "AWS::EC2::Subnet",
+				"Properties" : {
+					"AvailabilityZone" : { "Ref" : "zoneC" },
+					"CidrBlock" : "10.0.0.48/28",
+					"VpcId" : { "Ref" : "vpc" },
+					"Tags": [
+						{ "Key" : "Name", "Value":  { "Fn::Join" : ["_", [ { "Ref": "env" } , "publicSubnetA" ] ] } }
+					]
+				}
+			},
+			"subnetA" : {
+				"Type" : "AWS::EC2::Subnet",
+				"Properties" : {
+					"AvailabilityZone" : { "Ref" : "zoneC" },
+					"CidrBlock" : "10.0.0.0/28",
+					"VpcId" : { "Ref" : "vpc" },
+					"Tags": [
+						{ "Key" : "Name", "Value": { "Fn::Join" : ["_", [ { "Ref": "env" } , "subnetA" ] ] } }
+					]
+				}
+			},
+			"publicSubnetB" : {
 				"Type" : "AWS::EC2::Subnet",
 				"Properties" : {
 					"AvailabilityZone" : { "Ref" : "zoneA" },
-					"CidrBlock" : "10.0.10.0/24",
-					"VpcId" : { "Ref" : "vpc" }
+					"CidrBlock" : "10.0.0.96/28",
+					"VpcId" : { "Ref" : "vpc" },
+					"Tags": [
+						{ "Key" : "Name", "Value": { "Fn::Join" : ["_", [ { "Ref": "env" } , "publicSubnetB" ] ] } }
+					]
 				}
 			},
-			"webSubnetZoneB" : {
-				"Type" : "AWS::EC2::Subnet",
-				"Properties" : {
-					"AvailabilityZone" : { "Ref" : "zoneB" },
-					"CidrBlock" : "10.0.210.0/24",
-					"VpcId" : { "Ref" : "vpc" }
-				}
-			},
-			"lbSubnetA" : {
-				"Type" : "AWS::EC2::Subnet",
-				"Properties" : {
-					"AvailabilityZone" : { "Ref" : "zoneA" },
-					"CidrBlock" : "10.0.12.0/24",
-					"VpcId" : { "Ref" : "vpc" }
-				}
-			},
-            "lbSubnetB" : {
+            "public" : {
               "Type" : "AWS::EC2::Subnet",
               "Properties" : {
-                "AvailabilityZone" : { "Ref" : "zoneB" },
-                "CidrBlock" : "10.0.212.0/24",
-                "VpcId" : { "Ref" : "vpc" }
+                "AvailabilityZone" : { "Ref" : "zoneA" },
+                "CidrBlock" : "10.0.0.64/28",
+                "VpcId" : { "Ref" : "vpc" },
+			    "Tags": [
+				  { "Key" : "Name", "Value": { "Fn::Join" : ["_", [ { "Ref": "env" } , "public" ] ] } }
+			    ]
               }
             },
-			"natSubnet" : {
+			"subnetB" : {
 				"Type" : "AWS::EC2::Subnet",
 				"Properties" : {
 					"AvailabilityZone" : { "Ref" : "zoneA" },
-					"CidrBlock" : "10.0.100.0/24",
-					"VpcId" : { "Ref" : "vpc" }
+					"CidrBlock" : "10.0.0.32/28",
+					"VpcId" : { "Ref" : "vpc" },
+					"Tags": [
+						{ "Key" : "Name", "Value": { "Fn::Join" : ["_", [ { "Ref": "env" } , "subnetB" ] ] } }
+					]
 				}
 			}
 		}

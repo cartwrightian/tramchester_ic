@@ -1,0 +1,29 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+		"Description" : "Set up SG for ALB",
+		"Parameters" : {
+			"env" : { "Type" : "String" },
+			"vpc" : { "Type" : "String" }
+		},
+		"Resources" : 
+		{
+			"ALBSecurityGroup": {
+				"Type": "AWS::EC2::SecurityGroup",
+				"Properties": {
+					"GroupDescription": "ALB security group",
+					"VpcId" : { "Ref" : "vpc" },
+					"SecurityGroupIngress": [
+						{ "IpProtocol": "tcp", "FromPort": "80", "ToPort": "80", "CidrIp": "0.0.0.0/0" },
+						{ "IpProtocol": "tcp", "FromPort": "443", "ToPort": "443", "CidrIp": "0.0.0.0/0" }
+					],
+					"SecurityGroupEgress": [
+						{ "IpProtocol": "-1", "CidrIp": "0.0.0.0/0" }
+					],
+					"Tags": [
+						{ "Key" : "Name", "Value": { "Fn::Join" : ["_", [ { "Ref": "env" } , "ALBSecurityGroup" ] ] } }
+					]
+				}
+			}
+		}
+
+}

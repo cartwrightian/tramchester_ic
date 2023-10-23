@@ -1,0 +1,85 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+	"Description": "private subnet routing",
+	"Parameters": {
+		"env": {
+			"Type": "String"
+		},
+		"vpc": {
+			"Type": "String"
+		},
+		"subnetA": {
+			"Type": "String",
+			"Description": "::subnetA"
+		},
+		"subnetB": {
+			"Type": "String",
+			"Description": "::subnetB"
+		},
+		"natGateway": {
+			"Type": "String",
+			"Description": "::natGateway"
+		}
+	},
+	"Resources": {
+		"privateRouteTable": {
+			"Type": "AWS::EC2::RouteTable",
+			"Properties": {
+				"VpcId": {
+					"Ref": "vpc"
+				},
+				"Tags": [
+					{
+						"Key": "Name",
+						"Value": {
+							"Fn::Join": [
+								"_",
+								[
+									{
+										"Ref": "env"
+									},
+									"privateRouteTable"
+								]
+							]
+						}
+					}
+				]
+			}
+		},
+		"privateRouteDefault": {
+			"Type": "AWS::EC2::Route",
+			"Properties": {
+				"RouteTableId": {
+					"Ref": "privateRouteTable"
+				},
+				"DestinationCidrBlock": "0.0.0.0/0",
+				"NatGatewayId": {
+					"Ref": "natGateway"
+				}
+			}
+		},
+		"privateSubnetBAssoc": {
+			"Type": "AWS::EC2::SubnetRouteTableAssociation",
+			"Properties": {
+				"SubnetId": {
+					"Ref": "subnetB"
+				},
+				"RouteTableId": {
+					"Ref": "privateRouteTable"
+				}
+			}
+		},
+		"privateSubnetAAssoc": {
+			"Type": "AWS::EC2::SubnetRouteTableAssociation",
+			"Properties": {
+				"SubnetId": {
+					"Ref": "subnetA"
+				},
+				"RouteTableId": {
+					"Ref": "privateRouteTable"
+				}
+			}
+		}
+	}
+}
+
