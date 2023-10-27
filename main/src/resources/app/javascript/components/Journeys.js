@@ -210,7 +210,7 @@ export default {
     },
     template: `
     <div id="journeysComponent">
-        <div v-if="journeys.length>0">
+        <v-container v-if="journeys.length>0">
             <v-data-table id="results"
                 :headers="headers"
                 :items="journeys"
@@ -268,20 +268,20 @@ export default {
                         </td>
                     </template>
             </v-data-table>
-        </div>
+        </v-container>
 
-        <div class="container" id="earlierLater" v-if="journeys.length>0">
-            <div class="row justify-content-between">
-                <div class="col">
+        <v-container id="earlierLater" v-if="journeys.length>0">
+            <v-row >
+                <v-col>
                     <button type="button" id="earlierButton" class="btn btn-outline-primary" v-on:click="earlier()">« Earlier</button>
-                </div>
-                <div class="col">
+                </v-col>
+                <v-col>
                     <button type="button" id="laterButton" class="btn btn-outline-primary" v-on:click="later()">Later »</button>
-                </div>
-            </div>
-        </div>
+                </v-col>
+            </v-row>
+        </v-container>
 
-        <div id="noResults" selectable v-if="noJourneys" class="w-75 tramchesterApp">
+        <v-container id="noResults" selectable v-if="noJourneys" class="w-75 tramchesterApp">
             <div class="card bg-warning mb-3">
                 <div class="card-header">No Results</div>
                 <div class="card-body">
@@ -290,7 +290,7 @@ export default {
                     </p>
                 </div>
             </div>
-        </div>
+        </v-container>
     </div>
     `
 }

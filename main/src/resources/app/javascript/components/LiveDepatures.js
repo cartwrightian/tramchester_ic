@@ -40,15 +40,16 @@ export default {
         }
     },
     template: `
-    <div class="container" id="departuesView">
+    <v-container id="departuesView">
 
         <div id="departuresTable" v-if="localDueTrams.length>0">
             <v-data-table id="departures"
-                :headers="headers" 
                 :items="localDueTrams"
+                :page.sync="page"
+                :items-per-page="itemsPerPage"
+                :headers="headers" 
                 dense
                 v-model:sort-by="sortBy"
-                :items-per-page="itemsPerPage"
                 hide-default-footer
                 class="elevation-1">
                 <template v-slot:item.dueTimeAsDate="{ item }">
@@ -56,13 +57,10 @@ export default {
                 </template>
             </v-data-table>
         </div>
-        <div class="text-center pt-2" v-if="localDueTrams.length>0">
-                <v-pagination
-                  v-model="page"
-                  :length="pageCount"
-                ></v-pagination>
 
-              </div>
+        <div class="text-center pt-2" v-if="localDueTrams.length>0">
+            <v-pagination v-model="page" :length="pageCount"></v-pagination>
+        </div>
             
         <div id="noLiveResults" class="col pl-0" v-if="noLiveResults">
             <div class="card bg-light border-dark">
@@ -73,7 +71,7 @@ export default {
             </div>
         </div>
 
-    </div>
+    <v-container>
 
 
     `
