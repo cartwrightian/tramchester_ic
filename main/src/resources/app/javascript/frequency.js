@@ -11,7 +11,6 @@ require('file-loader?name=[name].[ext]!../frequency.html');
 import VueSlider from 'vue-slider-component'
 
 
-import 'bootstrap/dist/css/bootstrap.css';
 import 'leaflet/dist/leaflet.css'
 import './../css/tramchester.css'
 import 'vue-slider-component/theme/default.css'

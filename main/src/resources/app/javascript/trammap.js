@@ -10,7 +10,6 @@ require('leaflet-polylineoffset')
 
 require('file-loader?name=[name].[ext]!../trammap.html');
 
-import 'bootstrap/dist/css/bootstrap.css';
 import 'leaflet/dist/leaflet.css'
 import './../css/tramchester.css'
 

@@ -2,6 +2,7 @@ package com.tramchester.integration.livedata;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.livedata.tfgm.LiveDataUpdater;
@@ -60,6 +61,7 @@ public class LiveDataUpdaterTest {
     void shouldHaveMessagesForTestStation() {
         Set<Station> stations = messageRepo.getStationsWithMessages(TestEnv.LocalNow().toLocalTime());
 
-        assertTrue(stations.contains(StationWithNotes.fake()), stations.toString());
+        assertTrue(stations.contains(StationWithNotes.fake()), "No message for " + StationWithNotes.getName()
+                + " present for " + HasId.asIds(stations));
     }
 }

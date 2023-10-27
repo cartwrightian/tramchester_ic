@@ -8,7 +8,6 @@ var L = require('leaflet');
 
 require('file-loader?name=[name].[ext]!../traveltimes.html');
 
-import 'bootstrap/dist/css/bootstrap.css';
 import 'leaflet/dist/leaflet.css'
 import './../css/tramchester.css'
 

@@ -17,6 +17,11 @@ export default {
             console.log(error)
         });
     },
+    methods: {
+        showDisclaimer(){
+            this.$emit('disclaimer-clicked')
+        }
+    },
     template: `
     <div id="footer" class="tramchesterFooter">
         <div class="card mt-1">
@@ -29,10 +34,9 @@ export default {
                 <div class="row">
                     <div id="disclaimer">
                         &copy; 2016-2023 ThoughtWorks Ltd. & Ian Cartwright 2023
-                        <button id="disclaimerButton" data-toggle="modal" data-target="#modaldisclaimer"
-                                  class="btn btn-link align-baseline text-decoration-none tramchesterFooter">
-                                  Disclaimer
-                        </button>
+                        <button id="disclaimerButton" 
+                            @click="showDisclaimer()"
+                            class="tramchesterFooter">Disclaimer</button>
                     </div>
                 </div>
                <div class="row">

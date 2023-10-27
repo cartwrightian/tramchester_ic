@@ -1,8 +1,6 @@
 
 
 
-import VueTypeaheadBootstrap from 'vue-typeahead-bootstrap'
-
 
 function sort(stopMap, alreadyDisplayed, requestedModes) {
 
@@ -39,7 +37,7 @@ function getStopOrLocation(stopId, app) {
 
 export default {
     components: {
-        VueTypeaheadBootstrap
+        //VueTypeaheadBootstrap
     },
     /// NOTE: don't camel case these, browser will treat them as all lowercase....
     // TODO Add whether selection is for a dropoff or a pickup
@@ -133,7 +131,7 @@ export default {
     <div>
     <!-- Dropdown selection mode -->
     <!-- note need input, change and model here because dynamically change contents of opt-groups -->
-        <select class="form-select form-control mb-2" :id="name+'Stop'"
+        <select :id="name+'Stop'"
                 :disabled="disabled"
                 v-on:input="updateValue($event)"
                 v-on:change="changedValue($event)"
@@ -158,7 +156,7 @@ export default {
                     :disabled="stop.id == otherId">{{stop.name}}</option>
             </optgroup>
         </select>
-    <!-- Typeahead selection mode -->
+    <!-- Typeahead selection mode not in used
         <vue-typeahead-bootstrap
             :disabled="disabled"
             class="mb-4"
@@ -171,6 +169,7 @@ export default {
             placeholder="Select a location"
             v-if="bus"
         />
+    -->
     </div>
     `
 }

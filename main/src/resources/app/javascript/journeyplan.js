@@ -1,26 +1,27 @@
 
 const axios = require('axios');
-const bootstrap = require('bootstrap')
-var Vue = require('vue');
-Vue.use(require('vue-cookies'));
-Vue.use(require('vue-multiselect'));
+
+import Vue from 'vue'
+import vueCookies from 'vue-cookies'
+import Multiselect from 'vue-multiselect'
+
+Vue.use(vueCookies)
+Vue.use(Multiselect)
 
 require('file-loader?name=[name].[ext]!../index.html');
 
 import vuetify from './plugins/vuetify'
 
 // todo move into require above to get auto min or full version?
-import 'popper.js/dist/esm/popper.js'
+//import 'popper.js/dist/esm/popper.js'
 import 'jquery/dist/jquery.slim.js'
-//import 'bootstrap/dist/js/bootstrap.bundle.js'
 
-import 'bootstrap/dist/css/bootstrap.css'
 import 'vue-multiselect/dist/vue-multiselect.min.css'
 import './../css/tramchester.css'
 
 import '@mdi/font/css/materialdesignicons.css'
 
-import Multiselect from 'vue-multiselect'
+//import Multiselect from 'vue-multiselect'
 
 import Notes from "./components/Notes";
 import Journeys from './components/Journeys';
@@ -288,13 +289,15 @@ function queryServerForJourneysPost(app, startStop, endStop, queryTime, queryDat
     myLocation: null,           // represents a stop for Current Location, set if hasGeo
     postcodesEnabled: false,
     beta: false,
-    timeModal: false,
-    cookieDialog: false
+    timeModal: false, // todo still used?
+    cookieDialog: false,
+    disclaimerDialog: false
 }
 
 var app = new Vue({
         vuetify,
         el: '#journeyplan',
+        // render: h => h(App),
         data:  data,
         components: {
             'notes' : Notes,
@@ -338,6 +341,12 @@ var app = new Vue({
                 var cookie = { 'visited' : true };
                 this.$cookies.set("tramchesterVisited", cookie, "128d", "/", null, false, "Strict");
                 app.cookieDialog = false
+            },
+            showDisclaimer() {
+                app.disclaimerDialog = true
+            },
+            dismissDisclaimer() {
+                app.disclaimerDialog = false
             },
             timeToNow() {
                 app.time = getCurrentTime();

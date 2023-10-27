@@ -8,7 +8,6 @@ import 'leaflet-arrowheads'
 
 require('file-loader?name=[name].[ext]!../links.html');
 
-import 'bootstrap/dist/css/bootstrap.css';
 import 'leaflet/dist/leaflet.css'
 import './../css/tramchester.css'
 
