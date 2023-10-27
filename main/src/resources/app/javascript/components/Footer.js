@@ -23,7 +23,7 @@ export default {
         }
     },
     template: `
-    <div id="footer" class="tramchesterFooter">
+    <div id="footer" >
         <div class="card mt-1">
             <div class="container mt-3">
                 <div class="row">
@@ -34,9 +34,7 @@ export default {
                 <div class="row">
                     <div id="disclaimer">
                         &copy; 2016-2023 ThoughtWorks Ltd. & Ian Cartwright 2023
-                        <button id="disclaimerButton" 
-                            @click="showDisclaimer()"
-                            class="tramchesterFooter">Disclaimer</button>
+                        <v-btn id="disclaimerButton" @click="showDisclaimer()" density="compact" variant="text">Disclaimer</v-btn>
                     </div>
                 </div>
                <div class="row">

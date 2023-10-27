@@ -10,18 +10,16 @@ Vue.use(Multiselect)
 
 require('file-loader?name=[name].[ext]!../index.html');
 
-import vuetify from './plugins/vuetify'
+import vuetify from './plugins/vuetify' // from file in plugins dir
+import '@mdi/font/css/materialdesignicons.css'
 
 // todo move into require above to get auto min or full version?
-//import 'popper.js/dist/esm/popper.js'
+
+// todo still needed?
 import 'jquery/dist/jquery.slim.js'
 
 import 'vue-multiselect/dist/vue-multiselect.min.css'
 import './../css/tramchester.css'
-
-import '@mdi/font/css/materialdesignicons.css'
-
-//import Multiselect from 'vue-multiselect'
 
 import Notes from "./components/Notes";
 import Journeys from './components/Journeys';

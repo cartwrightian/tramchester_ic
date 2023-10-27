@@ -6,7 +6,9 @@
 </head>
 <body>
 <h1 class="tramchesterHeading w-75">Tramchester</h1>
-<div id="journeyplan" class="tramchesterApp" data-app>
+<div id="journeyplan">
+    <v-app>
+        <v-main>
     <form @submit="plan" class="w-75 tramchesterApp">
         <div class="container" id="startAndEnd">
             <div class="row">
@@ -64,10 +66,10 @@
             </div>
             <div class="row">
                 <div class="col pl-0 col-md-auto">
-                    <button :disabled='!ready' id="plan" type="submit" class="btn btn-primary">
+                    <v-btn :disabled='!ready' id="plan" type="submit" density="compact">
                         Plan
                         <spinner v-if="searchInProgress" id="spinner" small type="grow"></spinner>
-                    </button>
+                    </v-btn>
                 </div>
                 <div class="col col-md-auto">
                     <button :disabled='!havePos' id="liveTrams" class="btn btn-info" v-if="havePos" type="button" @click="queryNearbyTrams">
@@ -78,7 +80,7 @@
             </div>
         </div>
     </form>
-
+    
     <div id="networkError" selectable v-if="networkError" class="w-75 tramchesterApp">
         <div class="card bg-danger">
             <div class="card-header">Network Error</div>
@@ -96,8 +98,7 @@
         <closures></closures>
     </div>
 
-    <app-footer v-bind:feedinfo="feedinfo" v-on:disclaimer-clicked="showDisclaimer" v-bind:havepos="havePos" 
-    v-on:network-error="networkErrorOccured()"></app-footer>
+    </v-main>
 
     <v-dialog v-model="disclaimerDialog" width="auto">
         <v-card>
@@ -148,6 +149,11 @@
       </v-card>
     </v-dialog>
 
+
+        <app-footer v-bind:feedinfo="feedinfo" v-on:disclaimer-clicked="showDisclaimer" v-bind:havepos="havePos" 
+            v-on:network-error="networkErrorOccured()"></app-footer>
+
+</v-app>
 
 </div> <!-- end of app -->
 
