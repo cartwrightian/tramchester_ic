@@ -288,7 +288,8 @@ function queryServerForJourneysPost(app, startStop, endStop, queryTime, queryDat
     myLocation: null,           // represents a stop for Current Location, set if hasGeo
     postcodesEnabled: false,
     beta: false,
-    timeModal: false
+    timeModal: false,
+    cookieDialog: false
 }
 
 var app = new Vue({
@@ -336,6 +337,7 @@ var app = new Vue({
             setCookie() {
                 var cookie = { 'visited' : true };
                 this.$cookies.set("tramchesterVisited", cookie, "128d", "/", null, false, "Strict");
+                app.cookieDialog = false
             },
             timeToNow() {
                 app.time = getCurrentTime();
@@ -352,8 +354,9 @@ var app = new Vue({
         mounted () {
             var cookie = this.$cookies.get("tramchesterVisited");
             if (cookie==null) {
-                var modal = new bootstrap.Modal(this.$refs.cookieModal,{});
-                modal.show();
+                this.cookieDialog = true
+                // var modal = new bootstrap.Modal(this.$refs.cookieModal,{});
+                // modal.show();
             }
             getFeedinfo(this);
             let urlParams = new URLSearchParams(window.location.search);

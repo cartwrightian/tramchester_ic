@@ -23,12 +23,12 @@ export default {
             <div class="container mt-3">
                 <div class="row">
                     <div>
-                        Built by <a href="http://www.thoughtworks.com" target="_blank">ThoughtWorks</a> in Manchester
+                    Orgininally Built by <a href="http://www.thoughtworks.com" target="_blank">ThoughtWorks</a> in Manchester
                     </div>
                 </div>
                 <div class="row">
                     <div id="disclaimer">
-                        &copy; 2016-2020 ThoughtWorks Ltd.
+                        &copy; 2016-2023 ThoughtWorks Ltd. & Ian Cartwright 2023
                         <button id="disclaimerButton" data-toggle="modal" data-target="#modaldisclaimer"
                                   class="btn btn-link align-baseline text-decoration-none tramchesterFooter">
                                   Disclaimer
