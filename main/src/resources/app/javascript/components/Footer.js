@@ -23,30 +23,10 @@ export default {
         }
     },
     template: `
-    <div id="footer" >
+    <div id="footer">
         <v-card>
             <v-container>
-                <v-row>
-                    <div>
-                    Originally Built by <a href="http://www.thoughtworks.com" target="_blank">ThoughtWorks</a> in Manchester
-                    </div>
-                </v-row>
-                <v-row>
-                    <div id="disclaimer">
-                        &copy; 2016-2023 ThoughtWorks Ltd. & Ian Cartwright 2023
-                        <v-btn id="disclaimerButton" @click="showDisclaimer()" small>Disclaimer</v-btn>
-                    </div>
-                </v-row>
-               <v-row>
-                   <div id="license">
-                       Contains Transport for Greater Manchester data.
-                       Contains public sector information licensed under the Open Government Licence v2.0 by
-                       <a href="http://www.datagm.org.uk/" target="_blank">Data GM.</a>
-                       Contains public sector information licensed under the Open Government Licence v3.0.
-                       Timetable/Fares/London Terminals data under licence from <a href="http://www.raildeliverygroup.com/">RSP</a>.
-                   </div>
-               </v-row>
-                <v-row>
+                 <v-row justify="center" no-gutters>
                     <v-col>Build
                         <div id="buildNumber">{{buildnumber}}</div>
                     </v-col>
@@ -55,6 +35,28 @@ export default {
                     </v-col>
                     <v-col>Geo:
                         <div id="havepos">{{havepos}}</div>
+                    </v-col>
+                </v-row>
+                <v-row justify="center" no-gutters>
+                    <v-col>
+                    Originally Built by <a href="http://www.thoughtworks.com" target="_blank">ThoughtWorks</a> in Manchester
+                    </v-col>
+                </v-row>
+                <v-row justify="center" no-gutters>
+                    <v-col id="copyright">&copy; 2016-2023 ThoughtWorks Ltd. & Ian Cartwright 2023</v-col>
+                </v-row>
+                <v-row justify="center" no-gutters>
+                    <v-col id="license">
+                        Contains Transport for Greater Manchester data.
+                        Contains public sector information licensed under the Open Government Licence v2.0 by
+                        <a href="http://www.datagm.org.uk/" target="_blank">Data GM.</a>
+                        Contains public sector information licensed under the Open Government Licence v3.0.
+                        Timetable/Fares/London Terminals data under licence from <a href="http://www.raildeliverygroup.com/">RSP</a>.
+                    </v-col>
+                </v-row>
+                <v-row justify="center" no-gutters>
+                    <v-col>
+                        <v-btn id="disclaimerButton" @click="showDisclaimer()" small>Disclaimer</v-btn>
                     </v-col>
                 </v-row>
             </v-container>

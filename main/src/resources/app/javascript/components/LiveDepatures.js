@@ -66,14 +66,12 @@ export default {
             <v-pagination v-model="page" :length="pageCount"></v-pagination>
         </div>
             
-        <div id="noLiveResults" class="col pl-0" v-if="noLiveResults">
-            <div class="card bg-light border-dark">
-                <div class="card-header">Live Departures</div>
-                <div class="card-body">
-                    <p class="card-text">No departure information available</p>
-                </div>
-            </div>
-        </div>
+        <v-card id="noLiveResults" v-if="noLiveResults">
+            <v-card-title class="card-header">Live Departures</v-card-title>
+            <v-card-text>
+                <p class="card-text">No live departure information was found for the date and time</p>
+            </v-card-text>
+        </v-card>
 
     <v-container>
 

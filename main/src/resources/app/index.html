@@ -161,9 +161,10 @@
       </v-card>
     </v-dialog>
 
-
+    <v-footer>
         <app-footer v-bind:feedinfo="feedinfo" v-on:disclaimer-clicked="showDisclaimer" v-bind:havepos="havePos" 
             v-on:network-error="networkErrorOccured()"></app-footer>
+    </v-footer>
 
 </v-app>
 

@@ -285,14 +285,14 @@ export default {
         </v-container>
 
         <v-container id="noResults" selectable v-if="noJourneys" class="w-75 tramchesterApp">
-            <div class="card bg-warning mb-3">
-                <div class="card-header">No Results</div>
-                <div class="card-body">
+            <v-card>
+                <v-card-title>No Journeys found</v-card-title>
+                <v-card-text>
                     <p class="card=text">
                         No suggested routes were found for this date and time
                     </p>
-                </div>
-            </div>
+                </v-card-text>
+            </v-card>
         </v-container>
     </div>
     `
