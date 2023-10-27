@@ -2,6 +2,8 @@
 const axios = require('axios');
 
 import Vue from 'vue'
+
+
 import vueCookies from 'vue-cookies'
 import Multiselect from 'vue-multiselect'
 
@@ -294,7 +296,7 @@ function queryServerForJourneysPost(app, startStop, endStop, queryTime, queryDat
 
 var app = new Vue({
         vuetify,
-        el: '#journeyplan',
+        //el: '#journeyplan',
         // render: h => h(App),
         data:  data,
         components: {
@@ -388,7 +390,7 @@ var app = new Vue({
                 return selectModesEnabled(this);
             }
         }
-    })
+    }).$mount('#journeyplan')
 
 
 

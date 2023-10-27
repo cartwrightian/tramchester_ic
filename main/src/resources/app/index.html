@@ -1,86 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+     <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+     <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css" rel="stylesheet">
+     <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
     <title>Tramchester</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 </head>
 <body>
-<h1 class="tramchesterHeading w-75">Tramchester</h1>
+<h1 class="tramchesterHeading">Tramchester</h1>
 <div id="journeyplan">
     <v-app>
         <v-main>
-    <form @submit="plan" class="w-75 tramchesterApp">
-        <div class="container" id="startAndEnd">
-            <div class="row">
-                <div  class="col pl-0">
+    <form @submit="plan" class="tramchesterApp">
+        <v-container id="startAndEnd">
+            <v-row >
+                <v-col class="pl-0">
                     <div id="selectStart">
                         <location-selection :disabled='!ready' :name="'start'" v-model="startStop" :other="endStop" :modes="selectedModes"
                             :geo="havePos" :stops="stops">
                         </location-selection>
                     </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col pl-0">
+                </v-col>
+            </v-row>
+            <v-row>
+                <v-col class="pl-0">
                     <div id="selectEnd">
                         <location-selection :disabled='!ready' :name="'destination'" v-model="endStop"  :other="startStop" :modes="selectedModes"
                         :geo="havePos" :stops="stops" >
                     </location-selection>
                     </div>
-                </div>
-                <div class="col col-md-auto">
-                    <button type="button"  class="btn btn-dark" @click="swap">&#8645;</button>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col pl-0 col-md-auto">
+                </v-col>
+                <v-col >
+                    <v-btn @click="swap" plain>&#8645;</v-btn>
+                </v-col>
+            </v-row>
+            <v-row>
+                <v-col class="pl-0 col-md-auto">
                     <label for="arriveBy">arrive by</label>
                     <input type="checkbox" id="arriveBy" v-model="arriveBy">
-                </div>
-                <div class="col col-md-auto">     
+                </v-col>
+                <v-col class="col-md-auto">     
                     <input type="time" id="time" v-model="time"/>
-                </div>
-                <div class="col">
-                    <button id="nowButton" class="btn btn-info" type="button" @click="timeToNow()">Now</button>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col pl-0 col-md-auto">
+                </v-col>
+                <v-col>
+                    <v-btn id="nowButton" color="secondary" small @click="timeToNow()">Now</v-btn>
+                </v-col>
+            </v-row>
+            <v-row>
+                <v-col class="pl-0 col-md-auto">
                     <input type="date" id="date" v-model="date"/>
-                </div>
-                <div class="col pl-0">
-                    <button id="todayButton" class="btn btn-info" type="button" @click="dateToNow()">Today</button>
+                </v-col>
+                <v-col class="pl-0">
+                    <v-btn id="todayButton" small color="secondary" @click="dateToNow()">Today</v-btn>
                     <input type="hidden" id="hiddendate" v-model="date"></input>
-                </div>
-            </div>
-            <div class="row" v-if="selectModesEnabled">
-                <div class="col pl-0">
+                </v-col>
+            </v-row>
+            <v-row v-if="selectModesEnabled">
+                <v-col class="pl-0">
                     <multiselect v-model="selectedModes" :options="modes" :multiple="true" :close-on-select="false" :clear-on-select="false" 
                         :searchable="false"  placeholder="Transport modes" :show-labels="false"  :preselect-first="true" size="sm">
                     </multiselect>
-                </div>
-                <div class="col">
+                </v-col>
+                <v-col>
                     <label for="maxChanges">max changes:</label>
                     <input type="number" name="max changes" min="1" max="8" id="maxChanges" v-model="maxChanges"> 
-                </div>
-            </div>
-            <div class="row">
-                <div class="col pl-0 col-md-auto">
-                    <v-btn :disabled='!ready' id="plan" type="submit" density="compact">
+                </v-col>
+            </v-row>
+            <v-row>
+                <v-col class="pl-0 col-md-auto">
+                    <v-btn :disabled='!ready' id="plan" type="submit" color="primary">
                         Plan
                         <spinner v-if="searchInProgress" id="spinner" small type="grow"></spinner>
                     </v-btn>
-                </div>
-                <div class="col col-md-auto">
-                    <button :disabled='!havePos' id="liveTrams" class="btn btn-info" v-if="havePos" type="button" @click="queryNearbyTrams">
+                </v-col>
+                <v-col class="col-md-auto">
+                    <v-btn :disabled='!havePos' id="liveTrams" v-if="havePos" color="primary" @click="queryNearbyTrams">
                         Nearby
                         <spinner v-if="liveInProgress" id="nearbySpinner" small type="grow"></spinner>
-                    </button>
-                </div>
-            </div>
-        </div>
+                    </v-btn>
+                </v-col>
+            </v-row>
+    </v-container>
+
     </form>
-    
+
+
     <div id="networkError" selectable v-if="networkError" class="w-75 tramchesterApp">
         <div class="card bg-danger">
             <div class="card-header">Network Error</div>

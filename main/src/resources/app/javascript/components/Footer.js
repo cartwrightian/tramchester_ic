@@ -28,13 +28,13 @@ export default {
             <div class="container mt-3">
                 <div class="row">
                     <div>
-                    Orgininally Built by <a href="http://www.thoughtworks.com" target="_blank">ThoughtWorks</a> in Manchester
+                    Originally Built by <a href="http://www.thoughtworks.com" target="_blank">ThoughtWorks</a> in Manchester
                     </div>
                 </div>
                 <div class="row">
                     <div id="disclaimer">
                         &copy; 2016-2023 ThoughtWorks Ltd. & Ian Cartwright 2023
-                        <v-btn id="disclaimerButton" @click="showDisclaimer()" density="compact" variant="text">Disclaimer</v-btn>
+                        <v-btn id="disclaimerButton" @click="showDisclaimer()" small outlined>Disclaimer</v-btn>
                     </div>
                 </div>
                <div class="row">
