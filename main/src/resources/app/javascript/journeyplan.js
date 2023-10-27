@@ -12,7 +12,7 @@ import vuetify from './plugins/vuetify'
 // todo move into require above to get auto min or full version?
 import 'popper.js/dist/esm/popper.js'
 import 'jquery/dist/jquery.slim.js'
-import 'bootstrap/dist/js/bootstrap.bundle.js'
+//import 'bootstrap/dist/js/bootstrap.bundle.js'
 
 import 'bootstrap/dist/css/bootstrap.css'
 import 'vue-multiselect/dist/vue-multiselect.min.css'
