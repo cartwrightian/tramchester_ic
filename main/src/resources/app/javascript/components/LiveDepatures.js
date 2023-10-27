@@ -43,19 +43,23 @@ export default {
     <v-container id="departuesView">
 
         <div id="departuresTable" v-if="localDueTrams.length>0">
-            <v-data-table id="departures"
-                :items="localDueTrams"
-                :page.sync="page"
-                :items-per-page="itemsPerPage"
-                :headers="headers" 
-                dense
-                v-model:sort-by="sortBy"
-                hide-default-footer
-                class="elevation-1">
-                <template v-slot:item.dueTimeAsDate="{ item }">
-                    <div>{{ dueTimeFormatter(item.dueTimeAsDate) }}</div>
-                </template>
-            </v-data-table>
+            <v-card>
+                <v-card-title>Live Departures</v-card-title>
+                <v-data-table id="departures"
+                    :items="localDueTrams"
+                    :page.sync="page"
+                    :items-per-page="itemsPerPage"
+                    :headers="headers" 
+                    dense
+                    v-model:sort-by="sortBy"
+                    hide-default-footer
+                    class="elevation-1">
+                    <template v-slot:item.dueTimeAsDate="{ item }">
+                        <div>{{ dueTimeFormatter(item.dueTimeAsDate) }}</div>
+                    </template>
+                </v-data-table>
+            </v-card>
+
         </div>
 
         <div class="text-center pt-2" v-if="localDueTrams.length>0">

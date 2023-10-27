@@ -211,71 +211,74 @@ export default {
     template: `
     <div id="journeysComponent">
         <v-container v-if="journeys.length>0">
-            <v-data-table id="results"
-                :headers="headers"
-                :items="journeys"
-                item-key="journey.index"
-                single-expand=true
-                :expanded.sync="expanded"
-                show-expand=true
-                dense
-                :sort-by.sync="sortBy"
-                hide-default-footer
-                class="elevation-1">
-                    <template v-slot:item.journey.firstDepartureTimeAsDate="{ item, index }">
-                        <div class="departTime">{{ dateTimeFormatter(item.journey.firstDepartureTimeAsDate, index) }}</div>
-                    </template>
-                    <template v-slot:item.journey.expectedArrivalTimeAsDate="{ item, index }">
-                        <div class="arriveTime">{{ dateTimeFormatter(item.journey.expectedArrivalTimeAsDate, index) }}</div>
-                    </template>
-                    <template v-slot:item.journey.begin="{ item }">
-                        <div>{{ item.journey.begin.name }}</div>
-                    </template>
-                    <template v-slot:item.journey.changeStations="{ item, index }">
-                        <div class="changes">{{ changesFormatter(item.journey.changeStations, index) }}</div>
-                    </template>
-                    <template v-slot:expanded-item="{ headers, item, index }">
-                        <td :colspan="headers.length">
-                            <v-data-table :items=item.journey.stages :headers="stageHeaders" 
-                            id="stages" :item-class="stageRowClass"
-                            dense
-                            hide-default-footer>
-                                <template v-slot:item.firstDepartureTime="{ item }">
-                                    <div class="departTime">{{ stageDateTimeFormatter(item.firstDepartureTime, item.queryDate) }}</div>
-                                </template>
-                                <template v-slot:item.expectedArrivalTime="{ item }">
-                                    <div>{{ stageDateTimeFormatter(item.expectedArrivalTime, item.queryDate) }}</div>
-                                </template>
-                                <template v-slot:item.action="{ item, index }">
-                                    <div  class="action">{{ actionFormatter(item) }}</div>
-                                </template>
-                                <template v-slot:item.platform.platformNumber="{ item }">
-                                    <div  class="platform">{{ item.platform.platformNumber }}</div>
-                                </template>
-                                <template v-slot:item.actionStation="{ item }">
-                                    <a class="actionStation" :href="stationURL(item.actionStation)" target="_blank">{{ item.actionStation.name }}</a>
-                                </template>
-                                <template v-slot:item.headSign="{ item }">
-                                    <div class="headsign" :class="stageHeadsignClass(item)">{{ item.headSign }}</div>
-                                </template>
-                                <template v-slot:item.route="{ item }">
-                                    <div class="lineClass" :class="routeClass(item.route)">{{ routeFormatter(item.route) }}</div>
-                                </template>
-                                <template v-slot:item.passedStops="{ item }">
-                                    <div class="passedStops">{{ passedStopsFormatter(item) }}</div>
-                                </template>
-                            </v-data-table>
-                        </td>
-                    </template>
-            </v-data-table>
+            <v-card>
+                <v-card-title>Journey Results</v-card-title>
+                <v-data-table id="results"
+                    :headers="headers"
+                    :items="journeys"
+                    item-key="journey.index"
+                    single-expand=true
+                    :expanded.sync="expanded"
+                    show-expand=true
+                    dense
+                    :sort-by.sync="sortBy"
+                    hide-default-footer
+                    class="elevation-1">
+                        <template v-slot:item.journey.firstDepartureTimeAsDate="{ item, index }">
+                            <div class="departTime">{{ dateTimeFormatter(item.journey.firstDepartureTimeAsDate, index) }}</div>
+                        </template>
+                        <template v-slot:item.journey.expectedArrivalTimeAsDate="{ item, index }">
+                            <div class="arriveTime">{{ dateTimeFormatter(item.journey.expectedArrivalTimeAsDate, index) }}</div>
+                        </template>
+                        <template v-slot:item.journey.begin="{ item }">
+                            <div>{{ item.journey.begin.name }}</div>
+                        </template>
+                        <template v-slot:item.journey.changeStations="{ item, index }">
+                            <div class="changes">{{ changesFormatter(item.journey.changeStations, index) }}</div>
+                        </template>
+                        <template v-slot:expanded-item="{ headers, item, index }">
+                            <td :colspan="headers.length">
+                                <v-data-table :items=item.journey.stages :headers="stageHeaders" 
+                                id="stages" :item-class="stageRowClass"
+                                dense
+                                hide-default-footer>
+                                    <template v-slot:item.firstDepartureTime="{ item }">
+                                        <div class="departTime">{{ stageDateTimeFormatter(item.firstDepartureTime, item.queryDate) }}</div>
+                                    </template>
+                                    <template v-slot:item.expectedArrivalTime="{ item }">
+                                        <div>{{ stageDateTimeFormatter(item.expectedArrivalTime, item.queryDate) }}</div>
+                                    </template>
+                                    <template v-slot:item.action="{ item, index }">
+                                        <div  class="action">{{ actionFormatter(item) }}</div>
+                                    </template>
+                                    <template v-slot:item.platform.platformNumber="{ item }">
+                                        <div  class="platform">{{ item.platform.platformNumber }}</div>
+                                    </template>
+                                    <template v-slot:item.actionStation="{ item }">
+                                        <a class="actionStation" :href="stationURL(item.actionStation)" target="_blank">{{ item.actionStation.name }}</a>
+                                    </template>
+                                    <template v-slot:item.headSign="{ item }">
+                                        <div class="headsign" :class="stageHeadsignClass(item)">{{ item.headSign }}</div>
+                                    </template>
+                                    <template v-slot:item.route="{ item }">
+                                        <div class="lineClass" :class="routeClass(item.route)">{{ routeFormatter(item.route) }}</div>
+                                    </template>
+                                    <template v-slot:item.passedStops="{ item }">
+                                        <div class="passedStops">{{ passedStopsFormatter(item) }}</div>
+                                    </template>
+                                </v-data-table>
+                            </td>
+                        </template>
+                </v-data-table>
+            </v-card>
         </v-container>
 
         <v-container id="earlierLater" v-if="journeys.length>0">
             <v-row >
-                <v-col>
+                <v-col class="text-left">
                     <button type="button" id="earlierButton" class="btn btn-outline-primary" v-on:click="earlier()">« Earlier</button>
                 </v-col>
-                <v-col>
+                <v-col class="text-right">
                     <button type="button" id="laterButton" class="btn btn-outline-primary" v-on:click="later()">Later »</button>
                 </v-col>
             </v-row>

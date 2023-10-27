@@ -24,20 +24,20 @@ export default {
     },
     template: `
     <div id="footer" >
-        <div class="card mt-1">
-            <div class="container mt-3">
-                <div class="row">
+        <v-card>
+            <v-container>
+                <v-row>
                     <div>
                     Originally Built by <a href="http://www.thoughtworks.com" target="_blank">ThoughtWorks</a> in Manchester
                     </div>
-                </div>
-                <div class="row">
+                </v-row>
+                <v-row>
                     <div id="disclaimer">
                         &copy; 2016-2023 ThoughtWorks Ltd. & Ian Cartwright 2023
-                        <v-btn id="disclaimerButton" @click="showDisclaimer()" small outlined>Disclaimer</v-btn>
+                        <v-btn id="disclaimerButton" @click="showDisclaimer()" small>Disclaimer</v-btn>
                     </div>
-                </div>
-               <div class="row">
+                </v-row>
+               <v-row>
                    <div id="license">
                        Contains Transport for Greater Manchester data.
                        Contains public sector information licensed under the Open Government Licence v2.0 by
@@ -45,20 +45,20 @@ export default {
                        Contains public sector information licensed under the Open Government Licence v3.0.
                        Timetable/Fares/London Terminals data under licence from <a href="http://www.raildeliverygroup.com/">RSP</a>.
                    </div>
-               </div>
-                <div class="row mt-1">
-                    <div class="col">Build
+               </v-row>
+                <v-row>
+                    <v-col>Build
                         <div id="buildNumber">{{buildnumber}}</div>
-                    </div>
-                    <div class="col">Data Version:
+                    </v-col>
+                    <v-col>Data Version:
                         <div id="dataVersion">{{feedinfo.version}}</div>
-                    </div>
-                    <div class="col">Geo:
+                    </v-col>
+                    <v-col>Geo:
                         <div id="havepos">{{havepos}}</div>
-                    </div>
-                </div>
-            </div>
-        <div>
+                    </v-col>
+                </v-row>
+            </v-container>
+        <v-card>
     </div>
     `
 }

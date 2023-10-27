@@ -31,8 +31,8 @@
                     </location-selection>
                     </div>
                 </v-col>
-                <v-col >
-                    <v-btn @click="swap" plain>&#8645;</v-btn>
+                <v-col class="text-left">
+                    <v-btn @click="swap" outline>&#8645;</v-btn>
                 </v-col>
             </v-row>
             <v-row>
@@ -68,21 +68,28 @@
                 </v-col>
             </v-row>
             <v-row>
-                <v-col class="pl-0 col-md-auto">
+                <v-col class="pl-0" class="text-left">
                     <v-btn :disabled='!ready' id="plan" type="submit" color="primary">
                         Plan
-                        <spinner v-if="searchInProgress" id="spinner" small type="grow"></spinner>
+                        <v-progress-circular
+                            v-if="searchInProgress"
+                            id="spinner"
+                            indeterminate
+                            color="primary"
+                            ></v-progress-circular>
                     </v-btn>
-                </v-col>
-                <v-col class="col-md-auto">
                     <v-btn :disabled='!havePos' id="liveTrams" v-if="havePos" color="primary" @click="queryNearbyTrams">
                         Nearby
-                        <spinner v-if="liveInProgress" id="nearbySpinner" small type="grow"></spinner>
+                        <v-progress-circular
+                            v-if="liveInProgress"
+                            id="nearbySpinner"
+                            indeterminate
+                            color="primary"
+                            ></v-progress-circular>
                     </v-btn>
                 </v-col>
             </v-row>
     </v-container>
-
     </form>
 
 
