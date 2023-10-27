@@ -1,12 +1,10 @@
 
 .tramchesterApp {
-    margin: auto;
     margin-top: 25px;
 }
 
 .tramchesterFooter {
-    margin-top: 10px;
-    font-size: 12px;
+    margin-top: 25px;
 }
 
 .tramchesterHeading {
@@ -21,7 +19,6 @@
     text-align: center;
     font-weight:bold;
     color: black;
-
 }
 
 .suggestedRoutes {
