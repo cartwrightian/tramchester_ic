@@ -67,7 +67,7 @@ dependencies {
     implementation 'com.google.inject:guice:5.1.0'
     // note: exclude of org.glassfish.jersey.inject needed as it clashed with version in DropWizard causing a
     // failure to load the DynamicServiceLocator in glassfish
-    implementation('org.neo4j:neo4j:5.10.0') {
+    implementation('org.neo4j:neo4j:5.13.0') {
         exclude group:'org.slf4j', module:'slf4j-nop'
         exclude group: 'org.glassfish.jersey.inject'   // , module: 'jersey-hk2'}
         exclude group: 'org.glassfish.jersey.containers', module: 'jersey-container-servlet'
