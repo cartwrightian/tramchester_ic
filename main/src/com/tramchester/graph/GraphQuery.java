@@ -19,7 +19,6 @@ import javax.inject.Inject;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 /***
  * Make sure have correct dependencies on "Ready" tokens alongside this class, it makes no guarantees for any
@@ -39,40 +38,41 @@ public class GraphQuery {
     /**
      * When calling from tests make sure relevant DB is fully built
      */
-    public Node getRouteStationNode(Transaction txn, RouteStation routeStation) {
+    public GraphNode getRouteStationNode(Transaction txn, RouteStation routeStation) {
         return findNode(txn, GraphLabel.ROUTE_STATION, routeStation);
     }
 
     /**
      * When calling from tests make sure relevant DB is fully built
      */
-    public Node getStationNode(Transaction txn, Station station) {
+    public GraphNode getStationNode(Transaction txn, Station station) {
         //Set<GraphLabel> labels = GraphLabel.forMode(station.getTransportModes());
         // ought to be able find with any of the labels, so use the first one
         //GraphLabel label = labels.iterator().next();
         return findNode(txn, GraphLabel.STATION, station);
     }
 
-    public Node getGroupedNode(Transaction txn, StationGroup stationGroup) {
+    public GraphNode getGroupedNode(Transaction txn, StationGroup stationGroup) {
         // uses Area Id, not station Id
         // TODO make this change to GroupedStations?
         return findNode(txn, GraphLabel.GROUPED, stationGroup);
     }
 
 
-    private <C extends GraphProperty & CoreDomain & HasId<C>>  Node findNode(Transaction txn, GraphLabel label, C hasId) {
-        return graphDatabase.findNode(txn, label, hasId.getProp().getText(), hasId.getId().getGraphId());
+    private <C extends GraphProperty & CoreDomain & HasId<C>>  GraphNode findNode(Transaction txn, GraphLabel label, C hasId) {
+        return GraphNode.from(graphDatabase.findNode(txn, label, hasId.getProp().getText(), hasId.getId().getGraphId()));
     }
 
-    public Node getLocationNode(Transaction txn, Location<?> location) {
-        return graphDatabase.findNode(txn, location.getNodeLabel(), location.getProp().getText(), location.getId().getGraphId());
+    public GraphNode getLocationNode(Transaction txn, Location<?> location) {
+        return GraphNode.from(graphDatabase.findNode(txn, location.getNodeLabel(), location.getProp().getText(),
+                location.getId().getGraphId()));
     }
 
     /**
      * When calling from tests make sure relevant DB is fully built
      */
     public List<Relationship> getRouteStationRelationships(Transaction txn, RouteStation routeStation, Direction direction) {
-        Node routeStationNode = getRouteStationNode(txn, routeStation);
+        GraphNode routeStationNode = getRouteStationNode(txn, routeStation);
         if (routeStationNode==null) {
             return Collections.emptyList();
         }
@@ -86,7 +86,7 @@ public class GraphQuery {
         return node != null;
     }
 
-    public Node getPlatformNode(Transaction txn, Platform platform) {
+    public GraphNode getPlatformNode(Transaction txn, Platform platform) {
         return findNode(txn, GraphLabel.PLATFORM, platform);
     }
 

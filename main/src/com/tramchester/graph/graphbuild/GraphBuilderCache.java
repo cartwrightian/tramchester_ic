@@ -7,7 +7,7 @@ import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
-import org.neo4j.graphdb.Node;
+import com.tramchester.graph.GraphNode;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,31 +65,33 @@ public class GraphBuilderCache {
         logger.debug("Route Clear");
     }
 
-    public void putRouteStation(IdFor<RouteStation> id, Node routeStationNode) {
+    public void putRouteStation(IdFor<RouteStation> id, GraphNode routeStationNode) {
         routeStations.put(id, routeStationNode.getId());
     }
 
-    protected void putStation(IdFor<Station> station, Node stationNode) {
+    protected void putStation(IdFor<Station> station, GraphNode stationNode) {
         stationsToNodeId.put(station, stationNode.getId());
     }
 
-    protected Node getRouteStation(Transaction txn, Route route, IdFor<Station> stationId) {
+    protected GraphNode getRouteStation(Transaction txn, Route route, IdFor<Station> stationId) {
         IdFor<RouteStation> routeStationId = RouteStation.createId(stationId, route.getId());
         if (!routeStations.containsKey(routeStationId)) {
             String message = "Cannot find routestation node in cache " + routeStationId; // + " cache " + routeStations;
             logger.error(message);
             throw new RuntimeException(message);
         }
-        return txn.getNodeById(routeStations.get(routeStationId));
+        return GraphNode.fromTransaction(txn, routeStations.get(routeStationId));
+        //return txn.getNodeById(routeStations.get(routeStationId));
     }
 
-    protected Node getRouteStation(Transaction txn, IdFor<RouteStation> id) {
+    protected GraphNode getRouteStation(Transaction txn, IdFor<RouteStation> id) {
         if (!routeStations.containsKey(id)) {
             String message = "Cannot find routestation node in cache " + id;
             logger.error(message);
             throw new RuntimeException(message);
         }
-        return txn.getNodeById(routeStations.get(id));
+        return GraphNode.fromTransaction(txn, routeStations.get(id));
+        //return txn.getNodeById(routeStations.get(id));
     }
 
     public boolean hasRouteStation(Route route, IdFor<Station> stationId) {
@@ -97,48 +99,52 @@ public class GraphBuilderCache {
         return routeStations.containsKey(routeStationId);
     }
 
-    protected Node getStation(Transaction txn, IdFor<Station> stationId) {
+    protected GraphNode getStation(Transaction txn, IdFor<Station> stationId) {
         if (!stationsToNodeId.containsKey(stationId)) {
             String message = "Missing station in cache, station: " + stationId + " Cache: " + stationsToNodeId;
             logger.error(message);
             throw new RuntimeException(message);
         }
         Long id = stationsToNodeId.get(stationId);
-        return txn.getNodeById(id);
+        return GraphNode.fromTransaction(txn, id);
+        //return txn.getNodeById(id);
     }
 
-    protected Node getPlatform(Transaction txn, IdFor<Platform> platformId) {
+    protected GraphNode getPlatform(Transaction txn, IdFor<Platform> platformId) {
         if (!platforms.containsKey(platformId)) {
             throw new RuntimeException("Missing platform id " + platformId);
         }
-        return txn.getNodeById(platforms.get(platformId));
+        return GraphNode.fromTransaction(txn, platforms.get(platformId));
+        //return txn.getNodeById(platforms.get(platformId));
     }
 
-    protected void putPlatform(IdFor<Platform> platformId, Node platformNode) {
+    protected void putPlatform(IdFor<Platform> platformId, GraphNode platformNode) {
         platforms.put(platformId, platformNode.getId());
     }
 
-    protected void putService(IdFor<Route> routeId, Service service, IdFor<Station> begin, IdFor<Station> end, Node svcNode) {
+    protected void putService(IdFor<Route> routeId, Service service, IdFor<Station> begin, IdFor<Station> end, GraphNode svcNode) {
         svcNodes.put(CreateKeys.getServiceKey(routeId, service.getId(), begin, end), svcNode.getId());
     }
 
     // TODO This has to be route station to route Station
-    protected Node getServiceNode(Transaction txn, IdFor<Route> routeId, Service service, IdFor<Station> startStation, IdFor<Station> endStation) {
+    protected GraphNode getServiceNode(Transaction txn, IdFor<Route> routeId, Service service, IdFor<Station> startStation, IdFor<Station> endStation) {
         String id = CreateKeys.getServiceKey(routeId, service.getId(), startStation, endStation);
-        return txn.getNodeById(svcNodes.get(id));
+        return GraphNode.fromTransaction(txn, svcNodes.get(id));
+        //return txn.getNodeById(svcNodes.get(id));
     }
 
-    protected void putHour(IdFor<Route> routeId, Service service, IdFor<Station> station, Integer hour, Node node) {
+    protected void putHour(IdFor<Route> routeId, Service service, IdFor<Station> station, Integer hour, GraphNode node) {
         hourNodes.put(CreateKeys.getHourKey(routeId, service.getId(), station, hour), node.getId());
     }
 
-    protected Node getHourNode(Transaction txn, IdFor<Route> routeId, Service service, IdFor<Station> station, Integer hour) {
+    protected GraphNode getHourNode(Transaction txn, IdFor<Route> routeId, Service service, IdFor<Station> station, Integer hour) {
         String key = CreateKeys.getHourKey(routeId, service.getId(), station, hour);
         if (!hourNodes.containsKey(key)) {
             throw new RuntimeException(format("Missing hour node for key %s service %s station %s hour %s",
                     key, service.getId(), station, hour));
         }
-        return txn.getNodeById(hourNodes.get(key));
+        return GraphNode.fromTransaction(txn, hourNodes.get(key));
+        //return txn.getNodeById(hourNodes.get(key));
     }
 
     protected void putBoarding(long platformOrStation, long routeStationNodeId) {

@@ -14,6 +14,7 @@ import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphNode;
 import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
@@ -292,7 +293,7 @@ class SubgraphClosedStationsDiversionsTest {
 
         try (Transaction txn = database.beginTx()) {
             notAnInterchange.getPlatforms().forEach(platform -> {
-                Node node = graphQuery.getPlatformNode(txn, platform);
+                GraphNode node = graphQuery.getPlatformNode(txn, platform);
                 Iterable<Relationship> iterable = node.getRelationships(Direction.INCOMING, TransportRelationshipTypes.DIVERSION_DEPART);
 
                 iterable.forEach(relationship -> foundRelationshipIds.add(relationship.getId()));
@@ -319,7 +320,7 @@ class SubgraphClosedStationsDiversionsTest {
         Station piccadilly = Piccadilly.from(stationRepository);
 
         try (Transaction txn = database.beginTx()) {
-            Node stationNode = graphQuery.getStationNode(txn, piccadilly);
+            GraphNode stationNode = graphQuery.getStationNode(txn, piccadilly);
 
             Iterable<Relationship> iterable = stationNode.getRelationships(Direction.OUTGOING, TransportRelationshipTypes.DIVERSION);
 

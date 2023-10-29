@@ -11,6 +11,7 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphNode;
 import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
@@ -22,8 +23,6 @@ import com.tramchester.repository.RouteInterchangeRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TripRepository;
 import org.jetbrains.annotations.NotNull;
-import org.neo4j.graphdb.Entity;
-import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,8 +78,8 @@ public class RouteCalculatorSupport {
     }
 
 
-    protected Node getLocationNodeSafe(Transaction txn, Location<?> location) {
-        Node stationNode = graphQuery.getLocationNode(txn, location);
+    protected GraphNode getLocationNodeSafe(Transaction txn, Location<?> location) {
+        GraphNode stationNode = graphQuery.getLocationNode(txn, location);
         if (stationNode == null) {
             String msg = "Unable to find node for " + location;
             logger.error(msg);
@@ -95,7 +94,7 @@ public class RouteCalculatorSupport {
         try(Transaction txn = graphDatabaseService.beginTx()) {
             destinationNodeIds = destinations.stream().
                     map(location -> getLocationNodeSafe(txn, location)).
-                    map(Entity::getId).
+                    map(GraphNode::getId).
                     collect(Collectors.toSet());
         }
         return destinationNodeIds;
@@ -214,14 +213,14 @@ public class RouteCalculatorSupport {
 //        }
 //    }
 
-    public PathRequest createPathRequest(Node startNode, TramDate queryDate, TramTime actualQueryTime, Set<TransportMode>
+    public PathRequest createPathRequest(GraphNode startNode, TramDate queryDate, TramTime actualQueryTime, Set<TransportMode>
             requestedModes, int numChanges, JourneyConstraints journeyConstraints, Duration maxInitialWait) {
         ServiceHeuristics serviceHeuristics = createHeuristics(actualQueryTime, journeyConstraints, numChanges);
         return new PathRequest(startNode, queryDate, actualQueryTime, numChanges, serviceHeuristics, requestedModes, maxInitialWait);
     }
 
     public static class PathRequest {
-        private final Node startNode;
+        private final GraphNode startNode;
         private final TramTime queryTime;
         private final int numChanges;
         private final ServiceHeuristics serviceHeuristics;
@@ -229,7 +228,7 @@ public class RouteCalculatorSupport {
         private final Set<TransportMode> requestedModes;
         private final Duration maxInitialWait;
 
-        public PathRequest(Node startNode, TramDate queryDate, TramTime queryTime, int numChanges,
+        public PathRequest(GraphNode startNode, TramDate queryDate, TramTime queryTime, int numChanges,
                            ServiceHeuristics serviceHeuristics, Set<TransportMode> requestedModes, Duration maxInitialWait) {
             this.startNode = startNode;
             this.queryDate = queryDate;

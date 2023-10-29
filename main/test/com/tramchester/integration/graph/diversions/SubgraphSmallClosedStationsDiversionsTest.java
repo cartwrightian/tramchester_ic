@@ -14,6 +14,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphNode;
 import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
@@ -276,7 +277,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
         GraphQuery graphQuery = componentContainer.get(GraphQuery.class);
         try (Transaction txn = graphDatabase.beginTx()) {
             exchange.getPlatforms().forEach(platform -> {
-                Node node = graphQuery.getPlatformNode(txn, platform);
+                GraphNode node = graphQuery.getPlatformNode(txn, platform);
                 Iterable<Relationship> iterable = node.getRelationships(Direction.INCOMING, TransportRelationshipTypes.DIVERSION_DEPART);
 
                 iterable.forEach(relationship -> foundRelationshipIds.add(relationship.getId()));

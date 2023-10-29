@@ -19,6 +19,7 @@ import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.geo.StationLocationsRepository;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphNode;
 import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.caches.NodeContentsRepository;
@@ -121,7 +122,7 @@ public class LocationJourneyPlanner {
         }
 
         WalkNodesAndRelationships nodesAndRelationships = new WalkNodesAndRelationships(txn, graphDatabase, graphQuery, nodeOperations);
-        Node startOfWalkNode = nodesAndRelationships.createWalkingNode(start, journeyRequest);
+        GraphNode startOfWalkNode = nodesAndRelationships.createWalkingNode(start, journeyRequest);
         nodesAndRelationships.createWalksToStart(startOfWalkNode, walksToStart);
 
         Stream<Journey> journeys;
@@ -160,7 +161,7 @@ public class LocationJourneyPlanner {
 
         WalkNodesAndRelationships nodesAndRelationships = new WalkNodesAndRelationships(txn, graphDatabase, graphQuery, nodeOperations);
 
-        Node endWalk = nodesAndRelationships.createWalkingNode(destination, journeyRequest);
+        GraphNode endWalk = nodesAndRelationships.createWalkingNode(destination, journeyRequest);
         List<Relationship> addedRelationships = new LinkedList<>();
 
         nodesAndRelationships.createWalksToDest(endWalk, walksToDest);
@@ -194,12 +195,12 @@ public class LocationJourneyPlanner {
 
         // Add Walk at the Start
         Set<StationWalk> walksAtStart = getStationWalks(start, journeyRequest.getRequestedModes());
-        Node startNode = nodesAndRelationships.createWalkingNode(start, journeyRequest);
+        GraphNode startNode = nodesAndRelationships.createWalkingNode(start, journeyRequest);
         nodesAndRelationships.createWalksToStart(startNode, walksAtStart);
 
         // Add Walks at the end
         Set<StationWalk> walksToDest = getStationWalks(dest, journeyRequest.getRequestedModes());
-        Node endWalk = nodesAndRelationships.createWalkingNode(dest, journeyRequest);
+        GraphNode endWalk = nodesAndRelationships.createWalkingNode(dest, journeyRequest);
         nodesAndRelationships.createWalksToDest(endWalk, walksToDest);
 
         // where destination walks take us
@@ -275,7 +276,7 @@ public class LocationJourneyPlanner {
         private final NodeContentsRepository nodeOperations;
         private final Transaction txn;
         private final List<Relationship> relationships;
-        private final List<Node> nodes;
+        private final List<GraphNode> nodes;
 
         private WalkNodesAndRelationships(Transaction txn, GraphDatabase graphDatabase, GraphQuery graphQuery, NodeContentsRepository nodeOperations) {
             this.graphDatabase = graphDatabase;
@@ -292,52 +293,52 @@ public class LocationJourneyPlanner {
                 nodeOperations.deleteFromCostCache(relationship);
                 relationship.delete();
             });
-            for (Node node : nodes) {
+            for (GraphNode node : nodes) {
                 node.delete();
             }
         }
 
-        public void add(Node node) {
-            nodes.add(node);
-        }
+//        public void add(Node node) {
+//            nodes.add(node);
+//        }
 
         public void addAll(List<Relationship> relationshipList) {
             relationships.addAll(relationshipList);
         }
 
-        public Node createWalkingNode(Location<?> location, JourneyRequest journeyRequest) {
-            Node walkingNode = createWalkingNode(txn, location.getLatLong(), journeyRequest.getUid());
+        public GraphNode createWalkingNode(Location<?> location, JourneyRequest journeyRequest) {
+            GraphNode walkingNode = createWalkingNode(txn, location.getLatLong(), journeyRequest.getUid());
             nodes.add(walkingNode);
             return walkingNode;
         }
 
-        @Deprecated
-        public Node createWalkingNode(LatLong start, JourneyRequest journeyRequest) {
-            Node walkingNode = createWalkingNode(txn, start, journeyRequest.getUid());
-            nodes.add(walkingNode);
-            return walkingNode;
-        }
+//        @Deprecated
+//        public GraphNode createWalkingNode(LatLong start, JourneyRequest journeyRequest) {
+//            GraphNode walkingNode = createWalkingNode(txn, start, journeyRequest.getUid());
+//            nodes.add(walkingNode);
+//            return walkingNode;
+//        }
 
-        public void createWalksToStart(Node node, Set<StationWalk> walks) {
+        public void createWalksToStart(GraphNode node, Set<StationWalk> walks) {
             createWalkRelationships(node, walks, WALKS_TO_STATION);
         }
 
-        public void createWalksToDest(Node node, Set<StationWalk> walks) {
+        public void createWalksToDest(GraphNode node, Set<StationWalk> walks) {
             createWalkRelationships(node, walks, WALKS_FROM_STATION);
         }
 
-        private void createWalkRelationships(Node node, Set<StationWalk> walks, TransportRelationshipTypes direction) {
+        private void createWalkRelationships(GraphNode node, Set<StationWalk> walks, TransportRelationshipTypes direction) {
             List<Relationship> addedRelationships = new ArrayList<>();
             walks.forEach(stationWalk -> addedRelationships.add(createWalkRelationship(node, stationWalk, direction)));
             relationships.addAll(addedRelationships);
         }
 
-        private Relationship createWalkRelationship(Node walkNode, StationWalk stationWalk, TransportRelationshipTypes direction) {
+        private Relationship createWalkRelationship(GraphNode walkNode, StationWalk stationWalk, TransportRelationshipTypes direction) {
             Station walkStation = stationWalk.getStation();
             Duration cost = stationWalk.getCost();
 
             Relationship walkingRelationship;
-            Node stationNode = graphQuery.getStationNode(txn, walkStation);
+            GraphNode stationNode = graphQuery.getStationNode(txn, walkStation);
             if (stationNode==null) {
                 throw new RuntimeException("Could not find node for " + walkStation);
             }
@@ -360,12 +361,12 @@ public class LocationJourneyPlanner {
             return walkingRelationship;
         }
 
-        private Node createWalkingNode(Transaction txn, LatLong origin, UUID uniqueId) {
+        private GraphNode createWalkingNode(Transaction txn, LatLong origin, UUID uniqueId) {
             Node startOfWalkNode = graphDatabase.createNode(txn, GraphLabel.QUERY_NODE);
             GraphProps.setLatLong(startOfWalkNode, origin);
             GraphProps.setWalkId(startOfWalkNode, origin, uniqueId);
             logger.info(format("Added walking node at %s as %s", origin, startOfWalkNode));
-            return startOfWalkNode;
+            return GraphNode.from(startOfWalkNode);
         }
 
     }

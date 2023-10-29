@@ -122,7 +122,7 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
     }
 
     private void addNeighbourRelationships(Transaction txn, GraphFilter filter, Station from, Set<StationLink> links) {
-        Node fromNode = graphQuery.getStationNode(txn, from);
+        GraphNode fromNode = graphQuery.getStationNode(txn, from);
         if (fromNode==null) {
             String msg = "Could not find database node for from: " + from.getId();
             logger.error(msg);
@@ -135,7 +135,7 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
                 filter(link -> filter.shouldInclude(link.getEnd())).
                 forEach(link -> {
 
-                Node toNode = graphQuery.getStationNode(txn, link.getEnd());
+                GraphNode toNode = graphQuery.getStationNode(txn, link.getEnd());
                 if (toNode==null) {
                     String msg = "Could not find database node for to: " + link.getEnd().getId();
                     logger.error(msg);

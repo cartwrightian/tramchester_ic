@@ -14,6 +14,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBoxWithStations;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphNode;
 import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.graph.caches.LowestCostSeen;
@@ -24,7 +25,6 @@ import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.RouteInterchangeRepository;
 import com.tramchester.repository.RunningRoutesAndServices;
 import com.tramchester.repository.TransportData;
-import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -127,16 +127,8 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
     }
 
-    private static class NodeAndStation {
+    private record NodeAndStation(Location<?> location, GraphNode node) {
 
-        private final Location<?> location;
-        private final Node node;
-
-        public NodeAndStation(Location<?> location, Node node) {
-
-            this.location = location;
-            this.node = node;
-        }
     }
 
     private NumberOfChanges computeNumberOfChanges(LocationSet starts, LocationSet destinations, TramDate date, TimeRange timeRange, EnumSet<TransportMode> modes) {

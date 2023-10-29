@@ -14,6 +14,7 @@ import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphNode;
 import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.graphbuild.GraphLabel;
@@ -93,7 +94,7 @@ class TramGraphBuilderTest {
     @Test
     void shouldHaveLinkRelationshipsCorrectForInterchange() {
         Station cornbrook = Cornbrook.from(stationRepository);
-        Node cornbrookNode = graphQuery.getStationNode(txn, cornbrook);
+        GraphNode cornbrookNode = graphQuery.getStationNode(txn, cornbrook);
         Iterable<Relationship> outboundLinks = cornbrookNode.getRelationships(Direction.OUTGOING, LINKED);
 
         List<Relationship> list = Lists.newArrayList(outboundLinks);
@@ -115,7 +116,7 @@ class TramGraphBuilderTest {
         Duration expectedCost = piccadilly.getMinChangeDuration();
 
         platforms.forEach(platform -> {
-            Node node = graphQuery.getPlatformNode(txn, platform);
+            GraphNode node = graphQuery.getPlatformNode(txn, platform);
             Relationship leave = node.getSingleRelationship(TransportRelationshipTypes.LEAVE_PLATFORM, Direction.OUTGOING);
             Duration leaveCost = GraphProps.getCost(leave);
             assertEquals(Duration.ZERO, leaveCost, "leave cost wrong for " + platform);
@@ -126,7 +127,7 @@ class TramGraphBuilderTest {
         });
 
         platforms.forEach(platform -> {
-            Node node = graphQuery.getPlatformNode(txn, platform);
+            GraphNode node = graphQuery.getPlatformNode(txn, platform);
             Iterable<Relationship> boards = node.getRelationships(Direction.OUTGOING, INTERCHANGE_BOARD);
             boards.forEach(board -> {
                 Duration boardCost = GraphProps.getCost(board);
@@ -148,7 +149,7 @@ class TramGraphBuilderTest {
         Set<RouteStation> routeStations = stationRepository.getRouteStationsFor(Piccadilly.getId());
 
         routeStations.forEach(routeStation -> {
-            Node node = graphQuery.getRouteStationNode(txn, routeStation);
+            GraphNode node = graphQuery.getRouteStationNode(txn, routeStation);
 
             Relationship toStation = node.getSingleRelationship(ROUTE_TO_STATION, Direction.OUTGOING);
             Duration costToStation = GraphProps.getCost(toStation);
@@ -164,7 +165,7 @@ class TramGraphBuilderTest {
     @Test
     void shouldHaveLinkRelationshipsCorrectForEndOfLine() {
         Station alty = Altrincham.from(stationRepository);
-        Node altyNode = graphQuery.getStationNode(txn, alty);
+        GraphNode altyNode = graphQuery.getStationNode(txn, alty);
         Iterable<Relationship> outboundLinks = altyNode.getRelationships(Direction.OUTGOING, LINKED);
 
         List<Relationship> list = Lists.newArrayList(outboundLinks);
@@ -179,7 +180,7 @@ class TramGraphBuilderTest {
     @Test
     void shouldHaveOneNodePerRouteStation() {
         stationRepository.getRouteStations().forEach(routeStation -> {
-            Node found = graphQuery.getRouteStationNode(txn, routeStation);
+            GraphNode found = graphQuery.getRouteStationNode(txn, routeStation);
             assertNotNull(found, routeStation.getId().toString());
         });
     }
@@ -204,7 +205,7 @@ class TramGraphBuilderTest {
     @Test
     void shouldHaveLinkRelationshipsCorrectForNonInterchange() {
         Station exchangeSq = ExchangeSquare.from(stationRepository);
-        Node exchangeSqNode = graphQuery.getStationNode(txn, exchangeSq);
+        GraphNode exchangeSqNode = graphQuery.getStationNode(txn, exchangeSq);
         Iterable<Relationship> outboundLinks = exchangeSqNode.getRelationships(Direction.OUTGOING, LINKED);
 
         List<Relationship> list = Lists.newArrayList(outboundLinks);

@@ -7,10 +7,10 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphNode;
 import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.graphbuild.GraphProps;
@@ -21,8 +21,9 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.TrainTest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
-import org.neo4j.graphdb.*;
+import org.neo4j.graphdb.Direction;
+import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
 import java.util.List;
@@ -79,7 +80,7 @@ class GraphBuilderRailTest {
         transportData.getRouteStations().stream().
                 filter(RouteStation::isActive).
                 forEach(routeStation -> {
-                    Node found = graphQuery.getRouteStationNode(txn, routeStation);
+                    GraphNode found = graphQuery.getRouteStationNode(txn, routeStation);
                     assertNotNull(found, routeStation.toString());
         });
     }
@@ -88,7 +89,7 @@ class GraphBuilderRailTest {
     void shouldHaveLinkRelationshipsCorrectForNonInterchange() {
 
         Station piccadilly = ManchesterPiccadilly.from(transportData);
-        Node startNode = graphQuery.getStationNode(txn, piccadilly);
+        GraphNode startNode = graphQuery.getStationNode(txn, piccadilly);
         Iterable<Relationship> outboundLinks = startNode.getRelationships(Direction.OUTGOING, LINKED);
 
         List<Relationship> list = Lists.newArrayList(outboundLinks);
@@ -109,7 +110,7 @@ class GraphBuilderRailTest {
         assertFalse(platforms.isEmpty());
 
         platforms.forEach(platform -> {
-            Node node = graphQuery.getPlatformNode(txn, platform);
+            GraphNode node = graphQuery.getPlatformNode(txn, platform);
             Relationship leave = node.getSingleRelationship(TransportRelationshipTypes.LEAVE_PLATFORM, Direction.OUTGOING);
             Duration leaveCost = GraphProps.getCost(leave);
             assertEquals(Duration.ZERO, leaveCost, "leave cost wrong for " + platform);
@@ -120,7 +121,7 @@ class GraphBuilderRailTest {
         });
 
         platforms.forEach(platform -> {
-            Node node = graphQuery.getPlatformNode(txn, platform);
+            GraphNode node = graphQuery.getPlatformNode(txn, platform);
             if (node.hasRelationship(Direction.OUTGOING, BOARD)) {
                 Relationship board = node.getSingleRelationship(BOARD, Direction.OUTGOING);
                 Duration boardCost = GraphProps.getCost(board);
@@ -138,21 +139,22 @@ class GraphBuilderRailTest {
     @Test
     void shouldHaveCorrectRouteRelationshipsCreweToMKC() {
         Station miltonKeynes = MiltonKeynesCentral.from(transportData);
-        final Set<Node> routeStationNodes = getRouteStationNodes(miltonKeynes);
+        final Set<GraphNode> routeStationNodes = getRouteStationNodes(miltonKeynes);
         assertFalse(routeStationNodes.isEmpty());
 
-        Set<Long> mkNodeIds = routeStationNodes.stream().map(Entity::getId).collect(Collectors.toSet());
+        //Set<GraphNode> mkNodeIds = new HashSet<>(routeStationNodes);
 
         Station crewe = Crewe.from(transportData);
-        Set<Node> creweRouteStationsNodes = getRouteStationNodes(crewe);
+        Set<GraphNode> creweRouteStationsNodes = getRouteStationNodes(crewe);
 
         Set<Relationship> outgoingFromCrewe = creweRouteStationsNodes.stream().
                 flatMap(node -> Streams.stream(node.getRelationships(Direction.OUTGOING, ON_ROUTE))).
                 collect(Collectors.toSet());
 
         List<Relationship> endIsMKC = outgoingFromCrewe.stream().
-                filter(relationship -> mkNodeIds.contains(relationship.getEndNodeId())).
-                collect(Collectors.toList());
+                //filter(relationship -> mkNodeIds.contains(relationship.getEndNodeId())).
+                filter(relationship -> routeStationNodes.contains(GraphNode.fromEnd(relationship))).
+                toList();
 
         assertFalse(endIsMKC.isEmpty(), outgoingFromCrewe.toString());
 
@@ -162,7 +164,7 @@ class GraphBuilderRailTest {
     }
 
     @NotNull
-    private Set<Node> getRouteStationNodes(Station station) {
+    private Set<GraphNode> getRouteStationNodes(Station station) {
         Set<RouteStation> routeStations = transportData.getRouteStationsFor(station.getId());
         return routeStations.stream().
                 map(routeStation -> graphQuery.getRouteStationNode(txn, routeStation)).

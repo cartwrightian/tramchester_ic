@@ -16,10 +16,12 @@ import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
 import com.tramchester.mappers.Geography;
 import com.tramchester.metrics.TimedTransaction;
 import com.tramchester.repository.ClosedStationsRepository;
-import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StationsWithDiversionRepository;
 import org.apache.commons.lang3.tuple.Pair;
-import org.neo4j.graphdb.*;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.ResourceIterator;
+import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +42,6 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships i
     private static final Logger logger = LoggerFactory.getLogger(AddWalksForClosedGraphBuilder.class);
 
     private final GraphDatabase database;
-    private final StationRepository stationRepository;
     private final ClosedStationsRepository closedStationsRepository;
     private final GraphQuery graphQuery;
     private final TramchesterConfig config;
@@ -50,14 +51,13 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships i
 
     @Inject
     public AddWalksForClosedGraphBuilder(GraphDatabase database, GraphFilter filter, GraphQuery graphQuery,
-                                         StationRepository repository, ClosedStationsRepository closedStationsRepository,
+                                         ClosedStationsRepository closedStationsRepository,
                                          TramchesterConfig config, StationsAndLinksGraphBuilder.Ready ready,
                                          Geography geography) {
         super(database);
         this.database = database;
         this.filter = filter;
         this.graphQuery = graphQuery;
-        this.stationRepository = repository;
         this.closedStationsRepository = closedStationsRepository;
         this.config = config;
 
@@ -170,12 +170,12 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships i
     private void addDBFlag(GTFSSourceConfig sourceConfig) {
         try (Transaction txn = graphDatabase.beginTx()) {
             ResourceIterator<Node> query = txn.findNodes(GraphLabel.WALK_FOR_CLOSED_ENABLED);
-            List<Node> nodes = query.stream().collect(Collectors.toList());
+            List<Node> nodes = query.stream().toList();
 
             Node node;
             if (nodes.isEmpty()) {
                 logger.info("Creating " + GraphLabel.WALK_FOR_CLOSED_ENABLED + " node");
-                node = createGraphNode(txn, GraphLabel.WALK_FOR_CLOSED_ENABLED);
+                node = createGraphNodeOld(txn, GraphLabel.WALK_FOR_CLOSED_ENABLED);
             } else {
                 if (nodes.size() != 1) {
                     final String message = "Found too many " + GraphLabel.WALK_FOR_CLOSED_ENABLED + " nodes, should be one only";
@@ -194,7 +194,7 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships i
     private void addDiversionsToAndFromClosed(Transaction txn, Set<Station> others, ClosedStation closure) {
         Station closedStation = closure.getStation();
 
-        Node closedNode = graphQuery.getStationNode(txn, closedStation);
+        GraphNode closedNode = graphQuery.getStationNode(txn, closedStation);
         if (closedNode==null) {
             String msg = "Could not find database node for from: " + closedStation.getId();
             logger.error(msg);
@@ -209,7 +209,7 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships i
 
             logger.info(format("Create diversion to/from %s and %s cost %s", closedStation.getId(), otherStation.getId(), cost));
 
-            Node otherNode = graphQuery.getStationNode(txn, otherStation);
+            GraphNode otherNode = graphQuery.getStationNode(txn, otherStation);
             if (otherNode==null) {
                 String msg = "Could not find database node for to: " + otherStation.getId();
                 logger.error(msg);
@@ -256,8 +256,8 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships i
 
             logger.info(format("Create diversion between %s and %s cost %s", first.getId(), second.getId(), cost));
 
-            Node firstNode = graphQuery.getStationNode(txn, first);
-            Node secondNode = graphQuery.getStationNode(txn, second);
+            GraphNode firstNode = graphQuery.getStationNode(txn, first);
+            GraphNode secondNode = graphQuery.getStationNode(txn, second);
 
             Relationship relationship = createRelationship(firstNode, secondNode, DIVERSION);
             setCommonProperties(relationship, cost, closure);

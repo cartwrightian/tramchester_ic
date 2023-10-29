@@ -15,6 +15,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.GraphNode;
 import com.tramchester.graph.GraphPropertyKey;
 import org.neo4j.graphdb.Entity;
 import org.neo4j.graphdb.Label;
@@ -69,6 +70,10 @@ public class GraphProps {
         entity.setProperty(TRANSPORT_MODE.getText(), mode.getNumber());
     }
 
+    public static TransportMode getTransportMode(GraphNode graphNode) {
+        return getTransportMode(graphNode.getNode());
+    }
+
     public static TransportMode getTransportMode(Entity entity) {
         short number = (short) entity.getProperty(TRANSPORT_MODE.getText());
         return TransportMode.fromNumber(number);
@@ -107,6 +112,10 @@ public class GraphProps {
         return getStationIdFrom(entity);
     }
 
+    public static IdFor<Station> getStationId(GraphNode node) {
+        return getStationIdFrom(node.getNode());
+    }
+
     public static void setRouteStationProp(Entity entity, IdFor<RouteStation> id) {
         entity.setProperty(ROUTE_STATION_ID.getText(), id.getGraphId());
     }
@@ -143,6 +152,10 @@ public class GraphProps {
         return minutes.intValue();
     }
 
+    public static TramTime getTime(GraphNode graphNode) {
+        return getTime(graphNode.getNode());
+    }
+
     public static TramTime getTime(Entity entity) {
         LocalTime localTime = (LocalTime) getProperty(entity, TIME);
         boolean nextDay = entity.hasProperty(DAY_OFFSET.getText());
@@ -163,8 +176,16 @@ public class GraphProps {
         return entity.hasProperty(key.getText());
     }
 
+    public static IdFor<Trip> getTripId(GraphNode graphNode) {
+        return getTripIdFrom(graphNode.getNode());
+    }
+
     public static IdFor<Trip> getTripId(Entity entity) {
         return getTripIdFrom(entity);
+    }
+
+    public static IdFor<Service> getServiceId(GraphNode graphNode) {
+        return getServiceIdFrom(graphNode.getNode());
     }
 
     public static IdFor<Service> getServiceId(Entity entity) {
@@ -173,6 +194,10 @@ public class GraphProps {
 
     static void setHourProp(Entity entity, Integer value) {
         entity.setProperty(HOUR.getText(), value);
+    }
+
+    public static Integer getHour(GraphNode graphNode) {
+        return getHour(graphNode.getNode());
     }
 
     public static Integer getHour(Entity node) {
@@ -200,6 +225,10 @@ public class GraphProps {
 
     public static int getStopSequenceNumber(Relationship relationship) {
         return (int) relationship.getProperty(STOP_SEQ_NUM.getText());
+    }
+
+    public static IdFor<Route> getRouteIdFrom(GraphNode graphNode) {
+        return getRouteIdFrom(graphNode.getNode());
     }
 
     public static IdFor<Route> getRouteIdFrom(Entity entity) {
@@ -243,6 +272,10 @@ public class GraphProps {
 
         final Set<GraphLabel> set = Streams.stream(iter).map(label -> GraphLabel.valueOf(label.name())).collect(Collectors.toSet());
         return EnumSet.copyOf(set);
+    }
+
+    public static IdFor<NaptanArea> getAreaIdFromGrouped(GraphNode graphNode) {
+        return getAreaIdFromGrouped(graphNode.getNode());
     }
 
     public static IdFor<NaptanArea> getAreaIdFromGrouped(Entity entity) {

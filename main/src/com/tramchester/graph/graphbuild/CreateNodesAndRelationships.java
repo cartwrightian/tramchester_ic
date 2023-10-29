@@ -2,6 +2,7 @@ package com.tramchester.graph.graphbuild;
 
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphNode;
 import com.tramchester.graph.TransportRelationshipTypes;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
@@ -32,7 +33,7 @@ public class CreateNodesAndRelationships {
         numberRelationships = 0;
     }
 
-    protected Node createStationNode(Transaction tx, Station station) {
+    protected GraphNode createStationNode(Transaction tx, Station station) {
 
         Set<GraphLabel> labels = GraphLabel.forMode(station.getTransportModes());
         labels.add(GraphLabel.STATION);
@@ -42,12 +43,18 @@ public class CreateNodesAndRelationships {
         logger.debug(format("Creating station node: %s with labels: %s ", station, labels));
         Node stationNode = createGraphNode(tx, labels);
         setProperty(stationNode, station);
-        return stationNode;
+        return GraphNode.from(stationNode);
     }
 
-    protected Node createGraphNode(Transaction tx, GraphLabel label) {
+    @Deprecated
+    protected Node createGraphNodeOld(Transaction tx, GraphLabel label) {
         numberNodes++;
         return graphDatabase.createNode(tx, label);
+    }
+
+    protected GraphNode createGraphNode(Transaction tx, GraphLabel label) {
+        numberNodes++;
+        return GraphNode.from(graphDatabase.createNode(tx, label));
     }
 
     public Node createGraphNode(Transaction tx, Set<GraphLabel> labels) {
@@ -55,7 +62,7 @@ public class CreateNodesAndRelationships {
         return graphDatabase.createNode(tx, labels);
     }
 
-    protected Relationship createRelationship(Node start, Node end, TransportRelationshipTypes relationshipType) {
+    protected Relationship createRelationship(GraphNode start, GraphNode end, TransportRelationshipTypes relationshipType) {
         numberRelationships++;
         return start.createRelationshipTo(end, relationshipType);
     }
@@ -65,24 +72,24 @@ public class CreateNodesAndRelationships {
         logger.info("Relationships created: " + numberRelationships);
     }
 
-    protected boolean addNeighbourRelationship(Node fromNode, Node toNode, Duration walkCost) {
+    protected boolean addNeighbourRelationship(GraphNode fromNode, GraphNode toNode, Duration walkCost) {
         return addRelationshipFor(fromNode, toNode, walkCost, NEIGHBOUR);
     }
 
-    protected void addGroupRelationshipTowardsParent(Node fromNode, Node toNode, Duration walkCost) {
+    protected void addGroupRelationshipTowardsParent(GraphNode fromNode, GraphNode toNode, Duration walkCost) {
         addRelationshipFor(fromNode, toNode, walkCost, GROUPED_TO_PARENT);
     }
 
-    protected void addGroupRelationshipTowardsChild(Node fromNode, Node toNode, Duration walkCost) {
+    protected void addGroupRelationshipTowardsChild(GraphNode fromNode, GraphNode toNode, Duration walkCost) {
         addRelationshipFor(fromNode, toNode, walkCost, GROUPED_TO_CHILD);
     }
 
-    private boolean addRelationshipFor(Node fromNode, Node toNode, Duration walkCost, TransportRelationshipTypes relationshipType) {
-        Set<Long> alreadyRelationship = new HashSet<>();
+    private boolean addRelationshipFor(GraphNode fromNode, GraphNode toNode, Duration walkCost, TransportRelationshipTypes relationshipType) {
+        Set<GraphNode> alreadyRelationship = new HashSet<>();
         fromNode.getRelationships(Direction.OUTGOING, relationshipType).
-                forEach(relationship -> alreadyRelationship.add(relationship.getEndNode().getId()));
+                forEach(relationship -> alreadyRelationship.add(GraphNode.fromEnd(relationship)));
 
-        if (!alreadyRelationship.contains(toNode.getId())) {
+        if (!alreadyRelationship.contains(toNode)) {
             Relationship relationship = createRelationship(fromNode, toNode, relationshipType);
             GraphProps.setCostProp(relationship, walkCost);
             GraphProps.setMaxCostProp(relationship, walkCost);

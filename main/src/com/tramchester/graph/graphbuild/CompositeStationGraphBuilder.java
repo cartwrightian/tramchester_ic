@@ -8,6 +8,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphNode;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.mappers.Geography;
 import com.tramchester.metrics.TimedTransaction;
@@ -23,7 +24,6 @@ import javax.inject.Inject;
 import java.time.Duration;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /***
  * Add nodes and relationships for composite stations to the exitsing graph
@@ -102,7 +102,7 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
             allComposite.stream().filter(graphFilter::shouldInclude).
                 filter(this::shouldInclude).
                 forEach(compositeStation -> {
-                    Node stationNode = createGroupedStationNodes(txn, compositeStation);
+                    GraphNode stationNode = createGroupedStationNodes(txn, compositeStation);
                     linkStations(txn, stationNode, compositeStation);
             });
             timedTransaction.commit();
@@ -114,22 +114,22 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
                 graphFilter.shouldIncludeRoutes(station.getDropoffRoutes());
     }
 
-    private Node createGroupedStationNodes(Transaction txn, StationGroup stationGroup) {
-        Node groupNode = createGraphNode(txn, GraphLabel.GROUPED);
+    private GraphNode createGroupedStationNodes(Transaction txn, StationGroup stationGroup) {
+        Node groupNode = createGraphNodeOld(txn, GraphLabel.GROUPED);
         IdFor<NaptanArea> areaId = stationGroup.getAreaId();
         GraphProps.setProperty(groupNode, areaId);
         GraphProps.setProperty(groupNode, stationGroup);
-        return groupNode;
+        return GraphNode.from(groupNode);
     }
 
-    private void linkStations(Transaction txn, Node parentNode, StationGroup stationGroup) {
+    private void linkStations(Transaction txn, GraphNode parentNode, StationGroup stationGroup) {
         Set<Station> contained = stationGroup.getContained();
 
         contained.stream().
                 filter(graphFilter::shouldInclude).
                 forEach(station -> {
                     final Duration walkingCost = geography.getWalkingDuration(stationGroup, station);
-                    Node childNode = builderCache.getStation(txn, station.getId());
+                    GraphNode childNode = builderCache.getStation(txn, station.getId());
                     if (childNode==null) {
                         throw new RuntimeException("cannot find node for " + station);
                     }
@@ -141,7 +141,7 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
 
     private boolean hasDBFlag(Transaction txn) {
         ResourceIterator<Node> query = graphDatabase.findNodes(txn, GraphLabel.COMPOSITES_ADDED);
-        List<Node> nodes = query.stream().collect(Collectors.toList());
+        List<Node> nodes = query.stream().toList();
         return !nodes.isEmpty();
     }
 
