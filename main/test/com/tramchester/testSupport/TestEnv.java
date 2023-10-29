@@ -11,7 +11,6 @@ import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
 import com.tramchester.domain.*;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.factory.TransportEntityFactory;
 import com.tramchester.domain.factory.TransportEntityFactoryForTFGM;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
@@ -138,15 +137,6 @@ public class TestEnv {
     }
 
     public static TramDate testDay() {
-        return testDay;
-    }
-
-    /***
-     * use testDay()
-     * @return test day
-     */
-    @Deprecated
-    public static TramDate testTramDay() {
         return testDay;
     }
 

@@ -118,7 +118,7 @@ public class DateRangeTest {
     @RepeatedTest(100)
     void performanceOfIncludes() {
         final int days = 400;
-        TramDate startDate = TestEnv.testTramDay();
+        TramDate startDate = TestEnv.testDay();
         TramDate endDate = startDate.plusDays(days);
 
         DateRange range = DateRange.of(startDate, endDate);
