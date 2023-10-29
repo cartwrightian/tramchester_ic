@@ -312,7 +312,7 @@ class RouteCalculatorSubGraphMediaCityTest {
 
             List<StationClosures> currentClosures = IntegrationTramTestConfig.CurrentClosures;
 
-            TFGMGTFSSourceTestConfig gtfsSourceConfig = new TFGMGTFSSourceTestConfig("data/tram", GTFSTransportationType.tram,
+            TFGMGTFSSourceTestConfig gtfsSourceConfig = new TFGMGTFSSourceTestConfig(Path.of("data/tram"), GTFSTransportationType.tram,
                     Tram, additionalInterchanges, groupStationModes, currentClosures,
                     Duration.ofMinutes(45));
 

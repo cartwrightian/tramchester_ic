@@ -183,7 +183,7 @@ class MixedRouteTest {
 
             EnumSet<TransportMode> modesWithPlatforms = EnumSet.of(TransportMode.Tram);
 
-            TFGMGTFSSourceTestConfig tfgmTestDataSourceConfig = new TFGMGTFSSourceTestConfig("unused",
+            TFGMGTFSSourceTestConfig tfgmTestDataSourceConfig = new TFGMGTFSSourceTestConfig(Path.of("unused"),
                     modes, modesWithPlatforms,
                     IdSet.emptySet(), Collections.emptySet(), Collections.emptyList(), Duration.ofMinutes(13));
             return Collections.singletonList(tfgmTestDataSourceConfig);

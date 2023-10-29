@@ -36,30 +36,35 @@ remoteSources:
     dataURL: ${RAIL_DATAURL:-s3://tramchesternewdist/railData/ttis697.zip}
     dataCheckURL: ""
     dataPath: data/rail
+    downloadPath: data/rail
     filename: rail_data.zip
     defaultExpiryDays: 1
   - name: tfgm
     dataURL: ${TRAM_DATAURL:- https://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip}
     dataCheckURL: https://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip
-    dataPath: data/tram
+    dataPath: data/tram/TfGMgtfs
+    downloadPath: data/tram
     filename: tfgm_data.zip
     defaultExpiryDays: 1
   - name: naptanxml
     dataURL: ${NAPTAN_DATAURL:- s3://tramchesternewdist/dist/${RELEASE_NUMBER}/NaPTAN.xml.zip}
     dataCheckURL: ""
     dataPath: data/naptan
+    downloadPath: data/naptan
     filename: ${NAPTAN_FILE:- NaPTAN.xml.zip}
     defaultExpiryDays: 14
   - name: nptg
     dataURL: https://beta-naptan.dft.gov.uk/Download/National/csv
     dataCheckURL: ""
     dataPath: data/nptg
+    downloadPath: data/nptg
     filename: Localities.csv
     defaultExpiryDays: 14
   - name: database
     dataURL: s3://tramchesternewdist/dist/${RELEASE_NUMBER}/database.zip
     dataCheckURL: s3://tramchesternewdist/dist/${RELEASE_NUMBER}/database.zip
     dataPath: databases
+    downloadPath: databases
     filename: database.zip
     defaultExpiryDays: 0
     modTimeCheckFilename: gm_rail.db

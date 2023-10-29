@@ -131,6 +131,11 @@ class UploadRemoteSourceDataTest extends EasyMockSupport {
         }
 
         @Override
+        public Path getDownloadPath() {
+            return getDataPath();
+        }
+
+        @Override
         public String getDataCheckUrl() {
             return "";
         }

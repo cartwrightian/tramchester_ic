@@ -52,7 +52,6 @@ public class GTFSSourceAppConfig extends Configuration implements GTFSSourceConf
 
     @NotNull
     @JsonProperty("additionalInterchanges")
-//    private Set<IdFor<Station>> additionalInterchanges;
     private Set<String> additionalInterchanges;
 
 

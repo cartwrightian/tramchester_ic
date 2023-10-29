@@ -1,8 +1,8 @@
 package com.tramchester.dataimport;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.config.DownloadedConfig;
 import com.tramchester.config.HasRemoteDataSourceConfig;
-import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.time.ProvidesNow;
 import org.apache.commons.io.FileUtils;
@@ -19,6 +19,7 @@ import java.net.UnknownHostException;
 import java.nio.file.Path;
 import java.rmi.RemoteException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.String.format;
@@ -42,7 +43,7 @@ public class FetchDataFromUrl {
 
     private final HttpDownloadAndModTime httpDownloader;
     private final S3DownloadAndModTime s3Downloader;
-    private final List<RemoteDataSourceConfig> configs;
+    private final List<DownloadedConfig> configs;
     private final ProvidesNow providesLocalNow;
     private final DownloadedRemotedDataRepository downloadedDataRepository;
     private final FetchFileModTime fetchFileModTime;
@@ -54,7 +55,7 @@ public class FetchDataFromUrl {
                             FetchFileModTime fetchFileModTime) {
         this.httpDownloader = httpDownloader;
         this.s3Downloader = s3Downloader;
-        this.configs = config.getRemoteDataSourceConfig();
+        this.configs = new ArrayList<>(config.getRemoteDataSourceConfig());
         this.providesLocalNow = providesLocalNow;
 
         this.downloadedDataRepository = downloadedDataRepository;
@@ -88,7 +89,7 @@ public class FetchDataFromUrl {
             }
 
             final String prefix = "Source " + dataSourceId + ": ";
-            Path downloadDirectory = sourceConfig.getDataPath();
+            Path downloadDirectory = sourceConfig.getDownloadPath();
             Path destination = downloadDirectory.resolve(targetFile);
             Path statusCheckFile = sourceConfig.hasModCheckFilename() ? downloadDirectory.resolve(sourceConfig.getModTimeCheckFilename()) : destination;
             DestAndStatusCheckFile destAndStatusCheckFile = new DestAndStatusCheckFile(destination, statusCheckFile);
@@ -113,7 +114,7 @@ public class FetchDataFromUrl {
         });
     }
 
-    private RefreshStatus refreshDataIfNewerAvailable(RemoteDataSourceConfig sourceConfig, DestAndStatusCheckFile destAndStatusCheckFile) throws IOException, InterruptedException {
+    private RefreshStatus refreshDataIfNewerAvailable(DownloadedConfig sourceConfig, DestAndStatusCheckFile destAndStatusCheckFile) throws IOException, InterruptedException {
         final DataSourceID dataSourceId = sourceConfig.getDataSourceId();
 
         logger.info("Refresh data if newer is available for " + dataSourceId);
@@ -130,7 +131,7 @@ public class FetchDataFromUrl {
 
     }
 
-    private RefreshStatus refreshDataIfNewerAvailableNoFile(RemoteDataSourceConfig sourceConfig, DestAndStatusCheckFile destAndStatusCheckFile) throws IOException, InterruptedException {
+    private RefreshStatus refreshDataIfNewerAvailableNoFile(DownloadedConfig sourceConfig, DestAndStatusCheckFile destAndStatusCheckFile) throws IOException, InterruptedException {
         DataSourceID dataSourceId = sourceConfig.getDataSourceId();
         URI originalURL = URI.create(sourceConfig.getDataUrl());
         boolean isS3 = sourceConfig.getIsS3();
@@ -145,7 +146,7 @@ public class FetchDataFromUrl {
         }
 
         String actualURL = status.getActualURL();
-        Path downloadDirectory = sourceConfig.getDataPath();
+        Path downloadDirectory = sourceConfig.getDownloadPath();
 
         logger.info(dataSourceId + ": no local file " + destAndStatusCheckFile.statusCheckFile + " so down loading new data from " + actualURL);
         FileUtils.forceMkdir(downloadDirectory.toAbsolutePath().toFile());
@@ -157,7 +158,7 @@ public class FetchDataFromUrl {
 
     }
 
-    private RefreshStatus refreshDataIfNewerAvailableHasFile(RemoteDataSourceConfig sourceConfig, DestAndStatusCheckFile destAndStatusCheckFile) throws IOException, InterruptedException {
+    private RefreshStatus refreshDataIfNewerAvailableHasFile(DownloadedConfig sourceConfig, DestAndStatusCheckFile destAndStatusCheckFile) throws IOException, InterruptedException {
         // already has the source file locally
         DataSourceID dataSourceId = sourceConfig.getDataSourceId();
         boolean isS3 = sourceConfig.getIsS3();

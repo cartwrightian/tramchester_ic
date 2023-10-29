@@ -21,17 +21,19 @@ public class TransportDataReader {
     private static final Logger logger = LoggerFactory.getLogger(TransportDataReader.class);
 
     private final GTFSSourceConfig config;
+    private final LocalDateTime modTime;
     private final TransportDataFromFileFactory factory;
-    private final FetchFileModTime fetchFileModTime;
+//    private final FetchFileModTime fetchFileModTime;
 
     public enum InputFiles {
         trips, stops, routes, feed_info, calendar, stop_times, calendar_dates, agency
     }
 
-    public TransportDataReader(TransportDataFromFileFactory factory, GTFSSourceConfig config, FetchFileModTime fetchFileModTime) {
+    public TransportDataReader(TransportDataFromFileFactory factory, GTFSSourceConfig config, LocalDateTime modTime) {
         this.factory = factory;
         this.config = config;
-        this.fetchFileModTime = fetchFileModTime;
+        this.modTime = modTime;
+//        this.fetchFileModTime = fetchFileModTime;
     }
 
     public GTFSSourceConfig getConfig() {
@@ -84,7 +86,7 @@ public class TransportDataReader {
 
     @NotNull
     private DataSourceInfo createSourceInfo() {
-        LocalDateTime modTime = fetchFileModTime.getFor(config);
+//        LocalDateTime modTime = fetchFileModTime.getFor(config);
         DataSourceID dataSourceId = config.getDataSourceId();
         String version = modTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         DataSourceInfo dataSourceInfo = new DataSourceInfo(dataSourceId, version, modTime,

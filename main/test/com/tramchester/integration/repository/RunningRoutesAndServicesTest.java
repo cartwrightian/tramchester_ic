@@ -8,7 +8,9 @@ import com.tramchester.domain.Service;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.time.CrossesDay;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.RunningRoutesAndServices;
@@ -25,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import java.time.DayOfWeek;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -58,7 +61,7 @@ public class RunningRoutesAndServicesTest {
     }
 
     @Test
-    void shouldHaveTripsServicesAndRoutesThatCrossIntoNextDay() {
+    void shouldHaveTripsAndRoutesThatCrossIntoNextDay() {
 
         Set<Trip> tripsIntoNextDay = transportData.getTrips().stream().filter(Trip::intoNextDay).collect(Collectors.toSet());
 
@@ -72,17 +75,27 @@ public class RunningRoutesAndServicesTest {
     }
 
     @Test
+    void shouldHaveServicesThatCrossIntoNextDay() {
+        assertTrue(transportData.getServices().stream().anyMatch(CrossesDay::intoNextDay));
+    }
+
+    @Test
     void shouldConsiderServicesFromDayBeforeIfTheyAreStillRunningTheFollowingDay() {
-        TramDate when = TestEnv.testDay().plusWeeks(1); // disruption week of 28/11/22
+
+        TramDate when = TestEnv.nextSaturday().minusDays(1);
 
         RunningRoutesAndServices.FilterForDate filter = runningRoutesAndServices.getFor(when);
 
-        Route altyToBuryRoute = helper.getOneRoute(KnownTramRoute.AltrinchamManchesterBury, when);
+        Optional<Route> findRoute = transportData.getRoutes().stream().filter(CrossesDay::intoNextDay).findFirst();
+        assertTrue(findRoute.isPresent());
 
-        assertTrue(filter.isRouteRunning(altyToBuryRoute.getId(), false));
-        assertTrue(filter.isRouteRunning(altyToBuryRoute.getId(), true));
+        Route route = findRoute.get(); //helper.getOneRoute(KnownTramRoute.BuryManchesterAltrincham, when);
+        IdFor<Route> routeId = route.getId();
 
-        Set<Service> services = altyToBuryRoute.getServices();
+        assertTrue(filter.isRouteRunning(routeId, false));
+        assertTrue(filter.isRouteRunning(routeId, true));
+
+        Set<Service> services = route.getServices();
 
         TramDate previousDay = when.minusDays(1);
 
@@ -90,10 +103,12 @@ public class RunningRoutesAndServicesTest {
                 filter(service -> service.getCalendar().operatesOn(previousDay)).collect(Collectors.toSet());
         assertFalse(allPreviousDay.isEmpty());
 
+        // actually checking for a service that crosses into following day
         Set<Service> fromPreviousDay = allPreviousDay.stream().
                 filter(service -> filter.isServiceRunningByTime(service.getId(), TramTime.of(0, 0), 25)).
                 collect(Collectors.toSet());
-        assertFalse(fromPreviousDay.isEmpty());
+
+        assertFalse(fromPreviousDay.isEmpty(), "no services from previous day " + HasId.asIds(allPreviousDay));
 
     }
 
@@ -105,7 +120,7 @@ public class RunningRoutesAndServicesTest {
 
         TramDate previousDay = when.minusDays(1);
 
-        Route altyToBuryRoute = helper.getOneRoute(KnownTramRoute.AltrinchamManchesterBury, previousDay);
+        Route altyToBuryRoute = helper.getOneRoute(KnownTramRoute.BuryManchesterAltrincham, previousDay);
 
         assertTrue(filter.isRouteRunning(altyToBuryRoute.getId(), false));
         assertTrue(filter.isRouteRunning(altyToBuryRoute.getId(), true));
@@ -116,7 +131,7 @@ public class RunningRoutesAndServicesTest {
     @Test
     void shouldTakeAccountOfCrossingIntoNextDayForRunningServices() {
         // need to find service running mon to fri and one running saturday
-        EnumSet<DayOfWeek> weekdays = EnumSet.of(MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY);
+        final EnumSet<DayOfWeek> weekdays = EnumSet.of(MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY);
         final EnumSet<DayOfWeek> saturdays = EnumSet.of(SATURDAY);
 
         TramDate testDay = TestEnv.nextMonday();
@@ -128,14 +143,14 @@ public class RunningRoutesAndServicesTest {
         final TramDate nextTuesday = testDay.plusDays(1);
         final TramDate friday = getFridayAfter(nextTuesday);
 
-        assertEquals(TUESDAY, nextTuesday.getDayOfWeek());
+        assertEquals(TUESDAY, nextTuesday.getDayOfWeek(), "sanity check failed");
 
         // date range contains next monday and service does weekday operating
         List<Service> weekdayServices = transportData.getServices().stream().
                 filter(service -> service.getCalendar().getDateRange().contains(nextTuesday)).
                 filter(service -> service.getCalendar().getOperatingDays().equals(weekdays)).
                 collect(Collectors.toList());
-        assertFalse(weekdayServices.isEmpty());
+        assertFalse(weekdayServices.isEmpty(), "found no weekday services for " + nextTuesday);
 
         // start of the range for services
         TramDate weekdayServicesBegin = weekdayServices.stream().

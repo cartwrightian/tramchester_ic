@@ -24,7 +24,7 @@ gtfsSourceConfig:
   -
     name: tfgm
     dataPath: data/bus
-    hasFeedInfo: true
+    hasFeedInfo: false
     transportModes: [ tram, bus ]
     transportModesWithPlatforms: [ Tram ]
     noServices: []

@@ -1,6 +1,7 @@
 package com.tramchester.dataimport;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.config.DownloadedConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
@@ -10,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.nio.file.Path;
+import java.util.LinkedList;
 import java.util.List;
 
 @LazySingleton
@@ -17,7 +19,7 @@ public class UnzipFetchedData  {
     private static final Logger logger = LoggerFactory.getLogger(UnzipFetchedData.class);
 
     private final Unzipper unzipper;
-    private final List<RemoteDataSourceConfig> configs;
+    private final List<DownloadedConfig> configs;
     private final RemoteDataAvailable remoteDataAvailable;
 
     @Inject
@@ -29,7 +31,7 @@ public class UnzipFetchedData  {
     private UnzipFetchedData(Unzipper unzipper, List<RemoteDataSourceConfig> configs,
                              RemoteDataAvailable remoteDataAvailable, FetchDataFromUrl.Ready ready) {
         this.unzipper = unzipper;
-        this.configs = configs;
+        this.configs = new LinkedList<>(configs);
         this.remoteDataAvailable = remoteDataAvailable;
     }
 
@@ -55,7 +57,7 @@ public class UnzipFetchedData  {
 
             if (remoteDataAvailable.hasFileFor(sourceId)) {
                 Path filename = remoteDataAvailable.fileFor(sourceId);
-                if (!unzipper.unpackIfZipped(filename, sourceConfig.getDataPath())) {
+                if (!unzipper.unpackIfZipped(filename, sourceConfig.getDownloadPath())) {
                     String msg = "unable to unpack zip file " + filename.toAbsolutePath();
                     logger.error(msg);
                     throw new RuntimeException(msg); // fail fast

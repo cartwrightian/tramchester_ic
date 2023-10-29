@@ -428,6 +428,10 @@ class ConfigMismatchTest {
         assertEquals(remoteSource.getDefaultExpiry(), testRemoteSource.getDefaultExpiry(), "default expiry for " + dataSourceID);
         assertEquals(remoteSource.isMandatory(), testRemoteSource.isMandatory(), "mandatory " + dataSourceID);
         assertEquals(remoteSource.getSkipUpload(), testRemoteSource.getSkipUpload(), "skip upload " + dataSourceID);
+
+        assertEquals(remoteSource.getDownloadPath(), testRemoteSource.getDownloadPath(), "downloadPath " + dataSourceID);
+        assertEquals(remoteSource.getDataPath(), testRemoteSource.getDataPath(), "dataPath " + dataSourceID);
+
     }
 
     private RemoteDataSourceConfig getSourceFrom(List<RemoteDataSourceConfig> remoteSources, DataSourceID dataSourceID) {

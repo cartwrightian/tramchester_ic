@@ -1,6 +1,7 @@
 package com.tramchester.dataimport;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.config.DownloadedConfig;
 import com.tramchester.config.HasDataPath;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.time.TramTime;
@@ -27,9 +28,9 @@ public class FetchFileModTime {
         return result;
     }
 
-    public LocalDateTime getFor(HasDataPath config) {
-        Path dataPath = config.getDataPath();
-        return getFor(dataPath);
+    public LocalDateTime getFor(DownloadedConfig config) {
+        Path downloadPath = config.getDownloadPath();
+        return getFor(downloadPath);
     }
 
     public boolean exists(Path filePath) {
@@ -43,4 +44,5 @@ public class FetchFileModTime {
 
         return filePath.toFile().setLastModified(millis);
     }
+
 }

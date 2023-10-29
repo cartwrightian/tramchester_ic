@@ -43,15 +43,16 @@ public class StopTimeData {
 
     }
 
-    private String padIfNeeded(String arrivalTime) {
-        int indexOfFirstDivider = arrivalTime.indexOf(':');
+    private String padIfNeeded(String text) {
+        int indexOfFirstDivider = text.indexOf(':');
         if (indexOfFirstDivider==2) {
-            return arrivalTime;
+            return text;
         }
         if (indexOfFirstDivider==1) {
-            return "0"+arrivalTime;
+            return "0"+text;
         }
-        throw new RuntimeException("Bad time format encountered in stoptimedata  '" + arrivalTime + "'");
+        return text;
+        //throw new RuntimeException("Bad time format encountered in stoptimedata  '" + arrivalTime + "'");
     }
 
     @Override

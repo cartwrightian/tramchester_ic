@@ -84,6 +84,8 @@ public class TestEnv {
 
     public static final String TFGM_TIMETABLE_URL = "https://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip";
 
+    public static final String TFGM_UNZIP_FOLDER = "TfGMgtfs";
+
     public static final String NAPTAN_BASE_URL = "https://naptan.api.dft.gov.uk/v1/access-nodes"; // ?dataFormat=csv
 
     public final static HashSet<GTFSTransportationType> tramAndBus =

@@ -24,6 +24,11 @@ public class NaptanRemoteDataSourceConfig extends RemoteDataSourceConfig {
     }
 
     @Override
+    public Path getDownloadPath() {
+        return getDataPath();
+    }
+
+    @Override
     public String getDataCheckUrl() {
         return "";
     }

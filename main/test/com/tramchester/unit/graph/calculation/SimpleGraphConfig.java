@@ -24,7 +24,7 @@ public class SimpleGraphConfig extends IntegrationTestConfig {
 
     @Override
     protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
-        TFGMGTFSSourceTestConfig tfgmTestDataSourceConfig = new TFGMGTFSSourceTestConfig("data/tram",
+        TFGMGTFSSourceTestConfig tfgmTestDataSourceConfig = new TFGMGTFSSourceTestConfig(Path.of("data/tram"),
                 GTFSTransportationType.tram, Tram, IdSet.emptySet(), Collections.emptySet(), Collections.emptyList(),
                 Duration.ofMinutes(13));
         return Collections.singletonList(tfgmTestDataSourceConfig);

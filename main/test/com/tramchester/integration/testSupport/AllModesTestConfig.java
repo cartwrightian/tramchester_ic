@@ -34,11 +34,12 @@ public class AllModesTestConfig extends IntegrationTestConfig {
         final Set<TransportMode> modesWithPlatforms = new HashSet<>(Arrays.asList(Tram, Train));
         final Set<TransportMode> compositeStationModes = Collections.singleton(Bus);
 
-        final TFGMGTFSSourceTestConfig tfgmDataSource = new TFGMGTFSSourceTestConfig("data/bus", TestEnv.tramAndBus,
+        Path dowloadFolder = Path.of("data/bus");
+        final TFGMGTFSSourceTestConfig tfgmDataSource = new TFGMGTFSSourceTestConfig(dowloadFolder, TestEnv.tramAndBus,
                 modesWithPlatforms, AdditionalTramInterchanges.stations(), compositeStationModes, Collections.emptyList(),
                 Duration.ofMinutes(13));
 
-        remoteTfgmSourceConfig = new TFGMRemoteDataSourceConfig("data/bus");
+        remoteTfgmSourceConfig = TFGMRemoteDataSourceConfig.createFor(dowloadFolder);
         remoteDataRailConfig = new RailRemoteDataSourceConfig("data/rail");
 
         return List.of(tfgmDataSource);

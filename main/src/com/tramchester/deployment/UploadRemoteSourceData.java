@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -46,12 +47,14 @@ public class UploadRemoteSourceData {
             logger.info("Will skipp uploading following sources " + toSkip);
         }
 
-        List<DataSourceID> remoteWithFiles = remoteSources.stream().
+        // mutable
+        List<DataSourceID> remoteWithFiles = new ArrayList<>(remoteSources.stream().
                 map(RemoteDataSourceConfig::getDataSourceId).
                 filter(id -> !toSkip.contains(id)).
                 filter(remoteDataRefreshed::hasFileFor).
-                toList();
+                toList());
 
+        // todo into filter about, but then no logging here....
         if (remoteWithFiles.contains(DataSourceID.database)) {
             logger.info("Skipping database source upload, has own upload mechanism");
             remoteWithFiles.remove(DataSourceID.database);

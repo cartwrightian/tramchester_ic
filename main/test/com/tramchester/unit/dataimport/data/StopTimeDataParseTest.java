@@ -16,7 +16,8 @@ class StopTimeDataParseTest extends ParserTestCSVHelper<StopTimeData> {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        String header = "trip_id,arrival_time,departure_time,stop_id,stop_sequence,stop_headsign,pickup_type,drop_off_type,shape_dist_traveled";
+        String header = "trip_id,arrival_time,departure_time,stop_id,stop_sequence,stop_headsign,pickup_type,drop_off_type,shape_dist_traveled,timepoint";
+        //String header = "trip_id,arrival_time,departure_time,stop_id,stop_sequence,stop_headsign,pickup_type,drop_off_type,shape_dist_traveled";
         //"trip_id,arrival_time,departure_time,stop_id,stop_sequence,pickup_type,drop_off_type";
         super.before(StopTimeData.class, header);
     }
@@ -98,6 +99,15 @@ class StopTimeDataParseTest extends ParserTestCSVHelper<StopTimeData> {
 
         assertTrue(stopTimeData.isValid());
 
+    }
+
+    @Test
+    void shouldDealWithBadStopTimeData() {
+        String stop = "3430_51,,,141053,28,,0,0,,0";
+
+        StopTimeData stopTimeData = parse(stop);
+
+        assertFalse(stopTimeData.isValid());
     }
 
 }

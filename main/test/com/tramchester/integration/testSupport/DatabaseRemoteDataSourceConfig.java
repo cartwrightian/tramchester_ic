@@ -20,6 +20,11 @@ public class DatabaseRemoteDataSourceConfig extends RemoteDataSourceConfig {
     }
 
     @Override
+    public Path getDownloadPath() {
+        return getDataPath();
+    }
+
+    @Override
     public String getDataCheckUrl() {
         return TestEnv.getDatabaseRemoteURL();
     }
