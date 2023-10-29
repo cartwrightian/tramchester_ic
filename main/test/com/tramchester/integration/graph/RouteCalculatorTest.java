@@ -471,7 +471,6 @@ public class RouteCalculatorTest {
     }
 
     @Test
-    @EcclesToWeasteClosure2023Test
     void shouldHaveInAndAroundCornbrookToEccles8amTuesday() {
         // catches issue with services, only some of which go to media city, while others direct to broadway
         JourneyRequest journeyRequest8am = standardJourneyRequest(when, TramTime.of(8,0), maxNumResults);
@@ -484,7 +483,6 @@ public class RouteCalculatorTest {
     }
 
     @Test
-    @EcclesToWeasteClosure2023Test
     void shouldReproIssueWithJourneysToEccles() {
         TramDate testDate = this.when.plusWeeks(1);
 
@@ -511,7 +509,6 @@ public class RouteCalculatorTest {
     }
 
     @Test
-    @EcclesToWeasteClosure2023Test
     void shouldReproIssueWithStPetersToBeyondEcclesAt8AM() {
         List<TramTime> missingTimes = checkRangeOfTimes(Cornbrook, Eccles);
         assertTrue(missingTimes.isEmpty(), missingTimes.toString());
@@ -530,7 +527,6 @@ public class RouteCalculatorTest {
     }
 
     @Test
-    @EcclesToWeasteClosure2023Test
     void reproduceIssueWithTramsSundayAshtonToEccles() {
         JourneyRequest journeyRequest = new JourneyRequest(TestEnv.nextSunday(), TramTime.of(9, 0), false,
                 3, maxJourneyDuration, maxNumResults, requestedModes);
@@ -538,7 +534,6 @@ public class RouteCalculatorTest {
     }
 
     @Test
-    @EcclesToWeasteClosure2023Test
     void reproduceIssueWithTramsSundayToFromEcclesAndCornbrook() {
         JourneyRequest journeyRequest = standardJourneyRequest(TestEnv.nextSunday(), TramTime.of(9,0), maxNumResults);
 
@@ -562,7 +557,6 @@ public class RouteCalculatorTest {
     }
 
     @Test
-    @EcclesToWeasteClosure2023Test
     void reproIssueRochdaleToEccles() {
         TramTime time = TramTime.of(9,0);
         JourneyRequest journeyRequest = standardJourneyRequest(when, time, maxNumResults);

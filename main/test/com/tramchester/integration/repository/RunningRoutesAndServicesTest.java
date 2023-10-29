@@ -18,7 +18,7 @@ import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
-import com.tramchester.testSupport.testTags.EcclesToWeasteClosure2023Test;
+import org.apache.commons.collections4.SetUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -127,7 +127,6 @@ public class RunningRoutesAndServicesTest {
 
     }
 
-    @EcclesToWeasteClosure2023Test
     @Test
     void shouldTakeAccountOfCrossingIntoNextDayForRunningServices() {
         // need to find service running mon to fri and one running saturday
@@ -145,20 +144,26 @@ public class RunningRoutesAndServicesTest {
 
         assertEquals(TUESDAY, nextTuesday.getDayOfWeek(), "sanity check failed");
 
+        // check for any intersection of days here since as of oct'23 no services actually operate Mon->Fri
+        Set<Service> weekdayServices = transportData.getServices().stream().
+                filter(service -> !SetUtils.intersection(service.getCalendar().getOperatingDays(), weekdays).isEmpty()).
+                collect(Collectors.toSet());
+
+        assertFalse(weekdayServices.isEmpty(), "no weekday services?");
+
         // date range contains next monday and service does weekday operating
-        List<Service> weekdayServices = transportData.getServices().stream().
-                filter(service -> service.getCalendar().getDateRange().contains(nextTuesday)).
-                filter(service -> service.getCalendar().getOperatingDays().equals(weekdays)).
-                collect(Collectors.toList());
-        assertFalse(weekdayServices.isEmpty(), "found no weekday services for " + nextTuesday);
+        List<Service> matchingServices = weekdayServices.stream().
+                filter(service -> service.getCalendar().getDateRange().contains(nextTuesday)).toList();
+
+        assertFalse(matchingServices.isEmpty(), "found no weekday services for " + nextTuesday);
 
         // start of the range for services
-        TramDate weekdayServicesBegin = weekdayServices.stream().
+        TramDate weekdayServicesBegin = matchingServices.stream().
                 map(service -> service.getCalendar().getDateRange().getStartDate()).
                 min(TramDate::compareTo).get();
 
         // end of the range for services
-        TramDate weekdayServicesEnd = weekdayServices.stream().
+        TramDate weekdayServicesEnd = matchingServices.stream().
                 map(service -> service.getCalendar().getDateRange().getEndDate()).
                 max(TramDate::compareTo).get();
 
@@ -171,12 +176,12 @@ public class RunningRoutesAndServicesTest {
 
         RunningRoutesAndServices.FilterForDate filterForNextFriday = runningRoutesAndServices.getFor(friday);
 
-        Set<Service> weekdayFiltered = weekdayServices.stream().
+        Set<Service> weekdayFiltered = matchingServices.stream().
                 filter(svc -> filterForNextFriday.isServiceRunningByDate(svc.getId(), false))
                 .collect(Collectors.toSet());
 
         assertFalse(weekdayFiltered.isEmpty(), "Filter " + filterForNextFriday + " matched none of "
-                + HasId.asIds(weekdayServices) + " testday: " + testDay);
+                + HasId.asIds(matchingServices) + " testday: " + testDay);
 
         // services operating on a Saturday within this range
         List<Service> saturdayServices = transportData.getServices().stream().
