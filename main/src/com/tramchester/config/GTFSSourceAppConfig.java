@@ -111,10 +111,10 @@ public class GTFSSourceAppConfig extends Configuration implements GTFSSourceConf
         return compositeStationModes;
     }
 
-    @Override
-    public Path getDataPath() {
-        return dataPath;
-    }
+//    @Override
+//    public Path getDataPath() {
+//        return dataPath;
+//    }
 
     @Override
     public List<StationClosures> getStationClosures() {

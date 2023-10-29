@@ -43,25 +43,22 @@ public class TransportDataReaderFactory {
         logger.info("start");
         tramchesterConfig.getGTFSDataSource().forEach(sourceConfig -> {
             logger.info("Creating reader for config " + sourceConfig.getName());
-            Path path = sourceConfig.getDataPath();
 
-            // sanity check on remote data source being path matching up
+            // sanity check on remote data source being present, get data path from here
             final DataSourceID dataSourceId = sourceConfig.getDataSourceId();
             LocalDateTime modTime;
-            if (tramchesterConfig.hasRemoteDataSourceConfig(dataSourceId)) {
-                RemoteDataSourceConfig dataRemoteSourceConfig = tramchesterConfig.getDataRemoteSourceConfig(dataSourceId);
-                Path remoteLoadPath = dataRemoteSourceConfig.getDataPath();
-                logger.info("Got remote data source config for " + dataSourceId + " from config " + dataRemoteSourceConfig);
-                if (!remoteLoadPath.equals(path)) {
-                    throw new RuntimeException("Pass mismatch for gtfs and remote source configs: " + dataSourceId);
-                }
-                modTime = fetchFileModTime.getFor(dataRemoteSourceConfig);
-            } else {
-                logger.warn("No remote source config found for " + dataSourceId);
-                modTime = LocalDateTime.MIN;
+            if (!tramchesterConfig.hasRemoteDataSourceConfig(dataSourceId)) {
+                String msg = "No remote source config found for " + dataSourceId;
+                logger.error(msg);
+                throw new RuntimeException(msg);
             }
 
-            TransportDataFromFileFactory factory = new TransportDataFromFileFactory(path, mapper);
+            RemoteDataSourceConfig dataRemoteSourceConfig = tramchesterConfig.getDataRemoteSourceConfig(dataSourceId);
+            Path dataLoadLocation = dataRemoteSourceConfig.getDataPath();
+            logger.info("Got remote data source config for " + dataSourceId + " from config " + dataRemoteSourceConfig);
+            modTime = fetchFileModTime.getFor(dataRemoteSourceConfig);
+
+            TransportDataFromFileFactory factory = new TransportDataFromFileFactory(dataLoadLocation, mapper);
             TransportDataReader transportLoader = new TransportDataReader(factory, sourceConfig, modTime);
 
             dataReaders.add(transportLoader);

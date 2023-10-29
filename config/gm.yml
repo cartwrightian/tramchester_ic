@@ -22,7 +22,7 @@ distributionBucket: tramchesternewdist
 instanceDataUrl: http://169.254.169.254
 gtfsSourceConfig:
   - name: tfgm
-    dataPath: data/tram
+    dataPath: data/tram/TfGMgtfs
     hasFeedInfo: false
     transportModes: [ tram ]
     transportModesWithPlatforms: [ Tram ]

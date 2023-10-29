@@ -15,7 +15,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @JsonDeserialize(as = GTFSSourceAppConfig.class)
-public interface GTFSSourceConfig extends HasDataPath, TransportDataSourceConfig {
+public interface GTFSSourceConfig extends TransportDataSourceConfig {
 
     // name for diag, logging and entity factory selection
     String getName();
