@@ -28,9 +28,7 @@ import com.tramchester.testSupport.reference.TramStations;
 import org.assertj.core.util.Streams;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.ResourceIterator;
 
 import java.time.Duration;
 import java.util.*;
@@ -192,7 +190,7 @@ class TramGraphBuilderTest {
         IdSet<Station> fromConfigAndDiscovered = interchangeRepository.getAllInterchanges().stream().
                 map(InterchangeStation::getStationId).collect(IdSet.idCollector());
 
-        Stream<Node> interchangeNodes = txn.findNodesOLD(GraphLabel.INTERCHANGE);
+        Stream<GraphNode> interchangeNodes = txn.findNodes(GraphLabel.INTERCHANGE);
 
         IdSet<Station> fromDB = interchangeNodes.map(GraphProps::getStationId).collect(IdSet.idCollector());
 

@@ -7,7 +7,6 @@ import com.tramchester.graph.GraphTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.repository.DataSourceRepository;
-import org.neo4j.graphdb.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,8 +30,6 @@ public class GraphDatabaseMetaInfo {
 
     private boolean hasAnyNodeWith(GraphTransaction txn, GraphLabel label) {
         return txn.hasAnyMatching(label);
-//        ResourceIterator<Node> query = txn.findNodes(label);
-//        return query.stream().findAny().isPresent();
     }
 
     public void setNeighboursEnabled(GraphTransaction txn) {
@@ -40,7 +37,7 @@ public class GraphDatabaseMetaInfo {
     }
 
     public Map<String, String> getVersions(GraphTransaction txn) {
-        Stream<Node> query = txn.findNodesOLD(GraphLabel.VERSION);
+        Stream<GraphNode> query = txn.findNodes(GraphLabel.VERSION);
 
         Map<String, String> versions = new HashMap<>();
         query.forEach(versionNode -> {

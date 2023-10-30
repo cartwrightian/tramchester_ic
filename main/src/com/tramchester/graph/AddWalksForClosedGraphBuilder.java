@@ -17,7 +17,6 @@ import com.tramchester.mappers.Geography;
 import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.StationsWithDiversionRepository;
 import org.apache.commons.lang3.tuple.Pair;
-import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -167,13 +166,13 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships i
 
     private void addDBFlag(GTFSSourceConfig sourceConfig) {
         try (GraphTransaction txn = graphDatabase.beginTx()) {
-            Stream<Node> query = txn.findNodesOLD(GraphLabel.WALK_FOR_CLOSED_ENABLED);
-            List<Node> nodes = query.toList();
+            Stream<GraphNode> query = txn.findNodes(GraphLabel.WALK_FOR_CLOSED_ENABLED);
+            List<GraphNode> nodes = query.toList();
 
-            Node node;
+            GraphNode node;
             if (nodes.isEmpty()) {
                 logger.info("Creating " + GraphLabel.WALK_FOR_CLOSED_ENABLED + " node");
-                node = createGraphNodeOld(txn, GraphLabel.WALK_FOR_CLOSED_ENABLED);
+                node = createGraphNode(txn, GraphLabel.WALK_FOR_CLOSED_ENABLED);
             } else {
                 if (nodes.size() != 1) {
                     final String message = "Found too many " + GraphLabel.WALK_FOR_CLOSED_ENABLED + " nodes, should be one only";
@@ -183,7 +182,7 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships i
                 logger.info("Found " + GraphLabel.WALK_FOR_CLOSED_ENABLED + " node");
                 node = nodes.get(0);
             }
-            node.setProperty(SOURCE_NAME_PROP.getText(), sourceConfig.getName());
+            node.setProperty(SOURCE_NAME_PROP, sourceConfig.getName());
 
             txn.commit();
         }

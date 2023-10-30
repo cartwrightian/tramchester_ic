@@ -1,6 +1,5 @@
 package com.tramchester.integration.graph.neighbours;
 
-import com.google.common.collect.Streams;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
@@ -8,6 +7,7 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphNode;
 import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.GraphTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
@@ -17,8 +17,6 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.*;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.ResourceIterator;
 
 import java.util.Set;
 import java.util.stream.Stream;
@@ -95,7 +93,7 @@ class NeighboursGraphBuilderTest {
     }
 
     private long countStationNodes(GraphLabel graphLabel) {
-        Stream<Node> stationNodes = txn.findNodesOLD(STATION); // graphDatabase.findNodes(txn, STATION);
+        Stream<GraphNode> stationNodes = txn.findNodes(STATION); // graphDatabase.findNodes(txn, STATION);
         return stationNodes.filter(node -> node.hasLabel(graphLabel)).count();
     }
 

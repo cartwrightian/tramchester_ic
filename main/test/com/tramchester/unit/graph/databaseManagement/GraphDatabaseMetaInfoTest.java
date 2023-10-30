@@ -89,8 +89,10 @@ public class GraphDatabaseMetaInfoTest extends EasyMockSupport {
         versionMap.put("A", "4.2");
         versionMap.put("ZZZ", "81.91");
 
-        EasyMock.expect(transaction.findNodesOLD(GraphLabel.VERSION)).andReturn(Stream.of(node));
-        EasyMock.expect(node.getAllProperties()).andReturn(versionMap);
+        GraphNode graphNode = createMock(GraphNode.class);
+
+        EasyMock.expect(transaction.findNodes(GraphLabel.VERSION)).andReturn(Stream.of(graphNode));
+        EasyMock.expect(graphNode.getAllProperties()).andReturn(versionMap);
 
         replayAll();
         Map<String, String> results = databaseMetaInfo.getVersions(transaction);

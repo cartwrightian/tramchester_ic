@@ -50,10 +50,9 @@ public class GraphTransaction implements AutoCloseable {
         labels.toArray(toApply);
         return new GraphNode(txn.createNode(toApply));
     }
-
-    @Deprecated
-    public Stream<Node> findNodesOLD(GraphLabel graphLabel) {
-        return txn.findNodes(graphLabel).stream();
+    
+    public Stream<GraphNode> findNodes(GraphLabel graphLabel) {
+        return txn.findNodes(graphLabel).stream().map(GraphNode::new);
     }
 
     public boolean hasAnyMatching(GraphLabel label, String field, String value) {

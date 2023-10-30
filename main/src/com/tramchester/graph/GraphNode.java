@@ -112,4 +112,8 @@ public class GraphNode {
     public Iterable<Label> getLabels() {
         return neo4jNode.getLabels();
     }
+
+    public void setProperty(GraphPropertyKey graphPropertyKey, String name) {
+        neo4jNode.setProperty(graphPropertyKey.getText(), name);
+    }
 }

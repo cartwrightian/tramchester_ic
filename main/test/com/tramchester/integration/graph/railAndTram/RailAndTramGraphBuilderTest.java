@@ -171,7 +171,7 @@ class RailAndTramGraphBuilderTest {
         IdSet<Station> fromConfigAndDiscovered = interchangeRepository.getAllInterchanges().stream().
                 map(InterchangeStation::getStationId).collect(IdSet.idCollector());
 
-        Stream<Node> interchangeNodes = txn.findNodesOLD(GraphLabel.INTERCHANGE);
+        Stream<GraphNode> interchangeNodes = txn.findNodes(GraphLabel.INTERCHANGE);
 
         IdSet<Station> fromDB = interchangeNodes.map(GraphProps::getStationId).collect(IdSet.idCollector());
 
