@@ -71,7 +71,11 @@ public class GraphTransaction implements AutoCloseable {
     }
 
     private GraphNode findNode(GraphLabel label, String key, String value) {
-        return new GraphNode(txn.findNode(label, key, value));
+        Node node = txn.findNode(label, key, value);
+        if (node==null) {
+            return null;
+        }
+        return new GraphNode(node);
     }
 
     public <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> GraphNode findNode(ITEM item) {

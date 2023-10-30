@@ -29,6 +29,9 @@ public class GraphNode extends HaveGraphProperties {
     }
 
     GraphNode(Node theNode) {
+        if (theNode==null) {
+            throw new RuntimeException("Null node passed");
+        }
         this.theNode = theNode;
 
         // todo remove/replace with get element Id

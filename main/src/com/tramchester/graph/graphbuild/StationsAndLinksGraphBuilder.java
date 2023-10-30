@@ -217,18 +217,22 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
 
     private void createLinkRelationship(GraphNode from, GraphNode to, TransportMode mode) {
         if (from.hasRelationship(OUTGOING, LINKED)) {
-            Stream<GraphRelationship> existings = from.getRelationships(OUTGOING, LINKED);
+            Stream<GraphRelationship> alreadyPresent = from.getRelationships(OUTGOING, LINKED);
 
             // if there is an existing link between stations then update iff the transport mode not already present
-            existings.forEach( existing -> {
-                if (GraphNode.fromEnd(existing).equals(to)) {
-                    Set<TransportMode> existingModes = getTransportModes(existing);
-                    if (!existingModes.contains(mode)) {
-                        addTransportMode(existing, mode);
-                    }
-                    return;
+            Optional<GraphRelationship> find = alreadyPresent.filter(relation -> relation.getEndNode().equals(to)).findFirst();
+
+            find.ifPresent(found -> {
+                EnumSet<TransportMode> currentModes = found.getTransportModes();
+                if (!currentModes.contains(mode)) {
+                    addTransportMode(found, mode);
                 }
             });
+
+            if (find.isPresent()) {
+                return;
+            }
+            
         }
 
         GraphRelationship stationsLinked = createRelationship(from, to, LINKED);
