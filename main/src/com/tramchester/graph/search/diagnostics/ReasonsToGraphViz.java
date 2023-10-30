@@ -6,6 +6,7 @@ import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphNode;
+import com.tramchester.graph.GraphRelationship;
 import com.tramchester.graph.GraphTransaction;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.graphbuild.GraphLabel;
@@ -13,7 +14,6 @@ import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.naptan.NaptanRepository;
 import org.apache.commons.lang3.tuple.Pair;
-import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
 
 import javax.inject.Inject;
@@ -72,7 +72,7 @@ public class ReasonsToGraphViz {
         }
 
         if (!howIGotHere.atStart()) {
-            Relationship relationship = transaction.getRelationshipById(howIGotHere.getRelationshipId());
+            GraphRelationship relationship = transaction.getRelationshipById(howIGotHere.getRelationshipId());
             GraphNode fromNode = GraphNode.fromStart(relationship); // relationship.getStartNode();
             addNodeToDiagram(fromNode, builder, diagramState, stateName);
 

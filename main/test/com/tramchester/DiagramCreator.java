@@ -13,7 +13,6 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.naptan.NaptanRepository;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +21,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.stream.Stream;
 
 import static com.tramchester.graph.GraphPropertyKey.PLATFORM_ID;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
@@ -127,7 +127,7 @@ public class DiagramCreator {
     private void visitInbounds(GraphNode targetNode, DiagramBuild builder, int depth, Set<Long> nodeSeen, Set<Long> relationshipSeen, boolean topLevel) {
         getRelationships(targetNode, Direction.INCOMING, topLevel).forEach(towards -> {
 
-            GraphNode startNode = GraphNode.fromStart(towards);
+            GraphNode startNode = towards.getStartNode(); //GraphNode.fromStart(towards);
             addNode(builder, startNode);
 
             // startNode -> targetNode
@@ -136,17 +136,17 @@ public class DiagramCreator {
         });
     }
 
-    private Iterable<Relationship> getRelationships(GraphNode targetNode, Direction direction, boolean toplevelOnly) {
+    private Stream<GraphRelationship> getRelationships(GraphNode targetNode, Direction direction, boolean toplevelOnly) {
         TransportRelationshipTypes[] types = toplevelOnly ?  toplevelRelationships : TransportRelationshipTypes.values();
         return targetNode.getRelationships(direction, types);
     }
 
     private void visitOutbounds(GraphNode startNode, DiagramBuild builder, int depth, Set<Long> seen, Set<Long> relationshipSeen, boolean topLevel) {
-        Map<Long,Relationship> goesToRelationships = new HashMap<>();
+        Map<Long,GraphRelationship> goesToRelationships = new HashMap<>();
 
         getRelationships(startNode, Direction.OUTGOING, topLevel).forEach(awayFrom -> {
 
-            TransportRelationshipTypes relationshipType = TransportRelationshipTypes.valueOf(awayFrom.getType().name());
+            TransportRelationshipTypes relationshipType = awayFrom.getType(); // TransportRelationshipTypes.valueOf(awayFrom.getType().name());
 
             GraphNode rawEndNode = GraphNode.fromEnd(awayFrom);
 
@@ -166,7 +166,7 @@ public class DiagramCreator {
     }
 
 
-    private void addEdge(DiagramBuild builder, Relationship edge, String startNodeId, String endNodeId, Set<Long> relationshipSeen) {
+    private void addEdge(DiagramBuild builder, GraphRelationship edge, String startNodeId, String endNodeId, Set<Long> relationshipSeen) {
 
         TransportRelationshipTypes relationshipType = TransportRelationshipTypes.valueOf(edge.getType().name());
 
@@ -263,7 +263,7 @@ public class DiagramCreator {
         builder.append(line);
     }
 
-    private String createShortForm(TransportRelationshipTypes relationshipType, Relationship edge) {
+    private String createShortForm(TransportRelationshipTypes relationshipType, GraphRelationship edge) {
         String cost = "";
         if (hasCost(relationshipType)) {
             cost = "("+ GraphProps.getCost(edge)+ ")";

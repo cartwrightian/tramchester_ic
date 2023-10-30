@@ -14,7 +14,6 @@ import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.repository.StationAvailabilityRepository;
 import com.tramchester.repository.StationRepository;
 import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +21,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static com.tramchester.graph.TransportRelationshipTypes.ON_ROUTE;
 
@@ -59,13 +59,21 @@ public class RouteReachable {
                 if (routeStationNode==null) {
                     logger.warn("Missing route station, graph DB rebuild needed?");
                 } else {
-                    Iterable<Relationship> edges = routeStationNode.getRelationships(Direction.OUTGOING, ON_ROUTE);
-                    for (Relationship edge : edges) {
+                    Stream<GraphRelationship> edges = routeStationNode.getRelationships(Direction.OUTGOING, ON_ROUTE);
+
+                    edges.forEach(edge -> {
                         final IdFor<Station> endNodeStationId = GraphProps.getStationIdFrom(edge.getEndNode());
                         if (endStationId.equals(endNodeStationId)) {
                             results.add(route);
                         }
-                    }
+                    });
+
+//                    for (Relationship edge : edges) {
+//                        final IdFor<Station> endNodeStationId = GraphProps.getStationIdFrom(edge.getEndNode());
+//                        if (endStationId.equals(endNodeStationId)) {
+//                            results.add(route);
+//                        }
+//                    }
                 }
             });
         }

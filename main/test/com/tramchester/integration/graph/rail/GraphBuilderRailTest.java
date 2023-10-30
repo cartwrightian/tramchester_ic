@@ -1,7 +1,5 @@
 package com.tramchester.integration.graph.rail;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Streams;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
@@ -86,12 +84,11 @@ class GraphBuilderRailTest {
 
         Station piccadilly = ManchesterPiccadilly.from(transportData);
         GraphNode startNode = graphQuery.getStationNode(txn, piccadilly);
-        Iterable<Relationship> outboundLinks = startNode.getRelationships(Direction.OUTGOING, LINKED);
+        List<GraphRelationship> outboundLinks = startNode.getRelationships(Direction.OUTGOING, LINKED).toList();
 
-        List<Relationship> list = Lists.newArrayList(outboundLinks);
-        assertEquals(35, list.size(), list.toString());
+        assertEquals(35, outboundLinks.size(), outboundLinks.toString());
 
-        Set<IdFor<Station>> destinations = list.stream().map(Relationship::getEndNode).
+        Set<IdFor<Station>> destinations = outboundLinks.stream().map(GraphRelationship::getEndNode).
                 map(GraphProps::getStationId).collect(Collectors.toSet());
 
         assertTrue(destinations.contains(Station.createId("STKP")), destinations.toString());
@@ -143,11 +140,11 @@ class GraphBuilderRailTest {
         Station crewe = Crewe.from(transportData);
         Set<GraphNode> creweRouteStationsNodes = getRouteStationNodes(crewe);
 
-        Set<Relationship> outgoingFromCrewe = creweRouteStationsNodes.stream().
-                flatMap(node -> Streams.stream(node.getRelationships(Direction.OUTGOING, ON_ROUTE))).
+        Set<GraphRelationship> outgoingFromCrewe = creweRouteStationsNodes.stream().
+                flatMap(node -> node.getRelationships(Direction.OUTGOING, ON_ROUTE)).
                 collect(Collectors.toSet());
 
-        List<Relationship> endIsMKC = outgoingFromCrewe.stream().
+        List<GraphRelationship> endIsMKC = outgoingFromCrewe.stream().
                 //filter(relationship -> mkNodeIds.contains(relationship.getEndNodeId())).
                 filter(relationship -> routeStationNodes.contains(GraphNode.fromEnd(relationship))).
                 toList();

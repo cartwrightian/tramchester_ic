@@ -50,7 +50,7 @@ public class GraphTransaction implements AutoCloseable {
         labels.toArray(toApply);
         return new GraphNode(txn.createNode(toApply));
     }
-    
+
     public Stream<GraphNode> findNodes(GraphLabel graphLabel) {
         return txn.findNodes(graphLabel).stream().map(GraphNode::new);
     }
@@ -87,8 +87,8 @@ public class GraphTransaction implements AutoCloseable {
     }
 
     @Deprecated
-    public Relationship getRelationshipById(long relationshipId) {
-        return txn.getRelationshipById(relationshipId);
+    public GraphRelationship getRelationshipById(long relationshipId) {
+        return new GraphRelationship(txn.getRelationshipById(relationshipId));
     }
 
     public Result execute(String query) {

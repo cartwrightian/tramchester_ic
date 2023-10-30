@@ -10,6 +10,7 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphNode;
+import com.tramchester.graph.GraphRelationship;
 import com.tramchester.graph.NumberOfNodesAndRelationshipsRepository;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.graphbuild.GraphLabel;
@@ -168,7 +169,8 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
         }
     }
 
-    public void deleteFromCostCache(Relationship relationship) {
+    @Override
+    public void deleteFromCostCache(GraphRelationship relationship) {
         long relationshipId = relationship.getId();
         relationshipCostCache.invalidate(relationshipId);
     }

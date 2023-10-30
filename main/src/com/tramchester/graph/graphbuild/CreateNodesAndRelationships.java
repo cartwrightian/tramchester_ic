@@ -1,13 +1,9 @@
 package com.tramchester.graph.graphbuild;
 
 import com.tramchester.domain.places.Station;
-import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphNode;
-import com.tramchester.graph.GraphTransaction;
-import com.tramchester.graph.TransportRelationshipTypes;
+import com.tramchester.graph.*;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,13 +46,11 @@ public class CreateNodesAndRelationships {
     protected Node createGraphNodeOld(GraphTransaction tx, GraphLabel label) {
         numberNodes++;
         return tx.createNode(label).getNode();
-//        return graphDatabase.createNode(tx, label);
     }
 
     protected GraphNode createGraphNode(GraphTransaction tx, GraphLabel label) {
         numberNodes++;
         return tx.createNode(label);
-        //return GraphNode.from(graphDatabase.createNode(tx, label));
     }
 
     public GraphNode createGraphNode(GraphTransaction tx, Set<GraphLabel> labels) {
@@ -65,7 +59,7 @@ public class CreateNodesAndRelationships {
         //return graphDatabase.createNode(tx, labels);
     }
 
-    protected Relationship createRelationship(GraphNode start, GraphNode end, TransportRelationshipTypes relationshipType) {
+    protected GraphRelationship createRelationship(GraphNode start, GraphNode end, TransportRelationshipTypes relationshipType) {
         numberRelationships++;
         return start.createRelationshipTo(end, relationshipType);
     }
@@ -93,9 +87,11 @@ public class CreateNodesAndRelationships {
                 forEach(relationship -> alreadyRelationship.add(GraphNode.fromEnd(relationship)));
 
         if (!alreadyRelationship.contains(toNode)) {
-            Relationship relationship = createRelationship(fromNode, toNode, relationshipType);
-            GraphProps.setCostProp(relationship, walkCost);
-            GraphProps.setMaxCostProp(relationship, walkCost);
+            GraphRelationship relationship = createRelationship(fromNode, toNode, relationshipType);
+            //GraphProps.setCostProp(relationship, walkCost);
+            relationship.setCost(walkCost);
+            //GraphProps.setMaxCostProp(relationship, walkCost);
+            relationship.setMaxCost(walkCost);
             return true;
         }
         return false;

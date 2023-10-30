@@ -17,6 +17,7 @@ import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphNode;
 import com.tramchester.graph.GraphPropertyKey;
+import com.tramchester.graph.GraphRelationship;
 import org.neo4j.graphdb.Entity;
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
@@ -44,6 +45,10 @@ public class GraphProps {
 
     public static <C extends GraphProperty & CoreDomain & HasId<C>> void setProperty(Entity entity, C item) {
         entity.setProperty(item.getProp().getText(), item.getId().getGraphId());
+    }
+
+    public static <C extends GraphProperty & CoreDomain & HasId<C>> void setProperty(GraphRelationship relationship, C item) {
+        relationship.set(item);
     }
 
     public static <C extends GraphProperty & CoreDomain & HasId<C>> void setProperty(GraphNode graphNode, C item) {
@@ -79,6 +84,10 @@ public class GraphProps {
         entity.setProperty(TRANSPORT_MODE.getText(), mode.getNumber());
     }
 
+    public static void setProperty(GraphRelationship relationship, TransportMode mode) {
+        relationship.setTransportMode(mode);
+    }
+
     public static void setProperty(GraphNode graphNode, TransportMode mode) {
         setProperty(graphNode.getNode(), mode);
     }
@@ -92,6 +101,10 @@ public class GraphProps {
         return TransportMode.fromNumber(number);
     }
 
+    public static EnumSet<TransportMode> getTransportModes(GraphRelationship graphRelationship) {
+        return graphRelationship.getTransportModes();
+    }
+
     // TODO - auto conversation to/from ENUM arrays now available?
     public static Set<TransportMode> getTransportModes(Entity entity) {
         if (!entity.hasProperty(TRANSPORT_MODES.getText())) {
@@ -102,23 +115,8 @@ public class GraphProps {
         return TransportMode.fromNumbers(existing);
     }
 
-    public static void addTransportMode(Entity entity, TransportMode mode) {
-        short modeNumber = mode.getNumber();
-        if (!(entity.hasProperty(TRANSPORT_MODES.getText()))) {
-            entity.setProperty(TRANSPORT_MODES.getText(), new short[]{modeNumber});
-            return;
-        }
-
-        short[] existing = (short[]) entity.getProperty(TRANSPORT_MODES.getText());
-        for (short value : existing) {
-            if (value == modeNumber) {
-                return;
-            }
-        }
-
-        short[] replacement = Arrays.copyOf(existing, existing.length + 1);
-        replacement[existing.length] = modeNumber;
-        entity.setProperty(TRANSPORT_MODES.getText(), replacement);
+    public static void addTransportMode(GraphRelationship graphRelationship, TransportMode mode) {
+        graphRelationship.addTransportMode(mode);
     }
 
     public static IdFor<Station> getStationId(Entity entity) {
@@ -151,10 +149,18 @@ public class GraphProps {
         return Duration.ofMinutes(value);
     }
 
+    public static Duration getCost(GraphRelationship relationship) {
+        return relationship.getCost();
+    }
+
     // TODO Change to seconds, not minutes
     public static void setCostProp(Entity entity, Duration duration) {
         int minutes = roundUpNearestMinute(duration);
         entity.setProperty(COST.getText(), minutes);
+    }
+
+    public static void setCostProp(GraphRelationship relationship, Duration duration) {
+        relationship.setCost(duration);
     }
 
     // TODO Change to seconds, not minutes
@@ -163,7 +169,12 @@ public class GraphProps {
         entity.setProperty(MAX_COST.getText(), minutes);
     }
 
-    private static int roundUpNearestMinute(Duration duration) {
+    public static void setMaxCostProp(GraphRelationship relationship, Duration duration) {
+        relationship.setMaxCost(duration);
+    }
+
+    // TOOD MOVE
+    public static int roundUpNearestMinute(Duration duration) {
         @SuppressWarnings("WrapperTypeMayBePrimitive")
         Double minutes = Math.ceil(duration.toSeconds()/60D);
         return minutes.intValue();
@@ -209,7 +220,7 @@ public class GraphProps {
         return getServiceIdFrom(entity);
     }
 
-    static void setHourProp(Entity entity, Integer value) {
+    public static void setHourProp(Entity entity, Integer value) {
         entity.setProperty(HOUR.getText(), value);
     }
 
@@ -248,12 +259,20 @@ public class GraphProps {
         relationship.setProperty(STOP_SEQ_NUM.getText(), stopSequenceNumber);
     }
 
+    public static void setStopSequenceNumber(GraphRelationship relationship, int stopSequenceNumber) {
+        relationship.setStopSeqNum(stopSequenceNumber);
+    }
+
     public static int getStopSequenceNumber(Relationship relationship) {
         return (int) relationship.getProperty(STOP_SEQ_NUM.getText());
     }
 
     public static IdFor<Route> getRouteIdFrom(GraphNode graphNode) {
         return getRouteIdFrom(graphNode.getNode());
+    }
+
+    public static IdFor<Route> getRouteIdFrom(GraphRelationship graphRelationship) {
+        return graphRelationship.getRouteId();
     }
 
     public static IdFor<Route> getRouteIdFrom(Entity entity) {
@@ -265,7 +284,7 @@ public class GraphProps {
     }
 
     public static IdFor<Station> getStationIdFrom(GraphNode graphNode) {
-        return getStationIdFrom(graphNode.getNode());
+        return graphNode.getStationId();
     }
 
     public static IdFor<Station> getTowardsStationIdFrom(Entity entity) {
@@ -319,6 +338,10 @@ public class GraphProps {
         entity.setProperty(AREA_ID.getText(), areaId.getGraphId());
     }
 
+    public static void setProperty(GraphNode entity, IdFor<NaptanArea> areaId) {
+        setProperty(entity.getNode(), areaId);
+    }
+
     public static boolean validOn(TramDate date, Relationship relationship) {
         return validOn(date.toLocalDate(), relationship);
     }
@@ -340,7 +363,13 @@ public class GraphProps {
         setEndDate(entity, range.getEndDate().toLocalDate());
     }
 
+    public static void setDateRange(GraphRelationship graphRelationship, DateRange range) {
+        graphRelationship.setDateRange(range);
+    }
+
     public static IdFor<Platform> getPlatformIdFrom(GraphNode graphNode) {
         return getPlatformIdFrom(graphNode.getNode());
     }
+
+
 }

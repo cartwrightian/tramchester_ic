@@ -17,7 +17,6 @@ import com.tramchester.mappers.Geography;
 import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.StationsWithDiversionRepository;
 import org.apache.commons.lang3.tuple.Pair;
-import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +48,8 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships i
     @Inject
     public AddWalksForClosedGraphBuilder(GraphDatabase database, GraphFilter filter, GraphQuery graphQuery,
                                          ClosedStationsRepository closedStationsRepository,
-                                         TramchesterConfig config, StationsAndLinksGraphBuilder.Ready ready,
+                                         TramchesterConfig config,
+                                         @SuppressWarnings("unused") StationsAndLinksGraphBuilder.Ready ready,
                                          Geography geography) {
         super(database);
         this.database = database;
@@ -213,8 +213,8 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships i
                 throw new RuntimeException(msg);
             }
 
-            Relationship fromClosed = createRelationship(closedNode, otherNode, DIVERSION);
-            Relationship fromOther = createRelationship(otherNode, closedNode, DIVERSION);
+            GraphRelationship fromClosed = createRelationship(closedNode, otherNode, DIVERSION);
+            GraphRelationship fromOther = createRelationship(otherNode, closedNode, DIVERSION);
 
             setCommonProperties(fromClosed, cost, closure);
             setCommonProperties(fromOther, cost, closure);
@@ -256,7 +256,7 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships i
             GraphNode firstNode = graphQuery.getStationNode(txn, first);
             GraphNode secondNode = graphQuery.getStationNode(txn, second);
 
-            Relationship relationship = createRelationship(firstNode, secondNode, DIVERSION);
+            GraphRelationship relationship = createRelationship(firstNode, secondNode, DIVERSION);
             setCommonProperties(relationship, cost, closure);
             GraphProps.setProperty(relationship, second);
         });
@@ -266,10 +266,12 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships i
         return toLinkViaDiversion.size();
     }
 
-    private void setCommonProperties(Relationship relationship, Duration cost, ClosedStation closure) {
-        GraphProps.setCostProp(relationship, cost);
-        GraphProps.setStartDate(relationship, closure.getDateRange().getStartDate());
-        GraphProps.setEndDate(relationship, closure.getDateRange().getEndDate());
+    private void setCommonProperties(GraphRelationship relationship, Duration cost, ClosedStation closure) {
+//        GraphProps.setCostProp(relationship, cost);
+        relationship.setCost(cost);
+        relationship.setDateRange(closure.getDateRange());
+//        relationship.setStartDate(closure.getDateRange().getStartDate());
+//        relationship.setEndDate(closure.getDateRange().getEndDate());
     }
 
     @Override

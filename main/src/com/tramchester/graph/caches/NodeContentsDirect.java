@@ -6,6 +6,7 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphNode;
+import com.tramchester.graph.GraphRelationship;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
 import org.neo4j.graphdb.Node;
@@ -55,7 +56,7 @@ public class NodeContentsDirect implements NodeContentsRepository {
     }
 
     @Override
-    public void deleteFromCostCache(Relationship relationship) {
+    public void deleteFromCostCache(GraphRelationship relationship) {
         // no-op
     }
 

@@ -1,6 +1,5 @@
 package com.tramchester.integration.graph.railAndTram;
 
-import com.google.common.collect.Lists;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.id.IdFor;
@@ -9,10 +8,7 @@ import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphNode;
-import com.tramchester.graph.GraphQuery;
-import com.tramchester.graph.GraphTransaction;
+import com.tramchester.graph.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
@@ -23,9 +19,9 @@ import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.GMTest;
-import org.assertj.core.util.Streams;
 import org.junit.jupiter.api.*;
-import org.neo4j.graphdb.*;
+import org.neo4j.graphdb.Direction;
+import org.neo4j.graphdb.Relationship;
 
 import java.time.Duration;
 import java.util.List;
@@ -78,12 +74,12 @@ class RailAndTramGraphBuilderTest {
     void shouldHaveLinkRelationshipsCorrectForInterchange() {
         Station cornbrook = Cornbrook.from(stationRepository);
         GraphNode cornbrookNode = graphQuery.getStationNode(txn, cornbrook);
-        Iterable<Relationship> outboundLinks = cornbrookNode.getRelationships(Direction.OUTGOING, LINKED);
+        Stream<GraphRelationship> outboundLinks = cornbrookNode.getRelationships(Direction.OUTGOING, LINKED);
 
-        List<Relationship> list = Lists.newArrayList(outboundLinks);
+        List<GraphRelationship> list = outboundLinks.toList();
         assertEquals(3, list.size());
 
-        Set<IdFor<Station>> destinations = list.stream().map(Relationship::getEndNode).
+        Set<IdFor<Station>> destinations = list.stream().map(GraphRelationship::getEndNode).
                 map(GraphProps::getStationId).collect(Collectors.toSet());
 
         assertTrue(destinations.contains(TraffordBar.getId()));
@@ -123,17 +119,17 @@ class RailAndTramGraphBuilderTest {
         assertNotNull(altyTramNode);
         assertNotNull(altyTrainNode);
 
-        List<Relationship> fromTram = Streams.stream(altyTramNode.getRelationships(Direction.OUTGOING, NEIGHBOUR)).toList();
+        List<GraphRelationship> fromTram = altyTramNode.getRelationships(Direction.OUTGOING, NEIGHBOUR).toList();
         assertEquals(1, fromTram.size(), "Wrong number of neighbours " + fromTram);
 
-        Relationship tramNeighbour = fromTram.get(0);
+        GraphRelationship tramNeighbour = fromTram.get(0);
         assertEquals(altyTrainNode, GraphNode.fromEnd(tramNeighbour));
         assertEquals(expectedCost, GraphProps.getCost(tramNeighbour));
 
-        List<Relationship> fromTrain = Streams.stream(altyTrainNode.getRelationships(Direction.OUTGOING, NEIGHBOUR)).toList();
+        List<GraphRelationship> fromTrain = altyTrainNode.getRelationships(Direction.OUTGOING, NEIGHBOUR).toList();
         assertEquals(1, fromTrain.size(), "Wrong number of neighbours " + fromTram);
 
-        Relationship trainNeighbour = fromTrain.get(0);
+        GraphRelationship trainNeighbour = fromTrain.get(0);
         assertEquals(altyTramNode, GraphNode.fromEnd(trainNeighbour));
         assertEquals(expectedCost, GraphProps.getCost(trainNeighbour));
 

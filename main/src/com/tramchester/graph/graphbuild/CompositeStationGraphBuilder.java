@@ -14,7 +14,6 @@ import com.tramchester.graph.TimedTransaction;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.mappers.Geography;
 import com.tramchester.repository.StationGroupsRepository;
-import org.neo4j.graphdb.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -113,11 +112,11 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
     }
 
     private GraphNode createGroupedStationNodes(GraphTransaction txn, StationGroup stationGroup) {
-        Node groupNode = createGraphNodeOld(txn, GraphLabel.GROUPED);
+        GraphNode groupNode = createGraphNode(txn, GraphLabel.GROUPED);
         IdFor<NaptanArea> areaId = stationGroup.getAreaId();
         GraphProps.setProperty(groupNode, areaId);
         GraphProps.setProperty(groupNode, stationGroup);
-        return GraphNode.from(groupNode);
+        return groupNode;
     }
 
     private void linkStations(GraphTransaction txn, GraphNode parentNode, StationGroup stationGroup) {

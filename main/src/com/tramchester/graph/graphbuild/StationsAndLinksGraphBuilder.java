@@ -17,7 +17,6 @@ import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.metrics.Timing;
 import com.tramchester.repository.TransportData;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +25,7 @@ import javax.inject.Inject;
 import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.GTFSPickupDropoffType.Regular;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
@@ -159,18 +159,24 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
     private void linkStationAndRouteStation(GraphTransaction txn, Station station, GraphNode routeStationNode, TransportMode transportMode) {
         GraphNode stationNode = builderCache.getStation(txn, station.getId());
 
-        final Relationship stationToRoute = stationNode.createRelationshipTo(routeStationNode, STATION_TO_ROUTE);
-        final Relationship routeToStation = routeStationNode.createRelationshipTo(stationNode, ROUTE_TO_STATION);
+        final GraphRelationship stationToRoute = stationNode.createRelationshipTo(routeStationNode, STATION_TO_ROUTE);
+        final GraphRelationship routeToStation = routeStationNode.createRelationshipTo(stationNode, ROUTE_TO_STATION);
 
         final Duration minimumChangeCost = station.getMinChangeDuration();
-        GraphProps.setCostProp(stationToRoute, minimumChangeCost);
-        GraphProps.setCostProp(routeToStation, Duration.ZERO);
+//        GraphProps.setCostProp(stationToRoute, minimumChangeCost);
+        stationToRoute.setCost(minimumChangeCost);
+        //GraphProps.setCostProp(routeToStation, Duration.ZERO);
+        routeToStation.setCost(Duration.ZERO);
 
-        GraphProps.setProperty(routeToStation, transportMode);
-        GraphProps.setProperty(stationToRoute, transportMode);
+        //GraphProps.setProperty(routeToStation, transportMode);
+        routeToStation.setTransportMode(transportMode);
+        //GraphProps.setProperty(stationToRoute, transportMode);
+        stationToRoute.setTransportMode(transportMode);
 
-        GraphProps.setMaxCostProp(stationToRoute, minimumChangeCost);
-        GraphProps.setMaxCostProp(routeToStation, Duration.ZERO);
+        //GraphProps.setMaxCostProp(stationToRoute, minimumChangeCost);
+        stationToRoute.setMaxCost(minimumChangeCost);
+        //GraphProps.setMaxCostProp(routeToStation, Duration.ZERO);
+        routeToStation.setMaxCost(Duration.ZERO);
     }
 
     // NOTE: for services that skip some stations, but same stations not skipped by other services
@@ -211,10 +217,10 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
 
     private void createLinkRelationship(GraphNode from, GraphNode to, TransportMode mode) {
         if (from.hasRelationship(OUTGOING, LINKED)) {
-            Iterable<Relationship> existings = from.getRelationships(OUTGOING, LINKED);
+            Stream<GraphRelationship> existings = from.getRelationships(OUTGOING, LINKED);
 
             // if there is an existing link between stations then update iff the transport mode not already present
-            for (Relationship existing : existings) {
+            existings.forEach( existing -> {
                 if (GraphNode.fromEnd(existing).equals(to)) {
                     Set<TransportMode> existingModes = getTransportModes(existing);
                     if (!existingModes.contains(mode)) {
@@ -222,10 +228,10 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
                     }
                     return;
                 }
-            }
+            });
         }
 
-        Relationship stationsLinked = createRelationship(from, to, LINKED);
+        GraphRelationship stationsLinked = createRelationship(from, to, LINKED);
         addTransportMode(stationsLinked, mode);
     }
 

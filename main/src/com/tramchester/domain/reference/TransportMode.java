@@ -3,7 +3,6 @@ package com.tramchester.domain.reference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tramchester.domain.HasTransportMode;
 import com.tramchester.domain.HasTransportModes;
-import org.apache.commons.collections4.SetUtils;
 
 import java.util.*;
 
@@ -51,12 +50,12 @@ public enum TransportMode implements HasTransportMode {
         return index.get(number);
     }
 
-    public static Set<TransportMode> fromNumbers(short[] numbers) {
+    public static EnumSet<TransportMode> fromNumbers(short[] numbers) {
         Set<TransportMode> result = new HashSet<>();
         for (short value : numbers) {
             result.add(index.get(value));
         }
-        return result;
+        return EnumSet.copyOf(result);
     }
 
     public static boolean intersects(EnumSet<TransportMode> modesA, EnumSet<TransportMode> modesB) {

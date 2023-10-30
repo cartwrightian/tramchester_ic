@@ -28,7 +28,6 @@ import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.graph.search.RouteCalculatorArriveBy;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
 import com.tramchester.mappers.Geography;
-import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -155,7 +154,7 @@ public class LocationJourneyPlanner {
         WalkNodesAndRelationships nodesAndRelationships = new WalkNodesAndRelationships(txn, graphQuery, nodeOperations);
 
         GraphNode endWalk = nodesAndRelationships.createWalkingNode(destination, journeyRequest);
-        List<Relationship> addedRelationships = new LinkedList<>();
+        List<GraphRelationship> addedRelationships = new LinkedList<>();
 
         nodesAndRelationships.createWalksToDest(endWalk, walksToDest);
 
@@ -267,7 +266,7 @@ public class LocationJourneyPlanner {
         private final GraphQuery graphQuery;
         private final NodeContentsRepository nodeOperations;
         private final GraphTransaction txn;
-        private final List<Relationship> relationships;
+        private final List<GraphRelationship> relationships;
         private final List<GraphNode> nodes;
 
         private WalkNodesAndRelationships(GraphTransaction txn, GraphQuery graphQuery, NodeContentsRepository nodeOperations) {
@@ -293,7 +292,7 @@ public class LocationJourneyPlanner {
 //            nodes.add(node);
 //        }
 
-        public void addAll(List<Relationship> relationshipList) {
+        public void addAll(List<GraphRelationship> relationshipList) {
             relationships.addAll(relationshipList);
         }
 
@@ -319,16 +318,16 @@ public class LocationJourneyPlanner {
         }
 
         private void createWalkRelationships(GraphNode node, Set<StationWalk> walks, TransportRelationshipTypes direction) {
-            List<Relationship> addedRelationships = new ArrayList<>();
+            List<GraphRelationship> addedRelationships = new ArrayList<>();
             walks.forEach(stationWalk -> addedRelationships.add(createWalkRelationship(node, stationWalk, direction)));
             relationships.addAll(addedRelationships);
         }
 
-        private Relationship createWalkRelationship(GraphNode walkNode, StationWalk stationWalk, TransportRelationshipTypes direction) {
+        private GraphRelationship createWalkRelationship(GraphNode walkNode, StationWalk stationWalk, TransportRelationshipTypes direction) {
             Station walkStation = stationWalk.getStation();
             Duration cost = stationWalk.getCost();
 
-            Relationship walkingRelationship;
+            GraphRelationship walkingRelationship;
             GraphNode stationNode = graphQuery.getStationNode(txn, walkStation);
             if (stationNode==null) {
                 throw new RuntimeException("Could not find node for " + walkStation);

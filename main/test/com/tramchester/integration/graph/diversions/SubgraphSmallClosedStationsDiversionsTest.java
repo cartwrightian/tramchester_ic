@@ -28,8 +28,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -37,6 +35,7 @@ import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.tramchester.graph.graphbuild.GraphLabel.PLATFORM;
 import static com.tramchester.graph.graphbuild.GraphLabel.ROUTE_STATION;
@@ -274,7 +273,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
         try (GraphTransaction txn = graphDatabase.beginTx()) {
             exchange.getPlatforms().forEach(platform -> {
                 GraphNode node = graphQuery.getPlatformNode(txn, platform);
-                Iterable<Relationship> iterable = node.getRelationships(Direction.INCOMING, TransportRelationshipTypes.DIVERSION_DEPART);
+                Stream<GraphRelationship> iterable = node.getRelationships(Direction.INCOMING, TransportRelationshipTypes.DIVERSION_DEPART);
 
                 iterable.forEach(relationship -> foundRelationshipIds.add(relationship.getId()));
             });
@@ -284,10 +283,10 @@ class SubgraphSmallClosedStationsDiversionsTest {
         assertFalse(foundRelationshipIds.isEmpty());
 
         try (GraphTransaction txn = graphDatabase.beginTx()) {
-            Relationship relationship = txn.getRelationshipById(foundRelationshipIds.get(0));
-            Node from = relationship.getStartNode();
+            GraphRelationship relationship = txn.getRelationshipById(foundRelationshipIds.get(0));
+            GraphNode from = relationship.getStartNode();
             assertTrue(from.hasLabel(ROUTE_STATION), from.getAllProperties().toString());
-            Node to = relationship.getEndNode();
+            GraphNode to = relationship.getEndNode();
             assertTrue(to.hasLabel(PLATFORM));
         }
 

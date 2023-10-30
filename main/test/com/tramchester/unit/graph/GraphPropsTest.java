@@ -11,10 +11,7 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphNode;
-import com.tramchester.graph.GraphTransaction;
-import com.tramchester.graph.TransportRelationshipTypes;
+import com.tramchester.graph.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
@@ -24,7 +21,6 @@ import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
 import com.tramchester.unit.graph.calculation.SimpleGraphConfig;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
-import org.neo4j.graphdb.Relationship;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -32,10 +28,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static com.tramchester.graph.GraphPropertyKey.DAY_OFFSET;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class GraphPropsTest {
+
+    // TODO Split into GraphNodeTest and GraphRelationshipTest
 
     private static ComponentContainer componentContainer;
     private static SimpleGraphConfig config;
@@ -78,14 +75,15 @@ public class GraphPropsTest {
         GraphNode nodeA = txn.createNode(GraphLabel.ROUTE_STATION);
         GraphNode nodeB = txn.createNode(GraphLabel.ROUTE_STATION);
 
-        Relationship relationship = nodeA.createRelationshipTo(nodeB, TransportRelationshipTypes.ON_ROUTE);
+        GraphRelationship relationship = nodeA.createRelationshipTo(nodeB, TransportRelationshipTypes.ON_ROUTE);
 
         IdFor<Route> routeId = StringIdFor.createId("routeId", Route.class);
         IdFor<RouteStation> id = RouteStation.createId(TramStations.ExchangeSquare.getId(), routeId);
 
-        GraphProps.setRouteStationProp(relationship, id);
+        //GraphProps.setRouteStationProp(relationship, id);
+        relationship.setRouteStationId(id);
 
-        IdFor<RouteStation> result = GraphProps.getRouteStationIdFrom(relationship);
+        IdFor<RouteStation> result = relationship.getRouteStationId(); //GraphProps.getRouteStationIdFrom(relationship);
 
         assertEquals(id, result);
     }
@@ -95,15 +93,16 @@ public class GraphPropsTest {
         GraphNode nodeA = txn.createNode(GraphLabel.ROUTE_STATION);
         GraphNode nodeB = txn.createNode(GraphLabel.ROUTE_STATION);
 
-        Relationship relationship = nodeA.createRelationshipTo(nodeB, TransportRelationshipTypes.ON_ROUTE);
+        GraphRelationship relationship = nodeA.createRelationshipTo(nodeB, TransportRelationshipTypes.ON_ROUTE);
 
         IdFor<Route> routeId = getRailRouteId();
 
         IdFor<RouteStation> id = RouteStation.createId(RailStationIds.Stockport.getId(), routeId);
 
-        GraphProps.setRouteStationProp(relationship, id);
+        //GraphProps.setRouteStationProp(relationship, id);
+        relationship.setRouteStationId(id);
 
-        IdFor<RouteStation> result = GraphProps.getRouteStationIdFrom(relationship);
+        IdFor<RouteStation> result = relationship.getRouteStationId(); //GraphProps.getRouteStationIdFrom(relationship);
 
         assertEquals(id, result);
     }
@@ -140,13 +139,13 @@ public class GraphPropsTest {
         GraphNode nodeA = txn.createNode(GraphLabel.ROUTE_STATION);
         GraphNode nodeB = txn.createNode(GraphLabel.ROUTE_STATION);
 
-        Relationship relationship = nodeA.createRelationshipTo(nodeB, TransportRelationshipTypes.ON_ROUTE);
+        GraphRelationship relationship = nodeA.createRelationshipTo(nodeB, TransportRelationshipTypes.ON_ROUTE);
 
         TramTime time = TramTime.of(23,42);
 
-        GraphProps.setTimeProp(relationship, time);
+        relationship.setTime(time);
 
-        TramTime result = GraphProps.getTime(relationship);
+        TramTime result = relationship.getTime();
 
         assertEquals(time, result);
     }
@@ -157,17 +156,18 @@ public class GraphPropsTest {
         GraphNode nodeA = txn.createNode(GraphLabel.ROUTE_STATION);
         GraphNode nodeB = txn.createNode(GraphLabel.ROUTE_STATION);
 
-        Relationship relationship = nodeA.createRelationshipTo(nodeB, TransportRelationshipTypes.ON_ROUTE);
+        GraphRelationship relationship = nodeA.createRelationshipTo(nodeB, TransportRelationshipTypes.ON_ROUTE);
 
         TramTime time = TramTime.nextDay(9,53);
 
-        GraphProps.setTimeProp(relationship, time);
+        relationship.setTime(time);
 
-        TramTime result = GraphProps.getTime(relationship);
+        TramTime result = relationship.getTime();
 
         assertEquals(time, result);
 
-        Boolean flag = (Boolean) relationship.getProperty(DAY_OFFSET.getText());
+        //Boolean flag = (Boolean) relationship.getProperty(DAY_OFFSET.getText());
+        boolean flag = relationship.isDayOffset();
         assertNotNull(flag);
         assertTrue(flag);
     }
@@ -178,7 +178,7 @@ public class GraphPropsTest {
         GraphNode nodeA = txn.createNode(GraphLabel.ROUTE_STATION);
         GraphNode nodeB = txn.createNode(GraphLabel.ROUTE_STATION);
 
-        Relationship relationship = nodeA.createRelationshipTo(nodeB, TransportRelationshipTypes.ON_ROUTE);
+        GraphRelationship relationship = nodeA.createRelationshipTo(nodeB, TransportRelationshipTypes.ON_ROUTE);
 
         GraphProps.addTransportMode(relationship, TransportMode.Train);
 
@@ -228,7 +228,7 @@ public class GraphPropsTest {
         GraphNode nodeA = txn.createNode(GraphLabel.ROUTE_STATION);
         GraphNode nodeB = txn.createNode(GraphLabel.ROUTE_STATION);
 
-        Relationship relationship = nodeA.createRelationshipTo(nodeB, TransportRelationshipTypes.ON_ROUTE);
+        GraphRelationship relationship = nodeA.createRelationshipTo(nodeB, TransportRelationshipTypes.ON_ROUTE);
 
         Duration duration = Duration.ofMinutes(42);
 
@@ -244,7 +244,7 @@ public class GraphPropsTest {
         GraphNode nodeA = txn.createNode(GraphLabel.ROUTE_STATION);
         GraphNode nodeB = txn.createNode(GraphLabel.ROUTE_STATION);
 
-        Relationship relationship = nodeA.createRelationshipTo(nodeB, TransportRelationshipTypes.ON_ROUTE);
+        GraphRelationship relationship = nodeA.createRelationshipTo(nodeB, TransportRelationshipTypes.ON_ROUTE);
 
         Duration duration = Duration.ofMinutes(42).plusSeconds(15);
 
@@ -260,7 +260,7 @@ public class GraphPropsTest {
         GraphNode nodeA = txn.createNode(GraphLabel.ROUTE_STATION);
         GraphNode nodeB = txn.createNode(GraphLabel.ROUTE_STATION);
 
-        Relationship relationship = nodeA.createRelationshipTo(nodeB, TransportRelationshipTypes.ON_ROUTE);
+        GraphRelationship relationship = nodeA.createRelationshipTo(nodeB, TransportRelationshipTypes.ON_ROUTE);
 
         Duration duration = Duration.ofMinutes(42).plusSeconds(55);
 

@@ -7,6 +7,7 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphNode;
+import com.tramchester.graph.GraphRelationship;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -26,7 +27,7 @@ public interface NodeContentsRepository  {
 
     IdFor<Trip> getTripId(Relationship relationship);
     Duration getCost(Relationship lastRelationship);
-    void deleteFromCostCache(Relationship relationship);
+    void deleteFromCostCache(GraphRelationship relationship);
 
     EnumSet<GraphLabel> getLabels(Node node);
 

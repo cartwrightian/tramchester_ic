@@ -1,15 +1,23 @@
 package com.tramchester.graph;
 
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.Station;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.graphbuild.GraphLabel;
-import org.neo4j.graphdb.*;
+import org.neo4j.graphdb.Direction;
+import org.neo4j.graphdb.Label;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Stream;
 
-import static com.tramchester.graph.GraphPropertyKey.HOUR;
+import static com.tramchester.graph.GraphPropertyKey.*;
 
-public class GraphNode {
-    private final Node neo4jNode;
+public class GraphNode extends HaveGraphProperties {
+    private final Node theNode;
     private final long id;
 
     public static GraphNode from(Node neo4jNode) {
@@ -20,11 +28,11 @@ public class GraphNode {
         return new GraphNode(neo4jNode);
     }
 
-    GraphNode(Node neo4jNode) {
-        this.neo4jNode = neo4jNode;
+    GraphNode(Node theNode) {
+        this.theNode = theNode;
 
         // todo remove/replace with get element Id
-        this.id = neo4jNode.getId();
+        this.id = theNode.getId();
     }
 
     @Deprecated
@@ -32,38 +40,38 @@ public class GraphNode {
         return id;
     }
 
-    public static GraphNode fromEnd(Relationship relationship) {
-        return from(relationship.getEndNode());
+    public static GraphNode fromEnd(GraphRelationship relationship) {
+        return relationship.getEndNode();
     }
 
-    public static GraphNode fromStart(Relationship relationship) {
-        return from(relationship.getStartNode());
+    public static GraphNode fromStart(GraphRelationship relationship) {
+        return relationship.getStartNode();
     }
 
     public Node getNode() {
-        return neo4jNode;
+        return theNode;
     }
 
-    public Relationship createRelationshipTo(GraphNode end, TransportRelationshipTypes relationshipTypes) {
-        return neo4jNode.createRelationshipTo(end.neo4jNode, relationshipTypes);
+    public GraphRelationship createRelationshipTo(GraphNode end, TransportRelationshipTypes relationshipTypes) {
+        return new GraphRelationship(theNode.createRelationshipTo(end.theNode, relationshipTypes));
     }
 
     public void delete() {
-        neo4jNode.delete();
+        theNode.delete();
     }
 
-    public ResourceIterable<Relationship> getRelationships(Direction direction, TransportRelationshipTypes relationshipType) {
-        return neo4jNode.getRelationships(direction, relationshipType);
+    public Stream<GraphRelationship> getRelationships(Direction direction, TransportRelationshipTypes relationshipType) {
+        return theNode.getRelationships(direction, relationshipType).stream().map(GraphRelationship::new);
     }
 
-    public ResourceIterable<Relationship> getRelationships(Direction direction, TransportRelationshipTypes[] transportRelationshipTypes) {
-        return neo4jNode.getRelationships(direction, transportRelationshipTypes);
+    public Stream<GraphRelationship> getRelationships(Direction direction, TransportRelationshipTypes[] transportRelationshipTypes) {
+        return theNode.getRelationships(direction, transportRelationshipTypes).stream().map(GraphRelationship::new);
     }
 
     @Override
     public String toString() {
         return "GraphNode{" +
-                "neo4jNode=" + neo4jNode +
+                "neo4jNode=" + theNode +
                 ", id=" + id +
                 '}';
     }
@@ -82,38 +90,51 @@ public class GraphNode {
     }
 
     public boolean hasRelationship(Direction direction, TransportRelationshipTypes transportRelationshipTypes) {
-        return neo4jNode.hasRelationship(direction, transportRelationshipTypes);
+        return theNode.hasRelationship(direction, transportRelationshipTypes);
     }
 
     public void addLabel(Label label) {
-        neo4jNode.addLabel(label);
+        theNode.addLabel(label);
     }
 
     public void setHourProp(Integer hour) {
-        neo4jNode.setProperty(HOUR.getText(), hour);
+        theNode.setProperty(HOUR.getText(), hour);
     }
 
-    public Map<String, Object> getAllProperties() {
-        return neo4jNode.getAllProperties();
-    }
 
     public boolean hasLabel(GraphLabel graphLabel) {
-        return neo4jNode.hasLabel(graphLabel);
+        return theNode.hasLabel(graphLabel);
     }
 
     public Object getProperty(String key) {
-        return neo4jNode.getProperty(key);
+        return theNode.getProperty(key);
     }
 
     public Relationship getSingleRelationship(TransportRelationshipTypes transportRelationshipTypes, Direction direction) {
-        return neo4jNode.getSingleRelationship(transportRelationshipTypes,direction);
+        return theNode.getSingleRelationship(transportRelationshipTypes,direction);
     }
 
     public Iterable<Label> getLabels() {
-        return neo4jNode.getLabels();
+        return theNode.getLabels();
     }
 
     public void setProperty(GraphPropertyKey graphPropertyKey, String name) {
-        neo4jNode.setProperty(graphPropertyKey.getText(), name);
+        theNode.setProperty(graphPropertyKey.getText(), name);
+    }
+
+    public void setTime(TramTime tramTime) {
+        setTime(tramTime, theNode);
+    }
+
+    public IdFor<Station> getStationId() {
+        return getIdFor(Station.class, theNode);
+    }
+
+    public void set(Trip trip) {
+        set(trip, theNode);
+    }
+
+    public Map<String,Object> getAllProperties() {
+        return getAllProperties(theNode);
     }
 }

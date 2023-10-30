@@ -3,7 +3,6 @@ package com.tramchester.domain.id;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.CoreDomain;
-import com.tramchester.domain.Platform;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.GraphPropertyKey;
 import org.neo4j.graphdb.Entity;

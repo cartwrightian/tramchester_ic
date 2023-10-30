@@ -8,11 +8,9 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.Relationship;
 
 import javax.inject.Inject;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 /***
@@ -48,8 +46,6 @@ public class GraphQuery {
         return txn.findNode(stationGroup);
     }
 
-
-
     public GraphNode getLocationNode(GraphTransaction txn, Location<?> location) {
         return txn.findNode(location);
     }
@@ -57,14 +53,12 @@ public class GraphQuery {
     /**
      * When calling from tests make sure relevant DB is fully built
      */
-    public List<Relationship> getRouteStationRelationships(GraphTransaction txn, RouteStation routeStation, Direction direction) {
+    public List<GraphRelationship> getRouteStationRelationships(GraphTransaction txn, RouteStation routeStation, Direction direction) {
         GraphNode routeStationNode = getRouteStationNode(txn, routeStation);
         if (routeStationNode==null) {
             return Collections.emptyList();
         }
-        List<Relationship> result = new LinkedList<>();
-        routeStationNode.getRelationships(direction, TransportRelationshipTypes.forPlanning()).forEach(result::add);
-        return result;
+        return routeStationNode.getRelationships(direction, TransportRelationshipTypes.forPlanning()).toList();
     }
 
     public boolean hasAnyNodesWithLabelAndId(GraphTransaction txn, GraphLabel label, String field, String value) {
