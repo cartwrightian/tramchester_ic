@@ -5,7 +5,6 @@ import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.databaseManagement.GraphDatabaseLifecycleManager;
 import com.tramchester.graph.graphbuild.GraphLabel;
-import com.tramchester.metrics.TimedTransaction;
 import com.tramchester.repository.DataSourceRepository;
 import org.neo4j.graphalgo.BasicEvaluationContext;
 import org.neo4j.graphalgo.EvaluationContext;

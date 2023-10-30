@@ -11,7 +11,7 @@ import com.tramchester.domain.time.Durations;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
-import com.tramchester.metrics.TimedTransaction;
+import com.tramchester.graph.TimedTransaction;
 import com.tramchester.metrics.Timing;
 import org.apache.commons.lang3.tuple.Pair;
 import org.neo4j.graphdb.Path;

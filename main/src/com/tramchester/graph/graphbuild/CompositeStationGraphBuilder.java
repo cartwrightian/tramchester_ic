@@ -11,7 +11,7 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphNode;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.mappers.Geography;
-import com.tramchester.metrics.TimedTransaction;
+import com.tramchester.graph.TimedTransaction;
 import com.tramchester.repository.StationGroupsRepository;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.ResourceIterator;

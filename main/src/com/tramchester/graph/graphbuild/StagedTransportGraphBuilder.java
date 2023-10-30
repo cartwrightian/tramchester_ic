@@ -21,7 +21,7 @@ import com.tramchester.graph.GraphNode;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
 import com.tramchester.graph.filters.GraphFilter;
-import com.tramchester.metrics.TimedTransaction;
+import com.tramchester.graph.TimedTransaction;
 import com.tramchester.metrics.Timing;
 import com.tramchester.repository.*;
 import org.jetbrains.annotations.NotNull;
@@ -76,9 +76,9 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     public StagedTransportGraphBuilder(GraphDatabase graphDatabase, HasGraphDBConfig config, GraphFilter graphFilter,
                                        TransportData transportData, InterchangeRepository interchangeRepository,
                                        GraphBuilderCache builderCache,
-                                       StationsAndLinksGraphBuilder.Ready stationAndLinksBuilt,
-                                       AddNeighboursGraphBuilder.Ready neighboursReady,
-                                       AddWalksForClosedGraphBuilder.Ready walksForClosedReady,
+                                       @SuppressWarnings("unused") StationsAndLinksGraphBuilder.Ready stationAndLinksBuilt,
+                                       @SuppressWarnings("unused") AddNeighboursGraphBuilder.Ready neighboursReady,
+                                       @SuppressWarnings("unused") AddWalksForClosedGraphBuilder.Ready walksForClosedReady,
                                        GraphDatabaseMetaInfo databaseMetaInfo, StopCallRepository stopCallRepository,
                                        StationsWithDiversionRepository stationsWithDiversionRepository) {
         super(graphDatabase, graphFilter, config, builderCache);

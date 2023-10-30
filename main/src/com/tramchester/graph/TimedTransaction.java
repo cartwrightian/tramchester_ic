@@ -1,6 +1,6 @@
-package com.tramchester.metrics;
+package com.tramchester.graph;
 
-import com.tramchester.graph.GraphDatabase;
+import com.tramchester.metrics.Timing;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 

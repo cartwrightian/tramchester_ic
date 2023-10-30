@@ -13,7 +13,7 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphNode;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.filters.GraphFilter;
-import com.tramchester.metrics.TimedTransaction;
+import com.tramchester.graph.TimedTransaction;
 import com.tramchester.metrics.Timing;
 import com.tramchester.repository.TransportData;
 import org.neo4j.graphdb.Node;
