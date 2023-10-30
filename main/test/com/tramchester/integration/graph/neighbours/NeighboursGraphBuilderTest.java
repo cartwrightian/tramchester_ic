@@ -9,6 +9,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphQuery;
+import com.tramchester.graph.GraphTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.integration.testSupport.NeighboursTestConfig;
@@ -18,9 +19,9 @@ import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.ResourceIterator;
-import org.neo4j.graphdb.Transaction;
 
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.graph.graphbuild.GraphLabel.STATION;
@@ -34,7 +35,7 @@ class NeighboursGraphBuilderTest {
     private static GraphDatabase graphDatabase;
 
     private static ComponentContainer componentContainer;
-    private Transaction txn;
+    private GraphTransaction txn;
     private StationRepository stationRepository;
 
     /// Not if neighbours added, just if graph built with both Bus and Tram nodes correctly
@@ -94,14 +95,8 @@ class NeighboursGraphBuilderTest {
     }
 
     private long countStationNodes(GraphLabel graphLabel) {
-        ResourceIterator<Node> stationNodes = graphDatabase.findNodes(txn, STATION);
-        return Streams.stream(stationNodes).filter(node -> node.hasLabel(graphLabel)).count();
-//        int count = 0;
-//        while (tramNodes.hasNext()) {
-//            tramNodes.next();
-//            count++;
-//        }
-//        return count;
+        Stream<Node> stationNodes = txn.findNodesOLD(STATION); // graphDatabase.findNodes(txn, STATION);
+        return stationNodes.filter(node -> node.hasLabel(graphLabel)).count();
     }
 
 }

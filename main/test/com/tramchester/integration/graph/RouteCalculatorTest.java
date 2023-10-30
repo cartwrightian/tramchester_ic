@@ -14,17 +14,19 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.VehicleStage;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphTransaction;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.ConfigParameterResolver;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.*;
+import com.tramchester.testSupport.testTags.DataExpiryCategory;
+import com.tramchester.testSupport.testTags.DataUpdateTest;
+import com.tramchester.testSupport.testTags.DualTest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
 import java.util.*;
@@ -59,7 +61,7 @@ public class RouteCalculatorTest {
 
     private RouteCalculatorTestFacade calculator;
     private final TramDate when = TestEnv.testDay();
-    private Transaction txn;
+    private GraphTransaction txn;
     private Duration maxJourneyDuration;
     private int maxNumResults;
 

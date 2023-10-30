@@ -8,13 +8,13 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.InvalidDurationException;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphTransaction;
 import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.TrainTest;
 import org.junit.jupiter.api.*;
-import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
 import java.util.EnumSet;
@@ -29,7 +29,7 @@ public class RailRouteCostsTest {
     private static ComponentContainer componentContainer;
 
     private StationRepository stationRepository;
-    private Transaction txn;
+    private GraphTransaction txn;
     private RouteCostCalculator routeCostCalculator;
     private Station stockport;
     private Station manPicc;

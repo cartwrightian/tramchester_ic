@@ -5,6 +5,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.GraphNode;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
 import org.neo4j.graphdb.Node;
@@ -60,6 +61,12 @@ public class NodeContentsDirect implements NodeContentsRepository {
 
     @Override
     public EnumSet<GraphLabel> getLabels(Node node) {
+        final Set<GraphLabel> graphLabels = GraphLabel.from(node.getLabels());
+        return EnumSet.copyOf(graphLabels);
+    }
+
+    @Override
+    public EnumSet<GraphLabel> getLabels(GraphNode node) {
         final Set<GraphLabel> graphLabels = GraphLabel.from(node.getLabels());
         return EnumSet.copyOf(graphLabels);
     }

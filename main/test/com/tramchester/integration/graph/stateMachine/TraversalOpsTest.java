@@ -8,11 +8,11 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphTransaction;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.search.LowestCostsForDestRoutes;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
@@ -23,7 +23,6 @@ import com.tramchester.repository.TripRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
-import org.neo4j.graphdb.Transaction;
 
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.KnownLocations.nearPiccGardens;
@@ -37,7 +36,7 @@ public class TraversalOpsTest {
     private TripRepository tripRepository;
     private SortsPositions sortsPositions;
     private StationRepository stationRepository;
-    private Transaction txn;
+    private GraphTransaction txn;
     private RouteToRouteCosts routeToRouteCosts;
 
     @BeforeAll

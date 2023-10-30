@@ -11,10 +11,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphNode;
-import com.tramchester.graph.GraphQuery;
-import com.tramchester.graph.TransportRelationshipTypes;
+import com.tramchester.graph.*;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.StationClosuresForTest;
@@ -27,7 +24,6 @@ import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -53,7 +49,7 @@ class ClosedStationsDiversionsTest {
     private RouteCalculatorTestFacade calculator;
     private StationRepository stationRepository;
     private final static TramDate when = TestEnv.testDay();
-    private Transaction txn;
+    private GraphTransaction txn;
 
     private final static List<StationClosures> closedStations = Collections.singletonList(
             new StationClosuresForTest(TramStations.StPetersSquare, when, when.plusWeeks(1), true));
@@ -268,7 +264,7 @@ class ClosedStationsDiversionsTest {
         Station exchange = ExchangeSquare.from(stationRepository);
         GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
         GraphQuery graphQuery = componentContainer.get(GraphQuery.class);
-        try (Transaction txn = graphDatabase.beginTx()) {
+        try (GraphTransaction txn = graphDatabase.beginTx()) {
             exchange.getPlatforms().forEach(platform -> {
                 GraphNode node = graphQuery.getPlatformNode(txn, platform);
                 Iterable<Relationship> iterable = node.getRelationships(Direction.INCOMING, TransportRelationshipTypes.DIVERSION_DEPART);
@@ -280,7 +276,7 @@ class ClosedStationsDiversionsTest {
 
         assertFalse(foundRelationshipIds.isEmpty());
 
-        try (Transaction txn = graphDatabase.beginTx()) {
+        try (GraphTransaction txn = graphDatabase.beginTx()) {
             Relationship relationship = txn.getRelationshipById(foundRelationshipIds.get(0));
             Node from = relationship.getStartNode();
             assertTrue(from.hasLabel(ROUTE_STATION), from.getAllProperties().toString());

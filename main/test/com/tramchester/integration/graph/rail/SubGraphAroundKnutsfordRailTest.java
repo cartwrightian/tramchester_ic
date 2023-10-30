@@ -12,6 +12,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphTransaction;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
@@ -24,12 +25,14 @@ import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.TrainTest;
 import org.junit.jupiter.api.*;
-import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;
-import java.util.*;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
 
 import static com.tramchester.domain.reference.TransportMode.Train;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.Hale;
@@ -50,7 +53,7 @@ class SubGraphAroundKnutsfordRailTest {
     private static final List<RailStationIds> stations = Arrays.asList(Hale,
             RailStationIds.Ashley, RailStationIds.Mobberley, Knutsford);
 
-    private Transaction txn;
+    private GraphTransaction txn;
     private TramTime tramTime;
     private StationRepository stationRepository;
     private RouteToRouteCosts routeToRouteCosts;

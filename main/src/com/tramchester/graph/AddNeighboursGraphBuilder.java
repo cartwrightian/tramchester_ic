@@ -11,7 +11,6 @@ import com.tramchester.graph.graphbuild.CreateNodesAndRelationships;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
 import com.tramchester.repository.NeighboursRepository;
 import com.tramchester.repository.StationRepository;
-import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,7 +91,7 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
 
     private void createNeighboursInDB() {
         try(TimedTransaction timedTransaction = new TimedTransaction(database, logger, "create neighbours")) {
-            Transaction txn = timedTransaction.transaction();
+            GraphTransaction txn = timedTransaction.transaction();
                 stationRepository.getActiveStationStream().
                     filter(filter::shouldInclude).
                     filter(station -> neighboursRepository.hasNeighbours(station.getId())).
@@ -106,20 +105,20 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
 
     private boolean hasDBFlag() {
         boolean flag;
-        try (Transaction txn = graphDatabase.beginTx()) {
+        try (GraphTransaction txn = graphDatabase.beginTx()) {
             flag = databaseMetaInfo.isNeighboursEnabled(txn);
         }
         return flag;
     }
 
     private void addDBFlag() {
-        try (Transaction txn = graphDatabase.beginTx()) {
+        try (GraphTransaction txn = graphDatabase.beginTx()) {
             databaseMetaInfo.setNeighboursEnabled(txn);
             txn.commit();
         }
     }
 
-    private void addNeighbourRelationships(Transaction txn, GraphFilter filter, Station from, Set<StationLink> links) {
+    private void addNeighbourRelationships(GraphTransaction txn, GraphFilter filter, Station from, Set<StationLink> links) {
         GraphNode fromNode = graphQuery.getStationNode(txn, from);
         if (fromNode==null) {
             String msg = "Could not find database node for from: " + from.getId();

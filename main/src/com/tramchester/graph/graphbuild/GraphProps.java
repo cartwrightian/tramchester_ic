@@ -38,7 +38,16 @@ public class GraphProps {
         node.setProperty(sourceID.name(), dataSourceInfo.getVersion());
     }
 
+    public static void setProp(GraphNode node, DataSourceInfo dataSourceInfo) {
+        setProp(node.getNode(), dataSourceInfo);
+    }
+
     public static <C extends GraphProperty & CoreDomain & HasId<C>> void setProperty(Entity entity, C item) {
+        entity.setProperty(item.getProp().getText(), item.getId().getGraphId());
+    }
+
+    public static <C extends GraphProperty & CoreDomain & HasId<C>> void setProperty(GraphNode graphNode, C item) {
+        Node entity = graphNode.getNode();
         entity.setProperty(item.getProp().getText(), item.getId().getGraphId());
     }
 
@@ -68,6 +77,10 @@ public class GraphProps {
 
     public static void setProperty(Entity entity, TransportMode mode) {
         entity.setProperty(TRANSPORT_MODE.getText(), mode.getNumber());
+    }
+
+    public static void setProperty(GraphNode graphNode, TransportMode mode) {
+        setProperty(graphNode.getNode(), mode);
     }
 
     public static TransportMode getTransportMode(GraphNode graphNode) {
@@ -122,6 +135,10 @@ public class GraphProps {
 
     public static void setTowardsProp(Node node, IdFor<Station> id) {
         node.setProperty(TOWARDS_STATION_ID.getText(), id.getGraphId());
+    }
+
+    public static void setTowardsProp(GraphNode node, IdFor<Station> id) {
+        setTowardsProp(node.getNode(), id);
     }
 
     private static Object getProperty(Entity entity, GraphPropertyKey graphPropertyKey) {
@@ -209,6 +226,10 @@ public class GraphProps {
         entity.setProperty(LONGITUDE.getText(), latLong.getLon());
     }
 
+    public static void setLatLong(GraphNode graphNode, LatLong latLong) {
+        setLatLong(graphNode.getNode(), latLong);
+    }
+
     public static LatLong getLatLong(Entity entity) {
         final double lat = (double) getProperty(entity, LATITUDE);
         final double lon = (double) getProperty(entity, LONGITUDE);
@@ -217,6 +238,10 @@ public class GraphProps {
 
     public static void setWalkId(Entity entity, LatLong origin, UUID uid) {
         entity.setProperty(GraphPropertyKey.WALK_ID.getText(), origin.toString() + "_" + uid.toString());
+    }
+
+    public static void setWalkId(GraphNode graphNode, LatLong origin, UUID uid) {
+        setWalkId(graphNode.getNode(), origin, uid);
     }
 
     public static void setStopSequenceNumber(Relationship relationship, int stopSequenceNumber) {
@@ -237,6 +262,10 @@ public class GraphProps {
 
     public static IdFor<Station> getStationIdFrom(Entity entity) {
         return getIdFromGraphEntity(entity, STATION_ID, Station.class);
+    }
+
+    public static IdFor<Station> getStationIdFrom(GraphNode graphNode) {
+        return getStationIdFrom(graphNode.getNode());
     }
 
     public static IdFor<Station> getTowardsStationIdFrom(Entity entity) {
@@ -265,6 +294,10 @@ public class GraphProps {
 
     public static void setPlatformNumber(Entity entity, Platform platform) {
         entity.setProperty(PLATFORM_NUMBER.getText(), platform.getPlatformNumber());
+    }
+
+    public static void setPlatformNumber(GraphNode graphNode, Platform platform) {
+        setPlatformNumber(graphNode.getNode(), platform);
     }
 
     public static EnumSet<GraphLabel> getLabelsFor(Node node) {
@@ -305,5 +338,9 @@ public class GraphProps {
     public static void setDateRange(Entity entity, DateRange range) {
         setStartDate(entity, range.getStartDate().toLocalDate());
         setEndDate(entity, range.getEndDate().toLocalDate());
+    }
+
+    public static IdFor<Platform> getPlatformIdFrom(GraphNode graphNode) {
+        return getPlatformIdFrom(graphNode.getNode());
     }
 }

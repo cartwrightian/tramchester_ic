@@ -8,6 +8,7 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphNode;
+import com.tramchester.graph.GraphTransaction;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
@@ -75,7 +76,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         this.providesNow = providesNow;
     }
 
-    public Stream<Path> findPaths(Transaction txn, GraphNode startNode, PreviousVisits previousSuccessfulVisit, LowestCostSeen lowestCostSeen,
+    public Stream<Path> findPaths(GraphTransaction txn, GraphNode startNode, PreviousVisits previousSuccessfulVisit, LowestCostSeen lowestCostSeen,
                                   LowestCostsForDestRoutes lowestCostsForRoutes) {
         final boolean depthFirst = config.getDepthFirst();
         if (depthFirst) {

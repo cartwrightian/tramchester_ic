@@ -11,9 +11,8 @@ import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.time.InvalidDurationException;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphNode;
+import com.tramchester.graph.GraphTransaction;
 import com.tramchester.graph.RouteCostCalculator;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +39,7 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
     }
 
     @Override
-    public Stream<Journey> calculateRoute(Transaction txn, Location<?> startStation, Location<?> destination, JourneyRequest journeyRequest) {
+    public Stream<Journey> calculateRoute(GraphTransaction txn, Location<?> startStation, Location<?> destination, JourneyRequest journeyRequest) {
         try {
             Duration costToDest = costCalculator.getAverageCostBetween(txn, startStation, destination, journeyRequest.getDate(), journeyRequest.getRequestedModes());
             Duration maxInitialWait = RouteCalculatorSupport.getMaxInitialWaitFor(startStation, config);
@@ -56,7 +55,7 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
     }
 
     @Override
-    public Stream<Journey> calculateRouteWalkAtEnd(Transaction txn, Location<?> start, GraphNode endOfWalk, LocationSet  destStations,
+    public Stream<Journey> calculateRouteWalkAtEnd(GraphTransaction txn, Location<?> start, GraphNode endOfWalk, LocationSet  destStations,
                                                    JourneyRequest journeyRequest, NumberOfChanges numberOfChanges) {
         try {
             Duration costToDest = costCalculator.getAverageCostBetween(txn, start, endOfWalk, journeyRequest.getDate(), journeyRequest.getRequestedModes());
@@ -72,7 +71,7 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
     }
 
     @Override
-    public Stream<Journey> calculateRouteWalkAtStart(Transaction txn, Set<StationWalk> stationWalks, GraphNode origin, Location<?> destination,
+    public Stream<Journey> calculateRouteWalkAtStart(GraphTransaction txn, Set<StationWalk> stationWalks, GraphNode origin, Location<?> destination,
                                                      JourneyRequest journeyRequest, NumberOfChanges numberOfChanges) {
         try {
             Duration costToDest = costCalculator.getAverageCostBetween(txn, origin, destination, journeyRequest.getDate(), journeyRequest.getRequestedModes());
@@ -88,7 +87,7 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
     }
 
     @Override
-    public Stream<Journey> calculateRouteWalkAtStartAndEnd(Transaction txn, Set<StationWalk> stationWalks, GraphNode startNode,
+    public Stream<Journey> calculateRouteWalkAtStartAndEnd(GraphTransaction txn, Set<StationWalk> stationWalks, GraphNode startNode,
                                                            GraphNode endNode, LocationSet destinationStations,
                                                            JourneyRequest journeyRequest, NumberOfChanges numberOfChanges) {
         try {

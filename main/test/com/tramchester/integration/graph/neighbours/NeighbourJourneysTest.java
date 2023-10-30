@@ -15,6 +15,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphTransaction;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
 import com.tramchester.integration.testSupport.NeighboursTestConfig;
@@ -27,7 +28,6 @@ import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.*;
-import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
 import java.util.*;
@@ -49,7 +49,7 @@ public class NeighbourJourneysTest {
     private Station shudehillTram;
 
     private static ComponentContainer componentContainer;
-    private Transaction txn;
+    private GraphTransaction txn;
     private Station shudehillBusStop;
     private LocationJourneyPlanner planner;
     private RouteToRouteCosts routeToRouteCosts;

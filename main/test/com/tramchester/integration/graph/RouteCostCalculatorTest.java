@@ -8,6 +8,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.InvalidDurationException;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphTransaction;
 import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.integration.testSupport.ConfigParameterResolver;
 import com.tramchester.repository.StationRepository;
@@ -16,7 +17,6 @@ import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
 import java.util.Set;
@@ -34,7 +34,7 @@ class RouteCostCalculatorTest {
 
     private RouteCostCalculator routeCostCalculator;
     private StationRepository stationRepository;
-    private Transaction txn;
+    private GraphTransaction txn;
     private final TramDate when = TestEnv.testDay();
     private Station altrincham;
     private Station mediaCity;

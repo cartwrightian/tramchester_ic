@@ -13,6 +13,7 @@ import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.WalkingFromStationStage;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphTransaction;
 import com.tramchester.integration.testSupport.RailAndTramGreaterManchesterConfig;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -22,7 +23,6 @@ import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.GMTest;
 import org.junit.jupiter.api.*;
-import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -47,7 +47,7 @@ class RailAndTramLocationJourneyPlannerTest {
     private static IntegrationTramTestConfig testConfig;
 
     private final TramDate when = TestEnv.testDay();
-    private Transaction txn;
+    private GraphTransaction txn;
     private LocationJourneyPlannerTestFacade testFacade;
     private Duration maxJourneyDuration;
     private long maxNumberOfJourneys;

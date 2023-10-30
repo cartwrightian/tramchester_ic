@@ -9,6 +9,7 @@ import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.InvalidDurationException;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphTransaction;
 import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.StationGroupsRepository;
@@ -17,7 +18,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.*;
-import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
 import java.util.EnumSet;
@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 class BusRouteCostCalculatorTest {
     private static ComponentContainer componentContainer;
 
-    private Transaction txn;
+    private GraphTransaction txn;
     private RouteCostCalculator routeCost;
     private StationGroup altrinchamInterchange;
     private StationGroup stockportBusStation;

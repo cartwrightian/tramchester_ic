@@ -3,11 +3,12 @@ package com.tramchester.integration.graph.neighbours;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.StationGroup;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphNode;
 import com.tramchester.graph.GraphQuery;
+import com.tramchester.graph.GraphTransaction;
 import com.tramchester.graph.graphbuild.CompositeStationGraphBuilder;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.integration.testSupport.NeighboursTestConfig;
@@ -20,7 +21,6 @@ import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.Transaction;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -40,7 +40,7 @@ class AddNeighboursGraphBuilderTest {
 
     private static ComponentContainer componentContainer;
     private GraphQuery graphQuery;
-    private Transaction txn;
+    private GraphTransaction txn;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -140,7 +140,7 @@ class AddNeighboursGraphBuilderTest {
         return result;
     }
 
-    private boolean seenNode(Transaction txn, Station station, Set<Relationship> relationships, SelectNode selectNode) {
+    private boolean seenNode(GraphTransaction txn, Station station, Set<Relationship> relationships, SelectNode selectNode) {
         GraphNode nodeToFind = graphQuery.getStationNode(txn, station);
         assertNotNull(nodeToFind, "no node found for " + station);
 

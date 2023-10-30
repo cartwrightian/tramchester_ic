@@ -4,20 +4,15 @@ import com.tramchester.domain.StationLink;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.geo.StationLocations;
-import com.tramchester.graph.FindStationsByNumberLinks;
-import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphPropertyKey;
+import com.tramchester.graph.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
 import com.tramchester.mappers.Geography;
-import com.tramchester.graph.TimedTransaction;
 import com.tramchester.repository.StationRepository;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Result;
-import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,15 +29,14 @@ public class FindStationLinks {
 
     private final GraphDatabase graphDatabase;
     private final StationRepository stationRepository;
-    private final StationLocations stationLocations;
     private final Geography geography;
 
     @Inject
-    public FindStationLinks(GraphDatabase graphDatabase, StationsAndLinksGraphBuilder.Ready readyToken,
-                            StationRepository stationRepository, StationLocations stationLocations, Geography geography) {
+    public FindStationLinks(GraphDatabase graphDatabase,
+                            @SuppressWarnings("unused") StationsAndLinksGraphBuilder.Ready readyToken,
+                            StationRepository stationRepository, Geography geography) {
         this.graphDatabase = graphDatabase;
         this.stationRepository = stationRepository;
-        this.stationLocations = stationLocations;
         this.geography = geography;
     }
 
@@ -64,7 +58,7 @@ public class FindStationLinks {
 
         Set<StationLink> links = new HashSet<>();
         try (TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "query for links " + mode)) {
-            Transaction txn = timedTransaction.transaction();
+            GraphTransaction txn = timedTransaction.transaction();
             Result result = txn.execute(query, params);
             while (result.hasNext()) {
                 Map<String, Object> row = result.next();

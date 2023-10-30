@@ -13,6 +13,7 @@ import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphNode;
 import com.tramchester.graph.GraphQuery;
+import com.tramchester.graph.GraphTransaction;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
@@ -23,7 +24,6 @@ import com.tramchester.repository.RouteInterchangeRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TripRepository;
 import org.jetbrains.annotations.NotNull;
-import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,7 +78,7 @@ public class RouteCalculatorSupport {
     }
 
 
-    protected GraphNode getLocationNodeSafe(Transaction txn, Location<?> location) {
+    protected GraphNode getLocationNodeSafe(GraphTransaction txn, Location<?> location) {
         GraphNode stationNode = graphQuery.getLocationNode(txn, location);
         if (stationNode == null) {
             String msg = "Unable to find node for " + location;
@@ -91,7 +91,7 @@ public class RouteCalculatorSupport {
     @NotNull
     public Set<Long> getDestinationNodeIds(LocationSet destinations) {
         Set<Long> destinationNodeIds;
-        try(Transaction txn = graphDatabaseService.beginTx()) {
+        try(GraphTransaction txn = graphDatabaseService.beginTx()) {
             destinationNodeIds = destinations.stream().
                     map(location -> getLocationNodeSafe(txn, location)).
                     map(GraphNode::getId).
@@ -130,7 +130,7 @@ public class RouteCalculatorSupport {
                 maxNumChanges);
     }
 
-    public Stream<RouteCalculator.TimedPath> findShortestPath(Transaction txn, Set<Long> destinationNodeIds,
+    public Stream<RouteCalculator.TimedPath> findShortestPath(GraphTransaction txn, Set<Long> destinationNodeIds,
                                                               final LocationSet endStations,
                                                               ServiceReasons reasons, PathRequest pathRequest,
                                                               LowestCostsForDestRoutes lowestCostsForRoutes,

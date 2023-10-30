@@ -13,6 +13,7 @@ import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphTransaction;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
@@ -21,11 +22,8 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.TrainTest;
 import org.junit.jupiter.api.*;
-import org.neo4j.graphdb.Transaction;
 
-import javax.print.attribute.EnumSyntax;
 import java.time.Duration;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -46,7 +44,7 @@ public class RailRouteCalculatorTest {
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;
 
-    private Transaction txn;
+    private GraphTransaction txn;
     private RouteCalculatorTestFacade testFacade;
     private Station stockport;
     private Station manchesterPiccadilly;

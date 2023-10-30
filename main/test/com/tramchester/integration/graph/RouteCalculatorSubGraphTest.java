@@ -10,6 +10,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphTransaction;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
@@ -22,7 +23,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
-import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -46,7 +46,7 @@ class RouteCalculatorSubGraphTest {
             StPetersSquare,
             Deansgate,
             Pomona);
-    private Transaction txn;
+    private GraphTransaction txn;
     private TramTime tramTime;
     private Duration maxJourneyDuration;
     private EnumSet<TransportMode> modes;

@@ -10,6 +10,7 @@ import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphTransaction;
 import com.tramchester.integration.testSupport.tram.TramWithPostcodesEnabled;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.postcodes.PostcodeRepository;
@@ -25,7 +26,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
 import java.util.EnumSet;
@@ -46,7 +46,7 @@ class PostcodeTramJourneyPlannerTest {
 
     private static final TramDate when = TestEnv.testDay();
     private static TramWithPostcodesEnabled testConfig;
-    private Transaction txn;
+    private GraphTransaction txn;
     private LocationJourneyPlannerTestFacade planner;
     private PostcodeRepository repository;
     private PostcodeLocation centralLocation;

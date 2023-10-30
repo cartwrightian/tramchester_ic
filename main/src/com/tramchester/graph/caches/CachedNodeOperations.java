@@ -9,6 +9,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.GraphNode;
 import com.tramchester.graph.NumberOfNodesAndRelationshipsRepository;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.graphbuild.GraphLabel;
@@ -149,6 +150,11 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
     public EnumSet<GraphLabel> getLabels(Node node) {
         long nodeId = node.getId();
         return labelCache.get(nodeId, id -> GraphProps.getLabelsFor(node));
+    }
+
+    @Override
+    public EnumSet<GraphLabel> getLabels(GraphNode graphNode) {
+        return getLabels(graphNode.getNode());
     }
 
     @Override

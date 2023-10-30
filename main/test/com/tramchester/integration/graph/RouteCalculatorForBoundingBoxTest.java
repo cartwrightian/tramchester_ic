@@ -12,6 +12,7 @@ import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.BoundingBoxWithStations;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphTransaction;
 import com.tramchester.graph.search.RouteCalculatorForBoxes;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.ClosedStationsRepository;
@@ -19,7 +20,6 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
-import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
 import java.util.List;
@@ -40,7 +40,7 @@ class RouteCalculatorForBoundingBoxTest {
 
     private RouteCalculatorForBoxes calculator;
     private final TramDate when = TestEnv.testDay();
-    private Transaction txn;
+    private GraphTransaction txn;
     private StationLocations stationLocations;
     private StationRepository stationRepository;
     private ClosedStationsRepository closedStationsRepository;

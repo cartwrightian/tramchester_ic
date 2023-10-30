@@ -12,6 +12,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphNode;
 import com.tramchester.graph.GraphQuery;
+import com.tramchester.graph.GraphTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
@@ -30,6 +31,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
@@ -39,7 +41,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class RailAndTramGraphBuilderTest {
     private static ComponentContainer componentContainer;
 
-    private Transaction txn;
+    private GraphTransaction txn;
     private GraphQuery graphQuery;
     private StationRepository stationRepository;
 
@@ -169,9 +171,9 @@ class RailAndTramGraphBuilderTest {
         IdSet<Station> fromConfigAndDiscovered = interchangeRepository.getAllInterchanges().stream().
                 map(InterchangeStation::getStationId).collect(IdSet.idCollector());
 
-        ResourceIterator<Node> interchangeNodes = txn.findNodes(GraphLabel.INTERCHANGE);
+        Stream<Node> interchangeNodes = txn.findNodesOLD(GraphLabel.INTERCHANGE);
 
-        IdSet<Station> fromDB = interchangeNodes.stream().map(GraphProps::getStationId).collect(IdSet.idCollector());
+        IdSet<Station> fromDB = interchangeNodes.map(GraphProps::getStationId).collect(IdSet.idCollector());
 
         assertEquals(fromConfigAndDiscovered, fromDB, "Graph clean and rebuild needed?");
     }

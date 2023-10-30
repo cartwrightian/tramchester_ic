@@ -5,16 +5,16 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.GraphNode;
+import com.tramchester.graph.GraphTransaction;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.naptan.NaptanRepository;
 import org.apache.commons.lang3.tuple.Pair;
-import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
-import org.neo4j.graphdb.Transaction;
 
 import javax.inject.Inject;
 import java.util.EnumSet;
@@ -41,19 +41,19 @@ public class ReasonsToGraphViz {
         this.nodeContentsRepository = nodeContentsRepository;
     }
 
-    public void appendTo(StringBuilder builder, List<HeuristicsReason> reasons, Transaction txn) {
+    public void appendTo(StringBuilder builder, List<HeuristicsReason> reasons, GraphTransaction txn) {
         DiagramState diagramState = new DiagramState();
         reasons.forEach(reason -> add(reason, txn, builder, diagramState));
         diagramState.clear();
     }
 
-    private void add(HeuristicsReason reason, Transaction transaction, StringBuilder builder, DiagramState diagramState) {
+    private void add(HeuristicsReason reason, GraphTransaction transaction, StringBuilder builder, DiagramState diagramState) {
         HowIGotHere howIGotHere = reason.getHowIGotHere();
 
         long endNodeId = howIGotHere.getEndNodeId();
         String reasonId = reason.getReasonCode().name() + endNodeId;
         String stateName = howIGotHere.getTraversalStateName();
-        Node currentNode = transaction.getNodeById(endNodeId);
+        GraphNode currentNode = transaction.getNodeById(endNodeId);
 
         addNodeToDiagram(currentNode, builder, diagramState, stateName);
 
@@ -73,7 +73,7 @@ public class ReasonsToGraphViz {
 
         if (!howIGotHere.atStart()) {
             Relationship relationship = transaction.getRelationshipById(howIGotHere.getRelationshipId());
-            Node fromNode = relationship.getStartNode();
+            GraphNode fromNode = GraphNode.fromStart(relationship); // relationship.getStartNode();
             addNodeToDiagram(fromNode, builder, diagramState, stateName);
 
             long fromNodeId = fromNode.getId();
@@ -86,7 +86,7 @@ public class ReasonsToGraphViz {
         }
     }
 
-    private void addNodeToDiagram(Node node, StringBuilder builder, DiagramState diagramState, String stateName) {
+    private void addNodeToDiagram(GraphNode node, StringBuilder builder, DiagramState diagramState, String stateName) {
         long nodeId = node.getId();
         if (!diagramState.nodes.contains(nodeId)) {
             diagramState.nodes.add(nodeId);
@@ -98,7 +98,7 @@ public class ReasonsToGraphViz {
         }
     }
 
-    private String getIdsFor(Node node) {
+    private String getIdsFor(GraphNode node) {
         StringBuilder ids = new StringBuilder();
         EnumSet<GraphLabel> labels = nodeContentsRepository.getLabels(node);
 

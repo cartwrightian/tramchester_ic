@@ -1,15 +1,12 @@
 package com.tramchester.graph;
 
 import com.tramchester.graph.graphbuild.GraphLabel;
-import com.tramchester.graph.graphbuild.GraphProps;
 import org.neo4j.graphdb.*;
 
 import java.util.Map;
 import java.util.Objects;
 
 import static com.tramchester.graph.GraphPropertyKey.HOUR;
-import static com.tramchester.graph.TransportRelationshipTypes.LINKED;
-import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class GraphNode {
     private final Node neo4jNode;
@@ -23,16 +20,11 @@ public class GraphNode {
         return new GraphNode(neo4jNode);
     }
 
-    private GraphNode(Node neo4jNode) {
+    GraphNode(Node neo4jNode) {
         this.neo4jNode = neo4jNode;
 
         // todo remove/replace with get element Id
         this.id = neo4jNode.getId();
-    }
-
-    @Deprecated
-    public static GraphNode fromTransaction(Transaction txn, Long nodeId) {
-        return from(txn.getNodeById(nodeId));
     }
 
     @Deprecated
@@ -115,5 +107,9 @@ public class GraphNode {
 
     public Relationship getSingleRelationship(TransportRelationshipTypes transportRelationshipTypes, Direction direction) {
         return neo4jNode.getSingleRelationship(transportRelationshipTypes,direction);
+    }
+
+    public Iterable<Label> getLabels() {
+        return neo4jNode.getLabels();
     }
 }

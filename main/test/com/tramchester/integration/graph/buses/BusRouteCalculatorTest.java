@@ -11,6 +11,7 @@ import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphTransaction;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
@@ -20,7 +21,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
-import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -48,7 +48,7 @@ class BusRouteCalculatorTest {
     private StationRepository stationRepository;
 
     private final TramDate when = TestEnv.testDay();
-    private Transaction txn;
+    private GraphTransaction txn;
     private Duration maxJourneyDuration;
     private StationGroup stockportBusStation;
     private StationGroup altrinchamInterchange;

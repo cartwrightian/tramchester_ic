@@ -12,6 +12,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphTransaction;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.InterchangeRepository;
@@ -19,7 +20,6 @@ import com.tramchester.repository.RouteEndRepository;
 import com.tramchester.repository.StationRepository;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
-import org.neo4j.graphdb.Transaction;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -47,21 +47,21 @@ public class RouteCalculationCombinations {
         closedStationsRepository = componentContainer.get(ClosedStationsRepository.class);
     }
 
-    public Optional<Journey> findJourneys(Transaction txn, IdFor<Station> start, IdFor<Station> dest, JourneyRequest journeyRequest) {
+    public Optional<Journey> findJourneys(GraphTransaction txn, IdFor<Station> start, IdFor<Station> dest, JourneyRequest journeyRequest) {
         return calculator.calculateRoute(txn, stationRepository.getStationById(start),
                 stationRepository.getStationById(dest), journeyRequest)
                 .limit(1).findAny();
     }
 
-    public Map<JourneyRequest, JourneyOrNot> checkIfJourney(IdFor<Station> start, IdFor<Station> dest, List<JourneyRequest> requests) {
-        return requests.stream().map(request ->  {
-                try (Transaction txn = database.beginTx()) {
-                    Optional<Journey> optionalJourney = findJourneys(txn, start, dest, request);
-                    JourneyOrNot journeyOrNot = new JourneyOrNot(start, dest, request.getDate(), request.getOriginalTime(), optionalJourney);
-                    return Pair.of(request, journeyOrNot);
-                }
-            }).collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
-        }
+//    public Map<JourneyRequest, JourneyOrNot> checkIfJourney(IdFor<Station> start, IdFor<Station> dest, List<JourneyRequest> requests) {
+//        return requests.stream().map(request ->  {
+//                try (GraphTransaction txn = database.beginTx()) {
+//                    Optional<Journey> optionalJourney = findJourneys(txn, start, dest, request);
+//                    JourneyOrNot journeyOrNot = new JourneyOrNot(start, dest, request.getDate(), request.getOriginalTime(), optionalJourney);
+//                    return Pair.of(request, journeyOrNot);
+//                }
+//            }).collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
+//        }
 
 
     private Map<StationIdPair, JourneyOrNot> validateAllHaveAtLeastOneJourney(Set<StationIdPair> stationIdPairs,
@@ -108,7 +108,7 @@ public class RouteCalculationCombinations {
                 parallelStream().
                 filter(stationIdPair -> bothOpen(stationIdPair, request)).
                 map(pair -> {
-                    try (Transaction txn = database.beginTx()) {
+                    try (GraphTransaction txn = database.beginTx()) {
                         Optional<Journey> optionalJourney = findJourneys(txn, pair.getBeginId(), pair.getEndId(), request);
                         JourneyOrNot journeyOrNot = new JourneyOrNot(pair, queryDate, queryTime, optionalJourney);
                         return Pair.of(pair, journeyOrNot);
@@ -197,9 +197,9 @@ public class RouteCalculationCombinations {
             this(requested, queryDate.toLocalDate(), queryTime, optionalJourney);
         }
 
-        public JourneyOrNot(IdFor<Station> start, IdFor<Station> dest, TramDate date, TramTime time, Optional<Journey> optionalJourney) {
-            this(StationIdPair.of(start, dest), date, time, optionalJourney);
-        }
+//        public JourneyOrNot(IdFor<Station> start, IdFor<Station> dest, TramDate date, TramTime time, Optional<Journey> optionalJourney) {
+//            this(StationIdPair.of(start, dest), date, time, optionalJourney);
+//        }
 
         public JourneyOrNot(StationIdPair requested, LocalDate queryDate, TramTime queryTime, Optional<Journey> optionalJourney) {
             this.requested = requested;

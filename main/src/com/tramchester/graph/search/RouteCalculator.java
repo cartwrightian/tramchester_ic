@@ -16,6 +16,7 @@ import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphNode;
 import com.tramchester.graph.GraphQuery;
+import com.tramchester.graph.GraphTransaction;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.search.diagnostics.ReasonsToGraphViz;
@@ -26,7 +27,6 @@ import com.tramchester.repository.RouteInterchangeRepository;
 import com.tramchester.repository.RunningRoutesAndServices;
 import com.tramchester.repository.TransportData;
 import org.neo4j.graphdb.Path;
-import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,7 +70,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
     }
 
     @Override
-    public Stream<Journey> calculateRoute(Transaction txn, Location<?> start, Location<?> destination, JourneyRequest journeyRequest) {
+    public Stream<Journey> calculateRoute(GraphTransaction txn, Location<?> start, Location<?> destination, JourneyRequest journeyRequest) {
         logger.info(format("Finding shortest path for %s (%s) --> %s (%s) for %s",
                 start.getName(), start.getId(), destination.getName(), destination.getId(), journeyRequest));
 
@@ -106,7 +106,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
                 limit(journeyRequest.getMaxNumberOfJourneys());
     }
 
-    public Stream<Journey> calculateRouteWalkAtEnd(Transaction txn, Location<?> start, GraphNode endOfWalk, LocationSet destinations,
+    public Stream<Journey> calculateRouteWalkAtEnd(GraphTransaction txn, Location<?> start, GraphNode endOfWalk, LocationSet destinations,
                                                    JourneyRequest journeyRequest, NumberOfChanges numberOfChanges)
     {
         GraphNode startNode = getLocationNodeSafe(txn, start);
@@ -119,7 +119,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
     }
 
     @Override
-    public Stream<Journey> calculateRouteWalkAtStart(Transaction txn, Set<StationWalk> stationWalks, GraphNode startOfWalkNode, Location<?> destination,
+    public Stream<Journey> calculateRouteWalkAtStart(GraphTransaction txn, Set<StationWalk> stationWalks, GraphNode startOfWalkNode, Location<?> destination,
                                                      JourneyRequest journeyRequest, NumberOfChanges numberOfChanges) {
 
         final InitialWalksFinished finished = new InitialWalksFinished(journeyRequest, stationWalks);
@@ -133,7 +133,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
                 takeWhile(finished::notDoneYet);
     }
 
-    public Stream<Journey> calculateRouteWalkAtStartAndEnd(Transaction txn, Set<StationWalk> stationWalks, GraphNode startNode, GraphNode endNode,
+    public Stream<Journey> calculateRouteWalkAtStartAndEnd(GraphTransaction txn, Set<StationWalk> stationWalks, GraphNode startNode, GraphNode endNode,
                                                            LocationSet destinationStations, JourneyRequest journeyRequest,
                                                            NumberOfChanges numberOfChanges) {
 
@@ -145,7 +145,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
                 takeWhile(finished::notDoneYet);
     }
 
-    private Stream<Journey> getJourneyStream(Transaction txn, GraphNode startNode, GraphNode endNode, JourneyRequest journeyRequest,
+    private Stream<Journey> getJourneyStream(GraphTransaction txn, GraphNode startNode, GraphNode endNode, JourneyRequest journeyRequest,
                                              LocationSet destinations, List<TramTime> queryTimes, NumberOfChanges numberOfChanges,
                                              Duration maxInitialWait) {
 

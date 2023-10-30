@@ -5,7 +5,6 @@ import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Result;
-import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +43,7 @@ class NumberOfNodesAndRelationshipsRepository {
 
     private void countRelationships() {
         TransportRelationshipTypes[] types = TransportRelationshipTypes.values();
-        try (Transaction txn = graphDatabase.beginTx()) {
+        try (GraphTransaction txn = graphDatabase.beginTx()) {
             for (TransportRelationshipTypes relationshipType : types) {
                 long count = getCountFromQuery(txn,
                         "MATCH ()-[relationship:" + relationshipType.name() + "]->() " + "RETURN count(*) as count");
@@ -58,7 +57,7 @@ class NumberOfNodesAndRelationshipsRepository {
 
     private void countNodeNumbers() {
         GraphLabel[] labels = GraphLabel.values();
-        try (Transaction txn = graphDatabase.beginTx()) {
+        try (GraphTransaction txn = graphDatabase.beginTx()) {
             for (GraphLabel label : labels) {
                 long count = getCountFromQuery(txn,
                         "MATCH (node:" + label.name() + ") " + "RETURN count(*) as count");
@@ -70,7 +69,7 @@ class NumberOfNodesAndRelationshipsRepository {
         }
     }
 
-    private long getCountFromQuery(Transaction txn, String query) {
+    private long getCountFromQuery(GraphTransaction txn, String query) {
         Result result = txn.execute(query);
         ResourceIterator<Object> rows = result.columnAs("count");
         long count = (long) rows.next();

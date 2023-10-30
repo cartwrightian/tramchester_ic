@@ -15,6 +15,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.WalkingFromStationStage;
 import com.tramchester.domain.transportStages.WalkingToStationStage;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphTransaction;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.LocationJourneyPlanner;
@@ -23,12 +24,10 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
-import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
 import static com.tramchester.testSupport.reference.KnownLocations.*;
@@ -43,7 +42,7 @@ class LocationJourneyPlannerTest {
     private static IntegrationTramTestConfig testConfig;
 
     private final TramDate when = TestEnv.testDay();
-    private Transaction txn;
+    private GraphTransaction txn;
     private LocationJourneyPlannerTestFacade planner;
     private TramDate date;
     private Duration maxJourneyDuration;
@@ -145,7 +144,7 @@ class LocationJourneyPlannerTest {
 
         List<Journey> twoStageJourneys = journeyList.stream().
                 filter(journey -> journey.getStages().size() == 2).
-                limit(3).collect(Collectors.toList());
+                limit(3).toList();
 
         assertFalse(twoStageJourneys.isEmpty());
         Journey firstJourney = twoStageJourneys.get(0);
@@ -301,7 +300,7 @@ class LocationJourneyPlannerTest {
         assertFalse(unsorted.isEmpty());
 
         List<Journey> sorted = unsorted.stream().
-                sorted(Comparator.comparing(Journey::getDepartTime)).collect(Collectors.toList());
+                sorted(Comparator.comparing(Journey::getDepartTime)).toList();
 
         Journey earliestJourney = sorted.get(0);
         final TramTime actualDepartTime = earliestJourney.getDepartTime();

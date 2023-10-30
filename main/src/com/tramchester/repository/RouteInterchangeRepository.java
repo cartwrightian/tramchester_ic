@@ -9,14 +9,14 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphTransaction;
+import com.tramchester.graph.TimedTransaction;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
-import com.tramchester.graph.TimedTransaction;
 import com.tramchester.metrics.Timing;
 import org.apache.commons.lang3.tuple.Pair;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Result;
-import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +43,8 @@ public class RouteInterchangeRepository {
 
     @Inject
     public RouteInterchangeRepository(RouteRepository routeRepository, StationRepository stationRepository, InterchangeRepository interchangeRepository,
-                                      GraphDatabase graphDatabase, StagedTransportGraphBuilder.Ready ready) {
+                                      GraphDatabase graphDatabase,
+                                      @SuppressWarnings("unused") StagedTransportGraphBuilder.Ready ready) {
         this.routeRepository = routeRepository;
         this.stationRepository = stationRepository;
         this.interchangeRepository = interchangeRepository;
@@ -102,7 +103,7 @@ public class RouteInterchangeRepository {
         return Duration.ofSeconds(-999);
     }
 
-    private void populateForRoute(Transaction txn, Route route) {
+    private void populateForRoute(GraphTransaction txn, Route route) {
 
         Instant startTime = Instant.now();
 

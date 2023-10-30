@@ -12,6 +12,7 @@ import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphTransaction;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.AllModesTestConfig;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
@@ -22,10 +23,8 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
-import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -44,7 +43,7 @@ public class AllModesJourneysTest {
     private static TramchesterConfig config;
 
     private static ComponentContainer componentContainer;
-    private Transaction txn;
+    private GraphTransaction txn;
     private StationRepository stationRepository;
     private StationGroupsRepository stationGroupsRepository;
     private Duration maxJourneyDuration;
@@ -139,7 +138,7 @@ public class AllModesJourneysTest {
         assertFalse(journeys.isEmpty());
 
         // At least one direct
-        List<Journey> direct = journeys.stream().filter(journey -> journey.getStages().size() == 1).collect(Collectors.toList());
+        List<Journey> direct = journeys.stream().filter(journey -> journey.getStages().size() == 1).toList();
         assertFalse(direct.isEmpty(), "No direct from " + RailStationIds.Stockport + " to " + ManchesterPiccadilly);
     }
 

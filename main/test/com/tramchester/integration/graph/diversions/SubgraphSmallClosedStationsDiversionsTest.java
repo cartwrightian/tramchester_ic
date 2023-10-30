@@ -13,10 +13,7 @@ import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
-import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphNode;
-import com.tramchester.graph.GraphQuery;
-import com.tramchester.graph.TransportRelationshipTypes;
+import com.tramchester.graph.*;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
@@ -33,7 +30,6 @@ import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -74,7 +70,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
 
     private RouteCalculatorTestFacade calculator;
     private StationRepository stationRepository;
-    private Transaction txn;
+    private GraphTransaction txn;
     private Duration maxJourneyDuration;
     private int maxChanges;
 
@@ -275,7 +271,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
         Station exchange = ExchangeSquare.from(stationRepository);
         GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
         GraphQuery graphQuery = componentContainer.get(GraphQuery.class);
-        try (Transaction txn = graphDatabase.beginTx()) {
+        try (GraphTransaction txn = graphDatabase.beginTx()) {
             exchange.getPlatforms().forEach(platform -> {
                 GraphNode node = graphQuery.getPlatformNode(txn, platform);
                 Iterable<Relationship> iterable = node.getRelationships(Direction.INCOMING, TransportRelationshipTypes.DIVERSION_DEPART);
@@ -287,7 +283,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
 
         assertFalse(foundRelationshipIds.isEmpty());
 
-        try (Transaction txn = graphDatabase.beginTx()) {
+        try (GraphTransaction txn = graphDatabase.beginTx()) {
             Relationship relationship = txn.getRelationshipById(foundRelationshipIds.get(0));
             Node from = relationship.getStartNode();
             assertTrue(from.hasLabel(ROUTE_STATION), from.getAllProperties().toString());

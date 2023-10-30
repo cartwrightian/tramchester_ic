@@ -9,10 +9,7 @@ import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphNode;
-import com.tramchester.graph.GraphQuery;
-import com.tramchester.graph.TransportRelationshipTypes;
+import com.tramchester.graph.*;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
@@ -23,7 +20,6 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
 import java.util.List;
@@ -39,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class GraphBuilderRailTest {
     private static ComponentContainer componentContainer;
 
-    private Transaction txn;
+    private GraphTransaction txn;
     private GraphQuery graphQuery;
     private TransportData transportData;
 

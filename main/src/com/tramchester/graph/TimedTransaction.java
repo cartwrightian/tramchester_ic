@@ -1,14 +1,13 @@
 package com.tramchester.graph;
 
 import com.tramchester.metrics.Timing;
-import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 
 import java.time.Duration;
 import java.time.Instant;
 
 public class TimedTransaction implements AutoCloseable {
-    private final Transaction transaction;
+    private final GraphTransaction transaction;
     private final Logger logger;
     private final String name;
     private final Timing timing;
@@ -31,7 +30,7 @@ public class TimedTransaction implements AutoCloseable {
         timing.close();
     }
 
-    public Transaction transaction() {
+    public GraphTransaction transaction() {
         return transaction;
     }
 

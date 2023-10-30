@@ -1,19 +1,14 @@
 package com.tramchester.graph;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.domain.CoreDomain;
-import com.tramchester.domain.GraphProperty;
 import com.tramchester.domain.Platform;
-import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.StationGroup;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.Transaction;
 
 import javax.inject.Inject;
 import java.util.Collections;
@@ -21,6 +16,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /***
+ * TODO Into GraphTransaction Facade??
  * Make sure have correct dependencies on "Ready" tokens alongside this class, it makes no guarantees for any
  * data having put in the DB.
  * It can't have a ready token injected as this would create circular dependencies.
@@ -28,48 +24,40 @@ import java.util.List;
 @LazySingleton
 public class GraphQuery {
 
-    private final GraphDatabase graphDatabase;
-
     @Inject
-    public GraphQuery(GraphDatabase graphDatabase) {
-        this.graphDatabase = graphDatabase;
+    public GraphQuery() {
     }
 
     /**
      * When calling from tests make sure relevant DB is fully built
      */
-    public GraphNode getRouteStationNode(Transaction txn, RouteStation routeStation) {
-        return findNode(txn, GraphLabel.ROUTE_STATION, routeStation);
+    public GraphNode getRouteStationNode(GraphTransaction txn, RouteStation routeStation) {
+        return txn.findNode(routeStation);
     }
 
     /**
      * When calling from tests make sure relevant DB is fully built
      */
-    public GraphNode getStationNode(Transaction txn, Station station) {
-        return findNode(txn, GraphLabel.STATION, station);
+    public GraphNode getStationNode(GraphTransaction txn, Station station) {
+        return txn.findNode(station);
     }
 
-    public GraphNode getGroupedNode(Transaction txn, StationGroup stationGroup) {
+    public GraphNode getGroupedNode(GraphTransaction txn, StationGroup stationGroup) {
         // uses Area Id, not station Id
         // TODO make this change to GroupedStations?
-        return findNode(txn, GraphLabel.GROUPED, stationGroup);
+        return txn.findNode(stationGroup);
     }
 
 
-    private <C extends GraphProperty & CoreDomain & HasId<C>>  GraphNode findNode(Transaction txn, GraphLabel label, C hasId) {
-        Node node = graphDatabase.findNode(txn, label, hasId.getProp().getText(), hasId.getId().getGraphId());
-        return GraphNode.from(node);
-    }
 
-    public GraphNode getLocationNode(Transaction txn, Location<?> location) {
-        return GraphNode.from(graphDatabase.findNode(txn, location.getNodeLabel(), location.getProp().getText(),
-                location.getId().getGraphId()));
+    public GraphNode getLocationNode(GraphTransaction txn, Location<?> location) {
+        return txn.findNode(location);
     }
 
     /**
      * When calling from tests make sure relevant DB is fully built
      */
-    public List<Relationship> getRouteStationRelationships(Transaction txn, RouteStation routeStation, Direction direction) {
+    public List<Relationship> getRouteStationRelationships(GraphTransaction txn, RouteStation routeStation, Direction direction) {
         GraphNode routeStationNode = getRouteStationNode(txn, routeStation);
         if (routeStationNode==null) {
             return Collections.emptyList();
@@ -79,13 +67,13 @@ public class GraphQuery {
         return result;
     }
 
-    public boolean hasAnyNodesWithLabelAndId(Transaction txn, GraphLabel label, String property, String key) {
-        Node node = graphDatabase.findNode(txn, label, property, key);
-        return node != null;
+    public boolean hasAnyNodesWithLabelAndId(GraphTransaction txn, GraphLabel label, String field, String value) {
+        return txn.hasAnyMatching(label, field, value);
+
     }
 
-    public GraphNode getPlatformNode(Transaction txn, Platform platform) {
-        return findNode(txn, GraphLabel.PLATFORM, platform);
+    public GraphNode getPlatformNode(GraphTransaction txn, Platform platform) {
+        return txn.findNode(platform);
     }
 
 }

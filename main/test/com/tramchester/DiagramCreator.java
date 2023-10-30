@@ -6,10 +6,7 @@ import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphNode;
-import com.tramchester.graph.GraphQuery;
-import com.tramchester.graph.TransportRelationshipTypes;
+import com.tramchester.graph.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.repository.StationRepository;
@@ -17,7 +14,6 @@ import com.tramchester.repository.naptan.NaptanRepository;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,7 +72,7 @@ public class DiagramCreator {
 
         DiagramBuild builder = new DiagramBuild(printStream);
 
-        try (Transaction txn = graphDatabase.beginTx()) {
+        try (GraphTransaction txn = graphDatabase.beginTx()) {
             builder.append("digraph G {\n");
 
             startPointsList.forEach(startPoint -> {

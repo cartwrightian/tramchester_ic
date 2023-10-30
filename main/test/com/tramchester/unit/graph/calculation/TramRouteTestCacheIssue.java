@@ -7,13 +7,13 @@ import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphTransaction;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
-import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -34,7 +34,7 @@ class TramRouteTestCacheIssue {
     private RouteCalculator calculator;
 
     private TramDate queryDate;
-    private Transaction txn;
+    private GraphTransaction txn;
 
     @BeforeEach
     void beforeEachTestRuns() throws IOException {

@@ -5,11 +5,12 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.graphbuild.*;
+import com.tramchester.graph.graphbuild.CompositeStationGraphBuilder;
+import com.tramchester.graph.graphbuild.GraphLabel;
+import com.tramchester.graph.graphbuild.GraphProps;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Result;
-import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +26,8 @@ public class FindStationsByNumberLinks {
     private final GraphDatabase graphDatabase;
 
     @Inject
-    public FindStationsByNumberLinks(GraphDatabase graphDatabase, CompositeStationGraphBuilder.Ready readyToken) {
+    public FindStationsByNumberLinks(GraphDatabase graphDatabase,
+                                     @SuppressWarnings("unused") CompositeStationGraphBuilder.Ready readyToken) {
         this.graphDatabase = graphDatabase;
     }
 
@@ -55,7 +57,7 @@ public class FindStationsByNumberLinks {
         IdSet<Station> stationIds = new IdSet<>();
 
         try (TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "linked for " + mode) ) {
-            Transaction txn = timedTransaction.transaction();
+            GraphTransaction txn = timedTransaction.transaction();
             Result result = txn.execute(query, params);
             while (result.hasNext()) {
                 Map<String, Object> row = result.next();

@@ -11,7 +11,6 @@ import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
@@ -20,6 +19,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphTransaction;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
@@ -32,18 +32,15 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.*;
-import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.tramchester.domain.reference.TransportMode.Bus;
 import static com.tramchester.testSupport.TestEnv.Modes.BusesOnly;
 import static com.tramchester.testSupport.TestEnv.NoopRegisterMetrics;
 import static com.tramchester.testSupport.TestEnv.deleteDBIfPresent;
@@ -60,7 +57,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
 
     private RouteCalculatorTestFacade calculator;
 
-    private Transaction txn;
+    private GraphTransaction txn;
     private TramDate when;
     private StationGroupsRepository stationGroupsRepository;
     private StationGroup altrinchamInterchange;

@@ -13,10 +13,7 @@ import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBoxWithStations;
 import com.tramchester.geo.SortsPositions;
-import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphNode;
-import com.tramchester.graph.GraphQuery;
-import com.tramchester.graph.RouteCostCalculator;
+import com.tramchester.graph.*;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.search.diagnostics.ReasonsToGraphViz;
@@ -25,7 +22,6 @@ import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.RouteInterchangeRepository;
 import com.tramchester.repository.RunningRoutesAndServices;
 import com.tramchester.repository.TransportData;
-import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +55,8 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                                    SortsPositions sortsPosition, MapPathToLocations mapPathToLocations,
                                    BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz,
                                    ClosedStationsRepository closedStationsRepository, RunningRoutesAndServices runningRoutesAndService,
-                                   RouteInterchangeRepository routeInterchanges, RouteCostCalculator routeCostCalculator) {
+                                   RouteInterchangeRepository routeInterchanges,
+                                   @SuppressWarnings("unused") RouteCostCalculator routeCostCalculator) {
         super(graphQuery, pathToStages, nodeContentsRepository, graphDatabaseService,
                 traversalStateFactory, providesNow, sortsPosition, mapPathToLocations,
                 transportData, config, transportData, routeToRouteCosts, reasonToGraphViz, routeInterchanges);
@@ -102,7 +99,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
             final AtomicInteger journeyIndex = new AtomicInteger(0);
 
-            try(Transaction txn = graphDatabaseService.beginTx()) {
+            try(GraphTransaction txn = graphDatabaseService.beginTx()) {
 
                 Stream<Journey> journeys = startingStations.stream().
                         filter(start -> !destinations.contains(start)).

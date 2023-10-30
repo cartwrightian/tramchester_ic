@@ -14,9 +14,7 @@ import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.repository.StationAvailabilityRepository;
 import com.tramchester.repository.StationRepository;
 import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +37,7 @@ public class RouteReachable {
     @Inject
     public RouteReachable(GraphDatabase graphDatabaseService, StationRepository stationRepository,
                           GraphQuery graphQuery,
-                          StagedTransportGraphBuilder.Ready ready,
+                          @SuppressWarnings("unused") StagedTransportGraphBuilder.Ready ready,
                           StationAvailabilityRepository availabilityRepository) {
         this.graphDatabaseService = graphDatabaseService;
         this.stationRepository = stationRepository;
@@ -54,7 +52,7 @@ public class RouteReachable {
         final Set<Route> firstRoutes = availabilityRepository.getPickupRoutesFor(startStation, date, timeRange, modes);
         final IdFor<Station> endStationId = pair.getEnd().getId();
 
-        try (Transaction txn = graphDatabaseService.beginTx()) {
+        try (GraphTransaction txn = graphDatabaseService.beginTx()) {
             firstRoutes.forEach(route -> {
                 final RouteStation routeStation = stationRepository.getRouteStation(startStation, route);
                 final GraphNode routeStationNode = graphQuery.getRouteStationNode(txn, routeStation);

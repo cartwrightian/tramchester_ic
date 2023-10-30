@@ -16,6 +16,7 @@ import com.tramchester.domain.time.InvalidDurationException;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.WalkingStage;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphTransaction;
 import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.mappers.Geography;
@@ -29,7 +30,6 @@ import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
-import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -55,7 +55,7 @@ class TramRouteTest {
 
     private TramDate queryDate;
     private TramTime queryTime;
-    private Transaction txn;
+    private GraphTransaction txn;
     private EnumSet<TransportMode> modes;
 
     @BeforeAll

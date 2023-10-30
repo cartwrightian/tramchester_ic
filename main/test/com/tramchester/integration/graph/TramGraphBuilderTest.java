@@ -13,10 +13,7 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphNode;
-import com.tramchester.graph.GraphQuery;
-import com.tramchester.graph.TransportRelationshipTypes;
+import com.tramchester.graph.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
@@ -28,14 +25,17 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
-import org.apache.commons.collections4.SetUtils;
 import org.assertj.core.util.Streams;
 import org.junit.jupiter.api.*;
-import org.neo4j.graphdb.*;
+import org.neo4j.graphdb.Direction;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.ResourceIterator;
 
 import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
@@ -47,7 +47,7 @@ class TramGraphBuilderTest {
     private static ComponentContainer componentContainer;
 
     private TransportData transportData;
-    private Transaction txn;
+    private GraphTransaction txn;
     private GraphQuery graphQuery;
     private StationRepository stationRepository;
     private Route tramRouteAshtonEccles;
@@ -192,9 +192,9 @@ class TramGraphBuilderTest {
         IdSet<Station> fromConfigAndDiscovered = interchangeRepository.getAllInterchanges().stream().
                 map(InterchangeStation::getStationId).collect(IdSet.idCollector());
 
-        ResourceIterator<Node> interchangeNodes = txn.findNodes(GraphLabel.INTERCHANGE);
+        Stream<Node> interchangeNodes = txn.findNodesOLD(GraphLabel.INTERCHANGE);
 
-        IdSet<Station> fromDB = interchangeNodes.stream().map(GraphProps::getStationId).collect(IdSet.idCollector());
+        IdSet<Station> fromDB = interchangeNodes.map(GraphProps::getStationId).collect(IdSet.idCollector());
 
         IdSet<Station> diffs = IdSet.disjunction(fromConfigAndDiscovered, fromDB);
 

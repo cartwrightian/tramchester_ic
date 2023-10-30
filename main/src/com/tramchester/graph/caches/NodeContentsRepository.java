@@ -6,6 +6,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.GraphNode;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -29,4 +30,7 @@ public interface NodeContentsRepository  {
 
     EnumSet<GraphLabel> getLabels(Node node);
 
+
+
+    EnumSet<GraphLabel> getLabels(GraphNode node);
 }

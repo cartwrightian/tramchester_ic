@@ -14,6 +14,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.InvalidDurationException;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphTransaction;
 import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
@@ -27,7 +28,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
-import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -50,7 +50,7 @@ class CompositeRouteTest {
     private TramTransportDataForTestFactory.TramTransportDataForTest transportData;
 
     private TramDate queryDate;
-    private Transaction txn;
+    private GraphTransaction txn;
     private StationGroup startGroup;
     private TramTime queryTime;
     private StationGroup fourthStationComposite;

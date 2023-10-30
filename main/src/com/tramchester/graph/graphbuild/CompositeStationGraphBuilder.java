@@ -9,20 +9,18 @@ import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphNode;
+import com.tramchester.graph.GraphTransaction;
+import com.tramchester.graph.TimedTransaction;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.mappers.Geography;
-import com.tramchester.graph.TimedTransaction;
 import com.tramchester.repository.StationGroupsRepository;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.ResourceIterator;
-import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.time.Duration;
-import java.util.List;
 import java.util.Set;
 
 /***
@@ -68,14 +66,14 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
             logger.warn("Disabled, StationGroupsRepository is not enabled");
             return;
         }
-        try(Transaction txn = graphDatabase.beginTx()) {
+        try(GraphTransaction txn = graphDatabase.beginTx()) {
             if (hasDBFlag(txn)) {
                 logger.info("Already present in DB");
                 return;
             }
         }
         config.getTransportModes().forEach(this::addCompositeNodesAndLinks);
-        try(Transaction txn = graphDatabase.beginTx()) {
+        try(GraphTransaction txn = graphDatabase.beginTx()) {
             addDBFlag(txn);
             txn.commit();
         }
@@ -98,7 +96,7 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
         final String logMessage = "adding " + allComposite.size() + " composite stations for " + mode;
 
         try(TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, logMessage)) {
-            Transaction txn = timedTransaction.transaction();
+            GraphTransaction txn = timedTransaction.transaction();
             allComposite.stream().filter(graphFilter::shouldInclude).
                 filter(this::shouldInclude).
                 forEach(compositeStation -> {
@@ -114,7 +112,7 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
                 graphFilter.shouldIncludeRoutes(station.getDropoffRoutes());
     }
 
-    private GraphNode createGroupedStationNodes(Transaction txn, StationGroup stationGroup) {
+    private GraphNode createGroupedStationNodes(GraphTransaction txn, StationGroup stationGroup) {
         Node groupNode = createGraphNodeOld(txn, GraphLabel.GROUPED);
         IdFor<NaptanArea> areaId = stationGroup.getAreaId();
         GraphProps.setProperty(groupNode, areaId);
@@ -122,7 +120,7 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
         return GraphNode.from(groupNode);
     }
 
-    private void linkStations(Transaction txn, GraphNode parentNode, StationGroup stationGroup) {
+    private void linkStations(GraphTransaction txn, GraphNode parentNode, StationGroup stationGroup) {
         Set<Station> contained = stationGroup.getContained();
 
         contained.stream().
@@ -139,13 +137,14 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
         });
     }
 
-    private boolean hasDBFlag(Transaction txn) {
-        ResourceIterator<Node> query = graphDatabase.findNodes(txn, GraphLabel.COMPOSITES_ADDED);
-        List<Node> nodes = query.stream().toList();
-        return !nodes.isEmpty();
+    private boolean hasDBFlag(GraphTransaction txn) {
+        return txn.hasAnyMatching(GraphLabel.COMPOSITES_ADDED);
+        //ResourceIterator<Node> query = graphDatabase.findNodes(txn, GraphLabel.COMPOSITES_ADDED);
+        //List<Node> nodes = query.stream().toList();
+        //return !nodes.isEmpty();
     }
 
-    private void addDBFlag(Transaction txn) {
+    private void addDBFlag(GraphTransaction txn) {
         txn.createNode(GraphLabel.COMPOSITES_ADDED);
     }
 

@@ -9,6 +9,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.InvalidDurationException;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.GraphTransaction;
 import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.graph.search.RouteCalculatorArriveBy;
@@ -18,7 +19,6 @@ import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
 import java.util.EnumSet;
@@ -34,11 +34,11 @@ class RouteCalculatorArriveByTest extends EasyMockSupport {
     private RouteCostCalculator costCalculator;
     private int costBetweenStartDest;
     private TramchesterConfig config;
-    private Transaction txn;
+    private GraphTransaction txn;
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
-        txn = createStrictMock(Transaction.class);
+        txn = createStrictMock(GraphTransaction.class);
         costCalculator = createStrictMock(RouteCostCalculator.class);
         routeCalculator = createStrictMock(RouteCalculator.class);
         config = createStrictMock(TramchesterConfig.class);

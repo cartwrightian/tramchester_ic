@@ -3,11 +3,11 @@ package com.tramchester.graph.graphbuild;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphNode;
+import com.tramchester.graph.GraphTransaction;
 import com.tramchester.graph.TransportRelationshipTypes;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +33,7 @@ public class CreateNodesAndRelationships {
         numberRelationships = 0;
     }
 
-    protected GraphNode createStationNode(Transaction tx, Station station) {
+    protected GraphNode createStationNode(GraphTransaction tx, Station station) {
 
         Set<GraphLabel> labels = GraphLabel.forMode(station.getTransportModes());
         labels.add(GraphLabel.STATION);
@@ -41,25 +41,28 @@ public class CreateNodesAndRelationships {
             labels.add(GraphLabel.HAS_PLATFORMS);
         }
         logger.debug(format("Creating station node: %s with labels: %s ", station, labels));
-        Node stationNode = createGraphNode(tx, labels);
+        GraphNode stationNode = createGraphNode(tx, labels);
         setProperty(stationNode, station);
-        return GraphNode.from(stationNode);
+        return stationNode;
     }
 
     @Deprecated
-    protected Node createGraphNodeOld(Transaction tx, GraphLabel label) {
+    protected Node createGraphNodeOld(GraphTransaction tx, GraphLabel label) {
         numberNodes++;
-        return graphDatabase.createNode(tx, label);
+        return tx.createNode(label).getNode();
+//        return graphDatabase.createNode(tx, label);
     }
 
-    protected GraphNode createGraphNode(Transaction tx, GraphLabel label) {
+    protected GraphNode createGraphNode(GraphTransaction tx, GraphLabel label) {
         numberNodes++;
-        return GraphNode.from(graphDatabase.createNode(tx, label));
+        return tx.createNode(label);
+        //return GraphNode.from(graphDatabase.createNode(tx, label));
     }
 
-    public Node createGraphNode(Transaction tx, Set<GraphLabel> labels) {
+    public GraphNode createGraphNode(GraphTransaction tx, Set<GraphLabel> labels) {
         numberNodes++;
-        return graphDatabase.createNode(tx, labels);
+        return tx.createNode(labels);
+        //return graphDatabase.createNode(tx, labels);
     }
 
     protected Relationship createRelationship(GraphNode start, GraphNode end, TransportRelationshipTypes relationshipType) {

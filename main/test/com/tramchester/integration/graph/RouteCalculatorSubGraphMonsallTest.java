@@ -3,11 +3,12 @@ package com.tramchester.integration.graph;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Journey;
+import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphTransaction;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
-import com.tramchester.domain.JourneyRequest;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -19,7 +20,6 @@ import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
-import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -37,7 +37,7 @@ class RouteCalculatorSubGraphMonsallTest {
 
     private RouteCalculatorTestFacade calculator;
     private final TramDate when = TestEnv.testDay();
-    private Transaction txn;
+    private GraphTransaction txn;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {

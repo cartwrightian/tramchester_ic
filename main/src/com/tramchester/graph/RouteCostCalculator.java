@@ -42,32 +42,33 @@ public class RouteCostCalculator {
 
     @Inject
     public RouteCostCalculator(GraphQuery graphQuery, GraphDatabase graphDatabaseService,
-                               StagedTransportGraphBuilder.Ready ready, RouteRepository routeRepository) {
+                               @SuppressWarnings("unused") StagedTransportGraphBuilder.Ready ready,
+                               RouteRepository routeRepository) {
         this.graphQuery = graphQuery;
         this.graphDatabaseService = graphDatabaseService;
         this.routeRepository = routeRepository;
     }
 
-    public Duration getAverageCostBetween(Transaction txn, GraphNode startNode, GraphNode endNode, TramDate date, Set<TransportMode> modes) throws InvalidDurationException {
+    public Duration getAverageCostBetween(GraphTransaction txn, GraphNode startNode, GraphNode endNode, TramDate date, Set<TransportMode> modes) throws InvalidDurationException {
         return calculateLeastCost(txn, startNode, endNode, COST, date, modes);
     }
 
-    public Duration getAverageCostBetween(Transaction txn, Location<?> station, GraphNode endNode, TramDate date, Set<TransportMode> modes) throws InvalidDurationException {
+    public Duration getAverageCostBetween(GraphTransaction txn, Location<?> station, GraphNode endNode, TramDate date, Set<TransportMode> modes) throws InvalidDurationException {
         GraphNode startNode = graphQuery.getLocationNode(txn, station);
         return calculateLeastCost(txn, startNode, endNode, COST, date, modes);
     }
 
     // startNode must have been found within supplied txn
-    public Duration getAverageCostBetween(Transaction txn, GraphNode startNode, Location<?> endStation, TramDate date, Set<TransportMode> modes) throws InvalidDurationException {
+    public Duration getAverageCostBetween(GraphTransaction txn, GraphNode startNode, Location<?> endStation, TramDate date, Set<TransportMode> modes) throws InvalidDurationException {
         GraphNode endNode = graphQuery.getLocationNode(txn, endStation);
         return calculateLeastCost(txn, startNode, endNode, COST, date, modes);
     }
 
-    public Duration getAverageCostBetween(Transaction txn, Location<?> startStation, Location<?> endStation, TramDate date, Set<TransportMode> modes) throws InvalidDurationException {
+    public Duration getAverageCostBetween(GraphTransaction txn, Location<?> startStation, Location<?> endStation, TramDate date, Set<TransportMode> modes) throws InvalidDurationException {
         return getCostBetween(txn, startStation, endStation, COST, date, modes);
     }
 
-    private Duration getCostBetween(Transaction txn, Location<?> startLocation, Location<?> endLocation, GraphPropertyKey key, TramDate date, Set<TransportMode> modes) throws InvalidDurationException {
+    private Duration getCostBetween(GraphTransaction txn, Location<?> startLocation, Location<?> endLocation, GraphPropertyKey key, TramDate date, Set<TransportMode> modes) throws InvalidDurationException {
         GraphNode startNode = graphQuery.getLocationNode(txn, startLocation);
         if (startNode==null) {
             throw new RuntimeException("Could not find start node for graph id " + startLocation.getId().getGraphId());
@@ -83,7 +84,7 @@ public class RouteCostCalculator {
 
     // startNode and endNode must have been found within supplied txn
 
-    private Duration calculateLeastCost(Transaction txn, GraphNode startNode, GraphNode endNode, GraphPropertyKey key,
+    private Duration calculateLeastCost(GraphTransaction txn, GraphNode startNode, GraphNode endNode, GraphPropertyKey key,
                                         TramDate date, Set<TransportMode> modes) throws InvalidDurationException {
 
         Set<Route> routesRunningOn = routeRepository.getRoutesRunningOn(date).stream().

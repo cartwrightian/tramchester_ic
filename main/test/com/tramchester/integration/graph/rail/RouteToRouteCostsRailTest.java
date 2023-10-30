@@ -11,6 +11,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphTransaction;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
@@ -20,7 +21,6 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.TrainTest;
 import org.junit.jupiter.api.*;
-import org.neo4j.graphdb.Transaction;
 
 import java.util.*;
 
@@ -37,7 +37,7 @@ public class RouteToRouteCostsRailTest {
 
     private RouteToRouteCosts routeToRouteCosts;
     private StationRepository stationRepository;
-    private Transaction txn;
+    private GraphTransaction txn;
     private Station manPicc;
     private Station stockport;
     private Station londonEuston;
