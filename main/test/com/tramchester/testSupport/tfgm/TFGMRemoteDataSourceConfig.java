@@ -20,7 +20,7 @@ public class TFGMRemoteDataSourceConfig extends RemoteDataSourceConfig {
 
     @Override
     public Path getDataPath() {
-        return downloadPath.resolve(TestEnv.TFGM_UNZIP_FOLDER);
+        return downloadPath; //downloadPath.resolve(TestEnv.TFGM_UNZIP_FOLDER);
     }
 
     @Override
