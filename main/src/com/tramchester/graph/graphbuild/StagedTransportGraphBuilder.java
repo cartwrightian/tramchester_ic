@@ -119,7 +119,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             // TODO Agencies could be done in parallel as should be no overlap except at station level?
             for(Agency agency : transportData.getAgencies()) {
                 if (graphFilter.shouldIncludeAgency(agency)) {
-                    try (Timing unused = new Timing(logger,"Add agency " + agency.getId() + " " + agency.getName())) {
+                    try (Timing ignored1 = new Timing(logger,"Add agency " + agency.getId() + " " + agency.getName())) {
                         buildForAgency(graphDatabase, agency, builderCache);
                     }
                 }
@@ -464,14 +464,14 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     }
 
     private void createOnRouteRelationship(GraphNode from, GraphNode to, Route route, StopCallRepository.Costs costs) {
-        Set<Node> endNodes = new HashSet<>();
+        Set<GraphNode> endNodes = new HashSet<>();
 
         if (from.hasRelationship(OUTGOING, ON_ROUTE)) {
             // legit for some routes when trams return to depot, or at media city where they branch, etc
             Iterable<Relationship> relationships = from.getRelationships(OUTGOING, ON_ROUTE);
 
             for (Relationship current : relationships) {
-                endNodes.add(current.getEndNode());
+                endNodes.add(GraphNode.fromEnd(current)); //current.getEndNode());
                 // diff outbounds for same route actually a normal situation, where (especially) trains go via
                 // different paths even thought route is the "same"
             }

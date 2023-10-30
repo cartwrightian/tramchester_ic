@@ -26,7 +26,6 @@ import javax.inject.Inject;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -129,7 +128,7 @@ public class RouteInterchangeRepository {
                 filter(row -> row.containsKey("path")).
                 map(row -> (Path) row.get("path")).
                 map(path -> Pair.of(GraphProps.getStationId(path.startNode()), totalDuration(path))).
-                collect(Collectors.toList());
+                toList();
 
         logger.debug("Got " + pairs.size() + " for " + routeId);
 

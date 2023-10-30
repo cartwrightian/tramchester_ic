@@ -49,10 +49,7 @@ public class TFGMGTFSSourceTestConfig implements GTFSSourceConfig {
                 additionalInterchanges, groupStationModes, closedStations, maxInitialWait);
     }
 
-//    @Override
-//    public Path getDataPath() {
-//        return dowloadFolder.resolve(TestEnv.TFGM_UNZIP_FOLDER);
-//    }
+//cd
 
     @Override
     public String getName() {

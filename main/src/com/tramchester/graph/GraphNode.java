@@ -30,6 +30,16 @@ public class GraphNode {
         this.id = neo4jNode.getId();
     }
 
+    @Deprecated
+    public static GraphNode fromTransaction(Transaction txn, Long nodeId) {
+        return from(txn.getNodeById(nodeId));
+    }
+
+    @Deprecated
+    public Long getId() {
+        return id;
+    }
+
     public static GraphNode fromEnd(Relationship relationship) {
         return from(relationship.getEndNode());
     }
@@ -38,24 +48,12 @@ public class GraphNode {
         return from(relationship.getStartNode());
     }
 
-    @Deprecated
-    public static GraphNode fromTransaction(Transaction txn, Long nodeId) {
-        return from(txn.getNodeById(nodeId));
-    }
-
-
-
-    @Deprecated
-    public Long getId() {
-        return id;
-    }
-
     public Node getNode() {
         return neo4jNode;
     }
 
-    public Relationship createRelationshipTo(GraphNode otherNode, TransportRelationshipTypes direction) {
-        return neo4jNode.createRelationshipTo(otherNode.neo4jNode, direction);
+    public Relationship createRelationshipTo(GraphNode end, TransportRelationshipTypes relationshipTypes) {
+        return neo4jNode.createRelationshipTo(end.neo4jNode, relationshipTypes);
     }
 
     public void delete() {
@@ -99,7 +97,7 @@ public class GraphNode {
         neo4jNode.addLabel(label);
     }
 
-    public void setHourProp(int hour) {
+    public void setHourProp(Integer hour) {
         neo4jNode.setProperty(HOUR.getText(), hour);
     }
 

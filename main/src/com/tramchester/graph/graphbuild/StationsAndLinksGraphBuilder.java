@@ -86,7 +86,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
 
         graphDatabase.createIndexs();
 
-        try (Timing unused = new Timing(logger, "graph rebuild")) {
+        try (Timing ignored = new Timing(logger, "graph rebuild")) {
             try(TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "Adding stations")) {
                 Transaction tx = timedTransaction.transaction();
                 for(Station station : transportData.getStations()) {
@@ -216,7 +216,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
 
             // if there is an existing link between stations then update iff the transport mode not already present
             for (Relationship existing : existings) {
-                if (existing.getEndNode().equals(to)) {
+                if (GraphNode.fromEnd(existing).equals(to)) {
                     Set<TransportMode> existingModes = getTransportModes(existing);
                     if (!existingModes.contains(mode)) {
                         addTransportMode(existing, mode);

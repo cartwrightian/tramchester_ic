@@ -46,9 +46,6 @@ public class GraphQuery {
      * When calling from tests make sure relevant DB is fully built
      */
     public GraphNode getStationNode(Transaction txn, Station station) {
-        //Set<GraphLabel> labels = GraphLabel.forMode(station.getTransportModes());
-        // ought to be able find with any of the labels, so use the first one
-        //GraphLabel label = labels.iterator().next();
         return findNode(txn, GraphLabel.STATION, station);
     }
 
@@ -60,7 +57,8 @@ public class GraphQuery {
 
 
     private <C extends GraphProperty & CoreDomain & HasId<C>>  GraphNode findNode(Transaction txn, GraphLabel label, C hasId) {
-        return GraphNode.from(graphDatabase.findNode(txn, label, hasId.getProp().getText(), hasId.getId().getGraphId()));
+        Node node = graphDatabase.findNode(txn, label, hasId.getProp().getText(), hasId.getId().getGraphId());
+        return GraphNode.from(node);
     }
 
     public GraphNode getLocationNode(Transaction txn, Location<?> location) {
