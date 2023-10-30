@@ -10,7 +10,7 @@ import com.tramchester.geo.HasGridPosition;
 import java.util.Set;
 
 public interface Location<TYPE extends Location<?>> extends HasId<TYPE>, HasGridPosition, HasTransportModes,
-        GraphProperty, GraphNode, CoreDomain {
+        GraphProperty, HasGraphLabel, CoreDomain {
 
     String getName();
 
