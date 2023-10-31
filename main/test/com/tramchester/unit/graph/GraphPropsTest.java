@@ -104,7 +104,6 @@ public class GraphPropsTest {
 
         IdFor<RouteStation> id = RouteStation.createId(RailStationIds.Stockport.getId(), routeId);
 
-        //GraphProps.setRouteStationProp(relationship, id);
         relationship.setRouteStationId(id);
 
         IdFor<RouteStation> result = relationship.getRouteStationId(); //GraphProps.getRouteStationIdFrom(relationship);
@@ -117,10 +116,10 @@ public class GraphPropsTest {
 
         Route route = TestEnv.getTramTestRoute();
 
-        GraphProps.setProperty(node, route);
+        //GraphProps.setProperty(node, route);
+        node.set(route);
 
-        //return getRouteIdFrom(graphNode.getNode());
-        IdFor<Route> result = ((GraphNode) node).getRouteId();
+        IdFor<Route> result = node.getRouteId();
 
         assertEquals(route.getId(), result);
     }
@@ -132,9 +131,8 @@ public class GraphPropsTest {
 
         Route route = MutableRoute.getRoute(routeId, "routeCode", "routeName", TestEnv.MetAgency(), TransportMode.Tram);
 
-        GraphProps.setProperty(node, route);
+        node.set(route);
 
-        //return getRouteIdFrom(graphNode.getNode());
         IdFor<Route> result = ((GraphNode) node).getRouteId();
 
         assertEquals(route.getId(), result);
@@ -204,7 +202,7 @@ public class GraphPropsTest {
 
     @Test
     void shouldAddSingleTransportMode() {
-        GraphProps.setProperty(node, TransportMode.Train);
+        node.setTransportMode(TransportMode.Train);
 
         TransportMode result = ((GraphNode) node).getTransportMode();
 
@@ -221,8 +219,8 @@ public class GraphPropsTest {
         List<Platform> platforms = new ArrayList<>(station.getPlatforms());
         Platform platform = platforms.get(0);
 
-        GraphProps.setProperty(node, station);
-        GraphProps.setProperty(node, platform);
+        node.set(station);
+        node.set(platform);
         GraphProps.setPlatformNumber(node, platform);
 
         IdFor<Platform> platformId = ((GraphNode) node).getPlatformId();
@@ -239,7 +237,7 @@ public class GraphPropsTest {
 
         Duration duration = Duration.ofMinutes(42);
 
-        GraphProps.setCostProp(relationship, duration);
+        relationship.setCost(duration);
 
         Duration result = relationship.getCost();
 
@@ -255,7 +253,7 @@ public class GraphPropsTest {
 
         Duration duration = Duration.ofMinutes(42).plusSeconds(15);
 
-        GraphProps.setCostProp(relationship, duration);
+        relationship.setCost(duration);
 
         Duration result = relationship.getCost();
 
@@ -271,7 +269,7 @@ public class GraphPropsTest {
 
         Duration duration = Duration.ofMinutes(42).plusSeconds(55);
 
-        GraphProps.setCostProp(relationship, duration);
+        relationship.setCost(duration);
 
         Duration result = relationship.getCost();
 

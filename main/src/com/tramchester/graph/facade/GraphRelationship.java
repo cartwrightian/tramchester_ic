@@ -16,9 +16,10 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.HaveGraphProperties;
 import com.tramchester.graph.TransportRelationshipTypes;
-import com.tramchester.graph.graphbuild.GraphProps;
 import org.jetbrains.annotations.NotNull;
-import org.neo4j.graphdb.*;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.ResourceIterable;
 import org.neo4j.internal.helpers.collection.Iterables;
 
 import java.time.Duration;
@@ -58,7 +59,7 @@ public class GraphRelationship extends HaveGraphProperties {
     }
 
     public void setCost(Duration cost) {
-        int minutes = GraphProps.roundUpNearestMinute(cost);
+        int minutes = roundUpNearestMinute(cost);
         relationship.setProperty(COST.getText(), minutes);
     }
 
@@ -67,8 +68,14 @@ public class GraphRelationship extends HaveGraphProperties {
     }
 
     public void setMaxCost(Duration duration) {
-        int minutes = GraphProps.roundUpNearestMinute(duration);
+        int minutes = roundUpNearestMinute(duration);
         relationship.setProperty(MAX_COST.getText(), minutes);
+    }
+
+    public int roundUpNearestMinute(final Duration duration) {
+        @SuppressWarnings("WrapperTypeMayBePrimitive")
+        final Double minutes = Math.ceil(duration.toSeconds()/60D);
+        return minutes.intValue();
     }
 
     public void setTime(TramTime tramTime) {

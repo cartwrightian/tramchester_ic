@@ -332,8 +332,8 @@ public class LocationJourneyPlanner {
                 throw new RuntimeException("Unknown direction " + direction);
             }
 
-            GraphProps.setCostProp(walkingRelationship, cost);
-            GraphProps.setMaxCostProp(walkingRelationship, cost);
+            walkingRelationship.setCost(cost);
+            walkingRelationship.setMaxCost(cost);
             GraphProps.setProperty(walkingRelationship, walkStation);
             return walkingRelationship;
         }

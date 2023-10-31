@@ -1,6 +1,7 @@
 package com.tramchester.graph.facade;
 
 import com.google.common.collect.Streams;
+import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
@@ -9,6 +10,7 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
@@ -16,9 +18,6 @@ import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.HaveGraphProperties;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.graphbuild.GraphLabel;
-import com.tramchester.graph.graphbuild.GraphProps;
-import org.neo4j.graphalgo.PathFinder;
-import org.neo4j.graphalgo.WeightedPath;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
@@ -34,7 +33,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.GraphPropertyKey.*;
-import static com.tramchester.graph.GraphPropertyKey.STATION_ID;
 
 public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
     private final Node node;
@@ -186,7 +184,7 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
     }
 
     public PlatformId getPlatformId() {
-        IdFor<Station> stationId = GraphProps.getStationIdFrom(node);
+        IdFor<Station> stationId = getStationId(); // GraphProps.getStationIdFrom(node);
         String platformNumber = node.getProperty(PLATFORM_NUMBER.getText()).toString();
         return PlatformId.createId(stationId, platformNumber);
     }
@@ -206,5 +204,33 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
     @Override
     public int hashCode() {
         return Objects.hash(graphNodeId);
+    }
+
+    public void set(Station station) {
+        super.set(station, node);
+    }
+
+    public void set(Platform platform) {
+        super.set(platform, node);
+    }
+
+    public void set(Route route) {
+        super.set(route, node);
+    }
+
+    public void set(Service service) {
+        super.set(service, node);
+    }
+
+    public void set(StationGroup stationGroup) {
+        super.set(stationGroup, node);
+    }
+
+    public void set(RouteStation routeStation) {
+        super.set(routeStation, node);
+    }
+
+    public void setTransportMode(TransportMode first) {
+        node.setProperty(TRANSPORT_MODE.getText(), first.getNumber());
     }
 }

@@ -1,7 +1,8 @@
 package com.tramchester.graph.graphbuild;
 
 import com.tramchester.domain.places.Station;
-import com.tramchester.graph.*;
+import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.facade.GraphTransaction;
@@ -16,7 +17,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
-import static com.tramchester.graph.graphbuild.GraphProps.setProperty;
 import static java.lang.String.format;
 
 public class CreateNodesAndRelationships {
@@ -42,7 +42,7 @@ public class CreateNodesAndRelationships {
         }
         logger.debug(format("Creating station node: %s with labels: %s ", station, labels));
         MutableGraphNode stationNode = createGraphNode(tx, labels);
-        setProperty(stationNode, station);
+        stationNode.set(station);
         return stationNode;
     }
 

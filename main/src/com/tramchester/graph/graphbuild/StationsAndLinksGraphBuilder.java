@@ -12,7 +12,9 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.*;
+import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphPropertyKey;
+import com.tramchester.graph.TimedTransaction;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.facade.GraphTransaction;
@@ -20,7 +22,6 @@ import com.tramchester.graph.facade.MutableGraphNode;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.metrics.Timing;
 import com.tramchester.repository.TransportData;
-import org.neo4j.graphdb.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -241,9 +242,8 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         for (Platform platform : station.getPlatforms()) {
 
             MutableGraphNode platformNode = txn.createNode(GraphLabel.PLATFORM);
-            setProperty(platformNode, platform);
-            setProperty(platformNode, station);
-
+            platformNode.set(platform);
+            platformNode.set(station);
             setPlatformNumber(platformNode, platform);
             setTransportMode(station, platformNode);
 
@@ -277,33 +277,48 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         MutableGraphNode routeStationNode = createGraphNode(tx, labels);
 
         logger.debug(format("Creating route station %s nodeId %s", routeStation.getId(), routeStationNode.getId()));
-        GraphProps.setProperty(routeStationNode, routeStation);
-        setProperty(routeStationNode, routeStation.getStation());
-        setProperty(routeStationNode, routeStation.getRoute());
+        //GraphProps.setProperty(routeStationNode, routeStation);
+        routeStationNode.set(routeStation);
+        routeStationNode.set(routeStation.getStation());
+        routeStationNode.set(routeStation.getRoute());
 
-        setProperty(routeStationNode, mode);
+        routeStationNode.setTransportMode(mode);
+//        setProperty(graphNode.getNode(), mode);
 
         builderCache.putRouteStation(routeStation.getId(), routeStationNode);
         return routeStationNode;
     }
 
     private void setTransportMode(Station station, MutableGraphNode node) {
-        setTransportMode(station, node.getNode());
-    }
-
-    private void setTransportMode(Station station, Node node) {
         Set<TransportMode> modes = station.getTransportModes();
         if (modes.isEmpty()) {
             logger.error("No transport modes set for " + station.getId());
             return;
         }
         if (modes.size()==1) {
-            setProperty(node, modes.iterator().next());
+            TransportMode first = modes.iterator().next();
+            node.setTransportMode(first);
+//            setProperty(node, first);
         } else {
             logger.error(format("Unable to set transportmode property, more than one mode (%s) for %s",
                     modes, station.getId()));
         }
     }
+
+//    private void setTransportMode(Station station, Node node) {
+//        Set<TransportMode> modes = station.getTransportModes();
+//        if (modes.isEmpty()) {
+//            logger.error("No transport modes set for " + station.getId());
+//            return;
+//        }
+//        if (modes.size()==1) {
+//            TransportMode first = modes.iterator().next();
+//            setProperty(node, first);
+//        } else {
+//            logger.error(format("Unable to set transportmode property, more than one mode (%s) for %s",
+//                    modes, station.getId()));
+//        }
+//    }
 
 
     public static class Ready {

@@ -280,8 +280,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         // -some towardsServices can go in two different directions from a station i.e. around Media City UK
 
         MutableGraphNode svcNode =  tx.createNode(GraphLabel.SERVICE); //createGraphNodeOld(tx, GraphLabel.SERVICE);
-        setProperty(svcNode, service);
-        setProperty(svcNode, route);
+        svcNode.set(service);
+        svcNode.set(route);
         // TODO This is used to look up station and hence lat/long for distance ordering, store
         //  org.neo4j.graphdb.spatial.Point instead?
         setTowardsProp(svcNode, endId);
@@ -434,7 +434,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         Duration departCost = Duration.ZERO;
 
         GraphRelationship departRelationship = createRelationship(txn, routeStationNode, boardingNode, departType);
-        setCostProp(departRelationship, departCost);
+        departRelationship.setCost(departCost);
         departRelationship.setCost(departCost);
         //setRouteStationProp(departRelationship, routeStationId);
         departRelationship.setRouteStationId(routeStationId);
@@ -444,7 +444,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
         if (departType.equals(DIVERSION_DEPART)) {
             Set<DateRange> ranges = stationsWithDiversionRepository.getDateRangesFor(station);
-            ranges.forEach(range -> GraphProps.setDateRange(departRelationship, range));
+            ranges.forEach(range -> departRelationship.setDateRange(range));
         }
     }
 
@@ -497,8 +497,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             GraphRelationship onRoute = createRelationship(txn, from, to, ON_ROUTE);
             setProperty(onRoute, route);
 
-            setCostProp(onRoute, costs.average());
-            setMaxCostProp(onRoute, costs.max());
+            onRoute.setCost(costs.average());
+            onRoute.setMaxCost(costs.max());
             setProperty(onRoute, route.getTransportMode());
         }
     }
@@ -509,14 +509,14 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         Duration enterPlatformCost = station.getMinChangeDuration();
 
         GraphRelationship crossToPlatform = createRelationship(txn, stationNode, platformNode, ENTER_PLATFORM);
-        setCostProp(crossToPlatform, enterPlatformCost);
+        crossToPlatform.setCost(enterPlatformCost);
         setProperty(crossToPlatform, platform);
 
         // platform -> station
         Duration leavePlatformCost = Duration.ZERO;
 
         GraphRelationship crossFromPlatform = createRelationship(txn, platformNode, stationNode, LEAVE_PLATFORM);
-        setCostProp(crossFromPlatform, leavePlatformCost);
+        crossFromPlatform.setCost(leavePlatformCost);
         setProperty(crossFromPlatform, station);
     }
 
@@ -535,7 +535,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         setProperty(goesToRelationship, trip);
 
         Duration cost = TramTime.difference(endStop.getArrivalTime(), departureTime);
-        setCostProp(goesToRelationship, cost);
+        goesToRelationship.setCost(cost);
         setProperty(goesToRelationship, trip.getService()); // TODO Still useful?
         setProperty(goesToRelationship, route);
         setStopSequenceNumber(goesToRelationship, endStop.getGetSequenceNumber());
