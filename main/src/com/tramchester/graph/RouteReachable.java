@@ -12,7 +12,6 @@ import com.tramchester.domain.time.TimeRange;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.facade.GraphTransaction;
-import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.repository.StationAvailabilityRepository;
 import com.tramchester.repository.StationRepository;
@@ -65,7 +64,8 @@ public class RouteReachable {
                     Stream<GraphRelationship> edges = routeStationNode.getRelationships(txn, Direction.OUTGOING, ON_ROUTE);
 
                     edges.forEach(edge -> {
-                        final IdFor<Station> endNodeStationId = GraphProps.getStationIdFrom(edge.getEndNode(txn));
+                        GraphNode graphNode = edge.getEndNode(txn);
+                        final IdFor<Station> endNodeStationId = graphNode.getStationId();
                         if (endStationId.equals(endNodeStationId)) {
                             results.add(route);
                         }

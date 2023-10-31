@@ -283,14 +283,6 @@ public class GraphProps {
         return getIdFromGraphEntity(entity, STATION_ID, Station.class);
     }
 
-    public static IdFor<Station> getStationIdFrom(GraphNode graphNode) {
-        return graphNode.getStationId();
-    }
-
-    public static IdFor<Station> getTowardsStationIdFrom(Entity entity) {
-        return getIdFromGraphEntity(entity, TOWARDS_STATION_ID, Station.class);
-    }
-
     public static IdFor<Service> getServiceIdFrom(Entity entity) {
         return getIdFromGraphEntity(entity, SERVICE_ID, Service.class);
     }

@@ -111,13 +111,13 @@ public class ReasonsToGraphViz {
         }
 
         if (labels.contains(GraphLabel.STATION)) {
-            IdFor<Station> stationIdFrom = GraphProps.getStationIdFrom(node);
+            IdFor<Station> stationIdFrom = node.getStationId();
             Station station = stationRepository.getStationById(stationIdFrom);
             ids.append(System.lineSeparator()).append(station.getName());
         }
 
         if (labels.contains(GraphLabel.ROUTE_STATION)) {
-            IdFor<Station> stationIdFrom = GraphProps.getStationIdFrom(node);
+            IdFor<Station> stationIdFrom = node.getStationId();
             Station station = stationRepository.getStationById(stationIdFrom);
             ids.append(System.lineSeparator()).append(station.getName());
             String value = GraphProps.getRouteIdFrom(node).toString();

@@ -3,6 +3,7 @@ package com.tramchester.graph.search.stateMachine.states;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.GraphTransaction;
@@ -98,11 +99,6 @@ public class NoPlatformStationState extends StationState {
         super(parent, relationships, cost, stationNode, journeyState, builder);
     }
 
-//    private NoPlatformStationState(TraversalState parent, ResourceIterable<Relationship> relationships, Duration cost, Node stationNode,
-//                                   JourneyStateUpdate journeyState, TowardsStation<?> builder) {
-//        super(parent, relationships, cost, stationNode, journeyState, builder);
-//    }
-
     @Override
     protected PlatformStationState toPlatformStation(PlatformStationState.Builder towardsStation, GraphNode next, Duration cost,
                                                      JourneyStateUpdate journeyState, boolean onDiversion) {
@@ -151,13 +147,13 @@ public class NoPlatformStationState extends StationState {
     @Override
     public String toString() {
         return "NoPlatformStationState{" +
-                "stationNodeId=" + stationNode.getIdOLD() +
+                "stationNodeId=" + stationNode.getId() +
                 "} " + super.toString();
     }
 
     @Override
-    public long nodeId() {
-        return stationNode.getIdOLD();
+    public GraphNodeId nodeId() {
+        return stationNode.getId();
     }
 
 }

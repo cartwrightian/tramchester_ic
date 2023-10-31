@@ -1,6 +1,7 @@
 package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.search.JourneyStateUpdate;
@@ -86,14 +87,14 @@ public class PlatformStationState extends StationState {
     @Override
     public String toString() {
         return "PlatformStationState{" +
-                "stationNodeId=" + stationNode.getIdOLD() +
+                "stationNodeId=" + stationNode.getId() +
                 "} " + super.toString();
     }
 
 
     @Override
-    public long nodeId() {
-        return stationNode.getIdOLD();
+    public GraphNodeId nodeId() {
+        return stationNode.getId();
     }
 
     @Override

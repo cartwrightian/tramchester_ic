@@ -2,6 +2,7 @@ package com.tramchester.graph.search.stateMachine.states;
 
 
 import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.search.JourneyStateUpdate;
@@ -35,26 +36,22 @@ public class GroupedStationState extends TraversalState {
         public TraversalState fromChildStation(StationState stationState, GraphNode node, Duration cost, GraphTransaction txn) {
             return new GroupedStationState(stationState,
                     filterExcludingEndNode(txn, node.getRelationships(txn, Direction.OUTGOING, GROUPED_TO_CHILD),stationState),
-                    cost, node.getIdOLD(), this);
+                    cost, node.getId(), this);
         }
 
         public TraversalState fromStart(NotStartedState notStartedState, GraphNode node, Duration cost, GraphTransaction txn) {
             return new GroupedStationState(notStartedState, node.getRelationships(txn, Direction.OUTGOING, GROUPED_TO_CHILD),
-                    cost, node.getIdOLD(), this);
+                    cost, node.getId(), this);
         }
     }
 
-    private final long stationNodeId;
+    private final GraphNodeId stationNodeId;
 
-    private GroupedStationState(TraversalState parent, Stream<GraphRelationship> relationships, Duration cost, long stationNodeId, Towards<GroupedStationState> builder) {
+    private GroupedStationState(TraversalState parent, Stream<GraphRelationship> relationships, Duration cost, GraphNodeId stationNodeId,
+                                Towards<GroupedStationState> builder) {
         super(parent, relationships, cost, builder.getDestination());
         this.stationNodeId = stationNodeId;
     }
-
-//    private GroupedStationState(TraversalState parent, ResourceIterable<Relationship> relationships, Duration cost, long stationNodeId, Towards<GroupedStationState> builder) {
-//        super(parent, relationships, cost, builder.getDestination());
-//        this.stationNodeId = stationNodeId;
-//    }
 
     @Override
     public String toString() {

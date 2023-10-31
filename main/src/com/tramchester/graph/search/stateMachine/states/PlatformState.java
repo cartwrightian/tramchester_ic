@@ -3,6 +3,7 @@ package com.tramchester.graph.search.stateMachine.states;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.graphbuild.GraphProps;
@@ -82,7 +83,7 @@ public class PlatformState extends TraversalState implements NodeId {
     @Override
     public String toString() {
         return "PlatformState{" +
-                "platformNodeId=" + platformNode.getIdOLD() +
+                "platformNodeId=" + platformNode.getId() +
                 "} " + super.toString();
     }
 
@@ -107,7 +108,7 @@ public class PlatformState extends TraversalState implements NodeId {
     }
 
     @Override
-    public long nodeId() {
-        return platformNode.getIdOLD();
+    public GraphNodeId nodeId() {
+        return platformNode.getId();
     }
 }

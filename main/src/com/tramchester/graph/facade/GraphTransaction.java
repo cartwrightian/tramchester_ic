@@ -153,4 +153,7 @@ public class GraphTransaction implements AutoCloseable {
         };
     }
 
+    public GraphNodeId createNodeId(long legacyId) {
+        return idFactory.getNodeIdFor(legacyId);
+    }
 }

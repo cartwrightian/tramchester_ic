@@ -240,4 +240,9 @@ public class GraphRelationship extends HaveGraphProperties {
     public int getStopSeqNumber() {
         return (int) relationship.getProperty(STOP_SEQ_NUM.getText());
     }
+
+    public GraphNodeId getEndNodeId(GraphTransaction txn) {
+        long legacyId = relationship.getEndNodeId();
+        return txn.createNodeId(legacyId);
+    }
 }

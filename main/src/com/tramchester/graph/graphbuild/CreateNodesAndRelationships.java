@@ -91,9 +91,7 @@ public class CreateNodesAndRelationships {
 
         if (!alreadyRelationship.contains(toNode)) {
             GraphRelationship relationship = createRelationship(txn, fromNode, toNode, relationshipType);
-            //GraphProps.setCostProp(relationship, walkCost);
             relationship.setCost(walkCost);
-            //GraphProps.setMaxCostProp(relationship, walkCost);
             relationship.setMaxCost(walkCost);
             return true;
         }

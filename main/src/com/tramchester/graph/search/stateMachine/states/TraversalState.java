@@ -2,6 +2,7 @@ package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.GraphTransaction;
@@ -197,8 +198,8 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
 //    }
 
     protected static Stream<GraphRelationship> filterExcludingEndNode(GraphTransaction txn, Stream<GraphRelationship> relationships, NodeId hasNodeId) {
-        long nodeId = hasNodeId.nodeId();
-        return relationships.filter(relationship -> relationship.getEndNode(txn).getIdOLD() != nodeId);
+        GraphNodeId nodeId = hasNodeId.nodeId();
+        return relationships.filter(relationship -> !relationship.getEndNodeId(txn).equals(nodeId));
     }
 
     public Duration getTotalDuration() {

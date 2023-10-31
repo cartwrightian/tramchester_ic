@@ -64,7 +64,7 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
             logger.info(format("Plan journey, arrive by %s so depart by %s", journeyRequest, departureTime));
             return routeCalculator.calculateRouteWalkAtEnd(txn, start, endOfWalk, destStations, departureTime, numberOfChanges);
         } catch (InvalidDurationException invalidDurationException) {
-            logger.error("Unable to compute cost from %s to node %s for %s".formatted(start.getId(), endOfWalk.getIdOLD(), journeyRequest),
+            logger.error("Unable to compute cost from %s to node %s for %s".formatted(start.getId(), endOfWalk.getId(), journeyRequest),
                     invalidDurationException);
             return Stream.empty();
         }
@@ -80,7 +80,7 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
             logger.info(format("Plan journey, arrive by %s so depart by %s", journeyRequest, departureTime));
             return routeCalculator.calculateRouteWalkAtStart(txn, stationWalks, origin, destination, departureTime, numberOfChanges);
         } catch (InvalidDurationException invalidDurationException) {
-            logger.error("Unable to compute cost from node %s to %s for %s".formatted(origin.getIdOLD(), destination.getId(), journeyRequest),
+            logger.error("Unable to compute cost from node %s to %s for %s".formatted(origin.getId(), destination.getId(), journeyRequest),
                     invalidDurationException);
             return Stream.empty();
         }
@@ -98,7 +98,7 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
             return routeCalculator.calculateRouteWalkAtStartAndEnd(txn, stationWalks, startNode, endNode, destinationStations, departureTime, numberOfChanges);
         } catch (InvalidDurationException invalidDurationException) {
             logger.error("Unable to compute cost from node %s to node %s [walks:%s] for %s".formatted(
-                    startNode.getIdOLD(), endNode.getIdOLD(), stationWalks, journeyRequest), invalidDurationException);
+                    startNode.getId(), endNode.getId(), stationWalks, journeyRequest), invalidDurationException);
             return Stream.empty();
         }
     }

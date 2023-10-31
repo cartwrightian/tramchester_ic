@@ -7,6 +7,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.facade.GraphTransaction;
@@ -119,14 +120,14 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
     }
 
     @Override
-    public long nodeId() {
-        return routeStationNode.getIdOLD();
+    public GraphNodeId nodeId() {
+        return routeStationNode.getId();
     }
 
     @Override
     public String toString() {
         return "RouteStationStateOnTrip{" +
-                "routeStationNodeId=" + routeStationNode.getIdOLD() +
+                "routeStationNodeId=" + routeStationNode.getId() +
                 ", tripId=" + tripId +
                 ", transportMode=" + transportMode +
                 "} " + super.toString();
