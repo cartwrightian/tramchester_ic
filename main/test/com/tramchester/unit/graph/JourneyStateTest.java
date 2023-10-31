@@ -15,6 +15,7 @@ import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
+import com.tramchester.graph.GraphNode;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.LowestCostsForDestRoutes;
@@ -32,7 +33,6 @@ import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.neo4j.graphdb.Node;
 
 import java.time.Duration;
 
@@ -43,7 +43,7 @@ class JourneyStateTest extends EasyMockSupport {
 
     private TramTime queryTime;
     private NotStartedState traversalState;
-    private Node node;
+    private GraphNode node;
 
     // TODO ON BUS
 
@@ -52,7 +52,7 @@ class JourneyStateTest extends EasyMockSupport {
         LatLong latLongHint = TramStations.ManAirport.getLatLong();
         TramDate queryDate = TestEnv.testDay();
 
-        node = EasyMock.createMock(Node.class);
+        node = EasyMock.createMock(GraphNode.class);
 
         MutableStation station = StationHelper.forTestMutable("destinationStationId", "area", "name", new LatLong(1,1),
                 DataSourceID.tfgm, "stationCode");

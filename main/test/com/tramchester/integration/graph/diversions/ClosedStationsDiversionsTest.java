@@ -268,7 +268,7 @@ class ClosedStationsDiversionsTest {
                 GraphNode node = graphQuery.getPlatformNode(txn, platform);
                 Stream<GraphRelationship> iterable = node.getRelationships(Direction.INCOMING, TransportRelationshipTypes.DIVERSION_DEPART);
 
-                iterable.forEach(relationship -> foundRelationshipIds.add(relationship.getId()));
+                iterable.forEach(relationship -> foundRelationshipIds.add(relationship.getIdOLD()));
             });
 
         }

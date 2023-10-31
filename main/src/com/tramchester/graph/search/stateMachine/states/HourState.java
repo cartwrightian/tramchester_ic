@@ -2,14 +2,14 @@ package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.GraphNode;
+import com.tramchester.graph.GraphRelationship;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.ExistingTrip;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
 
 import java.time.Duration;
 import java.util.stream.Stream;
@@ -29,8 +29,8 @@ public class HourState extends TraversalState {
             this.nodeContents = nodeContents;
         }
 
-        public HourState fromService(ServiceState serviceState, Node node, Duration cost, ExistingTrip maybeExistingTrip) {
-            Stream<Relationship> relationships = getMinuteRelationships(node);
+        public HourState fromService(ServiceState serviceState, GraphNode node, Duration cost, ExistingTrip maybeExistingTrip) {
+            Stream<GraphRelationship> relationships = getMinuteRelationships(node);
             return new HourState(serviceState, relationships, maybeExistingTrip, cost, this);
         }
 
@@ -44,11 +44,10 @@ public class HourState extends TraversalState {
             return TraversalStateType.HourState;
         }
 
-        private Stream<Relationship> getMinuteRelationships(Node node) {
-            Stream<Relationship> relationships = getRelationships(node, OUTGOING, TO_MINUTE);
+        private Stream<GraphRelationship> getMinuteRelationships(GraphNode node) {
+            Stream<GraphRelationship> relationships = getRelationships(node, OUTGOING, TO_MINUTE);
             if (depthFirst) {
-                return relationships.
-                        sorted(TramTime.comparing(relationship -> nodeContents.getTime(relationship.getEndNode())));
+                return relationships.sorted(TramTime.comparing(relationship -> nodeContents.getTime(relationship.getEndNode())));
             }
             return relationships;
         }
@@ -56,14 +55,14 @@ public class HourState extends TraversalState {
 
     private final ExistingTrip maybeExistingTrip;
 
-    private HourState(TraversalState parent, Stream<Relationship> relationships,
+    private HourState(TraversalState parent, Stream<GraphRelationship> relationships,
                       ExistingTrip maybeExistingTrip, Duration cost, Towards<HourState> builder) {
         super(parent, relationships, cost, builder.getDestination());
         this.maybeExistingTrip = maybeExistingTrip;
     }
 
     @Override
-    protected TraversalState toMinute(MinuteState.Builder towardsMinute, Node minuteNode, Duration cost,
+    protected TraversalState toMinute(MinuteState.Builder towardsMinute, GraphNode minuteNode, Duration cost,
                                       JourneyStateUpdate journeyState, TransportRelationshipTypes[] currentModes) {
         try {
             TramTime time = traversalOps.getTimeFrom(minuteNode);

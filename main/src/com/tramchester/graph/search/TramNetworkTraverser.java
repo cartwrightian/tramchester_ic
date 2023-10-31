@@ -8,6 +8,7 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphNode;
+import com.tramchester.graph.GraphRelationship;
 import com.tramchester.graph.GraphTransaction;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
@@ -21,8 +22,12 @@ import com.tramchester.graph.search.stateMachine.states.NotStartedState;
 import com.tramchester.graph.search.stateMachine.states.TraversalState;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import com.tramchester.repository.TripRepository;
-import org.neo4j.graphdb.*;
+import org.neo4j.graphdb.Path;
+import org.neo4j.graphdb.PathExpander;
+import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.ResourceIterable;
 import org.neo4j.graphdb.traversal.*;
+import org.neo4j.internal.helpers.collection.Iterables;
 import org.neo4j.kernel.impl.traversal.MonoDirectionalTraversalDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -132,11 +137,11 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         final ImmutableJourneyState currentState = graphState.getState();
         final ImmuatableTraversalState traversalState = currentState.getTraversalState();
 
-        final Node endPathNode = path.endNode();
+        final GraphNode endPathNode =  GraphNode.fromEnd(path); // path.endNode();
         final JourneyState journeyStateForChildren = JourneyState.fromPrevious(currentState);
 
         Duration cost = Duration.ZERO;
-        Relationship lastRelationship = path.lastRelationship();
+        GraphRelationship lastRelationship = GraphRelationship.lastFrom(path); // path.lastRelationship();
         if (lastRelationship !=null) {
             cost = nodeContentsRepository.getCost(lastRelationship);
             if (Durations.greaterThan(cost, Duration.ZERO)) {
@@ -145,7 +150,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
                 journeyStateForChildren.updateTotalCost(total);
             }
             if (lastRelationship.isType(DIVERSION)) {
-                Node startOfDiversionNode = lastRelationship.getStartNode();
+                GraphNode startOfDiversionNode = lastRelationship.getStartNode();
                 journeyStateForChildren.beginDiversion(startOfDiversionNode);
             }
         }
@@ -158,7 +163,11 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         journeyStateForChildren.updateTraversalState(traversalStateForChildren);
         graphState.setState(journeyStateForChildren);
 
-        return traversalStateForChildren.getOutbounds();
+        return convertToIter(traversalStateForChildren.getOutbounds());
+    }
+
+    private ResourceIterable<Relationship> convertToIter(Stream<GraphRelationship> resourceIterable) {
+        return GraphRelationship.convertIterable(resourceIterable);
     }
 
     @Override

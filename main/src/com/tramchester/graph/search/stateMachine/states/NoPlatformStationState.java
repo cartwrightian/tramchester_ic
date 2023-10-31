@@ -3,6 +3,8 @@ package com.tramchester.graph.search.stateMachine.states;
 import com.google.common.collect.Streams;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.graph.GraphNode;
+import com.tramchester.graph.GraphRelationship;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.JourneyStateUpdate;
@@ -38,104 +40,109 @@ public class NoPlatformStationState extends StationState {
             return TraversalStateType.NoPlatformStationState;
         }
 
-        public NoPlatformStationState fromWalking(WalkingState walkingState, Node node, Duration cost, JourneyStateUpdate journeyState) {
+        @Override
+        public NoPlatformStationState fromWalking(WalkingState walkingState, GraphNode node, Duration cost, JourneyStateUpdate journeyState) {
             return new NoPlatformStationState(walkingState,
                     boardRelationshipsPlus(node, GROUPED_TO_PARENT, NEIGHBOUR),
                     cost, node, journeyState, this);
         }
 
-        public NoPlatformStationState fromStart(NotStartedState notStartedState, Node node, Duration cost,
+        @Override
+        public NoPlatformStationState fromStart(NotStartedState notStartedState, GraphNode node, Duration cost,
                                                 JourneyStateUpdate journeyState, boolean alreadyOnDiversion, boolean onDiversion) {
-            final Stream<Relationship> neighbours = getRelationships(node, OUTGOING, NEIGHBOUR);
-            final Stream<Relationship> initial = boardRelationshipsPlus(node, WALKS_FROM_STATION, GROUPED_TO_PARENT);
-            Stream<Relationship> relationships = addValidDiversions(node, initial, notStartedState, alreadyOnDiversion);
+            final Stream<GraphRelationship> neighbours = getRelationships(node, OUTGOING, NEIGHBOUR);
+            final Stream<GraphRelationship> initial = boardRelationshipsPlus(node, WALKS_FROM_STATION, GROUPED_TO_PARENT);
+            Stream<GraphRelationship> relationships = addValidDiversions(node, initial, notStartedState, alreadyOnDiversion);
 
             return new NoPlatformStationState(notStartedState, Stream.concat(neighbours, relationships), cost, node, journeyState, this);
         }
 
-        public TraversalState fromRouteStation(RouteStationStateEndTrip routeStationState, Node node, Duration cost,
+        public TraversalState fromRouteStation(RouteStationStateEndTrip routeStationState, GraphNode node, Duration cost,
                                                JourneyStateUpdate journeyState, boolean alreadyOnDiversion) {
             // end of a trip, may need to go back to this route station to catch new service
-            final Stream<Relationship> initial = boardRelationshipsPlus(node, WALKS_FROM_STATION, NEIGHBOUR, GROUPED_TO_PARENT);
-            Stream<Relationship> relationships = addValidDiversions(node, initial, routeStationState, alreadyOnDiversion);
+            final Stream<GraphRelationship> initial = boardRelationshipsPlus(node, WALKS_FROM_STATION, NEIGHBOUR, GROUPED_TO_PARENT);
+            Stream<GraphRelationship> relationships = addValidDiversions(node, initial, routeStationState, alreadyOnDiversion);
             return new NoPlatformStationState(routeStationState, relationships, cost, node, journeyState, this);
         }
 
-        public TraversalState fromRouteStation(RouteStationStateOnTrip onTrip, Node node, Duration cost, JourneyStateUpdate journeyState) {
+        public TraversalState fromRouteStation(RouteStationStateOnTrip onTrip, GraphNode node, Duration cost, JourneyStateUpdate journeyState) {
             // filter so we don't just get straight back on tram if just boarded, or if we are on an existing trip
-            final Stream<Relationship> relationships = boardRelationshipsPlus(node, WALKS_FROM_STATION, NEIGHBOUR, GROUPED_TO_PARENT);
-            Stream<Relationship> stationRelationships = filterExcludingEndNode(relationships, onTrip);
+            final Stream<GraphRelationship> relationships = boardRelationshipsPlus(node, WALKS_FROM_STATION, NEIGHBOUR, GROUPED_TO_PARENT);
+            Stream<GraphRelationship> stationRelationships = filterExcludingEndNode(relationships, onTrip);
             return new NoPlatformStationState(onTrip, stationRelationships, cost, node, journeyState, this);
         }
 
-        public NoPlatformStationState fromNeighbour(StationState noPlatformStation, Node node, Duration cost, JourneyStateUpdate journeyState, boolean onDiversion) {
+        @Override
+        public NoPlatformStationState fromNeighbour(StationState noPlatformStation, GraphNode node, Duration cost, JourneyStateUpdate journeyState,
+                                                    boolean onDiversion) {
             return new NoPlatformStationState(noPlatformStation,
                     node.getRelationships(OUTGOING, BOARD, INTERCHANGE_BOARD, GROUPED_TO_PARENT),
                     cost, node, journeyState, this);
         }
 
-        public NoPlatformStationState fromGrouped(GroupedStationState groupedStationState, Node node, Duration cost, JourneyStateUpdate journeyState) {
+        @Override
+        public NoPlatformStationState fromGrouped(GroupedStationState groupedStationState, GraphNode node, Duration cost, JourneyStateUpdate journeyState) {
             return new NoPlatformStationState(groupedStationState,
                     node.getRelationships(OUTGOING, BOARD, INTERCHANGE_BOARD, NEIGHBOUR),
                     cost,  node, journeyState, this);
         }
 
-        Stream<Relationship> boardRelationshipsPlus(Node node, TransportRelationshipTypes... others) {
-            Stream<Relationship> other = Streams.stream(node.getRelationships(OUTGOING, others));
-            Stream<Relationship> board = Streams.stream(node.getRelationships(OUTGOING, BOARD, INTERCHANGE_BOARD));
+        Stream<GraphRelationship> boardRelationshipsPlus(GraphNode node, TransportRelationshipTypes... others) {
+            Stream<GraphRelationship> other = node.getRelationships(OUTGOING, others);
+            Stream<GraphRelationship> board = node.getRelationships(OUTGOING, BOARD, INTERCHANGE_BOARD);
             // order matters here, i.e. explore walks first
             return Stream.concat(other, board);
         }
 
     }
 
-    private NoPlatformStationState(TraversalState parent, Stream<Relationship> relationships, Duration cost, Node stationNode,
+    private NoPlatformStationState(TraversalState parent, Stream<GraphRelationship> relationships, Duration cost, GraphNode stationNode,
                                    JourneyStateUpdate journeyState, TowardsStation<?> builder) {
         super(parent, relationships, cost, stationNode, journeyState, builder);
     }
 
-    private NoPlatformStationState(TraversalState parent, ResourceIterable<Relationship> relationships, Duration cost, Node stationNode,
-                                   JourneyStateUpdate journeyState, TowardsStation<?> builder) {
-        super(parent, relationships, cost, stationNode, journeyState, builder);
-    }
+//    private NoPlatformStationState(TraversalState parent, ResourceIterable<Relationship> relationships, Duration cost, Node stationNode,
+//                                   JourneyStateUpdate journeyState, TowardsStation<?> builder) {
+//        super(parent, relationships, cost, stationNode, journeyState, builder);
+//    }
 
     @Override
-    protected PlatformStationState toPlatformStation(PlatformStationState.Builder towardsStation, Node next, Duration cost,
+    protected PlatformStationState toPlatformStation(PlatformStationState.Builder towardsStation, GraphNode next, Duration cost,
                                                      JourneyStateUpdate journeyState, boolean onDiversion) {
         journeyState.toNeighbour(stationNode, next, cost);
         return towardsStation.fromNeighbour(this, next, cost, journeyState, onDiversion);
     }
 
     @Override
-    protected TraversalState toNoPlatformStation(Builder towardsStation, Node next, Duration cost,
+    protected TraversalState toNoPlatformStation(Builder towardsStation, GraphNode next, Duration cost,
                                                  JourneyStateUpdate journeyState, boolean onDiversion) {
         journeyState.toNeighbour(stationNode, next, cost);
         return towardsStation.fromNeighbour(this, next, cost, journeyState, onDiversion);
     }
 
     @Override
-    protected TraversalState toWalk(WalkingState.Builder towardsWalk, Node walkingNode, Duration cost, JourneyStateUpdate journeyState) {
+    protected TraversalState toWalk(WalkingState.Builder towardsWalk, GraphNode walkingNode, Duration cost, JourneyStateUpdate journeyState) {
         journeyState.beginWalk(stationNode, false, cost);
         return towardsWalk.fromStation(this, walkingNode, cost);
     }
 
     @Override
-    protected TraversalState toGrouped(GroupedStationState.Builder towardsGroup, Node groupNode, Duration cost, JourneyStateUpdate journeyState) {
+    protected TraversalState toGrouped(GroupedStationState.Builder towardsGroup, GraphNode groupNode, Duration cost, JourneyStateUpdate journeyState) {
         return towardsGroup.fromChildStation(this, groupNode, cost);
     }
 
     @Override
-    protected JustBoardedState toJustBoarded(JustBoardedState.Builder towardsJustBoarded, Node boardNode, Duration cost, JourneyStateUpdate journeyState) {
+    protected JustBoardedState toJustBoarded(JustBoardedState.Builder towardsJustBoarded, GraphNode boardNode, Duration cost, JourneyStateUpdate journeyState) {
         boardVehicle(boardNode, journeyState);
         return towardsJustBoarded.fromNoPlatformStation(this, boardNode, cost);
     }
 
     @Override
-    protected void toDestination(DestinationState.Builder towardsDestination, Node destNode, Duration cost, JourneyStateUpdate journeyStateUpdate) {
+    protected void toDestination(DestinationState.Builder towardsDestination, GraphNode destNode, Duration cost, JourneyStateUpdate journeyStateUpdate) {
         towardsDestination.from(this, cost);
     }
 
-    private void boardVehicle(Node node, JourneyStateUpdate journeyState) {
+    private void boardVehicle(GraphNode node, JourneyStateUpdate journeyState) {
         try {
             TransportMode actualMode = GraphProps.getTransportMode(node);
             journeyState.board(actualMode, node, false);

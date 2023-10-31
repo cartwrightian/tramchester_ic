@@ -1,6 +1,8 @@
 package com.tramchester.graph.search.stateMachine.states;
 
 import com.google.common.collect.Streams;
+import com.tramchester.graph.GraphNode;
+import com.tramchester.graph.GraphRelationship;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.TowardsRouteStation;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
@@ -35,26 +37,26 @@ public class JustBoardedState extends RouteStationState {
             return TraversalStateType.JustBoardedState;
         }
 
-        public JustBoardedState fromPlatformState(PlatformState platformState, Node node, Duration cost) {
+        public JustBoardedState fromPlatformState(PlatformState platformState, GraphNode node, Duration cost) {
             // does this ever happen? Get on one route station only to go back to a whole different
             // platform?
-            Stream<Relationship> otherPlatforms = filterExcludingEndNode(node.getRelationships(OUTGOING, ENTER_PLATFORM),
+            Stream<GraphRelationship> otherPlatforms = filterExcludingEndNode(node.getRelationships(OUTGOING, ENTER_PLATFORM),
                     platformState);
 
-            Stream<Relationship> services;
+            Stream<GraphRelationship> services;
             if (depthFirst) {
                 services = orderServicesByRouteMetric(node, platformState.traversalOps);
             } else {
-                services = Streams.stream(node.getRelationships(OUTGOING, TO_SERVICE));
+                services = node.getRelationships(OUTGOING, TO_SERVICE);
             }
 
             return new JustBoardedState(platformState, Stream.concat(services, otherPlatforms), cost, this);
         }
 
-        public JustBoardedState fromNoPlatformStation(NoPlatformStationState noPlatformStation, Node node, Duration cost) {
-            Stream<Relationship> filteredDeparts = filterExcludingEndNode(node.getRelationships(OUTGOING, DEPART, INTERCHANGE_DEPART, DIVERSION_DEPART),
+        public JustBoardedState fromNoPlatformStation(NoPlatformStationState noPlatformStation, GraphNode node, Duration cost) {
+            Stream<GraphRelationship> filteredDeparts = filterExcludingEndNode(node.getRelationships(OUTGOING, DEPART, INTERCHANGE_DEPART, DIVERSION_DEPART),
                     noPlatformStation);
-            Stream<Relationship> services = orderServicesByRouteMetric(node, noPlatformStation.traversalOps);
+            Stream<GraphRelationship> services = orderServicesByRouteMetric(node, noPlatformStation.traversalOps);
             return new JustBoardedState(noPlatformStation, Stream.concat(filteredDeparts, services), cost, this);
         }
 
@@ -64,8 +66,8 @@ public class JustBoardedState extends RouteStationState {
          * @param traversalOps supporting ops
          * @return ordered by least number routes interconnects first
          */
-        private Stream<Relationship> orderServicesByRouteMetric(Node node, TraversalOps traversalOps) {
-            Iterable<Relationship> toServices = node.getRelationships(OUTGOING, TO_SERVICE);
+        private Stream<GraphRelationship> orderServicesByRouteMetric(GraphNode node, TraversalOps traversalOps) {
+            Stream<GraphRelationship> toServices = node.getRelationships(OUTGOING, TO_SERVICE);
             return traversalOps.orderBoardingRelationsByRouteConnections(toServices);
         }
 
@@ -73,8 +75,8 @@ public class JustBoardedState extends RouteStationState {
          * Order outbound relationships by end node distance to destination
          * significant overall performance increase for non-trivial geographically diverse networks
          */
-        private Stream<Relationship> orderServicesByDistance(Node node, TraversalOps traversalOps) {
-            Iterable<Relationship> toServices = node.getRelationships(OUTGOING, TO_SERVICE);
+        private Stream<GraphRelationship> orderServicesByDistance(GraphNode node, TraversalOps traversalOps) {
+            Stream<GraphRelationship> toServices = node.getRelationships(OUTGOING, TO_SERVICE);
             return traversalOps.orderRelationshipsByDistance(toServices);
         }
 
@@ -85,12 +87,12 @@ public class JustBoardedState extends RouteStationState {
         return "RouteStationStateJustBoarded{} " + super.toString();
     }
 
-    private JustBoardedState(TraversalState traversalState, Stream<Relationship> outbounds, Duration cost, TowardsRouteStation<?> builder) {
+    private JustBoardedState(TraversalState traversalState, Stream<GraphRelationship> outbounds, Duration cost, TowardsRouteStation<?> builder) {
         super(traversalState, outbounds, cost, builder);
     }
 
     @Override
-    protected TraversalState toService(ServiceState.Builder towardsService, Node node, Duration cost) {
+    protected TraversalState toService(ServiceState.Builder towardsService, GraphNode node, Duration cost) {
         return towardsService.fromRouteStation(this, node, cost);
     }
 }

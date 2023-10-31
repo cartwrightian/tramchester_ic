@@ -9,8 +9,8 @@ import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.time.TramTime;
 import org.neo4j.graphdb.Entity;
-import org.neo4j.graphdb.Relationship;
 
+import java.time.LocalTime;
 import java.util.Map;
 
 import static com.tramchester.graph.GraphPropertyKey.*;
@@ -26,8 +26,8 @@ public class HaveGraphProperties {
         return StringIdFor.createId(value, klass);
     }
 
-    protected IdFor<RouteStation> getRouteStationId(Relationship relationship) {
-        String value = relationship.getProperty(ROUTE_STATION_ID.getText()).toString();
+    protected IdFor<RouteStation> getRouteStationId(Entity entity) {
+        String value = entity.getProperty(ROUTE_STATION_ID.getText()).toString();
         return RouteStationId.parse(value);
     }
 
@@ -39,11 +39,20 @@ public class HaveGraphProperties {
         return entity.getAllProperties();
     }
 
-    public void setTime(TramTime tramTime, Entity entity) {
+    protected void setTime(TramTime tramTime, Entity entity) {
         entity.setProperty(TIME.getText(), tramTime.asLocalTime());
         if (tramTime.isNextDay()) {
             entity.setProperty(DAY_OFFSET.getText(), tramTime.isNextDay());
         }
+    }
+
+    protected TramTime getTime(Entity entity) {
+        LocalTime localTime = (LocalTime) entity.getProperty(TIME.getText());
+        boolean nextDay = entity.hasProperty(DAY_OFFSET.getText());
+        if (nextDay) {
+            return TramTime.nextDay(localTime.getHour(), localTime.getMinute());
+        }
+        return TramTime.of(localTime.getHour(), localTime.getMinute());
     }
 
 

@@ -4,13 +4,13 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.GraphNode;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.ImmutableJourneyState;
 import com.tramchester.graph.search.diagnostics.ReasonCode;
 import com.tramchester.repository.ReportsCacheStats;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
-import org.neo4j.graphdb.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +46,7 @@ public class PreviousVisits implements ReportsCacheStats {
                 recordStats().build();
     }
 
-    public void recordVisitIfUseful(ReasonCode result, Node node, ImmutableJourneyState journeyState, EnumSet<GraphLabel> labels) {
+    public void recordVisitIfUseful(ReasonCode result, GraphNode node, ImmutableJourneyState journeyState, EnumSet<GraphLabel> labels) {
         if (labels.contains(GraphLabel.MINUTE) || labels.contains(GraphLabel.HOUR)) {
             // time and hour nodes represent the time on the actual journey, so if we have been here before
             // we will get the same result
@@ -105,7 +105,7 @@ public class PreviousVisits implements ReportsCacheStats {
         }
     }
 
-    public ReasonCode getPreviousResult(final Node node, final ImmutableJourneyState journeyState, final EnumSet<GraphLabel> labels) {
+    public ReasonCode getPreviousResult(final GraphNode node, final ImmutableJourneyState journeyState, final EnumSet<GraphLabel> labels) {
 
         if (labels.contains(GraphLabel.MINUTE)) {
             // time node has by definition a unique time
@@ -167,7 +167,7 @@ public class PreviousVisits implements ReportsCacheStats {
         private final long nodeId;
         private final T other;
 
-        public Key(Node node, T other) {
+        public Key(GraphNode node, T other) {
             this.nodeId = node.getId();
             this.other = other;
         }

@@ -8,9 +8,9 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.GraphNode;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.stateMachine.states.TraversalState;
-import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.traversal.InitialBranchState;
 import org.slf4j.Logger;
@@ -94,7 +94,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     @Override
-    public void beginWalk(Node beforeWalkNode, boolean atStart, Duration unused) {
+    public void beginWalk(GraphNode beforeWalkNode, boolean atStart, Duration unused) {
         coreState.incrementWalkingConnections();
     }
 
@@ -104,16 +104,16 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     @Override
-    public void endWalk(Node stationNode) {
+    public void endWalk(GraphNode stationNode) {
         // noop
     }
 
     @Override
-    public void toNeighbour(Node startNode, Node endNode, Duration cost) {
+    public void toNeighbour(GraphNode startNode, GraphNode endNode, Duration cost) {
         coreState.incrementNeighbourConnections();
     }
 
-    public void beginDiversion(Node node) {
+    public void beginDiversion(GraphNode node) {
         coreState.beginDiversion(node);
     }
 
@@ -123,7 +123,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     @Override
-    public void leave(IdFor<Trip> tripId, TransportMode mode, Duration totalDuration, Node node) throws TramchesterException {
+    public void leave(IdFor<Trip> tripId, TransportMode mode, Duration totalDuration, GraphNode node) throws TramchesterException {
         if (!coreState.modeEquals(mode)) {
             throw new TramchesterException("Not currently on " +mode+ " was " + coreState.currentMode);
         }
@@ -166,7 +166,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     @Override
-    public void board(TransportMode mode, Node node, boolean hasPlatform) throws TramchesterException {
+    public void board(TransportMode mode, GraphNode node, boolean hasPlatform) throws TramchesterException {
         guardAlreadyOnboard();
         coreState.endDiversion(node);
         coreState.board(mode);
@@ -373,15 +373,15 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
             visitedStations.add(stationId);
         }
 
-        public void endDiversion(Node node) {
+        public void endDiversion(GraphNode node) {
             if (currentlyOnDiversion) {
                 logger.info("End diversion at " + GraphProps.getStationId(node));
                 this.currentlyOnDiversion = false;
             }
         }
 
-        public void beginDiversion(Node diversionNode) {
-            IdFor<Station> stationId = GraphProps.getStationId(diversionNode);
+        public void beginDiversion(GraphNode diversionNode) {
+            IdFor<Station> stationId = diversionNode.getStationId(); //GraphProps.getStationId(diversionNode);
             if (currentlyOnDiversion) {
                 String msg = "Already on diversion, at " + stationId;
                 logger.error(msg);

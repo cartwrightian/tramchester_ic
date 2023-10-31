@@ -1,11 +1,10 @@
 package com.tramchester.graph.search.stateMachine.states;
 
-import com.google.common.collect.Streams;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.graph.GraphNode;
+import com.tramchester.graph.GraphRelationship;
 import com.tramchester.graph.graphbuild.GraphProps;
 import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,13 +15,13 @@ import static com.tramchester.graph.TransportRelationshipTypes.DIVERSION;
 public abstract class StationStateBuilder {
     private static final Logger logger = LoggerFactory.getLogger(StationStateBuilder.class);
 
-    protected Stream<Relationship> addValidDiversions(Node node, Iterable<Relationship> relationships,
-                                                      TraversalState traversalState, boolean alreadyOnDiversion) {
-        return addValidDiversions(node, Streams.stream(relationships), traversalState, alreadyOnDiversion);
-    }
+//    protected Stream<Relationship> addValidDiversions(GraphNode node, Iterable<Relationship> relationships,
+//                                                      TraversalState traversalState, boolean alreadyOnDiversion) {
+//        return addValidDiversions(node, Streams.stream(relationships), traversalState, alreadyOnDiversion);
+//    }
 
 
-    public Stream<Relationship> addValidDiversions(Node node, Stream<Relationship> relationships,
+    public Stream<GraphRelationship> addValidDiversions(GraphNode node, Stream<GraphRelationship> relationships,
                                                    TraversalState traversalState, boolean alreadyOnDiversion) {
 
         if (alreadyOnDiversion) {
@@ -32,8 +31,8 @@ public abstract class StationStateBuilder {
 
         if (node.hasRelationship(Direction.OUTGOING, DIVERSION)) {
             TramDate queryDate = traversalState.traversalOps.getQueryDate();
-            Stream<Relationship> diversions = Streams.stream(node.getRelationships(Direction.OUTGOING, DIVERSION));
-            Stream<Relationship> validOnDate = diversions.filter(relationship -> GraphProps.validOn(queryDate, relationship));
+            Stream<GraphRelationship> diversions = node.getRelationships(Direction.OUTGOING, DIVERSION);
+            Stream<GraphRelationship> validOnDate = diversions.filter(relationship -> relationship.validOn(queryDate)); // GraphProps.validOn(queryDate, relationship));
             return Stream.concat(validOnDate, relationships);
         }
 

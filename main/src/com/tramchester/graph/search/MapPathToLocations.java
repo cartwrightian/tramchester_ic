@@ -4,6 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.*;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.graph.GraphNode;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
@@ -38,7 +39,9 @@ public class MapPathToLocations {
     public List<Location<?>> mapToLocations(Path path) {
         Location<?> previous = null;
         List<Location<?>> results = new ArrayList<>();
-        for(Node node : path.nodes()) {
+        for(Node pathNode : path.nodes()) {
+            GraphNode node = GraphNode.from(pathNode);
+
             Optional<Location<?>> maybeLocation = mapNode(node);
             maybeLocation.ifPresent(location -> {});
             if (maybeLocation.isPresent()) {
@@ -56,7 +59,7 @@ public class MapPathToLocations {
         return results;
     }
 
-    private Optional<Location<?>> mapNode(Node node) {
+    private Optional<Location<?>> mapNode(GraphNode node) {
         EnumSet<GraphLabel> labels = nodeContentsRepository.getLabels(node);
         if (labels.contains(GROUPED)) {
             IdFor<NaptanArea> areaId = GraphProps.getAreaIdFromGrouped(node);
@@ -76,7 +79,7 @@ public class MapPathToLocations {
             return Optional.of(stationRepository.getStationById(stationId));
         }
         if (labels.contains(QUERY_NODE)) {
-            LatLong latLong = GraphProps.getLatLong(node);
+            LatLong latLong =  node.getLatLong(); // GraphProps.getLatLong(node);
             return  Optional.of(MyLocation.create(latLong));
         }
         return Optional.empty();

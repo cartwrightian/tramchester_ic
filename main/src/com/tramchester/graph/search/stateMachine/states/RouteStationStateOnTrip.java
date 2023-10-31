@@ -7,6 +7,8 @@ import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.graph.GraphNode;
+import com.tramchester.graph.GraphRelationship;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.JourneyStateUpdate;
@@ -28,7 +30,7 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
 
     private final IdFor<Trip> tripId;
     private final TransportMode transportMode;
-    private final Node routeStationNode;
+    private final GraphNode routeStationNode;
 
     public static class Builder extends TowardsRouteStation<RouteStationStateOnTrip> {
 
@@ -49,7 +51,7 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
             return TraversalStateType.RouteStationStateOnTrip;
         }
 
-        public RouteStationStateOnTrip fromMinuteState(MinuteState minuteState, Node node, Duration cost,
+        public RouteStationStateOnTrip fromMinuteState(MinuteState minuteState, GraphNode node, Duration cost,
                                                        boolean isInterchange, Trip trip) {
             // todo, use label and/or cache this - perf impact currently low
             TransportMode transportMode = GraphProps.getTransportMode(node);
@@ -57,34 +59,34 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
             // TODO Crossing midnight?
             TramDate date = minuteState.traversalOps.getQueryDate();
 
-            OptionalResourceIterator<Relationship> towardsDestination = getTowardsDestination(minuteState.traversalOps, node, date);
+            OptionalResourceIterator<GraphRelationship> towardsDestination = getTowardsDestination(minuteState.traversalOps, node, date);
             if (!towardsDestination.isEmpty()) {
                 // we've nearly arrived
                 return new RouteStationStateOnTrip(minuteState, towardsDestination.stream(), cost, node, trip.getId(), transportMode, this);
             }
 
             // outbound service relationships that continue the current trip
-            Stream<Relationship> towardsServiceForTrip = filterByTripId(node.getRelationships(OUTGOING, TO_SERVICE), trip);
+            Stream<GraphRelationship> towardsServiceForTrip = filterByTripId(node.getRelationships(OUTGOING, TO_SERVICE), trip);
 
             // now add outgoing to platforms/stations
-            Stream<Relationship> outboundsToFollow = getOutboundsToFollow(node, isInterchange, date);
+            Stream<GraphRelationship> outboundsToFollow = getOutboundsToFollow(node, isInterchange, date);
 
             // NOTE: order of the concatenation matters here for depth first, need to do departs first to
             // explore routes including changes over continuing on possibly much longer trip
-            final Stream<Relationship> relationships = Stream.concat(outboundsToFollow, towardsServiceForTrip);
+            final Stream<GraphRelationship> relationships = Stream.concat(outboundsToFollow, towardsServiceForTrip);
             return new RouteStationStateOnTrip(minuteState, relationships, cost, node, trip.getId(), transportMode, this);
         }
 
-        private Stream<Relationship> filterByTripId(Iterable<Relationship> svcRelationships, Trip trip) {
+        private Stream<GraphRelationship> filterByTripId(Stream<GraphRelationship> svcRelationships, Trip trip) {
             IdFor<Service> currentSvcId = trip.getService().getId();
-            return Streams.stream(svcRelationships).
+            return svcRelationships.
                     filter(relationship -> currentSvcId.equals(nodeContents.getServiceId(relationship.getEndNode())));
         }
 
     }
 
-    private RouteStationStateOnTrip(TraversalState parent, Stream<Relationship> relationships, Duration cost,
-                                    Node routeStationNode, IdFor<Trip> tripId, TransportMode transportMode, TowardsRouteStation<RouteStationStateOnTrip> builder) {
+    private RouteStationStateOnTrip(TraversalState parent, Stream<GraphRelationship> relationships, Duration cost,
+                                    GraphNode routeStationNode, IdFor<Trip> tripId, TransportMode transportMode, TowardsRouteStation<RouteStationStateOnTrip> builder) {
         super(parent, relationships, cost, builder);
         this.routeStationNode = routeStationNode;
         this.tripId = tripId;
@@ -92,19 +94,19 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
     }
 
     @Override
-    protected TraversalState toService(ServiceState.Builder towardsService, Node node, Duration cost) {
+    protected TraversalState toService(ServiceState.Builder towardsService, GraphNode node, Duration cost) {
         return towardsService.fromRouteStation(this, tripId, node, cost);
     }
 
     @Override
-    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsNoPlatformStation, Node node, Duration cost,
+    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsNoPlatformStation, GraphNode node, Duration cost,
                                                  JourneyStateUpdate journeyState, boolean onDiversion) {
         leaveVehicle(journeyState, transportMode, "Unable to depart tram");
         return towardsNoPlatformStation.fromRouteStation(this, node, cost, journeyState);
     }
 
     @Override
-    protected TraversalState toPlatform(PlatformState.Builder towardsPlatform, Node node, Duration cost,
+    protected TraversalState toPlatform(PlatformState.Builder towardsPlatform, GraphNode node, Duration cost,
                                         JourneyStateUpdate journeyState) {
 
         leaveVehicle(journeyState, transportMode, "Unable to process platform");

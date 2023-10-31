@@ -232,7 +232,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
             if (find.isPresent()) {
                 return;
             }
-            
+
         }
 
         GraphRelationship stationsLinked = createRelationship(from, to, LINKED);

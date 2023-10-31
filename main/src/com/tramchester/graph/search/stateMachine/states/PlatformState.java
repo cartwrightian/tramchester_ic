@@ -2,14 +2,14 @@ package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.graph.GraphNode;
+import com.tramchester.graph.GraphRelationship;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.*;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.ResourceIterable;
 
 import java.time.Duration;
+import java.util.stream.Stream;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static java.lang.String.format;
@@ -31,51 +31,49 @@ public class PlatformState extends TraversalState implements NodeId {
             return TraversalStateType.PlatformState;
         }
 
-        public PlatformState from(PlatformStationState platformStationState, Node node, Duration cost) {
+        public PlatformState from(PlatformStationState platformStationState, GraphNode node, Duration cost) {
             // inc. board here since might be starting journey
             return new PlatformState(platformStationState,
                     node.getRelationships(OUTGOING, INTERCHANGE_BOARD, BOARD), node, cost, this);
         }
 
-        public TraversalState fromRouteStationOnTrip(RouteStationStateOnTrip routeStationStateOnTrip, Node node, Duration cost) {
+        public TraversalState fromRouteStationOnTrip(RouteStationStateOnTrip routeStationStateOnTrip, GraphNode node, Duration cost) {
 
             // towards final destination, just follow this one
-            OptionalResourceIterator<Relationship> towardsDest = getTowardsDestination(routeStationStateOnTrip.traversalOps, node);
+            OptionalResourceIterator<GraphRelationship> towardsDest = getTowardsDestination(routeStationStateOnTrip.traversalOps, node);
             if (!towardsDest.isEmpty()) {
-                return new PlatformState(routeStationStateOnTrip, towardsDest, node, cost, this);
+                return new PlatformState(routeStationStateOnTrip, towardsDest.stream(), node, cost, this);
             }
 
             // inc. board here since might be starting journey
-            ResourceIterable<Relationship> platformRelationships = node.getRelationships(OUTGOING,
-                    BOARD, INTERCHANGE_BOARD, LEAVE_PLATFORM);
+            Stream<GraphRelationship> platformRelationships = node.getRelationships(OUTGOING, BOARD, INTERCHANGE_BOARD, LEAVE_PLATFORM);
 
             // Cannot filter here as might be starting a new trip from this point, so need to 'go back' to the route station
             //Stream<Relationship> filterExcludingEndNode = filterExcludingEndNode(platformRelationships, routeStationStateOnTrip);
             return new PlatformState(routeStationStateOnTrip, platformRelationships, node, cost, this);
         }
 
-        public TraversalState fromRouteStatiomEndTrip(RouteStationStateEndTrip routeStationState, Node node, Duration cost) {
+        public TraversalState fromRouteStatiomEndTrip(RouteStationStateEndTrip routeStationState, GraphNode node, Duration cost) {
             // towards final destination, just follow this one
-            OptionalResourceIterator<Relationship> towardsDest = getTowardsDestination(routeStationState.traversalOps, node);
+            OptionalResourceIterator<GraphRelationship> towardsDest = getTowardsDestination(routeStationState.traversalOps, node);
             if (!towardsDest.isEmpty()) {
-                return new PlatformState(routeStationState, towardsDest, node, cost, this);
+                return new PlatformState(routeStationState, towardsDest.stream(), node, cost, this);
             }
 
-            ResourceIterable<Relationship> platformRelationships = node.getRelationships(OUTGOING,
-                    BOARD, INTERCHANGE_BOARD, LEAVE_PLATFORM);
+            Stream<GraphRelationship> platformRelationships = node.getRelationships(OUTGOING, BOARD, INTERCHANGE_BOARD, LEAVE_PLATFORM);
             // end of a trip, may need to go back to this route station to catch new service
             return new PlatformState(routeStationState, platformRelationships, node, cost, this);
         }
 
-        private OptionalResourceIterator<Relationship> getTowardsDestination(TraversalOps traversalOps, Node node) {
+        private OptionalResourceIterator<GraphRelationship> getTowardsDestination(TraversalOps traversalOps, GraphNode node) {
             return traversalOps.getTowardsDestination(node.getRelationships(OUTGOING, LEAVE_PLATFORM));
         }
 
     }
 
-    private final Node platformNode;
+    private final GraphNode platformNode;
 
-    private PlatformState(TraversalState parent, ResourceIterable<Relationship> relationships, Node platformNode, Duration cost, Towards<PlatformState> builder) {
+    private PlatformState(TraversalState parent, Stream<GraphRelationship> relationships, GraphNode platformNode, Duration cost, Towards<PlatformState> builder) {
         super(parent, relationships, cost, builder.getDestination());
         this.platformNode = platformNode;
     }
@@ -88,7 +86,7 @@ public class PlatformState extends TraversalState implements NodeId {
     }
 
     @Override
-    protected JustBoardedState toJustBoarded(JustBoardedState.Builder towardsJustBoarded, Node node, Duration cost, JourneyStateUpdate journeyState) {
+    protected JustBoardedState toJustBoarded(JustBoardedState.Builder towardsJustBoarded, GraphNode node, Duration cost, JourneyStateUpdate journeyState) {
         try {
             TransportMode actualMode = GraphProps.getTransportMode(node);
             if (actualMode==null) {
@@ -102,7 +100,7 @@ public class PlatformState extends TraversalState implements NodeId {
     }
 
     @Override
-    protected PlatformStationState toPlatformStation(PlatformStationState.Builder towardsStation, Node node, Duration cost,
+    protected PlatformStationState toPlatformStation(PlatformStationState.Builder towardsStation, GraphNode node, Duration cost,
                                                      JourneyStateUpdate journeyState, boolean onDiversion) {
         return towardsStation.fromPlatform(this, node, cost, journeyState, onDiversion);
     }

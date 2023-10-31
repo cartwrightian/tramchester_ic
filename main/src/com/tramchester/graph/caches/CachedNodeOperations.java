@@ -14,13 +14,10 @@ import com.tramchester.graph.GraphRelationship;
 import com.tramchester.graph.NumberOfNodesAndRelationshipsRepository;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.graphbuild.GraphLabel;
-import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.repository.ReportsCacheStats;
 import org.apache.commons.lang3.tuple.Pair;
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -114,56 +111,51 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
         return result;
     }
 
-    public IdFor<Trip> getTripId(Relationship relationship) {
-        long relationshipId = relationship.getId();
-        return tripIdRelationshipCache.get(relationshipId, id -> GraphProps.getTripId(relationship));
+    public IdFor<Trip> getTripId(GraphRelationship relationship) {
+        long relationshipId = relationship.getIdOLD();
+        return tripIdRelationshipCache.get(relationshipId, id -> relationship.getTripId()); //GraphProps.getTripId(relationship));
     }
 
-    public TramTime getTime(Node node) {
+    public TramTime getTime(GraphNode node) {
         long nodeId = node.getId();
-        return timeNodeCache.get(nodeId, id -> GraphProps.getTime(node));
+        return timeNodeCache.get(nodeId, id -> node.getTime()); // GraphProps.getTime(node));
     }
 
     @Override
-    public IdFor<RouteStation> getRouteStationId(Node node) {
+    public IdFor<RouteStation> getRouteStationId(GraphNode node) {
         long nodeId = node.getId();
-        return routeStationIdCache.get(nodeId, id -> GraphProps.getRouteStationIdFrom(node));
+        return routeStationIdCache.get(nodeId, id -> node.getRouteStationId()); //GraphProps.getRouteStationIdFrom(node));
     }
 
-    public IdFor<Service> getServiceId(Node node) {
+    public IdFor<Service> getServiceId(GraphNode node) {
         long nodeId = node.getId();
-        return serviceNodeCache.get(nodeId, id -> GraphProps.getServiceId(node));
+        return serviceNodeCache.get(nodeId, id -> node.getServiceId()); //GraphProps.getServiceId(node));
     }
 
     @Override
-    public IdFor<Trip> getTripId(Node node) {
+    public IdFor<Trip> getTripId(GraphNode node) {
         long nodeId = node.getId();
-        return tripNodeCache.get(nodeId, id -> GraphProps.getTripId(node));
+        return tripNodeCache.get(nodeId, id -> node.getTripId()); //GraphProps.getTripId(node));
     }
 
-    public int getHour(Node node) {
+    public int getHour(GraphNode node) {
         long nodeId = node.getId();
         return hourNodeCahce.get(nodeId, id -> GraphLabel.getHourFrom(getLabels(node)));
         //return GraphLabel.getHourFrom(getLabels(node));
     }
 
     @Override
-    public EnumSet<GraphLabel> getLabels(Node node) {
+    public EnumSet<GraphLabel> getLabels(GraphNode node) {
         long nodeId = node.getId();
-        return labelCache.get(nodeId, id -> GraphProps.getLabelsFor(node));
+        return labelCache.get(nodeId, id -> node.getLabels());
     }
 
     @Override
-    public EnumSet<GraphLabel> getLabels(GraphNode graphNode) {
-        return getLabels(graphNode.getNode());
-    }
-
-    @Override
-    public Duration getCost(Relationship relationship) {
-        TransportRelationshipTypes relationshipType = TransportRelationshipTypes.from(relationship);
+    public Duration getCost(GraphRelationship relationship) {
+        TransportRelationshipTypes relationshipType = relationship.getType();
         if (TransportRelationshipTypes.hasCost(relationshipType)) {
-            long relationshipId = relationship.getId();
-            return relationshipCostCache.get(relationshipId, id ->  GraphProps.getCost(relationship));
+            long relationshipId = relationship.getIdOLD();
+            return relationshipCostCache.get(relationshipId, id ->  relationship.getCost()); //GraphProps.getCost(relationship));
         } else {
             return Duration.ZERO;
         }
@@ -171,7 +163,7 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
 
     @Override
     public void deleteFromCostCache(GraphRelationship relationship) {
-        long relationshipId = relationship.getId();
+        long relationshipId = relationship.getIdOLD();
         relationshipCostCache.invalidate(relationshipId);
     }
 

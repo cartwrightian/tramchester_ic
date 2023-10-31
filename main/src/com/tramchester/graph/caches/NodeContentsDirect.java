@@ -9,50 +9,47 @@ import com.tramchester.graph.GraphNode;
 import com.tramchester.graph.GraphRelationship;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
 
 import java.time.Duration;
 import java.util.EnumSet;
-import java.util.Set;
 
 // KEEP for assisting with debugging
 @SuppressWarnings("unused")
 public class NodeContentsDirect implements NodeContentsRepository {
 
     @Override
-    public IdFor<RouteStation> getRouteStationId(Node node) {
-        return GraphProps.getRouteStationIdFrom(node);
+    public IdFor<RouteStation> getRouteStationId(GraphNode node) {
+        return node.getRouteStationId();
     }
 
     @Override
-    public IdFor<Service> getServiceId(Node node) {
-        return GraphProps.getServiceIdFrom(node);
+    public IdFor<Service> getServiceId(GraphNode node) {
+        return node.getServiceId();
     }
 
     @Override
-    public IdFor<Trip> getTripId(Node node) {
-        return GraphProps.getTripId(node);
+    public IdFor<Trip> getTripId(GraphNode node) {
+        return node.getTripId();
     }
 
     @Override
-    public TramTime getTime(Node node) {
+    public TramTime getTime(GraphNode node) {
         return GraphProps.getTime(node);
     }
 
     @Override
-    public int getHour(Node node) {
+    public int getHour(GraphNode node) {
         return GraphProps.getHour(node);
     }
 
     @Override
-    public IdFor<Trip> getTripId(Relationship relationship) {
-        return GraphProps.getTripId(relationship);
+    public IdFor<Trip> getTripId(GraphRelationship relationship) {
+        return relationship.getTripId();
     }
 
     @Override
-    public Duration getCost(Relationship relationship) {
-        return GraphProps.getCost(relationship);
+    public Duration getCost(GraphRelationship relationship) {
+        return relationship.getCost();
     }
 
     @Override
@@ -61,14 +58,9 @@ public class NodeContentsDirect implements NodeContentsRepository {
     }
 
     @Override
-    public EnumSet<GraphLabel> getLabels(Node node) {
-        final Set<GraphLabel> graphLabels = GraphLabel.from(node.getLabels());
-        return EnumSet.copyOf(graphLabels);
-    }
-
-    @Override
     public EnumSet<GraphLabel> getLabels(GraphNode node) {
-        final Set<GraphLabel> graphLabels = GraphLabel.from(node.getLabels());
-        return EnumSet.copyOf(graphLabels);
+        return node.getLabels();
+//        final Set<GraphLabel> graphLabels = GraphLabel.from(node.getLabels());
+//        return EnumSet.copyOf(graphLabels);
     }
 }

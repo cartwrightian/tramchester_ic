@@ -291,7 +291,7 @@ class SubgraphClosedStationsDiversionsTest {
                 GraphNode node = graphQuery.getPlatformNode(txn, platform);
                 Stream<GraphRelationship> iterable = node.getRelationships(Direction.INCOMING, TransportRelationshipTypes.DIVERSION_DEPART);
 
-                iterable.forEach(relationship -> foundRelationshipIds.add(relationship.getId()));
+                iterable.forEach(relationship -> foundRelationshipIds.add(relationship.getIdOLD()));
             });
 
         }
@@ -319,7 +319,7 @@ class SubgraphClosedStationsDiversionsTest {
 
             Stream<GraphRelationship> iterable = stationNode.getRelationships(Direction.OUTGOING, TransportRelationshipTypes.DIVERSION);
 
-            iterable.forEach(relationship -> foundRelationshipIds.add(relationship.getId()));
+            iterable.forEach(relationship -> foundRelationshipIds.add(relationship.getIdOLD()));
         }
 
         assertFalse(foundRelationshipIds.isEmpty(), "No diversions found");

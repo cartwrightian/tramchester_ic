@@ -21,6 +21,7 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.SortsPositions;
+import com.tramchester.graph.GraphNode;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
@@ -47,7 +48,6 @@ import org.easymock.EasyMockSupport;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.traversal.BranchState;
@@ -71,7 +71,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     private NodeContentsRepository contentsRepository;
     private Path path;
     private HowIGotHere howIGotHere;
-    private Node node;
+    private GraphNode node;
     private ServiceReasons reasons;
     private TramchesterConfig config;
     private SortsPositions sortsPositions;
@@ -132,7 +132,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         serviceHeuristics = createMock(ServiceHeuristics.class);
         sortsPositions = createMock(SortsPositions.class);
         path = createMock(Path.class);
-        node = createMock(Node.class);
+        node = createMock(GraphNode.class);
         lastRelationship = createMock(Relationship.class);
         //routeToRouteCosts = createMock(RouteToRouteCosts.class);
         lowestCostsForRoutes = createMock(LowestCostsForDestRoutes.class);
@@ -144,7 +144,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         EasyMock.expect(lastRelationship.getId()).andStubReturn(24L);
 
-        EasyMock.expect(path.endNode()).andStubReturn(node);
+        //EasyMock.expect(path.endNode()).andStubReturn(node);
         EasyMock.expect(path.lastRelationship()).andStubReturn(lastRelationship);
 
     }
@@ -235,7 +235,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expectLastCall();
 
         replayAll();
-        Evaluation result = evaluator.evaluate(path, branchState);
+        Evaluation result = evaluator.evaluate(path, branchState, node);
         assertEquals(Evaluation.INCLUDE_AND_PRUNE, result);
         verifyAll();
     }
@@ -266,7 +266,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expectLastCall();
 
         replayAll();
-        Evaluation result = evaluator.evaluate(path, branchState);
+        Evaluation result = evaluator.evaluate(path, branchState, node);
         assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
         verifyAll();
     }
@@ -296,7 +296,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expectLastCall();
 
         replayAll();
-        Evaluation result = evaluator.evaluate(path, branchState);
+        Evaluation result = evaluator.evaluate(path, branchState, node);
         assertEquals(Evaluation.INCLUDE_AND_PRUNE, result);
         verifyAll();
     }
@@ -319,7 +319,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(previousSuccessfulVisit.getPreviousResult(node, journeyState, labels)).andReturn(ReasonCode.NotAtHour);
 
         replayAll();
-        Evaluation result = evaluator.evaluate(path, state);
+        Evaluation result = evaluator.evaluate(path, state, node);
         assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
         verifyAll();
     }
@@ -342,7 +342,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(previousSuccessfulVisit.getPreviousResult(node, journeyState, labels)).andReturn(ReasonCode.DoesNotOperateOnTime);
 
         replayAll();
-        Evaluation result = evaluator.evaluate(path, state);
+        Evaluation result = evaluator.evaluate(path, state, node);
         assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
         verifyAll();
     }
@@ -371,7 +371,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expectLastCall();
 
         replayAll();
-        Evaluation result = evaluator.evaluate(path, branchState);
+        Evaluation result = evaluator.evaluate(path, branchState, node);
         assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
         verifyAll();
     }
@@ -414,7 +414,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         replayAll();
 
-        Evaluation result = evaluator.evaluate(path, branchState);
+        Evaluation result = evaluator.evaluate(path, branchState, node);
         assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
         verifyAll();
     }
@@ -458,7 +458,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expectLastCall();
 
         replayAll();
-        Evaluation result = evaluator.evaluate(path, branchState);
+        Evaluation result = evaluator.evaluate(path, branchState, node);
         assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
         verifyAll();
     }
@@ -505,7 +505,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expectLastCall();
 
         replayAll();
-        Evaluation result = evaluator.evaluate(path, branchState);
+        Evaluation result = evaluator.evaluate(path, branchState, node);
         assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
         verifyAll();
     }
@@ -556,7 +556,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expectLastCall();
 
         replayAll();
-        Evaluation result = evaluator.evaluate(path, branchState);
+        Evaluation result = evaluator.evaluate(path, branchState, node);
         assertEquals(Evaluation.INCLUDE_AND_CONTINUE, result);
         verifyAll();
     }
@@ -595,7 +595,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expectLastCall();
 
         replayAll();
-        Evaluation result = evaluator.evaluate(path, branchState);
+        Evaluation result = evaluator.evaluate(path, branchState, node);
         assertEquals(Evaluation.INCLUDE_AND_CONTINUE, result);
         verifyAll();
     }
@@ -633,7 +633,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expectLastCall();
 
         replayAll();
-        Evaluation result = evaluator.evaluate(path, branchState);
+        Evaluation result = evaluator.evaluate(path, branchState, node);
         assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
         verifyAll();
     }
@@ -668,7 +668,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expectLastCall();
 
         replayAll();
-        Evaluation result = evaluator.evaluate(path, branchState);
+        Evaluation result = evaluator.evaluate(path, branchState, node);
         assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
         verifyAll();
     }
@@ -698,7 +698,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expectLastCall();
 
         replayAll();
-        Evaluation result = evaluator.evaluate(path, branchState);
+        Evaluation result = evaluator.evaluate(path, branchState, node);
         assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
         verifyAll();
     }
@@ -729,7 +729,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expectLastCall();
 
         replayAll();
-        Evaluation result = evaluator.evaluate(path, branchState);
+        Evaluation result = evaluator.evaluate(path, branchState, node);
         assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
         verifyAll();
     }
@@ -771,7 +771,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expectLastCall();
 
         replayAll();
-        Evaluation result = evaluator.evaluate(path, branchState);
+        Evaluation result = evaluator.evaluate(path, branchState, node);
         assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
         verifyAll();
     }
@@ -815,7 +815,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expectLastCall();
 
         replayAll();
-        Evaluation result = evaluator.evaluate(path, branchState);
+        Evaluation result = evaluator.evaluate(path, branchState, node);
         assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
         verifyAll();
     }
@@ -862,7 +862,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expectLastCall();
 
         replayAll();
-        Evaluation result = evaluator.evaluate(path, branchState);
+        Evaluation result = evaluator.evaluate(path, branchState, node);
         assertEquals(Evaluation.EXCLUDE_AND_PRUNE, result);
         verifyAll();
     }
@@ -900,7 +900,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expectLastCall();
 
         replayAll();
-        Evaluation result = evaluator.evaluate(path, branchState);
+        Evaluation result = evaluator.evaluate(path, branchState, node);
         assertEquals(Evaluation.INCLUDE_AND_CONTINUE, result);
         verifyAll();
     }

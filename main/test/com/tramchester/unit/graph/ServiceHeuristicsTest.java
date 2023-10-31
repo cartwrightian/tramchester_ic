@@ -6,16 +6,21 @@ import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.GraphNode;
 import com.tramchester.graph.caches.CachedNodeOperations;
 import com.tramchester.graph.caches.NodeContentsRepository;
-import com.tramchester.graph.search.*;
-import com.tramchester.graph.search.diagnostics.*;
+import com.tramchester.graph.search.JourneyConstraints;
+import com.tramchester.graph.search.LowestCostsForDestRoutes;
+import com.tramchester.graph.search.ServiceHeuristics;
+import com.tramchester.graph.search.diagnostics.HeuristicsReason;
+import com.tramchester.graph.search.diagnostics.HowIGotHere;
+import com.tramchester.graph.search.diagnostics.ReasonCode;
+import com.tramchester.graph.search.diagnostics.ServiceReasons;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.RouteInterchangeRepository;
 import com.tramchester.repository.StationRepository;
@@ -26,12 +31,10 @@ import org.easymock.EasyMockSupport;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.neo4j.graphdb.Node;
 
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.EnumSet;
-import java.util.Set;
 
 import static com.tramchester.graph.graphbuild.GraphLabel.*;
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
@@ -103,7 +106,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         EasyMock.expect(journeyConstraints.isRunningOnDate(serviceIdB, visitTime)).andReturn(false);
         EasyMock.expect(journeyConstraints.getFewestChangesCalculator()).andReturn(fewestHopsForRoutes);
 
-        Node node = createMock(Node.class);
+        GraphNode node = createMock(GraphNode.class);
         EasyMock.expect(nodeContentsCache.getServiceId(node)).andReturn(serviceIdA);
         EasyMock.expect(nodeContentsCache.getServiceId(node)).andReturn(serviceIdB);
 
@@ -132,7 +135,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         EasyMock.expect(journeyConstraints.isRunningAtTime(serviceIdB, visitTime, MAX_WAIT)).andReturn(false);
         EasyMock.expect(journeyConstraints.getFewestChangesCalculator()).andReturn(fewestHopsForRoutes);
 
-        Node node = createMock(Node.class);
+        GraphNode node = createMock(GraphNode.class);
         EasyMock.expect(nodeContentsCache.getServiceId(node)).andReturn(serviceIdA);
         EasyMock.expect(nodeContentsCache.getServiceId(node)).andReturn(serviceIdB);
 
@@ -162,7 +165,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         EasyMock.expect(journeyConstraints.isClosed(Shudehill.fake())).andReturn(true);
         EasyMock.expect(journeyConstraints.getFewestChangesCalculator()).andReturn(fewestHopsForRoutes);
 
-        Node node = createMock(Node.class);
+        GraphNode node = createMock(GraphNode.class);
 
         EasyMock.expect(nodeContentsCache.getRouteStationId(node)).andReturn(routeStationA.getId());
         EasyMock.expect(stationRepository.getRouteStationById(routeStationA.getId())).andReturn(routeStationA);
@@ -381,7 +384,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
 
         EasyMock.expect(howIGotHere.getEndNodeId()).andStubReturn(42L);
 
-        Node node = createMock(Node.class);
+        GraphNode node = createMock(GraphNode.class);
 
         TramTime tramTime = nextDay ? TramTime.nextDay(nodeTime.getHour(), nodeTime.getMinute()) : TramTime.ofHourMins(nodeTime);
 
@@ -471,7 +474,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         Route route = TestEnv.getTramTestRoute(routeId, "routeName");
         final RouteStation routeStation = new RouteStation(TramStations.Altrincham.fake(), route);
 
-        Node node = createMock(Node.class);
+        GraphNode node = createMock(GraphNode.class);
 
         TramTime visitTime = queryTime.plusMinutes(20);
 

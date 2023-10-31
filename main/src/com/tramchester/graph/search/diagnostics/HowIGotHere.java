@@ -1,5 +1,6 @@
 package com.tramchester.graph.search.diagnostics;
 
+import com.tramchester.graph.GraphNode;
 import com.tramchester.graph.search.ImmutableJourneyState;
 import org.neo4j.graphdb.Path;
 
@@ -10,8 +11,8 @@ public class HowIGotHere {
     private final long nodeId;
     private final String traversalStateName;
 
-    public HowIGotHere(Path path, ImmutableJourneyState immutableJourneyState) {
-        this(path.endNode().getId(), getRelationshipFromPath(path), immutableJourneyState.getTraversalStateName());
+    public HowIGotHere(Path path, ImmutableJourneyState immutableJourneyState, GraphNode graphNode) {
+        this(graphNode.getId(), getRelationshipFromPath(path), immutableJourneyState.getTraversalStateName());
     }
 
     private HowIGotHere(long nodeId, long relationshipId, String traversalStateName) {

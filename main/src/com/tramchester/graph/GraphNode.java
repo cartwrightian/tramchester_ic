@@ -1,17 +1,23 @@
 package com.tramchester.graph;
 
+import com.google.common.collect.Streams;
+import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.graphbuild.GraphLabel;
-import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.Label;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
+import com.tramchester.graph.graphbuild.GraphProps;
+import org.neo4j.graphdb.*;
 
+import java.util.EnumSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.GraphPropertyKey.*;
@@ -36,6 +42,10 @@ public class GraphNode extends HaveGraphProperties {
 
         // todo remove/replace with get element Id
         this.id = theNode.getId();
+    }
+
+    public static GraphNode fromEnd(Path path) {
+        return new GraphNode(path.endNode());
     }
 
     @Deprecated
@@ -67,7 +77,7 @@ public class GraphNode extends HaveGraphProperties {
         return theNode.getRelationships(direction, relationshipType).stream().map(GraphRelationship::new);
     }
 
-    public Stream<GraphRelationship> getRelationships(Direction direction, TransportRelationshipTypes[] transportRelationshipTypes) {
+    public Stream<GraphRelationship> getRelationships(Direction direction, TransportRelationshipTypes... transportRelationshipTypes) {
         return theNode.getRelationships(direction, transportRelationshipTypes).stream().map(GraphRelationship::new);
     }
 
@@ -117,8 +127,10 @@ public class GraphNode extends HaveGraphProperties {
         return theNode.getSingleRelationship(transportRelationshipTypes,direction);
     }
 
-    public Iterable<Label> getLabels() {
-        return theNode.getLabels();
+    public EnumSet<GraphLabel> getLabels() {
+        final Iterable<Label> iter = theNode.getLabels();
+        final Set<GraphLabel> set = Streams.stream(iter).map(label -> GraphLabel.valueOf(label.name())).collect(Collectors.toSet());
+        return EnumSet.copyOf(set);
     }
 
     public void setProperty(GraphPropertyKey graphPropertyKey, String name) {
@@ -139,5 +151,41 @@ public class GraphNode extends HaveGraphProperties {
 
     public Map<String,Object> getAllProperties() {
         return getAllProperties(theNode);
+    }
+
+    public IdFor<RouteStation> getRouteStationId() {
+        return getRouteStationId(theNode);
+    }
+
+    public IdFor<Service> getServiceId() {
+        return getIdFor(Service.class, theNode);
+    }
+
+    public IdFor<Trip> getTripId() {
+        return getIdFor(Trip.class, theNode);
+    }
+
+    public TramTime getTime() {
+        return getTime(theNode);
+    }
+
+    public LatLong getLatLong() {
+        final double lat = (double) getProperty(LATITUDE.getText());
+        final double lon = (double) getProperty(LONGITUDE.getText());
+        return new LatLong(lat, lon);
+    }
+
+    public boolean hasTripId() {
+        return theNode.hasProperty(TRIP_ID.getText());
+    }
+
+    public PlatformId getPlatformId() {
+        IdFor<Station> stationId = GraphProps.getStationIdFrom(theNode);
+        String platformNumber = theNode.getProperty(PLATFORM_NUMBER.getText()).toString();
+        return PlatformId.createId(stationId, platformNumber);
+    }
+
+    public boolean hasStationId() {
+        return theNode.hasProperty(STATION_ID.getText());
     }
 }

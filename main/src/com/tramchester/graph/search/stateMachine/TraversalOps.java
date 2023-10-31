@@ -1,6 +1,5 @@
 package com.tramchester.graph.search.stateMachine;
 
-import com.google.common.collect.Streams;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
@@ -13,18 +12,14 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
+import com.tramchester.graph.GraphNode;
+import com.tramchester.graph.GraphRelationship;
 import com.tramchester.graph.caches.NodeContentsRepository;
-import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.LowestCostsForDestRoutes;
 import com.tramchester.graph.search.RelationshipWithRoute;
 import com.tramchester.repository.TripRepository;
 import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.ResourceIterable;
-import org.neo4j.internal.helpers.collection.Iterables;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -59,13 +54,14 @@ public class TraversalOps {
         this.queryDate = queryDate;
     }
 
-    public OptionalResourceIterator<Relationship> getTowardsDestination(ResourceIterable<Relationship> outgoing) {
-        return getTowardsDestination(outgoing.stream());
-    }
+//    @Deprecated
+//    public OptionalResourceIterator<Relationship> getTowardsDestination(ResourceIterable<Relationship> outgoing) {
+//        return getTowardsDestination(outgoing.stream());
+//    }
 
-    public OptionalResourceIterator<Relationship> getTowardsDestination(Stream<Relationship> outgoing) {
-        List<Relationship> filtered = outgoing.
-                filter(depart -> destinationStationIds.contains(GraphProps.getStationIdFrom(depart))).
+    public OptionalResourceIterator<GraphRelationship> getTowardsDestination(Stream<GraphRelationship> outgoing) {
+        List<GraphRelationship> filtered = outgoing.
+                filter(depart -> destinationStationIds.contains(depart.getStationId())). // GraphProps.getStationIdFrom(depart))).
                 collect(Collectors.toList());
         return OptionalResourceIterator.from(filtered);
     }
@@ -84,25 +80,27 @@ public class TraversalOps {
         return 1;
     }
 
-    public Stream<Relationship> orderRelationshipsByDistance(Iterable<Relationship> relationships) {
-        Set<SortsPositions.HasStationId<Relationship>> wrapped = new HashSet<>();
-        relationships.forEach(svcRelationship -> wrapped.add(new RelationshipFacade(svcRelationship)));
+    public Stream<GraphRelationship> orderRelationshipsByDistance(Stream<GraphRelationship> relationships) {
+//        Set<SortsPositions.HasStationId<GraphRelationship>> wrapped = new HashSet<>();
+//        relationships.forEach(svcRelationship -> wrapped.add(new RelationshipFacade(svcRelationship)));
+
+        Set<SortsPositions.HasStationId<GraphRelationship>> wrapped = relationships.map(RelationshipFacade::new).collect(Collectors.toSet());
         return sortsPositions.sortedByNearTo(destinationLatLon, wrapped);
     }
 
-    public Stream<Relationship> orderBoardingRelationsByDestRoute(Stream<Relationship> relationships) {
+    public Stream<GraphRelationship> orderBoardingRelationsByDestRoute(Stream<GraphRelationship> relationships) {
         return relationships.map(RelationshipWithRoute::new).
                 sorted(this::onDestRouteFirst).
                 map(RelationshipWithRoute::getRelationship);
     }
 
-    public Stream<Relationship> orderBoardingRelationsByRouteConnections(Iterable<Relationship> toServices) {
-        Stream<RelationshipWithRoute> withRouteId = Streams.stream(toServices).map(RelationshipWithRoute::new);
+    public Stream<GraphRelationship> orderBoardingRelationsByRouteConnections(Stream<GraphRelationship> toServices) {
+        Stream<RelationshipWithRoute> withRouteId = toServices.map(RelationshipWithRoute::new);
         Stream<RelationshipWithRoute> sorted = lowestCostsForRoutes.sortByDestinations(withRouteId);
         return sorted.map(RelationshipWithRoute::getRelationship);
     }
 
-    public TramTime getTimeFrom(Node node) {
+    public TramTime getTimeFrom(GraphNode node) {
         return nodeOperations.getTime(node);
     }
 
@@ -110,33 +108,32 @@ public class TraversalOps {
         return tripRepository.getTripById(tripId);
     }
 
-    private boolean serviceNodeMatches(Relationship relationship, IdFor<Service> currentSvcId) {
+    private boolean serviceNodeMatches(GraphRelationship relationship, IdFor<Service> currentSvcId) {
         // TODO Add ServiceID to Service Relationship??
-        Node svcNode = relationship.getEndNode();
+        GraphNode svcNode = relationship.getEndNode();
         IdFor<Service> svcId = nodeOperations.getServiceId(svcNode);
         return currentSvcId.equals(svcId);
     }
 
-    public boolean hasOutboundFor(Node node, IdFor<Service> serviceId) {
-        return Streams.stream(node.getRelationships(Direction.OUTGOING, TO_SERVICE)).
-                anyMatch(relationship -> serviceNodeMatches(relationship, serviceId));
+    public boolean hasOutboundFor(GraphNode node, IdFor<Service> serviceId) {
+        return node.getRelationships(Direction.OUTGOING, TO_SERVICE).anyMatch(relationship -> serviceNodeMatches(relationship, serviceId));
     }
 
     public TramDate getQueryDate() {
         return queryDate;
     }
 
-    private static class RelationshipFacade implements SortsPositions.HasStationId<Relationship> {
-        private final Relationship relationship;
+    private static class RelationshipFacade implements SortsPositions.HasStationId<GraphRelationship> {
+        private final GraphRelationship relationship;
         private final Long id;
         private final IdFor<Station> stationId;
 
-        private RelationshipFacade(Relationship relationship) {
-            id = relationship.getId();
+        private RelationshipFacade(GraphRelationship relationship) {
+            id = relationship.getIdOLD();
             this.relationship = relationship;
 
             // TODO this needs to go via the cache layer?
-            this.stationId = GraphProps.getTowardsStationIdFrom(relationship.getEndNode());
+            this.stationId = relationship.getEndNode().getStationId(); // GraphProps.getTowardsStationIdFrom(relationship.getEndNode());
         }
 
         @Override
@@ -160,7 +157,7 @@ public class TraversalOps {
         }
 
         @Override
-        public Relationship getContained() {
+        public GraphRelationship getContained() {
             return relationship;
         }
     }

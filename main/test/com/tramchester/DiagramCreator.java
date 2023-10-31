@@ -154,8 +154,8 @@ public class DiagramCreator {
             addEdge(builder, awayFrom, createNodeId(startNode), createNodeId(rawEndNode), relationshipSeen);
 
             if (relationshipType==TRAM_GOES_TO || relationshipType==BUS_GOES_TO || relationshipType==TRAIN_GOES_TO) {
-                if (!goesToRelationships.containsKey(awayFrom.getId())) {
-                    goesToRelationships.put(awayFrom.getId(), awayFrom);
+                if (!goesToRelationships.containsKey(awayFrom.getIdOLD())) {
+                    goesToRelationships.put(awayFrom.getIdOLD(), awayFrom);
                 }
             }
             visit(rawEndNode, builder, depth-1, seen, relationshipSeen, topLevel);
@@ -170,10 +170,10 @@ public class DiagramCreator {
 
         TransportRelationshipTypes relationshipType = TransportRelationshipTypes.valueOf(edge.getType().name());
 
-        if (relationshipSeen.contains(edge.getId())) {
+        if (relationshipSeen.contains(edge.getIdOLD())) {
             return;
         }
-        relationshipSeen.add(edge.getId());
+        relationshipSeen.add(edge.getIdOLD());
 
         if (relationshipType==TransportRelationshipTypes.ON_ROUTE) {
             String routeId = GraphProps.getRouteIdFrom(edge).getGraphId();

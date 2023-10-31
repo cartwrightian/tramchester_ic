@@ -5,13 +5,13 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.GraphNode;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.diagnostics.*;
 import org.jetbrains.annotations.NotNull;
-import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.traversal.BranchState;
@@ -75,15 +75,19 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
     @Override
     public Evaluation evaluate(Path path, BranchState<JourneyState> state) {
+        final GraphNode nextNode = GraphNode.fromEnd(path); // path.endNode();
+        return evaluate(path, state, nextNode);
+    }
+
+    public Evaluation evaluate(Path path, BranchState<JourneyState> state, GraphNode nextNode) {
         final ImmutableJourneyState journeyState = state.getState();
-        final Node nextNode = path.endNode();
 
         final EnumSet<GraphLabel> labels = nodeContentsRepository.getLabels(nextNode);
 
         // NOTE: This makes a significant impact on performance, without it algo explore the same
         // path again and again for the same time in the case where it is a valid time.
         final ReasonCode previousResult = previousVisits.getPreviousResult(nextNode, journeyState, labels);
-        final HowIGotHere howIGotHere = new HowIGotHere(path, journeyState);
+        final HowIGotHere howIGotHere = new HowIGotHere(path, journeyState, nextNode);
         if (previousResult != ReasonCode.PreviousCacheMiss) {
             final TramTime journeyClock = journeyState.getJourneyClock();
             reasons.recordReason(ServiceReason.Cached(previousResult, journeyClock, howIGotHere));
@@ -100,14 +104,12 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         return result;
     }
 
-
-
-    private ReasonCode doEvaluate(final Path thePath, final ImmutableJourneyState journeyState, final Node nextNode,
+    private ReasonCode doEvaluate(final Path thePath, final ImmutableJourneyState journeyState, final GraphNode nextNode,
                                   final EnumSet<GraphLabel> nodeLabels) {
 
         final long nextNodeId = nextNode.getId();
 
-        final HowIGotHere howIGotHere = new HowIGotHere(thePath, journeyState);
+        final HowIGotHere howIGotHere = new HowIGotHere(thePath, journeyState, nextNode);
         final Duration totalCostSoFar = journeyState.getTotalDurationSoFar();
         final int numberChanges = journeyState.getNumberChanges();
 

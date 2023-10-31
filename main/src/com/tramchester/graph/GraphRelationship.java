@@ -5,23 +5,24 @@ import com.tramchester.domain.GraphProperty;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.dates.DateRange;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.RouteStationId;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.graphbuild.GraphProps;
-import org.neo4j.graphdb.Entity;
-import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.*;
 
 import java.time.Duration;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static com.tramchester.graph.GraphPropertyKey.*;
 
@@ -29,8 +30,60 @@ public class GraphRelationship extends HaveGraphProperties {
     private final Relationship relationship;
 
     GraphRelationship(Relationship relationship) {
-
         this.relationship = relationship;
+    }
+
+    // TODO facade Path?
+    public static GraphRelationship lastFrom(Path path) {
+        Relationship relationship = path.lastRelationship();
+        if (relationship==null) {
+            return null;
+        }
+        return new GraphRelationship(relationship);
+    }
+
+//    public static Iterable<Relationship> toRelationshipIterable(Stream<GraphRelationship> stream) {
+//        Iterator<Relationship> iterator = stream.map(graphRelationship -> graphRelationship.relationship).iterator();
+//        return new IteratorIterable<>(iterator);
+//    }
+
+    public static ResourceIterable<Relationship> convertIterable(Stream<GraphRelationship> resourceIterable) {
+        Iterator<Relationship> mapped = resourceIterable.map(graphRelationship -> graphRelationship.relationship).iterator();
+        return new ResourceIterable<>() {
+            @Override
+            public ResourceIterator<Relationship> iterator() {
+                return new ResourceIterator<>() {
+                    @Override
+                    public void close() {
+                        // no-op
+                    }
+
+                    @Override
+                    public boolean hasNext() {
+                        return mapped.hasNext();
+                    }
+
+                    @Override
+                    public Relationship next() {
+                        return mapped.next();
+                    }
+                };
+            }
+
+            @Override
+            public void close() {
+                //
+            }
+        };
+    }
+
+    @Deprecated
+    public long getIdOLD() {
+        return relationship.getId();
+    }
+
+    public GraphRelationshipId getId() {
+        return new GraphRelationshipId(relationship.getId());
     }
 
     public void setCost(Duration cost) {
@@ -52,12 +105,7 @@ public class GraphRelationship extends HaveGraphProperties {
     }
 
     public TramTime getTime() {
-        LocalTime localTime = (LocalTime) relationship.getProperty(TIME.getText());
-        boolean nextDay = relationship.hasProperty(DAY_OFFSET.getText());
-        if (nextDay) {
-            return TramTime.nextDay(localTime.getHour(), localTime.getMinute());
-        }
-        return TramTime.of(localTime.getHour(), localTime.getMinute());
+        return getTime(relationship);
     }
 
     public <C extends GraphProperty & CoreDomain & HasId<C>> void set(C domainItem) {
@@ -134,11 +182,6 @@ public class GraphRelationship extends HaveGraphProperties {
         return TransportMode.fromNumbers(existing);
     }
 
-    @Deprecated
-    public long getId() {
-        return relationship.getId();
-    }
-
     public TransportRelationshipTypes getType() {
         return TransportRelationshipTypes.valueOf(relationship.getType().name());
     }
@@ -174,5 +217,38 @@ public class GraphRelationship extends HaveGraphProperties {
     public boolean isDayOffset() {
         // todo should this be checking if set instead?
         return (Boolean) relationship.getProperty(DAY_OFFSET.getText());
+    }
+
+    public boolean validOn(TramDate tramDate) {
+        LocalDate localDate = tramDate.toLocalDate();
+        LocalDate startDate = getStartDate();
+        if (localDate.isBefore(startDate)) {
+            return false;
+        }
+        LocalDate endDate = getEndDate();
+        if (localDate.isAfter(endDate)) {
+            return false;
+        }
+        return true;
+    }
+
+    private LocalDate getEndDate() {
+        return (LocalDate) relationship.getProperty(END_DATE.getText());
+    }
+
+    private LocalDate getStartDate() {
+        return (LocalDate) relationship.getProperty(START_DATE.getText());
+    }
+
+    public IdFor<Station> getStationId() {
+        return getIdFor(Station.class, relationship);
+    }
+
+    public boolean hasProperty(GraphPropertyKey propertyKey) {
+        return relationship.hasProperty(propertyKey.getText());
+    }
+
+    public int getStopSeqNumber() {
+        return (int) relationship.getProperty(STOP_SEQ_NUM.getText());
     }
 }
