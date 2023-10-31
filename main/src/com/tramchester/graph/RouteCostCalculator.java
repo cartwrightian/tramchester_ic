@@ -108,7 +108,7 @@ public class RouteCostCalculator {
         WeightedPath path = finder.findSinglePath(startNode.getNode(), endNode.getNode());
         if (path==null) {
             final String message = format("No (least cost) path found between node %s [%s] and node %s [%s]",
-                    startNode.getIdOLD(), startNode.getAllProperties(), endNode.getIdOLD(), endNode.getAllProperties());
+                    startNode.getId(), startNode.getAllProperties(), endNode.getId(), endNode.getAllProperties());
             logger.error(message);
             throw new InvalidDurationException(message);
         }
