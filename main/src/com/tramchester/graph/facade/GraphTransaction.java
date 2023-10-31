@@ -48,12 +48,6 @@ public class GraphTransaction implements AutoCloseable {
         return txn.schema();
     }
 
-    @Deprecated
-    public GraphNode getNodeById(Long nodeId) {
-        Node node = txn.getNodeById(nodeId);
-        return wrapNode(node);
-    }
-
     public GraphNode getNodeById(GraphNodeId nodeId) {
         long internalId = nodeId.getInternalId();
         Node node = txn.getNodeById(internalId);
@@ -122,7 +116,6 @@ public class GraphTransaction implements AutoCloseable {
             return null;
         }
         return wrapRelationship(relationship);
-        //return graphRelationshipId.findIn(txn);
     }
 
     GraphNode wrapNode(Node endNode) {

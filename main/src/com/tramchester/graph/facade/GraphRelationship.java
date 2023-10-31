@@ -17,6 +17,7 @@ import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.HaveGraphProperties;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.graphbuild.GraphProps;
+import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.*;
 
 import java.time.Duration;
@@ -38,21 +39,12 @@ public class GraphRelationship extends HaveGraphProperties {
         this.id = id;
     }
 
-    // TODO facade Path?
-//    public static GraphRelationship lastFrom(Path path) {
-//        Relationship relationship = path.lastRelationship();
-//        if (relationship==null) {
-//            return null;
-//        }
-//        return new GraphRelationship(relationship, id);
-//    }
-
     public static ResourceIterable<Relationship> convertIterable(Stream<GraphRelationship> resourceIterable) {
         Iterator<Relationship> mapped = resourceIterable.map(graphRelationship -> graphRelationship.relationship).iterator();
         // TODO Better way to do this?
         return new ResourceIterable<>() {
             @Override
-            public ResourceIterator<Relationship> iterator() {
+            public @NotNull ResourceIterator<Relationship> iterator() {
                 return new ResourceIterator<>() {
                     @Override
                     public void close() {
@@ -153,12 +145,8 @@ public class GraphRelationship extends HaveGraphProperties {
     }
 
     public Duration getCost() {
-        final int value = (int) getProperty(relationship, COST);
+        final int value = (int) relationship.getProperty(COST.getText());
         return Duration.ofMinutes(value);
-    }
-
-    private static Object getProperty(Entity entity, GraphPropertyKey key) {
-        return entity.getProperty(key.getText());
     }
 
     public GraphNode getEndNode(GraphTransaction txn) {

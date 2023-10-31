@@ -8,6 +8,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphTransaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,11 +26,11 @@ public class GraphBuilderCache {
     private static final Logger logger = LoggerFactory.getLogger(GraphBuilderCache.class);
 
     private boolean cleared;
-    private final Map<IdFor<RouteStation>, Long> routeStations;
-    private final Map<IdFor<Station>, Long> stationsToNodeId;
-    private final Map<IdFor<Platform>, Long> platforms;
-    private final Map<String, Long> svcNodes;
-    private final Map<String, Long> hourNodes;
+    private final Map<IdFor<RouteStation>, GraphNodeId> routeStations;
+    private final Map<IdFor<Station>, GraphNodeId> stationsToNodeId;
+    private final Map<IdFor<Platform>, GraphNodeId> platforms;
+    private final Map<String, GraphNodeId> svcNodes;
+    private final Map<String, GraphNodeId> hourNodes;
     private final Map<Long, Set<Long>> boardings;
     private final Map<Long, Set<Long>> departs;
 
@@ -66,11 +67,11 @@ public class GraphBuilderCache {
     }
 
     public void putRouteStation(IdFor<RouteStation> id, GraphNode routeStationNode) {
-        routeStations.put(id, routeStationNode.getIdOLD());
+        routeStations.put(id, routeStationNode.getId());
     }
 
     protected void putStation(IdFor<Station> station, GraphNode stationNode) {
-        stationsToNodeId.put(station, stationNode.getIdOLD());
+        stationsToNodeId.put(station, stationNode.getId());
     }
 
     protected GraphNode getRouteStation(GraphTransaction txn, Route route, IdFor<Station> stationId) {
@@ -105,9 +106,9 @@ public class GraphBuilderCache {
             logger.error(message);
             throw new RuntimeException(message);
         }
-        Long id = stationsToNodeId.get(stationId);
-        //return GraphNode.fromTransaction(txn, id);
-        return txn.getNodeById(id);
+//        Long id = stationsToNodeId.get(stationId);
+//        return GraphNode.fromTransaction(txn, id);
+        return txn.getNodeById(stationsToNodeId.get(stationId));
     }
 
     protected GraphNode getPlatform(GraphTransaction txn, IdFor<Platform> platformId) {
@@ -119,12 +120,12 @@ public class GraphBuilderCache {
     }
 
     protected void putPlatform(IdFor<Platform> platformId, GraphNode platformNode) {
-        platforms.put(platformId, platformNode.getIdOLD());
+        platforms.put(platformId, platformNode.getId());
     }
 
     protected void putService(IdFor<Route> routeId, Service service, IdFor<Station> begin, IdFor<Station> end, GraphNode svcNode) {
         String key = CreateKeys.getServiceKey(routeId, service.getId(), begin, end);
-        svcNodes.put(key, svcNode.getIdOLD());
+        svcNodes.put(key, svcNode.getId());
     }
 
     // TODO This has to be route station to route Station
@@ -136,7 +137,7 @@ public class GraphBuilderCache {
 
     protected void putHour(IdFor<Route> routeId, Service service, IdFor<Station> station, Integer hour, GraphNode node) {
         String hourKey = CreateKeys.getHourKey(routeId, service.getId(), station, hour);
-        hourNodes.put(hourKey, node.getIdOLD());
+        hourNodes.put(hourKey, node.getId());
     }
 
     protected GraphNode getHourNode(GraphTransaction txn, IdFor<Route> routeId, Service service, IdFor<Station> station, Integer hour) {

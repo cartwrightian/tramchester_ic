@@ -37,10 +37,6 @@ public class GraphNode extends HaveGraphProperties {
         this.graphNodeId = graphNodeId;
     }
 
-//    public static GraphNode fromEnd(GraphTransaction txn, Path path) {
-//        return txn.wrapNode(path.endNode());
-//    }
-
     @Deprecated
     public Long getIdOLD() {
         return graphNodeId.getInternalId();
@@ -57,7 +53,6 @@ public class GraphNode extends HaveGraphProperties {
     public GraphRelationship createRelationshipTo(GraphTransaction txn, GraphNode end, TransportRelationshipTypes relationshipTypes) {
         Relationship relationshipTo = node.createRelationshipTo(end.node, relationshipTypes);
         return txn.wrapRelationship(relationshipTo);
-//        return new GraphRelationship(relationshipTo, id);
     }
 
     public void delete() {

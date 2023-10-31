@@ -37,7 +37,4 @@ public class GraphRelationshipId {
         return legacyId;
     }
 
-//    GraphRelationship findIn(Transaction txn) {
-//        return new GraphRelationship(txn.getRelationshipById(legacyId), id);
-//    }
 }
