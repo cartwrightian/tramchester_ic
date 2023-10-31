@@ -424,6 +424,24 @@ tasks.register('integration', Test) {
     }
 }
 
+tasks.register('integrationProfile', Test) {
+    dependsOn compileJava
+    minHeapSize = "1000m"
+    maxHeapSize = "1750m"
+    jvmArgs '-agentpath:/home/ianc/dev/tools/visualvm_217/visualvm/lib/deployed/jdk16/linux-amd64/libprofilerinterface.so=/home/ianc/dev/tools/visualvm_217/visualvm/lib,5140'
+    useJUnitPlatform {
+        excludeTags "postcode" // not needed for tram, but used by buses
+        excludeTags "BusTest"
+        excludeTags "TrainTest"
+        excludeTags "GMTest"
+        excludeTags "LiveDataS3UploadTest"
+        excludeTags "AWSMetricsTest"
+    }
+    filter {
+        includeTestsMatching "com.tramchester.integration.*"
+    }
+}
+
 tasks.register('integrationGM', Test) {
     dependsOn compileJava
     minHeapSize = "1000m"
@@ -459,22 +477,7 @@ tasks.register('dualTestIntegration', Test) {
     }
 }
 
-tasks.register('integrationProfile', Test) {
-    dependsOn compileJava
-    minHeapSize = "1000m"
-    maxHeapSize = "1750m"
-    //jvmArgs '-agentpath:/home/ianc/dev/tools/visualvm_213/visualvm/lib/deployed/jdk16/linux-amd64/libprofilerinterface.so=/home/ianc/dev/tools/visualvm_213/visualvm/lib,5140'
-    jvmArgs '-agentpath:/Users/icartwri/dev/tools/visualvm_213/visualvm/lib/deployed/jdk16/mac/libprofilerinterface.jnilib=/Users/icartwri/dev/tools/visualvm_213/visualvm/lib,5140'
-    useJUnitPlatform {
-        excludeTags "postcode" // not needed for tram, but used by buses
-        excludeTags "BusTest"
-        excludeTags "TrainTest"
-        excludeTags "GMTest"
-    }
-    filter {
-        includeTestsMatching "com.tramchester.integration.*"
-    }
-}
+
 
 tasks.register('dataUpdated', Test) {
     dependsOn compileJava

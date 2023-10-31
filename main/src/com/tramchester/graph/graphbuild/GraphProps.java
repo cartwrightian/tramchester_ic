@@ -1,8 +1,7 @@
 package com.tramchester.graph.graphbuild;
 
-import com.google.common.collect.Streams;
 import com.tramchester.domain.*;
-import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.PlatformId;
@@ -13,21 +12,21 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.GraphPropertyKey;
+import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphRelationship;
 import org.neo4j.graphdb.Entity;
-import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.Set;
+import java.util.UUID;
 
 import static com.tramchester.domain.id.StringIdFor.getIdFromGraphEntity;
 import static com.tramchester.graph.GraphPropertyKey.*;
@@ -56,24 +55,8 @@ public class GraphProps {
         entity.setProperty(item.getProp().getText(), item.getId().getGraphId());
     }
 
-    public static void setEndDate(Entity entity, TramDate date) {
-        setEndDate(entity, date.toLocalDate());
-    }
-
-    public static void setEndDate(Entity entity, LocalDate date) {
-        entity.setProperty(END_DATE.getText(), date);
-    }
-
     public static LocalDate getEndDate(Relationship relationship) {
         return (LocalDate) relationship.getProperty(END_DATE.getText());
-    }
-
-    public static void setStartDate(Entity entity, TramDate date) {
-        setStartDate(entity, date.toLocalDate());
-    }
-
-    public static void setStartDate(Entity entity, LocalDate date) {
-        entity.setProperty(START_DATE.getText(), date);
     }
 
     public static LocalDate getStartDate(Relationship relationship) {
@@ -127,10 +110,6 @@ public class GraphProps {
         return getStationIdFrom(node.getNode());
     }
 
-    public static void setRouteStationProp(Entity entity, IdFor<RouteStation> id) {
-        entity.setProperty(ROUTE_STATION_ID.getText(), id.getGraphId());
-    }
-
     public static void setTowardsProp(Node node, IdFor<Station> id) {
         node.setProperty(TOWARDS_STATION_ID.getText(), id.getGraphId());
     }
@@ -153,20 +132,8 @@ public class GraphProps {
         return relationship.getCost();
     }
 
-    // TODO Change to seconds, not minutes
-    public static void setCostProp(Entity entity, Duration duration) {
-        int minutes = roundUpNearestMinute(duration);
-        entity.setProperty(COST.getText(), minutes);
-    }
-
     public static void setCostProp(GraphRelationship relationship, Duration duration) {
         relationship.setCost(duration);
-    }
-
-    // TODO Change to seconds, not minutes
-    public static void setMaxCostProp(Entity entity, Duration duration) {
-        int minutes = roundUpNearestMinute(duration);
-        entity.setProperty(MAX_COST.getText(), minutes);
     }
 
     public static void setMaxCostProp(GraphRelationship relationship, Duration duration) {
@@ -193,17 +160,6 @@ public class GraphProps {
         return TramTime.of(localTime.getHour(), localTime.getMinute());
     }
 
-    public static void setTimeProp(Entity entity, TramTime time) {
-        entity.setProperty(TIME.getText(), time.asLocalTime());
-        if (time.isNextDay()) {
-            entity.setProperty(DAY_OFFSET.getText(), time.isNextDay());
-        }
-    }
-
-    public static boolean hasProperty(GraphPropertyKey key, Entity entity) {
-        return entity.hasProperty(key.getText());
-    }
-
     public static IdFor<Trip> getTripId(GraphNode graphNode) {
         return getTripIdFrom(graphNode.getNode());
     }
@@ -218,10 +174,6 @@ public class GraphProps {
 
     public static IdFor<Service> getServiceId(Entity entity) {
         return getServiceIdFrom(entity);
-    }
-
-    public static void setHourProp(Entity entity, Integer value) {
-        entity.setProperty(HOUR.getText(), value);
     }
 
     public static Integer getHour(GraphNode graphNode) {
@@ -255,16 +207,8 @@ public class GraphProps {
         setWalkId(graphNode.getNode(), origin, uid);
     }
 
-    public static void setStopSequenceNumber(Relationship relationship, int stopSequenceNumber) {
-        relationship.setProperty(STOP_SEQ_NUM.getText(), stopSequenceNumber);
-    }
-
     public static void setStopSequenceNumber(GraphRelationship relationship, int stopSequenceNumber) {
         relationship.setStopSeqNum(stopSequenceNumber);
-    }
-
-    public static int getStopSequenceNumber(Relationship relationship) {
-        return (int) relationship.getProperty(STOP_SEQ_NUM.getText());
     }
 
     public static IdFor<Route> getRouteIdFrom(GraphNode graphNode) {
@@ -298,7 +242,6 @@ public class GraphProps {
 
     public static PlatformId getPlatformIdFrom(Entity entity) {
         IdFor<Station> stationId = getStationIdFrom(entity);
-        //String platformIdText  =  entity.getProperty(PLATFORM_ID.getText()).toString();
         String platformNumber = entity.getProperty(PLATFORM_NUMBER.getText()).toString();
         return PlatformId.createId(stationId, platformNumber);
     }
@@ -309,13 +252,6 @@ public class GraphProps {
 
     public static void setPlatformNumber(GraphNode graphNode, Platform platform) {
         setPlatformNumber(graphNode.getNode(), platform);
-    }
-
-    public static EnumSet<GraphLabel> getLabelsFor(Node node) {
-        final Iterable<Label> iter = node.getLabels();
-
-        final Set<GraphLabel> set = Streams.stream(iter).map(label -> GraphLabel.valueOf(label.name())).collect(Collectors.toSet());
-        return EnumSet.copyOf(set);
     }
 
     public static IdFor<NaptanArea> getAreaIdFromGrouped(GraphNode graphNode) {
@@ -332,27 +268,6 @@ public class GraphProps {
 
     public static void setProperty(GraphNode entity, IdFor<NaptanArea> areaId) {
         setProperty(entity.getNode(), areaId);
-    }
-
-    public static boolean validOn(TramDate date, Relationship relationship) {
-        return validOn(date.toLocalDate(), relationship);
-    }
-
-    public static boolean validOn(LocalDate date, Relationship relationship) {
-        LocalDate startDate = getStartDate(relationship);
-        if (date.isBefore(startDate)) {
-            return false;
-        }
-        LocalDate endDate = getEndDate(relationship);
-        if (date.isAfter(endDate)) {
-            return false;
-        }
-        return true;
-    }
-
-    public static void setDateRange(Entity entity, DateRange range) {
-        setStartDate(entity, range.getStartDate().toLocalDate());
-        setEndDate(entity, range.getEndDate().toLocalDate());
     }
 
     public static void setDateRange(GraphRelationship graphRelationship, DateRange range) {

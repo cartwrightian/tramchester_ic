@@ -97,7 +97,7 @@ public class GraphRelationship extends HaveGraphProperties {
     }
 
     public <C extends GraphProperty & CoreDomain & HasId<C>> void set(C domainItem) {
-        GraphProps.setProperty(relationship, domainItem);
+        super.set(domainItem, relationship);
     }
 
     public void setHour(int hour) {
@@ -159,7 +159,6 @@ public class GraphRelationship extends HaveGraphProperties {
 
     public GraphNode getStartNode(GraphTransaction txn) {
         return txn.wrapNode(relationship.getStartNode());
-        //return new GraphNode(relationship.getStartNode(), graphNodeId);
     }
 
     public void delete() {

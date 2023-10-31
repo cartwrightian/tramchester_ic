@@ -4,9 +4,11 @@ import java.util.Objects;
 
 public class GraphNodeId {
     private final long legacyId;
+    private final int hashCode;
 
     GraphNodeId(long legacyId) {
         this.legacyId = legacyId;
+        this.hashCode = Objects.hash(legacyId);
     }
 
     public static GraphNodeId TestOnly(long l) {
@@ -23,7 +25,7 @@ public class GraphNodeId {
 
     @Override
     public int hashCode() {
-        return Objects.hash(legacyId);
+        return hashCode;
     }
 
     @Override

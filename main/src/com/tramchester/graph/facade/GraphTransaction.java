@@ -119,7 +119,8 @@ public class GraphTransaction implements AutoCloseable {
     }
 
     GraphNode wrapNode(Node endNode) {
-        return new GraphNode(endNode, idFactory.getIdFor(endNode));
+        GraphNodeId graphNodeId = idFactory.getIdFor(endNode);
+        return new GraphNode(endNode, graphNodeId);
     }
 
     GraphRelationship wrapRelationship(Relationship relationship) {

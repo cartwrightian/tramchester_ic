@@ -9,6 +9,7 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.TimedTransaction;
 import com.tramchester.graph.graphbuild.GraphProps;
@@ -103,13 +104,13 @@ public class RouteInterchangeRepository {
         return Duration.ofSeconds(-999);
     }
 
-    private void populateForRoute(GraphTransaction txn, Route route) {
+    private void populateForRoute(GraphTransaction txn, final Route route) {
 
         Instant startTime = Instant.now();
 
-        IdFor<Route> routeId = route.getId();
+        final IdFor<Route> routeId = route.getId();
 
-        long maxNodes = route.getTrips().stream().
+        final long maxNodes = route.getTrips().stream().
                 flatMap(trip -> trip.getStopCalls().getStationSequence(false).stream()).distinct().count();
 
         logger.debug("Find stations to interchange least costs for " + routeId + " max nodes " + maxNodes);
@@ -118,7 +119,7 @@ public class RouteInterchangeRepository {
                 " WHERE NOT rs:INTERCHANGE " +
                 " RETURN path";
 
-        String query = format(template, maxNodes);
+        final String query = format(template, maxNodes);
 
         Map<String, Object> params = new HashMap<>();
         params.put("id", routeId.getGraphId());
@@ -139,7 +140,6 @@ public class RouteInterchangeRepository {
             final IdFor<Station> key = pair.getKey();
             final Duration cost = pair.getValue();
             if (stationToInterPair.containsKey(key)) {
-                //if (cost.compareTo(stationToInterPair.get(key)) < 0) {
                 if (Durations.lessThan(cost, stationToInterPair.get(key))) {
                     stationToInterPair.put(key, cost);
                 }
@@ -164,10 +164,10 @@ public class RouteInterchangeRepository {
         }
     }
 
-    private Duration totalDuration(Path path) {
+    private Duration totalDuration(final Path path) {
 
         return Streams.stream(path.relationships()).
-                filter(relationship -> relationship.hasProperty("cost")).
+                filter(relationship -> relationship.hasProperty(GraphPropertyKey.COST.getText())).
                 map(GraphProps::getCost).
                 reduce(Duration.ZERO, Duration::plus);
     }
