@@ -5,9 +5,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.GraphNode;
-import com.tramchester.graph.GraphRelationship;
-import com.tramchester.graph.GraphTransaction;
+import com.tramchester.graph.*;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
@@ -50,7 +48,7 @@ public class ReasonsToGraphViz {
     private void add(HeuristicsReason reason, GraphTransaction transaction, StringBuilder builder, DiagramState diagramState) {
         HowIGotHere howIGotHere = reason.getHowIGotHere();
 
-        long endNodeId = howIGotHere.getEndNodeId();
+        GraphNodeId endNodeId = howIGotHere.getEndNodeId();
         String reasonId = reason.getReasonCode().name() + endNodeId;
         String stateName = howIGotHere.getTraversalStateName();
         GraphNode currentNode = transaction.getNodeById(endNodeId);
@@ -64,7 +62,7 @@ public class ReasonsToGraphViz {
                 builder.append(format("\"%s\" [label=\"%s\"] [shape=%s];\n", reasonId, reason.textForGraph(), shape));
             }
 
-            Pair<Long, String> reasonLink = Pair.of(endNodeId, reasonId);
+            Pair<GraphNodeId, String> reasonLink = Pair.of(endNodeId, reasonId);
             if (!diagramState.reasonRelationships.contains(reasonLink)) {
                 diagramState.reasonRelationships.add(reasonLink);
                 builder.append(format("\"%s\"->\"%s\"", endNodeId, reasonId));
@@ -76,8 +74,8 @@ public class ReasonsToGraphViz {
             GraphNode fromNode = GraphNode.fromStart(relationship); // relationship.getStartNode();
             addNodeToDiagram(fromNode, builder, diagramState, stateName);
 
-            long fromNodeId = fromNode.getIdOLD();
-            Pair<Long,Long> link = Pair.of(fromNodeId, endNodeId);
+            GraphNodeId fromNodeId = fromNode.getId();
+            Pair<GraphNodeId,GraphNodeId> link = Pair.of(fromNodeId, endNodeId);
             if (!diagramState.relationships.contains(link)) {
                 diagramState.relationships.add(link);
                 RelationshipType relationshipType = relationship.getType();
@@ -87,7 +85,7 @@ public class ReasonsToGraphViz {
     }
 
     private void addNodeToDiagram(GraphNode node, StringBuilder builder, DiagramState diagramState, String stateName) {
-        long nodeId = node.getIdOLD();
+        GraphNodeId nodeId = node.getId();
         if (!diagramState.nodes.contains(nodeId)) {
             diagramState.nodes.add(nodeId);
             StringBuilder nodeLabel = new StringBuilder();
@@ -142,10 +140,10 @@ public class ReasonsToGraphViz {
 
 
     private static class DiagramState {
-        private final Set<Long> nodes;
+        private final Set<GraphNodeId> nodes;
         private final Set<String> reasonIds;
-        private final Set<Pair<Long,Long>> relationships;
-        private final Set<Pair<Long, String>> reasonRelationships;
+        private final Set<Pair<GraphNodeId,GraphNodeId>> relationships;
+        private final Set<Pair<GraphNodeId, String>> reasonRelationships;
 
         private DiagramState() {
             nodes = new HashSet<>();

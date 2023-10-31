@@ -41,8 +41,13 @@ public class GraphTransaction implements AutoCloseable {
         return txn.schema();
     }
 
+    @Deprecated
     public GraphNode getNodeById(Long nodeId) {
         return new GraphNode(txn.getNodeById(nodeId));
+    }
+
+    public GraphNode getNodeById(GraphNodeId nodeId) {
+        return nodeId.findIn(txn);
     }
 
     public GraphNode createNode(Set<GraphLabel> labels) {

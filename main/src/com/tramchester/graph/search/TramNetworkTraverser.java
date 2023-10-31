@@ -8,6 +8,7 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphNode;
+import com.tramchester.graph.GraphNodeId;
 import com.tramchester.graph.GraphRelationship;
 import com.tramchester.graph.GraphTransaction;
 import com.tramchester.graph.caches.LowestCostSeen;
@@ -50,7 +51,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     private final NodeContentsRepository nodeContentsRepository;
     private final TripRepository tripRespository;
     private final TramTime actualQueryTime;
-    private final Set<Long> destinationNodeIds;
+    private final Set<GraphNodeId> destinationNodeIds;
     private final LocationSet destinations;
     private final TramchesterConfig config;
     private final ServiceReasons reasons;
@@ -63,7 +64,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     public TramNetworkTraverser(RouteCalculatorSupport.PathRequest pathRequest,
                                 SortsPositions sortsPosition, NodeContentsRepository nodeContentsRepository, TripRepository tripRespository,
                                 TraversalStateFactory traversalStateFactory, LocationSet destinations, TramchesterConfig config,
-                                Set<Long> destinationNodeIds, ServiceReasons reasons,
+                                Set<GraphNodeId> destinationNodeIds, ServiceReasons reasons,
                                 ReasonsToGraphViz reasonToGraphViz, ProvidesNow providesNow) {
         this.sortsPosition = sortsPosition;
         this.nodeContentsRepository = nodeContentsRepository;
@@ -93,7 +94,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         Duration maxInitialWait = pathRequest.getMaxInitialWait();
         final TramRouteEvaluator tramRouteEvaluator = new TramRouteEvaluator(pathRequest.getServiceHeuristics(),
                 destinationNodeIds, nodeContentsRepository, reasons, previousSuccessfulVisit, lowestCostSeen, config,
-                startNode.getIdOLD(), begin, providesNow, pathRequest.getRequestedModes(), maxInitialWait);
+                startNode.getId(), begin, providesNow, pathRequest.getRequestedModes(), maxInitialWait);
 
         LatLong destinationLatLon = sortsPosition.midPointFrom(destinations);
 
@@ -128,7 +129,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         });
 
         logger.info("Return traversal stream");
-        return stream.filter(path -> destinationNodeIds.contains(path.endNode().getId()));
+        return stream.filter(path -> destinationNodeIds.contains(GraphNode.fromEnd(path).getId()));
     }
 
     @Override

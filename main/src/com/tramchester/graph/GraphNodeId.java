@@ -1,5 +1,7 @@
 package com.tramchester.graph;
 
+import org.neo4j.graphdb.Transaction;
+
 import java.util.Objects;
 
 public class GraphNodeId {
@@ -27,5 +29,9 @@ public class GraphNodeId {
         return "GraphNodeId{" +
                 "legacyId=" + legacyId +
                 '}';
+    }
+
+    public GraphNode findIn(Transaction txn) {
+        return new GraphNode(txn.getNodeById(legacyId));
     }
 }

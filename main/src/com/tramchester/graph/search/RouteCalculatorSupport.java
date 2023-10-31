@@ -10,10 +10,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
-import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphNode;
-import com.tramchester.graph.GraphQuery;
-import com.tramchester.graph.GraphTransaction;
+import com.tramchester.graph.*;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
@@ -89,12 +86,12 @@ public class RouteCalculatorSupport {
     }
 
     @NotNull
-    public Set<Long> getDestinationNodeIds(LocationSet destinations) {
-        Set<Long> destinationNodeIds;
+    public Set<GraphNodeId> getDestinationNodeIds(LocationSet destinations) {
+        Set<GraphNodeId> destinationNodeIds;
         try(GraphTransaction txn = graphDatabaseService.beginTx()) {
             destinationNodeIds = destinations.stream().
                     map(location -> getLocationNodeSafe(txn, location)).
-                    map(GraphNode::getIdOLD).
+                    map(GraphNode::getId).
                     collect(Collectors.toSet());
         }
         return destinationNodeIds;
@@ -130,7 +127,7 @@ public class RouteCalculatorSupport {
                 maxNumChanges);
     }
 
-    public Stream<RouteCalculator.TimedPath> findShortestPath(GraphTransaction txn, Set<Long> destinationNodeIds,
+    public Stream<RouteCalculator.TimedPath> findShortestPath(GraphTransaction txn, Set<GraphNodeId> destinationNodeIds,
                                                               final LocationSet endStations,
                                                               ServiceReasons reasons, PathRequest pathRequest,
                                                               LowestCostsForDestRoutes lowestCostsForRoutes,

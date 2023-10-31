@@ -13,10 +13,7 @@ import com.tramchester.domain.time.CreateQueryTimes;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
-import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphNode;
-import com.tramchester.graph.GraphQuery;
-import com.tramchester.graph.GraphTransaction;
+import com.tramchester.graph.*;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.search.diagnostics.ReasonsToGraphViz;
@@ -162,7 +159,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 //            logger.info("Expanded (composite) destinations from " + unexpanded.size() + " to " + destinations.size());
 //        }
 
-        final Set<Long> destinationNodeIds = Collections.singleton(endNode.getIdOLD());
+        final Set<GraphNodeId> destinationNodeIds = Collections.singleton(endNode.getId());
         final TramDate tramDate = journeyRequest.getDate();
 
         // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results

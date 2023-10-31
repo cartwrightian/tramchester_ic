@@ -6,6 +6,7 @@ import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphNode;
+import com.tramchester.graph.GraphNodeId;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
@@ -37,22 +38,22 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private final NodeContentsRepository nodeContentsRepository;
     private final ProvidesNow providesNow;
 
-    private final Set<Long> destinationNodeIds;
+    private final Set<GraphNodeId> destinationNodeIds;
     private final ServiceReasons reasons;
     private final PreviousVisits previousVisits;
     private final LowestCostSeen bestResultSoFar;
 
     private final int maxWaitMins;
     private final int maxInitialWaitMins;
-    private final long startNodeId;
+    private final GraphNodeId startNodeId;
     private final Instant begin;
     private final long timeout;
     private final Set<GraphLabel> requestedLabels;
 
-    public TramRouteEvaluator(ServiceHeuristics serviceHeuristics, Set<Long> destinationNodeIds,
+    public TramRouteEvaluator(ServiceHeuristics serviceHeuristics, Set<GraphNodeId> destinationNodeIds,
                               NodeContentsRepository nodeContentsRepository, ServiceReasons reasons,
                               PreviousVisits previousVisits, LowestCostSeen bestResultSoFar, TramchesterConfig config,
-                              long startNodeId, Instant begin, ProvidesNow providesNow, Set<TransportMode> requestedModes, Duration maxInitialWait) {
+                              GraphNodeId startNodeId, Instant begin, ProvidesNow providesNow, Set<TransportMode> requestedModes, Duration maxInitialWait) {
         this.serviceHeuristics = serviceHeuristics;
         this.destinationNodeIds = destinationNodeIds;
         this.nodeContentsRepository = nodeContentsRepository;
@@ -107,7 +108,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private ReasonCode doEvaluate(final Path thePath, final ImmutableJourneyState journeyState, final GraphNode nextNode,
                                   final EnumSet<GraphLabel> nodeLabels) {
 
-        final long nextNodeId = nextNode.getIdOLD();
+        final GraphNodeId nextNodeId = nextNode.getId();
 
         final HowIGotHere howIGotHere = new HowIGotHere(thePath, journeyState, nextNode);
         final Duration totalCostSoFar = journeyState.getTotalDurationSoFar();
@@ -167,7 +168,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         }
 
         // returned to the start?
-        if ((thePath.length() > 1) && nextNodeId==startNodeId) {
+        if ((thePath.length() > 1) && nextNodeId.equals(startNodeId)) {
             reasons.recordReason(ServiceReason.ReturnedToStart(howIGotHere));
             return ReasonCode.ReturnedToStart;
         }

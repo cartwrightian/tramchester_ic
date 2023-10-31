@@ -22,6 +22,8 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphNode;
+import com.tramchester.graph.GraphNodeId;
+import com.tramchester.graph.GraphRelationshipId;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
@@ -77,10 +79,10 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     private SortsPositions sortsPositions;
     private PreviousVisits previousSuccessfulVisit;
     private LatLong latLongHint;
-    private Long destinationNodeId;
+    private GraphNodeId destinationNodeId;
     private Relationship lastRelationship;
     private TripRepository tripRepository;
-    private long startNodeId;
+    private GraphNodeId startNodeId;
     private LowestCostSeen lowestCostSeen;
     private ProvidesNow providesNow;
     private LowestCostsForDestRoutes lowestCostsForRoutes;
@@ -120,8 +122,9 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         maxInitialWait = config.getInitialMaxWaitFor(DataSourceID.tfgm);
 
         latLongHint = TramStations.ManAirport.getLatLong();
-        destinationNodeId = 88L;
-        startNodeId = 128L;
+        destinationNodeId = new GraphNodeId(88L);
+
+        startNodeId = new GraphNodeId(128L);
 
         long maxNumberOfJourneys = 2;
         JourneyRequest journeyRequest = new JourneyRequest(
@@ -137,9 +140,9 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         //routeToRouteCosts = createMock(RouteToRouteCosts.class);
         lowestCostsForRoutes = createMock(LowestCostsForDestRoutes.class);
 
-        howIGotHere = HowIGotHere.forTest(42L, 24L);
+        howIGotHere = HowIGotHere.forTest(new GraphNodeId(42L), new GraphRelationshipId(24L));
 
-        EasyMock.expect(node.getIdOLD()).andStubReturn(42L);
+        EasyMock.expect(node.getId()).andStubReturn(new GraphNodeId(42L));
         EasyMock.expect(node.getAllProperties()).andStubReturn(new HashMap<>());
 
         EasyMock.expect(lastRelationship.getId()).andStubReturn(24L);
@@ -161,8 +164,8 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     }
 
     @NotNull
-    private TramRouteEvaluator getEvaluatorForTest(long destinationNodeId) {
-        Set<Long> destinationNodeIds = new HashSet<>();
+    private TramRouteEvaluator getEvaluatorForTest(GraphNodeId destinationNodeId) {
+        Set<GraphNodeId> destinationNodeIds = new HashSet<>();
         destinationNodeIds.add(destinationNodeId);
         Instant begin = Instant.now();
         // empty means all
@@ -208,7 +211,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
     @Test
     void shouldMatchDestinationLowerCost() {
-        long destinationNodeId = 42;
+        GraphNodeId destinationNodeId = new GraphNodeId(42L);
         TramRouteEvaluator evaluator = getEvaluatorForTest(destinationNodeId);
 
         BranchState<JourneyState> branchState = new TestBranchState();
@@ -242,7 +245,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
     @Test
     void shouldMatchDestinationButHigherCost() {
-        long destinationNodeId = 42;
+        GraphNodeId destinationNodeId = new GraphNodeId(42L);
         TramRouteEvaluator evaluator = getEvaluatorForTest(destinationNodeId);
 
         BranchState<JourneyState> branchState = new TestBranchState();
@@ -273,7 +276,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
     @Test
     void shouldMatchDestinationButHigherCostButLessHops() {
-        long destinationNodeId = 42;
+        GraphNodeId destinationNodeId = new GraphNodeId(42L);
         TramRouteEvaluator evaluator = getEvaluatorForTest(destinationNodeId);
 
         BranchState<JourneyState> branchState = new TestBranchState();
@@ -303,7 +306,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
     @Test
     void shouldUseCachedResultForMultipleJourneyExclude() {
-        long destinationNodeId = 42;
+        GraphNodeId destinationNodeId = new GraphNodeId(42L);
         TramRouteEvaluator evaluator = getEvaluatorForTest(destinationNodeId);
 
         BranchState<JourneyState> state = new TestBranchState();
@@ -326,7 +329,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
     @Test
     void shouldExcludeIfPreviousVisit() {
-        long destinationNodeId = 42;
+        GraphNodeId destinationNodeId = new GraphNodeId(42L);
         TramRouteEvaluator evaluator = getEvaluatorForTest(destinationNodeId);
 
         BranchState<JourneyState> state = new TestBranchState();

@@ -87,7 +87,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         final JourneyConstraints journeyConstraints = new JourneyConstraints(config, routeAndServicesFilter, closedStations,
                 destinations, lowestCostForDestinations, maxJourneyDuration);
 
-        final Set<Long> destinationNodeIds = getDestinationNodeIds(destinations);
+        final Set<GraphNodeId> destinationNodeIds = getDestinationNodeIds(destinations);
 
         return grouped.parallelStream().map(box -> {
 

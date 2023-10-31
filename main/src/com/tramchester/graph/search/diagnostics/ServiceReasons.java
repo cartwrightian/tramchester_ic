@@ -5,6 +5,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphNode;
+import com.tramchester.graph.GraphNodeId;
 import com.tramchester.graph.GraphTransaction;
 import com.tramchester.graph.search.ImmutableJourneyState;
 import com.tramchester.graph.search.RouteCalculatorSupport;
@@ -38,7 +39,7 @@ public class ServiceReasons {
     // stats
     private final Map<ReasonCode, AtomicInteger> reasonCodeStats; // reason -> count
     private final Map<TraversalStateType, AtomicInteger> stateStats; // State -> num visits
-    private final Map<Long, AtomicInteger> nodeVisits; // count of visits to nodes
+    private final Map<GraphNodeId, AtomicInteger> nodeVisits; // count of visits to nodes
     private final AtomicInteger totalChecked = new AtomicInteger(0);
     private final boolean diagnosticsEnabled;
 
@@ -95,7 +96,7 @@ public class ServiceReasons {
     }
 
     private void recordEndNodeVisit(final HowIGotHere howIGotHere) {
-        final long endNode = howIGotHere.getEndNodeId();
+        final GraphNodeId endNode = howIGotHere.getEndNodeId();
         if (nodeVisits.containsKey(endNode)) {
             nodeVisits.get(endNode).incrementAndGet();
         } else {
@@ -156,7 +157,7 @@ public class ServiceReasons {
     }
 
     private void logVisits(GraphTransaction txn) {
-        Set<Long> haveInvalidReasonCode = reasons.stream().
+        Set<GraphNodeId> haveInvalidReasonCode = reasons.stream().
                 filter(reason -> !reason.isValid()).
                 map(HeuristicsReason::getNodeId).
                 collect(Collectors.toSet());
@@ -179,7 +180,7 @@ public class ServiceReasons {
     }
 
     private void reasonsAtNode(final GraphNode node) {
-        final long nodeId = node.getIdOLD();
+        final GraphNodeId nodeId = node.getId();
         // beware of Set here, will collapse reasons
         List<HeuristicsReason> reasonsForId = reasons.stream().
                 filter(reason -> reason.getNodeId() == nodeId).
@@ -206,8 +207,6 @@ public class ServiceReasons {
         counts.clear();
         return stringBuilder.toString();
     }
-
-
 
     private String nodeDetails(GraphNode node) {
         StringBuilder labels = new StringBuilder();
@@ -260,5 +259,19 @@ public class ServiceReasons {
         return fileName;
     }
 
-
+    @Override
+    public String toString() {
+        return "ServiceReasons{" +
+                "queryTime=" + queryTime +
+                ", providesLocalNow=" + providesLocalNow +
+                ", journeyRequest=" + journeyRequest +
+                ", reasons=" + reasons +
+                ", reasonCodeStats=" + reasonCodeStats +
+                ", stateStats=" + stateStats +
+                ", nodeVisits=" + nodeVisits +
+                ", totalChecked=" + totalChecked +
+                ", diagnosticsEnabled=" + diagnosticsEnabled +
+                ", success=" + success +
+                '}';
+    }
 }

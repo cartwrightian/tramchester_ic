@@ -12,6 +12,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphNode;
+import com.tramchester.graph.GraphNodeId;
 import com.tramchester.graph.caches.CachedNodeOperations;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.search.JourneyConstraints;
@@ -81,7 +82,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         EasyMock.expect(journeyConstraints.getMaxPathLength()).andStubReturn(maxPathLength);
         EasyMock.expect(journeyConstraints.getEndStations()).andStubReturn(endStations);
         EasyMock.expect(journeyConstraints.getMaxJourneyDuration()).andStubReturn(maxJourneyDuration);
-        EasyMock.expect(howIGotHere.getEndNodeId()).andStubReturn(42L);
+        EasyMock.expect(howIGotHere.getEndNodeId()).andStubReturn(new GraphNodeId(42L));
     }
 
     @NotNull
@@ -382,7 +383,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         resetAll();
         ////////////////
 
-        EasyMock.expect(howIGotHere.getEndNodeId()).andStubReturn(42L);
+        EasyMock.expect(howIGotHere.getEndNodeId()).andStubReturn(new GraphNodeId(42L));
 
         GraphNode node = createMock(GraphNode.class);
 
