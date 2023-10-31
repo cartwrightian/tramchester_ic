@@ -9,6 +9,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.InvalidDurationException;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.ImmuableGraphNode;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.repository.RouteRepository;
@@ -105,7 +106,7 @@ public class RouteCostCalculator {
         PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(context, forTypesAndDirections,
                 new UsefulLoggingCostEvaluator(key));
 
-        WeightedPath path = finder.findSinglePath(startNode.getNode(), endNode.getNode());
+        WeightedPath path = ImmuableGraphNode.findSinglePath(finder, startNode, endNode); //finder.findSinglePath(startNode.getNode(), endNode.getNode());
         if (path==null) {
             final String message = format("No (least cost) path found between node %s [%s] and node %s [%s]",
                     startNode.getId(), startNode.getAllProperties(), endNode.getId(), endNode.getAllProperties());

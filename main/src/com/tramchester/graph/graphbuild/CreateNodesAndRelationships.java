@@ -5,6 +5,7 @@ import com.tramchester.graph.*;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.MutableGraphNode;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.slf4j.Logger;
@@ -40,7 +41,7 @@ public class CreateNodesAndRelationships {
             labels.add(GraphLabel.HAS_PLATFORMS);
         }
         logger.debug(format("Creating station node: %s with labels: %s ", station, labels));
-        GraphNode stationNode = createGraphNode(tx, labels);
+        MutableGraphNode stationNode = createGraphNode(tx, labels);
         setProperty(stationNode, station);
         return stationNode;
     }
@@ -51,18 +52,18 @@ public class CreateNodesAndRelationships {
         return tx.createNode(label).getNode();
     }
 
-    protected GraphNode createGraphNode(GraphTransaction tx, GraphLabel label) {
+    protected MutableGraphNode createGraphNode(GraphTransaction tx, GraphLabel label) {
         numberNodes++;
         return tx.createNode(label);
     }
 
-    public GraphNode createGraphNode(GraphTransaction tx, Set<GraphLabel> labels) {
+    public MutableGraphNode createGraphNode(GraphTransaction tx, Set<GraphLabel> labels) {
         numberNodes++;
         return tx.createNode(labels);
         //return graphDatabase.createNode(tx, labels);
     }
 
-    protected GraphRelationship createRelationship(GraphTransaction txn, GraphNode start, GraphNode end, TransportRelationshipTypes relationshipType) {
+    protected GraphRelationship createRelationship(GraphTransaction txn, MutableGraphNode start, MutableGraphNode end, TransportRelationshipTypes relationshipType) {
         numberRelationships++;
         return start.createRelationshipTo(txn, end, relationshipType);
     }
@@ -72,19 +73,19 @@ public class CreateNodesAndRelationships {
         logger.info("Relationships created: " + numberRelationships);
     }
 
-    protected boolean addNeighbourRelationship(GraphTransaction txn, GraphNode fromNode, GraphNode toNode, Duration walkCost) {
+    protected boolean addNeighbourRelationship(GraphTransaction txn, MutableGraphNode fromNode, MutableGraphNode toNode, Duration walkCost) {
         return addRelationshipFor(txn, fromNode, toNode, walkCost, NEIGHBOUR);
     }
 
-    protected void addGroupRelationshipTowardsParent(GraphTransaction txn, GraphNode fromNode, GraphNode toNode, Duration walkCost) {
+    protected void addGroupRelationshipTowardsParent(GraphTransaction txn, MutableGraphNode fromNode, MutableGraphNode toNode, Duration walkCost) {
         addRelationshipFor(txn, fromNode, toNode, walkCost, GROUPED_TO_PARENT);
     }
 
-    protected void addGroupRelationshipTowardsChild(GraphTransaction txn, GraphNode fromNode, GraphNode toNode, Duration walkCost) {
+    protected void addGroupRelationshipTowardsChild(GraphTransaction txn, MutableGraphNode fromNode, MutableGraphNode toNode, Duration walkCost) {
         addRelationshipFor(txn, fromNode, toNode, walkCost, GROUPED_TO_CHILD);
     }
 
-    private boolean addRelationshipFor(GraphTransaction txn, GraphNode fromNode, GraphNode toNode, Duration walkCost, TransportRelationshipTypes relationshipType) {
+    private boolean addRelationshipFor(GraphTransaction txn, MutableGraphNode fromNode, MutableGraphNode toNode, Duration walkCost, TransportRelationshipTypes relationshipType) {
         Set<GraphNode> alreadyRelationship = new HashSet<>();
         fromNode.getRelationships(txn, Direction.OUTGOING, relationshipType).
                 forEach(relationship -> alreadyRelationship.add(relationship.getEndNode(txn)));

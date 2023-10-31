@@ -118,7 +118,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
                 uniqueness(NONE).
                 order(selector);
 
-        Traverser traverse = traversalDesc.traverse(startNode.getNode());
+        Traverser traverse = startNode.getTraverserFor(traversalDesc);
         Spliterator<Path> spliterator = traverse.spliterator();
 
         Stream<Path> stream = StreamSupport.stream(spliterator, false);

@@ -36,11 +36,12 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
     private static final Logger logger = LoggerFactory.getLogger(CachedNodeOperations.class);
 
     private final Cache<GraphRelationshipId, IdFor<Trip>> tripIdRelationshipCache;
+    private final Cache<GraphRelationshipId, Duration> relationshipCostCache;
+
     private final Cache<GraphNodeId, IdFor<Service>> serviceNodeCache;
     private final Cache<GraphNodeId, IdFor<Trip>> tripNodeCache;
     private final Cache<GraphNodeId, IdFor<RouteStation>> routeStationIdCache;
 
-    private final Cache<GraphRelationshipId, Duration> relationshipCostCache;
     private final Cache<GraphNodeId, TramTime> timeNodeCache;
     private final Cache<GraphNodeId, Integer> hourNodeCahce;
 

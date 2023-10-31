@@ -51,7 +51,6 @@ public class GraphRelationship extends HaveGraphProperties {
             }
         };
         return Iterables.asResourceIterable(iterable);
-
     }
 
     public GraphRelationshipId getId() {
@@ -76,16 +75,16 @@ public class GraphRelationship extends HaveGraphProperties {
         setTime(tramTime, relationship);
     }
 
-    public TramTime getTime() {
-        return getTime(relationship);
+    public void setHour(int hour) {
+        relationship.setProperty(HOUR.getText(), hour);
     }
 
     public <C extends GraphProperty & CoreDomain & HasId<C>> void set(C domainItem) {
         super.set(domainItem, relationship);
     }
 
-    public void setHour(int hour) {
-        relationship.setProperty(HOUR.getText(), hour);
+    public TramTime getTime() {
+        return getTime(relationship);
     }
 
     public void setRouteStationId(IdFor<RouteStation> routeStationId) {
@@ -128,25 +127,27 @@ public class GraphRelationship extends HaveGraphProperties {
         relationship.setProperty(TRANSPORT_MODES.getText(), replacement);
     }
 
+    public void delete() {
+        relationship.delete();
+    }
+
     public Duration getCost() {
         final int value = (int) relationship.getProperty(COST.getText());
         return Duration.ofMinutes(value);
     }
 
-    public GraphNode getEndNode(GraphTransaction txn) {
-        Node node = relationship.getEndNode();
-        if (node==null) {
-            throw new RuntimeException("Missing end node for a relationship, this should not happen " + this);
-        }
+    public GraphNode getEndNode(final GraphTransaction txn) {
+        final Node node = relationship.getEndNode();
+//        if (node==null) {
+//            throw new RuntimeException("Missing end node for a relationship, this should not happen " + this);
+//        }
         return txn.wrapNode(node);
     }
 
+
+
     public GraphNode getStartNode(GraphTransaction txn) {
         return txn.wrapNode(relationship.getStartNode());
-    }
-
-    public void delete() {
-        relationship.delete();
     }
 
     public EnumSet<TransportMode> getTransportModes() {

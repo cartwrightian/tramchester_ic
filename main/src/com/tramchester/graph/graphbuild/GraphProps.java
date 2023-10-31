@@ -16,6 +16,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphRelationship;
+import com.tramchester.graph.facade.MutableGraphNode;
 import org.neo4j.graphdb.Entity;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -38,7 +39,7 @@ public class GraphProps {
         node.setProperty(sourceID.name(), dataSourceInfo.getVersion());
     }
 
-    public static void setProp(GraphNode node, DataSourceInfo dataSourceInfo) {
+    public static void setProp(MutableGraphNode node, DataSourceInfo dataSourceInfo) {
         setProp(node.getNode(), dataSourceInfo);
     }
 
@@ -50,7 +51,7 @@ public class GraphProps {
         relationship.set(item);
     }
 
-    public static <C extends GraphProperty & CoreDomain & HasId<C>> void setProperty(GraphNode graphNode, C item) {
+    public static <C extends GraphProperty & CoreDomain & HasId<C>> void setProperty(MutableGraphNode graphNode, C item) {
         Node entity = graphNode.getNode();
         entity.setProperty(item.getProp().getText(), item.getId().getGraphId());
     }
@@ -71,12 +72,12 @@ public class GraphProps {
         relationship.setTransportMode(mode);
     }
 
-    public static void setProperty(GraphNode graphNode, TransportMode mode) {
+    public static void setProperty(MutableGraphNode graphNode, TransportMode mode) {
         setProperty(graphNode.getNode(), mode);
     }
 
     public static TransportMode getTransportMode(GraphNode graphNode) {
-        return getTransportMode(graphNode.getNode());
+        return graphNode.getTransportMode();
     }
 
     public static TransportMode getTransportMode(Entity entity) {
@@ -107,14 +108,15 @@ public class GraphProps {
     }
 
     public static IdFor<Station> getStationId(GraphNode node) {
-        return getStationIdFrom(node.getNode());
+        return node.getStationId();
+        //return getStationIdFrom(node.getNode());
     }
 
     public static void setTowardsProp(Node node, IdFor<Station> id) {
         node.setProperty(TOWARDS_STATION_ID.getText(), id.getGraphId());
     }
 
-    public static void setTowardsProp(GraphNode node, IdFor<Station> id) {
+    public static void setTowardsProp(MutableGraphNode node, IdFor<Station> id) {
         setTowardsProp(node.getNode(), id);
     }
 
@@ -148,7 +150,7 @@ public class GraphProps {
     }
 
     public static TramTime getTime(GraphNode graphNode) {
-        return getTime(graphNode.getNode());
+        return graphNode.getTime();
     }
 
     public static TramTime getTime(Entity entity) {
@@ -161,7 +163,7 @@ public class GraphProps {
     }
 
     public static IdFor<Trip> getTripId(GraphNode graphNode) {
-        return getTripIdFrom(graphNode.getNode());
+        return graphNode.getTripId();
     }
 
     public static IdFor<Trip> getTripId(Entity entity) {
@@ -169,7 +171,7 @@ public class GraphProps {
     }
 
     public static IdFor<Service> getServiceId(GraphNode graphNode) {
-        return getServiceIdFrom(graphNode.getNode());
+        return graphNode.getServiceId();
     }
 
     public static IdFor<Service> getServiceId(Entity entity) {
@@ -177,7 +179,8 @@ public class GraphProps {
     }
 
     public static Integer getHour(GraphNode graphNode) {
-        return getHour(graphNode.getNode());
+        return graphNode.getHour();
+//        return getHour(graphNode.getNode());
     }
 
     public static Integer getHour(Entity node) {
@@ -189,7 +192,7 @@ public class GraphProps {
         entity.setProperty(LONGITUDE.getText(), latLong.getLon());
     }
 
-    public static void setLatLong(GraphNode graphNode, LatLong latLong) {
+    public static void setLatLong(MutableGraphNode graphNode, LatLong latLong) {
         setLatLong(graphNode.getNode(), latLong);
     }
 
@@ -203,7 +206,7 @@ public class GraphProps {
         entity.setProperty(GraphPropertyKey.WALK_ID.getText(), origin.toString() + "_" + uid.toString());
     }
 
-    public static void setWalkId(GraphNode graphNode, LatLong origin, UUID uid) {
+    public static void setWalkId(MutableGraphNode graphNode, LatLong origin, UUID uid) {
         setWalkId(graphNode.getNode(), origin, uid);
     }
 
@@ -212,7 +215,8 @@ public class GraphProps {
     }
 
     public static IdFor<Route> getRouteIdFrom(GraphNode graphNode) {
-        return getRouteIdFrom(graphNode.getNode());
+        return graphNode.getRouteId();
+        //return getRouteIdFrom(graphNode.getNode());
     }
 
     public static IdFor<Route> getRouteIdFrom(GraphRelationship graphRelationship) {
@@ -250,12 +254,13 @@ public class GraphProps {
         entity.setProperty(PLATFORM_NUMBER.getText(), platform.getPlatformNumber());
     }
 
-    public static void setPlatformNumber(GraphNode graphNode, Platform platform) {
+    public static void setPlatformNumber(MutableGraphNode graphNode, Platform platform) {
         setPlatformNumber(graphNode.getNode(), platform);
     }
 
     public static IdFor<NaptanArea> getAreaIdFromGrouped(GraphNode graphNode) {
-        return getAreaIdFromGrouped(graphNode.getNode());
+        return graphNode.getAreaIdFromGrouped();
+        //return getAreaIdFromGrouped(graphNode.getNode());
     }
 
     public static IdFor<NaptanArea> getAreaIdFromGrouped(Entity entity) {
@@ -266,7 +271,7 @@ public class GraphProps {
         entity.setProperty(AREA_ID.getText(), areaId.getGraphId());
     }
 
-    public static void setProperty(GraphNode entity, IdFor<NaptanArea> areaId) {
+    public static void setProperty(MutableGraphNode entity, IdFor<NaptanArea> areaId) {
         setProperty(entity.getNode(), areaId);
     }
 
@@ -275,7 +280,7 @@ public class GraphProps {
     }
 
     public static IdFor<Platform> getPlatformIdFrom(GraphNode graphNode) {
-        return getPlatformIdFrom(graphNode.getNode());
+        return graphNode.getPlatformId();
     }
 
 

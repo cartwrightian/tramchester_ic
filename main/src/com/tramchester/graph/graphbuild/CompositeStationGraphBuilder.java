@@ -8,9 +8,9 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.TimedTransaction;
+import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.MutableGraphNode;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.mappers.Geography;
 import com.tramchester.repository.StationGroupsRepository;
@@ -37,12 +37,11 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
     private final Geography geography;
 
     // NOTE: cannot use graphquery here as creates a circular dependency on this class
-    //private final GraphQuery graphQuery;
 
     @Inject
     public CompositeStationGraphBuilder(GraphDatabase graphDatabase, StationGroupsRepository stationGroupsRepository,
                                         TramchesterConfig config, GraphFilter graphFilter,
-                                        StationsAndLinksGraphBuilder.Ready stationsAndLinksAreBuilt,
+                                        @SuppressWarnings("unused") StationsAndLinksGraphBuilder.Ready stationsAndLinksAreBuilt,
                                         GraphBuilderCache builderCache, Geography geography) {
         super(graphDatabase);
         this.graphDatabase = graphDatabase;
@@ -99,7 +98,7 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
             allComposite.stream().filter(graphFilter::shouldInclude).
                 filter(this::shouldInclude).
                 forEach(compositeStation -> {
-                    GraphNode stationNode = createGroupedStationNodes(txn, compositeStation);
+                    MutableGraphNode stationNode = createGroupedStationNodes(txn, compositeStation);
                     linkStations(txn, stationNode, compositeStation);
             });
             timedTransaction.commit();
@@ -111,22 +110,22 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
                 graphFilter.shouldIncludeRoutes(station.getDropoffRoutes());
     }
 
-    private GraphNode createGroupedStationNodes(GraphTransaction txn, StationGroup stationGroup) {
-        GraphNode groupNode = createGraphNode(txn, GraphLabel.GROUPED);
+    private MutableGraphNode createGroupedStationNodes(GraphTransaction txn, StationGroup stationGroup) {
+        MutableGraphNode groupNode = createGraphNode(txn, GraphLabel.GROUPED);
         IdFor<NaptanArea> areaId = stationGroup.getAreaId();
         GraphProps.setProperty(groupNode, areaId);
         GraphProps.setProperty(groupNode, stationGroup);
         return groupNode;
     }
 
-    private void linkStations(GraphTransaction txn, GraphNode parentNode, StationGroup stationGroup) {
+    private void linkStations(GraphTransaction txn, MutableGraphNode parentNode, StationGroup stationGroup) {
         Set<Station> contained = stationGroup.getContained();
 
         contained.stream().
                 filter(graphFilter::shouldInclude).
                 forEach(station -> {
                     final Duration walkingCost = geography.getWalkingDuration(stationGroup, station);
-                    GraphNode childNode = builderCache.getStation(txn, station.getId());
+                    MutableGraphNode childNode = builderCache.getStation(txn, station.getId());
                     if (childNode==null) {
                         throw new RuntimeException("cannot find node for " + station);
                     }

@@ -16,6 +16,7 @@ import com.tramchester.graph.*;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.MutableGraphNode;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.metrics.Timing;
 import com.tramchester.repository.TransportData;
@@ -147,7 +148,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
                         filter(station -> station.servesRouteDropOff(route) || station.servesRoutePickup(route)).
                         map(station -> transportData.getRouteStation(station, route)).
                         forEach(routeStation -> {
-                            GraphNode routeStationNode = createRouteStationNode(tx, routeStation, builderCache);
+                            MutableGraphNode routeStationNode = createRouteStationNode(tx, routeStation, builderCache);
                             linkStationAndRouteStation(tx, routeStation.getStation(), routeStationNode, route.getTransportMode());
                         });
 
@@ -159,8 +160,8 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         }
     }
 
-    private void linkStationAndRouteStation(GraphTransaction txn, Station station, GraphNode routeStationNode, TransportMode transportMode) {
-        GraphNode stationNode = builderCache.getStation(txn, station.getId());
+    private void linkStationAndRouteStation(GraphTransaction txn, Station station, MutableGraphNode routeStationNode, TransportMode transportMode) {
+        MutableGraphNode stationNode = builderCache.getStation(txn, station.getId());
 
         final GraphRelationship stationToRoute = stationNode.createRelationshipTo(txn, routeStationNode, STATION_TO_ROUTE);
         final GraphRelationship routeToStation = routeStationNode.createRelationshipTo(txn, stationNode, ROUTE_TO_STATION);
@@ -201,8 +202,8 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
             });
 
         pairs.keySet().forEach(pair -> {
-            GraphNode startNode = routeBuilderCache.getStation(tx, pair.getBeginId());
-            GraphNode endNode = routeBuilderCache.getStation(tx, pair.getEndId());
+            MutableGraphNode startNode = routeBuilderCache.getStation(tx, pair.getBeginId());
+            MutableGraphNode endNode = routeBuilderCache.getStation(tx, pair.getEndId());
             createLinkRelationship(startNode, endNode, route.getTransportMode(), tx);
         });
 
@@ -212,7 +213,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         return filter.shouldInclude(leg.getFirst()) && filter.shouldInclude(leg.getSecond());
     }
 
-    private void createLinkRelationship(GraphNode from, GraphNode to, TransportMode mode, GraphTransaction txn) {
+    private void createLinkRelationship(MutableGraphNode from, MutableGraphNode to, TransportMode mode, GraphTransaction txn) {
         if (from.hasRelationship(OUTGOING, LINKED)) {
             Stream<GraphRelationship> alreadyPresent = from.getRelationships(txn, OUTGOING, LINKED);
 
@@ -239,7 +240,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
     private void createPlatformsForStation(GraphTransaction txn, Station station, GraphBuilderCache routeBuilderCache) {
         for (Platform platform : station.getPlatforms()) {
 
-            GraphNode platformNode = txn.createNode(GraphLabel.PLATFORM);
+            MutableGraphNode platformNode = txn.createNode(GraphLabel.PLATFORM);
             setProperty(platformNode, platform);
             setProperty(platformNode, station);
 
@@ -250,7 +251,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         }
     }
 
-    private GraphNode createRouteStationNode(GraphTransaction tx, RouteStation routeStation, GraphBuilderCache builderCache) {
+    private MutableGraphNode createRouteStationNode(GraphTransaction tx, RouteStation routeStation, GraphBuilderCache builderCache) {
 //        Node existing = graphDatabase.findNode(tx,
 //                GraphLabel.ROUTE_STATION, GraphPropertyKey.ROUTE_STATION_ID.getText(), routeStation.getId().getGraphId());
 //
@@ -273,7 +274,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
 
         Set<GraphLabel> labels = new HashSet<>(Arrays.asList(GraphLabel.ROUTE_STATION, modeLabel));
 
-        GraphNode routeStationNode = createGraphNode(tx, labels);
+        MutableGraphNode routeStationNode = createGraphNode(tx, labels);
 
         logger.debug(format("Creating route station %s nodeId %s", routeStation.getId(), routeStationNode.getId()));
         GraphProps.setProperty(routeStationNode, routeStation);
@@ -286,7 +287,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         return routeStationNode;
     }
 
-    private void setTransportMode(Station station, GraphNode node) {
+    private void setTransportMode(Station station, MutableGraphNode node) {
         setTransportMode(station, node.getNode());
     }
 

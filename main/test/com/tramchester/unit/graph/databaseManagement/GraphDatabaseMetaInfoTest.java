@@ -1,9 +1,9 @@
 package com.tramchester.unit.graph.databaseManagement;
 
 import com.tramchester.domain.DataSourceInfo;
-import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
+import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.MutableGraphNode;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.repository.DataSourceRepository;
 import org.easymock.EasyMock;
@@ -89,7 +89,7 @@ public class GraphDatabaseMetaInfoTest extends EasyMockSupport {
         versionMap.put("A", "4.2");
         versionMap.put("ZZZ", "81.91");
 
-        GraphNode graphNode = createMock(GraphNode.class);
+        MutableGraphNode graphNode = createMock(MutableGraphNode.class);
 
         EasyMock.expect(transaction.findNodes(GraphLabel.VERSION)).andReturn(Stream.of(graphNode));
         EasyMock.expect(graphNode.getAllProperties()).andReturn(versionMap);
@@ -108,7 +108,7 @@ public class GraphDatabaseMetaInfoTest extends EasyMockSupport {
     @Test
     void shouldSetNeighbourNode() {
 
-        GraphNode graphNode = createMock(GraphNode.class);
+        MutableGraphNode graphNode = createMock(MutableGraphNode.class);
         EasyMock.expect(transaction.createNode(GraphLabel.NEIGHBOURS_ENABLED)).andReturn(graphNode);
 
         replayAll();
@@ -119,7 +119,7 @@ public class GraphDatabaseMetaInfoTest extends EasyMockSupport {
     @Test
     void shouldCreateVersionsNode() {
 
-        GraphNode graphNode = createMock(GraphNode.class);
+        MutableGraphNode graphNode = createMock(MutableGraphNode.class);
         EasyMock.expect(graphNode.getNode()).andStubReturn(node);
 
         Set<DataSourceInfo> sourceInfo = new HashSet<>();

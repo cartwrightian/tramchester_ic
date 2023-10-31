@@ -1,171 +1,71 @@
 package com.tramchester.graph.facade;
 
-import com.google.common.collect.Streams;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.GraphPropertyKey;
-import com.tramchester.graph.HaveGraphProperties;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.graphbuild.GraphLabel;
-import com.tramchester.graph.graphbuild.GraphProps;
-import org.neo4j.graphdb.*;
+import org.neo4j.graphdb.Direction;
+import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.traversal.TraversalDescription;
+import org.neo4j.graphdb.traversal.Traverser;
 
 import java.util.EnumSet;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.tramchester.graph.GraphPropertyKey.*;
+public interface GraphNode {
 
-public class GraphNode extends HaveGraphProperties {
-    private final Node node;
-    private final GraphNodeId graphNodeId;
+    GraphNodeId getId();
 
-    GraphNode(Node node, GraphNodeId graphNodeId) {
-        if (node == null) {
-            throw new RuntimeException("Null node passed");
-        }
-        this.node = node;
-        this.graphNodeId = graphNodeId;
-    }
-    
-    public GraphNodeId getId() {
-        return graphNodeId;
-    }
+    Map<String, Object> getAllProperties();
 
-    public Node getNode() {
-        return node;
-    }
+    Traverser getTraverserFor(TraversalDescription traversalDesc);
 
-    public GraphRelationship createRelationshipTo(GraphTransaction txn, GraphNode end, TransportRelationshipTypes relationshipTypes) {
-        Relationship relationshipTo = node.createRelationshipTo(end.node, relationshipTypes);
-        return txn.wrapRelationship(relationshipTo);
-    }
+    boolean hasRelationship(Direction direction, TransportRelationshipTypes transportRelationshipTypes);
 
-    public void delete() {
-        node.delete();
-    }
+    boolean hasLabel(GraphLabel graphLabel);
 
-    public Stream<GraphRelationship> getRelationships(GraphTransaction txn, Direction direction, TransportRelationshipTypes relationshipType) {
-        return node.getRelationships(direction, relationshipType).stream().map(txn::wrapRelationship);
-    }
+    Relationship getSingleRelationship(TransportRelationshipTypes transportRelationshipTypes, Direction direction);
 
-    public Stream<GraphRelationship> getRelationships(GraphTransaction txn, Direction direction, TransportRelationshipTypes... transportRelationshipTypes) {
-        return node.getRelationships(direction, transportRelationshipTypes).stream().map(txn::wrapRelationship);
-    }
+    IdFor<RouteStation> getRouteStationId();
 
-    @Override
-    public String toString() {
-        return "GraphNode{" +
-                "neo4jNode=" + node +
-                '}';
-    }
+    IdFor<Service> getServiceId();
 
-    public boolean hasRelationship(Direction direction, TransportRelationshipTypes transportRelationshipTypes) {
-        return node.hasRelationship(direction, transportRelationshipTypes);
-    }
+    IdFor<Trip> getTripId();
 
-    public void addLabel(Label label) {
-        node.addLabel(label);
-    }
+    TramTime getTime();
 
-    public void setHourProp(Integer hour) {
-        node.setProperty(HOUR.getText(), hour);
-    }
+    LatLong getLatLong();
 
+    boolean hasTripId();
 
-    public boolean hasLabel(GraphLabel graphLabel) {
-        return node.hasLabel(graphLabel);
-    }
+    PlatformId getPlatformId();
 
-    public Object getProperty(String key) {
-        return node.getProperty(key);
-    }
+    boolean hasStationId();
 
-    public Relationship getSingleRelationship(TransportRelationshipTypes transportRelationshipTypes, Direction direction) {
-        return node.getSingleRelationship(transportRelationshipTypes,direction);
-    }
+    EnumSet<GraphLabel> getLabels();
 
-    public EnumSet<GraphLabel> getLabels() {
-        final Iterable<Label> iter = node.getLabels();
-        final Set<GraphLabel> set = Streams.stream(iter).map(label -> GraphLabel.valueOf(label.name())).collect(Collectors.toSet());
-        return EnumSet.copyOf(set);
-    }
+    IdFor<Station> getStationId();
 
-    public void setProperty(GraphPropertyKey graphPropertyKey, String name) {
-        node.setProperty(graphPropertyKey.getText(), name);
-    }
+    Stream<GraphRelationship> getRelationships(GraphTransaction txn, Direction direction, TransportRelationshipTypes relationshipType);
 
-    public void setTime(TramTime tramTime) {
-        setTime(tramTime, node);
-    }
+    Stream<GraphRelationship> getRelationships(GraphTransaction txn, Direction direction, TransportRelationshipTypes... transportRelationshipTypes);
 
-    public IdFor<Station> getStationId() {
-        return getIdFor(Station.class, node);
-    }
+    TransportMode getTransportMode();
 
-    public void set(Trip trip) {
-        set(trip, node);
-    }
+    Integer getHour();
 
-    public Map<String,Object> getAllProperties() {
-        return getAllProperties(node);
-    }
+    IdFor<Route> getRouteId();
 
-    public IdFor<RouteStation> getRouteStationId() {
-        return getRouteStationId(node);
-    }
+    IdFor<NaptanArea> getAreaIdFromGrouped();
 
-    public IdFor<Service> getServiceId() {
-        return getIdFor(Service.class, node);
-    }
-
-    public IdFor<Trip> getTripId() {
-        return getIdFor(Trip.class, node);
-    }
-
-    public TramTime getTime() {
-        return getTime(node);
-    }
-
-    public LatLong getLatLong() {
-        final double lat = (double) getProperty(LATITUDE.getText());
-        final double lon = (double) getProperty(LONGITUDE.getText());
-        return new LatLong(lat, lon);
-    }
-
-    public boolean hasTripId() {
-        return node.hasProperty(TRIP_ID.getText());
-    }
-
-    public PlatformId getPlatformId() {
-        IdFor<Station> stationId = GraphProps.getStationIdFrom(node);
-        String platformNumber = node.getProperty(PLATFORM_NUMBER.getText()).toString();
-        return PlatformId.createId(stationId, platformNumber);
-    }
-
-    public boolean hasStationId() {
-        return node.hasProperty(STATION_ID.getText());
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        GraphNode graphNode = (GraphNode) o;
-        return Objects.equals(graphNodeId, graphNode.graphNodeId);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(graphNodeId);
-    }
 }

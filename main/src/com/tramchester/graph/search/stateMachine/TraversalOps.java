@@ -59,14 +59,9 @@ public class TraversalOps {
         this.queryDate = queryDate;
     }
 
-//    @Deprecated
-//    public OptionalResourceIterator<Relationship> getTowardsDestination(ResourceIterable<Relationship> outgoing) {
-//        return getTowardsDestination(outgoing.stream());
-//    }
-
     public OptionalResourceIterator<GraphRelationship> getTowardsDestination(Stream<GraphRelationship> outgoing) {
         List<GraphRelationship> filtered = outgoing.
-                filter(depart -> destinationStationIds.contains(depart.getStationId())). // GraphProps.getStationIdFrom(depart))).
+                filter(depart -> destinationStationIds.contains(depart.getStationId())).
                 collect(Collectors.toList());
         return OptionalResourceIterator.from(filtered);
     }
@@ -86,8 +81,6 @@ public class TraversalOps {
     }
 
     public Stream<GraphRelationship> orderRelationshipsByDistance(Stream<GraphRelationship> relationships) {
-//        Set<SortsPositions.HasStationId<GraphRelationship>> wrapped = new HashSet<>();
-//        relationships.forEach(svcRelationship -> wrapped.add(new RelationshipFacade(svcRelationship)));
 
         Set<SortsPositions.HasStationId<GraphRelationship>> wrapped = relationships.
                 map(relationship -> new RelationshipFacade(relationship, txn)).

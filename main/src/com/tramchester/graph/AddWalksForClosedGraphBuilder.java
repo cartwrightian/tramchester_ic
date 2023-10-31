@@ -8,9 +8,9 @@ import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.geo.MarginInMeters;
-import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.MutableGraphNode;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.CreateNodesAndRelationships;
 import com.tramchester.graph.graphbuild.GraphLabel;
@@ -169,10 +169,10 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships i
 
     private void addDBFlag(GTFSSourceConfig sourceConfig) {
         try (GraphTransaction txn = graphDatabase.beginTx()) {
-            Stream<GraphNode> query = txn.findNodes(GraphLabel.WALK_FOR_CLOSED_ENABLED);
-            List<GraphNode> nodes = query.toList();
+            Stream<MutableGraphNode> query = txn.findNodesMutable(GraphLabel.WALK_FOR_CLOSED_ENABLED);
+            List<MutableGraphNode> nodes = query.toList();
 
-            GraphNode node;
+            MutableGraphNode node;
             if (nodes.isEmpty()) {
                 logger.info("Creating " + GraphLabel.WALK_FOR_CLOSED_ENABLED + " node");
                 node = createGraphNode(txn, GraphLabel.WALK_FOR_CLOSED_ENABLED);
@@ -194,7 +194,7 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships i
     private void addDiversionsToAndFromClosed(GraphTransaction txn, Set<Station> others, ClosedStation closure) {
         Station closedStation = closure.getStation();
 
-        GraphNode closedNode = graphQuery.getStationNode(txn, closedStation);
+        MutableGraphNode closedNode = txn.findNodeMutable(closedStation);
         if (closedNode==null) {
             String msg = "Could not find database node for from: " + closedStation.getId();
             logger.error(msg);
@@ -209,7 +209,7 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships i
 
             logger.info(format("Create diversion to/from %s and %s cost %s", closedStation.getId(), otherStation.getId(), cost));
 
-            GraphNode otherNode = graphQuery.getStationNode(txn, otherStation);
+            MutableGraphNode otherNode = txn.findNodeMutable(otherStation);
             if (otherNode==null) {
                 String msg = "Could not find database node for to: " + otherStation.getId();
                 logger.error(msg);
@@ -256,8 +256,8 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships i
 
             logger.info(format("Create diversion between %s and %s cost %s", first.getId(), second.getId(), cost));
 
-            GraphNode firstNode = graphQuery.getStationNode(txn, first);
-            GraphNode secondNode = graphQuery.getStationNode(txn, second);
+            MutableGraphNode firstNode = txn.findNodeMutable(first);
+            MutableGraphNode secondNode = txn.findNodeMutable(second);
 
             GraphRelationship relationship = createRelationship(txn, firstNode, secondNode, DIVERSION);
             setCommonProperties(relationship, cost, closure);

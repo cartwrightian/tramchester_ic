@@ -39,7 +39,7 @@ public class GraphTransaction implements AutoCloseable {
         txn.commit();
     }
 
-    public GraphNode createNode(GraphLabel graphLabel) {
+    public MutableGraphNode createNode(GraphLabel graphLabel) {
         Node node = txn.createNode(graphLabel);
         return wrapNode(node);
     }
@@ -51,10 +51,16 @@ public class GraphTransaction implements AutoCloseable {
     public GraphNode getNodeById(GraphNodeId nodeId) {
         long internalId = nodeId.getInternalId();
         Node node = txn.getNodeById(internalId);
+        return wrapNodeAsImmutable(node);
+    }
+
+    public MutableGraphNode getNodeByIdMutable(GraphNodeId nodeId) {
+        long internalId = nodeId.getInternalId();
+        Node node = txn.getNodeById(internalId);
         return wrapNode(node);
     }
 
-    public GraphNode createNode(Set<GraphLabel> labels) {
+    public MutableGraphNode createNode(Set<GraphLabel> labels) {
         GraphLabel[] toApply = new GraphLabel[labels.size()];
         labels.toArray(toApply);
         Node node = txn.createNode(toApply);
@@ -62,6 +68,10 @@ public class GraphTransaction implements AutoCloseable {
     }
 
     public Stream<GraphNode> findNodes(GraphLabel graphLabel) {
+        return txn.findNodes(graphLabel).stream().map(this::wrapNodeAsImmutable);
+    }
+
+    public Stream<MutableGraphNode> findNodesMutable(GraphLabel graphLabel) {
         return txn.findNodes(graphLabel).stream().map(this::wrapNode);
     }
 
@@ -76,6 +86,10 @@ public class GraphTransaction implements AutoCloseable {
         return !nodes.isEmpty();
     }
 
+    private MutableGraphNode findNodeMutable(GraphLabel label, GraphPropertyKey key, String value) {
+        return findNodeMutable(label, key.getText(), value);
+    }
+
     private GraphNode findNode(GraphLabel label, GraphPropertyKey key, String value) {
         return findNode(label, key.getText(), value);
     }
@@ -85,11 +99,23 @@ public class GraphTransaction implements AutoCloseable {
         if (node==null) {
             return null;
         }
+        return wrapNodeAsImmutable(node);
+    }
+
+    private MutableGraphNode findNodeMutable(GraphLabel label, String key, String value) {
+        Node node = txn.findNode(label, key, value);
+        if (node==null) {
+            return null;
+        }
         return wrapNode(node);
     }
 
     public <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> GraphNode findNode(ITEM item) {
         return findNode(item.getNodeLabel(), item.getProp(), item.getId().getGraphId());
+    }
+
+    public <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> MutableGraphNode findNodeMutable(ITEM item) {
+        return findNodeMutable(item.getNodeLabel(), item.getProp(), item.getId().getGraphId());
     }
 
     public Result execute(String queryText, Map<String, Object> queryParams) {
@@ -118,9 +144,14 @@ public class GraphTransaction implements AutoCloseable {
         return wrapRelationship(relationship);
     }
 
-    GraphNode wrapNode(Node endNode) {
+    MutableGraphNode wrapNode(Node endNode) {
         GraphNodeId graphNodeId = idFactory.getIdFor(endNode);
-        return new GraphNode(endNode, graphNodeId);
+        return new MutableGraphNode(endNode, graphNodeId);
+    }
+
+    ImmuableGraphNode wrapNodeAsImmutable(Node endNode) {
+        MutableGraphNode underlying = wrapNode(endNode);
+        return new ImmuableGraphNode(underlying);
     }
 
     GraphRelationship wrapRelationship(Relationship relationship) {
@@ -132,7 +163,7 @@ public class GraphTransaction implements AutoCloseable {
         if (endNode==null) {
             return null;
         }
-        return wrapNode(endNode);
+        return wrapNodeAsImmutable(endNode);
     }
 
     public GraphRelationship lastFrom(Path path) {
@@ -143,12 +174,12 @@ public class GraphTransaction implements AutoCloseable {
         return wrapRelationship(last);
     }
 
-    public Iterable<GraphNode> iter(Iterable<Node> iterable) {
+    public Iterable<ImmuableGraphNode> iter(Iterable<Node> iterable) {
         return new Iterable<>() {
             @NotNull
             @Override
-            public Iterator<GraphNode> iterator() {
-                return Streams.of(iterable).map(node -> wrapNode(node)).iterator();
+            public Iterator<ImmuableGraphNode> iterator() {
+                return Streams.of(iterable).map(node -> wrapNodeAsImmutable(node)).iterator();
 
             }
         };
@@ -157,4 +188,5 @@ public class GraphTransaction implements AutoCloseable {
     public GraphNodeId createNodeId(long legacyId) {
         return idFactory.getNodeIdFor(legacyId);
     }
+
 }

@@ -4,6 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.MutableGraphNode;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.repository.DataSourceRepository;
@@ -52,7 +53,7 @@ public class GraphDatabaseMetaInfo {
     public void createVersionNode(GraphTransaction tx, DataSourceRepository dataSourceRepository) {
         Set<DataSourceInfo> dataSourceInfo = dataSourceRepository.getDataSourceInfo();
         logger.info("Setting version data in DB for " + dataSourceInfo);
-        GraphNode node = tx.createNode(GraphLabel.VERSION);
+        MutableGraphNode node = tx.createNode(GraphLabel.VERSION);
         //Set<DataSourceInfo> sourceInfo = dataSourceInfo;
         dataSourceInfo.forEach(nameAndVersion -> GraphProps.setProp(node, nameAndVersion));
         logger.info("Set version data");

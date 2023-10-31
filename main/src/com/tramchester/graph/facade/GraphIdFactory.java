@@ -17,18 +17,18 @@ public class GraphIdFactory {
         relationshipIds = new ConcurrentHashMap<>();
     }
 
-    GraphNodeId getIdFor(Node node) {
-        long internalId = node.getId();
+    GraphNodeId getIdFor(final Node node) {
+        final long internalId = node.getId();
         return nodeIds.computeIfAbsent(internalId, GraphNodeId::new);
 
     }
 
-    GraphRelationshipId getIdFor(Relationship relationship) {
-        long internalId = relationship.getId();
+    GraphRelationshipId getIdFor(final Relationship relationship) {
+        final long internalId = relationship.getId();
         return relationshipIds.computeIfAbsent(internalId, GraphRelationshipId::new);
     }
 
-    GraphNodeId getNodeIdFor(long legacyId) {
+    GraphNodeId getNodeIdFor(final long legacyId) {
         return nodeIds.computeIfAbsent(legacyId, GraphNodeId::new);
     }
 }
