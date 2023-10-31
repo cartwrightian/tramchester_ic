@@ -36,12 +36,7 @@ public class GraphNode extends HaveGraphProperties {
         this.node = node;
         this.graphNodeId = graphNodeId;
     }
-
-    @Deprecated
-    public Long getIdOLD() {
-        return graphNodeId.getInternalId();
-    }
-
+    
     public GraphNodeId getId() {
         return graphNodeId;
     }
