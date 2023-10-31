@@ -31,8 +31,8 @@ public class GraphBuilderCache {
     private final Map<IdFor<Platform>, GraphNodeId> platforms;
     private final Map<String, GraphNodeId> svcNodes;
     private final Map<String, GraphNodeId> hourNodes;
-    private final Map<Long, Set<Long>> boardings;
-    private final Map<Long, Set<Long>> departs;
+    private final Map<GraphNodeId, Set<GraphNodeId>> boardings;
+    private final Map<GraphNodeId, Set<GraphNodeId>> departs;
 
     @Inject
     public GraphBuilderCache() {
@@ -150,33 +150,33 @@ public class GraphBuilderCache {
         return txn.getNodeById(hourNodes.get(key));
     }
 
-    protected void putBoarding(long platformOrStation, long routeStationNodeId) {
+    protected void putBoarding(GraphNodeId platformOrStation, GraphNodeId routeStationNodeId) {
         putRelationship(boardings, platformOrStation, routeStationNodeId);
     }
 
-    protected boolean hasBoarding(long platformOrStation, long routeStationNodeId) {
+    protected boolean hasBoarding(GraphNodeId platformOrStation, GraphNodeId routeStationNodeId) {
         return hasRelationship(boardings, platformOrStation, routeStationNodeId);
     }
 
-    protected boolean hasDeparts(long platformOrStation, long routeStationNodeId) {
+    protected boolean hasDeparts(GraphNodeId platformOrStation, GraphNodeId routeStationNodeId) {
         return hasRelationship(departs, platformOrStation, routeStationNodeId);
     }
 
-    protected void putDepart(long boardingNodeId, long routeStationNodeId) {
+    protected void putDepart(GraphNodeId boardingNodeId, GraphNodeId routeStationNodeId) {
         putRelationship(departs, boardingNodeId, routeStationNodeId);
     }
 
-    private void putRelationship(Map<Long, Set<Long>> relationshipCache, long boardingNodeId, long routeStationNodeId) {
+    private void putRelationship(Map<GraphNodeId, Set<GraphNodeId>> relationshipCache, GraphNodeId boardingNodeId, GraphNodeId routeStationNodeId) {
         if (relationshipCache.containsKey(boardingNodeId)) {
             relationshipCache.get(boardingNodeId).add(routeStationNodeId);
         } else {
-            HashSet<Long> set = new HashSet<>();
+            HashSet<GraphNodeId> set = new HashSet<>();
             set.add(routeStationNodeId);
             relationshipCache.put(boardingNodeId, set);
         }
     }
 
-    private boolean hasRelationship(Map<Long, Set<Long>> relationshipCache,  long boardingNodeId, long routeStationNodeId) {
+    private boolean hasRelationship(Map<GraphNodeId, Set<GraphNodeId>> relationshipCache,  GraphNodeId boardingNodeId, GraphNodeId routeStationNodeId) {
         if (relationshipCache.containsKey(boardingNodeId)) {
             return relationshipCache.get(boardingNodeId).contains(routeStationNodeId);
         }

@@ -406,13 +406,13 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         }
 
         // boarding: platform/station ->  callingPoint , NOTE: no boarding at the last stop of a trip
-        if (pickup && !routeBuilderCache.hasBoarding(platformOrStation.getIdOLD(), routeStationNode.getIdOLD())) {
+        if (pickup && !routeBuilderCache.hasBoarding(platformOrStation.getId(), routeStationNode.getId())) {
             createBoarding(routeBuilderCache, stopCall, route, station, isInterchange, platformOrStation, routeStationId,
                     routeStationNode, tx);
         }
 
         // leave: route station -> platform/station , NOTE: no towardsStation at first stop of a trip
-        if (dropoff && !routeBuilderCache.hasDeparts(platformOrStation.getIdOLD(), routeStationNode.getIdOLD()) ) {
+        if (dropoff && !routeBuilderCache.hasDeparts(platformOrStation.getId(), routeStationNode.getId()) ) {
             createDeparts(routeBuilderCache, station, isInterchange, platformOrStation, routeStationId, routeStationNode, tx);
         }
 
@@ -439,7 +439,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         departRelationship.setRouteStationId(routeStationId);
         //setProperty(departRelationship, station);
         departRelationship.set(station);
-        routeBuilderCache.putDepart(boardingNode.getIdOLD(), routeStationNode.getIdOLD());
+        routeBuilderCache.putDepart(boardingNode.getId(), routeStationNode.getId());
 
         if (departType.equals(DIVERSION_DEPART)) {
             Set<DateRange> ranges = stationsWithDiversionRepository.getDateRangesFor(station);
@@ -469,7 +469,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             //setProperty(boardRelationship, stop.getPlatform());
             boardRelationship.set(stop.getPlatform());
         }
-        routeBuilderCache.putBoarding(platformOrStation.getIdOLD(), routeStationNode.getIdOLD());
+        routeBuilderCache.putBoarding(platformOrStation.getId(), routeStationNode.getId());
     }
 
     private void createOnRouteRelationship(GraphNode from, GraphNode to, Route route, StopCallRepository.Costs costs, GraphTransaction txn) {
