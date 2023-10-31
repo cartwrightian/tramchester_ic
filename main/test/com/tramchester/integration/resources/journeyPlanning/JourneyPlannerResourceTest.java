@@ -231,18 +231,11 @@ public class JourneyPlannerResourceTest {
 
             // multiple possible places to change depending on timetable etc
             LocationRefDTO secondStagePlatformStation = secondStagePlatform.getStation();
-            assertThat(secondStagePlatformStation, is(oneOf(
+            assertThat(secondStagePlatformStation.getName(), is(oneOf(
                     Cornbrook.getName(),
                     Deansgate.getName(),
                     Piccadilly.getName(),
                     StPetersSquare.getName())));
-
-//            assertThat(secondStagePlatform.getName(), is(oneOf(
-//                    "Cornbrook platform 1",
-//                              "Cornbrook platform 2",
-//                    "Deansgate-Castlefield platform 1",
-//                    "Piccadilly platform 1", // summer 2021 only?
-//                    "St Peter's Square platform 2")));
 
             assertTrue(platformIds.contains(secondStagePlatform.getId()), stategOnePlatform.getId() + " not in " + platformIds);
         });
