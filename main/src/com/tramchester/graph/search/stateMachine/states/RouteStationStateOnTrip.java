@@ -11,7 +11,6 @@ import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.facade.GraphTransaction;
-import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.NodeId;
 import com.tramchester.graph.search.stateMachine.OptionalResourceIterator;
@@ -52,7 +51,7 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
         public RouteStationStateOnTrip fromMinuteState(MinuteState minuteState, GraphNode node, Duration cost,
                                                        boolean isInterchange, Trip trip, GraphTransaction txn) {
             // todo, use label and/or cache this - perf impact currently low
-            TransportMode transportMode = GraphProps.getTransportMode(node);
+            TransportMode transportMode = node.getTransportMode();
 
             // TODO Crossing midnight?
             TramDate date = minuteState.traversalOps.getQueryDate();

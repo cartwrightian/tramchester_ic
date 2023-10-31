@@ -4,14 +4,13 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.graph.facade.GraphRelationship;
-import com.tramchester.graph.graphbuild.GraphProps;
 
 public class RelationshipWithRoute implements HasId<Route> {
     private final GraphRelationship relationship;
     private final IdFor<Route> routeId;
 
     public RelationshipWithRoute(GraphRelationship relationship) {
-        routeId = GraphProps.getRouteIdFrom(relationship);
+        routeId = relationship.getRouteId();
         this.relationship = relationship;
     }
 

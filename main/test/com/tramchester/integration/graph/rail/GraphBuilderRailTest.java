@@ -92,7 +92,10 @@ class GraphBuilderRailTest {
         assertEquals(35, outboundLinks.size(), outboundLinks.toString());
 
         Set<IdFor<Station>> destinations = outboundLinks.stream().map(graphRelationship -> graphRelationship.getEndNode(txn)).
-                map(GraphProps::getStationId).collect(Collectors.toSet());
+                map(node -> {
+                    return node.getStationId();
+                    //return getStationIdFrom(node.getNode());
+                }).collect(Collectors.toSet());
 
         assertTrue(destinations.contains(Station.createId("STKP")), destinations.toString());
     }
@@ -155,7 +158,7 @@ class GraphBuilderRailTest {
 
         final Duration tenMins = Duration.ofMinutes(10);
         endIsMKC.forEach(relationship -> assertTrue(
-                GraphProps.getCost(relationship).compareTo(tenMins) > 0, relationship.getAllProperties().toString()));
+                relationship.getCost().compareTo(tenMins) > 0, relationship.getAllProperties().toString()));
     }
 
     @NotNull

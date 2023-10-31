@@ -11,7 +11,6 @@ import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
-import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.naptan.NaptanRepository;
 import org.jetbrains.annotations.NotNull;
@@ -181,10 +180,10 @@ public class DiagramCreator {
         relationshipSeen.add(edge.getId());
 
         if (relationshipType==TransportRelationshipTypes.ON_ROUTE) {
-            String routeId = GraphProps.getRouteIdFrom(edge).getGraphId();
+            String routeId = edge.getRouteId().getGraphId();
             addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", startNodeId, endNodeId, "R:"+routeId));
         } else if (relationshipType== LINKED) {
-            Set<TransportMode> modes = GraphProps.getTransportModes(edge);
+            Set<TransportMode> modes = edge.getTransportModes();
             addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", startNodeId, endNodeId, "L:"+modes));
         } else {
             String shortForm = createShortForm(relationshipType, edge);
@@ -230,34 +229,40 @@ public class DiagramCreator {
         }
         if (node.hasLabel(ROUTE_STATION)) {
             // TODO Look up station name from the ID?
-            String stationId = GraphProps.getStationId(node).getGraphId();
-            TransportMode mode = GraphProps.getTransportMode(node);
-            String routeId = GraphProps.getRouteIdFrom(node).getGraphId();
+            //return getStationIdFrom(node.getNode());
+            String stationId = node.getStationId().getGraphId();
+            TransportMode mode = node.getTransportMode();
+            //return getRouteIdFrom(graphNode.getNode());
+            String routeId = node.getRouteId().getGraphId();
             return format("%s\n%s\n%s", routeId, stationId, mode.name());
         }
         if (node.hasLabel(GROUPED)) {
-            IdFor<NaptanArea> areaId = GraphProps.getAreaIdFromGrouped(node);
+            //return getAreaIdFromGrouped(graphNode.getNode());
+            IdFor<NaptanArea> areaId = node.getAreaIdFromGrouped();
             NaptanArea area = naptanRespository.getAreaFor(areaId);
             return format("%s\n%s", area.getName(), areaId.getGraphId());
         }
         if (node.hasLabel(STATION)) {
-            IdFor<Station> stationId = GraphProps.getStationId(node);
+            //return getStationIdFrom(node.getNode());
+            IdFor<Station> stationId = node.getStationId();
             Station station = stationRepository.getStationById(stationId);
             return format("%s\n%s", station.getName(), stationId.getGraphId());
         }
         if (node.hasLabel(SERVICE)) {
-            return GraphProps.getServiceId(node).getGraphId();
+            return node.getServiceId().getGraphId();
         }
         if (node.hasLabel(HOUR)) {
-            return   GraphProps.getHour(node).toString();
+            //        return getHour(graphNode.getNode());
+            return   node.getHour().toString();
         }
         if (node.hasLabel(MINUTE)) {
-            final TramTime time = GraphProps.getTime(node);
+            final TramTime time = node.getTime();
             String days = time.isNextDay() ? "+1" : "";
-            return format("%s:%s%s\n%s", time.getHourOfDay(), time.getMinuteOfHour(), days, GraphProps.getTripId(node).getGraphId());
+            return format("%s:%s%s\n%s", time.getHourOfDay(), time.getMinuteOfHour(), days, node.getTripId().getGraphId());
         }
         if (node.hasLabel(GROUPED)) {
-            IdFor<Station> stationId = GraphProps.getStationId(node);
+            //return getStationIdFrom(node.getNode());
+            IdFor<Station> stationId = node.getStationId();
             Station station = stationRepository.getStationById(stationId);
             return format("%s\n%s\n%s", station.getName(), station.getAreaId(), stationId.getGraphId());
         }
@@ -272,7 +277,7 @@ public class DiagramCreator {
     private String createShortForm(TransportRelationshipTypes relationshipType, GraphRelationship edge) {
         String cost = "";
         if (hasCost(relationshipType)) {
-            cost = "("+ GraphProps.getCost(edge)+ ")";
+            cost = "("+ edge.getCost() + ")";
         }
         return getNameFor(relationshipType) + cost;
     }

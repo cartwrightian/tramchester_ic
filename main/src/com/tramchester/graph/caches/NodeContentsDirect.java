@@ -8,7 +8,6 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.graphbuild.GraphLabel;
-import com.tramchester.graph.graphbuild.GraphProps;
 
 import java.time.Duration;
 import java.util.EnumSet;
@@ -34,12 +33,13 @@ public class NodeContentsDirect implements NodeContentsRepository {
 
     @Override
     public TramTime getTime(GraphNode node) {
-        return GraphProps.getTime(node);
+        return node.getTime();
     }
 
     @Override
     public int getHour(GraphNode node) {
-        return GraphProps.getHour(node);
+        return node.getHour();
+//        return getHour(graphNode.getNode());
     }
 
     @Override

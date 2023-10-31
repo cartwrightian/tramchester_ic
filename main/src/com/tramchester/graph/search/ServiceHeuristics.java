@@ -14,7 +14,6 @@ import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.graphbuild.GraphLabel;
-import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.diagnostics.*;
 import com.tramchester.repository.RouteInterchangeRepository;
 import com.tramchester.repository.StationRepository;
@@ -258,7 +257,8 @@ public class ServiceHeuristics {
                                         ServiceReasons reasons) {
         reasons.incrementTotalChecked();
 
-        final IdFor<Station> stationId = GraphProps.getStationId(nextNode);
+        //return getStationIdFrom(node.getNode());
+        final IdFor<Station> stationId = nextNode.getStationId();
         if (journeyState.hasVisited(stationId)) {
             return reasons.recordReason(ServiceReason.AlreadySeenStation(stationId, howIGotHere));
         }

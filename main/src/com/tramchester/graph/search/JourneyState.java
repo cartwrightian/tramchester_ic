@@ -9,7 +9,6 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.stateMachine.states.TraversalState;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.traversal.InitialBranchState;
@@ -375,7 +374,8 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
 
         public void endDiversion(GraphNode node) {
             if (currentlyOnDiversion) {
-                logger.info("End diversion at " + GraphProps.getStationId(node));
+                //return getStationIdFrom(node.getNode());
+                logger.info("End diversion at " + node.getStationId());
                 this.currentlyOnDiversion = false;
             }
         }

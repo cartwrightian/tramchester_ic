@@ -101,7 +101,10 @@ class TramGraphBuilderTest {
         assertEquals(3, list.size());
 
         Set<IdFor<Station>> destinations = list.stream().map(graphRelationship -> graphRelationship.getEndNode(txn)).
-                map(GraphProps::getStationId).collect(Collectors.toSet());
+                map(node -> {
+                    return node.getStationId();
+                    //return getStationIdFrom(node.getNode());
+                }).collect(Collectors.toSet());
 
         assertTrue(destinations.contains(TraffordBar.getId()));
         assertTrue(destinations.contains(Pomona.getId()));
@@ -130,13 +133,13 @@ class TramGraphBuilderTest {
             GraphNode node = graphQuery.getPlatformNode(txn, platform);
             Stream<GraphRelationship> boards = node.getRelationships(txn, Direction.OUTGOING, INTERCHANGE_BOARD);
             boards.forEach(board -> {
-                Duration boardCost = GraphProps.getCost(board);
+                Duration boardCost = board.getCost();
                 assertEquals(Duration.ZERO, boardCost, "board cost wrong for " + platform);
             });
 
             Stream<GraphRelationship> departs = node.getRelationships(txn, Direction.OUTGOING, INTERCHANGE_DEPART);
             departs.forEach(depart -> {
-                Duration enterCost = GraphProps.getCost(depart);
+                Duration enterCost = depart.getCost();
                 assertEquals(Duration.ZERO, enterCost, "depart wrong cost for " + platform.getId());
             });
 
@@ -172,7 +175,10 @@ class TramGraphBuilderTest {
         assertEquals(1, list.size());
 
         Set<IdFor<Station>> destinations = list.stream().map(graphRelationship -> graphRelationship.getEndNode(txn)).
-                map(GraphProps::getStationId).collect(Collectors.toSet());
+                map(node -> {
+                    return node.getStationId();
+                    //return getStationIdFrom(node.getNode());
+                }).collect(Collectors.toSet());
 
         assertTrue(destinations.contains(NavigationRoad.getId()));
     }
@@ -194,7 +200,10 @@ class TramGraphBuilderTest {
 
         Stream<GraphNode> interchangeNodes = txn.findNodes(GraphLabel.INTERCHANGE);
 
-        IdSet<Station> fromDB = interchangeNodes.map(GraphProps::getStationId).collect(IdSet.idCollector());
+        IdSet<Station> fromDB = interchangeNodes.map(node -> {
+            return node.getStationId();
+            //return getStationIdFrom(node.getNode());
+        }).collect(IdSet.idCollector());
 
         IdSet<Station> diffs = IdSet.disjunction(fromConfigAndDiscovered, fromDB);
 
@@ -212,7 +221,10 @@ class TramGraphBuilderTest {
         assertEquals(2, list.size());
 
         Set<IdFor<Station>> destinations = list.stream().map(graphRelationship -> graphRelationship.getEndNode(txn)).
-                map(GraphProps::getStationId).collect(Collectors.toSet());
+                map(node -> {
+                    return node.getStationId();
+                    //return getStationIdFrom(node.getNode());
+                }).collect(Collectors.toSet());
 
         assertTrue(destinations.contains(Victoria.getId()));
         assertTrue(destinations.contains(StPetersSquare.getId()));

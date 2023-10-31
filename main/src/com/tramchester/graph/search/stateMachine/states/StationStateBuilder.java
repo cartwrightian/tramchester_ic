@@ -4,7 +4,6 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.facade.GraphTransaction;
-import com.tramchester.graph.graphbuild.GraphProps;
 import org.neo4j.graphdb.Direction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +25,8 @@ public abstract class StationStateBuilder {
                                                         TraversalState traversalState, boolean alreadyOnDiversion, GraphTransaction txn) {
 
         if (alreadyOnDiversion) {
-            logger.info("Already on diversion " + GraphProps.getStationId(node));
+            //return getStationIdFrom(node.getNode());
+            logger.info("Already on diversion " + node.getStationId());
             return relationships;
         }
 

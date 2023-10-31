@@ -8,7 +8,6 @@ import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
-import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
 import org.neo4j.graphdb.Path;
@@ -62,7 +61,8 @@ public class MapPathToLocations {
     private Optional<Location<?>> mapNode(GraphNode node) {
         EnumSet<GraphLabel> labels = nodeContentsRepository.getLabels(node);
         if (labels.contains(GROUPED)) {
-            IdFor<NaptanArea> areaId = GraphProps.getAreaIdFromGrouped(node);
+            //return getAreaIdFromGrouped(graphNode.getNode());
+            IdFor<NaptanArea> areaId = node.getAreaIdFromGrouped();
             final StationGroup stationGroup = stationGroupsRepository.getStationGroup(areaId);
             if (stationGroup==null) {
                 throw new RuntimeException(format("Missing grouped station %s for %s labels %s props %s",

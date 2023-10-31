@@ -83,7 +83,10 @@ class RailAndTramGraphBuilderTest {
         assertEquals(3, list.size());
 
         Set<IdFor<Station>> destinations = list.stream().map(graphRelationship -> graphRelationship.getEndNode(txn)).
-                map(GraphProps::getStationId).collect(Collectors.toSet());
+                map(node -> {
+                    return node.getStationId();
+                    //return getStationIdFrom(node.getNode());
+                }).collect(Collectors.toSet());
 
         assertTrue(destinations.contains(TraffordBar.getId()));
         assertTrue(destinations.contains(Pomona.getId()));
@@ -127,14 +130,14 @@ class RailAndTramGraphBuilderTest {
 
         GraphRelationship tramNeighbour = fromTram.get(0);
         assertEquals(altyTrainNode, tramNeighbour.getEndNode(txn)); // GraphNode.fromEnd(tramNeighbour));
-        assertEquals(expectedCost, GraphProps.getCost(tramNeighbour));
+        assertEquals(expectedCost, tramNeighbour.getCost());
 
         List<GraphRelationship> fromTrain = altyTrainNode.getRelationships(txn, Direction.OUTGOING, NEIGHBOUR).toList();
         assertEquals(1, fromTrain.size(), "Wrong number of neighbours " + fromTram);
 
         GraphRelationship trainNeighbour = fromTrain.get(0);
         assertEquals(altyTramNode, trainNeighbour.getEndNode(txn)); //GraphNode.fromEnd(trainNeighbour));
-        assertEquals(expectedCost, GraphProps.getCost(trainNeighbour));
+        assertEquals(expectedCost, trainNeighbour.getCost());
 
     }
 
@@ -172,7 +175,10 @@ class RailAndTramGraphBuilderTest {
 
         Stream<GraphNode> interchangeNodes = txn.findNodes(GraphLabel.INTERCHANGE);
 
-        IdSet<Station> fromDB = interchangeNodes.map(GraphProps::getStationId).collect(IdSet.idCollector());
+        IdSet<Station> fromDB = interchangeNodes.map(node -> {
+            return node.getStationId();
+            //return getStationIdFrom(node.getNode());
+        }).collect(IdSet.idCollector());
 
         assertEquals(fromConfigAndDiscovered, fromDB, "Graph clean and rebuild needed?");
     }

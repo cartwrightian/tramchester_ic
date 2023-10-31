@@ -11,7 +11,6 @@ import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
-import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.naptan.NaptanRepository;
 import org.apache.commons.lang3.tuple.Pair;
@@ -104,7 +103,8 @@ public class ReasonsToGraphViz {
         EnumSet<GraphLabel> labels = nodeContentsRepository.getLabels(node);
 
         if (labels.contains(GraphLabel.GROUPED)) {
-            IdFor<NaptanArea> areaId = GraphProps.getAreaIdFromGrouped(node);
+            //return getAreaIdFromGrouped(graphNode.getNode());
+            IdFor<NaptanArea> areaId = node.getAreaIdFromGrouped();
             NaptanArea area = naptanRespository.getAreaFor(areaId);
             ids.append(System.lineSeparator()).append(area.getName());
             return ids.toString();
@@ -120,7 +120,8 @@ public class ReasonsToGraphViz {
             IdFor<Station> stationIdFrom = node.getStationId();
             Station station = stationRepository.getStationById(stationIdFrom);
             ids.append(System.lineSeparator()).append(station.getName());
-            String value = GraphProps.getRouteIdFrom(node).toString();
+            //return getRouteIdFrom(graphNode.getNode());
+            String value = node.getRouteId().toString();
             ids.append(System.lineSeparator());
             ids.append(value);
         }
@@ -131,9 +132,9 @@ public class ReasonsToGraphViz {
         }
 
         if (labels.contains(GraphLabel.MINUTE)) {
-            TramTime time = GraphProps.getTime(node);
+            TramTime time = node.getTime();
             ids.append(time.toString());
-            String value = GraphProps.getTripId(node).toString();
+            String value = node.getTripId().toString();
             ids.append(System.lineSeparator());
             ids.append(value);
         }

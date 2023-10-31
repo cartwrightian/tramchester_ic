@@ -7,7 +7,6 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.facade.GraphTransaction;
-import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.OptionalResourceIterator;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
@@ -43,7 +42,7 @@ public class RouteStationStateEndTrip extends RouteStationState {
 
         public RouteStationStateEndTrip fromMinuteState(MinuteState minuteState, GraphNode node, Duration cost,
                                                         boolean isInterchange, Trip trip, GraphTransaction txn) {
-            TransportMode transportMode = GraphProps.getTransportMode(node);
+            TransportMode transportMode = node.getTransportMode();
 
             // TODO Crossing midnight?
             TramDate date = minuteState.traversalOps.getQueryDate();

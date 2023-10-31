@@ -7,7 +7,6 @@ import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.GraphTransaction;
-import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.TowardsStation;
@@ -137,7 +136,7 @@ public class NoPlatformStationState extends StationState {
 
     private void boardVehicle(GraphNode node, JourneyStateUpdate journeyState) {
         try {
-            TransportMode actualMode = GraphProps.getTransportMode(node);
+            TransportMode actualMode = node.getTransportMode();
             journeyState.board(actualMode, node, false);
         } catch (TramchesterException e) {
             throw new RuntimeException("unable to board vehicle", e);

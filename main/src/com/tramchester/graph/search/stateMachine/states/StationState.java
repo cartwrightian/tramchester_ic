@@ -2,7 +2,6 @@ package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphRelationship;
-import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.NodeId;
 import com.tramchester.graph.search.stateMachine.TowardsStation;
@@ -18,7 +17,8 @@ public abstract class StationState extends TraversalState implements NodeId {
                            JourneyStateUpdate journeyState, TowardsStation<?> builder) {
         super(parent, outbounds, costForLastEdge, builder.getDestination());
         this.stationNode = stationNode;
-        journeyState.seenStation(GraphProps.getStationId(stationNode));
+        //return getStationIdFrom(node.getNode());
+        journeyState.seenStation(stationNode.getStationId());
     }
 
 //    protected StationState(TraversalState parent, ResourceIterable<Relationship> outbounds, Duration costForLastEdge, GraphNode stationNode,

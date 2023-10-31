@@ -14,7 +14,6 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.*;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphRelationship;
-import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.repository.PlatformRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StationRepositoryPublic;
@@ -70,7 +69,8 @@ class MapStatesToStages implements JourneyStateUpdate {
         onVehicle = true;
         boardingTime = null;
 
-        IdFor<Station> actionStationId = GraphProps.getStationId(node);
+        //return getStationIdFrom(node.getNode());
+        IdFor<Station> actionStationId = node.getStationId();
         logger.info("Board " + transportMode + " " + actionStationId + " totalcost  " + totalCost);
         vehicleStagePending = new VehicleStagePending(stationRepository, tripRepository, platformRepository,
                 actionStationId, totalCost);
@@ -145,7 +145,8 @@ class MapStatesToStages implements JourneyStateUpdate {
             beginWalkClock = getActualClock();
             logger.info("Begin walk from start " + walkStartLocation);
         } else {
-            walkStartStation = GraphProps.getStationId(beforeWalkNode);
+            //return getStationIdFrom(node.getNode());
+            walkStartStation = beforeWalkNode.getStationId();
             beginWalkClock = getActualClock().minus(cost);
             logger.info("Begin walk from station " + walkStartStation + " at " + beginWalkClock);
         }
@@ -159,7 +160,8 @@ class MapStatesToStages implements JourneyStateUpdate {
         if (walkFromStartPending != null) {
             boolean atStation = endWalkNode.hasStationId(); // GraphProps.hasProperty(STATION_ID, endWalkNode);
             if (atStation) {
-                IdFor<Station> destinationStationId = GraphProps.getStationId(endWalkNode);
+                //return getStationIdFrom(node.getNode());
+                IdFor<Station> destinationStationId = endWalkNode.getStationId();
                 Station destination = stationRepository.getStationById(destinationStationId);
                 walkFromStartPending.setDestinationAndDuration(totalCost, destination, duration);
             }  else {

@@ -13,6 +13,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.TransportRelationshipTypes;
+import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.MutableGraphNode;
@@ -118,7 +119,8 @@ public class GraphPropsTest {
 
         GraphProps.setProperty(node, route);
 
-        IdFor<Route> result = GraphProps.getRouteIdFrom(node);
+        //return getRouteIdFrom(graphNode.getNode());
+        IdFor<Route> result = ((GraphNode) node).getRouteId();
 
         assertEquals(route.getId(), result);
     }
@@ -132,7 +134,8 @@ public class GraphPropsTest {
 
         GraphProps.setProperty(node, route);
 
-        IdFor<Route> result = GraphProps.getRouteIdFrom(node);
+        //return getRouteIdFrom(graphNode.getNode());
+        IdFor<Route> result = ((GraphNode) node).getRouteId();
 
         assertEquals(route.getId(), result);
     }
@@ -186,13 +189,13 @@ public class GraphPropsTest {
 
         GraphProps.addTransportMode(relationship, TransportMode.Train);
 
-        Set<TransportMode> result = GraphProps.getTransportModes(relationship);
+        Set<TransportMode> result = relationship.getTransportModes();
         assertEquals(1, result.size());
         assertTrue(result.contains(TransportMode.Train));
 
         GraphProps.addTransportMode(relationship, TransportMode.Bus);
 
-        result = GraphProps.getTransportModes(relationship);
+        result = relationship.getTransportModes();
         assertEquals(2, result.size());
         assertTrue(result.contains(TransportMode.Train));
         assertTrue(result.contains(TransportMode.Bus));
@@ -203,7 +206,7 @@ public class GraphPropsTest {
     void shouldAddSingleTransportMode() {
         GraphProps.setProperty(node, TransportMode.Train);
 
-        TransportMode result = GraphProps.getTransportMode(node);
+        TransportMode result = ((GraphNode) node).getTransportMode();
 
         assertEquals(result, TransportMode.Train);
     }
@@ -222,7 +225,7 @@ public class GraphPropsTest {
         GraphProps.setProperty(node, platform);
         GraphProps.setPlatformNumber(node, platform);
 
-        IdFor<Platform> platformId = GraphProps.getPlatformIdFrom(node);
+        IdFor<Platform> platformId = ((GraphNode) node).getPlatformId();
 
         assertEquals(platform.getId(), platformId);
     }
@@ -238,7 +241,7 @@ public class GraphPropsTest {
 
         GraphProps.setCostProp(relationship, duration);
 
-        Duration result = GraphProps.getCost(relationship);
+        Duration result = relationship.getCost();
 
         assertEquals(duration, result);
     }
@@ -254,7 +257,7 @@ public class GraphPropsTest {
 
         GraphProps.setCostProp(relationship, duration);
 
-        Duration result = GraphProps.getCost(relationship);
+        Duration result = relationship.getCost();
 
         assertEquals(Duration.ofMinutes(43), result);
     }
@@ -270,7 +273,7 @@ public class GraphPropsTest {
 
         GraphProps.setCostProp(relationship, duration);
 
-        Duration result = GraphProps.getCost(relationship);
+        Duration result = relationship.getCost();
 
         assertEquals(Duration.ofMinutes(43), result);
     }

@@ -263,7 +263,7 @@ class TramRouteTest {
         int walk2Cost = getWalkCost(destination, startSecondWalk);
 
         Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(start, destination, journeyRequest, 3);
-        assertTrue(journeys.size() >= 1, "journeys");
+        assertFalse(journeys.isEmpty(), "journeys");
         journeys.forEach(journey -> {
             assertEquals(3, journey.getStages().size());
             TransportStage<?, ?> walk1 = journey.getStages().get(0);
@@ -399,12 +399,12 @@ class TramRouteTest {
 
         Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getInterchange(),
                 transportData.getFifthStation(), journeyRequest).collect(Collectors.toSet());
-        Assertions.assertFalse(journeys.size()>=1);
+        assertTrue(journeys.isEmpty());
 
         JourneyRequest journeyRequestB = createJourneyRequest(TramTime.of(8, 10), 3);
         journeys = calculator.calculateRoute(txn, transportData.getInterchange(),
                 transportData.getFifthStation(), journeyRequestB).collect(Collectors.toSet());
-        assertTrue(journeys.size()>=1);
+        assertFalse(journeys.isEmpty());
         journeys.forEach(journey-> assertEquals(1, journey.getStages().size()));
     }
 
@@ -414,7 +414,7 @@ class TramRouteTest {
 
         Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getFirst(),
                 transportData.getFourthStation(), journeyRequest).collect(Collectors.toSet());
-        assertTrue(journeys.size()>=1);
+        assertFalse(journeys.isEmpty());
         checkForPlatforms(journeys);
         journeys.forEach(journey-> assertEquals(2, journey.getStages().size()));
     }
@@ -445,7 +445,7 @@ class TramRouteTest {
         Set<Journey> journeys = locationJourneyPlanner.quickestRouteForLocation(transportData.getFirst(),
                 nearStockportBus, journeyRequest,3);
 
-        assertTrue(journeys.size()>=1);
+        assertFalse(journeys.isEmpty());
         journeys.forEach(journey-> {
             assertEquals(3, journey.getStages().size(), journey.getStages().toString());
             assertEquals(transportData.getInterchange(), journey.getStages().get(0).getLastStation());
@@ -462,7 +462,7 @@ class TramRouteTest {
 
         Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getFirst(),
                 transportData.getFifthStation(), journeyRequest).collect(Collectors.toSet());
-        assertTrue(journeys.size()>=1);
+        assertFalse(journeys.isEmpty());
         checkForPlatforms(journeys);
         journeys.forEach(journey-> {
             assertEquals(2, journey.getStages().size());

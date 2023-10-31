@@ -6,7 +6,6 @@ import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.facade.GraphTransaction;
-import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.*;
 
@@ -90,7 +89,7 @@ public class PlatformState extends TraversalState implements NodeId {
     @Override
     protected JustBoardedState toJustBoarded(JustBoardedState.Builder towardsJustBoarded, GraphNode node, Duration cost, JourneyStateUpdate journeyState) {
         try {
-            TransportMode actualMode = GraphProps.getTransportMode(node);
+            TransportMode actualMode = node.getTransportMode();
             if (actualMode==null) {
                 throw new RuntimeException(format("Unable get transport mode at %s for %s", node.getLabels(), node.getAllProperties()));
             }

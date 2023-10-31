@@ -19,7 +19,6 @@ import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.facade.GraphRelationshipId;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
-import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.StationClosuresForTest;
@@ -335,7 +334,8 @@ class SubgraphClosedStationsDiversionsTest {
                 GraphRelationship relationship = txn.getRelationshipById(foundId);
                 GraphNode to = relationship.getEndNode(txn);
                 assertTrue(to.hasLabel(STATION));
-                IdFor<Station> stationId = GraphProps.getStationId(to);
+                //return getStationIdFrom(node.getNode());
+                IdFor<Station> stationId = to.getStationId();
                 if (StPetersSquare.getId().equals(stationId)) {
                     count.getAndIncrement();
                 }
