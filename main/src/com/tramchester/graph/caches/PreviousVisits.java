@@ -4,7 +4,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.GraphNode;
+import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.ImmutableJourneyState;
 import com.tramchester.graph.search.diagnostics.ReasonCode;

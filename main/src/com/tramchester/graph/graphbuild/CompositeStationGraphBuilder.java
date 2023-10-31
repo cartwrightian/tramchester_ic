@@ -8,8 +8,8 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphNode;
-import com.tramchester.graph.GraphTransaction;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.TimedTransaction;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.mappers.Geography;
@@ -131,8 +131,8 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
                         throw new RuntimeException("cannot find node for " + station);
                     }
 
-                    addGroupRelationshipTowardsChild(parentNode, childNode, walkingCost);
-                    addGroupRelationshipTowardsParent(childNode, parentNode, walkingCost);
+                    addGroupRelationshipTowardsChild(txn, parentNode, childNode, walkingCost);
+                    addGroupRelationshipTowardsParent(txn, childNode, parentNode, walkingCost);
         });
     }
 

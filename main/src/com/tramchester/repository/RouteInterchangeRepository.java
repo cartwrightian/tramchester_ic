@@ -9,7 +9,7 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphTransaction;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.TimedTransaction;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;

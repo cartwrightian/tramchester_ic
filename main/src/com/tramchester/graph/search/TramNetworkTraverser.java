@@ -7,10 +7,10 @@ import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
-import com.tramchester.graph.GraphNode;
-import com.tramchester.graph.GraphNodeId;
-import com.tramchester.graph.GraphRelationship;
-import com.tramchester.graph.GraphTransaction;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphNodeId;
+import com.tramchester.graph.facade.GraphRelationship;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
@@ -60,12 +60,14 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     private final RouteCalculatorSupport.PathRequest pathRequest;
     private final ReasonsToGraphViz reasonToGraphViz;
     private final ProvidesNow providesNow;
+    private final GraphTransaction txn;
 
-    public TramNetworkTraverser(RouteCalculatorSupport.PathRequest pathRequest,
+    public TramNetworkTraverser(GraphTransaction txn, RouteCalculatorSupport.PathRequest pathRequest,
                                 SortsPositions sortsPosition, NodeContentsRepository nodeContentsRepository, TripRepository tripRespository,
                                 TraversalStateFactory traversalStateFactory, LocationSet destinations, TramchesterConfig config,
                                 Set<GraphNodeId> destinationNodeIds, ServiceReasons reasons,
                                 ReasonsToGraphViz reasonToGraphViz, ProvidesNow providesNow) {
+        this.txn = txn;
         this.sortsPosition = sortsPosition;
         this.nodeContentsRepository = nodeContentsRepository;
         this.tripRespository = tripRespository;
@@ -94,11 +96,11 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         Duration maxInitialWait = pathRequest.getMaxInitialWait();
         final TramRouteEvaluator tramRouteEvaluator = new TramRouteEvaluator(pathRequest.getServiceHeuristics(),
                 destinationNodeIds, nodeContentsRepository, reasons, previousSuccessfulVisit, lowestCostSeen, config,
-                startNode.getId(), begin, providesNow, pathRequest.getRequestedModes(), maxInitialWait);
+                startNode.getId(), begin, providesNow, pathRequest.getRequestedModes(), maxInitialWait, txn);
 
         LatLong destinationLatLon = sortsPosition.midPointFrom(destinations);
 
-        TraversalOps traversalOps = new TraversalOps(nodeContentsRepository, tripRespository, sortsPosition, destinations,
+        TraversalOps traversalOps = new TraversalOps(txn, nodeContentsRepository, tripRespository, sortsPosition, destinations,
                 destinationLatLon, lowestCostsForRoutes, pathRequest.getQueryDate());
 
         final NotStartedState traversalState = new NotStartedState(traversalOps, traversalStateFactory, pathRequest.getRequestedModes());
@@ -129,7 +131,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         });
 
         logger.info("Return traversal stream");
-        return stream.filter(path -> destinationNodeIds.contains(GraphNode.fromEnd(path).getId()));
+        return stream.filter(path -> destinationNodeIds.contains(txn.fromEnd(path).getId()));
     }
 
     @Override
@@ -137,11 +139,11 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         final ImmutableJourneyState currentState = graphState.getState();
         final ImmuatableTraversalState traversalState = currentState.getTraversalState();
 
-        final GraphNode endPathNode =  GraphNode.fromEnd(path); // path.endNode();
+        final GraphNode endPathNode =  txn.fromEnd(path); // path.endNode();
         final JourneyState journeyStateForChildren = JourneyState.fromPrevious(currentState);
 
         Duration cost = Duration.ZERO;
-        GraphRelationship lastRelationship = GraphRelationship.lastFrom(path); // path.lastRelationship();
+        GraphRelationship lastRelationship = txn.lastFrom(path); // path.lastRelationship();
         if (lastRelationship !=null) {
             cost = nodeContentsRepository.getCost(lastRelationship);
             if (Durations.greaterThan(cost, Duration.ZERO)) {
@@ -150,7 +152,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
                 journeyStateForChildren.updateTotalCost(total);
             }
             if (lastRelationship.isType(DIVERSION)) {
-                GraphNode startOfDiversionNode = lastRelationship.getStartNode();
+                GraphNode startOfDiversionNode = lastRelationship.getStartNode(txn);
                 journeyStateForChildren.beginDiversion(startOfDiversionNode);
             }
         }

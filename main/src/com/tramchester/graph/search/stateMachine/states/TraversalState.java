@@ -1,9 +1,10 @@
 package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.GraphNode;
-import com.tramchester.graph.GraphRelationship;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.TransportRelationshipTypes;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.NodeId;
@@ -24,6 +25,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
 
     protected final TraversalStateFactory builders;
     protected final TraversalOps traversalOps;
+    protected final GraphTransaction txn;
 
     private final Stream<GraphRelationship> outbounds;
     private final Duration costForLastEdge;
@@ -40,25 +42,23 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
                              Set<TransportMode> requestedModes, TraversalStateType stateType) {
         super(stateType);
         this.traversalOps = traversalOps;
+        this.txn = traversalOps.getTransaction();
         this.builders = traversalStateFactory;
         this.requestedRelationshipTypes = TransportRelationshipTypes.forModes(requestedModes);
 
         this.costForLastEdge = Duration.ZERO;
         this.parentCost = Duration.ZERO;
         this.parent = null;
-        this.outbounds = Stream.empty(); //Iterables.emptyResourceIterable();
+        this.outbounds = Stream.empty();
         if (stateType!=TraversalStateType.NotStartedState) {
             throw new RuntimeException("Attempt to create for incorrect initial state " + stateType);
         }
     }
 
-//    protected TraversalState(TraversalState parent, Stream<GraphRelationship> outbounds, Duration costForLastEdge, TraversalStateType stateType) {
-//        this(parent, new WrapStream(outbounds), costForLastEdge, stateType);
-//    }
-
     protected TraversalState(TraversalState parent, Stream<GraphRelationship> outbounds, Duration costForLastEdge, TraversalStateType stateType) {
         super(stateType);
         this.traversalOps = parent.traversalOps;
+        this.txn = traversalOps.getTransaction();
         this.builders = parent.builders;
         this.parent = parent;
 
@@ -74,8 +74,8 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         return stateType;
     }
 
-    public static Stream<GraphRelationship> getRelationships(GraphNode node, Direction direction, TransportRelationshipTypes types) {
-        return node.getRelationships(direction, types);
+    public static Stream<GraphRelationship> getRelationships(GraphTransaction txn, GraphNode node, Direction direction, TransportRelationshipTypes types) {
+        return node.getRelationships(txn, direction, types);
     }
 
     public TraversalState nextState(final EnumSet<GraphLabel> nodeLabels, final GraphNode node,
@@ -196,9 +196,9 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
 //        return filterExcludingEndNode(Streams.stream(relationships), hasNodeId);
 //    }
 
-    protected static Stream<GraphRelationship> filterExcludingEndNode(Stream<GraphRelationship> relationships, NodeId hasNodeId) {
+    protected static Stream<GraphRelationship> filterExcludingEndNode(GraphTransaction txn, Stream<GraphRelationship> relationships, NodeId hasNodeId) {
         long nodeId = hasNodeId.nodeId();
-        return relationships.filter(relationship -> relationship.getEndNode().getIdOLD() != nodeId);
+        return relationships.filter(relationship -> relationship.getEndNode(txn).getIdOLD() != nodeId);
     }
 
     public Duration getTotalDuration() {

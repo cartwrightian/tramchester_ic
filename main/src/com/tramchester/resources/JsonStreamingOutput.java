@@ -3,7 +3,7 @@ package com.tramchester.resources;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tramchester.graph.GraphTransaction;
+import com.tramchester.graph.facade.GraphTransaction;
 import jakarta.ws.rs.core.StreamingOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

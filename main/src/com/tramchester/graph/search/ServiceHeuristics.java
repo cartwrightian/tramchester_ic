@@ -10,7 +10,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.GraphNode;
+import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.graphbuild.GraphLabel;

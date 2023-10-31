@@ -1,4 +1,4 @@
-package com.tramchester.graph;
+package com.tramchester.graph.facade;
 
 import com.tramchester.graph.search.stateMachine.states.TraversalState;
 import org.neo4j.graphdb.Entity;
@@ -11,10 +11,12 @@ import java.time.Duration;
 public class PathMapper {
 
     private final Path path;
+    private final GraphTransaction txn;
     private TraversalState currentState;
 
-    public PathMapper(Path path) {
+    public PathMapper(Path path, GraphTransaction txn) {
         this.path = path;
+        this.txn = txn;
     }
 
     public void process(final TraversalState initial, ForGraphNode forGraphNode, ForGraphRelationship forGraphRelationship) {
@@ -22,11 +24,11 @@ public class PathMapper {
         Duration currentCost = Duration.ZERO;
         for (Entity entity : path) {
             if (entity instanceof Node) {
-                GraphNode graphNode = new GraphNode((Node) entity);
+                GraphNode graphNode = txn.wrapNode((Node) entity);
                 currentState = forGraphNode.getNextStateFrom(currentState, graphNode, currentCost);
             }
             if (entity instanceof Relationship) {
-                GraphRelationship graphRelationship = new GraphRelationship((Relationship) entity);
+                GraphRelationship graphRelationship = txn.wrapRelationship((Relationship) entity);
                 currentCost = forGraphRelationship.getCostFor(currentState, graphRelationship);
             }
         }

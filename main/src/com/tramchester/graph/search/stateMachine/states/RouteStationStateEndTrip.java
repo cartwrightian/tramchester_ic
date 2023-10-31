@@ -4,8 +4,9 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.GraphNode;
-import com.tramchester.graph.GraphRelationship;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphRelationship;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.OptionalResourceIterator;
@@ -40,19 +41,20 @@ public class RouteStationStateEndTrip extends RouteStationState {
             return TraversalStateType.RouteStationStateEndTrip;
         }
 
-        public RouteStationStateEndTrip fromMinuteState(MinuteState minuteState, GraphNode node, Duration cost, boolean isInterchange, Trip trip) {
+        public RouteStationStateEndTrip fromMinuteState(MinuteState minuteState, GraphNode node, Duration cost,
+                                                        boolean isInterchange, Trip trip, GraphTransaction txn) {
             TransportMode transportMode = GraphProps.getTransportMode(node);
 
             // TODO Crossing midnight?
             TramDate date = minuteState.traversalOps.getQueryDate();
 
-            OptionalResourceIterator<GraphRelationship> towardsDestination = getTowardsDestination(minuteState.traversalOps, node, date);
+            OptionalResourceIterator<GraphRelationship> towardsDestination = getTowardsDestination(minuteState.traversalOps, node, date, txn);
             if (!towardsDestination.isEmpty()) {
                 // we've nearly arrived
                 return new RouteStationStateEndTrip(minuteState, towardsDestination.stream(), cost, transportMode, node, trip, this);
             }
 
-            Stream<GraphRelationship> outboundsToFollow = getOutboundsToFollow(node, isInterchange, date);
+            Stream<GraphRelationship> outboundsToFollow = getOutboundsToFollow(node, isInterchange, date, txn);
 
             return new RouteStationStateEndTrip(minuteState, outboundsToFollow, cost, transportMode, node, trip, this);
         }
@@ -73,19 +75,19 @@ public class RouteStationStateEndTrip extends RouteStationState {
 
     @Override
     protected TraversalState toService(ServiceState.Builder towardsService, GraphNode node, Duration cost) {
-        return towardsService.fromRouteStation(this, node, cost);
+        return towardsService.fromRouteStation(this, node, cost, txn);
     }
 
     @Override
     protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsStation, GraphNode node, Duration cost, JourneyStateUpdate journeyState, boolean onDiversion) {
         leaveVehicle(journeyState);
-        return towardsStation.fromRouteStation(this, node, cost, journeyState, onDiversion);
+        return towardsStation.fromRouteStation(this, node, cost, journeyState, onDiversion, txn);
     }
 
     @Override
     protected TraversalState toPlatform(PlatformState.Builder towardsPlatform, GraphNode node, Duration cost, JourneyStateUpdate journeyState) {
         leaveVehicle(journeyState);
-        return towardsPlatform.fromRouteStatiomEndTrip(this, node, cost);
+        return towardsPlatform.fromRouteStatiomEndTrip(this, node, cost, txn);
     }
 
     private void leaveVehicle(JourneyStateUpdate journeyState) {

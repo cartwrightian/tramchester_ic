@@ -1,6 +1,6 @@
 package com.tramchester.graph.search.stateMachine.states;
 
-import com.tramchester.graph.GraphNode;
+import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.JourneyStateUpdate;
 

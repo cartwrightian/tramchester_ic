@@ -12,7 +12,7 @@ import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphTransaction;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.search.LowestCostsForDestRoutes;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
@@ -81,7 +81,7 @@ public class TraversalOpsTest {
         LowestCostsForDestRoutes lowestCostForRoutes = routeToRouteCosts.getLowestCostCalcutatorFor(destinationStations,
                 date, timeRange, TramsOnly);
 
-        TraversalOps traversalOpsForDest = new TraversalOps(nodeOperations, tripRepository,
+        TraversalOps traversalOpsForDest = new TraversalOps(txn, nodeOperations, tripRepository,
                 sortsPositions, destinationStations, destinationLatLon, lowestCostForRoutes, date);
 
         Station altrincham = stationRepository.getStationById(TramStations.Altrincham.getId());

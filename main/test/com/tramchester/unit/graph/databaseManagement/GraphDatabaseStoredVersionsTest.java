@@ -2,8 +2,8 @@ package com.tramchester.unit.graph.databaseManagement;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceInfo;
-import com.tramchester.graph.GraphTransaction;
-import com.tramchester.graph.GraphTransactionFactory;
+import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.GraphTransactionFactory;
 import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
 import com.tramchester.graph.databaseManagement.GraphDatabaseStoredVersions;
 import com.tramchester.repository.DataSourceRepository;

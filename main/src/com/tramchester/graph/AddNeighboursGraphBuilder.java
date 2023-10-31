@@ -6,6 +6,8 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.StationLink;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.CreateNodesAndRelationships;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
@@ -140,7 +142,7 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
                 }
 
                 Duration walkingCost = link.getWalkingTime();
-                if (!addNeighbourRelationship(fromNode, toNode, walkingCost)) {
+                if (!addNeighbourRelationship(txn, fromNode, toNode, walkingCost)) {
                     logger.warn(format("Already neighbour link between %s", link));
                 }
             });

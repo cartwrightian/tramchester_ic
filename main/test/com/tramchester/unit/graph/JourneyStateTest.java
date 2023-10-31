@@ -15,8 +15,9 @@ import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
-import com.tramchester.graph.GraphNode;
+import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.caches.NodeContentsRepository;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.LowestCostsForDestRoutes;
 import com.tramchester.graph.search.stateMachine.RegistersStates;
@@ -72,8 +73,10 @@ class JourneyStateTest extends EasyMockSupport {
         RegistersStates registersStates = new RegistersStates();
         TraversalStateFactory traversalStateFactory = new TraversalStateFactory(registersStates, nodeContentsRepository, config);
 
+        GraphTransaction txn = createMock(GraphTransaction.class);
+
         LowestCostsForDestRoutes lowestCostsForRoutes = createMock(LowestCostsForDestRoutes.class);
-        final TraversalOps traversalOps = new TraversalOps(nodeContentsRepository, tripRepository, sortsPositions,
+        final TraversalOps traversalOps = new TraversalOps(txn, nodeContentsRepository, tripRepository, sortsPositions,
                 destinations, latLongHint, lowestCostsForRoutes, queryDate);
 
         traversalState = new NotStartedState(traversalOps, traversalStateFactory, TramsOnly);

@@ -8,7 +8,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.GraphNode;
+import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.stateMachine.states.TraversalState;
 import org.neo4j.graphdb.Path;

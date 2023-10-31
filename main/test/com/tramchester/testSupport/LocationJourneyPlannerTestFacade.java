@@ -5,7 +5,7 @@ import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
-import com.tramchester.graph.GraphTransaction;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.reference.FakeStation;

@@ -3,7 +3,8 @@ package com.tramchester.graph.databaseManagement;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.graph.GraphTransactionFactory;
+import com.tramchester.graph.facade.GraphIdFactory;
+import com.tramchester.graph.facade.GraphTransactionFactory;
 import com.tramchester.metrics.Timing;
 import com.tramchester.repository.DataSourceRepository;
 import org.apache.commons.io.FileUtils;
@@ -26,13 +27,15 @@ public class GraphDatabaseLifecycleManager {
     private final GraphDatabaseStoredVersions storedVersions;
 
     private boolean cleanDB;
+    private final GraphIdFactory graphIdFactory;
 
     @Inject
     public GraphDatabaseLifecycleManager(TramchesterConfig configuration, GraphDatabaseServiceFactory serviceFactory,
-                                         GraphDatabaseStoredVersions storedVersions) {
+                                         GraphDatabaseStoredVersions storedVersions, GraphIdFactory graphIdFactory) {
         this.graphDBConfig = configuration.getGraphDBConfig();
         this.serviceFactory = serviceFactory;
         this.storedVersions = storedVersions;
+        this.graphIdFactory = graphIdFactory;
     }
 
     public GraphDatabaseService startDatabase(DataSourceRepository dataSourceRepository, Path graphFile, boolean fileExists) {
@@ -46,7 +49,7 @@ public class GraphDatabaseLifecycleManager {
 
         cleanDB = !fileExists;
         GraphDatabaseService databaseService = serviceFactory.create();
-        GraphTransactionFactory transactionFactory = new GraphTransactionFactory(databaseService);
+        GraphTransactionFactory transactionFactory = new GraphTransactionFactory(databaseService, graphIdFactory);
 
         if (fileExists && !storedVersions.upToDate(transactionFactory, dataSourceRepository)) {
             logger.warn("Graph is out of date, rebuild needed");

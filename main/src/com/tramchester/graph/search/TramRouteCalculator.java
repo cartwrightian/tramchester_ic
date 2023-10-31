@@ -6,8 +6,8 @@ import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.StationWalk;
-import com.tramchester.graph.GraphNode;
-import com.tramchester.graph.GraphTransaction;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphTransaction;
 
 import java.util.Set;
 import java.util.stream.Stream;

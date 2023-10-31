@@ -2,10 +2,11 @@ package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.GraphNode;
-import com.tramchester.graph.GraphRelationship;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.caches.NodeContentsRepository;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.ExistingTrip;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
@@ -29,8 +30,8 @@ public class HourState extends TraversalState {
             this.nodeContents = nodeContents;
         }
 
-        public HourState fromService(ServiceState serviceState, GraphNode node, Duration cost, ExistingTrip maybeExistingTrip) {
-            Stream<GraphRelationship> relationships = getMinuteRelationships(node);
+        public HourState fromService(ServiceState serviceState, GraphNode node, Duration cost, ExistingTrip maybeExistingTrip, GraphTransaction txn) {
+            Stream<GraphRelationship> relationships = getMinuteRelationships(node, txn);
             return new HourState(serviceState, relationships, maybeExistingTrip, cost, this);
         }
 
@@ -44,10 +45,10 @@ public class HourState extends TraversalState {
             return TraversalStateType.HourState;
         }
 
-        private Stream<GraphRelationship> getMinuteRelationships(GraphNode node) {
-            Stream<GraphRelationship> relationships = getRelationships(node, OUTGOING, TO_MINUTE);
+        private Stream<GraphRelationship> getMinuteRelationships(GraphNode node, GraphTransaction txn) {
+            Stream<GraphRelationship> relationships = getRelationships(txn, node, OUTGOING, TO_MINUTE);
             if (depthFirst) {
-                return relationships.sorted(TramTime.comparing(relationship -> nodeContents.getTime(relationship.getEndNode())));
+                return relationships.sorted(TramTime.comparing(relationship -> nodeContents.getTime(relationship.getEndNode(txn))));
             }
             return relationships;
         }
@@ -71,7 +72,7 @@ public class HourState extends TraversalState {
             throw new RuntimeException("Unable to process time ordering", exception);
         }
 
-        return towardsMinute.fromHour(this, minuteNode, cost, maybeExistingTrip, journeyState, currentModes);
+        return towardsMinute.fromHour(this, minuteNode, cost, maybeExistingTrip, journeyState, currentModes, txn);
     }
 
     @Override

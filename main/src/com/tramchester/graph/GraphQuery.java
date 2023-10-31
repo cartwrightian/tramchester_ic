@@ -6,6 +6,9 @@ import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphRelationship;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import org.neo4j.graphdb.Direction;
 
@@ -58,7 +61,7 @@ public class GraphQuery {
         if (routeStationNode==null) {
             return Collections.emptyList();
         }
-        return routeStationNode.getRelationships(direction, TransportRelationshipTypes.forPlanning()).toList();
+        return routeStationNode.getRelationships(txn, direction, TransportRelationshipTypes.forPlanning()).toList();
     }
 
     public boolean hasAnyNodesWithLabelAndId(GraphTransaction txn, GraphLabel label, String field, String value) {

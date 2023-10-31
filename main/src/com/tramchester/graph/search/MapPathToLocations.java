@@ -4,13 +4,13 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.*;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.graph.GraphNode;
 import com.tramchester.graph.caches.NodeContentsRepository;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
-import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 
 import javax.inject.Inject;
@@ -36,11 +36,11 @@ public class MapPathToLocations {
         this.stationGroupsRepository = stationGroupsRepository;
     }
 
-    public List<Location<?>> mapToLocations(Path path) {
+    public List<Location<?>> mapToLocations(Path path, GraphTransaction txn) {
         Location<?> previous = null;
         List<Location<?>> results = new ArrayList<>();
-        for(Node pathNode : path.nodes()) {
-            GraphNode node = GraphNode.from(pathNode);
+        for(GraphNode node : txn.iter(path.nodes())) {
+//            GraphNode node = GraphNode.from(pathNode);
 
             Optional<Location<?>> maybeLocation = mapNode(node);
             maybeLocation.ifPresent(location -> {});

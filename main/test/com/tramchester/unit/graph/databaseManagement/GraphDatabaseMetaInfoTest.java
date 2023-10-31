@@ -1,8 +1,8 @@
 package com.tramchester.unit.graph.databaseManagement;
 
 import com.tramchester.domain.DataSourceInfo;
-import com.tramchester.graph.GraphNode;
-import com.tramchester.graph.GraphTransaction;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.repository.DataSourceRepository;

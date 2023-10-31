@@ -2,8 +2,9 @@ package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.GraphNode;
-import com.tramchester.graph.GraphRelationship;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphRelationship;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.*;
@@ -31,42 +32,42 @@ public class PlatformState extends TraversalState implements NodeId {
             return TraversalStateType.PlatformState;
         }
 
-        public PlatformState from(PlatformStationState platformStationState, GraphNode node, Duration cost) {
+        public PlatformState from(PlatformStationState platformStationState, GraphNode node, Duration cost, GraphTransaction txn) {
             // inc. board here since might be starting journey
             return new PlatformState(platformStationState,
-                    node.getRelationships(OUTGOING, INTERCHANGE_BOARD, BOARD), node, cost, this);
+                    node.getRelationships(txn, OUTGOING, INTERCHANGE_BOARD, BOARD), node, cost, this);
         }
 
-        public TraversalState fromRouteStationOnTrip(RouteStationStateOnTrip routeStationStateOnTrip, GraphNode node, Duration cost) {
+        public TraversalState fromRouteStationOnTrip(RouteStationStateOnTrip routeStationStateOnTrip, GraphNode node, Duration cost, GraphTransaction txn) {
 
             // towards final destination, just follow this one
-            OptionalResourceIterator<GraphRelationship> towardsDest = getTowardsDestination(routeStationStateOnTrip.traversalOps, node);
+            OptionalResourceIterator<GraphRelationship> towardsDest = getTowardsDestination(routeStationStateOnTrip.traversalOps, node, txn);
             if (!towardsDest.isEmpty()) {
                 return new PlatformState(routeStationStateOnTrip, towardsDest.stream(), node, cost, this);
             }
 
             // inc. board here since might be starting journey
-            Stream<GraphRelationship> platformRelationships = node.getRelationships(OUTGOING, BOARD, INTERCHANGE_BOARD, LEAVE_PLATFORM);
+            Stream<GraphRelationship> platformRelationships = node.getRelationships(txn, OUTGOING, BOARD, INTERCHANGE_BOARD, LEAVE_PLATFORM);
 
             // Cannot filter here as might be starting a new trip from this point, so need to 'go back' to the route station
             //Stream<Relationship> filterExcludingEndNode = filterExcludingEndNode(platformRelationships, routeStationStateOnTrip);
             return new PlatformState(routeStationStateOnTrip, platformRelationships, node, cost, this);
         }
 
-        public TraversalState fromRouteStatiomEndTrip(RouteStationStateEndTrip routeStationState, GraphNode node, Duration cost) {
+        public TraversalState fromRouteStatiomEndTrip(RouteStationStateEndTrip routeStationState, GraphNode node, Duration cost, GraphTransaction txn) {
             // towards final destination, just follow this one
-            OptionalResourceIterator<GraphRelationship> towardsDest = getTowardsDestination(routeStationState.traversalOps, node);
+            OptionalResourceIterator<GraphRelationship> towardsDest = getTowardsDestination(routeStationState.traversalOps, node, txn);
             if (!towardsDest.isEmpty()) {
                 return new PlatformState(routeStationState, towardsDest.stream(), node, cost, this);
             }
 
-            Stream<GraphRelationship> platformRelationships = node.getRelationships(OUTGOING, BOARD, INTERCHANGE_BOARD, LEAVE_PLATFORM);
+            Stream<GraphRelationship> platformRelationships = node.getRelationships(txn, OUTGOING, BOARD, INTERCHANGE_BOARD, LEAVE_PLATFORM);
             // end of a trip, may need to go back to this route station to catch new service
             return new PlatformState(routeStationState, platformRelationships, node, cost, this);
         }
 
-        private OptionalResourceIterator<GraphRelationship> getTowardsDestination(TraversalOps traversalOps, GraphNode node) {
-            return traversalOps.getTowardsDestination(node.getRelationships(OUTGOING, LEAVE_PLATFORM));
+        private OptionalResourceIterator<GraphRelationship> getTowardsDestination(TraversalOps traversalOps, GraphNode node, GraphTransaction txn) {
+            return traversalOps.getTowardsDestination(node.getRelationships(txn, OUTGOING, LEAVE_PLATFORM));
         }
 
     }
@@ -96,13 +97,13 @@ public class PlatformState extends TraversalState implements NodeId {
         } catch (TramchesterException e) {
             throw new RuntimeException("unable to board tram", e);
         }
-        return towardsJustBoarded.fromPlatformState(this, node, cost);
+        return towardsJustBoarded.fromPlatformState(this, node, cost, txn);
     }
 
     @Override
     protected PlatformStationState toPlatformStation(PlatformStationState.Builder towardsStation, GraphNode node, Duration cost,
                                                      JourneyStateUpdate journeyState, boolean onDiversion) {
-        return towardsStation.fromPlatform(this, node, cost, journeyState, onDiversion);
+        return towardsStation.fromPlatform(this, node, cost, journeyState, onDiversion, txn);
     }
 
     @Override

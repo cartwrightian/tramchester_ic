@@ -1,7 +1,8 @@
 package com.tramchester.unit.graph.databaseManagement;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.graph.GraphTransactionFactory;
+import com.tramchester.graph.facade.GraphIdFactory;
+import com.tramchester.graph.facade.GraphTransactionFactory;
 import com.tramchester.graph.databaseManagement.GraphDatabaseLifecycleManager;
 import com.tramchester.graph.databaseManagement.GraphDatabaseServiceFactory;
 import com.tramchester.graph.databaseManagement.GraphDatabaseStoredVersions;
@@ -36,7 +37,8 @@ public class GraphDatabaseLifecycleManagerTest extends EasyMockSupport {
         serviceFactory = createMock(GraphDatabaseServiceFactory.class);
         storedVersions = createMock(GraphDatabaseStoredVersions.class);
         dataSourceRepos = createMock(DataSourceRepository.class);
-        graphDatabaseLifecycleManager = new GraphDatabaseLifecycleManager(config, serviceFactory, storedVersions);
+        GraphIdFactory graphIdFactory = createMock(GraphIdFactory.class);
+        graphDatabaseLifecycleManager = new GraphDatabaseLifecycleManager(config, serviceFactory, storedVersions, graphIdFactory);
     }
 
     @Test

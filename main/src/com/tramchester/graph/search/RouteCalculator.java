@@ -16,6 +16,9 @@ import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.*;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphNodeId;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.search.diagnostics.ReasonsToGraphViz;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import com.tramchester.metrics.CacheMetrics;
@@ -186,7 +189,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
                 flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations,
                         createServiceReasons(journeyRequest, pathRequest), pathRequest, lowestCostsForRoutes, createPreviousVisits(),
                         lowestCostSeen)).
-                map(path -> createJourney(journeyRequest, path, destinations, lowestCostsForRoutes, journeyIndex));
+                map(path -> createJourney(journeyRequest, path, destinations, lowestCostsForRoutes, journeyIndex, txn));
 
         //noinspection ResultOfMethodCallIgnored
         results.onClose(() -> {

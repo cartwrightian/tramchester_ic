@@ -12,10 +12,11 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
-import com.tramchester.graph.GraphNode;
-import com.tramchester.graph.GraphRelationship;
-import com.tramchester.graph.GraphRelationshipId;
 import com.tramchester.graph.caches.NodeContentsRepository;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphRelationship;
+import com.tramchester.graph.facade.GraphRelationshipId;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.search.LowestCostsForDestRoutes;
 import com.tramchester.graph.search.RelationshipWithRoute;
 import com.tramchester.repository.TripRepository;
@@ -38,12 +39,14 @@ public class TraversalOps {
     private final SortsPositions sortsPositions;
     private final LowestCostsForDestRoutes lowestCostsForRoutes;
     private final TramDate queryDate;
+    private final GraphTransaction txn;
 
     // TODO Split into fixed and journey specific, inject fixed direct into builders
-    public TraversalOps(NodeContentsRepository nodeOperations, TripRepository tripRepository,
+    public TraversalOps(GraphTransaction txn, NodeContentsRepository nodeOperations, TripRepository tripRepository,
                         SortsPositions sortsPositions, LocationSet destinations,
                         LatLong destinationLatLon, LowestCostsForDestRoutes lowestCostsForRoutes,
                         TramDate queryDate) {
+        this.txn = txn;
         this.tripRepository = tripRepository;
         this.nodeOperations = nodeOperations;
         this.sortsPositions = sortsPositions;
@@ -86,7 +89,9 @@ public class TraversalOps {
 //        Set<SortsPositions.HasStationId<GraphRelationship>> wrapped = new HashSet<>();
 //        relationships.forEach(svcRelationship -> wrapped.add(new RelationshipFacade(svcRelationship)));
 
-        Set<SortsPositions.HasStationId<GraphRelationship>> wrapped = relationships.map(RelationshipFacade::new).collect(Collectors.toSet());
+        Set<SortsPositions.HasStationId<GraphRelationship>> wrapped = relationships.
+                map(relationship -> new RelationshipFacade(relationship, txn)).
+                collect(Collectors.toSet());
         return sortsPositions.sortedByNearTo(destinationLatLon, wrapped);
     }
 
@@ -112,17 +117,21 @@ public class TraversalOps {
 
     private boolean serviceNodeMatches(GraphRelationship relationship, IdFor<Service> currentSvcId) {
         // TODO Add ServiceID to Service Relationship??
-        GraphNode svcNode = relationship.getEndNode();
+        GraphNode svcNode = relationship.getEndNode(txn);
         IdFor<Service> svcId = nodeOperations.getServiceId(svcNode);
         return currentSvcId.equals(svcId);
     }
 
     public boolean hasOutboundFor(GraphNode node, IdFor<Service> serviceId) {
-        return node.getRelationships(Direction.OUTGOING, TO_SERVICE).anyMatch(relationship -> serviceNodeMatches(relationship, serviceId));
+        return node.getRelationships(txn, Direction.OUTGOING, TO_SERVICE).anyMatch(relationship -> serviceNodeMatches(relationship, serviceId));
     }
 
     public TramDate getQueryDate() {
         return queryDate;
+    }
+
+    public GraphTransaction getTransaction() {
+        return txn;
     }
 
     private static class RelationshipFacade implements SortsPositions.HasStationId<GraphRelationship> {
@@ -130,12 +139,12 @@ public class TraversalOps {
         private final GraphRelationshipId id;
         private final IdFor<Station> stationId;
 
-        private RelationshipFacade(GraphRelationship relationship) {
+        private RelationshipFacade(GraphRelationship relationship, GraphTransaction txn) {
             id = relationship.getId();
             this.relationship = relationship;
 
             // TODO this needs to go via the cache layer?
-            this.stationId = relationship.getEndNode().getStationId(); // GraphProps.getTowardsStationIdFrom(relationship.getEndNode());
+            this.stationId = relationship.getEndNode(txn).getStationId(); // GraphProps.getTowardsStationIdFrom(relationship.getEndNode());
         }
 
         @Override

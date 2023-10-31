@@ -9,6 +9,9 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphRelationship;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.repository.StationAvailabilityRepository;
@@ -59,10 +62,10 @@ public class RouteReachable {
                 if (routeStationNode==null) {
                     logger.warn("Missing route station, graph DB rebuild needed?");
                 } else {
-                    Stream<GraphRelationship> edges = routeStationNode.getRelationships(Direction.OUTGOING, ON_ROUTE);
+                    Stream<GraphRelationship> edges = routeStationNode.getRelationships(txn, Direction.OUTGOING, ON_ROUTE);
 
                     edges.forEach(edge -> {
-                        final IdFor<Station> endNodeStationId = GraphProps.getStationIdFrom(edge.getEndNode());
+                        final IdFor<Station> endNodeStationId = GraphProps.getStationIdFrom(edge.getEndNode(txn));
                         if (endStationId.equals(endNodeStationId)) {
                             results.add(route);
                         }

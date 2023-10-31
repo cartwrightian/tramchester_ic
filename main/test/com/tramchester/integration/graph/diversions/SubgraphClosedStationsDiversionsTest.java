@@ -14,6 +14,10 @@ import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.*;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphRelationship;
+import com.tramchester.graph.facade.GraphRelationshipId;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.RouteCalculator;
@@ -289,7 +293,7 @@ class SubgraphClosedStationsDiversionsTest {
         try (GraphTransaction txn = database.beginTx()) {
             notAnInterchange.getPlatforms().forEach(platform -> {
                 GraphNode node = graphQuery.getPlatformNode(txn, platform);
-                Stream<GraphRelationship> iterable = node.getRelationships(Direction.INCOMING, TransportRelationshipTypes.DIVERSION_DEPART);
+                Stream<GraphRelationship> iterable = node.getRelationships(txn, Direction.INCOMING, TransportRelationshipTypes.DIVERSION_DEPART);
 
                 iterable.forEach(relationship -> foundRelationshipIds.add(relationship.getId()));
             });
@@ -300,9 +304,9 @@ class SubgraphClosedStationsDiversionsTest {
 
         try (GraphTransaction txn = database.beginTx()) {
             GraphRelationship relationship = txn.getRelationshipById(foundRelationshipIds.get(0));
-            GraphNode from = relationship.getStartNode();
+            GraphNode from = relationship.getStartNode(txn);
             assertTrue(from.hasLabel(ROUTE_STATION), from.getAllProperties().toString());
-            GraphNode to = relationship.getEndNode();
+            GraphNode to = relationship.getEndNode(txn);
             assertTrue(to.hasLabel(PLATFORM));
         }
 
@@ -317,7 +321,7 @@ class SubgraphClosedStationsDiversionsTest {
         try (GraphTransaction txn = database.beginTx()) {
             GraphNode stationNode = graphQuery.getStationNode(txn, piccadilly);
 
-            Stream<GraphRelationship> iterable = stationNode.getRelationships(Direction.OUTGOING, TransportRelationshipTypes.DIVERSION);
+            Stream<GraphRelationship> iterable = stationNode.getRelationships(txn, Direction.OUTGOING, TransportRelationshipTypes.DIVERSION);
 
             iterable.forEach(relationship -> foundRelationshipIds.add(relationship.getId()));
         }
@@ -329,7 +333,7 @@ class SubgraphClosedStationsDiversionsTest {
         try (GraphTransaction txn = database.beginTx()) {
             foundRelationshipIds.forEach(foundId -> {
                 GraphRelationship relationship = txn.getRelationshipById(foundId);
-                GraphNode to = relationship.getEndNode();
+                GraphNode to = relationship.getEndNode(txn);
                 assertTrue(to.hasLabel(STATION));
                 IdFor<Station> stationId = GraphProps.getStationId(to);
                 if (StPetersSquare.getId().equals(stationId)) {

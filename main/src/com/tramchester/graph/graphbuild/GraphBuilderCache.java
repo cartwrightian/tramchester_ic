@@ -7,8 +7,8 @@ import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.graph.GraphNode;
-import com.tramchester.graph.GraphTransaction;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphTransaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

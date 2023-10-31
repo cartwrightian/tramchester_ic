@@ -2,9 +2,10 @@ package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.graph.GraphNode;
-import com.tramchester.graph.GraphRelationship;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.caches.NodeContentsRepository;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.search.stateMachine.ExistingTrip;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
@@ -40,28 +41,28 @@ public class ServiceState extends TraversalState {
             return TraversalStateType.ServiceState;
         }
 
-        public TraversalState fromRouteStation(RouteStationStateOnTrip state, IdFor<Trip> tripId, GraphNode node, Duration cost) {
-            Stream<GraphRelationship> serviceRelationships = getHourRelationships(node);
+        public TraversalState fromRouteStation(RouteStationStateOnTrip state, IdFor<Trip> tripId, GraphNode node, Duration cost, GraphTransaction txn) {
+            Stream<GraphRelationship> serviceRelationships = getHourRelationships(node, txn);
             return new ServiceState(state, serviceRelationships, ExistingTrip.onTrip(tripId), cost, this);
         }
 
-        public TraversalState fromRouteStation(RouteStationStateEndTrip endTrip, GraphNode node, Duration cost) {
-            Stream<GraphRelationship> serviceRelationships = getHourRelationships(node);
+        public TraversalState fromRouteStation(RouteStationStateEndTrip endTrip, GraphNode node, Duration cost, GraphTransaction txn) {
+            Stream<GraphRelationship> serviceRelationships = getHourRelationships(node, txn);
             return new ServiceState(endTrip, serviceRelationships, cost, this);
         }
 
-        public TraversalState fromRouteStation(JustBoardedState justBoarded, GraphNode node, Duration cost) {
-            Stream<GraphRelationship> serviceRelationships = getHourRelationships(node);
+        public TraversalState fromRouteStation(JustBoardedState justBoarded, GraphNode node, Duration cost, GraphTransaction txn) {
+            Stream<GraphRelationship> serviceRelationships = getHourRelationships(node, txn);
             return new ServiceState(justBoarded, serviceRelationships, cost, this);
         }
 
-        private Stream<GraphRelationship> getHourRelationships(GraphNode node) {
-            Stream<GraphRelationship> relationships = node.getRelationships(OUTGOING, TO_HOUR);
+        private Stream<GraphRelationship> getHourRelationships(GraphNode node, GraphTransaction txn) {
+            Stream<GraphRelationship> relationships = node.getRelationships(txn, OUTGOING, TO_HOUR);
             if (depthFirst) {
                 // todo is the gain here worth the overhead of computing the hour for the end node?
                 return relationships.sorted(Comparator.comparingInt(
                         relationship -> {
-                            final GraphNode endNode = relationship.getEndNode();
+                            final GraphNode endNode = relationship.getEndNode(txn);
                             return hourLabelFor(endNode);
                         }));
             }
@@ -89,7 +90,7 @@ public class ServiceState extends TraversalState {
 
     @Override
     protected HourState toHour(HourState.Builder towardsHour, GraphNode node, Duration cost) {
-        return towardsHour.fromService(this, node, cost, maybeExistingTrip);
+        return towardsHour.fromService(this, node, cost, maybeExistingTrip, txn);
     }
 
     @Override

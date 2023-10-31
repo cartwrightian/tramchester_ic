@@ -1,11 +1,10 @@
 package com.tramchester.graph.search.diagnostics;
 
-import com.tramchester.graph.GraphNode;
-import com.tramchester.graph.GraphNodeId;
-import com.tramchester.graph.GraphRelationship;
-import com.tramchester.graph.GraphRelationshipId;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphNodeId;
+import com.tramchester.graph.facade.GraphRelationship;
+import com.tramchester.graph.facade.GraphRelationshipId;
 import com.tramchester.graph.search.ImmutableJourneyState;
-import org.neo4j.graphdb.Path;
 
 import java.util.Objects;
 
@@ -16,8 +15,16 @@ public class HowIGotHere {
     private final GraphNodeId nodeId;
     private final String traversalStateName;
 
-    public HowIGotHere(Path path, ImmutableJourneyState immutableJourneyState, GraphNode graphNode) {
-        this(graphNode.getId(), getRelationshipFromPath(path), immutableJourneyState.getTraversalStateName());
+    public HowIGotHere(ImmutableJourneyState immutableJourneyState, GraphNode graphNode, GraphRelationship lastFrom) {
+        this(graphNode.getId(), maintainExistingInterface(lastFrom), immutableJourneyState.getTraversalStateName());
+    }
+
+    // TODO For no presevre existing behaviour with relationshipId i.e. null means not started yet
+    private static GraphRelationshipId maintainExistingInterface(GraphRelationship lastFrom) {
+        if (lastFrom==null) {
+            return null;
+        }
+        return lastFrom.getId();
     }
 
     private HowIGotHere(GraphNodeId nodeId, GraphRelationshipId relationshipId, String traversalStateName) {
@@ -42,13 +49,13 @@ public class HowIGotHere {
         return traversalStateName;
     }
 
-    private static GraphRelationshipId getRelationshipFromPath(Path path) {
-        if (path.lastRelationship()==null) {
-            return null;
-        } else {
-            return GraphRelationship.lastFrom(path).getId(); // path.lastRelationship().getId();
-        }
-    }
+//    private static GraphRelationshipId getRelationshipFromPath(Path path) {
+//        if (path.lastRelationship()==null) {
+//            return null;
+//        } else {
+//            return GraphRelationship.lastFrom(path).getId(); // path.lastRelationship().getId();
+//        }
+//    }
 
     public static HowIGotHere forTest(GraphNodeId nodeId, GraphRelationshipId relationshipId) {
         return new HowIGotHere(nodeId, relationshipId, "TEST_ONLY");

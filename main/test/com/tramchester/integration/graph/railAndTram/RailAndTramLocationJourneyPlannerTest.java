@@ -13,7 +13,7 @@ import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.WalkingFromStationStage;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphTransaction;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.integration.testSupport.RailAndTramGreaterManchesterConfig;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;

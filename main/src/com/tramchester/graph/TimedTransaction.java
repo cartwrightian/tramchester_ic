@@ -1,5 +1,6 @@
 package com.tramchester.graph;
 
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.metrics.Timing;
 import org.slf4j.Logger;
 

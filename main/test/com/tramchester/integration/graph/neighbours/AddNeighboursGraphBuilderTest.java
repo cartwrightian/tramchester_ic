@@ -6,6 +6,9 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.graph.*;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphRelationship;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.graphbuild.CompositeStationGraphBuilder;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.integration.testSupport.NeighboursTestConfig;
@@ -101,15 +104,23 @@ class AddNeighboursGraphBuilderTest {
         Set<GraphRelationship> outFromTram = getRelationships(tramNode, OUTGOING);
         Set<GraphRelationship> towardsTram = getRelationships(tramNode, INCOMING);
 
-        assertFalse(seenNode(txn, victoria, outFromTram, GraphRelationship::getEndNode));
-        assertFalse(seenNode(txn, shudehillTram, outFromTram, GraphRelationship::getEndNode));
-        assertFalse(seenNode(txn, victoria, towardsTram, GraphRelationship::getStartNode));
+        assertFalse(seenNode(txn, victoria, outFromTram, this::getEndNode));
+        assertFalse(seenNode(txn, shudehillTram, outFromTram, this::getEndNode));
+        assertFalse(seenNode(txn, victoria, towardsTram, this::getStartNode));
 
         shudehillCompositeBus.getContained().forEach(busStop -> {
-            assertTrue(seenNode(txn, busStop, outFromTram, GraphRelationship::getEndNode));
-            assertTrue(seenNode(txn, busStop, towardsTram, GraphRelationship::getStartNode));
+            assertTrue(seenNode(txn, busStop, outFromTram, this::getEndNode));
+            assertTrue(seenNode(txn, busStop, towardsTram, this::getStartNode));
         });
 
+    }
+
+    private GraphNode getStartNode(GraphRelationship graphRelationship) {
+        return graphRelationship.getStartNode(txn);
+    }
+
+    private GraphNode getEndNode(GraphRelationship graphRelationship) {
+        return graphRelationship.getEndNode(txn);
     }
 
     @Test
@@ -120,16 +131,16 @@ class AddNeighboursGraphBuilderTest {
             assertNotNull(busNode, "No node found for " + busStop);
 
             Set<GraphRelationship> awayFrom = getRelationships(busNode, OUTGOING);
-            assertTrue(seenNode(txn, shudehillTram, awayFrom, GraphRelationship::getEndNode));
+            assertTrue(seenNode(txn, shudehillTram, awayFrom, this::getEndNode));
 
             Set<GraphRelationship> towards = getRelationships(busNode, INCOMING);
-            assertTrue(seenNode(txn, shudehillTram, towards, GraphRelationship::getStartNode));
+            assertTrue(seenNode(txn, shudehillTram, towards, this::getStartNode));
         });
 
     }
 
     private Set<GraphRelationship> getRelationships(GraphNode node, Direction direction) {
-        return node.getRelationships(direction, NEIGHBOUR).collect(Collectors.toSet());
+        return node.getRelationships(txn, direction, NEIGHBOUR).collect(Collectors.toSet());
     }
 
     private boolean seenNode(GraphTransaction txn, Station station, Set<GraphRelationship> relationships, SelectNode selectNode) {

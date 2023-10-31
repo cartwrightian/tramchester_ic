@@ -7,6 +7,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.*;
+import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.repository.StationRepository;
@@ -83,7 +84,7 @@ public class DiagramCreator {
                     logger.error("Can't find start node for station " + startPoint.getId());
                     builder.append("MISSING NODE\n");
                 } else {
-                    visit(startNode, builder, depthLimit, nodeSeen, relationshipSeen, topLevel);
+                    visit(startNode, builder, depthLimit, nodeSeen, relationshipSeen, topLevel, txn);
                 }
             });
 
@@ -107,7 +108,8 @@ public class DiagramCreator {
         Files.createDirectory(diagramsFolder);
     }
 
-    private void visit(GraphNode node, DiagramBuild builder, int depth, Set<GraphNodeId> nodeSeen, Set<GraphRelationshipId> relationshipSeen, boolean topLevel) {
+    private void visit(GraphNode node, DiagramBuild builder, int depth, Set<GraphNodeId> nodeSeen, Set<GraphRelationshipId> relationshipSeen,
+                       boolean topLevel, GraphTransaction txn) {
         if (depth<=0) {
             return;
         }
@@ -119,37 +121,38 @@ public class DiagramCreator {
         addLine(builder, format("\"%s\" [label=\"%s\" shape=%s];\n", createNodeId(node),
                 getLabelFor(node), getShapeFor(node)));
 
-        visitOutbounds(node, builder, depth, nodeSeen, relationshipSeen, topLevel);
-        visitInbounds(node, builder, depth, nodeSeen, relationshipSeen, topLevel);
+        visitOutbounds(node, builder, depth, nodeSeen, relationshipSeen, topLevel, txn);
+        visitInbounds(node, builder, depth, nodeSeen, relationshipSeen, topLevel, txn);
 
     }
 
-    private void visitInbounds(GraphNode targetNode, DiagramBuild builder, int depth, Set<GraphNodeId> nodeSeen, Set<GraphRelationshipId> relationshipSeen, boolean topLevel) {
-        getRelationships(targetNode, Direction.INCOMING, topLevel).forEach(towards -> {
+    private void visitInbounds(GraphNode targetNode, DiagramBuild builder, int depth, Set<GraphNodeId> nodeSeen, Set<GraphRelationshipId> relationshipSeen,
+                               boolean topLevel, GraphTransaction txn) {
+        getRelationships(targetNode, Direction.INCOMING, topLevel, txn).forEach(towards -> {
 
-            GraphNode startNode = towards.getStartNode(); //GraphNode.fromStart(towards);
+            GraphNode startNode = towards.getStartNode(txn); //GraphNode.fromStart(towards);
             addNode(builder, startNode);
 
             // startNode -> targetNode
             addEdge(builder, towards, createNodeId(startNode), createNodeId(targetNode), relationshipSeen);
-            visit(startNode, builder, depth-1, nodeSeen, relationshipSeen, topLevel);
+            visit(startNode, builder, depth-1, nodeSeen, relationshipSeen, topLevel, txn);
         });
     }
 
-    private Stream<GraphRelationship> getRelationships(GraphNode targetNode, Direction direction, boolean toplevelOnly) {
+    private Stream<GraphRelationship> getRelationships(GraphNode targetNode, Direction direction, boolean toplevelOnly, GraphTransaction txn) {
         TransportRelationshipTypes[] types = toplevelOnly ?  toplevelRelationships : TransportRelationshipTypes.values();
-        return targetNode.getRelationships(direction, types);
+        return targetNode.getRelationships(txn, direction, types);
     }
 
     private void visitOutbounds(GraphNode startNode, DiagramBuild builder, int depth, Set<GraphNodeId> seen,
-                                Set<GraphRelationshipId> relationshipSeen, boolean topLevel) {
+                                Set<GraphRelationshipId> relationshipSeen, boolean topLevel, GraphTransaction txn) {
         Map<GraphRelationshipId,GraphRelationship> goesToRelationships = new HashMap<>();
 
-        getRelationships(startNode, Direction.OUTGOING, topLevel).forEach(awayFrom -> {
+        getRelationships(startNode, Direction.OUTGOING, topLevel, txn).forEach(awayFrom -> {
 
             TransportRelationshipTypes relationshipType = awayFrom.getType(); // TransportRelationshipTypes.valueOf(awayFrom.getType().name());
 
-            GraphNode rawEndNode = GraphNode.fromEnd(awayFrom);
+            GraphNode rawEndNode = awayFrom.getEndNode(txn); //txn.fromEnd(awayFrom);
 
             addNode(builder, startNode);
             addEdge(builder, awayFrom, createNodeId(startNode), createNodeId(rawEndNode), relationshipSeen);
@@ -159,7 +162,7 @@ public class DiagramCreator {
                     goesToRelationships.put(awayFrom.getId(), awayFrom);
                 }
             }
-            visit(rawEndNode, builder, depth-1, seen, relationshipSeen, topLevel);
+            visit(rawEndNode, builder, depth-1, seen, relationshipSeen, topLevel, txn);
         });
 
         // add services for this node

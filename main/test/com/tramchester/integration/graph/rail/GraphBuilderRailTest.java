@@ -8,6 +8,9 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.*;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphRelationship;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
@@ -84,11 +87,11 @@ class GraphBuilderRailTest {
 
         Station piccadilly = ManchesterPiccadilly.from(transportData);
         GraphNode startNode = graphQuery.getStationNode(txn, piccadilly);
-        List<GraphRelationship> outboundLinks = startNode.getRelationships(Direction.OUTGOING, LINKED).toList();
+        List<GraphRelationship> outboundLinks = startNode.getRelationships(txn, Direction.OUTGOING, LINKED).toList();
 
         assertEquals(35, outboundLinks.size(), outboundLinks.toString());
 
-        Set<IdFor<Station>> destinations = outboundLinks.stream().map(GraphRelationship::getEndNode).
+        Set<IdFor<Station>> destinations = outboundLinks.stream().map(graphRelationship -> graphRelationship.getEndNode(txn)).
                 map(GraphProps::getStationId).collect(Collectors.toSet());
 
         assertTrue(destinations.contains(Station.createId("STKP")), destinations.toString());
@@ -141,12 +144,11 @@ class GraphBuilderRailTest {
         Set<GraphNode> creweRouteStationsNodes = getRouteStationNodes(crewe);
 
         Set<GraphRelationship> outgoingFromCrewe = creweRouteStationsNodes.stream().
-                flatMap(node -> node.getRelationships(Direction.OUTGOING, ON_ROUTE)).
+                flatMap(node -> node.getRelationships(txn, Direction.OUTGOING, ON_ROUTE)).
                 collect(Collectors.toSet());
 
         List<GraphRelationship> endIsMKC = outgoingFromCrewe.stream().
-                //filter(relationship -> mkNodeIds.contains(relationship.getEndNodeId())).
-                filter(relationship -> routeStationNodes.contains(GraphNode.fromEnd(relationship))).
+                filter(relationship -> routeStationNodes.contains(relationship.getEndNode(txn))). // GraphNode.fromEnd(relationship))).
                 toList();
 
         assertFalse(endIsMKC.isEmpty(), outgoingFromCrewe.toString());

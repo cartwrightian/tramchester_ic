@@ -1,4 +1,4 @@
-package com.tramchester.graph;
+package com.tramchester.graph.facade;
 
 import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.GraphProperty;
@@ -13,6 +13,9 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.GraphPropertyKey;
+import com.tramchester.graph.HaveGraphProperties;
+import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.graphbuild.GraphProps;
 import org.neo4j.graphdb.*;
 
@@ -28,19 +31,21 @@ import static com.tramchester.graph.GraphPropertyKey.*;
 
 public class GraphRelationship extends HaveGraphProperties {
     private final Relationship relationship;
+    private final GraphRelationshipId id;
 
-    GraphRelationship(Relationship relationship) {
+    GraphRelationship(Relationship relationship, GraphRelationshipId id) {
         this.relationship = relationship;
+        this.id = id;
     }
 
     // TODO facade Path?
-    public static GraphRelationship lastFrom(Path path) {
-        Relationship relationship = path.lastRelationship();
-        if (relationship==null) {
-            return null;
-        }
-        return new GraphRelationship(relationship);
-    }
+//    public static GraphRelationship lastFrom(Path path) {
+//        Relationship relationship = path.lastRelationship();
+//        if (relationship==null) {
+//            return null;
+//        }
+//        return new GraphRelationship(relationship, id);
+//    }
 
     public static ResourceIterable<Relationship> convertIterable(Stream<GraphRelationship> resourceIterable) {
         Iterator<Relationship> mapped = resourceIterable.map(graphRelationship -> graphRelationship.relationship).iterator();
@@ -74,7 +79,7 @@ public class GraphRelationship extends HaveGraphProperties {
     }
 
     public GraphRelationshipId getId() {
-        return new GraphRelationshipId(relationship.getId());
+        return id;
     }
 
     public void setCost(Duration cost) {
@@ -156,8 +161,17 @@ public class GraphRelationship extends HaveGraphProperties {
         return entity.getProperty(key.getText());
     }
 
-    public GraphNode getEndNode() {
-        return new GraphNode(relationship.getEndNode());
+    public GraphNode getEndNode(GraphTransaction txn) {
+        Node node = relationship.getEndNode();
+        if (node==null) {
+            throw new RuntimeException("Missing end node for a relationship, this should not happen " + this);
+        }
+        return txn.wrapNode(node);
+    }
+
+    public GraphNode getStartNode(GraphTransaction txn) {
+        return txn.wrapNode(relationship.getStartNode());
+        //return new GraphNode(relationship.getStartNode(), graphNodeId);
     }
 
     public void delete() {
@@ -175,10 +189,6 @@ public class GraphRelationship extends HaveGraphProperties {
 
     public TransportRelationshipTypes getType() {
         return TransportRelationshipTypes.valueOf(relationship.getType().name());
-    }
-
-    public GraphNode getStartNode() {
-        return new GraphNode(relationship.getStartNode());
     }
 
     public IdFor<Route> getRouteId() {

@@ -1,6 +1,6 @@
 package com.tramchester.graph.search.diagnostics;
 
-import com.tramchester.graph.GraphNodeId;
+import com.tramchester.graph.facade.GraphNodeId;
 
 import java.util.Objects;
 

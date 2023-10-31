@@ -8,6 +8,9 @@ import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.geo.MarginInMeters;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphRelationship;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.CreateNodesAndRelationships;
 import com.tramchester.graph.graphbuild.GraphLabel;
@@ -213,8 +216,8 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships i
                 throw new RuntimeException(msg);
             }
 
-            GraphRelationship fromClosed = createRelationship(closedNode, otherNode, DIVERSION);
-            GraphRelationship fromOther = createRelationship(otherNode, closedNode, DIVERSION);
+            GraphRelationship fromClosed = createRelationship(txn, closedNode, otherNode, DIVERSION);
+            GraphRelationship fromOther = createRelationship(txn, otherNode, closedNode, DIVERSION);
 
             setCommonProperties(fromClosed, cost, closure);
             setCommonProperties(fromOther, cost, closure);
@@ -256,7 +259,7 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships i
             GraphNode firstNode = graphQuery.getStationNode(txn, first);
             GraphNode secondNode = graphQuery.getStationNode(txn, second);
 
-            GraphRelationship relationship = createRelationship(firstNode, secondNode, DIVERSION);
+            GraphRelationship relationship = createRelationship(txn, firstNode, secondNode, DIVERSION);
             setCommonProperties(relationship, cost, closure);
             GraphProps.setProperty(relationship, second);
         });

@@ -12,6 +12,9 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.*;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphRelationship;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
@@ -75,7 +78,7 @@ public class GraphPropsTest {
         GraphNode nodeA = txn.createNode(GraphLabel.ROUTE_STATION);
         GraphNode nodeB = txn.createNode(GraphLabel.ROUTE_STATION);
 
-        GraphRelationship relationship = nodeA.createRelationshipTo(nodeB, TransportRelationshipTypes.ON_ROUTE);
+        GraphRelationship relationship = nodeA.createRelationshipTo(txn, nodeB, TransportRelationshipTypes.ON_ROUTE);
 
         IdFor<Route> routeId = StringIdFor.createId("routeId", Route.class);
         IdFor<RouteStation> id = RouteStation.createId(TramStations.ExchangeSquare.getId(), routeId);
@@ -93,7 +96,7 @@ public class GraphPropsTest {
         GraphNode nodeA = txn.createNode(GraphLabel.ROUTE_STATION);
         GraphNode nodeB = txn.createNode(GraphLabel.ROUTE_STATION);
 
-        GraphRelationship relationship = nodeA.createRelationshipTo(nodeB, TransportRelationshipTypes.ON_ROUTE);
+        GraphRelationship relationship = nodeA.createRelationshipTo(txn, nodeB, TransportRelationshipTypes.ON_ROUTE);
 
         IdFor<Route> routeId = getRailRouteId();
 
@@ -139,7 +142,7 @@ public class GraphPropsTest {
         GraphNode nodeA = txn.createNode(GraphLabel.ROUTE_STATION);
         GraphNode nodeB = txn.createNode(GraphLabel.ROUTE_STATION);
 
-        GraphRelationship relationship = nodeA.createRelationshipTo(nodeB, TransportRelationshipTypes.ON_ROUTE);
+        GraphRelationship relationship = nodeA.createRelationshipTo(txn, nodeB, TransportRelationshipTypes.ON_ROUTE);
 
         TramTime time = TramTime.of(23,42);
 
@@ -156,7 +159,7 @@ public class GraphPropsTest {
         GraphNode nodeA = txn.createNode(GraphLabel.ROUTE_STATION);
         GraphNode nodeB = txn.createNode(GraphLabel.ROUTE_STATION);
 
-        GraphRelationship relationship = nodeA.createRelationshipTo(nodeB, TransportRelationshipTypes.ON_ROUTE);
+        GraphRelationship relationship = nodeA.createRelationshipTo(txn, nodeB, TransportRelationshipTypes.ON_ROUTE);
 
         TramTime time = TramTime.nextDay(9,53);
 
@@ -178,7 +181,7 @@ public class GraphPropsTest {
         GraphNode nodeA = txn.createNode(GraphLabel.ROUTE_STATION);
         GraphNode nodeB = txn.createNode(GraphLabel.ROUTE_STATION);
 
-        GraphRelationship relationship = nodeA.createRelationshipTo(nodeB, TransportRelationshipTypes.ON_ROUTE);
+        GraphRelationship relationship = nodeA.createRelationshipTo(txn, nodeB, TransportRelationshipTypes.ON_ROUTE);
 
         GraphProps.addTransportMode(relationship, TransportMode.Train);
 
@@ -228,7 +231,7 @@ public class GraphPropsTest {
         GraphNode nodeA = txn.createNode(GraphLabel.ROUTE_STATION);
         GraphNode nodeB = txn.createNode(GraphLabel.ROUTE_STATION);
 
-        GraphRelationship relationship = nodeA.createRelationshipTo(nodeB, TransportRelationshipTypes.ON_ROUTE);
+        GraphRelationship relationship = nodeA.createRelationshipTo(txn, nodeB, TransportRelationshipTypes.ON_ROUTE);
 
         Duration duration = Duration.ofMinutes(42);
 
@@ -244,7 +247,7 @@ public class GraphPropsTest {
         GraphNode nodeA = txn.createNode(GraphLabel.ROUTE_STATION);
         GraphNode nodeB = txn.createNode(GraphLabel.ROUTE_STATION);
 
-        GraphRelationship relationship = nodeA.createRelationshipTo(nodeB, TransportRelationshipTypes.ON_ROUTE);
+        GraphRelationship relationship = nodeA.createRelationshipTo(txn, nodeB, TransportRelationshipTypes.ON_ROUTE);
 
         Duration duration = Duration.ofMinutes(42).plusSeconds(15);
 
@@ -260,7 +263,7 @@ public class GraphPropsTest {
         GraphNode nodeA = txn.createNode(GraphLabel.ROUTE_STATION);
         GraphNode nodeB = txn.createNode(GraphLabel.ROUTE_STATION);
 
-        GraphRelationship relationship = nodeA.createRelationshipTo(nodeB, TransportRelationshipTypes.ON_ROUTE);
+        GraphRelationship relationship = nodeA.createRelationshipTo(txn, nodeB, TransportRelationshipTypes.ON_ROUTE);
 
         Duration duration = Duration.ofMinutes(42).plusSeconds(55);
 

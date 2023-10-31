@@ -16,6 +16,9 @@ import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.*;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphNodeId;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.search.diagnostics.ReasonsToGraphViz;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import com.tramchester.repository.ClosedStationsRepository;
@@ -110,7 +113,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                         flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations,
                                 createServiceReasons(journeyRequest, originalTime), pathRequest, journeyConstraints.getFewestChangesCalculator(),
                                 createPreviousVisits(), lowestCostSeenForBox)).
-                        map(timedPath -> createJourney(journeyRequest, timedPath, destinations, lowestCostForDestinations, journeyIndex));
+                        map(timedPath -> createJourney(journeyRequest, timedPath, destinations, lowestCostForDestinations, journeyIndex, txn));
 
                 Set<Journey> collect = journeys.
                         filter(journey -> !journey.getStages().isEmpty()).

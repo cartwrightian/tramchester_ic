@@ -5,8 +5,11 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.*;
 import com.tramchester.graph.caches.NodeContentsRepository;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphNodeId;
+import com.tramchester.graph.facade.GraphRelationship;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.repository.StationRepository;
@@ -71,7 +74,7 @@ public class ReasonsToGraphViz {
 
         if (!howIGotHere.atStart()) {
             GraphRelationship relationship = transaction.getRelationshipById(howIGotHere.getRelationshipId());
-            GraphNode fromNode = GraphNode.fromStart(relationship); // relationship.getStartNode();
+            GraphNode fromNode = relationship.getStartNode(transaction);
             addNodeToDiagram(fromNode, builder, diagramState, stateName);
 
             GraphNodeId fromNodeId = fromNode.getId();

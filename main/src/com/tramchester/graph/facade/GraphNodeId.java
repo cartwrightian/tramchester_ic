@@ -1,14 +1,16 @@
-package com.tramchester.graph;
-
-import org.neo4j.graphdb.Transaction;
+package com.tramchester.graph.facade;
 
 import java.util.Objects;
 
 public class GraphNodeId {
     private final long legacyId;
 
-    public GraphNodeId(long legacyId) {
+    GraphNodeId(long legacyId) {
         this.legacyId = legacyId;
+    }
+
+    public static GraphNodeId TestOnly(long l) {
+        return new GraphNodeId(l);
     }
 
     @Override
@@ -31,7 +33,8 @@ public class GraphNodeId {
                 '}';
     }
 
-    public GraphNode findIn(Transaction txn) {
-        return new GraphNode(txn.getNodeById(legacyId));
+    long getInternalId() {
+        return legacyId;
     }
+
 }

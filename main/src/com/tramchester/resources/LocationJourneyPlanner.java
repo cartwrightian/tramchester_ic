@@ -20,6 +20,9 @@ import com.tramchester.geo.StationLocations;
 import com.tramchester.geo.StationLocationsRepository;
 import com.tramchester.graph.*;
 import com.tramchester.graph.caches.NodeContentsRepository;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphRelationship;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
@@ -334,11 +337,11 @@ public class LocationJourneyPlanner {
             }
 
             if (direction == WALKS_FROM_STATION) {
-                walkingRelationship = stationNode.createRelationshipTo(walkNode, direction);
+                walkingRelationship = stationNode.createRelationshipTo(txn, walkNode, direction);
                 logger.info(format("Add %s relationship %s (%s) to node %s cost %s",
                         direction, walkStation.getId(), walkStation.getName(), walkNode.getIdOLD(),  cost));
             } else if (direction == WALKS_TO_STATION) {
-                walkingRelationship = walkNode.createRelationshipTo(stationNode, direction);
+                walkingRelationship = walkNode.createRelationshipTo(txn, stationNode, direction);
                 logger.info(format("Add %s relationship between node %s to %s (%s) cost %s",
                         direction, walkNode.getIdOLD(), walkStation.getId(), walkStation.getName(), cost));
             } else {

@@ -1,30 +1,22 @@
 package com.tramchester.graph.search.stateMachine.states;
 
-import com.google.common.collect.Streams;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.InvalidId;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.graph.GraphNode;
-import com.tramchester.graph.GraphRelationship;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.caches.NodeContentsRepository;
-import com.tramchester.graph.graphbuild.GraphProps;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphRelationship;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.ExistingTrip;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.ResourceIterable;
-import org.neo4j.internal.helpers.collection.Iterables;
 
 import java.time.Duration;
-import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.tramchester.graph.GraphPropertyKey.TRIP_ID;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class MinuteState extends TraversalState {
@@ -50,9 +42,9 @@ public class MinuteState extends TraversalState {
         }
 
         public TraversalState fromHour(HourState hourState, GraphNode node, Duration cost, ExistingTrip existingTrip,
-                                       JourneyStateUpdate journeyState, TransportRelationshipTypes[] currentModes) {
+                                       JourneyStateUpdate journeyState, TransportRelationshipTypes[] currentModes, GraphTransaction txn) {
 
-            Stream<GraphRelationship> relationships = node.getRelationships(OUTGOING, currentModes);
+            Stream<GraphRelationship> relationships = node.getRelationships(txn, OUTGOING, currentModes);
 
             if (existingTrip.isOnTrip()) {
                 IdFor<Trip> existingTripId = existingTrip.getTripId();
@@ -103,7 +95,7 @@ public class MinuteState extends TraversalState {
     protected RouteStationStateOnTrip toRouteStationOnTrip(RouteStationStateOnTrip.Builder towardsRouteStation,
                                                            GraphNode routeStationNode, Duration cost, boolean isInterchange) {
 
-        return towardsRouteStation.fromMinuteState(this, routeStationNode, cost, isInterchange, trip);
+        return towardsRouteStation.fromMinuteState(this, routeStationNode, cost, isInterchange, trip, txn);
     }
 
     @Override
@@ -111,7 +103,7 @@ public class MinuteState extends TraversalState {
                                                              GraphNode routeStationNode,
                                                              Duration cost, boolean isInterchange) {
 
-        return towardsEndTrip.fromMinuteState(this, routeStationNode, cost, isInterchange, trip);
+        return towardsEndTrip.fromMinuteState(this, routeStationNode, cost, isInterchange, trip, txn);
     }
 
     @Override

@@ -13,6 +13,9 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.*;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphRelationship;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.metrics.Timing;
 import com.tramchester.repository.TransportData;
@@ -159,8 +162,8 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
     private void linkStationAndRouteStation(GraphTransaction txn, Station station, GraphNode routeStationNode, TransportMode transportMode) {
         GraphNode stationNode = builderCache.getStation(txn, station.getId());
 
-        final GraphRelationship stationToRoute = stationNode.createRelationshipTo(routeStationNode, STATION_TO_ROUTE);
-        final GraphRelationship routeToStation = routeStationNode.createRelationshipTo(stationNode, ROUTE_TO_STATION);
+        final GraphRelationship stationToRoute = stationNode.createRelationshipTo(txn, routeStationNode, STATION_TO_ROUTE);
+        final GraphRelationship routeToStation = routeStationNode.createRelationshipTo(txn, stationNode, ROUTE_TO_STATION);
 
         final Duration minimumChangeCost = station.getMinChangeDuration();
 //        GraphProps.setCostProp(stationToRoute, minimumChangeCost);
@@ -206,7 +209,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         pairs.keySet().forEach(pair -> {
             GraphNode startNode = routeBuilderCache.getStation(tx, pair.getBeginId());
             GraphNode endNode = routeBuilderCache.getStation(tx, pair.getEndId());
-            createLinkRelationship(startNode, endNode, route.getTransportMode());
+            createLinkRelationship(startNode, endNode, route.getTransportMode(), tx);
         });
 
     }
@@ -215,12 +218,12 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         return filter.shouldInclude(leg.getFirst()) && filter.shouldInclude(leg.getSecond());
     }
 
-    private void createLinkRelationship(GraphNode from, GraphNode to, TransportMode mode) {
+    private void createLinkRelationship(GraphNode from, GraphNode to, TransportMode mode, GraphTransaction txn) {
         if (from.hasRelationship(OUTGOING, LINKED)) {
-            Stream<GraphRelationship> alreadyPresent = from.getRelationships(OUTGOING, LINKED);
+            Stream<GraphRelationship> alreadyPresent = from.getRelationships(txn, OUTGOING, LINKED);
 
             // if there is an existing link between stations then update iff the transport mode not already present
-            Optional<GraphRelationship> find = alreadyPresent.filter(relation -> relation.getEndNode().equals(to)).findFirst();
+            Optional<GraphRelationship> find = alreadyPresent.filter(relation -> relation.getEndNode(txn).equals(to)).findFirst();
 
             find.ifPresent(found -> {
                 EnumSet<TransportMode> currentModes = found.getTransportModes();
@@ -235,7 +238,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
 
         }
 
-        GraphRelationship stationsLinked = createRelationship(from, to, LINKED);
+        GraphRelationship stationsLinked = createRelationship(txn, from, to, LINKED);
         addTransportMode(stationsLinked, mode);
     }
 

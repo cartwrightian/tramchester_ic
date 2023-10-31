@@ -1,8 +1,9 @@
 package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.graph.GraphNode;
-import com.tramchester.graph.GraphRelationship;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphRelationship;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.graphbuild.GraphProps;
 import org.neo4j.graphdb.Direction;
 import org.slf4j.Logger;
@@ -22,7 +23,7 @@ public abstract class StationStateBuilder {
 
 
     public Stream<GraphRelationship> addValidDiversions(GraphNode node, Stream<GraphRelationship> relationships,
-                                                   TraversalState traversalState, boolean alreadyOnDiversion) {
+                                                        TraversalState traversalState, boolean alreadyOnDiversion, GraphTransaction txn) {
 
         if (alreadyOnDiversion) {
             logger.info("Already on diversion " + GraphProps.getStationId(node));
@@ -31,7 +32,7 @@ public abstract class StationStateBuilder {
 
         if (node.hasRelationship(Direction.OUTGOING, DIVERSION)) {
             TramDate queryDate = traversalState.traversalOps.getQueryDate();
-            Stream<GraphRelationship> diversions = node.getRelationships(Direction.OUTGOING, DIVERSION);
+            Stream<GraphRelationship> diversions = node.getRelationships(txn, Direction.OUTGOING, DIVERSION);
             Stream<GraphRelationship> validOnDate = diversions.filter(relationship -> relationship.validOn(queryDate)); // GraphProps.validOn(queryDate, relationship));
             return Stream.concat(validOnDate, relationships);
         }

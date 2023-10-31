@@ -2,6 +2,9 @@ package com.tramchester.graph.graphbuild;
 
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.*;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphRelationship;
+import com.tramchester.graph.facade.GraphTransaction;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.slf4j.Logger;
@@ -59,9 +62,9 @@ public class CreateNodesAndRelationships {
         //return graphDatabase.createNode(tx, labels);
     }
 
-    protected GraphRelationship createRelationship(GraphNode start, GraphNode end, TransportRelationshipTypes relationshipType) {
+    protected GraphRelationship createRelationship(GraphTransaction txn, GraphNode start, GraphNode end, TransportRelationshipTypes relationshipType) {
         numberRelationships++;
-        return start.createRelationshipTo(end, relationshipType);
+        return start.createRelationshipTo(txn, end, relationshipType);
     }
 
     protected void reportStats() {
@@ -69,25 +72,25 @@ public class CreateNodesAndRelationships {
         logger.info("Relationships created: " + numberRelationships);
     }
 
-    protected boolean addNeighbourRelationship(GraphNode fromNode, GraphNode toNode, Duration walkCost) {
-        return addRelationshipFor(fromNode, toNode, walkCost, NEIGHBOUR);
+    protected boolean addNeighbourRelationship(GraphTransaction txn, GraphNode fromNode, GraphNode toNode, Duration walkCost) {
+        return addRelationshipFor(txn, fromNode, toNode, walkCost, NEIGHBOUR);
     }
 
-    protected void addGroupRelationshipTowardsParent(GraphNode fromNode, GraphNode toNode, Duration walkCost) {
-        addRelationshipFor(fromNode, toNode, walkCost, GROUPED_TO_PARENT);
+    protected void addGroupRelationshipTowardsParent(GraphTransaction txn, GraphNode fromNode, GraphNode toNode, Duration walkCost) {
+        addRelationshipFor(txn, fromNode, toNode, walkCost, GROUPED_TO_PARENT);
     }
 
-    protected void addGroupRelationshipTowardsChild(GraphNode fromNode, GraphNode toNode, Duration walkCost) {
-        addRelationshipFor(fromNode, toNode, walkCost, GROUPED_TO_CHILD);
+    protected void addGroupRelationshipTowardsChild(GraphTransaction txn, GraphNode fromNode, GraphNode toNode, Duration walkCost) {
+        addRelationshipFor(txn, fromNode, toNode, walkCost, GROUPED_TO_CHILD);
     }
 
-    private boolean addRelationshipFor(GraphNode fromNode, GraphNode toNode, Duration walkCost, TransportRelationshipTypes relationshipType) {
+    private boolean addRelationshipFor(GraphTransaction txn, GraphNode fromNode, GraphNode toNode, Duration walkCost, TransportRelationshipTypes relationshipType) {
         Set<GraphNode> alreadyRelationship = new HashSet<>();
-        fromNode.getRelationships(Direction.OUTGOING, relationshipType).
-                forEach(relationship -> alreadyRelationship.add(GraphNode.fromEnd(relationship)));
+        fromNode.getRelationships(txn, Direction.OUTGOING, relationshipType).
+                forEach(relationship -> alreadyRelationship.add(relationship.getEndNode(txn)));
 
         if (!alreadyRelationship.contains(toNode)) {
-            GraphRelationship relationship = createRelationship(fromNode, toNode, relationshipType);
+            GraphRelationship relationship = createRelationship(txn, fromNode, toNode, relationshipType);
             //GraphProps.setCostProp(relationship, walkCost);
             relationship.setCost(walkCost);
             //GraphProps.setMaxCostProp(relationship, walkCost);

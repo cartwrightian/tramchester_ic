@@ -2,8 +2,8 @@ package com.tramchester.graph.databaseManagement;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.DataSourceInfo;
-import com.tramchester.graph.GraphNode;
-import com.tramchester.graph.GraphTransaction;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.repository.DataSourceRepository;

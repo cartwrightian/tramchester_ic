@@ -1,6 +1,6 @@
 package com.tramchester.graph.search.stateMachine.states;
 
-import com.tramchester.graph.GraphRelationship;
+import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.search.stateMachine.TowardsRouteStation;
 
 import java.time.Duration;

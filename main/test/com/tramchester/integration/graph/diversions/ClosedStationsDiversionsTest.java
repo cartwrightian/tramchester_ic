@@ -12,6 +12,10 @@ import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.*;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphRelationship;
+import com.tramchester.graph.facade.GraphRelationshipId;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.StationClosuresForTest;
@@ -266,7 +270,7 @@ class ClosedStationsDiversionsTest {
         try (GraphTransaction txn = graphDatabase.beginTx()) {
             exchange.getPlatforms().forEach(platform -> {
                 GraphNode node = graphQuery.getPlatformNode(txn, platform);
-                Stream<GraphRelationship> iterable = node.getRelationships(Direction.INCOMING, TransportRelationshipTypes.DIVERSION_DEPART);
+                Stream<GraphRelationship> iterable = node.getRelationships(txn, Direction.INCOMING, TransportRelationshipTypes.DIVERSION_DEPART);
 
                 iterable.forEach(relationship -> foundRelationshipIds.add(relationship.getId()));
             });
@@ -277,9 +281,9 @@ class ClosedStationsDiversionsTest {
 
         try (GraphTransaction txn = graphDatabase.beginTx()) {
             GraphRelationship relationship = txn.getRelationshipById(foundRelationshipIds.get(0));
-            GraphNode from = relationship.getStartNode();
+            GraphNode from = relationship.getStartNode(txn);
             assertTrue(from.hasLabel(ROUTE_STATION), from.getAllProperties().toString());
-            GraphNode to = relationship.getEndNode();
+            GraphNode to = relationship.getEndNode(txn);
             assertTrue(to.hasLabel(PLATFORM));
         }
 

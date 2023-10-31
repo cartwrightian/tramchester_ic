@@ -1,7 +1,8 @@
 package com.tramchester.graph.search.stateMachine.states;
 
-import com.tramchester.graph.GraphNode;
-import com.tramchester.graph.GraphRelationship;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphRelationship;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.OptionalResourceIterator;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
@@ -33,8 +34,8 @@ public class WalkingState extends TraversalState {
             return TraversalStateType.WalkingState;
         }
 
-        public TraversalState fromStart(NotStartedState notStartedState, GraphNode firstNode, Duration cost) {
-            final List<GraphRelationship> relationships = firstNode.getRelationships(OUTGOING, WALKS_TO_STATION).toList();
+        public TraversalState fromStart(NotStartedState notStartedState, GraphNode firstNode, Duration cost, GraphTransaction txn) {
+            final List<GraphRelationship> relationships = firstNode.getRelationships(txn, OUTGOING, WALKS_TO_STATION).toList();
             OptionalResourceIterator<GraphRelationship> towardsDest = notStartedState.traversalOps.getTowardsDestination(relationships.stream());
 
             // prioritise a direct walk from start if one is available
@@ -46,9 +47,9 @@ public class WalkingState extends TraversalState {
             }
         }
 
-        public TraversalState fromStation(StationState station, GraphNode node, Duration cost) {
+        public TraversalState fromStation(StationState station, GraphNode node, Duration cost, GraphTransaction txn) {
             return new WalkingState(station,
-                    filterExcludingEndNode(node.getRelationships(OUTGOING), station), cost, this);
+                    filterExcludingEndNode(txn, node.getRelationships(txn, OUTGOING), station), cost, this);
         }
 
     }
@@ -70,14 +71,14 @@ public class WalkingState extends TraversalState {
     protected PlatformStationState toPlatformStation(PlatformStationState.Builder towardsStation, GraphNode node, Duration cost,
                                                      JourneyStateUpdate journeyState, boolean onDiversion) {
         journeyState.endWalk(node);
-        return towardsStation.fromWalking(this, node, cost, journeyState);
+        return towardsStation.fromWalking(this, node, cost, journeyState, txn);
     }
 
     @Override
     protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsStation, GraphNode node, Duration cost,
                                                  JourneyStateUpdate journeyState, boolean onDiversion) {
         journeyState.endWalk(node);
-        return towardsStation.fromWalking(this, node, cost, journeyState);
+        return towardsStation.fromWalking(this, node, cost, journeyState, txn);
     }
 
     @Override

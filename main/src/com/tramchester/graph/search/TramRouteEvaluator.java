@@ -5,16 +5,17 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.GraphNode;
-import com.tramchester.graph.GraphNodeId;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphNodeId;
+import com.tramchester.graph.facade.GraphRelationship;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.diagnostics.*;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Path;
-import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.traversal.BranchState;
 import org.neo4j.graphdb.traversal.Evaluation;
 import org.neo4j.graphdb.traversal.PathEvaluator;
@@ -49,11 +50,12 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private final Instant begin;
     private final long timeout;
     private final Set<GraphLabel> requestedLabels;
+    private final GraphTransaction txn;
 
     public TramRouteEvaluator(ServiceHeuristics serviceHeuristics, Set<GraphNodeId> destinationNodeIds,
                               NodeContentsRepository nodeContentsRepository, ServiceReasons reasons,
                               PreviousVisits previousVisits, LowestCostSeen bestResultSoFar, TramchesterConfig config,
-                              GraphNodeId startNodeId, Instant begin, ProvidesNow providesNow, Set<TransportMode> requestedModes, Duration maxInitialWait) {
+                              GraphNodeId startNodeId, Instant begin, ProvidesNow providesNow, Set<TransportMode> requestedModes, Duration maxInitialWait, GraphTransaction txn) {
         this.serviceHeuristics = serviceHeuristics;
         this.destinationNodeIds = destinationNodeIds;
         this.nodeContentsRepository = nodeContentsRepository;
@@ -67,6 +69,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         this.providesNow = providesNow;
         this.requestedLabels = GraphLabel.forMode(requestedModes);
         this.maxInitialWaitMins = Math.toIntExact(maxInitialWait.toMinutes());
+        this.txn = txn;
     }
 
     @Override
@@ -76,19 +79,18 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
     @Override
     public Evaluation evaluate(Path path, BranchState<JourneyState> state) {
-        final GraphNode nextNode = GraphNode.fromEnd(path); // path.endNode();
-        return evaluate(path, state, nextNode);
-    }
 
-    public Evaluation evaluate(Path path, BranchState<JourneyState> state, GraphNode nextNode) {
         final ImmutableJourneyState journeyState = state.getState();
+
+        final GraphNode nextNode = txn.fromEnd(path); // path.endNode();
+        final GraphRelationship last = txn.lastFrom(path);
 
         final EnumSet<GraphLabel> labels = nodeContentsRepository.getLabels(nextNode);
 
         // NOTE: This makes a significant impact on performance, without it algo explore the same
         // path again and again for the same time in the case where it is a valid time.
         final ReasonCode previousResult = previousVisits.getPreviousResult(nextNode, journeyState, labels);
-        final HowIGotHere howIGotHere = new HowIGotHere(path, journeyState, nextNode);
+        final HowIGotHere howIGotHere = new HowIGotHere(journeyState, nextNode, last);
         if (previousResult != ReasonCode.PreviousCacheMiss) {
             final TramTime journeyClock = journeyState.getJourneyClock();
             reasons.recordReason(ServiceReason.Cached(previousResult, journeyClock, howIGotHere));
@@ -97,7 +99,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             reasons.recordReason(ServiceReason.CacheMiss(howIGotHere));
         }
 
-        final ReasonCode reasonCode = doEvaluate(path, journeyState, nextNode, labels);
+        final ReasonCode reasonCode = doEvaluate(path, journeyState, nextNode, labels, last);
         final Evaluation result = reasonCode.getEvaluationAction();
 
         previousVisits.recordVisitIfUseful(reasonCode, nextNode, journeyState, labels);
@@ -106,11 +108,11 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     }
 
     private ReasonCode doEvaluate(final Path thePath, final ImmutableJourneyState journeyState, final GraphNode nextNode,
-                                  final EnumSet<GraphLabel> nodeLabels) {
+                                  final EnumSet<GraphLabel> nodeLabels, GraphRelationship last) {
 
         final GraphNodeId nextNodeId = nextNode.getId();
 
-        final HowIGotHere howIGotHere = new HowIGotHere(thePath, journeyState, nextNode);
+        final HowIGotHere howIGotHere = new HowIGotHere(journeyState, nextNode, last);
         final Duration totalCostSoFar = journeyState.getTotalDurationSoFar();
         final int numberChanges = journeyState.getNumberChanges();
 
@@ -245,7 +247,8 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         }
 
         // TODO is this still needed, should drop through via continue anyway?
-        final Relationship inboundRelationship = thePath.lastRelationship();
+        //final Relationship inboundRelationship = thePath.lastRelationship();
+        final GraphRelationship inboundRelationship = txn.lastFrom(thePath);
         if (inboundRelationship != null) {
             // for walking routes we do want to include them all even if at same time
             if (inboundRelationship.isType(WALKS_TO_STATION)) {

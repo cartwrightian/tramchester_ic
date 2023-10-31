@@ -12,7 +12,7 @@ import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.BoundingBoxWithStations;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphTransaction;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.search.RouteCalculatorForBoxes;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.ClosedStationsRepository;

@@ -14,6 +14,9 @@ import com.tramchester.graph.*;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphNodeId;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.search.diagnostics.ReasonsToGraphViz;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
@@ -135,7 +138,7 @@ public class RouteCalculatorSupport {
                                                               LowestCostSeen lowestCostSeen) {
 
         TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(
-                pathRequest, sortsPosition, nodeContentsRepository,
+                txn, pathRequest, sortsPosition, nodeContentsRepository,
                 tripRepository, traversalStateFactory, endStations, config, destinationNodeIds,
                 reasons, reasonToGraphViz, providesNow);
 
@@ -148,10 +151,11 @@ public class RouteCalculatorSupport {
 
     @NotNull
     protected Journey createJourney(JourneyRequest journeyRequest, RouteCalculator.TimedPath path,
-                                    LocationSet destinations, LowestCostsForDestRoutes lowestCostForRoutes, AtomicInteger journeyIndex) {
+                                    LocationSet destinations, LowestCostsForDestRoutes lowestCostForRoutes, AtomicInteger journeyIndex,
+                                    GraphTransaction txn) {
 
-        final List<TransportStage<?, ?>> stages = pathToStages.mapDirect(path, journeyRequest, lowestCostForRoutes, destinations);
-        final List<Location<?>> locationList = mapPathToLocations.mapToLocations(path.getPath());
+        final List<TransportStage<?, ?>> stages = pathToStages.mapDirect(path, journeyRequest, lowestCostForRoutes, destinations, txn);
+        final List<Location<?>> locationList = mapPathToLocations.mapToLocations(path.getPath(), txn);
 
         if (stages.isEmpty()) {
             logger.error("No stages were mapped for " + journeyRequest + " for " + locationList);
