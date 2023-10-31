@@ -15,18 +15,10 @@ public class PlatformDTO {
     private String name;
     private String platformNumber;
     private LatLong latLong;
+    private LocationRefDTO station;
 
     public PlatformDTO() {
         // for deserialisation
-    }
-
-    @Override
-    public String toString() {
-        return "PlatformDTO{" +
-                "id='" + id + '\'' +
-                ", name='" + name + '\'' +
-                ", platformNumber='" + platformNumber + '\'' +
-                '}';
     }
 
     public PlatformDTO(Platform original) {
@@ -35,6 +27,7 @@ public class PlatformDTO {
         this.name = original.getName();
         this.platformNumber = original.getPlatformNumber();
         this.latLong = original.getLatLong();
+        this.station = new LocationRefDTO(original.getStation());
     }
 
     @JsonIgnore
@@ -54,6 +47,10 @@ public class PlatformDTO {
         return platformNumber;
     }
 
+    public LocationRefDTO getStation() {
+        return station;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -71,5 +68,16 @@ public class PlatformDTO {
 
     public LatLong getLatLong() {
         return latLong;
+    }
+
+    @Override
+    public String toString() {
+        return "PlatformDTO{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", platformNumber='" + platformNumber + '\'' +
+                ", latLong=" + latLong +
+                ", station=" + station +
+                '}';
     }
 }

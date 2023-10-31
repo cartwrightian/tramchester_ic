@@ -72,7 +72,7 @@ public class GraphRelationship extends HaveGraphProperties {
             }
         };
     }
-    
+
     public GraphRelationshipId getId() {
         return new GraphRelationshipId(relationship.getId());
     }
