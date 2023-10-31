@@ -236,7 +236,7 @@ public class JourneyPlannerResourceTest {
                     Deansgate.getName(),
                     Piccadilly.getName(),
                     StPetersSquare.getName())));
-            
+
 //            assertThat(secondStagePlatform.getName(), is(oneOf(
 //                    "Cornbrook platform 1",
 //                              "Cornbrook platform 2",
