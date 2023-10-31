@@ -166,19 +166,13 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         final GraphRelationship routeToStation = routeStationNode.createRelationshipTo(txn, stationNode, ROUTE_TO_STATION);
 
         final Duration minimumChangeCost = station.getMinChangeDuration();
-//        GraphProps.setCostProp(stationToRoute, minimumChangeCost);
         stationToRoute.setCost(minimumChangeCost);
-        //GraphProps.setCostProp(routeToStation, Duration.ZERO);
         routeToStation.setCost(Duration.ZERO);
 
-        //GraphProps.setProperty(routeToStation, transportMode);
         routeToStation.setTransportMode(transportMode);
-        //GraphProps.setProperty(stationToRoute, transportMode);
         stationToRoute.setTransportMode(transportMode);
 
-        //GraphProps.setMaxCostProp(stationToRoute, minimumChangeCost);
         stationToRoute.setMaxCost(minimumChangeCost);
-        //GraphProps.setMaxCostProp(routeToStation, Duration.ZERO);
         routeToStation.setMaxCost(Duration.ZERO);
     }
 

@@ -19,6 +19,7 @@ import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.graphbuild.GraphProps;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.*;
+import org.neo4j.internal.helpers.collection.Iterables;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -40,34 +41,17 @@ public class GraphRelationship extends HaveGraphProperties {
     }
 
     public static ResourceIterable<Relationship> convertIterable(Stream<GraphRelationship> resourceIterable) {
-        Iterator<Relationship> mapped = resourceIterable.map(graphRelationship -> graphRelationship.relationship).iterator();
-        // TODO Better way to do this?
-        return new ResourceIterable<>() {
+        Stream<Relationship> mapped = resourceIterable.map(graphRelationship -> graphRelationship.relationship);
+
+        Iterable<Relationship> iterable = new Iterable<>() {
+            @NotNull
             @Override
-            public @NotNull ResourceIterator<Relationship> iterator() {
-                return new ResourceIterator<>() {
-                    @Override
-                    public void close() {
-                        // no-op
-                    }
-
-                    @Override
-                    public boolean hasNext() {
-                        return mapped.hasNext();
-                    }
-
-                    @Override
-                    public Relationship next() {
-                        return mapped.next();
-                    }
-                };
-            }
-
-            @Override
-            public void close() {
-                //
+            public Iterator<Relationship> iterator() {
+                return mapped.iterator();
             }
         };
+        return Iterables.asResourceIterable(iterable);
+
     }
 
     public GraphRelationshipId getId() {
