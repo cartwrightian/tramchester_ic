@@ -1,6 +1,5 @@
 package com.tramchester.graph.search.stateMachine.states;
 
-import com.google.common.collect.Streams;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphNode;
@@ -10,9 +9,6 @@ import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.TowardsStation;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.ResourceIterable;
 
 import java.time.Duration;
 import java.util.stream.Stream;
@@ -154,13 +150,13 @@ public class NoPlatformStationState extends StationState {
     @Override
     public String toString() {
         return "NoPlatformStationState{" +
-                "stationNodeId=" + stationNode.getId() +
+                "stationNodeId=" + stationNode.getIdOLD() +
                 "} " + super.toString();
     }
 
     @Override
     public long nodeId() {
-        return stationNode.getId();
+        return stationNode.getIdOLD();
     }
 
 }

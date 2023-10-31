@@ -81,7 +81,7 @@ public class PlatformState extends TraversalState implements NodeId {
     @Override
     public String toString() {
         return "PlatformState{" +
-                "platformNodeId=" + platformNode.getId() +
+                "platformNodeId=" + platformNode.getIdOLD() +
                 "} " + super.toString();
     }
 
@@ -107,6 +107,6 @@ public class PlatformState extends TraversalState implements NodeId {
 
     @Override
     public long nodeId() {
-        return platformNode.getId();
+        return platformNode.getIdOLD();
     }
 }

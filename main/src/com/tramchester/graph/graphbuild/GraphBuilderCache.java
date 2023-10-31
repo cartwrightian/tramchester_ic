@@ -66,11 +66,11 @@ public class GraphBuilderCache {
     }
 
     public void putRouteStation(IdFor<RouteStation> id, GraphNode routeStationNode) {
-        routeStations.put(id, routeStationNode.getId());
+        routeStations.put(id, routeStationNode.getIdOLD());
     }
 
     protected void putStation(IdFor<Station> station, GraphNode stationNode) {
-        stationsToNodeId.put(station, stationNode.getId());
+        stationsToNodeId.put(station, stationNode.getIdOLD());
     }
 
     protected GraphNode getRouteStation(GraphTransaction txn, Route route, IdFor<Station> stationId) {
@@ -119,12 +119,12 @@ public class GraphBuilderCache {
     }
 
     protected void putPlatform(IdFor<Platform> platformId, GraphNode platformNode) {
-        platforms.put(platformId, platformNode.getId());
+        platforms.put(platformId, platformNode.getIdOLD());
     }
 
     protected void putService(IdFor<Route> routeId, Service service, IdFor<Station> begin, IdFor<Station> end, GraphNode svcNode) {
         String key = CreateKeys.getServiceKey(routeId, service.getId(), begin, end);
-        svcNodes.put(key, svcNode.getId());
+        svcNodes.put(key, svcNode.getIdOLD());
     }
 
     // TODO This has to be route station to route Station
@@ -136,7 +136,7 @@ public class GraphBuilderCache {
 
     protected void putHour(IdFor<Route> routeId, Service service, IdFor<Station> station, Integer hour, GraphNode node) {
         String hourKey = CreateKeys.getHourKey(routeId, service.getId(), station, hour);
-        hourNodes.put(hourKey, node.getId());
+        hourNodes.put(hourKey, node.getIdOLD());
     }
 
     protected GraphNode getHourNode(GraphTransaction txn, IdFor<Route> routeId, Service service, IdFor<Station> station, Integer hour) {

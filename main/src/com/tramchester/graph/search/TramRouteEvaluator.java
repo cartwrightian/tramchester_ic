@@ -107,7 +107,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private ReasonCode doEvaluate(final Path thePath, final ImmutableJourneyState journeyState, final GraphNode nextNode,
                                   final EnumSet<GraphLabel> nodeLabels) {
 
-        final long nextNodeId = nextNode.getId();
+        final long nextNodeId = nextNode.getIdOLD();
 
         final HowIGotHere howIGotHere = new HowIGotHere(thePath, journeyState, nextNode);
         final Duration totalCostSoFar = journeyState.getTotalDurationSoFar();

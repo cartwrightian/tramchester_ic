@@ -53,14 +53,14 @@ public class PreviousVisits implements ReportsCacheStats {
             TramTime journeyClock = journeyState.getJourneyClock();
 
             switch (result) {
-                case DoesNotOperateOnTime -> timeNodePrevious.put(node.getId(), result);
+                case DoesNotOperateOnTime -> timeNodePrevious.put(node.getIdOLD(), result);
                 case NotAtHour -> hourNodePrevious.put(new Key<>(node, journeyClock), result);
             }
             return;
         }
 
         if (labels.contains(GraphLabel.ROUTE_STATION)) {
-            recordRouteStationVisitIfUseful(result, node.getId(), journeyState);
+            recordRouteStationVisitIfUseful(result, node.getIdOLD(), journeyState);
             return;
         }
 
@@ -70,7 +70,7 @@ public class PreviousVisits implements ReportsCacheStats {
                 TramTime journeyClock = journeyState.getJourneyClock();
                 boolean isNextDay = journeyClock.isNextDay();
                 if (!isNextDay) {
-                    servicePrevious.put(node.getId(), result);
+                    servicePrevious.put(node.getIdOLD(), result);
                 }
             }
         }
@@ -109,7 +109,7 @@ public class PreviousVisits implements ReportsCacheStats {
 
         if (labels.contains(GraphLabel.MINUTE)) {
             // time node has by definition a unique time
-            final ReasonCode timeFound = timeNodePrevious.getIfPresent(node.getId());
+            final ReasonCode timeFound = timeNodePrevious.getIfPresent(node.getIdOLD());
             if (timeFound != null) {
                 return timeFound;
             }
@@ -123,10 +123,10 @@ public class PreviousVisits implements ReportsCacheStats {
         }
 
         if (labels.contains(GraphLabel.ROUTE_STATION)) {
-            final ReasonCode found = routeStationPrevious.getIfPresent(node.getId());
+            final ReasonCode found = routeStationPrevious.getIfPresent(node.getIdOLD());
             if (found != null) {
                 if (found == TooManyInterchangesRequired) {
-                    final Integer currentLowest = lowestNumberOfChanges.getIfPresent(node.getId());
+                    final Integer currentLowest = lowestNumberOfChanges.getIfPresent(node.getIdOLD());
                     if (currentLowest!=null && journeyState.getNumberChanges()>=currentLowest) {
                         return found;
                     }
@@ -137,7 +137,7 @@ public class PreviousVisits implements ReportsCacheStats {
         }
 
         if (labels.contains(GraphLabel.SERVICE)) {
-            final ReasonCode found = servicePrevious.getIfPresent(node.getId());
+            final ReasonCode found = servicePrevious.getIfPresent(node.getIdOLD());
             if (found != null) {
                 return found;
             }
@@ -168,7 +168,7 @@ public class PreviousVisits implements ReportsCacheStats {
         private final T other;
 
         public Key(GraphNode node, T other) {
-            this.nodeId = node.getId();
+            this.nodeId = node.getIdOLD();
             this.other = other;
         }
 

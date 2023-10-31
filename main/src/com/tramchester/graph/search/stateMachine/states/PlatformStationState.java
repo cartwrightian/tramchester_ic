@@ -84,14 +84,14 @@ public class PlatformStationState extends StationState {
     @Override
     public String toString() {
         return "PlatformStationState{" +
-                "stationNodeId=" + stationNode.getId() +
+                "stationNodeId=" + stationNode.getIdOLD() +
                 "} " + super.toString();
     }
 
 
     @Override
     public long nodeId() {
-        return stationNode.getId();
+        return stationNode.getIdOLD();
     }
 
     @Override

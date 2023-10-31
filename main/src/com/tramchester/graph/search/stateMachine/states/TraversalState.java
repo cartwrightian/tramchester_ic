@@ -198,7 +198,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
 
     protected static Stream<GraphRelationship> filterExcludingEndNode(Stream<GraphRelationship> relationships, NodeId hasNodeId) {
         long nodeId = hasNodeId.nodeId();
-        return relationships.filter(relationship -> relationship.getEndNode().getId() != nodeId);
+        return relationships.filter(relationship -> relationship.getEndNode().getIdOLD() != nodeId);
     }
 
     public Duration getTotalDuration() {

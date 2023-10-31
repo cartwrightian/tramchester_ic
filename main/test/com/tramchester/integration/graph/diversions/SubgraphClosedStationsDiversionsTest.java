@@ -282,7 +282,7 @@ class SubgraphClosedStationsDiversionsTest {
     @Disabled("All central also interchanges?")
     @Test
     void shouldCheckForExpectedInboundRelationships() {
-        List<Long> foundRelationshipIds = new ArrayList<>();
+        List<GraphRelationshipId> foundRelationshipIds = new ArrayList<>();
 
         Station notAnInterchange = MarketStreet.from(stationRepository);
 
@@ -291,7 +291,7 @@ class SubgraphClosedStationsDiversionsTest {
                 GraphNode node = graphQuery.getPlatformNode(txn, platform);
                 Stream<GraphRelationship> iterable = node.getRelationships(Direction.INCOMING, TransportRelationshipTypes.DIVERSION_DEPART);
 
-                iterable.forEach(relationship -> foundRelationshipIds.add(relationship.getIdOLD()));
+                iterable.forEach(relationship -> foundRelationshipIds.add(relationship.getId()));
             });
 
         }
@@ -310,7 +310,7 @@ class SubgraphClosedStationsDiversionsTest {
 
     @Test
     void shouldCheckIfDiversionFromPiccToStPetersSquare()  {
-        List<Long> foundRelationshipIds = new ArrayList<>();
+        List<GraphRelationshipId> foundRelationshipIds = new ArrayList<>();
 
         Station piccadilly = Piccadilly.from(stationRepository);
 
@@ -319,7 +319,7 @@ class SubgraphClosedStationsDiversionsTest {
 
             Stream<GraphRelationship> iterable = stationNode.getRelationships(Direction.OUTGOING, TransportRelationshipTypes.DIVERSION);
 
-            iterable.forEach(relationship -> foundRelationshipIds.add(relationship.getIdOLD()));
+            iterable.forEach(relationship -> foundRelationshipIds.add(relationship.getId()));
         }
 
         assertFalse(foundRelationshipIds.isEmpty(), "No diversions found");

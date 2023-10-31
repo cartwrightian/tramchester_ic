@@ -258,7 +258,7 @@ class ClosedStationsDiversionsTest {
 
     @Test
     void shouldCheckForExpectedInboundRelationships() {
-        List<Long> foundRelationshipIds = new ArrayList<>();
+        List<GraphRelationshipId> foundRelationshipIds = new ArrayList<>();
 
         Station exchange = ExchangeSquare.from(stationRepository);
         GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
@@ -268,7 +268,7 @@ class ClosedStationsDiversionsTest {
                 GraphNode node = graphQuery.getPlatformNode(txn, platform);
                 Stream<GraphRelationship> iterable = node.getRelationships(Direction.INCOMING, TransportRelationshipTypes.DIVERSION_DEPART);
 
-                iterable.forEach(relationship -> foundRelationshipIds.add(relationship.getIdOLD()));
+                iterable.forEach(relationship -> foundRelationshipIds.add(relationship.getId()));
             });
 
         }

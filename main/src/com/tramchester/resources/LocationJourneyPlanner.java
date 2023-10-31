@@ -336,11 +336,11 @@ public class LocationJourneyPlanner {
             if (direction == WALKS_FROM_STATION) {
                 walkingRelationship = stationNode.createRelationshipTo(walkNode, direction);
                 logger.info(format("Add %s relationship %s (%s) to node %s cost %s",
-                        direction, walkStation.getId(), walkStation.getName(), walkNode.getId(),  cost));
+                        direction, walkStation.getId(), walkStation.getName(), walkNode.getIdOLD(),  cost));
             } else if (direction == WALKS_TO_STATION) {
                 walkingRelationship = walkNode.createRelationshipTo(stationNode, direction);
                 logger.info(format("Add %s relationship between node %s to %s (%s) cost %s",
-                        direction, walkNode.getId(), walkStation.getId(), walkStation.getName(), cost));
+                        direction, walkNode.getIdOLD(), walkStation.getId(), walkStation.getName(), cost));
             } else {
                 throw new RuntimeException("Unknown direction " + direction);
             }

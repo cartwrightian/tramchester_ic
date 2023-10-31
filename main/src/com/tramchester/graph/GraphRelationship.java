@@ -42,13 +42,9 @@ public class GraphRelationship extends HaveGraphProperties {
         return new GraphRelationship(relationship);
     }
 
-//    public static Iterable<Relationship> toRelationshipIterable(Stream<GraphRelationship> stream) {
-//        Iterator<Relationship> iterator = stream.map(graphRelationship -> graphRelationship.relationship).iterator();
-//        return new IteratorIterable<>(iterator);
-//    }
-
     public static ResourceIterable<Relationship> convertIterable(Stream<GraphRelationship> resourceIterable) {
         Iterator<Relationship> mapped = resourceIterable.map(graphRelationship -> graphRelationship.relationship).iterator();
+        // TODO Better way to do this?
         return new ResourceIterable<>() {
             @Override
             public ResourceIterator<Relationship> iterator() {
@@ -76,12 +72,7 @@ public class GraphRelationship extends HaveGraphProperties {
             }
         };
     }
-
-    @Deprecated
-    public long getIdOLD() {
-        return relationship.getId();
-    }
-
+    
     public GraphRelationshipId getId() {
         return new GraphRelationshipId(relationship.getId());
     }

@@ -278,7 +278,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
 
         GraphNode routeStationNode = createGraphNode(tx, labels);
 
-        logger.debug(format("Creating route station %s nodeId %s", routeStation.getId(), routeStationNode.getId()));
+        logger.debug(format("Creating route station %s nodeId %s", routeStation.getId(), routeStationNode.getIdOLD()));
         GraphProps.setProperty(routeStationNode, routeStation);
         setProperty(routeStationNode, routeStation.getStation());
         setProperty(routeStationNode, routeStation.getRoute());

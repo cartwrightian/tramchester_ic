@@ -14,6 +14,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphNode;
 import com.tramchester.graph.GraphRelationship;
+import com.tramchester.graph.GraphRelationshipId;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.search.LowestCostsForDestRoutes;
 import com.tramchester.graph.search.RelationshipWithRoute;
@@ -21,6 +22,7 @@ import com.tramchester.repository.TripRepository;
 import org.neo4j.graphdb.Direction;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -125,11 +127,11 @@ public class TraversalOps {
 
     private static class RelationshipFacade implements SortsPositions.HasStationId<GraphRelationship> {
         private final GraphRelationship relationship;
-        private final Long id;
+        private final GraphRelationshipId id;
         private final IdFor<Station> stationId;
 
         private RelationshipFacade(GraphRelationship relationship) {
-            id = relationship.getIdOLD();
+            id = relationship.getId();
             this.relationship = relationship;
 
             // TODO this needs to go via the cache layer?
@@ -140,15 +142,13 @@ public class TraversalOps {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-
             RelationshipFacade that = (RelationshipFacade) o;
-
-            return id.equals(that.id);
+            return Objects.equals(id, that.id);
         }
 
         @Override
         public int hashCode() {
-            return id.hashCode();
+            return Objects.hash(id);
         }
 
         @Override

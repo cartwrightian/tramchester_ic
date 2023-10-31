@@ -98,4 +98,8 @@ public class GraphTransaction implements AutoCloseable {
     public Result execute(String query) {
         return txn.execute(query);
     }
+
+    public GraphRelationship getRelationshipById(GraphRelationshipId graphRelationshipId) {
+        return graphRelationshipId.findIn(txn);
+    }
 }

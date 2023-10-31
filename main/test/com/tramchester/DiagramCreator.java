@@ -63,8 +63,8 @@ public class DiagramCreator {
         Path filePath = diagramsFolder.resolve(diagramFile);
         logger.info("Creating diagram " + filePath.toAbsolutePath());
 
-        Set<Long> nodeSeen = new HashSet<>();
-        Set<Long> relationshipSeen = new HashSet<>();
+        Set<GraphNodeId> nodeSeen = new HashSet<>();
+        Set<GraphRelationshipId> relationshipSeen = new HashSet<>();
 
         OutputStream fileStream = new FileOutputStream(filePath.toFile());
         BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileStream);
@@ -107,7 +107,7 @@ public class DiagramCreator {
         Files.createDirectory(diagramsFolder);
     }
 
-    private void visit(GraphNode node, DiagramBuild builder, int depth, Set<Long> nodeSeen, Set<Long> relationshipSeen, boolean topLevel) {
+    private void visit(GraphNode node, DiagramBuild builder, int depth, Set<GraphNodeId> nodeSeen, Set<GraphRelationshipId> relationshipSeen, boolean topLevel) {
         if (depth<=0) {
             return;
         }
@@ -124,7 +124,7 @@ public class DiagramCreator {
 
     }
 
-    private void visitInbounds(GraphNode targetNode, DiagramBuild builder, int depth, Set<Long> nodeSeen, Set<Long> relationshipSeen, boolean topLevel) {
+    private void visitInbounds(GraphNode targetNode, DiagramBuild builder, int depth, Set<GraphNodeId> nodeSeen, Set<GraphRelationshipId> relationshipSeen, boolean topLevel) {
         getRelationships(targetNode, Direction.INCOMING, topLevel).forEach(towards -> {
 
             GraphNode startNode = towards.getStartNode(); //GraphNode.fromStart(towards);
@@ -141,8 +141,9 @@ public class DiagramCreator {
         return targetNode.getRelationships(direction, types);
     }
 
-    private void visitOutbounds(GraphNode startNode, DiagramBuild builder, int depth, Set<Long> seen, Set<Long> relationshipSeen, boolean topLevel) {
-        Map<Long,GraphRelationship> goesToRelationships = new HashMap<>();
+    private void visitOutbounds(GraphNode startNode, DiagramBuild builder, int depth, Set<GraphNodeId> seen,
+                                Set<GraphRelationshipId> relationshipSeen, boolean topLevel) {
+        Map<GraphRelationshipId,GraphRelationship> goesToRelationships = new HashMap<>();
 
         getRelationships(startNode, Direction.OUTGOING, topLevel).forEach(awayFrom -> {
 
@@ -154,8 +155,8 @@ public class DiagramCreator {
             addEdge(builder, awayFrom, createNodeId(startNode), createNodeId(rawEndNode), relationshipSeen);
 
             if (relationshipType==TRAM_GOES_TO || relationshipType==BUS_GOES_TO || relationshipType==TRAIN_GOES_TO) {
-                if (!goesToRelationships.containsKey(awayFrom.getIdOLD())) {
-                    goesToRelationships.put(awayFrom.getIdOLD(), awayFrom);
+                if (!goesToRelationships.containsKey(awayFrom.getId())) {
+                    goesToRelationships.put(awayFrom.getId(), awayFrom);
                 }
             }
             visit(rawEndNode, builder, depth-1, seen, relationshipSeen, topLevel);
@@ -166,14 +167,14 @@ public class DiagramCreator {
     }
 
 
-    private void addEdge(DiagramBuild builder, GraphRelationship edge, String startNodeId, String endNodeId, Set<Long> relationshipSeen) {
+    private void addEdge(DiagramBuild builder, GraphRelationship edge, String startNodeId, String endNodeId, Set<GraphRelationshipId> relationshipSeen) {
 
         TransportRelationshipTypes relationshipType = TransportRelationshipTypes.valueOf(edge.getType().name());
 
-        if (relationshipSeen.contains(edge.getIdOLD())) {
+        if (relationshipSeen.contains(edge.getId())) {
             return;
         }
-        relationshipSeen.add(edge.getIdOLD());
+        relationshipSeen.add(edge.getId());
 
         if (relationshipType==TransportRelationshipTypes.ON_ROUTE) {
             String routeId = GraphProps.getRouteIdFrom(edge).getGraphId();

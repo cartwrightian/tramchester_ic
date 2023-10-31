@@ -179,7 +179,7 @@ public class ServiceReasons {
     }
 
     private void reasonsAtNode(final GraphNode node) {
-        final long nodeId = node.getId();
+        final long nodeId = node.getIdOLD();
         // beware of Set here, will collapse reasons
         List<HeuristicsReason> reasonsForId = reasons.stream().
                 filter(reason -> reason.getNodeId() == nodeId).

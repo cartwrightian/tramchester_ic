@@ -12,7 +12,7 @@ public class HowIGotHere {
     private final String traversalStateName;
 
     public HowIGotHere(Path path, ImmutableJourneyState immutableJourneyState, GraphNode graphNode) {
-        this(graphNode.getId(), getRelationshipFromPath(path), immutableJourneyState.getTraversalStateName());
+        this(graphNode.getIdOLD(), getRelationshipFromPath(path), immutableJourneyState.getTraversalStateName());
     }
 
     private HowIGotHere(long nodeId, long relationshipId, String traversalStateName) {

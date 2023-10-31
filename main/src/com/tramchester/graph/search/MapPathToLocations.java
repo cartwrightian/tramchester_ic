@@ -66,7 +66,7 @@ public class MapPathToLocations {
             final StationGroup stationGroup = stationGroupsRepository.getStationGroup(areaId);
             if (stationGroup==null) {
                 throw new RuntimeException(format("Missing grouped station %s for %s labels %s props %s",
-                        areaId, node.getId(), node.getLabels(), node.getAllProperties()));
+                        areaId, node.getIdOLD(), node.getLabels(), node.getAllProperties()));
             }
             return Optional.of(stationGroup);
         }

@@ -94,7 +94,7 @@ public class RouteCalculatorSupport {
         try(GraphTransaction txn = graphDatabaseService.beginTx()) {
             destinationNodeIds = destinations.stream().
                     map(location -> getLocationNodeSafe(txn, location)).
-                    map(GraphNode::getId).
+                    map(GraphNode::getIdOLD).
                     collect(Collectors.toSet());
         }
         return destinationNodeIds;

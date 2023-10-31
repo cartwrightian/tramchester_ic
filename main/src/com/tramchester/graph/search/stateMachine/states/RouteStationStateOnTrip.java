@@ -1,6 +1,5 @@
 package com.tramchester.graph.search.stateMachine.states;
 
-import com.google.common.collect.Streams;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.exceptions.TramchesterException;
@@ -16,11 +15,8 @@ import com.tramchester.graph.search.stateMachine.NodeId;
 import com.tramchester.graph.search.stateMachine.OptionalResourceIterator;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.TowardsRouteStation;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
 
 import java.time.Duration;
-import java.util.List;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.TransportRelationshipTypes.TO_SERVICE;
@@ -123,13 +119,13 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
 
     @Override
     public long nodeId() {
-        return routeStationNode.getId();
+        return routeStationNode.getIdOLD();
     }
 
     @Override
     public String toString() {
         return "RouteStationStateOnTrip{" +
-                "routeStationNodeId=" + routeStationNode.getId() +
+                "routeStationNodeId=" + routeStationNode.getIdOLD() +
                 ", tripId=" + tripId +
                 ", transportMode=" + transportMode +
                 "} " + super.toString();

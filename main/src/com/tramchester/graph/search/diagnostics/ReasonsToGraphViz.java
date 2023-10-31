@@ -76,7 +76,7 @@ public class ReasonsToGraphViz {
             GraphNode fromNode = GraphNode.fromStart(relationship); // relationship.getStartNode();
             addNodeToDiagram(fromNode, builder, diagramState, stateName);
 
-            long fromNodeId = fromNode.getId();
+            long fromNodeId = fromNode.getIdOLD();
             Pair<Long,Long> link = Pair.of(fromNodeId, endNodeId);
             if (!diagramState.relationships.contains(link)) {
                 diagramState.relationships.add(link);
@@ -87,7 +87,7 @@ public class ReasonsToGraphViz {
     }
 
     private void addNodeToDiagram(GraphNode node, StringBuilder builder, DiagramState diagramState, String stateName) {
-        long nodeId = node.getId();
+        long nodeId = node.getIdOLD();
         if (!diagramState.nodes.contains(nodeId)) {
             diagramState.nodes.add(nodeId);
             StringBuilder nodeLabel = new StringBuilder();

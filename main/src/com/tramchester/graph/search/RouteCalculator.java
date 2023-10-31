@@ -162,7 +162,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 //            logger.info("Expanded (composite) destinations from " + unexpanded.size() + " to " + destinations.size());
 //        }
 
-        final Set<Long> destinationNodeIds = Collections.singleton(endNode.getId());
+        final Set<Long> destinationNodeIds = Collections.singleton(endNode.getIdOLD());
         final TramDate tramDate = journeyRequest.getDate();
 
         // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results

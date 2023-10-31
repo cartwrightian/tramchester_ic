@@ -27,7 +27,6 @@ import org.neo4j.graphdb.PathExpander;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.ResourceIterable;
 import org.neo4j.graphdb.traversal.*;
-import org.neo4j.internal.helpers.collection.Iterables;
 import org.neo4j.kernel.impl.traversal.MonoDirectionalTraversalDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,7 +93,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         Duration maxInitialWait = pathRequest.getMaxInitialWait();
         final TramRouteEvaluator tramRouteEvaluator = new TramRouteEvaluator(pathRequest.getServiceHeuristics(),
                 destinationNodeIds, nodeContentsRepository, reasons, previousSuccessfulVisit, lowestCostSeen, config,
-                startNode.getId(), begin, providesNow, pathRequest.getRequestedModes(), maxInitialWait);
+                startNode.getIdOLD(), begin, providesNow, pathRequest.getRequestedModes(), maxInitialWait);
 
         LatLong destinationLatLon = sortsPosition.midPointFrom(destinations);
 

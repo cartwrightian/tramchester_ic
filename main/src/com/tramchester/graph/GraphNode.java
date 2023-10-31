@@ -49,8 +49,12 @@ public class GraphNode extends HaveGraphProperties {
     }
 
     @Deprecated
-    public Long getId() {
+    public Long getIdOLD() {
         return id;
+    }
+
+    public GraphNodeId getId() {
+        return new GraphNodeId(id);
     }
 
     public static GraphNode fromEnd(GraphRelationship relationship) {

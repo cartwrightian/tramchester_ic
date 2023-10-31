@@ -6,9 +6,6 @@ import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
 import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.ResourceIterable;
 
 import java.time.Duration;
 import java.util.stream.Stream;
@@ -36,12 +33,12 @@ public class GroupedStationState extends TraversalState {
         public TraversalState fromChildStation(StationState stationState, GraphNode node, Duration cost) {
             return new GroupedStationState(stationState,
                     filterExcludingEndNode(node.getRelationships(Direction.OUTGOING, GROUPED_TO_CHILD),stationState),
-                    cost, node.getId(), this);
+                    cost, node.getIdOLD(), this);
         }
 
         public TraversalState fromStart(NotStartedState notStartedState, GraphNode node, Duration cost) {
             return new GroupedStationState(notStartedState, node.getRelationships(Direction.OUTGOING, GROUPED_TO_CHILD),
-                    cost, node.getId(), this);
+                    cost, node.getIdOLD(), this);
         }
     }
 
