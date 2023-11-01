@@ -41,7 +41,6 @@ class RailAndTramGraphBuilderTest {
     private static ComponentContainer componentContainer;
 
     private GraphTransaction txn;
-    private GraphQuery graphQuery;
     private StationRepository stationRepository;
 
     @BeforeAll
@@ -54,7 +53,6 @@ class RailAndTramGraphBuilderTest {
     @BeforeEach
     void beforeEachTestRuns() {
 
-        graphQuery = componentContainer.get(GraphQuery.class);
         stationRepository = componentContainer.get(StationRepository.class);
         GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
 
@@ -82,11 +80,9 @@ class RailAndTramGraphBuilderTest {
         List<GraphRelationship> list = outboundLinks.toList();
         assertEquals(3, list.size());
 
-        Set<IdFor<Station>> destinations = list.stream().map(graphRelationship -> graphRelationship.getEndNode(txn)).
-                map(node -> {
-                    return node.getStationId();
-                    //return getStationIdFrom(node.getNode());
-                }).collect(Collectors.toSet());
+        Set<IdFor<Station>> destinations = list.stream().
+                map(graphRelationship -> graphRelationship.getEndNode(txn)).
+                map(GraphNode::getStationId).collect(Collectors.toSet());
 
         assertTrue(destinations.contains(TraffordBar.getId()));
         assertTrue(destinations.contains(Pomona.getId()));
@@ -175,10 +171,7 @@ class RailAndTramGraphBuilderTest {
 
         Stream<GraphNode> interchangeNodes = txn.findNodes(GraphLabel.INTERCHANGE);
 
-        IdSet<Station> fromDB = interchangeNodes.map(node -> {
-            return node.getStationId();
-            //return getStationIdFrom(node.getNode());
-        }).collect(IdSet.idCollector());
+        IdSet<Station> fromDB = interchangeNodes.map(GraphNode::getStationId).collect(IdSet.idCollector());
 
         assertEquals(fromConfigAndDiscovered, fromDB, "Graph clean and rebuild needed?");
     }

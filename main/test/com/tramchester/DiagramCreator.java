@@ -8,7 +8,6 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
@@ -36,7 +35,6 @@ public class DiagramCreator {
     private static final Logger logger = LoggerFactory.getLogger(DiagramCreator.class);
 
     private final GraphDatabase graphDatabase;
-    private final GraphQuery graphQuery;
     private final TransportRelationshipTypes[] toplevelRelationships =
             new TransportRelationshipTypes[]{LINKED, ON_ROUTE, ROUTE_TO_STATION, STATION_TO_ROUTE, DIVERSION };
     private final StationRepository stationRepository;
@@ -45,11 +43,10 @@ public class DiagramCreator {
     private static final Path diagramsFolder = Path.of("diagrams");
 
     @Inject
-    public DiagramCreator(GraphDatabase graphDatabase, GraphQuery graphQuery, StationRepository stationRepository,
+    public DiagramCreator(GraphDatabase graphDatabase, StationRepository stationRepository,
                           NaptanRepository naptanRespository) {
         // ready is token to express dependency on having a built graph DB
         this.graphDatabase = graphDatabase;
-        this.graphQuery = graphQuery;
         this.stationRepository = stationRepository;
         this.naptanRespository = naptanRespository;
     }

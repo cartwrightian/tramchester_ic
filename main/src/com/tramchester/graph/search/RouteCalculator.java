@@ -54,12 +54,12 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
     public RouteCalculator(TransportData transportData, NodeContentsRepository nodeOperations, PathToStages pathToStages,
                            TramchesterConfig config, CreateQueryTimes createQueryTimes,
                            TraversalStateFactory traversalStateFactory, GraphDatabase graphDatabaseService,
-                           ProvidesNow providesNow, GraphQuery graphQuery,
+                           ProvidesNow providesNow,
                            SortsPositions sortsPosition, MapPathToLocations mapPathToLocations,
                            BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz,
                            ClosedStationsRepository closedStationsRepository, RunningRoutesAndServices runningRoutesAndServices,
                            RouteInterchangeRepository routeInterchanges, CacheMetrics cacheMetrics) {
-        super(graphQuery, pathToStages, nodeOperations, graphDatabaseService,
+        super(pathToStages, nodeOperations, graphDatabaseService,
                 traversalStateFactory, providesNow, sortsPosition, mapPathToLocations,
                 transportData, config, transportData, routeToRouteCosts, reasonToGraphViz, routeInterchanges);
         this.config = config;

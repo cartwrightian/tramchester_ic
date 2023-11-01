@@ -37,7 +37,6 @@ class GraphBuilderRailTest {
     private static ComponentContainer componentContainer;
 
     private GraphTransaction txn;
-    private GraphQuery graphQuery;
     private TransportData transportData;
 
     @BeforeAll
@@ -49,7 +48,6 @@ class GraphBuilderRailTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        graphQuery = componentContainer.get(GraphQuery.class);
         GraphDatabase service = componentContainer.get(GraphDatabase.class);
         transportData = componentContainer.get(TransportData.class);
 

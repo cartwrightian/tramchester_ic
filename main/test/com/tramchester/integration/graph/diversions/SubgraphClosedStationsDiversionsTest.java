@@ -64,7 +64,6 @@ class SubgraphClosedStationsDiversionsTest {
             Monsall,
             NewIslington);
 
-    private static GraphQuery graphQuery;
     private RouteCalculatorTestFacade calculator;
     private StationRepository stationRepository;
     private final static TramDate when = TestEnv.testDay();
@@ -85,7 +84,6 @@ class SubgraphClosedStationsDiversionsTest {
                 create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
         database = componentContainer.get(GraphDatabase.class);
-        graphQuery = componentContainer.get(GraphQuery.class);
     }
 
     private static void configureFilter(ConfigurableGraphFilter graphFilter, TransportData transportData) {

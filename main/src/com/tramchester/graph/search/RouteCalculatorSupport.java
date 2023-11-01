@@ -40,7 +40,6 @@ import static java.lang.String.format;
 public class RouteCalculatorSupport {
     private static final Logger logger = LoggerFactory.getLogger(RouteCalculatorSupport.class);
 
-    private final GraphQuery graphQuery;
     private final PathToStages pathToStages;
     private final GraphDatabase graphDatabaseService;
     protected final ProvidesNow providesNow;
@@ -55,13 +54,12 @@ public class RouteCalculatorSupport {
     private final ReasonsToGraphViz reasonToGraphViz;
     private final RouteInterchangeRepository routeInterchanges;
 
-    protected RouteCalculatorSupport(GraphQuery graphQuery, PathToStages pathToStages, NodeContentsRepository nodeContentsRepository,
+    protected RouteCalculatorSupport(PathToStages pathToStages, NodeContentsRepository nodeContentsRepository,
                                      GraphDatabase graphDatabaseService, TraversalStateFactory traversalStateFactory,
                                      ProvidesNow providesNow, SortsPositions sortsPosition, MapPathToLocations mapPathToLocations,
                                      StationRepository stationRepository, TramchesterConfig config, TripRepository tripRepository,
                                      BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz,
                                      RouteInterchangeRepository routeInterchanges) {
-        this.graphQuery = graphQuery;
         this.pathToStages = pathToStages;
         this.nodeContentsRepository = nodeContentsRepository;
         this.graphDatabaseService = graphDatabaseService;

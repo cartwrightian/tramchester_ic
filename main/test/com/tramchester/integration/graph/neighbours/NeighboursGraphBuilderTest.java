@@ -7,7 +7,6 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
@@ -79,7 +78,6 @@ class NeighboursGraphBuilderTest {
         long tram = stations.size();
         assertEquals(NUM_TFGM_TRAM_STATIONS, tram);
 
-        GraphQuery graphQuery = componentContainer.get(GraphQuery.class);
         stations.forEach(station ->
                 assertNotNull(txn.findNode(station), station.getId() + " is missing from DB"));
     }

@@ -266,7 +266,6 @@ class ClosedStationsDiversionsTest {
 
         Station exchange = ExchangeSquare.from(stationRepository);
         GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
-        GraphQuery graphQuery = componentContainer.get(GraphQuery.class);
         try (GraphTransaction txn = graphDatabase.beginTx()) {
             exchange.getPlatforms().forEach(platform -> {
                 GraphNode node = txn.findNode(platform);

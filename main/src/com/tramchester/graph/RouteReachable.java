@@ -33,17 +33,14 @@ public class RouteReachable {
 
     private final GraphDatabase graphDatabaseService;
     private final StationRepository stationRepository;
-    private final GraphQuery graphQuery;
     private final StationAvailabilityRepository availabilityRepository;
 
     @Inject
     public RouteReachable(GraphDatabase graphDatabaseService, StationRepository stationRepository,
-                          GraphQuery graphQuery,
                           @SuppressWarnings("unused") StagedTransportGraphBuilder.Ready ready,
                           StationAvailabilityRepository availabilityRepository) {
         this.graphDatabaseService = graphDatabaseService;
         this.stationRepository = stationRepository;
-        this.graphQuery = graphQuery;
         this.availabilityRepository = availabilityRepository;
     }
 

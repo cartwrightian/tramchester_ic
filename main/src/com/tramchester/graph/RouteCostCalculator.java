@@ -39,15 +39,13 @@ import static java.lang.String.format;
 public class RouteCostCalculator {
     private static final Logger logger = LoggerFactory.getLogger(RouteCostCalculator.class);
 
-    private final GraphQuery graphQuery;
     private final GraphDatabase graphDatabaseService;
     private final RouteRepository routeRepository;
 
     @Inject
-    public RouteCostCalculator(GraphQuery graphQuery, GraphDatabase graphDatabaseService,
+    public RouteCostCalculator(GraphDatabase graphDatabaseService,
                                @SuppressWarnings("unused") StagedTransportGraphBuilder.Ready ready,
                                RouteRepository routeRepository) {
-        this.graphQuery = graphQuery;
         this.graphDatabaseService = graphDatabaseService;
         this.routeRepository = routeRepository;
     }

@@ -51,7 +51,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
     @Inject
     public RouteCalculatorForBoxes(TramchesterConfig config,
                                    TransportData transportData,
-                                   GraphDatabase graphDatabaseService, GraphQuery graphQuery, TraversalStateFactory traversalStateFactory,
+                                   GraphDatabase graphDatabaseService, TraversalStateFactory traversalStateFactory,
                                    PathToStages pathToStages,
                                    NodeContentsRepository nodeContentsRepository,
                                    ProvidesNow providesNow,
@@ -60,7 +60,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                                    ClosedStationsRepository closedStationsRepository, RunningRoutesAndServices runningRoutesAndService,
                                    RouteInterchangeRepository routeInterchanges,
                                    @SuppressWarnings("unused") RouteCostCalculator routeCostCalculator) {
-        super(graphQuery, pathToStages, nodeContentsRepository, graphDatabaseService,
+        super(pathToStages, nodeContentsRepository, graphDatabaseService,
                 traversalStateFactory, providesNow, sortsPosition, mapPathToLocations,
                 transportData, config, transportData, routeToRouteCosts, reasonToGraphViz, routeInterchanges);
         this.config = config;

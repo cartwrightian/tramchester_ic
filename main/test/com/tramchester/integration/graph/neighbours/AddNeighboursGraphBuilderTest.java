@@ -37,7 +37,6 @@ class AddNeighboursGraphBuilderTest {
     private Station shudehillTram;
 
     private static ComponentContainer componentContainer;
-    private GraphQuery graphQuery;
     private GraphTransaction txn;
 
     @BeforeAll
@@ -66,8 +65,6 @@ class AddNeighboursGraphBuilderTest {
 
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
         StationGroupsRepository stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
-
-        graphQuery = componentContainer.get(GraphQuery.class);
 
         shudehillCompositeBus = stationGroupsRepository.findByName("Shudehill Interchange");
         shudehillTram = stationRepository.getStationById(Shudehill.getId());

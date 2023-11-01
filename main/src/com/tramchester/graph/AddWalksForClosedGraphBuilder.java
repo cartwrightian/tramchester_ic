@@ -42,14 +42,13 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships i
 
     private final GraphDatabase database;
     private final ClosedStationsRepository closedStationsRepository;
-    private final GraphQuery graphQuery;
     private final TramchesterConfig config;
     private final GraphFilter filter;
     private final Geography geography;
     private final StationsWithDiversions stationsWithDiversions;
 
     @Inject
-    public AddWalksForClosedGraphBuilder(GraphDatabase database, GraphFilter filter, GraphQuery graphQuery,
+    public AddWalksForClosedGraphBuilder(GraphDatabase database, GraphFilter filter,
                                          ClosedStationsRepository closedStationsRepository,
                                          TramchesterConfig config,
                                          @SuppressWarnings("unused") StationsAndLinksGraphBuilder.Ready ready,
@@ -57,7 +56,6 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships i
         super(database);
         this.database = database;
         this.filter = filter;
-        this.graphQuery = graphQuery;
         this.closedStationsRepository = closedStationsRepository;
         this.config = config;
 
@@ -161,8 +159,9 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships i
         logger.info("Checking DB if walks added for " + sourceConfig.getName() +  " closed stations");
         boolean flag;
         try (GraphTransaction txn = graphDatabase.beginTx()) {
-            flag = graphQuery.hasAnyNodesWithLabelAndId(txn, GraphLabel.WALK_FOR_CLOSED_ENABLED,
-                    SOURCE_NAME_PROP.getText(), sourceConfig.getName());
+            String value = sourceConfig.getName();
+
+            flag = txn.hasAnyMatching(GraphLabel.WALK_FOR_CLOSED_ENABLED, SOURCE_NAME_PROP.getText(), value);
         }
         return flag;
     }
