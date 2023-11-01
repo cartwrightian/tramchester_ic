@@ -1,16 +1,10 @@
 package com.tramchester.graph;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.domain.places.RouteStation;
-import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
-import org.neo4j.graphdb.Direction;
 
 import javax.inject.Inject;
-import java.util.Collections;
-import java.util.List;
 
 /***
  * TODO Into GraphTransaction Facade??
@@ -23,17 +17,6 @@ public class GraphQuery {
 
     @Inject
     public GraphQuery() {
-    }
-
-    /**
-     * When calling from tests make sure relevant DB is fully built
-     */
-    public List<GraphRelationship> getRouteStationRelationships(GraphTransaction txn, RouteStation routeStation, Direction direction) {
-        GraphNode routeStationNode = txn.findNode(routeStation);
-        if (routeStationNode==null) {
-            return Collections.emptyList();
-        }
-        return routeStationNode.getRelationships(txn, direction, TransportRelationshipTypes.forPlanning()).toList();
     }
 
     public boolean hasAnyNodesWithLabelAndId(GraphTransaction txn, GraphLabel label, String field, String value) {

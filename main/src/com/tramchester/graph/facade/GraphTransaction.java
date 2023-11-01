@@ -4,7 +4,9 @@ import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.GraphProperty;
 import com.tramchester.domain.HasGraphLabel;
 import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.places.RouteStation;
 import com.tramchester.graph.GraphPropertyKey;
+import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import org.apache.commons.lang3.stream.Streams;
 import org.jetbrains.annotations.NotNull;
@@ -13,10 +15,7 @@ import org.neo4j.graphalgo.EvaluationContext;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.schema.Schema;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Stream;
 
 /***
@@ -142,6 +141,14 @@ public class GraphTransaction implements AutoCloseable {
             return null;
         }
         return wrapRelationship(relationship);
+    }
+
+    public List<GraphRelationship> getRouteStationRelationships(RouteStation routeStation, Direction direction) {
+        GraphNode routeStationNode = findNode(routeStation);
+        if (routeStationNode==null) {
+            return Collections.emptyList();
+        }
+        return routeStationNode.getRelationships(this, direction, TransportRelationshipTypes.forPlanning()).toList();
     }
 
     MutableGraphNode wrapNode(Node endNode) {
