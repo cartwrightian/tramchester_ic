@@ -7,11 +7,11 @@ import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.graph.*;
+import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.facade.GraphTransaction;
-import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.repository.TransportData;
@@ -20,7 +20,6 @@ import com.tramchester.testSupport.testTags.TrainTest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.Relationship;
 
 import java.time.Duration;
 import java.util.List;
@@ -108,26 +107,26 @@ class GraphBuilderRailTest {
 
         platforms.forEach(platform -> {
             GraphNode node = txn.findNode(platform);
-            Relationship leave = node.getSingleRelationship(TransportRelationshipTypes.LEAVE_PLATFORM, Direction.OUTGOING);
-            Duration leaveCost = GraphProps.getCost(leave);
+            GraphRelationship leave = node.getSingleRelationship(txn, TransportRelationshipTypes.LEAVE_PLATFORM, Direction.OUTGOING);
+            Duration leaveCost = leave.getCost(); // GraphProps.getCost(leave);
             assertEquals(Duration.ZERO, leaveCost, "leave cost wrong for " + platform);
 
-            Relationship enter = node.getSingleRelationship(TransportRelationshipTypes.ENTER_PLATFORM, Direction.INCOMING);
-            Duration enterCost = GraphProps.getCost(enter);
+            GraphRelationship enter = node.getSingleRelationship(txn, TransportRelationshipTypes.ENTER_PLATFORM, Direction.INCOMING);
+            Duration enterCost = enter.getCost(); // GraphProps.getCost(enter);
             assertEquals(cost, enterCost, "wrong enter cost for " + platform.getId());
         });
 
         platforms.forEach(platform -> {
             GraphNode node = txn.findNode(platform);
             if (node.hasRelationship(Direction.OUTGOING, BOARD)) {
-                Relationship board = node.getSingleRelationship(BOARD, Direction.OUTGOING);
-                Duration boardCost = GraphProps.getCost(board);
+                GraphRelationship board = node.getSingleRelationship(txn, BOARD, Direction.OUTGOING);
+                Duration boardCost = board.getCost(); // GraphProps.getCost(board);
                 assertEquals(Duration.ZERO, boardCost, "board cost wrong for " + platform);
             }
 
             if (node.hasRelationship(Direction.INCOMING, DEPART)) {
-                Relationship depart = node.getSingleRelationship(DEPART, Direction.INCOMING);
-                Duration enterCost = GraphProps.getCost(depart);
+                GraphRelationship depart = node.getSingleRelationship(txn, DEPART, Direction.INCOMING);
+                Duration enterCost = depart.getCost(); //GraphProps.getCost(depart);
                 assertEquals(Duration.ZERO, enterCost, "depart wrong cost for " + platform.getId());
             }
         });

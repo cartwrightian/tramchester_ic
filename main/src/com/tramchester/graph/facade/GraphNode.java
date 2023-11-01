@@ -14,7 +14,6 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.graphdb.traversal.Traverser;
 
@@ -34,7 +33,7 @@ public interface GraphNode {
 
     boolean hasLabel(GraphLabel graphLabel);
 
-    Relationship getSingleRelationship(TransportRelationshipTypes transportRelationshipTypes, Direction direction);
+    GraphRelationship getSingleRelationship(GraphTransaction txn, TransportRelationshipTypes transportRelationshipTypes, Direction direction);
 
     IdFor<RouteStation> getRouteStationId();
 

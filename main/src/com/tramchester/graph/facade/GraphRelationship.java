@@ -151,13 +151,12 @@ public class GraphRelationship extends HaveGraphProperties {
         return txn.wrapNode(node);
     }
 
-
-
     public GraphNode getStartNode(GraphTransaction txn) {
         return txn.wrapNode(relationship.getStartNode());
     }
 
     public EnumSet<TransportMode> getTransportModes() {
+        // todo can this be stored direct now?
         if (!relationship.hasProperty(TRANSPORT_MODES.getText())) {
             return EnumSet.noneOf(TransportMode.class);
         }

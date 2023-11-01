@@ -8,12 +8,11 @@ import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.*;
+import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
-import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.integration.testSupport.RailAndTramGreaterManchesterConfig;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
@@ -24,7 +23,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.GMTest;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.Relationship;
 
 import java.time.Duration;
 import java.util.List;
@@ -97,12 +95,12 @@ class RailAndTramGraphBuilderTest {
         routeStations.forEach(routeStation -> {
             GraphNode node = txn.findNode(routeStation);
 
-            Relationship toStation = node.getSingleRelationship(ROUTE_TO_STATION, Direction.OUTGOING);
-            Duration costToStation = GraphProps.getCost(toStation);
+            GraphRelationship toStation = node.getSingleRelationship(txn, ROUTE_TO_STATION, Direction.OUTGOING);
+            Duration costToStation = toStation.getCost(); // GraphProps.getCost(toStation);
             assertEquals(Duration.ZERO, costToStation, "wrong cost for " + routeStation);
 
-            Relationship fromStation = node.getSingleRelationship(STATION_TO_ROUTE, Direction.INCOMING);
-            Duration costFromStation = GraphProps.getCost(fromStation);
+            GraphRelationship fromStation = node.getSingleRelationship(txn, STATION_TO_ROUTE, Direction.INCOMING);
+            Duration costFromStation = fromStation.getCost(); // GraphProps.getCost(fromStation);
             Duration expected = routeStation.getStation().getMinChangeDuration();
             assertEquals(expected, costFromStation, "wrong cost for " + routeStation);
         });

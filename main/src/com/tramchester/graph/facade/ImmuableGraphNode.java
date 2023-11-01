@@ -17,7 +17,6 @@ import org.neo4j.graphalgo.PathFinder;
 import org.neo4j.graphalgo.WeightedPath;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.graphdb.traversal.Traverser;
 
@@ -75,8 +74,8 @@ public class ImmuableGraphNode implements GraphNode {
     }
 
     @Override
-    public Relationship getSingleRelationship(TransportRelationshipTypes transportRelationshipTypes, Direction direction) {
-        return underlying.getSingleRelationship(transportRelationshipTypes,direction);
+    public GraphRelationship getSingleRelationship(GraphTransaction txn, TransportRelationshipTypes transportRelationshipTypes, Direction direction) {
+        return underlying.getSingleRelationship(txn, transportRelationshipTypes,direction);
     }
 
     @Override

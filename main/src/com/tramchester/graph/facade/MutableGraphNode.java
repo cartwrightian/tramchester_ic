@@ -162,8 +162,13 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
         return node.hasLabel(graphLabel);
     }
 
-    public Relationship getSingleRelationship(TransportRelationshipTypes transportRelationshipTypes, Direction direction) {
-        return node.getSingleRelationship(transportRelationshipTypes,direction);
+    @Override
+    public GraphRelationship getSingleRelationship(GraphTransaction txn, TransportRelationshipTypes transportRelationshipTypes, Direction direction) {
+        Relationship found = node.getSingleRelationship(transportRelationshipTypes, direction);
+        if (found==null) {
+            return null;
+        }
+        return txn.wrapRelationship(found);
     }
 
     public IdFor<Station> getStationId() {

@@ -1,5 +1,6 @@
 package com.tramchester.graph.facade;
 
+import com.google.common.collect.Streams;
 import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.GraphProperty;
 import com.tramchester.domain.HasGraphLabel;
@@ -8,15 +9,17 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.graphbuild.GraphLabel;
-import org.apache.commons.lang3.stream.Streams;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphalgo.BasicEvaluationContext;
 import org.neo4j.graphalgo.EvaluationContext;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.schema.Schema;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.stream.Stream;
+
+import static com.tramchester.graph.GraphPropertyKey.COST;
 
 /***
  * Facade around underlying graph DB Transaction
@@ -194,7 +197,7 @@ public class GraphTransaction implements AutoCloseable {
             @NotNull
             @Override
             public Iterator<ImmuableGraphNode> iterator() {
-                return Streams.of(iterable).map(node -> wrapNodeAsImmutable(node)).iterator();
+                return Streams.stream(iterable).map(node -> wrapNodeAsImmutable(node)).iterator();
 
             }
         };
@@ -204,11 +207,20 @@ public class GraphTransaction implements AutoCloseable {
         return idFactory.getNodeIdFor(legacyId);
     }
 
-    public GraphNode fromStart(Relationship relationship) {
-        return wrapNodeAsImmutable(relationship.getStartNode());
+    public GraphRelationship getQueryColumnAsRelationship(Map<String, Object> row, String columnName) {
+        Relationship relationship = (Relationship) row.get(columnName);
+        return wrapRelationship(relationship);
     }
 
-    public GraphNode fromEnd(Relationship relationship) {
-        return wrapNodeAsImmutable(relationship.getEndNode());
+    public Duration totalDurationFor(Path path) {
+        return Streams.stream(path.relationships()).
+                filter(relationship -> relationship.hasProperty(GraphPropertyKey.COST.getText())).
+                map(GraphTransaction::getCost).
+                reduce(Duration.ZERO, Duration::plus);
+    }
+
+    private static Duration getCost(Relationship relationship) {
+        final int value = (int) relationship.getProperty(COST.getText());
+        return Duration.ofMinutes(value);
     }
 }

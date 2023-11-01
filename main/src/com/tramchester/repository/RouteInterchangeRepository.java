@@ -1,6 +1,5 @@
 package com.tramchester.repository;
 
-import com.google.common.collect.Streams;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
@@ -9,10 +8,8 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.TimedTransaction;
 import com.tramchester.graph.facade.GraphTransaction;
-import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.metrics.Timing;
 import org.apache.commons.lang3.tuple.Pair;
@@ -129,8 +126,7 @@ public class RouteInterchangeRepository {
         List<Pair<IdFor<Station>, Duration>> pairs = results.stream().
                 filter(row -> row.containsKey("path")).
                 map(row -> (Path) row.get("path")).
-                //map(path -> Pair.of(GraphProps.getStationId(path.startNode()), totalDuration(path))).
-                map(path -> Pair.of(txn.fromStart(path).getStationId(), totalDuration(path))).
+                map(path -> Pair.of(txn.fromStart(path).getStationId(), txn.totalDurationFor(path))).
                 toList();
 
         logger.debug("Got " + pairs.size() + " for " + routeId);
@@ -165,12 +161,12 @@ public class RouteInterchangeRepository {
         }
     }
 
-    private Duration totalDuration(final Path path) {
-
-        return Streams.stream(path.relationships()).
-                filter(relationship -> relationship.hasProperty(GraphPropertyKey.COST.getText())).
-                map(GraphProps::getCost).
-                reduce(Duration.ZERO, Duration::plus);
-    }
+//    private Duration totalDuration(final Path path) {
+//
+//        return Streams.stream(path.relationships()).
+//                filter(relationship -> relationship.hasProperty(GraphPropertyKey.COST.getText())).
+//                map(GraphProps::getCost).
+//                reduce(Duration.ZERO, Duration::plus);
+//    }
 
 }
