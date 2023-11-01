@@ -57,13 +57,13 @@ public class RouteCostCalculator {
     }
 
     public Duration getAverageCostBetween(GraphTransaction txn, Location<?> station, GraphNode endNode, TramDate date, Set<TransportMode> modes) throws InvalidDurationException {
-        GraphNode startNode = graphQuery.getLocationNode(txn, station);
+        GraphNode startNode = txn.findNode(station);
         return calculateLeastCost(txn, startNode, endNode, COST, date, modes);
     }
 
     // startNode must have been found within supplied txn
     public Duration getAverageCostBetween(GraphTransaction txn, GraphNode startNode, Location<?> endStation, TramDate date, Set<TransportMode> modes) throws InvalidDurationException {
-        GraphNode endNode = graphQuery.getLocationNode(txn, endStation);
+        GraphNode endNode = txn.findNode(endStation);
         return calculateLeastCost(txn, startNode, endNode, COST, date, modes);
     }
 
@@ -72,11 +72,11 @@ public class RouteCostCalculator {
     }
 
     private Duration getCostBetween(GraphTransaction txn, Location<?> startLocation, Location<?> endLocation, GraphPropertyKey key, TramDate date, Set<TransportMode> modes) throws InvalidDurationException {
-        GraphNode startNode = graphQuery.getLocationNode(txn, startLocation);
+        GraphNode startNode = txn.findNode(startLocation);
         if (startNode==null) {
             throw new RuntimeException("Could not find start node for graph id " + startLocation.getId().getGraphId());
         }
-        GraphNode endNode = graphQuery.getLocationNode(txn, endLocation);
+        GraphNode endNode = txn.findNode(endLocation);
         if (endNode==null) {
             throw new RuntimeException("Could not find end node for graph id" + endLocation.getId().getGraphId());
         }

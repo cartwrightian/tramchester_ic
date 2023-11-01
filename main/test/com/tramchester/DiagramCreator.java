@@ -2,6 +2,7 @@ package com.tramchester;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -78,7 +79,7 @@ public class DiagramCreator {
 
             startPointsList.forEach(startPoint -> {
 
-                GraphNode startNode = graphQuery.getLocationNode(txn, startPoint);
+                GraphNode startNode = txn.findNode((Location<?>) startPoint);
 
                 if (startNode==null) {
                     logger.error("Can't find start node for station " + startPoint.getId());

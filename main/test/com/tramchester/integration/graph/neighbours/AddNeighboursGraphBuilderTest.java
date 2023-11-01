@@ -86,17 +86,18 @@ class AddNeighboursGraphBuilderTest {
     @Test
     void shouldFindTheCompositeBusStation() {
         assertNotNull(shudehillCompositeBus);
-        GraphNode compNode = graphQuery.getGroupedNode(txn, shudehillCompositeBus);
+
+        GraphNode compNode = txn.findNode(shudehillCompositeBus);
         assertNotNull(compNode, "No node found for " + compNode);
         shudehillCompositeBus.getContained().forEach(busStop -> {
-            GraphNode busNode = graphQuery.getStationNode(txn, busStop);
+            GraphNode busNode = txn.findNode(busStop);
             assertNotNull(busNode, "No node found for " + busStop);
         });
     }
 
     @Test
     void shouldHaveExpectedNeighbourRelationshipsToFromTram() {
-        GraphNode tramNode = graphQuery.getStationNode(txn, shudehillTram);
+        GraphNode tramNode = txn.findNode(shudehillTram);
         assertNotNull(tramNode);
 
         Station victoria = TramStations.Victoria.fake();
@@ -127,7 +128,7 @@ class AddNeighboursGraphBuilderTest {
     void shouldHaveExpectedNeighbourRelationshipsToFromBus() {
 
         shudehillCompositeBus.getContained().forEach(busStop -> {
-            GraphNode busNode = graphQuery.getStationNode(txn, busStop);
+            GraphNode busNode = txn.findNode(busStop);
             assertNotNull(busNode, "No node found for " + busStop);
 
             Set<GraphRelationship> awayFrom = getRelationships(busNode, OUTGOING);
@@ -144,7 +145,7 @@ class AddNeighboursGraphBuilderTest {
     }
 
     private boolean seenNode(GraphTransaction txn, Station station, Set<GraphRelationship> relationships, SelectNode selectNode) {
-        GraphNode nodeToFind = graphQuery.getStationNode(txn, station);
+        GraphNode nodeToFind = txn.findNode(station);
         assertNotNull(nodeToFind, "no node found for " + station);
 
         boolean seenNode = false;

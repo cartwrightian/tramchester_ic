@@ -291,7 +291,7 @@ class SubgraphClosedStationsDiversionsTest {
 
         try (GraphTransaction txn = database.beginTx()) {
             notAnInterchange.getPlatforms().forEach(platform -> {
-                GraphNode node = graphQuery.getPlatformNode(txn, platform);
+                GraphNode node = txn.findNode(platform);
                 Stream<GraphRelationship> iterable = node.getRelationships(txn, Direction.INCOMING, TransportRelationshipTypes.DIVERSION_DEPART);
 
                 iterable.forEach(relationship -> foundRelationshipIds.add(relationship.getId()));
@@ -318,7 +318,7 @@ class SubgraphClosedStationsDiversionsTest {
         Station piccadilly = Piccadilly.from(stationRepository);
 
         try (GraphTransaction txn = database.beginTx()) {
-            GraphNode stationNode = graphQuery.getStationNode(txn, piccadilly);
+            GraphNode stationNode = txn.findNode(piccadilly);
 
             Stream<GraphRelationship> iterable = stationNode.getRelationships(txn, Direction.OUTGOING, TransportRelationshipTypes.DIVERSION);
 

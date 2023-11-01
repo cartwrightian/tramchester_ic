@@ -499,7 +499,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
             onRoute.setCost(costs.average());
             onRoute.setMaxCost(costs.max());
-            setProperty(onRoute, route.getTransportMode());
+            onRoute.setTransportMode(route.getTransportMode());
         }
     }
 

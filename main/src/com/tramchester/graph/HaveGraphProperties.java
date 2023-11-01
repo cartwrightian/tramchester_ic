@@ -17,6 +17,17 @@ import static com.tramchester.graph.GraphPropertyKey.*;
 
 public class HaveGraphProperties {
 
+    protected <C extends GraphProperty & CoreDomain & HasId<C>>  void set(C domainItem, Entity entity) {
+        entity.setProperty(domainItem.getProp().getText(), domainItem.getId().getGraphId());
+    }
+
+    protected void setTime(TramTime tramTime, Entity entity) {
+        entity.setProperty(TIME.getText(), tramTime.asLocalTime());
+        if (tramTime.isNextDay()) {
+            entity.setProperty(DAY_OFFSET.getText(), tramTime.isNextDay());
+        }
+    }
+
     protected <C extends CoreDomain> IdFor<C> getIdFor(Class<C> klass, Entity entity) {
         if (RouteStation.class.equals(klass)) {
             throw new RuntimeException("Use getRouteStationId() for route station id");
@@ -31,20 +42,10 @@ public class HaveGraphProperties {
         return RouteStationId.parse(value);
     }
 
-    protected <C extends GraphProperty & CoreDomain & HasId<C>>  void set(C domainItem, Entity entity) {
-        entity.setProperty(domainItem.getProp().getText(), domainItem.getId().getGraphId());
-    }
-
     protected Map<String, Object> getAllProperties(Entity entity) {
         return entity.getAllProperties();
     }
 
-    protected void setTime(TramTime tramTime, Entity entity) {
-        entity.setProperty(TIME.getText(), tramTime.asLocalTime());
-        if (tramTime.isNextDay()) {
-            entity.setProperty(DAY_OFFSET.getText(), tramTime.isNextDay());
-        }
-    }
 
     protected TramTime getTime(Entity entity) {
         LocalTime localTime = (LocalTime) entity.getProperty(TIME.getText());
@@ -55,5 +56,13 @@ public class HaveGraphProperties {
         return TramTime.of(localTime.getHour(), localTime.getMinute());
     }
 
+
+    protected Object getProperty(GraphPropertyKey graphPropertyKey, Entity entity) {
+        return entity.getProperty(graphPropertyKey.getText());
+    }
+
+    protected boolean hasProperty(GraphPropertyKey graphPropertyKey, Entity entity) {
+        return entity.hasProperty(graphPropertyKey.getText());
+    }
 
 }

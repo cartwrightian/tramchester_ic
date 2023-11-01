@@ -77,7 +77,7 @@ class GraphBuilderRailTest {
         transportData.getRouteStations().stream().
                 filter(RouteStation::isActive).
                 forEach(routeStation -> {
-                    GraphNode found = graphQuery.getRouteStationNode(txn, routeStation);
+                    GraphNode found = txn.findNode(routeStation);
                     assertNotNull(found, routeStation.toString());
         });
     }
@@ -86,7 +86,7 @@ class GraphBuilderRailTest {
     void shouldHaveLinkRelationshipsCorrectForNonInterchange() {
 
         Station piccadilly = ManchesterPiccadilly.from(transportData);
-        GraphNode startNode = graphQuery.getStationNode(txn, piccadilly);
+        GraphNode startNode = txn.findNode(piccadilly);
         List<GraphRelationship> outboundLinks = startNode.getRelationships(txn, Direction.OUTGOING, LINKED).toList();
 
         assertEquals(35, outboundLinks.size(), outboundLinks.toString());
@@ -109,7 +109,7 @@ class GraphBuilderRailTest {
         assertFalse(platforms.isEmpty());
 
         platforms.forEach(platform -> {
-            GraphNode node = graphQuery.getPlatformNode(txn, platform);
+            GraphNode node = txn.findNode(platform);
             Relationship leave = node.getSingleRelationship(TransportRelationshipTypes.LEAVE_PLATFORM, Direction.OUTGOING);
             Duration leaveCost = GraphProps.getCost(leave);
             assertEquals(Duration.ZERO, leaveCost, "leave cost wrong for " + platform);
@@ -120,7 +120,7 @@ class GraphBuilderRailTest {
         });
 
         platforms.forEach(platform -> {
-            GraphNode node = graphQuery.getPlatformNode(txn, platform);
+            GraphNode node = txn.findNode(platform);
             if (node.hasRelationship(Direction.OUTGOING, BOARD)) {
                 Relationship board = node.getSingleRelationship(BOARD, Direction.OUTGOING);
                 Duration boardCost = GraphProps.getCost(board);
@@ -165,7 +165,7 @@ class GraphBuilderRailTest {
     private Set<GraphNode> getRouteStationNodes(Station station) {
         Set<RouteStation> routeStations = transportData.getRouteStationsFor(station.getId());
         return routeStations.stream().
-                map(routeStation -> graphQuery.getRouteStationNode(txn, routeStation)).
+                map(routeStation -> txn.findNode(routeStation)).
                 filter(Objects::nonNull).
                 collect(Collectors.toSet());
     }

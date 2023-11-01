@@ -76,7 +76,7 @@ class RailAndTramGraphBuilderTest {
     @Test
     void shouldHaveLinkRelationshipsCorrectForInterchange() {
         Station cornbrook = Cornbrook.from(stationRepository);
-        GraphNode cornbrookNode = graphQuery.getStationNode(txn, cornbrook);
+        GraphNode cornbrookNode = txn.findNode(cornbrook);
         Stream<GraphRelationship> outboundLinks = cornbrookNode.getRelationships(txn, Direction.OUTGOING, LINKED);
 
         List<GraphRelationship> list = outboundLinks.toList();
@@ -99,7 +99,7 @@ class RailAndTramGraphBuilderTest {
         Set<RouteStation> routeStations = stationRepository.getRouteStationsFor(Piccadilly.getId());
 
         routeStations.forEach(routeStation -> {
-            GraphNode node = graphQuery.getRouteStationNode(txn, routeStation);
+            GraphNode node = txn.findNode(routeStation);
 
             Relationship toStation = node.getSingleRelationship(ROUTE_TO_STATION, Direction.OUTGOING);
             Duration costToStation = GraphProps.getCost(toStation);
@@ -119,8 +119,8 @@ class RailAndTramGraphBuilderTest {
 
         Duration expectedCost = Duration.ofMinutes(1);
 
-        GraphNode altyTramNode = graphQuery.getStationNode(txn, altyTram);
-        GraphNode altyTrainNode = graphQuery.getStationNode(txn, altyTrain);
+        GraphNode altyTramNode = txn.findNode(altyTram);
+        GraphNode altyTrainNode = txn.findNode(altyTrain);
 
         assertNotNull(altyTramNode);
         assertNotNull(altyTrainNode);
@@ -147,7 +147,7 @@ class RailAndTramGraphBuilderTest {
 
         IdSet<RouteStation> noTramRouteStationNode = routeStations.stream().
                 filter(routeStation -> routeStation.getTransportModes().contains(TransportMode.Tram)).
-                filter(routeStation -> graphQuery.getRouteStationNode(txn, routeStation) == null).
+                filter(routeStation -> txn.findNode(routeStation) == null).
                 collect(IdSet.collector());
 
         assertTrue(noTramRouteStationNode.isEmpty(), noTramRouteStationNode.toString());
@@ -158,7 +158,7 @@ class RailAndTramGraphBuilderTest {
                 collect(Collectors.toSet());
 
         IdSet<RouteStation> noTrainRouteStationNode = trainRouteStations.stream().
-                filter(routeStation -> graphQuery.getRouteStationNode(txn, routeStation) == null).
+                filter(routeStation -> txn.findNode(routeStation) == null).
                 collect(IdSet.collector());
 
         int numRouteStations = trainRouteStations.size();

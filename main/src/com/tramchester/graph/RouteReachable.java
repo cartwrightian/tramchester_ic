@@ -57,7 +57,7 @@ public class RouteReachable {
         try (GraphTransaction txn = graphDatabaseService.beginTx()) {
             firstRoutes.forEach(route -> {
                 final RouteStation routeStation = stationRepository.getRouteStation(startStation, route);
-                final GraphNode routeStationNode = graphQuery.getRouteStationNode(txn, routeStation);
+                final GraphNode routeStationNode = txn.findNode(routeStation);
                 if (routeStationNode==null) {
                     logger.warn("Missing route station, graph DB rebuild needed?");
                 } else {

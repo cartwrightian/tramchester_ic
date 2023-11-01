@@ -94,7 +94,7 @@ class TramGraphBuilderTest {
     @Test
     void shouldHaveLinkRelationshipsCorrectForInterchange() {
         Station cornbrook = Cornbrook.from(stationRepository);
-        GraphNode cornbrookNode = graphQuery.getStationNode(txn, cornbrook);
+        GraphNode cornbrookNode = txn.findNode(cornbrook);
         Stream<GraphRelationship> outboundLinks = cornbrookNode.getRelationships(txn, Direction.OUTGOING, LINKED);
 
         List<GraphRelationship> list = outboundLinks.toList(); //Lists.newArrayList(outboundLinks);
@@ -119,7 +119,7 @@ class TramGraphBuilderTest {
         Duration expectedCost = piccadilly.getMinChangeDuration();
 
         platforms.forEach(platform -> {
-            GraphNode node = graphQuery.getPlatformNode(txn, platform);
+            GraphNode node = txn.findNode(platform);
             Relationship leave = node.getSingleRelationship(TransportRelationshipTypes.LEAVE_PLATFORM, Direction.OUTGOING);
             Duration leaveCost = GraphProps.getCost(leave);
             assertEquals(Duration.ZERO, leaveCost, "leave cost wrong for " + platform);
@@ -130,7 +130,7 @@ class TramGraphBuilderTest {
         });
 
         platforms.forEach(platform -> {
-            GraphNode node = graphQuery.getPlatformNode(txn, platform);
+            GraphNode node = txn.findNode(platform);
             Stream<GraphRelationship> boards = node.getRelationships(txn, Direction.OUTGOING, INTERCHANGE_BOARD);
             boards.forEach(board -> {
                 Duration boardCost = board.getCost();
@@ -152,7 +152,7 @@ class TramGraphBuilderTest {
         Set<RouteStation> routeStations = stationRepository.getRouteStationsFor(Piccadilly.getId());
 
         routeStations.forEach(routeStation -> {
-            GraphNode node = graphQuery.getRouteStationNode(txn, routeStation);
+            GraphNode node = txn.findNode(routeStation);
 
             Relationship toStation = node.getSingleRelationship(ROUTE_TO_STATION, Direction.OUTGOING);
             Duration costToStation = GraphProps.getCost(toStation);
@@ -168,7 +168,7 @@ class TramGraphBuilderTest {
     @Test
     void shouldHaveLinkRelationshipsCorrectForEndOfLine() {
         Station alty = Altrincham.from(stationRepository);
-        GraphNode altyNode = graphQuery.getStationNode(txn, alty);
+        GraphNode altyNode = txn.findNode(alty);
         Stream<GraphRelationship> outboundLinks = altyNode.getRelationships(txn, Direction.OUTGOING, LINKED);
 
         List<GraphRelationship> list = outboundLinks.toList(); //Lists.newArrayList(outboundLinks);
@@ -186,7 +186,7 @@ class TramGraphBuilderTest {
     @Test
     void shouldHaveOneNodePerRouteStation() {
         stationRepository.getRouteStations().forEach(routeStation -> {
-            GraphNode found = graphQuery.getRouteStationNode(txn, routeStation);
+            GraphNode found = txn.findNode(routeStation);
             assertNotNull(found, routeStation.getId().toString());
         });
     }
@@ -214,7 +214,7 @@ class TramGraphBuilderTest {
     @Test
     void shouldHaveLinkRelationshipsCorrectForNonInterchange() {
         Station exchangeSq = ExchangeSquare.from(stationRepository);
-        GraphNode exchangeSqNode = graphQuery.getStationNode(txn, exchangeSq);
+        GraphNode exchangeSqNode = txn.findNode(exchangeSq);
         Stream<GraphRelationship> outboundLinks = exchangeSqNode.getRelationships(txn, Direction.OUTGOING, LINKED);
 
         List<GraphRelationship> list = outboundLinks.toList(); //Lists.newArrayList(outboundLinks);

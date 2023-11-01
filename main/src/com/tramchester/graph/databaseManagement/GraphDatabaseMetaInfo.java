@@ -6,7 +6,6 @@ import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.MutableGraphNode;
 import com.tramchester.graph.graphbuild.GraphLabel;
-import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.repository.DataSourceRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,8 +53,8 @@ public class GraphDatabaseMetaInfo {
         Set<DataSourceInfo> dataSourceInfo = dataSourceRepository.getDataSourceInfo();
         logger.info("Setting version data in DB for " + dataSourceInfo);
         MutableGraphNode node = tx.createNode(GraphLabel.VERSION);
-        //Set<DataSourceInfo> sourceInfo = dataSourceInfo;
-        dataSourceInfo.forEach(nameAndVersion -> GraphProps.setProp(node, nameAndVersion));
+        Set<DataSourceInfo> sourceInfo = dataSourceInfo;
+        dataSourceInfo.forEach(nameAndVersion -> node.set(nameAndVersion)); // GraphProps.setProp(node, nameAndVersion));
         logger.info("Set version data");
     }
 }

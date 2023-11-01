@@ -25,25 +25,8 @@ import static com.tramchester.graph.GraphPropertyKey.*;
 
 public class GraphProps {
 
-    public static void setProp(Node node, DataSourceInfo dataSourceInfo) {
-        DataSourceID sourceID = dataSourceInfo.getID();
-        node.setProperty(sourceID.name(), dataSourceInfo.getVersion());
-    }
-
-    public static void setProp(MutableGraphNode node, DataSourceInfo dataSourceInfo) {
-        setProp(node.getNode(), dataSourceInfo);
-    }
-
     public static <C extends GraphProperty & CoreDomain & HasId<C>> void setProperty(GraphRelationship relationship, C item) {
         relationship.set(item);
-    }
-
-    public static void setProperty(Entity entity, TransportMode mode) {
-        entity.setProperty(TRANSPORT_MODE.getText(), mode.getNumber());
-    }
-
-    public static void setProperty(GraphRelationship relationship, TransportMode mode) {
-        relationship.setTransportMode(mode);
     }
 
     // TODO - auto conversation to/from ENUM arrays now available?

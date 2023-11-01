@@ -185,7 +185,7 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships i
                 logger.info("Found " + GraphLabel.WALK_FOR_CLOSED_ENABLED + " node");
                 node = nodes.get(0);
             }
-            node.setProperty(SOURCE_NAME_PROP, sourceConfig.getName());
+            node.setSourceName(sourceConfig.getName());
 
             txn.commit();
         }

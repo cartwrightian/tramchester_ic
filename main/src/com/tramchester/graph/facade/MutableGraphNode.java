@@ -1,9 +1,7 @@
 package com.tramchester.graph.facade;
 
 import com.google.common.collect.Streams;
-import com.tramchester.domain.Platform;
-import com.tramchester.domain.Route;
-import com.tramchester.domain.Service;
+import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.input.Trip;
@@ -14,7 +12,6 @@ import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.HaveGraphProperties;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.graphbuild.GraphLabel;
@@ -54,13 +51,72 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
         return node;
     }
 
+    public void delete() {
+        node.delete();
+    }
+
+    ///// MUTATE ////////////////////////////////////////////////////////////
+
     public GraphRelationship createRelationshipTo(GraphTransaction txn, MutableGraphNode end, TransportRelationshipTypes relationshipTypes) {
         Relationship relationshipTo = node.createRelationshipTo(end.node, relationshipTypes);
         return txn.wrapRelationship(relationshipTo);
     }
 
-    public void delete() {
-        node.delete();
+    public void addLabel(Label label) {
+        node.addLabel(label);
+    }
+
+    public void setHourProp(Integer hour) {
+        node.setProperty(HOUR.getText(), hour);
+    }
+
+    public void setTime(TramTime tramTime) {
+        setTime(tramTime, node);
+    }
+
+    public void set(Station station) {
+        set(station, node);
+    }
+
+    public void set(Platform platform) {
+        set(platform, node);
+    }
+
+    public void set(Route route) {
+        set(route, node);
+    }
+
+    public void set(Service service) {
+        set(service, node);
+    }
+
+    public void set(StationGroup stationGroup) {
+        set(stationGroup, node);
+    }
+
+    public void set(RouteStation routeStation) {
+        set(routeStation, node);
+    }
+
+    public void setTransportMode(TransportMode first) {
+        node.setProperty(TRANSPORT_MODE.getText(), first.getNumber());
+    }
+
+    public void set(DataSourceInfo nameAndVersion) {
+        DataSourceID sourceID = nameAndVersion.getID();
+        node.setProperty(sourceID.name(), nameAndVersion.getVersion());
+    }
+
+    public void setSourceName(String sourceName) {
+        node.setProperty(SOURCE_NAME_PROP.getText(), sourceName);
+    }
+
+    ///// GET //////////////////////////////////////////////////
+
+    public EnumSet<GraphLabel> getLabels() {
+        final Iterable<Label> iter = node.getLabels();
+        final Set<GraphLabel> set = Streams.stream(iter).map(label -> GraphLabel.valueOf(label.name())).collect(Collectors.toSet());
+        return EnumSet.copyOf(set);
     }
 
     public Stream<GraphRelationship> getRelationships(GraphTransaction txn, Direction direction, TransportRelationshipTypes relationshipType) {
@@ -73,60 +129,25 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
 
     @Override
     public TransportMode getTransportMode() {
-        short number = (short) node.getProperty(TRANSPORT_MODE.getText());
+        short number = (short) super.getProperty(TRANSPORT_MODE, node);
         return TransportMode.fromNumber(number);
     }
 
     @Override
     public Integer getHour() {
-        return (int) node.getProperty(HOUR.getText());
-    }
-
-
-
-    @Override
-    public String toString() {
-        return "GraphNode{" +
-                "neo4jNode=" + node +
-                '}';
+        return (int) super.getProperty(HOUR, node);
     }
 
     public boolean hasRelationship(Direction direction, TransportRelationshipTypes transportRelationshipTypes) {
         return node.hasRelationship(direction, transportRelationshipTypes);
     }
 
-    public void addLabel(Label label) {
-        node.addLabel(label);
-    }
-
-    public void setHourProp(Integer hour) {
-        node.setProperty(HOUR.getText(), hour);
-    }
-
     public boolean hasLabel(GraphLabel graphLabel) {
         return node.hasLabel(graphLabel);
     }
 
-    public Object getProperty(String key) {
-        return node.getProperty(key);
-    }
-
     public Relationship getSingleRelationship(TransportRelationshipTypes transportRelationshipTypes, Direction direction) {
         return node.getSingleRelationship(transportRelationshipTypes,direction);
-    }
-
-    public EnumSet<GraphLabel> getLabels() {
-        final Iterable<Label> iter = node.getLabels();
-        final Set<GraphLabel> set = Streams.stream(iter).map(label -> GraphLabel.valueOf(label.name())).collect(Collectors.toSet());
-        return EnumSet.copyOf(set);
-    }
-
-    public void setProperty(GraphPropertyKey graphPropertyKey, String name) {
-        node.setProperty(graphPropertyKey.getText(), name);
-    }
-
-    public void setTime(TramTime tramTime) {
-        setTime(tramTime, node);
     }
 
     public IdFor<Station> getStationId() {
@@ -161,7 +182,6 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
 
     @Override
     public IdFor<NaptanArea> getAreaIdFromGrouped() {
-        //        return getIdFromGraphEntity(entity, AREA_ID, NaptanArea.class);
         return getIdFor(NaptanArea.class, node);
     }
 
@@ -174,8 +194,8 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
     }
 
     public LatLong getLatLong() {
-        final double lat = (double) getProperty(LATITUDE.getText());
-        final double lon = (double) getProperty(LONGITUDE.getText());
+        final double lat = (double) super.getProperty(LATITUDE, node);
+        final double lon = (double) super.getProperty(LONGITUDE, node);
         return new LatLong(lat, lon);
     }
 
@@ -184,13 +204,22 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
     }
 
     public PlatformId getPlatformId() {
-        IdFor<Station> stationId = getStationId(); // GraphProps.getStationIdFrom(node);
-        String platformNumber = node.getProperty(PLATFORM_NUMBER.getText()).toString();
+        IdFor<Station> stationId = getStationId();
+        String platformNumber =  node.getProperty(PLATFORM_NUMBER.getText()).toString();
         return PlatformId.createId(stationId, platformNumber);
     }
 
     public boolean hasStationId() {
-        return node.hasProperty(STATION_ID.getText());
+        return super.hasProperty(STATION_ID, node);
+    }
+
+    ///// utility ////////////////////////////////////////////////////////////
+
+    @Override
+    public String toString() {
+        return "GraphNode{" +
+                "neo4jNode=" + node +
+                '}';
     }
 
     @Override
@@ -206,31 +235,4 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
         return Objects.hash(graphNodeId);
     }
 
-    public void set(Station station) {
-        super.set(station, node);
-    }
-
-    public void set(Platform platform) {
-        super.set(platform, node);
-    }
-
-    public void set(Route route) {
-        super.set(route, node);
-    }
-
-    public void set(Service service) {
-        super.set(service, node);
-    }
-
-    public void set(StationGroup stationGroup) {
-        super.set(stationGroup, node);
-    }
-
-    public void set(RouteStation routeStation) {
-        super.set(routeStation, node);
-    }
-
-    public void setTransportMode(TransportMode first) {
-        node.setProperty(TRANSPORT_MODE.getText(), first.getNumber());
-    }
 }

@@ -122,18 +122,21 @@ public class GraphDatabaseMetaInfoTest extends EasyMockSupport {
         MutableGraphNode graphNode = createMock(MutableGraphNode.class);
         EasyMock.expect(graphNode.getNode()).andStubReturn(node);
 
-        Set<DataSourceInfo> sourceInfo = new HashSet<>();
-        sourceInfo.add(new DataSourceInfo(tfgm, "4.3", LocalDateTime.MAX, EnumSet.of(Tram)));
-        sourceInfo.add(new DataSourceInfo(naptanxml, "9.6", LocalDateTime.MIN, EnumSet.of(Bus)));
+        DataSourceInfo infoA = new DataSourceInfo(tfgm, "4.3", LocalDateTime.MAX, EnumSet.of(Tram));
+        DataSourceInfo infoB = new DataSourceInfo(naptanxml, "9.6", LocalDateTime.MIN, EnumSet.of(Bus));
+
+        Set<DataSourceInfo> sourceInfo = new HashSet<>(Arrays.asList(infoA, infoB));
 
         DataSourceRepository dataSourceRepos = createMock(DataSourceRepository.class);
         EasyMock.expect(dataSourceRepos.getDataSourceInfo()).andReturn(sourceInfo);
 
         EasyMock.expect(transaction.createNode(GraphLabel.VERSION)).andReturn(graphNode);
-        node.setProperty("tfgm", "4.3");
-        EasyMock.expectLastCall();
-        node.setProperty("naptanxml", "9.6");
-        EasyMock.expectLastCall();
+//        node.setProperty("tfgm", "4.3");
+//        EasyMock.expectLastCall();
+//        node.setProperty("naptanxml", "9.6");
+//        EasyMock.expectLastCall();
+        graphNode.set(infoA);
+        graphNode.set(infoB);
 
         replayAll();
         databaseMetaInfo.createVersionNode(transaction, dataSourceRepos);

@@ -1,11 +1,7 @@
 package com.tramchester.graph;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.domain.Platform;
-import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.RouteStation;
-import com.tramchester.domain.places.Station;
-import com.tramchester.domain.places.StationGroup;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.facade.GraphTransaction;
@@ -32,32 +28,8 @@ public class GraphQuery {
     /**
      * When calling from tests make sure relevant DB is fully built
      */
-    public GraphNode getRouteStationNode(GraphTransaction txn, RouteStation routeStation) {
-        return txn.findNode(routeStation);
-    }
-
-    /**
-     * When calling from tests make sure relevant DB is fully built
-     */
-    public GraphNode getStationNode(GraphTransaction txn, Station station) {
-        return txn.findNode(station);
-    }
-
-    public GraphNode getGroupedNode(GraphTransaction txn, StationGroup stationGroup) {
-        // uses Area Id, not station Id
-        // TODO make this change to GroupedStations?
-        return txn.findNode(stationGroup);
-    }
-
-    public GraphNode getLocationNode(GraphTransaction txn, Location<?> location) {
-        return txn.findNode(location);
-    }
-
-    /**
-     * When calling from tests make sure relevant DB is fully built
-     */
     public List<GraphRelationship> getRouteStationRelationships(GraphTransaction txn, RouteStation routeStation, Direction direction) {
-        GraphNode routeStationNode = getRouteStationNode(txn, routeStation);
+        GraphNode routeStationNode = txn.findNode(routeStation);
         if (routeStationNode==null) {
             return Collections.emptyList();
         }
@@ -68,9 +40,4 @@ public class GraphQuery {
         return txn.hasAnyMatching(label, field, value);
 
     }
-
-    public GraphNode getPlatformNode(GraphTransaction txn, Platform platform) {
-        return txn.findNode(platform);
-    }
-
 }

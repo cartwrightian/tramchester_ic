@@ -81,7 +81,7 @@ class NeighboursGraphBuilderTest {
 
         GraphQuery graphQuery = componentContainer.get(GraphQuery.class);
         stations.forEach(station ->
-                assertNotNull(graphQuery.getStationNode(txn, station), station.getId() + " is missing from DB"));
+                assertNotNull(txn.findNode(station), station.getId() + " is missing from DB"));
     }
 
     @Test
