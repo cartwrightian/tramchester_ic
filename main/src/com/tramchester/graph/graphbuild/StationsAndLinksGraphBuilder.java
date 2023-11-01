@@ -34,7 +34,6 @@ import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.GTFSPickupDropoffType.Regular;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
-import static com.tramchester.graph.graphbuild.GraphProps.*;
 import static java.lang.String.format;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
@@ -224,18 +223,17 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
             find.ifPresent(found -> {
                 EnumSet<TransportMode> currentModes = found.getTransportModes();
                 if (!currentModes.contains(mode)) {
-                    addTransportMode(found, mode);
+                    found.addTransportMode(mode);
                 }
             });
 
             if (find.isPresent()) {
                 return;
             }
-
         }
 
         GraphRelationship stationsLinked = createRelationship(txn, from, to, LINKED);
-        addTransportMode(stationsLinked, mode);
+        stationsLinked.addTransportMode(mode);
     }
 
     private void createPlatformsForStation(GraphTransaction txn, Station station, GraphBuilderCache routeBuilderCache) {
@@ -244,7 +242,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
             MutableGraphNode platformNode = txn.createNode(GraphLabel.PLATFORM);
             platformNode.set(platform);
             platformNode.set(station);
-            setPlatformNumber(platformNode, platform);
+            platformNode.setPlatformNumber(platform);
             setTransportMode(station, platformNode);
 
             routeBuilderCache.putPlatform(platform.getId(), platformNode);

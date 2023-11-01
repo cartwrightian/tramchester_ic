@@ -12,20 +12,15 @@ import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.HaveGraphProperties;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.graphbuild.GraphLabel;
-import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.Label;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.graphdb.traversal.Traverser;
 
-import java.util.EnumSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -107,8 +102,25 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
         node.setProperty(sourceID.name(), nameAndVersion.getVersion());
     }
 
+    public void setLatLong(LatLong latLong) {
+        node.setProperty(LATITUDE.getText(), latLong.getLat());
+        node.setProperty(LONGITUDE.getText(), latLong.getLon());
+    }
+
+    public void setWalkId(LatLong origin, UUID uid) {
+        node.setProperty(GraphPropertyKey.WALK_ID.getText(), origin.toString() + "_" + uid.toString());
+    }
+
+    public void setPlatformNumber(Platform platform) {
+        node.setProperty(PLATFORM_NUMBER.getText(), platform.getPlatformNumber());
+    }
+
     public void setSourceName(String sourceName) {
         node.setProperty(SOURCE_NAME_PROP.getText(), sourceName);
+    }
+
+    public void setAreaId(IdFor<NaptanArea> areaId) {
+        node.setProperty(AREA_ID.getText(), areaId.getGraphId());
     }
 
     ///// GET //////////////////////////////////////////////////

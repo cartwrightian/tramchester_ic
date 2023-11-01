@@ -14,7 +14,6 @@ import com.tramchester.graph.facade.MutableGraphNode;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.CreateNodesAndRelationships;
 import com.tramchester.graph.graphbuild.GraphLabel;
-import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
 import com.tramchester.mappers.Geography;
 import com.tramchester.repository.ClosedStationsRepository;
@@ -221,8 +220,8 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships i
             setCommonProperties(fromClosed, cost, closure);
             setCommonProperties(fromOther, cost, closure);
 
-            GraphProps.setProperty(fromClosed, otherStation);
-            GraphProps.setProperty(fromOther, closedStation);
+            fromClosed.set(otherStation);
+            fromOther.set(closedStation);
 
             stationsWithDiversions.add(otherStation, closure.getDateRange());
 
@@ -260,7 +259,7 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships i
 
             GraphRelationship relationship = createRelationship(txn, firstNode, secondNode, DIVERSION);
             setCommonProperties(relationship, cost, closure);
-            GraphProps.setProperty(relationship, second);
+            relationship.set(second);
         });
 
         uniqueStations.forEach(station -> stationsWithDiversions.add(station, closure.getDateRange()));

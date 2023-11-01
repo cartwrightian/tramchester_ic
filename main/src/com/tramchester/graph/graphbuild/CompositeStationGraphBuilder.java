@@ -113,8 +113,7 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
     private MutableGraphNode createGroupedStationNodes(GraphTransaction txn, StationGroup stationGroup) {
         MutableGraphNode groupNode = createGraphNode(txn, GraphLabel.GROUPED);
         IdFor<NaptanArea> areaId = stationGroup.getAreaId();
-        GraphProps.setProperty(groupNode, areaId);
-        //GraphProps.setProperty(groupNode, stationGroup);
+        groupNode.setAreaId(areaId);
         groupNode.set(stationGroup);
         return groupNode;
     }

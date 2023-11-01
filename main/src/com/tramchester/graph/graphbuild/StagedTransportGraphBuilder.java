@@ -284,7 +284,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         svcNode.set(route);
         // TODO This is used to look up station and hence lat/long for distance ordering, store
         //  org.neo4j.graphdb.spatial.Point instead?
-        setTowardsProp(svcNode, endId);
+        setTowardsProp(svcNode.getNode(), endId);
 
         //GraphNode svcNode = GraphNode.from(svcNodeRaw);
 
@@ -495,7 +495,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
         if (!endNodes.contains(to)) {
             GraphRelationship onRoute = createRelationship(txn, from, to, ON_ROUTE);
-            setProperty(onRoute, route);
+            onRoute.set(route);
 
             onRoute.setCost(costs.average());
             onRoute.setMaxCost(costs.max());
@@ -510,14 +510,14 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
         GraphRelationship crossToPlatform = createRelationship(txn, stationNode, platformNode, ENTER_PLATFORM);
         crossToPlatform.setCost(enterPlatformCost);
-        setProperty(crossToPlatform, platform);
+        crossToPlatform.set(platform);
 
         // platform -> station
         Duration leavePlatformCost = Duration.ZERO;
 
         GraphRelationship crossFromPlatform = createRelationship(txn, platformNode, stationNode, LEAVE_PLATFORM);
         crossFromPlatform.setCost(leavePlatformCost);
-        setProperty(crossFromPlatform, station);
+        crossFromPlatform.set(station);
     }
 
 
@@ -532,13 +532,14 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         TransportRelationshipTypes transportRelationshipType = TransportRelationshipTypes.forMode(route.getTransportMode());
         GraphRelationship goesToRelationship = createRelationship(tx, timeNode, routeStationEnd, transportRelationshipType);
         // properties on relationship
-        setProperty(goesToRelationship, trip);
+        goesToRelationship.set(trip);
 
         Duration cost = TramTime.difference(endStop.getArrivalTime(), departureTime);
         goesToRelationship.setCost(cost);
-        setProperty(goesToRelationship, trip.getService()); // TODO Still useful?
-        setProperty(goesToRelationship, route);
-        setStopSequenceNumber(goesToRelationship, endStop.getGetSequenceNumber());
+        // TODO Still useful?
+        goesToRelationship.set(trip.getService());
+        goesToRelationship.set(route);
+        goesToRelationship.setStopSeqNum(endStop.getGetSequenceNumber());
     }
 
     private Map<StationTime, MutableGraphNode> createMinuteNodes(GraphTransaction tx, Trip trip, GraphBuilderCache builderCache) {

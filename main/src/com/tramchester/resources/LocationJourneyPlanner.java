@@ -25,7 +25,6 @@ import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.MutableGraphNode;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.GraphLabel;
-import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.BetweenRoutesCostRepository;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.graph.search.RouteCalculatorArriveBy;
@@ -334,14 +333,14 @@ public class LocationJourneyPlanner {
 
             walkingRelationship.setCost(cost);
             walkingRelationship.setMaxCost(cost);
-            GraphProps.setProperty(walkingRelationship, walkStation);
+            walkingRelationship.set(walkStation);
             return walkingRelationship;
         }
 
         private MutableGraphNode createWalkingNode(GraphTransaction txn, LatLong origin, UUID uniqueId) {
-            MutableGraphNode startOfWalkNode = txn.createNode(GraphLabel.QUERY_NODE); // graphDatabase.createNode(txn, GraphLabel.QUERY_NODE);
-            GraphProps.setLatLong(startOfWalkNode, origin);
-            GraphProps.setWalkId(startOfWalkNode, origin, uniqueId);
+            MutableGraphNode startOfWalkNode = txn.createNode(GraphLabel.QUERY_NODE);
+            startOfWalkNode.setLatLong(origin);
+            startOfWalkNode.setWalkId(origin, uniqueId);
             logger.info(format("Added walking node at %s as %s", origin, startOfWalkNode));
             return startOfWalkNode;
         }

@@ -18,7 +18,6 @@ import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.MutableGraphNode;
 import com.tramchester.graph.graphbuild.GraphLabel;
-import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
@@ -171,9 +170,7 @@ public class GraphPropsTest {
 
         assertEquals(time, result);
 
-        //Boolean flag = (Boolean) relationship.getProperty(DAY_OFFSET.getText());
         boolean flag = relationship.isDayOffset();
-        assertNotNull(flag);
         assertTrue(flag);
     }
 
@@ -185,13 +182,13 @@ public class GraphPropsTest {
 
         GraphRelationship relationship = nodeA.createRelationshipTo(txn, nodeB, TransportRelationshipTypes.ON_ROUTE);
 
-        GraphProps.addTransportMode(relationship, TransportMode.Train);
+        relationship.addTransportMode(TransportMode.Train);
 
         Set<TransportMode> result = relationship.getTransportModes();
         assertEquals(1, result.size());
         assertTrue(result.contains(TransportMode.Train));
 
-        GraphProps.addTransportMode(relationship, TransportMode.Bus);
+        relationship.addTransportMode(TransportMode.Bus);
 
         result = relationship.getTransportModes();
         assertEquals(2, result.size());
@@ -221,7 +218,7 @@ public class GraphPropsTest {
 
         node.set(station);
         node.set(platform);
-        GraphProps.setPlatformNumber(node, platform);
+        node.setPlatformNumber(platform);
 
         IdFor<Platform> platformId = ((GraphNode) node).getPlatformId();
 
