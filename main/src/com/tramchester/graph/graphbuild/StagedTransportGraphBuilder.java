@@ -39,7 +39,6 @@ import java.util.stream.Stream;
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static com.tramchester.graph.graphbuild.GraphLabel.INTERCHANGE;
-import static com.tramchester.graph.graphbuild.GraphProps.*;
 import static java.lang.String.format;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
@@ -284,7 +283,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         svcNode.set(route);
         // TODO This is used to look up station and hence lat/long for distance ordering, store
         //  org.neo4j.graphdb.spatial.Point instead?
-        setTowardsProp(svcNode.getNode(), endId);
+        svcNode.setTowards(endId);
 
         //GraphNode svcNode = GraphNode.from(svcNodeRaw);
 

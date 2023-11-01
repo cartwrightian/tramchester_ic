@@ -123,6 +123,10 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
         node.setProperty(AREA_ID.getText(), areaId.getGraphId());
     }
 
+    public void setTowards(IdFor<Station> stationId) {
+        node.setProperty(TOWARDS_STATION_ID.getText(), stationId.getGraphId());
+    }
+
     ///// GET //////////////////////////////////////////////////
 
     public EnumSet<GraphLabel> getLabels() {
