@@ -12,13 +12,12 @@ import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.ConnectingStage;
 import com.tramchester.geo.SortsPositions;
+import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphRelationship;
-import com.tramchester.graph.facade.PathMapper;
-import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.PathMapper;
 import com.tramchester.graph.graphbuild.GraphLabel;
-import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
 import com.tramchester.graph.search.stateMachine.states.NotStartedState;
 import com.tramchester.graph.search.stateMachine.states.TraversalState;
@@ -33,6 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -122,14 +122,16 @@ public class MapPathToStagesViaStates implements PathToStages {
 
         TraversalState finalState = pathMapper.getFinalState();
 
-        finalState.toDestination(finalState, txn.fromEnd(path), Duration.ZERO, mapStatesToStages);
+        final GraphNode startOfPath = txn.fromStart(path);
+        final GraphNode endOfPath = txn.fromEnd(path);
+
+        finalState.toDestination(finalState, endOfPath, Duration.ZERO, mapStatesToStages);
 
         final List<TransportStage<?, ?>> stages = mapStatesToStages.getStages();
         if (stages.isEmpty()) {
             if (path.length()==2) {
-                if (path.startNode().hasRelationship(OUTGOING, GROUPED_TO_PARENT) &&
-                        (path.endNode().hasRelationship(INCOMING, GROUPED_TO_CHILD))) {
-                    addViaCompositeStation(path, journeyRequest, stages);
+                if (startOfPath.hasRelationship(OUTGOING, GROUPED_TO_PARENT) && (endOfPath.hasRelationship(INCOMING, GROUPED_TO_CHILD))) {
+                    stages.addAll(addViaCompositeStation(startOfPath, endOfPath, journeyRequest));
                 }
             } else {
                 logger.warn("Did not map any stages for path length:" + path.length() + " path:" + timedPath + " request: " + journeyRequest);
@@ -138,17 +140,22 @@ public class MapPathToStagesViaStates implements PathToStages {
         return stages;
     }
 
-    private void addViaCompositeStation(Path path, JourneyRequest journeyRequest, List<TransportStage<?, ?>> stages) {
+    private List<TransportStage<StationGroup, StationGroup>> addViaCompositeStation(GraphNode startNode, GraphNode endNode, JourneyRequest journeyRequest) {
         logger.info("Add ConnectingStage Journey via single composite node");
 
-        IdFor<NaptanArea> startId = GraphProps.getAreaIdFromGrouped(path.startNode());
-        IdFor<NaptanArea> endId = GraphProps.getAreaIdFromGrouped(path.endNode());
+        final List<TransportStage<StationGroup, StationGroup>> toAdd = new ArrayList<>();
+
+        IdFor<NaptanArea> startId = startNode.getAreaId();
+        IdFor<NaptanArea> endId = endNode.getAreaId();
+
         StationGroup start = stationGroupsRepository.getStationGroup(startId);
         StationGroup end = stationGroupsRepository.getStationGroup(endId);
 
         ConnectingStage<StationGroup, StationGroup> connectingStage =
                 new ConnectingStage<>(start, end, Duration.ZERO, journeyRequest.getOriginalTime());
-        stages.add(connectingStage);
+        toAdd.add(connectingStage);
+
+        return toAdd;
     }
 
 

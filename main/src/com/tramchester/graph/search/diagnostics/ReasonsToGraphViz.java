@@ -104,7 +104,7 @@ public class ReasonsToGraphViz {
 
         if (labels.contains(GraphLabel.GROUPED)) {
             //return getAreaIdFromGrouped(graphNode.getNode());
-            IdFor<NaptanArea> areaId = node.getAreaIdFromGrouped();
+            IdFor<NaptanArea> areaId = node.getAreaId();
             NaptanArea area = naptanRespository.getAreaFor(areaId);
             ids.append(System.lineSeparator()).append(area.getName());
             return ids.toString();

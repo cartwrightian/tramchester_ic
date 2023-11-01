@@ -197,7 +197,7 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
     }
 
     @Override
-    public IdFor<NaptanArea> getAreaIdFromGrouped() {
+    public IdFor<NaptanArea> getAreaId() {
         return getIdFor(NaptanArea.class, node);
     }
 

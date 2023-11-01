@@ -4,14 +4,17 @@ import com.tramchester.domain.StationLink;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.*;
+import com.tramchester.graph.FindStationsByNumberLinks;
+import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphPropertyKey;
+import com.tramchester.graph.TimedTransaction;
+import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
 import com.tramchester.mappers.Geography;
 import com.tramchester.repository.StationRepository;
-import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Result;
 import org.slf4j.Logger;
@@ -65,8 +68,8 @@ public class FindStationLinks {
                 Map<String, Object> row = result.next();
                 Relationship relationship = (Relationship) row.get("r");
 
-                Node startNode = relationship.getStartNode();
-                Node endNode = relationship.getEndNode();
+                GraphNode startNode = txn.fromStart(relationship); // relationship.getStartNode();
+                GraphNode endNode = txn.fromEnd(relationship); //relationship.getEndNode();
 
                 links.add(createLink(startNode, endNode, relationship));
             }
@@ -77,9 +80,9 @@ public class FindStationLinks {
         return links;
     }
 
-    private StationLink createLink(Node startNode, Node endNode, Relationship relationship) {
-        IdFor<Station> startId = GraphProps.getStationId(startNode);
-        IdFor<Station> endId = GraphProps.getStationId(endNode);
+    private StationLink createLink(GraphNode startNode, GraphNode endNode, Relationship relationship) {
+        IdFor<Station> startId = startNode.getStationId(); //GraphProps.getStationId(startNode);
+        IdFor<Station> endId = endNode.getStationId(); // GraphProps.getStationId(endNode);
 
         Station start = stationRepository.getStationById(startId);
         Station end = stationRepository.getStationById(endId);

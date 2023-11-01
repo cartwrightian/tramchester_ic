@@ -236,7 +236,7 @@ public class DiagramCreator {
         }
         if (node.hasLabel(GROUPED)) {
             //return getAreaIdFromGrouped(graphNode.getNode());
-            IdFor<NaptanArea> areaId = node.getAreaIdFromGrouped();
+            IdFor<NaptanArea> areaId = node.getAreaId();
             NaptanArea area = naptanRespository.getAreaFor(areaId);
             return format("%s\n%s", area.getName(), areaId.getGraphId());
         }

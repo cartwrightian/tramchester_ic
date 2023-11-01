@@ -3,7 +3,6 @@ package com.tramchester.graph.graphbuild;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.RouteStationId;
-import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -27,7 +26,7 @@ public class GraphProps {
         if (!relationship.hasProperty(TRANSPORT_MODES.getText())) {
             return Collections.emptySet();
         }
-        
+
         // TODO - auto conversation to/from ENUM arrays now available?
         short[] existing = (short[]) relationship.getProperty(TRANSPORT_MODES.getText());
         return TransportMode.fromNumbers(existing);
@@ -48,10 +47,6 @@ public class GraphProps {
     public static IdFor<RouteStation> getRouteStationIdFrom(Node node) {
         String value = node.getProperty(ROUTE_STATION_ID.getText()).toString();
         return RouteStationId.parse(value);
-    }
-
-    public static IdFor<NaptanArea> getAreaIdFromGrouped(Node node) {
-        return getIdFromGraphEntity(node, AREA_ID, NaptanArea.class);
     }
 
     public static IdFor<Station> getStationId(Node node) {

@@ -129,7 +129,8 @@ public class RouteInterchangeRepository {
         List<Pair<IdFor<Station>, Duration>> pairs = results.stream().
                 filter(row -> row.containsKey("path")).
                 map(row -> (Path) row.get("path")).
-                map(path -> Pair.of(GraphProps.getStationId(path.startNode()), totalDuration(path))).
+                //map(path -> Pair.of(GraphProps.getStationId(path.startNode()), totalDuration(path))).
+                map(path -> Pair.of(txn.fromStart(path).getStationId(), totalDuration(path))).
                 toList();
 
         logger.debug("Got " + pairs.size() + " for " + routeId);

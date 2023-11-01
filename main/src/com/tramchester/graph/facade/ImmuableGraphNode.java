@@ -155,7 +155,7 @@ public class ImmuableGraphNode implements GraphNode {
     }
 
     @Override
-    public IdFor<NaptanArea> getAreaIdFromGrouped() {
-        return underlying.getAreaIdFromGrouped();
+    public IdFor<NaptanArea> getAreaId() {
+        return underlying.getAreaId();
     }
 }

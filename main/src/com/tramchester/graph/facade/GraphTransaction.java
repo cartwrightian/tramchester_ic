@@ -165,8 +165,16 @@ public class GraphTransaction implements AutoCloseable {
         return new GraphRelationship(relationship, idFactory.getIdFor(relationship));
     }
 
+    public GraphNode fromStart(Path path) {
+        final Node startNode = path.startNode();
+        if (startNode==null) {
+            return null;
+        }
+        return wrapNodeAsImmutable(startNode);
+    }
+
     public GraphNode fromEnd(Path path) {
-        Node endNode = path.endNode();
+        final Node endNode = path.endNode();
         if (endNode==null) {
             return null;
         }
@@ -196,4 +204,11 @@ public class GraphTransaction implements AutoCloseable {
         return idFactory.getNodeIdFor(legacyId);
     }
 
+    public GraphNode fromStart(Relationship relationship) {
+        return wrapNodeAsImmutable(relationship.getStartNode());
+    }
+
+    public GraphNode fromEnd(Relationship relationship) {
+        return wrapNodeAsImmutable(relationship.getEndNode());
+    }
 }

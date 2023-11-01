@@ -66,6 +66,6 @@ public interface GraphNode {
 
     IdFor<Route> getRouteId();
 
-    IdFor<NaptanArea> getAreaIdFromGrouped();
+    IdFor<NaptanArea> getAreaId();
 
 }
