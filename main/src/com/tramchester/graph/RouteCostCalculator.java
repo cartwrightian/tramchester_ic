@@ -7,10 +7,7 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.InvalidDurationException;
-import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.GraphTransaction;
-import com.tramchester.graph.facade.ImmuableGraphNode;
-import com.tramchester.graph.graphbuild.GraphProps;
+import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.repository.RouteRepository;
 import org.neo4j.graphalgo.EvaluationContext;
@@ -84,7 +81,6 @@ public class RouteCostCalculator {
     }
 
     // startNode and endNode must have been found within supplied txn
-
     private Duration calculateLeastCost(GraphTransaction txn, GraphNode startNode, GraphNode endNode, GraphPropertyKey key,
                                         TramDate date, Set<TransportMode> modes) throws InvalidDurationException {
 
@@ -96,15 +92,18 @@ public class RouteCostCalculator {
 
         EvaluationContext context = graphDatabaseService.createContext(txn);
 
-        Predicate<? super Relationship> routeFilter = (Predicate<Relationship>) relationship ->
-                !relationship.isType(ON_ROUTE) || available.contains(GraphProps.getRouteIdFrom(relationship));
+        GraphRelationshipFilter routeFilter = new GraphRelationshipFilter(txn,
+                graphRelationship -> !graphRelationship.isType(ON_ROUTE) || available.contains(graphRelationship.getRouteId()));
+
+//        Predicate<? super Relationship> routeFilter = (Predicate<Relationship>) relationship ->
+//                !relationship.isType(ON_ROUTE) || available.contains(GraphProps.getRouteIdFrom(relationship));
 
         PathExpander<Double> forTypesAndDirections = fullExpanderForCostApproximation(routeFilter);
 
         PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(context, forTypesAndDirections,
                 new UsefulLoggingCostEvaluator(key));
 
-        WeightedPath path = ImmuableGraphNode.findSinglePath(finder, startNode, endNode); //finder.findSinglePath(startNode.getNode(), endNode.getNode());
+        WeightedPath path = ImmuableGraphNode.findSinglePath(finder, startNode, endNode);
         if (path==null) {
             final String message = format("No (least cost) path found between node %s [%s] and node %s [%s]",
                     startNode.getId(), startNode.getAllProperties(), endNode.getId(), endNode.getAllProperties());
@@ -150,7 +149,7 @@ public class RouteCostCalculator {
             }
             catch (NotFoundException exception) {
                 final String msg = format("%s not found for %s dir %s type %s props %s",
-                        name, relationship.getId(), direction, relationship.getType(), relationship.getAllProperties());
+                        name, relationship, direction, relationship.getType(), relationship.getAllProperties());
                 logger.error(msg);
                 throw new RuntimeException(msg, exception);
             }
