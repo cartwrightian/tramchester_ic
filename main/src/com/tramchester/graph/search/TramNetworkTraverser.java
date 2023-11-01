@@ -7,10 +7,7 @@ import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
-import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.GraphNodeId;
-import com.tramchester.graph.facade.GraphRelationship;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.*;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
@@ -168,8 +165,8 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         return convertToIter(traversalStateForChildren.getOutbounds());
     }
 
-    private ResourceIterable<Relationship> convertToIter(Stream<GraphRelationship> resourceIterable) {
-        return GraphRelationship.convertIterable(resourceIterable);
+    private ResourceIterable<Relationship> convertToIter(Stream<ImmutableGraphRelationship> resourceIterable) {
+        return ImmutableGraphRelationship.convertIterable(resourceIterable);
     }
 
     @Override

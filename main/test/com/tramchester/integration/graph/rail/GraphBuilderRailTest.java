@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
@@ -143,11 +144,10 @@ class GraphBuilderRailTest {
         Station crewe = Crewe.from(transportData);
         Set<GraphNode> creweRouteStationsNodes = getRouteStationNodes(crewe);
 
-        Set<GraphRelationship> outgoingFromCrewe = creweRouteStationsNodes.stream().
-                flatMap(node -> node.getRelationships(txn, Direction.OUTGOING, ON_ROUTE)).
-                collect(Collectors.toSet());
+        Stream<GraphRelationship> outgoingFromCrewe = creweRouteStationsNodes.
+                stream().flatMap(node -> node.getRelationships(txn, Direction.OUTGOING, ON_ROUTE));
 
-        List<GraphRelationship> endIsMKC = outgoingFromCrewe.stream().
+        List<GraphRelationship> endIsMKC = outgoingFromCrewe.
                 filter(relationship -> routeStationNodes.contains(relationship.getEndNode(txn))). // GraphNode.fromEnd(relationship))).
                 toList();
 

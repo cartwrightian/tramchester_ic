@@ -52,9 +52,9 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
 
     ///// MUTATE ////////////////////////////////////////////////////////////
 
-    public GraphRelationship createRelationshipTo(GraphTransaction txn, MutableGraphNode end, TransportRelationshipTypes relationshipTypes) {
+    public MutableGraphRelationship createRelationshipTo(GraphTransaction txn, MutableGraphNode end, TransportRelationshipTypes relationshipTypes) {
         Relationship relationshipTo = node.createRelationshipTo(end.node, relationshipTypes);
-        return txn.wrapRelationship(relationshipTo);
+        return txn.wrapRelationshipMutable(relationshipTo);
     }
 
     public void addLabel(Label label) {
@@ -137,6 +137,10 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
 
     public Stream<GraphRelationship> getRelationships(GraphTransaction txn, Direction direction, TransportRelationshipTypes relationshipType) {
         return node.getRelationships(direction, relationshipType).stream().map(txn::wrapRelationship);
+    }
+
+    public Stream<MutableGraphRelationship> getRelationshipsMutable(GraphTransaction txn, Direction direction, TransportRelationshipTypes relationshipType) {
+        return node.getRelationships(direction, relationshipType).stream().map(txn::wrapRelationshipMutable);
     }
 
     public Stream<GraphRelationship> getRelationships(GraphTransaction txn, Direction direction, TransportRelationshipTypes... transportRelationshipTypes) {

@@ -5,8 +5,8 @@ import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.OptionalResourceIterator;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
@@ -47,13 +47,13 @@ public class RouteStationStateEndTrip extends RouteStationState {
             // TODO Crossing midnight?
             TramDate date = minuteState.traversalOps.getQueryDate();
 
-            OptionalResourceIterator<GraphRelationship> towardsDestination = getTowardsDestination(minuteState.traversalOps, node, date, txn);
+            OptionalResourceIterator<ImmutableGraphRelationship> towardsDestination = getTowardsDestination(minuteState.traversalOps, node, date, txn);
             if (!towardsDestination.isEmpty()) {
                 // we've nearly arrived
                 return new RouteStationStateEndTrip(minuteState, towardsDestination.stream(), cost, transportMode, node, trip, this);
             }
 
-            Stream<GraphRelationship> outboundsToFollow = getOutboundsToFollow(node, isInterchange, date, txn);
+            Stream<ImmutableGraphRelationship> outboundsToFollow = getOutboundsToFollow(node, isInterchange, date, txn);
 
             return new RouteStationStateEndTrip(minuteState, outboundsToFollow, cost, transportMode, node, trip, this);
         }
@@ -64,7 +64,7 @@ public class RouteStationStateEndTrip extends RouteStationState {
     private final GraphNode routeStationNode;
     private final Trip trip;
 
-    private RouteStationStateEndTrip(MinuteState minuteState, Stream<GraphRelationship> routeStationOutbound, Duration cost,
+    private RouteStationStateEndTrip(MinuteState minuteState, Stream<ImmutableGraphRelationship> routeStationOutbound, Duration cost,
                                      TransportMode mode, GraphNode routeStationNode, Trip trip, TowardsRouteStation<RouteStationStateEndTrip> builder) {
         super(minuteState, routeStationOutbound, cost, builder);
         this.mode = mode;

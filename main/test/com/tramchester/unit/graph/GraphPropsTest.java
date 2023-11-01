@@ -13,10 +13,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.TransportRelationshipTypes;
-import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.GraphRelationship;
-import com.tramchester.graph.facade.GraphTransaction;
-import com.tramchester.graph.facade.MutableGraphNode;
+import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.testSupport.TestEnv;
@@ -79,7 +76,7 @@ public class GraphPropsTest {
         MutableGraphNode nodeA = txn.createNode(GraphLabel.ROUTE_STATION);
         MutableGraphNode nodeB = txn.createNode(GraphLabel.ROUTE_STATION);
 
-        GraphRelationship relationship = nodeA.createRelationshipTo(txn, nodeB, TransportRelationshipTypes.ON_ROUTE);
+        MutableGraphRelationship relationship = nodeA.createRelationshipTo(txn, nodeB, TransportRelationshipTypes.ON_ROUTE);
 
         IdFor<Route> routeId = StringIdFor.createId("routeId", Route.class);
         IdFor<RouteStation> id = RouteStation.createId(TramStations.ExchangeSquare.getId(), routeId);
@@ -97,7 +94,7 @@ public class GraphPropsTest {
         MutableGraphNode nodeA = txn.createNode(GraphLabel.ROUTE_STATION);
         MutableGraphNode nodeB = txn.createNode(GraphLabel.ROUTE_STATION);
 
-        GraphRelationship relationship = nodeA.createRelationshipTo(txn, nodeB, TransportRelationshipTypes.ON_ROUTE);
+        MutableGraphRelationship relationship = nodeA.createRelationshipTo(txn, nodeB, TransportRelationshipTypes.ON_ROUTE);
 
         IdFor<Route> routeId = getRailRouteId();
 
@@ -143,7 +140,7 @@ public class GraphPropsTest {
         MutableGraphNode nodeA = txn.createNode(GraphLabel.ROUTE_STATION);
         MutableGraphNode nodeB = txn.createNode(GraphLabel.ROUTE_STATION);
 
-        GraphRelationship relationship = nodeA.createRelationshipTo(txn, nodeB, TransportRelationshipTypes.ON_ROUTE);
+        MutableGraphRelationship relationship = nodeA.createRelationshipTo(txn, nodeB, TransportRelationshipTypes.ON_ROUTE);
 
         TramTime time = TramTime.of(23,42);
 
@@ -160,7 +157,7 @@ public class GraphPropsTest {
         MutableGraphNode nodeA = txn.createNode(GraphLabel.ROUTE_STATION);
         MutableGraphNode nodeB = txn.createNode(GraphLabel.ROUTE_STATION);
 
-        GraphRelationship relationship = nodeA.createRelationshipTo(txn, nodeB, TransportRelationshipTypes.ON_ROUTE);
+        MutableGraphRelationship relationship = nodeA.createRelationshipTo(txn, nodeB, TransportRelationshipTypes.ON_ROUTE);
 
         TramTime time = TramTime.nextDay(9,53);
 
@@ -180,7 +177,7 @@ public class GraphPropsTest {
         MutableGraphNode nodeA = txn.createNode(GraphLabel.ROUTE_STATION);
         MutableGraphNode nodeB = txn.createNode(GraphLabel.ROUTE_STATION);
 
-        GraphRelationship relationship = nodeA.createRelationshipTo(txn, nodeB, TransportRelationshipTypes.ON_ROUTE);
+        MutableGraphRelationship relationship = nodeA.createRelationshipTo(txn, nodeB, TransportRelationshipTypes.ON_ROUTE);
 
         relationship.addTransportMode(TransportMode.Train);
 
@@ -230,7 +227,7 @@ public class GraphPropsTest {
         MutableGraphNode nodeA = txn.createNode(GraphLabel.ROUTE_STATION);
         MutableGraphNode nodeB = txn.createNode(GraphLabel.ROUTE_STATION);
 
-        GraphRelationship relationship = nodeA.createRelationshipTo(txn, nodeB, TransportRelationshipTypes.ON_ROUTE);
+        MutableGraphRelationship relationship = nodeA.createRelationshipTo(txn, nodeB, TransportRelationshipTypes.ON_ROUTE);
 
         Duration duration = Duration.ofMinutes(42);
 
@@ -246,7 +243,7 @@ public class GraphPropsTest {
         MutableGraphNode nodeA = txn.createNode(GraphLabel.ROUTE_STATION);
         MutableGraphNode nodeB = txn.createNode(GraphLabel.ROUTE_STATION);
 
-        GraphRelationship relationship = nodeA.createRelationshipTo(txn, nodeB, TransportRelationshipTypes.ON_ROUTE);
+        MutableGraphRelationship relationship = nodeA.createRelationshipTo(txn, nodeB, TransportRelationshipTypes.ON_ROUTE);
 
         Duration duration = Duration.ofMinutes(42).plusSeconds(15);
 
@@ -262,7 +259,7 @@ public class GraphPropsTest {
         MutableGraphNode nodeA = txn.createNode(GraphLabel.ROUTE_STATION);
         MutableGraphNode nodeB = txn.createNode(GraphLabel.ROUTE_STATION);
 
-        GraphRelationship relationship = nodeA.createRelationshipTo(txn, nodeB, TransportRelationshipTypes.ON_ROUTE);
+        MutableGraphRelationship relationship = nodeA.createRelationshipTo(txn, nodeB, TransportRelationshipTypes.ON_ROUTE);
 
         Duration duration = Duration.ofMinutes(42).plusSeconds(55);
 

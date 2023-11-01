@@ -1,9 +1,6 @@
 package com.tramchester.graph.search.stateMachine.states;
 
-import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.GraphNodeId;
-import com.tramchester.graph.facade.GraphRelationship;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.*;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.TowardsStation;
@@ -34,26 +31,26 @@ public class PlatformStationState extends StationState {
         }
 
         public PlatformStationState fromWalking(WalkingState walkingState, GraphNode stationNode, Duration cost, JourneyStateUpdate journeyState, GraphTransaction txn) {
-            final Stream<GraphRelationship> relationships = stationNode.getRelationships(txn, OUTGOING, ENTER_PLATFORM, GROUPED_TO_PARENT,
+            final Stream<ImmutableGraphRelationship> relationships = stationNode.getRelationships(txn, OUTGOING, ENTER_PLATFORM, GROUPED_TO_PARENT,
                     NEIGHBOUR);
             return new PlatformStationState(walkingState, relationships, cost, stationNode, journeyState, this);
         }
 
         public PlatformStationState fromPlatform(PlatformState platformState, GraphNode stationNode, Duration cost,
                                                  JourneyStateUpdate journeyState, boolean onDiversion, GraphTransaction txn) {
-            final Stream<GraphRelationship> initial = stationNode.getRelationships(txn, OUTGOING, WALKS_FROM_STATION, ENTER_PLATFORM,
+            final Stream<ImmutableGraphRelationship> initial = stationNode.getRelationships(txn, OUTGOING, WALKS_FROM_STATION, ENTER_PLATFORM,
                     NEIGHBOUR, GROUPED_TO_PARENT);
-            Stream<GraphRelationship> relationships = addValidDiversions(stationNode, initial, platformState, onDiversion, txn);
+            Stream<ImmutableGraphRelationship> relationships = addValidDiversions(stationNode, initial, platformState, onDiversion, txn);
             return new PlatformStationState(platformState, filterExcludingEndNode(txn, relationships, platformState), cost,
                     stationNode, journeyState, this);
         }
 
         public PlatformStationState fromStart(NotStartedState notStartedState, GraphNode stationNode, Duration cost,
                                               JourneyStateUpdate journeyState, boolean alreadyOnDiversion, boolean onDiversion, GraphTransaction txn) {
-            final Stream<GraphRelationship> neighbours = TraversalState.getRelationships(txn, stationNode, OUTGOING, NEIGHBOUR);
-            final Stream<GraphRelationship> initial = stationNode.getRelationships(txn, OUTGOING, WALKS_FROM_STATION,
+            final Stream<ImmutableGraphRelationship> neighbours = TraversalState.getRelationships(txn, stationNode, OUTGOING, NEIGHBOUR);
+            final Stream<ImmutableGraphRelationship> initial = stationNode.getRelationships(txn, OUTGOING, WALKS_FROM_STATION,
                     GROUPED_TO_PARENT, ENTER_PLATFORM);
-            Stream<GraphRelationship> relationships = addValidDiversions(stationNode, initial, notStartedState, onDiversion, txn);
+            Stream<ImmutableGraphRelationship> relationships = addValidDiversions(stationNode, initial, notStartedState, onDiversion, txn);
 
             return new PlatformStationState(notStartedState, Stream.concat(neighbours,relationships), cost, stationNode, journeyState, this);
         }
@@ -61,20 +58,20 @@ public class PlatformStationState extends StationState {
         @Override
         public PlatformStationState fromNeighbour(StationState stationState, GraphNode stationNode, Duration cost, JourneyStateUpdate journeyState,
                                                   boolean onDiversion, GraphTransaction txn) {
-            final Stream<GraphRelationship> initial = stationNode.getRelationships(txn, OUTGOING, ENTER_PLATFORM, GROUPED_TO_PARENT);
-            Stream<GraphRelationship> relationships = addValidDiversions(stationNode, initial, stationState, onDiversion, txn);
+            final Stream<ImmutableGraphRelationship> initial = stationNode.getRelationships(txn, OUTGOING, ENTER_PLATFORM, GROUPED_TO_PARENT);
+            Stream<ImmutableGraphRelationship> relationships = addValidDiversions(stationNode, initial, stationState, onDiversion, txn);
             return new PlatformStationState(stationState, relationships, cost, stationNode, journeyState, this);
         }
 
         public PlatformStationState fromGrouped(GroupedStationState groupedStationState, GraphNode stationNode, Duration cost,
                                                 JourneyStateUpdate journeyState, GraphTransaction txn) {
-            final Stream<GraphRelationship> relationships = stationNode.getRelationships(txn, OUTGOING, ENTER_PLATFORM, NEIGHBOUR);
+            final Stream<ImmutableGraphRelationship> relationships = stationNode.getRelationships(txn, OUTGOING, ENTER_PLATFORM, NEIGHBOUR);
             return new PlatformStationState(groupedStationState, relationships, cost, stationNode, journeyState, this);
         }
 
     }
 
-    private PlatformStationState(TraversalState parent, Stream<GraphRelationship> relationships, Duration cost, GraphNode stationNode,
+    private PlatformStationState(TraversalState parent, Stream<ImmutableGraphRelationship> relationships, Duration cost, GraphNode stationNode,
                                  JourneyStateUpdate journeyState, TowardsStation<?> builder) {
         super(parent, relationships, cost, stationNode, journeyState, builder);
     }

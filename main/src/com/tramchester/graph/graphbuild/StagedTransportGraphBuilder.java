@@ -19,10 +19,7 @@ import com.tramchester.domain.time.StationTime;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.*;
 import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
-import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.GraphRelationship;
-import com.tramchester.graph.facade.GraphTransaction;
-import com.tramchester.graph.facade.MutableGraphNode;
+import com.tramchester.graph.facade.*;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.metrics.Timing;
 import com.tramchester.repository.*;
@@ -291,7 +288,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
         // start route station -> svc node
         MutableGraphNode routeStationStart = routeBuilderCache.getRouteStation(tx, route, beginId);
-        GraphRelationship svcRelationship = createRelationship(tx, routeStationStart, svcNode, TO_SERVICE);
+        MutableGraphRelationship svcRelationship = createRelationship(tx, routeStationStart, svcNode, TO_SERVICE);
         //setProperty(svcRelationship, service);
         svcRelationship.set(service);
         //setCostProp(svcRelationship, Duration.ZERO);
@@ -432,18 +429,16 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
         Duration departCost = Duration.ZERO;
 
-        GraphRelationship departRelationship = createRelationship(txn, routeStationNode, boardingNode, departType);
+        MutableGraphRelationship departRelationship = createRelationship(txn, routeStationNode, boardingNode, departType);
         departRelationship.setCost(departCost);
         departRelationship.setCost(departCost);
-        //setRouteStationProp(departRelationship, routeStationId);
         departRelationship.setRouteStationId(routeStationId);
-        //setProperty(departRelationship, station);
         departRelationship.set(station);
         routeBuilderCache.putDepart(boardingNode.getId(), routeStationNode.getId());
 
         if (departType.equals(DIVERSION_DEPART)) {
             Set<DateRange> ranges = stationsWithDiversionRepository.getDateRangesFor(station);
-            ranges.forEach(range -> departRelationship.setDateRange(range));
+            ranges.forEach(departRelationship::setDateRange);
         }
     }
 
@@ -451,22 +446,16 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                                 boolean isInterchange, MutableGraphNode platformOrStation, IdFor<RouteStation> routeStationId,
                                 MutableGraphNode routeStationNode, GraphTransaction txn) {
         TransportRelationshipTypes boardType = isInterchange ? INTERCHANGE_BOARD : BOARD;
-        GraphRelationship boardRelationship = createRelationship(txn, platformOrStation, routeStationNode, boardType);
+        MutableGraphRelationship boardRelationship = createRelationship(txn, platformOrStation, routeStationNode, boardType);
 
         Duration boardCost = Duration.ZERO;
-//        int boardCost = isInterchange ? INTERCHANGE_BOARD_COST : BOARDING_COST;
 
-        //setCostProp(boardRelationship, boardCost);
         boardRelationship.setCost(boardCost);
-        //setRouteStationProp(boardRelationship, routeStationId);
         boardRelationship.setRouteStationId(routeStationId);
-        //setProperty(boardRelationship, route);
         boardRelationship.set(route);
-        //setProperty(boardRelationship, station);
         boardRelationship.set(station);
         // No platform ID on buses
         if (stop.hasPlatfrom()) {
-            //setProperty(boardRelationship, stop.getPlatform());
             boardRelationship.set(stop.getPlatform());
         }
         routeBuilderCache.putBoarding(platformOrStation.getId(), routeStationNode.getId());
@@ -493,7 +482,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         }
 
         if (!endNodes.contains(to)) {
-            GraphRelationship onRoute = createRelationship(txn, from, to, ON_ROUTE);
+            MutableGraphRelationship onRoute = createRelationship(txn, from, to, ON_ROUTE);
             onRoute.set(route);
 
             onRoute.setCost(costs.average());
@@ -507,14 +496,14 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         // station -> platform
         Duration enterPlatformCost = station.getMinChangeDuration();
 
-        GraphRelationship crossToPlatform = createRelationship(txn, stationNode, platformNode, ENTER_PLATFORM);
+        MutableGraphRelationship crossToPlatform = createRelationship(txn, stationNode, platformNode, ENTER_PLATFORM);
         crossToPlatform.setCost(enterPlatformCost);
         crossToPlatform.set(platform);
 
         // platform -> station
         Duration leavePlatformCost = Duration.ZERO;
 
-        GraphRelationship crossFromPlatform = createRelationship(txn, platformNode, stationNode, LEAVE_PLATFORM);
+        MutableGraphRelationship crossFromPlatform = createRelationship(txn, platformNode, stationNode, LEAVE_PLATFORM);
         crossFromPlatform.setCost(leavePlatformCost);
         crossFromPlatform.set(station);
     }
@@ -529,7 +518,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         MutableGraphNode routeStationEnd = routeBuilderCache.getRouteStation(tx, route, endStop.getStation().getId());
         MutableGraphNode timeNode = timeNodes.get(StationTime.of(startStation, beginStop.getDepartureTime()));
         TransportRelationshipTypes transportRelationshipType = TransportRelationshipTypes.forMode(route.getTransportMode());
-        GraphRelationship goesToRelationship = createRelationship(tx, timeNode, routeStationEnd, transportRelationshipType);
+        MutableGraphRelationship goesToRelationship = createRelationship(tx, timeNode, routeStationEnd, transportRelationshipType);
         // properties on relationship
         goesToRelationship.set(trip);
 
@@ -568,7 +557,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
         // hour node -> time node
         MutableGraphNode hourNode = builderCache.getHourNode(tx, trip.getRoute().getId(), trip.getService(), startId, departureTime.getHourOfDay());
-        GraphRelationship fromPrevious = createRelationship(tx, hourNode, timeNode, TransportRelationshipTypes.TO_MINUTE);
+        MutableGraphRelationship fromPrevious = createRelationship(tx, hourNode, timeNode, TransportRelationshipTypes.TO_MINUTE);
         fromPrevious.setCost(Duration.ZERO);
         fromPrevious.setTime(departureTime);
         fromPrevious.set(trip);
@@ -587,7 +576,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
             // service node -> time node
             //Node serviceNode = stationCache.getServiceNode(tx, routeId, service, startId, endId);
-            GraphRelationship serviceNodeToHour = createRelationship(tx, serviceNode, hourNode, TransportRelationshipTypes.TO_HOUR);
+            MutableGraphRelationship serviceNodeToHour = createRelationship(tx, serviceNode, hourNode, TransportRelationshipTypes.TO_HOUR);
             //setCostProp(serviceNodeToHour, Duration.ZERO);
             serviceNodeToHour.setCost(Duration.ZERO);
             //setHourProp(serviceNodeToHour, hour);

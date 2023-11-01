@@ -8,9 +8,9 @@ import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.geo.MarginInMeters;
-import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.MutableGraphNode;
+import com.tramchester.graph.facade.MutableGraphRelationship;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.CreateNodesAndRelationships;
 import com.tramchester.graph.graphbuild.GraphLabel;
@@ -214,8 +214,8 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships i
                 throw new RuntimeException(msg);
             }
 
-            GraphRelationship fromClosed = createRelationship(txn, closedNode, otherNode, DIVERSION);
-            GraphRelationship fromOther = createRelationship(txn, otherNode, closedNode, DIVERSION);
+            MutableGraphRelationship fromClosed = createRelationship(txn, closedNode, otherNode, DIVERSION);
+            MutableGraphRelationship fromOther = createRelationship(txn, otherNode, closedNode, DIVERSION);
 
             setCommonProperties(fromClosed, cost, closure);
             setCommonProperties(fromOther, cost, closure);
@@ -257,7 +257,7 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships i
             MutableGraphNode firstNode = txn.findNodeMutable(first);
             MutableGraphNode secondNode = txn.findNodeMutable(second);
 
-            GraphRelationship relationship = createRelationship(txn, firstNode, secondNode, DIVERSION);
+            MutableGraphRelationship relationship = createRelationship(txn, firstNode, secondNode, DIVERSION);
             setCommonProperties(relationship, cost, closure);
             relationship.set(second);
         });
@@ -267,12 +267,9 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships i
         return toLinkViaDiversion.size();
     }
 
-    private void setCommonProperties(GraphRelationship relationship, Duration cost, ClosedStation closure) {
-//        GraphProps.setCostProp(relationship, cost);
+    private void setCommonProperties(MutableGraphRelationship relationship, Duration cost, ClosedStation closure) {
         relationship.setCost(cost);
         relationship.setDateRange(closure.getDateRange());
-//        relationship.setStartDate(closure.getDateRange().getStartDate());
-//        relationship.setEndDate(closure.getDateRange().getEndDate());
     }
 
     @Override

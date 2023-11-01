@@ -55,9 +55,9 @@ public interface GraphNode {
 
     IdFor<Station> getStationId();
 
-    Stream<GraphRelationship> getRelationships(GraphTransaction txn, Direction direction, TransportRelationshipTypes relationshipType);
+    <T extends GraphRelationship> Stream<T> getRelationships(GraphTransaction txn, Direction direction, TransportRelationshipTypes relationshipType);
 
-    Stream<GraphRelationship> getRelationships(GraphTransaction txn, Direction direction, TransportRelationshipTypes... transportRelationshipTypes);
+    <T extends GraphRelationship> Stream<T> getRelationships(GraphTransaction txn, Direction direction, TransportRelationshipTypes... transportRelationshipTypes);
 
     TransportMode getTransportMode();
 

@@ -164,8 +164,14 @@ public class GraphTransaction implements AutoCloseable {
         return new ImmuableGraphNode(underlying);
     }
 
+    // TODO intro immutable
     GraphRelationship wrapRelationship(Relationship relationship) {
-        return new GraphRelationship(relationship, idFactory.getIdFor(relationship));
+        MutableGraphRelationship underlying = new MutableGraphRelationship(relationship, idFactory.getIdFor(relationship));
+        return new ImmutableGraphRelationship(underlying);
+    }
+
+    public MutableGraphRelationship wrapRelationshipMutable(Relationship relationship) {
+        return new MutableGraphRelationship(relationship, idFactory.getIdFor(relationship));
     }
 
     public GraphNode fromStart(Path path) {
@@ -223,4 +229,5 @@ public class GraphTransaction implements AutoCloseable {
         final int value = (int) relationship.getProperty(COST.getText());
         return Duration.ofMinutes(value);
     }
+
 }

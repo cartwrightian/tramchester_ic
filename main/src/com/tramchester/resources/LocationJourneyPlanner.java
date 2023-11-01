@@ -20,9 +20,9 @@ import com.tramchester.geo.StationLocations;
 import com.tramchester.geo.StationLocationsRepository;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.caches.NodeContentsRepository;
-import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.MutableGraphNode;
+import com.tramchester.graph.facade.MutableGraphRelationship;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.BetweenRoutesCostRepository;
@@ -153,7 +153,7 @@ public class LocationJourneyPlanner {
         WalkNodesAndRelationships nodesAndRelationships = new WalkNodesAndRelationships(txn, nodeOperations);
 
         MutableGraphNode endWalk = nodesAndRelationships.createWalkingNode(destination, journeyRequest);
-        List<GraphRelationship> addedRelationships = new LinkedList<>();
+        List<MutableGraphRelationship> addedRelationships = new LinkedList<>();
 
         nodesAndRelationships.createWalksToDest(endWalk, walksToDest);
 
@@ -264,7 +264,7 @@ public class LocationJourneyPlanner {
 
         private final NodeContentsRepository nodeOperations;
         private final GraphTransaction txn;
-        private final List<GraphRelationship> relationships;
+        private final List<MutableGraphRelationship> relationships;
         private final List<MutableGraphNode> nodes;
 
         private WalkNodesAndRelationships(GraphTransaction txn, NodeContentsRepository nodeOperations) {
@@ -285,7 +285,7 @@ public class LocationJourneyPlanner {
             }
         }
 
-        public void addAll(List<GraphRelationship> relationshipList) {
+        public void addAll(List<MutableGraphRelationship> relationshipList) {
             relationships.addAll(relationshipList);
         }
 
@@ -304,16 +304,16 @@ public class LocationJourneyPlanner {
         }
 
         private void createWalkRelationships(MutableGraphNode node, Set<StationWalk> walks, TransportRelationshipTypes direction) {
-            List<GraphRelationship> addedRelationships = new ArrayList<>();
+            List<MutableGraphRelationship> addedRelationships = new ArrayList<>();
             walks.forEach(stationWalk -> addedRelationships.add(createWalkRelationship(node, stationWalk, direction)));
             relationships.addAll(addedRelationships);
         }
 
-        private GraphRelationship createWalkRelationship(MutableGraphNode walkNode, StationWalk stationWalk, TransportRelationshipTypes direction) {
+        private MutableGraphRelationship createWalkRelationship(MutableGraphNode walkNode, StationWalk stationWalk, TransportRelationshipTypes direction) {
             Station walkStation = stationWalk.getStation();
             Duration cost = stationWalk.getCost();
 
-            GraphRelationship walkingRelationship;
+            MutableGraphRelationship walkingRelationship;
             MutableGraphNode stationNode = txn.findNodeMutable(walkStation);
             if (stationNode==null) {
                 throw new RuntimeException("Could not find node for " + walkStation);

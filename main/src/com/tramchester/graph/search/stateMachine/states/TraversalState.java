@@ -1,11 +1,8 @@
 package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.GraphNodeId;
-import com.tramchester.graph.facade.GraphRelationship;
+import com.tramchester.graph.facade.*;
 import com.tramchester.graph.TransportRelationshipTypes;
-import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.NodeId;
@@ -28,7 +25,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
     protected final TraversalOps traversalOps;
     protected final GraphTransaction txn;
 
-    private final Stream<GraphRelationship> outbounds;
+    private final Stream<ImmutableGraphRelationship> outbounds;
     private final Duration costForLastEdge;
     private final Duration parentCost;
     private final TraversalState parent;
@@ -56,7 +53,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         }
     }
 
-    protected TraversalState(TraversalState parent, Stream<GraphRelationship> outbounds, Duration costForLastEdge, TraversalStateType stateType) {
+    protected TraversalState(TraversalState parent, Stream<ImmutableGraphRelationship> outbounds, Duration costForLastEdge, TraversalStateType stateType) {
         super(stateType);
         this.traversalOps = parent.traversalOps;
         this.txn = traversalOps.getTransaction();
@@ -75,7 +72,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         return stateType;
     }
 
-    public static Stream<GraphRelationship> getRelationships(GraphTransaction txn, GraphNode node, Direction direction, TransportRelationshipTypes types) {
+    public static Stream<ImmutableGraphRelationship> getRelationships(GraphTransaction txn, GraphNode node, Direction direction, TransportRelationshipTypes types) {
         return node.getRelationships(txn, direction, types);
     }
 
@@ -189,15 +186,11 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         }
     }
 
-    public Stream<GraphRelationship> getOutbounds() {
+    public Stream<ImmutableGraphRelationship> getOutbounds() {
         return outbounds;
     }
 
-//    protected static Stream<Relationship> filterExcludingEndNode(ResourceIterable<Relationship> relationships, NodeId hasNodeId) {
-//        return filterExcludingEndNode(Streams.stream(relationships), hasNodeId);
-//    }
-
-    protected static Stream<GraphRelationship> filterExcludingEndNode(GraphTransaction txn, Stream<GraphRelationship> relationships, NodeId hasNodeId) {
+    protected static <R extends GraphRelationship> Stream<R> filterExcludingEndNode(GraphTransaction txn, Stream<R> relationships, NodeId hasNodeId) {
         GraphNodeId nodeId = hasNodeId.nodeId();
         return relationships.filter(relationship -> !relationship.getEndNodeId(txn).equals(nodeId));
     }

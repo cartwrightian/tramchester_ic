@@ -3,10 +3,7 @@ package com.tramchester.graph.graphbuild;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.TransportRelationshipTypes;
-import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.GraphRelationship;
-import com.tramchester.graph.facade.GraphTransaction;
-import com.tramchester.graph.facade.MutableGraphNode;
+import com.tramchester.graph.facade.*;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Node;
 import org.slf4j.Logger;
@@ -63,7 +60,7 @@ public class CreateNodesAndRelationships {
         //return graphDatabase.createNode(tx, labels);
     }
 
-    protected GraphRelationship createRelationship(GraphTransaction txn, MutableGraphNode start, MutableGraphNode end, TransportRelationshipTypes relationshipType) {
+    protected MutableGraphRelationship createRelationship(GraphTransaction txn, MutableGraphNode start, MutableGraphNode end, TransportRelationshipTypes relationshipType) {
         numberRelationships++;
         return start.createRelationshipTo(txn, end, relationshipType);
     }
@@ -91,7 +88,7 @@ public class CreateNodesAndRelationships {
                 forEach(relationship -> alreadyRelationship.add(relationship.getEndNode(txn)));
 
         if (!alreadyRelationship.contains(toNode)) {
-            GraphRelationship relationship = createRelationship(txn, fromNode, toNode, relationshipType);
+            MutableGraphRelationship relationship = createRelationship(txn, fromNode, toNode, relationshipType);
             relationship.setCost(walkCost);
             relationship.setMaxCost(walkCost);
             return true;

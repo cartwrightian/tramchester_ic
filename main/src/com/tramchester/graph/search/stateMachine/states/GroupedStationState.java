@@ -1,10 +1,7 @@
 package com.tramchester.graph.search.stateMachine.states;
 
 
-import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.GraphNodeId;
-import com.tramchester.graph.facade.GraphRelationship;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.*;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
@@ -47,7 +44,7 @@ public class GroupedStationState extends TraversalState {
 
     private final GraphNodeId stationNodeId;
 
-    private GroupedStationState(TraversalState parent, Stream<GraphRelationship> relationships, Duration cost, GraphNodeId stationNodeId,
+    private GroupedStationState(TraversalState parent, Stream<ImmutableGraphRelationship> relationships, Duration cost, GraphNodeId stationNodeId,
                                 Towards<GroupedStationState> builder) {
         super(parent, relationships, cost, builder.getDestination());
         this.stationNodeId = stationNodeId;

@@ -1,8 +1,8 @@
 package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.OptionalResourceIterator;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
@@ -35,12 +35,13 @@ public class WalkingState extends TraversalState {
         }
 
         public TraversalState fromStart(NotStartedState notStartedState, GraphNode firstNode, Duration cost, GraphTransaction txn) {
-            final List<GraphRelationship> relationships = firstNode.getRelationships(txn, OUTGOING, WALKS_TO_STATION).toList();
-            OptionalResourceIterator<GraphRelationship> towardsDest = notStartedState.traversalOps.getTowardsDestination(relationships.stream());
+            final Stream<ImmutableGraphRelationship> relationships = firstNode.getRelationships(txn, OUTGOING, WALKS_TO_STATION);
+            final List<ImmutableGraphRelationship> needTwice = relationships.toList();
+            OptionalResourceIterator<ImmutableGraphRelationship> towardsDest = notStartedState.traversalOps.getTowardsDestination(needTwice.stream());
 
             // prioritise a direct walk from start if one is available
             if (towardsDest.isEmpty()) {
-                return new WalkingState(notStartedState, relationships.stream(), cost, this);
+                return new WalkingState(notStartedState, needTwice.stream(), cost, this);
             } else {
                 // direct
                 return new WalkingState(notStartedState, towardsDest.stream(), cost, this);
@@ -54,7 +55,7 @@ public class WalkingState extends TraversalState {
 
     }
 
-    private WalkingState(TraversalState parent, Stream<GraphRelationship> relationships, Duration cost, Towards<WalkingState> builder) {
+    private WalkingState(TraversalState parent, Stream<ImmutableGraphRelationship> relationships, Duration cost, Towards<WalkingState> builder) {
         super(parent, relationships, cost, builder.getDestination());
     }
 

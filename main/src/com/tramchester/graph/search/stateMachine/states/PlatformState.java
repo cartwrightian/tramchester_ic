@@ -2,10 +2,7 @@ package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.GraphNodeId;
-import com.tramchester.graph.facade.GraphRelationship;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.*;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.*;
 
@@ -41,13 +38,13 @@ public class PlatformState extends TraversalState implements NodeId {
         public TraversalState fromRouteStationOnTrip(RouteStationStateOnTrip routeStationStateOnTrip, GraphNode node, Duration cost, GraphTransaction txn) {
 
             // towards final destination, just follow this one
-            OptionalResourceIterator<GraphRelationship> towardsDest = getTowardsDestination(routeStationStateOnTrip.traversalOps, node, txn);
+            OptionalResourceIterator<ImmutableGraphRelationship> towardsDest = getTowardsDestination(routeStationStateOnTrip.traversalOps, node, txn);
             if (!towardsDest.isEmpty()) {
                 return new PlatformState(routeStationStateOnTrip, towardsDest.stream(), node, cost, this);
             }
 
             // inc. board here since might be starting journey
-            Stream<GraphRelationship> platformRelationships = node.getRelationships(txn, OUTGOING, BOARD, INTERCHANGE_BOARD, LEAVE_PLATFORM);
+            Stream<ImmutableGraphRelationship> platformRelationships = node.getRelationships(txn, OUTGOING, BOARD, INTERCHANGE_BOARD, LEAVE_PLATFORM);
 
             // Cannot filter here as might be starting a new trip from this point, so need to 'go back' to the route station
             //Stream<Relationship> filterExcludingEndNode = filterExcludingEndNode(platformRelationships, routeStationStateOnTrip);
@@ -56,17 +53,17 @@ public class PlatformState extends TraversalState implements NodeId {
 
         public TraversalState fromRouteStatiomEndTrip(RouteStationStateEndTrip routeStationState, GraphNode node, Duration cost, GraphTransaction txn) {
             // towards final destination, just follow this one
-            OptionalResourceIterator<GraphRelationship> towardsDest = getTowardsDestination(routeStationState.traversalOps, node, txn);
+            OptionalResourceIterator<ImmutableGraphRelationship> towardsDest = getTowardsDestination(routeStationState.traversalOps, node, txn);
             if (!towardsDest.isEmpty()) {
                 return new PlatformState(routeStationState, towardsDest.stream(), node, cost, this);
             }
 
-            Stream<GraphRelationship> platformRelationships = node.getRelationships(txn, OUTGOING, BOARD, INTERCHANGE_BOARD, LEAVE_PLATFORM);
+            Stream<ImmutableGraphRelationship> platformRelationships = node.getRelationships(txn, OUTGOING, BOARD, INTERCHANGE_BOARD, LEAVE_PLATFORM);
             // end of a trip, may need to go back to this route station to catch new service
             return new PlatformState(routeStationState, platformRelationships, node, cost, this);
         }
 
-        private OptionalResourceIterator<GraphRelationship> getTowardsDestination(TraversalOps traversalOps, GraphNode node, GraphTransaction txn) {
+        private OptionalResourceIterator<ImmutableGraphRelationship> getTowardsDestination(TraversalOps traversalOps, GraphNode node, GraphTransaction txn) {
             return traversalOps.getTowardsDestination(node.getRelationships(txn, OUTGOING, LEAVE_PLATFORM));
         }
 
@@ -74,7 +71,7 @@ public class PlatformState extends TraversalState implements NodeId {
 
     private final GraphNode platformNode;
 
-    private PlatformState(TraversalState parent, Stream<GraphRelationship> relationships, GraphNode platformNode, Duration cost, Towards<PlatformState> builder) {
+    private PlatformState(TraversalState parent, Stream<ImmutableGraphRelationship> relationships, GraphNode platformNode, Duration cost, Towards<PlatformState> builder) {
         super(parent, relationships, cost, builder.getDestination());
         this.platformNode = platformNode;
     }

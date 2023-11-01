@@ -2,11 +2,11 @@ package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.caches.NodeContentsRepository;
+import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.ExistingTrip;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
@@ -31,7 +31,7 @@ public class HourState extends TraversalState {
         }
 
         public HourState fromService(ServiceState serviceState, GraphNode node, Duration cost, ExistingTrip maybeExistingTrip, GraphTransaction txn) {
-            Stream<GraphRelationship> relationships = getMinuteRelationships(node, txn);
+            Stream<ImmutableGraphRelationship> relationships = getMinuteRelationships(node, txn);
             return new HourState(serviceState, relationships, maybeExistingTrip, cost, this);
         }
 
@@ -45,8 +45,8 @@ public class HourState extends TraversalState {
             return TraversalStateType.HourState;
         }
 
-        private Stream<GraphRelationship> getMinuteRelationships(GraphNode node, GraphTransaction txn) {
-            Stream<GraphRelationship> relationships = getRelationships(txn, node, OUTGOING, TO_MINUTE);
+        private Stream<ImmutableGraphRelationship> getMinuteRelationships(GraphNode node, GraphTransaction txn) {
+            Stream<ImmutableGraphRelationship> relationships = getRelationships(txn, node, OUTGOING, TO_MINUTE);
             if (depthFirst) {
                 return relationships.sorted(TramTime.comparing(relationship -> nodeContents.getTime(relationship.getEndNode(txn))));
             }
@@ -56,7 +56,7 @@ public class HourState extends TraversalState {
 
     private final ExistingTrip maybeExistingTrip;
 
-    private HourState(TraversalState parent, Stream<GraphRelationship> relationships,
+    private HourState(TraversalState parent, Stream<ImmutableGraphRelationship> relationships,
                       ExistingTrip maybeExistingTrip, Duration cost, Towards<HourState> builder) {
         super(parent, relationships, cost, builder.getDestination());
         this.maybeExistingTrip = maybeExistingTrip;

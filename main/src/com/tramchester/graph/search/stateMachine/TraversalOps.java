@@ -13,10 +13,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.caches.NodeContentsRepository;
-import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.GraphRelationship;
-import com.tramchester.graph.facade.GraphRelationshipId;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.*;
 import com.tramchester.graph.search.LowestCostsForDestRoutes;
 import com.tramchester.graph.search.RelationshipWithRoute;
 import com.tramchester.repository.TripRepository;
@@ -59,8 +56,8 @@ public class TraversalOps {
         this.queryDate = queryDate;
     }
 
-    public OptionalResourceIterator<GraphRelationship> getTowardsDestination(Stream<GraphRelationship> outgoing) {
-        List<GraphRelationship> filtered = outgoing.
+    public <R extends GraphRelationship> OptionalResourceIterator<R> getTowardsDestination(Stream<R> outgoing) {
+        List<R> filtered = outgoing.
                 filter(depart -> destinationStationIds.contains(depart.getStationId())).
                 collect(Collectors.toList());
         return OptionalResourceIterator.from(filtered);
@@ -88,13 +85,13 @@ public class TraversalOps {
         return sortsPositions.sortedByNearTo(destinationLatLon, wrapped);
     }
 
-    public Stream<GraphRelationship> orderBoardingRelationsByDestRoute(Stream<GraphRelationship> relationships) {
+    public Stream<GraphRelationship> orderBoardingRelationsByDestRoute(Stream<ImmutableGraphRelationship> relationships) {
         return relationships.map(RelationshipWithRoute::new).
                 sorted(this::onDestRouteFirst).
                 map(RelationshipWithRoute::getRelationship);
     }
 
-    public Stream<GraphRelationship> orderBoardingRelationsByRouteConnections(Stream<GraphRelationship> toServices) {
+    public Stream<ImmutableGraphRelationship> orderBoardingRelationsByRouteConnections(Stream<ImmutableGraphRelationship> toServices) {
         Stream<RelationshipWithRoute> withRouteId = toServices.map(RelationshipWithRoute::new);
         Stream<RelationshipWithRoute> sorted = lowestCostsForRoutes.sortByDestinations(withRouteId);
         return sorted.map(RelationshipWithRoute::getRelationship);
