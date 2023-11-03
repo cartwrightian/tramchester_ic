@@ -119,7 +119,7 @@ dependencies {
 
     // https://ciscoo.github.io/cxf-codegen-gradle/docs/current/user-guide/#dependency-configuration
     cxfCodegen 'jakarta.xml.ws:jakarta.xml.ws-api:2.3.3'
-    cxfCodegen 'jakarta.annotation:jakarta.annotation-api:1.3.5'
+    cxfCodegen 'jakarta.annotation:jakarta.annotation-api:2.1.1'
     cxfCodegen 'ch.qos.logback:logback-classic:1.4.11'
 
     // for compiling the cxf generated code
