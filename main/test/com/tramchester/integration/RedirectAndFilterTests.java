@@ -3,10 +3,10 @@ package com.tramchester.integration;
 import com.tramchester.App;
 import com.tramchester.RedirectToAppFilter;
 import com.tramchester.RedirectToHttpsUsingELBProtoHeader;
+import com.tramchester.dataimport.URLStatus;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
-import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,7 +40,7 @@ class RedirectAndFilterTests {
         String location = connection.getHeaderField("Location");
         connection.disconnect();
 
-        Assertions.assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, code);
+        Assertions.assertEquals(URLStatus.MOVED_TEMPORARILY, code);
         Assertions.assertTrue(location.startsWith("http://"));
         Assertions.assertTrue(location.endsWith("/app"));
     }
@@ -54,7 +54,7 @@ class RedirectAndFilterTests {
         String location = connection.getHeaderField("Location");
         connection.disconnect();
 
-        Assertions.assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, code);
+        Assertions.assertEquals(URLStatus.MOVED_TEMPORARILY, code);
         Assertions.assertTrue(location.startsWith("https://"));
         Assertions.assertTrue(location.endsWith("/"));
     }
@@ -69,7 +69,7 @@ class RedirectAndFilterTests {
         int code = connection.getResponseCode();
         connection.disconnect();
 
-        Assertions.assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, code);
+        Assertions.assertEquals(URLStatus.MOVED_TEMPORARILY, code);
         Assertions.assertTrue(location.startsWith("https://"));
         Assertions.assertTrue(location.endsWith("/app"));
     }
@@ -83,7 +83,7 @@ class RedirectAndFilterTests {
         int code = connection.getResponseCode();
         connection.disconnect();
 
-        Assertions.assertEquals(HttpStatus.SC_OK, code);
+        Assertions.assertEquals(URLStatus.OK, code);
     }
 
     @Test
@@ -98,7 +98,7 @@ class RedirectAndFilterTests {
         // actually getting a 404 here on the integration tests as static bundle wireup not working with the app extension
         // main thing to test here is that not being redirected, and if /app is not being served the acceptance tests
         // will all fail.....
-        Assertions.assertNotEquals(HttpStatus.SC_MOVED_TEMPORARILY, code);
+        Assertions.assertNotEquals(URLStatus.MOVED_TEMPORARILY, code);
     }
 
     @Test
@@ -114,7 +114,7 @@ class RedirectAndFilterTests {
         Assertions.assertTrue(location.startsWith("https://"));
         Assertions.assertTrue(location.endsWith("/app"));
 
-        Assertions.assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, code);
+        Assertions.assertEquals(URLStatus.MOVED_TEMPORARILY, code);
     }
 
     @NotNull

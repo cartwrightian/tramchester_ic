@@ -8,7 +8,6 @@ import com.tramchester.dataimport.FetchFileModTime;
 import com.tramchester.dataimport.URLStatus;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -467,7 +466,7 @@ public class ClientForS3 {
             logger.info(format("Downloaded to %s from %s MD5 match md5: '%s'", path.toAbsolutePath(), bucketKey, localMd5));
         }
 
-        return new URLStatus(uri, HttpStatus.SC_OK, modTime);
+        return new URLStatus(uri, 200, modTime);
     }
 
 //    private LocalDateTime getLocalDateTime(Instant modInstant) {

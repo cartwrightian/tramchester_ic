@@ -1,13 +1,11 @@
 package com.tramchester.integration.cloud;
 
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPut;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 
@@ -59,12 +57,12 @@ public class StubbedAWSServer  {
         public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
             calledUrl = request.getRequestURL().toString();
             contentHeader = request.getHeader("Content-Type");
-            if (request.getMethod().equals(HttpGet.METHOD_NAME)) {
+            if (request.getMethod().equals("GET")) {
                 response.setContentType("text/html;charset=utf-8");
                 response.setStatus(HttpServletResponse.SC_OK);
                 response.getWriter().write(metadata);
                 baseRequest.setHandled(true);
-            } else if (request.getMethod().equals(HttpPut.METHOD_NAME)) {
+            } else if (request.getMethod().equals("PUT")) {
                 response.setStatus(HttpServletResponse.SC_OK);
                 BufferedReader reader = request.getReader();
                 StringBuilder incoming = new StringBuilder();

@@ -77,7 +77,7 @@ class LiveDataHTTPFetcherTest {
     void shouldFetchValidDataFromTFGMAPI() {
         List<TramStationDepartureInfo> departureInfos = parser.parse(payload);
 
-        assertTrue(departureInfos.size()>0);
+        assertFalse(departureInfos.isEmpty());
 
         Optional<TramStationDepartureInfo> hasMsgs = departureInfos.stream().
                 filter(info -> !info.getMessage().isEmpty()).findAny();
@@ -98,7 +98,7 @@ class LiveDataHTTPFetcherTest {
     void shouldHaveCrosscheckOnLiveDateDestinations() {
         List<TramStationDepartureInfo> departureInfos = parser.parse(payload);
 
-        assertTrue(departureInfos.size()>0);
+        assertFalse(departureInfos.isEmpty());
 
         Set<Station> destinations = departureInfos.stream().flatMap(entry -> entry.getDueTrams().stream()).
                 map(UpcomingDeparture::getDestination).collect(Collectors.toSet());
@@ -149,26 +149,22 @@ class LiveDataHTTPFetcherTest {
 
     @Test
     @LiveDataTestCategory
+    @Disabled("these is no way to get direction from routes any longer, need a different apporoach?")
     void shouldSpikeDisplayDirectionsForRoutes() {
-        List<TramStationDepartureInfo> departureInfos = parser.parse(payload);
-
-        Set<Station> stations = transportData.getStations();
-
-        stations.forEach(station -> {
-            Set<Lines> lines = getLineAndDirectionFor(departureInfos, station);
-            System.out.println(station.getName() + " " + lines.toString());
-        });
+//        List<TramStationDepartureInfo> departureInfos = parser.parse(payload);
+//
+//        Set<Station> stations = transportData.getStations();
+//
+//        stations.forEach(station -> {
+//            Set<Lines> lines = getLineAndDirectionFor(departureInfos, station);
+//            System.out.println(station.getName() + " " + lines.toString());
+//        });
     }
 
     @Test
     void shouldHaveRealStationNamesForMappings() {
         List<LiveDataParser.LiveDataNamesMapping> mappings = Arrays.asList(LiveDataParser.LiveDataNamesMapping.values());
         mappings.forEach(mapping -> assertTrue(stationByName.getTramStationByName(mapping.getToo()).isPresent(), mapping.name()));
-    }
-
-    private Set<Lines> getLineAndDirectionFor(List<TramStationDepartureInfo> departureInfos, Station station) {
-        return departureInfos.stream().filter(departureInfo -> departureInfo.getStation().equals(station)).
-                map(TramStationDepartureInfo::getLine).collect(Collectors.toSet());
     }
 
 

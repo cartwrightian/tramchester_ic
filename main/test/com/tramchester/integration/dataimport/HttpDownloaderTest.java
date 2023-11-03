@@ -51,7 +51,7 @@ class HttpDownloaderTest {
         assertTrue(headStatus.isOk());
         LocalDateTime modTime = headStatus.getModTime();
         assertTrue(modTime.isBefore(TestEnv.LocalNow()));
-        assertTrue(modTime.isAfter(LocalDateTime.of(2000,1,1,12,59,22)));
+        assertTrue(modTime.isAfter(LocalDateTime.of(2000,1,1,12,59,22)), modTime.toString());
 
         URLStatus getStatus = urlDownloader.downloadTo(temporaryFile, url, modTime);
 

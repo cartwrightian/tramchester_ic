@@ -10,8 +10,6 @@ import com.tramchester.domain.MutableAgency;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.factory.TransportEntityFactoryForTFGM;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.PlatformId;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
@@ -47,7 +45,8 @@ public class LiveDataParser {
     private static final String DIRECTION_BOTH = "Incoming/Outgoing";
     private static final String TERMINATES_HERE = "Terminates Here";
     private static final String NOT_IN_SERVICE = "Not in Service";
-    private static final List<String> NotADestination = Arrays.asList("See Tram Front", NOT_IN_SERVICE);
+    private static final String SEE_TRAM_FRONT = "See Tram Front";
+    private static final List<String> NotADestination = Arrays.asList(SEE_TRAM_FRONT, NOT_IN_SERVICE);
 
     private final TimeZone timeZone = TimeZone.getTimeZone(TramchesterConfig.TimeZoneId);
 
@@ -120,7 +119,7 @@ public class LiveDataParser {
                 }
             }
         } else {
-            logger.error("Unable to deserialise received json: "+rawJson);
+            logger.error("Unable to deserialize received json: "+rawJson);
         }
 
         return result;
@@ -227,7 +226,9 @@ public class LiveDataParser {
                 // likely not present in json
                 logger.debug("Skipping destination '" + destinationName + "' for " + jsonObject + " and index " + i);
             } else if (NotADestination.contains(destinationName)) {
-                logger.info("Display '" + departureInfo.getDisplayId() + "' Skipping destination '" + destinationName + "' for " + jsonObject.toJson() + " and index " + i);
+                if (!SEE_TRAM_FRONT.equals(destinationName)) {
+                    logger.info("Display '" + departureInfo.getDisplayId() + "' Skipping destination '" + destinationName + "' for " + jsonObject.toJson() + " and index " + i);
+                }
             } else {
                 Optional<Station> maybeDestStation;
                 if (TERMINATES_HERE.equals(destinationName)) {

@@ -2,23 +2,18 @@ package com.tramchester.cloud;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.conn.ConnectTimeoutException;
-import org.apache.http.impl.client.HttpClients;
-import org.neo4j.server.http.cypher.format.api.ConnectionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.SocketException;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
 
 import static java.lang.String.format;
 
@@ -26,7 +21,7 @@ import static java.lang.String.format;
 public class FetchInstanceMetadata implements FetchMetadata {
     private static final Logger logger = LoggerFactory.getLogger(FetchInstanceMetadata.class);
 
-    private static final int TIMEOUT = 4000;
+    private static final Duration TIMEOUT = Duration.ofSeconds(4);
     private static final java.lang.String USER_DATA_PATH = "/latest/user-data";
     private final TramchesterConfig config;
 
@@ -55,50 +50,32 @@ public class FetchInstanceMetadata implements FetchMetadata {
     private String getDataFrom(URL url) {
         String host = url.getHost();
         int port = (url.getPort()==-1) ? 80 : url.getPort();
+
         logger.info(format("Attempt to getPlatformById instance user data from host:%s port%s url:%s",
                 host, port, url));
-        HttpClient httpClient = HttpClients.createDefault();
-        HttpGet httpGet = new HttpGet(url.toString());
-        RequestConfig config = RequestConfig.custom()
-                .setSocketTimeout(TIMEOUT)
-                .setConnectTimeout(TIMEOUT).build();
-        httpGet.setConfig(config);
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+
+        HttpClient httpClient = HttpClient.newBuilder().
+                connectTimeout(TIMEOUT).
+                build();
+
         try {
-            HttpResponse result = httpClient.execute(httpGet);
-            HttpEntity entity = result.getEntity();
-            entity.writeTo(stream);
-            return stream.toString();
-        }
-        catch (ConnectTimeoutException timeout) {
-            logger.info("Timed out getting meta data for '"+url+"', not running in cloud");
-        }
-        catch (SocketException socketException) {
-            String connectFailedMsg = format("Connect to %s:%s [/%s] failed: Connection refused", host, port, host);
-            String exceptionMessage = socketException.getMessage();
-            String msg = createDiagnosticMessage("SocketException", url, exceptionMessage);
-            if ("Host is down".equals(exceptionMessage) || (connectFailedMsg.equals(exceptionMessage))) {
-                logger.info(msg);
-            }
-            else {
-                logger.warn(msg, socketException);
-            }
-        }
-        catch (ConnectionException connectionException) {
-            String exceptionMessage = connectionException.getMessage();
-            logger.warn(createDiagnosticMessage("ConnectionException", url, exceptionMessage),
-                    connectionException);
-        }
-        catch (IOException ioException) {
-            String exceptionMessage = ioException.getMessage();
-            logger.warn(createDiagnosticMessage("IOException", url, exceptionMessage), ioException);
+            HttpRequest getRequest = HttpRequest.newBuilder().
+                    uri(url.toURI()).GET().
+                    build();
+
+            HttpResponse<byte[]> response = httpClient.send(getRequest, HttpResponse.BodyHandlers.ofByteArray());
+            byte[] contents = response.body();
+            return new String(contents);
+
+        } catch (URISyntaxException | IOException e) {
+            String msg = format("Unable to get data from to %s:%s [/%s]", host, port, host);
+            logger.warn(msg, e);
+        } catch (InterruptedException e) {
+            String msg = format("Interrupted during connection to %s:%s [/%s] failed: Connection refused", host, port, host);
+            logger.error(msg, e);
         }
         return "";
 
     }
 
-    private String createDiagnosticMessage(String exceptionName, URL url, String exceptionMessage) {
-        return format("type:%s message:'%s' Diagnostic: Cannot connect to '%s' likely not running in the cloud",
-                exceptionName, exceptionMessage, url);
-    }
 }

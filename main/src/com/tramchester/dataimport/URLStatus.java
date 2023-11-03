@@ -1,11 +1,16 @@
 package com.tramchester.dataimport;
 
-import org.apache.http.HttpStatus;
-
 import java.net.URI;
 import java.time.LocalDateTime;
 
 public class URLStatus {
+
+    public static final int MOVED_PERMANENTLY = 301;
+    public static final int MOVED_TEMPORARILY = 302;
+    public static final int TEMPORARY_REDIRECT = 307;
+    public static final int OK = 200;
+    public static final int NOT_FOUND = 404;
+
 
     private final String url;
     private final int responseCode;
@@ -38,7 +43,7 @@ public class URLStatus {
     }
 
     public boolean isOk() {
-        return HttpStatus.SC_OK == responseCode;
+        return 200 == responseCode;
     }
 
     public int getStatusCode() {
@@ -83,9 +88,9 @@ public class URLStatus {
     }
 
     public static boolean isRedirectCode(int code) {
-        return code == HttpStatus.SC_MOVED_PERMANENTLY
-                || code == HttpStatus.SC_MOVED_TEMPORARILY
-                || code == HttpStatus.SC_TEMPORARY_REDIRECT;
+        return code == MOVED_PERMANENTLY
+                || code == MOVED_TEMPORARILY
+                || code == TEMPORARY_REDIRECT;
     }
 
 

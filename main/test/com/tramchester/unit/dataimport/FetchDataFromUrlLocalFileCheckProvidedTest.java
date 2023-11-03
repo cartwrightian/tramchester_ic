@@ -9,7 +9,6 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.integration.testSupport.DatabaseRemoteDataSourceConfig;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;
-import org.apache.http.HttpStatus;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.Assertions;
@@ -215,7 +214,7 @@ class FetchDataFromUrlLocalFileCheckProvidedTest extends EasyMockSupport {
 
         EasyMock.expect(s3Downloader.getStatusFor(expectedDownloadURL, LocalDateTime.MIN)).andReturn(statusWithoutValidModTime);
         EasyMock.expect(s3Downloader.downloadTo(destinationFile, expectedDownloadURL, LocalDateTime.MIN)).
-                andReturn(new URLStatus(expectedDownloadURL, HttpStatus.SC_NOT_FOUND));
+                andReturn(new URLStatus(expectedDownloadURL, 404));
 
         replayAll();
         Assertions.assertAll(() -> fetchDataFromUrl.fetchData());

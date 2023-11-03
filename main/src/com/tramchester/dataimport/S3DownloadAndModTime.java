@@ -2,7 +2,6 @@ package com.tramchester.dataimport;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.cloud.data.ClientForS3;
-import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,10 +26,10 @@ public class S3DownloadAndModTime implements DownloadAndModTime {
     @Override
     public URLStatus getStatusFor(URI url, LocalDateTime localModTime) {
         try {
-            return new URLStatus(url, HttpStatus.SC_OK, s3Client.getModTimeFor(url));
+            return new URLStatus(url, 200, s3Client.getModTimeFor(url));
         } catch (FileNotFoundException notFoundException) {
             logger.warn("Missing resource ", notFoundException);
-            return new URLStatus(url, HttpStatus.SC_NOT_FOUND);
+            return new URLStatus(url, 404);
         }
     }
 

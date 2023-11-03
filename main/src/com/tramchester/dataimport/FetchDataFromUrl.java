@@ -6,8 +6,6 @@ import com.tramchester.config.HasRemoteDataSourceConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.time.ProvidesNow;
 import org.apache.commons.io.FileUtils;
-import org.apache.http.HttpStatus;
-import org.neo4j.server.http.cypher.format.api.ConnectionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,8 +106,6 @@ public class FetchDataFromUrl {
 
             } catch (IOException | InterruptedException exception) {
                 logger.warn(prefix + "Unable to refresh data for config: " + sourceConfig, exception);
-            } catch (ConnectionException connectionException) {
-                logger.error(prefix + "Unable to refresh data for config: " + sourceConfig, connectionException);
             }
         });
     }
@@ -223,8 +219,8 @@ public class FetchDataFromUrl {
     private URLStatus getUrlStatus(URI originalURL, boolean isS3, LocalDateTime localModTime, DataSourceID dataSourceId) throws IOException, InterruptedException {
         URLStatus status = getStatusFor(originalURL, isS3, localModTime);
         if (!status.isOk()) {
-            if (status.getStatusCode() == HttpStatus.SC_METHOD_NOT_ALLOWED) {
-                logger.warn("SC_METHOD_NOT_ALLOWED was unable to query using HEAD for " + dataSourceId);
+            if (status.getStatusCode() == 405 ) { // METHOD_NOT_ALLOWED
+                logger.warn("METHOD_NOT_ALLOWED was unable to query using HEAD for " + dataSourceId);
             } else {
                 logger.warn("Could not download for " + dataSourceId + " status was " + status);
                 // TODO

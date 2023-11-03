@@ -1,32 +1,29 @@
 package com.tramchester.cloud;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.StatusLine;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.UUID;
 
 @LazySingleton
 public class SignalToCloudformationReady {
     private static final Logger logger = LoggerFactory.getLogger(SignalToCloudformationReady.class);
-    private final String url;
+    private final URI url;
 
     @Inject
     public SignalToCloudformationReady(ConfigFromInstanceUserData providesConfig) {
-        url = providesConfig.get("WAITURL");
-        if (url!=null) {
-            logger.info("Have URL for cloud formation triggered " + url);
+        String text = providesConfig.get("WAITURL");
+        if (text!=null) {
+            logger.info("Have URL for cloud formation triggered " + text);
         }
+        this.url = text==null ? null : URI.create(text);
     }
 
     public void send() {
@@ -36,29 +33,33 @@ public class SignalToCloudformationReady {
         }
 
         logger.info("Attempt to send PUT to cloud formation to signal code ready " + url);
-        HttpClient httpClient = HttpClients.createDefault();
-        HttpPut put =new HttpPut(url);
-        put.setEntity(createEntity());
+        HttpClient httpClient = HttpClient.newBuilder().build();
 
-        put.setHeader("Content-Type", ""); // aws docs say empty content header is required
+        HttpRequest.Builder httpRequestBuilder = HttpRequest.newBuilder().
+                uri(url).
+                PUT(HttpRequest.BodyPublishers.ofByteArray(createEntity()));
+
+        httpRequestBuilder.setHeader("Content-Type", "");  // aws docs say empty content header is required
+
+        HttpRequest httpRequest = httpRequestBuilder.build();
 
         try {
-            HttpResponse response = httpClient.execute(put);
-            StatusLine statusLine = response.getStatusLine();
-            if (statusLine.getStatusCode()!= HttpServletResponse.SC_OK) {
-                logger.error("Unexpected status for cloud formation triggered " + statusLine);
+            HttpResponse<Void> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.discarding());
+            int statusCode = response.statusCode();
+            if (statusCode != 200) {
+                logger.error("Unexpected status for cloud formation triggered " + statusCode);
             } else {
                 logger.info("cloud formation POST made OK");
             }
-        } catch (IOException e) {
-            logger.error("Erroring sending cloud formation triggered to " + url,e);
+        } catch (IOException | InterruptedException exception) {
+            logger.error("Error sending cloud formation triggered to " + url, exception);
         }
     }
 
-    private HttpEntity createEntity() {
+    private byte[] createEntity() {
         String content = createContent();
         logger.info("Sending data " + content);
-        return new ByteArrayEntity(content.getBytes());
+        return content.getBytes();
     }
 
     private String createContent() {

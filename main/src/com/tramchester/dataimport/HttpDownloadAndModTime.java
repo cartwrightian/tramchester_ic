@@ -2,8 +2,6 @@ package com.tramchester.dataimport;
 
 import com.tramchester.config.TramchesterConfig;
 import jakarta.ws.rs.HttpMethod;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.utils.DateUtils;
 import org.eclipse.jetty.http.HttpHeader;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -21,26 +19,21 @@ import java.net.http.HttpResponse;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Path;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.zip.GZIPInputStream;
 
+import static jakarta.ws.rs.core.HttpHeaders.LAST_MODIFIED;
+import static jakarta.ws.rs.core.HttpHeaders.LOCATION;
 import static java.lang.String.format;
 
 public class HttpDownloadAndModTime implements DownloadAndModTime {
     private static final Logger logger = LoggerFactory.getLogger(HttpDownloadAndModTime.class);
 
-//    @Override
-//    public URLStatus getStatusFor(String originalUrl, LocalDateTime localModTime) throws IOException, InterruptedException {
-//
-//        return getStatusFor(URI.create(originalUrl), localModTime);
-//    }
+    final static String LAST_MOD_PATTERN = "EEE, dd MMM yyyy HH:mm:ss zzz";
+
 
     @Override
     public URLStatus getStatusFor(URI originalUrl, LocalDateTime localModTime) throws IOException, InterruptedException {
@@ -60,7 +53,7 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
         // might update depending on redirect status
         String finalUrl = originalUrl.toString();
         if (redirect) {
-            Optional<String> locationField = headers.firstValue(org.apache.http.HttpHeaders.LOCATION);
+            Optional<String> locationField = headers.firstValue(LOCATION);
             if (locationField.isPresent()) {
                 logger.warn(format("URL: '%s' Redirect status %s and Location header '%s'",
                         originalUrl, httpStatusCode, locationField));
@@ -68,10 +61,10 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
             } else {
                 logger.error(format("Location header missing for redirect %s, change status code to a 404 for %s",
                         httpStatusCode, originalUrl));
-                httpStatusCode = HttpStatus.SC_NOT_FOUND;
+                httpStatusCode = 404;
             }
         } else {
-            if (httpStatusCode!=HttpStatus.SC_OK) {
+            if (httpStatusCode!=200) {
                 logger.warn("Got error status code "+httpStatusCode+ " headers follow");
                 headers.map().forEach((header, values) -> logger.info("Header: " + header + " Value: " +values));
             }
@@ -80,17 +73,22 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
         return createURLStatus(finalUrl, serverModMillis, httpStatusCode, redirect);
     }
 
+    // TODO Pass Durations around here, not long
     private long getServerModMillis(HttpResponse<?> response) {
         HttpHeaders headers = response.headers();
-        Optional<String> lastModifiedHeader = headers.firstValue(org.apache.http.HttpHeaders.LAST_MODIFIED);
+        Optional<String> lastModifiedHeader = headers.firstValue(LAST_MODIFIED);
 
         long serverModMillis = 0;
         if (lastModifiedHeader.isPresent()) {
             final String lastMod = lastModifiedHeader.get();
-            Date modTime = DateUtils.parseDate(lastMod);
-            serverModMillis = modTime.getTime();
 
-            logger.info("Mod time for " + response.uri() + " was " + modTime + " " + serverModMillis + "ms status " + response.statusCode());
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(LAST_MOD_PATTERN);
+            LocalDateTime dateTime = LocalDateTime.parse(lastMod, formatter);
+
+            //Date modTime = DateUtils.parseDate(lastMod);
+            serverModMillis = dateTime.toEpochSecond(ZoneOffset.UTC) * 1000;
+
+            logger.info("Mod time for " + response.uri() + " was " + dateTime + " " + serverModMillis + "ms status " + response.statusCode());
 
         } else {
             logger.warn("No mod time header for " + response.uri() + " status " + response.statusCode());
@@ -103,6 +101,7 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
     private <T> HttpResponse<T> fetchHeaders(URI uri, LocalDateTime localLastMod, String method,
                                              HttpResponse.BodyHandler<T> bodyHandler) throws IOException, InterruptedException {
 
+
         HttpClient client = HttpClient.newBuilder().build();
         HttpRequest.Builder httpRequestBuilder = HttpRequest.newBuilder().
                 uri(uri).
@@ -110,8 +109,9 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
 
         if (localLastMod != LocalDateTime.MIN) {
             ZonedDateTime httpLocalModTime = localLastMod.atZone(ZoneId.of("Etc/UTC"));
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DateUtils.PATTERN_RFC1036);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(LAST_MOD_PATTERN);
             final String headerIfModSince = formatter.format(httpLocalModTime);
+
             logger.info(format("Checking uri with %s : %s", HttpHeader.IF_MODIFIED_SINCE.name(), headerIfModSince));
             httpRequestBuilder.header(HttpHeader.IF_MODIFIED_SINCE.name(), headerIfModSince);
         }
@@ -153,11 +153,6 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
         return LocalDateTime.ofInstant(Instant.ofEpochSecond(serverModMillis / 1000), TramchesterConfig.TimeZoneId);
     }
 
-//    @Override
-//    public URLStatus downloadTo(Path path, String originalUrl, LocalDateTime existingLocalModTime) {
-//        return downloadTo(path, URI.create(originalUrl), existingLocalModTime);
-//    }
-
     @Override
     public URLStatus downloadTo(Path path, URI originalUrl, LocalDateTime existingLocalModTime) {
 
@@ -175,7 +170,7 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
             // might update depending on redirect status
             if (redirect) {
                 HttpHeaders headers = response.headers();
-                Optional<String> locationField = headers.firstValue(org.apache.http.HttpHeaders.LOCATION);
+                Optional<String> locationField = headers.firstValue(LOCATION);
                 if (locationField.isPresent()) {
                     logger.warn(format("URL: '%s' Redirect status %s and Location header '%s'",
                             originalUrl, statusCode, locationField));
@@ -184,11 +179,11 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
                 } else {
                     logger.error(format("Location header missing for redirect %s, change status code to a 404 for %s",
                             statusCode, originalUrl));
-                    return new URLStatus(originalUrl, HttpStatus.SC_NOT_FOUND);
+                    return new URLStatus(originalUrl, 404);
                 }
             } else {
                 // Not a redirect
-                if (statusCode != HttpStatus.SC_OK) {
+                if (statusCode != 200) {
                     logger.warn("Status code on download not OK, got " + statusCode);
                     return new URLStatus(originalUrl, statusCode);
                 }
