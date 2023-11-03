@@ -41,6 +41,5 @@ public class GraphNodeId {
 
     Node getNodeFrom(Transaction txn) {
         return txn.getNodeByElementId(internalId);
-        //return txn.getNodeById(internalId);
     }
 }

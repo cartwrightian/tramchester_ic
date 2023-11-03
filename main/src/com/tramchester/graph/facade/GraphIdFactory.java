@@ -18,13 +18,13 @@ public class GraphIdFactory {
     }
 
     GraphNodeId getIdFor(final Node node) {
-        final String internalId = node.getElementId(); //node.getId();
+        final String internalId = node.getElementId();
         return nodeIds.computeIfAbsent(internalId, GraphNodeId::new);
 
     }
 
     GraphRelationshipId getIdFor(final Relationship relationship) {
-        final String internalId = relationship.getElementId(); //relationship.getId();
+        final String internalId = relationship.getElementId();
         return relationshipIds.computeIfAbsent(internalId, GraphRelationshipId::new);
     }
 

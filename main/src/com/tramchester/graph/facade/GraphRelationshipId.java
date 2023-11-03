@@ -37,6 +37,6 @@ public class GraphRelationshipId {
     }
 
     Relationship getRelationshipFrom(Transaction txn) {
-        return txn.getRelationshipByElementId(internalId); //txn.getRelationshipById(internalId);
+        return txn.getRelationshipByElementId(internalId);
     }
 }
