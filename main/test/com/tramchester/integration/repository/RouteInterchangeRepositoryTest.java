@@ -30,7 +30,7 @@ import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class RouteInterchangesTest {
+public class RouteInterchangeRepositoryTest {
 
     private static ComponentContainer componentContainer;
     private RouteInterchangeRepository routeInterchanges;

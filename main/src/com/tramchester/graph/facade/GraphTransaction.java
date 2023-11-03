@@ -15,11 +15,8 @@ import org.neo4j.graphalgo.EvaluationContext;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.schema.Schema;
 
-import java.time.Duration;
 import java.util.*;
 import java.util.stream.Stream;
-
-import static com.tramchester.graph.GraphPropertyKey.COST;
 
 /***
  * Facade around underlying graph DB Transaction
@@ -60,6 +57,14 @@ public class GraphTransaction implements AutoCloseable {
         long internalId = nodeId.getInternalId();
         Node node = txn.getNodeById(internalId);
         return wrapNode(node);
+    }
+
+    public GraphRelationship getRelationshipById(GraphRelationshipId graphRelationshipId) {
+        Relationship relationship = txn.getRelationshipById(graphRelationshipId.getInternalId());
+        if (relationship==null) {
+            return null;
+        }
+        return wrapRelationship(relationship);
     }
 
     public MutableGraphNode createNode(Set<GraphLabel> labels) {
@@ -128,22 +133,8 @@ public class GraphTransaction implements AutoCloseable {
         return new BasicEvaluationContext(txn, databaseService);
     }
 
-    @Deprecated
-    public GraphRelationship getRelationshipById(long relationshipId) {
-        Relationship relationship = txn.getRelationshipById(relationshipId);
-        return wrapRelationship(relationship);
-    }
-
     public Result execute(String query) {
         return txn.execute(query);
-    }
-
-    public GraphRelationship getRelationshipById(GraphRelationshipId graphRelationshipId) {
-        Relationship relationship = txn.getRelationshipById(graphRelationshipId.getInternalId());
-        if (relationship==null) {
-            return null;
-        }
-        return wrapRelationship(relationship);
     }
 
     public List<GraphRelationship> getRouteStationRelationships(RouteStation routeStation, Direction direction) {
@@ -218,16 +209,16 @@ public class GraphTransaction implements AutoCloseable {
         return wrapRelationship(relationship);
     }
 
-    public Duration totalDurationFor(Path path) {
-        return Streams.stream(path.relationships()).
-                filter(relationship -> relationship.hasProperty(GraphPropertyKey.COST.getText())).
-                map(GraphTransaction::getCost).
-                reduce(Duration.ZERO, Duration::plus);
-    }
+//    public Duration totalDurationFor(Path path) {
+//        int mins = Streams.stream(path.relationships()).
+//                filter(relationship -> relationship.hasProperty(GraphPropertyKey.COST.getText())).
+//                mapToInt(GraphTransaction::getCost).sum();
+//        return Duration.ofMinutes(mins);
+//    }
 
-    private static Duration getCost(Relationship relationship) {
-        final int value = (int) relationship.getProperty(COST.getText());
-        return Duration.ofMinutes(value);
-    }
+//    private static int getCost(Relationship relationship) {
+//        return  (int) relationship.getProperty(COST.getText());
+//        //return Duration.ofMinutes(value);
+//    }
 
 }

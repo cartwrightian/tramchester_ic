@@ -26,6 +26,8 @@ def buildNumber = System.getenv("RELEASE_NUMBER") ?: candidate
 def environment = System.getenv("ENV") ?: "Dev"
 def isWindows = System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')
 
+def agentPath = '-agentpath:/home/ianc/dev/tools/visualvm_217/visualvm/lib/deployed/jdk16/linux-amd64/libprofilerinterface.so=/home/ianc/dev/tools/visualvm_217/visualvm/lib,5140'
+
 def s3prefix = 'dist/' + buildNumber
 def prodConfig = 'config/local.yml'
 def railCodeGenOutput = 'main/src/generated-live-rail-api/'
@@ -356,7 +358,7 @@ tasks.register('gmProfile', JavaExec) {
     mainClass = mainClassName
     classpath = sourceSets.main.runtimeClasspath
     maxHeapSize = "1g"
-    jvmArgs '-agentpath:/home/ianc/dev/tools/visualvm_213/visualvm/lib/deployed/jdk16/linux-amd64/libprofilerinterface.so=/home/ianc/dev/tools/visualvm_213/visualvm/lib,5140'
+    jvmArgs agentPath
     args 'server', 'config/gm.yml'
 }
 
@@ -399,8 +401,7 @@ tasks.register('liveMessages', Test) {
     }
 }
 
-tasks.register('integration', Test) {
-    dependsOn compileJava
+def integrationTestConfiguration = {
     minHeapSize = "1000m"
     maxHeapSize = "1750m"
     useJUnitPlatform {
@@ -424,22 +425,15 @@ tasks.register('integration', Test) {
     }
 }
 
+tasks.register('integration', Test) {
+    dependsOn compileJava
+    configure integrationTestConfiguration
+}
+
 tasks.register('integrationProfile', Test) {
     dependsOn compileJava
-    minHeapSize = "1000m"
-    maxHeapSize = "1750m"
-    jvmArgs '-agentpath:/home/ianc/dev/tools/visualvm_217/visualvm/lib/deployed/jdk16/linux-amd64/libprofilerinterface.so=/home/ianc/dev/tools/visualvm_217/visualvm/lib,5140'
-    useJUnitPlatform {
-        excludeTags "postcode" // not needed for tram, but used by buses
-        excludeTags "BusTest"
-        excludeTags "TrainTest"
-        excludeTags "GMTest"
-        excludeTags "LiveDataS3UploadTest"
-        excludeTags "AWSMetricsTest"
-    }
-    filter {
-        includeTestsMatching "com.tramchester.integration.*"
-    }
+    configure integrationTestConfiguration
+    jvmArgs agentPath
 }
 
 tasks.register('integrationGM', Test) {
@@ -476,8 +470,6 @@ tasks.register('dualTestIntegration', Test) {
         events "passed", "skipped", "failed", "started", "standardError" //, "standardOut"
     }
 }
-
-
 
 tasks.register('dataUpdated', Test) {
     dependsOn compileJava
@@ -547,7 +539,7 @@ tasks.register('integrationRailProfile', Test) {
     useJUnitPlatform {
         includeTags "TrainTest"
     }
-    jvmArgs '-agentpath:/home/ianc/dev/tools/visualvm_213/visualvm/lib/deployed/jdk16/linux-amd64/libprofilerinterface.so=/home/ianc/dev/tools/visualvm_213/visualvm/lib,5140'
+    jvmArgs agentPath
     filter {
         includeTestsMatching "com.tramchester.integration.*"
     }
@@ -884,10 +876,3 @@ tasks.register('blockhost') {
         }
     }
 }
-
-
-
-
-
-
-
