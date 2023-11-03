@@ -48,19 +48,17 @@ public class GraphTransaction implements AutoCloseable {
     }
 
     public GraphNode getNodeById(GraphNodeId nodeId) {
-        long internalId = nodeId.getInternalId();
-        Node node = txn.getNodeById(internalId);
+        Node node = nodeId.getNodeFrom(txn);
         return wrapNodeAsImmutable(node);
     }
 
     public MutableGraphNode getNodeByIdMutable(GraphNodeId nodeId) {
-        long internalId = nodeId.getInternalId();
-        Node node = txn.getNodeById(internalId);
+        Node node = nodeId.getNodeFrom(txn);
         return wrapNode(node);
     }
 
     public GraphRelationship getRelationshipById(GraphRelationshipId graphRelationshipId) {
-        Relationship relationship = txn.getRelationshipById(graphRelationshipId.getInternalId());
+        Relationship relationship = graphRelationshipId.getRelationshipFrom(txn);
         if (relationship==null) {
             return null;
         }
@@ -200,25 +198,12 @@ public class GraphTransaction implements AutoCloseable {
         };
     }
 
-    public GraphNodeId createNodeId(long legacyId) {
-        return idFactory.getNodeIdFor(legacyId);
-    }
-
     public GraphRelationship getQueryColumnAsRelationship(Map<String, Object> row, String columnName) {
         Relationship relationship = (Relationship) row.get(columnName);
         return wrapRelationship(relationship);
     }
 
-//    public Duration totalDurationFor(Path path) {
-//        int mins = Streams.stream(path.relationships()).
-//                filter(relationship -> relationship.hasProperty(GraphPropertyKey.COST.getText())).
-//                mapToInt(GraphTransaction::getCost).sum();
-//        return Duration.ofMinutes(mins);
-//    }
-
-//    private static int getCost(Relationship relationship) {
-//        return  (int) relationship.getProperty(COST.getText());
-//        //return Duration.ofMinutes(value);
-//    }
-
+    public GraphNodeId createNodeId(Node endNode) {
+        return idFactory.getNodeIdFor(endNode.getElementId());
+    }
 }

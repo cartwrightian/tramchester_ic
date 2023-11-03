@@ -9,8 +9,8 @@ import java.util.concurrent.ConcurrentMap;
 
 @LazySingleton
 public class GraphIdFactory {
-    private final ConcurrentMap<Long, GraphNodeId> nodeIds;
-    private final ConcurrentMap<Long, GraphRelationshipId> relationshipIds;
+    private final ConcurrentMap<String, GraphNodeId> nodeIds;
+    private final ConcurrentMap<String, GraphRelationshipId> relationshipIds;
 
     public GraphIdFactory() {
         nodeIds = new ConcurrentHashMap<>();
@@ -18,17 +18,17 @@ public class GraphIdFactory {
     }
 
     GraphNodeId getIdFor(final Node node) {
-        final long internalId = node.getId();
+        final String internalId = node.getElementId(); //node.getId();
         return nodeIds.computeIfAbsent(internalId, GraphNodeId::new);
 
     }
 
     GraphRelationshipId getIdFor(final Relationship relationship) {
-        final long internalId = relationship.getId();
+        final String internalId = relationship.getElementId(); //relationship.getId();
         return relationshipIds.computeIfAbsent(internalId, GraphRelationshipId::new);
     }
 
-    GraphNodeId getNodeIdFor(final long legacyId) {
+    GraphNodeId getNodeIdFor(final String legacyId) {
         return nodeIds.computeIfAbsent(legacyId, GraphNodeId::new);
     }
 }

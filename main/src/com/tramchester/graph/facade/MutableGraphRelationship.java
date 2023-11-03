@@ -36,19 +36,6 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
         this.id = id;
     }
 
-//    public static ResourceIterable<Relationship> convertIterable(Stream<MutableGraphRelationship> resourceIterable) {
-//        Stream<Relationship> mapped = resourceIterable.map(graphRelationship -> graphRelationship.relationship);
-//
-//        Iterable<Relationship> iterable = new Iterable<>() {
-//            @NotNull
-//            @Override
-//            public Iterator<Relationship> iterator() {
-//                return mapped.iterator();
-//            }
-//        };
-//        return Iterables.asResourceIterable(iterable);
-//    }
-
     public GraphRelationshipId getId() {
         return id;
     }
@@ -227,8 +214,7 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
     }
 
     public GraphNodeId getEndNodeId(GraphTransaction txn) {
-        long legacyId = relationship.getEndNodeId();
-        return txn.createNodeId(legacyId);
+        return txn.createNodeId(relationship.getEndNode());
     }
 
     Relationship getRelationship() {

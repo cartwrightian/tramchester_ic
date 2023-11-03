@@ -1,18 +1,22 @@
 package com.tramchester.graph.facade;
 
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Transaction;
+
 import java.util.Objects;
 
 public class GraphNodeId {
-    private final long legacyId;
+    private final String internalId;
     private final int hashCode;
 
-    GraphNodeId(long legacyId) {
-        this.legacyId = legacyId;
-        this.hashCode = Objects.hash(legacyId);
+    GraphNodeId(String internalId) {
+        // todo performance, intern this id?
+        this.internalId = internalId;
+        this.hashCode = Objects.hash(internalId);
     }
 
     public static GraphNodeId TestOnly(long l) {
-        return new GraphNodeId(l);
+        return new GraphNodeId(Long.toString(l));
     }
 
     @Override
@@ -20,7 +24,7 @@ public class GraphNodeId {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         GraphNodeId that = (GraphNodeId) o;
-        return legacyId == that.legacyId;
+        return internalId.equals(that.internalId);
     }
 
     @Override
@@ -31,12 +35,12 @@ public class GraphNodeId {
     @Override
     public String toString() {
         return "GraphNodeId{" +
-                "legacyId=" + legacyId +
+                "legacyId=" + internalId +
                 '}';
     }
 
-    long getInternalId() {
-        return legacyId;
+    Node getNodeFrom(Transaction txn) {
+        return txn.getNodeByElementId(internalId);
+        //return txn.getNodeById(internalId);
     }
-
 }

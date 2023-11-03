@@ -111,6 +111,7 @@ public class RouteInterchangeRepository {
 
         logger.debug("Find stations to interchange least costs for " + routeId + " max nodes " + maxNodes);
 
+        // TODO This query could be better, i.e. total cost and just the cheapest path for each 'rs' ?
         String template = "MATCH (rs:ROUTE_STATION {route_id:$id})-[r:ON_ROUTE*1..%s {route_id:$id}]->(:INTERCHANGE {route_id:$id})" +
                 " WHERE NOT rs:INTERCHANGE " +
                 " WITH reduce(s = 0, x IN r | s + x.cost) as cost, rs.station_id as start " +
