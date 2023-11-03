@@ -266,7 +266,7 @@ public class FileDataCacheTest extends EasyMockSupport  {
 
         @Override
         public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
-            return Collections.singletonList(new TFGMRemoteDataSourceConfig(Path.of("fake")));
+            return Collections.singletonList(TFGMRemoteDataSourceConfig.createFor(Path.of("fake")));
         }
 
         @Override

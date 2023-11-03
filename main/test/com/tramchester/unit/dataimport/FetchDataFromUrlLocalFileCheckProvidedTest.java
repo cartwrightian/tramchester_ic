@@ -54,7 +54,7 @@ class FetchDataFromUrlLocalFileCheckProvidedTest extends EasyMockSupport {
         remoteDataSourceConfig = config.getDataRemoteSourceConfig(dataSourceID);
 
         final String targetZipFilename = remoteDataSourceConfig.getDownloadFilename();
-        final Path path = remoteDataSourceConfig.getDataPath();
+        final Path path = remoteDataSourceConfig.getDownloadPath();
 
         destinationFile = path.resolve(targetZipFilename);
         statusCheckFile = path.resolve(remoteDataSourceConfig.getModTimeCheckFilename());

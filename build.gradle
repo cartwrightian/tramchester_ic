@@ -26,6 +26,8 @@ def buildNumber = System.getenv("RELEASE_NUMBER") ?: candidate
 def environment = System.getenv("ENV") ?: "Dev"
 def isWindows = System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')
 
+def agentPath = '-agentpath:/home/ianc/dev/tools/visualvm_217/visualvm/lib/deployed/jdk16/linux-amd64/libprofilerinterface.so=/home/ianc/dev/tools/visualvm_217/visualvm/lib,5140'
+
 def s3prefix = 'dist/' + buildNumber
 def prodConfig = 'config/local.yml'
 def railCodeGenOutput = 'main/src/generated-live-rail-api/'
@@ -39,9 +41,9 @@ s3 {
 version = buildNumber
 
 ext {
-    dropwizardVersion = '4.0.1'
+    dropwizardVersion = '4.0.3'
     awsCdkVersion = '1.201.0'
-    jacksonVersion = '2.15.1'
+    jacksonVersion = '2.15.3'
     awsSdkVersion = '2.20.69'
 }
 
@@ -67,8 +69,9 @@ dependencies {
     implementation 'com.google.inject:guice:5.1.0'
     // note: exclude of org.glassfish.jersey.inject needed as it clashed with version in DropWizard causing a
     // failure to load the DynamicServiceLocator in glassfish
-    implementation('org.neo4j:neo4j:5.10.0') {
+    implementation('org.neo4j:neo4j:5.13.0') {
         exclude group:'org.slf4j', module:'slf4j-nop'
+        // todo likely need more exclude here, also have : org.neo4j.server.logging.slf4j.SLF4JLogBridge
         exclude group: 'org.glassfish.jersey.inject'   // , module: 'jersey-hk2'}
         exclude group: 'org.glassfish.jersey.containers', module: 'jersey-container-servlet'
         exclude group: 'org.eclipse.jetty' }
@@ -117,7 +120,7 @@ dependencies {
     // https://ciscoo.github.io/cxf-codegen-gradle/docs/current/user-guide/#dependency-configuration
     cxfCodegen 'jakarta.xml.ws:jakarta.xml.ws-api:2.3.3'
     cxfCodegen 'jakarta.annotation:jakarta.annotation-api:1.3.5'
-    cxfCodegen 'ch.qos.logback:logback-classic:1.4.7'
+    cxfCodegen 'ch.qos.logback:logback-classic:1.4.11'
 
     // for compiling the cxf generated code
     implementation 'com.sun.xml.ws:jaxws-rt:2.3.3'
@@ -187,20 +190,20 @@ processResources {
     //exclude('build/resources/app/**')
 }
 
-task npmInstall(type: Exec) {
+tasks.register('npmInstall', Exec) {
     inputs.file("package.json")
     inputs.file("package-lock.json")
     outputs.dir("node_modules")
 
     if (isWindows) {
         commandLine "npm.cmd", "install"
-    }
-    else {
+    } else {
         commandLine "npm", "install"
     }
 }
 
-task webpack(type: Exec, dependsOn: npmInstall) {
+tasks.register('webpack', Exec) {
+    dependsOn npmInstall
     inputs.file("package.json")
     inputs.file("package-lock.json")
     inputs.file("webpack.config.js")
@@ -233,7 +236,7 @@ distributions {
 // WIP removed, problem with runtime classpath for the apache tool that only happened with circleci build env
 compileJava.dependsOn railLiveDataCodeGen
 
-task cfnassist {
+tasks.register('cfnassist') {
     doLast {
         ant.taskdef(name: 'cfnassist', classname: 'tw.com.ant.CfnAssistAntTask') {
             classpath {
@@ -244,16 +247,17 @@ task cfnassist {
     }
 }
 
-tasks.withType(JavaCompile) {
+tasks.withType(JavaCompile).configureEach {
     options.deprecation = true
     options.compilerArgs.addAll(['-Xlint'])
 }
 
-task stage(dependsOn: ['clean', 'installApp'])
+// TODO Was this still needed?
+//tasks.register('stage') { dependsOn['clean', 'installApp'] }
 
-task cleanGraph() {
+tasks.register('cleanGraph') {
     doLast {
-        delete 'databases/integrationBusTest' ,
+        delete 'databases/integrationBusTest',
                 'databases/integrationTramTest',
                 'databases/integrationTrainTest',
                 'databases/integrationNeighboursTest',
@@ -311,61 +315,69 @@ test {
     useJUnitPlatform()
 }
 
-task cdkApp(type:JavaExec, dependsOn:classes) {
+tasks.register('cdkApp', JavaExec) {
+    dependsOn classes
     mainClass = 'com.tramchester.deployment.CdkApp'
     classpath = sourceSets.main.runtimeClasspath
 }
 
-task buses(type:JavaExec, dependsOn: 'webpack') {
+tasks.register('buses', JavaExec) {
+    dependsOn 'webpack'
     mainClass = mainClassName
     classpath = sourceSets.main.runtimeClasspath
     maxHeapSize = "3g"
     args 'server', 'config/buses.yml'
 }
 
-task frequency(type:JavaExec, dependsOn: 'webpack') {
+tasks.register('frequency', JavaExec) {
+    dependsOn 'webpack'
     mainClass = mainClassName
     classpath = sourceSets.main.runtimeClasspath
     maxHeapSize = "3g"
     args 'server', 'config/frequency.yml'
 }
 
-task rail(type:JavaExec, dependsOn: 'webpack') {
+tasks.register('rail', JavaExec) {
+    dependsOn 'webpack'
     mainClass = mainClassName
     classpath = sourceSets.main.runtimeClasspath
     maxHeapSize = "3g"
     args 'server', 'config/rail.yml'
 }
 
-task gm(type:JavaExec, dependsOn: 'webpack') {
+tasks.register('gm', JavaExec) {
+    dependsOn 'webpack'
     mainClass = mainClassName
     classpath = sourceSets.main.runtimeClasspath
     maxHeapSize = "2g"
     args 'server', 'config/gm.yml'
 }
 
-task gmProfile(type:JavaExec, dependsOn: 'webpack') {
+tasks.register('gmProfile', JavaExec) {
+    dependsOn 'webpack'
     mainClass = mainClassName
     classpath = sourceSets.main.runtimeClasspath
     maxHeapSize = "1g"
-    jvmArgs '-agentpath:/home/ianc/dev/tools/visualvm_213/visualvm/lib/deployed/jdk16/linux-amd64/libprofilerinterface.so=/home/ianc/dev/tools/visualvm_213/visualvm/lib,5140'
+    jvmArgs agentPath
     args 'server', 'config/gm.yml'
 }
 
-task all(type:JavaExec, dependsOn: 'webpack') {
+tasks.register('all', JavaExec) {
+    dependsOn 'webpack'
     mainClass = mainClassName
     classpath = sourceSets.main.runtimeClasspath
     maxHeapSize = "3g"
     args 'server', 'config/all.yml'
 }
 
-task busTest(type: Test) {
+tasks.register('busTest', Test) {
     useJUnitPlatform {
         includeTags 'BusTest'
     }
 }
 
-task unit(type: Test, dependsOn: compileJava) {
+tasks.register('unit', Test) {
+    dependsOn compileJava
     useJUnitPlatform()
     filter {
         includeTestsMatching "com.tramchester.unit.*"
@@ -375,7 +387,8 @@ task unit(type: Test, dependsOn: compileJava) {
     }
 }
 
-task liveMessages(type: Test, dependsOn: compileJava) {
+tasks.register('liveMessages', Test) {
+    dependsOn compileJava
     useJUnitPlatform {
         includeTags "liveDataMessages"
     }
@@ -388,7 +401,7 @@ task liveMessages(type: Test, dependsOn: compileJava) {
     }
 }
 
-task integration(type: Test, dependsOn: compileJava) {
+def integrationTestConfiguration = {
     minHeapSize = "1000m"
     maxHeapSize = "1750m"
     useJUnitPlatform {
@@ -400,7 +413,6 @@ task integration(type: Test, dependsOn: compileJava) {
         excludeTags "BusTest"
         excludeTags "TrainTest"
         excludeTags "GMTest"
-        excludeTags "EcclesToWeasteClosure2023Test"
         excludeTags "LiveDataS3UploadTest"
         excludeTags "AWSMetricsTest"
     }
@@ -413,7 +425,19 @@ task integration(type: Test, dependsOn: compileJava) {
     }
 }
 
-task integrationGM(type: Test, dependsOn: compileJava) {
+tasks.register('integration', Test) {
+    dependsOn compileJava
+    configure integrationTestConfiguration
+}
+
+tasks.register('integrationProfile', Test) {
+    dependsOn compileJava
+    configure integrationTestConfiguration
+    jvmArgs agentPath
+}
+
+tasks.register('integrationGM', Test) {
+    dependsOn compileJava
     minHeapSize = "1000m"
     maxHeapSize = "1750m"
     useJUnitPlatform {
@@ -423,14 +447,15 @@ task integrationGM(type: Test, dependsOn: compileJava) {
     filter {
         includeTestsMatching "com.tramchester.integration.*"
     }
-    systemProperty("com.tramchester.config","RailAndTramGreaterManchesterConfig")
+    systemProperty("com.tramchester.config", "RailAndTramGreaterManchesterConfig")
     testLogging {
         exceptionFormat "full" // default is "short"
         events "passed", "skipped", "failed", "started", "standardError" //, "standardOut"
     }
 }
 
-task dualTestIntegration(type: Test, dependsOn: compileJava) {
+tasks.register('dualTestIntegration', Test) {
+    dependsOn compileJava
     minHeapSize = "1000m"
     maxHeapSize = "1750m"
     useJUnitPlatform {
@@ -439,35 +464,20 @@ task dualTestIntegration(type: Test, dependsOn: compileJava) {
     filter {
         includeTestsMatching "com.tramchester.integration.*"
     }
-    systemProperty("com.tramchester.config","RailAndTramGreaterManchesterConfig")
+    systemProperty("com.tramchester.config", "RailAndTramGreaterManchesterConfig")
     testLogging {
         exceptionFormat "full" // default is "short"
         events "passed", "skipped", "failed", "started", "standardError" //, "standardOut"
     }
 }
 
-task integrationProfile(type: Test, dependsOn: compileJava) {
-    minHeapSize = "1000m"
-    maxHeapSize = "1750m"
-    //jvmArgs '-agentpath:/home/ianc/dev/tools/visualvm_213/visualvm/lib/deployed/jdk16/linux-amd64/libprofilerinterface.so=/home/ianc/dev/tools/visualvm_213/visualvm/lib,5140'
-    jvmArgs '-agentpath:/Users/icartwri/dev/tools/visualvm_213/visualvm/lib/deployed/jdk16/mac/libprofilerinterface.jnilib=/Users/icartwri/dev/tools/visualvm_213/visualvm/lib,5140'
-    useJUnitPlatform {
-        excludeTags "postcode" // not needed for tram, but used by buses
-        excludeTags "BusTest"
-        excludeTags "TrainTest"
-        excludeTags "GMTest"
-    }
-    filter {
-        includeTestsMatching "com.tramchester.integration.*"
-    }
-}
-
-task dataUpdated(type: Test, dependsOn: compileJava) {
+tasks.register('dataUpdated', Test) {
+    dependsOn compileJava
+    outputs.upToDateWhen { false }
     minHeapSize = "1000m"
     maxHeapSize = "1750m"
     useJUnitPlatform {
         includeTags "DataUpdateTest"
-        excludeTags "EcclesToWeasteClosure2023Test"
     }
     filter {
         includeTestsMatching "com.tramchester.integration.*"
@@ -478,7 +488,8 @@ task dataUpdated(type: Test, dependsOn: compileJava) {
     }
 }
 
-task s3Test(type: Test, dependsOn: compileJava) {
+tasks.register('s3Test', Test) {
+    dependsOn compileJava
     useJUnitPlatform {
         includeTags "S3Test"
     }
@@ -488,7 +499,8 @@ task s3Test(type: Test, dependsOn: compileJava) {
     }
 }
 
-task integrationBus(type: Test, dependsOn: compileJava) {
+tasks.register('integrationBus', Test) {
+    dependsOn compileJava
     minHeapSize = "1000m"
     maxHeapSize = "3000m"
     useJUnitPlatform {
@@ -504,7 +516,8 @@ task integrationBus(type: Test, dependsOn: compileJava) {
     }
 }
 
-task integrationRail(type: Test, dependsOn: compileJava) {
+tasks.register('integrationRail', Test) {
+    dependsOn compileJava
     minHeapSize = "1000m"
     maxHeapSize = "8000m"
     useJUnitPlatform {
@@ -519,13 +532,14 @@ task integrationRail(type: Test, dependsOn: compileJava) {
     }
 }
 
-task integrationRailProfile(type: Test, dependsOn: compileJava) {
+tasks.register('integrationRailProfile', Test) {
+    dependsOn compileJava
     minHeapSize = "1000m"
     maxHeapSize = "3000m"
     useJUnitPlatform {
         includeTags "TrainTest"
     }
-    jvmArgs '-agentpath:/home/ianc/dev/tools/visualvm_213/visualvm/lib/deployed/jdk16/linux-amd64/libprofilerinterface.so=/home/ianc/dev/tools/visualvm_213/visualvm/lib,5140'
+    jvmArgs agentPath
     filter {
         includeTestsMatching "com.tramchester.integration.*"
     }
@@ -535,7 +549,8 @@ task integrationRailProfile(type: Test, dependsOn: compileJava) {
     }
 }
 
-task apiTests(type: Test, dependsOn: compileJava) {
+tasks.register('apiTests', Test) {
+    dependsOn compileJava
     minHeapSize = "1000m"
     maxHeapSize = "1750m"
     useJUnitPlatform {
@@ -556,7 +571,8 @@ task apiTests(type: Test, dependsOn: compileJava) {
     }
 }
 
-task graphTests(type: Test, dependsOn: compileJava) {
+tasks.register('graphTests', Test) {
+    dependsOn compileJava
     minHeapSize = "1000m"
     maxHeapSize = "1750m"
     useJUnitPlatform()
@@ -569,14 +585,9 @@ task graphTests(type: Test, dependsOn: compileJava) {
     }
 }
 
-// allow re-run of the task to aid in performance tuning
-allprojects {
-    tasks.matching { task -> task.name == "allStationsTest" }.all {
-        outputs.upToDateWhen { false }
-    }
-}
-
-task allStationsTest(type: Test, dependsOn: compileJava) {
+tasks.register('allStationsTest', Test) {
+    dependsOn compileJava
+    outputs.upToDateWhen { false }
     minHeapSize = "1000m"
     maxHeapSize = "1750m"
     useJUnitPlatform()
@@ -589,7 +600,8 @@ task allStationsTest(type: Test, dependsOn: compileJava) {
     }
 }
 
-task buildGraphTest(type: Test, dependsOn: compileJava) {
+tasks.register('buildGraphTest', Test) {
+    dependsOn compileJava
     minHeapSize = "1000m"
     maxHeapSize = "1750m"
     useJUnitPlatform()
@@ -602,7 +614,7 @@ task buildGraphTest(type: Test, dependsOn: compileJava) {
     }
 }
 
-task acceptance(type: Test) {
+tasks.register('acceptance', Test) {
     dependsOn 'allowhost'
     dependsOn 'compileJava'
     dependsOn 'webpack'
@@ -612,7 +624,7 @@ task acceptance(type: Test) {
     }
     testLogging {
         exceptionFormat "full" // default is "short"
-        events "passed", "skipped", "failed", "started", "standardError" , "standardOut"
+        events "passed", "skipped", "failed", "started", "standardError", "standardOut"
     }
     finalizedBy {
         blockhost
@@ -620,7 +632,9 @@ task acceptance(type: Test) {
 }
 
 // fast feedback on whether acceptance tests run etc
-task smokeTest(type: Test, dependsOn: ['webpack', 'compileJava']) {
+tasks.register('smokeTest', Test) {
+    dependsOn webpack
+    dependsOn compileJava
     minHeapSize = "1000m"
     maxHeapSize = "2500m"
     useJUnitPlatform()
@@ -631,11 +645,13 @@ task smokeTest(type: Test, dependsOn: ['webpack', 'compileJava']) {
         includeTestsMatching "com.tramchester.acceptance.*"
     }
     testLogging {
-        events "passed", "skipped", "failed", "started", "standardError" , "standardOut"
+        events "passed", "skipped", "failed", "started", "standardError", "standardOut"
     }
 }
 
-task localAcceptance(type: Test, dependsOn: ['webpack', 'compileJava']) {
+tasks.register('localAcceptance', Test) {
+    dependsOn webpack
+    dependsOn compileJava
     minHeapSize = "1000m"
     maxHeapSize = "2500m"
     useJUnitPlatform()
@@ -643,11 +659,13 @@ task localAcceptance(type: Test, dependsOn: ['webpack', 'compileJava']) {
         includeTestsMatching "com.tramchester.acceptance.*"
     }
     testLogging {
-        events "passed", "skipped", "failed", "started", "standardError" , "standardOut"
+        events "passed", "skipped", "failed", "started", "standardError", "standardOut"
     }
 }
 
-task localAcceptanceGeo(type: Test, dependsOn: ['webpack', 'compileJava']) {
+tasks.register('localAcceptanceGeo', Test) {
+    dependsOn webpack
+    dependsOn compileJava
     minHeapSize = "1000m"
     maxHeapSize = "2500m"
     useJUnitPlatform()
@@ -655,11 +673,12 @@ task localAcceptanceGeo(type: Test, dependsOn: ['webpack', 'compileJava']) {
         includeTestsMatching "com.tramchester.acceptance.geolocation.*"
     }
     testLogging {
-        events "passed", "skipped", "failed", "started", "standardError" , "standardOut"
+        events "passed", "skipped", "failed", "started", "standardError", "standardOut"
     }
 }
 
-task diagrams(dependsOn: cfnassist) {
+tasks.register('diagrams') {
+    dependsOn cfnassist
     doLast {
         ant.cfnassist() {
             Diagrams(target: '.')
@@ -668,85 +687,102 @@ task diagrams(dependsOn: cfnassist) {
 }
 
 // gm here so include both sets of data
-task pullData(type:JavaExec, dependsOn:classes) {
+tasks.register('pullData', JavaExec) {
+    dependsOn classes
     mainClass = 'com.tramchester.deployment.cli.FetchDataCLI'
     classpath = sourceSets.main.runtimeClasspath
     args 'config/gm.yml'
 }
 
 // gm here so include both sets of data
-task queryDueTramStatus(type:JavaExec, dependsOn:classes) {
+tasks.register('queryDueTramStatus', JavaExec) {
+    dependsOn classes
     mainClass = 'com.tramchester.deployment.cli.QueryLiveDataArchiveCLI'
     classpath = sourceSets.main.runtimeClasspath
     args '2023-01-30', '3', '15', 'config/gm.yml', 'dueTramStatus.txt'
 }
 
 // temp additional target while deploying train/tram version to just UAT
-task buildDatabaseUAT(type:JavaExec, dependsOn: [classes]) {
+tasks.register('buildDatabaseUAT', JavaExec) {
+    dependsOn classes
     mainClass = 'com.tramchester.deployment.cli.BuildGraphCLI'
     classpath = sourceSets.main.runtimeClasspath
     maxHeapSize = "2g"
     args 'config/gm.yml', 'build/distributions/database'
 }
 
-task buildDatabase(type:JavaExec, dependsOn: [classes, buildDatabaseUAT]) {
+tasks.register('buildDatabase', JavaExec) {
+    dependsOn classes
+    dependsOn buildDatabaseUAT
     mainClass = 'com.tramchester.deployment.cli.BuildGraphCLI'
     classpath = sourceSets.main.runtimeClasspath
     args prodConfig, 'build/distributions/database'
 }
 
-task upload(dependsOn: ['uploadDataSources', 'uploadApp'])
-
-// gm here so include both sets of data
-task uploadDataSources(type:JavaExec, dependsOn: ['pullData','classes']) {
-    mainClass = 'com.tramchester.deployment.cli.UploadSourceDataCLI'
-    classpath = sourceSets.main.runtimeClasspath
-    args 'config/gm.yml', s3prefix
-}
-
-task zipDB(type:Zip, dependsOn: 'buildDatabase') {
+tasks.register('zipDB', Zip) {
+    dependsOn buildDatabase
     from 'build/distributions/database'
     include '*.db/**'
     archiveFileName = 'database.zip'
 }
 
-task queryLiveDataArchiveStartScript(type: CreateStartScripts, dependsOn: compileJava) {
+// gm here so include both sets of data
+tasks.register('uploadDataSources', JavaExec) {
+    dependsOn pullData
+    dependsOn classes
+    mainClass = 'com.tramchester.deployment.cli.UploadSourceDataCLI'
+    classpath = sourceSets.main.runtimeClasspath
+    args 'config/gm.yml', s3prefix
+}
+
+tasks.register('copyIntoUploadDir', Copy) {
+    dependsOn zipDB
+    dependsOn distZip
+    from 'build/distributions/database.zip'
+    from 'build/distributions/tramchester-' + buildNumber + '.zip'
+    from 'deploy/setupTramWebServerAWSLinux.sh'
+    from 'deploy/cloudInitAWSLinux.txt'
+    into 'build/distributions/uploadDir'
+}
+
+tasks.register('uploadApp', S3Upload) {
+    dependsOn copyIntoUploadDir
+    keyPrefix = s3prefix
+    sourceDir = 'build/distributions/uploadDir'
+}
+
+tasks.register('upload') {
+    dependsOn uploadDataSources
+    dependsOn uploadApp
+}
+
+tasks.register('queryLiveDataArchiveStartScript', CreateStartScripts) {
+    dependsOn compileJava
     classpath = startScripts.classpath
     outputDir = startScripts.outputDir
     mainClass = 'com.tramchester.deployment.cli.QueryLiveDataArchiveCLI'
     applicationName = 'queryLiveData'
 }
 
-task copyIntoUploadDir(type: Copy, dependsOn: [zipDB, distZip]) {
-    from 'build/distributions/database.zip'
-    from 'build/distributions/tramchester-'+buildNumber+'.zip'
-    from 'deploy/setupTramWebServerAWSLinux.sh'
-    from 'deploy/cloudInitAWSLinux.txt'
-    into 'build/distributions/uploadDir'
-}
-
-task uploadApp(type: S3Upload, dependsOn: copyIntoUploadDir) {
-    keyPrefix = s3prefix
-    sourceDir = 'build/distributions/uploadDir'
-}
-
 // >>>>> https://data.atoc.org/member-area
 
-task uploadRailToS3(type: S3Upload) {
+tasks.register('uploadRailToS3', S3Upload) {
     key = 'railData/ttis697.zip'
     file = 'data/rail/ttis697.zip'
     overwrite = false
 }
 
-task infra(dependsOn: cfnassist) {
+tasks.register('infra') {
+    dependsOn cfnassist
     doLast {
         ant.cfnassist(project: 'tramchesterB', env: environment, sns: 'true', capabilityIAM: 'true') {
-            Templates(target: 'deploy/infra/'+environment )
+            Templates(target: 'deploy/infra/' + environment)
         }
     }
 }
 
-task deploy(dependsOn: cfnassist) {
+tasks.register('deploy') {
+    dependsOn cfnassist
     doLast {
         ant.cfnassist(project: 'tramchesterB', env: environment, buildNumber: buildNumber, sns: 'true') {
             Templates(target: 'deploy/servers.json')
@@ -754,7 +790,8 @@ task deploy(dependsOn: cfnassist) {
     }
 }
 
-task undeploy(dependsOn: cfnassist) {
+tasks.register('undeploy') {
+    dependsOn cfnassist
     doLast {
         ant.cfnassist(project: 'tramchesterB', env: environment, buildNumber: buildNumber, sns: 'true') {
             Delete(target: 'deploy/servers.json')
@@ -762,19 +799,23 @@ task undeploy(dependsOn: cfnassist) {
     }
 }
 
-task deployCDK(type: Exec, dependsOn: [npmInstall, classes]) {
+tasks.register('deployCDK', Exec) {
+    dependsOn npmInstall
+    dependsOn classes
     commandLine "./node_modules/.bin/cdk", "deploy"
 }
 
-task updateLB(dependsOn: cfnassist) {
+tasks.register('updateLB') {
+    dependsOn cfnassist
     doLast {
         ant.cfnassist(project: 'tramchesterB', env: environment, buildNumber: buildNumber, sns: 'true') {
-            TargetGroupUpdate(typeTag: 'web', port: '8080', )
+            TargetGroupUpdate(typeTag: 'web', port: '8080',)
         }
     }
 }
 
-task tidy(dependsOn: cfnassist) {
+tasks.register('tidy') {
+    dependsOn cfnassist
     doLast {
         ant.cfnassist(project: 'tramchesterB', env: environment) {
             TidyStacks(target: 'deploy/servers.json', typeTag: 'web')
@@ -782,7 +823,8 @@ task tidy(dependsOn: cfnassist) {
     }
 }
 
-task allowHostDev(dependsOn: cfnassist) {
+tasks.register('allowHostDev') {
+    dependsOn cfnassist
     doLast {
         ant.cfnassist(project: 'tramchesterB', env: 'Dev') {
             WhiteList(port: '443', tag: 'web')
@@ -790,7 +832,8 @@ task allowHostDev(dependsOn: cfnassist) {
     }
 }
 
-task blockHostDev(dependsOn: cfnassist) {
+tasks.register('blockHostDev') {
+    dependsOn cfnassist
     doLast {
         ant.cfnassist(project: 'tramchesterB', env: 'Dev') {
             BlackList(port: '443', tag: 'web')
@@ -798,7 +841,8 @@ task blockHostDev(dependsOn: cfnassist) {
     }
 }
 
-task allowHostUAT(dependsOn: cfnassist) {
+tasks.register('allowHostUAT') {
+    dependsOn cfnassist
     doLast {
         ant.cfnassist(project: 'tramchesterB', env: 'UAT') {
             WhiteList(port: '443', tag: 'web')
@@ -806,7 +850,8 @@ task allowHostUAT(dependsOn: cfnassist) {
     }
 }
 
-task denyHostUAT(dependsOn: cfnassist) {
+tasks.register('denyHostUAT') {
+    dependsOn cfnassist
     doLast {
         ant.cfnassist(project: 'tramchesterB', env: 'UAT') {
             BlackList(port: '443', tag: 'web')
@@ -814,7 +859,8 @@ task denyHostUAT(dependsOn: cfnassist) {
     }
 }
 
-task allowhost(dependsOn: cfnassist) {
+tasks.register('allowhost') {
+    dependsOn cfnassist
     doLast {
         ant.cfnassist(project: 'tramchesterB', env: environment) {
             WhiteList(port: '443', tag: 'web')
@@ -822,17 +868,11 @@ task allowhost(dependsOn: cfnassist) {
     }
 }
 
-task blockhost(dependsOn: cfnassist) {
+tasks.register('blockhost') {
+    dependsOn cfnassist
     doLast {
         ant.cfnassist(project: 'tramchesterB', env: environment) {
             BlackList(port: '443', tag: 'web')
         }
     }
 }
-
-
-
-
-
-
-

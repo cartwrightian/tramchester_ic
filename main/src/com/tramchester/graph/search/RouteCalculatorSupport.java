@@ -10,11 +10,13 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
-import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphQuery;
+import com.tramchester.graph.*;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphNodeId;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.search.diagnostics.ReasonsToGraphViz;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
@@ -22,9 +24,6 @@ import com.tramchester.repository.RouteInterchangeRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TripRepository;
 import org.jetbrains.annotations.NotNull;
-import org.neo4j.graphdb.Entity;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +40,6 @@ import static java.lang.String.format;
 public class RouteCalculatorSupport {
     private static final Logger logger = LoggerFactory.getLogger(RouteCalculatorSupport.class);
 
-    private final GraphQuery graphQuery;
     private final PathToStages pathToStages;
     private final GraphDatabase graphDatabaseService;
     protected final ProvidesNow providesNow;
@@ -56,13 +54,12 @@ public class RouteCalculatorSupport {
     private final ReasonsToGraphViz reasonToGraphViz;
     private final RouteInterchangeRepository routeInterchanges;
 
-    protected RouteCalculatorSupport(GraphQuery graphQuery, PathToStages pathToStages, NodeContentsRepository nodeContentsRepository,
+    protected RouteCalculatorSupport(PathToStages pathToStages, NodeContentsRepository nodeContentsRepository,
                                      GraphDatabase graphDatabaseService, TraversalStateFactory traversalStateFactory,
                                      ProvidesNow providesNow, SortsPositions sortsPosition, MapPathToLocations mapPathToLocations,
                                      StationRepository stationRepository, TramchesterConfig config, TripRepository tripRepository,
                                      BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz,
                                      RouteInterchangeRepository routeInterchanges) {
-        this.graphQuery = graphQuery;
         this.pathToStages = pathToStages;
         this.nodeContentsRepository = nodeContentsRepository;
         this.graphDatabaseService = graphDatabaseService;
@@ -79,8 +76,8 @@ public class RouteCalculatorSupport {
     }
 
 
-    protected Node getLocationNodeSafe(Transaction txn, Location<?> location) {
-        Node stationNode = graphQuery.getLocationNode(txn, location);
+    protected GraphNode getLocationNodeSafe(GraphTransaction txn, Location<?> location) {
+        GraphNode stationNode = txn.findNode(location);
         if (stationNode == null) {
             String msg = "Unable to find node for " + location;
             logger.error(msg);
@@ -90,12 +87,12 @@ public class RouteCalculatorSupport {
     }
 
     @NotNull
-    public Set<Long> getDestinationNodeIds(LocationSet destinations) {
-        Set<Long> destinationNodeIds;
-        try(Transaction txn = graphDatabaseService.beginTx()) {
+    public Set<GraphNodeId> getDestinationNodeIds(LocationSet destinations) {
+        Set<GraphNodeId> destinationNodeIds;
+        try(GraphTransaction txn = graphDatabaseService.beginTx()) {
             destinationNodeIds = destinations.stream().
                     map(location -> getLocationNodeSafe(txn, location)).
-                    map(Entity::getId).
+                    map(GraphNode::getId).
                     collect(Collectors.toSet());
         }
         return destinationNodeIds;
@@ -131,7 +128,7 @@ public class RouteCalculatorSupport {
                 maxNumChanges);
     }
 
-    public Stream<RouteCalculator.TimedPath> findShortestPath(Transaction txn, Set<Long> destinationNodeIds,
+    public Stream<RouteCalculator.TimedPath> findShortestPath(GraphTransaction txn, Set<GraphNodeId> destinationNodeIds,
                                                               final LocationSet endStations,
                                                               ServiceReasons reasons, PathRequest pathRequest,
                                                               LowestCostsForDestRoutes lowestCostsForRoutes,
@@ -139,7 +136,7 @@ public class RouteCalculatorSupport {
                                                               LowestCostSeen lowestCostSeen) {
 
         TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(
-                pathRequest, sortsPosition, nodeContentsRepository,
+                txn, pathRequest, sortsPosition, nodeContentsRepository,
                 tripRepository, traversalStateFactory, endStations, config, destinationNodeIds,
                 reasons, reasonToGraphViz, providesNow);
 
@@ -152,10 +149,11 @@ public class RouteCalculatorSupport {
 
     @NotNull
     protected Journey createJourney(JourneyRequest journeyRequest, RouteCalculator.TimedPath path,
-                                    LocationSet destinations, LowestCostsForDestRoutes lowestCostForRoutes, AtomicInteger journeyIndex) {
+                                    LocationSet destinations, LowestCostsForDestRoutes lowestCostForRoutes, AtomicInteger journeyIndex,
+                                    GraphTransaction txn) {
 
-        final List<TransportStage<?, ?>> stages = pathToStages.mapDirect(path, journeyRequest, lowestCostForRoutes, destinations);
-        final List<Location<?>> locationList = mapPathToLocations.mapToLocations(path.getPath());
+        final List<TransportStage<?, ?>> stages = pathToStages.mapDirect(path, journeyRequest, lowestCostForRoutes, destinations, txn);
+        final List<Location<?>> locationList = mapPathToLocations.mapToLocations(path.getPath(), txn);
 
         if (stages.isEmpty()) {
             logger.error("No stages were mapped for " + journeyRequest + " for " + locationList);
@@ -214,14 +212,14 @@ public class RouteCalculatorSupport {
 //        }
 //    }
 
-    public PathRequest createPathRequest(Node startNode, TramDate queryDate, TramTime actualQueryTime, Set<TransportMode>
+    public PathRequest createPathRequest(GraphNode startNode, TramDate queryDate, TramTime actualQueryTime, Set<TransportMode>
             requestedModes, int numChanges, JourneyConstraints journeyConstraints, Duration maxInitialWait) {
         ServiceHeuristics serviceHeuristics = createHeuristics(actualQueryTime, journeyConstraints, numChanges);
         return new PathRequest(startNode, queryDate, actualQueryTime, numChanges, serviceHeuristics, requestedModes, maxInitialWait);
     }
 
     public static class PathRequest {
-        private final Node startNode;
+        private final GraphNode startNode;
         private final TramTime queryTime;
         private final int numChanges;
         private final ServiceHeuristics serviceHeuristics;
@@ -229,7 +227,7 @@ public class RouteCalculatorSupport {
         private final Set<TransportMode> requestedModes;
         private final Duration maxInitialWait;
 
-        public PathRequest(Node startNode, TramDate queryDate, TramTime queryTime, int numChanges,
+        public PathRequest(GraphNode startNode, TramDate queryDate, TramTime queryTime, int numChanges,
                            ServiceHeuristics serviceHeuristics, Set<TransportMode> requestedModes, Duration maxInitialWait) {
             this.startNode = startNode;
             this.queryDate = queryDate;

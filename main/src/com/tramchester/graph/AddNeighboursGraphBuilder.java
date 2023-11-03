@@ -6,14 +6,13 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.StationLink;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
+import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.MutableGraphNode;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.CreateNodesAndRelationships;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
-import com.tramchester.metrics.TimedTransaction;
 import com.tramchester.repository.NeighboursRepository;
 import com.tramchester.repository.StationRepository;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,20 +31,19 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
     private final GraphDatabaseMetaInfo databaseMetaInfo;
     private final StationRepository stationRepository;
     private final NeighboursRepository neighboursRepository;
-    private final GraphQuery graphQuery;
     private final TramchesterConfig config;
     private final GraphFilter filter;
 
     @Inject
     public AddNeighboursGraphBuilder(GraphDatabase database, GraphDatabaseMetaInfo databaseMetaInfo, GraphFilter filter,
-                                     GraphQuery graphQuery, StationRepository repository,
-                                     TramchesterConfig config, StationsAndLinksGraphBuilder.Ready ready,
+                                     StationRepository repository,
+                                     TramchesterConfig config,
+                                     @SuppressWarnings("unused") StationsAndLinksGraphBuilder.Ready ready,
                                      NeighboursRepository neighboursRepository) {
         super(database);
         this.database = database;
         this.databaseMetaInfo = databaseMetaInfo;
         this.filter = filter;
-        this.graphQuery = graphQuery;
         this.stationRepository = repository;
         this.config = config;
         this.neighboursRepository = neighboursRepository;
@@ -94,7 +92,7 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
 
     private void createNeighboursInDB() {
         try(TimedTransaction timedTransaction = new TimedTransaction(database, logger, "create neighbours")) {
-            Transaction txn = timedTransaction.transaction();
+            GraphTransaction txn = timedTransaction.transaction();
                 stationRepository.getActiveStationStream().
                     filter(filter::shouldInclude).
                     filter(station -> neighboursRepository.hasNeighbours(station.getId())).
@@ -108,21 +106,21 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
 
     private boolean hasDBFlag() {
         boolean flag;
-        try (Transaction txn = graphDatabase.beginTx()) {
+        try (GraphTransaction txn = graphDatabase.beginTx()) {
             flag = databaseMetaInfo.isNeighboursEnabled(txn);
         }
         return flag;
     }
 
     private void addDBFlag() {
-        try (Transaction txn = graphDatabase.beginTx()) {
+        try (GraphTransaction txn = graphDatabase.beginTx()) {
             databaseMetaInfo.setNeighboursEnabled(txn);
             txn.commit();
         }
     }
 
-    private void addNeighbourRelationships(Transaction txn, GraphFilter filter, Station from, Set<StationLink> links) {
-        Node fromNode = graphQuery.getStationNode(txn, from);
+    private void addNeighbourRelationships(GraphTransaction txn, GraphFilter filter, Station from, Set<StationLink> links) {
+        MutableGraphNode fromNode = txn.findNodeMutable(from);
         if (fromNode==null) {
             String msg = "Could not find database node for from: " + from.getId();
             logger.error(msg);
@@ -134,8 +132,8 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
         links.stream().
                 filter(link -> filter.shouldInclude(link.getEnd())).
                 forEach(link -> {
-
-                Node toNode = graphQuery.getStationNode(txn, link.getEnd());
+                    Station station = link.getEnd();
+                    MutableGraphNode toNode = txn.findNodeMutable(station);
                 if (toNode==null) {
                     String msg = "Could not find database node for to: " + link.getEnd().getId();
                     logger.error(msg);
@@ -143,7 +141,7 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
                 }
 
                 Duration walkingCost = link.getWalkingTime();
-                if (!addNeighbourRelationship(fromNode, toNode, walkingCost)) {
+                if (!addNeighbourRelationship(txn, fromNode, toNode, walkingCost)) {
                     logger.warn(format("Already neighbour link between %s", link));
                 }
             });

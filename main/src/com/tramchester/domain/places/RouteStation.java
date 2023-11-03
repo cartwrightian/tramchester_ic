@@ -1,18 +1,16 @@
 package com.tramchester.domain.places;
 
-import com.tramchester.domain.CoreDomain;
-import com.tramchester.domain.GraphProperty;
-import com.tramchester.domain.HasTransportModes;
-import com.tramchester.domain.Route;
+import com.tramchester.domain.*;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.RouteStationId;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphPropertyKey;
+import com.tramchester.graph.graphbuild.GraphLabel;
 
 import java.util.EnumSet;
 
-public class RouteStation implements HasId<RouteStation>, GraphProperty, HasTransportModes, CoreDomain {
+public class RouteStation implements HasId<RouteStation>, GraphProperty, HasTransportModes, CoreDomain, HasGraphLabel {
     // A station that serves a specific route
 
     private final Station station;
@@ -84,5 +82,10 @@ public class RouteStation implements HasId<RouteStation>, GraphProperty, HasTran
 
     public boolean isActive() {
         return station.servesRouteDropOff(route) || station.servesRoutePickup(route);
+    }
+
+    @Override
+    public GraphLabel getNodeLabel() {
+        return GraphLabel.ROUTE_STATION;
     }
 }

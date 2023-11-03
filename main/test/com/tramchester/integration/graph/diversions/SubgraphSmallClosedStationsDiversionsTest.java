@@ -13,9 +13,11 @@ import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
-import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphQuery;
-import com.tramchester.graph.TransportRelationshipTypes;
+import com.tramchester.graph.*;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphRelationship;
+import com.tramchester.graph.facade.GraphRelationshipId;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
@@ -30,9 +32,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -40,6 +39,7 @@ import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.tramchester.graph.graphbuild.GraphLabel.PLATFORM;
 import static com.tramchester.graph.graphbuild.GraphLabel.ROUTE_STATION;
@@ -73,7 +73,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
 
     private RouteCalculatorTestFacade calculator;
     private StationRepository stationRepository;
-    private Transaction txn;
+    private GraphTransaction txn;
     private Duration maxJourneyDuration;
     private int maxChanges;
 
@@ -269,15 +269,14 @@ class SubgraphSmallClosedStationsDiversionsTest {
 
     @Test
     void shouldCheckForExpectedInboundRelationships() {
-        List<Long> foundRelationshipIds = new ArrayList<>();
+        List<GraphRelationshipId> foundRelationshipIds = new ArrayList<>();
 
         Station exchange = ExchangeSquare.from(stationRepository);
         GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
-        GraphQuery graphQuery = componentContainer.get(GraphQuery.class);
-        try (Transaction txn = graphDatabase.beginTx()) {
+        try (GraphTransaction txn = graphDatabase.beginTx()) {
             exchange.getPlatforms().forEach(platform -> {
-                Node node = graphQuery.getPlatformNode(txn, platform);
-                Iterable<Relationship> iterable = node.getRelationships(Direction.INCOMING, TransportRelationshipTypes.DIVERSION_DEPART);
+                GraphNode node = txn.findNode(platform);
+                Stream<GraphRelationship> iterable = node.getRelationships(txn, Direction.INCOMING, TransportRelationshipTypes.DIVERSION_DEPART);
 
                 iterable.forEach(relationship -> foundRelationshipIds.add(relationship.getId()));
             });
@@ -286,11 +285,11 @@ class SubgraphSmallClosedStationsDiversionsTest {
 
         assertFalse(foundRelationshipIds.isEmpty());
 
-        try (Transaction txn = graphDatabase.beginTx()) {
-            Relationship relationship = txn.getRelationshipById(foundRelationshipIds.get(0));
-            Node from = relationship.getStartNode();
+        try (GraphTransaction txn = graphDatabase.beginTx()) {
+            GraphRelationship relationship = txn.getRelationshipById(foundRelationshipIds.get(0));
+            GraphNode from = relationship.getStartNode(txn);
             assertTrue(from.hasLabel(ROUTE_STATION), from.getAllProperties().toString());
-            Node to = relationship.getEndNode();
+            GraphNode to = relationship.getEndNode(txn);
             assertTrue(to.hasLabel(PLATFORM));
         }
 

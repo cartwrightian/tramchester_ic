@@ -1,51 +1,63 @@
 package com.tramchester.graph.search.diagnostics;
 
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphNodeId;
+import com.tramchester.graph.facade.GraphRelationship;
+import com.tramchester.graph.facade.GraphRelationshipId;
 import com.tramchester.graph.search.ImmutableJourneyState;
-import org.neo4j.graphdb.Path;
+
+import java.util.Objects;
 
 public class HowIGotHere {
 
-    private static final long AT_START = Long.MIN_VALUE;
-    private final long relationshipId;
-    private final long nodeId;
+    //private static final long AT_START = Long.MIN_VALUE;
+    private final GraphRelationshipId relationshipId;
+    private final GraphNodeId nodeId;
     private final String traversalStateName;
 
-    public HowIGotHere(Path path, ImmutableJourneyState immutableJourneyState) {
-        this(path.endNode().getId(), getRelationshipFromPath(path), immutableJourneyState.getTraversalStateName());
+    public HowIGotHere(ImmutableJourneyState immutableJourneyState, GraphNode graphNode, GraphRelationship lastFrom) {
+        this(graphNode.getId(), maintainExistingInterface(lastFrom), immutableJourneyState.getTraversalStateName());
     }
 
-    private HowIGotHere(long nodeId, long relationshipId, String traversalStateName) {
+    // TODO For no presevre existing behaviour with relationshipId i.e. null means not started yet
+    private static GraphRelationshipId maintainExistingInterface(GraphRelationship lastFrom) {
+        if (lastFrom==null) {
+            return null;
+        }
+        return lastFrom.getId();
+    }
+
+    private HowIGotHere(GraphNodeId nodeId, GraphRelationshipId relationshipId, String traversalStateName) {
         this.nodeId = nodeId;
         this.relationshipId = relationshipId;
         this.traversalStateName = traversalStateName;
     }
 
-    public long getEndNodeId() {
+    public GraphNodeId getEndNodeId() {
         return nodeId;
     }
 
-    public long getRelationshipId() {
+    public GraphRelationshipId getRelationshipId() {
         return relationshipId;
     }
 
     public boolean atStart() {
-        return relationshipId==AT_START;
+        return relationshipId==null;
     }
 
     public String getTraversalStateName() {
         return traversalStateName;
     }
 
-    private static long getRelationshipFromPath(Path path) {
-        if (path.lastRelationship()==null) {
-            return AT_START;
-        } else {
-            return path.lastRelationship().getId();
-        }
-    }
+//    private static GraphRelationshipId getRelationshipFromPath(Path path) {
+//        if (path.lastRelationship()==null) {
+//            return null;
+//        } else {
+//            return GraphRelationship.lastFrom(path).getId(); // path.lastRelationship().getId();
+//        }
+//    }
 
-
-    public static HowIGotHere forTest(long nodeId, long relationshipId) {
+    public static HowIGotHere forTest(GraphNodeId nodeId, GraphRelationshipId relationshipId) {
         return new HowIGotHere(nodeId, relationshipId, "TEST_ONLY");
     }
 
@@ -53,18 +65,13 @@ public class HowIGotHere {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         HowIGotHere that = (HowIGotHere) o;
-
-        if (relationshipId != that.relationshipId) return false;
-        return nodeId == that.nodeId;
+        return Objects.equals(relationshipId, that.relationshipId) && Objects.equals(nodeId, that.nodeId);
     }
 
     @Override
     public int hashCode() {
-        int result = (int) (relationshipId ^ (relationshipId >>> 32));
-        result = 31 * result + (int) (nodeId ^ (nodeId >>> 32));
-        return result;
+        return Objects.hash(relationshipId, nodeId);
     }
 
     @Override

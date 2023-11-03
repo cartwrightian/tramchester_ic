@@ -9,6 +9,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
@@ -20,7 +21,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import org.junit.jupiter.api.*;
-import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -44,7 +44,7 @@ class RouteCalculatorSubGraphEcclesAshtonLine {
     private RouteCalculatorTestFacade calculator;
     private final TramDate when = TestEnv.testDay();
 
-    private Transaction txn;
+    private GraphTransaction txn;
     private Duration maxJourneyDuration;
 
     @BeforeAll

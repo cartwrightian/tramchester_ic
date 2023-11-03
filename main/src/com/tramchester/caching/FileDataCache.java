@@ -78,6 +78,7 @@ public class FileDataCache implements DataCache {
             logger.info("Found no updated data sources");
             return;
         }
+
         logger.warn("Some data sources (" + refreshedSources+ ") have refreshed, clearing cache " + cacheFolder);
         clearFiles();
     }

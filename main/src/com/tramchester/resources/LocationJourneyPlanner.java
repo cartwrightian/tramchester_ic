@@ -18,21 +18,18 @@ import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.geo.StationLocationsRepository;
-import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.caches.NodeContentsRepository;
+import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.MutableGraphNode;
+import com.tramchester.graph.facade.MutableGraphRelationship;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.GraphLabel;
-import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.BetweenRoutesCostRepository;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.graph.search.RouteCalculatorArriveBy;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
 import com.tramchester.mappers.Geography;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,8 +52,6 @@ public class LocationJourneyPlanner {
     private final RouteCalculator routeCalculator;
     private final RouteCalculatorArriveBy routeCalculatorArriveBy;
     private final NodeContentsRepository nodeOperations;
-    private final GraphQuery graphQuery;
-    private final GraphDatabase graphDatabase;
     private final MarginInMeters margin;
     private final BetweenRoutesCostRepository routeToRouteCosts;
     private final Geography geography;
@@ -64,7 +59,6 @@ public class LocationJourneyPlanner {
     @Inject
     public LocationJourneyPlanner(StationLocations stationLocations, TramchesterConfig config, RouteCalculator routeCalculator,
                                   RouteCalculatorArriveBy routeCalculatorArriveBy, NodeContentsRepository nodeOperations,
-                                  GraphQuery graphQuery, GraphDatabase graphDatabase,
                                   GraphFilter graphFilter, RouteToRouteCosts routeToRouteCosts, Geography geography) {
         this.geography = geography;
         logger.info("created");
@@ -72,15 +66,13 @@ public class LocationJourneyPlanner {
         this.routeCalculator = routeCalculator;
         this.routeCalculatorArriveBy = routeCalculatorArriveBy;
         this.nodeOperations = nodeOperations;
-        this.graphQuery = graphQuery;
-        this.graphDatabase = graphDatabase;
         this.stationLocations = stationLocations;
         this.graphFilter = graphFilter;
         this.margin = MarginInMeters.of(config.getNearestStopForWalkingRangeKM());
         this.routeToRouteCosts = routeToRouteCosts;
     }
 
-    public Stream<Journey> quickestRouteForLocation(Transaction txn, Location<?> start, Location<?> destination,
+    public Stream<Journey> quickestRouteForLocation(GraphTransaction txn, Location<?> start, Location<?> destination,
                                                     JourneyRequest journeyRequest) {
         logger.info(format("Finding shortest path for %s --> %s (%s) for %s", start.getId(), destination.getId(), destination.getName(), journeyRequest));
         boolean walkAtStart = start.getLocationType().isWalk();
@@ -104,7 +96,7 @@ public class LocationJourneyPlanner {
         }
     }
 
-    private Stream<Journey> quickRouteWalkAtStart(Transaction txn, Location<?> start, Location<?> destination,
+    private Stream<Journey> quickRouteWalkAtStart(GraphTransaction txn, Location<?> start, Location<?> destination,
                                                   JourneyRequest journeyRequest) {
         logger.info(format("Finding shortest path for %s --> %s (%s) for %s", start.getId(),
                 destination.getId(), destination.getName(), journeyRequest));
@@ -120,8 +112,8 @@ public class LocationJourneyPlanner {
             return Stream.empty();
         }
 
-        WalkNodesAndRelationships nodesAndRelationships = new WalkNodesAndRelationships(txn, graphDatabase, graphQuery, nodeOperations);
-        Node startOfWalkNode = nodesAndRelationships.createWalkingNode(start, journeyRequest);
+        WalkNodesAndRelationships nodesAndRelationships = new WalkNodesAndRelationships(txn, nodeOperations);
+        MutableGraphNode startOfWalkNode = nodesAndRelationships.createWalkingNode(start, journeyRequest);
         nodesAndRelationships.createWalksToStart(startOfWalkNode, walksToStart);
 
         Stream<Journey> journeys;
@@ -138,7 +130,7 @@ public class LocationJourneyPlanner {
         return journeys;
     }
 
-    private Stream<Journey> quickestRouteWalkAtEnd(Transaction txn, Location<?> start, Location<?> destination,
+    private Stream<Journey> quickestRouteWalkAtEnd(GraphTransaction txn, Location<?> start, Location<?> destination,
                                                    JourneyRequest journeyRequest) {
         logger.info(format("Finding shortest path for %s (%s) --> %s for %s", start.getId(), start.getName(),
                 destination, journeyRequest));
@@ -158,10 +150,10 @@ public class LocationJourneyPlanner {
             return Stream.empty();
         }
 
-        WalkNodesAndRelationships nodesAndRelationships = new WalkNodesAndRelationships(txn, graphDatabase, graphQuery, nodeOperations);
+        WalkNodesAndRelationships nodesAndRelationships = new WalkNodesAndRelationships(txn, nodeOperations);
 
-        Node endWalk = nodesAndRelationships.createWalkingNode(destination, journeyRequest);
-        List<Relationship> addedRelationships = new LinkedList<>();
+        MutableGraphNode endWalk = nodesAndRelationships.createWalkingNode(destination, journeyRequest);
+        List<MutableGraphRelationship> addedRelationships = new LinkedList<>();
 
         nodesAndRelationships.createWalksToDest(endWalk, walksToDest);
 
@@ -186,20 +178,20 @@ public class LocationJourneyPlanner {
         return journeys;
     }
 
-    private Stream<Journey> quickestRouteWalkAtStartAndEnd(Transaction txn, Location<?> start, Location<?> dest,
+    private Stream<Journey> quickestRouteWalkAtStartAndEnd(GraphTransaction txn, Location<?> start, Location<?> dest,
                                                            JourneyRequest journeyRequest) {
         logger.info(format("Finding shortest path for %s --> %s on %s", start, dest, journeyRequest));
 
-        WalkNodesAndRelationships nodesAndRelationships = new WalkNodesAndRelationships(txn, graphDatabase, graphQuery, nodeOperations);
+        WalkNodesAndRelationships nodesAndRelationships = new WalkNodesAndRelationships(txn, nodeOperations);
 
         // Add Walk at the Start
         Set<StationWalk> walksAtStart = getStationWalks(start, journeyRequest.getRequestedModes());
-        Node startNode = nodesAndRelationships.createWalkingNode(start, journeyRequest);
+        MutableGraphNode startNode = nodesAndRelationships.createWalkingNode(start, journeyRequest);
         nodesAndRelationships.createWalksToStart(startNode, walksAtStart);
 
         // Add Walks at the end
         Set<StationWalk> walksToDest = getStationWalks(dest, journeyRequest.getRequestedModes());
-        Node endWalk = nodesAndRelationships.createWalkingNode(dest, journeyRequest);
+        MutableGraphNode endWalk = nodesAndRelationships.createWalkingNode(dest, journeyRequest);
         nodesAndRelationships.createWalksToDest(endWalk, walksToDest);
 
         // where destination walks take us
@@ -270,16 +262,12 @@ public class LocationJourneyPlanner {
 
     private static class WalkNodesAndRelationships {
 
-        private final GraphDatabase graphDatabase;
-        private final GraphQuery graphQuery;
         private final NodeContentsRepository nodeOperations;
-        private final Transaction txn;
-        private final List<Relationship> relationships;
-        private final List<Node> nodes;
+        private final GraphTransaction txn;
+        private final List<MutableGraphRelationship> relationships;
+        private final List<MutableGraphNode> nodes;
 
-        private WalkNodesAndRelationships(Transaction txn, GraphDatabase graphDatabase, GraphQuery graphQuery, NodeContentsRepository nodeOperations) {
-            this.graphDatabase = graphDatabase;
-            this.graphQuery = graphQuery;
+        private WalkNodesAndRelationships(GraphTransaction txn, NodeContentsRepository nodeOperations) {
             this.nodeOperations = nodeOperations;
             this.txn = txn;
             this.relationships = new ArrayList<>();
@@ -292,78 +280,67 @@ public class LocationJourneyPlanner {
                 nodeOperations.deleteFromCostCache(relationship);
                 relationship.delete();
             });
-            for (Node node : nodes) {
+            for (MutableGraphNode node : nodes) {
                 node.delete();
             }
         }
 
-        public void add(Node node) {
-            nodes.add(node);
-        }
-
-        public void addAll(List<Relationship> relationshipList) {
+        public void addAll(List<MutableGraphRelationship> relationshipList) {
             relationships.addAll(relationshipList);
         }
 
-        public Node createWalkingNode(Location<?> location, JourneyRequest journeyRequest) {
-            Node walkingNode = createWalkingNode(txn, location.getLatLong(), journeyRequest.getUid());
+        public MutableGraphNode createWalkingNode(Location<?> location, JourneyRequest journeyRequest) {
+            MutableGraphNode walkingNode = createWalkingNode(txn, location.getLatLong(), journeyRequest.getUid());
             nodes.add(walkingNode);
             return walkingNode;
         }
 
-        @Deprecated
-        public Node createWalkingNode(LatLong start, JourneyRequest journeyRequest) {
-            Node walkingNode = createWalkingNode(txn, start, journeyRequest.getUid());
-            nodes.add(walkingNode);
-            return walkingNode;
-        }
-
-        public void createWalksToStart(Node node, Set<StationWalk> walks) {
+        public void createWalksToStart(MutableGraphNode node, Set<StationWalk> walks) {
             createWalkRelationships(node, walks, WALKS_TO_STATION);
         }
 
-        public void createWalksToDest(Node node, Set<StationWalk> walks) {
+        public void createWalksToDest(MutableGraphNode node, Set<StationWalk> walks) {
             createWalkRelationships(node, walks, WALKS_FROM_STATION);
         }
 
-        private void createWalkRelationships(Node node, Set<StationWalk> walks, TransportRelationshipTypes direction) {
-            List<Relationship> addedRelationships = new ArrayList<>();
+        private void createWalkRelationships(MutableGraphNode node, Set<StationWalk> walks, TransportRelationshipTypes direction) {
+            List<MutableGraphRelationship> addedRelationships = new ArrayList<>();
             walks.forEach(stationWalk -> addedRelationships.add(createWalkRelationship(node, stationWalk, direction)));
             relationships.addAll(addedRelationships);
         }
 
-        private Relationship createWalkRelationship(Node walkNode, StationWalk stationWalk, TransportRelationshipTypes direction) {
+        private MutableGraphRelationship createWalkRelationship(MutableGraphNode walkNode, StationWalk stationWalk, TransportRelationshipTypes direction) {
             Station walkStation = stationWalk.getStation();
             Duration cost = stationWalk.getCost();
 
-            Relationship walkingRelationship;
-            Node stationNode = graphQuery.getStationNode(txn, walkStation);
+            MutableGraphRelationship walkingRelationship;
+            MutableGraphNode stationNode = txn.findNodeMutable(walkStation);
             if (stationNode==null) {
                 throw new RuntimeException("Could not find node for " + walkStation);
             }
 
             if (direction == WALKS_FROM_STATION) {
-                walkingRelationship = stationNode.createRelationshipTo(walkNode, direction);
+                walkingRelationship = stationNode.createRelationshipTo(txn, walkNode, direction);
                 logger.info(format("Add %s relationship %s (%s) to node %s cost %s",
                         direction, walkStation.getId(), walkStation.getName(), walkNode.getId(),  cost));
             } else if (direction == WALKS_TO_STATION) {
-                walkingRelationship = walkNode.createRelationshipTo(stationNode, direction);
+                walkingRelationship = walkNode.createRelationshipTo(txn, stationNode, direction);
                 logger.info(format("Add %s relationship between node %s to %s (%s) cost %s",
                         direction, walkNode.getId(), walkStation.getId(), walkStation.getName(), cost));
             } else {
                 throw new RuntimeException("Unknown direction " + direction);
             }
 
-            GraphProps.setCostProp(walkingRelationship, cost);
-            GraphProps.setMaxCostProp(walkingRelationship, cost);
-            GraphProps.setProperty(walkingRelationship, walkStation);
+            walkingRelationship.setCost(cost);
+            walkingRelationship.setMaxCost(cost);
+            walkingRelationship.set(walkStation);
             return walkingRelationship;
         }
 
-        private Node createWalkingNode(Transaction txn, LatLong origin, UUID uniqueId) {
-            Node startOfWalkNode = graphDatabase.createNode(txn, GraphLabel.QUERY_NODE);
-            GraphProps.setLatLong(startOfWalkNode, origin);
-            GraphProps.setWalkId(startOfWalkNode, origin, uniqueId);
+        private MutableGraphNode createWalkingNode(GraphTransaction txn, LatLong origin, UUID uniqueId) {
+            MutableGraphNode startOfWalkNode = txn.createNode(GraphLabel.QUERY_NODE);
+            startOfWalkNode.setLatLong(origin);
+            startOfWalkNode.setWalkId(origin, uniqueId);
             logger.info(format("Added walking node at %s as %s", origin, startOfWalkNode));
             return startOfWalkNode;
         }

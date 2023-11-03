@@ -13,11 +13,12 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphQuery;
-import com.tramchester.graph.TransportRelationshipTypes;
+import com.tramchester.graph.*;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphRelationship;
+import com.tramchester.graph.facade.GraphRelationshipId;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
-import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.StationClosuresForTest;
@@ -29,9 +30,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -39,6 +37,7 @@ import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 import static com.tramchester.graph.graphbuild.GraphLabel.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
@@ -65,11 +64,10 @@ class SubgraphClosedStationsDiversionsTest {
             Monsall,
             NewIslington);
 
-    private static GraphQuery graphQuery;
     private RouteCalculatorTestFacade calculator;
     private StationRepository stationRepository;
     private final static TramDate when = TestEnv.testDay();
-    private Transaction txn;
+    private GraphTransaction txn;
 
     private final static List<StationClosures> closedStations = Collections.singletonList(
             new StationClosuresForTest(PiccadillyGardens, when, when.plusWeeks(1), true));
@@ -86,7 +84,6 @@ class SubgraphClosedStationsDiversionsTest {
                 create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
         database = componentContainer.get(GraphDatabase.class);
-        graphQuery = componentContainer.get(GraphQuery.class);
     }
 
     private static void configureFilter(ConfigurableGraphFilter graphFilter, TransportData transportData) {
@@ -286,14 +283,14 @@ class SubgraphClosedStationsDiversionsTest {
     @Disabled("All central also interchanges?")
     @Test
     void shouldCheckForExpectedInboundRelationships() {
-        List<Long> foundRelationshipIds = new ArrayList<>();
+        List<GraphRelationshipId> foundRelationshipIds = new ArrayList<>();
 
         Station notAnInterchange = MarketStreet.from(stationRepository);
 
-        try (Transaction txn = database.beginTx()) {
+        try (GraphTransaction txn = database.beginTx()) {
             notAnInterchange.getPlatforms().forEach(platform -> {
-                Node node = graphQuery.getPlatformNode(txn, platform);
-                Iterable<Relationship> iterable = node.getRelationships(Direction.INCOMING, TransportRelationshipTypes.DIVERSION_DEPART);
+                GraphNode node = txn.findNode(platform);
+                Stream<GraphRelationship> iterable = node.getRelationships(txn, Direction.INCOMING, TransportRelationshipTypes.DIVERSION_DEPART);
 
                 iterable.forEach(relationship -> foundRelationshipIds.add(relationship.getId()));
             });
@@ -302,11 +299,11 @@ class SubgraphClosedStationsDiversionsTest {
 
         assertFalse(foundRelationshipIds.isEmpty());
 
-        try (Transaction txn = database.beginTx()) {
-            Relationship relationship = txn.getRelationshipById(foundRelationshipIds.get(0));
-            Node from = relationship.getStartNode();
+        try (GraphTransaction txn = database.beginTx()) {
+            GraphRelationship relationship = txn.getRelationshipById(foundRelationshipIds.get(0));
+            GraphNode from = relationship.getStartNode(txn);
             assertTrue(from.hasLabel(ROUTE_STATION), from.getAllProperties().toString());
-            Node to = relationship.getEndNode();
+            GraphNode to = relationship.getEndNode(txn);
             assertTrue(to.hasLabel(PLATFORM));
         }
 
@@ -314,14 +311,14 @@ class SubgraphClosedStationsDiversionsTest {
 
     @Test
     void shouldCheckIfDiversionFromPiccToStPetersSquare()  {
-        List<Long> foundRelationshipIds = new ArrayList<>();
+        List<GraphRelationshipId> foundRelationshipIds = new ArrayList<>();
 
         Station piccadilly = Piccadilly.from(stationRepository);
 
-        try (Transaction txn = database.beginTx()) {
-            Node stationNode = graphQuery.getStationNode(txn, piccadilly);
+        try (GraphTransaction txn = database.beginTx()) {
+            GraphNode stationNode = txn.findNode(piccadilly);
 
-            Iterable<Relationship> iterable = stationNode.getRelationships(Direction.OUTGOING, TransportRelationshipTypes.DIVERSION);
+            Stream<GraphRelationship> iterable = stationNode.getRelationships(txn, Direction.OUTGOING, TransportRelationshipTypes.DIVERSION);
 
             iterable.forEach(relationship -> foundRelationshipIds.add(relationship.getId()));
         }
@@ -330,12 +327,13 @@ class SubgraphClosedStationsDiversionsTest {
 
         AtomicInteger count = new AtomicInteger(0);
 
-        try (Transaction txn = database.beginTx()) {
+        try (GraphTransaction txn = database.beginTx()) {
             foundRelationshipIds.forEach(foundId -> {
-                Relationship relationship = txn.getRelationshipById(foundId);
-                Node to = relationship.getEndNode();
+                GraphRelationship relationship = txn.getRelationshipById(foundId);
+                GraphNode to = relationship.getEndNode(txn);
                 assertTrue(to.hasLabel(STATION));
-                IdFor<Station> stationId = GraphProps.getStationId(to);
+                //return getStationIdFrom(node.getNode());
+                IdFor<Station> stationId = to.getStationId();
                 if (StPetersSquare.getId().equals(stationId)) {
                     count.getAndIncrement();
                 }

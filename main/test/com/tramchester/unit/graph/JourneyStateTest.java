@@ -15,7 +15,9 @@ import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
+import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.caches.NodeContentsRepository;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.LowestCostsForDestRoutes;
 import com.tramchester.graph.search.stateMachine.RegistersStates;
@@ -32,7 +34,6 @@ import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.neo4j.graphdb.Node;
 
 import java.time.Duration;
 
@@ -43,7 +44,7 @@ class JourneyStateTest extends EasyMockSupport {
 
     private TramTime queryTime;
     private NotStartedState traversalState;
-    private Node node;
+    private GraphNode node;
 
     // TODO ON BUS
 
@@ -52,7 +53,7 @@ class JourneyStateTest extends EasyMockSupport {
         LatLong latLongHint = TramStations.ManAirport.getLatLong();
         TramDate queryDate = TestEnv.testDay();
 
-        node = EasyMock.createMock(Node.class);
+        node = EasyMock.createMock(GraphNode.class);
 
         MutableStation station = StationHelper.forTestMutable("destinationStationId", "area", "name", new LatLong(1,1),
                 DataSourceID.tfgm, "stationCode");
@@ -72,8 +73,10 @@ class JourneyStateTest extends EasyMockSupport {
         RegistersStates registersStates = new RegistersStates();
         TraversalStateFactory traversalStateFactory = new TraversalStateFactory(registersStates, nodeContentsRepository, config);
 
+        GraphTransaction txn = createMock(GraphTransaction.class);
+
         LowestCostsForDestRoutes lowestCostsForRoutes = createMock(LowestCostsForDestRoutes.class);
-        final TraversalOps traversalOps = new TraversalOps(nodeContentsRepository, tripRepository, sortsPositions,
+        final TraversalOps traversalOps = new TraversalOps(txn, nodeContentsRepository, tripRepository, sortsPositions,
                 destinations, latLongHint, lowestCostsForRoutes, queryDate);
 
         traversalState = new NotStartedState(traversalOps, traversalStateFactory, TramsOnly);

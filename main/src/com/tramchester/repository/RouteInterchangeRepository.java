@@ -1,22 +1,18 @@
 package com.tramchester.repository;
 
-import com.google.common.collect.Streams;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.time.Durations;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.graphbuild.GraphProps;
+import com.tramchester.graph.TimedTransaction;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
-import com.tramchester.metrics.TimedTransaction;
 import com.tramchester.metrics.Timing;
 import org.apache.commons.lang3.tuple.Pair;
-import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Result;
-import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +22,7 @@ import javax.inject.Inject;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
@@ -44,7 +40,8 @@ public class RouteInterchangeRepository {
 
     @Inject
     public RouteInterchangeRepository(RouteRepository routeRepository, StationRepository stationRepository, InterchangeRepository interchangeRepository,
-                                      GraphDatabase graphDatabase, StagedTransportGraphBuilder.Ready ready) {
+                                      GraphDatabase graphDatabase,
+                                      @SuppressWarnings("unused") StagedTransportGraphBuilder.Ready ready) {
         this.routeRepository = routeRepository;
         this.stationRepository = stationRepository;
         this.interchangeRepository = interchangeRepository;
@@ -103,44 +100,41 @@ public class RouteInterchangeRepository {
         return Duration.ofSeconds(-999);
     }
 
-    private void populateForRoute(Transaction txn, Route route) {
+    private void populateForRoute(final GraphTransaction txn, final Route route) {
 
         Instant startTime = Instant.now();
 
-        IdFor<Route> routeId = route.getId();
+        final IdFor<Route> routeId = route.getId();
 
-        long maxNodes = route.getTrips().stream().
+        final long maxNodes = route.getTrips().stream().
                 flatMap(trip -> trip.getStopCalls().getStationSequence(false).stream()).distinct().count();
 
         logger.debug("Find stations to interchange least costs for " + routeId + " max nodes " + maxNodes);
 
-        String template = "MATCH path = (rs:ROUTE_STATION {route_id:$id})-[:ON_ROUTE*1..%s {route_id:$id}]->(:INTERCHANGE {route_id:$id})" +
+        // TODO This query could be better, i.e. total cost and just the cheapest path for each 'rs' ?
+        String template = "MATCH (rs:ROUTE_STATION {route_id:$id})-[r:ON_ROUTE*1..%s {route_id:$id}]->(:INTERCHANGE {route_id:$id})" +
                 " WHERE NOT rs:INTERCHANGE " +
-                " RETURN path";
+                " WITH reduce(s = 0, x IN r | s + x.cost) as cost, rs.station_id as start " +
+                " RETURN start, cost";
 
-        String query = format(template, maxNodes);
+        final String query = format(template, maxNodes);
 
         Map<String, Object> params = new HashMap<>();
         params.put("id", routeId.getGraphId());
 
-        Result results = txn.execute(query, params);
+        final Result results = txn.execute(query, params);
 
-        List<Pair<IdFor<Station>, Duration>> pairs = results.stream().
-                filter(row -> row.containsKey("path")).
-                map(row -> (Path) row.get("path")).
-                map(path -> Pair.of(GraphProps.getStationId(path.startNode()), totalDuration(path))).
-                collect(Collectors.toList());
+        Stream<Pair<IdFor<Station>, Long>> stationToInterList = results.stream().
+                map(row -> Pair.of(row.get("start").toString(), (Long) row.get("cost"))).
+                map(pair -> Pair.of(Station.createId(pair.getLeft()), pair.getRight()));
 
-        logger.debug("Got " + pairs.size() + " for " + routeId);
+        Map<IdFor<Station>, Long> stationToInterPair = new HashMap<>();
 
-        Map<IdFor<Station>, Duration> stationToInterPair = new HashMap<>();
-
-        pairs.forEach(pair -> {
+        stationToInterList.forEach(pair -> {
             final IdFor<Station> key = pair.getKey();
-            final Duration cost = pair.getValue();
+            final long cost = pair.getValue();
             if (stationToInterPair.containsKey(key)) {
-                //if (cost.compareTo(stationToInterPair.get(key)) < 0) {
-                if (Durations.lessThan(cost, stationToInterPair.get(key))) {
+                if (cost < stationToInterPair.get(key)) {
                     stationToInterPair.put(key, cost);
                 }
             } else {
@@ -152,7 +146,7 @@ public class RouteInterchangeRepository {
 
         stationToInterPair.forEach((stationIdPair, cost) -> {
             RouteStation routeStation = stationRepository.getRouteStationById(RouteStation.createId(stationIdPair, routeId));
-            routeStationToInterchangeCost.put(routeStation, cost);
+            routeStationToInterchangeCost.put(routeStation, Duration.ofMinutes(cost));
         });
 
         stationToInterPair.clear();
@@ -164,12 +158,8 @@ public class RouteInterchangeRepository {
         }
     }
 
-    private Duration totalDuration(Path path) {
-
-        return Streams.stream(path.relationships()).
-                filter(relationship -> relationship.hasProperty("cost")).
-                map(GraphProps::getCost).
-                reduce(Duration.ZERO, Duration::plus);
+    private Duration sum(ArrayList<Integer> nums) {
+        return Duration.ofMinutes(nums.stream().mapToInt(num -> num).sum());
     }
 
 }

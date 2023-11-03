@@ -1,31 +1,23 @@
 package com.tramchester.graph.search.stateMachine.states;
 
-import com.tramchester.graph.graphbuild.GraphProps;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.NodeId;
 import com.tramchester.graph.search.stateMachine.TowardsStation;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.ResourceIterable;
 
 import java.time.Duration;
 import java.util.stream.Stream;
 
 public abstract class StationState extends TraversalState implements NodeId {
 
-    protected final Node stationNode;
+    protected final GraphNode stationNode;
 
-    protected StationState(TraversalState parent, Stream<Relationship> outbounds, Duration costForLastEdge, Node stationNode,
+    protected StationState(TraversalState parent, Stream<ImmutableGraphRelationship> outbounds, Duration costForLastEdge, GraphNode stationNode,
                            JourneyStateUpdate journeyState, TowardsStation<?> builder) {
         super(parent, outbounds, costForLastEdge, builder.getDestination());
         this.stationNode = stationNode;
-        journeyState.seenStation(GraphProps.getStationId(stationNode));
+        journeyState.seenStation(stationNode.getStationId());
     }
 
-    protected StationState(TraversalState parent, ResourceIterable<Relationship> outbounds, Duration costForLastEdge, Node stationNode,
-                           JourneyStateUpdate journeyState, TowardsStation<?> builder) {
-        super(parent, outbounds, costForLastEdge, builder.getDestination());
-        this.stationNode = stationNode;
-        journeyState.seenStation(GraphProps.getStationId(stationNode));
-    }
 }

@@ -4,19 +4,21 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.ImmutableJourneyState;
 import com.tramchester.graph.search.diagnostics.ReasonCode;
 import com.tramchester.repository.ReportsCacheStats;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
-import org.neo4j.graphdb.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import static com.tramchester.graph.search.diagnostics.ReasonCode.*;
@@ -26,11 +28,11 @@ public class PreviousVisits implements ReportsCacheStats {
 
     private static final int CACHE_DURATION_MINS = 5;
 
-    private final Cache<Long, ReasonCode> timeNodePrevious;
+    private final Cache<GraphNodeId, ReasonCode> timeNodePrevious;
     private final Cache<Key<TramTime>, ReasonCode> hourNodePrevious;
-    private final Cache<Long, ReasonCode> routeStationPrevious;
-    private final Cache<Long, ReasonCode> servicePrevious;
-    private final Cache<Long, Integer> lowestNumberOfChanges;
+    private final Cache<GraphNodeId, ReasonCode> routeStationPrevious;
+    private final Cache<GraphNodeId, ReasonCode> servicePrevious;
+    private final Cache<GraphNodeId, Integer> lowestNumberOfChanges;
 
     public PreviousVisits() {
         timeNodePrevious = createCache(100000);
@@ -46,7 +48,7 @@ public class PreviousVisits implements ReportsCacheStats {
                 recordStats().build();
     }
 
-    public void recordVisitIfUseful(ReasonCode result, Node node, ImmutableJourneyState journeyState, EnumSet<GraphLabel> labels) {
+    public void recordVisitIfUseful(ReasonCode result, GraphNode node, ImmutableJourneyState journeyState, EnumSet<GraphLabel> labels) {
         if (labels.contains(GraphLabel.MINUTE) || labels.contains(GraphLabel.HOUR)) {
             // time and hour nodes represent the time on the actual journey, so if we have been here before
             // we will get the same result
@@ -76,7 +78,7 @@ public class PreviousVisits implements ReportsCacheStats {
         }
     }
 
-    private void recordRouteStationVisitIfUseful(final ReasonCode result, final long nodeId, final ImmutableJourneyState journeyState) {
+    private void recordRouteStationVisitIfUseful(final ReasonCode result, final GraphNodeId nodeId, final ImmutableJourneyState journeyState) {
         if (result == TooManyRouteChangesRequired) {
             // based on a route->route changes count only, invariant on current state of a journey
             routeStationPrevious.put(nodeId, result);
@@ -105,7 +107,7 @@ public class PreviousVisits implements ReportsCacheStats {
         }
     }
 
-    public ReasonCode getPreviousResult(final Node node, final ImmutableJourneyState journeyState, final EnumSet<GraphLabel> labels) {
+    public ReasonCode getPreviousResult(final GraphNode node, final ImmutableJourneyState journeyState, final EnumSet<GraphLabel> labels) {
 
         if (labels.contains(GraphLabel.MINUTE)) {
             // time node has by definition a unique time
@@ -164,10 +166,10 @@ public class PreviousVisits implements ReportsCacheStats {
 
     private static class Key<T> {
 
-        private final long nodeId;
+        private final GraphNodeId nodeId;
         private final T other;
 
-        public Key(Node node, T other) {
+        public Key(GraphNode node, T other) {
             this.nodeId = node.getId();
             this.other = other;
         }
@@ -176,18 +178,13 @@ public class PreviousVisits implements ReportsCacheStats {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-
             Key<?> key = (Key<?>) o;
-
-            if (nodeId != key.nodeId) return false;
-            return other.equals(key.other);
+            return Objects.equals(nodeId, key.nodeId) && Objects.equals(other, key.other);
         }
 
         @Override
         public int hashCode() {
-            int result = (int) (nodeId ^ (nodeId >>> 32));
-            result = 31 * result + other.hashCode();
-            return result;
+            return Objects.hash(nodeId, other);
         }
     }
 

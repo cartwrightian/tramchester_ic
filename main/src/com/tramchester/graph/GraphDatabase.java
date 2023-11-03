@@ -4,10 +4,11 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.databaseManagement.GraphDatabaseLifecycleManager;
+import com.tramchester.graph.facade.GraphIdFactory;
+import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.GraphTransactionFactory;
 import com.tramchester.graph.graphbuild.GraphLabel;
-import com.tramchester.metrics.TimedTransaction;
 import com.tramchester.repository.DataSourceRepository;
-import org.neo4j.graphalgo.BasicEvaluationContext;
 import org.neo4j.graphalgo.EvaluationContext;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
@@ -35,18 +36,21 @@ public class GraphDatabase implements DatabaseEventListener {
     private final DataSourceRepository dataSourceRepository;
     private final GraphDBConfig graphDBConfig;
     private final GraphDatabaseLifecycleManager lifecycleManager;
+    private final GraphIdFactory graphIdFactory;
     private final TramchesterConfig tramchesterConfig;
     private boolean indexesOnline;
 
+    private GraphTransactionFactory graphTransactionFactory;
     private GraphDatabaseService databaseService;
 
     @Inject
     public GraphDatabase(TramchesterConfig configuration, DataSourceRepository dataSourceRepository,
-                         GraphDatabaseLifecycleManager lifecycleManager) {
+                         GraphDatabaseLifecycleManager lifecycleManager, GraphIdFactory graphIdFactory) {
         this.dataSourceRepository = dataSourceRepository;
         this.tramchesterConfig = configuration;
         this.graphDBConfig = configuration.getGraphDBConfig();
         this.lifecycleManager = lifecycleManager;
+        this.graphIdFactory = graphIdFactory;
         indexesOnline = false;
     }
 
@@ -58,6 +62,7 @@ public class GraphDatabase implements DatabaseEventListener {
             final Path dbPath = graphDBConfig.getDbPath();
             boolean fileExists = Files.exists(dbPath);
             databaseService = lifecycleManager.startDatabase(dataSourceRepository, dbPath, fileExists);
+            graphTransactionFactory = new GraphTransactionFactory(databaseService, graphIdFactory);
             logger.info("graph db started ");
         } else {
             logger.warn("Planning is disabled, not starting the graph database");
@@ -80,23 +85,23 @@ public class GraphDatabase implements DatabaseEventListener {
         return lifecycleManager.isCleanDB();
     }
 
-    public Transaction beginTx() {
-        return databaseService.beginTx();
+    public GraphTransaction beginTx() {
+        return graphTransactionFactory.begin();
     }
 
-    public Transaction beginTx(int timeout, TimeUnit timeUnit) {
-        return databaseService.beginTx(timeout, timeUnit);
+    public GraphTransaction beginTx(int timeout, TimeUnit timeUnit) {
+        return graphTransactionFactory.begin(timeout, timeUnit);
     }
 
-    public Transaction beginTx(Duration timeout) {
-        return databaseService.beginTx(timeout.toSeconds(), TimeUnit.SECONDS);
+    public GraphTransaction beginTx(Duration timeout) {
+        return graphTransactionFactory.begin(timeout);
     }
 
     public void createIndexs() {
 
         try (TimedTransaction timed = new TimedTransaction(this, logger, "Create DB Constraints & indexes"))
         {
-            Transaction tx = timed.transaction();
+            GraphTransaction tx = timed.transaction();
             Schema schema = tx.schema();
 
             schema.indexFor(GraphLabel.STATION).on(GraphPropertyKey.ROUTE_ID.getText()).create();
@@ -150,16 +155,19 @@ public class GraphDatabase implements DatabaseEventListener {
                 )));
     }
 
+    @Deprecated
     public Node createNode(Transaction tx, GraphLabel label) {
         return tx.createNode(label);
     }
 
+    @Deprecated
     public Node createNode(Transaction tx, Set<GraphLabel> labels) {
         GraphLabel[] toApply = new GraphLabel[labels.size()];
         labels.toArray(toApply);
         return tx.createNode(toApply);
     }
 
+    @Deprecated
     public Node findNode(Transaction tx, GraphLabel labels, String idField, String idValue) {
         return tx.findNode(labels, idField, idValue);
     }
@@ -172,12 +180,17 @@ public class GraphDatabase implements DatabaseEventListener {
         return databaseService.isAvailable(timeoutMillis);
     }
 
+    @Deprecated
     public ResourceIterator<Node> findNodes(Transaction tx, GraphLabel label) {
         return tx.findNodes(label);
     }
 
-    public EvaluationContext createContext(Transaction txn) {
-        return new BasicEvaluationContext(txn, databaseService);
+//    public EvaluationContext createContext(Transaction txn) {
+//        return new BasicEvaluationContext(txn, databaseService);
+//    }
+
+    public EvaluationContext createContext(GraphTransaction txn) {
+        return txn.createEvaluationContext(databaseService);
     }
 
     @Override
@@ -208,6 +221,5 @@ public class GraphDatabase implements DatabaseEventListener {
     public String getDbPath() {
         return graphDBConfig.getDbPath().toAbsolutePath().toString();
     }
-
 
 }

@@ -4,12 +4,13 @@ import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphNodeId;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.search.ImmutableJourneyState;
 import com.tramchester.graph.search.RouteCalculatorSupport;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateType;
 import org.apache.commons.lang3.tuple.Pair;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +39,7 @@ public class ServiceReasons {
     // stats
     private final Map<ReasonCode, AtomicInteger> reasonCodeStats; // reason -> count
     private final Map<TraversalStateType, AtomicInteger> stateStats; // State -> num visits
-    private final Map<Long, AtomicInteger> nodeVisits; // count of visits to nodes
+    private final Map<GraphNodeId, AtomicInteger> nodeVisits; // count of visits to nodes
     private final AtomicInteger totalChecked = new AtomicInteger(0);
     private final boolean diagnosticsEnabled;
 
@@ -67,7 +68,7 @@ public class ServiceReasons {
         Arrays.asList(ReasonCode.values()).forEach(code -> reasonCodeStats.put(code, new AtomicInteger(0)));
     }
 
-    public void reportReasons(Transaction transaction, RouteCalculatorSupport.PathRequest pathRequest, ReasonsToGraphViz reasonToGraphViz) {
+    public void reportReasons(GraphTransaction transaction, RouteCalculatorSupport.PathRequest pathRequest, ReasonsToGraphViz reasonToGraphViz) {
         if (diagnosticsEnabled) {
             createGraphFile(transaction, reasonToGraphViz, pathRequest);
         }
@@ -95,7 +96,7 @@ public class ServiceReasons {
     }
 
     private void recordEndNodeVisit(final HowIGotHere howIGotHere) {
-        final long endNode = howIGotHere.getEndNodeId();
+        final GraphNodeId endNode = howIGotHere.getEndNodeId();
         if (nodeVisits.containsKey(endNode)) {
             nodeVisits.get(endNode).incrementAndGet();
         } else {
@@ -141,7 +142,7 @@ public class ServiceReasons {
         };
     }
 
-    private void reportStats(Transaction txn, RouteCalculatorSupport.PathRequest pathRequest) {
+    private void reportStats(GraphTransaction txn, RouteCalculatorSupport.PathRequest pathRequest) {
         if ((!success) && journeyRequest.getWarnIfNoResults()) {
             logger.warn("No result found for at " + pathRequest.getActualQueryTime() + " changes " + pathRequest.getNumChanges() +
                     " for " + journeyRequest );
@@ -155,14 +156,14 @@ public class ServiceReasons {
         }
     }
 
-    private void logVisits(Transaction txn) {
-        Set<Long> haveInvalidReasonCode = reasons.stream().
+    private void logVisits(GraphTransaction txn) {
+        Set<GraphNodeId> haveInvalidReasonCode = reasons.stream().
                 filter(reason -> !reason.isValid()).
                 map(HeuristicsReason::getNodeId).
                 collect(Collectors.toSet());
 
         // Pair<Node, Number of Visits>
-        Set<Pair<Node, Integer>> topVisits = nodeVisits.entrySet().stream().
+        Set<Pair<GraphNode, Integer>> topVisits = nodeVisits.entrySet().stream().
                 filter(entry -> haveInvalidReasonCode.contains(entry.getKey())).
                 map(entry -> Pair.of(entry.getKey(), entry.getValue().get())).
                 //filter(entry -> entry.getValue() > THRESHHOLD_FOR_NUMBER_VISITS_DIAGS).
@@ -178,8 +179,8 @@ public class ServiceReasons {
 
     }
 
-    private void reasonsAtNode(final Node node) {
-        final long nodeId = node.getId();
+    private void reasonsAtNode(final GraphNode node) {
+        final GraphNodeId nodeId = node.getId();
         // beware of Set here, will collapse reasons
         List<HeuristicsReason> reasonsForId = reasons.stream().
                 filter(reason -> reason.getNodeId() == nodeId).
@@ -207,9 +208,7 @@ public class ServiceReasons {
         return stringBuilder.toString();
     }
 
-
-
-    private String nodeDetails(Node node) {
+    private String nodeDetails(GraphNode node) {
         StringBuilder labels = new StringBuilder();
         node.getLabels().forEach(label -> labels.append(" ").append(label));
         return labels + " " + node.getAllProperties().toString();
@@ -222,7 +221,7 @@ public class ServiceReasons {
                 forEach(entry -> logger.info(format("%s => %s: %s", prefix, entry.getKey(), entry.getValue().get())));
     }
 
-    private void createGraphFile(Transaction txn, ReasonsToGraphViz reasonsToGraphViz, RouteCalculatorSupport.PathRequest pathRequest) {
+    private void createGraphFile(GraphTransaction txn, ReasonsToGraphViz reasonsToGraphViz, RouteCalculatorSupport.PathRequest pathRequest) {
         String fileName = createFilename(pathRequest);
 
         if (reasons.isEmpty()) {
@@ -260,5 +259,19 @@ public class ServiceReasons {
         return fileName;
     }
 
-
+    @Override
+    public String toString() {
+        return "ServiceReasons{" +
+                "queryTime=" + queryTime +
+                ", providesLocalNow=" + providesLocalNow +
+                ", journeyRequest=" + journeyRequest +
+                ", reasons=" + reasons +
+                ", reasonCodeStats=" + reasonCodeStats +
+                ", stateStats=" + stateStats +
+                ", nodeVisits=" + nodeVisits +
+                ", totalChecked=" + totalChecked +
+                ", diagnosticsEnabled=" + diagnosticsEnabled +
+                ", success=" + success +
+                '}';
+    }
 }

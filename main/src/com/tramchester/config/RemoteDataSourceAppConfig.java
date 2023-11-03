@@ -26,6 +26,10 @@ public class RemoteDataSourceAppConfig extends RemoteDataSourceConfig {
     private Path dataPath;
 
     @NotNull
+    @JsonProperty(value = "downloadPath")
+    private Path downloadPath;
+
+    @NotNull
     @JsonProperty(value = "filename")
     private String filename;
 
@@ -64,6 +68,11 @@ public class RemoteDataSourceAppConfig extends RemoteDataSourceConfig {
     @Override
     public Path getDataPath() {
         return dataPath;
+    }
+
+    @Override
+    public Path getDownloadPath() {
+        return downloadPath;
     }
 
     @Override

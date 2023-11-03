@@ -1,5 +1,14 @@
 package com.tramchester.graph;
 
+import com.tramchester.domain.CoreDomain;
+import com.tramchester.domain.Platform;
+import com.tramchester.domain.Route;
+import com.tramchester.domain.Service;
+import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.NaptanArea;
+import com.tramchester.domain.places.RouteStation;
+import com.tramchester.domain.places.Station;
+
 public enum GraphPropertyKey {
     STATION_ID("station_id"),
     PLATFORM_ID("platform_id"),
@@ -30,6 +39,31 @@ public enum GraphPropertyKey {
 
     GraphPropertyKey(String text) {
         this.text = text;
+    }
+
+    public static <C extends CoreDomain> GraphPropertyKey getFor(Class<C> klass) {
+        if (klass.equals(Station.class)) {
+            return STATION_ID;
+        }
+        if (klass.equals(Platform.class)) {
+            return PLATFORM_ID;
+        }
+        if (klass.equals(RouteStation.class)) {
+            return ROUTE_STATION_ID;
+        }
+        if (klass.equals(Trip.class)) {
+            return TRIP_ID;
+        }
+        if (klass.equals(Route.class)) {
+            return ROUTE_ID;
+        }
+        if (klass.equals(Service.class)) {
+            return SERVICE_ID;
+        }
+        if (klass.equals(NaptanArea.class)) {
+            return AREA_ID;
+        }
+        throw new RuntimeException("Missing key for type" + klass);
     }
 
     public String getText() {

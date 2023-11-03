@@ -410,6 +410,11 @@ public class TramTime implements Comparable<TramTime> {
          * @return the TramTime
          */
         private TramTime parse(final CharSequence text) {
+
+            if (text.isEmpty()) {
+                return TramTime.invalid();
+            }
+
             int offsetDays = 0;
 
             final int length = text.length();

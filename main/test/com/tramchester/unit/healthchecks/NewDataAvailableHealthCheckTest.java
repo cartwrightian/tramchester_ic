@@ -7,6 +7,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.FetchFileModTime;
 import com.tramchester.dataimport.HttpDownloadAndModTime;
 import com.tramchester.dataimport.URLStatus;
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.ServiceTimeLimits;
 import com.tramchester.healthchecks.NewDataAvailableHealthCheck;
 import com.tramchester.testSupport.tfgm.TFGMRemoteDataSourceConfig;
@@ -41,7 +42,7 @@ class NewDataAvailableHealthCheckTest extends EasyMockSupport {
         TramchesterConfig config = new LocalTestConfig(Files.createTempDirectory("FetchDataFromUrlTest"));
         urlDownloader = createMock(HttpDownloadAndModTime.class);
         fetchFileModTime = createMock(FetchFileModTime.class);
-        dataSourceConfig = config.getRemoteDataSourceConfig().get(0);
+        dataSourceConfig = config.getDataRemoteSourceConfig(DataSourceID.tfgm); // config.getRemoteDataSourceConfig().get(0);
         expectedURL = URI.create(dataSourceConfig.getDataUrl());
         ServiceTimeLimits serviceTimeLimits = new ServiceTimeLimits();
 
@@ -100,10 +101,10 @@ class NewDataAvailableHealthCheckTest extends EasyMockSupport {
     }
 
     private static class LocalTestConfig extends TestConfig {
-        private final Path dataPath;
+        private final Path downloadPath;
 
-        private LocalTestConfig(Path dataPath) {
-            this.dataPath = dataPath;
+        private LocalTestConfig(Path downloadPath) {
+            this.downloadPath = downloadPath;
         }
 
         @Override
@@ -113,7 +114,7 @@ class NewDataAvailableHealthCheckTest extends EasyMockSupport {
 
         @Override
         public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
-            return Collections.singletonList(new TFGMRemoteDataSourceConfig(dataPath));
+            return Collections.singletonList(TFGMRemoteDataSourceConfig.createFor(downloadPath));
         }
     }
 

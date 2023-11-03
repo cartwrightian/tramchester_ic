@@ -5,9 +5,7 @@ import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.StationClosures;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.NaptanArea;
-import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
@@ -18,6 +16,7 @@ import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.*;
 
+import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
@@ -82,7 +81,7 @@ class StationGroupRepositoryTest {
             List<StationClosures> closedStations = Collections.emptyList();
             final Set<TransportMode> groupStationModes = Collections.singleton(TransportMode.Tram);
 
-            gtfsSourceConfig = new TFGMGTFSSourceTestConfig("data/tram", GTFSTransportationType.tram,
+            gtfsSourceConfig = new TFGMGTFSSourceTestConfig(Path.of("data/tram"), GTFSTransportationType.tram,
                     TransportMode.Tram, AdditionalTramInterchanges.stations(), groupStationModes, closedStations,
                     Duration.ofMinutes(13));
         }

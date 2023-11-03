@@ -90,7 +90,7 @@ class UploadRemoteSourceDataToS3Test {
 
         // Can't check actual remote URL, so make sure the files is not "expired" by creating a new file
 
-        Path sourceFilePath = dataSource.getDataPath().resolve(dataSource.getDownloadFilename());
+        Path sourceFilePath = dataSource.getDownloadPath().resolve(dataSource.getDownloadFilename());
         Files.deleteIfExists(sourceFilePath);
 
         downloadedRemoteData.addFileFor(DataSourceID.tfgm, sourceFilePath);
@@ -175,6 +175,11 @@ class UploadRemoteSourceDataToS3Test {
         @Override
         public Path getDataPath() {
             return Path.of("data", "test");
+        }
+
+        @Override
+        public Path getDownloadPath() {
+            return getDataPath();
         }
 
         @Override

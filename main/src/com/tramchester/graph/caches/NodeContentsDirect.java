@@ -5,62 +5,62 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.graphbuild.GraphLabel;
-import com.tramchester.graph.graphbuild.GraphProps;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
 
 import java.time.Duration;
 import java.util.EnumSet;
-import java.util.Set;
 
 // KEEP for assisting with debugging
 @SuppressWarnings("unused")
 public class NodeContentsDirect implements NodeContentsRepository {
 
     @Override
-    public IdFor<RouteStation> getRouteStationId(Node node) {
-        return GraphProps.getRouteStationIdFrom(node);
+    public IdFor<RouteStation> getRouteStationId(GraphNode node) {
+        return node.getRouteStationId();
     }
 
     @Override
-    public IdFor<Service> getServiceId(Node node) {
-        return GraphProps.getServiceIdFrom(node);
+    public IdFor<Service> getServiceId(GraphNode node) {
+        return node.getServiceId();
     }
 
     @Override
-    public IdFor<Trip> getTripId(Node node) {
-        return GraphProps.getTripId(node);
+    public IdFor<Trip> getTripId(GraphNode node) {
+        return node.getTripId();
     }
 
     @Override
-    public TramTime getTime(Node node) {
-        return GraphProps.getTime(node);
+    public TramTime getTime(GraphNode node) {
+        return node.getTime();
     }
 
     @Override
-    public int getHour(Node node) {
-        return GraphProps.getHour(node);
+    public int getHour(GraphNode node) {
+        return node.getHour();
+//        return getHour(graphNode.getNode());
     }
 
     @Override
-    public IdFor<Trip> getTripId(Relationship relationship) {
-        return GraphProps.getTripId(relationship);
+    public IdFor<Trip> getTripId(GraphRelationship relationship) {
+        return relationship.getTripId();
     }
 
     @Override
-    public Duration getCost(Relationship relationship) {
-        return GraphProps.getCost(relationship);
+    public Duration getCost(GraphRelationship relationship) {
+        return relationship.getCost();
     }
 
     @Override
-    public void deleteFromCostCache(Relationship relationship) {
+    public void deleteFromCostCache(GraphRelationship relationship) {
         // no-op
     }
 
     @Override
-    public EnumSet<GraphLabel> getLabels(Node node) {
-        final Set<GraphLabel> graphLabels = GraphLabel.from(node.getLabels());
-        return EnumSet.copyOf(graphLabels);
+    public EnumSet<GraphLabel> getLabels(GraphNode node) {
+        return node.getLabels();
+//        final Set<GraphLabel> graphLabels = GraphLabel.from(node.getLabels());
+//        return EnumSet.copyOf(graphLabels);
     }
 }

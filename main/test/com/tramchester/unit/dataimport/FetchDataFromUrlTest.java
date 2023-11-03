@@ -1,5 +1,6 @@
 package com.tramchester.unit.dataimport;
 
+import com.tramchester.config.DownloadedConfig;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
@@ -47,15 +48,16 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         fetchFileModTime = createMock(FetchFileModTime.class);
         S3DownloadAndModTime s3Downloader = createMock(S3DownloadAndModTime.class);
 
-        RemoteDataSourceConfig remoteDataSourceConfig = config.getDataRemoteSourceConfig(DataSourceID.tfgm);
+        DownloadedConfig remoteDataSourceConfig = config.getDataRemoteSourceConfig(DataSourceID.tfgm);
 
         final String targetZipFilename = remoteDataSourceConfig.getDownloadFilename();
-        Path path = remoteDataSourceConfig.getDataPath();
+        Path path = remoteDataSourceConfig.getDownloadPath();
 
         destinationFile = path.resolve(targetZipFilename);
 
         downloadedDataRepository = new DownloadedRemotedDataRepository();
-        fetchDataFromUrl = new FetchDataFromUrl(httpDownloader, s3Downloader, config, providesLocalNow, downloadedDataRepository, fetchFileModTime);
+        fetchDataFromUrl = new FetchDataFromUrl(httpDownloader, s3Downloader, config, providesLocalNow, downloadedDataRepository,
+                fetchFileModTime);
 
 
         startTime = LocalDateTime.now();
@@ -358,10 +360,10 @@ class FetchDataFromUrlTest extends EasyMockSupport {
 
 
     private static class LocalTestConfig extends TestConfig {
-        private final Path dataPath;
+        private final Path downloadPath;
 
-        private LocalTestConfig(Path dataPath) {
-            this.dataPath = dataPath;
+        private LocalTestConfig(Path downloadPath) {
+            this.downloadPath = downloadPath;
         }
 
         @Override
@@ -371,7 +373,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
 
         @Override
         public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
-            return Collections.singletonList(new TFGMRemoteDataSourceConfig(dataPath));
+            return Collections.singletonList(TFGMRemoteDataSourceConfig.createFor(downloadPath));
         }
     }
 }

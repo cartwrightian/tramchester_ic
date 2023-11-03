@@ -10,6 +10,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.StationClosuresForTest;
@@ -19,11 +20,13 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
-import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.util.*;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -41,7 +44,7 @@ class RouteCalculatorCloseStationsTest {
 
     private RouteCalculatorTestFacade calculator;
     private final static TramDate when = TestEnv.testDay();
-    private Transaction txn;
+    private GraphTransaction txn;
 
     // see note below on DB deletion
     private final static List<StationClosures> closedStations = Arrays.asList(

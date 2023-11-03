@@ -24,6 +24,7 @@ import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
+import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.LowestCostsForDestRoutes;
@@ -47,9 +48,7 @@ import org.easymock.EasyMockSupport;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
-import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.traversal.BranchState;
 import org.neo4j.graphdb.traversal.Evaluation;
 
@@ -71,20 +70,21 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     private NodeContentsRepository contentsRepository;
     private Path path;
     private HowIGotHere howIGotHere;
-    private Node node;
+    private GraphNode node;
     private ServiceReasons reasons;
     private TramchesterConfig config;
     private SortsPositions sortsPositions;
     private PreviousVisits previousSuccessfulVisit;
     private LatLong latLongHint;
-    private Long destinationNodeId;
-    private Relationship lastRelationship;
+    private GraphNodeId destinationNodeId;
+    private GraphRelationship lastRelationship;
     private TripRepository tripRepository;
-    private long startNodeId;
+    private GraphNodeId startNodeId;
     private LowestCostSeen lowestCostSeen;
     private ProvidesNow providesNow;
     private LowestCostsForDestRoutes lowestCostsForRoutes;
     private Duration maxInitialWait;
+    private GraphTransaction txn;
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
@@ -111,7 +111,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         config = new TestConfig() {
             @Override
             protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
-                return Collections.singletonList(new TFGMGTFSSourceTestConfig("data/tram",
+                return Collections.singletonList(new TFGMGTFSSourceTestConfig(java.nio.file.Path.of("data/tram"),
                        GTFSTransportationType.tram, TransportMode.Tram, IdSet.emptySet(),
                         Collections.emptySet(), Collections.emptyList(), Duration.ofMinutes(13)));
             }
@@ -120,8 +120,11 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         maxInitialWait = config.getInitialMaxWaitFor(DataSourceID.tfgm);
 
         latLongHint = TramStations.ManAirport.getLatLong();
-        destinationNodeId = 88L;
-        startNodeId = 128L;
+
+        txn = createMock(GraphTransaction.class);
+
+        destinationNodeId = GraphNodeId.TestOnly(88L);
+        startNodeId = GraphNodeId.TestOnly(128L);
 
         long maxNumberOfJourneys = 2;
         JourneyRequest journeyRequest = new JourneyRequest(
@@ -132,20 +135,19 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         serviceHeuristics = createMock(ServiceHeuristics.class);
         sortsPositions = createMock(SortsPositions.class);
         path = createMock(Path.class);
-        node = createMock(Node.class);
-        lastRelationship = createMock(Relationship.class);
-        //routeToRouteCosts = createMock(RouteToRouteCosts.class);
+        node = createMock(GraphNode.class);
+        lastRelationship = createMock(GraphRelationship.class);
         lowestCostsForRoutes = createMock(LowestCostsForDestRoutes.class);
 
-        howIGotHere = HowIGotHere.forTest(42L, 24L);
+        howIGotHere = HowIGotHere.forTest(GraphNodeId.TestOnly(42L), GraphRelationshipId.TestOnly(24L));
 
-        EasyMock.expect(node.getId()).andStubReturn(42L);
+        EasyMock.expect(node.getId()).andStubReturn(GraphNodeId.TestOnly(42L));
         EasyMock.expect(node.getAllProperties()).andStubReturn(new HashMap<>());
 
-        EasyMock.expect(lastRelationship.getId()).andStubReturn(24L);
+        EasyMock.expect(txn.fromEnd(path)).andReturn(node);
+        EasyMock.expect(txn.lastFrom(path)).andStubReturn(lastRelationship);
 
-        EasyMock.expect(path.endNode()).andStubReturn(node);
-        EasyMock.expect(path.lastRelationship()).andStubReturn(lastRelationship);
+        EasyMock.expect(lastRelationship.getId()).andStubReturn(GraphRelationshipId.TestOnly(24L));
 
     }
 
@@ -155,20 +157,20 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         RegistersStates registersStates = new RegistersStates();
         TraversalStateFactory traversalStateFactory = new TraversalStateFactory(registersStates, contentsRepository, config);
 
-        final TraversalOps traversalOps = new TraversalOps(contentsRepository, tripRepository, sortsPositions, destinationStations,
+        final TraversalOps traversalOps = new TraversalOps(txn, contentsRepository, tripRepository, sortsPositions, destinationStations,
                 latLongHint, lowestCostsForRoutes, TestEnv.testDay());
         return new NotStartedState(traversalOps, traversalStateFactory, TramsOnly);
     }
 
     @NotNull
-    private TramRouteEvaluator getEvaluatorForTest(long destinationNodeId) {
-        Set<Long> destinationNodeIds = new HashSet<>();
+    private TramRouteEvaluator getEvaluatorForTest(GraphNodeId destinationNodeId) {
+        Set<GraphNodeId> destinationNodeIds = new HashSet<>();
         destinationNodeIds.add(destinationNodeId);
         Instant begin = Instant.now();
         // empty means all
 
         return new TramRouteEvaluator(serviceHeuristics, destinationNodeIds, contentsRepository,
-                reasons, previousSuccessfulVisit, lowestCostSeen, config, startNodeId, begin, providesNow, TramsOnly, maxInitialWait);
+                reasons, previousSuccessfulVisit, lowestCostSeen, config, startNodeId, begin, providesNow, TramsOnly, maxInitialWait, txn);
     }
 
     @Test
@@ -208,7 +210,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
     @Test
     void shouldMatchDestinationLowerCost() {
-        long destinationNodeId = 42;
+        GraphNodeId destinationNodeId = GraphNodeId.TestOnly(42L);
         TramRouteEvaluator evaluator = getEvaluatorForTest(destinationNodeId);
 
         BranchState<JourneyState> branchState = new TestBranchState();
@@ -242,7 +244,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
     @Test
     void shouldMatchDestinationButHigherCost() {
-        long destinationNodeId = 42;
+        GraphNodeId destinationNodeId = GraphNodeId.TestOnly(42L);
         TramRouteEvaluator evaluator = getEvaluatorForTest(destinationNodeId);
 
         BranchState<JourneyState> branchState = new TestBranchState();
@@ -273,7 +275,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
     @Test
     void shouldMatchDestinationButHigherCostButLessHops() {
-        long destinationNodeId = 42;
+        GraphNodeId destinationNodeId = GraphNodeId.TestOnly(42L);
         TramRouteEvaluator evaluator = getEvaluatorForTest(destinationNodeId);
 
         BranchState<JourneyState> branchState = new TestBranchState();
@@ -303,7 +305,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
     @Test
     void shouldUseCachedResultForMultipleJourneyExclude() {
-        long destinationNodeId = 42;
+        GraphNodeId destinationNodeId = GraphNodeId.TestOnly(42L);
         TramRouteEvaluator evaluator = getEvaluatorForTest(destinationNodeId);
 
         BranchState<JourneyState> state = new TestBranchState();
@@ -326,7 +328,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
     @Test
     void shouldExcludeIfPreviousVisit() {
-        long destinationNodeId = 42;
+        GraphNodeId destinationNodeId = GraphNodeId.TestOnly(42L);
         TramRouteEvaluator evaluator = getEvaluatorForTest(destinationNodeId);
 
         BranchState<JourneyState> state = new TestBranchState();

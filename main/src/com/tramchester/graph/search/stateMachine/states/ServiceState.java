@@ -1,14 +1,14 @@
 package com.tramchester.graph.search.stateMachine.states;
 
-import com.google.common.collect.Streams;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.graph.caches.NodeContentsRepository;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.search.stateMachine.ExistingTrip;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
 
 import java.time.Duration;
 import java.util.Comparator;
@@ -41,35 +41,35 @@ public class ServiceState extends TraversalState {
             return TraversalStateType.ServiceState;
         }
 
-        public TraversalState fromRouteStation(RouteStationStateOnTrip state, IdFor<Trip> tripId, Node node, Duration cost) {
-            Stream<Relationship> serviceRelationships = getHourRelationships(node);
+        public TraversalState fromRouteStation(RouteStationStateOnTrip state, IdFor<Trip> tripId, GraphNode node, Duration cost, GraphTransaction txn) {
+            Stream<ImmutableGraphRelationship> serviceRelationships = getHourRelationships(node, txn);
             return new ServiceState(state, serviceRelationships, ExistingTrip.onTrip(tripId), cost, this);
         }
 
-        public TraversalState fromRouteStation(RouteStationStateEndTrip endTrip, Node node, Duration cost) {
-            Stream<Relationship> serviceRelationships = getHourRelationships(node);
+        public TraversalState fromRouteStation(RouteStationStateEndTrip endTrip, GraphNode node, Duration cost, GraphTransaction txn) {
+            Stream<ImmutableGraphRelationship> serviceRelationships = getHourRelationships(node, txn);
             return new ServiceState(endTrip, serviceRelationships, cost, this);
         }
 
-        public TraversalState fromRouteStation(JustBoardedState justBoarded, Node node, Duration cost) {
-            Stream<Relationship> serviceRelationships = getHourRelationships(node);
+        public TraversalState fromRouteStation(JustBoardedState justBoarded, GraphNode node, Duration cost, GraphTransaction txn) {
+            Stream<ImmutableGraphRelationship> serviceRelationships = getHourRelationships(node, txn);
             return new ServiceState(justBoarded, serviceRelationships, cost, this);
         }
 
-        private Stream<Relationship> getHourRelationships(Node node) {
-            Stream<Relationship> relationships = Streams.stream(node.getRelationships(OUTGOING, TO_HOUR));
+        private Stream<ImmutableGraphRelationship> getHourRelationships(GraphNode node, GraphTransaction txn) {
+            Stream<ImmutableGraphRelationship> relationships = node.getRelationships(txn, OUTGOING, TO_HOUR);
             if (depthFirst) {
                 // todo is the gain here worth the overhead of computing the hour for the end node?
                 return relationships.sorted(Comparator.comparingInt(
                         relationship -> {
-                            final Node endNode = relationship.getEndNode();
+                            final GraphNode endNode = relationship.getEndNode(txn);
                             return hourLabelFor(endNode);
                         }));
             }
             return relationships;
         }
 
-        private int hourLabelFor(Node endNode) {
+        private int hourLabelFor(GraphNode endNode) {
             return nodeContents.getHour(endNode);
         }
 
@@ -77,20 +77,20 @@ public class ServiceState extends TraversalState {
 
     private final ExistingTrip maybeExistingTrip;
 
-    private ServiceState(TraversalState parent, Stream<Relationship> relationships, ExistingTrip maybeExistingTrip,
+    private ServiceState(TraversalState parent, Stream<ImmutableGraphRelationship> relationships, ExistingTrip maybeExistingTrip,
                          Duration cost, Towards<ServiceState> builder) {
         super(parent, relationships, cost, builder.getDestination());
         this.maybeExistingTrip = maybeExistingTrip;
     }
 
-    private ServiceState(TraversalState parent, Stream<Relationship> relationships, Duration cost, Towards<ServiceState> builder) {
+    private ServiceState(TraversalState parent, Stream<ImmutableGraphRelationship> relationships, Duration cost, Towards<ServiceState> builder) {
         super(parent, relationships, cost, builder.getDestination());
         this.maybeExistingTrip = ExistingTrip.none();
     }
 
     @Override
-    protected HourState toHour(HourState.Builder towardsHour, Node node, Duration cost) {
-        return towardsHour.fromService(this, node, cost, maybeExistingTrip);
+    protected HourState toHour(HourState.Builder towardsHour, GraphNode node, Duration cost) {
+        return towardsHour.fromService(this, node, cost, maybeExistingTrip, txn);
     }
 
     @Override

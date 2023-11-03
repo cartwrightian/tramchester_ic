@@ -13,8 +13,11 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.ConnectingStage;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.caches.NodeContentsRepository;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphRelationship;
+import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.PathMapper;
 import com.tramchester.graph.graphbuild.GraphLabel;
-import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
 import com.tramchester.graph.search.stateMachine.states.NotStartedState;
 import com.tramchester.graph.search.stateMachine.states.TraversalState;
@@ -23,15 +26,13 @@ import com.tramchester.repository.PlatformRepository;
 import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TripRepository;
-import org.neo4j.graphdb.Entity;
-import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
-import org.neo4j.graphdb.Relationship;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -72,7 +73,8 @@ public class MapPathToStagesViaStates implements PathToStages {
 
     @Override
     public List<TransportStage<?, ?>> mapDirect(RouteCalculator.TimedPath timedPath, JourneyRequest journeyRequest,
-                                                LowestCostsForDestRoutes lowestCostForRoutes, LocationSet endStations) {
+                                                LowestCostsForDestRoutes lowestCostForRoutes, LocationSet endStations,
+                                                GraphTransaction txn) {
         final Path path = timedPath.getPath();
         final TramTime queryTime = timedPath.getQueryTime();
         logger.info(format("Mapping path length %s to transport stages for %s at %s with %s changes",
@@ -80,47 +82,56 @@ public class MapPathToStagesViaStates implements PathToStages {
 
         final LatLong destinationLatLon = sortsPosition.midPointFrom(endStations);
 
-        final TraversalOps traversalOps = new TraversalOps(nodeContentsRepository, tripRepository, sortsPosition, endStations,
+        final TraversalOps traversalOps = new TraversalOps(txn, nodeContentsRepository, tripRepository, sortsPosition, endStations,
                 destinationLatLon, lowestCostForRoutes, journeyRequest.getDate());
 
         final MapStatesToStages mapStatesToStages = new MapStatesToStages(stationRepository, platformRepository, tripRepository, queryTime);
 
-        TraversalState previous = new NotStartedState(traversalOps, stateFactory, journeyRequest.getRequestedModes());
+        final TraversalState initial = new NotStartedState(traversalOps, stateFactory, journeyRequest.getRequestedModes());
 
-        Duration lastRelationshipCost = Duration.ZERO;
-        for (Entity entity : path) {
-            if (entity instanceof Relationship) {
-                Relationship relationship = (Relationship) entity;
-                lastRelationshipCost = nodeContentsRepository.getCost(relationship);
+        PathMapper pathMapper = new PathMapper(path, txn);
+
+        pathMapper.process(initial, new PathMapper.ForGraphNode() {
+            @Override
+            public TraversalState getNextStateFrom(final TraversalState previous, final GraphNode node, final Duration currentCost) {
+                final EnumSet<GraphLabel> labels = nodeContentsRepository.getLabels(node);
+                final boolean alreadyOnDiversion = false;
+                final TraversalState next = previous.nextState(labels, node, mapStatesToStages, currentCost, alreadyOnDiversion);
+
+                logger.debug("At state " + previous.getClass().getSimpleName() + " next is " + next.getClass().getSimpleName());
+
+                return next;
+            }
+        }, new PathMapper.ForGraphRelationship() {
+            @Override
+            public Duration getCostFor(final TraversalState current, final GraphRelationship relationship) {
+                final Duration lastRelationshipCost = nodeContentsRepository.getCost(relationship);
 
                 logger.debug("Seen " + relationship.getType().name() + " with cost " + lastRelationshipCost);
 
                 if (Durations.greaterThan(lastRelationshipCost, Duration.ZERO)) {
-                    Duration total = previous.getTotalDuration().plus(lastRelationshipCost);
+                    Duration total = current.getTotalDuration().plus(lastRelationshipCost);
                     mapStatesToStages.updateTotalCost(total);
                 }
-                if (relationship.hasProperty(STOP_SEQ_NUM.getText())) {
+                if (relationship.hasProperty(STOP_SEQ_NUM)) {
                     mapStatesToStages.passStop(relationship);
                 }
-            } else {
-                final Node node = (Node) entity;
-                final EnumSet<GraphLabel> labels = nodeContentsRepository.getLabels(node);
-                final boolean alreadyOnDiversion = false;
-                final TraversalState next = previous.nextState(labels, node, mapStatesToStages, lastRelationshipCost, alreadyOnDiversion);
-
-                logger.debug("At state " + previous.getClass().getSimpleName() + " next is " + next.getClass().getSimpleName());
-
-                previous = next;
+                return lastRelationshipCost;
             }
-        }
-        previous.toDestination(previous, path.endNode(), Duration.ZERO, mapStatesToStages);
+        });
+
+        TraversalState finalState = pathMapper.getFinalState();
+
+        final GraphNode startOfPath = txn.fromStart(path);
+        final GraphNode endOfPath = txn.fromEnd(path);
+
+        finalState.toDestination(finalState, endOfPath, Duration.ZERO, mapStatesToStages);
 
         final List<TransportStage<?, ?>> stages = mapStatesToStages.getStages();
         if (stages.isEmpty()) {
             if (path.length()==2) {
-                if (path.startNode().hasRelationship(OUTGOING, GROUPED_TO_PARENT) &&
-                        (path.endNode().hasRelationship(INCOMING, GROUPED_TO_CHILD))) {
-                    addViaCompositeStation(path, journeyRequest, stages);
+                if (startOfPath.hasRelationship(OUTGOING, GROUPED_TO_PARENT) && (endOfPath.hasRelationship(INCOMING, GROUPED_TO_CHILD))) {
+                    stages.addAll(addViaCompositeStation(startOfPath, endOfPath, journeyRequest));
                 }
             } else {
                 logger.warn("Did not map any stages for path length:" + path.length() + " path:" + timedPath + " request: " + journeyRequest);
@@ -129,17 +140,22 @@ public class MapPathToStagesViaStates implements PathToStages {
         return stages;
     }
 
-    private void addViaCompositeStation(Path path, JourneyRequest journeyRequest, List<TransportStage<?, ?>> stages) {
+    private List<TransportStage<StationGroup, StationGroup>> addViaCompositeStation(GraphNode startNode, GraphNode endNode, JourneyRequest journeyRequest) {
         logger.info("Add ConnectingStage Journey via single composite node");
 
-        IdFor<NaptanArea> startId = GraphProps.getAreaIdFromGrouped(path.startNode());
-        IdFor<NaptanArea> endId = GraphProps.getAreaIdFromGrouped(path.endNode());
+        final List<TransportStage<StationGroup, StationGroup>> toAdd = new ArrayList<>();
+
+        IdFor<NaptanArea> startId = startNode.getAreaId();
+        IdFor<NaptanArea> endId = endNode.getAreaId();
+
         StationGroup start = stationGroupsRepository.getStationGroup(startId);
         StationGroup end = stationGroupsRepository.getStationGroup(endId);
 
         ConnectingStage<StationGroup, StationGroup> connectingStage =
                 new ConnectingStage<>(start, end, Duration.ZERO, journeyRequest.getOriginalTime());
-        stages.add(connectingStage);
+        toAdd.add(connectingStage);
+
+        return toAdd;
     }
 
 

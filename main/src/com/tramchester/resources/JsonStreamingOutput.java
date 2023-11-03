@@ -3,8 +3,8 @@ package com.tramchester.resources;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tramchester.graph.facade.GraphTransaction;
 import jakarta.ws.rs.core.StreamingOutput;
-import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,11 +16,11 @@ class JsonStreamingOutput<T> implements StreamingOutput {
     private static final Logger logger = LoggerFactory.getLogger(JsonStreamingOutput.class);
 
     private final Stream<T> theStream;
-    private final Transaction txn;
+    private final GraphTransaction txn;
 
     private final JsonFactory jsonFactory ;
 
-    JsonStreamingOutput(Transaction txn, Stream<T> theStream, ObjectMapper mapper) {
+    JsonStreamingOutput(GraphTransaction txn, Stream<T> theStream, ObjectMapper mapper) {
         this.txn = txn;
         this.theStream = theStream;
         jsonFactory = mapper.getFactory();

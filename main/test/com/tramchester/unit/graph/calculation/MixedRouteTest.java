@@ -15,6 +15,7 @@ import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.GraphDBTestConfig;
 import com.tramchester.integration.testSupport.IntegrationTestConfig;
@@ -24,7 +25,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.MixedTransportTestDataFactory;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
-import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -45,7 +45,7 @@ class MixedRouteTest {
 
     private TramDate queryDate;
     private TramTime queryTime;
-    private Transaction txn;
+    private GraphTransaction txn;
     private EnumSet<TransportMode> modes;
 
     @BeforeAll
@@ -183,7 +183,7 @@ class MixedRouteTest {
 
             EnumSet<TransportMode> modesWithPlatforms = EnumSet.of(TransportMode.Tram);
 
-            TFGMGTFSSourceTestConfig tfgmTestDataSourceConfig = new TFGMGTFSSourceTestConfig("unused",
+            TFGMGTFSSourceTestConfig tfgmTestDataSourceConfig = new TFGMGTFSSourceTestConfig(Path.of("unused"),
                     modes, modesWithPlatforms,
                     IdSet.emptySet(), Collections.emptySet(), Collections.emptyList(), Duration.ofMinutes(13));
             return Collections.singletonList(tfgmTestDataSourceConfig);

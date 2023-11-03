@@ -3,10 +3,12 @@ package com.tramchester.integration.graph.neighbours;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.places.Station;
-import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphQuery;
+import com.tramchester.domain.places.StationGroup;
+import com.tramchester.graph.*;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphRelationship;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.graphbuild.CompositeStationGraphBuilder;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.integration.testSupport.NeighboursTestConfig;
@@ -17,12 +19,9 @@ import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.Transaction;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.tramchester.graph.TransportRelationshipTypes.NEIGHBOUR;
 import static com.tramchester.testSupport.reference.TramStations.Shudehill;
@@ -38,8 +37,7 @@ class AddNeighboursGraphBuilderTest {
     private Station shudehillTram;
 
     private static ComponentContainer componentContainer;
-    private GraphQuery graphQuery;
-    private Transaction txn;
+    private GraphTransaction txn;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -68,8 +66,6 @@ class AddNeighboursGraphBuilderTest {
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
         StationGroupsRepository stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
 
-        graphQuery = componentContainer.get(GraphQuery.class);
-
         shudehillCompositeBus = stationGroupsRepository.findByName("Shudehill Interchange");
         shudehillTram = stationRepository.getStationById(Shudehill.getId());
 
@@ -87,65 +83,71 @@ class AddNeighboursGraphBuilderTest {
     @Test
     void shouldFindTheCompositeBusStation() {
         assertNotNull(shudehillCompositeBus);
-        Node compNode = graphQuery.getGroupedNode(txn, shudehillCompositeBus);
+
+        GraphNode compNode = txn.findNode(shudehillCompositeBus);
         assertNotNull(compNode, "No node found for " + compNode);
         shudehillCompositeBus.getContained().forEach(busStop -> {
-            Node busNode = graphQuery.getStationNode(txn, busStop);
+            GraphNode busNode = txn.findNode(busStop);
             assertNotNull(busNode, "No node found for " + busStop);
         });
     }
 
     @Test
     void shouldHaveExpectedNeighbourRelationshipsToFromTram() {
-        Node tramNode = graphQuery.getStationNode(txn, shudehillTram);
+        GraphNode tramNode = txn.findNode(shudehillTram);
         assertNotNull(tramNode);
 
         Station victoria = TramStations.Victoria.fake();
 
-        Set<Relationship> outFromTram = getRelationships(tramNode, OUTGOING);
-        Set<Relationship> towardsTram = getRelationships(tramNode, INCOMING);
+        Set<GraphRelationship> outFromTram = getRelationships(tramNode, OUTGOING);
+        Set<GraphRelationship> towardsTram = getRelationships(tramNode, INCOMING);
 
-        assertFalse(seenNode(txn, victoria, outFromTram, Relationship::getEndNode));
-        assertFalse(seenNode(txn, shudehillTram, outFromTram, Relationship::getEndNode));
-        assertFalse(seenNode(txn, victoria, towardsTram, Relationship::getStartNode));
+        assertFalse(seenNode(txn, victoria, outFromTram, this::getEndNode));
+        assertFalse(seenNode(txn, shudehillTram, outFromTram, this::getEndNode));
+        assertFalse(seenNode(txn, victoria, towardsTram, this::getStartNode));
 
         shudehillCompositeBus.getContained().forEach(busStop -> {
-            assertTrue(seenNode(txn, busStop, outFromTram, Relationship::getEndNode));
-            assertTrue(seenNode(txn, busStop, towardsTram, Relationship::getStartNode));
+            assertTrue(seenNode(txn, busStop, outFromTram, this::getEndNode));
+            assertTrue(seenNode(txn, busStop, towardsTram, this::getStartNode));
         });
 
+    }
+
+    private GraphNode getStartNode(GraphRelationship graphRelationship) {
+        return graphRelationship.getStartNode(txn);
+    }
+
+    private GraphNode getEndNode(GraphRelationship graphRelationship) {
+        return graphRelationship.getEndNode(txn);
     }
 
     @Test
     void shouldHaveExpectedNeighbourRelationshipsToFromBus() {
 
         shudehillCompositeBus.getContained().forEach(busStop -> {
-            Node busNode = graphQuery.getStationNode(txn, busStop);
+            GraphNode busNode = txn.findNode(busStop);
             assertNotNull(busNode, "No node found for " + busStop);
 
-            Set<Relationship> awayFrom = getRelationships(busNode, OUTGOING);
-            assertTrue(seenNode(txn, shudehillTram, awayFrom, Relationship::getEndNode));
+            Set<GraphRelationship> awayFrom = getRelationships(busNode, OUTGOING);
+            assertTrue(seenNode(txn, shudehillTram, awayFrom, this::getEndNode));
 
-            Set<Relationship> towards = getRelationships(busNode, INCOMING);
-            assertTrue(seenNode(txn, shudehillTram, towards, Relationship::getStartNode));
+            Set<GraphRelationship> towards = getRelationships(busNode, INCOMING);
+            assertTrue(seenNode(txn, shudehillTram, towards, this::getStartNode));
         });
 
     }
 
-    private Set<Relationship> getRelationships(Node node, Direction direction) {
-        Set<Relationship> result = new HashSet<>();
-        Iterable<Relationship> iter = node.getRelationships(direction, NEIGHBOUR);
-        iter.forEach(result::add);
-        return result;
+    private Set<GraphRelationship> getRelationships(GraphNode node, Direction direction) {
+        return node.getRelationships(txn, direction, NEIGHBOUR).collect(Collectors.toSet());
     }
 
-    private boolean seenNode(Transaction txn, Station station, Set<Relationship> relationships, SelectNode selectNode) {
-        Node nodeToFind = graphQuery.getStationNode(txn, station);
+    private boolean seenNode(GraphTransaction txn, Station station, Set<GraphRelationship> relationships, SelectNode selectNode) {
+        GraphNode nodeToFind = txn.findNode(station);
         assertNotNull(nodeToFind, "no node found for " + station);
 
         boolean seenNode = false;
-        for (Relationship relationship : relationships) {
-            if (selectNode.getNode(relationship).getId()==nodeToFind.getId()) {
+        for (GraphRelationship relationship : relationships) {
+            if (nodeFrom(selectNode, relationship).equals(nodeToFind)) {
                 seenNode = true;
                 break;
             }
@@ -153,8 +155,12 @@ class AddNeighboursGraphBuilderTest {
         return seenNode;
     }
 
+    private GraphNode nodeFrom(SelectNode selectNode, GraphRelationship relationship) {
+        return selectNode.getNode(relationship);
+    }
+
     private interface SelectNode {
-        Node getNode(Relationship relationship);
+        GraphNode getNode(GraphRelationship relationship);
     }
 
 }

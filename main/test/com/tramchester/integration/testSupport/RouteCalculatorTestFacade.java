@@ -6,11 +6,11 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.reference.FakeStation;
 import org.jetbrains.annotations.NotNull;
-import org.neo4j.graphdb.Transaction;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -19,9 +19,9 @@ import java.util.stream.Stream;
 public class RouteCalculatorTestFacade {
     private final RouteCalculator routeCalculator;
     private final StationRepository stationRepository;
-    private final Transaction txn;
+    private final GraphTransaction txn;
 
-    public RouteCalculatorTestFacade(RouteCalculator routeCalculator, StationRepository stationRepository, Transaction txn) {
+    public RouteCalculatorTestFacade(RouteCalculator routeCalculator, StationRepository stationRepository, GraphTransaction txn) {
        this.routeCalculator = routeCalculator;
         this.stationRepository = stationRepository;
         this.txn = txn;

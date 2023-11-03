@@ -14,17 +14,19 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.VehicleStage;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.ConfigParameterResolver;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.*;
+import com.tramchester.testSupport.testTags.DataExpiryCategory;
+import com.tramchester.testSupport.testTags.DataUpdateTest;
+import com.tramchester.testSupport.testTags.DualTest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
 import java.util.*;
@@ -59,7 +61,7 @@ public class RouteCalculatorTest {
 
     private RouteCalculatorTestFacade calculator;
     private final TramDate when = TestEnv.testDay();
-    private Transaction txn;
+    private GraphTransaction txn;
     private Duration maxJourneyDuration;
     private int maxNumResults;
 
@@ -119,7 +121,7 @@ public class RouteCalculatorTest {
         });
 
         assertEquals(journeys.size(), indexes.size());
-        // to do due to filtering off duplicates this is not possible
+        // to do due to filtering of duplicates this is not possible
 //        for (int i = 0; i < journeys.size(); i++) {
 //            assertTrue(indexes.contains(i), "Missing index " + i);
 //        }
@@ -471,7 +473,6 @@ public class RouteCalculatorTest {
     }
 
     @Test
-    @EcclesToWeasteClosure2023Test
     void shouldHaveInAndAroundCornbrookToEccles8amTuesday() {
         // catches issue with services, only some of which go to media city, while others direct to broadway
         JourneyRequest journeyRequest8am = standardJourneyRequest(when, TramTime.of(8,0), maxNumResults);
@@ -484,7 +485,6 @@ public class RouteCalculatorTest {
     }
 
     @Test
-    @EcclesToWeasteClosure2023Test
     void shouldReproIssueWithJourneysToEccles() {
         TramDate testDate = this.when.plusWeeks(1);
 
@@ -511,7 +511,6 @@ public class RouteCalculatorTest {
     }
 
     @Test
-    @EcclesToWeasteClosure2023Test
     void shouldReproIssueWithStPetersToBeyondEcclesAt8AM() {
         List<TramTime> missingTimes = checkRangeOfTimes(Cornbrook, Eccles);
         assertTrue(missingTimes.isEmpty(), missingTimes.toString());
@@ -530,7 +529,6 @@ public class RouteCalculatorTest {
     }
 
     @Test
-    @EcclesToWeasteClosure2023Test
     void reproduceIssueWithTramsSundayAshtonToEccles() {
         JourneyRequest journeyRequest = new JourneyRequest(TestEnv.nextSunday(), TramTime.of(9, 0), false,
                 3, maxJourneyDuration, maxNumResults, requestedModes);
@@ -538,7 +536,6 @@ public class RouteCalculatorTest {
     }
 
     @Test
-    @EcclesToWeasteClosure2023Test
     void reproduceIssueWithTramsSundayToFromEcclesAndCornbrook() {
         JourneyRequest journeyRequest = standardJourneyRequest(TestEnv.nextSunday(), TramTime.of(9,0), maxNumResults);
 
@@ -562,7 +559,6 @@ public class RouteCalculatorTest {
     }
 
     @Test
-    @EcclesToWeasteClosure2023Test
     void reproIssueRochdaleToEccles() {
         TramTime time = TramTime.of(9,0);
         JourneyRequest journeyRequest = standardJourneyRequest(when, time, maxNumResults);

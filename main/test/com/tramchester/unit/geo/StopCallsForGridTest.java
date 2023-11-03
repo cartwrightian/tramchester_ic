@@ -53,7 +53,7 @@ public class StopCallsForGridTest extends EasyMockSupport {
 
     @Test
     void testGetStopcallsForGrid() {
-        TramDate date = TestEnv.testTramDay();
+        TramDate date = TestEnv.testDay();
         TramTime begin = TramTime.of(11,30);
         TramTime end = TramTime.of(13,45);
 

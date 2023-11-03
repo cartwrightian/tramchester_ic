@@ -11,7 +11,6 @@ import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
 import com.tramchester.domain.*;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.factory.TransportEntityFactory;
 import com.tramchester.domain.factory.TransportEntityFactoryForTFGM;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
@@ -84,6 +83,8 @@ public class TestEnv {
 
     public static final String TFGM_TIMETABLE_URL = "https://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip";
 
+    public static final String TFGM_UNZIP_FOLDER = "TfGMgtfs";
+
     public static final String NAPTAN_BASE_URL = "https://naptan.api.dft.gov.uk/v1/access-nodes"; // ?dataFormat=csv
 
     public final static HashSet<GTFSTransportationType> tramAndBus =
@@ -136,15 +137,6 @@ public class TestEnv {
     }
 
     public static TramDate testDay() {
-        return testDay;
-    }
-
-    /***
-     * use testDay()
-     * @return test day
-     */
-    @Deprecated
-    public static TramDate testTramDay() {
         return testDay;
     }
 

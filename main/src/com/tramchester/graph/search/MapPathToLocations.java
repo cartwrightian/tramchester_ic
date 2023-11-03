@@ -5,11 +5,11 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.*;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.graph.caches.NodeContentsRepository;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
-import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
-import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 
 import javax.inject.Inject;
@@ -35,10 +35,12 @@ public class MapPathToLocations {
         this.stationGroupsRepository = stationGroupsRepository;
     }
 
-    public List<Location<?>> mapToLocations(Path path) {
+    public List<Location<?>> mapToLocations(Path path, GraphTransaction txn) {
         Location<?> previous = null;
         List<Location<?>> results = new ArrayList<>();
-        for(Node node : path.nodes()) {
+        for(GraphNode node : txn.iter(path.nodes())) {
+//            GraphNode node = GraphNode.from(pathNode);
+
             Optional<Location<?>> maybeLocation = mapNode(node);
             maybeLocation.ifPresent(location -> {});
             if (maybeLocation.isPresent()) {
@@ -56,10 +58,11 @@ public class MapPathToLocations {
         return results;
     }
 
-    private Optional<Location<?>> mapNode(Node node) {
+    private Optional<Location<?>> mapNode(GraphNode node) {
         EnumSet<GraphLabel> labels = nodeContentsRepository.getLabels(node);
         if (labels.contains(GROUPED)) {
-            IdFor<NaptanArea> areaId = GraphProps.getAreaIdFromGrouped(node);
+            //return getAreaIdFromGrouped(graphNode.getNode());
+            IdFor<NaptanArea> areaId = node.getAreaId();
             final StationGroup stationGroup = stationGroupsRepository.getStationGroup(areaId);
             if (stationGroup==null) {
                 throw new RuntimeException(format("Missing grouped station %s for %s labels %s props %s",
@@ -68,15 +71,15 @@ public class MapPathToLocations {
             return Optional.of(stationGroup);
         }
         if (labels.contains(STATION)) {
-            IdFor<Station> stationId = GraphProps.getStationIdFrom(node);
+            IdFor<Station> stationId = node.getStationId();
             return Optional.of(stationRepository.getStationById(stationId));
         }
         if (labels.contains(ROUTE_STATION)) {
-            IdFor<Station> stationId = GraphProps.getStationIdFrom(node);
+            IdFor<Station> stationId = node.getStationId();
             return Optional.of(stationRepository.getStationById(stationId));
         }
         if (labels.contains(QUERY_NODE)) {
-            LatLong latLong = GraphProps.getLatLong(node);
+            LatLong latLong =  node.getLatLong(); // GraphProps.getLatLong(node);
             return  Optional.of(MyLocation.create(latLong));
         }
         return Optional.empty();

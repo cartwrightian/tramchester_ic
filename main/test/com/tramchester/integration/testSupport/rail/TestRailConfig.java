@@ -43,7 +43,7 @@ public class TestRailConfig implements RailConfig {
             return Path.of("data/rail");
         }
 
-        @Override
+    @Override
         public Path getStations() {
             return Path.of(remoteConfig.getFilePrefix() + ".msn");
         }

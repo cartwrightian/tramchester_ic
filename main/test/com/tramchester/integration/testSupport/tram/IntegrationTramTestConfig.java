@@ -49,10 +49,11 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
     protected IntegrationTramTestConfig(GraphDBTestConfig dbTestConfig, boolean liveDataEnabled, List<StationClosures> closedStations) {
         super(dbTestConfig);
         this.liveDataEnabled = liveDataEnabled;
-        gtfsSourceConfig = new TFGMGTFSSourceTestConfig("data/tram", GTFSTransportationType.tram,
+        Path downloadFolder = Path.of("data/tram");
+        gtfsSourceConfig = new TFGMGTFSSourceTestConfig(downloadFolder, GTFSTransportationType.tram,
                 TransportMode.Tram, AdditionalTramInterchanges.stations(), Collections.emptySet(), closedStations,
                 Duration.ofMinutes(13));
-        remoteTFGMConfig = new TFGMRemoteDataSourceConfig("data/tram");
+        remoteTFGMConfig = TFGMRemoteDataSourceConfig.createFor(downloadFolder);
         remoteDBSourceConfig = new DatabaseRemoteDataSourceConfig(Path.of("databases"));
     }
 

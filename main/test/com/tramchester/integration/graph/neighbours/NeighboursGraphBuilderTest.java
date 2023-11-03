@@ -1,6 +1,5 @@
 package com.tramchester.integration.graph.neighbours;
 
-import com.google.common.collect.Streams;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
@@ -8,7 +7,8 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphQuery;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.integration.testSupport.NeighboursTestConfig;
@@ -16,11 +16,9 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.*;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.ResourceIterator;
-import org.neo4j.graphdb.Transaction;
 
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.graph.graphbuild.GraphLabel.STATION;
@@ -34,7 +32,7 @@ class NeighboursGraphBuilderTest {
     private static GraphDatabase graphDatabase;
 
     private static ComponentContainer componentContainer;
-    private Transaction txn;
+    private GraphTransaction txn;
     private StationRepository stationRepository;
 
     /// Not if neighbours added, just if graph built with both Bus and Tram nodes correctly
@@ -80,9 +78,8 @@ class NeighboursGraphBuilderTest {
         long tram = stations.size();
         assertEquals(NUM_TFGM_TRAM_STATIONS, tram);
 
-        GraphQuery graphQuery = componentContainer.get(GraphQuery.class);
         stations.forEach(station ->
-                assertNotNull(graphQuery.getStationNode(txn, station), station.getId() + " is missing from DB"));
+                assertNotNull(txn.findNode(station), station.getId() + " is missing from DB"));
     }
 
     @Test
@@ -94,14 +91,8 @@ class NeighboursGraphBuilderTest {
     }
 
     private long countStationNodes(GraphLabel graphLabel) {
-        ResourceIterator<Node> stationNodes = graphDatabase.findNodes(txn, STATION);
-        return Streams.stream(stationNodes).filter(node -> node.hasLabel(graphLabel)).count();
-//        int count = 0;
-//        while (tramNodes.hasNext()) {
-//            tramNodes.next();
-//            count++;
-//        }
-//        return count;
+        Stream<GraphNode> stationNodes = txn.findNodes(STATION); // graphDatabase.findNodes(txn, STATION);
+        return stationNodes.filter(node -> node.hasLabel(graphLabel)).count();
     }
 
 }

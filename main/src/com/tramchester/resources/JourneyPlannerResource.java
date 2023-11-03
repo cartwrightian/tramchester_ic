@@ -16,6 +16,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.mappers.JourneyDTODuplicateFilter;
 import com.tramchester.mappers.JourneyToDTOMapper;
 import com.tramchester.repository.LocationRepository;
@@ -26,7 +27,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
-import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,14 +48,14 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
 
     private final LocationJourneyPlanner locToLocPlanner;
     private final JourneyToDTOMapper journeyToDTOMapper;
-    private final GraphDatabase graphDatabaseService;
+    private final GraphDatabase graphDatabase;
     private final TramchesterConfig config;
     private final JourneyDTODuplicateFilter duplicateFilter;
     private final LocationRepository locationRepository;
 
     @Inject
     public JourneyPlannerResource(UpdateRecentJourneys updateRecentJourneys,
-                                  GraphDatabase graphDatabaseService,
+                                  GraphDatabase graphDatabase,
                                   ProvidesNow providesNow, LocationJourneyPlanner locToLocPlanner, JourneyToDTOMapper journeyToDTOMapper, TramchesterConfig config,
                                   JourneyDTODuplicateFilter duplicateFilter, LocationRepository locationRepository) {
         super(updateRecentJourneys, providesNow);
@@ -63,7 +63,7 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         this.journeyToDTOMapper = journeyToDTOMapper;
         this.duplicateFilter = duplicateFilter;
         this.locationRepository = locationRepository;
-        this.graphDatabaseService = graphDatabaseService;
+        this.graphDatabase = graphDatabase;
         this.config = config;
     }
 
@@ -98,7 +98,7 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         Location<?> start = locationRepository.getLocation(query.getStartType(), query.getStartId());
         Location<?> dest = locationRepository.getLocation(query.getDestType(), query.getDestId());
 
-        try(Transaction tx = graphDatabaseService.beginTx() ) {
+        try(GraphTransaction tx = graphDatabase.beginTx() ) {
 
             Stream<JourneyDTO> dtoStream = getJourneyDTOStream(tx, query.getTramDate(), query.getTime(),
                     start, dest, query.isArriveBy(), query.getMaxChanges(), modes);
@@ -156,7 +156,7 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         Location<?> start = locationRepository.getLocation(query.getStartType(), query.getStartId());
         Location<?> dest = locationRepository.getLocation(query.getDestType(), query.getDestId());
 
-        Transaction tx = graphDatabaseService.beginTx();
+        GraphTransaction tx =  graphDatabase.beginTx();
 
         try {
             Stream<JourneyDTO> dtoStream = getJourneyDTOStream(tx, query.getTramDate(), query.getTime(), start, dest, query.isArriveBy(),
@@ -180,7 +180,7 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         return responseBuilder.build();
     }
 
-    private Stream<JourneyDTO> getJourneyDTOStream(Transaction tx, TramDate date, LocalTime time, Location<?> start,
+    private Stream<JourneyDTO> getJourneyDTOStream(GraphTransaction tx, TramDate date, LocalTime time, Location<?> start,
                                                    Location<?> dest, boolean arriveBy, int maxChanges, EnumSet<TransportMode> modes) {
 
         TramTime queryTime = TramTime.ofHourMins(time);

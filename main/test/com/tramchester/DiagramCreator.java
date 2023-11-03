@@ -2,22 +2,19 @@ package com.tramchester;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphQuery;
 import com.tramchester.graph.TransportRelationshipTypes;
+import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
-import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.naptan.NaptanRepository;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,8 +23,8 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.stream.Stream;
 
-import static com.tramchester.graph.GraphPropertyKey.PLATFORM_ID;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static com.tramchester.graph.graphbuild.GraphLabel.*;
 import static java.lang.String.format;
@@ -38,7 +35,6 @@ public class DiagramCreator {
     private static final Logger logger = LoggerFactory.getLogger(DiagramCreator.class);
 
     private final GraphDatabase graphDatabase;
-    private final GraphQuery graphQuery;
     private final TransportRelationshipTypes[] toplevelRelationships =
             new TransportRelationshipTypes[]{LINKED, ON_ROUTE, ROUTE_TO_STATION, STATION_TO_ROUTE, DIVERSION };
     private final StationRepository stationRepository;
@@ -47,11 +43,10 @@ public class DiagramCreator {
     private static final Path diagramsFolder = Path.of("diagrams");
 
     @Inject
-    public DiagramCreator(GraphDatabase graphDatabase, GraphQuery graphQuery, StationRepository stationRepository,
+    public DiagramCreator(GraphDatabase graphDatabase, StationRepository stationRepository,
                           NaptanRepository naptanRespository) {
         // ready is token to express dependency on having a built graph DB
         this.graphDatabase = graphDatabase;
-        this.graphQuery = graphQuery;
         this.stationRepository = stationRepository;
         this.naptanRespository = naptanRespository;
     }
@@ -67,8 +62,8 @@ public class DiagramCreator {
         Path filePath = diagramsFolder.resolve(diagramFile);
         logger.info("Creating diagram " + filePath.toAbsolutePath());
 
-        Set<Long> nodeSeen = new HashSet<>();
-        Set<Long> relationshipSeen = new HashSet<>();
+        Set<GraphNodeId> nodeSeen = new HashSet<>();
+        Set<GraphRelationshipId> relationshipSeen = new HashSet<>();
 
         OutputStream fileStream = new FileOutputStream(filePath.toFile());
         BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileStream);
@@ -76,18 +71,18 @@ public class DiagramCreator {
 
         DiagramBuild builder = new DiagramBuild(printStream);
 
-        try (Transaction txn = graphDatabase.beginTx()) {
+        try (GraphTransaction txn = graphDatabase.beginTx()) {
             builder.append("digraph G {\n");
 
             startPointsList.forEach(startPoint -> {
 
-                Node startNode = graphQuery.getLocationNode(txn, startPoint);
+                GraphNode startNode = txn.findNode((Location<?>) startPoint);
 
                 if (startNode==null) {
                     logger.error("Can't find start node for station " + startPoint.getId());
                     builder.append("MISSING NODE\n");
                 } else {
-                    visit(startNode, builder, depthLimit, nodeSeen, relationshipSeen, topLevel);
+                    visit(startNode, builder, depthLimit, nodeSeen, relationshipSeen, topLevel, txn);
                 }
             });
 
@@ -111,7 +106,8 @@ public class DiagramCreator {
         Files.createDirectory(diagramsFolder);
     }
 
-    private void visit(Node node, DiagramBuild builder, int depth, Set<Long> nodeSeen, Set<Long> relationshipSeen, boolean topLevel) {
+    private void visit(GraphNode node, DiagramBuild builder, int depth, Set<GraphNodeId> nodeSeen, Set<GraphRelationshipId> relationshipSeen,
+                       boolean topLevel, GraphTransaction txn) {
         if (depth<=0) {
             return;
         }
@@ -123,36 +119,38 @@ public class DiagramCreator {
         addLine(builder, format("\"%s\" [label=\"%s\" shape=%s];\n", createNodeId(node),
                 getLabelFor(node), getShapeFor(node)));
 
-        visitOutbounds(node, builder, depth, nodeSeen, relationshipSeen, topLevel);
-        visitInbounds(node, builder, depth, nodeSeen, relationshipSeen, topLevel);
+        visitOutbounds(node, builder, depth, nodeSeen, relationshipSeen, topLevel, txn);
+        visitInbounds(node, builder, depth, nodeSeen, relationshipSeen, topLevel, txn);
 
     }
 
-    private void visitInbounds(Node targetNode, DiagramBuild builder, int depth, Set<Long> nodeSeen, Set<Long> relationshipSeen, boolean topLevel) {
-        getRelationships(targetNode, Direction.INCOMING, topLevel).forEach(towards -> {
+    private void visitInbounds(GraphNode targetNode, DiagramBuild builder, int depth, Set<GraphNodeId> nodeSeen, Set<GraphRelationshipId> relationshipSeen,
+                               boolean topLevel, GraphTransaction txn) {
+        getRelationships(targetNode, Direction.INCOMING, topLevel, txn).forEach(towards -> {
 
-            Node startNode = towards.getStartNode();
+            GraphNode startNode = towards.getStartNode(txn); //GraphNode.fromStart(towards);
             addNode(builder, startNode);
 
             // startNode -> targetNode
             addEdge(builder, towards, createNodeId(startNode), createNodeId(targetNode), relationshipSeen);
-            visit(startNode, builder, depth-1, nodeSeen, relationshipSeen, topLevel);
+            visit(startNode, builder, depth-1, nodeSeen, relationshipSeen, topLevel, txn);
         });
     }
 
-    private Iterable<Relationship> getRelationships(Node targetNode, Direction direction, boolean toplevelOnly) {
+    private Stream<GraphRelationship> getRelationships(GraphNode targetNode, Direction direction, boolean toplevelOnly, GraphTransaction txn) {
         TransportRelationshipTypes[] types = toplevelOnly ?  toplevelRelationships : TransportRelationshipTypes.values();
-        return targetNode.getRelationships(direction, types);
+        return targetNode.getRelationships(txn, direction, types);
     }
 
-    private void visitOutbounds(Node startNode, DiagramBuild builder, int depth, Set<Long> seen, Set<Long> relationshipSeen, boolean topLevel) {
-        Map<Long,Relationship> goesToRelationships = new HashMap<>();
+    private void visitOutbounds(GraphNode startNode, DiagramBuild builder, int depth, Set<GraphNodeId> seen,
+                                Set<GraphRelationshipId> relationshipSeen, boolean topLevel, GraphTransaction txn) {
+        Map<GraphRelationshipId,GraphRelationship> goesToRelationships = new HashMap<>();
 
-        getRelationships(startNode, Direction.OUTGOING, topLevel).forEach(awayFrom -> {
+        getRelationships(startNode, Direction.OUTGOING, topLevel, txn).forEach(awayFrom -> {
 
-            TransportRelationshipTypes relationshipType = TransportRelationshipTypes.valueOf(awayFrom.getType().name());
+            TransportRelationshipTypes relationshipType = awayFrom.getType(); // TransportRelationshipTypes.valueOf(awayFrom.getType().name());
 
-            Node rawEndNode = awayFrom.getEndNode();
+            GraphNode rawEndNode = awayFrom.getEndNode(txn); //txn.fromEnd(awayFrom);
 
             addNode(builder, startNode);
             addEdge(builder, awayFrom, createNodeId(startNode), createNodeId(rawEndNode), relationshipSeen);
@@ -162,7 +160,7 @@ public class DiagramCreator {
                     goesToRelationships.put(awayFrom.getId(), awayFrom);
                 }
             }
-            visit(rawEndNode, builder, depth-1, seen, relationshipSeen, topLevel);
+            visit(rawEndNode, builder, depth-1, seen, relationshipSeen, topLevel, txn);
         });
 
         // add services for this node
@@ -170,7 +168,7 @@ public class DiagramCreator {
     }
 
 
-    private void addEdge(DiagramBuild builder, Relationship edge, String startNodeId, String endNodeId, Set<Long> relationshipSeen) {
+    private void addEdge(DiagramBuild builder, GraphRelationship edge, String startNodeId, String endNodeId, Set<GraphRelationshipId> relationshipSeen) {
 
         TransportRelationshipTypes relationshipType = TransportRelationshipTypes.valueOf(edge.getType().name());
 
@@ -180,10 +178,10 @@ public class DiagramCreator {
         relationshipSeen.add(edge.getId());
 
         if (relationshipType==TransportRelationshipTypes.ON_ROUTE) {
-            String routeId = GraphProps.getRouteIdFrom(edge).getGraphId();
+            String routeId = edge.getRouteId().getGraphId();
             addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", startNodeId, endNodeId, "R:"+routeId));
         } else if (relationshipType== LINKED) {
-            Set<TransportMode> modes = GraphProps.getTransportModes(edge);
+            Set<TransportMode> modes = edge.getTransportModes();
             addLine(builder, format("\"%s\"->\"%s\" [label=\"%s\"];\n", startNodeId, endNodeId, "L:"+modes));
         } else {
             String shortForm = createShortForm(relationshipType, edge);
@@ -191,16 +189,16 @@ public class DiagramCreator {
         }
     }
 
-    private void addNode(DiagramBuild builder, Node sourceNode) {
+    private void addNode(DiagramBuild builder, GraphNode sourceNode) {
         addLine(builder, format("\"%s\" [label=\"%s\" shape=%s];\n", createNodeId(sourceNode),
                 getLabelFor(sourceNode), getShapeFor(sourceNode)));
     }
 
-    private String createNodeId(Node sourceNode) {
+    private String createNodeId(GraphNode sourceNode) {
         return String.valueOf(sourceNode.getId());
     }
 
-    private String getShapeFor(Node node) {
+    private String getShapeFor(GraphNode node) {
         if (node.hasLabel(GraphLabel.PLATFORM)) {
             return "box";
         }
@@ -222,40 +220,47 @@ public class DiagramCreator {
         return "box";
     }
 
-    private String getLabelFor(Node node) {
+    private String getLabelFor(GraphNode node) {
         if (node.hasLabel(PLATFORM)) {
-            return node.getProperty(PLATFORM_ID.getText()).toString();
+            return node.getPlatformId().getGraphId();
+            //return node.getProperty(PLATFORM_ID.getText()).toString();
         }
         if (node.hasLabel(ROUTE_STATION)) {
             // TODO Look up station name from the ID?
-            String stationId = GraphProps.getStationId(node).getGraphId();
-            TransportMode mode = GraphProps.getTransportMode(node);
-            String routeId = GraphProps.getRouteIdFrom(node).getGraphId();
+            //return getStationIdFrom(node.getNode());
+            String stationId = node.getStationId().getGraphId();
+            TransportMode mode = node.getTransportMode();
+            //return getRouteIdFrom(graphNode.getNode());
+            String routeId = node.getRouteId().getGraphId();
             return format("%s\n%s\n%s", routeId, stationId, mode.name());
         }
         if (node.hasLabel(GROUPED)) {
-            IdFor<NaptanArea> areaId = GraphProps.getAreaIdFromGrouped(node);
+            //return getAreaIdFromGrouped(graphNode.getNode());
+            IdFor<NaptanArea> areaId = node.getAreaId();
             NaptanArea area = naptanRespository.getAreaFor(areaId);
             return format("%s\n%s", area.getName(), areaId.getGraphId());
         }
         if (node.hasLabel(STATION)) {
-            IdFor<Station> stationId = GraphProps.getStationId(node);
+            //return getStationIdFrom(node.getNode());
+            IdFor<Station> stationId = node.getStationId();
             Station station = stationRepository.getStationById(stationId);
             return format("%s\n%s", station.getName(), stationId.getGraphId());
         }
         if (node.hasLabel(SERVICE)) {
-            return GraphProps.getServiceId(node).getGraphId();
+            return node.getServiceId().getGraphId();
         }
         if (node.hasLabel(HOUR)) {
-            return   GraphProps.getHour(node).toString();
+            //        return getHour(graphNode.getNode());
+            return   node.getHour().toString();
         }
         if (node.hasLabel(MINUTE)) {
-            final TramTime time = GraphProps.getTime(node);
+            final TramTime time = node.getTime();
             String days = time.isNextDay() ? "+1" : "";
-            return format("%s:%s%s\n%s", time.getHourOfDay(), time.getMinuteOfHour(), days, GraphProps.getTripId(node).getGraphId());
+            return format("%s:%s%s\n%s", time.getHourOfDay(), time.getMinuteOfHour(), days, node.getTripId().getGraphId());
         }
         if (node.hasLabel(GROUPED)) {
-            IdFor<Station> stationId = GraphProps.getStationId(node);
+            //return getStationIdFrom(node.getNode());
+            IdFor<Station> stationId = node.getStationId();
             Station station = stationRepository.getStationById(stationId);
             return format("%s\n%s\n%s", station.getName(), station.getAreaId(), stationId.getGraphId());
         }
@@ -267,10 +272,10 @@ public class DiagramCreator {
         builder.append(line);
     }
 
-    private String createShortForm(TransportRelationshipTypes relationshipType, Relationship edge) {
+    private String createShortForm(TransportRelationshipTypes relationshipType, GraphRelationship edge) {
         String cost = "";
         if (hasCost(relationshipType)) {
-            cost = "("+ GraphProps.getCost(edge)+ ")";
+            cost = "("+ edge.getCost() + ")";
         }
         return getNameFor(relationshipType) + cost;
     }

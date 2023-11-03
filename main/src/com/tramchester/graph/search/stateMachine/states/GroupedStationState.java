@@ -1,12 +1,11 @@
 package com.tramchester.graph.search.stateMachine.states;
 
+
+import com.tramchester.graph.facade.*;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
 import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.ResourceIterable;
 
 import java.time.Duration;
 import java.util.stream.Stream;
@@ -31,26 +30,22 @@ public class GroupedStationState extends TraversalState {
             return TraversalStateType.GroupedStationState;
         }
 
-        public TraversalState fromChildStation(StationState stationState, Node node, Duration cost) {
+        public TraversalState fromChildStation(StationState stationState, GraphNode node, Duration cost, GraphTransaction txn) {
             return new GroupedStationState(stationState,
-                    filterExcludingEndNode(node.getRelationships(Direction.OUTGOING, GROUPED_TO_CHILD),stationState),
+                    filterExcludingEndNode(txn, node.getRelationships(txn, Direction.OUTGOING, GROUPED_TO_CHILD),stationState),
                     cost, node.getId(), this);
         }
 
-        public TraversalState fromStart(NotStartedState notStartedState, Node node, Duration cost) {
-            return new GroupedStationState(notStartedState, node.getRelationships(Direction.OUTGOING, GROUPED_TO_CHILD),
+        public TraversalState fromStart(NotStartedState notStartedState, GraphNode node, Duration cost, GraphTransaction txn) {
+            return new GroupedStationState(notStartedState, node.getRelationships(txn, Direction.OUTGOING, GROUPED_TO_CHILD),
                     cost, node.getId(), this);
         }
     }
 
-    private final long stationNodeId;
+    private final GraphNodeId stationNodeId;
 
-    private GroupedStationState(TraversalState parent, Stream<Relationship> relationships, Duration cost, long stationNodeId, Towards<GroupedStationState> builder) {
-        super(parent, relationships, cost, builder.getDestination());
-        this.stationNodeId = stationNodeId;
-    }
-
-    private GroupedStationState(TraversalState parent, ResourceIterable<Relationship> relationships, Duration cost, long stationNodeId, Towards<GroupedStationState> builder) {
+    private GroupedStationState(TraversalState parent, Stream<ImmutableGraphRelationship> relationships, Duration cost, GraphNodeId stationNodeId,
+                                Towards<GroupedStationState> builder) {
         super(parent, relationships, cost, builder.getDestination());
         this.stationNodeId = stationNodeId;
     }
@@ -63,17 +58,19 @@ public class GroupedStationState extends TraversalState {
     }
 
     @Override
-    protected PlatformStationState toPlatformStation(PlatformStationState.Builder towardsStation, Node node, Duration cost, JourneyStateUpdate journeyState, boolean onDiversion) {
-        return towardsStation.fromGrouped(this, node, cost, journeyState);
+    protected PlatformStationState toPlatformStation(PlatformStationState.Builder towardsStation, GraphNode node, Duration cost,
+                                                     JourneyStateUpdate journeyState, boolean onDiversion) {
+        return towardsStation.fromGrouped(this, node, cost, journeyState, txn);
     }
 
     @Override
-    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsStation, Node node, Duration cost, JourneyStateUpdate journeyState, boolean onDiversion) {
-        return towardsStation.fromGrouped(this, node, cost, journeyState);
+    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsStation, GraphNode node, Duration cost,
+                                                 JourneyStateUpdate journeyState, boolean onDiversion) {
+        return towardsStation.fromGrouped(this, node, cost, journeyState, txn);
     }
 
     @Override
-    protected void toDestination(DestinationState.Builder towardsDestination, Node node, Duration cost, JourneyStateUpdate journeyStateUpdate) {
+    protected void toDestination(DestinationState.Builder towardsDestination, GraphNode node, Duration cost, JourneyStateUpdate journeyStateUpdate) {
         towardsDestination.from(this, cost);
     }
 

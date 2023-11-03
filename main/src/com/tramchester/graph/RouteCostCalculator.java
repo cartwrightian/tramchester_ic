@@ -7,7 +7,7 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.InvalidDurationException;
-import com.tramchester.graph.graphbuild.GraphProps;
+import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.repository.RouteRepository;
 import org.neo4j.graphalgo.EvaluationContext;
@@ -36,43 +36,42 @@ import static java.lang.String.format;
 public class RouteCostCalculator {
     private static final Logger logger = LoggerFactory.getLogger(RouteCostCalculator.class);
 
-    private final GraphQuery graphQuery;
     private final GraphDatabase graphDatabaseService;
     private final RouteRepository routeRepository;
 
     @Inject
-    public RouteCostCalculator(GraphQuery graphQuery, GraphDatabase graphDatabaseService,
-                               StagedTransportGraphBuilder.Ready ready, RouteRepository routeRepository) {
-        this.graphQuery = graphQuery;
+    public RouteCostCalculator(GraphDatabase graphDatabaseService,
+                               @SuppressWarnings("unused") StagedTransportGraphBuilder.Ready ready,
+                               RouteRepository routeRepository) {
         this.graphDatabaseService = graphDatabaseService;
         this.routeRepository = routeRepository;
     }
 
-    public Duration getAverageCostBetween(Transaction txn, Node startNode, Node endNode, TramDate date, Set<TransportMode> modes) throws InvalidDurationException {
+    public Duration getAverageCostBetween(GraphTransaction txn, GraphNode startNode, GraphNode endNode, TramDate date, Set<TransportMode> modes) throws InvalidDurationException {
         return calculateLeastCost(txn, startNode, endNode, COST, date, modes);
     }
 
-    public Duration getAverageCostBetween(Transaction txn, Location<?> station, Node endNode, TramDate date, Set<TransportMode> modes) throws InvalidDurationException {
-        Node startNode = graphQuery.getLocationNode(txn, station);
+    public Duration getAverageCostBetween(GraphTransaction txn, Location<?> station, GraphNode endNode, TramDate date, Set<TransportMode> modes) throws InvalidDurationException {
+        GraphNode startNode = txn.findNode(station);
         return calculateLeastCost(txn, startNode, endNode, COST, date, modes);
     }
 
     // startNode must have been found within supplied txn
-    public Duration getAverageCostBetween(Transaction txn, Node startNode, Location<?> endStation, TramDate date, Set<TransportMode> modes) throws InvalidDurationException {
-        Node endNode = graphQuery.getLocationNode(txn, endStation);
+    public Duration getAverageCostBetween(GraphTransaction txn, GraphNode startNode, Location<?> endStation, TramDate date, Set<TransportMode> modes) throws InvalidDurationException {
+        GraphNode endNode = txn.findNode(endStation);
         return calculateLeastCost(txn, startNode, endNode, COST, date, modes);
     }
 
-    public Duration getAverageCostBetween(Transaction txn, Location<?> startStation, Location<?> endStation, TramDate date, Set<TransportMode> modes) throws InvalidDurationException {
+    public Duration getAverageCostBetween(GraphTransaction txn, Location<?> startStation, Location<?> endStation, TramDate date, Set<TransportMode> modes) throws InvalidDurationException {
         return getCostBetween(txn, startStation, endStation, COST, date, modes);
     }
 
-    private Duration getCostBetween(Transaction txn, Location<?> startLocation, Location<?> endLocation, GraphPropertyKey key, TramDate date, Set<TransportMode> modes) throws InvalidDurationException {
-        Node startNode = graphQuery.getLocationNode(txn, startLocation);
+    private Duration getCostBetween(GraphTransaction txn, Location<?> startLocation, Location<?> endLocation, GraphPropertyKey key, TramDate date, Set<TransportMode> modes) throws InvalidDurationException {
+        GraphNode startNode = txn.findNode(startLocation);
         if (startNode==null) {
             throw new RuntimeException("Could not find start node for graph id " + startLocation.getId().getGraphId());
         }
-        Node endNode = graphQuery.getLocationNode(txn, endLocation);
+        GraphNode endNode = txn.findNode(endLocation);
         if (endNode==null) {
             throw new RuntimeException("Could not find end node for graph id" + endLocation.getId().getGraphId());
         }
@@ -82,8 +81,7 @@ public class RouteCostCalculator {
     }
 
     // startNode and endNode must have been found within supplied txn
-
-    private Duration calculateLeastCost(Transaction txn, Node startNode, Node endNode, GraphPropertyKey key,
+    private Duration calculateLeastCost(GraphTransaction txn, GraphNode startNode, GraphNode endNode, GraphPropertyKey key,
                                         TramDate date, Set<TransportMode> modes) throws InvalidDurationException {
 
         Set<Route> routesRunningOn = routeRepository.getRoutesRunningOn(date).stream().
@@ -94,15 +92,18 @@ public class RouteCostCalculator {
 
         EvaluationContext context = graphDatabaseService.createContext(txn);
 
-        Predicate<? super Relationship> routeFilter = (Predicate<Relationship>) relationship ->
-                !relationship.isType(ON_ROUTE) || available.contains(GraphProps.getRouteIdFrom(relationship));
+        GraphRelationshipFilter routeFilter = new GraphRelationshipFilter(txn,
+                graphRelationship -> !graphRelationship.isType(ON_ROUTE) || available.contains(graphRelationship.getRouteId()));
+
+//        Predicate<? super Relationship> routeFilter = (Predicate<Relationship>) relationship ->
+//                !relationship.isType(ON_ROUTE) || available.contains(GraphProps.getRouteIdFrom(relationship));
 
         PathExpander<Double> forTypesAndDirections = fullExpanderForCostApproximation(routeFilter);
 
         PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(context, forTypesAndDirections,
                 new UsefulLoggingCostEvaluator(key));
 
-        WeightedPath path = finder.findSinglePath(startNode, endNode);
+        WeightedPath path = ImmuableGraphNode.findSinglePath(finder, startNode, endNode);
         if (path==null) {
             final String message = format("No (least cost) path found between node %s [%s] and node %s [%s]",
                     startNode.getId(), startNode.getAllProperties(), endNode.getId(), endNode.getAllProperties());
@@ -148,7 +149,7 @@ public class RouteCostCalculator {
             }
             catch (NotFoundException exception) {
                 final String msg = format("%s not found for %s dir %s type %s props %s",
-                        name, relationship.getId(), direction, relationship.getType(), relationship.getAllProperties());
+                        name, relationship, direction, relationship.getType(), relationship.getAllProperties());
                 logger.error(msg);
                 throw new RuntimeException(msg, exception);
             }

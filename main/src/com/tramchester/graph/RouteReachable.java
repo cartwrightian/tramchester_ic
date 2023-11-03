@@ -9,14 +9,13 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
-import com.tramchester.graph.graphbuild.GraphProps;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphRelationship;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.repository.StationAvailabilityRepository;
 import com.tramchester.repository.StationRepository;
 import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +23,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static com.tramchester.graph.TransportRelationshipTypes.ON_ROUTE;
 
@@ -33,17 +33,14 @@ public class RouteReachable {
 
     private final GraphDatabase graphDatabaseService;
     private final StationRepository stationRepository;
-    private final GraphQuery graphQuery;
     private final StationAvailabilityRepository availabilityRepository;
 
     @Inject
     public RouteReachable(GraphDatabase graphDatabaseService, StationRepository stationRepository,
-                          GraphQuery graphQuery,
-                          StagedTransportGraphBuilder.Ready ready,
+                          @SuppressWarnings("unused") StagedTransportGraphBuilder.Ready ready,
                           StationAvailabilityRepository availabilityRepository) {
         this.graphDatabaseService = graphDatabaseService;
         this.stationRepository = stationRepository;
-        this.graphQuery = graphQuery;
         this.availabilityRepository = availabilityRepository;
     }
 
@@ -54,20 +51,29 @@ public class RouteReachable {
         final Set<Route> firstRoutes = availabilityRepository.getPickupRoutesFor(startStation, date, timeRange, modes);
         final IdFor<Station> endStationId = pair.getEnd().getId();
 
-        try (Transaction txn = graphDatabaseService.beginTx()) {
+        try (GraphTransaction txn = graphDatabaseService.beginTx()) {
             firstRoutes.forEach(route -> {
                 final RouteStation routeStation = stationRepository.getRouteStation(startStation, route);
-                final Node routeStationNode = graphQuery.getRouteStationNode(txn, routeStation);
+                final GraphNode routeStationNode = txn.findNode(routeStation);
                 if (routeStationNode==null) {
                     logger.warn("Missing route station, graph DB rebuild needed?");
                 } else {
-                    Iterable<Relationship> edges = routeStationNode.getRelationships(Direction.OUTGOING, ON_ROUTE);
-                    for (Relationship edge : edges) {
-                        final IdFor<Station> endNodeStationId = GraphProps.getStationIdFrom(edge.getEndNode());
+                    Stream<GraphRelationship> edges = routeStationNode.getRelationships(txn, Direction.OUTGOING, ON_ROUTE);
+
+                    edges.forEach(edge -> {
+                        GraphNode graphNode = edge.getEndNode(txn);
+                        final IdFor<Station> endNodeStationId = graphNode.getStationId();
                         if (endStationId.equals(endNodeStationId)) {
                             results.add(route);
                         }
-                    }
+                    });
+
+//                    for (Relationship edge : edges) {
+//                        final IdFor<Station> endNodeStationId = GraphProps.getStationIdFrom(edge.getEndNode());
+//                        if (endStationId.equals(endNodeStationId)) {
+//                            results.add(route);
+//                        }
+//                    }
                 }
             });
         }

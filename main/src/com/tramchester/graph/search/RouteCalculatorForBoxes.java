@@ -13,19 +13,18 @@ import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBoxWithStations;
 import com.tramchester.geo.SortsPositions;
-import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.GraphQuery;
-import com.tramchester.graph.RouteCostCalculator;
+import com.tramchester.graph.*;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphNodeId;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.search.diagnostics.ReasonsToGraphViz;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.RouteInterchangeRepository;
 import com.tramchester.repository.RunningRoutesAndServices;
 import com.tramchester.repository.TransportData;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,15 +51,16 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
     @Inject
     public RouteCalculatorForBoxes(TramchesterConfig config,
                                    TransportData transportData,
-                                   GraphDatabase graphDatabaseService, GraphQuery graphQuery, TraversalStateFactory traversalStateFactory,
+                                   GraphDatabase graphDatabaseService, TraversalStateFactory traversalStateFactory,
                                    PathToStages pathToStages,
                                    NodeContentsRepository nodeContentsRepository,
                                    ProvidesNow providesNow,
                                    SortsPositions sortsPosition, MapPathToLocations mapPathToLocations,
                                    BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz,
                                    ClosedStationsRepository closedStationsRepository, RunningRoutesAndServices runningRoutesAndService,
-                                   RouteInterchangeRepository routeInterchanges, RouteCostCalculator routeCostCalculator) {
-        super(graphQuery, pathToStages, nodeContentsRepository, graphDatabaseService,
+                                   RouteInterchangeRepository routeInterchanges,
+                                   @SuppressWarnings("unused") RouteCostCalculator routeCostCalculator) {
+        super(pathToStages, nodeContentsRepository, graphDatabaseService,
                 traversalStateFactory, providesNow, sortsPosition, mapPathToLocations,
                 transportData, config, transportData, routeToRouteCosts, reasonToGraphViz, routeInterchanges);
         this.config = config;
@@ -90,7 +90,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         final JourneyConstraints journeyConstraints = new JourneyConstraints(config, routeAndServicesFilter, closedStations,
                 destinations, lowestCostForDestinations, maxJourneyDuration);
 
-        final Set<Long> destinationNodeIds = getDestinationNodeIds(destinations);
+        final Set<GraphNodeId> destinationNodeIds = getDestinationNodeIds(destinations);
 
         return grouped.parallelStream().map(box -> {
 
@@ -102,7 +102,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
             final AtomicInteger journeyIndex = new AtomicInteger(0);
 
-            try(Transaction txn = graphDatabaseService.beginTx()) {
+            try(GraphTransaction txn = graphDatabaseService.beginTx()) {
 
                 Stream<Journey> journeys = startingStations.stream().
                         filter(start -> !destinations.contains(start)).
@@ -113,7 +113,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                         flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations,
                                 createServiceReasons(journeyRequest, originalTime), pathRequest, journeyConstraints.getFewestChangesCalculator(),
                                 createPreviousVisits(), lowestCostSeenForBox)).
-                        map(timedPath -> createJourney(journeyRequest, timedPath, destinations, lowestCostForDestinations, journeyIndex));
+                        map(timedPath -> createJourney(journeyRequest, timedPath, destinations, lowestCostForDestinations, journeyIndex, txn));
 
                 Set<Journey> collect = journeys.
                         filter(journey -> !journey.getStages().isEmpty()).
@@ -127,16 +127,8 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
     }
 
-    private static class NodeAndStation {
+    private record NodeAndStation(Location<?> location, GraphNode node) {
 
-        private final Location<?> location;
-        private final Node node;
-
-        public NodeAndStation(Location<?> location, Node node) {
-
-            this.location = location;
-            this.node = node;
-        }
     }
 
     private NumberOfChanges computeNumberOfChanges(LocationSet starts, LocationSet destinations, TramDate date, TimeRange timeRange, EnumSet<TransportMode> modes) {

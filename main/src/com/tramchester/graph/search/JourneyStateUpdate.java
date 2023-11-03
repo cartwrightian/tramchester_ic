@@ -6,20 +6,20 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
-import org.neo4j.graphdb.Node;
+import com.tramchester.graph.facade.GraphNode;
 
 import java.time.Duration;
 
 public interface JourneyStateUpdate {
-    void board(TransportMode transportMode, Node node, boolean hasPlatform) throws TramchesterException;
-    void leave(IdFor<Trip> trip, TransportMode mode, Duration totalCost, Node node) throws TramchesterException;
+    void board(TransportMode transportMode, GraphNode node, boolean hasPlatform) throws TramchesterException;
+    void leave(IdFor<Trip> trip, TransportMode mode, Duration totalCost, GraphNode node) throws TramchesterException;
 
     void beginTrip(IdFor<Trip> newTripId);
 
-    void beginWalk(Node beforeWalkNode, boolean atStart, Duration cost);
-    void endWalk(Node stationNode);
+    void beginWalk(GraphNode beforeWalkNode, boolean atStart, Duration cost);
+    void endWalk(GraphNode stationNode);
 
-    void toNeighbour(Node startNode, Node endNode, Duration cost);
+    void toNeighbour(GraphNode startNode, GraphNode endNode, Duration cost);
     void seenStation(IdFor<Station> stationId);
 
     void updateTotalCost(Duration total);

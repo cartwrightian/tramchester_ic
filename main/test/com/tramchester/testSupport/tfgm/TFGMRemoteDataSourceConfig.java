@@ -8,19 +8,24 @@ import java.nio.file.Path;
 import java.time.Duration;
 
 public class TFGMRemoteDataSourceConfig extends RemoteDataSourceConfig {
-    private final Path dataPath;
+    private final Path downloadPath;
 
-    public TFGMRemoteDataSourceConfig(String dataPath) {
-       this(Path.of(dataPath));
+    public static TFGMRemoteDataSourceConfig createFor(Path downloadPath) {
+        return new TFGMRemoteDataSourceConfig(downloadPath);
     }
 
-    public TFGMRemoteDataSourceConfig(Path dataPath) {
-        this.dataPath = dataPath;
+    private TFGMRemoteDataSourceConfig(Path downloadPath) {
+        this.downloadPath = downloadPath;
     }
 
     @Override
     public Path getDataPath() {
-        return dataPath;
+        return downloadPath; //downloadPath.resolve(TestEnv.TFGM_UNZIP_FOLDER);
+    }
+
+    @Override
+    public Path getDownloadPath() {
+        return downloadPath;
     }
 
     @Override

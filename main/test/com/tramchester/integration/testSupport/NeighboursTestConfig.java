@@ -29,7 +29,7 @@ public class NeighboursTestConfig extends IntegrationBusTestConfig {
         final Set<TransportMode> modesWithPlatforms = Collections.singleton(Tram);
         final Set<TransportMode> compositeStationModes = Collections.singleton(Bus);
         return Collections.singletonList(
-                new TFGMGTFSSourceTestConfig("data/bus", TestEnv.tramAndBus,
+                new TFGMGTFSSourceTestConfig(Path.of("data/bus"), TestEnv.tramAndBus,
                         modesWithPlatforms, AdditionalTramInterchanges.stations(), compositeStationModes, Collections.emptyList(), Duration.ofMinutes(13)));
     }
 

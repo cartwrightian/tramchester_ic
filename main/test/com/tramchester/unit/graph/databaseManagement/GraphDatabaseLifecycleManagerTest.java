@@ -1,7 +1,8 @@
 package com.tramchester.unit.graph.databaseManagement;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.DataSourceInfo;
+import com.tramchester.graph.facade.GraphIdFactory;
+import com.tramchester.graph.facade.GraphTransactionFactory;
 import com.tramchester.graph.databaseManagement.GraphDatabaseLifecycleManager;
 import com.tramchester.graph.databaseManagement.GraphDatabaseServiceFactory;
 import com.tramchester.graph.databaseManagement.GraphDatabaseStoredVersions;
@@ -14,8 +15,6 @@ import org.junit.jupiter.api.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
 
 import java.nio.file.Path;
-import java.util.HashSet;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertSame;
 
@@ -38,14 +37,15 @@ public class GraphDatabaseLifecycleManagerTest extends EasyMockSupport {
         serviceFactory = createMock(GraphDatabaseServiceFactory.class);
         storedVersions = createMock(GraphDatabaseStoredVersions.class);
         dataSourceRepos = createMock(DataSourceRepository.class);
-        graphDatabaseLifecycleManager = new GraphDatabaseLifecycleManager(config, serviceFactory, storedVersions);
+        GraphIdFactory graphIdFactory = createMock(GraphIdFactory.class);
+        graphDatabaseLifecycleManager = new GraphDatabaseLifecycleManager(config, serviceFactory, storedVersions, graphIdFactory);
     }
 
     @Test
     public void startImmediatelyIfExistsAndStoredVersionsOK() {
 
         EasyMock.expect(serviceFactory.create()).andReturn(graphDatabaseService);
-        EasyMock.expect(storedVersions.upToDate(graphDatabaseService, dataSourceRepos)).andReturn(true);
+        EasyMock.expect(storedVersions.upToDate(EasyMock.isA(GraphTransactionFactory.class), EasyMock.eq(dataSourceRepos))).andReturn(true);
 
         replayAll();
         GraphDatabaseService result = graphDatabaseLifecycleManager.startDatabase(dataSourceRepos, dbFile, true);
@@ -70,7 +70,9 @@ public class GraphDatabaseLifecycleManagerTest extends EasyMockSupport {
     public void startAndThenStopIfExistsAndStoredVersionsStale() {
 
         EasyMock.expect(serviceFactory.create()).andReturn(graphDatabaseService);
-        EasyMock.expect(storedVersions.upToDate(graphDatabaseService, dataSourceRepos)).andReturn(false);
+
+        EasyMock.expect(storedVersions.upToDate(EasyMock.isA(GraphTransactionFactory.class),
+                EasyMock.eq(dataSourceRepos))).andReturn(false);
         serviceFactory.shutdownDatabase();
         EasyMock.expectLastCall();
 

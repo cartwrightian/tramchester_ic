@@ -11,6 +11,7 @@ import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.LocationJourneyPlanner;
@@ -20,10 +21,8 @@ import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.reference.TestPostcodes;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.*;
-import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -44,7 +43,7 @@ class PostcodeBusRouteCalculatorTest {
     private static TramchesterConfig testConfig;
 
     private final TramDate day = TestEnv.testDay();
-    private Transaction txn;
+    private GraphTransaction txn;
     private final TramTime time = TramTime.of(9,11);
     private LocationJourneyPlannerTestFacade planner;
     private Duration maxJourneyDuration;

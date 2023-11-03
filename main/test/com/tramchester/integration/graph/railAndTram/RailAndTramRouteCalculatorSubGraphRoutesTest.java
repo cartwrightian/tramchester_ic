@@ -12,6 +12,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RailAndTramGreaterManchesterConfig;
@@ -22,7 +23,6 @@ import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.GMTest;
 import org.junit.jupiter.api.*;
-import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -51,7 +51,7 @@ public class RailAndTramRouteCalculatorSubGraphRoutesTest {
             RailStationIds.ManchesterVictoria,
             RailStationIds.ManchesterOxfordRoad);
 
-    private Transaction txn;
+    private GraphTransaction txn;
     private RouteCalculatorTestFacade testFacade;
     private Duration maxDurationFromConfig;
 

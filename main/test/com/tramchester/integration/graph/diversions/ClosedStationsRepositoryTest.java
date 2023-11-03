@@ -42,7 +42,7 @@ public class ClosedStationsRepositoryTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        when = TestEnv.testTramDay();
+        when = TestEnv.testDay();
         overlap = when.plusDays(3);
 
         StationClosuresForTest closureA = new StationClosuresForTest(StPetersSquare, when, when.plusWeeks(1), true);

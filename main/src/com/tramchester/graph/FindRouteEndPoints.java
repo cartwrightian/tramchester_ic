@@ -3,12 +3,12 @@ package com.tramchester.graph;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Result;
-import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,7 +69,7 @@ public class FindRouteEndPoints {
         params.put("mode", mode.getNumber());
 
         IdSet<RouteStation> stationIds = new IdSet<>();
-        try (Transaction txn  = graphDatabase.beginTx()) {
+        try (GraphTransaction txn  = graphDatabase.beginTx()) {
             Result result = txn.execute(query, params);
             while (result.hasNext()) {
                 Map<String, Object> row = result.next();

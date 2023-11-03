@@ -321,7 +321,7 @@ public class RailTransportDataFromFilesTest {
 
         assertFalse(matchingServices.isEmpty(), "no services for " + matchingRoutes);
 
-        TramDate when = TestEnv.testTramDay();
+        TramDate when = TestEnv.testDay();
 
         Set<Service> runningServices = matchingServices.stream().
                 filter(service -> service.getCalendar().operatesOn(when)).collect(Collectors.toSet());

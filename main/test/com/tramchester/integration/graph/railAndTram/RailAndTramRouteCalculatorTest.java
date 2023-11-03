@@ -10,6 +10,7 @@ import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RailAndTramGreaterManchesterConfig;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
@@ -20,7 +21,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.GMTest;
 import org.junit.jupiter.api.*;
-import org.neo4j.graphdb.Transaction;
 
 import java.time.Duration;
 import java.util.*;
@@ -46,7 +46,7 @@ public class RailAndTramRouteCalculatorTest {
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;
 
-    private Transaction txn;
+    private GraphTransaction txn;
     private RouteCalculatorTestFacade testFacade;
 
     private TramTime travelTime;
@@ -420,7 +420,7 @@ public class RailAndTramRouteCalculatorTest {
         assertFalse(journeys.isEmpty());
 
         // At least one direct
-        List<Journey> direct = journeys.stream().filter(journey -> journey.getStages().size() == 1).collect(Collectors.toList());
+        List<Journey> direct = journeys.stream().filter(journey -> journey.getStages().size() == 1).toList();
         assertFalse(direct.isEmpty(), "No direct from " + start + " to " + dest);
 
         direct.forEach(journey -> journey.getStages().forEach(stage -> assertEquals(Connect, stage.getMode(),
@@ -463,7 +463,7 @@ public class RailAndTramRouteCalculatorTest {
         assertFalse(journeys.isEmpty());
 
         // At least one direct
-        List<Journey> direct = journeys.stream().filter(journey -> journey.getStages().size() == 1).collect(Collectors.toList());
+        List<Journey> direct = journeys.stream().filter(journey -> journey.getStages().size() == 1).toList();
         assertFalse(direct.isEmpty(), "No direct from " + start + " to " + dest);
 
         direct.forEach(journey -> journey.getStages().forEach(stage -> assertEquals(mode, stage.getMode(),

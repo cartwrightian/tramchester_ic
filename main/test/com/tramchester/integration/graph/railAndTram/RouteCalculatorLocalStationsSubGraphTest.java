@@ -17,10 +17,11 @@ import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.graph.search.RouteCalculator;
-import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.RailAndTramGreaterManchesterConfig;
+import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
@@ -29,11 +30,13 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.GMTest;
 import org.junit.jupiter.api.*;
-import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
 
 import static com.tramchester.domain.reference.TransportMode.*;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
@@ -55,7 +58,7 @@ class RouteCalculatorLocalStationsSubGraphTest {
             NavigationRaod,
             Stockport);
 
-    private Transaction txn;
+    private GraphTransaction txn;
     private StationRepository stationRepository;
     private RouteRepository routeRepository;
     private RouteCalculatorTestFacade testFacade;

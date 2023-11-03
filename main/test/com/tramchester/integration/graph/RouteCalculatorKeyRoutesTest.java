@@ -11,13 +11,13 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.integration.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.DataExpiryCategory;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
-import org.neo4j.graphdb.Transaction;
 
 import java.time.DayOfWeek;
 import java.time.Duration;
@@ -28,7 +28,8 @@ import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.TestEnv.avoidChristmasDate;
 import static com.tramchester.testSupport.reference.TramStations.Ashton;
 import static com.tramchester.testSupport.reference.TramStations.ShawAndCrompton;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SuppressWarnings("JUnitTestMethodWithNoAssertions")
 class RouteCalculatorKeyRoutesTest {
@@ -72,7 +73,6 @@ class RouteCalculatorKeyRoutesTest {
         Map<StationIdPair, RouteCalculationCombinations.JourneyOrNot> results = combinations.getJourneysFor(stationIdPairs, journeyRequest);
         validateFor(results);
     }
-
 
     @Test
     void shouldFindEndOfRoutesToEndOfRoute() {
@@ -173,7 +173,7 @@ class RouteCalculatorKeyRoutesTest {
 
         Optional<Pair<StationIdPair, RouteCalculationCombinations.JourneyOrNot>> failed = stationIdPairs.parallelStream().
                 map(requested -> {
-                    try (Transaction txn = database.beginTx()) {
+                    try (GraphTransaction txn = database.beginTx()) {
                         JourneyRequest journeyRequest = new JourneyRequest(queryDate, queryTime, false,
                                 3, maxJourneyDuration, 1, modes);
                         Optional<Journey> optionalJourney = combinations.findJourneys(txn, requested.getBeginId(), requested.getEndId(),

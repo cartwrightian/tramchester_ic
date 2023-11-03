@@ -1,5 +1,7 @@
 package com.tramchester.graph.search.stateMachine;
 
+import com.tramchester.graph.facade.GraphNodeId;
+
 public interface NodeId {
-    long nodeId();
+    GraphNodeId nodeId();
 }

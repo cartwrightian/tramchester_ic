@@ -10,14 +10,13 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.graphbuild.GraphLabel;
-import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.search.diagnostics.*;
 import com.tramchester.repository.RouteInterchangeRepository;
 import com.tramchester.repository.StationRepository;
-import org.neo4j.graphdb.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +53,7 @@ public class ServiceHeuristics {
         this.lowestCostsForDestRoutes = journeyConstraints.getFewestChangesCalculator();
     }
     
-    public HeuristicsReason checkServiceDateAndTime(Node node, HowIGotHere howIGotHere, ServiceReasons reasons,
+    public HeuristicsReason checkServiceDateAndTime(GraphNode node, HowIGotHere howIGotHere, ServiceReasons reasons,
                                                     TramTime visitTime, int maxWait) {
         reasons.incrementTotalChecked();
 
@@ -99,7 +98,7 @@ public class ServiceHeuristics {
         return valid(ReasonCode.NumWalkingConnectionsOk, howIGotHere, reasons);
     }
 
-    public HeuristicsReason checkTime(HowIGotHere howIGotHere, Node node, TramTime currentTime, ServiceReasons reasons, int maxWait) {
+    public HeuristicsReason checkTime(HowIGotHere howIGotHere, GraphNode node, TramTime currentTime, ServiceReasons reasons, int maxWait) {
         reasons.incrementTotalChecked();
 
         final TramTime nodeTime = nodeOperations.getTime(node);
@@ -143,7 +142,7 @@ public class ServiceHeuristics {
         return reasons.recordReason(ServiceReason.DoesNotOperateAtHour(journeyClockTime, howIGotHere));
     }
 
-    public HeuristicsReason checkStationOpen(Node node, HowIGotHere howIGotHere, ServiceReasons reasons) {
+    public HeuristicsReason checkStationOpen(GraphNode node, HowIGotHere howIGotHere, ServiceReasons reasons) {
         reasons.incrementTotalChecked();
 
         final IdFor<RouteStation> routeStationId = nodeOperations.getRouteStationId(node);
@@ -169,7 +168,7 @@ public class ServiceHeuristics {
         return valid(ReasonCode.TransportModeOk, howIGotHere, reasons);
     }
 
-    public HeuristicsReason canReachDestination(Node endNode, int currentNumberOfChanges, HowIGotHere howIGotHere,
+    public HeuristicsReason canReachDestination(GraphNode endNode, int currentNumberOfChanges, HowIGotHere howIGotHere,
                                              ServiceReasons reasons, TramTime currentElapsed) {
         reasons.incrementTotalChecked();
 
@@ -201,7 +200,7 @@ public class ServiceHeuristics {
         return valid(ReasonCode.Reachable, howIGotHere, reasons);
     }
 
-    public HeuristicsReason lowerCostIncludingInterchange(Node nextNode, Duration totalCostSoFar, LowestCostSeen bestSoFar,
+    public HeuristicsReason lowerCostIncludingInterchange(GraphNode nextNode, Duration totalCostSoFar, LowestCostSeen bestSoFar,
                                                        HowIGotHere howIGotHere, ServiceReasons reasons) {
         reasons.incrementTotalChecked();
 
@@ -254,11 +253,12 @@ public class ServiceHeuristics {
         return journeyConstraints.getMaxPathLength();
     }
 
-    public HeuristicsReason notAlreadySeen(ImmutableJourneyState journeyState, Node nextNode, final HowIGotHere howIGotHere,
+    public HeuristicsReason notAlreadySeen(ImmutableJourneyState journeyState, GraphNode nextNode, final HowIGotHere howIGotHere,
                                         ServiceReasons reasons) {
         reasons.incrementTotalChecked();
 
-        final IdFor<Station> stationId = GraphProps.getStationId(nextNode);
+        //return getStationIdFrom(node.getNode());
+        final IdFor<Station> stationId = nextNode.getStationId();
         if (journeyState.hasVisited(stationId)) {
             return reasons.recordReason(ServiceReason.AlreadySeenStation(stationId, howIGotHere));
         }
@@ -266,7 +266,7 @@ public class ServiceHeuristics {
     }
 
 
-    public HeuristicsReason checkNotBeenOnTripBefore(HowIGotHere howIGotHere, Node minuteNode, ImmutableJourneyState journeyState, ServiceReasons reasons) {
+    public HeuristicsReason checkNotBeenOnTripBefore(HowIGotHere howIGotHere, GraphNode minuteNode, ImmutableJourneyState journeyState, ServiceReasons reasons) {
         reasons.incrementTotalChecked();
 
         final IdFor<Trip> tripId = nodeOperations.getTripId(minuteNode);

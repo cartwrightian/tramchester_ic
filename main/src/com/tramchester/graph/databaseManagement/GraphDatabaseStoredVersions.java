@@ -4,9 +4,9 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.DataSourceInfo;
+import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.GraphTransactionFactory;
 import com.tramchester.repository.DataSourceRepository;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,12 +30,13 @@ public class GraphDatabaseStoredVersions {
         this.databaseMetaInfo = databaseMetaInfo;
     }
 
-    public boolean upToDate(GraphDatabaseService databaseService, DataSourceRepository dataSourceRepository) {
+    // NOTE: no GraphDatabase in this stage of the lifecycle, hence databaseServiceN
+    public boolean upToDate(GraphTransactionFactory transactionFactory, DataSourceRepository dataSourceRepository) {
         logger.info("Checking graph version information ");
 
         // version -> flag
         Map<DataSourceInfo, Boolean> upToDate = new HashMap<>();
-        try(Transaction transaction = databaseService.beginTx()) {
+        try(GraphTransaction transaction = transactionFactory.begin()) { // databaseService.beginTx()) {
 
             if (neighboursEnabledMismatch(transaction)) {
                 return false;
@@ -79,7 +80,7 @@ public class GraphDatabaseStoredVersions {
         return upToDate.values().stream().allMatch(flag -> flag);
     }
 
-    private boolean neighboursEnabledMismatch(Transaction txn) {
+    private boolean neighboursEnabledMismatch(GraphTransaction txn) {
 
         boolean fromDB = databaseMetaInfo.isNeighboursEnabled(txn);
         boolean fromConfig = config.hasNeighbourConfig();

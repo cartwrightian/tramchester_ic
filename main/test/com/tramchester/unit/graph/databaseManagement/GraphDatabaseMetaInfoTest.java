@@ -2,6 +2,8 @@ package com.tramchester.unit.graph.databaseManagement;
 
 import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
+import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.MutableGraphNode;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.repository.DataSourceRepository;
 import org.easymock.EasyMock;
@@ -9,11 +11,10 @@ import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.ResourceIterator;
-import org.neo4j.graphdb.Transaction;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Stream;
 
 import static com.tramchester.domain.DataSourceID.naptanxml;
 import static com.tramchester.domain.DataSourceID.tfgm;
@@ -24,21 +25,20 @@ import static org.junit.jupiter.api.Assertions.*;
 public class GraphDatabaseMetaInfoTest extends EasyMockSupport {
 
     private GraphDatabaseMetaInfo databaseMetaInfo;
-    private Transaction transaction;
+    private GraphTransaction transaction;
     private Node node;
 
     @BeforeEach
     public void beforeAnyTestRuns() {
         node = createMock(Node.class);
-        transaction = createMock(Transaction.class);
+        transaction = createMock(GraphTransaction.class);
         databaseMetaInfo = new GraphDatabaseMetaInfo();
     }
 
     @Test
     void shouldCheckForNeighboursNodePresent() {
 
-        ResourceIteratorForTest nodes = new ResourceIteratorForTest(Collections.singletonList(node));
-        EasyMock.expect(transaction.findNodes(GraphLabel.NEIGHBOURS_ENABLED)).andReturn(nodes);
+        EasyMock.expect(transaction.hasAnyMatching(GraphLabel.NEIGHBOURS_ENABLED)).andReturn(true);
 
         replayAll();
         boolean result = databaseMetaInfo.isNeighboursEnabled(transaction);
@@ -50,8 +50,7 @@ public class GraphDatabaseMetaInfoTest extends EasyMockSupport {
     @Test
     void shouldCheckForNeighboursNodeMissing() {
 
-        ResourceIteratorForTest nodes = new ResourceIteratorForTest();
-        EasyMock.expect(transaction.findNodes(GraphLabel.NEIGHBOURS_ENABLED)).andReturn(nodes);
+        EasyMock.expect(transaction.hasAnyMatching(GraphLabel.NEIGHBOURS_ENABLED)).andReturn(false);
 
         replayAll();
         boolean result = databaseMetaInfo.isNeighboursEnabled(transaction);
@@ -63,8 +62,7 @@ public class GraphDatabaseMetaInfoTest extends EasyMockSupport {
     @Test
     void shouldCheckForVersionNodeMissing() {
 
-        ResourceIteratorForTest nodes = new ResourceIteratorForTest();
-        EasyMock.expect(transaction.findNodes(GraphLabel.VERSION)).andReturn(nodes);
+        EasyMock.expect(transaction.hasAnyMatching(GraphLabel.VERSION)).andReturn(false);
 
         replayAll();
         boolean result = databaseMetaInfo.hasVersionInfo(transaction);
@@ -76,8 +74,7 @@ public class GraphDatabaseMetaInfoTest extends EasyMockSupport {
     @Test
     void shouldCheckForVersionNodePresent() {
 
-        ResourceIteratorForTest nodes = new ResourceIteratorForTest(Collections.singletonList(node));
-        EasyMock.expect(transaction.findNodes(GraphLabel.VERSION)).andReturn(nodes);
+        EasyMock.expect(transaction.hasAnyMatching(GraphLabel.VERSION)).andReturn(true);
 
         replayAll();
         boolean result = databaseMetaInfo.hasVersionInfo(transaction);
@@ -92,9 +89,10 @@ public class GraphDatabaseMetaInfoTest extends EasyMockSupport {
         versionMap.put("A", "4.2");
         versionMap.put("ZZZ", "81.91");
 
-        ResourceIteratorForTest nodes = new ResourceIteratorForTest(Collections.singletonList(node));
-        EasyMock.expect(transaction.findNodes(GraphLabel.VERSION)).andReturn(nodes);
-        EasyMock.expect(node.getAllProperties()).andReturn(versionMap);
+        MutableGraphNode graphNode = createMock(MutableGraphNode.class);
+
+        EasyMock.expect(transaction.findNodes(GraphLabel.VERSION)).andReturn(Stream.of(graphNode));
+        EasyMock.expect(graphNode.getAllProperties()).andReturn(versionMap);
 
         replayAll();
         Map<String, String> results = databaseMetaInfo.getVersions(transaction);
@@ -110,7 +108,8 @@ public class GraphDatabaseMetaInfoTest extends EasyMockSupport {
     @Test
     void shouldSetNeighbourNode() {
 
-        EasyMock.expect(transaction.createNode(GraphLabel.NEIGHBOURS_ENABLED)).andReturn(node);
+        MutableGraphNode graphNode = createMock(MutableGraphNode.class);
+        EasyMock.expect(transaction.createNode(GraphLabel.NEIGHBOURS_ENABLED)).andReturn(graphNode);
 
         replayAll();
         databaseMetaInfo.setNeighboursEnabled(transaction);
@@ -119,48 +118,29 @@ public class GraphDatabaseMetaInfoTest extends EasyMockSupport {
 
     @Test
     void shouldCreateVersionsNode() {
-        Set<DataSourceInfo> sourceInfo = new HashSet<>();
-        sourceInfo.add(new DataSourceInfo(tfgm, "4.3", LocalDateTime.MAX, EnumSet.of(Tram)));
-        sourceInfo.add(new DataSourceInfo(naptanxml, "9.6", LocalDateTime.MIN, EnumSet.of(Bus)));
+
+        MutableGraphNode graphNode = createMock(MutableGraphNode.class);
+        EasyMock.expect(graphNode.getNode()).andStubReturn(node);
+
+        DataSourceInfo infoA = new DataSourceInfo(tfgm, "4.3", LocalDateTime.MAX, EnumSet.of(Tram));
+        DataSourceInfo infoB = new DataSourceInfo(naptanxml, "9.6", LocalDateTime.MIN, EnumSet.of(Bus));
+
+        Set<DataSourceInfo> sourceInfo = new HashSet<>(Arrays.asList(infoA, infoB));
 
         DataSourceRepository dataSourceRepos = createMock(DataSourceRepository.class);
         EasyMock.expect(dataSourceRepos.getDataSourceInfo()).andReturn(sourceInfo);
 
-        EasyMock.expect(transaction.createNode(GraphLabel.VERSION)).andReturn(node);
-        node.setProperty("tfgm", "4.3");
-        EasyMock.expectLastCall();
-        node.setProperty("naptanxml", "9.6");
-        EasyMock.expectLastCall();
+        EasyMock.expect(transaction.createNode(GraphLabel.VERSION)).andReturn(graphNode);
+//        node.setProperty("tfgm", "4.3");
+//        EasyMock.expectLastCall();
+//        node.setProperty("naptanxml", "9.6");
+//        EasyMock.expectLastCall();
+        graphNode.set(infoA);
+        graphNode.set(infoB);
 
         replayAll();
         databaseMetaInfo.createVersionNode(transaction, dataSourceRepos);
         verifyAll();
     }
 
-    private static class ResourceIteratorForTest implements ResourceIterator<Node> {
-        private final LinkedList<Node> nodes;
-
-        private ResourceIteratorForTest(final List<Node> nodes) {
-            this.nodes = new LinkedList<>(nodes);
-        }
-
-        public ResourceIteratorForTest() {
-            nodes = new LinkedList<>();
-        }
-
-        @Override
-        public void close() {
-            nodes.clear();
-        }
-
-        @Override
-        public boolean hasNext() {
-            return !nodes.isEmpty();
-        }
-
-        @Override
-        public Node next() {
-            return nodes.removeFirst();
-        }
-    }
 }

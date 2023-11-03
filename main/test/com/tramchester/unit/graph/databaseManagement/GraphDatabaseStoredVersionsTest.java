@@ -2,6 +2,8 @@ package com.tramchester.unit.graph.databaseManagement;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceInfo;
+import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.GraphTransactionFactory;
 import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
 import com.tramchester.graph.databaseManagement.GraphDatabaseStoredVersions;
 import com.tramchester.repository.DataSourceRepository;
@@ -10,8 +12,6 @@ import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Transaction;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -27,8 +27,8 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
 
     private GraphDatabaseMetaInfo databaseMetaInfo;
     private GraphDatabaseStoredVersions storedVersions;
-    private GraphDatabaseService databaseService;
-    private Transaction transaction;
+    private GraphTransactionFactory transactionFactory;
+    private GraphTransaction transaction;
     private TramchesterConfig config;
     private DataSourceRepository dataSourceRepository;
 
@@ -37,24 +37,22 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
 
         config = TestEnv.GET();
         databaseMetaInfo = createMock(GraphDatabaseMetaInfo.class);
-        databaseService = createMock(GraphDatabaseService.class);
-        transaction = createMock(Transaction.class);
+        transactionFactory = createMock(GraphTransactionFactory.class);
+        transaction = createMock(GraphTransaction.class);
         storedVersions = new GraphDatabaseStoredVersions(config, databaseMetaInfo);
         dataSourceRepository = createMock(DataSourceRepository.class);
-
-
     }
 
     @Test
     public void shouldOutOfDateIfNeighboursNot() {
 
-        EasyMock.expect(databaseService.beginTx()).andReturn(transaction);
+        EasyMock.expect(transactionFactory.begin()).andReturn(transaction);
         EasyMock.expect(databaseMetaInfo.isNeighboursEnabled(transaction)).andReturn(!config.hasNeighbourConfig());
         transaction.close();
         EasyMock.expectLastCall();
 
         replayAll();
-        boolean result = storedVersions.upToDate(databaseService, dataSourceRepository);
+        boolean result = storedVersions.upToDate(transactionFactory, dataSourceRepository);
         verifyAll();
 
         assertFalse(result);
@@ -63,14 +61,14 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
     @Test
     public void shouldOutOfDateIfVersionMissingFromDB() {
 
-        EasyMock.expect(databaseService.beginTx()).andReturn(transaction);
+        EasyMock.expect(transactionFactory.begin()).andReturn(transaction);
         EasyMock.expect(databaseMetaInfo.isNeighboursEnabled(transaction)).andReturn(config.hasNeighbourConfig());
         EasyMock.expect(databaseMetaInfo.hasVersionInfo(transaction)).andReturn(false);
         transaction.close();
         EasyMock.expectLastCall();
 
         replayAll();
-        boolean result = storedVersions.upToDate(databaseService, dataSourceRepository);
+        boolean result = storedVersions.upToDate(transactionFactory, dataSourceRepository);
         verifyAll();
 
         assertFalse(result);
@@ -89,7 +87,7 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
         versionMap.put("tfgm", "v1.1");
         versionMap.put("naptanxml", "v2.3");
 
-        EasyMock.expect(databaseService.beginTx()).andReturn(transaction);
+        EasyMock.expect(transactionFactory.begin()).andReturn(transaction);
         EasyMock.expect(databaseMetaInfo.isNeighboursEnabled(transaction)).andReturn(config.hasNeighbourConfig());
         EasyMock.expect(databaseMetaInfo.hasVersionInfo(transaction)).andReturn(true);
         EasyMock.expect(databaseMetaInfo.getVersions(transaction)).andReturn(versionMap);
@@ -97,7 +95,7 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
         EasyMock.expectLastCall();
 
         replayAll();
-        boolean result = storedVersions.upToDate(databaseService, dataSourceRepository);
+        boolean result = storedVersions.upToDate(transactionFactory, dataSourceRepository);
         verifyAll();
 
         assertTrue(result);
@@ -115,7 +113,7 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
         versionMap.put("tfgm", "v1.1");
         versionMap.put("naptanxml", "v2.3");
 
-        EasyMock.expect(databaseService.beginTx()).andReturn(transaction);
+        EasyMock.expect(transactionFactory.begin()).andReturn(transaction);
         EasyMock.expect(databaseMetaInfo.isNeighboursEnabled(transaction)).andReturn(config.hasNeighbourConfig());
         EasyMock.expect(databaseMetaInfo.hasVersionInfo(transaction)).andReturn(true);
         EasyMock.expect(databaseMetaInfo.getVersions(transaction)).andReturn(versionMap);
@@ -123,7 +121,7 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
         EasyMock.expectLastCall();
 
         replayAll();
-        boolean result = storedVersions.upToDate(databaseService, dataSourceRepository);
+        boolean result = storedVersions.upToDate(transactionFactory, dataSourceRepository);
         verifyAll();
 
         assertFalse(result);
@@ -140,7 +138,7 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
 
         versionMap.put("tfgm", "v1.1");
 
-        EasyMock.expect(databaseService.beginTx()).andReturn(transaction);
+        EasyMock.expect(transactionFactory.begin()).andReturn(transaction);
         EasyMock.expect(databaseMetaInfo.isNeighboursEnabled(transaction)).andReturn(config.hasNeighbourConfig());
         EasyMock.expect(databaseMetaInfo.hasVersionInfo(transaction)).andReturn(true);
         EasyMock.expect(databaseMetaInfo.getVersions(transaction)).andReturn(versionMap);
@@ -148,7 +146,7 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
         EasyMock.expectLastCall();
 
         replayAll();
-        boolean result = storedVersions.upToDate(databaseService, dataSourceRepository);
+        boolean result = storedVersions.upToDate(transactionFactory, dataSourceRepository);
         verifyAll();
 
         assertFalse(result);
@@ -165,7 +163,7 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
         versionMap.put("tfgm", "v1.1");
         versionMap.put("naptanxml", "v2.3");
 
-        EasyMock.expect(databaseService.beginTx()).andReturn(transaction);
+        EasyMock.expect(transactionFactory.begin()).andReturn(transaction);
         EasyMock.expect(databaseMetaInfo.isNeighboursEnabled(transaction)).andReturn(config.hasNeighbourConfig());
         EasyMock.expect(databaseMetaInfo.hasVersionInfo(transaction)).andReturn(true);
         EasyMock.expect(databaseMetaInfo.getVersions(transaction)).andReturn(versionMap);
@@ -173,7 +171,7 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
         EasyMock.expectLastCall();
 
         replayAll();
-        boolean result = storedVersions.upToDate(databaseService, dataSourceRepository);
+        boolean result = storedVersions.upToDate(transactionFactory, dataSourceRepository);
         verifyAll();
 
         assertFalse(result);

@@ -1,9 +1,11 @@
 package com.tramchester.integration.dataimport;
 
-import com.tramchester.config.HasDataPath;
+import com.tramchester.config.DownloadedConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.FetchFileModTime;
 import com.tramchester.testSupport.TestEnv;
+import org.easymock.EasyMock;
+import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,13 +14,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class FetchFileModTimeTest {
+public class FetchFileModTimeTest extends EasyMockSupport {
 
     private FetchFileModTime fetchFileModTime;
     private LocalDateTime when;
@@ -74,8 +75,18 @@ public class FetchFileModTimeTest {
         long millis = getEpochMilli(when);
         assertTrue(tmpFile.toFile().setLastModified(millis));
 
-        fetchFileModTime.getFor(() -> tmpFile);
+        DownloadedConfig config = createMock(DownloadedConfig.class);
 
+        EasyMock.expect(config.getDownloadPath()).andReturn(tmpFile);
+
+        replayAll();
+        LocalDateTime result = fetchFileModTime.getFor(config);
+        verifyAll();
+
+        assertEquals(when, result);
+    }
+
+    @Test void shouldGetForPath() {
         LocalDateTime result = fetchFileModTime.getFor(tmpFile);
         assertEquals(when, result);
     }

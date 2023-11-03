@@ -1,5 +1,7 @@
 package com.tramchester.graph.search.diagnostics;
 
+import com.tramchester.graph.facade.GraphNodeId;
+
 import java.util.Objects;
 
 public abstract class HeuristicsReason {
@@ -48,7 +50,7 @@ public abstract class HeuristicsReason {
         return Objects.hash(howIGotHere, code);
     }
 
-    public Long getNodeId() {
+    public GraphNodeId getNodeId() {
         return howIGotHere.getEndNodeId();
     }
 }

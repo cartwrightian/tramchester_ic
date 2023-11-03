@@ -6,22 +6,22 @@ import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.StationWalk;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Transaction;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphTransaction;
 
 import java.util.Set;
 import java.util.stream.Stream;
 
 public interface TramRouteCalculator {
-    Stream<Journey> calculateRoute(Transaction txn, Location<?> startStation, Location<?> destination, JourneyRequest journeyRequest);
+    Stream<Journey> calculateRoute(GraphTransaction txn, Location<?> startStation, Location<?> destination, JourneyRequest journeyRequest);
 
-    Stream<Journey> calculateRouteWalkAtEnd(Transaction txn, Location<?> start, Node destination, LocationSet destStations,
+    Stream<Journey> calculateRouteWalkAtEnd(GraphTransaction txn, Location<?> start, GraphNode destination, LocationSet destStations,
                                             JourneyRequest journeyRequest, NumberOfChanges numberOfChanges);
 
-    Stream<Journey> calculateRouteWalkAtStart(Transaction txn, Set<StationWalk> stationWalks, Node startOfWalkNode, Location<?> destination,
+    Stream<Journey> calculateRouteWalkAtStart(GraphTransaction txn, Set<StationWalk> stationWalks, GraphNode startOfWalkNode, Location<?> destination,
                                               JourneyRequest journeyRequest, NumberOfChanges numberOfChanges);
 
-    Stream<Journey> calculateRouteWalkAtStartAndEnd(Transaction txn, Set<StationWalk> stationWalks, Node startNode, Node endNode,
+    Stream<Journey> calculateRouteWalkAtStartAndEnd(GraphTransaction txn, Set<StationWalk> stationWalks, GraphNode startNode, GraphNode endNode,
                                                     LocationSet destinationStations,
                                                     JourneyRequest journeyRequest, NumberOfChanges numberOfChanges);
 }
