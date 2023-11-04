@@ -57,7 +57,7 @@ remoteSources:
     filename: database.zip
     defaultExpiryDays: 0
     mandatory: false
-    skipUpload: true
+    skipUpload: false
 cacheFolder: data/cache
 calcTimeoutMillis: 3500
 bounds:

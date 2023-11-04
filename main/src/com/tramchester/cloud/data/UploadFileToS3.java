@@ -37,12 +37,9 @@ public class UploadFileToS3 {
 
         String itemId = fileToUpload.getFileName().toString();
 
-        if (clientForS3.keyExists(bucket, prefixForKey, itemId)) {
-            final String overwriteMessage = format("prefix %s key %s already exists", prefixForKey, itemId);
-            if (overWrite) {
-                logger.warn(overwriteMessage);
-            } else {
-                logger.error(overwriteMessage);
+        if (!overWrite) {
+            if (clientForS3.keyExists(bucket, prefixForKey, itemId)) {
+                logger.error(format("prefix %s key %s already exists", prefixForKey, itemId));
                 return false;
             }
         }
@@ -59,24 +56,19 @@ public class UploadFileToS3 {
      * @param overwrite over-write the item if already present
      * @return true if file uploads ok, false otherwise
      */
-    public boolean uploadFileZipped(String prefixForKey, Path originalFile, boolean overwrite) {
+    public boolean uploadFileZipped(String prefixForKey, Path originalFile, boolean overwrite, String key) {
         guardStarted();
 
         logger.info(format("Upload zipped %s to %s overwrite:%s", originalFile, prefixForKey, overwrite));
 
-        String itemId = originalFile.getFileName().toString() + ".zip";
-
-        if (clientForS3.keyExists(bucket, prefixForKey, itemId)) {
-            final String overwriteMessage = format("prefix %s key %s already exists", prefixForKey, itemId);
-            if (overwrite) {
-                logger.warn(overwriteMessage);
-            } else {
-                logger.error(overwriteMessage);
+        if (!overwrite) {
+            if (clientForS3.keyExists(bucket, prefixForKey, key)) {
+                logger.error(format("prefix %s key %s already exists", prefixForKey, key));
                 return false;
             }
         }
 
-        final String keyForZipped = prefixForKey + "/" + itemId;
+        final String keyForZipped = prefixForKey + "/" + key;
         logger.info(format("Upload file %s zipped to bucket %s at %s", originalFile.toAbsolutePath(), bucket, keyForZipped));
 
         return clientForS3.uploadZipped(bucket, keyForZipped, originalFile);

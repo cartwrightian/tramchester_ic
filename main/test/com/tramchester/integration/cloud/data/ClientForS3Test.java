@@ -68,7 +68,6 @@ public class ClientForS3Test {
     static void afterAllDone() {
         componentContainer.close();
 
-        //s3TestSupport.deleteBucket();
         s3Waiter.close();
         awsS3.close();
     }
@@ -329,7 +328,6 @@ public class ClientForS3Test {
 
         assertEquals(text.length(), read);
         assertEquals(text, new String(outputBuffer));
-
 
     }
 

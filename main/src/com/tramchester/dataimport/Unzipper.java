@@ -1,6 +1,7 @@
 package com.tramchester.dataimport;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.config.TramchesterConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,6 +13,8 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
@@ -101,7 +104,7 @@ public class Unzipper {
                 logger.debug("Not over-writing " + absolutePath);
                 return;
             }
-            logger.warn("Deleting " + absolutePath);
+            logger.debug("Deleting " + absolutePath);
             Files.delete(target);
         }
 
@@ -142,14 +145,15 @@ public class Unzipper {
     }
 
     private boolean checkModTime(ZipEntry zipEntry, File file) {
-        long epochMilli = file.lastModified();
-        boolean modTimeMatches = zipEntry.getLastModifiedTime().toMillis() == epochMilli;
+        Instant fromFile = Instant.ofEpochMilli(file.lastModified());
+        Instant fromZip = Instant.ofEpochMilli(zipEntry.getLastModifiedTime().toMillis());
+        // only second resolution accurate here
+        boolean modTimeMatches =  fromFile.getEpochSecond() == fromZip.getEpochSecond();
         if (!modTimeMatches) {
-            logger.info(format("File %s exists but mod time (%s) does not match (%s)",
-                    file, file.lastModified(), zipEntry.getLastModifiedTime()));
-        } else {
-            logger.debug(format("File %s mod time (%s) match (%s)",
-                    file, file.lastModified(), zipEntry.getLastModifiedTime()));
+            logger.info(format("File %s exists but mod time %s (%s) does not match %s (%s) to nearest second",
+                    file,
+                    fromFile, LocalDateTime.ofInstant(fromFile, TramchesterConfig.TimeZoneId),
+                    fromZip, LocalDateTime.ofInstant(fromZip, TramchesterConfig.TimeZoneId)));
         }
         return modTimeMatches;
     }

@@ -1,6 +1,7 @@
 package com.tramchester.integration;
 
 import com.tramchester.cloud.data.ClientForS3;
+import com.tramchester.dataexport.Zipper;
 import com.tramchester.dataimport.GetsFileModTime;
 import com.tramchester.dataimport.S3DownloadAndModTime;
 import com.tramchester.dataimport.URLStatus;
@@ -26,7 +27,8 @@ public class S3DownloaderTest {
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
-        clientForS3 = new ClientForS3(new GetsFileModTime());
+        Zipper zipper = new Zipper();
+        clientForS3 = new ClientForS3(new GetsFileModTime(), zipper);
         clientForS3.start();
     }
 

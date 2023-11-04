@@ -16,6 +16,8 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
+import static java.lang.String.format;
+
 public class RouteDataLoader {
     private static final Logger logger = LoggerFactory.getLogger(RouteDataLoader.class);
 
@@ -110,7 +112,7 @@ public class RouteDataLoader {
             if (excludedRouteIds.isEmpty()) {
                 return;
             }
-            logger.info("Excluded the following route id's as did not match modes " + transportModes + " routes: " + excludedRouteIds);
+            logger.info(format("Excluded %s route id's as did not match modes %s", excludedRouteIds.size(), transportModes));
         }
     }
 }

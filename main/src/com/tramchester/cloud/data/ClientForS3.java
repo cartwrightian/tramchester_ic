@@ -4,6 +4,7 @@ import com.google.common.collect.Streams;
 import com.google.common.io.ByteStreams;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.dataexport.Zipper;
 import com.tramchester.dataimport.GetsFileModTime;
 import com.tramchester.dataimport.URLStatus;
 import org.apache.commons.codec.binary.Base64;
@@ -26,7 +27,6 @@ import java.io.*;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.attribute.FileTime;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
@@ -34,8 +34,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Stream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 import static java.lang.String.format;
 
@@ -45,12 +43,14 @@ public class ClientForS3 {
     private static final Logger logger = LoggerFactory.getLogger(ClientForS3.class);
 
     private final GetsFileModTime getsFileModTime;
+    private final Zipper zipper;
     protected S3Client s3Client;
     private MessageDigest messageDigest;
 
     @Inject
-    public ClientForS3(GetsFileModTime getsFileModTime) {
+    public ClientForS3(GetsFileModTime getsFileModTime, Zipper zipper) {
         this.getsFileModTime = getsFileModTime;
+        this.zipper = zipper;
         s3Client = null;
     }
 
@@ -99,75 +99,22 @@ public class ClientForS3 {
         }
     }
 
-    public boolean uploadZipped(String bucket, String key, Path originalFile) {
-        logger.info(format("Upload %s zipped to bucket:%s key:%s", originalFile, bucket, key));
-        if (!isStarted()) {
-            logger.error("Not started");
-            return false;
-        }
-
-        if (Files.isDirectory(originalFile)) {
-            return uploadZippedDir(bucket, key, originalFile);
-        } else {
-            return uploadZippedFile(bucket, key, originalFile);
-        }
-    }
-
-    private boolean uploadZippedDir(String bucket, String key, Path originalFile) {
-        logger.error("Not supported for dir " + originalFile);
-        return false;
-    }
-
-    private boolean uploadZippedFile(String bucket, String key, Path originalFile) {
-        long originalSize = originalFile.toFile().length();
-        LocalDateTime fileModTime = getsFileModTime.getFor(originalFile);
-
-        String entryName = originalFile.getFileName().toString();
+    public boolean uploadZipped(String bucket, String key, Path original) {
+        logger.info(format("Zip and Uploading to bucket '%s' key '%s' file '%s'", bucket, key, original.toAbsolutePath()));
 
         try {
-            ByteArrayOutputStream outputStream = zipFileToByteArrayStream(originalFile, entryName);
-
+            ByteArrayOutputStream outputStream = zipper.zip(original);
             byte[] buffer = outputStream.toByteArray();
-
-            logger.info(format("File %s was compressed from %s to %s bytes", originalFile, originalSize, buffer.length));
-
             String localMd5 = Base64.encodeBase64String(messageDigest.digest(buffer));
+            LocalDateTime fileModTime = getsFileModTime.getFor(original);
 
-            // todo ideally pass in a stream to avoid having whole file in memory
+            // todo ideally pass in a stream to avoid having whole file in memory, but no way to do local MD5
+            // if that is done.....
             return uploadToS3(bucket, key, localMd5, RequestBody.fromBytes(buffer), fileModTime);
         } catch (IOException e) {
-            logger.error("Unable to upload (zipped) file " + originalFile.toAbsolutePath(), e);
+            logger.error("Unable to upload (zipped) file " + original.toAbsolutePath(), e);
             return false;
         }
-    }
-
-    @NotNull
-    private ByteArrayOutputStream zipFileToByteArrayStream(Path orginalFile, String entryName) throws IOException {
-        logger.info(format("Compress %s into zip, as entry %s", orginalFile, entryName));
-        final FileTime lastModifiedTime = Files.getLastModifiedTime(orginalFile);
-
-        ByteArrayOutputStream result = new ByteArrayOutputStream();
-
-        // entry for the file
-        ZipEntry entry = new ZipEntry(entryName);
-        entry.setLastModifiedTime(lastModifiedTime);
-
-        ZipOutputStream towardsZip = new ZipOutputStream(result);
-
-        // put entry and then the bytes for the fill
-        towardsZip.putNextEntry(entry);
-
-        // todo use stream here
-        byte[] bytesFromFile = Files.readAllBytes(orginalFile);
-        towardsZip.write(bytesFromFile);
-
-        towardsZip.closeEntry();
-        towardsZip.close();
-
-        result.flush();
-        result.close();
-
-        return result;
     }
 
     public boolean upload(String bucket, String key, String text, LocalDateTime modTimeMetaData) {
@@ -201,7 +148,9 @@ public class ClientForS3 {
         }
 
         Map<String, String> metaData= new HashMap<>();
-        metaData.put(ORIG_MOD_TIME_META_DATA_KEY, fileModTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        String modTimeText = fileModTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        logger.info(format("Set %s to %s", ORIG_MOD_TIME_META_DATA_KEY, modTimeText));
+        metaData.put(ORIG_MOD_TIME_META_DATA_KEY, modTimeText);
 
         try {
             logger.debug("Uploading with MD5: " + localMd5);
@@ -317,7 +266,7 @@ public class ClientForS3 {
 
         if (search.isPresent()) {
             logger.info(format("Key %s is present in bucket %s", fullKey, bucket));
-                return true;
+            return true;
         }
 
         logger.info(format("Key %s is not present in bucket %s", fullKey, bucket));
@@ -384,20 +333,16 @@ public class ClientForS3 {
         }
 
         try {
-            HeadObjectRequest headObjectRequest = HeadObjectRequest.builder().key(bucketKey.key).
-                    bucket(bucketKey.bucket).build();
+            HeadObjectRequest headObjectRequest = HeadObjectRequest.builder().key(bucketKey.key).bucket(bucketKey.bucket).build();
             HeadObjectResponse response = s3Client.headObject(headObjectRequest);
 
             ResponseFacade responseFacade = getResponseFacade(response);
-
             return overrideModTimeIfMetaData(responseFacade, uri);
-
         }
         catch(NoSuchKeyException noSuchKeyException) {
             logger.warn("Could not get object for missing uri " + uri + " and key " + bucketKey);
             throw new FileNotFoundException(uri.toString());
         }
-
     }
 
     private LocalDateTime overrideModTimeIfMetaData(ResponseFacade response, URI uri) {
@@ -471,10 +416,6 @@ public class ClientForS3 {
 
         return new URLStatus(uri, 200, modTime);
     }
-
-//    private LocalDateTime getLocalDateTime(Instant modInstant) {
-//        return LocalDateTime.ofInstant(modInstant, TramchesterConfig.TimeZoneId);
-//    }
 
     private record BucketKey(String bucket, String key) {
 

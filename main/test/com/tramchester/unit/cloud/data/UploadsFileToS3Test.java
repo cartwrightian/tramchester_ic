@@ -51,11 +51,11 @@ class UploadsFileToS3Test extends EasyMockSupport {
         Path path = Path.of("data","tram", "file.txt");
 
         EasyMock.expect(clientForS3.isStarted()).andReturn(true);
-        EasyMock.expect(clientForS3.keyExists("bucket", "prefix", "file.txt.zip")).andReturn(false);
-        EasyMock.expect(clientForS3.uploadZipped("bucket", "prefix/file.txt.zip", path)).andReturn(true);
+        EasyMock.expect(clientForS3.keyExists("bucket", "prefix", "S3KEY.zip")).andReturn(false);
+        EasyMock.expect(clientForS3.uploadZipped("bucket", "prefix/S3KEY.zip", path)).andReturn(true);
 
         replayAll();
-        boolean result = uploadFileToS3.uploadFileZipped("prefix", path, false);
+        boolean result = uploadFileToS3.uploadFileZipped("prefix", path, false, "S3KEY.zip");
         verifyAll();
 
         assertTrue(result);
@@ -82,7 +82,6 @@ class UploadsFileToS3Test extends EasyMockSupport {
         Path path = Path.of("file.zip");
 
         EasyMock.expect(clientForS3.isStarted()).andReturn(true);
-        EasyMock.expect(clientForS3.keyExists("bucket", "prefix", "file.zip")).andReturn(true);
         EasyMock.expect(clientForS3.upload("bucket", "prefix/file.zip", path)).andReturn(true);
 
         replayAll();
