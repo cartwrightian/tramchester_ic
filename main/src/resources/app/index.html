@@ -113,7 +113,7 @@
     </v-main>
 
     <v-dialog v-model="disclaimerDialog" width="auto">
-        <v-card>
+        <v-card  id="modaldisclaimer">
           <v-card-item>
               <v-card-title>Disclaimer</v-card-title>
           </v-card-item>
@@ -139,13 +139,13 @@
                     any resulting damage to software or computer systems and/or any resulting loss of data.</p>
           </v-card-text>
           <v-card-actions>
-            <v-btn @click="dismissDisclaimer()">Ok</v-btn>
+            <v-btn id="disclaimerAgreeButton" @click="dismissDisclaimer()">Ok</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
 
     <v-dialog v-model="cookieDialog" width="auto">
-      <v-card>
+      <v-card id ="modal-cookieConsent">
         <v-card-item>
             <v-card-title>Cookies</v-card-title>
             <v-card-subtitle>
@@ -156,7 +156,7 @@
             Tramchester uses <b>cookies</b> to store information in your browser about previous usages and recent journeys.
         </v-card-text>
         <v-card-actions>
-          <v-btn @click="setCookie()">I agree</v-btn>
+          <v-btn id="cookieAgreeButton" @click="setCookie()">I agree</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

@@ -11,7 +11,6 @@ import com.tramchester.acceptance.pages.App.TestResultSummaryRow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.repository.TransportDataFromFilesTramTest;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.*;
@@ -169,7 +168,7 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
         assertTrue(firstStageDepartTime.isValid());
         assertEquals("Walk to", firstStage.getAction(), "action wrong for " + stages);
         assertEquals(-1, firstStage.getPlatform(), "platform wrong for " + stages);
-        assertEquals("", firstStage.getLine(), "lineName");
+        assertEquals("", firstStage.getRouteName(), "lineName");
         String station = firstStage.getActionStation();
 
         final TramTime secondStageDepartTime = secondStage.getDepartTime();

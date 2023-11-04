@@ -257,6 +257,7 @@ tasks.withType(JavaCompile).configureEach {
 //tasks.register('stage') { dependsOn['clean', 'installApp'] }
 
 tasks.register('cleanGraph') {
+    // todo derive from config files automatically
     doLast {
         delete 'databases/integrationBusTest',
                 'databases/integrationTramTest',
@@ -638,7 +639,6 @@ tasks.register('smokeTest', Test) {
     dependsOn compileJava
     minHeapSize = "1000m"
     maxHeapSize = "2500m"
-    useJUnitPlatform()
     useJUnitPlatform {
         includeTags "SmokeTest"
     }
@@ -722,13 +722,6 @@ tasks.register('buildDatabase', JavaExec) {
     args prodConfig //, 'build/distributions/database'
 }
 
-//tasks.register('zipDB', Zip) {
-//    dependsOn buildDatabase
-//    from 'build/distributions/database'
-//    include '*.db/**'
-//    archiveFileName = 'database.zip'
-//}
-
 // gm here so include both sets of data
 tasks.register('uploadDataSources', JavaExec) {
     dependsOn pullData
@@ -740,9 +733,7 @@ tasks.register('uploadDataSources', JavaExec) {
 }
 
 tasks.register('copyIntoUploadDir', Copy) {
-    //dependsOn zipDB
     dependsOn distZip
-    //from 'build/distributions/database.zip'
     from 'build/distributions/tramchester-' + buildNumber + '.zip'
     from 'deploy/setupTramWebServerAWSLinux.sh'
     from 'deploy/cloudInitAWSLinux.txt'

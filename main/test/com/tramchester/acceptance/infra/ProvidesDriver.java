@@ -20,7 +20,6 @@ public abstract class ProvidesDriver {
 
     public abstract void init();
     public abstract AppPage getAppPage();
-    public abstract Cookie getCookieNamed(String name);
     public abstract void setStubbedLocation(LatLong place) throws IOException;
     protected abstract String getDriverName();
 

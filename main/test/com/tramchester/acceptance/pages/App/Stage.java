@@ -39,7 +39,7 @@ public class Stage {
         return getFieldText("headsign");
     }
 
-    public String getLine() {
+    public String getRouteName() {
         return getFieldText("lineClass");
     }
 

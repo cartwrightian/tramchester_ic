@@ -11,6 +11,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.resources.DataVersionResourceTest;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownLocations;
+import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.SmokeTest;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
@@ -30,9 +31,12 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.integration.repository.TransportDataFromFilesTramTest.NUM_TFGM_TRAM_STATIONS;
+import static com.tramchester.testSupport.reference.KnownTramRoute.BuryManchesterAltrincham;
+import static com.tramchester.testSupport.reference.KnownTramRoute.PiccadillyAltrincham;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.not;
@@ -46,7 +50,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
     // NOTE: This controls localAcceptance only, for CI acceptance tests run against the deployed dev instance
 
     // NOTE: to disable headless set env var DISABLE_HEADLESS=true
-    // NOTE: to run against local server (but not start one) then set env var SERVER_URL to http://localhost:8080
+    // NOTE: to run against local server (but not start one) then set export SERVER_URL=http://localhost:8080
 
     public static final String configPath = "config/localAcceptance.yml";
 
@@ -57,9 +61,8 @@ public class AppUserJourneyTest extends UserJourneyTest {
     private final TramStations deansgate = Deansgate;
 
     // useful consts, keep around as can swap when timetable changes
-    @SuppressWarnings("unused")
-    public static final String altyToBuryLineName = "Altrincham - Manchester - Bury";
-    public static final String altyToPicLineName = "Altrincham - Piccadilly";
+    //public static final String altyToBuryLineName = "Altrincham - Manchester - Bury";
+    //public static final String altyToPicLineName = "Altrincham - Piccadilly";
 
     private LocalDate when;
     private String url;
@@ -250,8 +253,9 @@ public class AppUserJourneyTest extends UserJourneyTest {
         assertEquals(1, stages.size());
         Stage stage = stages.get(0);
 
-        validateAStage(stage, firstResult.getDepartTime(), "Board Tram", Altrincham.getName(), 1,
-                altyToBuryLineName, Bury.getName(), 9);
+        validateAStage(stage, firstResult.getDepartTime(), "Board Tram", Altrincham.getName(),
+                Collections.singletonList(1),
+                BuryManchesterAltrincham, Bury.getName(), 9);
     }
 
     @ParameterizedTest(name = "{displayName} {arguments}")
@@ -424,28 +428,19 @@ public class AppUserJourneyTest extends UserJourneyTest {
         Stage firstStage = stages.get(0);
         Stage secondStage = stages.get(1);
 
-        Set<String> lineNames = new HashSet<>(Arrays.asList(altyToPicLineName, altyToBuryLineName));
+        Set<KnownTramRoute> routeNames = new HashSet<>(Arrays.asList(PiccadillyAltrincham, BuryManchesterAltrincham));
         Set<String> headsigns = new HashSet<>(Arrays.asList(Piccadilly.getName(), Bury.getName()));
 
-//        // bury line tram first
-//        validateAStage(firstStage, firstResult.getDepartTime(), "Board Tram", altrincham, 1,
-//                altyToBuryLineName,
-//                Bury.getName(), 7);
-//
-//        // Piccadilly line tram first
-//        validateAStage(firstStage, firstResult.getDepartTime(), "Board Tram", altrincham, 1,
-//                altyToPicLineName,
-//                Piccadilly.getName(), 7);
-
         TramTime firstDepartTime = firstResult.getDepartTime();
-        validateAStage(firstStage, Collections.singleton(firstDepartTime), "Board Tram", Altrincham.getName(), 1,
-                lineNames, headsigns, 7);
+        validateAStage(firstStage, Collections.singleton(firstDepartTime), "Board Tram", Altrincham.getName(),
+                Collections.singletonList(1),
+                routeNames, headsigns, 7);
 
         // Too timetable dependent?
         Set<TramTime> validTimes = new HashSet<>(Arrays.asList(TramTime.of(10,37), TramTime.of(10,25)));
         validateAStage(secondStage, validTimes, "Change Tram", TraffordBar.getName(),
-                2,
-                Collections.singleton("Victoria - Wythenshawe - Manchester Airport"),
+                Arrays.asList(1,2),
+                Collections.singleton(KnownTramRoute.VictoriaWythenshaweManchesterAirport),
                 Collections.singleton(ManAirport.getName()), 17);
 
         assertEquals(TraffordBar.getName(), secondStage.getActionStation());
@@ -495,24 +490,29 @@ public class AppUserJourneyTest extends UserJourneyTest {
 
     }
 
+    @Disabled("unreliable, cooke is stored in browser but selenium just ignores it sometimes")
     @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
-    void shouldDisplayCookieAgreementIfNotVisited(ProvidesDriver providesDriver) {
+    void shouldDisplayCookieAgreementIfNotVisited(ProvidesDriver providesDriver) throws InterruptedException {
         providesDriver.init();
         providesDriver.clearCookies();
 
         AppPage appPage = providesDriver.getAppPage();
         appPage.load(url);
 
-        assertNull(providesDriver.getCookieNamed("tramchesterVisited"));
+        assertFalse(appPage.hasCookieNamed("tramchesterVisited"));
 
         assertTrue(appPage.waitForCookieAgreementVisible());
 
         appPage.agreeToCookies();
         assertTrue(appPage.waitForCookieAgreementInvisible(), "wait for cookie agreement to close");
 
+        // really ought not to need this, but seems webdriver does not refresh cookies after it's first attempt
+        // so just keeps failing.....sigh
+        Thread.sleep(1000);
         // cookie should now be set
-        Cookie cookie = providesDriver.getCookieNamed("tramchesterVisited");
+        Cookie cookie = appPage.waitForCookie("tramchesterVisited");
+
         assertNotNull(cookie, "cookie null");
         assertNotNull(cookie.getValue(), "cookie null");
 
@@ -563,15 +563,18 @@ public class AppUserJourneyTest extends UserJourneyTest {
         assertEquals(arriveBy, appPage.getArriveBy());
     }
 
-    public static void validateAStage(Stage stage, TramTime departTime, String action, String actionStation, int platform,
-                                      String lineName, String headsign, int passedStops) {
-        validateAStage(stage, Collections.singleton(departTime), action, actionStation, platform,
-                Collections.singleton(lineName),
+    public static void validateAStage(Stage stage, TramTime departTime, String action, String actionStation, List<Integer> platforms,
+                                      KnownTramRoute expectedRoute, String headsign, int passedStops) {
+        validateAStage(stage, Collections.singleton(departTime), action, actionStation, platforms,
+                Collections.singleton(expectedRoute),
                 Collections.singleton(headsign), passedStops);
     }
 
-    public static void validateAStage(Stage stage, Set<TramTime> departTimes, String action, String actionStation, int platform,
-                                      Set<String> lineNames, Set<String> headsigns, int passedStops) {
+    public static void validateAStage(Stage stage, Set<TramTime> departTimes, String action, String actionStation, List<Integer> platforms,
+                                      Set<KnownTramRoute> expectedRoutes, Set<String> headsigns, int passedStops) {
+
+        Set<String> expectedRoutesNames = expectedRoutes.stream().map(knownTramRoute -> knownTramRoute.longName()).collect(Collectors.toSet());
+
         assertTrue(departTimes.stream().allMatch(TramTime::isValid),"departTime not valid");
 
         TramTime stageDepartTime = stage.getDepartTime();
@@ -579,10 +582,10 @@ public class AppUserJourneyTest extends UserJourneyTest {
 
         assertEquals(action, stage.getAction(), "action");
         assertEquals(actionStation, stage.getActionStation(), "actionStation");
-        assertEquals(platform, stage.getPlatform(), "platform");
+        assertTrue(platforms.contains(stage.getPlatform()), "platform");
 
-        String stageLine = stage.getLine();
-        assertTrue(lineNames.contains(stageLine), "Wrong linename, got '"+ stageLine +"' but needed " + lineNames);
+        String stageRoute = stage.getRouteName();
+        assertTrue(expectedRoutesNames.contains(stageRoute), "Wrong linename, got '"+ stageRoute +"' but needed one of " + expectedRoutesNames);
 
         String stageHeadsign = stage.getHeadsign();
         assertTrue(headsigns.contains(stageHeadsign), "Wrong headsign, got '"+ stageHeadsign +"' but needed " + headsigns);

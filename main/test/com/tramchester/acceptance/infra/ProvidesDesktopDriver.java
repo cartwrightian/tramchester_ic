@@ -1,7 +1,6 @@
 package com.tramchester.acceptance.infra;
 
 
-import org.openqa.selenium.Cookie;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.logging.LogType;
 import org.openqa.selenium.logging.LoggingPreferences;
@@ -33,9 +32,5 @@ public abstract class ProvidesDesktopDriver extends ProvidesDriver {
         return (RemoteWebDriver) driver;
     }
 
-    @Override
-    public Cookie getCookieNamed(String name) {
-        return driver.manage().getCookieNamed(name);
-    }
 
 }

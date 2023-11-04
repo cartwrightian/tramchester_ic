@@ -26,6 +26,8 @@ public class AppPage extends Page {
 
     private static final String START_GROUP = "startGroup";
     private static final String DESTINATION_GROUP = "destinationGroup";
+    public static final String DISCLAIMER_AGREE_BUTTON = "disclaimerAgreeButton";
+    public static final String COOKIE_AGREE_BUTTON = "cookieAgreeButton";
 
     private final ProvidesDateInput providesDateInput;
     private final long timeoutInSeconds = 15;
@@ -105,7 +107,7 @@ public class AppPage extends Page {
 
     private void setSelector(String selectorId, TramStations station) {
         WebElement dropDown = findElementById(selectorId); //driver.findElement(By.id(id));
-//        moveToElement(dropDown);
+        moveToElement(dropDown);
 //        createWait().until(elementToBeClickable(dropDown));
 
         // just this works for chrome but not firefox
@@ -348,7 +350,7 @@ public class AppPage extends Page {
     }
 
     public boolean waitForDisclaimerVisible() {
-        return waitForModalToOpen(By.id(MODAL_DISCLAIMER));
+        return waitForModalToOpen(By.id(MODAL_DISCLAIMER), DISCLAIMER_AGREE_BUTTON);
     }
 
     public boolean waitForDisclaimerInvisible() {
@@ -356,7 +358,7 @@ public class AppPage extends Page {
     }
 
     public boolean waitForCookieAgreementVisible() {
-        return waitForModalToOpen(By.id(MODAL_COOKIE_CONSENT));
+        return waitForModalToOpen(By.id(MODAL_COOKIE_CONSENT), COOKIE_AGREE_BUTTON);
     }
 
     public boolean waitForCookieAgreementInvisible() {
@@ -364,41 +366,45 @@ public class AppPage extends Page {
     }
 
     public void dismissDisclaimer() {
-        okToModal(By.id(MODAL_DISCLAIMER));
+        okToModal(By.id(MODAL_DISCLAIMER), DISCLAIMER_AGREE_BUTTON);
     }
 
     public void agreeToCookies() {
-        okToModal(By.id(MODAL_COOKIE_CONSENT));
+        okToModal(By.id(MODAL_COOKIE_CONSENT), COOKIE_AGREE_BUTTON);
     }
 
-    private boolean waitForModalToOpen(By byId) {
+    private boolean waitForModalToOpen(By byId, String buttonName) {
         waitForCondition(elementToBeClickable(byId));
         WebElement diag = driver.findElement(byId);
-        WebElement button = diag.findElement(By.tagName("button"));
+        WebElement button = diag.findElement(By.id(buttonName));
         return waitForCondition(elementToBeClickable(button));
     }
 
     private boolean waitForModalToClose(By byId) {
-        int pauseMs = 400;
+        WebElement diag = driver.findElement(byId);
+        createWait().until(webDriver -> !diag.isDisplayed());
+        return !diag.isDisplayed();
 
-        long count = (timeoutInSeconds*1000) / pauseMs;
-        try {
-            while(true) {
-                // will throw once element good
-                if (count--<0) {
-                    return false;
-                }
-                WebElement dialog = driver.findElement(byId);
-                if (!dialog.isDisplayed()) {
-                    return true;
-                }
-                Thread.sleep(pauseMs);
-            }
-        } catch (InterruptedException e) {
-           return false;
-        } catch (NoSuchElementException expected) {
-            return true;
-        }
+//        int pauseMs = 400;
+//
+//        long count = (timeoutInSeconds*1000) / pauseMs;
+//        try {
+//            while(true) {
+//                // will throw once element good
+//                if (count--<0) {
+//                    return false;
+//                }
+//                WebElement dialog = driver.findElement(byId);
+//                if (!dialog.isDisplayed()) {
+//                    return true;
+//                }
+//                Thread.sleep(pauseMs);
+//            }
+//        } catch (InterruptedException e) {
+//           return false;
+//        } catch (NoSuchElementException expected) {
+//            return true;
+//        }
     }
 
     private boolean waitForCondition(ExpectedCondition<?> expectedCondition) {
@@ -410,11 +416,13 @@ public class AppPage extends Page {
         }
     }
 
-    private void okToModal(By locator) {
+    private void okToModal(By locator, String buttonId) {
         WebElement diag = driver.findElement(locator);
-        WebElement button = diag.findElement(By.tagName("button"));
+        WebElement button = diag.findElement(By.id(buttonId)); // diag.findElement(By.tagName("button"));
+        createWait().until(webDriver -> button.isDisplayed());
         createWait().until(webDriver -> button.isEnabled());
         moveToElement(button).click().perform();
+        createWait().until(webDriver -> !diag.isDisplayed());
     }
 
     public void selectNow() {
@@ -460,4 +468,12 @@ public class AppPage extends Page {
         return element.isDisplayed() && element.isEnabled();
     }
 
+    public boolean hasCookieNamed(String cookieName) {
+        return driver.manage().getCookieNamed(cookieName)!=null;
+    }
+
+    public Cookie waitForCookie(String cookieName) {
+        createWait().until(webDriver -> webDriver.manage().getCookieNamed(cookieName)!=null);
+        return driver.manage().getCookieNamed(cookieName);
+    }
 }
