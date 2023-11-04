@@ -107,11 +107,15 @@ public class ClientForS3 {
         }
 
         if (Files.isDirectory(originalFile)) {
-            logger.error("Upload of dir not support yet for " + originalFile);
-            return false;
+            return uploadZippedDir(bucket, key, originalFile);
         } else {
             return uploadZippedFile(bucket, key, originalFile);
         }
+    }
+
+    private boolean uploadZippedDir(String bucket, String key, Path originalFile) {
+        logger.error("Not supported for dir " + originalFile);
+        return false;
     }
 
     private boolean uploadZippedFile(String bucket, String key, Path originalFile) {
@@ -121,7 +125,7 @@ public class ClientForS3 {
         String entryName = originalFile.getFileName().toString();
 
         try {
-            ByteArrayOutputStream outputStream = zipFileToBuffer(originalFile, entryName);
+            ByteArrayOutputStream outputStream = zipFileToByteArrayStream(originalFile, entryName);
 
             byte[] buffer = outputStream.toByteArray();
 
@@ -138,7 +142,7 @@ public class ClientForS3 {
     }
 
     @NotNull
-    private ByteArrayOutputStream zipFileToBuffer(Path orginalFile, String entryName) throws IOException {
+    private ByteArrayOutputStream zipFileToByteArrayStream(Path orginalFile, String entryName) throws IOException {
         logger.info(format("Compress %s into zip, as entry %s", orginalFile, entryName));
         final FileTime lastModifiedTime = Files.getLastModifiedTime(orginalFile);
 
@@ -148,17 +152,17 @@ public class ClientForS3 {
         ZipEntry entry = new ZipEntry(entryName);
         entry.setLastModifiedTime(lastModifiedTime);
 
-        ZipOutputStream zipOutput = new ZipOutputStream(result);
+        ZipOutputStream towardsZip = new ZipOutputStream(result);
 
         // put entry and then the bytes for the fill
-        zipOutput.putNextEntry(entry);
+        towardsZip.putNextEntry(entry);
 
         // todo use stream here
         byte[] bytesFromFile = Files.readAllBytes(orginalFile);
-        zipOutput.write(bytesFromFile);
+        towardsZip.write(bytesFromFile);
 
-        zipOutput.closeEntry();
-        zipOutput.close();
+        towardsZip.closeEntry();
+        towardsZip.close();
 
         result.flush();
         result.close();

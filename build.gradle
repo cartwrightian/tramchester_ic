@@ -70,8 +70,8 @@ dependencies {
     // note: exclude of org.glassfish.jersey.inject needed as it clashed with version in DropWizard causing a
     // failure to load the DynamicServiceLocator in glassfish
     implementation('org.neo4j:neo4j:5.13.0') {
-        exclude group:'org.slf4j', module:'slf4j-nop'
-        // todo likely need more exclude here, also have : org.neo4j.server.logging.slf4j.SLF4JLogBridge
+        // seem to cause issue with logging on every release, sigh
+        exclude group: 'org.neo4j', module:'neo4j-slf4j-provider'
         exclude group: 'org.glassfish.jersey.inject'   // , module: 'jersey-hk2'}
         exclude group: 'org.glassfish.jersey.containers', module: 'jersey-container-servlet'
         exclude group: 'org.eclipse.jetty' }
@@ -79,6 +79,7 @@ dependencies {
             'commons-io:commons-io:2.11.0',
             'commons-codec:commons-codec:1.16.0',
             'org.apache.commons:commons-collections4:4.4',
+            'org.apache.commons:commons-compress:1.24.0',
             'com.github.ben-manes.caffeine:caffeine:3.1.5'
     implementation "com.fasterxml.jackson.core:jackson-core:$jacksonVersion",
             "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",
@@ -691,7 +692,7 @@ tasks.register('pullData', JavaExec) {
     dependsOn classes
     mainClass = 'com.tramchester.deployment.cli.FetchDataCLI'
     classpath = sourceSets.main.runtimeClasspath
-    args 'config/gm.yml'
+    args prodConfig
 }
 
 // gm here so include both sets of data
