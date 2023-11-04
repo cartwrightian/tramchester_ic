@@ -63,7 +63,7 @@ class NewDataAvailableHealthCheckTest extends EasyMockSupport {
 
         URLStatus status = new URLStatus(expectedURL, 200, time.minusDays(1));
 
-        EasyMock.expect(urlDownloader.getStatusFor(expectedURL, time)).andReturn(status);
+        EasyMock.expect(urlDownloader.getStatusFor(expectedURL, time, true)).andReturn(status);
         EasyMock.expect(getsFileModTime.getFor(dataSourceConfig)).andReturn(time);
 
         replayAll();
@@ -77,7 +77,7 @@ class NewDataAvailableHealthCheckTest extends EasyMockSupport {
 
         URLStatus status = new URLStatus(expectedURL, 200, time.plusDays(1));
 
-        EasyMock.expect(urlDownloader.getStatusFor(expectedURL, time)).andReturn(status);
+        EasyMock.expect(urlDownloader.getStatusFor(expectedURL, time, true)).andReturn(status);
         EasyMock.expect(getsFileModTime.getFor(dataSourceConfig)).andReturn(time);
 
         replayAll();
@@ -91,7 +91,7 @@ class NewDataAvailableHealthCheckTest extends EasyMockSupport {
 
         URLStatus status = new URLStatus(expectedURL, 200);
 
-        EasyMock.expect(urlDownloader.getStatusFor(expectedURL, time)).andReturn(status);
+        EasyMock.expect(urlDownloader.getStatusFor(expectedURL, time, true)).andReturn(status);
         EasyMock.expect(getsFileModTime.getFor(dataSourceConfig)).andReturn(time);
 
         replayAll();

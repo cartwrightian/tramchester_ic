@@ -36,20 +36,24 @@ public class UploadSourceDataCLI extends BaseCLI {
         UploadSourceDataCLI uploadSourceDataCLI = new UploadSourceDataCLI(s3Preifx);
 
         try {
-            uploadSourceDataCLI.run(configFile, logger, "UploadSourceDataCLI");
+            if (!uploadSourceDataCLI.run(configFile, logger, "UploadSourceDataCLI")) {
+                logger.error("Check logs, not successful");
+                System.exit(-1);
+            }
+
         } catch (ConfigurationException | IOException e) {
-            logger.error("Failed", e);
+            logger.error("Exception", e);
             System.exit(-1);
         }
         logger.info("Success");
     }
 
     @Override
-    public void run(Logger logger, GuiceContainerDependencies dependencies, TramchesterConfig config) {
+    public boolean run(Logger logger, GuiceContainerDependencies dependencies, TramchesterConfig config) {
         UnzipFetchedData unzipFetchedData = dependencies.get(UnzipFetchedData.class);
         unzipFetchedData.getReady();
 
         UploadRemoteSourceData uploadRemoteData = dependencies.get(UploadRemoteSourceData.class);
-        uploadRemoteData.upload(s3Preifx);
+        return uploadRemoteData.upload(s3Preifx);
     }
 }

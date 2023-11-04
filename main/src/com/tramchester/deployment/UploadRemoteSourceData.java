@@ -44,21 +44,14 @@ public class UploadRemoteSourceData {
                 collect(Collectors.toSet());
 
         if (!toSkip.isEmpty()) {
-            logger.info("Will skipp uploading following sources " + toSkip);
+            logger.info("Will skip uploading following sources " + toSkip);
         }
 
-        // mutable
         List<DataSourceID> remoteWithFiles = new ArrayList<>(remoteSources.stream().
                 map(RemoteDataSourceConfig::getDataSourceId).
                 filter(id -> !toSkip.contains(id)).
                 filter(remoteDataRefreshed::hasFileFor).
                 toList());
-
-        // todo into filter about, but then no logging here....
-        if (remoteWithFiles.contains(DataSourceID.database)) {
-            logger.info("Skipping database source upload, has own upload mechanism");
-            remoteWithFiles.remove(DataSourceID.database);
-        }
 
         if (remoteWithFiles.isEmpty()) {
             logger.error("No remote sources had files");

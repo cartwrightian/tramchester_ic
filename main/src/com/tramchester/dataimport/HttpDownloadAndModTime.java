@@ -36,12 +36,11 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
 
 
     @Override
-    public URLStatus getStatusFor(URI originalUrl, LocalDateTime localModTime) throws IOException, InterruptedException {
+    public URLStatus getStatusFor(URI originalUrl, LocalDateTime localModTime, boolean warnIfMissing) throws IOException, InterruptedException {
 
         // TODO some servers return 200 for HEAD but a redirect status for a GET
         // So cannot rely on using the HEAD request for getting final URL for a resource
-        HttpResponse<Void> response = fetchHeaders(originalUrl, localModTime, HttpMethod.HEAD,
-                HttpResponse.BodyHandlers.discarding());
+        HttpResponse<Void> response = fetchHeaders(originalUrl, localModTime, HttpMethod.HEAD, HttpResponse.BodyHandlers.discarding());
         HttpHeaders headers = response.headers();
 
         long serverModMillis = getServerModMillis(response);
@@ -65,7 +64,11 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
             }
         } else {
             if (httpStatusCode!=200) {
-                logger.warn("Got error status code "+httpStatusCode+ " headers follow");
+                if (warnIfMissing) {
+                    logger.warn("Got error status code " + httpStatusCode + " headers follow");
+                } else {
+                    logger.info("Got error status code " + httpStatusCode + " headers follow");
+                }
                 headers.map().forEach((header, values) -> logger.info("Header: " + header + " Value: " +values));
             }
         }

@@ -66,9 +66,12 @@ public class QueryLiveDataArchiveCLI extends BaseCLI {
         QueryLiveDataArchiveCLI fetchDataCLI = new QueryLiveDataArchiveCLI(outputFile, date, days, Duration.ofMinutes(mins));
 
         try {
-            fetchDataCLI.run(configFile, logger, "FetchDataCLI");
+            if (!fetchDataCLI.run(configFile, logger, "FetchDataCLI")) {
+                logger.error("Failed, check above logs");
+                System.exit(-1);
+            }
         } catch (ConfigurationException | IOException e) {
-            logger.error("Failed", e);
+            logger.error("Exception", e);
             System.exit(-1);
         }
         logger.info("Success");
@@ -77,7 +80,7 @@ public class QueryLiveDataArchiveCLI extends BaseCLI {
 
 
     @Override
-    public void run(Logger logger, GuiceContainerDependencies dependencies, TramchesterConfig config) {
+    public boolean run(Logger logger, GuiceContainerDependencies dependencies, TramchesterConfig config) {
         FindUniqueDueTramStatus finder = dependencies.get(FindUniqueDueTramStatus.class);
 
         boolean liveDataEnabled = config.liveTrainDataEnabled();
@@ -106,7 +109,7 @@ public class QueryLiveDataArchiveCLI extends BaseCLI {
                 try {
                     writer.write(line);
                 } catch (IOException e) {
-                    logger.error("Unable to write line");
+                    logger.error("Unable to write line " + line);
                 }
             });
 
@@ -116,7 +119,9 @@ public class QueryLiveDataArchiveCLI extends BaseCLI {
 
         } catch (IOException e) {
             logger.error("Exception " + e);
+            return false;
         }
 
+        return true;
     }
 }

@@ -59,7 +59,7 @@ public class S3DownloaderTest {
         URI url = URI.create(TestEnv.getBucketUrl()+"testing/ForTestSupport.txt");
 
         LocalDateTime localModTime = LocalDateTime.MIN;
-        URLStatus result = downloadAndModTime.getStatusFor(url, localModTime);
+        URLStatus result = downloadAndModTime.getStatusFor(url, localModTime, true);
         assertTrue(result.isOk());
 
         LocalDateTime modTime = result.getModTime();
@@ -76,7 +76,7 @@ public class S3DownloaderTest {
     void shouldHaveExpectedStatusForMissingKey() {
         URI url = URI.create(TestEnv.getBucketUrl() + "SHOULDBEMISSING");
         LocalDateTime localModTime = LocalDateTime.MIN;
-        URLStatus result = downloadAndModTime.getStatusFor(url, localModTime);
+        URLStatus result = downloadAndModTime.getStatusFor(url, localModTime, true);
         assertFalse(result.isOk());
 
         assertEquals(404,result.getStatusCode());

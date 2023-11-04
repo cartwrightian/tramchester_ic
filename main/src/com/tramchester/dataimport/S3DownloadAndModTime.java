@@ -24,11 +24,15 @@ public class S3DownloadAndModTime implements DownloadAndModTime {
     }
 
     @Override
-    public URLStatus getStatusFor(URI url, LocalDateTime localModTime) {
+    public URLStatus getStatusFor(URI url, LocalDateTime localModTime, boolean warnIfMissing) {
         try {
             return new URLStatus(url, 200, s3Client.getModTimeFor(url));
         } catch (FileNotFoundException notFoundException) {
-            logger.warn("Missing resource ", notFoundException);
+            if (warnIfMissing) {
+                logger.warn("Missing resource "+ url, notFoundException);
+            } else {
+                logger.info("Did not find " + url);
+            }
             return new URLStatus(url, 404);
         }
     }

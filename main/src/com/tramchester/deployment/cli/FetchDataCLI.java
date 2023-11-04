@@ -36,8 +36,9 @@ public class FetchDataCLI extends BaseCLI {
     }
 
     @Override
-    public void run(Logger logger, GuiceContainerDependencies dependencies, TramchesterConfig config) {
+    public boolean run(Logger logger, GuiceContainerDependencies dependencies, TramchesterConfig config) {
         FetchDataFromUrl fetcher = dependencies.get(FetchDataFromUrl.class);
         fetcher.getReady();
+        return true;
     }
 }

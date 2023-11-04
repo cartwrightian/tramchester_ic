@@ -106,9 +106,17 @@ public class ClientForS3 {
             return false;
         }
 
-        LocalDateTime fileModTime = getsFileModTime.getFor(originalFile);
+        if (Files.isDirectory(originalFile)) {
+            logger.error("Upload of dir not support yet for " + originalFile);
+            return false;
+        } else {
+            return uploadZippedFile(bucket, key, originalFile);
+        }
+    }
 
+    private boolean uploadZippedFile(String bucket, String key, Path originalFile) {
         long originalSize = originalFile.toFile().length();
+        LocalDateTime fileModTime = getsFileModTime.getFor(originalFile);
 
         String entryName = originalFile.getFileName().toString();
 
@@ -124,8 +132,7 @@ public class ClientForS3 {
             // todo ideally pass in a stream to avoid having whole file in memory
             return uploadToS3(bucket, key, localMd5, RequestBody.fromBytes(buffer), fileModTime);
         } catch (IOException e) {
-            logger.info("Unable to upload (zipped) file " + originalFile.toAbsolutePath(), e);
-
+            logger.error("Unable to upload (zipped) file " + originalFile.toAbsolutePath(), e);
             return false;
         }
     }
@@ -381,18 +388,6 @@ public class ClientForS3 {
 
             return overrideModTimeIfMetaData(responseFacade, uri);
 
-//            if (response.hasMetadata()) {
-//                Map<String, String> meta = response.metadata();
-//                if (meta.containsKey(ORIG_MOD_TIME_META_DATA_KEY)) {
-//                    String modTimeTxt = meta.get(ORIG_MOD_TIME_META_DATA_KEY);
-//                    logger.info("Metadata " + ORIG_MOD_TIME_META_DATA_KEY + " present with value " + modTimeTxt + " so using in preference to native S3 mod time for " + uri);
-//                    return LocalDateTime.parse(modTimeTxt, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-//                }
-//            }
-//
-//            logger.warn("No " + ORIG_MOD_TIME_META_DATA_KEY + " is present, fall back to native S3 mod time for " + uri);
-//            Instant lastModified = response.lastModified();
-//            return LocalDateTime.ofInstant(lastModified, TramchesterConfig.TimeZoneId);
         }
         catch(NoSuchKeyException noSuchKeyException) {
             logger.warn("Could not get object for missing uri " + uri + " and key " + bucketKey);

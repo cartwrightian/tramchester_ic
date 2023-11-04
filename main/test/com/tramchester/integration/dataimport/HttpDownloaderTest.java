@@ -47,7 +47,7 @@ class HttpDownloaderTest {
     void shouldDownloadSomething() throws IOException, InterruptedException {
         URI url = URI.create("https://github.com/fluidicon.png");
 
-        URLStatus headStatus = urlDownloader.getStatusFor(url, localModTime);
+        URLStatus headStatus = urlDownloader.getStatusFor(url, localModTime, true);
         assertTrue(headStatus.isOk());
         LocalDateTime modTime = headStatus.getModTime();
         assertTrue(modTime.isBefore(TestEnv.LocalNow()));
@@ -70,7 +70,7 @@ class HttpDownloaderTest {
     void shouldHaveValidModTimeForTimetableData() throws IOException, InterruptedException {
 
         URI url = URI.create(TestEnv.TFGM_TIMETABLE_URL);
-        URLStatus result = urlDownloader.getStatusFor(url, localModTime);
+        URLStatus result = urlDownloader.getStatusFor(url, localModTime, true);
 
         assertTrue(result.getModTime().getYear()>1970, "Unexpected date " + result.getModTime());
     }
@@ -79,7 +79,7 @@ class HttpDownloaderTest {
     void shouldHave404StatusForMissingUrlHead() throws InterruptedException, IOException {
         URI url = URI.create("http://www.google.com/nothere");
 
-        URLStatus headStatus = urlDownloader.getStatusFor(url, localModTime);
+        URLStatus headStatus = urlDownloader.getStatusFor(url, localModTime, true);
 
         assertFalse(headStatus.isOk());
         assertFalse(headStatus.isRedirect());
@@ -105,7 +105,7 @@ class HttpDownloaderTest {
     void shouldHaveRedirectStatusAndURL() throws IOException, InterruptedException {
         URI url = URI.create("http://news.bbc.co.uk");
 
-        URLStatus result = urlDownloader.getStatusFor(url, localModTime);
+        URLStatus result = urlDownloader.getStatusFor(url, localModTime, true);
 
         assertFalse(result.isOk());
         assertTrue(result.isRedirect());

@@ -55,7 +55,7 @@ remoteSources:
     defaultExpiryDays: 0
     modTimeCheckFilename: tramchester.db
     mandatory: false
-    skipUpload: true
+    skipUpload: false
 cacheFolder: data/cache
 calcTimeoutMillis: 3500
 bounds:

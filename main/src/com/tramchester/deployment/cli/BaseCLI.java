@@ -29,14 +29,15 @@ public abstract class BaseCLI {
         return container;
     }
 
-    protected void run(Path configFile, Logger logger, String name) throws ConfigurationException, IOException {
+    protected boolean run(Path configFile, Logger logger, String name) throws ConfigurationException, IOException {
         GuiceContainerDependencies container = bootstrap(configFile, name);
         final TramchesterConfig config = container.get(TramchesterConfig.class);
-        run(logger, container, config);
+        boolean success = run(logger, container, config);
         container.close();
+        return success;
     }
 
-    public abstract  void run(Logger logger,  GuiceContainerDependencies dependencies, TramchesterConfig config);
+    public abstract  boolean run(Logger logger,  GuiceContainerDependencies dependencies, TramchesterConfig config);
 
     private YamlConfigurationFactory<AppConfiguration> getValidatingFactory() {
         Class<AppConfiguration> klass = AppConfiguration.class;

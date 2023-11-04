@@ -703,42 +703,45 @@ tasks.register('queryDueTramStatus', JavaExec) {
 }
 
 // temp additional target while deploying train/tram version to just UAT
-tasks.register('buildDatabaseUAT', JavaExec) {
-    dependsOn classes
-    mainClass = 'com.tramchester.deployment.cli.BuildGraphCLI'
-    classpath = sourceSets.main.runtimeClasspath
-    maxHeapSize = "2g"
-    args 'config/gm.yml', 'build/distributions/database'
-}
+//tasks.register('buildDatabaseUAT', JavaExec) {
+//    dependsOn classes
+//    mainClass = 'com.tramchester.deployment.cli.BuildGraphCLI'
+//    classpath = sourceSets.main.runtimeClasspath
+//    maxHeapSize = "2g"
+//    args 'config/gm.yml', 'build/distributions/database'
+//}
 
+// todo re-instate UAT at some stage, database zip's for different config will be needed
 tasks.register('buildDatabase', JavaExec) {
     dependsOn classes
-    dependsOn buildDatabaseUAT
+    dependsOn pullData
+    //dependsOn buildDatabaseUAT
     mainClass = 'com.tramchester.deployment.cli.BuildGraphCLI'
     classpath = sourceSets.main.runtimeClasspath
-    args prodConfig, 'build/distributions/database'
+    args prodConfig //, 'build/distributions/database'
 }
 
-tasks.register('zipDB', Zip) {
-    dependsOn buildDatabase
-    from 'build/distributions/database'
-    include '*.db/**'
-    archiveFileName = 'database.zip'
-}
+//tasks.register('zipDB', Zip) {
+//    dependsOn buildDatabase
+//    from 'build/distributions/database'
+//    include '*.db/**'
+//    archiveFileName = 'database.zip'
+//}
 
 // gm here so include both sets of data
 tasks.register('uploadDataSources', JavaExec) {
     dependsOn pullData
     dependsOn classes
+    dependsOn buildDatabase
     mainClass = 'com.tramchester.deployment.cli.UploadSourceDataCLI'
     classpath = sourceSets.main.runtimeClasspath
-    args 'config/gm.yml', s3prefix
+    args prodConfig, s3prefix
 }
 
 tasks.register('copyIntoUploadDir', Copy) {
-    dependsOn zipDB
+    //dependsOn zipDB
     dependsOn distZip
-    from 'build/distributions/database.zip'
+    //from 'build/distributions/database.zip'
     from 'build/distributions/tramchester-' + buildNumber + '.zip'
     from 'deploy/setupTramWebServerAWSLinux.sh'
     from 'deploy/cloudInitAWSLinux.txt'

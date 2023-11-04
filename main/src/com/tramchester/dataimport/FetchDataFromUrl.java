@@ -132,7 +132,7 @@ public class FetchDataFromUrl {
         LocalDateTime localModTime = LocalDateTime.MIN;
 
         // download
-        URLStatus status = getUrlStatus(originalURL, isS3, localModTime, dataSourceId);
+        URLStatus status = getUrlStatus(originalURL, isS3, localModTime, sourceConfig);
         if (status == null) {
             logger.warn(format("No local file %s and unable to check url status", destAndStatusCheckFile));
             return RefreshStatus.Missing;
@@ -170,8 +170,10 @@ public class FetchDataFromUrl {
 
         logger.info("Check remote status for originalURL:'"+sourceConfig.getDataUrl()+"'");
         URI originalURL = URI.create(sourceConfig.getDataUrl());
-        URLStatus status = getUrlStatus(originalURL, isS3, localMod, dataSourceId);
-        if (status == null) return RefreshStatus.UnableToCheck;
+        URLStatus status = getUrlStatus(originalURL, isS3, localMod, sourceConfig);
+        if (status == null) {
+            return RefreshStatus.UnableToCheck;
+        }
         String actualURL = status.getActualURL();
 
         LocalDateTime serverMod = status.getModTime();
@@ -213,13 +215,17 @@ public class FetchDataFromUrl {
 
     }
 
-    private URLStatus getUrlStatus(URI originalURL, boolean isS3, LocalDateTime localModTime, DataSourceID dataSourceId) throws IOException, InterruptedException {
-        URLStatus status = getStatusFor(originalURL, isS3, localModTime);
+    private URLStatus getUrlStatus(URI originalURL, boolean isS3, LocalDateTime localModTime, DownloadedConfig config) throws IOException, InterruptedException {
+        DataSourceID dataSourceId = config.getDataSourceId();
+        boolean warnIfMissing = config.isMandatory();
+        URLStatus status = getStatusFor(originalURL, isS3, localModTime, warnIfMissing);
         if (!status.isOk()) {
             if (status.getStatusCode() == 405 ) { // METHOD_NOT_ALLOWED
                 logger.warn("METHOD_NOT_ALLOWED was unable to query using HEAD for " + dataSourceId);
             } else {
-                logger.warn("Could not download for " + dataSourceId + " status was " + status);
+                if (config.isMandatory()) {
+                    logger.warn("Could not download for " + dataSourceId + " status was " + status);
+                }
                 // TODO
                 return null;
             }
@@ -265,18 +271,18 @@ public class FetchDataFromUrl {
         return redirectStrategy.followRedirects(initialURL);
     }
 
-    private URLStatus getStatusFor(URI url, boolean isS3, LocalDateTime localModTime) throws IOException, InterruptedException {
+    private URLStatus getStatusFor(URI url, boolean isS3, LocalDateTime localModTime, boolean warnIfMissing) throws IOException, InterruptedException {
         if (isS3) {
-            return s3Downloader.getStatusFor(url, localModTime);
+            return s3Downloader.getStatusFor(url, localModTime, warnIfMissing);
         }
-        return getStatusFollowRedirects(url, localModTime);
+        return getStatusFollowRedirects(url, localModTime, warnIfMissing);
     }
 
-    private URLStatus getStatusFollowRedirects(URI url, LocalDateTime localModTime) throws IOException, InterruptedException {
+    private URLStatus getStatusFollowRedirects(URI url, LocalDateTime localModTime, boolean warnIfMissing) throws IOException, InterruptedException {
         RedirectStrategy redirectStrategy = new RedirectStrategy() {
             @Override
             public URLStatus action(URI actualURI) throws InterruptedException, IOException {
-                return httpDownloader.getStatusFor(actualURI, localModTime);
+                return httpDownloader.getStatusFor(actualURI, localModTime, warnIfMissing);
             }
         };
 

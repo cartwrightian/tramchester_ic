@@ -34,7 +34,7 @@ public class NewDataAvailableHealthCheck extends TramchesterHealthCheck {
         try {
             LocalDateTime localFileModTime = getsFileModTime.getFor(config);
 
-            final URLStatus status = urlDownloader.getStatusFor(dataCheckUrl, localFileModTime);
+            final URLStatus status = urlDownloader.getStatusFor(dataCheckUrl, localFileModTime, config.isMandatory());
 
             if (!status.isOk()) {
                 String msg = String.format("Got http status %s for %s", status.getStatusCode(), dataCheckUrl);

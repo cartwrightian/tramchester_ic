@@ -80,7 +80,7 @@ remoteSources:
     defaultExpiryDays: 0
     modTimeCheckFilename: gm_rail.db
     mandatory: false
-    skipUpload: true
+    skipUpload: false
 tfgmTramliveData:
   dataUrl: https://api.tfgm.com/odata/Metrolinks
   dataSubscriptionKey: ${TFGMAPIKEY:- ""}

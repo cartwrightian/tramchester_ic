@@ -79,7 +79,7 @@ class FetchDataFromUrlLocalFileCheckProvidedTest extends EasyMockSupport {
         EasyMock.expect(getsFileModTime.getFor(statusCheckFile)).andReturn(expiredFileTime);
 
         URLStatus status = new URLStatus(expectedDownloadURL, 200);
-        EasyMock.expect(s3Downloader.getStatusFor(expectedDownloadURL, expiredFileTime)).andReturn(status);
+        EasyMock.expect(s3Downloader.getStatusFor(expectedDownloadURL, expiredFileTime, false)).andReturn(status);
         EasyMock.expect(s3Downloader.downloadTo(destinationFile, expectedDownloadURL, expiredFileTime)).andReturn(status);
         EasyMock.expectLastCall();
 
@@ -100,7 +100,7 @@ class FetchDataFromUrlLocalFileCheckProvidedTest extends EasyMockSupport {
         EasyMock.expect(getsFileModTime.getFor(statusCheckFile)).andReturn(startTime);
 
         URLStatus status = new URLStatus(expectedDownloadURL, 200, startTime.plusMinutes(30));
-        EasyMock.expect(s3Downloader.getStatusFor(expectedDownloadURL, startTime)).andReturn(status);
+        EasyMock.expect(s3Downloader.getStatusFor(expectedDownloadURL, startTime, false)).andReturn(status);
         EasyMock.expect(s3Downloader.downloadTo(destinationFile, expectedDownloadURL, startTime)).andReturn(status);
         EasyMock.expect(getsFileModTime.update(destinationFile, startTime.plusMinutes(30))).andReturn(true);
 
@@ -117,7 +117,7 @@ class FetchDataFromUrlLocalFileCheckProvidedTest extends EasyMockSupport {
         EasyMock.expect(getsFileModTime.exists(statusCheckFile)).andReturn(false);
 
         URLStatus status = new URLStatus(expectedDownloadURL, 200, startTime);
-        EasyMock.expect(s3Downloader.getStatusFor(expectedDownloadURL, LocalDateTime.MIN)).andReturn(status);
+        EasyMock.expect(s3Downloader.getStatusFor(expectedDownloadURL, LocalDateTime.MIN, false)).andReturn(status);
 
         EasyMock.expect(s3Downloader.downloadTo(destinationFile, expectedDownloadURL, LocalDateTime.MIN)).andReturn(status);
         EasyMock.expect(getsFileModTime.update(destinationFile, startTime)).andReturn(true);
@@ -137,7 +137,7 @@ class FetchDataFromUrlLocalFileCheckProvidedTest extends EasyMockSupport {
 
         EasyMock.expect(providesLocalNow.getDateTime()).andReturn(LocalDateTime.now());
         URLStatus status = new URLStatus(expectedDownloadURL, 200, startTime.minusDays(1));
-        EasyMock.expect(s3Downloader.getStatusFor(expectedDownloadURL, startTime)).andReturn(status);
+        EasyMock.expect(s3Downloader.getStatusFor(expectedDownloadURL, startTime, false)).andReturn(status);
 
         replayAll();
         Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
@@ -159,7 +159,7 @@ class FetchDataFromUrlLocalFileCheckProvidedTest extends EasyMockSupport {
 
         URLStatus status = new URLStatus(expectedDownloadURL, 200);
 
-        EasyMock.expect(s3Downloader.getStatusFor(expectedDownloadURL, modTime)).andReturn(status);
+        EasyMock.expect(s3Downloader.getStatusFor(expectedDownloadURL, modTime, false)).andReturn(status);
 
         replayAll();
         Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
@@ -178,7 +178,7 @@ class FetchDataFromUrlLocalFileCheckProvidedTest extends EasyMockSupport {
 
         URLStatus status = new URLStatus(expectedDownloadURL, 200);
 
-        EasyMock.expect(s3Downloader.getStatusFor(expectedDownloadURL, expiredFileTime)).andReturn(status);
+        EasyMock.expect(s3Downloader.getStatusFor(expectedDownloadURL, expiredFileTime, false)).andReturn(status);
         EasyMock.expect(s3Downloader.downloadTo(destinationFile, expectedDownloadURL, expiredFileTime)).andReturn(status);
 
         replayAll();
@@ -195,7 +195,7 @@ class FetchDataFromUrlLocalFileCheckProvidedTest extends EasyMockSupport {
 
         URLStatus statusWithoutValidModTime = new URLStatus(expectedDownloadURL, 200);
 
-        EasyMock.expect(s3Downloader.getStatusFor(expectedDownloadURL, LocalDateTime.MIN)).andReturn(statusWithoutValidModTime);
+        EasyMock.expect(s3Downloader.getStatusFor(expectedDownloadURL, LocalDateTime.MIN, false)).andReturn(statusWithoutValidModTime);
         EasyMock.expect(s3Downloader.downloadTo(destinationFile, expectedDownloadURL, LocalDateTime.MIN)).andReturn(statusWithoutValidModTime);
 
         replayAll();
@@ -212,7 +212,7 @@ class FetchDataFromUrlLocalFileCheckProvidedTest extends EasyMockSupport {
 
         URLStatus statusWithoutValidModTime = new URLStatus(expectedDownloadURL, 200);
 
-        EasyMock.expect(s3Downloader.getStatusFor(expectedDownloadURL, LocalDateTime.MIN)).andReturn(statusWithoutValidModTime);
+        EasyMock.expect(s3Downloader.getStatusFor(expectedDownloadURL, LocalDateTime.MIN, false)).andReturn(statusWithoutValidModTime);
         EasyMock.expect(s3Downloader.downloadTo(destinationFile, expectedDownloadURL, LocalDateTime.MIN)).
                 andReturn(new URLStatus(expectedDownloadURL, 404));
 
@@ -230,7 +230,7 @@ class FetchDataFromUrlLocalFileCheckProvidedTest extends EasyMockSupport {
 
         URLStatus status = new URLStatus(expectedDownloadURL, 404);
 
-        EasyMock.expect(s3Downloader.getStatusFor(expectedDownloadURL, LocalDateTime.MIN)).andReturn(status);
+        EasyMock.expect(s3Downloader.getStatusFor(expectedDownloadURL, LocalDateTime.MIN, false)).andReturn(status);
 
         replayAll();
         Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
