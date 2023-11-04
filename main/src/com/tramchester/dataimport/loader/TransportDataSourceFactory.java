@@ -32,7 +32,7 @@ public class TransportDataSourceFactory implements Iterable<TransportDataSource>
 
     @Inject
     public TransportDataSourceFactory(TransportDataReaderFactory readerFactory, NaptanRepository naptanRepository,
-                                      UnzipFetchedData.Ready dataIsDownloadedAndUnzipped) {
+                                      @SuppressWarnings("unused") UnzipFetchedData.Ready dataIsDownloadedAndUnzipped) {
         this.readerFactory = readerFactory;
         this.naptanRespository = naptanRepository;
         theList = new ArrayList<>();

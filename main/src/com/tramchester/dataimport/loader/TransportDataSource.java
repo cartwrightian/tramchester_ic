@@ -57,6 +57,7 @@ public class TransportDataSource {
         logger.info("Closed");
     }
 
+    // TODO Move update/create of data source info
     public Stream<FeedInfo> getFeedInfoStream() {
         return feedInfo;
     }

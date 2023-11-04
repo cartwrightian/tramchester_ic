@@ -4,7 +4,7 @@ import com.google.common.collect.Streams;
 import com.google.common.io.ByteStreams;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataimport.FetchFileModTime;
+import com.tramchester.dataimport.GetsFileModTime;
 import com.tramchester.dataimport.URLStatus;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -44,13 +44,13 @@ public class ClientForS3 {
     public static final String ORIG_MOD_TIME_META_DATA_KEY = "original_mod_time";
     private static final Logger logger = LoggerFactory.getLogger(ClientForS3.class);
 
-    private final FetchFileModTime fetchFileModTime;
+    private final GetsFileModTime getsFileModTime;
     protected S3Client s3Client;
     private MessageDigest messageDigest;
 
     @Inject
-    public ClientForS3(FetchFileModTime fetchFileModTime) {
-        this.fetchFileModTime = fetchFileModTime;
+    public ClientForS3(GetsFileModTime getsFileModTime) {
+        this.getsFileModTime = getsFileModTime;
         s3Client = null;
     }
 
@@ -86,7 +86,7 @@ public class ClientForS3 {
             return false;
         }
 
-        LocalDateTime fileModTime = fetchFileModTime.getFor(fileToUpload);
+        LocalDateTime fileModTime = getsFileModTime.getFor(fileToUpload);
 
         try {
             byte[] buffer = Files.readAllBytes(fileToUpload);
@@ -99,39 +99,41 @@ public class ClientForS3 {
         }
     }
 
-    public boolean uploadZipped(String bucket, String key, Path uploadFile) {
-        logger.info(format("Upload %s zipped to bucket:%s key:%s", uploadFile, bucket, key));
+    public boolean uploadZipped(String bucket, String key, Path originalFile) {
+        logger.info(format("Upload %s zipped to bucket:%s key:%s", originalFile, bucket, key));
         if (!isStarted()) {
             logger.error("Not started");
             return false;
         }
 
-        LocalDateTime fileModTime = fetchFileModTime.getFor(uploadFile);
+        LocalDateTime fileModTime = getsFileModTime.getFor(originalFile);
 
-        long originalSize = uploadFile.toFile().length();
+        long originalSize = originalFile.toFile().length();
 
-        String entryName = uploadFile.getFileName().toString();
+        String entryName = originalFile.getFileName().toString();
 
         try {
-            ByteArrayOutputStream outputStream = zipFileToBuffer(uploadFile, entryName);
+            ByteArrayOutputStream outputStream = zipFileToBuffer(originalFile, entryName);
 
             byte[] buffer = outputStream.toByteArray();
 
-            logger.info(format("File %s was compressed from %s to %s bytes", uploadFile, originalSize, buffer.length));
+            logger.info(format("File %s was compressed from %s to %s bytes", originalFile, originalSize, buffer.length));
 
             String localMd5 = Base64.encodeBase64String(messageDigest.digest(buffer));
+
+            // todo ideally pass in a stream to avoid having whole file in memory
             return uploadToS3(bucket, key, localMd5, RequestBody.fromBytes(buffer), fileModTime);
         } catch (IOException e) {
-            logger.info("Unable to upload (zipped) file " + uploadFile.toAbsolutePath(), e);
+            logger.info("Unable to upload (zipped) file " + originalFile.toAbsolutePath(), e);
 
             return false;
         }
     }
 
     @NotNull
-    private ByteArrayOutputStream zipFileToBuffer(Path uploadFile, String entryName) throws IOException {
-        logger.info(format("Compress %s into zip, as entry %s", uploadFile, entryName));
-        final FileTime lastModifiedTime = Files.getLastModifiedTime(uploadFile);
+    private ByteArrayOutputStream zipFileToBuffer(Path orginalFile, String entryName) throws IOException {
+        logger.info(format("Compress %s into zip, as entry %s", orginalFile, entryName));
+        final FileTime lastModifiedTime = Files.getLastModifiedTime(orginalFile);
 
         ByteArrayOutputStream result = new ByteArrayOutputStream();
 
@@ -143,7 +145,9 @@ public class ClientForS3 {
 
         // put entry and then the bytes for the fill
         zipOutput.putNextEntry(entry);
-        byte[] bytesFromFile = Files.readAllBytes(uploadFile);
+
+        // todo use stream here
+        byte[] bytesFromFile = Files.readAllBytes(orginalFile);
         zipOutput.write(bytesFromFile);
 
         zipOutput.closeEntry();
@@ -453,7 +457,7 @@ public class ClientForS3 {
         output.close();
 
         logger.info(format("Update downloaded file %s modtime to %s", path.toAbsolutePath(), modTime));
-        fetchFileModTime.update(path, modTime);
+        getsFileModTime.update(path, modTime);
 
         InputStream writtenFile = new FileInputStream(file);
         String localMd5 = DigestUtils.md5Hex(writtenFile);

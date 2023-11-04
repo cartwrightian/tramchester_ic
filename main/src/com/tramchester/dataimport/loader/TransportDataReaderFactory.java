@@ -3,9 +3,10 @@ package com.tramchester.dataimport.loader;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.module.blackbird.BlackbirdModule;
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.config.DownloadedConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataimport.FetchFileModTime;
+import com.tramchester.dataimport.GetsFileModTime;
 import com.tramchester.dataimport.loader.files.TransportDataFromFileFactory;
 import com.tramchester.domain.DataSourceID;
 import org.slf4j.Logger;
@@ -25,12 +26,12 @@ public class TransportDataReaderFactory {
 
     private final TramchesterConfig tramchesterConfig;
     private final List<TransportDataReader> dataReaders;
-    private final FetchFileModTime fetchFileModTime;
+    private final GetsFileModTime getsFileModTime;
     private final CsvMapper mapper;
 
     @Inject
-    public TransportDataReaderFactory(TramchesterConfig tramchesterConfig, FetchFileModTime fetchFileModTime) {
-        this.fetchFileModTime = fetchFileModTime;
+    public TransportDataReaderFactory(TramchesterConfig tramchesterConfig, GetsFileModTime getsFileModTime) {
+        this.getsFileModTime = getsFileModTime;
         this.mapper = CsvMapper.builder().
                 addModule(new BlackbirdModule()).
                 build();
@@ -46,7 +47,6 @@ public class TransportDataReaderFactory {
 
             // sanity check on remote data source being present, get data path from here
             final DataSourceID dataSourceId = sourceConfig.getDataSourceId();
-            LocalDateTime modTime;
             if (!tramchesterConfig.hasRemoteDataSourceConfig(dataSourceId)) {
                 String msg = "No remote source config found for " + dataSourceId;
                 logger.error(msg);
@@ -56,10 +56,10 @@ public class TransportDataReaderFactory {
             RemoteDataSourceConfig dataRemoteSourceConfig = tramchesterConfig.getDataRemoteSourceConfig(dataSourceId);
             Path dataLoadLocation = dataRemoteSourceConfig.getDataPath();
             logger.info("Got remote data source config for " + dataSourceId + " from config " + dataRemoteSourceConfig);
-            modTime = fetchFileModTime.getFor(dataRemoteSourceConfig);
 
             TransportDataFromFileFactory factory = new TransportDataFromFileFactory(dataLoadLocation, mapper);
-            TransportDataReader transportLoader = new TransportDataReader(factory, sourceConfig, modTime);
+            GetModTimeFor getModTimeFor = new GetModTimeFor(dataRemoteSourceConfig, getsFileModTime);
+            TransportDataReader transportLoader = new TransportDataReader(factory, sourceConfig, getModTimeFor);
 
             dataReaders.add(transportLoader);
         });
@@ -77,19 +77,21 @@ public class TransportDataReaderFactory {
         return dataReaders;
     }
 
-    // moved into readers, cannot popupate this until after download etc of remote data sources
-//    @NotNull
-//    private DataSourceInfo createSourceInfoFrom(GTFSSourceConfig config) {
-//        LocalDateTime modTime = fetchFileModTime.getFor(config);
-//        DataSourceID dataSourceId = config.getDataSourceId();
-//        String version = modTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-//        DataSourceInfo dataSourceInfo = new DataSourceInfo(dataSourceId, version, modTime,
-//                GTFSTransportationType.toTransportMode(config.getTransportGTFSModes()));
-//        logger.info("Create datasource info for " + config + " " + dataSourceInfo);
-//        return dataSourceInfo;
-//    }
-
     public boolean hasReaders() {
         return !dataReaders.isEmpty();
+    }
+
+    public static class GetModTimeFor {
+        private final DownloadedConfig downloadConfig;
+        private final GetsFileModTime getsFileModTime;
+
+        GetModTimeFor(DownloadedConfig downloadConfig, GetsFileModTime getsFileModTime) {
+            this.downloadConfig = downloadConfig;
+            this.getsFileModTime = getsFileModTime;
+        }
+
+        LocalDateTime getModTime() {
+            return getsFileModTime.getFor(downloadConfig);
+        }
     }
 }

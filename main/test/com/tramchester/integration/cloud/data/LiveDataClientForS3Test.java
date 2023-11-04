@@ -5,7 +5,7 @@ import com.tramchester.cloud.data.LiveDataClientForS3;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.OpenLdbConfig;
 import com.tramchester.config.TfgmTramLiveDataConfig;
-import com.tramchester.dataimport.FetchFileModTime;
+import com.tramchester.dataimport.GetsFileModTime;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;
@@ -55,7 +55,7 @@ class LiveDataClientForS3Test {
         s3TestSupport = new S3TestSupport(s3, s3Waiter, TEST_BUCKET_NAME);
         s3TestSupport.createOrCleanBucket();
 
-        clientForS3 = new ClientForS3(new FetchFileModTime());
+        clientForS3 = new ClientForS3(new GetsFileModTime());
         clientForS3.start();
     }
 

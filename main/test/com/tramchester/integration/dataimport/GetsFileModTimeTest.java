@@ -2,7 +2,7 @@ package com.tramchester.integration.dataimport;
 
 import com.tramchester.config.DownloadedConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataimport.FetchFileModTime;
+import com.tramchester.dataimport.GetsFileModTime;
 import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
@@ -19,9 +19,9 @@ import java.time.temporal.ChronoUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class FetchFileModTimeTest extends EasyMockSupport {
+public class GetsFileModTimeTest extends EasyMockSupport {
 
-    private FetchFileModTime fetchFileModTime;
+    private GetsFileModTime getsFileModTime;
     private LocalDateTime when;
     private Path tmpFile;
 
@@ -29,7 +29,7 @@ public class FetchFileModTimeTest extends EasyMockSupport {
     void onceBeforeEachTest() throws IOException {
         when = TestEnv.LocalNow().truncatedTo(ChronoUnit.SECONDS);
 
-        fetchFileModTime = new FetchFileModTime();
+        getsFileModTime = new GetsFileModTime();
         tmpFile = Files.createTempFile("testing-", "only");
 
     }
@@ -41,11 +41,11 @@ public class FetchFileModTimeTest extends EasyMockSupport {
 
     @Test
     void fileExists() throws IOException {
-        assertTrue(fetchFileModTime.exists(tmpFile));
+        assertTrue(getsFileModTime.exists(tmpFile));
 
         Files.deleteIfExists(tmpFile);
 
-        assertFalse(fetchFileModTime.exists(tmpFile));
+        assertFalse(getsFileModTime.exists(tmpFile));
     }
 
     @Test
@@ -54,7 +54,7 @@ public class FetchFileModTimeTest extends EasyMockSupport {
         long millis = getEpochMilli(when);
         assertTrue(tmpFile.toFile().setLastModified(millis));
 
-        LocalDateTime result = fetchFileModTime.getFor(tmpFile);
+        LocalDateTime result = getsFileModTime.getFor(tmpFile);
         assertEquals(when, result);
     }
 
@@ -66,7 +66,7 @@ public class FetchFileModTimeTest extends EasyMockSupport {
 
         assertNotEquals(targetMillis, tmpFile.toFile().lastModified());
 
-        fetchFileModTime.update(tmpFile, target);
+        getsFileModTime.update(tmpFile, target);
         assertEquals(targetMillis, tmpFile.toFile().lastModified());
     }
 
@@ -80,14 +80,14 @@ public class FetchFileModTimeTest extends EasyMockSupport {
         EasyMock.expect(config.getDownloadPath()).andReturn(tmpFile);
 
         replayAll();
-        LocalDateTime result = fetchFileModTime.getFor(config);
+        LocalDateTime result = getsFileModTime.getFor(config);
         verifyAll();
 
         assertEquals(when, result);
     }
 
     @Test void shouldGetForPath() {
-        LocalDateTime result = fetchFileModTime.getFor(tmpFile);
+        LocalDateTime result = getsFileModTime.getFor(tmpFile);
         assertEquals(when, result);
     }
 

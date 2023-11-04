@@ -1,7 +1,7 @@
 package com.tramchester.healthchecks;
 
 import com.tramchester.config.RemoteDataSourceConfig;
-import com.tramchester.dataimport.FetchFileModTime;
+import com.tramchester.dataimport.GetsFileModTime;
 import com.tramchester.dataimport.HttpDownloadAndModTime;
 import com.tramchester.dataimport.URLStatus;
 import com.tramchester.domain.ServiceTimeLimits;
@@ -17,14 +17,14 @@ public class NewDataAvailableHealthCheck extends TramchesterHealthCheck {
 
     private final RemoteDataSourceConfig config;
     private final HttpDownloadAndModTime urlDownloader;
-    private final FetchFileModTime fetchFileModTime;
+    private final GetsFileModTime getsFileModTime;
 
     public NewDataAvailableHealthCheck(RemoteDataSourceConfig config, HttpDownloadAndModTime urlDownloader,
-                                       FetchFileModTime fetchFileModTime, ServiceTimeLimits serviceTimeLimits) {
+                                       GetsFileModTime getsFileModTime, ServiceTimeLimits serviceTimeLimits) {
         super(serviceTimeLimits);
         this.config = config;
         this.urlDownloader = urlDownloader;
-        this.fetchFileModTime = fetchFileModTime;
+        this.getsFileModTime = getsFileModTime;
     }
 
     @Override
@@ -32,7 +32,7 @@ public class NewDataAvailableHealthCheck extends TramchesterHealthCheck {
         URI dataCheckUrl = URI.create(config.getDataCheckUrl());
 
         try {
-            LocalDateTime localFileModTime = fetchFileModTime.getFor(config);
+            LocalDateTime localFileModTime = getsFileModTime.getFor(config);
 
             final URLStatus status = urlDownloader.getStatusFor(dataCheckUrl, localFileModTime);
 

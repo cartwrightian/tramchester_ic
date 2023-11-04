@@ -6,7 +6,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.loader.files.TransportDataFromCSVFile;
-import com.tramchester.dataimport.FetchFileModTime;
+import com.tramchester.dataimport.GetsFileModTime;
 import com.tramchester.dataimport.UnzipFetchedData;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.geo.BoundingBox;
@@ -43,7 +43,7 @@ public class PostcodeDataImporter {
 
     private final StationLocations stationLocations;
     private final PostcodeBoundingBoxs postcodeBounds;
-    private final FetchFileModTime fetchFileModTime;
+    private final GetsFileModTime getsFileModTime;
     private final CsvMapper mapper;
 
     private final boolean enabled;
@@ -51,9 +51,9 @@ public class PostcodeDataImporter {
 
     @Inject
     public PostcodeDataImporter(TramchesterConfig config, StationLocations stationLocations,
-                                PostcodeBoundingBoxs postcodeBounds, FetchFileModTime fetchFileModTime,
+                                PostcodeBoundingBoxs postcodeBounds, GetsFileModTime getsFileModTime,
                                 UnzipFetchedData.Ready dataIsReady) {
-        this.fetchFileModTime = fetchFileModTime;
+        this.getsFileModTime = getsFileModTime;
         this.mapper = CsvMapper.builder().addModule(new AfterburnerModule()).build();
         this.config = config;
 
@@ -142,7 +142,7 @@ public class PostcodeDataImporter {
 
     public LocalDateTime getTargetFolderModTime() {
         RemoteDataSourceConfig dataSourceConfig = config.getDataRemoteSourceConfig(DataSourceID.postcode);
-        return fetchFileModTime.getFor(dataSourceConfig.getDataPath());
+        return getsFileModTime.getFor(dataSourceConfig.getDataPath());
     }
 
     public static class PostcodeDataStream {

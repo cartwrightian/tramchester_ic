@@ -2,14 +2,12 @@ package com.tramchester.dataimport.loader;
 
 
 import com.tramchester.config.GTFSSourceConfig;
-import com.tramchester.dataimport.FetchFileModTime;
 import com.tramchester.dataimport.data.*;
 import com.tramchester.dataimport.loader.files.TransportDataFromFileFactory;
 import com.tramchester.domain.DataSourceID;
-import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.DataSourceInfo;
+import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.reference.GTFSTransportationType;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,27 +19,21 @@ public class TransportDataReader {
     private static final Logger logger = LoggerFactory.getLogger(TransportDataReader.class);
 
     private final GTFSSourceConfig config;
-    private final LocalDateTime modTime;
+    private final TransportDataReaderFactory.GetModTimeFor getsFileModTime;
     private final TransportDataFromFileFactory factory;
-//    private final FetchFileModTime fetchFileModTime;
 
     public enum InputFiles {
         trips, stops, routes, feed_info, calendar, stop_times, calendar_dates, agency
     }
 
-    public TransportDataReader(TransportDataFromFileFactory factory, GTFSSourceConfig config, LocalDateTime modTime) {
+    public TransportDataReader(TransportDataFromFileFactory factory, GTFSSourceConfig config, TransportDataReaderFactory.GetModTimeFor getsFileModTime) {
         this.factory = factory;
         this.config = config;
-        this.modTime = modTime;
-//        this.fetchFileModTime = fetchFileModTime;
+        this.getsFileModTime = getsFileModTime;
     }
 
     public GTFSSourceConfig getConfig() {
         return config;
-    }
-
-    public DataSourceInfo getDataSourceInfo() {
-        return createSourceInfo();
     }
 
     public Stream<CalendarData> getCalendar() {
@@ -76,6 +68,18 @@ public class TransportDataReader {
         return factory.getLoaderFor(InputFiles.agency, AgencyData.class).load();
     }
 
+    /// Need to make sure don't get mod time for the source files until the get is called, which ought to be after download,
+    /// otherwise get invalid mod time
+    public DataSourceInfo getDataSourceInfo() {
+        DataSourceID dataSourceId = config.getDataSourceId();
+        LocalDateTime modTime = getsFileModTime.getModTime();
+        String version = modTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        DataSourceInfo dataSourceInfo = new DataSourceInfo(dataSourceId, version, modTime,
+                GTFSTransportationType.toTransportMode(config.getTransportGTFSModes()));
+        logger.info("Create datasource info for " + config + " " + dataSourceInfo);
+        return dataSourceInfo;
+    }
+
 
     @Override
     public String toString() {
@@ -84,15 +88,14 @@ public class TransportDataReader {
                 '}';
     }
 
-    @NotNull
-    private DataSourceInfo createSourceInfo() {
-//        LocalDateTime modTime = fetchFileModTime.getFor(config);
-        DataSourceID dataSourceId = config.getDataSourceId();
-        String version = modTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-        DataSourceInfo dataSourceInfo = new DataSourceInfo(dataSourceId, version, modTime,
-                GTFSTransportationType.toTransportMode(config.getTransportGTFSModes()));
-        logger.info("Create datasource info for " + config + " " + dataSourceInfo);
-        return dataSourceInfo;
-    }
+//    @NotNull
+//    private DataSourceInfo createSourceInfo() {
+//        DataSourceID dataSourceId = config.getDataSourceId();
+//        String version = modTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+//        DataSourceInfo dataSourceInfo = new DataSourceInfo(dataSourceId, version, modTime,
+//                GTFSTransportationType.toTransportMode(config.getTransportGTFSModes()));
+//        logger.info("Create datasource info for " + config + " " + dataSourceInfo);
+//        return dataSourceInfo;
+//    }
 
 }

@@ -24,7 +24,7 @@ public class UploadFileToS3 {
     }
 
     /***
-     * Upload a file to S3, DOES NOT overwrite an existing item
+     * Upload a file to S3
      * @param prefixForKey where to place the item
      * @param fileToUpload the item to upload
      * @param overWrite over-write the item if already present
@@ -52,12 +52,19 @@ public class UploadFileToS3 {
         return clientForS3.upload(bucket, key, fileToUpload);
     }
 
-    public boolean uploadFileZipped(String prefixForKey, Path fileToUpdate, boolean overwrite) {
+    /***
+     * Upload a file to S3 after zipping
+     * @param prefixForKey where to place the item
+     * @param originalFile the item to upload
+     * @param overwrite over-write the item if already present
+     * @return true if file uploads ok, false otherwise
+     */
+    public boolean uploadFileZipped(String prefixForKey, Path originalFile, boolean overwrite) {
         guardStarted();
 
-        logger.info(format("Upload zipped %s to %s overwrite:%s", fileToUpdate, prefixForKey, overwrite));
+        logger.info(format("Upload zipped %s to %s overwrite:%s", originalFile, prefixForKey, overwrite));
 
-        String itemId = fileToUpdate.getFileName().toString() + ".zip";
+        String itemId = originalFile.getFileName().toString() + ".zip";
 
         if (clientForS3.keyExists(bucket, prefixForKey, itemId)) {
             final String overwriteMessage = format("prefix %s key %s already exists", prefixForKey, itemId);
@@ -69,10 +76,10 @@ public class UploadFileToS3 {
             }
         }
 
-        final String key = prefixForKey + "/" + itemId;
-        logger.info(format("Upload file %s zipped to bucket %s at %s", fileToUpdate.toAbsolutePath(), bucket, key));
+        final String keyForZipped = prefixForKey + "/" + itemId;
+        logger.info(format("Upload file %s zipped to bucket %s at %s", originalFile.toAbsolutePath(), bucket, keyForZipped));
 
-        return clientForS3.uploadZipped(bucket, key, fileToUpdate);
+        return clientForS3.uploadZipped(bucket, keyForZipped, originalFile);
     }
 
     private void guardStarted() {

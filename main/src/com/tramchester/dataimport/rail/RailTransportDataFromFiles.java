@@ -3,12 +3,11 @@ package com.tramchester.dataimport.rail;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.RailConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataimport.FetchFileModTime;
+import com.tramchester.dataimport.GetsFileModTime;
 import com.tramchester.dataimport.RemoteDataAvailable;
 import com.tramchester.dataimport.loader.DirectDataSourceFactory;
 import com.tramchester.dataimport.rail.records.RailTimetableRecord;
 import com.tramchester.dataimport.rail.repository.RailRouteIdRepository;
-import com.tramchester.dataimport.rail.repository.RailRouteIds;
 import com.tramchester.dataimport.rail.repository.RailStationRecordsRepository;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.DataSourceInfo;
@@ -87,7 +86,7 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
         }
         final Path downloadedZip = remoteDataRefreshed.fileFor(DataSourceID.rail);
 
-        final FetchFileModTime fileModTime = new FetchFileModTime();
+        final GetsFileModTime fileModTime = new GetsFileModTime();
         final LocalDateTime modTime = fileModTime.getFor(downloadedZip);
         final DataSourceInfo dataSourceInfo = new DataSourceInfo(railConfig.getDataSourceId(),
                 railConfig.getVersion(), modTime, railConfig.getModes());

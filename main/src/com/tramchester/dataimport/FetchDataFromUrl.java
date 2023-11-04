@@ -36,28 +36,25 @@ public class FetchDataFromUrl {
         Missing
     }
 
-    // TODO Config?
-    //public static final long DEFAULT_EXPIRY_MINS = 12 * 60;
-
     private final HttpDownloadAndModTime httpDownloader;
     private final S3DownloadAndModTime s3Downloader;
     private final List<DownloadedConfig> configs;
     private final ProvidesNow providesLocalNow;
     private final DownloadedRemotedDataRepository downloadedDataRepository;
-    private final FetchFileModTime fetchFileModTime;
+    private final GetsFileModTime getsFileModTime;
 
     @Inject
     public FetchDataFromUrl(HttpDownloadAndModTime httpDownloader, S3DownloadAndModTime s3Downloader,
                             HasRemoteDataSourceConfig config, ProvidesNow providesLocalNow,
                             DownloadedRemotedDataRepository downloadedDataRepository,
-                            FetchFileModTime fetchFileModTime) {
+                            GetsFileModTime getsFileModTime) {
         this.httpDownloader = httpDownloader;
         this.s3Downloader = s3Downloader;
         this.configs = new ArrayList<>(config.getRemoteDataSourceConfig());
         this.providesLocalNow = providesLocalNow;
 
         this.downloadedDataRepository = downloadedDataRepository;
-        this.fetchFileModTime = fetchFileModTime;
+        this.getsFileModTime = getsFileModTime;
     }
 
     @PostConstruct
@@ -115,7 +112,7 @@ public class FetchDataFromUrl {
 
         logger.info("Refresh data if newer is available for " + dataSourceId);
 
-        final boolean filePresent = fetchFileModTime.exists(destAndStatusCheckFile.statusCheckFile);
+        final boolean filePresent = getsFileModTime.exists(destAndStatusCheckFile.statusCheckFile);
 
         if (filePresent) {
             logger.info(format("Source %s file %s is present", dataSourceId, destAndStatusCheckFile.statusCheckFile));
@@ -246,7 +243,7 @@ public class FetchDataFromUrl {
 
         if (result.hasModTime()) {
             LocalDateTime modTime = result.getModTime();
-            if (fetchFileModTime.update(destination, modTime)) {
+            if (getsFileModTime.update(destination, modTime)) {
                 logger.info(String.format("Updated mod time to %s for %s downloaded from %s", modTime, destination, uri));
             } else {
                 logger.warn(String.format("Failed to update mod time to %s for %s downloaded from %s", modTime, destination, uri));
@@ -300,7 +297,7 @@ public class FetchDataFromUrl {
     }
 
     private LocalDateTime getFileModLocalTime(Path destination) {
-        return fetchFileModTime.getFor(destination);
+        return getsFileModTime.getFor(destination);
     }
 
     public static class Ready {

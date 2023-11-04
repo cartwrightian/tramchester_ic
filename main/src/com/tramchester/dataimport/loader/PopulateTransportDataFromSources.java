@@ -133,7 +133,7 @@ public class PopulateTransportDataFromSources implements TransportDataFactory {
                 throw new RuntimeException("config returned feedinfo expected but not actually present");
             }
             maybeFeedinfo.ifPresent(feedInfo -> {
-                DataSourceInfo replacementDataSourceInfo = DataSourceInfo.updatedVersion(dataSourceInfo, feedInfo.version());
+                DataSourceInfo replacementDataSourceInfo = DataSourceInfo.updatedVersion(dataSourceInfo, feedInfo);
                 writeableTransportData.addDataSourceInfo(replacementDataSourceInfo);
                 writeableTransportData.addDateRangeAndVersionFor(dataSourceInfoID, feedInfo);
             });

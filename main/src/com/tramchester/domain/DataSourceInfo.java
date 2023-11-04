@@ -4,7 +4,6 @@ import com.tramchester.domain.reference.TransportMode;
 
 import java.time.LocalDateTime;
 import java.util.EnumSet;
-import java.util.Set;
 
 public class DataSourceInfo {
 
@@ -20,9 +19,14 @@ public class DataSourceInfo {
         this.modes = modes;
     }
 
-    public static DataSourceInfo updatedVersion(DataSourceInfo dataSourceInfo, String version) {
-        return new DataSourceInfo(dataSourceInfo.sourceID, version,
-                dataSourceInfo.lastModTime, dataSourceInfo.modes);
+    /***
+     * ONLY Used when gtfs source contains feedinfo file, prefer the version data from there
+     * @param dataSourceInfo original feedinfo data
+     * @param feedInfo the data from gtfs
+     * @return updated version
+     */
+    public static DataSourceInfo updatedVersion(DataSourceInfo dataSourceInfo, FeedInfo feedInfo) {
+        return new DataSourceInfo(dataSourceInfo.sourceID, feedInfo.version(), dataSourceInfo.lastModTime, dataSourceInfo.modes);
     }
 
     public DataSourceID getID() {

@@ -47,9 +47,9 @@ public abstract class RemoteDataSourceConfig extends Configuration implements Ha
                 "isS3: '"+getIsS3()+"' " +
                 "dataPath: '"+getDataPath()+"' " +
                 "downloadPath: '"+getDownloadPath()+"' " +
-                "defaultExpiry: " + getDefaultExpiry() +
-                "mandatory" + isMandatory() +
-                "modTimeCheckFilename" + getModTimeCheckFilename() +
+                "defaultExpiry: '" + getDefaultExpiry() +"' " +
+                "mandatory: '" + isMandatory() +"' " +
+                "modTimeCheckFilename: '" + getModTimeCheckFilename() +"' " +
                 "}";
     }
 
