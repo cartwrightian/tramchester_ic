@@ -1,14 +1,12 @@
 #!/bin/bash
 
-export S3URL=https://s3-eu-west-1.amazonaws.com
-
 # extract from instance user data
 export PLACE=Dev
 export BUILD=0
 export BUCKET=tramchesternewdist
 #export TFGMAPIKEY=$(grep TFGMAPIKEY "$userText" | cut -d = -f 2-)
 
-export ARTIFACTSURL=$S3URL/$BUCKET/dist/$BUILD
+export ARTIFACTSURL=s3://$BUCKET/dist/$BUILD
 
 echo  Set up Web server Bucket: "$BUCKET" Build: "$BUILD" Url: "$ARTIFACTSURL" Env: "$PLACE"
 
@@ -21,7 +19,8 @@ distUrl=$ARTIFACTSURL/$target.zip
 dist=$(basename "$distUrl")
 
 echo Get "$distUrl"
-wget -nv "$distUrl" -O "$dist"
+#wget -nv "$distUrl" -O "$dist"
+aws s3 cp "$distUrl" "$dist" || exit
 unzip "$dist" || (echo Could not unzip from "$dist" from "$distUrl" && exit)
 
 # start
