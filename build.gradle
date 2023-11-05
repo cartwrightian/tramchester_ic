@@ -166,29 +166,8 @@ tasks.register("railLiveDataCodeGen", Wsdl2Java) {
     }
 }
 
-jar {
-    manifest {
-        attributes 'Main-Class': 'com.tramchester.App'
-    }
-}
-
-// NOTE: this is needed to make sure files from webpack etc end up bundled in the main jar correctly
-shadowJar {
-    dependsOn 'distZip'
-    mergeServiceFiles()
-    zip64 true
-}
-
-
 distZip {
     dependsOn 'queryLiveDataArchiveStartScript'
-}
-
-processResources {
-    // don't want webpack during unit tests etc, move to upload
-    //dependsOn 'webpack'
-    //exclude('**/app/') // via webpack
-    //exclude('build/resources/app/**')
 }
 
 tasks.register('npmInstall', Exec) {
@@ -217,8 +196,20 @@ tasks.register('webpack', Exec) {
     }
 }
 
+// todo is this correct see next task
 applicationDistribution.exclude('**/app/')
 
+// TODO this does not seem  the right way to do this
+jar {
+    dependsOn webpack
+    from('build/resources/main') {
+        duplicatesStrategy duplicatesStrategy.INCLUDE
+        exclude '**.yml'
+    }
+    manifest {
+        attributes 'Main-Class': 'com.tramchester.App'
+    }
+}
 
 distributions {
     main {
