@@ -20,10 +20,10 @@ jobs:
           keys:
             - v2-npm-deps-{{ checksum "package-lock.json" }}
 
-      - run: gradle dependencies --no-daemon
+      - run: ./gradlew dependencies --no-daemon
       - run:
           name: unit
-          command: gradle unit --no-daemon
+          command: ./gradlew unit --no-daemon
       - store_test_results:
           path: ~/repo/build/test-results
       - store_artifacts:
@@ -48,17 +48,17 @@ jobs:
       - restore_cache:
           keys:
             - v2-npm-deps-{{ checksum "package-lock.json" }}
-      - run: gradle dependencies --no-daemon
+      - run: ./gradlew dependencies --no-daemon
       - run:
           name: integration
-          command: gradle integration --no-daemon
+          command: ./gradlew integration --no-daemon
       - store_test_results:
           path: ~/repo/build/test-results
       - store_artifacts:
           path: ~/repo/build/reports/tests
       - run:
           name: upload
-          command: gradle upload --no-daemon
+          command: ./gradlew upload --no-daemon
   acceptance:
     docker:
       - image: circleci/openjdk:17-jdk-buster-node-browsers
@@ -83,7 +83,7 @@ jobs:
             ENV: Dev
           command: |
             echo release number is $RELEASE_NUMBER
-            gradle deploy updateLB tidy --no-daemon
+            ./gradlew deploy updateLB tidy --no-daemon
       - run:
           name: setupLocale
           command: |
@@ -101,21 +101,21 @@ jobs:
           command: |
             echo release number is $RELEASE_NUMBER
             export LANG="en_GB.UTF-8"
-            gradle acceptance --no-daemon
+            ./gradlew acceptance --no-daemon
 #      - run:
 #          name: deployUAT
 #          environment:
 #            ENV: UAT
 #          command: |
 #            echo release number is $RELEASE_NUMBER
-#            gradle deploy updateLB tidy --no-daemon
+#            ./gradlew deploy updateLB tidy --no-daemon
       - run:
           name: undeployDev
           environment:
             ENV: Dev
           command: |
             echo release number is $RELEASE_NUMBER
-            gradle undeploy --no-daemon
+            ./gradlew undeploy --no-daemon
       - store_test_results:
           path: ~/repo/build/test-results
       - store_artifacts:
@@ -138,7 +138,7 @@ jobs:
       - restore_cache:
           keys:
           - v2-npm-deps-{{ checksum "package-lock.json" }}
-      - run: gradle dependencies --no-daemon
+      - run: ./gradlew dependencies --no-daemon
       - run:
           name: deployProd
           environment:
@@ -146,8 +146,8 @@ jobs:
             AWS_REGION: eu-west-1
           command: |
             echo release number is $RELEASE_NUMBER
-            gradle deploy --no-daemon
-            gradle updateLB --no-daemon
+            ./gradlew deploy --no-daemon
+            ./gradlew updateLB --no-daemon
 workflows:
   version: 2
   build:
