@@ -617,9 +617,9 @@ tasks.register('buildGraphTest', Test) {
 }
 
 tasks.register('acceptance', Test) {
-    dependsOn 'allowhost'
-    dependsOn 'compileJava'
-    dependsOn 'webpack'
+//    dependsOn allowhost
+    dependsOn compileJava
+    dependsOn webpack
     useJUnitPlatform()
     filter {
         includeTestsMatching "com.tramchester.acceptance.*"
@@ -628,9 +628,9 @@ tasks.register('acceptance', Test) {
         exceptionFormat "full" // default is "short"
         events "passed", "skipped", "failed", "started", "standardError", "standardOut"
     }
-    finalizedBy {
-        blockhost
-    }
+//    finalizedBy {
+//        blockhost
+//    }
 }
 
 // fast feedback on whether acceptance tests run etc
@@ -818,56 +818,56 @@ tasks.register('tidy') {
     }
 }
 
-tasks.register('allowHostDev') {
-    dependsOn cfnassist
-    doLast {
-        ant.cfnassist(project: 'tramchesterB', env: 'Dev') {
-            WhiteList(port: '443', tag: 'web')
-        }
-    }
-}
-
-tasks.register('blockHostDev') {
-    dependsOn cfnassist
-    doLast {
-        ant.cfnassist(project: 'tramchesterB', env: 'Dev') {
-            BlackList(port: '443', tag: 'web')
-        }
-    }
-}
-
-tasks.register('allowHostUAT') {
-    dependsOn cfnassist
-    doLast {
-        ant.cfnassist(project: 'tramchesterB', env: 'UAT') {
-            WhiteList(port: '443', tag: 'web')
-        }
-    }
-}
-
-tasks.register('denyHostUAT') {
-    dependsOn cfnassist
-    doLast {
-        ant.cfnassist(project: 'tramchesterB', env: 'UAT') {
-            BlackList(port: '443', tag: 'web')
-        }
-    }
-}
-
-tasks.register('allowhost') {
-    dependsOn cfnassist
-    doLast {
-        ant.cfnassist(project: 'tramchesterB', env: environment) {
-            WhiteList(port: '443', tag: 'web')
-        }
-    }
-}
-
-tasks.register('blockhost') {
-    dependsOn cfnassist
-    doLast {
-        ant.cfnassist(project: 'tramchesterB', env: environment) {
-            BlackList(port: '443', tag: 'web')
-        }
-    }
-}
+//tasks.register('allowHostDev') {
+//    dependsOn cfnassist
+//    doLast {
+//        ant.cfnassist(project: 'tramchesterB', env: 'Dev') {
+//            WhiteList(port: '443', tag: 'web')
+//        }
+//    }
+//}
+//
+//tasks.register('blockHostDev') {
+//    dependsOn cfnassist
+//    doLast {
+//        ant.cfnassist(project: 'tramchesterB', env: 'Dev') {
+//            BlackList(port: '443', tag: 'web')
+//        }
+//    }
+//}
+//
+//tasks.register('allowHostUAT') {
+//    dependsOn cfnassist
+//    doLast {
+//        ant.cfnassist(project: 'tramchesterB', env: 'UAT') {
+//            WhiteList(port: '443', tag: 'web')
+//        }
+//    }
+//}
+//
+//tasks.register('denyHostUAT') {
+//    dependsOn cfnassist
+//    doLast {
+//        ant.cfnassist(project: 'tramchesterB', env: 'UAT') {
+//            BlackList(port: '443', tag: 'web')
+//        }
+//    }
+//}
+//
+//tasks.register('allowhost') {
+//    dependsOn cfnassist
+//    doLast {
+//        ant.cfnassist(project: 'tramchesterB', env: environment) {
+//            WhiteList(port: '443', tag: 'web')
+//        }
+//    }
+//}
+//
+//tasks.register('blockhost') {
+//    dependsOn cfnassist
+//    doLast {
+//        ant.cfnassist(project: 'tramchesterB', env: environment) {
+//            BlackList(port: '443', tag: 'web')
+//        }
+//    }
+//}
