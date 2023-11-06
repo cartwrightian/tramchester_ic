@@ -22,12 +22,6 @@ public class ProvidesChromeDateInput implements ProvidesDateInput {
         String pattern = originalPattern.replaceAll("yy", "yyyy");
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
         return formatter.format(localDate).replaceAll("/","");
-
-//        String formatter = DateTimeFormat.patternForStyle("S-", locale);
-//        org.joda.time.LocalDate jodaDate = new org.joda.time.LocalDate(localDate.getYear(), localDate.getMonthValue(),
-//                localDate.getDayOfMonth());
-//        String pattern = formatter.replaceAll("yy", "yyyy");
-//        return jodaDate.toString(pattern).replaceAll("/","");
     }
 
     private String getPatternForDate(LocalDate localDate) {
@@ -42,8 +36,5 @@ public class ProvidesChromeDateInput implements ProvidesDateInput {
         String text = formatter.format(time);
         return text.replaceAll(" ","");
 
-//        String formatter = DateTimeFormat.patternForStyle("-S", locale);
-//        org.joda.time.LocalTime jodaTime = new org.joda.time.LocalTime(time.getHour(), time.getMinute());
-//        return jodaTime.toString(formatter).replaceAll(" ", "");
     }
 }

@@ -3,11 +3,13 @@ package com.tramchester.acceptance;
 import com.tramchester.acceptance.infra.ProvidesChromeDateInput;
 import com.tramchester.acceptance.infra.ProvidesFirefoxDateInput;
 import com.tramchester.acceptance.pages.ProvidesDateInput;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class DateInputTest {
 
@@ -20,17 +22,10 @@ class DateInputTest {
         String result = firefoxProvider.createDateInput(date);
 
         // UK is30112019
-        Assertions.assertEquals(10, result.length(), result);
-        Assertions.assertTrue(result.contains("30"));
-        Assertions.assertTrue(result.contains("11"));
-        Assertions.assertTrue(result.contains("2019"));
-    }
-
-    @Test
-    void shouldFirefoxTimeCorrecly() {
-        String result = firefoxProvider.createTimeFormat(LocalTime.of(14,45));
-        Assertions.assertTrue(result.startsWith("14"), result);
-        Assertions.assertTrue(result.endsWith("45"), result);
+        assertEquals(10, result.length(), result);
+        assertTrue(result.contains("30"));
+        assertTrue(result.contains("11"));
+        assertTrue(result.contains("2019"));
     }
 
     @Test
@@ -39,17 +34,26 @@ class DateInputTest {
         String result = chromeProvider.createDateInput(date);
 
         // actual ordering is locale specific, which is needed to support browser running in other locals i.e. on CI box
-        Assertions.assertEquals(8, result.length(), result);
-        Assertions.assertTrue(result.contains("30"));
-        Assertions.assertTrue(result.contains("11"));
-        Assertions.assertTrue(result.contains("2019"));
+        assertEquals(8, result.length(), result);
+        assertTrue(result.contains("30"));
+        assertTrue(result.contains("11"));
+        assertTrue(result.contains("2019"));
+    }
+
+    @Test
+    void shouldFirefoxTimeCorrecly() {
+        // checking for 24h clock
+        String result = firefoxProvider.createTimeFormat(LocalTime.of(14,45));
+        assertTrue(result.startsWith("14"), "expected start of " + result);
+        assertTrue(result.endsWith("45"), "expected end of " + result);
     }
 
     @Test
     void shouldGetChromeTimeCorrectly() {
-        String result = firefoxProvider.createTimeFormat(LocalTime.of(16,55));
-        Assertions.assertTrue(result.startsWith("16"), result);
-        Assertions.assertTrue(result.endsWith("55"), result);
+        // checking for 24h clock
+        String result = chromeProvider.createTimeFormat(LocalTime.of(16,55));
+        assertTrue(result.startsWith("16"), "expected start of " + result);
+        assertTrue(result.endsWith("55"), "expected end of " +result);
     }
 
 

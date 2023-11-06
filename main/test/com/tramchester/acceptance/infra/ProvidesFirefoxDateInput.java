@@ -19,7 +19,6 @@ public class ProvidesFirefoxDateInput implements ProvidesDateInput {
     }
 
     // local java localdatetime
-    @Deprecated
     @Override
     public String createTimeFormat(LocalTime time) {
         DateTimeFormatter formatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT);
