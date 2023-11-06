@@ -108,7 +108,7 @@ public class AppPage extends Page {
     private void setSelector(String selectorId, TramStations station) {
         WebElement dropDown = findElementById(selectorId); //driver.findElement(By.id(id));
         moveToElement(dropDown);
-//        createWait().until(elementToBeClickable(dropDown));
+        createWait().until(elementToBeClickable(dropDown));
 
         // just this works for chrome but not firefox
         dropDown.sendKeys(station.getName());
