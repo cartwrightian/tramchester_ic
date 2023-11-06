@@ -606,10 +606,25 @@ tasks.register('buildGraphTest', Test) {
     }
 }
 
+// aid with debuggin locale issue quickly
+tasks.register('localeTest', Test) {
+    dependsOn compileJava
+    systemProperty("user.language", "en")
+    systemProperty("user.country", "GB")
+    useJUnitPlatform {
+        includeTags "LocaleTest"
+    }
+    filter {
+        includeTestsMatching "com.tramchester.acceptance.*"
+    }
+}
+
 tasks.register('acceptance', Test) {
 //    dependsOn allowhost
     dependsOn compileJava
     dependsOn webpack
+    systemProperty("user.language", "en")
+    systemProperty("user.country", "GB")
     useJUnitPlatform()
     filter {
         includeTestsMatching "com.tramchester.acceptance.*"

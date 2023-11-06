@@ -73,6 +73,11 @@ jobs:
       TERM: dumb
       AWS_REGION: eu-west-1
       RELEASE_NUMBER: << pipeline.number >>
+      # todo move back to proper url
+      #SERVER_URL: https://alpha.tramchester.com
+      SERVER_URL: http://dev-tramchester-alb-588237683.eu-west-1.elb.amazonaws.com
+      LANG: "en_GB.UTF-8"
+      TZ: "Europe/London"
     steps:
       - browser-tools/install-geckodriver
       - browser-tools/install-chromedriver
@@ -84,11 +89,14 @@ jobs:
           keys:
             - v2-npm-deps-{{ checksum "package-lock.json" }}
       - run:
+          name: report environment
+          command:
+            echo LANG=$LANG SERVER_URL=$SEVER_URL RELEASE_NUMBER=$RELEASE_NUMBER
+      - run:
           name: deployDevForAcceptance
           environment:
             ENV: Dev
           command: |
-            echo release number is $RELEASE_NUMBER
             google-chrome --version
             firefox --version
             geckodriver --version
@@ -103,14 +111,8 @@ jobs:
       - run:
           name: acceptance
           environment:
-            # todo move back to proper url
-            #SERVER_URL: https://alpha.tramchester.com
-            SERVER_URL: http://dev-tramchester-alb-588237683.eu-west-1.elb.amazonaws.com
-            LANG: "en_GB.UTF-8"
-            TZ: "Europe/London"
-            LC_TIME: "en_GB.UTF-8"
           command: |
-            echo release number is $RELEASE_NUMBER
+            echo release number is $RELEASE_NUMBER LANG is $LANG
             ./gradlew --build-cache acceptance --no-daemon
 #      - run:
 #          name: deployUAT

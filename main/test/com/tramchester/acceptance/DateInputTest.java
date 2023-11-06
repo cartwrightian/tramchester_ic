@@ -3,18 +3,33 @@ package com.tramchester.acceptance;
 import com.tramchester.acceptance.infra.ProvidesChromeDateInput;
 import com.tramchester.acceptance.infra.ProvidesFirefoxDateInput;
 import com.tramchester.acceptance.pages.ProvidesDateInput;
+import com.tramchester.testSupport.testTags.LocaleTest;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@LocaleTest
 class DateInputTest {
 
     private final ProvidesDateInput firefoxProvider = new ProvidesFirefoxDateInput();
     private final ProvidesDateInput chromeProvider = new ProvidesChromeDateInput();
+
+
+    // NOTE: issues with selenium and web driver if locale not set as expected, so check
+
+    @Test
+    void shouldHaveExpectedLocale() {
+        Locale current = Locale.getDefault();
+
+        assertEquals("en", current.getLanguage());
+
+        assertEquals("GB", current.getCountry());
+    }
 
     @Test
     void shouldGetFirefoxDateCorrectly() {
@@ -55,6 +70,7 @@ class DateInputTest {
         assertTrue(result.startsWith("16"), "expected start of " + result);
         assertTrue(result.endsWith("55"), "expected end of " +result);
     }
+
 
 
 }

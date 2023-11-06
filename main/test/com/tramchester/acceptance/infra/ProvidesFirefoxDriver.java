@@ -5,7 +5,6 @@ import com.tramchester.acceptance.pages.ProvidesDateInput;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.testSupport.TestEnv;
 import org.apache.commons.io.FileUtils;
-import org.junit.jupiter.api.Test;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.NoSuchSessionException;
 import org.openqa.selenium.WebElement;
@@ -47,17 +46,29 @@ public class ProvidesFirefoxDriver extends ProvidesDesktopDriver {
             if (geckoDriverPath != null) {
                 System.setProperty("webdriver.gecko.driver", geckoDriverPath.toString());
             }
+            
+            FirefoxProfile firefoxProfile = new FirefoxProfile();
 
-            if (!enableGeo) {
-                FirefoxProfile geoDisabled = new FirefoxProfile();
-                geoDisabled.setPreference("geo.enabled", false);
-                geoDisabled.setPreference("geo.provider.use_corelocation", false);
-                geoDisabled.setPreference("geo.prompt.testing", false);
-                geoDisabled.setPreference("geo.prompt.testing.allow", false);
+            // This does not seem to work at all when it comes time input, only setting of LANG seems to matter
+            // https://firefox-source-docs.mozilla.org/intl/locale.html
+            // en-GB en-US
+//            firefoxProfile.setPreference("intl.locale.requested", "en-GB");
+//            firefoxProfile.setPreference("intl.accept_languages", "en-GB");
 
-                capabilities.setCapability(FirefoxDriver.PROFILE, geoDisabled);
+            if (enableGeo) {
+                firefoxProfile.setPreference("geo.enabled", true);
+                firefoxProfile.setPreference("geo.provider.use_corelocation", true);
+                firefoxProfile.setPreference("geo.prompt.testing", true);
+                firefoxProfile.setPreference("geo.prompt.testing.allow", true);
+            }
+            else {
+                firefoxProfile.setPreference("geo.enabled", false);
+                firefoxProfile.setPreference("geo.provider.use_corelocation", false);
+                firefoxProfile.setPreference("geo.prompt.testing", false);
+                firefoxProfile.setPreference("geo.prompt.testing.allow", false);
             }
 
+            capabilities.setCapability(FirefoxDriver.PROFILE, firefoxProfile);
             FirefoxOptions firefoxOptions = new FirefoxOptions(capabilities);
 
             // allow disabling of headless more via env var
