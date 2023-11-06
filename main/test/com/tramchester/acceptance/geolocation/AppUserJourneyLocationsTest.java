@@ -81,7 +81,7 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
 
         // from
         List<String> myLocationStops = appPage.getNearbyFromStops();
-        assertEquals(1, myLocationStops.size());
+        assertEquals(1, myLocationStops.size(),"unexpected 1 got " + myLocationStops);
 
         List<String> nearestFromStops = appPage.getNearestFromStops();
         assertThat("Have nearest stops", nearestFromStops, hasItems(altrincham, TramStations.NavigationRoad.getName()));

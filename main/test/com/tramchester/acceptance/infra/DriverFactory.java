@@ -43,4 +43,8 @@ public class DriverFactory {
     public void takeScreenshotFor(String name, String testName) {
         drivers.get(name).takeScreenShot(testName);
     }
+
+    public boolean isGeoEnabled() {
+        return enableGeoLocation;
+    }
 }

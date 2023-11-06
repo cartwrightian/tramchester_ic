@@ -19,7 +19,6 @@ jobs:
       - restore_cache:
           keys:
             - v2-npm-deps-{{ checksum "package-lock.json" }}
-
       - run: ./gradlew dependencies --no-daemon
       - run:
           name: unit

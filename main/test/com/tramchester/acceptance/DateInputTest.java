@@ -20,7 +20,7 @@ class DateInputTest {
         String result = firefoxProvider.createDateInput(date);
 
         // UK is30112019
-        Assertions.assertEquals(8, result.length());
+        Assertions.assertEquals(10, result.length(), result);
         Assertions.assertTrue(result.contains("30"));
         Assertions.assertTrue(result.contains("11"));
         Assertions.assertTrue(result.contains("2019"));

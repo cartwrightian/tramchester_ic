@@ -121,17 +121,10 @@ public class AppPage extends Page {
         createWait().until(elementToBeClickable(element));
 
         Select selector = new Select(element);
-        throw new RuntimeException("Need a way to find the MyLocation element in the dropdown");
-        //selector.selectByValue(station.getRawId());
-    }
 
-    private void setSelector(String id, String selectionName) {
-        WebElement element = findElementById(id); //driver.findElement(By.id(id));
-        moveToElement(element);
-        createWait().until(elementToBeClickable(element));
+        // TODO On chrome this seems to fail sometime, the element is selected but events don't fire as normal
+        selector.selectByVisibleText("My Location");
 
-        Select selector = new Select(element);
-        selector.selectByVisibleText(selectionName);
     }
 
     public void setSpecificDate(LocalDate targetDate) {
@@ -242,7 +235,7 @@ public class AppPage extends Page {
 
     public List<String> getRecentFromStops() {
         try {
-            return getEnabledStopsByGroupName(START_GROUP + "Recent");
+            return getEnabledStopsByGroupName(START_GROUP + "Recent", "stop");
         }
         catch (TimeoutException notFound) {
             return new ArrayList<>();
@@ -251,7 +244,7 @@ public class AppPage extends Page {
 
     public List<String> getRecentToStops() {
         try {
-            return getEnabledStopsByGroupName(DESTINATION_GROUP + "Recent");
+            return getEnabledStopsByGroupName(DESTINATION_GROUP + "Recent", "stop");
         }
         catch (TimeoutException notFound) {
             return new ArrayList<>();
@@ -259,24 +252,24 @@ public class AppPage extends Page {
     }
 
     public List<String> getAllStopsFromStops() {
-        return getEnabledStopsByGroupName(START_GROUP + "AllStops");
+        return getEnabledStopsByGroupName(START_GROUP + "AllStops", "stop");
     }
 
     public List<String> getAllStopsToStops() {
-        return getEnabledStopsByGroupName(DESTINATION_GROUP + "AllStops");
+        return getEnabledStopsByGroupName(DESTINATION_GROUP + "AllStops", "stop");
     }
 
     public List<String> getNearestFromStops() {
-        return getEnabledStopsByGroupName(START_GROUP + "NearestStops");
+        return getEnabledStopsByGroupName(START_GROUP + "NearestStops", "stop");
     }
 
     public List<String> getNearbyToStops() {
-        return getEnabledStopsByGroupName(DESTINATION_GROUP + "Nearby");
+        return getEnabledStopsByGroupName(DESTINATION_GROUP + "Nearby", "MyLocation");
     }
 
     public List<String> getNearbyFromStops() {
         try {
-            return getEnabledStopsByGroupName(START_GROUP + "Nearby");
+            return getEnabledStopsByGroupName(START_GROUP + "Nearby", "MyLocation");
         }
         catch (TimeoutException notFound) {
             return new ArrayList<>();
@@ -286,11 +279,11 @@ public class AppPage extends Page {
     public List<String> getToStops() {
         By toStops = By.id(TO_STOP);
         WebElement elements = waitForClickableLocator(toStops);
-        return getEnabledStopNames(elements);
+        return getEnabledStopNames(elements, "stop");
     }
 
-    private List<String> getEnabledStopNames(WebElement groupElement) {
-        List<WebElement> stopElements = groupElement.findElements(By.className("stop"));
+    private List<String> getEnabledStopNames(WebElement groupElement, String className) {
+        List<WebElement> stopElements = groupElement.findElements(By.className(className));
         return stopElements.stream().filter(WebElement::isEnabled)
                 .map(WebElement::getText).
                 map(String::trim).collect(Collectors.toList());
@@ -311,7 +304,8 @@ public class AppPage extends Page {
     }
 
     private WebElement waitForClickableLocator(By selector) {
-        return createWait().until(elementToBeClickable(selector));
+        return createWait().until(webDriver -> elementToBeClickable(selector).apply(webDriver));
+        //return createWait().until(elementToBeClickable(selector));
     }
 
     public boolean notesPresent() {
@@ -323,8 +317,7 @@ public class AppPage extends Page {
     }
 
     public boolean noWeekendMessage() {
-        return waitForCondition(not(
-                presenceOfElementLocated(By.id("Weekend"))));
+        return waitForCondition(not(presenceOfElementLocated(By.id("Weekend"))));
     }
 
     public String getBuild() {
@@ -374,7 +367,8 @@ public class AppPage extends Page {
     }
 
     private boolean waitForModalToOpen(By byId, String buttonName) {
-        waitForCondition(elementToBeClickable(byId));
+        //waitForCondition(elementToBeClickable(byId));
+        createWait().until(webDriver -> elementToBeClickable(byId).apply(webDriver));
         WebElement diag = driver.findElement(byId);
         WebElement button = diag.findElement(By.id(buttonName));
         return waitForCondition(elementToBeClickable(button));
@@ -448,9 +442,10 @@ public class AppPage extends Page {
         }
     }
 
-    private List<String> getEnabledStopsByGroupName(String groupName) {
-        WebElement groupElement = waitForClickableLocator(By.id(groupName));
-        return getEnabledStopNames(groupElement);
+    private List<String> getEnabledStopsByGroupName(String groupName, String className) {
+        By id = By.id(groupName);
+        WebElement groupElement = waitForClickableLocator(id);
+        return getEnabledStopNames(groupElement, className);
     }
 
     public boolean hasLocation() {

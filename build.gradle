@@ -654,20 +654,6 @@ tasks.register('localAcceptance', Test) {
     }
 }
 
-tasks.register('localAcceptanceGeo', Test) {
-    dependsOn webpack
-    dependsOn compileJava
-    minHeapSize = "1000m"
-    maxHeapSize = "2500m"
-    useJUnitPlatform()
-    filter {
-        includeTestsMatching "com.tramchester.acceptance.geolocation.*"
-    }
-    testLogging {
-        events "passed", "skipped", "failed", "started", "standardError", "standardOut"
-    }
-}
-
 tasks.register('diagrams') {
     dependsOn cfnassist
     doLast {
