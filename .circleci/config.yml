@@ -13,51 +13,51 @@ jobs:
       RELEASE_NUMBER: << pipeline.number >>
     steps:
       - checkout
-      - restore_cache:
-          keys:
-          - v1-gradle-deps-{{ checksum "build.gradle" }}
-      - restore_cache:
-          keys:
-            - v2-npm-deps-{{ checksum "package-lock.json" }}
-      - run: ./gradlew dependencies --no-daemon
+      - run:
+          name: compile
+          command: ./gradlew --build-cache compileJava
       - run:
           name: unit
-          command: ./gradlew unit --no-daemon
+          command: ./gradlew --build-cache unit --no-daemon
       - store_test_results:
-          path: ~/repo/build/test-results
+          path: ~/repo/build/test-results/unit
       - store_artifacts:
-          path: ~/repo/build/reports/tests
+          path: ~/repo/build/reports/tests/unit
+      - save_cache:
+          name: Gradle deps
+          key: v1-gradle-deps-{{ checksum "build.gradle" }}
+          paths:
+            - ~/.gradle
   integration:
     docker:
       - image: cimg/openjdk:17.0-node
     resource_class: medium
     working_directory: ~/repo
-
     environment:
       #JAVA_TOOL_OPTIONS: -Xmx3500m
       TERM: dumb
       AWS_REGION: eu-west-1
       RELEASE_NUMBER: << pipeline.number >>
-
     steps:
       - checkout
       - restore_cache:
           keys:
             - v1-gradle-deps-{{ checksum "build.gradle" }}
-      - restore_cache:
-          keys:
-            - v2-npm-deps-{{ checksum "package-lock.json" }}
-      - run: ./gradlew dependencies --no-daemon
       - run:
           name: integration
-          command: ./gradlew integration --no-daemon
+          command: ./gradlew --build-cache integration --no-daemon
       - store_test_results:
-          path: ~/repo/build/test-results
+          path: ~/repo/build/test-results/integration
       - store_artifacts:
-          path: ~/repo/build/reports/tests
+          path: ~/repo/build/reports/tests/integration
       - run:
           name: upload
-          command: ./gradlew upload --no-daemon
+          command: ./gradlew --build-cache upload --no-daemon
+      - save_cache:
+          name: Node deps
+          key: v2-npm-deps-{{ checksum "package-lock.json" }}
+          paths:
+            - node_modules
   acceptance:
     docker:
       - image: cimg/openjdk:17.0-browsers
@@ -82,7 +82,7 @@ jobs:
             ENV: Dev
           command: |
             echo release number is $RELEASE_NUMBER
-            ./gradlew deploy updateLB tidy --no-daemon
+            ./gradlew --build-cache deploy updateLB tidy --no-daemon
       - run:
           name: setupLocale
           command: |
@@ -100,25 +100,25 @@ jobs:
           command: |
             echo release number is $RELEASE_NUMBER
             export LANG="en_GB.UTF-8"
-            ./gradlew acceptance --no-daemon
+            ./gradlew --build-cache acceptance --no-daemon
 #      - run:
 #          name: deployUAT
 #          environment:
 #            ENV: UAT
 #          command: |
 #            echo release number is $RELEASE_NUMBER
-#            ./gradlew deploy updateLB tidy --no-daemon
+#            ./gradlew --build-cache deploy updateLB tidy --no-daemon
       - run:
           name: undeployDev
           environment:
             ENV: Dev
           command: |
             echo release number is $RELEASE_NUMBER
-            ./gradlew undeploy --no-daemon
+            ./gradlew --build-cache undeploy --no-daemon
       - store_test_results:
-          path: ~/repo/build/test-results
+          path: ~/repo/build/test-results/acceptance
       - store_artifacts:
-          path: ~/repo/build/reports/tests
+          path: ~/repo/build/reports/tests/acceptance
       - store_artifacts:
           path: ~/logs
   deployProd:
@@ -136,7 +136,6 @@ jobs:
       - restore_cache:
           keys:
           - v2-npm-deps-{{ checksum "package-lock.json" }}
-      - run: ./gradlew dependencies --no-daemon
       - run:
           name: deployProd
           environment:
@@ -144,8 +143,8 @@ jobs:
             AWS_REGION: eu-west-1
           command: |
             echo release number is $RELEASE_NUMBER
-            ./gradlew deploy --no-daemon
-            ./gradlew updateLB --no-daemon
+            ./gradlew --build-cache deploy --no-daemon
+            ./gradlew --build-cache updateLB --no-daemon
 workflows:
   version: 2
   build:
