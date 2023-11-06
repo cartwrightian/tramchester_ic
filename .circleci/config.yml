@@ -19,6 +19,9 @@ jobs:
           name: compile
           command: ./gradlew --build-cache compileJava
       - run:
+          name: compile tests
+          command: ./gradlew --build-cache compileTestJava
+      - run:
           name: unit
           command: ./gradlew --build-cache unit --no-daemon
       - store_test_results:

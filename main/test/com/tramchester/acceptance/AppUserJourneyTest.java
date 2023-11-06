@@ -547,7 +547,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
     }
 
     public static void desiredJourney(AppPage appPage, KnownLocations start, TramStations dest, LocalDate date, TramTime time, boolean arriveBy) {
-        appPage.setStart(start);
+        appPage.setStartToMyLocation();
         appPage.setDest(dest);
         appPage.setSpecificDate(date);
         appPage.setTime(time);

@@ -30,13 +30,13 @@ public abstract class ProvidesDriver {
         }
         try {
             byte[] bytes = driver.getScreenshotAs(OutputType.BYTES);
-            String filename = format("build/reports/tests/%s.png", safeFilename(testName));
+            String filename = format("build/reports/tests/acceptance/%s.png", safeFilename(testName));
             File target = Paths.get(filename).toAbsolutePath().toFile();
             FileOutputStream output = new FileOutputStream(target);
             output.write(bytes);
             output.close();
         } catch (IOException | TimeoutException ioException) {
-            logger.warn("Can't takle screenshoot", ioException);
+            logger.warn("Failed screenshot", ioException);
         }
     }
 

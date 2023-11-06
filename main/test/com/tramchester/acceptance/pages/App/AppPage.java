@@ -3,7 +3,6 @@ package com.tramchester.acceptance.pages.App;
 import com.tramchester.acceptance.pages.Page;
 import com.tramchester.acceptance.pages.ProvidesDateInput;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.reference.TramStations;
 import org.jetbrains.annotations.NotNull;
 import org.openqa.selenium.*;
@@ -97,8 +96,8 @@ public class AppPage extends Page {
         setSelector(FROM_STOP, start);
     }
 
-    public void setStart(KnownLocations start) {
-        setSelector(FROM_STOP, start);
+    public void setStartToMyLocation() {
+        setSelectorToMyLocation(FROM_STOP);
     }
 
     public void setDest(TramStations destination) {
@@ -115,7 +114,7 @@ public class AppPage extends Page {
 
     }
 
-    private void setSelector(String selectorId, KnownLocations placeholder) {
+    private void setSelectorToMyLocation(String selectorId) {
         WebElement element = findElementById(selectorId); //driver.findElement(By.id(id));
         moveToElement(element);
         createWait().until(elementToBeClickable(element));
@@ -210,14 +209,9 @@ public class AppPage extends Page {
     }
 
     public boolean resultsClickable() {
-        try {
-            By locateResults = By.id((RESULTS));
-            waitForClickableLocator(locateResults);
-            return true;
-        }
-        catch (TimeoutException exception) {
-            return false;
-        }
+        By locateResults = By.id((RESULTS));
+        createWait().until(webDriver -> elementToBeClickable(locateResults).apply(webDriver));
+        return true;
     }
 
     public List<TestResultSummaryRow> getResults() {
@@ -305,7 +299,6 @@ public class AppPage extends Page {
 
     private WebElement waitForClickableLocator(By selector) {
         return createWait().until(webDriver -> elementToBeClickable(selector).apply(webDriver));
-        //return createWait().until(elementToBeClickable(selector));
     }
 
     public boolean notesPresent() {
@@ -367,7 +360,6 @@ public class AppPage extends Page {
     }
 
     private boolean waitForModalToOpen(By byId, String buttonName) {
-        //waitForCondition(elementToBeClickable(byId));
         createWait().until(webDriver -> elementToBeClickable(byId).apply(webDriver));
         WebElement diag = driver.findElement(byId);
         WebElement button = diag.findElement(By.id(buttonName));
