@@ -2,7 +2,10 @@ package com.tramchester.acceptance.infra;
 
 import com.tramchester.acceptance.pages.App.AppPage;
 import com.tramchester.domain.presentation.LatLong;
-import org.openqa.selenium.*;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.TimeoutException;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.slf4j.Logger;
@@ -11,9 +14,8 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Paths;
-
-import static java.lang.String.format;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public abstract class ProvidesDriver {
     private static final Logger logger = LoggerFactory.getLogger(ProvidesDriver.class);
@@ -23,6 +25,8 @@ public abstract class ProvidesDriver {
     public abstract void setStubbedLocation(LatLong place) throws IOException;
     protected abstract String getDriverName();
 
+    private static final Path screenshotsDir = Path.of("build/reports/tests/screenshots/");
+
     protected void takeScreenShot(String testName) {
         TakesScreenshot driver = getDriver();
         if (driver==null) {
@@ -30,8 +34,11 @@ public abstract class ProvidesDriver {
         }
         try {
             byte[] bytes = driver.getScreenshotAs(OutputType.BYTES);
-            String filename = format("build/reports/tests/acceptance/%s.png", safeFilename(testName));
-            File target = Paths.get(filename).toAbsolutePath().toFile();
+
+            if (!Files.exists(screenshotsDir)) {
+                Files.createDirectories(screenshotsDir);
+            }
+            File target = screenshotsDir.resolve(safeFilename(testName)+".png").toFile();
             FileOutputStream output = new FileOutputStream(target);
             output.write(bytes);
             output.close();

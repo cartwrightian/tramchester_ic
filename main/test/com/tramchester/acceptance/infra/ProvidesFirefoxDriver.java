@@ -46,12 +46,11 @@ public class ProvidesFirefoxDriver extends ProvidesDesktopDriver {
             if (geckoDriverPath != null) {
                 System.setProperty("webdriver.gecko.driver", geckoDriverPath.toString());
             }
-            
+
             FirefoxProfile firefoxProfile = new FirefoxProfile();
 
             // This does not seem to work at all when it comes time input, only setting of LANG seems to matter
             // https://firefox-source-docs.mozilla.org/intl/locale.html
-            // en-GB en-US
 //            firefoxProfile.setPreference("intl.locale.requested", "en-GB");
 //            firefoxProfile.setPreference("intl.accept_languages", "en-GB");
 
