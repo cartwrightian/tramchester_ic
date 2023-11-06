@@ -27,12 +27,8 @@ function filterStops(stops, requestedModes, alreadyDisplayed) {
     return results;
 }
 
-function getStopOrLocation(stopId, app) {
-    if (stopId==app.myLocation.id) {
-        return app.myLocation;
-    } else {
-        return app.stops.allStops.get(stopId);
-    }
+function getStop(stopId, app) {
+    return app.stops.allStops.get(stopId);
 }
 
 export default {
@@ -58,17 +54,17 @@ export default {
     },
     methods: {
         updateValue(event) {
-            const stopId = event.target.value;
-            const myLocation = this.$parent.myLocation;
-            this.currentId = stopId;
-            const toSend = getStopOrLocation(stopId, this);
-            this.$emit('input', toSend);
-            // if (stopId==myLocation.id) {
-            //     this.$emit('input', myLocation);
-            // } else {
-            //     const stop = this.stops.allStops.get(stopId);
-            //     this.$emit('input', stop);
-            // }
+            const option = event.target.options[event.target.selectedIndex];
+            if (option.className=='MyLocation') {
+                const myLocation = this.stops.currentLocation[0];
+                this.currentId = myLocation.id;
+                this.$emit('input', myLocation);
+            } else {
+                const stopId = event.target.value;
+                this.currentId = stopId;
+                const toSend = getStop(stopId, this);
+                this.$emit('input', toSend);
+            }
         },
         changedValue(event) {
             // const stopId = event.target.value;
@@ -140,7 +136,7 @@ export default {
                 v-if="!bus">
             <option :value="null" selected>Please select {{name}}</option>
             <optgroup label="Nearby" name="Nearby" :id="name+'GroupNearby'" v-if="geo">
-                <option class="stop" v-for="stop in myLocation" :value="stop.id" :key="stop.id"
+                <option class="MyLocation" v-for="stop in myLocation" :value="stop.id" :key="stop.id"
                     :disabled="stop.id == otherId">{{stop.name}}</option>
             </optgroup>
             <optgroup label="Nearest Stops" name="Nearest Stops" :id="name+'GroupNearestStops'" v-if="geo">
