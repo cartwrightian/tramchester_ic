@@ -176,6 +176,16 @@ export default {
         stationURL(item) {
             return 'https://www.google.com/maps/search/?api=1&query='+ item.latLong.lat + ',' + item.latLong.lon;
         }, 
+        platformFormatter(item) {
+            if (item==null) {
+                return "";
+            }
+            const platform = item.platform;
+            if (platform==null) {
+                return "";
+            }
+            return platform.platformNumber;
+        },
         routeFormatter(route) {
             if (route.transportMode==='Train') {
                 return route.shortName;
@@ -252,7 +262,7 @@ export default {
                                         <div  class="action">{{ actionFormatter(item) }}</div>
                                     </template>
                                     <template v-slot:item.platform.platformNumber="{ item }">
-                                        <div  class="platform">{{ item.platform.platformNumber }}</div>
+                                        <div  class="platform">{{ platformFormatter(item) }}</div>
                                     </template>
                                     <template v-slot:item.actionStation="{ item }">
                                         <a class="actionStation" :href="stationURL(item.actionStation)" target="_blank">{{ item.actionStation.name }}</a>
