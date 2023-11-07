@@ -412,8 +412,7 @@ def integrationTestConfiguration = {
         includeTestsMatching "com.tramchester.integration.*"
     }
     testLogging {
-        exceptionFormat "full" // default is "short"
-        events "passed", "skipped", "failed", "started", "standardError" //, "standardOut"
+        events "passed", "failed", "standardError"
     }
 }
 
@@ -442,7 +441,7 @@ tasks.register('integrationGM', Test) {
     systemProperty("com.tramchester.config", "RailAndTramGreaterManchesterConfig")
     testLogging {
         exceptionFormat "full" // default is "short"
-        events "passed", "skipped", "failed", "started", "standardError" //, "standardOut"
+        events "passed", "failed", "standardError"
     }
 }
 
@@ -459,24 +458,15 @@ tasks.register('dualTestIntegration', Test) {
     systemProperty("com.tramchester.config", "RailAndTramGreaterManchesterConfig")
     testLogging {
         exceptionFormat "full" // default is "short"
-        events "passed", "skipped", "failed", "started", "standardError" //, "standardOut"
+        events "passed", "failed", "standardError" //, "standardOut"
     }
 }
 
 tasks.register('dataUpdated', Test) {
-    dependsOn compileJava
+    configure integrationTestConfiguration
     outputs.upToDateWhen { false }
-    minHeapSize = "1000m"
-    maxHeapSize = "1750m"
     useJUnitPlatform {
         includeTags "DataUpdateTest"
-    }
-    filter {
-        includeTestsMatching "com.tramchester.integration.*"
-    }
-    testLogging {
-        exceptionFormat "full"
-        events "failed"
     }
 }
 
@@ -487,7 +477,7 @@ tasks.register('s3Test', Test) {
     }
     testLogging {
         exceptionFormat "full" // default is "short"
-        events "passed", "skipped", "failed", "started", "standardError" //, "standardOut"
+        events "passed", "failed", "standardError"
     }
 }
 
@@ -508,7 +498,7 @@ tasks.register('integrationBus', Test) {
     }
 }
 
-tasks.register('integrationRail', Test) {
+def integrationRailConfig = {
     dependsOn compileJava
     minHeapSize = "1000m"
     maxHeapSize = "8000m"
@@ -520,47 +510,17 @@ tasks.register('integrationRail', Test) {
     }
     testLogging {
         exceptionFormat "full" // default is "short"
-        events "passed", "skipped", "failed", "started", "standardError" //, "standardOut"
+        events "passed", "failed", "standardError" //, "standardOut"
     }
+}
+
+tasks.register('integrationRail', Test) {
+    configure integrationRailConfig
 }
 
 tasks.register('integrationRailProfile', Test) {
-    dependsOn compileJava
-    minHeapSize = "1000m"
-    maxHeapSize = "3000m"
-    useJUnitPlatform {
-        includeTags "TrainTest"
-    }
+    configure integrationRailConfig
     jvmArgs agentPath
-    filter {
-        includeTestsMatching "com.tramchester.integration.*"
-    }
-    testLogging {
-        exceptionFormat "full" // default is "short"
-        events "passed", "skipped", "failed", "started", "standardError" //, "standardOut"
-    }
-}
-
-tasks.register('apiTests', Test) {
-    dependsOn compileJava
-    minHeapSize = "1000m"
-    maxHeapSize = "1750m"
-    useJUnitPlatform {
-        // excludeTags "liveDataMessages" // these go away periodically...
-        //excludeTags "liveData" // also goes away on occasion
-        //excludeTags "dataExpiry" // can be useful to exclude when big changes to timetable are upcoming
-        excludeTags "postcode" // not needed for tram, but used by buses
-        excludeTags "BusTest"
-        excludeTags "TrainTest"
-        excludeTags "GMTest"
-    }
-    filter {
-        includeTestsMatching "com.tramchester.integration.resources.*"
-    }
-    testLogging {
-        exceptionFormat "full" // default is "short"
-        events "passed", "skipped", "failed", "started", "standardError" //, "standardOut"
-    }
 }
 
 tasks.register('graphTests', Test) {
@@ -606,21 +566,7 @@ tasks.register('buildGraphTest', Test) {
     }
 }
 
-// aid with debuggin locale issue quickly
-tasks.register('localeTest', Test) {
-    dependsOn compileJava
-    systemProperty("user.language", "en")
-    systemProperty("user.country", "GB")
-    useJUnitPlatform {
-        includeTags "LocaleTest"
-    }
-    filter {
-        includeTestsMatching "com.tramchester.acceptance.*"
-    }
-}
-
-tasks.register('acceptance', Test) {
-//    dependsOn allowhost
+def acceptanceTestConfiguration = {
     dependsOn compileJava
     dependsOn webpack
     systemProperty("user.language", "en")
@@ -633,39 +579,33 @@ tasks.register('acceptance', Test) {
         exceptionFormat "full" // default is "short"
         events "passed", "skipped", "failed", "started", "standardError", "standardOut"
     }
+}
+
+tasks.register('acceptance', Test) {
+//    dependsOn allowhost
+    configure acceptanceTestConfiguration
 //    finalizedBy {
 //        blockhost
 //    }
 }
 
+tasks.register('localAcceptance', Test) {
+    configure acceptanceTestConfiguration
+}
+
 // fast feedback on whether acceptance tests run etc
 tasks.register('smokeTest', Test) {
-    dependsOn webpack
-    dependsOn compileJava
-    minHeapSize = "1000m"
-    maxHeapSize = "2500m"
+    configure acceptanceTestConfiguration
     useJUnitPlatform {
         includeTags "SmokeTest"
     }
-    filter {
-        includeTestsMatching "com.tramchester.acceptance.*"
-    }
-    testLogging {
-        events "passed", "skipped", "failed", "started", "standardError", "standardOut"
-    }
 }
 
-tasks.register('localAcceptance', Test) {
-    dependsOn webpack
-    dependsOn compileJava
-    minHeapSize = "1000m"
-    maxHeapSize = "2500m"
-    useJUnitPlatform()
-    filter {
-        includeTestsMatching "com.tramchester.acceptance.*"
-    }
-    testLogging {
-        events "passed", "skipped", "failed", "started", "standardError", "standardOut"
+// aid with debuggin locale issue quickly
+tasks.register('localeTest', Test) {
+    configure acceptanceTestConfiguration
+    useJUnitPlatform {
+        includeTags "LocaleTest"
     }
 }
 
