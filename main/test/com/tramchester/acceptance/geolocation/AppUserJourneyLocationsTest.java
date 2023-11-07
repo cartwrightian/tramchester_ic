@@ -14,6 +14,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -31,6 +32,10 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.jupiter.api.Assertions.*;
 
+
+// NOTE: disabled on ci for now, geolocation is not working on circle ci for same firefox and gecko driver version
+
+@DisabledIfEnvironmentVariable(named = "CIRCLECI", matches = "true")
 @ExtendWith(DropwizardExtensionsSupport.class)
 public class AppUserJourneyLocationsTest extends UserJourneyTest {
 
