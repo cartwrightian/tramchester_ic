@@ -1,5 +1,8 @@
 package com.tramchester.domain.id;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -11,13 +14,19 @@ public class RouteStationId implements IdFor<RouteStation> {
     private final IdFor<Route> routeId;
     private final IdFor<Station> stationId;
 
-    private RouteStationId(final IdFor<Route> routeId, final IdFor<Station> stationId) {
+    @JsonCreator
+    private RouteStationId(@JsonProperty("routeId")IdFor<Route> routeId,
+                           @JsonProperty("stationId")IdFor<Station> stationId) {
         this.routeId = routeId;
         this.stationId = stationId;
     }
 
     public static RouteStationId createId(final IdFor<Route> routeId, final IdFor<Station> stationId) {
         return new RouteStationId(routeId, stationId);
+    }
+
+    public static RouteStationId invalid() {
+        return createId(StringIdFor.invalid(Route.class), StringIdFor.invalid(Station.class));
     }
 
     public static RouteStationId parse(final String text) {
@@ -31,20 +40,27 @@ public class RouteStationId implements IdFor<RouteStation> {
         return createId(routeId, stationId);
     }
 
-    public static RouteStationId invalid() {
-        return createId(StringIdFor.invalid(Route.class), StringIdFor.invalid(Station.class));
+    public IdFor<Route> getRouteId() {
+        return routeId;
     }
 
+    public IdFor<Station> getStationId() {
+        return stationId;
+    }
+
+    @JsonIgnore
     @Override
     public String getGraphId() {
         return routeId.getGraphId()+DIVIDER+stationId.getGraphId();
     }
 
+    @JsonIgnore
     @Override
     public boolean isValid() {
         return routeId.isValid() && stationId.isValid();
     }
 
+    @JsonIgnore
     @Override
     public Class<RouteStation> getDomainType() {
         return RouteStation.class;
@@ -76,11 +92,5 @@ public class RouteStationId implements IdFor<RouteStation> {
                 '}';
     }
 
-    public IdFor<Route> getRouteId() {
-        return routeId;
-    }
 
-    public IdFor<Station> getStationId() {
-        return stationId;
-    }
 }

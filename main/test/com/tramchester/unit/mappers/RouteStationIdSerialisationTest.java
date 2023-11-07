@@ -7,7 +7,6 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.RouteStationId;
 import com.tramchester.domain.places.Station;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -21,7 +20,6 @@ public class RouteStationIdSerialisationTest {
         mapper = new ObjectMapper();
     }
 
-    @Disabled("WIP")
     @Test
     void shouldRoundTripRouteId() throws JsonProcessingException {
         IdFor<Route> routeId = Route.createId("routeA");
