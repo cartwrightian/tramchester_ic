@@ -5,8 +5,10 @@ import com.tramchester.acceptance.infra.ProvidesChromeDriver;
 import com.tramchester.acceptance.infra.ProvidesDriver;
 import com.tramchester.acceptance.infra.ProvidesFirefoxDriver;
 import com.tramchester.acceptance.pages.App.AppPage;
+import com.tramchester.domain.presentation.LatLong;
 import org.junit.jupiter.api.TestInfo;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -16,11 +18,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class UserJourneyTest {
     private static DriverFactory driverFactory;
 
-    protected static void createFactory(boolean enableGeoLocation) {
+    protected static void createFactory(LatLong location) {
         if (driverFactory!=null) {
             throw new RuntimeException("Factory already created");
         }
-        driverFactory = new DriverFactory(enableGeoLocation);
+        driverFactory = new DriverFactory(location);
     }
 
     protected static void closeFactory() {
@@ -29,7 +31,7 @@ public class UserJourneyTest {
         driverFactory = null;
     }
 
-    protected AppPage prepare(ProvidesDriver providesDriver, String url) {
+    protected AppPage prepare(ProvidesDriver providesDriver, String url) throws IOException {
         providesDriver.init();
         providesDriver.clearCookies();
 

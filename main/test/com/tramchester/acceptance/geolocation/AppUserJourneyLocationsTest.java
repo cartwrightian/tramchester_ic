@@ -46,7 +46,7 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
 
     @BeforeAll
     static void beforeAnyTestsRun() {
-        createFactory(true);
+        createFactory(nearAltrincham.latLong());
     }
 
     @SuppressWarnings("unused")
@@ -76,7 +76,7 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
     void shouldHaveCorrectNearbyStops(ProvidesDriver providesDriver) throws IOException {
         AppPage appPage = prepare(providesDriver);
 
-        assertTrue(appPage.hasLocation());
+        assertTrue(appPage.hasLocation(), "geo enabled");
         assertTrue(appPage.searchEnabled());
 
         // from
@@ -131,6 +131,8 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
     void shouldCheckNearAltrinchamToDeansgate(ProvidesDriver providesDriver) throws IOException {
         AppPage appPage = prepare(providesDriver);
 
+        assertTrue(appPage.hasLocation(), "geo enabled");
+
         TramTime planTime = TramTime.of(10,15);
         desiredJourney(appPage, nearAltrincham, TramStations.Deansgate, when, planTime, false);
         appPage.planAJourney();
@@ -178,7 +180,7 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
     }
 
     private AppPage prepare(ProvidesDriver providesDriver) throws IOException {
-        providesDriver.setStubbedLocation(nearAltrincham.latLong());
+//        providesDriver.setStubbedLocation(nearAltrincham.latLong());
 
         return prepare(providesDriver, url);
     }

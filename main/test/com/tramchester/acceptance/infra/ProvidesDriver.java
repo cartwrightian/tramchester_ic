@@ -1,7 +1,6 @@
 package com.tramchester.acceptance.infra;
 
 import com.tramchester.acceptance.pages.App.AppPage;
-import com.tramchester.domain.presentation.LatLong;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.TimeoutException;
@@ -20,9 +19,9 @@ import java.nio.file.Path;
 public abstract class ProvidesDriver {
     private static final Logger logger = LoggerFactory.getLogger(ProvidesDriver.class);
 
-    public abstract void init();
+    public abstract void init() throws IOException;
     public abstract AppPage getAppPage();
-    public abstract void setStubbedLocation(LatLong place) throws IOException;
+//    public abstract void setStubbedLocation(LatLong place) throws IOException;
     protected abstract String getDriverName();
 
     private static final Path screenshotsDir = Path.of("build/reports/tests/screenshots/");

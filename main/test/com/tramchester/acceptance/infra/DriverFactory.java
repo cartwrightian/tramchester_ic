@@ -1,16 +1,18 @@
 package com.tramchester.acceptance.infra;
 
+import com.tramchester.domain.presentation.LatLong;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class DriverFactory {
 
     private final Map<String, ProvidesDriver> drivers;
-    private final boolean enableGeoLocation;
+    private final LatLong location;
 
     // Map Name -> Driver Instance
-    public DriverFactory(boolean enableGeoLocation) {
-        this.enableGeoLocation = enableGeoLocation;
+    public DriverFactory(LatLong location) {
+        this.location = location;
         drivers = new HashMap<>();
     }
 
@@ -18,15 +20,15 @@ public class DriverFactory {
         if (drivers.containsKey(browserName)) {
             return drivers.get(browserName);
         }
-        ProvidesDriver driver = create(enableGeoLocation, browserName);
+        ProvidesDriver driver = create(location, browserName);
         drivers.put(browserName, driver);
         return driver;
     }
 
-    private ProvidesDriver create(boolean enableGeo, String browserName) {
+    private ProvidesDriver create(LatLong location, String browserName) {
         return switch (browserName) {
-            case ProvidesFirefoxDriver.Name -> new ProvidesFirefoxDriver(enableGeo);
-            case ProvidesChromeDriver.Name -> new ProvidesChromeDriver(enableGeo);
+            case ProvidesFirefoxDriver.Name -> new ProvidesFirefoxDriver(location);
+            case ProvidesChromeDriver.Name -> new ProvidesChromeDriver(location);
             default -> throw new RuntimeException("Unknown browser " + browserName);
         };
     }
@@ -45,6 +47,6 @@ public class DriverFactory {
     }
 
     public boolean isGeoEnabled() {
-        return enableGeoLocation;
+        return location.isValid();
     }
 }

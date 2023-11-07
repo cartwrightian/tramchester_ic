@@ -6,6 +6,7 @@ import com.tramchester.acceptance.infra.ProvidesDriver;
 import com.tramchester.acceptance.pages.App.AppPage;
 import com.tramchester.acceptance.pages.App.Stage;
 import com.tramchester.acceptance.pages.App.TestResultSummaryRow;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.resources.DataVersionResourceTest;
@@ -69,7 +70,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
 
     @BeforeAll
     static void beforeAnyTestsRun() {
-        createFactory(false);
+        createFactory(LatLong.Invalid);
     }
 
     @SuppressWarnings("unused")
@@ -112,7 +113,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
 
     @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
-    void shouldShowInitialCookieConsentAndThenDismiss(ProvidesDriver providesDriver) {
+    void shouldShowInitialCookieConsentAndThenDismiss(ProvidesDriver providesDriver) throws IOException {
         providesDriver.init();
         providesDriver.clearCookies();
 
@@ -129,7 +130,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
     @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
     @SmokeTest
-    void shouldHaveInitialValuesAndSetInputsSetCorrectly(ProvidesDriver providesDriver) {
+    void shouldHaveInitialValuesAndSetInputsSetCorrectly(ProvidesDriver providesDriver) throws IOException {
         AppPage appPage = prepare(providesDriver, url);
 
         validateCurrentTimeIsSelected(appPage);
@@ -181,7 +182,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
 
     @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
-    void shouldTravelAltyToBuryAndSetRecents(ProvidesDriver providesDriver) {
+    void shouldTravelAltyToBuryAndSetRecents(ProvidesDriver providesDriver) throws IOException {
         AppPage appPage = prepare(providesDriver, url);
 //        final String from = this.altrincham;
 //        final String to = this.deansgate;
@@ -219,7 +220,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
 
     @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
-    void shouldCheckAltrinchamToDeansgate(ProvidesDriver providesDriver) {
+    void shouldCheckAltrinchamToDeansgate(ProvidesDriver providesDriver) throws IOException {
         AppPage appPage = prepare(providesDriver, url);
         TramTime queryTime = TramTime.of(10,0);
         desiredJourney(appPage, altrincham, deansgate, when, queryTime, false);
@@ -260,7 +261,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
 
     @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
-    void shouldCheckLateNightJourney(ProvidesDriver providesDriver) {
+    void shouldCheckLateNightJourney(ProvidesDriver providesDriver) throws IOException {
         AppPage appPage = prepare(providesDriver, url);
         TramTime queryTime = TramTime.of(23,42);
         desiredJourney(appPage, TraffordCentre, ImperialWarMuseum, when, queryTime, false);
@@ -280,7 +281,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
 
     @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
-    void shouldHideStationInToListWhenSelectedInFromList(ProvidesDriver providesDriver) {
+    void shouldHideStationInToListWhenSelectedInFromList(ProvidesDriver providesDriver) throws IOException {
         AppPage appPage = prepare(providesDriver, url);
         desiredJourney(appPage, altrincham, bury, when, TramTime.of(10,15), false);
 
@@ -291,7 +292,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
 
     @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
-    void shouldShowNoRoutesMessage(ProvidesDriver providesDriver) {
+    void shouldShowNoRoutesMessage(ProvidesDriver providesDriver) throws IOException {
         AppPage appPage = prepare(providesDriver, url);
         desiredJourney(appPage, altrincham, bury, when, TramTime.of(3,15), false);
         appPage.planAJourney();
@@ -301,7 +302,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
 
     @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
-    void shouldUpdateWhenNewJourneyIsEntered(ProvidesDriver providesDriver) {
+    void shouldUpdateWhenNewJourneyIsEntered(ProvidesDriver providesDriver) throws IOException {
         TramTime tenFifteen = TramTime.of(10,15);
         TramTime eightFifteen = TramTime.of(9,15);
 
@@ -332,7 +333,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
 
     @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
-    void shouldUpdateWhenEarlierClicked(ProvidesDriver providesDriver) {
+    void shouldUpdateWhenEarlierClicked(ProvidesDriver providesDriver) throws IOException {
         TramTime tenFifteen = TramTime.of(10,15);
 
         AppPage appPage = prepare(providesDriver, url);
@@ -361,7 +362,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
 
     @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
-    void shouldUpdateWhenLaterClicked(ProvidesDriver providesDriver) {
+    void shouldUpdateWhenLaterClicked(ProvidesDriver providesDriver) throws IOException {
         TramTime tenFifteen = TramTime.of(10,15);
 
         AppPage appPage = prepare(providesDriver, url);
@@ -392,7 +393,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
 
     @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
-    void shouldHaveMultistageJourney(ProvidesDriver providesDriver) {
+    void shouldHaveMultistageJourney(ProvidesDriver providesDriver) throws IOException {
         AppPage appPage = prepare(providesDriver, url);
         TramTime planTime = TramTime.of(10,0);
         desiredJourney(appPage, altrincham, TramStations.ManAirport, when, planTime, false);
@@ -450,7 +451,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
 
     @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
-    void shouldDisplayWeekendWorkNoteOnlyOnWeekends(ProvidesDriver providesDriver) {
+    void shouldDisplayWeekendWorkNoteOnlyOnWeekends(ProvidesDriver providesDriver) throws IOException {
         TramTime time = TramTime.of(10,15);
 
         AppPage appPage = prepare(providesDriver, url);
@@ -476,7 +477,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
 
     @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
-    void shouldHaveBuildAndVersionNumberInFooter(ProvidesDriver providesDriver) {
+    void shouldHaveBuildAndVersionNumberInFooter(ProvidesDriver providesDriver) throws IOException {
         AppPage appPage = prepare(providesDriver, url);
 
         String build = appPage.getExpectedBuildNumberFromEnv();
@@ -493,7 +494,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
     @Disabled("unreliable, cooke is stored in browser but selenium just ignores it sometimes")
     @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
-    void shouldDisplayCookieAgreementIfNotVisited(ProvidesDriver providesDriver) throws InterruptedException {
+    void shouldDisplayCookieAgreementIfNotVisited(ProvidesDriver providesDriver) throws InterruptedException, IOException {
         providesDriver.init();
         providesDriver.clearCookies();
 
@@ -527,7 +528,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
 
     @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
-    void shouldDisplayDisclaimer(ProvidesDriver providesDriver) {
+    void shouldDisplayDisclaimer(ProvidesDriver providesDriver) throws IOException {
         AppPage appPage = prepare(providesDriver, url);
 
         appPage.displayDisclaimer();

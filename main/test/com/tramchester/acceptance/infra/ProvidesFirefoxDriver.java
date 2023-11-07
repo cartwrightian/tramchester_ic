@@ -22,20 +22,19 @@ import java.nio.file.Paths;
 public class ProvidesFirefoxDriver extends ProvidesDesktopDriver {
 
     public final static String Name = "firefox";
-    private final boolean enableGeo;
+    private final LatLong location;
     private final Path locationStubJSON = Paths.get("geofile.json");
 
     private final DesiredCapabilities capabilities;
     private ProvidesDateInput providesDateInput;
 
-    public ProvidesFirefoxDriver(boolean enableGeo) {
-
+    public ProvidesFirefoxDriver(LatLong location) {
         capabilities = createCapabilities();
-        this.enableGeo = enableGeo;
+        this.location = location;
     }
 
     @Override
-    public void init() {
+    public void init() throws IOException {
         if (driver==null) {
             providesDateInput = new ProvidesFirefoxDateInput();
             Path firefoxPath = TestEnv.getPathFromEnv("FIREFOX_PATH");
@@ -54,11 +53,13 @@ public class ProvidesFirefoxDriver extends ProvidesDesktopDriver {
 //            firefoxProfile.setPreference("intl.locale.requested", "en-GB");
 //            firefoxProfile.setPreference("intl.accept_languages", "en-GB");
 
-            if (enableGeo) {
-                firefoxProfile.setPreference("geo.enabled", true);
-                firefoxProfile.setPreference("geo.provider.use_corelocation", true);
+            if (location.isValid()) {
+                createGeoFile(location);
                 firefoxProfile.setPreference("geo.prompt.testing", true);
                 firefoxProfile.setPreference("geo.prompt.testing.allow", true);
+                String locationURL = "file://" + locationStubJSON.toAbsolutePath();
+                firefoxProfile.setPreference("geo.wifi.uri", locationURL); // OLD
+                firefoxProfile.setPreference("geo.provider.network.url", locationURL); // NEW
             }
             else {
                 firefoxProfile.setPreference("geo.enabled", false);
@@ -82,22 +83,6 @@ public class ProvidesFirefoxDriver extends ProvidesDesktopDriver {
     @Override
     public AppPage getAppPage() {
         return new AppPage(driver, providesDateInput);
-    }
-
-    @Override
-    public void setStubbedLocation(LatLong location) throws IOException {
-
-        createGeoFile(location);
-
-        FirefoxProfile profile = new FirefoxProfile();
-        profile.setPreference("geo.prompt.testing", true);
-        profile.setPreference("geo.prompt.testing.allow", true);
-        String locationURL = "file://" + locationStubJSON.toAbsolutePath();
-        profile.setPreference("geo.wifi.uri", locationURL); // OLD
-        profile.setPreference("geo.provider.network.url", locationURL); // NEW
-        capabilities.setBrowserName("firefox");
-
-        capabilities.setCapability(FirefoxDriver.PROFILE, profile);
     }
 
     @Override
@@ -147,7 +132,7 @@ public class ProvidesFirefoxDriver extends ProvidesDesktopDriver {
     @Override
     public String toString() {
         return Name+"{" +
-                "geo=" + enableGeo +
+                "location=" + location +
                 '}';
     }
 }

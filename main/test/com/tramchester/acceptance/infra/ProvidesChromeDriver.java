@@ -26,13 +26,12 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
     public final static String Name = "chrome";
     private final DesiredCapabilities capabilities;
     private final ChromeOptions chromeOptions;
-    private final boolean enableGeo;
+    private final LatLong location;
 
     private final ProvidesDateInput providesDateInput;
-    private LatLong location;
 
-    public ProvidesChromeDriver(boolean enableGeo) {
-        this.enableGeo = enableGeo;
+    public ProvidesChromeDriver(LatLong location) {
+        this.location = location;
 
         Path chromedriverPath = TestEnv.getPathFromEnv(TestEnv.CHROMEDRIVER_PATH_ENV_VAR);
         if (chromedriverPath!=null) {
@@ -43,8 +42,8 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
         capabilities = createCapabilities();
         chromeOptions = new ChromeOptions();
 
-        setGeoLocation(enableGeo, chromeOptions);
-        if (enableGeo) {
+        setGeoLocation(location.isValid(), chromeOptions);
+        if (location.isValid()) {
             // geolocation fails on headless chrome, bug raised https://bugs.chromium.org/p/chromium/issues/detail?id=834808
             chromeOptions.setHeadless(false);
             // exception on set location otherwise
@@ -83,7 +82,7 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
 
             driver = chromeDriver;
 
-            if (location != null) {
+            if (location.isValid()) {
                 chromeDriver.setLocation(new Location(location.getLat(), location.getLon(), 0));
             }
         }
@@ -102,10 +101,10 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
         return new AppPage(driver, providesDateInput);
     }
 
-    @Override
-    public void setStubbedLocation(LatLong location) {
-        this.location = location;
-    }
+//    @Override
+//    public void setStubbedLocation(LatLong location) {
+//        this.location = location;
+//    }
 
     @Override
     protected String getDriverName() {
@@ -115,7 +114,7 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
     @Override
     public String toString() {
         return Name+"{" +
-                "geo=" + enableGeo +
+                "geo=" + location +
                 '}';
     }
 
