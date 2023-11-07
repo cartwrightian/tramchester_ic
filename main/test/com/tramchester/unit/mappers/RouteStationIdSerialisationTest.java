@@ -2,17 +2,14 @@ package com.tramchester.unit.mappers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tramchester.dataimport.data.RouteIndexData;
-import com.tramchester.domain.Agency;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.RailRouteId;
-import org.jetbrains.annotations.NotNull;
+import com.tramchester.domain.id.RouteStationId;
+import com.tramchester.domain.places.Station;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import static com.tramchester.integration.testSupport.rail.RailStationIds.LondonEuston;
-import static com.tramchester.integration.testSupport.rail.RailStationIds.StokeOnTrent;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RouteStationIdSerialisationTest {
@@ -24,38 +21,20 @@ public class RouteStationIdSerialisationTest {
         mapper = new ObjectMapper();
     }
 
+    @Disabled("WIP")
     @Test
     void shouldRoundTripRouteId() throws JsonProcessingException {
-        IdFor<Route> routeId = Route.createId("routeB");
+        IdFor<Route> routeId = Route.createId("routeA");
+        IdFor<Station> stationId = Station.createId("stationB");
+        RouteStationId id = RouteStationId.createId(routeId, stationId);
 
-        RouteIndexData routeIndexData = new RouteIndexData((short) 42, routeId);
+        String asString = mapper.writeValueAsString(id);
 
-        String asString = mapper.writeValueAsString(routeIndexData);
+        RouteStationId result = mapper.readValue(asString, RouteStationId.class);
 
-        RouteIndexData result = mapper.readValue(asString, RouteIndexData.class);
-
-        assertEquals(42, result.getIndex());
         assertEquals(routeId, result.getRouteId());
-    }
+        assertEquals(stationId, result.getStationId());
 
-    @Test
-    void shouldRoundTripWithRailRouteId() throws JsonProcessingException {
-        RailRouteId railRouteId = getRailRouteId();
-
-        RouteIndexData routeIndexData = new RouteIndexData((short) 56, railRouteId);
-
-        String asString = mapper.writeValueAsString(routeIndexData);
-
-        RouteIndexData result = mapper.readValue(asString, RouteIndexData.class);
-
-        assertEquals(56, result.getIndex());
-        assertEquals(railRouteId, result.getRouteId());
-    }
-
-    @NotNull
-    private RailRouteId getRailRouteId() {
-        IdFor<Agency> agencyId = Agency.createId("NT");
-        return new RailRouteId(LondonEuston.getId(), StokeOnTrent.getId(), agencyId, 1);
     }
 
 

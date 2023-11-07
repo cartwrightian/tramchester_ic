@@ -15,7 +15,7 @@ public class RouteStation implements HasId<RouteStation>, GraphProperty, HasTran
 
     private final Station station;
     private final Route route;
-    private final IdFor<RouteStation> id;
+    private final RouteStationId id;
 
     public RouteStation(final Station station, final Route route) {
         this.station = station;
@@ -23,7 +23,7 @@ public class RouteStation implements HasId<RouteStation>, GraphProperty, HasTran
         id = createId(station.getId(), route.getId());
     }
 
-    public static IdFor<RouteStation> createId(final IdFor<Station> station, final IdFor<Route> route) {
+    public static RouteStationId createId(final IdFor<Station> station, final IdFor<Route> route) {
         return RouteStationId.createId(route, station);
     }
 

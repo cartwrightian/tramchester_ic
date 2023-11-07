@@ -1,7 +1,5 @@
 package com.tramchester.integration.mappers.serialisation;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.caching.LoaderSaverFactory;
 import com.tramchester.dataexport.DataSaver;
 import com.tramchester.dataimport.data.RouteIndexData;
@@ -29,7 +27,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class RouteIndexDataSerialisationTest {
 
-    private ObjectMapper mapper;
     private Path pathToJsonFile;
     private LoaderSaverFactory factory;
 
@@ -37,7 +34,6 @@ public class RouteIndexDataSerialisationTest {
     void onceBeforeEachTest() throws IOException {
         pathToJsonFile = TestEnv.getTempDir().resolve("testfile.json");
         Files.deleteIfExists(pathToJsonFile);
-        mapper = new ObjectMapper();
         factory = new LoaderSaverFactory();
         factory.start();
     }
@@ -83,34 +79,6 @@ public class RouteIndexDataSerialisationTest {
         assertEquals(railRouteId, loadedRouteIndexData.getRouteId());
         assertEquals(42, loadedRouteIndexData.getIndex());
 
-    }
-
-    @Test
-    void shouldRoundTripRouteId() throws JsonProcessingException {
-        IdFor<Route> routeId = Route.createId("routeB");
-
-        RouteIndexData routeIndexData = new RouteIndexData((short) 42, routeId);
-
-        String asString = mapper.writeValueAsString(routeIndexData);
-
-        RouteIndexData result = mapper.readValue(asString, RouteIndexData.class);
-
-        assertEquals(42, result.getIndex());
-        assertEquals(routeId, result.getRouteId());
-    }
-
-    @Test
-    void shouldRoundTripWithRailRouteId() throws JsonProcessingException {
-        RailRouteId railRouteId = getRailRouteId();
-
-        RouteIndexData routeIndexData = new RouteIndexData((short) 56, railRouteId);
-
-        String asString = mapper.writeValueAsString(routeIndexData);
-
-        RouteIndexData result = mapper.readValue(asString, RouteIndexData.class);
-
-        assertEquals(56, result.getIndex());
-        assertEquals(railRouteId, result.getRouteId());
     }
 
     @NotNull

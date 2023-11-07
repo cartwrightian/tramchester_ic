@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class SerializerDesererializerTest extends EasyMockSupport {
+class TimeAndDateSerializerDesererializerTest extends EasyMockSupport {
 
     private final TramTime tramTime = TramTime.of(11, 42);
     private final String tramTimeJson = "{\"value\":\"11:42\"}";

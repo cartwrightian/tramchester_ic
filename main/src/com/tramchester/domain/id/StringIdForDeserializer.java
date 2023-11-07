@@ -1,6 +1,5 @@
 package com.tramchester.domain.id;
 
-import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.ObjectCodec;
@@ -31,7 +30,7 @@ public class StringIdForDeserializer<T extends CoreDomain> extends StdDeserializ
     }
 
     @Override
-    public IdFor<T> deserialize(JsonParser jsonParser, DeserializationContext ctxt) throws IOException, JacksonException {
+    public IdFor<T> deserialize(JsonParser jsonParser, DeserializationContext ctxt) throws IOException {
         ObjectCodec oc = jsonParser.getCodec();
         JsonNode node = oc.readTree(jsonParser);
         Map<String, JsonNode> fields = new HashMap<>();
