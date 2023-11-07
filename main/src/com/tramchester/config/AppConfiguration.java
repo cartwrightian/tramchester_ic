@@ -148,6 +148,9 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("neighbourConfig")
     private NeighbourAppConfig neighbourConfig;
 
+    @JsonProperty("cachingDisabled")
+    private Boolean cachingDisabled;
+
     @Override
     public String getInstanceDataUrl() {
         return instanceDataUrl;
@@ -201,6 +204,14 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public boolean redirectToSecure() {
         return redirectToSecure;
+    }
+
+    @Override
+    public boolean getCachingDisabled() {
+        if (cachingDisabled==null) {
+            return false;
+        }
+        return cachingDisabled;
     }
 
     @Override

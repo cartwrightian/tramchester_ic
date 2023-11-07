@@ -33,6 +33,7 @@ public class FileDataCache implements DataCache {
     private final RemoteDataAvailable remoteDataRefreshed;
     private final TramchesterConfig config;
     private final LoaderSaverFactory loaderSaverFactory;
+    private final boolean cachingDisabled;
     private boolean ready;
 
     @Inject
@@ -41,10 +42,16 @@ public class FileDataCache implements DataCache {
         this.cacheFolder = config.getCacheFolder().toAbsolutePath();
         this.remoteDataRefreshed = remoteDataRefreshed;
         this.loaderSaverFactory = loaderSaverFactory;
+        this.cachingDisabled = config.getCachingDisabled();
     }
 
     @PostConstruct
     public void start() {
+        if (cachingDisabled) {
+            logger.warn("Disabled");
+            return;
+        }
+
         logger.info("Starting");
         ready = false;
 
@@ -66,6 +73,10 @@ public class FileDataCache implements DataCache {
     }
 
     private void clearCacheIfDataRefreshed() {
+        if (cachingDisabled) {
+            logger.warn("Not clearing cache, currently disabled");
+            return;
+        }
 
         // TODO Currently clear cache if any data source has refreshed, in future maybe link to Ready dependency chain??
 
@@ -85,6 +96,11 @@ public class FileDataCache implements DataCache {
 
     @PreDestroy
     public void stop() {
+        if (cachingDisabled) {
+            logger.warn("Disabled");
+            return;
+        }
+
         ready = false;
         logger.info("Stopping");
         try {
@@ -102,6 +118,11 @@ public class FileDataCache implements DataCache {
     }
 
     public <CACHETYPE extends CachableData, T extends CachesData<CACHETYPE>> void save(T data, Class<CACHETYPE> theClass) {
+        if (cachingDisabled) {
+            logger.error("NOT saving cache data for " + theClass.getSimpleName() + " as caching is disabled");
+            return;
+        }
+
         final Path path = getPathFor(data);
 
         if (ready) {
@@ -114,16 +135,26 @@ public class FileDataCache implements DataCache {
     }
 
     public <CACHETYPE extends CachableData, T extends CachesData<CACHETYPE>> boolean has(T cachesData) {
+        if (cachingDisabled) {
+            return false;
+        }
         return Files.exists(getPathFor(cachesData));
     }
 
     @NotNull
     public <CACHETYPE extends CachableData, T extends CachesData<CACHETYPE>> Path getPathFor(T data) {
+        guardCorrectState();
+
         String filename = data.getFilename();
         return cacheFolder.resolve(filename).toAbsolutePath();
     }
 
     public void clearFiles() {
+        if (cachingDisabled) {
+            logger.error("Will not clear files when disabled");
+            return;
+        }
+
         if (!Files.exists(cacheFolder)) {
             logger.error("Not clearing cache, folder not present: " + cacheFolder);
             return;
@@ -145,6 +176,8 @@ public class FileDataCache implements DataCache {
     }
 
     public <CACHETYPE extends CachableData, T extends CachesData<CACHETYPE>> void loadInto(T cachesData, Class<CACHETYPE> theClass)  {
+        guardCorrectState();
+
         if (ready) {
             Path cacheFile = getPathFor(cachesData);
             logger.info("Loading " + cacheFile.toAbsolutePath()  + " to " + theClass.getSimpleName());
@@ -167,10 +200,15 @@ public class FileDataCache implements DataCache {
         }
     }
 
-
+    private void guardCorrectState() {
+        if (cachingDisabled) {
+            String msg = "Caching is disabled";
+            logger.error(msg);
+            throw new RuntimeException(msg);
+        }
+    }
 
     public static class CacheLoadException extends Exception {
-
         public CacheLoadException(String msg) {
             super(msg);
         }

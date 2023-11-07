@@ -12,6 +12,7 @@ import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
+import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
 import com.tramchester.livedata.domain.DTO.DepartureDTO;
 import com.tramchester.livedata.domain.DTO.DepartureListDTO;
@@ -45,7 +46,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class DeparturesResourceTest {
 
     private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class,
-            new ResourceTramTestConfig<>(DeparturesResource.class, true));
+            new ResourceTramTestConfig<>(DeparturesResource.class, IntegrationTramTestConfig.LiveData.Enabled));
 
     private Station stationWithNotes;
     private Station stationWithDepartures;

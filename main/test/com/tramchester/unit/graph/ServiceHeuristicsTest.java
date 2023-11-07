@@ -533,6 +533,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         private final int maxWait;
 
         public NeedMaxWaitConfig(int maxWait) {
+            super(LiveData.Disabled, Caching.Disabled);
             this.maxWait = maxWait;
         }
 

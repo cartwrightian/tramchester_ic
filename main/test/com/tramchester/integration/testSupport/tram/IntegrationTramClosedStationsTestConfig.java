@@ -13,7 +13,7 @@ public class IntegrationTramClosedStationsTestConfig extends IntegrationTramTest
     private final boolean planningEnabled;
 
     public IntegrationTramClosedStationsTestConfig(List<StationClosures> closures, boolean planningEnabled) {
-        super(createDBName(closures),  closures);
+        super(createDBName(closures),  closures, Caching.Disabled);
         this.planningEnabled = planningEnabled;
     }
 

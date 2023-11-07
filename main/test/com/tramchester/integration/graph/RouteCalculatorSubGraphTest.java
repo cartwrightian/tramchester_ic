@@ -54,7 +54,6 @@ class RouteCalculatorSubGraphTest {
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
         config = new SubgraphConfig();
-        //TestEnv.deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder().
                 configureGraphFilter(RouteCalculatorSubGraphTest::configureFilter).
@@ -192,7 +191,7 @@ class RouteCalculatorSubGraphTest {
 
     private static class SubgraphConfig extends IntegrationTramTestConfig {
         public SubgraphConfig() {
-            super("subgraph_tramchester.db", Collections.emptyList());
+            super("subgraph_tramchester.db", Collections.emptyList(), Caching.Disabled);
         }
     }
 

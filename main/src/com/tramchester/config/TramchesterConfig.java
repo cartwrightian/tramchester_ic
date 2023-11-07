@@ -156,6 +156,10 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
 
     public abstract String getDistributionBucket();
 
+    public abstract boolean redirectToSecure();
+
+    public abstract boolean getCachingDisabled();
+
     public boolean hasRailConfig() {
         return getRailConfig()!=null;
     }
@@ -187,5 +191,4 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
         return sourceConfig.getMaxInitialWait();
     }
 
-    public abstract boolean redirectToSecure();
 }

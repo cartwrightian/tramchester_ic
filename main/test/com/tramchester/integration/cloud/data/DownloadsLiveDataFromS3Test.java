@@ -3,10 +3,10 @@ package com.tramchester.integration.cloud.data;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.cloud.data.LiveDataClientForS3;
-import com.tramchester.livedata.cloud.DownloadsLiveDataFromS3;
 import com.tramchester.config.TfgmTramLiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
+import com.tramchester.livedata.cloud.DownloadsLiveDataFromS3;
 import com.tramchester.livedata.domain.DTO.archived.ArchivedStationDepartureInfoDTO;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestTramLiveDataConfig;
@@ -14,6 +14,7 @@ import com.tramchester.testSupport.testTags.LiveDataS3UploadTest;
 import com.tramchester.testSupport.testTags.S3Test;
 import org.junit.jupiter.api.*;
 
+import java.nio.file.Path;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -143,6 +144,11 @@ class DownloadsLiveDataFromS3Test {
         public TfgmTramLiveDataConfig getLiveDataConfig() {
             return liveDataConfig;
         }
+
+        @Override
+        public Path getCacheFolder() {
+            return super.getCacheFolder();
+        }
     }
 
     static class RealLiveConfig extends TestTramLiveDataConfig {
@@ -163,6 +169,8 @@ class DownloadsLiveDataFromS3Test {
         public String getS3Prefix() {
             return prefix;
         }
+
+
     }
 
 }

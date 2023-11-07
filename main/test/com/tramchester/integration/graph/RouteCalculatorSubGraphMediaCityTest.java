@@ -73,7 +73,6 @@ class RouteCalculatorSubGraphMediaCityTest {
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
         config = new SubgraphConfig();
-//        TestEnv.deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder().
                 configureGraphFilter(RouteCalculatorSubGraphMediaCityTest::configureFilter).
@@ -317,6 +316,11 @@ class RouteCalculatorSubGraphMediaCityTest {
                     Duration.ofMinutes(45));
 
             return Collections.singletonList(gtfsSourceConfig);
+        }
+
+        @Override
+        public Path getCacheFolder() {
+            return TestEnv.CACHE_DIR.resolve("RouteCalculatorSubGraphMediaCityTest");
         }
     }
 

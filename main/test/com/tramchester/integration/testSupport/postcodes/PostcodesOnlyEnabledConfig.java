@@ -4,13 +4,14 @@ import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 
 public class PostcodesOnlyEnabledConfig extends IntegrationTramTestConfig {
 
     public PostcodesOnlyEnabledConfig() {
-        super(false);
+        super(LiveData.Disabled);
     }
 
     @Override
@@ -21,5 +22,10 @@ public class PostcodesOnlyEnabledConfig extends IntegrationTramTestConfig {
     @Override
     public List<GTFSSourceConfig> getGTFSDataSource() {
         return Collections.emptyList();
+    }
+
+    @Override
+    public Path getCacheFolder() {
+        return super.getCacheFolder();
     }
 }

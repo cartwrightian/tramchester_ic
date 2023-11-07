@@ -10,12 +10,15 @@ import com.tramchester.integration.testSupport.RailAndTramGreaterManchesterConfi
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
-import io.dropwizard.configuration.*;
+import io.dropwizard.configuration.ConfigurationException;
+import io.dropwizard.configuration.FileConfigurationSourceProvider;
+import io.dropwizard.configuration.SubstitutingSourceProvider;
+import io.dropwizard.configuration.YamlConfigurationFactory;
 import io.dropwizard.jackson.Jackson;
+import jakarta.validation.Validator;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
-import jakarta.validation.Validator;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
@@ -79,7 +82,7 @@ class ConfigMismatchTest {
     void shouldHaveKeyParametersSameForTramIntegrationTests() throws IOException, ConfigurationException {
 
         AppConfiguration appConfig = loadConfigFromFile("local.yml");
-        IntegrationTramTestConfig testConfig = new IntegrationTramTestConfig(true);
+        IntegrationTramTestConfig testConfig = new IntegrationTramTestConfig(IntegrationTramTestConfig.LiveData.Enabled);
 
         validateCoreParameters(Collections.emptySet(), appConfig, testConfig);
 

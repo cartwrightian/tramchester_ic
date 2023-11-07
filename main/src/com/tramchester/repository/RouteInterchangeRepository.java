@@ -1,8 +1,14 @@
 package com.tramchester.repository;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.caching.CachableData;
+import com.tramchester.caching.FileDataCache;
+import com.tramchester.dataexport.DataSaver;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.RouteStationId;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -21,7 +27,10 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
@@ -34,19 +43,22 @@ public class RouteInterchangeRepository {
     private final StationRepository stationRepository;
     private final InterchangeRepository interchangeRepository;
     private final GraphDatabase graphDatabase;
+    private final FileDataCache fileDataCache;
 
     private final Map<Route, Set<InterchangeStation>> interchangesForRoute;
-    private Map<RouteStation, Duration> routeStationToInterchangeCost;
+    private RouteStationToInterchangeCosts routeStationToInterchangeCost;
+    private boolean isCached;
 
     @Inject
     public RouteInterchangeRepository(RouteRepository routeRepository, StationRepository stationRepository, InterchangeRepository interchangeRepository,
                                       GraphDatabase graphDatabase,
-                                      @SuppressWarnings("unused") StagedTransportGraphBuilder.Ready ready) {
+                                      @SuppressWarnings("unused") StagedTransportGraphBuilder.Ready ready, FileDataCache fileDataCache) {
         this.routeRepository = routeRepository;
         this.stationRepository = stationRepository;
         this.interchangeRepository = interchangeRepository;
 
         this.graphDatabase = graphDatabase;
+        this.fileDataCache = fileDataCache;
         interchangesForRoute = new HashMap<>();
     }
 
@@ -54,7 +66,15 @@ public class RouteInterchangeRepository {
     public void start() {
         logger.info("starting");
         populateRouteToInterchangeMap();
-        populateRouteStationToFirstInterchangeByRouteStation();
+
+        routeStationToInterchangeCost = new RouteStationToInterchangeCosts();
+        isCached = fileDataCache.has(routeStationToInterchangeCost);
+        if (isCached) {
+            fileDataCache.loadInto(routeStationToInterchangeCost, RouteToInterchangeCost.class);
+        }
+        else {
+            populateRouteStationToFirstInterchangeByRouteStation();
+        }
         logger.info("started");
     }
 
@@ -62,6 +82,9 @@ public class RouteInterchangeRepository {
     public void stop() {
         logger.info("Stopping");
         interchangesForRoute.clear();
+        if (!isCached) {
+            fileDataCache.save(routeStationToInterchangeCost, RouteToInterchangeCost.class);
+        }
         routeStationToInterchangeCost.clear();
         logger.info("Stopped");
     }
@@ -70,7 +93,6 @@ public class RouteInterchangeRepository {
         final Set<RouteStation> routeStations = stationRepository.getRouteStations();
         logger.info("Populate for first interchange " + routeStations.size() + " route stations");
 
-        routeStationToInterchangeCost = new HashMap<>();
         try(TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "populateForRoutes")) {
             routeRepository.getRoutes().forEach(route -> populateForRoute(timedTransaction.transaction(), route));
         }
@@ -94,8 +116,8 @@ public class RouteInterchangeRepository {
         if (interchangeRepository.isInterchange(routeStation.getStation())) {
             return Duration.ZERO;
         }
-        if (routeStationToInterchangeCost.containsKey(routeStation)) {
-            return routeStationToInterchangeCost.get(routeStation);
+        if (routeStationToInterchangeCost.hasRouteStation(routeStation)) {
+            return routeStationToInterchangeCost.costFrom(routeStation);
         }
         return Duration.ofSeconds(-999);
     }
@@ -145,8 +167,8 @@ public class RouteInterchangeRepository {
         logger.debug("Found " + stationToInterPair.size() + " results for " + routeId);
 
         stationToInterPair.forEach((stationIdPair, cost) -> {
-            RouteStation routeStation = stationRepository.getRouteStationById(RouteStation.createId(stationIdPair, routeId));
-            routeStationToInterchangeCost.put(routeStation, Duration.ofMinutes(cost));
+            RouteStationId routeStation = RouteStation.createId(stationIdPair, routeId);
+            routeStationToInterchangeCost.putCost(routeStation, Duration.ofMinutes(cost));
         });
 
         stationToInterPair.clear();
@@ -158,8 +180,69 @@ public class RouteInterchangeRepository {
         }
     }
 
-    private Duration sum(ArrayList<Integer> nums) {
-        return Duration.ofMinutes(nums.stream().mapToInt(num -> num).sum());
+    private static class RouteStationToInterchangeCosts implements FileDataCache.CachesData<RouteToInterchangeCost> {
+        private final Map<RouteStationId, Duration> costs;
+
+        private RouteStationToInterchangeCosts() {
+            costs = new HashMap<>();
+        }
+
+        @Override
+        public void cacheTo(DataSaver<RouteToInterchangeCost> saver) {
+            saver.open();
+            saver.write(costs.entrySet().stream().map(RouteToInterchangeCost::from));
+            saver.close();
+        }
+
+        @Override
+        public String getFilename() {
+            return "RouteStationToInterchangeCosts.json";
+        }
+
+        @Override
+        public void loadFrom(Stream<RouteToInterchangeCost> stream) {
+            stream.forEach(item ->
+                    costs.put(item.getRouteStationId(), Duration.ofSeconds(item.getSeconds())));
+        }
+
+        public void clear() {
+            costs.clear();
+        }
+
+        public boolean hasRouteStation(RouteStation routeStation) {
+            return costs.containsKey(routeStation.getId());
+        }
+
+        public Duration costFrom(RouteStation routeStation) {
+            return costs.get(routeStation.getId());
+        }
+
+        public void putCost(RouteStationId routeStation, Duration duration) {
+            costs.put(routeStation, duration);
+        }
     }
 
+    private static class RouteToInterchangeCost implements CachableData {
+        private final RouteStationId routeStationId;
+        private final long seconds;
+
+        @JsonCreator
+        public RouteToInterchangeCost(@JsonProperty("routeStationId") RouteStationId routeStationId,
+                                      @JsonProperty("seconds") long seconds) {
+            this.routeStationId = routeStationId;
+            this.seconds = seconds;
+        }
+
+        public static RouteToInterchangeCost from(Map.Entry<RouteStationId, Duration> enrty) {
+            return new RouteToInterchangeCost(enrty.getKey(), enrty.getValue().getSeconds());
+        }
+
+        public RouteStationId getRouteStationId() {
+            return routeStationId;
+        }
+
+        public long getSeconds() {
+            return seconds;
+        }
+    }
 }

@@ -150,7 +150,7 @@ public class RouteInterchangeRepositoryTest {
        Route route = tramRouteHelper.getOneRoute(AltrinchamManchesterBury, when);
 
         List<RouteStation> navigationRoadRouteStations = stationRepository.getRouteStationsFor(NavigationRoad.getId()).stream().
-                filter(routeStation -> route.equals(routeStation.getRoute())).collect(Collectors.toList());
+                filter(routeStation -> route.equals(routeStation.getRoute())).toList();
 
         assertFalse(navigationRoadRouteStations.isEmpty());
 
@@ -168,7 +168,7 @@ public class RouteInterchangeRepositoryTest {
         Route route = tramRouteHelper.getOneRoute(AltrinchamManchesterBury, when);
 
         List<RouteStation> oldTraffordRouteStations = stationRepository.getRouteStationsFor(OldTrafford.getId()).stream().
-                filter(routeStation -> route.equals(routeStation.getRoute())).collect(Collectors.toList());
+                filter(routeStation -> route.equals(routeStation.getRoute())).toList();
 
         assertFalse(oldTraffordRouteStations.isEmpty());
 
@@ -189,7 +189,7 @@ public class RouteInterchangeRepositoryTest {
         List<RouteStation> cornbrookRouteStations = stationRepository.getRouteStationsFor(Cornbrook.getId()).
                 stream().
                 filter(routeStation -> route.equals(routeStation.getRoute())).
-                collect(Collectors.toList());
+                toList();
 
         assertFalse(cornbrookRouteStations.isEmpty());
 

@@ -28,7 +28,7 @@ public class LiveDataUpdaterTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new ComponentsBuilder().create(new IntegrationTramTestConfig(true),
+        componentContainer = new ComponentsBuilder().create(new IntegrationTramTestConfig(IntegrationTramTestConfig.LiveData.Enabled),
                 TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
         // don't want to fetch every time

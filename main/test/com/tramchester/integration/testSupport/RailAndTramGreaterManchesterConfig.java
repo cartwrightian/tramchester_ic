@@ -27,7 +27,7 @@ public class RailAndTramGreaterManchesterConfig extends IntegrationTramTestConfi
     }
 
     public RailAndTramGreaterManchesterConfig(String databaseName) {
-        super(new TramAndTrainDBTestConfig(databaseName), true, IntegrationTestConfig.CurrentClosures);
+        super(new TramAndTrainDBTestConfig(databaseName), LiveData.Enabled, IntegrationTestConfig.CurrentClosures, Caching.Enabled);
     }
 
     @Override

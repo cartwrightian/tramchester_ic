@@ -15,46 +15,82 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestTramLiveDataConfig;
 import com.tramchester.testSupport.tfgm.TFGMRemoteDataSourceConfig;
 
+import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public class IntegrationTramTestConfig extends IntegrationTestConfig {
 
+    public enum LiveData {
+        Enabled, Disabled;
+    }
+
+    public enum Caching {
+        Enabled, Disabled
+    }
+
     private static final String DB_NAME = "int_test_tram.db";
+    public static final Path TRAM_INTEGRATION_CACHE_PATH = TestEnv.CACHE_DIR.resolve("tramIntegration");
 
     private final GTFSSourceConfig gtfsSourceConfig;
     protected final RemoteDataSourceConfig remoteTFGMConfig;
     protected final RemoteDataSourceConfig remoteDBSourceConfig;
-    private final boolean liveDataEnabled;
+    private final LiveData liveData;
+    private final Caching caching;
 
     public IntegrationTramTestConfig() {
-       this(DB_NAME, false, IntegrationTestConfig.CurrentClosures);
+       this(DB_NAME, LiveData.Disabled, IntegrationTestConfig.CurrentClosures, Caching.Enabled);
     }
 
-    public IntegrationTramTestConfig(boolean liveDataEnabled) {
-        this(DB_NAME, liveDataEnabled, IntegrationTestConfig.CurrentClosures);
+    public IntegrationTramTestConfig(LiveData liveData) {
+        this(DB_NAME, liveData, IntegrationTestConfig.CurrentClosures, Caching.Enabled);
+    }
+
+    public IntegrationTramTestConfig(LiveData liveData, Caching caching) {
+        this(DB_NAME, liveData, IntegrationTestConfig.CurrentClosures, caching);
     }
 
     public IntegrationTramTestConfig(String dbName, List<StationClosures> closedStations) {
-        this(dbName, false, closedStations);
+        this(dbName, LiveData.Disabled, closedStations, Caching.Enabled);
     }
 
-    private IntegrationTramTestConfig(String dbName, boolean liveDataEnabled, List<StationClosures> closedStations) {
-        this(new GraphDBIntegrationTramTestConfig("integrationTramTest", dbName), liveDataEnabled, closedStations);
+    public IntegrationTramTestConfig(String dbName, List<StationClosures> closedStations, Caching caching) {
+        this(dbName, LiveData.Disabled, closedStations, caching);
     }
 
-    protected IntegrationTramTestConfig(GraphDBTestConfig dbTestConfig, boolean liveDataEnabled, List<StationClosures> closedStations) {
+    private IntegrationTramTestConfig(String dbName, LiveData liveData, List<StationClosures> closedStations, Caching caching) {
+        this(new GraphDBIntegrationTramTestConfig("integrationTramTest", dbName), liveData, closedStations, caching);
+    }
+
+    protected IntegrationTramTestConfig(GraphDBTestConfig dbTestConfig, LiveData liveData, List<StationClosures> closedStations,
+                                        Caching caching) {
         super(dbTestConfig);
-        this.liveDataEnabled = liveDataEnabled;
+        this.liveData = liveData;
+        this.caching = caching;
+
         Path downloadFolder = Path.of("data/tram");
         gtfsSourceConfig = new TFGMGTFSSourceTestConfig(downloadFolder, GTFSTransportationType.tram,
                 TransportMode.Tram, AdditionalTramInterchanges.stations(), Collections.emptySet(), closedStations,
                 Duration.ofMinutes(13));
         remoteTFGMConfig = TFGMRemoteDataSourceConfig.createFor(downloadFolder);
         remoteDBSourceConfig = new DatabaseRemoteDataSourceConfig(Path.of("databases"));
+
+        if (this.caching==Caching.Enabled) {
+            if (!this.getClass().equals(IntegrationTramTestConfig.class)) {
+                Optional<Method> foundOverride = Arrays.stream(this.getClass().getDeclaredMethods()).
+                        filter(method -> method.getName().equals("getCacheFolder")).
+                        filter(method -> method.getParameterCount() == 0).
+                        findAny();
+
+                if (foundOverride.isEmpty()) {
+                    throw new RuntimeException("getCacheFolder must be override for " + this.getClass().getSimpleName());
+                }
+            }
+        }
     }
 
     @Override
@@ -77,7 +113,7 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
 
     @Override
     public TfgmTramLiveDataConfig getLiveDataConfig() {
-        if (liveDataEnabled) {
+        if (liveData ==LiveData.Enabled) {
             return new TestTramLiveDataConfig();
         }
         return null;
@@ -87,16 +123,17 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
         public GraphDBIntegrationTramTestConfig(String folder, String dbFilename) {
             super(folder, dbFilename);
         }
-
-//        @Override
-//        public String getNeo4jPagecacheMemory() {
-//            return "100m";
-//        }
     }
 
     @Override
     public Path getCacheFolder() {
-        return TestEnv.CACHE_DIR.resolve("tramIntegration");
+        return TRAM_INTEGRATION_CACHE_PATH;
     }
+
+    @Override
+    public boolean getCachingDisabled() {
+        return caching==Caching.Disabled;
+    }
+
 }
 

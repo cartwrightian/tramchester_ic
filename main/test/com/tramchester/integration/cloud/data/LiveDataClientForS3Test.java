@@ -71,7 +71,7 @@ class LiveDataClientForS3Test {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        liveDataClientForS3 = new LiveDataClientForS3(new IntegrationTramTestConfig(true), clientForS3);
+        liveDataClientForS3 = new LiveDataClientForS3(new IntegrationTramTestConfig(IntegrationTramTestConfig.LiveData.Enabled), clientForS3);
         liveDataClientForS3.start();
         s3TestSupport.cleanBucket();
     }

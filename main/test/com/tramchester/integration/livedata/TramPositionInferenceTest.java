@@ -26,7 +26,6 @@ import org.junit.jupiter.api.*;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -41,7 +40,7 @@ class TramPositionInferenceTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        testConfig = new IntegrationTramTestConfig(true);
+        testConfig = new IntegrationTramTestConfig(IntegrationTramTestConfig.LiveData.Enabled);
         componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
@@ -91,7 +90,7 @@ class TramPositionInferenceTest {
         TramPosition between = positionInference.findBetween(pair, dateTime);
         assertEquals(first, between.getFirst());
         assertEquals(second, between.getSecond());
-        assertTrue(between.getTrams().size()>=1, "trams between");
+        assertFalse(between.getTrams().isEmpty(), "no trams between");
         assertEquals(cost, between.getCost());
 
         TramTime now = TramTime.ofHourMins(TestEnv.LocalNow().toLocalTime());
@@ -100,7 +99,7 @@ class TramPositionInferenceTest {
                 forEach(dueTram -> assertFalse(dueTram.getWhen().isAfter(now), dueTram.getWhen().toString()));
 
         TramPosition otherDirection = positionInference.findBetween(pair, dateTime);
-        assertTrue(otherDirection.getTrams().size()>=1, "no trams in other direction");
+        assertFalse(otherDirection.getTrams().isEmpty(), "no trams in other direction");
         assertEquals(cost, between.getCost());
         otherDirection.getTrams().
                 forEach(dueTram -> assertFalse(dueTram.getWhen().isAfter(now), dueTram.getWhen().toString()));
@@ -116,7 +115,7 @@ class TramPositionInferenceTest {
 
         List<TramPosition> results = tramPositions.stream().
                 filter(TramPosition::hasTrams).
-                collect(Collectors.toList());
+                toList();
 
         assertFalse(results.isEmpty(), tramPositions.toString());
 

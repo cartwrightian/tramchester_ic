@@ -42,7 +42,6 @@ class RouteCalculatorSubGraphMonsallTest {
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
         config = new SubgraphConfig();
-//        TestEnv.deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder().
                 configureGraphFilter(RouteCalculatorSubGraphMonsallTest::configureFilter).
@@ -110,7 +109,7 @@ class RouteCalculatorSubGraphMonsallTest {
     private static class SubgraphConfig extends IntegrationTramTestConfig {
 
         public SubgraphConfig() {
-            super("sub_monsall_tramchester.db", Collections.emptyList());
+            super("sub_monsall_tramchester.db", Collections.emptyList(), Caching.Disabled);
         }
 
     }

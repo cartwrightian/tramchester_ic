@@ -27,7 +27,7 @@ public class RouteStation implements HasId<RouteStation>, GraphProperty, HasTran
         return RouteStationId.createId(route, station);
     }
 
-    public IdFor<RouteStation> getId() {
+    public RouteStationId getId() {
         return id;
     }
 

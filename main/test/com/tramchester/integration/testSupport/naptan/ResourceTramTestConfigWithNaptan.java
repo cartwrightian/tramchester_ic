@@ -5,6 +5,8 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWit
 import com.tramchester.resources.APIResource;
 import com.tramchester.resources.GraphDatabaseDependencyMarker;
 
+import java.nio.file.Path;
+
 public class ResourceTramTestConfigWithNaptan<T extends APIResource>  extends IntegrationTramTestConfigWithNaptan {
     private final boolean planningEnabled;
 
@@ -15,5 +17,11 @@ public class ResourceTramTestConfigWithNaptan<T extends APIResource>  extends In
     @Override
     public boolean getPlanningEnabled() {
         return planningEnabled;
+    }
+
+
+    @Override
+    public Path getCacheFolder() {
+        return super.getCacheFolder();
     }
 }

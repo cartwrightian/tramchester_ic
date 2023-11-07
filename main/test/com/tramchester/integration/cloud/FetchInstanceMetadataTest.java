@@ -41,12 +41,12 @@ class FetchInstanceMetadataTest {
         assertThat(result).isEmpty();
     }
 
-
     private static class ConfigWithMetaDataUrl extends IntegrationTramTestConfig {
 
         private final String url;
 
         private ConfigWithMetaDataUrl(String url) {
+            super(LiveData.Disabled, Caching.Disabled);
             this.url = url;
         }
 
