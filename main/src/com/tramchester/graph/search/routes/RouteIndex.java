@@ -1,6 +1,7 @@
 package com.tramchester.graph.search.routes;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.caching.ComponentThatCaches;
 import com.tramchester.caching.DataCache;
 import com.tramchester.caching.FileDataCache;
 import com.tramchester.dataexport.HasDataSaver;
@@ -31,28 +32,20 @@ import static java.lang.String.format;
  * via bitmaps. Expensive to create for buses and trains, so cacheable.
  */
 @LazySingleton
-public class RouteIndex implements FileDataCache.CachesData<RouteIndexData> {
+public class RouteIndex extends ComponentThatCaches<RouteIndexData, RouteIndex.RouteIndexes> {
     private static final Logger logger = LoggerFactory.getLogger(RouteIndex.class);
 
-    private final RouteRepository routeRepository;
     private final GraphFilterActive graphFilter;
-    private final DataCache dataCache;
     private final RouteIndexPairFactory pairFactory;
-
-    private final Map<Route, Short> mapRouteIdToIndex;
-    private final Map<Short, Route> mapIndexToRouteId;
-    private final int numberOfRoutes;
+    private final RouteIndexes routeIndexes;
 
     @Inject
     public RouteIndex(RouteRepository routeRepository, GraphFilterActive graphFilter, DataCache dataCache, RouteIndexPairFactory pairFactory) {
-        this.routeRepository = routeRepository;
-        this.numberOfRoutes = routeRepository.numberOfRoutes();
+        super(dataCache, RouteIndexData.class);
         this.graphFilter = graphFilter;
-        this.dataCache = dataCache;
         this.pairFactory = pairFactory;
 
-        mapRouteIdToIndex = new HashMap<>(numberOfRoutes);
-        mapIndexToRouteId = new HashMap<>(numberOfRoutes);
+        routeIndexes = new RouteIndexes(routeRepository);
     }
 
     @PostConstruct
@@ -62,122 +55,42 @@ public class RouteIndex implements FileDataCache.CachesData<RouteIndexData> {
             logger.warn("Filtering is enabled, skipping all caching");
             createIndex();
         } else {
-            if (dataCache.has(this)) {
-                logger.info("Loading from cache");
-                dataCache.loadInto(this, RouteIndexData.class);
+            if (super.loadFromCache(routeIndexes)) {
+                logger.info("Loaded from cache");
             } else {
                 logger.info("Not in cache, creating");
                 createIndex();
-                dataCache.save(this, RouteIndexData.class);
             }
         }
 
-        // here for past serialisation issues
-        if (mapRouteIdToIndex.size()!=mapIndexToRouteId.size()) {
-            String msg = format("Constraints on mapping violated mapRouteIdToIndex %s != mapIndexToRouteId %s"
-                    , mapRouteIdToIndex.size(), mapIndexToRouteId.size());
-            logger.error(msg);
-            throw new RuntimeException(msg);
-        }
+        routeIndexes.validate();
         logger.info("started");
     }
 
     @PreDestroy
-    public void clear() {
+    public void stop() {
         logger.info("Stopping");
-        mapRouteIdToIndex.clear();
-        mapIndexToRouteId.clear();
+        super.saveCacheIfNeeded(routeIndexes);
+        routeIndexes.clear();
         logger.info("Stopped");
     }
 
     private void createIndex() {
         logger.info("Creating index");
-        List<Route> routesList = new ArrayList<>(routeRepository.getRoutes());
-        createIndex(routesList);
-        logger.info("Added " + mapRouteIdToIndex.size() + " index entries");
-    }
-
-    private void createIndex(List<Route> routeList) {
-        routeList.sort(Comparator.comparing(Route::getId));
-        for (short i = 0; i < routeList.size(); i++) {
-            mapRouteIdToIndex.put(routeList.get(i), i);
-            mapIndexToRouteId.put(i, routeList.get(i));
-        }
+        routeIndexes.populate();
+        logger.info("Added " + routeIndexes.size() + " index entries");
     }
 
     public short indexFor(IdFor<Route> routeId) {
-        Route route = routeRepository.getRouteById(routeId);
-        return indexFor(route);
-    }
-
-    private short indexFor(Route route) {
-        if (!(mapRouteIdToIndex.containsKey(route))) {
-            String message = format("No index for route %s, is cache file %s outdated? ",
-                    route.getId(), dataCache.getPathFor(this));
-            logger.error(message);
-            throw new RuntimeException(message);
-        }
-        return mapRouteIdToIndex.get(route);
-    }
-
-    @Override
-    public void cacheTo(HasDataSaver<RouteIndexData> hasDataSaver) {
-        Stream<RouteIndexData> toCache = mapRouteIdToIndex.entrySet().stream().
-                map(entry -> new RouteIndexData(entry.getValue(), entry.getKey().getId()));
-        hasDataSaver.cacheStream(toCache);
-    }
-
-    @Override
-    public String getFilename() {
-        return RouteToRouteCosts.INDEX_FILE;
-    }
-
-    @Override
-    public void loadFrom(Stream<RouteIndexData> stream) throws FileDataCache.CacheLoadException {
-        logger.info("Loading from cache");
-        IdSet<Route> missingRouteIds = new IdSet<>();
-        stream.forEach(item -> {
-            final IdFor<Route> routeId = item.getRouteId();
-            if (!routeRepository.hasRouteId(routeId)) {
-                String message = "RouteId not found in repository: " + routeId;
-                logger.error(message);
-                missingRouteIds.add(routeId);
-                //throw new RuntimeException(message);
-            }
-            Route route = routeRepository.getRouteById(routeId);
-            mapRouteIdToIndex.put(route, item.getIndex());
-            mapIndexToRouteId.put(item.getIndex(), route);
-        });
-        if (!missingRouteIds.isEmpty()) {
-            String msg = format("The following routeIds present in index file but not the route repository (size %s) %s",
-                    routeRepository.numberOfRoutes(), missingRouteIds);
-            // TODO debug?
-            logger.warn("Routes in repo: " + HasId.asIds(routeRepository.getRoutes()));
-            throw new FileDataCache.CacheLoadException(msg);
-        }
-        if (mapRouteIdToIndex.size() != numberOfRoutes) {
-            String msg = "Mismatch on number of routes, from index got: " + mapRouteIdToIndex.size() +
-                    " but repository has: " + numberOfRoutes;
-            logger.error(msg);
-            throw new FileDataCache.CacheLoadException(msg);
-        }
+        return routeIndexes.getIndexFor(routeId);
     }
 
     public Route getRouteFor(short index) {
-        return mapIndexToRouteId.get(index);
+        return routeIndexes.getRouteFor(index);
     }
 
     public RoutePair getPairFor(RouteIndexPair indexPair) {
-        Route first = mapIndexToRouteId.get(indexPair.first());
-        if (first==null) {
-            throw new RuntimeException("Could not find first Route for index " + indexPair);
-        }
-        Route second = mapIndexToRouteId.get(indexPair.second());
-        if (second==null) {
-            throw new RuntimeException("Could not find second Route for index " + indexPair);
-        }
-
-        return new RoutePair(first, second);
+        return routeIndexes.getPairFor(indexPair);
     }
 
     public RouteIndexPair getPairFor(RoutePair routePair) {
@@ -187,11 +100,139 @@ public class RouteIndex implements FileDataCache.CachesData<RouteIndexData> {
     }
 
     public boolean hasIndexFor(IdFor<Route> routeId) {
-        Route route = routeRepository.getRouteById(routeId);
-        return mapRouteIdToIndex.containsKey(route);
+        return routeIndexes.hasIndexFor(routeId);
     }
 
     public long sizeFor(TransportMode mode) {
-        return mapRouteIdToIndex.keySet().stream().filter(route -> route.getTransportMode().equals(mode)).count();
+        return routeIndexes.sizeFor(mode);
+    }
+
+    static public class RouteIndexes implements FileDataCache.CachesData<RouteIndexData> {
+
+        private final RouteRepository routeRepository;
+        private final int numberOfRoutes;
+        private final Map<Route, Short> mapRouteIdToIndex;
+        private final Map<Short, Route> mapIndexToRouteId;
+
+        public RouteIndexes(RouteRepository routeRepository) {
+            this.routeRepository = routeRepository;
+            numberOfRoutes = routeRepository.numberOfRoutes();
+            mapRouteIdToIndex = new HashMap<>();
+            mapIndexToRouteId = new HashMap<>();
+        }
+
+        public void populate() {
+            final List<Route> routeList = new ArrayList<>(routeRepository.getRoutes());
+
+            routeList.sort(Comparator.comparing(Route::getId));
+            for (short i = 0; i < routeList.size(); i++) {
+                mapRouteIdToIndex.put(routeList.get(i), i);
+                mapIndexToRouteId.put(i, routeList.get(i));
+            }
+        }
+
+        @Override
+        public void cacheTo(HasDataSaver<RouteIndexData> hasDataSaver) {
+            Stream<RouteIndexData> toCache = mapRouteIdToIndex.entrySet().stream().
+                    map(entry -> new RouteIndexData(entry.getValue(), entry.getKey().getId()));
+            hasDataSaver.cacheStream(toCache);
+        }
+
+        @Override
+        public String getFilename() {
+            return RouteToRouteCosts.INDEX_FILE;
+        }
+
+        @Override
+        public void loadFrom(Stream<RouteIndexData> stream) throws FileDataCache.CacheLoadException {
+            logger.info("Loading from cache");
+            IdSet<Route> missingRouteIds = new IdSet<>();
+            stream.forEach(item -> {
+                final IdFor<Route> routeId = item.getRouteId();
+                if (!routeRepository.hasRouteId(routeId)) {
+                    String message = "RouteId not found in repository: " + routeId;
+                    logger.error(message);
+                    missingRouteIds.add(routeId);
+                    //throw new RuntimeException(message);
+                }
+                Route route = routeRepository.getRouteById(routeId);
+                mapRouteIdToIndex.put(route, item.getIndex());
+                mapIndexToRouteId.put(item.getIndex(), route);
+            });
+            if (!missingRouteIds.isEmpty()) {
+                String msg = format("The following routeIds present in index file but not the route repository (size %s) %s",
+                        routeRepository.numberOfRoutes(), missingRouteIds);
+                // TODO debug?
+                logger.warn("Routes in repo: " + HasId.asIds(routeRepository.getRoutes()));
+                throw new FileDataCache.CacheLoadException(msg);
+            }
+            if (mapRouteIdToIndex.size() != numberOfRoutes) {
+                String msg = "Mismatch on number of routes, from index got: " + mapRouteIdToIndex.size() +
+                        " but repository has: " + numberOfRoutes;
+                logger.error(msg);
+                throw new FileDataCache.CacheLoadException(msg);
+            }
+        }
+
+        public boolean hasIndexFor(IdFor<Route> routeId) {
+            Route route = routeRepository.getRouteById(routeId);
+            return mapRouteIdToIndex.containsKey(route);
+        }
+
+        public void validate() {
+            // here for past serialisation issues
+            if (mapRouteIdToIndex.size()!=mapIndexToRouteId.size()) {
+                String msg = format("Constraints on mapping violated mapRouteIdToIndex %s != mapIndexToRouteId %s"
+                        , mapRouteIdToIndex.size(), mapIndexToRouteId.size());
+                logger.error(msg);
+                throw new RuntimeException(msg);
+            }
+        }
+
+        public void clear() {
+            mapRouteIdToIndex.clear();
+            mapIndexToRouteId.clear();
+        }
+
+        public long size() {
+            return mapRouteIdToIndex.size();
+        }
+
+        public short getIndexFor(IdFor<Route> routeId) {
+            Route route = routeRepository.getRouteById(routeId);
+            return getIndexFor(route);
+        }
+
+        public short getIndexFor(Route route) {
+            if (!(mapRouteIdToIndex.containsKey(route))) {
+                String message = format("No index for route %s, is cache file %s outdated? ",
+                        route.getId(), getFilename());
+                logger.error(message);
+                throw new RuntimeException(message);
+            }
+            return mapRouteIdToIndex.get(route);
+        }
+
+        public Route getRouteFor(short index) {
+            return mapIndexToRouteId.get(index);
+        }
+
+        public RoutePair getPairFor(RouteIndexPair indexPair) {
+            Route first = mapIndexToRouteId.get(indexPair.first());
+            if (first==null) {
+                throw new RuntimeException("Could not find first Route for index " + indexPair);
+            }
+            Route second = mapIndexToRouteId.get(indexPair.second());
+            if (second==null) {
+                throw new RuntimeException("Could not find second Route for index " + indexPair);
+            }
+
+            return new RoutePair(first, second);
+        }
+
+        public long sizeFor(TransportMode mode) {
+            return mapRouteIdToIndex.keySet().stream().filter(route -> route.getTransportMode().equals(mode)).count();
+        }
+
     }
 }

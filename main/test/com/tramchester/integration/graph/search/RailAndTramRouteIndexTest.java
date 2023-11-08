@@ -7,7 +7,6 @@ import com.tramchester.caching.DataCache;
 import com.tramchester.caching.FileDataCache;
 import com.tramchester.caching.LoaderSaverFactory;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataexport.HasDataSaver;
 import com.tramchester.dataimport.data.RouteIndexData;
 import com.tramchester.dataimport.loader.files.TransportDataFromFile;
 import com.tramchester.dataimport.rail.repository.RailRouteIds;
@@ -26,6 +25,7 @@ import com.tramchester.graph.search.routes.RouteIndex;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
 import com.tramchester.integration.testSupport.RailAndTramGreaterManchesterConfig;
 import com.tramchester.repository.RouteRepository;
+import com.tramchester.testSupport.InMemoryDataCache;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.GMTest;
 import org.easymock.EasyMockSupport;
@@ -171,14 +171,19 @@ public class RailAndTramRouteIndexTest extends EasyMockSupport {
     @Test
     void shouldSaveToCacheAndReload() {
 
-        HasDataSaver<RouteIndexData> hasDataSaver = factory.getSaverFor(RouteIndexData.class, otherFile);
-        TransportDataFromFile<RouteIndexData> loader = factory.getDataLoaderFor(RouteIndexData.class, otherFile);
+        RouteIndexPairFactory pairFactory = componentContainer.get(RouteIndexPairFactory.class);
 
-        routeIndex.cacheTo(hasDataSaver);
-        assertTrue(Files.exists(otherFile), "Missing " + otherFile.toAbsolutePath());
+        InMemoryDataCache dataCache = new InMemoryDataCache();
+        RouteIndex local = new RouteIndex(routeRepository, new GraphFilterActive(false), dataCache, pairFactory);
 
-        Stream<RouteIndexData> loadedFromFile = loader.load();
-        macthesRouteRepository(loadedFromFile);
+        local.start();
+        local.stop();
+
+        assertTrue(dataCache.hasData(RouteIndex.RouteIndexes.class));
+
+        Stream<RouteIndexData> indexFromFile = dataCache.getDataFor(RouteIndex.RouteIndexes.class);
+
+        macthesRouteRepository(indexFromFile);
     }
 
     @Test

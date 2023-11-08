@@ -7,12 +7,15 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.data.RouteIndexData;
 import com.tramchester.dataimport.loader.files.TransportDataFromFile;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.collections.RouteIndexPairFactory;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.graph.search.routes.RouteIndex;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
 import com.tramchester.integration.testSupport.ConfigParameterResolver;
 import com.tramchester.repository.RouteRepository;
+import com.tramchester.testSupport.InMemoryDataCache;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
@@ -107,17 +110,20 @@ public class RouteIndexTest extends EasyMockSupport {
     @Test
     void shouldSaveToCacheAndReload() {
 
-        routeIndex.cacheTo(factory.getSaverFor(RouteIndexData.class, otherFile));
+        RouteIndexPairFactory pairFactory = componentContainer.get(RouteIndexPairFactory.class);
 
-        assertTrue(otherFile.toFile().exists(), "Missing " + otherFile.toAbsolutePath());
+        InMemoryDataCache dataCache = new InMemoryDataCache();
+        RouteIndex local = new RouteIndex(routeRepository, new GraphFilterActive(false), dataCache, pairFactory);
 
-        assertTrue(Files.exists(otherFile));
+        local.start();
+        local.stop();
 
-        TransportDataFromFile<RouteIndexData> loader = factory.getDataLoaderFor(RouteIndexData.class, otherFile);
+        assertTrue(dataCache.hasData(RouteIndex.RouteIndexes.class));
 
-        Stream<RouteIndexData> indexFromFile = loader.load();
+        Stream<RouteIndexData> indexFromFile = dataCache.getDataFor(RouteIndex.RouteIndexes.class);
 
         macthesRouteRepository(indexFromFile);
+
     }
 
     private void macthesRouteRepository(Stream<RouteIndexData> loaded) {
