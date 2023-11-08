@@ -1,6 +1,7 @@
 package com.tramchester.graph.search.routes;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.caching.ComponentThatCaches;
 import com.tramchester.caching.FileDataCache;
 import com.tramchester.dataexport.HasDataSaver;
 import com.tramchester.dataimport.data.CostsPerDegreeData;
@@ -35,7 +36,7 @@ import java.util.stream.Stream;
 import static java.lang.String.format;
 
 @LazySingleton
-public class RouteCostMatrix  {
+public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, RouteCostMatrix.CostsPerDegree> {
     private static final Logger logger = LoggerFactory.getLogger(RouteCostMatrix.class);
 
     public static final byte MAX_VALUE = Byte.MAX_VALUE;
@@ -43,7 +44,6 @@ public class RouteCostMatrix  {
     public static final int MAX_DEPTH = 5;
 
     private final InterchangeRepository interchangeRepository;
-    private final FileDataCache dataCache;
     private final GraphFilterActive graphFilter;
 
     private final CostsPerDegree costsForDegree;
@@ -55,8 +55,8 @@ public class RouteCostMatrix  {
     @Inject
     public RouteCostMatrix(NumberOfRoutes numberOfRoutes, InterchangeRepository interchangeRepository, FileDataCache dataCache,
                     GraphFilterActive graphFilter, RouteIndexPairFactory pairFactory, RouteIndex routeIndex) {
+        super(dataCache, CostsPerDegreeData.class);
         this.interchangeRepository = interchangeRepository;
-        this.dataCache = dataCache;
         this.graphFilter = graphFilter;
         this.routeIndex = routeIndex;
         this.numRoutes = numberOfRoutes.numberOfRoutes();
@@ -68,6 +68,7 @@ public class RouteCostMatrix  {
 
     @PostConstruct
     public void start() {
+        logger.info("start");
 
         RouteDateAndDayOverlap routeDateAndDayOverlap = new RouteDateAndDayOverlap(routeIndex, numRoutes);
         routeDateAndDayOverlap.populateFor();
@@ -78,31 +79,27 @@ public class RouteCostMatrix  {
             logger.warn("Filtering is enabled, skipping all caching");
             createCostMatrix(routeDateAndDayOverlap);
         } else {
-            if (dataCache.has(costsForDegree)) {
-                logger.info("Loading from cache");
-                dataCache.loadInto(costsForDegree, CostsPerDegreeData.class);
-            } else {
-                logger.info("Not in cache, creating");
+            if (!super.loadFromCache(costsForDegree)) {
                 createCostMatrix(routeDateAndDayOverlap);
-                dataCache.save(costsForDegree, CostsPerDegreeData.class);
             }
         }
-
         logger.info("CostsPerDegree bits set: " + costsForDegree.numberOfBitsSet());
-
         createBacktracking(routeDateAndDayOverlap);
+        logger.info("started");
+    }
 
+    @PreDestroy
+    public  void stop() {
+        logger.info("stop");
+        super.saveCacheIfNeeded(costsForDegree);
+        costsForDegree.clear();
+        logger.info("stopped");
     }
 
     private void createCostMatrix(final RouteDateAndDayOverlap routeDateAndDayOverlap) {
         final IndexedBitSet forDegreeOne = costsForDegree.getDegreeMutable(1);
         addInitialConnectionsFromInterchanges(routeDateAndDayOverlap, forDegreeOne);
         populateCosts(routeDateAndDayOverlap);
-    }
-
-    @PreDestroy
-    private void clear() {
-        costsForDegree.clear();
     }
 
     private void addInitialConnectionsFromInterchanges(RouteDateAndDayOverlap routeDateAndDayOverlap, IndexedBitSet forDegreeOne) {
@@ -627,7 +624,7 @@ public class RouteCostMatrix  {
     /***
      * encapsulate cost per degree to facilitate caching
      */
-    private class CostsPerDegree implements FileDataCache.CachesData<CostsPerDegreeData> {
+    public class CostsPerDegree implements FileDataCache.CachesData<CostsPerDegreeData> {
 
         private final IndexedBitSet[] bitSets;
 

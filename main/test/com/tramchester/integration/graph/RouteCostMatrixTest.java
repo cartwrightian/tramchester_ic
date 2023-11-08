@@ -60,6 +60,8 @@ public class RouteCostMatrixTest {
         componentContainer = new ComponentsBuilder().create(tramchesterConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 
+        ///// NOTE Clears the Cache
+
         TestEnv.clearDataCache(componentContainer);
     }
 
