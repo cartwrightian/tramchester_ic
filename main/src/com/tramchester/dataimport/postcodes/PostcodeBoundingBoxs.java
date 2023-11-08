@@ -162,13 +162,9 @@ public class PostcodeBoundingBoxs {
 
         @Override
         public void cacheTo(HasDataSaver<PostcodeHintData> hasDataSaver) {
-            try (HasDataSaver.ClosableDataSaver<PostcodeHintData> saver = hasDataSaver.get()){
-                Stream<PostcodeHintData> toCache = theMap.entrySet().stream().
-                        map((entry) -> new PostcodeHintData(entry.getKey(), entry.getValue()));
-                saver.write(toCache);
-            } catch (Exception e) {
-                logger.error("Exception during cache write " + e);
-            }
+            Stream<PostcodeHintData> toCache = theMap.entrySet().stream().
+                    map((entry) -> new PostcodeHintData(entry.getKey(), entry.getValue()));
+            hasDataSaver.cacheStream(toCache);
         }
 
         @Override

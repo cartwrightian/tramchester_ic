@@ -189,11 +189,7 @@ public class RouteInterchangeRepository {
 
         @Override
         public void cacheTo(HasDataSaver<RouteToInterchangeCost> hasDataSaver) {
-            try (HasDataSaver.ClosableDataSaver<RouteToInterchangeCost> saver = hasDataSaver.get()) {
-                saver.write(costs.entrySet().stream().map(RouteToInterchangeCost::from));
-            } catch (Exception e) {
-                logger.error("Exception during cache write", e);
-            }
+            hasDataSaver.cacheStream(costs.entrySet().stream().map(RouteToInterchangeCost::from));
         }
 
         @Override

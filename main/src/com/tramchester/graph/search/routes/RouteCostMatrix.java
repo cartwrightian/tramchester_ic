@@ -681,7 +681,7 @@ public class RouteCostMatrix  {
                     }
                 }
             } catch (Exception e) {
-                logger.error("Exception while writting cache",e);
+                logger.error("Exception while writing cache",e);
             }
 
         }

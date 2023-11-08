@@ -15,6 +15,12 @@ public class HasDataSaver<T>  {
         return new ClosableDataSaver<>(saver);
     }
 
+    public void cacheStream(Stream<T> stream) {
+        saver.open();
+        saver.write(stream);
+        saver.close();
+    }
+
     public static class ClosableDataSaver<T> implements AutoCloseable {
 
         private final DataSaver<T> contained;
@@ -32,8 +38,5 @@ public class HasDataSaver<T>  {
             contained.write(item);
         }
 
-        public void write(Stream<T> item) {
-            contained.write(item);
-        }
     }
 }
