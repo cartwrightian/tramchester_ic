@@ -1,6 +1,7 @@
 package com.tramchester.dataimport.postcodes;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.caching.ComponentThatCaches;
 import com.tramchester.caching.FileDataCache;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataexport.HasDataSaver;
@@ -23,30 +24,20 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @LazySingleton
-public class PostcodeBoundingBoxs {
+public class PostcodeBoundingBoxs extends ComponentThatCaches<PostcodeHintData, PostcodeBoundingBoxs.PostcodeBounds> {
     private static final Logger logger = LoggerFactory.getLogger(PostcodeBoundingBoxs.class);
 
     public final static String POSTCODE_HINTS_CSV = "postcode_hints.csv";
 
     private final PostcodeBounds postcodeBounds;
-
     private final boolean enabled;
-    private final FileDataCache dataCache;
-    private boolean cacheAvailable;
+    private boolean hadCacheAtStart;
 
     @Inject
     public PostcodeBoundingBoxs(TramchesterConfig config, FileDataCache dataCache) {
-        this.dataCache = dataCache;
+        super(dataCache, PostcodeHintData.class);
         postcodeBounds = new PostcodeBounds();
         enabled = config.hasRemoteDataSourceConfig(DataSourceID.postcode);
-    }
-
-    @PreDestroy
-    public void dispose() {
-        logger.info("stopping");
-        stop();
-        postcodeBounds.clear();
-        logger.info("stopped");
     }
 
     @PostConstruct
@@ -56,25 +47,27 @@ public class PostcodeBoundingBoxs {
             return;
         }
 
-        cacheAvailable = dataCache.has(postcodeBounds);
-
-        if (cacheAvailable) {
-            dataCache.loadInto(postcodeBounds, PostcodeHintData.class);
+        hadCacheAtStart = super.loadFromCache(postcodeBounds);
+        if (hadCacheAtStart) {
+            logger.info("loaded from cache");
         } else {
             logger.info("No cached data, in record mode");
         }
     }
 
+    @PreDestroy
     public void stop() {
         if (!enabled) {
             logger.info("Postcode load disabled in config");
             return;
         }
 
-        if (!cacheAvailable) {
-            logger.info("Caching postcode bounds");
-            dataCache.save(postcodeBounds, PostcodeHintData.class);
+        logger.info("stopping");
+        if (!hadCacheAtStart) {
+            super.saveCacheIfNeeded(postcodeBounds);
         }
+        postcodeBounds.clear();
+        logger.info("stopped");
     }
 
     public boolean checkOrRecord(Path sourceFilePath, PostcodeData postcode) {
@@ -85,7 +78,7 @@ public class PostcodeBoundingBoxs {
 
         String code = convertPathToCode(sourceFilePath);
 
-        if (cacheAvailable) {
+        if (super.cachePresent(postcodeBounds)) {
             if (postcodeBounds.contains(code)) {
                 return postcodeBounds.get(code).contained(postcode.getGridPosition());
             }
@@ -130,7 +123,7 @@ public class PostcodeBoundingBoxs {
     }
 
     public boolean isLoaded() {
-        return cacheAvailable;
+        return super.cachePresent(postcodeBounds);
     }
 
     public boolean hasBoundsFor(Path file) {
@@ -148,7 +141,7 @@ public class PostcodeBoundingBoxs {
                 collect(Collectors.toSet());
     }
 
-    private static class PostcodeBounds implements FileDataCache.CachesData<PostcodeHintData> {
+    public static class PostcodeBounds implements FileDataCache.CachesData<PostcodeHintData> {
         private final Map<String, BoundingBox> theMap;
 
         public PostcodeBounds() {

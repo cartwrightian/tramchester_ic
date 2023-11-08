@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.caching.CachableData;
+import com.tramchester.caching.ComponentThatCaches;
 import com.tramchester.caching.FileDataCache;
 import com.tramchester.dataexport.HasDataSaver;
 import com.tramchester.domain.Route;
@@ -36,29 +37,28 @@ import java.util.stream.Stream;
 import static java.lang.String.format;
 
 @LazySingleton
-public class RouteInterchangeRepository {
+public class RouteInterchangeRepository extends ComponentThatCaches<RouteInterchangeRepository.RouteToInterchangeCost, RouteInterchangeRepository.RouteStationToInterchangeCosts> {
     private static final Logger logger = LoggerFactory.getLogger(RouteInterchangeRepository.class);
 
     private final RouteRepository routeRepository;
     private final StationRepository stationRepository;
     private final InterchangeRepository interchangeRepository;
     private final GraphDatabase graphDatabase;
-    private final FileDataCache fileDataCache;
 
     private final Map<Route, Set<InterchangeStation>> interchangesForRoute;
     private RouteStationToInterchangeCosts routeStationToInterchangeCost;
-    private boolean isCached;
 
     @Inject
     public RouteInterchangeRepository(RouteRepository routeRepository, StationRepository stationRepository, InterchangeRepository interchangeRepository,
                                       GraphDatabase graphDatabase,
-                                      @SuppressWarnings("unused") StagedTransportGraphBuilder.Ready ready, FileDataCache fileDataCache) {
+                                      @SuppressWarnings("unused") StagedTransportGraphBuilder.Ready ready,
+                                      FileDataCache fileDataCache) {
+        super(fileDataCache, RouteToInterchangeCost.class);
         this.routeRepository = routeRepository;
         this.stationRepository = stationRepository;
         this.interchangeRepository = interchangeRepository;
 
         this.graphDatabase = graphDatabase;
-        this.fileDataCache = fileDataCache;
         interchangesForRoute = new HashMap<>();
     }
 
@@ -68,9 +68,8 @@ public class RouteInterchangeRepository {
         populateRouteToInterchangeMap();
 
         routeStationToInterchangeCost = new RouteStationToInterchangeCosts();
-        isCached = fileDataCache.has(routeStationToInterchangeCost);
-        if (isCached) {
-            fileDataCache.loadInto(routeStationToInterchangeCost, RouteToInterchangeCost.class);
+        if (super.loadFromCache(routeStationToInterchangeCost)) {
+            logger.info("Loaded from cache");
         }
         else {
             populateRouteStationToFirstInterchangeByRouteStation();
@@ -82,9 +81,7 @@ public class RouteInterchangeRepository {
     public void stop() {
         logger.info("Stopping");
         interchangesForRoute.clear();
-        if (!isCached) {
-            fileDataCache.save(routeStationToInterchangeCost, RouteToInterchangeCost.class);
-        }
+        super.saveCacheIfNeeded(routeStationToInterchangeCost);
         routeStationToInterchangeCost.clear();
         logger.info("Stopped");
     }
@@ -180,7 +177,7 @@ public class RouteInterchangeRepository {
         }
     }
 
-    private static class RouteStationToInterchangeCosts implements FileDataCache.CachesData<RouteToInterchangeCost> {
+    protected static class RouteStationToInterchangeCosts implements FileDataCache.CachesData<RouteToInterchangeCost> {
         private final Map<RouteStationId, Duration> costs;
 
         private RouteStationToInterchangeCosts() {
@@ -220,7 +217,7 @@ public class RouteInterchangeRepository {
         }
     }
 
-    private static class RouteToInterchangeCost implements CachableData {
+    protected static class RouteToInterchangeCost implements CachableData {
         private final RouteStationId routeStationId;
         private final long seconds;
 

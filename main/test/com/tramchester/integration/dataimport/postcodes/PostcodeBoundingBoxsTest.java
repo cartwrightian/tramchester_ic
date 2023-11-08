@@ -5,9 +5,9 @@ import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import com.tramchester.caching.FileDataCache;
 import com.tramchester.caching.LoaderSaverFactory;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataimport.loader.files.TransportDataFromCSVFile;
 import com.tramchester.dataimport.RemoteDataAvailable;
 import com.tramchester.dataimport.data.PostcodeHintData;
+import com.tramchester.dataimport.loader.files.TransportDataFromCSVFile;
 import com.tramchester.dataimport.postcodes.PostcodeBoundingBoxs;
 import com.tramchester.dataimport.postcodes.PostcodeData;
 import com.tramchester.domain.DataSourceID;
@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.*;
@@ -113,7 +112,7 @@ class PostcodeBoundingBoxsTest {
         // check file on disc is as expected
         assertTrue(Files.exists(hintsFile), "cache file missing " + hintsFile);
         TransportDataFromCSVFile<PostcodeHintData, PostcodeHintData> loader = new TransportDataFromCSVFile<>(hintsFile, PostcodeHintData.class, mapper);
-        List<PostcodeHintData> loadedFromFile = loader.load().collect(Collectors.toList());
+        List<PostcodeHintData> loadedFromFile = loader.load().toList();
         assertEquals(1, loadedFromFile.size());
         PostcodeHintData hintData = loadedFromFile.get(0);
         assertEquals("filea", hintData.getCode());

@@ -8,15 +8,15 @@ import static java.lang.String.format;
 public class ComponentThatCaches<D extends CachableData, T extends FileDataCache.CachesData<D> > {
     private static final Logger logger = LoggerFactory.getLogger(ComponentThatCaches.class);
 
-    private final FileDataCache fileDataCache;
+    private final DataCache fileDataCache;
     private final Class<D> itemType;
 
-    public ComponentThatCaches(FileDataCache fileDataCache, Class<D> itemType) {
+    public ComponentThatCaches(DataCache fileDataCache, Class<D> itemType) {
         this.fileDataCache = fileDataCache;
         this.itemType = itemType;
     }
 
-    private boolean cachePresent(T cachesDate) {
+    protected boolean cachePresent(T cachesDate) {
         return fileDataCache.has(cachesDate);
     }
 
