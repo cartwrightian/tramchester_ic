@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -108,7 +107,7 @@ public class RouteIndexTest extends EasyMockSupport {
     @Test
     void shouldSaveToCacheAndReload() {
 
-        routeIndex.cacheTo(factory.getDataSaverFor(RouteIndexData.class, otherFile));
+        routeIndex.cacheTo(factory.getSaverFor(RouteIndexData.class, otherFile));
 
         assertTrue(otherFile.toFile().exists(), "Missing " + otherFile.toAbsolutePath());
 
@@ -122,7 +121,7 @@ public class RouteIndexTest extends EasyMockSupport {
     }
 
     private void macthesRouteRepository(Stream<RouteIndexData> loaded) {
-        List<RouteIndexData> resultsForIndex = loaded.collect(Collectors.toList());
+        List<RouteIndexData> resultsForIndex = loaded.toList();
 
         IdSet<Route> expected = routeRepository.getRoutes().stream().collect(IdSet.collector());
 

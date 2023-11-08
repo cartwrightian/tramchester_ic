@@ -3,7 +3,8 @@ package com.tramchester.graph.search.routes;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.caching.DataCache;
 import com.tramchester.caching.FileDataCache;
-import com.tramchester.dataexport.DataSaver;
+import com.tramchester.dataexport.HasDataSaver;
+import com.tramchester.dataexport.HasDataSaver.ClosableDataSaver;
 import com.tramchester.dataimport.data.RouteIndexData;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.RoutePair;
@@ -121,12 +122,15 @@ public class RouteIndex implements FileDataCache.CachesData<RouteIndexData> {
     }
 
     @Override
-    public void cacheTo(DataSaver<RouteIndexData> saver) {
-        saver.open();
-        mapRouteIdToIndex.entrySet().stream().
-                map(entry -> new RouteIndexData(entry.getValue(), entry.getKey().getId())).
-                forEach(saver::write);
-        saver.close();
+    public void cacheTo(HasDataSaver<RouteIndexData> hasDataSaver) {
+        try (ClosableDataSaver<RouteIndexData> saver = hasDataSaver.get()) {
+            mapRouteIdToIndex.entrySet().stream().
+                    map(entry -> new RouteIndexData(entry.getValue(), entry.getKey().getId())).
+                    forEach(saver::write);
+        } catch (Exception e) {
+            logger.error("Exception during cache write" + e);
+        }
+
     }
 
     @Override

@@ -2,7 +2,7 @@ package com.tramchester.graph.search.routes;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.caching.FileDataCache;
-import com.tramchester.dataexport.DataSaver;
+import com.tramchester.dataexport.HasDataSaver;
 import com.tramchester.dataimport.data.CostsPerDegreeData;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.RoutePair;
@@ -667,23 +667,23 @@ public class RouteCostMatrix  {
         }
 
         @Override
-        public void cacheTo(DataSaver<CostsPerDegreeData> saver) {
-
-            saver.open();
-
-            for (int depth = 0; depth < MAX_DEPTH; depth++) {
-                IndexedBitSet bitSet = bitSets[depth];
-                for (int routeIndex = 0; routeIndex < numRoutes; routeIndex++) {
-                    SimpleImmutableBitmap bitmapForRow = bitSet.getBitSetForRow(routeIndex); //.getContained();
-                    if (bitmapForRow.cardinality()>0) {
-                        List<Short> bitsSetForRow = bitmapForRow.getBitIndexes().collect(Collectors.toList());
-                        CostsPerDegreeData item = new CostsPerDegreeData(depth, routeIndex, bitsSetForRow);
-                        saver.write(item);
+        public void cacheTo(HasDataSaver<CostsPerDegreeData> hasDataSaver) {
+            try (HasDataSaver.ClosableDataSaver<CostsPerDegreeData> saver = hasDataSaver.get()) {
+                for (int depth = 0; depth < MAX_DEPTH; depth++) {
+                    IndexedBitSet bitSet = bitSets[depth];
+                    for (int routeIndex = 0; routeIndex < numRoutes; routeIndex++) {
+                        SimpleImmutableBitmap bitmapForRow = bitSet.getBitSetForRow(routeIndex);
+                        if (bitmapForRow.cardinality() > 0) {
+                            List<Short> bitsSetForRow = bitmapForRow.getBitIndexes().collect(Collectors.toList());
+                            CostsPerDegreeData item = new CostsPerDegreeData(depth, routeIndex, bitsSetForRow);
+                            saver.write(item);
+                        }
                     }
                 }
+            } catch (Exception e) {
+                logger.error("Exception while writting cache",e);
             }
 
-            saver.close();
         }
 
         @Override

@@ -3,7 +3,7 @@ package com.tramchester.caching;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataexport.DataSaver;
+import com.tramchester.dataexport.HasDataSaver;
 import com.tramchester.dataimport.RemoteDataAvailable;
 import com.tramchester.dataimport.loader.files.TransportDataFromFile;
 import com.tramchester.domain.DataSourceID;
@@ -127,8 +127,8 @@ public class FileDataCache implements DataCache {
 
         if (ready) {
             logger.info("Saving " + theClass.getSimpleName() + " to " + path);
-            DataSaver<CACHETYPE> saver = loaderSaverFactory.getDataSaverFor(theClass, path);
-            data.cacheTo(saver);
+            HasDataSaver<CACHETYPE> hasDataSaver = loaderSaverFactory.getSaverFor(theClass, path);
+            data.cacheTo(hasDataSaver);
         } else {
             logger.error("Not ready, no data saved to " + path);
         }
@@ -215,7 +215,7 @@ public class FileDataCache implements DataCache {
     }
 
     public interface CachesData<T extends CachableData> {
-        void cacheTo(DataSaver<T> saver);
+        void cacheTo(HasDataSaver<T> saver);
         String getFilename();
         void loadFrom(Stream<T> stream) throws CacheLoadException;
     }

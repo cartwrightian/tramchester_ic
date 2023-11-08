@@ -7,7 +7,7 @@ import com.tramchester.caching.DataCache;
 import com.tramchester.caching.FileDataCache;
 import com.tramchester.caching.LoaderSaverFactory;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataexport.DataSaver;
+import com.tramchester.dataexport.HasDataSaver;
 import com.tramchester.dataimport.data.RouteIndexData;
 import com.tramchester.dataimport.loader.files.TransportDataFromFile;
 import com.tramchester.dataimport.rail.repository.RailRouteIds;
@@ -171,10 +171,10 @@ public class RailAndTramRouteIndexTest extends EasyMockSupport {
     @Test
     void shouldSaveToCacheAndReload() {
 
-        DataSaver<RouteIndexData> saver = factory.getDataSaverFor(RouteIndexData.class, otherFile);
+        HasDataSaver<RouteIndexData> hasDataSaver = factory.getSaverFor(RouteIndexData.class, otherFile);
         TransportDataFromFile<RouteIndexData> loader = factory.getDataLoaderFor(RouteIndexData.class, otherFile);
 
-        routeIndex.cacheTo(saver);
+        routeIndex.cacheTo(hasDataSaver);
         assertTrue(Files.exists(otherFile), "Missing " + otherFile.toAbsolutePath());
 
         Stream<RouteIndexData> loadedFromFile = loader.load();

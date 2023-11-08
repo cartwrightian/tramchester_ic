@@ -5,7 +5,7 @@ import com.tramchester.caching.FileDataCache;
 import com.tramchester.caching.LoaderSaverFactory;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
-import com.tramchester.dataexport.DataSaver;
+import com.tramchester.dataexport.HasDataSaver;
 import com.tramchester.dataimport.RemoteDataAvailable;
 import com.tramchester.dataimport.data.CostsPerDegreeData;
 import com.tramchester.dataimport.data.PostcodeHintData;
@@ -228,11 +228,14 @@ public class FileDataCacheTest extends EasyMockSupport  {
         }
 
         @Override
-        public void cacheTo(DataSaver<T> saver) {
-            saver.open();
-            list.forEach(saver::write);
-            saver.close();
+        public void cacheTo(HasDataSaver<T> hasDataSaver) {
 
+            try(HasDataSaver.ClosableDataSaver<T> saver = hasDataSaver.get()) {
+                list.forEach(saver::write);
+            }
+            catch(Exception exception) {
+                throw new RuntimeException(exception);
+            }
         }
 
         @Override

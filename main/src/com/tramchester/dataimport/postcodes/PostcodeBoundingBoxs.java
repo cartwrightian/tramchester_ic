@@ -3,7 +3,7 @@ package com.tramchester.dataimport.postcodes;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.caching.FileDataCache;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataexport.DataSaver;
+import com.tramchester.dataexport.HasDataSaver;
 import com.tramchester.dataimport.data.PostcodeHintData;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.geo.BoundingBox;
@@ -16,7 +16,9 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -159,14 +161,14 @@ public class PostcodeBoundingBoxs {
         }
 
         @Override
-        public void cacheTo(DataSaver<PostcodeHintData> saver) {
-            saver.open();
-
-            theMap.entrySet().stream().
-                    map((entry) -> new PostcodeHintData(entry.getKey(), entry.getValue())).
-                    forEach(saver::write);
-
-            saver.close();
+        public void cacheTo(HasDataSaver<PostcodeHintData> hasDataSaver) {
+            try (HasDataSaver.ClosableDataSaver<PostcodeHintData> saver = hasDataSaver.get()){
+                Stream<PostcodeHintData> toCache = theMap.entrySet().stream().
+                        map((entry) -> new PostcodeHintData(entry.getKey(), entry.getValue()));
+                saver.write(toCache);
+            } catch (Exception e) {
+                logger.error("Exception during cache write " + e);
+            }
         }
 
         @Override

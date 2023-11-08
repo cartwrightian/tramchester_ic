@@ -6,11 +6,11 @@ import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.dataexport.CsvDataSaver;
 import com.tramchester.dataexport.DataSaver;
+import com.tramchester.dataexport.HasDataSaver;
 import com.tramchester.dataexport.JsonDataSaver;
 import com.tramchester.dataimport.loader.files.TransportDataFromCSVFile;
 import com.tramchester.dataimport.loader.files.TransportDataFromFile;
 import com.tramchester.dataimport.loader.files.TransportDataFromJSONFile;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.PostConstruct;
 import java.nio.file.Path;
@@ -46,8 +46,14 @@ public class LoaderSaverFactory {
         }
     }
 
-    public <CACHETYPE> DataSaver<CACHETYPE> getDataSaverFor(Class<CACHETYPE> theClass, Path path) {
+    public <CACHETYPE> HasDataSaver<CACHETYPE> getSaverFor(Class<CACHETYPE> theClass, Path path) {
+        DataSaver<CACHETYPE> saver = getDataSaver(theClass, path);
+        return new HasDataSaver<>(saver);
+    }
+
+    private <CACHETYPE> DataSaver<CACHETYPE> getDataSaver(Class<CACHETYPE> theClass, Path path) {
         FileType type = getFileTypeFor(path);
+
         switch (type) {
             case csv -> {
                 return new CsvDataSaver<>(theClass, path, csvMapper);
@@ -57,7 +63,6 @@ public class LoaderSaverFactory {
             }
             default -> throw new RuntimeException("unexpected file type " +type);
         }
-
     }
 
     private FileType getFileTypeFor(Path path) {

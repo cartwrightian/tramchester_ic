@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.caching.CachableData;
 import com.tramchester.caching.FileDataCache;
-import com.tramchester.dataexport.DataSaver;
+import com.tramchester.dataexport.HasDataSaver;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.RouteStationId;
@@ -188,10 +188,12 @@ public class RouteInterchangeRepository {
         }
 
         @Override
-        public void cacheTo(DataSaver<RouteToInterchangeCost> saver) {
-            saver.open();
-            saver.write(costs.entrySet().stream().map(RouteToInterchangeCost::from));
-            saver.close();
+        public void cacheTo(HasDataSaver<RouteToInterchangeCost> hasDataSaver) {
+            try (HasDataSaver.ClosableDataSaver<RouteToInterchangeCost> saver = hasDataSaver.get()) {
+                saver.write(costs.entrySet().stream().map(RouteToInterchangeCost::from));
+            } catch (Exception e) {
+                logger.error("Exception during cache write", e);
+            }
         }
 
         @Override

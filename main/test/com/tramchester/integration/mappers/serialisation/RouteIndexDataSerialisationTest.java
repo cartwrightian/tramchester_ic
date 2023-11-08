@@ -1,7 +1,7 @@
 package com.tramchester.integration.mappers.serialisation;
 
 import com.tramchester.caching.LoaderSaverFactory;
-import com.tramchester.dataexport.DataSaver;
+import com.tramchester.dataexport.HasDataSaver;
 import com.tramchester.dataimport.data.RouteIndexData;
 import com.tramchester.dataimport.loader.files.TransportDataFromFile;
 import com.tramchester.domain.Agency;
@@ -39,7 +39,7 @@ public class RouteIndexDataSerialisationTest {
     }
 
     @Test
-    void shouldSaveAndLoadToFileRouteId() {
+    void shouldSaveAndLoadToFileRouteId() throws Exception {
 
         IdFor<Route> routeId = Route.createId("routeB");
         RouteIndexData routeIndexData = new RouteIndexData((short) 42, routeId);
@@ -60,7 +60,7 @@ public class RouteIndexDataSerialisationTest {
     }
 
     @Test
-    void shouldSaveAndLoadToFileRailRouteId() {
+    void shouldSaveAndLoadToFileRailRouteId() throws Exception {
 
         RailRouteId railRouteId = getRailRouteId();
 
@@ -96,12 +96,13 @@ public class RouteIndexDataSerialisationTest {
         return stream.collect(Collectors.toList());
     }
 
-    private void saveToFile(RouteIndexData routeIndexData) {
-        DataSaver<RouteIndexData> saver = factory.getDataSaverFor(RouteIndexData.class, pathToJsonFile);
+    private void saveToFile(RouteIndexData routeIndexData) throws Exception {
+        HasDataSaver<RouteIndexData> hasSaver = factory.getSaverFor(RouteIndexData.class, pathToJsonFile);
 
-        saver.open();
-        saver.write(routeIndexData);
-        saver.close();
+        try (HasDataSaver.ClosableDataSaver<RouteIndexData> saver = hasSaver.get()) {
+            saver.write(routeIndexData);
+        }
+
     }
 
 }
