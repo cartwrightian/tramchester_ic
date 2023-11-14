@@ -59,7 +59,6 @@ public class GraphDatabase implements DatabaseEventListener {
     public void start() {
         if (tramchesterConfig.getPlanningEnabled()) {
             logger.info("start");
-            //Set<DataSourceInfo> dataSourceInfo = transportData.getDataSourceInfo();
             final Path dbPath = graphDBConfig.getDbPath();
             boolean fileExists = Files.exists(dbPath);
             databaseService = lifecycleManager.startDatabase(dataSourceRepository, dbPath, fileExists);

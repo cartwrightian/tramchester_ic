@@ -10,15 +10,12 @@ import org.neo4j.graphalgo.EvaluationContext;
 import org.neo4j.graphdb.*;
 
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Stream;
 
 public interface GraphTransaction extends AutoCloseable {
     void close();
 
     GraphNode getNodeById(GraphNodeId nodeId);
-
-    MutableGraphNode createNode(Set<GraphLabel> labels);
 
     Stream<GraphNode> findNodes(GraphLabel graphLabel);
 

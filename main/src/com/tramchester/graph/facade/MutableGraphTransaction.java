@@ -67,7 +67,6 @@ public class MutableGraphTransaction implements GraphTransaction {
         return wrapRelationship(relationship);
     }
 
-    @Override
     public MutableGraphNode createNode(Set<GraphLabel> labels) {
         GraphLabel[] toApply = new GraphLabel[labels.size()];
         labels.toArray(toApply);
