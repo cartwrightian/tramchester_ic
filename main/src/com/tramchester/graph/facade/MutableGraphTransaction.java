@@ -21,7 +21,7 @@ import java.util.stream.Stream;
 /***
  * Facade around underlying graph DB Transaction
  */
-public class MutableGraphTransaction implements AutoCloseable {
+public class MutableGraphTransaction implements GraphTransaction {
     private final Transaction txn;
     private final GraphIdFactory idFactory;
 
@@ -30,6 +30,7 @@ public class MutableGraphTransaction implements AutoCloseable {
         this.idFactory = idFactory;
     }
 
+    @Override
     public void close() {
         txn.close();
     }
@@ -47,6 +48,7 @@ public class MutableGraphTransaction implements AutoCloseable {
         return txn.schema();
     }
 
+    @Override
     public GraphNode getNodeById(GraphNodeId nodeId) {
         Node node = nodeId.getNodeFrom(txn);
         return wrapNodeAsImmutable(node);
@@ -65,6 +67,7 @@ public class MutableGraphTransaction implements AutoCloseable {
         return wrapRelationship(relationship);
     }
 
+    @Override
     public MutableGraphNode createNode(Set<GraphLabel> labels) {
         GraphLabel[] toApply = new GraphLabel[labels.size()];
         labels.toArray(toApply);
@@ -72,6 +75,7 @@ public class MutableGraphTransaction implements AutoCloseable {
         return wrapNode(node);
     }
 
+    @Override
     public Stream<GraphNode> findNodes(GraphLabel graphLabel) {
         return txn.findNodes(graphLabel).stream().map(this::wrapNodeAsImmutable);
     }
@@ -80,11 +84,13 @@ public class MutableGraphTransaction implements AutoCloseable {
         return txn.findNodes(graphLabel).stream().map(this::wrapNode);
     }
 
+    @Override
     public boolean hasAnyMatching(GraphLabel label, String field, String value) {
         Node node = txn.findNode(label, field, value);
         return node != null;
     }
 
+    @Override
     public boolean hasAnyMatching(GraphLabel graphLabel) {
         ResourceIterator<Node> found = txn.findNodes(graphLabel);
         List<Node> nodes = found.stream().toList();
@@ -115,6 +121,7 @@ public class MutableGraphTransaction implements AutoCloseable {
         return wrapNode(node);
     }
 
+    @Override
     public <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> GraphNode findNode(ITEM item) {
         return findNode(item.getNodeLabel(), item.getProp(), item.getId().getGraphId());
     }
@@ -127,6 +134,7 @@ public class MutableGraphTransaction implements AutoCloseable {
         return txn.execute(queryText, queryParams);
     }
 
+    @Override
     public EvaluationContext createEvaluationContext(GraphDatabaseService databaseService) {
         return new BasicEvaluationContext(txn, databaseService);
     }
@@ -135,6 +143,7 @@ public class MutableGraphTransaction implements AutoCloseable {
         return txn.execute(query);
     }
 
+    @Override
     public List<GraphRelationship> getRouteStationRelationships(RouteStation routeStation, Direction direction) {
         GraphNode routeStationNode = findNode(routeStation);
         if (routeStationNode==null) {
@@ -143,7 +152,7 @@ public class MutableGraphTransaction implements AutoCloseable {
         return routeStationNode.getRelationships(this, direction, TransportRelationshipTypes.forPlanning()).toList();
     }
 
-    MutableGraphNode wrapNode(Node endNode) {
+    public MutableGraphNode wrapNode(Node endNode) {
         GraphNodeId graphNodeId = idFactory.getIdFor(endNode);
         return new MutableGraphNode(endNode, graphNodeId);
     }
@@ -153,12 +162,13 @@ public class MutableGraphTransaction implements AutoCloseable {
         return new ImmuableGraphNode(underlying);
     }
 
-    // TODO intro immutable
-    GraphRelationship wrapRelationship(Relationship relationship) {
+    @Override
+    public GraphRelationship wrapRelationship(Relationship relationship) {
         MutableGraphRelationship underlying = new MutableGraphRelationship(relationship, idFactory.getIdFor(relationship));
         return new ImmutableGraphRelationship(underlying);
     }
 
+    // TODO intro immutable?
     public MutableGraphRelationship wrapRelationshipMutable(Relationship relationship) {
         return new MutableGraphRelationship(relationship, idFactory.getIdFor(relationship));
     }
@@ -187,6 +197,7 @@ public class MutableGraphTransaction implements AutoCloseable {
         return wrapRelationship(last);
     }
 
+    @Override
     public Iterable<ImmuableGraphNode> iter(Iterable<Node> iterable) {
         return new Iterable<>() {
             @NotNull

@@ -65,7 +65,7 @@ public class RouteToRouteCostsRailTest {
     void beforeEachTestRuns() {
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
 
-        txn = database.beginTx();
+        txn = database.beginTxMutable();
         routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
         stationRepository = componentContainer.get(StationRepository.class);
 

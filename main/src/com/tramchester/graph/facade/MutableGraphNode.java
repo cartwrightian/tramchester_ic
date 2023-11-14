@@ -138,7 +138,7 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
         return EnumSet.copyOf(set);
     }
 
-    public Stream<GraphRelationship> getRelationships(MutableGraphTransaction txn, Direction direction, TransportRelationshipTypes relationshipType) {
+    public Stream<GraphRelationship> getRelationships(GraphTransaction txn, Direction direction, TransportRelationshipTypes relationshipType) {
         return node.getRelationships(direction, relationshipType).stream().map(txn::wrapRelationship);
     }
 
@@ -146,7 +146,7 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
         return node.getRelationships(direction, relationshipType).stream().map(txn::wrapRelationshipMutable);
     }
 
-    public Stream<GraphRelationship> getRelationships(MutableGraphTransaction txn, Direction direction, TransportRelationshipTypes... transportRelationshipTypes) {
+    public Stream<GraphRelationship> getRelationships(GraphTransaction txn, Direction direction, TransportRelationshipTypes... transportRelationshipTypes) {
         return node.getRelationships(direction, transportRelationshipTypes).stream().map(txn::wrapRelationship);
     }
 

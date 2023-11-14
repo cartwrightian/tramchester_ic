@@ -92,7 +92,7 @@ class CompositeRouteTest {
         startGroup = compositeStationRepository.findByName("Id{'area1'}");
         fourthStationComposite = compositeStationRepository.findByName("Id{'area4'}");
 
-        txn = database.beginTx();
+        txn = database.beginTxMutable();
 
         locationJourneyPlanner = new LocationJourneyPlannerTestFacade(componentContainer.get(LocationJourneyPlanner.class),
                 stationRepository, txn);

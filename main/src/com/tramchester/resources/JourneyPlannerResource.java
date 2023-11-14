@@ -98,7 +98,7 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         Location<?> start = locationRepository.getLocation(query.getStartType(), query.getStartId());
         Location<?> dest = locationRepository.getLocation(query.getDestType(), query.getDestId());
 
-        try(MutableGraphTransaction tx = graphDatabase.beginTx() ) {
+        try(MutableGraphTransaction tx = graphDatabase.beginTxMutable() ) {
 
             Stream<JourneyDTO> dtoStream = getJourneyDTOStream(tx, query.getTramDate(), query.getTime(),
                     start, dest, query.isArriveBy(), query.getMaxChanges(), modes);
@@ -114,7 +114,7 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
             JourneyPlanRepresentation planRepresentation = new JourneyPlanRepresentation(filtered);
             dtoStream.close();
 
-            if (planRepresentation.getJourneys().size()==0) {
+            if (planRepresentation.getJourneys().isEmpty()) {
                 logger.warn(format("No journeys found from %s to %s at %s on %s",
                         start.getId(), dest.getId() , query.getTime(), query.getDate()));
             }
@@ -156,7 +156,7 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         Location<?> start = locationRepository.getLocation(query.getStartType(), query.getStartId());
         Location<?> dest = locationRepository.getLocation(query.getDestType(), query.getDestId());
 
-        MutableGraphTransaction tx =  graphDatabase.beginTx();
+        MutableGraphTransaction tx =  graphDatabase.beginTxMutable();
 
         try {
             Stream<JourneyDTO> dtoStream = getJourneyDTOStream(tx, query.getTramDate(), query.getTime(), start, dest, query.isArriveBy(),

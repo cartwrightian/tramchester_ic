@@ -102,7 +102,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
             final AtomicInteger journeyIndex = new AtomicInteger(0);
 
-            try(MutableGraphTransaction txn = graphDatabaseService.beginTx()) {
+            try(MutableGraphTransaction txn = graphDatabaseService.beginTxMutable()) {
 
                 Stream<Journey> journeys = startingStations.stream().
                         filter(start -> !destinations.contains(start)).

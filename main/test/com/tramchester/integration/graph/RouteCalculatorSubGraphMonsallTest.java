@@ -68,7 +68,7 @@ class RouteCalculatorSubGraphMonsallTest {
     @BeforeEach
     void beforeEachTestRuns() {
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
-        txn = database.beginTx();
+        txn = database.beginTxMutable();
         calculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
 
     }

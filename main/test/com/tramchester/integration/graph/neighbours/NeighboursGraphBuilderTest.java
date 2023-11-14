@@ -59,7 +59,7 @@ class NeighboursGraphBuilderTest {
     void onceBeforeEachTest() {
         stationRepository = componentContainer.get(StationRepository.class);
 
-        txn = graphDatabase.beginTx();
+        txn = graphDatabase.beginTxMutable();
     }
 
     @AfterEach

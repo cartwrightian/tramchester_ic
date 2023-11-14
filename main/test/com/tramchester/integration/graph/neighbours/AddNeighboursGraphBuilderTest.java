@@ -72,7 +72,7 @@ class AddNeighboursGraphBuilderTest {
         // force init of main DB and hence save of VERSION node, so avoid multiple rebuilds of the DB
         componentContainer.get(StagedTransportGraphBuilder.Ready.class);
 
-        txn = graphDatabase.beginTx();
+        txn = graphDatabase.beginTxMutable();
     }
 
     @AfterEach

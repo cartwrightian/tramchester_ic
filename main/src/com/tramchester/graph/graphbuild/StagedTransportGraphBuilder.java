@@ -152,7 +152,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             return;
         }
 
-        try(MutableGraphTransaction tx = graphDatabase.beginTx()) {
+        try(MutableGraphTransaction tx = graphDatabase.beginTxMutable()) {
             logger.info("Adding version node to the DB");
             databaseMetaInfo.createVersionNode(tx, infos);
             tx.commit();
@@ -173,7 +173,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
         try(Timing ignored = new Timing(logger,"service, hour for " + agency.getId())) {
             getRoutesForAgency(agency).parallel().forEach(route -> {
-                try (MutableGraphTransaction tx = graphDatabase.beginTx()) {
+                try (MutableGraphTransaction tx = graphDatabase.beginTxMutable()) {
                     createServiceAndHourNodesForRoute(tx, route, builderCache);
                     tx.commit();
                 }
@@ -183,7 +183,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         try(Timing ignored = new Timing(logger,"time and update for trips for " + agency.getId())) {
             // removed the parallel
             getRoutesForAgency(agency).forEach(route -> {
-                try (MutableGraphTransaction tx = graphDatabase.beginTx()) {
+                try (MutableGraphTransaction tx = graphDatabase.beginTxMutable()) {
                     createMinuteNodesAndRecordUpdatesForTrips(tx, route, builderCache);
                     tx.commit();
                 }

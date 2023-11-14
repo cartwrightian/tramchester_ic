@@ -57,7 +57,7 @@ class RouteCostCalculatorTest {
         routeCostCalculator = componentContainer.get(RouteCostCalculator.class);
         stationRepository = componentContainer.get(StationRepository.class);
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
-        txn = database.beginTx();
+        txn = database.beginTxMutable();
 
         altrincham = Altrincham.from(stationRepository);
         mediaCity = MediaCityUK.from(stationRepository);

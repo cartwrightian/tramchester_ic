@@ -90,7 +90,7 @@ class TramRouteTest {
 
         modes = TramsOnly;
 
-        txn = database.beginTx();
+        txn = database.beginTxMutable();
 
         locationJourneyPlanner = new LocationJourneyPlannerTestFacade(componentContainer.get(LocationJourneyPlanner.class),
                 stationRepo, txn);

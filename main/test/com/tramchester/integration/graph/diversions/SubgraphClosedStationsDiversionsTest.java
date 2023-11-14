@@ -13,11 +13,9 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.*;
-import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.GraphRelationship;
-import com.tramchester.graph.facade.GraphRelationshipId;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.TransportRelationshipTypes;
+import com.tramchester.graph.facade.*;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
@@ -287,7 +285,7 @@ class SubgraphClosedStationsDiversionsTest {
 
         Station notAnInterchange = MarketStreet.from(stationRepository);
 
-        try (MutableGraphTransaction txn = database.beginTx()) {
+        try (GraphTransaction txn = database.beginTx()) {
             notAnInterchange.getPlatforms().forEach(platform -> {
                 GraphNode node = txn.findNode(platform);
                 Stream<GraphRelationship> iterable = node.getRelationships(txn, Direction.INCOMING, TransportRelationshipTypes.DIVERSION_DEPART);
@@ -299,7 +297,7 @@ class SubgraphClosedStationsDiversionsTest {
 
         assertFalse(foundRelationshipIds.isEmpty());
 
-        try (MutableGraphTransaction txn = database.beginTx()) {
+        try (GraphTransaction txn = database.beginTx()) {
             GraphRelationship relationship = txn.getRelationshipById(foundRelationshipIds.get(0));
             GraphNode from = relationship.getStartNode(txn);
             assertTrue(from.hasLabel(ROUTE_STATION), from.getAllProperties().toString());
@@ -315,7 +313,7 @@ class SubgraphClosedStationsDiversionsTest {
 
         Station piccadilly = Piccadilly.from(stationRepository);
 
-        try (MutableGraphTransaction txn = database.beginTx()) {
+        try (GraphTransaction txn = database.beginTx()) {
             GraphNode stationNode = txn.findNode(piccadilly);
 
             Stream<GraphRelationship> iterable = stationNode.getRelationships(txn, Direction.OUTGOING, TransportRelationshipTypes.DIVERSION);
@@ -327,7 +325,7 @@ class SubgraphClosedStationsDiversionsTest {
 
         AtomicInteger count = new AtomicInteger(0);
 
-        try (MutableGraphTransaction txn = database.beginTx()) {
+        try (GraphTransaction txn = database.beginTx()) {
             foundRelationshipIds.forEach(foundId -> {
                 GraphRelationship relationship = txn.getRelationshipById(foundId);
                 GraphNode to = relationship.getEndNode(txn);

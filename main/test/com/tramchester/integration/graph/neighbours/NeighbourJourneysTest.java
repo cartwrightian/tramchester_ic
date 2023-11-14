@@ -87,7 +87,7 @@ public class NeighbourJourneysTest {
 
         maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
 
-        txn = graphDatabase.beginTx();
+        txn = graphDatabase.beginTxMutable();
         routeCalculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
         planner = componentContainer.get(LocationJourneyPlanner.class);
 

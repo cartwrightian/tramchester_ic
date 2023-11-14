@@ -78,7 +78,7 @@ class TramGraphBuilderTest {
 
         StagedTransportGraphBuilder builder = componentContainer.get(StagedTransportGraphBuilder.class);
         builder.getReady();
-        txn = graphDatabase.beginTx();
+        txn = graphDatabase.beginTxMutable();
     }
 
     @AfterEach

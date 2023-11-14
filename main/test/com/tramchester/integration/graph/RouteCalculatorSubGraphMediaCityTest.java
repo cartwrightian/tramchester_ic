@@ -97,7 +97,7 @@ class RouteCalculatorSubGraphMediaCityTest {
     void beforeEachTestRuns() {
         maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
         stationRepository = componentContainer.get(StationRepository.class);
-        txn = database.beginTx();
+        txn = database.beginTxMutable();
         combinations = new RouteCalculationCombinations(componentContainer);
         calculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
         closedStationRepository = componentContainer.get(ClosedStationsRepository.class);

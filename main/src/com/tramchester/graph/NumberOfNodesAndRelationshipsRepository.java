@@ -44,7 +44,7 @@ class NumberOfNodesAndRelationshipsRepository {
 
     private void countRelationships() {
         TransportRelationshipTypes[] types = TransportRelationshipTypes.values();
-        try (MutableGraphTransaction txn = graphDatabase.beginTx()) {
+        try (MutableGraphTransaction txn = graphDatabase.beginTxMutable()) {
             for (TransportRelationshipTypes relationshipType : types) {
                 long count = getCountFromQuery(txn,
                         "MATCH ()-[relationship:" + relationshipType.name() + "]->() " + "RETURN count(*) as count");
@@ -58,7 +58,7 @@ class NumberOfNodesAndRelationshipsRepository {
 
     private void countNodeNumbers() {
         GraphLabel[] labels = GraphLabel.values();
-        try (MutableGraphTransaction txn = graphDatabase.beginTx()) {
+        try (MutableGraphTransaction txn = graphDatabase.beginTxMutable()) {
             for (GraphLabel label : labels) {
                 long count = getCountFromQuery(txn,
                         "MATCH (node:" + label.name() + ") " + "RETURN count(*) as count");

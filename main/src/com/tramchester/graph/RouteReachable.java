@@ -11,7 +11,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphRelationship;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.repository.StationAvailabilityRepository;
 import com.tramchester.repository.StationRepository;
@@ -51,7 +51,7 @@ public class RouteReachable {
         final Set<Route> firstRoutes = availabilityRepository.getPickupRoutesFor(startStation, date, timeRange, modes);
         final IdFor<Station> endStationId = pair.getEnd().getId();
 
-        try (MutableGraphTransaction txn = graphDatabaseService.beginTx()) {
+        try (GraphTransaction txn = graphDatabaseService.beginTx()) {
             firstRoutes.forEach(route -> {
                 final RouteStation routeStation = stationRepository.getRouteStation(startStation, route);
                 final GraphNode routeStationNode = txn.findNode(routeStation);

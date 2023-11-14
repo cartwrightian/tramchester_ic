@@ -92,7 +92,7 @@ class RouteCalculatorLocalStationsSubGraphTest {
     void beforeEachTestRuns() {
         stationRepository = componentContainer.get(StationRepository.class);
         routeRepository = componentContainer.get(RouteRepository.class);
-        txn = database.beginTx();
+        txn = database.beginTxMutable();
 
         testFacade = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
 

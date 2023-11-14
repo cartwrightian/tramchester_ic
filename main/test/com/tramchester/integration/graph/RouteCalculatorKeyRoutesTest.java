@@ -173,7 +173,7 @@ class RouteCalculatorKeyRoutesTest {
 
         Optional<Pair<StationIdPair, RouteCalculationCombinations.JourneyOrNot>> failed = stationIdPairs.parallelStream().
                 map(requested -> {
-                    try (MutableGraphTransaction txn = database.beginTx()) {
+                    try (MutableGraphTransaction txn = database.beginTxMutable()) {
                         JourneyRequest journeyRequest = new JourneyRequest(queryDate, queryTime, false,
                                 3, maxJourneyDuration, 1, modes);
                         Optional<Journey> optionalJourney = combinations.findJourneys(txn, requested.getBeginId(), requested.getEndId(),

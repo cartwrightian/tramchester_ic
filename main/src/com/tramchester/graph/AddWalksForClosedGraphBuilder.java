@@ -157,7 +157,7 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships i
     private boolean hasDBFlag(GTFSSourceConfig sourceConfig) {
         logger.info("Checking DB if walks added for " + sourceConfig.getName() +  " closed stations");
         boolean flag;
-        try (MutableGraphTransaction txn = graphDatabase.beginTx()) {
+        try (MutableGraphTransaction txn = graphDatabase.beginTxMutable()) {
             String value = sourceConfig.getName();
 
             flag = txn.hasAnyMatching(GraphLabel.WALK_FOR_CLOSED_ENABLED, SOURCE_NAME_PROP.getText(), value);
@@ -166,7 +166,7 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships i
     }
 
     private void addDBFlag(GTFSSourceConfig sourceConfig) {
-        try (MutableGraphTransaction txn = graphDatabase.beginTx()) {
+        try (MutableGraphTransaction txn = graphDatabase.beginTxMutable()) {
             Stream<MutableGraphNode> query = txn.findNodesMutable(GraphLabel.WALK_FOR_CLOSED_ENABLED);
             List<MutableGraphNode> nodes = query.toList();
 

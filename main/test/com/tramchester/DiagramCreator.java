@@ -71,7 +71,7 @@ public class DiagramCreator {
 
         DiagramBuild builder = new DiagramBuild(printStream);
 
-        try (MutableGraphTransaction txn = graphDatabase.beginTx()) {
+        try (GraphTransaction txn = graphDatabase.beginTx()) {
             builder.append("digraph G {\n");
 
             startPointsList.forEach(startPoint -> {
@@ -107,7 +107,7 @@ public class DiagramCreator {
     }
 
     private void visit(GraphNode node, DiagramBuild builder, int depth, Set<GraphNodeId> nodeSeen, Set<GraphRelationshipId> relationshipSeen,
-                       boolean topLevel, MutableGraphTransaction txn) {
+                       boolean topLevel, GraphTransaction txn) {
         if (depth<=0) {
             return;
         }
@@ -124,8 +124,9 @@ public class DiagramCreator {
 
     }
 
-    private void visitInbounds(GraphNode targetNode, DiagramBuild builder, int depth, Set<GraphNodeId> nodeSeen, Set<GraphRelationshipId> relationshipSeen,
-                               boolean topLevel, MutableGraphTransaction txn) {
+    private void visitInbounds(GraphNode targetNode, DiagramBuild builder, int depth, Set<GraphNodeId> nodeSeen,
+                               Set<GraphRelationshipId> relationshipSeen,
+                               boolean topLevel, GraphTransaction txn) {
         getRelationships(targetNode, Direction.INCOMING, topLevel, txn).forEach(towards -> {
 
             GraphNode startNode = towards.getStartNode(txn); //GraphNode.fromStart(towards);
@@ -137,13 +138,13 @@ public class DiagramCreator {
         });
     }
 
-    private Stream<GraphRelationship> getRelationships(GraphNode targetNode, Direction direction, boolean toplevelOnly, MutableGraphTransaction txn) {
+    private Stream<GraphRelationship> getRelationships(GraphNode targetNode, Direction direction, boolean toplevelOnly, GraphTransaction txn) {
         TransportRelationshipTypes[] types = toplevelOnly ?  toplevelRelationships : TransportRelationshipTypes.values();
         return targetNode.getRelationships(txn, direction, types);
     }
 
     private void visitOutbounds(GraphNode startNode, DiagramBuild builder, int depth, Set<GraphNodeId> seen,
-                                Set<GraphRelationshipId> relationshipSeen, boolean topLevel, MutableGraphTransaction txn) {
+                                Set<GraphRelationshipId> relationshipSeen, boolean topLevel, GraphTransaction txn) {
         Map<GraphRelationshipId,GraphRelationship> goesToRelationships = new HashMap<>();
 
         getRelationships(startNode, Direction.OUTGOING, topLevel, txn).forEach(awayFrom -> {

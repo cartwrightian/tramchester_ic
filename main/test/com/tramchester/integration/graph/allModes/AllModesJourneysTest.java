@@ -69,7 +69,7 @@ public class AllModesJourneysTest {
         GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
 
-        txn = graphDatabase.beginTx();
+        txn = graphDatabase.beginTxMutable();
         routeCalculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
         this.stationRepository = componentContainer.get(StationRepository.class);
     }

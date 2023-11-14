@@ -69,7 +69,7 @@ public class FindRouteEndPoints {
         params.put("mode", mode.getNumber());
 
         IdSet<RouteStation> stationIds = new IdSet<>();
-        try (MutableGraphTransaction txn  = graphDatabase.beginTx()) {
+        try (MutableGraphTransaction txn  = graphDatabase.beginTxMutable()) {
             Result result = txn.execute(query, params);
             while (result.hasNext()) {
                 Map<String, Object> row = result.next();

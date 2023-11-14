@@ -64,14 +64,14 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
             logger.warn("Disabled, StationGroupsRepository is not enabled");
             return;
         }
-        try(MutableGraphTransaction txn = graphDatabase.beginTx()) {
+        try(MutableGraphTransaction txn = graphDatabase.beginTxMutable()) {
             if (hasDBFlag(txn)) {
                 logger.info("Already present in DB");
                 return;
             }
         }
         config.getTransportModes().forEach(this::addCompositeNodesAndLinks);
-        try(MutableGraphTransaction txn = graphDatabase.beginTx()) {
+        try(MutableGraphTransaction txn = graphDatabase.beginTxMutable()) {
             addDBFlag(txn);
             txn.commit();
         }

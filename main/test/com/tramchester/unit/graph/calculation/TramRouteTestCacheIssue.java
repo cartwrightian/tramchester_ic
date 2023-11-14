@@ -52,7 +52,7 @@ class TramRouteTestCacheIssue {
 
         queryDate = TramDate.of(2014,6,30);
 
-        txn = database.beginTx();
+        txn = database.beginTxMutable();
 
     }
 

@@ -72,7 +72,7 @@ class BusRouteCostCalculatorTest {
 
         routeCost = componentContainer.get(RouteCostCalculator.class);
 
-        txn = database.beginTx();
+        txn = database.beginTxMutable();
     }
 
     @AfterEach

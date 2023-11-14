@@ -72,7 +72,7 @@ class MixedRouteTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        txn = database.beginTx();
+        txn = database.beginTxMutable();
 
         queryDate = TramDate.of(2014,6,30);
         queryTime = TramTime.of(7, 57);

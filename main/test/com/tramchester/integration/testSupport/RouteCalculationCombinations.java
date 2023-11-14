@@ -108,7 +108,7 @@ public class RouteCalculationCombinations {
                 parallelStream().
                 filter(stationIdPair -> bothOpen(stationIdPair, request)).
                 map(pair -> {
-                    try (MutableGraphTransaction txn = database.beginTx()) {
+                    try (MutableGraphTransaction txn = database.beginTxMutable()) {
                         Optional<Journey> optionalJourney = findJourneys(txn, pair.getBeginId(), pair.getEndId(), request);
                         JourneyOrNot journeyOrNot = new JourneyOrNot(pair, queryDate, queryTime, optionalJourney);
                         return Pair.of(pair, journeyOrNot);

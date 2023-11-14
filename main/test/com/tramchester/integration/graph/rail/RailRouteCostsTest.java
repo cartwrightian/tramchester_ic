@@ -57,7 +57,7 @@ public class RailRouteCostsTest {
     void beforeEachTestRuns() {
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
 
-        txn = database.beginTx();
+        txn = database.beginTxMutable();
         stationRepository = componentContainer.get(StationRepository.class);
         routeCostCalculator = componentContainer.get(RouteCostCalculator.class);
 

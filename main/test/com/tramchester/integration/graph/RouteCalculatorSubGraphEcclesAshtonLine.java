@@ -77,7 +77,7 @@ class RouteCalculatorSubGraphEcclesAshtonLine {
     @BeforeEach
     void beforeEachTestRuns() {
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
-        txn = database.beginTx();
+        txn = database.beginTxMutable();
         calculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
 
         maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());

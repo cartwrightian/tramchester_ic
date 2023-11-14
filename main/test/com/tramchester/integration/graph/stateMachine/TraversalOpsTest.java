@@ -59,7 +59,7 @@ public class TraversalOpsTest {
         stationRepository = componentContainer.get(StationRepository.class);
         routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
-        txn = database.beginTx();
+        txn = database.beginTxMutable();
     }
 
     @AfterEach

@@ -54,7 +54,7 @@ class GraphBuilderRailTest {
         StagedTransportGraphBuilder builder = componentContainer.get(StagedTransportGraphBuilder.class);
         builder.getReady();
 
-        txn = service.beginTx();
+        txn = service.beginTxMutable();
     }
 
     @AfterEach

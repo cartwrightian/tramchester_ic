@@ -10,12 +10,13 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
-import com.tramchester.graph.*;
+import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphNodeId;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.search.diagnostics.ReasonsToGraphViz;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
@@ -76,7 +77,7 @@ public class RouteCalculatorSupport {
     }
 
 
-    protected GraphNode getLocationNodeSafe(MutableGraphTransaction txn, Location<?> location) {
+    protected GraphNode getLocationNodeSafe(GraphTransaction txn, Location<?> location) {
         GraphNode stationNode = txn.findNode(location);
         if (stationNode == null) {
             String msg = "Unable to find node for " + location;
@@ -89,7 +90,7 @@ public class RouteCalculatorSupport {
     @NotNull
     public Set<GraphNodeId> getDestinationNodeIds(LocationSet destinations) {
         Set<GraphNodeId> destinationNodeIds;
-        try(MutableGraphTransaction txn = graphDatabaseService.beginTx()) {
+        try(GraphTransaction txn = graphDatabaseService.beginTx()) {
             destinationNodeIds = destinations.stream().
                     map(location -> getLocationNodeSafe(txn, location)).
                     map(GraphNode::getId).

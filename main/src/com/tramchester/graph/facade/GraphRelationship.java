@@ -24,9 +24,9 @@ public interface GraphRelationship {
     
     Duration getCost();
 
-    GraphNode getEndNode(final MutableGraphTransaction txn);
+    GraphNode getEndNode(final GraphTransaction txn);
 
-    GraphNode getStartNode(MutableGraphTransaction txn);
+    GraphNode getStartNode(GraphTransaction txn);
 
     EnumSet<TransportMode> getTransportModes() ;
 

@@ -91,7 +91,7 @@ class SubGraphAroundKnutsfordRailTest {
 
         RouteCalculator routeCalculator = componentContainer.get(RouteCalculator.class);
 
-        txn = database.beginTx();
+        txn = database.beginTxMutable();
         testFacade = new RouteCalculatorTestFacade(routeCalculator, stationRepository, txn);
 
         tramTime = TramTime.of(9, 0);

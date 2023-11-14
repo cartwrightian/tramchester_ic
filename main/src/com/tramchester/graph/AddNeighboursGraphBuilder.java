@@ -106,14 +106,14 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
 
     private boolean hasDBFlag() {
         boolean flag;
-        try (MutableGraphTransaction txn = graphDatabase.beginTx()) {
+        try (MutableGraphTransaction txn = graphDatabase.beginTxMutable()) {
             flag = databaseMetaInfo.isNeighboursEnabled(txn);
         }
         return flag;
     }
 
     private void addDBFlag() {
-        try (MutableGraphTransaction txn = graphDatabase.beginTx()) {
+        try (MutableGraphTransaction txn = graphDatabase.beginTxMutable()) {
             databaseMetaInfo.setNeighboursEnabled(txn);
             txn.commit();
         }
