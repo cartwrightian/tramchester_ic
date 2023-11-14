@@ -1,9 +1,6 @@
 package com.tramchester.graph.search.stateMachine.states;
 
-import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.GraphRelationship;
-import com.tramchester.graph.facade.MutableGraphTransaction;
-import com.tramchester.graph.facade.ImmutableGraphRelationship;
+import com.tramchester.graph.facade.*;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.TowardsRouteStation;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
@@ -36,7 +33,7 @@ public class JustBoardedState extends RouteStationState {
             return TraversalStateType.JustBoardedState;
         }
 
-        public JustBoardedState fromPlatformState(PlatformState platformState, GraphNode node, Duration cost, MutableGraphTransaction txn) {
+        public JustBoardedState fromPlatformState(PlatformState platformState, GraphNode node, Duration cost, GraphTransaction txn) {
             // does this ever happen? Get on one route station only to go back to a whole different
             // platform?
             Stream<ImmutableGraphRelationship> otherPlatforms = filterExcludingEndNode(txn, node.getRelationships(txn, OUTGOING, ENTER_PLATFORM),
@@ -52,7 +49,7 @@ public class JustBoardedState extends RouteStationState {
             return new JustBoardedState(platformState, Stream.concat(services, otherPlatforms), cost, this);
         }
 
-        public JustBoardedState fromNoPlatformStation(NoPlatformStationState noPlatformStation, GraphNode node, Duration cost, MutableGraphTransaction txn) {
+        public JustBoardedState fromNoPlatformStation(NoPlatformStationState noPlatformStation, GraphNode node, Duration cost, GraphTransaction txn) {
             Stream<ImmutableGraphRelationship> filteredDeparts = filterExcludingEndNode(txn,
                     node.getRelationships(txn, OUTGOING, DEPART, INTERCHANGE_DEPART, DIVERSION_DEPART),
                     noPlatformStation);
@@ -67,7 +64,7 @@ public class JustBoardedState extends RouteStationState {
          * @param txn currnet transaction
          * @return ordered by least number routes interconnects first
          */
-        private Stream<ImmutableGraphRelationship> orderServicesByRouteMetric(GraphNode node, TraversalOps traversalOps, MutableGraphTransaction txn) {
+        private Stream<ImmutableGraphRelationship> orderServicesByRouteMetric(GraphNode node, TraversalOps traversalOps, GraphTransaction txn) {
             Stream<ImmutableGraphRelationship> toServices = node.getRelationships(txn, OUTGOING, TO_SERVICE);
             return traversalOps.orderBoardingRelationsByRouteConnections(toServices);
         }
@@ -76,7 +73,7 @@ public class JustBoardedState extends RouteStationState {
          * Order outbound relationships by end node distance to destination
          * significant overall performance increase for non-trivial geographically diverse networks
          */
-        private Stream<GraphRelationship> orderServicesByDistance(GraphNode node, TraversalOps traversalOps, MutableGraphTransaction txn) {
+        private Stream<GraphRelationship> orderServicesByDistance(GraphNode node, TraversalOps traversalOps, GraphTransaction txn) {
             Stream<GraphRelationship> toServices = node.getRelationships(txn, OUTGOING, TO_SERVICE);
             return traversalOps.orderRelationshipsByDistance(toServices);
         }

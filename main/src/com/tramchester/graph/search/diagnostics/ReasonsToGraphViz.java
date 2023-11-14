@@ -6,10 +6,7 @@ import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.caches.NodeContentsRepository;
-import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.GraphNodeId;
-import com.tramchester.graph.facade.GraphRelationship;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.naptan.NaptanRepository;
@@ -41,13 +38,13 @@ public class ReasonsToGraphViz {
         this.nodeContentsRepository = nodeContentsRepository;
     }
 
-    public void appendTo(StringBuilder builder, List<HeuristicsReason> reasons, MutableGraphTransaction txn) {
+    public void appendTo(StringBuilder builder, List<HeuristicsReason> reasons, GraphTransaction txn) {
         DiagramState diagramState = new DiagramState();
         reasons.forEach(reason -> add(reason, txn, builder, diagramState));
         diagramState.clear();
     }
 
-    private void add(HeuristicsReason reason, MutableGraphTransaction transaction, StringBuilder builder, DiagramState diagramState) {
+    private void add(HeuristicsReason reason, GraphTransaction transaction, StringBuilder builder, DiagramState diagramState) {
         HowIGotHere howIGotHere = reason.getHowIGotHere();
 
         GraphNodeId endNodeId = howIGotHere.getEndNodeId();

@@ -5,6 +5,7 @@ import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.search.JourneyStateUpdate;
@@ -41,7 +42,7 @@ public class RouteStationStateEndTrip extends RouteStationState {
         }
 
         public RouteStationStateEndTrip fromMinuteState(MinuteState minuteState, GraphNode node, Duration cost,
-                                                        boolean isInterchange, Trip trip, MutableGraphTransaction txn) {
+                                                        boolean isInterchange, Trip trip, GraphTransaction txn) {
             TransportMode transportMode = node.getTransportMode();
 
             // TODO Crossing midnight?
@@ -78,7 +79,8 @@ public class RouteStationStateEndTrip extends RouteStationState {
     }
 
     @Override
-    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsStation, GraphNode node, Duration cost, JourneyStateUpdate journeyState, boolean onDiversion) {
+    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsStation, GraphNode node, Duration cost,
+                                                 JourneyStateUpdate journeyState, boolean onDiversion) {
         leaveVehicle(journeyState);
         return towardsStation.fromRouteStation(this, node, cost, journeyState, onDiversion, txn);
     }

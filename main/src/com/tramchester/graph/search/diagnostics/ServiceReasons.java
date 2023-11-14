@@ -6,7 +6,7 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphNodeId;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.search.ImmutableJourneyState;
 import com.tramchester.graph.search.RouteCalculatorSupport;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateType;
@@ -68,7 +68,7 @@ public class ServiceReasons {
         Arrays.asList(ReasonCode.values()).forEach(code -> reasonCodeStats.put(code, new AtomicInteger(0)));
     }
 
-    public void reportReasons(MutableGraphTransaction transaction, RouteCalculatorSupport.PathRequest pathRequest, ReasonsToGraphViz reasonToGraphViz) {
+    public void reportReasons(GraphTransaction transaction, RouteCalculatorSupport.PathRequest pathRequest, ReasonsToGraphViz reasonToGraphViz) {
         if (diagnosticsEnabled) {
             createGraphFile(transaction, reasonToGraphViz, pathRequest);
         }
@@ -142,7 +142,7 @@ public class ServiceReasons {
         };
     }
 
-    private void reportStats(MutableGraphTransaction txn, RouteCalculatorSupport.PathRequest pathRequest) {
+    private void reportStats(GraphTransaction txn, RouteCalculatorSupport.PathRequest pathRequest) {
         if ((!success) && journeyRequest.getWarnIfNoResults()) {
             logger.warn("No result found for at " + pathRequest.getActualQueryTime() + " changes " + pathRequest.getNumChanges() +
                     " for " + journeyRequest );
@@ -156,7 +156,7 @@ public class ServiceReasons {
         }
     }
 
-    private void logVisits(MutableGraphTransaction txn) {
+    private void logVisits(GraphTransaction txn) {
         Set<GraphNodeId> haveInvalidReasonCode = reasons.stream().
                 filter(reason -> !reason.isValid()).
                 map(HeuristicsReason::getNodeId).
@@ -221,7 +221,7 @@ public class ServiceReasons {
                 forEach(entry -> logger.info(format("%s => %s: %s", prefix, entry.getKey(), entry.getValue().get())));
     }
 
-    private void createGraphFile(MutableGraphTransaction txn, ReasonsToGraphViz reasonsToGraphViz, RouteCalculatorSupport.PathRequest pathRequest) {
+    private void createGraphFile(GraphTransaction txn, ReasonsToGraphViz reasonsToGraphViz, RouteCalculatorSupport.PathRequest pathRequest) {
         String fileName = createFilename(pathRequest);
 
         if (reasons.isEmpty()) {

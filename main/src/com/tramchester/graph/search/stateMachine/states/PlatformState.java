@@ -29,13 +29,13 @@ public class PlatformState extends TraversalState implements NodeId {
             return TraversalStateType.PlatformState;
         }
 
-        public PlatformState from(PlatformStationState platformStationState, GraphNode node, Duration cost, MutableGraphTransaction txn) {
+        public PlatformState from(PlatformStationState platformStationState, GraphNode node, Duration cost, GraphTransaction txn) {
             // inc. board here since might be starting journey
             return new PlatformState(platformStationState,
                     node.getRelationships(txn, OUTGOING, INTERCHANGE_BOARD, BOARD), node, cost, this);
         }
 
-        public TraversalState fromRouteStationOnTrip(RouteStationStateOnTrip routeStationStateOnTrip, GraphNode node, Duration cost, MutableGraphTransaction txn) {
+        public TraversalState fromRouteStationOnTrip(RouteStationStateOnTrip routeStationStateOnTrip, GraphNode node, Duration cost, GraphTransaction txn) {
 
             // towards final destination, just follow this one
             OptionalResourceIterator<ImmutableGraphRelationship> towardsDest = getTowardsDestination(routeStationStateOnTrip.traversalOps, node, txn);
@@ -51,7 +51,7 @@ public class PlatformState extends TraversalState implements NodeId {
             return new PlatformState(routeStationStateOnTrip, platformRelationships, node, cost, this);
         }
 
-        public TraversalState fromRouteStatiomEndTrip(RouteStationStateEndTrip routeStationState, GraphNode node, Duration cost, MutableGraphTransaction txn) {
+        public TraversalState fromRouteStatiomEndTrip(RouteStationStateEndTrip routeStationState, GraphNode node, Duration cost, GraphTransaction txn) {
             // towards final destination, just follow this one
             OptionalResourceIterator<ImmutableGraphRelationship> towardsDest = getTowardsDestination(routeStationState.traversalOps, node, txn);
             if (!towardsDest.isEmpty()) {
@@ -63,7 +63,7 @@ public class PlatformState extends TraversalState implements NodeId {
             return new PlatformState(routeStationState, platformRelationships, node, cost, this);
         }
 
-        private OptionalResourceIterator<ImmutableGraphRelationship> getTowardsDestination(TraversalOps traversalOps, GraphNode node, MutableGraphTransaction txn) {
+        private OptionalResourceIterator<ImmutableGraphRelationship> getTowardsDestination(TraversalOps traversalOps, GraphNode node, GraphTransaction txn) {
             return traversalOps.getTowardsDestination(node.getRelationships(txn, OUTGOING, LEAVE_PLATFORM));
         }
 

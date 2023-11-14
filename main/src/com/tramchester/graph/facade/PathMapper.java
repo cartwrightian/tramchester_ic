@@ -11,10 +11,10 @@ import java.time.Duration;
 public class PathMapper {
 
     private final Path path;
-    private final MutableGraphTransaction txn;
+    private final GraphTransaction txn;
     private TraversalState currentState;
 
-    public PathMapper(Path path, MutableGraphTransaction txn) {
+    public PathMapper(Path path, GraphTransaction txn) {
         this.path = path;
         this.txn = txn;
     }

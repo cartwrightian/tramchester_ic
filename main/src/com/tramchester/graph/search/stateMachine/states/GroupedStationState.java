@@ -30,13 +30,13 @@ public class GroupedStationState extends TraversalState {
             return TraversalStateType.GroupedStationState;
         }
 
-        public TraversalState fromChildStation(StationState stationState, GraphNode node, Duration cost, MutableGraphTransaction txn) {
+        public TraversalState fromChildStation(StationState stationState, GraphNode node, Duration cost, GraphTransaction txn) {
             return new GroupedStationState(stationState,
                     filterExcludingEndNode(txn, node.getRelationships(txn, Direction.OUTGOING, GROUPED_TO_CHILD),stationState),
                     cost, node.getId(), this);
         }
 
-        public TraversalState fromStart(NotStartedState notStartedState, GraphNode node, Duration cost, MutableGraphTransaction txn) {
+        public TraversalState fromStart(NotStartedState notStartedState, GraphNode node, Duration cost, GraphTransaction txn) {
             return new GroupedStationState(notStartedState, node.getRelationships(txn, Direction.OUTGOING, GROUPED_TO_CHILD),
                     cost, node.getId(), this);
         }

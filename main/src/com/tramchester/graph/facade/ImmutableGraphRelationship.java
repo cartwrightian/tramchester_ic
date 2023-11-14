@@ -127,7 +127,7 @@ public class ImmutableGraphRelationship implements GraphRelationship {
     }
 
     @Override
-    public GraphNodeId getEndNodeId(MutableGraphTransaction txn) {
+    public GraphNodeId getEndNodeId(GraphTransaction txn) {
         return underlying.getEndNodeId(txn);
     }
 

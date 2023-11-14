@@ -3,7 +3,7 @@ package com.tramchester.graph.search.stateMachine;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphRelationship;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.search.stateMachine.states.RouteStationState;
 
 import java.util.stream.Stream;
@@ -19,13 +19,14 @@ public abstract class TowardsRouteStation<T extends RouteStationState> implement
         this.interchangesOnly = interchangesOnly;
     }
 
-    protected <R extends GraphRelationship> OptionalResourceIterator<R> getTowardsDestination(TraversalOps traversalOps, GraphNode node, TramDate date, MutableGraphTransaction txn) {
+    protected <R extends GraphRelationship> OptionalResourceIterator<R> getTowardsDestination(TraversalOps traversalOps,
+                                                                                              GraphNode node, TramDate date, GraphTransaction txn) {
         Stream<R> relationships = node.getRelationships(txn, OUTGOING, DEPART, INTERCHANGE_DEPART, DIVERSION_DEPART);
         return traversalOps.getTowardsDestination(Stream.concat(relationships, getActiveDiversions(node, date, txn)));
     }
 
     // TODO When to follow diversion departs? Should these be (also) INTERCHANGE_DEPART ?
-    protected <R extends GraphRelationship>  Stream<R> getOutboundsToFollow(GraphNode node, boolean isInterchange, TramDate date, MutableGraphTransaction txn) {
+    protected <R extends GraphRelationship>  Stream<R> getOutboundsToFollow(GraphNode node, boolean isInterchange, TramDate date, GraphTransaction txn) {
         Stream<R> outboundsToFollow = Stream.empty();
         if (interchangesOnly) {
             if (isInterchange) {
@@ -45,7 +46,7 @@ public abstract class TowardsRouteStation<T extends RouteStationState> implement
 //        }
     }
 
-    private <R extends GraphRelationship> Stream<R> getActiveDiversions(GraphNode node, TramDate date, MutableGraphTransaction txn) {
+    private <R extends GraphRelationship> Stream<R> getActiveDiversions(GraphNode node, TramDate date, GraphTransaction txn) {
         Stream<R> diversions = node.getRelationships(txn, OUTGOING, DIVERSION_DEPART);
         return diversions.filter(relationship -> relationship.validOn(date));
     }

@@ -6,7 +6,7 @@ import com.tramchester.domain.places.*;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
@@ -35,7 +35,7 @@ public class MapPathToLocations {
         this.stationGroupsRepository = stationGroupsRepository;
     }
 
-    public List<Location<?>> mapToLocations(Path path, MutableGraphTransaction txn) {
+    public List<Location<?>> mapToLocations(Path path, GraphTransaction txn) {
         Location<?> previous = null;
         List<Location<?>> results = new ArrayList<>();
         for(GraphNode node : txn.iter(path.nodes())) {

@@ -1,20 +1,16 @@
 package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.facade.*;
 import com.tramchester.graph.TransportRelationshipTypes;
+import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.NodeId;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
-import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.ResourceIterable;
-import org.neo4j.graphdb.ResourceIterator;
 
 import java.time.Duration;
 import java.util.EnumSet;
-import java.util.Iterator;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -23,7 +19,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
 
     protected final TraversalStateFactory builders;
     protected final TraversalOps traversalOps;
-    protected final MutableGraphTransaction txn;
+    protected final GraphTransaction txn;
 
     private final Stream<ImmutableGraphRelationship> outbounds;
     private final Duration costForLastEdge;
@@ -72,7 +68,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         return stateType;
     }
 
-    public static Stream<ImmutableGraphRelationship> getRelationships(MutableGraphTransaction txn, GraphNode node, Direction direction, TransportRelationshipTypes types) {
+    public static Stream<ImmutableGraphRelationship> getRelationships(GraphTransaction txn, GraphNode node, Direction direction, TransportRelationshipTypes types) {
         return node.getRelationships(txn, direction, types);
     }
 
@@ -190,7 +186,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         return outbounds;
     }
 
-    protected static <R extends GraphRelationship> Stream<R> filterExcludingEndNode(MutableGraphTransaction txn, Stream<R> relationships, NodeId hasNodeId) {
+    protected static <R extends GraphRelationship> Stream<R> filterExcludingEndNode(GraphTransaction txn, Stream<R> relationships, NodeId hasNodeId) {
         GraphNodeId nodeId = hasNodeId.nodeId();
         return relationships.filter(relationship -> !relationship.getEndNodeId(txn).equals(nodeId));
     }
@@ -217,39 +213,4 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         return Objects.hash(parent);
     }
 
-    @Deprecated
-    private static class WrapStream implements ResourceIterable<GraphRelationship> {
-        private final Stream<GraphRelationship> stream;
-
-        public WrapStream(Stream<GraphRelationship> stream) {
-            this.stream = stream;
-        }
-
-        @Override
-        public @NotNull ResourceIterator<GraphRelationship> iterator() {
-            return new ResourceIterator<>() {
-                private final Iterator<GraphRelationship> iterator = stream.iterator();
-
-                @Override
-                public void close() {
-                    // noop
-                }
-
-                @Override
-                public boolean hasNext() {
-                    return iterator.hasNext();
-                }
-
-                @Override
-                public GraphRelationship next() {
-                    return iterator.next();
-                }
-            };
-        }
-
-        @Override
-        public void close() {
-            stream.close();
-        }
-    }
 }

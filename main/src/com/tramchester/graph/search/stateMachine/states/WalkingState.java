@@ -1,7 +1,7 @@
 package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.OptionalResourceIterator;
@@ -34,7 +34,7 @@ public class WalkingState extends TraversalState {
             return TraversalStateType.WalkingState;
         }
 
-        public TraversalState fromStart(NotStartedState notStartedState, GraphNode firstNode, Duration cost, MutableGraphTransaction txn) {
+        public TraversalState fromStart(NotStartedState notStartedState, GraphNode firstNode, Duration cost, GraphTransaction txn) {
             final Stream<ImmutableGraphRelationship> relationships = firstNode.getRelationships(txn, OUTGOING, WALKS_TO_STATION);
             final List<ImmutableGraphRelationship> needTwice = relationships.toList();
             OptionalResourceIterator<ImmutableGraphRelationship> towardsDest = notStartedState.traversalOps.getTowardsDestination(needTwice.stream());
@@ -48,7 +48,7 @@ public class WalkingState extends TraversalState {
             }
         }
 
-        public TraversalState fromStation(StationState station, GraphNode node, Duration cost, MutableGraphTransaction txn) {
+        public TraversalState fromStation(StationState station, GraphNode node, Duration cost, GraphTransaction txn) {
             return new WalkingState(station,
                     filterExcludingEndNode(txn, node.getRelationships(txn, OUTGOING), station), cost, this);
         }

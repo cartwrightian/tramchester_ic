@@ -7,10 +7,7 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import org.neo4j.graphalgo.EvaluationContext;
-import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.*;
 
 import java.util.List;
 import java.util.Set;
@@ -42,4 +39,12 @@ public interface GraphTransaction extends AutoCloseable {
     GraphNode wrapNode(Node node);
 
     GraphRelationship getRelationshipById(GraphRelationshipId graphRelationshipId);
+
+    GraphNode fromEnd(Path path);
+
+    GraphRelationship lastFrom(Path path);
+
+    GraphNode fromStart(Path path);
+
+    GraphNodeId createNodeId(Node node);
 }

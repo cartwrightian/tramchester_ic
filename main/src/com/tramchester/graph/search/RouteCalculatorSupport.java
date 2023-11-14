@@ -129,7 +129,7 @@ public class RouteCalculatorSupport {
                 maxNumChanges);
     }
 
-    public Stream<RouteCalculator.TimedPath> findShortestPath(MutableGraphTransaction txn, Set<GraphNodeId> destinationNodeIds,
+    public Stream<RouteCalculator.TimedPath> findShortestPath(GraphTransaction txn, Set<GraphNodeId> destinationNodeIds,
                                                               final LocationSet endStations,
                                                               ServiceReasons reasons, PathRequest pathRequest,
                                                               LowestCostsForDestRoutes lowestCostsForRoutes,
@@ -151,7 +151,7 @@ public class RouteCalculatorSupport {
     @NotNull
     protected Journey createJourney(JourneyRequest journeyRequest, RouteCalculator.TimedPath path,
                                     LocationSet destinations, LowestCostsForDestRoutes lowestCostForRoutes, AtomicInteger journeyIndex,
-                                    MutableGraphTransaction txn) {
+                                    GraphTransaction txn) {
 
         final List<TransportStage<?, ?>> stages = pathToStages.mapDirect(path, journeyRequest, lowestCostForRoutes, destinations, txn);
         final List<Location<?>> locationList = mapPathToLocations.mapToLocations(path.getPath(), txn);

@@ -125,6 +125,7 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
         return Duration.ofMinutes(value);
     }
 
+    @Override
     public GraphNode getEndNode(final GraphTransaction txn) {
         final Node node = relationship.getEndNode();
 //        if (node==null) {
@@ -213,7 +214,8 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
         return (int) relationship.getProperty(STOP_SEQ_NUM.getText());
     }
 
-    public GraphNodeId getEndNodeId(MutableGraphTransaction txn) {
+    @Override
+    public GraphNodeId getEndNodeId(GraphTransaction txn) {
         return txn.createNodeId(relationship.getEndNode());
     }
 

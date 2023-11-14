@@ -46,7 +46,7 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
         }
 
         public RouteStationStateOnTrip fromMinuteState(MinuteState minuteState, GraphNode node, Duration cost,
-                                                       boolean isInterchange, Trip trip, MutableGraphTransaction txn) {
+                                                       boolean isInterchange, Trip trip, GraphTransaction txn) {
             // todo, use label and/or cache this - perf impact currently low
             TransportMode transportMode = node.getTransportMode();
 
@@ -71,7 +71,7 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
             return new RouteStationStateOnTrip(minuteState, relationships, cost, node, trip.getId(), transportMode, this);
         }
 
-        private Stream<ImmutableGraphRelationship> filterByTripId(Stream<ImmutableGraphRelationship> svcRelationships, Trip trip, MutableGraphTransaction txn) {
+        private Stream<ImmutableGraphRelationship> filterByTripId(Stream<ImmutableGraphRelationship> svcRelationships, Trip trip, GraphTransaction txn) {
             IdFor<Service> currentSvcId = trip.getService().getId();
             return svcRelationships.
                     filter(relationship -> currentSvcId.equals(nodeContents.getServiceId(relationship.getEndNode(txn))));

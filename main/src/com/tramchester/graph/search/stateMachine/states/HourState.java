@@ -5,6 +5,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.search.JourneyStateUpdate;
@@ -30,7 +31,7 @@ public class HourState extends TraversalState {
             this.nodeContents = nodeContents;
         }
 
-        public HourState fromService(ServiceState serviceState, GraphNode node, Duration cost, ExistingTrip maybeExistingTrip, MutableGraphTransaction txn) {
+        public HourState fromService(ServiceState serviceState, GraphNode node, Duration cost, ExistingTrip maybeExistingTrip, GraphTransaction txn) {
             Stream<ImmutableGraphRelationship> relationships = getMinuteRelationships(node, txn);
             return new HourState(serviceState, relationships, maybeExistingTrip, cost, this);
         }
@@ -45,7 +46,7 @@ public class HourState extends TraversalState {
             return TraversalStateType.HourState;
         }
 
-        private Stream<ImmutableGraphRelationship> getMinuteRelationships(GraphNode node, MutableGraphTransaction txn) {
+        private Stream<ImmutableGraphRelationship> getMinuteRelationships(GraphNode node, GraphTransaction txn) {
             Stream<ImmutableGraphRelationship> relationships = getRelationships(txn, node, OUTGOING, TO_MINUTE);
             if (depthFirst) {
                 return relationships.sorted(TramTime.comparing(relationship -> nodeContents.getTime(relationship.getEndNode(txn))));

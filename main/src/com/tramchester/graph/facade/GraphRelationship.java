@@ -50,7 +50,7 @@ public interface GraphRelationship {
 
     IdFor<Station> getStationId();
 
-    GraphNodeId getEndNodeId(MutableGraphTransaction txn);
+    GraphNodeId getEndNodeId(GraphTransaction txn);
 
     boolean hasProperty(GraphPropertyKey graphPropertyKey);
 
