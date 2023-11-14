@@ -12,7 +12,7 @@ import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.AllModesTestConfig;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
@@ -42,7 +42,7 @@ public class AllModesJourneysTest {
     private static TramchesterConfig config;
 
     private static ComponentContainer componentContainer;
-    private GraphTransaction txn;
+    private MutableGraphTransaction txn;
     private StationRepository stationRepository;
     private StationGroupsRepository stationGroupsRepository;
     private Duration maxJourneyDuration;

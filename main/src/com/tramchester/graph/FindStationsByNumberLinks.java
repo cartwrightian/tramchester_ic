@@ -5,7 +5,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.graphbuild.CompositeStationGraphBuilder;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.GraphProps;
@@ -58,7 +58,7 @@ public class FindStationsByNumberLinks {
         IdSet<Station> stationIds = new IdSet<>();
 
         try (TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "linked for " + mode) ) {
-            GraphTransaction txn = timedTransaction.transaction();
+            MutableGraphTransaction txn = timedTransaction.transaction();
             Result result = txn.execute(query, params);
             while (result.hasNext()) {
                 Map<String, Object> row = result.next();

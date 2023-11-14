@@ -10,7 +10,7 @@ import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.TimedTransaction;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphRelationship;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
 import com.tramchester.mappers.Geography;
@@ -61,7 +61,7 @@ public class FindStationLinks {
 
         Set<StationLink> links = new HashSet<>();
         try (TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "query for links " + mode)) {
-            GraphTransaction txn = timedTransaction.transaction();
+            MutableGraphTransaction txn = timedTransaction.transaction();
             Result result = txn.execute(query, params);
             while (result.hasNext()) {
                 GraphRelationship relationship = txn.getQueryColumnAsRelationship(result.next(), "r");
@@ -74,7 +74,7 @@ public class FindStationLinks {
         return links;
     }
 
-    private StationLink createLink(GraphTransaction txn, GraphRelationship relationship) {
+    private StationLink createLink(MutableGraphTransaction txn, GraphRelationship relationship) {
 
         GraphNode startNode = relationship.getStartNode(txn);
         GraphNode endNode = relationship.getEndNode(txn);

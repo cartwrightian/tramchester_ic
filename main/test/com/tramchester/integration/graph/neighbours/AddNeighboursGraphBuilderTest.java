@@ -8,7 +8,7 @@ import com.tramchester.domain.places.StationGroup;
 import com.tramchester.graph.*;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphRelationship;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.graphbuild.CompositeStationGraphBuilder;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.integration.testSupport.NeighboursTestConfig;
@@ -37,7 +37,7 @@ class AddNeighboursGraphBuilderTest {
     private Station shudehillTram;
 
     private static ComponentContainer componentContainer;
-    private GraphTransaction txn;
+    private MutableGraphTransaction txn;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -141,7 +141,7 @@ class AddNeighboursGraphBuilderTest {
         return node.getRelationships(txn, direction, NEIGHBOUR).collect(Collectors.toSet());
     }
 
-    private boolean seenNode(GraphTransaction txn, Station station, Set<GraphRelationship> relationships, SelectNode selectNode) {
+    private boolean seenNode(MutableGraphTransaction txn, Station station, Set<GraphRelationship> relationships, SelectNode selectNode) {
         GraphNode nodeToFind = txn.findNode(station);
         assertNotNull(nodeToFind, "no node found for " + station);
 

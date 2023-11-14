@@ -9,7 +9,7 @@ import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.TimedTransaction;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.facade.MutableGraphNode;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.mappers.Geography;
@@ -64,14 +64,14 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
             logger.warn("Disabled, StationGroupsRepository is not enabled");
             return;
         }
-        try(GraphTransaction txn = graphDatabase.beginTx()) {
+        try(MutableGraphTransaction txn = graphDatabase.beginTx()) {
             if (hasDBFlag(txn)) {
                 logger.info("Already present in DB");
                 return;
             }
         }
         config.getTransportModes().forEach(this::addCompositeNodesAndLinks);
-        try(GraphTransaction txn = graphDatabase.beginTx()) {
+        try(MutableGraphTransaction txn = graphDatabase.beginTx()) {
             addDBFlag(txn);
             txn.commit();
         }
@@ -94,7 +94,7 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
         final String logMessage = "adding " + allComposite.size() + " composite stations for " + mode;
 
         try(TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, logMessage)) {
-            GraphTransaction txn = timedTransaction.transaction();
+            MutableGraphTransaction txn = timedTransaction.transaction();
             allComposite.stream().filter(graphFilter::shouldInclude).
                 filter(this::shouldInclude).
                 forEach(compositeStation -> {
@@ -110,7 +110,7 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
                 graphFilter.shouldIncludeRoutes(station.getDropoffRoutes());
     }
 
-    private MutableGraphNode createGroupedStationNodes(GraphTransaction txn, StationGroup stationGroup) {
+    private MutableGraphNode createGroupedStationNodes(MutableGraphTransaction txn, StationGroup stationGroup) {
         MutableGraphNode groupNode = createGraphNode(txn, GraphLabel.GROUPED);
         IdFor<NaptanArea> areaId = stationGroup.getAreaId();
         groupNode.setAreaId(areaId);
@@ -118,7 +118,7 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
         return groupNode;
     }
 
-    private void linkStations(GraphTransaction txn, MutableGraphNode parentNode, StationGroup stationGroup) {
+    private void linkStations(MutableGraphTransaction txn, MutableGraphNode parentNode, StationGroup stationGroup) {
         Set<Station> contained = stationGroup.getContained();
 
         contained.stream().
@@ -135,14 +135,14 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
         });
     }
 
-    private boolean hasDBFlag(GraphTransaction txn) {
+    private boolean hasDBFlag(MutableGraphTransaction txn) {
         return txn.hasAnyMatching(GraphLabel.COMPOSITES_ADDED);
         //ResourceIterator<Node> query = graphDatabase.findNodes(txn, GraphLabel.COMPOSITES_ADDED);
         //List<Node> nodes = query.stream().toList();
         //return !nodes.isEmpty();
     }
 
-    private void addDBFlag(GraphTransaction txn) {
+    private void addDBFlag(MutableGraphTransaction txn) {
         txn.createNode(GraphLabel.COMPOSITES_ADDED);
     }
 

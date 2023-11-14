@@ -23,7 +23,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
 
     protected final TraversalStateFactory builders;
     protected final TraversalOps traversalOps;
-    protected final GraphTransaction txn;
+    protected final MutableGraphTransaction txn;
 
     private final Stream<ImmutableGraphRelationship> outbounds;
     private final Duration costForLastEdge;
@@ -72,7 +72,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         return stateType;
     }
 
-    public static Stream<ImmutableGraphRelationship> getRelationships(GraphTransaction txn, GraphNode node, Direction direction, TransportRelationshipTypes types) {
+    public static Stream<ImmutableGraphRelationship> getRelationships(MutableGraphTransaction txn, GraphNode node, Direction direction, TransportRelationshipTypes types) {
         return node.getRelationships(txn, direction, types);
     }
 
@@ -190,7 +190,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         return outbounds;
     }
 
-    protected static <R extends GraphRelationship> Stream<R> filterExcludingEndNode(GraphTransaction txn, Stream<R> relationships, NodeId hasNodeId) {
+    protected static <R extends GraphRelationship> Stream<R> filterExcludingEndNode(MutableGraphTransaction txn, Stream<R> relationships, NodeId hasNodeId) {
         GraphNodeId nodeId = hasNodeId.nodeId();
         return relationships.filter(relationship -> !relationship.getEndNodeId(txn).equals(nodeId));
     }

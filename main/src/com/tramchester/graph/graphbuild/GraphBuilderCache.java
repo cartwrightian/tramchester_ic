@@ -9,7 +9,7 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphNodeId;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.facade.MutableGraphNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,7 +75,7 @@ public class GraphBuilderCache {
         stationsToNodeId.put(station, stationNode.getId());
     }
 
-    protected MutableGraphNode getRouteStation(GraphTransaction txn, Route route, IdFor<Station> stationId) {
+    protected MutableGraphNode getRouteStation(MutableGraphTransaction txn, Route route, IdFor<Station> stationId) {
         IdFor<RouteStation> routeStationId = RouteStation.createId(stationId, route.getId());
         if (!routeStations.containsKey(routeStationId)) {
             String message = "Cannot find routestation node in cache " + routeStationId; // + " cache " + routeStations;
@@ -86,7 +86,7 @@ public class GraphBuilderCache {
         return txn.getNodeByIdMutable(routeStations.get(routeStationId));
     }
 
-    protected MutableGraphNode getRouteStation(GraphTransaction txn, IdFor<RouteStation> id) {
+    protected MutableGraphNode getRouteStation(MutableGraphTransaction txn, IdFor<RouteStation> id) {
         if (!routeStations.containsKey(id)) {
             String message = "Cannot find routestation node in cache " + id;
             logger.error(message);
@@ -101,7 +101,7 @@ public class GraphBuilderCache {
         return routeStations.containsKey(routeStationId);
     }
 
-    protected MutableGraphNode getStation(GraphTransaction txn, IdFor<Station> stationId) {
+    protected MutableGraphNode getStation(MutableGraphTransaction txn, IdFor<Station> stationId) {
         if (!stationsToNodeId.containsKey(stationId)) {
             String message = "Missing station in cache, station: " + stationId + " Cache: " + stationsToNodeId;
             logger.error(message);
@@ -112,7 +112,7 @@ public class GraphBuilderCache {
         return txn.getNodeByIdMutable(stationsToNodeId.get(stationId));
     }
 
-    protected MutableGraphNode getPlatform(GraphTransaction txn, IdFor<Platform> platformId) {
+    protected MutableGraphNode getPlatform(MutableGraphTransaction txn, IdFor<Platform> platformId) {
         if (!platforms.containsKey(platformId)) {
             throw new RuntimeException("Missing platform id " + platformId);
         }
@@ -130,7 +130,7 @@ public class GraphBuilderCache {
     }
 
     // TODO This has to be route station to route Station
-    protected MutableGraphNode getServiceNode(GraphTransaction txn, IdFor<Route> routeId, Service service, IdFor<Station> startStation, IdFor<Station> endStation) {
+    protected MutableGraphNode getServiceNode(MutableGraphTransaction txn, IdFor<Route> routeId, Service service, IdFor<Station> startStation, IdFor<Station> endStation) {
         String id = CreateKeys.getServiceKey(routeId, service.getId(), startStation, endStation);
         return txn.getNodeByIdMutable(svcNodes.get(id));
     }
@@ -140,7 +140,7 @@ public class GraphBuilderCache {
         hourNodes.put(hourKey, node.getId());
     }
 
-    protected MutableGraphNode getHourNode(GraphTransaction txn, IdFor<Route> routeId, Service service, IdFor<Station> station, Integer hour) {
+    protected MutableGraphNode getHourNode(MutableGraphTransaction txn, IdFor<Route> routeId, Service service, IdFor<Station> station, Integer hour) {
         String key = CreateKeys.getHourKey(routeId, service.getId(), station, hour);
         if (!hourNodes.containsKey(key)) {
             throw new RuntimeException(format("Missing hour node for key %s service %s station %s hour %s",

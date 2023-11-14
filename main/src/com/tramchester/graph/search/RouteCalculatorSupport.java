@@ -16,7 +16,7 @@ import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphNodeId;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.search.diagnostics.ReasonsToGraphViz;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
@@ -76,7 +76,7 @@ public class RouteCalculatorSupport {
     }
 
 
-    protected GraphNode getLocationNodeSafe(GraphTransaction txn, Location<?> location) {
+    protected GraphNode getLocationNodeSafe(MutableGraphTransaction txn, Location<?> location) {
         GraphNode stationNode = txn.findNode(location);
         if (stationNode == null) {
             String msg = "Unable to find node for " + location;
@@ -89,7 +89,7 @@ public class RouteCalculatorSupport {
     @NotNull
     public Set<GraphNodeId> getDestinationNodeIds(LocationSet destinations) {
         Set<GraphNodeId> destinationNodeIds;
-        try(GraphTransaction txn = graphDatabaseService.beginTx()) {
+        try(MutableGraphTransaction txn = graphDatabaseService.beginTx()) {
             destinationNodeIds = destinations.stream().
                     map(location -> getLocationNodeSafe(txn, location)).
                     map(GraphNode::getId).
@@ -128,7 +128,7 @@ public class RouteCalculatorSupport {
                 maxNumChanges);
     }
 
-    public Stream<RouteCalculator.TimedPath> findShortestPath(GraphTransaction txn, Set<GraphNodeId> destinationNodeIds,
+    public Stream<RouteCalculator.TimedPath> findShortestPath(MutableGraphTransaction txn, Set<GraphNodeId> destinationNodeIds,
                                                               final LocationSet endStations,
                                                               ServiceReasons reasons, PathRequest pathRequest,
                                                               LowestCostsForDestRoutes lowestCostsForRoutes,
@@ -150,7 +150,7 @@ public class RouteCalculatorSupport {
     @NotNull
     protected Journey createJourney(JourneyRequest journeyRequest, RouteCalculator.TimedPath path,
                                     LocationSet destinations, LowestCostsForDestRoutes lowestCostForRoutes, AtomicInteger journeyIndex,
-                                    GraphTransaction txn) {
+                                    MutableGraphTransaction txn) {
 
         final List<TransportStage<?, ?>> stages = pathToStages.mapDirect(path, journeyRequest, lowestCostForRoutes, destinations, txn);
         final List<Location<?>> locationList = mapPathToLocations.mapToLocations(path.getPath(), txn);

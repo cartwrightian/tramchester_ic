@@ -12,7 +12,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RailAndTramGreaterManchesterConfig;
@@ -51,7 +51,7 @@ public class RailAndTramRouteCalculatorSubGraphRoutesTest {
             RailStationIds.ManchesterVictoria,
             RailStationIds.ManchesterOxfordRoad);
 
-    private GraphTransaction txn;
+    private MutableGraphTransaction txn;
     private RouteCalculatorTestFacade testFacade;
     private Duration maxDurationFromConfig;
 

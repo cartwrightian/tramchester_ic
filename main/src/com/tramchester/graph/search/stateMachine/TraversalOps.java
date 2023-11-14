@@ -36,10 +36,10 @@ public class TraversalOps {
     private final SortsPositions sortsPositions;
     private final LowestCostsForDestRoutes lowestCostsForRoutes;
     private final TramDate queryDate;
-    private final GraphTransaction txn;
+    private final MutableGraphTransaction txn;
 
     // TODO Split into fixed and journey specific, inject fixed direct into builders
-    public TraversalOps(GraphTransaction txn, NodeContentsRepository nodeOperations, TripRepository tripRepository,
+    public TraversalOps(MutableGraphTransaction txn, NodeContentsRepository nodeOperations, TripRepository tripRepository,
                         SortsPositions sortsPositions, LocationSet destinations,
                         LatLong destinationLatLon, LowestCostsForDestRoutes lowestCostsForRoutes,
                         TramDate queryDate) {
@@ -120,7 +120,7 @@ public class TraversalOps {
         return queryDate;
     }
 
-    public GraphTransaction getTransaction() {
+    public MutableGraphTransaction getTransaction() {
         return txn;
     }
 
@@ -129,7 +129,7 @@ public class TraversalOps {
         private final GraphRelationshipId id;
         private final IdFor<Station> stationId;
 
-        private RelationshipFacade(GraphRelationship relationship, GraphTransaction txn) {
+        private RelationshipFacade(GraphRelationship relationship, MutableGraphTransaction txn) {
             id = relationship.getId();
             this.relationship = relationship;
 

@@ -84,7 +84,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     private ProvidesNow providesNow;
     private LowestCostsForDestRoutes lowestCostsForRoutes;
     private Duration maxInitialWait;
-    private GraphTransaction txn;
+    private MutableGraphTransaction txn;
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
@@ -121,7 +121,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         latLongHint = TramStations.ManAirport.getLatLong();
 
-        txn = createMock(GraphTransaction.class);
+        txn = createMock(MutableGraphTransaction.class);
 
         destinationNodeId = GraphNodeId.TestOnly(88L);
         startNodeId = GraphNodeId.TestOnly(128L);

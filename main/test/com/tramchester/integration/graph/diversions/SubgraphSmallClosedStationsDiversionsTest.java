@@ -17,7 +17,7 @@ import com.tramchester.graph.*;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.facade.GraphRelationshipId;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
@@ -73,7 +73,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
 
     private RouteCalculatorTestFacade calculator;
     private StationRepository stationRepository;
-    private GraphTransaction txn;
+    private MutableGraphTransaction txn;
     private Duration maxJourneyDuration;
     private int maxChanges;
 
@@ -273,7 +273,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
 
         Station exchange = ExchangeSquare.from(stationRepository);
         GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
-        try (GraphTransaction txn = graphDatabase.beginTx()) {
+        try (MutableGraphTransaction txn = graphDatabase.beginTx()) {
             exchange.getPlatforms().forEach(platform -> {
                 GraphNode node = txn.findNode(platform);
                 Stream<GraphRelationship> iterable = node.getRelationships(txn, Direction.INCOMING, TransportRelationshipTypes.DIVERSION_DEPART);
@@ -285,7 +285,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
 
         assertFalse(foundRelationshipIds.isEmpty());
 
-        try (GraphTransaction txn = graphDatabase.beginTx()) {
+        try (MutableGraphTransaction txn = graphDatabase.beginTx()) {
             GraphRelationship relationship = txn.getRelationshipById(foundRelationshipIds.get(0));
             GraphNode from = relationship.getStartNode(txn);
             assertTrue(from.hasLabel(ROUTE_STATION), from.getAllProperties().toString());

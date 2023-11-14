@@ -5,10 +5,10 @@ import org.neo4j.graphdb.Relationship;
 import java.util.function.Predicate;
 
 public class GraphRelationshipFilter  implements Predicate<Relationship> {
-        private final GraphTransaction txn;
+        private final MutableGraphTransaction txn;
         private final Predicate<GraphRelationship> contained;
 
-        public GraphRelationshipFilter(GraphTransaction txn, Predicate<GraphRelationship> contained) {
+        public GraphRelationshipFilter(MutableGraphTransaction txn, Predicate<GraphRelationship> contained) {
             this.txn = txn;
             this.contained = contained;
         }

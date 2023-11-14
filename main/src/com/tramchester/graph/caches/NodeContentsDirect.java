@@ -39,7 +39,6 @@ public class NodeContentsDirect implements NodeContentsRepository {
     @Override
     public int getHour(GraphNode node) {
         return node.getHour();
-//        return getHour(graphNode.getNode());
     }
 
     @Override
@@ -60,7 +59,5 @@ public class NodeContentsDirect implements NodeContentsRepository {
     @Override
     public EnumSet<GraphLabel> getLabels(GraphNode node) {
         return node.getLabels();
-//        final Set<GraphLabel> graphLabels = GraphLabel.from(node.getLabels());
-//        return EnumSet.copyOf(graphLabels);
     }
 }

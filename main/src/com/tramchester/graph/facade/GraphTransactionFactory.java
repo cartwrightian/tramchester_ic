@@ -17,15 +17,15 @@ public class GraphTransactionFactory {
         this.graphIdFactory = graphIdFactory;
     }
 
-    public GraphTransaction begin() {
-        return new GraphTransaction(databaseService.beginTx(), graphIdFactory);
+    public MutableGraphTransaction begin() {
+        return new MutableGraphTransaction(databaseService.beginTx(), graphIdFactory);
     }
 
-    public GraphTransaction begin(int timeout, TimeUnit timeUnit) {
-        return new GraphTransaction(databaseService.beginTx(timeout, timeUnit), graphIdFactory);
+    public MutableGraphTransaction begin(int timeout, TimeUnit timeUnit) {
+        return new MutableGraphTransaction(databaseService.beginTx(timeout, timeUnit), graphIdFactory);
     }
 
-    public GraphTransaction begin(Duration timeout) {
-        return new GraphTransaction(databaseService.beginTx(timeout.toSeconds(), TimeUnit.SECONDS), graphIdFactory);
+    public MutableGraphTransaction begin(Duration timeout) {
+        return new MutableGraphTransaction(databaseService.beginTx(timeout.toSeconds(), TimeUnit.SECONDS), graphIdFactory);
     }
 }

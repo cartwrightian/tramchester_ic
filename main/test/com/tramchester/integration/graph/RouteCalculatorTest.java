@@ -14,7 +14,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.VehicleStage;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.ConfigParameterResolver;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
@@ -61,7 +61,7 @@ public class RouteCalculatorTest {
 
     private RouteCalculatorTestFacade calculator;
     private final TramDate when = TestEnv.testDay();
-    private GraphTransaction txn;
+    private MutableGraphTransaction txn;
     private Duration maxJourneyDuration;
     private int maxNumResults;
 

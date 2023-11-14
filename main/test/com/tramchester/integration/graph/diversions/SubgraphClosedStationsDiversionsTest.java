@@ -17,7 +17,7 @@ import com.tramchester.graph.*;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.facade.GraphRelationshipId;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
@@ -67,7 +67,7 @@ class SubgraphClosedStationsDiversionsTest {
     private RouteCalculatorTestFacade calculator;
     private StationRepository stationRepository;
     private final static TramDate when = TestEnv.testDay();
-    private GraphTransaction txn;
+    private MutableGraphTransaction txn;
 
     private final static List<StationClosures> closedStations = Collections.singletonList(
             new StationClosuresForTest(PiccadillyGardens, when, when.plusWeeks(1), true));
@@ -287,7 +287,7 @@ class SubgraphClosedStationsDiversionsTest {
 
         Station notAnInterchange = MarketStreet.from(stationRepository);
 
-        try (GraphTransaction txn = database.beginTx()) {
+        try (MutableGraphTransaction txn = database.beginTx()) {
             notAnInterchange.getPlatforms().forEach(platform -> {
                 GraphNode node = txn.findNode(platform);
                 Stream<GraphRelationship> iterable = node.getRelationships(txn, Direction.INCOMING, TransportRelationshipTypes.DIVERSION_DEPART);
@@ -299,7 +299,7 @@ class SubgraphClosedStationsDiversionsTest {
 
         assertFalse(foundRelationshipIds.isEmpty());
 
-        try (GraphTransaction txn = database.beginTx()) {
+        try (MutableGraphTransaction txn = database.beginTx()) {
             GraphRelationship relationship = txn.getRelationshipById(foundRelationshipIds.get(0));
             GraphNode from = relationship.getStartNode(txn);
             assertTrue(from.hasLabel(ROUTE_STATION), from.getAllProperties().toString());
@@ -315,7 +315,7 @@ class SubgraphClosedStationsDiversionsTest {
 
         Station piccadilly = Piccadilly.from(stationRepository);
 
-        try (GraphTransaction txn = database.beginTx()) {
+        try (MutableGraphTransaction txn = database.beginTx()) {
             GraphNode stationNode = txn.findNode(piccadilly);
 
             Stream<GraphRelationship> iterable = stationNode.getRelationships(txn, Direction.OUTGOING, TransportRelationshipTypes.DIVERSION);
@@ -327,7 +327,7 @@ class SubgraphClosedStationsDiversionsTest {
 
         AtomicInteger count = new AtomicInteger(0);
 
-        try (GraphTransaction txn = database.beginTx()) {
+        try (MutableGraphTransaction txn = database.beginTx()) {
             foundRelationshipIds.forEach(foundId -> {
                 GraphRelationship relationship = txn.getRelationshipById(foundId);
                 GraphNode to = relationship.getEndNode(txn);

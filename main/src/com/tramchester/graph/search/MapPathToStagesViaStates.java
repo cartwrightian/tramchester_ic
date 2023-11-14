@@ -15,7 +15,7 @@ import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphRelationship;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.facade.PathMapper;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
@@ -74,7 +74,7 @@ public class MapPathToStagesViaStates implements PathToStages {
     @Override
     public List<TransportStage<?, ?>> mapDirect(RouteCalculator.TimedPath timedPath, JourneyRequest journeyRequest,
                                                 LowestCostsForDestRoutes lowestCostForRoutes, LocationSet endStations,
-                                                GraphTransaction txn) {
+                                                MutableGraphTransaction txn) {
         final Path path = timedPath.getPath();
         final TramTime queryTime = timedPath.getQueryTime();
         logger.info(format("Mapping path length %s to transport stages for %s at %s with %s changes",

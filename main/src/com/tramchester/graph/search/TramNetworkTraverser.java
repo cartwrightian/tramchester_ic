@@ -57,9 +57,9 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     private final RouteCalculatorSupport.PathRequest pathRequest;
     private final ReasonsToGraphViz reasonToGraphViz;
     private final ProvidesNow providesNow;
-    private final GraphTransaction txn;
+    private final MutableGraphTransaction txn;
 
-    public TramNetworkTraverser(GraphTransaction txn, RouteCalculatorSupport.PathRequest pathRequest,
+    public TramNetworkTraverser(MutableGraphTransaction txn, RouteCalculatorSupport.PathRequest pathRequest,
                                 SortsPositions sortsPosition, NodeContentsRepository nodeContentsRepository, TripRepository tripRespository,
                                 TraversalStateFactory traversalStateFactory, LocationSet destinations, TramchesterConfig config,
                                 Set<GraphNodeId> destinationNodeIds, ServiceReasons reasons,
@@ -80,7 +80,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         this.providesNow = providesNow;
     }
 
-    public Stream<Path> findPaths(GraphTransaction txn, GraphNode startNode, PreviousVisits previousSuccessfulVisit, LowestCostSeen lowestCostSeen,
+    public Stream<Path> findPaths(MutableGraphTransaction txn, GraphNode startNode, PreviousVisits previousSuccessfulVisit, LowestCostSeen lowestCostSeen,
                                   LowestCostsForDestRoutes lowestCostsForRoutes) {
         final boolean depthFirst = config.getDepthFirst();
         if (depthFirst) {

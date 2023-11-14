@@ -8,7 +8,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.InvalidDurationException;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.integration.testSupport.ConfigParameterResolver;
 import com.tramchester.repository.StationRepository;
@@ -34,7 +34,7 @@ class RouteCostCalculatorTest {
 
     private RouteCostCalculator routeCostCalculator;
     private StationRepository stationRepository;
-    private GraphTransaction txn;
+    private MutableGraphTransaction txn;
     private final TramDate when = TestEnv.testDay();
     private Station altrincham;
     private Station mediaCity;

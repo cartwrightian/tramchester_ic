@@ -12,7 +12,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.InterchangeRepository;
@@ -47,7 +47,7 @@ public class RouteCalculationCombinations {
         closedStationsRepository = componentContainer.get(ClosedStationsRepository.class);
     }
 
-    public Optional<Journey> findJourneys(GraphTransaction txn, IdFor<Station> start, IdFor<Station> dest, JourneyRequest journeyRequest) {
+    public Optional<Journey> findJourneys(MutableGraphTransaction txn, IdFor<Station> start, IdFor<Station> dest, JourneyRequest journeyRequest) {
         return calculator.calculateRoute(txn, stationRepository.getStationById(start),
                 stationRepository.getStationById(dest), journeyRequest)
                 .limit(1).findAny();
@@ -108,7 +108,7 @@ public class RouteCalculationCombinations {
                 parallelStream().
                 filter(stationIdPair -> bothOpen(stationIdPair, request)).
                 map(pair -> {
-                    try (GraphTransaction txn = database.beginTx()) {
+                    try (MutableGraphTransaction txn = database.beginTx()) {
                         Optional<Journey> optionalJourney = findJourneys(txn, pair.getBeginId(), pair.getEndId(), request);
                         JourneyOrNot journeyOrNot = new JourneyOrNot(pair, queryDate, queryTime, optionalJourney);
                         return Pair.of(pair, journeyOrNot);

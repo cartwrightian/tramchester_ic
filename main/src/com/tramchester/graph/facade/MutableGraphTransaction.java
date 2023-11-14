@@ -21,11 +21,11 @@ import java.util.stream.Stream;
 /***
  * Facade around underlying graph DB Transaction
  */
-public class GraphTransaction implements AutoCloseable {
+public class MutableGraphTransaction implements AutoCloseable {
     private final Transaction txn;
     private final GraphIdFactory idFactory;
 
-    GraphTransaction(Transaction txn, GraphIdFactory idFactory) {
+    MutableGraphTransaction(Transaction txn, GraphIdFactory idFactory) {
         this.txn = txn;
         this.idFactory = idFactory;
     }

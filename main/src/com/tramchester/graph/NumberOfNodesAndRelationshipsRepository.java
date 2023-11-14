@@ -1,7 +1,7 @@
 package com.tramchester.graph;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import org.neo4j.graphdb.ResourceIterator;
@@ -44,7 +44,7 @@ class NumberOfNodesAndRelationshipsRepository {
 
     private void countRelationships() {
         TransportRelationshipTypes[] types = TransportRelationshipTypes.values();
-        try (GraphTransaction txn = graphDatabase.beginTx()) {
+        try (MutableGraphTransaction txn = graphDatabase.beginTx()) {
             for (TransportRelationshipTypes relationshipType : types) {
                 long count = getCountFromQuery(txn,
                         "MATCH ()-[relationship:" + relationshipType.name() + "]->() " + "RETURN count(*) as count");
@@ -58,7 +58,7 @@ class NumberOfNodesAndRelationshipsRepository {
 
     private void countNodeNumbers() {
         GraphLabel[] labels = GraphLabel.values();
-        try (GraphTransaction txn = graphDatabase.beginTx()) {
+        try (MutableGraphTransaction txn = graphDatabase.beginTx()) {
             for (GraphLabel label : labels) {
                 long count = getCountFromQuery(txn,
                         "MATCH (node:" + label.name() + ") " + "RETURN count(*) as count");
@@ -70,7 +70,7 @@ class NumberOfNodesAndRelationshipsRepository {
         }
     }
 
-    private long getCountFromQuery(GraphTransaction txn, String query) {
+    private long getCountFromQuery(MutableGraphTransaction txn, String query) {
         Result result = txn.execute(query);
         ResourceIterator<Object> rows = result.columnAs("count");
         long count = (long) rows.next();

@@ -37,7 +37,7 @@ public class GraphPropsTest {
 
     private static ComponentContainer componentContainer;
     private static SimpleGraphConfig config;
-    private GraphTransaction txn;
+    private MutableGraphTransaction txn;
     private MutableGraphNode node;
 
     @BeforeAll

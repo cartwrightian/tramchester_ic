@@ -19,7 +19,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
@@ -57,7 +57,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
 
     private RouteCalculatorTestFacade calculator;
 
-    private GraphTransaction txn;
+    private MutableGraphTransaction txn;
     private TramDate when;
     private StationGroupsRepository stationGroupsRepository;
     private StationGroup altrinchamInterchange;

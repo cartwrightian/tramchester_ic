@@ -1,5 +1,6 @@
 package com.tramchester.graph.facade;
 
+import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
@@ -26,9 +27,13 @@ import java.util.stream.Stream;
 
 public class ImmuableGraphNode implements GraphNode {
     private final MutableGraphNode underlying;
+    private final IdCache<Station> stationId;
+    private final IdCache<Trip> tripId;
 
     public ImmuableGraphNode(MutableGraphNode underlying) {
         this.underlying = underlying;
+        stationId = new IdCache<>(Station.class);
+        tripId = new IdCache<>(Trip.class);
     }
 
     public static WeightedPath findSinglePath(PathFinder<WeightedPath> finder, GraphNode startNode, GraphNode endNode) {
@@ -74,7 +79,7 @@ public class ImmuableGraphNode implements GraphNode {
     }
 
     @Override
-    public GraphRelationship getSingleRelationship(GraphTransaction txn, TransportRelationshipTypes transportRelationshipTypes, Direction direction) {
+    public GraphRelationship getSingleRelationship(MutableGraphTransaction txn, TransportRelationshipTypes transportRelationshipTypes, Direction direction) {
         return underlying.getSingleRelationship(txn, transportRelationshipTypes,direction);
     }
 
@@ -90,7 +95,7 @@ public class ImmuableGraphNode implements GraphNode {
 
     @Override
     public IdFor<Trip> getTripId() {
-        return underlying.getTripId();
+        return tripId.get();
     }
 
     @Override
@@ -105,7 +110,7 @@ public class ImmuableGraphNode implements GraphNode {
 
     @Override
     public boolean hasTripId() {
-        return underlying.hasTripId();
+        return tripId.present();
     }
 
     @Override
@@ -115,7 +120,7 @@ public class ImmuableGraphNode implements GraphNode {
 
     @Override
     public boolean hasStationId() {
-        return underlying.hasStationId();
+        return stationId.present();
     }
 
     @Override
@@ -125,16 +130,16 @@ public class ImmuableGraphNode implements GraphNode {
 
     @Override
     public IdFor<Station> getStationId() {
-        return underlying.getStationId();
+        return stationId.get();
     }
 
     @Override
-    public Stream<GraphRelationship> getRelationships(GraphTransaction txn, Direction direction, TransportRelationshipTypes relationshipType) {
+    public Stream<GraphRelationship> getRelationships(MutableGraphTransaction txn, Direction direction, TransportRelationshipTypes relationshipType) {
         return underlying.getRelationships(txn, direction, relationshipType);
     }
 
     @Override
-    public Stream<GraphRelationship> getRelationships(GraphTransaction txn, Direction direction, TransportRelationshipTypes... transportRelationshipTypes) {
+    public Stream<GraphRelationship> getRelationships(MutableGraphTransaction txn, Direction direction, TransportRelationshipTypes... transportRelationshipTypes) {
         return underlying.getRelationships(txn, direction, transportRelationshipTypes);
     }
 
@@ -157,4 +162,31 @@ public class ImmuableGraphNode implements GraphNode {
     public IdFor<NaptanArea> getAreaId() {
         return underlying.getAreaId();
     }
+
+
+    private class IdCache<DT extends CoreDomain> {
+        private final Class<DT> theClass;
+        private IdFor<DT> theValue;
+        private Boolean present;
+
+        private IdCache(Class<DT> theClass) {
+            this.theClass = theClass;
+            theValue = null;
+        }
+
+        synchronized IdFor<DT> get() {
+            if (theValue==null) {
+                theValue=underlying.getId(theClass);
+            }
+            return theValue;
+        }
+
+        synchronized public boolean present() {
+            if (present==null) {
+                present = underlying.hasIdFor(theClass);
+            }
+            return present;
+        }
+    }
+
 }

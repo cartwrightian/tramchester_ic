@@ -88,7 +88,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
 
         try (Timing ignored = new Timing(logger, "graph rebuild")) {
             try(TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "Adding stations")) {
-                GraphTransaction tx = timedTransaction.transaction();
+                MutableGraphTransaction tx = timedTransaction.transaction();
                 for(Station station : transportData.getStations()) {
                     if (graphFilter.shouldInclude(station)) {
                         if (station.getTransportModes().isEmpty()) {
@@ -137,7 +137,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         // case for rail transport data.
 
         try(TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "Adding routes")){
-            GraphTransaction tx = timedTransaction.transaction();
+            MutableGraphTransaction tx = timedTransaction.transaction();
             routes.forEach(route -> {
                 IdFor<Route> asId = route.getId();
                 logger.debug("Adding route " + asId);
@@ -157,7 +157,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         }
     }
 
-    private void linkStationAndRouteStation(GraphTransaction txn, Station station, MutableGraphNode routeStationNode, TransportMode transportMode) {
+    private void linkStationAndRouteStation(MutableGraphTransaction txn, Station station, MutableGraphNode routeStationNode, TransportMode transportMode) {
         MutableGraphNode stationNode = builderCache.getStation(txn, station.getId());
 
         final MutableGraphRelationship stationToRoute = stationNode.createRelationshipTo(txn, routeStationNode, STATION_TO_ROUTE);
@@ -176,7 +176,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
 
     // NOTE: for services that skip some stations, but same stations not skipped by other services
     // this will create multiple links
-    private void createLinkRelationships(GraphTransaction tx, Route route, GraphBuilderCache routeBuilderCache) {
+    private void createLinkRelationships(MutableGraphTransaction tx, Route route, GraphBuilderCache routeBuilderCache) {
 
         // TODO this uses the first cost we encounter for the link, while this is accurate for tfgm trams it does
         //  not give the correct results for buses and trains where time between station can vary depending upon the
@@ -210,7 +210,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         return filter.shouldInclude(leg.getFirst()) && filter.shouldInclude(leg.getSecond());
     }
 
-    private void createLinkRelationship(MutableGraphNode from, MutableGraphNode to, TransportMode mode, GraphTransaction txn) {
+    private void createLinkRelationship(MutableGraphNode from, MutableGraphNode to, TransportMode mode, MutableGraphTransaction txn) {
         if (from.hasRelationship(OUTGOING, LINKED)) {
             Stream<MutableGraphRelationship> alreadyPresent = from.getRelationshipsMutable(txn, OUTGOING, LINKED);
 
@@ -233,7 +233,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         stationsLinked.addTransportMode(mode);
     }
 
-    private void createPlatformsForStation(GraphTransaction txn, Station station, GraphBuilderCache routeBuilderCache) {
+    private void createPlatformsForStation(MutableGraphTransaction txn, Station station, GraphBuilderCache routeBuilderCache) {
         for (Platform platform : station.getPlatforms()) {
 
             MutableGraphNode platformNode = txn.createNode(GraphLabel.PLATFORM);
@@ -246,7 +246,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         }
     }
 
-    private MutableGraphNode createRouteStationNode(GraphTransaction tx, RouteStation routeStation, GraphBuilderCache builderCache) {
+    private MutableGraphNode createRouteStationNode(MutableGraphTransaction tx, RouteStation routeStation, GraphBuilderCache builderCache) {
 //        Node existing = graphDatabase.findNode(tx,
 //                GraphLabel.ROUTE_STATION, GraphPropertyKey.ROUTE_STATION_ID.getText(), routeStation.getId().getGraphId());
 //

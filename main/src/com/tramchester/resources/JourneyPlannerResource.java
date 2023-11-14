@@ -16,7 +16,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.mappers.JourneyDTODuplicateFilter;
 import com.tramchester.mappers.JourneyToDTOMapper;
 import com.tramchester.repository.LocationRepository;
@@ -98,7 +98,7 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         Location<?> start = locationRepository.getLocation(query.getStartType(), query.getStartId());
         Location<?> dest = locationRepository.getLocation(query.getDestType(), query.getDestId());
 
-        try(GraphTransaction tx = graphDatabase.beginTx() ) {
+        try(MutableGraphTransaction tx = graphDatabase.beginTx() ) {
 
             Stream<JourneyDTO> dtoStream = getJourneyDTOStream(tx, query.getTramDate(), query.getTime(),
                     start, dest, query.isArriveBy(), query.getMaxChanges(), modes);
@@ -156,7 +156,7 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         Location<?> start = locationRepository.getLocation(query.getStartType(), query.getStartId());
         Location<?> dest = locationRepository.getLocation(query.getDestType(), query.getDestId());
 
-        GraphTransaction tx =  graphDatabase.beginTx();
+        MutableGraphTransaction tx =  graphDatabase.beginTx();
 
         try {
             Stream<JourneyDTO> dtoStream = getJourneyDTOStream(tx, query.getTramDate(), query.getTime(), start, dest, query.isArriveBy(),
@@ -180,7 +180,7 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         return responseBuilder.build();
     }
 
-    private Stream<JourneyDTO> getJourneyDTOStream(GraphTransaction tx, TramDate date, LocalTime time, Location<?> start,
+    private Stream<JourneyDTO> getJourneyDTOStream(MutableGraphTransaction tx, TramDate date, LocalTime time, Location<?> start,
                                                    Location<?> dest, boolean arriveBy, int maxChanges, EnumSet<TransportMode> modes) {
 
         TramTime queryTime = TramTime.ofHourMins(time);

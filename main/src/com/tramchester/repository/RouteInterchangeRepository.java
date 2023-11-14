@@ -15,7 +15,7 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.TimedTransaction;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.metrics.Timing;
 import org.apache.commons.lang3.tuple.Pair;
@@ -119,7 +119,7 @@ public class RouteInterchangeRepository extends ComponentThatCaches<RouteInterch
         return Duration.ofSeconds(-999);
     }
 
-    private void populateForRoute(final GraphTransaction txn, final Route route) {
+    private void populateForRoute(final MutableGraphTransaction txn, final Route route) {
 
         Instant startTime = Instant.now();
 

@@ -5,7 +5,7 @@ import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.databaseManagement.GraphDatabaseLifecycleManager;
 import com.tramchester.graph.facade.GraphIdFactory;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.facade.GraphTransactionFactory;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.repository.DataSourceRepository;
@@ -85,15 +85,15 @@ public class GraphDatabase implements DatabaseEventListener {
         return lifecycleManager.isCleanDB();
     }
 
-    public GraphTransaction beginTx() {
+    public MutableGraphTransaction beginTx() {
         return graphTransactionFactory.begin();
     }
 
-    public GraphTransaction beginTx(int timeout, TimeUnit timeUnit) {
+    public MutableGraphTransaction beginTx(int timeout, TimeUnit timeUnit) {
         return graphTransactionFactory.begin(timeout, timeUnit);
     }
 
-    public GraphTransaction beginTx(Duration timeout) {
+    public MutableGraphTransaction beginTx(Duration timeout) {
         return graphTransactionFactory.begin(timeout);
     }
 
@@ -101,7 +101,7 @@ public class GraphDatabase implements DatabaseEventListener {
 
         try (TimedTransaction timed = new TimedTransaction(this, logger, "Create DB Constraints & indexes"))
         {
-            GraphTransaction tx = timed.transaction();
+            MutableGraphTransaction tx = timed.transaction();
             Schema schema = tx.schema();
 
             schema.indexFor(GraphLabel.STATION).on(GraphPropertyKey.ROUTE_ID.getText()).create();
@@ -189,7 +189,7 @@ public class GraphDatabase implements DatabaseEventListener {
 //        return new BasicEvaluationContext(txn, databaseService);
 //    }
 
-    public EvaluationContext createContext(GraphTransaction txn) {
+    public EvaluationContext createContext(MutableGraphTransaction txn) {
         return txn.createEvaluationContext(databaseService);
     }
 

@@ -16,7 +16,10 @@ import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.HaveGraphProperties;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.graphbuild.GraphLabel;
-import org.neo4j.graphdb.*;
+import org.neo4j.graphdb.Direction;
+import org.neo4j.graphdb.Label;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.graphdb.traversal.Traverser;
 
@@ -52,7 +55,7 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
 
     ///// MUTATE ////////////////////////////////////////////////////////////
 
-    public MutableGraphRelationship createRelationshipTo(GraphTransaction txn, MutableGraphNode end, TransportRelationshipTypes relationshipTypes) {
+    public MutableGraphRelationship createRelationshipTo(MutableGraphTransaction txn, MutableGraphNode end, TransportRelationshipTypes relationshipTypes) {
         Relationship relationshipTo = node.createRelationshipTo(end.node, relationshipTypes);
         return txn.wrapRelationshipMutable(relationshipTo);
     }
@@ -135,15 +138,15 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
         return EnumSet.copyOf(set);
     }
 
-    public Stream<GraphRelationship> getRelationships(GraphTransaction txn, Direction direction, TransportRelationshipTypes relationshipType) {
+    public Stream<GraphRelationship> getRelationships(MutableGraphTransaction txn, Direction direction, TransportRelationshipTypes relationshipType) {
         return node.getRelationships(direction, relationshipType).stream().map(txn::wrapRelationship);
     }
 
-    public Stream<MutableGraphRelationship> getRelationshipsMutable(GraphTransaction txn, Direction direction, TransportRelationshipTypes relationshipType) {
+    public Stream<MutableGraphRelationship> getRelationshipsMutable(MutableGraphTransaction txn, Direction direction, TransportRelationshipTypes relationshipType) {
         return node.getRelationships(direction, relationshipType).stream().map(txn::wrapRelationshipMutable);
     }
 
-    public Stream<GraphRelationship> getRelationships(GraphTransaction txn, Direction direction, TransportRelationshipTypes... transportRelationshipTypes) {
+    public Stream<GraphRelationship> getRelationships(MutableGraphTransaction txn, Direction direction, TransportRelationshipTypes... transportRelationshipTypes) {
         return node.getRelationships(direction, transportRelationshipTypes).stream().map(txn::wrapRelationship);
     }
 
@@ -167,12 +170,20 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
     }
 
     @Override
-    public GraphRelationship getSingleRelationship(GraphTransaction txn, TransportRelationshipTypes transportRelationshipTypes, Direction direction) {
+    public GraphRelationship getSingleRelationship(MutableGraphTransaction txn, TransportRelationshipTypes transportRelationshipTypes, Direction direction) {
         Relationship found = node.getSingleRelationship(transportRelationshipTypes, direction);
         if (found==null) {
             return null;
         }
         return txn.wrapRelationship(found);
+    }
+
+    <T extends CoreDomain> IdFor<T> getId(Class<T> theClass) {
+        return getIdFor(theClass, node);
+    }
+
+    <DT extends CoreDomain> Boolean hasIdFor(Class<DT> theClass) {
+        return node.hasProperty(GraphPropertyKey.getFor(theClass).getText());
     }
 
     public IdFor<Station> getStationId() {
@@ -225,7 +236,7 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
     }
 
     public boolean hasTripId() {
-        return node.hasProperty(TRIP_ID.getText());
+        return hasIdFor(Trip.class);
     }
 
     public PlatformId getPlatformId() {
@@ -235,7 +246,7 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
     }
 
     public boolean hasStationId() {
-        return super.hasProperty(STATION_ID, node);
+        return hasIdFor(Station.class);
     }
 
     ///// utility ////////////////////////////////////////////////////////////

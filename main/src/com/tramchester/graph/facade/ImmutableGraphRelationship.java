@@ -62,12 +62,12 @@ public class ImmutableGraphRelationship implements GraphRelationship {
     }
 
     @Override
-    public GraphNode getEndNode(GraphTransaction txn) {
+    public GraphNode getEndNode(MutableGraphTransaction txn) {
         return underlying.getEndNode(txn);
     }
 
     @Override
-    public GraphNode getStartNode(GraphTransaction txn) {
+    public GraphNode getStartNode(MutableGraphTransaction txn) {
         return underlying.getStartNode(txn);
     }
 
@@ -127,7 +127,7 @@ public class ImmutableGraphRelationship implements GraphRelationship {
     }
 
     @Override
-    public GraphNodeId getEndNodeId(GraphTransaction txn) {
+    public GraphNodeId getEndNodeId(MutableGraphTransaction txn) {
         return underlying.getEndNodeId(txn);
     }
 

@@ -2,7 +2,7 @@ package com.tramchester.unit.graph.databaseManagement;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceInfo;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.facade.GraphTransactionFactory;
 import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
 import com.tramchester.graph.databaseManagement.GraphDatabaseStoredVersions;
@@ -28,7 +28,7 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
     private GraphDatabaseMetaInfo databaseMetaInfo;
     private GraphDatabaseStoredVersions storedVersions;
     private GraphTransactionFactory transactionFactory;
-    private GraphTransaction transaction;
+    private MutableGraphTransaction transaction;
     private TramchesterConfig config;
     private DataSourceRepository dataSourceRepository;
 
@@ -38,7 +38,7 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
         config = TestEnv.GET();
         databaseMetaInfo = createMock(GraphDatabaseMetaInfo.class);
         transactionFactory = createMock(GraphTransactionFactory.class);
-        transaction = createMock(GraphTransaction.class);
+        transaction = createMock(MutableGraphTransaction.class);
         storedVersions = new GraphDatabaseStoredVersions(config, databaseMetaInfo);
         dataSourceRepository = createMock(DataSourceRepository.class);
     }

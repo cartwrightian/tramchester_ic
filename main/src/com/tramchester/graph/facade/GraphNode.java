@@ -33,7 +33,7 @@ public interface GraphNode {
 
     boolean hasLabel(GraphLabel graphLabel);
 
-    GraphRelationship getSingleRelationship(GraphTransaction txn, TransportRelationshipTypes transportRelationshipTypes, Direction direction);
+    GraphRelationship getSingleRelationship(MutableGraphTransaction txn, TransportRelationshipTypes transportRelationshipTypes, Direction direction);
 
     IdFor<RouteStation> getRouteStationId();
 
@@ -55,9 +55,9 @@ public interface GraphNode {
 
     IdFor<Station> getStationId();
 
-    <T extends GraphRelationship> Stream<T> getRelationships(GraphTransaction txn, Direction direction, TransportRelationshipTypes relationshipType);
+    <T extends GraphRelationship> Stream<T> getRelationships(MutableGraphTransaction txn, Direction direction, TransportRelationshipTypes relationshipType);
 
-    <T extends GraphRelationship> Stream<T> getRelationships(GraphTransaction txn, Direction direction, TransportRelationshipTypes... transportRelationshipTypes);
+    <T extends GraphRelationship> Stream<T> getRelationships(MutableGraphTransaction txn, Direction direction, TransportRelationshipTypes... transportRelationshipTypes);
 
     TransportMode getTransportMode();
 

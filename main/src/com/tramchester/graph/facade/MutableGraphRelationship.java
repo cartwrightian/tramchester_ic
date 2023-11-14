@@ -125,7 +125,7 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
         return Duration.ofMinutes(value);
     }
 
-    public GraphNode getEndNode(final GraphTransaction txn) {
+    public GraphNode getEndNode(final MutableGraphTransaction txn) {
         final Node node = relationship.getEndNode();
 //        if (node==null) {
 //            throw new RuntimeException("Missing end node for a relationship, this should not happen " + this);
@@ -133,7 +133,7 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
         return txn.wrapNode(node);
     }
 
-    public GraphNode getStartNode(GraphTransaction txn) {
+    public GraphNode getStartNode(MutableGraphTransaction txn) {
         return txn.wrapNode(relationship.getStartNode());
     }
 
@@ -213,7 +213,7 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
         return (int) relationship.getProperty(STOP_SEQ_NUM.getText());
     }
 
-    public GraphNodeId getEndNodeId(GraphTransaction txn) {
+    public GraphNodeId getEndNodeId(MutableGraphTransaction txn) {
         return txn.createNodeId(relationship.getEndNode());
     }
 

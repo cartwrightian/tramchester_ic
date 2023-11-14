@@ -1,6 +1,6 @@
 package com.tramchester.graph;
 
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.metrics.Timing;
 import org.slf4j.Logger;
 
@@ -8,7 +8,7 @@ import java.time.Duration;
 import java.time.Instant;
 
 public class TimedTransaction implements AutoCloseable {
-    private final GraphTransaction transaction;
+    private final MutableGraphTransaction transaction;
     private final Logger logger;
     private final String name;
     private final Timing timing;
@@ -31,7 +31,7 @@ public class TimedTransaction implements AutoCloseable {
         timing.close();
     }
 
-    public GraphTransaction transaction() {
+    public MutableGraphTransaction transaction() {
         return transaction;
     }
 

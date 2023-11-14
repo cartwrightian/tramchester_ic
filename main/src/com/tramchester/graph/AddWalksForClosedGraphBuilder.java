@@ -8,7 +8,7 @@ import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.geo.MarginInMeters;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.facade.MutableGraphNode;
 import com.tramchester.graph.facade.MutableGraphRelationship;
 import com.tramchester.graph.filters.GraphFilter;
@@ -144,7 +144,7 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships i
 
     private void createWalks(Set<Station> linkedNearby, ClosedStation closedStation, MarginInMeters range) {
         try(TimedTransaction timedTransaction = new TimedTransaction(database, logger, "create diversions for " +closedStation.getStationId())) {
-            GraphTransaction txn = timedTransaction.transaction();
+            MutableGraphTransaction txn = timedTransaction.transaction();
             addDiversionsToAndFromClosed(txn, linkedNearby, closedStation);
             int added = addDiversionsAroundClosed(txn, linkedNearby, closedStation, range);
             if (added==0) {
@@ -157,7 +157,7 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships i
     private boolean hasDBFlag(GTFSSourceConfig sourceConfig) {
         logger.info("Checking DB if walks added for " + sourceConfig.getName() +  " closed stations");
         boolean flag;
-        try (GraphTransaction txn = graphDatabase.beginTx()) {
+        try (MutableGraphTransaction txn = graphDatabase.beginTx()) {
             String value = sourceConfig.getName();
 
             flag = txn.hasAnyMatching(GraphLabel.WALK_FOR_CLOSED_ENABLED, SOURCE_NAME_PROP.getText(), value);
@@ -166,7 +166,7 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships i
     }
 
     private void addDBFlag(GTFSSourceConfig sourceConfig) {
-        try (GraphTransaction txn = graphDatabase.beginTx()) {
+        try (MutableGraphTransaction txn = graphDatabase.beginTx()) {
             Stream<MutableGraphNode> query = txn.findNodesMutable(GraphLabel.WALK_FOR_CLOSED_ENABLED);
             List<MutableGraphNode> nodes = query.toList();
 
@@ -189,7 +189,7 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships i
         }
     }
 
-    private void addDiversionsToAndFromClosed(GraphTransaction txn, Set<Station> others, ClosedStation closure) {
+    private void addDiversionsToAndFromClosed(MutableGraphTransaction txn, Set<Station> others, ClosedStation closure) {
         Station closedStation = closure.getStation();
 
         MutableGraphNode closedNode = txn.findNodeMutable(closedStation);
@@ -228,7 +228,7 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships i
         });
     }
 
-    private int addDiversionsAroundClosed(GraphTransaction txn, Set<Station> nearbyStations, ClosedStation closure, MarginInMeters range) {
+    private int addDiversionsAroundClosed(MutableGraphTransaction txn, Set<Station> nearbyStations, ClosedStation closure, MarginInMeters range) {
         Set<Pair<Station, Station>> toLinkViaDiversion = nearbyStations.stream().
                 flatMap(nearbyA -> nearbyStations.stream().map(nearbyB -> Pair.of(nearbyA, nearbyB))).
                 filter(pair -> !pair.getLeft().equals(pair.getRight())).

@@ -11,7 +11,7 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphRelationship;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.repository.TransportData;
@@ -36,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class GraphBuilderRailTest {
     private static ComponentContainer componentContainer;
 
-    private GraphTransaction txn;
+    private MutableGraphTransaction txn;
     private TransportData transportData;
 
     @BeforeAll

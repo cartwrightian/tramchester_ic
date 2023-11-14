@@ -6,7 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.StationLink;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.facade.MutableGraphNode;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.CreateNodesAndRelationships;
@@ -92,7 +92,7 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
 
     private void createNeighboursInDB() {
         try(TimedTransaction timedTransaction = new TimedTransaction(database, logger, "create neighbours")) {
-            GraphTransaction txn = timedTransaction.transaction();
+            MutableGraphTransaction txn = timedTransaction.transaction();
                 stationRepository.getActiveStationStream().
                     filter(filter::shouldInclude).
                     filter(station -> neighboursRepository.hasNeighbours(station.getId())).
@@ -106,20 +106,20 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
 
     private boolean hasDBFlag() {
         boolean flag;
-        try (GraphTransaction txn = graphDatabase.beginTx()) {
+        try (MutableGraphTransaction txn = graphDatabase.beginTx()) {
             flag = databaseMetaInfo.isNeighboursEnabled(txn);
         }
         return flag;
     }
 
     private void addDBFlag() {
-        try (GraphTransaction txn = graphDatabase.beginTx()) {
+        try (MutableGraphTransaction txn = graphDatabase.beginTx()) {
             databaseMetaInfo.setNeighboursEnabled(txn);
             txn.commit();
         }
     }
 
-    private void addNeighbourRelationships(GraphTransaction txn, GraphFilter filter, Station from, Set<StationLink> links) {
+    private void addNeighbourRelationships(MutableGraphTransaction txn, GraphFilter filter, Station from, Set<StationLink> links) {
         MutableGraphNode fromNode = txn.findNodeMutable(from);
         if (fromNode==null) {
             String msg = "Could not find database node for from: " + from.getId();

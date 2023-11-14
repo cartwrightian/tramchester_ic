@@ -12,7 +12,7 @@ import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.search.LowestCostsForDestRoutes;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
@@ -36,7 +36,7 @@ public class TraversalOpsTest {
     private TripRepository tripRepository;
     private SortsPositions sortsPositions;
     private StationRepository stationRepository;
-    private GraphTransaction txn;
+    private MutableGraphTransaction txn;
     private RouteToRouteCosts routeToRouteCosts;
 
     @BeforeAll

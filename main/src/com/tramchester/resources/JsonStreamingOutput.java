@@ -3,7 +3,7 @@ package com.tramchester.resources;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import jakarta.ws.rs.core.StreamingOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,11 +16,11 @@ class JsonStreamingOutput<T> implements StreamingOutput {
     private static final Logger logger = LoggerFactory.getLogger(JsonStreamingOutput.class);
 
     private final Stream<T> theStream;
-    private final GraphTransaction txn;
+    private final MutableGraphTransaction txn;
 
     private final JsonFactory jsonFactory ;
 
-    JsonStreamingOutput(GraphTransaction txn, Stream<T> theStream, ObjectMapper mapper) {
+    JsonStreamingOutput(MutableGraphTransaction txn, Stream<T> theStream, ObjectMapper mapper) {
         this.txn = txn;
         this.theStream = theStream;
         jsonFactory = mapper.getFactory();

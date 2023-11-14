@@ -35,7 +35,7 @@ public class NoPlatformStationState extends StationState {
         }
 
         @Override
-        public NoPlatformStationState fromWalking(WalkingState walkingState, GraphNode node, Duration cost, JourneyStateUpdate journeyState, GraphTransaction txn) {
+        public NoPlatformStationState fromWalking(WalkingState walkingState, GraphNode node, Duration cost, JourneyStateUpdate journeyState, MutableGraphTransaction txn) {
             return new NoPlatformStationState(walkingState,
                     boardRelationshipsPlus(node, txn, GROUPED_TO_PARENT, NEIGHBOUR),
                     cost, node, journeyState, this);
@@ -43,7 +43,7 @@ public class NoPlatformStationState extends StationState {
 
         @Override
         public NoPlatformStationState fromStart(NotStartedState notStartedState, GraphNode node, Duration cost,
-                                                JourneyStateUpdate journeyState, boolean alreadyOnDiversion, boolean onDiversion, GraphTransaction txn) {
+                                                JourneyStateUpdate journeyState, boolean alreadyOnDiversion, boolean onDiversion, MutableGraphTransaction txn) {
             final Stream<ImmutableGraphRelationship> neighbours = getRelationships(txn, node, OUTGOING, NEIGHBOUR);
             final Stream<ImmutableGraphRelationship> initial = boardRelationshipsPlus(node, txn, WALKS_FROM_STATION, GROUPED_TO_PARENT);
             Stream<ImmutableGraphRelationship> relationships = addValidDiversions(node, initial, notStartedState, alreadyOnDiversion, txn);
@@ -52,14 +52,14 @@ public class NoPlatformStationState extends StationState {
         }
 
         public TraversalState fromRouteStation(RouteStationStateEndTrip routeStationState, GraphNode node, Duration cost,
-                                               JourneyStateUpdate journeyState, boolean alreadyOnDiversion, GraphTransaction txn) {
+                                               JourneyStateUpdate journeyState, boolean alreadyOnDiversion, MutableGraphTransaction txn) {
             // end of a trip, may need to go back to this route station to catch new service
             final Stream<ImmutableGraphRelationship> initial = boardRelationshipsPlus(node, txn, WALKS_FROM_STATION, NEIGHBOUR, GROUPED_TO_PARENT);
             Stream<ImmutableGraphRelationship> relationships = addValidDiversions(node, initial, routeStationState, alreadyOnDiversion, txn);
             return new NoPlatformStationState(routeStationState, relationships, cost, node, journeyState, this);
         }
 
-        public TraversalState fromRouteStation(RouteStationStateOnTrip onTrip, GraphNode node, Duration cost, JourneyStateUpdate journeyState, GraphTransaction txn) {
+        public TraversalState fromRouteStation(RouteStationStateOnTrip onTrip, GraphNode node, Duration cost, JourneyStateUpdate journeyState, MutableGraphTransaction txn) {
             // filter so we don't just get straight back on tram if just boarded, or if we are on an existing trip
             final Stream<ImmutableGraphRelationship> relationships = boardRelationshipsPlus(node, txn, WALKS_FROM_STATION, NEIGHBOUR, GROUPED_TO_PARENT);
             Stream<ImmutableGraphRelationship> stationRelationships = filterExcludingEndNode(txn, relationships, onTrip);
@@ -68,20 +68,20 @@ public class NoPlatformStationState extends StationState {
 
         @Override
         public NoPlatformStationState fromNeighbour(StationState noPlatformStation, GraphNode node, Duration cost, JourneyStateUpdate journeyState,
-                                                    boolean onDiversion, GraphTransaction txn) {
+                                                    boolean onDiversion, MutableGraphTransaction txn) {
             return new NoPlatformStationState(noPlatformStation,
                     node.getRelationships(txn, OUTGOING, BOARD, INTERCHANGE_BOARD, GROUPED_TO_PARENT),
                     cost, node, journeyState, this);
         }
 
         @Override
-        public NoPlatformStationState fromGrouped(GroupedStationState groupedStationState, GraphNode node, Duration cost, JourneyStateUpdate journeyState, GraphTransaction txn) {
+        public NoPlatformStationState fromGrouped(GroupedStationState groupedStationState, GraphNode node, Duration cost, JourneyStateUpdate journeyState, MutableGraphTransaction txn) {
             return new NoPlatformStationState(groupedStationState,
                     node.getRelationships(txn, OUTGOING, BOARD, INTERCHANGE_BOARD, NEIGHBOUR),
                     cost,  node, journeyState, this);
         }
 
-        Stream<ImmutableGraphRelationship> boardRelationshipsPlus(GraphNode node, GraphTransaction txn, TransportRelationshipTypes... others) {
+        Stream<ImmutableGraphRelationship> boardRelationshipsPlus(GraphNode node, MutableGraphTransaction txn, TransportRelationshipTypes... others) {
             Stream<ImmutableGraphRelationship> other = node.getRelationships(txn, OUTGOING, others);
             Stream<ImmutableGraphRelationship> board = node.getRelationships(txn, OUTGOING, BOARD, INTERCHANGE_BOARD);
             // order matters here, i.e. explore walks first

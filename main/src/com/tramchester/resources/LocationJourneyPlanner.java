@@ -20,7 +20,7 @@ import com.tramchester.geo.StationLocations;
 import com.tramchester.geo.StationLocationsRepository;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.caches.NodeContentsRepository;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.facade.MutableGraphNode;
 import com.tramchester.graph.facade.MutableGraphRelationship;
 import com.tramchester.graph.filters.GraphFilter;
@@ -72,7 +72,7 @@ public class LocationJourneyPlanner {
         this.routeToRouteCosts = routeToRouteCosts;
     }
 
-    public Stream<Journey> quickestRouteForLocation(GraphTransaction txn, Location<?> start, Location<?> destination,
+    public Stream<Journey> quickestRouteForLocation(MutableGraphTransaction txn, Location<?> start, Location<?> destination,
                                                     JourneyRequest journeyRequest) {
         logger.info(format("Finding shortest path for %s --> %s (%s) for %s", start.getId(), destination.getId(), destination.getName(), journeyRequest));
         boolean walkAtStart = start.getLocationType().isWalk();
@@ -96,7 +96,7 @@ public class LocationJourneyPlanner {
         }
     }
 
-    private Stream<Journey> quickRouteWalkAtStart(GraphTransaction txn, Location<?> start, Location<?> destination,
+    private Stream<Journey> quickRouteWalkAtStart(MutableGraphTransaction txn, Location<?> start, Location<?> destination,
                                                   JourneyRequest journeyRequest) {
         logger.info(format("Finding shortest path for %s --> %s (%s) for %s", start.getId(),
                 destination.getId(), destination.getName(), journeyRequest));
@@ -130,7 +130,7 @@ public class LocationJourneyPlanner {
         return journeys;
     }
 
-    private Stream<Journey> quickestRouteWalkAtEnd(GraphTransaction txn, Location<?> start, Location<?> destination,
+    private Stream<Journey> quickestRouteWalkAtEnd(MutableGraphTransaction txn, Location<?> start, Location<?> destination,
                                                    JourneyRequest journeyRequest) {
         logger.info(format("Finding shortest path for %s (%s) --> %s for %s", start.getId(), start.getName(),
                 destination, journeyRequest));
@@ -178,7 +178,7 @@ public class LocationJourneyPlanner {
         return journeys;
     }
 
-    private Stream<Journey> quickestRouteWalkAtStartAndEnd(GraphTransaction txn, Location<?> start, Location<?> dest,
+    private Stream<Journey> quickestRouteWalkAtStartAndEnd(MutableGraphTransaction txn, Location<?> start, Location<?> dest,
                                                            JourneyRequest journeyRequest) {
         logger.info(format("Finding shortest path for %s --> %s on %s", start, dest, journeyRequest));
 
@@ -263,11 +263,11 @@ public class LocationJourneyPlanner {
     private static class WalkNodesAndRelationships {
 
         private final NodeContentsRepository nodeOperations;
-        private final GraphTransaction txn;
+        private final MutableGraphTransaction txn;
         private final List<MutableGraphRelationship> relationships;
         private final List<MutableGraphNode> nodes;
 
-        private WalkNodesAndRelationships(GraphTransaction txn, NodeContentsRepository nodeOperations) {
+        private WalkNodesAndRelationships(MutableGraphTransaction txn, NodeContentsRepository nodeOperations) {
             this.nodeOperations = nodeOperations;
             this.txn = txn;
             this.relationships = new ArrayList<>();
@@ -337,7 +337,7 @@ public class LocationJourneyPlanner {
             return walkingRelationship;
         }
 
-        private MutableGraphNode createWalkingNode(GraphTransaction txn, LatLong origin, UUID uniqueId) {
+        private MutableGraphNode createWalkingNode(MutableGraphTransaction txn, LatLong origin, UUID uniqueId) {
             MutableGraphNode startOfWalkNode = txn.createNode(GraphLabel.QUERY_NODE);
             startOfWalkNode.setLatLong(origin);
             startOfWalkNode.setWalkId(origin, uniqueId);

@@ -18,7 +18,7 @@ import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphNodeId;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.search.diagnostics.ReasonsToGraphViz;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import com.tramchester.repository.ClosedStationsRepository;
@@ -102,7 +102,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
             final AtomicInteger journeyIndex = new AtomicInteger(0);
 
-            try(GraphTransaction txn = graphDatabaseService.beginTx()) {
+            try(MutableGraphTransaction txn = graphDatabaseService.beginTx()) {
 
                 Stream<Journey> journeys = startingStations.stream().
                         filter(start -> !destinations.contains(start)).

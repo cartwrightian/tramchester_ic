@@ -8,7 +8,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.integration.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.testSupport.TestEnv;
@@ -33,7 +33,7 @@ class RailRouteCalculatorCombinationTests {
     private RouteCalculationCombinations combinations;
 
     private final TramDate when = TestEnv.testDay();
-    private GraphTransaction txn;
+    private MutableGraphTransaction txn;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {

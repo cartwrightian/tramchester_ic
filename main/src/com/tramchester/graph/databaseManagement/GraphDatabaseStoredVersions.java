@@ -4,7 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.DataSourceInfo;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.facade.GraphTransactionFactory;
 import com.tramchester.repository.DataSourceRepository;
 import org.slf4j.Logger;
@@ -36,7 +36,7 @@ public class GraphDatabaseStoredVersions {
 
         // version -> flag
         Map<DataSourceInfo, Boolean> upToDate = new HashMap<>();
-        try(GraphTransaction transaction = transactionFactory.begin()) { // databaseService.beginTx()) {
+        try(MutableGraphTransaction transaction = transactionFactory.begin()) { // databaseService.beginTx()) {
 
             if (neighboursEnabledMismatch(transaction)) {
                 return false;
@@ -80,7 +80,7 @@ public class GraphDatabaseStoredVersions {
         return upToDate.values().stream().allMatch(flag -> flag);
     }
 
-    private boolean neighboursEnabledMismatch(GraphTransaction txn) {
+    private boolean neighboursEnabledMismatch(MutableGraphTransaction txn) {
 
         boolean fromDB = databaseMetaInfo.isNeighboursEnabled(txn);
         boolean fromConfig = config.hasNeighbourConfig();

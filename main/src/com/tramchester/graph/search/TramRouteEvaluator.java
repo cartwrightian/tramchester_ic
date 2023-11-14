@@ -11,7 +11,7 @@ import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphRelationship;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.diagnostics.*;
 import org.jetbrains.annotations.NotNull;
@@ -50,12 +50,12 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private final Instant begin;
     private final long timeout;
     private final Set<GraphLabel> requestedLabels;
-    private final GraphTransaction txn;
+    private final MutableGraphTransaction txn;
 
     public TramRouteEvaluator(ServiceHeuristics serviceHeuristics, Set<GraphNodeId> destinationNodeIds,
                               NodeContentsRepository nodeContentsRepository, ServiceReasons reasons,
                               PreviousVisits previousVisits, LowestCostSeen bestResultSoFar, TramchesterConfig config,
-                              GraphNodeId startNodeId, Instant begin, ProvidesNow providesNow, Set<TransportMode> requestedModes, Duration maxInitialWait, GraphTransaction txn) {
+                              GraphNodeId startNodeId, Instant begin, ProvidesNow providesNow, Set<TransportMode> requestedModes, Duration maxInitialWait, MutableGraphTransaction txn) {
         this.serviceHeuristics = serviceHeuristics;
         this.destinationNodeIds = destinationNodeIds;
         this.nodeContentsRepository = nodeContentsRepository;

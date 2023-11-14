@@ -30,14 +30,14 @@ public class PlatformStationState extends StationState {
             return TraversalStateType.PlatformStationState;
         }
 
-        public PlatformStationState fromWalking(WalkingState walkingState, GraphNode stationNode, Duration cost, JourneyStateUpdate journeyState, GraphTransaction txn) {
+        public PlatformStationState fromWalking(WalkingState walkingState, GraphNode stationNode, Duration cost, JourneyStateUpdate journeyState, MutableGraphTransaction txn) {
             final Stream<ImmutableGraphRelationship> relationships = stationNode.getRelationships(txn, OUTGOING, ENTER_PLATFORM, GROUPED_TO_PARENT,
                     NEIGHBOUR);
             return new PlatformStationState(walkingState, relationships, cost, stationNode, journeyState, this);
         }
 
         public PlatformStationState fromPlatform(PlatformState platformState, GraphNode stationNode, Duration cost,
-                                                 JourneyStateUpdate journeyState, boolean onDiversion, GraphTransaction txn) {
+                                                 JourneyStateUpdate journeyState, boolean onDiversion, MutableGraphTransaction txn) {
             final Stream<ImmutableGraphRelationship> initial = stationNode.getRelationships(txn, OUTGOING, WALKS_FROM_STATION, ENTER_PLATFORM,
                     NEIGHBOUR, GROUPED_TO_PARENT);
             Stream<ImmutableGraphRelationship> relationships = addValidDiversions(stationNode, initial, platformState, onDiversion, txn);
@@ -46,7 +46,7 @@ public class PlatformStationState extends StationState {
         }
 
         public PlatformStationState fromStart(NotStartedState notStartedState, GraphNode stationNode, Duration cost,
-                                              JourneyStateUpdate journeyState, boolean alreadyOnDiversion, boolean onDiversion, GraphTransaction txn) {
+                                              JourneyStateUpdate journeyState, boolean alreadyOnDiversion, boolean onDiversion, MutableGraphTransaction txn) {
             final Stream<ImmutableGraphRelationship> neighbours = TraversalState.getRelationships(txn, stationNode, OUTGOING, NEIGHBOUR);
             final Stream<ImmutableGraphRelationship> initial = stationNode.getRelationships(txn, OUTGOING, WALKS_FROM_STATION,
                     GROUPED_TO_PARENT, ENTER_PLATFORM);
@@ -57,14 +57,14 @@ public class PlatformStationState extends StationState {
 
         @Override
         public PlatformStationState fromNeighbour(StationState stationState, GraphNode stationNode, Duration cost, JourneyStateUpdate journeyState,
-                                                  boolean onDiversion, GraphTransaction txn) {
+                                                  boolean onDiversion, MutableGraphTransaction txn) {
             final Stream<ImmutableGraphRelationship> initial = stationNode.getRelationships(txn, OUTGOING, ENTER_PLATFORM, GROUPED_TO_PARENT);
             Stream<ImmutableGraphRelationship> relationships = addValidDiversions(stationNode, initial, stationState, onDiversion, txn);
             return new PlatformStationState(stationState, relationships, cost, stationNode, journeyState, this);
         }
 
         public PlatformStationState fromGrouped(GroupedStationState groupedStationState, GraphNode stationNode, Duration cost,
-                                                JourneyStateUpdate journeyState, GraphTransaction txn) {
+                                                JourneyStateUpdate journeyState, MutableGraphTransaction txn) {
             final Stream<ImmutableGraphRelationship> relationships = stationNode.getRelationships(txn, OUTGOING, ENTER_PLATFORM, NEIGHBOUR);
             return new PlatformStationState(groupedStationState, relationships, cost, stationNode, journeyState, this);
         }

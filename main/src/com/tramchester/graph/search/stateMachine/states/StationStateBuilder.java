@@ -3,7 +3,7 @@ package com.tramchester.graph.search.stateMachine.states;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphRelationship;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import org.neo4j.graphdb.Direction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +16,7 @@ public abstract class StationStateBuilder {
     private static final Logger logger = LoggerFactory.getLogger(StationStateBuilder.class);
 
     public <R extends GraphRelationship> Stream<R> addValidDiversions(GraphNode node, Stream<R> relationships,
-                                                        TraversalState traversalState, boolean alreadyOnDiversion, GraphTransaction txn) {
+                                                        TraversalState traversalState, boolean alreadyOnDiversion, MutableGraphTransaction txn) {
 
         if (alreadyOnDiversion) {
             //return getStationIdFrom(node.getNode());

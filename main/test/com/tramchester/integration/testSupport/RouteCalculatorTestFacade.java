@@ -6,7 +6,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.reference.FakeStation;
@@ -19,9 +19,9 @@ import java.util.stream.Stream;
 public class RouteCalculatorTestFacade {
     private final RouteCalculator routeCalculator;
     private final StationRepository stationRepository;
-    private final GraphTransaction txn;
+    private final MutableGraphTransaction txn;
 
-    public RouteCalculatorTestFacade(RouteCalculator routeCalculator, StationRepository stationRepository, GraphTransaction txn) {
+    public RouteCalculatorTestFacade(RouteCalculator routeCalculator, StationRepository stationRepository, MutableGraphTransaction txn) {
        this.routeCalculator = routeCalculator;
         this.stationRepository = stationRepository;
         this.txn = txn;

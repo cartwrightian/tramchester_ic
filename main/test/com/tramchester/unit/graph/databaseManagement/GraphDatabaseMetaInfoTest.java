@@ -2,7 +2,7 @@ package com.tramchester.unit.graph.databaseManagement;
 
 import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.facade.MutableGraphNode;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.repository.DataSourceRepository;
@@ -25,13 +25,13 @@ import static org.junit.jupiter.api.Assertions.*;
 public class GraphDatabaseMetaInfoTest extends EasyMockSupport {
 
     private GraphDatabaseMetaInfo databaseMetaInfo;
-    private GraphTransaction transaction;
+    private MutableGraphTransaction transaction;
     private Node node;
 
     @BeforeEach
     public void beforeAnyTestRuns() {
         node = createMock(Node.class);
-        transaction = createMock(GraphTransaction.class);
+        transaction = createMock(MutableGraphTransaction.class);
         databaseMetaInfo = new GraphDatabaseMetaInfo();
     }
 
