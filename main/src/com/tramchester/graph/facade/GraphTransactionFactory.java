@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 
 /***
  * NOTE: not under normal lifecycle control as is used during DB startup which happens before main graph DB is created
+ * Do not call these directly when GraphDatabase object is available
  */
 public class GraphTransactionFactory {
     private final GraphDatabaseService databaseService;

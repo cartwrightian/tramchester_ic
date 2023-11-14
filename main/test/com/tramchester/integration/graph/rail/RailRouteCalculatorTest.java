@@ -77,7 +77,7 @@ public class RailRouteCalculatorTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
+        txn = database.beginTxMutable(TXN_TIMEOUT, TimeUnit.SECONDS);
         testFacade = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
 
         stockport = Stockport.from(stationRepository);

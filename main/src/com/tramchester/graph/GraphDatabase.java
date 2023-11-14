@@ -90,18 +90,23 @@ public class GraphDatabase implements DatabaseEventListener {
         return graphTransactionFactory.begin();
     }
 
-
     public MutableGraphTransaction beginTxMutable() {
         return graphTransactionFactory.begin();
     }
 
-    public MutableGraphTransaction beginTx(int timeout, TimeUnit timeUnit) {
+    public GraphTransaction beginTx(int timeout, TimeUnit timeUnit) {
         return graphTransactionFactory.begin(timeout, timeUnit);
     }
 
+    public MutableGraphTransaction beginTxMutable(int timeout, TimeUnit timeUnit) {
+        return graphTransactionFactory.begin(timeout, timeUnit);
+    }
 
+    public GraphTransaction beginTx(Duration timeout) {
+        return graphTransactionFactory.begin(timeout);
+    }
 
-    public MutableGraphTransaction beginTx(Duration timeout) {
+    public MutableGraphTransaction beginTxMutable(Duration timeout) {
         return graphTransactionFactory.begin(timeout);
     }
 

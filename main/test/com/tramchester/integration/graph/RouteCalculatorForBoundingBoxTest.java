@@ -61,7 +61,7 @@ class RouteCalculatorForBoundingBoxTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
+        txn = database.beginTxMutable(TXN_TIMEOUT, TimeUnit.SECONDS);
         calculator = componentContainer.get(RouteCalculatorForBoxes.class);
         stationLocations = componentContainer.get(StationLocations.class);
         stationRepository = componentContainer.get(StationRepository.class);

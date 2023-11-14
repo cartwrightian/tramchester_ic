@@ -72,7 +72,7 @@ class BusRouteCalculatorTest {
     @BeforeEach
     void beforeEachTestRuns() {
         maxJourneyDuration = Duration.ofMinutes(testConfig.getMaxJourneyDuration());
-        txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
+        txn = database.beginTxMutable(TXN_TIMEOUT, TimeUnit.SECONDS);
         stationRepository = componentContainer.get(StationRepository.class);
         compositeStationRepository = componentContainer.get(StationGroupsRepository.class);
         calculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);

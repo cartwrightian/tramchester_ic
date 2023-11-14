@@ -69,7 +69,7 @@ class RailAndTramLocationJourneyPlannerTest {
     @BeforeEach
     void beforeEachTestRuns() {
         maxJourneyDuration = Duration.ofMinutes(testConfig.getMaxJourneyDuration());
-        txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
+        txn = database.beginTxMutable(TXN_TIMEOUT, TimeUnit.SECONDS);
         stationRepository = componentContainer.get(StationRepository.class);
         testFacade = new LocationJourneyPlannerTestFacade(componentContainer.get(LocationJourneyPlanner.class), stationRepository, txn);
         maxNumberOfJourneys = 3;

@@ -91,7 +91,7 @@ public class RailAndTramRouteCalculatorSubGraphRoutesTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        txn = database.beginTx(TXN_TIMEOUT);
+        txn = database.beginTxMutable(TXN_TIMEOUT);
         testFacade = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
 
         maxDurationFromConfig = Duration.ofMinutes(config.getMaxJourneyDuration());
