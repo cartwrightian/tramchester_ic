@@ -202,7 +202,7 @@ public class GraphDatabase implements DatabaseEventListener {
 //        return new BasicEvaluationContext(txn, databaseService);
 //    }
 
-    public EvaluationContext createContext(MutableGraphTransaction txn) {
+    public EvaluationContext createContext(GraphTransaction txn) {
         return txn.createEvaluationContext(databaseService);
     }
 
