@@ -466,10 +466,10 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
         if (from.hasRelationship(OUTGOING, ON_ROUTE)) {
             // legit for some routes when trams return to depot, or at media city where they branch, etc
-            Stream<GraphRelationship> relationships = from.getRelationships(txn, OUTGOING, ON_ROUTE);
+            Stream<ImmutableGraphRelationship> relationships = from.getRelationships(txn, OUTGOING, ON_ROUTE);
 
-            relationships.forEach(current -> {
-                endNodes.add(current.getEndNode(txn));
+            relationships.forEach(edge -> {
+                endNodes.add(edge.getEndNode(txn));
                 // diff outbounds for same route actually a normal situation, where (especially) trains go via
                 // different paths even thought route is the "same"
             });
