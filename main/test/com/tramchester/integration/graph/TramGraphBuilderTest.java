@@ -49,8 +49,6 @@ class TramGraphBuilderTest {
     private MutableGraphTransaction txn;
     private StationRepository stationRepository;
 
-    @Deprecated
-    private Route tramRouteAshtonEccles;
 
     private Route tramRouteEcclesAshton;
     private TramRouteHelper tramRouteHelper;
@@ -70,7 +68,6 @@ class TramGraphBuilderTest {
 
         when = TestEnv.testDay();
 
-        tramRouteAshtonEccles = tramRouteHelper.getOneRoute(AshtonUnderLyneManchesterEccles, when);
         tramRouteEcclesAshton = tramRouteHelper.getOneRoute(EcclesManchesterAshtonUnderLyne, when);
 
         stationRepository = componentContainer.get(StationRepository.class);
@@ -229,19 +226,14 @@ class TramGraphBuilderTest {
         RouteStation routeStationMediaCityA = stationRepository.getRouteStation(mediaCityUK, tramRouteEcclesAshton);
         List<GraphRelationship> outboundsFromRouteStation = txn.getRouteStationRelationships(routeStationMediaCityA, Direction.OUTGOING);
 
-        List<GraphRelationship> both = new ArrayList<>(outboundsFromRouteStation);
-
-        RouteStation routeStationMediaCityB = stationRepository.getRouteStation(mediaCityUK, tramRouteAshtonEccles);
-        both.addAll(txn.getRouteStationRelationships(routeStationMediaCityB, Direction.OUTGOING));
-
-        IdSet<Service> graphSvcsFromRouteStations = both.stream().
+        IdSet<Service> graphSvcsFromRouteStations = outboundsFromRouteStation.stream().
                 filter(relationship -> relationship.isType(TransportRelationshipTypes.TO_SERVICE)).
                 map(GraphRelationship::getServiceId).
                 collect(IdSet.idCollector());
 
         // check number of outbound services matches services in transport data files
         IdSet<Service> fileSvcIds = getTripsFor(transportData.getTrips(), mediaCityUK).stream().
-                filter(trip -> trip.getRoute().equals(tramRouteAshtonEccles) || trip.getRoute().equals(tramRouteEcclesAshton)).
+                filter(trip -> trip.getRoute().equals(tramRouteEcclesAshton)).
                 map(trip -> trip.getService().getId()).
                 collect(IdSet.idCollector());
 
@@ -259,11 +251,6 @@ class TramGraphBuilderTest {
         List<GraphRelationship> outboundsA = txn.getRouteStationRelationships(routeStationCornbrookAltyPiccRoute, Direction.OUTGOING);
 
         assertTrue(outboundsA.size()>1, "have at least one outbound");
-
-        RouteStation routeStationCornbrookAshtonEcclesRoute = stationRepository.getRouteStation(cornbrook, tramRouteAshtonEccles);
-        List<GraphRelationship> outboundsB = txn.getRouteStationRelationships(routeStationCornbrookAshtonEcclesRoute, Direction.OUTGOING);
-
-        assertTrue(outboundsB.size()>1);
 
     }
 
@@ -343,6 +330,7 @@ class TramGraphBuilderTest {
         assertNotEquals(0, fromStation);
     }
 
+    @SuppressWarnings("SameParameterValue")
     private void checkInboundConsistency(TramStations tramStation, KnownTramRoute knownRoute) {
         Route route = tramRouteHelper.getOneRoute(knownRoute, when);
         Station station = tramStation.from(stationRepository);
