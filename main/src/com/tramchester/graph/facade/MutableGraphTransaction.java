@@ -162,7 +162,7 @@ public class MutableGraphTransaction implements GraphTransaction {
     }
 
     @Override
-    public GraphRelationship wrapRelationship(Relationship relationship) {
+    public ImmutableGraphRelationship wrapRelationship(Relationship relationship) {
         MutableGraphRelationship underlying = new MutableGraphRelationship(relationship, idFactory.getIdFor(relationship));
         return new ImmutableGraphRelationship(underlying);
     }
@@ -188,7 +188,7 @@ public class MutableGraphTransaction implements GraphTransaction {
         return wrapNodeAsImmutable(endNode);
     }
 
-    public GraphRelationship lastFrom(Path path) {
+    public ImmutableGraphRelationship lastFrom(Path path) {
         Relationship last = path.lastRelationship();
         if (last==null) {
             return null;

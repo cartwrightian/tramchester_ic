@@ -77,7 +77,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     private PreviousVisits previousSuccessfulVisit;
     private LatLong latLongHint;
     private GraphNodeId destinationNodeId;
-    private GraphRelationship lastRelationship;
+    private ImmutableGraphRelationship lastRelationship;
     private TripRepository tripRepository;
     private GraphNodeId startNodeId;
     private LowestCostSeen lowestCostSeen;
@@ -136,7 +136,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         sortsPositions = createMock(SortsPositions.class);
         path = createMock(Path.class);
         node = createMock(ImmuableGraphNode.class);
-        lastRelationship = createMock(GraphRelationship.class);
+        lastRelationship = createMock(ImmutableGraphRelationship.class);
         lowestCostsForRoutes = createMock(LowestCostsForDestRoutes.class);
 
         howIGotHere = HowIGotHere.forTest(GraphNodeId.TestOnly(42L), GraphRelationshipId.TestOnly(24L));

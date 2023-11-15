@@ -39,7 +39,7 @@ public interface GraphTransaction extends AutoCloseable {
 
     ImmuableGraphNode fromEnd(Path path);
 
-    GraphRelationship lastFrom(Path path);
+    ImmutableGraphRelationship lastFrom(Path path);
 
     ImmuableGraphNode fromStart(Path path);
 

@@ -86,7 +86,7 @@ public class ImmutableGraphTransaction implements GraphTransaction  {
     }
 
     @Override
-    public GraphRelationship lastFrom(Path path) {
+    public ImmutableGraphRelationship lastFrom(Path path) {
         return underlying.lastFrom(path);
     }
 
