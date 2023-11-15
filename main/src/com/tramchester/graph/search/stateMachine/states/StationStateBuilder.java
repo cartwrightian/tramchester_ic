@@ -15,7 +15,7 @@ import static com.tramchester.graph.TransportRelationshipTypes.DIVERSION;
 public abstract class StationStateBuilder {
     private static final Logger logger = LoggerFactory.getLogger(StationStateBuilder.class);
 
-    public <R extends ImmutableGraphRelationship> Stream<R> addValidDiversions(GraphNode node, Stream<R> relationships,
+    public Stream<ImmutableGraphRelationship> addValidDiversions(GraphNode node, Stream<ImmutableGraphRelationship> relationships,
                                                                                TraversalState traversalState, boolean alreadyOnDiversion, GraphTransaction txn) {
 
         if (alreadyOnDiversion) {
@@ -25,8 +25,8 @@ public abstract class StationStateBuilder {
 
         if (node.hasRelationship(Direction.OUTGOING, DIVERSION)) {
             TramDate queryDate = traversalState.traversalOps.getQueryDate();
-            Stream<R> diversions = node.getRelationships(txn, Direction.OUTGOING, DIVERSION);
-            Stream<R> validOnDate = diversions.filter(relationship -> relationship.validOn(queryDate));
+            Stream<ImmutableGraphRelationship> diversions = node.getRelationships(txn, Direction.OUTGOING, DIVERSION);
+            Stream<ImmutableGraphRelationship> validOnDate = diversions.filter(relationship -> relationship.validOn(queryDate));
             return Stream.concat(validOnDate, relationships);
         }
 

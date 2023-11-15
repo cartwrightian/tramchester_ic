@@ -17,15 +17,15 @@ public abstract class TowardsRouteStation<T extends RouteStationState> implement
         this.interchangesOnly = interchangesOnly;
     }
 
-    protected <R extends ImmutableGraphRelationship> OptionalResourceIterator<R> getTowardsDestination(TraversalOps traversalOps,
+    protected OptionalResourceIterator<ImmutableGraphRelationship> getTowardsDestination(TraversalOps traversalOps,
                                                                                                        GraphNode node, TramDate date, GraphTransaction txn) {
-        Stream<R> relationships = node.getRelationships(txn, OUTGOING, DEPART, INTERCHANGE_DEPART, DIVERSION_DEPART);
+        Stream<ImmutableGraphRelationship> relationships = node.getRelationships(txn, OUTGOING, DEPART, INTERCHANGE_DEPART, DIVERSION_DEPART);
         return traversalOps.getTowardsDestination(Stream.concat(relationships, getActiveDiversions(node, date, txn)));
     }
 
     // TODO When to follow diversion departs? Should these be (also) INTERCHANGE_DEPART ?
-    protected <R extends ImmutableGraphRelationship>  Stream<R> getOutboundsToFollow(GraphNode node, boolean isInterchange, TramDate date, GraphTransaction txn) {
-        Stream<R> outboundsToFollow = Stream.empty();
+    protected Stream<ImmutableGraphRelationship> getOutboundsToFollow(GraphNode node, boolean isInterchange, TramDate date, GraphTransaction txn) {
+        Stream<ImmutableGraphRelationship> outboundsToFollow = Stream.empty();
         if (interchangesOnly) {
             if (isInterchange) {
                 outboundsToFollow = node.getRelationships(txn, OUTGOING, INTERCHANGE_DEPART);
@@ -34,7 +34,7 @@ public abstract class TowardsRouteStation<T extends RouteStationState> implement
             outboundsToFollow = node.getRelationships(txn, OUTGOING, DEPART, INTERCHANGE_DEPART);
         }
 
-        Stream<R> diversions = getActiveDiversions(node, date, txn);
+        Stream<ImmutableGraphRelationship> diversions = getActiveDiversions(node, date, txn);
         return Stream.concat(outboundsToFollow, diversions);
 
 //        if (diversions.isEmpty()) {
@@ -44,8 +44,8 @@ public abstract class TowardsRouteStation<T extends RouteStationState> implement
 //        }
     }
 
-    private <R extends ImmutableGraphRelationship> Stream<R> getActiveDiversions(GraphNode node, TramDate date, GraphTransaction txn) {
-        Stream<R> diversions = node.getRelationships(txn, OUTGOING, DIVERSION_DEPART);
+    private Stream<ImmutableGraphRelationship> getActiveDiversions(GraphNode node, TramDate date, GraphTransaction txn) {
+        Stream<ImmutableGraphRelationship> diversions = node.getRelationships(txn, OUTGOING, DIVERSION_DEPART);
         return diversions.filter(relationship -> relationship.validOn(date));
     }
 
