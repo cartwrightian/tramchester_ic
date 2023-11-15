@@ -179,9 +179,6 @@ public class ImmutableGraphNode implements GraphNode {
         if (!GraphNode.class.isAssignableFrom(klass)) return false;
         GraphNode that = (GraphNode)o;
         return Objects.equals(nodeId, that.getId());
-//        if (o == null || getClass() != o.getClass()) return false;
-//        ImmutableGraphNode that = (ImmutableGraphNode) o;
-//        return Objects.equals(nodeId, that.nodeId);
     }
 
     @Override
@@ -195,7 +192,7 @@ public class ImmutableGraphNode implements GraphNode {
         private IdFor<DT> theValue;
         private Boolean present;
 
-        private IdCache(Class<DT> theClass) {
+        private IdCache(final Class<DT> theClass) {
             this.theClass = theClass;
             theValue = null;
         }

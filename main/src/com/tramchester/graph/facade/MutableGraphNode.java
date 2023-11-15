@@ -160,7 +160,9 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
 
     @Override
     public Integer getHour() {
-        return (int) super.getProperty(HOUR, node);
+        // TODO Should use labels
+        //return (int) super.getProperty(HOUR, node);
+        return GraphLabel.getHourFrom(getLabels());
     }
 
     public boolean hasRelationship(Direction direction, TransportRelationshipTypes transportRelationshipTypes) {
