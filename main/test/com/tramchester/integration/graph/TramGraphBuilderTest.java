@@ -191,7 +191,7 @@ class TramGraphBuilderTest {
         IdSet<Station> fromConfigAndDiscovered = interchangeRepository.getAllInterchanges().stream().
                 map(InterchangeStation::getStationId).collect(IdSet.idCollector());
 
-        Stream<ImmuableGraphNode> interchangeNodes = txn.findNodes(GraphLabel.INTERCHANGE);
+        Stream<ImmutableGraphNode> interchangeNodes = txn.findNodes(GraphLabel.INTERCHANGE);
 
         IdSet<Station> fromDB = interchangeNodes.map(GraphNode::getStationId).collect(IdSet.idCollector());
 

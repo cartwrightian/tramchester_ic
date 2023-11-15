@@ -26,12 +26,12 @@ public class ImmutableGraphTransaction implements GraphTransaction  {
     }
 
     @Override
-    public ImmuableGraphNode getNodeById(GraphNodeId nodeId) {
+    public ImmutableGraphNode getNodeById(GraphNodeId nodeId) {
         return underlying.getNodeById(nodeId);
     }
 
     @Override
-    public Stream<ImmuableGraphNode> findNodes(GraphLabel graphLabel) {
+    public Stream<ImmutableGraphNode> findNodes(GraphLabel graphLabel) {
         return underlying.findNodes(graphLabel);
     }
 
@@ -46,7 +46,7 @@ public class ImmutableGraphTransaction implements GraphTransaction  {
     }
 
     @Override
-    public <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> ImmuableGraphNode findNode(ITEM item) {
+    public <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> ImmutableGraphNode findNode(ITEM item) {
         return underlying.findNode(item);
     }
 
@@ -61,7 +61,7 @@ public class ImmutableGraphTransaction implements GraphTransaction  {
     }
 
     @Override
-    public Iterable<ImmuableGraphNode> iter(Iterable<Node> iterable) {
+    public Iterable<ImmutableGraphNode> iter(Iterable<Node> iterable) {
         return underlying.iter(iterable);
     }
 
@@ -81,7 +81,7 @@ public class ImmutableGraphTransaction implements GraphTransaction  {
     }
 
     @Override
-    public ImmuableGraphNode fromEnd(Path path) {
+    public ImmutableGraphNode fromEnd(Path path) {
         return underlying.fromEnd(path);
     }
 
@@ -91,7 +91,7 @@ public class ImmutableGraphTransaction implements GraphTransaction  {
     }
 
     @Override
-    public ImmuableGraphNode fromStart(Path path) {
+    public ImmutableGraphNode fromStart(Path path) {
         return underlying.fromStart(path);
     }
 

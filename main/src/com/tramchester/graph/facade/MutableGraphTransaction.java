@@ -49,7 +49,7 @@ public class MutableGraphTransaction implements GraphTransaction {
     }
 
     @Override
-    public ImmuableGraphNode getNodeById(GraphNodeId nodeId) {
+    public ImmutableGraphNode getNodeById(GraphNodeId nodeId) {
         Node node = nodeId.getNodeFrom(txn);
         return wrapNodeAsImmutable(node);
     }
@@ -75,7 +75,7 @@ public class MutableGraphTransaction implements GraphTransaction {
     }
 
     @Override
-    public Stream<ImmuableGraphNode> findNodes(GraphLabel graphLabel) {
+    public Stream<ImmutableGraphNode> findNodes(GraphLabel graphLabel) {
         return txn.findNodes(graphLabel).stream().map(this::wrapNodeAsImmutable);
     }
 
@@ -100,11 +100,11 @@ public class MutableGraphTransaction implements GraphTransaction {
         return findNodeMutable(label, key.getText(), value);
     }
 
-    private ImmuableGraphNode findNode(GraphLabel label, GraphPropertyKey key, String value) {
+    private ImmutableGraphNode findNode(GraphLabel label, GraphPropertyKey key, String value) {
         return findNode(label, key.getText(), value);
     }
 
-    private ImmuableGraphNode findNode(GraphLabel label, String key, String value) {
+    private ImmutableGraphNode findNode(GraphLabel label, String key, String value) {
         Node node = txn.findNode(label, key, value);
         if (node==null) {
             return null;
@@ -121,7 +121,7 @@ public class MutableGraphTransaction implements GraphTransaction {
     }
 
     @Override
-    public <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> ImmuableGraphNode findNode(ITEM item) {
+    public <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> ImmutableGraphNode findNode(ITEM item) {
         return findNode(item.getNodeLabel(), item.getProp(), item.getId().getGraphId());
     }
 
@@ -156,9 +156,9 @@ public class MutableGraphTransaction implements GraphTransaction {
         return new MutableGraphNode(endNode, graphNodeId);
     }
 
-    ImmuableGraphNode wrapNodeAsImmutable(Node endNode) {
+    ImmutableGraphNode wrapNodeAsImmutable(Node endNode) {
         MutableGraphNode underlying = wrapNode(endNode);
-        return new ImmuableGraphNode(underlying);
+        return new ImmutableGraphNode(underlying);
     }
 
     @Override
@@ -171,7 +171,7 @@ public class MutableGraphTransaction implements GraphTransaction {
         return new MutableGraphRelationship(relationship, idFactory.getIdFor(relationship));
     }
 
-    public ImmuableGraphNode fromStart(Path path) {
+    public ImmutableGraphNode fromStart(Path path) {
         final Node startNode = path.startNode();
         if (startNode==null) {
             return null;
@@ -179,7 +179,7 @@ public class MutableGraphTransaction implements GraphTransaction {
         return wrapNodeAsImmutable(startNode);
     }
 
-    public ImmuableGraphNode fromEnd(Path path) {
+    public ImmutableGraphNode fromEnd(Path path) {
         final Node endNode = path.endNode();
         if (endNode==null) {
             return null;
@@ -196,11 +196,11 @@ public class MutableGraphTransaction implements GraphTransaction {
     }
 
     @Override
-    public Iterable<ImmuableGraphNode> iter(Iterable<Node> iterable) {
+    public Iterable<ImmutableGraphNode> iter(Iterable<Node> iterable) {
         return new Iterable<>() {
             @NotNull
             @Override
-            public Iterator<ImmuableGraphNode> iterator() {
+            public Iterator<ImmutableGraphNode> iterator() {
                 return Streams.stream(iterable).map(node -> wrapNodeAsImmutable(node)).iterator();
 
             }

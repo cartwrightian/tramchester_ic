@@ -7,7 +7,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphTransaction;
-import com.tramchester.graph.facade.ImmuableGraphNode;
+import com.tramchester.graph.facade.ImmutableGraphNode;
 import com.tramchester.graph.search.ImmutableJourneyState;
 import com.tramchester.graph.search.RouteCalculatorSupport;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateType;
@@ -164,7 +164,7 @@ public class ServiceReasons {
                 collect(Collectors.toSet());
 
         // Pair<Node, Number of Visits>
-        Set<Pair<ImmuableGraphNode, Integer>> topVisits = nodeVisits.entrySet().stream().
+        Set<Pair<ImmutableGraphNode, Integer>> topVisits = nodeVisits.entrySet().stream().
                 filter(entry -> haveInvalidReasonCode.contains(entry.getKey())).
                 map(entry -> Pair.of(entry.getKey(), entry.getValue().get())).
                 //filter(entry -> entry.getValue() > THRESHHOLD_FOR_NUMBER_VISITS_DIAGS).

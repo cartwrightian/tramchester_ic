@@ -19,29 +19,29 @@ public interface GraphTransaction extends AutoCloseable {
 
     GraphNode wrapNode(Node node);
 
-    ImmuableGraphNode getNodeById(GraphNodeId nodeId);
+    ImmutableGraphNode getNodeById(GraphNodeId nodeId);
 
-    Stream<ImmuableGraphNode> findNodes(GraphLabel graphLabel);
+    Stream<ImmutableGraphNode> findNodes(GraphLabel graphLabel);
 
     boolean hasAnyMatching(GraphLabel label, String field, String value);
 
     boolean hasAnyMatching(GraphLabel graphLabel);
 
-    <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> ImmuableGraphNode findNode(ITEM item);
+    <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> ImmutableGraphNode findNode(ITEM item);
 
     EvaluationContext createEvaluationContext(GraphDatabaseService databaseService);
 
     List<ImmutableGraphRelationship> getRouteStationRelationships(RouteStation routeStation, Direction direction);
 
-    Iterable<ImmuableGraphNode> iter(Iterable<Node> iterable);
+    Iterable<ImmutableGraphNode> iter(Iterable<Node> iterable);
 
     ImmutableGraphRelationship getRelationshipById(GraphRelationshipId graphRelationshipId);
 
-    ImmuableGraphNode fromEnd(Path path);
+    ImmutableGraphNode fromEnd(Path path);
 
     ImmutableGraphRelationship lastFrom(Path path);
 
-    ImmuableGraphNode fromStart(Path path);
+    ImmutableGraphNode fromStart(Path path);
 
     GraphNodeId createNodeId(Node node);
 }

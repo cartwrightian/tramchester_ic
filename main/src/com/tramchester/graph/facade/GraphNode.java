@@ -1,9 +1,9 @@
 package com.tramchester.graph.facade;
 
+import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.RouteStation;
@@ -33,7 +33,7 @@ public interface GraphNode {
 
     boolean hasLabel(GraphLabel graphLabel);
 
-    GraphRelationship getSingleRelationship(MutableGraphTransaction txn, TransportRelationshipTypes transportRelationshipTypes, Direction direction);
+    ImmutableGraphRelationship getSingleRelationship(MutableGraphTransaction txn, TransportRelationshipTypes transportRelationshipTypes, Direction direction);
 
     IdFor<RouteStation> getRouteStationId();
 
@@ -47,7 +47,7 @@ public interface GraphNode {
 
     boolean hasTripId();
 
-    PlatformId getPlatformId();
+    IdFor<Platform> getPlatformId();
 
     boolean hasStationId();
 

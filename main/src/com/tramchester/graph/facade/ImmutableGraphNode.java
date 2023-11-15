@@ -25,12 +25,12 @@ import java.util.EnumSet;
 import java.util.Map;
 import java.util.stream.Stream;
 
-public class ImmuableGraphNode implements GraphNode {
+public class ImmutableGraphNode implements GraphNode {
     private final MutableGraphNode underlying;
     private final IdCache<Station> stationId;
     private final IdCache<Trip> tripId;
 
-    public ImmuableGraphNode(MutableGraphNode underlying) {
+    public ImmutableGraphNode(MutableGraphNode underlying) {
         this.underlying = underlying;
         stationId = new IdCache<>(Station.class);
         tripId = new IdCache<>(Trip.class);
@@ -43,8 +43,8 @@ public class ImmuableGraphNode implements GraphNode {
     }
 
     private static Node getNodeFor(GraphNode graphNode) {
-        if (graphNode instanceof ImmuableGraphNode) {
-            return ((ImmuableGraphNode)graphNode).getNode();
+        if (graphNode instanceof ImmutableGraphNode) {
+            return ((ImmutableGraphNode)graphNode).getNode();
         }
         return ((MutableGraphNode)graphNode).getNode();
     }
@@ -79,7 +79,7 @@ public class ImmuableGraphNode implements GraphNode {
     }
 
     @Override
-    public GraphRelationship getSingleRelationship(MutableGraphTransaction txn, TransportRelationshipTypes transportRelationshipTypes, Direction direction) {
+    public ImmutableGraphRelationship getSingleRelationship(MutableGraphTransaction txn, TransportRelationshipTypes transportRelationshipTypes, Direction direction) {
         return underlying.getSingleRelationship(txn, transportRelationshipTypes,direction);
     }
 

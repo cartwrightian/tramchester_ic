@@ -2,7 +2,7 @@ package com.tramchester.graph.databaseManagement;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.DataSourceInfo;
-import com.tramchester.graph.facade.ImmuableGraphNode;
+import com.tramchester.graph.facade.ImmutableGraphNode;
 import com.tramchester.graph.facade.MutableGraphNode;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
@@ -37,7 +37,7 @@ public class GraphDatabaseMetaInfo {
     }
 
     public Map<String, String> getVersions(MutableGraphTransaction txn) {
-        Stream<ImmuableGraphNode> query = txn.findNodes(GraphLabel.VERSION);
+        Stream<ImmutableGraphNode> query = txn.findNodes(GraphLabel.VERSION);
 
         Map<String, String> versions = new HashMap<>();
         query.forEach(versionNode -> {

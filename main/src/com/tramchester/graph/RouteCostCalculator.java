@@ -103,7 +103,7 @@ public class RouteCostCalculator {
         PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(context, forTypesAndDirections,
                 new UsefulLoggingCostEvaluator(key));
 
-        WeightedPath path = ImmuableGraphNode.findSinglePath(finder, startNode, endNode);
+        WeightedPath path = ImmutableGraphNode.findSinglePath(finder, startNode, endNode);
         if (path==null) {
             final String message = format("No (least cost) path found between node %s [%s] and node %s [%s]",
                     startNode.getId(), startNode.getAllProperties(), endNode.getId(), endNode.getAllProperties());
