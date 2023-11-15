@@ -31,6 +31,7 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.time.Duration;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
@@ -462,26 +463,19 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     }
 
     private void createOnRouteRelationship(MutableGraphNode from, MutableGraphNode to, Route route, StopCallRepository.Costs costs, MutableGraphTransaction txn) {
-        Set<GraphNode> endNodes = new HashSet<>();
+
+        Set<GraphNodeId> endNodesIds = Collections.emptySet();
 
         if (from.hasRelationship(OUTGOING, ON_ROUTE)) {
-            // legit for some routes when trams return to depot, or at media city where they branch, etc
-            Stream<ImmutableGraphRelationship> relationships = from.getRelationships(txn, OUTGOING, ON_ROUTE);
-
-            relationships.forEach(edge -> {
-                endNodes.add(edge.getEndNode(txn));
-                // diff outbounds for same route actually a normal situation, where (especially) trains go via
-                // different paths even thought route is the "same"
-            });
-
-//            for (Relationship current : relationships) {
-//                endNodes.add(GraphNode.fromEnd(current)); //current.getEndNode());
-//                // diff outbounds for same route actually a normal situation, where (especially) trains go via
-//                // different paths even thought route is the "same"
-//            }
+            // diff outbounds for same route actually a normal situation, where (especially) trains go via
+            // different paths even thought route is the "same", or back to the depot
+            endNodesIds = from.getRelationships(txn, OUTGOING, ON_ROUTE).
+                    map(relationship -> relationship.getEndNodeId(txn)).
+                    collect(Collectors.toSet());
         }
 
-        if (!endNodes.contains(to)) {
+        //if (!endNodes.contains(to)) {
+        if (!endNodesIds.contains(to.getId())) {
             MutableGraphRelationship onRoute = createRelationship(txn, from, to, ON_ROUTE);
             onRoute.set(route);
 
