@@ -25,15 +25,7 @@ public interface GraphNode {
 
     GraphNodeId getId();
 
-    Map<String, Object> getAllProperties();
-
     Traverser getTraverserFor(TraversalDescription traversalDesc);
-
-    boolean hasRelationship(Direction direction, TransportRelationshipTypes transportRelationshipTypes);
-
-    boolean hasLabel(GraphLabel graphLabel);
-
-    ImmutableGraphRelationship getSingleRelationship(MutableGraphTransaction txn, TransportRelationshipTypes transportRelationshipTypes, Direction direction);
 
     IdFor<RouteStation> getRouteStationId();
 
@@ -41,30 +33,39 @@ public interface GraphNode {
 
     IdFor<Trip> getTripId();
 
-    TramTime getTime();
-
-    LatLong getLatLong();
-
-    boolean hasTripId();
-
     IdFor<Platform> getPlatformId();
-
-    boolean hasStationId();
-
-    EnumSet<GraphLabel> getLabels();
 
     IdFor<Station> getStationId();
 
-    Stream<ImmutableGraphRelationship> getRelationships(GraphTransaction txn, Direction direction, TransportRelationshipTypes relationshipType);
+    IdFor<Route> getRouteId();
 
-    Stream<ImmutableGraphRelationship> getRelationships(GraphTransaction txn, Direction direction, TransportRelationshipTypes... transportRelationshipTypes);
+    IdFor<NaptanArea> getAreaId();
+
+    boolean hasTripId();
+
+    boolean hasStationId();
+
+    TramTime getTime();
+
+    LatLong getLatLong();
 
     TransportMode getTransportMode();
 
     Integer getHour();
 
-    IdFor<Route> getRouteId();
+    boolean hasLabel(GraphLabel graphLabel);
 
-    IdFor<NaptanArea> getAreaId();
+    EnumSet<GraphLabel> getLabels();
+
+    Map<String, Object> getAllProperties();
+
+    boolean hasRelationship(Direction direction, TransportRelationshipTypes transportRelationshipTypes);
+
+    ImmutableGraphRelationship getSingleRelationship(MutableGraphTransaction txn, TransportRelationshipTypes transportRelationshipTypes, Direction direction);
+
+    Stream<ImmutableGraphRelationship> getRelationships(GraphTransaction txn, Direction direction, TransportRelationshipTypes relationshipType);
+
+    Stream<ImmutableGraphRelationship> getRelationships(GraphTransaction txn, Direction direction, TransportRelationshipTypes... transportRelationshipTypes);
+
 
 }

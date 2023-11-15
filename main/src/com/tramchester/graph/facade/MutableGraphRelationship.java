@@ -16,7 +16,6 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.HaveGraphProperties;
 import com.tramchester.graph.TransportRelationshipTypes;
-import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
 import java.time.Duration;
@@ -30,6 +29,8 @@ import static com.tramchester.graph.GraphPropertyKey.*;
 public class MutableGraphRelationship extends HaveGraphProperties implements GraphRelationship {
     private final Relationship relationship;
     private final GraphRelationshipId id;
+
+    private ImmutableGraphNode endNode;
 
     MutableGraphRelationship(Relationship relationship, GraphRelationshipId id) {
         this.relationship = relationship;
@@ -127,9 +128,11 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
 
     @Override
     public GraphNode getEndNode(final GraphTransaction txn) {
-        return txn.getEndNode(relationship);
-//        final Node node = relationship.getEndNode();
-//        return txn.wrapNode(node);
+        if (endNode==null) {
+            endNode = txn.getEndNode(relationship);
+        }
+        return endNode;
+//        return txn.getEndNode(relationship);
     }
 
     public GraphNode getStartNode(GraphTransaction txn) {

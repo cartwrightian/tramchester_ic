@@ -29,12 +29,16 @@ public class HaveGraphProperties {
     }
 
     protected <C extends CoreDomain> IdFor<C> getIdFor(Class<C> klass, Entity entity) {
-        if (RouteStation.class.equals(klass)) {
-            throw new RuntimeException("Use getRouteStationId() for route station id");
-        }
+//        if (RouteStation.class.equals(klass)) {
+//            throw new RuntimeException("Use getRouteStationId() for route station id");
+//        }
         GraphPropertyKey key = GraphPropertyKey.getFor(klass);
         String value =  entity.getProperty(key.getText()).toString();
-        return StringIdFor.createId(value, klass);
+        if (RouteStation.class.equals(klass)) {
+            return (IdFor<C>) RouteStationId.parse(value);
+        } else {
+            return StringIdFor.createId(value, klass);
+        }
     }
 
     protected IdFor<RouteStation> getRouteStationId(Entity entity) {

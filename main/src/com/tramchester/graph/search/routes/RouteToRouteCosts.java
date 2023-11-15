@@ -405,7 +405,9 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             this.modes = modes;
 
             final long size = availabilityRepository.size();
-            logger.info("Created cache of size " + size + " for " + date + " " + time + " " + modes);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Created cache of size " + size + " for " + date + " " + time + " " + modes);
+            }
             cache = Caffeine.newBuilder().
                     //maximumSize(size).
                     //expireAfterAccess(1, TimeUnit.MINUTES).

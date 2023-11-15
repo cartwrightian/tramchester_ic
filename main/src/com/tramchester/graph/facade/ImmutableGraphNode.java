@@ -30,6 +30,8 @@ public class ImmutableGraphNode implements GraphNode {
     private final MutableGraphNode underlying;
     private final IdCache<Station> stationId;
     private final IdCache<Trip> tripId;
+    private final IdCache<Service> serviceId;
+    private final IdCache<RouteStation> routeStationId;
     private final GraphNodeId nodeId;
 
     public ImmutableGraphNode(MutableGraphNode underlying) {
@@ -37,6 +39,8 @@ public class ImmutableGraphNode implements GraphNode {
         this.nodeId = underlying.getId();
         stationId = new IdCache<>(Station.class);
         tripId = new IdCache<>(Trip.class);
+        serviceId = new IdCache<>(Service.class);
+        routeStationId = new IdCache<>(RouteStation.class);
     }
 
     public static WeightedPath findSinglePath(PathFinder<WeightedPath> finder, GraphNode startNode, GraphNode endNode) {
@@ -88,12 +92,13 @@ public class ImmutableGraphNode implements GraphNode {
 
     @Override
     public IdFor<RouteStation> getRouteStationId() {
-        return underlying.getRouteStationId();
+        return routeStationId.get();
+//        return underlying.getRouteStationId();
     }
 
     @Override
     public IdFor<Service> getServiceId() {
-        return underlying.getServiceId();
+        return serviceId.get();
     }
 
     @Override
@@ -170,7 +175,7 @@ public class ImmutableGraphNode implements GraphNode {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null) return false;
-        Class<? extends Object> klass = o.getClass();
+        Class<?> klass = o.getClass();
         if (!GraphNode.class.isAssignableFrom(klass)) return false;
         GraphNode that = (GraphNode)o;
         return Objects.equals(nodeId, that.getId());
@@ -186,6 +191,7 @@ public class ImmutableGraphNode implements GraphNode {
 
     private class IdCache<DT extends CoreDomain> {
         private final Class<DT> theClass;
+
         private IdFor<DT> theValue;
         private Boolean present;
 

@@ -7,6 +7,7 @@ import org.neo4j.graphdb.Relationship;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+/// NOTE : TODO should this be transaction scoped? Control memory usage to some extent?
 @LazySingleton
 public class GraphIdFactory {
     private final ConcurrentMap<String, GraphNodeId> nodeIds;

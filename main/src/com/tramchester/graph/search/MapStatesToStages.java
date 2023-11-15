@@ -74,7 +74,7 @@ class MapStatesToStages implements JourneyStateUpdate {
         vehicleStagePending = new VehicleStagePending(stationRepository, tripRepository, platformRepository,
                 actionStationId, totalCost);
         if (hasPlatform) {
-            IdFor<Platform> boardingPlatformId = node.getPlatformId(); // GraphProps.getPlatformIdFrom(node);
+            IdFor<Platform> boardingPlatformId = node.getPlatformId();
             vehicleStagePending.addPlatform(boardingPlatformId);
         }
     }
