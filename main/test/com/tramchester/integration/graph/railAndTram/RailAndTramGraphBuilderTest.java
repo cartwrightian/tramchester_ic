@@ -11,6 +11,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphRelationship;
+import com.tramchester.graph.facade.ImmuableGraphNode;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
@@ -167,7 +168,7 @@ class RailAndTramGraphBuilderTest {
         IdSet<Station> fromConfigAndDiscovered = interchangeRepository.getAllInterchanges().stream().
                 map(InterchangeStation::getStationId).collect(IdSet.idCollector());
 
-        Stream<GraphNode> interchangeNodes = txn.findNodes(GraphLabel.INTERCHANGE);
+        Stream<ImmuableGraphNode> interchangeNodes = txn.findNodes(GraphLabel.INTERCHANGE);
 
         IdSet<Station> fromDB = interchangeNodes.map(GraphNode::getStationId).collect(IdSet.idCollector());
 

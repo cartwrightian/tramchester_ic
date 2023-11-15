@@ -7,7 +7,7 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.ImmuableGraphNode;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
@@ -91,7 +91,7 @@ class NeighboursGraphBuilderTest {
     }
 
     private long countStationNodes(GraphLabel graphLabel) {
-        Stream<GraphNode> stationNodes = txn.findNodes(STATION); // graphDatabase.findNodes(txn, STATION);
+        Stream<ImmuableGraphNode> stationNodes = txn.findNodes(STATION); // graphDatabase.findNodes(txn, STATION);
         return stationNodes.filter(node -> node.hasLabel(graphLabel)).count();
     }
 

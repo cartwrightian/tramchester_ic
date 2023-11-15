@@ -17,7 +17,7 @@ public interface GraphTransaction extends AutoCloseable {
 
     GraphNode getNodeById(GraphNodeId nodeId);
 
-    Stream<GraphNode> findNodes(GraphLabel graphLabel);
+    Stream<ImmuableGraphNode> findNodes(GraphLabel graphLabel);
 
     boolean hasAnyMatching(GraphLabel label, String field, String value);
 

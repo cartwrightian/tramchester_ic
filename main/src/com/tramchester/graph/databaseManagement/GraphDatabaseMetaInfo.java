@@ -2,9 +2,9 @@ package com.tramchester.graph.databaseManagement;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.DataSourceInfo;
-import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.facade.ImmuableGraphNode;
 import com.tramchester.graph.facade.MutableGraphNode;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.repository.DataSourceRepository;
 import org.slf4j.Logger;
@@ -37,7 +37,7 @@ public class GraphDatabaseMetaInfo {
     }
 
     public Map<String, String> getVersions(MutableGraphTransaction txn) {
-        Stream<GraphNode> query = txn.findNodes(GraphLabel.VERSION);
+        Stream<ImmuableGraphNode> query = txn.findNodes(GraphLabel.VERSION);
 
         Map<String, String> versions = new HashMap<>();
         query.forEach(versionNode -> {
@@ -53,8 +53,7 @@ public class GraphDatabaseMetaInfo {
         Set<DataSourceInfo> dataSourceInfo = dataSourceRepository.getDataSourceInfo();
         logger.info("Setting version data in DB for " + dataSourceInfo);
         MutableGraphNode node = tx.createNode(GraphLabel.VERSION);
-        Set<DataSourceInfo> sourceInfo = dataSourceInfo;
-        dataSourceInfo.forEach(nameAndVersion -> node.set(nameAndVersion)); // GraphProps.setProp(node, nameAndVersion));
+        dataSourceInfo.forEach(node::set);
         logger.info("Set version data");
     }
 }

@@ -75,7 +75,7 @@ public class MutableGraphTransaction implements GraphTransaction {
     }
 
     @Override
-    public Stream<GraphNode> findNodes(GraphLabel graphLabel) {
+    public Stream<ImmuableGraphNode> findNodes(GraphLabel graphLabel) {
         return txn.findNodes(graphLabel).stream().map(this::wrapNodeAsImmutable);
     }
 

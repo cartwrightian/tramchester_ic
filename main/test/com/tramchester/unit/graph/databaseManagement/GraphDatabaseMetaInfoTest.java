@@ -2,6 +2,7 @@ package com.tramchester.unit.graph.databaseManagement;
 
 import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
+import com.tramchester.graph.facade.ImmuableGraphNode;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.facade.MutableGraphNode;
 import com.tramchester.graph.graphbuild.GraphLabel;
@@ -89,7 +90,7 @@ public class GraphDatabaseMetaInfoTest extends EasyMockSupport {
         versionMap.put("A", "4.2");
         versionMap.put("ZZZ", "81.91");
 
-        MutableGraphNode graphNode = createMock(MutableGraphNode.class);
+        ImmuableGraphNode graphNode = createMock(ImmuableGraphNode.class);
 
         EasyMock.expect(transaction.findNodes(GraphLabel.VERSION)).andReturn(Stream.of(graphNode));
         EasyMock.expect(graphNode.getAllProperties()).andReturn(versionMap);

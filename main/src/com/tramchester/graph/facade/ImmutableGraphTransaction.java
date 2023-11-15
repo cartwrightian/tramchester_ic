@@ -31,7 +31,7 @@ public class ImmutableGraphTransaction implements GraphTransaction  {
     }
 
     @Override
-    public Stream<GraphNode> findNodes(GraphLabel graphLabel) {
+    public Stream<ImmuableGraphNode> findNodes(GraphLabel graphLabel) {
         return underlying.findNodes(graphLabel);
     }
 
