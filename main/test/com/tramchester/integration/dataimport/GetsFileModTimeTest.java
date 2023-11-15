@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 
@@ -29,8 +30,13 @@ public class GetsFileModTimeTest extends EasyMockSupport {
     void onceBeforeEachTest() throws IOException {
         when = TestEnv.LocalNow().truncatedTo(ChronoUnit.SECONDS);
 
+        ZoneOffset offset = TramchesterConfig.TimeZoneId.getRules().getOffset(when);
+
         getsFileModTime = new GetsFileModTime();
         tmpFile = Files.createTempFile("testing-", "only");
+
+        // want to create time to be same as when....
+        tmpFile.toFile().setLastModified(when.toEpochSecond(offset)*1000);
 
     }
 
