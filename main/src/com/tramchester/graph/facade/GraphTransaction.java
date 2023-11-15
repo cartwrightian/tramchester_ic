@@ -44,4 +44,6 @@ public interface GraphTransaction extends AutoCloseable {
     ImmutableGraphNode fromStart(Path path);
 
     GraphNodeId createNodeId(Node node);
+
+    ImmutableGraphNode getStartNode(Relationship relationship);
 }

@@ -220,4 +220,9 @@ public class MutableGraphTransaction implements GraphTransaction {
     public GraphNodeId createNodeId(Node endNode) {
         return idFactory.getNodeIdFor(endNode.getElementId());
     }
+
+    @Override
+    public ImmutableGraphNode getStartNode(Relationship relationship) {
+        return wrapNodeAsImmutable(relationship.getStartNode());
+    }
 }

@@ -99,4 +99,9 @@ public class ImmutableGraphTransaction implements GraphTransaction  {
     public GraphNodeId createNodeId(Node node) {
         return underlying.createNodeId(node);
     }
+
+    @Override
+    public ImmutableGraphNode getStartNode(Relationship relationship) {
+        return underlying.getStartNode(relationship);
+    }
 }
