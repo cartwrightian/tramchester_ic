@@ -140,4 +140,14 @@ public class ImmutableGraphRelationship implements GraphRelationship {
     public int getStopSeqNumber() {
         return underlying.getStopSeqNumber();
     }
+
+    @Override
+    public IdFor<Station> getEndStationId() {
+        return underlying.getEndStationId();
+    }
+
+    @Override
+    public IdFor<Station> getStartStationId() {
+        return underlying.getStartStationId();
+    }
 }

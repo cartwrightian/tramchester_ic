@@ -6,7 +6,6 @@ import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphTransaction;
-import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.ExistingTrip;
@@ -49,7 +48,10 @@ public class HourState extends TraversalState {
         private Stream<ImmutableGraphRelationship> getMinuteRelationships(GraphNode node, GraphTransaction txn) {
             Stream<ImmutableGraphRelationship> relationships = getRelationships(txn, node, OUTGOING, TO_MINUTE);
             if (depthFirst) {
-                return relationships.sorted(TramTime.comparing(relationship -> nodeContents.getTime(relationship.getEndNode(txn))));
+                return relationships.sorted(TramTime.comparing(relationship -> {
+                    GraphNode endNode = relationship.getEndNode(txn);
+                    return nodeContents.getTime(endNode);
+                }));
             }
             return relationships;
         }

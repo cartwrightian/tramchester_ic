@@ -61,19 +61,15 @@ public class RouteReachable {
                     Stream<ImmutableGraphRelationship> edges = routeStationNode.getRelationships(txn, Direction.OUTGOING, ON_ROUTE);
 
                     edges.forEach(edge -> {
-                        GraphNode graphNode = edge.getEndNode(txn);
-                        final IdFor<Station> endNodeStationId = graphNode.getStationId();
+//                        GraphNode graphNode = edge.getEndNode(txn);
+//                        final IdFor<Station> endNodeStationId = graphNode.getStationId();
+                        final IdFor<Station> endNodeStationId = edge.getEndStationId();
+
                         if (endStationId.equals(endNodeStationId)) {
                             results.add(route);
                         }
                     });
 
-//                    for (Relationship edge : edges) {
-//                        final IdFor<Station> endNodeStationId = GraphProps.getStationIdFrom(edge.getEndNode());
-//                        if (endStationId.equals(endNodeStationId)) {
-//                            results.add(route);
-//                        }
-//                    }
                 }
             });
         }

@@ -112,8 +112,8 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         coreState.incrementNeighbourConnections();
     }
 
-    public void beginDiversion(GraphNode node) {
-        coreState.beginDiversion(node);
+    public void beginDiversion(IdFor<Station> stationId) {
+        coreState.beginDiversion(stationId);
     }
 
     @Override
@@ -380,8 +380,8 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
             }
         }
 
-        public void beginDiversion(GraphNode diversionNode) {
-            IdFor<Station> stationId = diversionNode.getStationId(); //GraphProps.getStationId(diversionNode);
+        public void beginDiversion(IdFor<Station> stationId) {
+            //IdFor<Station> stationId = diversionNode.getStationId();
             if (currentlyOnDiversion) {
                 String msg = "Already on diversion, at " + stationId;
                 logger.error(msg);

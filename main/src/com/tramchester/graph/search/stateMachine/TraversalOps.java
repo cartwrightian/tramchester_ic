@@ -134,7 +134,7 @@ public class TraversalOps {
             this.relationship = relationship;
 
             // TODO this needs to go via the cache layer?
-            this.stationId = relationship.getEndNode(txn).getStationId(); // GraphProps.getTowardsStationIdFrom(relationship.getEndNode());
+            this.stationId = relationship.getEndStationId(); //getEndNode(txn).getStationId(); // GraphProps.getTowardsStationIdFrom(relationship.getEndNode());
         }
 
         @Override

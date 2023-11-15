@@ -23,15 +23,18 @@ import org.neo4j.graphdb.traversal.Traverser;
 
 import java.util.EnumSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 public class ImmutableGraphNode implements GraphNode {
     private final MutableGraphNode underlying;
     private final IdCache<Station> stationId;
     private final IdCache<Trip> tripId;
+    private final GraphNodeId nodeId;
 
     public ImmutableGraphNode(MutableGraphNode underlying) {
         this.underlying = underlying;
+        this.nodeId = underlying.getId();
         stationId = new IdCache<>(Station.class);
         tripId = new IdCache<>(Trip.class);
     }
@@ -163,6 +166,23 @@ public class ImmutableGraphNode implements GraphNode {
         return underlying.getAreaId();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        Class<? extends Object> klass = o.getClass();
+        if (!GraphNode.class.isAssignableFrom(klass)) return false;
+        GraphNode that = (GraphNode)o;
+        return Objects.equals(nodeId, that.getId());
+//        if (o == null || getClass() != o.getClass()) return false;
+//        ImmutableGraphNode that = (ImmutableGraphNode) o;
+//        return Objects.equals(nodeId, that.nodeId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(nodeId);
+    }
 
     private class IdCache<DT extends CoreDomain> {
         private final Class<DT> theClass;

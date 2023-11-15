@@ -127,10 +127,8 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
 
     @Override
     public GraphNode getEndNode(final GraphTransaction txn) {
+//        return txn.getEndNode(relationship);
         final Node node = relationship.getEndNode();
-//        if (node==null) {
-//            throw new RuntimeException("Missing end node for a relationship, this should not happen " + this);
-//        }
         return txn.wrapNode(node);
     }
 
@@ -203,6 +201,10 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
         return (LocalDate) relationship.getProperty(START_DATE.getText());
     }
 
+    /***
+     * Towards station id
+     * @return station id
+     */
     public IdFor<Station> getStationId() {
         return getIdFor(Station.class, relationship);
     }
@@ -213,6 +215,16 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
 
     public int getStopSeqNumber() {
         return (int) relationship.getProperty(STOP_SEQ_NUM.getText());
+    }
+
+    @Override
+    public IdFor<Station> getEndStationId() {
+        return getIdFor(Station.class, relationship.getEndNode());
+    }
+
+    @Override
+    public IdFor<Station> getStartStationId() {
+        return getIdFor(Station.class, relationship.getStartNode());
     }
 
     @Override

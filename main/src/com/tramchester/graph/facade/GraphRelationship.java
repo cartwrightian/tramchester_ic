@@ -55,4 +55,8 @@ public interface GraphRelationship {
     boolean hasProperty(GraphPropertyKey graphPropertyKey);
 
     int getStopSeqNumber();
+
+    IdFor<Station> getEndStationId();
+
+    IdFor<Station> getStartStationId();
 }

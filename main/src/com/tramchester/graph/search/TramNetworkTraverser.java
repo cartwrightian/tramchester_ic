@@ -2,6 +2,8 @@ package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.LocationSet;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.ProvidesNow;
@@ -149,8 +151,9 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
                 journeyStateForChildren.updateTotalCost(total);
             }
             if (lastRelationship.isType(DIVERSION)) {
-                GraphNode startOfDiversionNode = lastRelationship.getStartNode(txn);
-                journeyStateForChildren.beginDiversion(startOfDiversionNode);
+                //GraphNode startOfDiversionNode = lastRelationship.getStartNode(txn);
+                IdFor<Station> stationId = lastRelationship.getStartStationId();
+                journeyStateForChildren.beginDiversion(stationId);
             }
         }
 

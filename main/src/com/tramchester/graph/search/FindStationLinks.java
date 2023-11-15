@@ -8,8 +8,8 @@ import com.tramchester.graph.FindStationsByNumberLinks;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.TimedTransaction;
-import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphRelationship;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
@@ -74,13 +74,13 @@ public class FindStationLinks {
         return links;
     }
 
-    private StationLink createLink(MutableGraphTransaction txn, GraphRelationship relationship) {
+    private StationLink createLink(GraphTransaction txn, GraphRelationship relationship) {
 
-        GraphNode startNode = relationship.getStartNode(txn);
-        GraphNode endNode = relationship.getEndNode(txn);
+        //GraphNode startNode = relationship.getStartNode(txn);
+        //GraphNode endNode = relationship.getEndNode(txn);
 
-        IdFor<Station> startId = startNode.getStationId();
-        IdFor<Station> endId = endNode.getStationId();
+        IdFor<Station> startId = relationship.getStartStationId(); // startNode.getStationId();
+        IdFor<Station> endId = relationship.getEndStationId(); //endNode.getStationId();
 
         Station start = stationRepository.getStationById(startId);
         Station end = stationRepository.getStationById(endId);
