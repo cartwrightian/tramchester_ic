@@ -10,8 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static java.lang.String.format;
@@ -84,11 +84,15 @@ public class CreateNodesAndRelationships {
 
     private boolean addRelationshipFor(MutableGraphTransaction txn, MutableGraphNode fromNode, MutableGraphNode toNode,
                                        Duration walkCost, TransportRelationshipTypes relationshipType) {
-        Set<GraphNode> alreadyRelationship = new HashSet<>();
-        fromNode.getRelationships(txn, Direction.OUTGOING, relationshipType).
-                forEach(relationship -> alreadyRelationship.add(relationship.getEndNode(txn)));
+//        Set<GraphNode> alreadyRelationship = new HashSet<>();
+//        fromNode.getRelationships(txn, Direction.OUTGOING, relationshipType).
+//                forEach(relationship -> alreadyRelationship.add(relationship.getEndNode(txn)));
 
-        if (!alreadyRelationship.contains(toNode)) {
+        Set<GraphNodeId> alreadyPresent = fromNode.getRelationships(txn, Direction.OUTGOING, relationshipType).
+                map(relationship -> relationship.getEndNodeId(txn)).
+                collect(Collectors.toSet());
+
+        if (!alreadyPresent.contains(toNode.getId())) {
             MutableGraphRelationship relationship = createRelationship(txn, fromNode, toNode, relationshipType);
             relationship.setCost(walkCost);
             relationship.setMaxCost(walkCost);
