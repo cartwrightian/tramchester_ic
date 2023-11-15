@@ -162,7 +162,7 @@ public class MutableGraphTransaction implements GraphTransaction {
     }
 
     ImmutableGraphNode wrapNodeAsImmutable(Node endNode) {
-        MutableGraphNode underlying = wrapNode(endNode);
+        MutableGraphNode underlying = wrapNodeAsMutable(endNode);
         return new ImmutableGraphNode(underlying);
     }
 

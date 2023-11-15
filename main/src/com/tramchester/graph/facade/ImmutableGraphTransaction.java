@@ -72,7 +72,7 @@ public class ImmutableGraphTransaction implements GraphTransaction  {
 
     @Override
     public GraphNode wrapNode(Node node) {
-        return underlying.wrapNode(node);
+        return underlying.wrapNodeAsImmutable(node);
     }
 
     @Override
