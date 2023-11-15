@@ -225,4 +225,9 @@ public class MutableGraphTransaction implements GraphTransaction {
     public ImmutableGraphNode getStartNode(Relationship relationship) {
         return wrapNodeAsImmutable(relationship.getStartNode());
     }
+
+    @Override
+    public ImmutableGraphNode getEndNode(Relationship relationship) {
+        return wrapNodeAsImmutable(relationship.getEndNode());
+    }
 }

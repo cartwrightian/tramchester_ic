@@ -104,4 +104,9 @@ public class ImmutableGraphTransaction implements GraphTransaction  {
     public ImmutableGraphNode getStartNode(Relationship relationship) {
         return underlying.getStartNode(relationship);
     }
+
+    @Override
+    public ImmutableGraphNode getEndNode(Relationship relationship) {
+        return underlying.getEndNode(relationship);
+    }
 }

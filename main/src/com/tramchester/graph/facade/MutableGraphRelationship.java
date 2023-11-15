@@ -127,9 +127,9 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
 
     @Override
     public GraphNode getEndNode(final GraphTransaction txn) {
-//        return txn.getEndNode(relationship);
-        final Node node = relationship.getEndNode();
-        return txn.wrapNode(node);
+        return txn.getEndNode(relationship);
+//        final Node node = relationship.getEndNode();
+//        return txn.wrapNode(node);
     }
 
     public GraphNode getStartNode(GraphTransaction txn) {
