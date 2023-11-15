@@ -41,7 +41,7 @@ public class MutableGraphTransaction implements GraphTransaction {
 
     public MutableGraphNode createNode(GraphLabel graphLabel) {
         Node node = txn.createNode(graphLabel);
-        return wrapNode(node);
+        return wrapNodeAsMutable(node);
     }
 
     public Schema schema() {
@@ -56,7 +56,7 @@ public class MutableGraphTransaction implements GraphTransaction {
 
     public MutableGraphNode getNodeByIdMutable(GraphNodeId nodeId) {
         Node node = nodeId.getNodeFrom(txn);
-        return wrapNode(node);
+        return wrapNodeAsMutable(node);
     }
 
     public ImmutableGraphRelationship getRelationshipById(GraphRelationshipId graphRelationshipId) {
@@ -71,7 +71,7 @@ public class MutableGraphTransaction implements GraphTransaction {
         GraphLabel[] toApply = new GraphLabel[labels.size()];
         labels.toArray(toApply);
         Node node = txn.createNode(toApply);
-        return wrapNode(node);
+        return wrapNodeAsMutable(node);
     }
 
     @Override
@@ -80,7 +80,7 @@ public class MutableGraphTransaction implements GraphTransaction {
     }
 
     public Stream<MutableGraphNode> findNodesMutable(GraphLabel graphLabel) {
-        return txn.findNodes(graphLabel).stream().map(this::wrapNode);
+        return txn.findNodes(graphLabel).stream().map(this::wrapNodeAsMutable);
     }
 
     @Override
@@ -117,7 +117,7 @@ public class MutableGraphTransaction implements GraphTransaction {
         if (node==null) {
             return null;
         }
-        return wrapNode(node);
+        return wrapNodeAsMutable(node);
     }
 
     @Override
@@ -152,6 +152,11 @@ public class MutableGraphTransaction implements GraphTransaction {
     }
 
     public MutableGraphNode wrapNode(Node endNode) {
+        GraphNodeId graphNodeId = idFactory.getIdFor(endNode);
+        return new MutableGraphNode(endNode, graphNodeId);
+    }
+
+    public MutableGraphNode wrapNodeAsMutable(Node endNode) {
         GraphNodeId graphNodeId = idFactory.getIdFor(endNode);
         return new MutableGraphNode(endNode, graphNodeId);
     }
