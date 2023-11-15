@@ -212,10 +212,13 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
 
     private void createLinkRelationship(MutableGraphNode from, MutableGraphNode to, TransportMode mode, MutableGraphTransaction txn) {
         if (from.hasRelationship(OUTGOING, LINKED)) {
+
+            GraphNodeId toNodeId = to.getId();
             Stream<MutableGraphRelationship> alreadyPresent = from.getRelationshipsMutable(txn, OUTGOING, LINKED);
 
             // if there is an existing link between stations then update iff the transport mode not already present
-            Optional<MutableGraphRelationship> find = alreadyPresent.filter(relation -> relation.getEndNode(txn).equals(to)).findFirst();
+            Optional<MutableGraphRelationship> find = alreadyPresent.
+                    filter(relation -> relation.getEndNodeId(txn).equals(toNodeId)).findFirst();
 
             find.ifPresent(found -> {
                 EnumSet<TransportMode> currentModes = found.getTransportModes();

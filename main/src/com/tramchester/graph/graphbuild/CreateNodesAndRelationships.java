@@ -84,9 +84,6 @@ public class CreateNodesAndRelationships {
 
     private boolean addRelationshipFor(MutableGraphTransaction txn, MutableGraphNode fromNode, MutableGraphNode toNode,
                                        Duration walkCost, TransportRelationshipTypes relationshipType) {
-//        Set<GraphNode> alreadyRelationship = new HashSet<>();
-//        fromNode.getRelationships(txn, Direction.OUTGOING, relationshipType).
-//                forEach(relationship -> alreadyRelationship.add(relationship.getEndNode(txn)));
 
         Set<GraphNodeId> alreadyPresent = fromNode.getRelationships(txn, Direction.OUTGOING, relationshipType).
                 map(relationship -> relationship.getEndNodeId(txn)).
