@@ -100,11 +100,11 @@ public class MutableGraphTransaction implements GraphTransaction {
         return findNodeMutable(label, key.getText(), value);
     }
 
-    private GraphNode findNode(GraphLabel label, GraphPropertyKey key, String value) {
+    private ImmuableGraphNode findNode(GraphLabel label, GraphPropertyKey key, String value) {
         return findNode(label, key.getText(), value);
     }
 
-    private GraphNode findNode(GraphLabel label, String key, String value) {
+    private ImmuableGraphNode findNode(GraphLabel label, String key, String value) {
         Node node = txn.findNode(label, key, value);
         if (node==null) {
             return null;
@@ -121,7 +121,7 @@ public class MutableGraphTransaction implements GraphTransaction {
     }
 
     @Override
-    public <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> GraphNode findNode(ITEM item) {
+    public <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> ImmuableGraphNode findNode(ITEM item) {
         return findNode(item.getNodeLabel(), item.getProp(), item.getId().getGraphId());
     }
 
@@ -172,7 +172,7 @@ public class MutableGraphTransaction implements GraphTransaction {
         return new MutableGraphRelationship(relationship, idFactory.getIdFor(relationship));
     }
 
-    public GraphNode fromStart(Path path) {
+    public ImmuableGraphNode fromStart(Path path) {
         final Node startNode = path.startNode();
         if (startNode==null) {
             return null;

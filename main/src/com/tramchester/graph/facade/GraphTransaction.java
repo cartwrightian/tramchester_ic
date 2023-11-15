@@ -23,7 +23,7 @@ public interface GraphTransaction extends AutoCloseable {
 
     boolean hasAnyMatching(GraphLabel graphLabel);
 
-    <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> GraphNode findNode(ITEM item);
+    <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> ImmuableGraphNode findNode(ITEM item);
 
     EvaluationContext createEvaluationContext(GraphDatabaseService databaseService);
 
@@ -41,7 +41,7 @@ public interface GraphTransaction extends AutoCloseable {
 
     GraphRelationship lastFrom(Path path);
 
-    GraphNode fromStart(Path path);
+    ImmuableGraphNode fromStart(Path path);
 
     GraphNodeId createNodeId(Node node);
 }

@@ -46,7 +46,7 @@ public class ImmutableGraphTransaction implements GraphTransaction  {
     }
 
     @Override
-    public <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> GraphNode findNode(ITEM item) {
+    public <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> ImmuableGraphNode findNode(ITEM item) {
         return underlying.findNode(item);
     }
 
@@ -91,7 +91,7 @@ public class ImmutableGraphTransaction implements GraphTransaction  {
     }
 
     @Override
-    public GraphNode fromStart(Path path) {
+    public ImmuableGraphNode fromStart(Path path) {
         return underlying.fromStart(path);
     }
 
