@@ -26,7 +26,7 @@ public class ImmutableGraphTransaction implements GraphTransaction  {
     }
 
     @Override
-    public GraphNode getNodeById(GraphNodeId nodeId) {
+    public ImmuableGraphNode getNodeById(GraphNodeId nodeId) {
         return underlying.getNodeById(nodeId);
     }
 

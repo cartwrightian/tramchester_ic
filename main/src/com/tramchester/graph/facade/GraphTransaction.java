@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 public interface GraphTransaction extends AutoCloseable {
     void close();
 
-    GraphNode getNodeById(GraphNodeId nodeId);
+    ImmuableGraphNode getNodeById(GraphNodeId nodeId);
 
     Stream<ImmuableGraphNode> findNodes(GraphLabel graphLabel);
 

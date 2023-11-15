@@ -49,7 +49,7 @@ public class MutableGraphTransaction implements GraphTransaction {
     }
 
     @Override
-    public GraphNode getNodeById(GraphNodeId nodeId) {
+    public ImmuableGraphNode getNodeById(GraphNodeId nodeId) {
         Node node = nodeId.getNodeFrom(txn);
         return wrapNodeAsImmutable(node);
     }
