@@ -37,7 +37,7 @@ public class GraphDatabaseStoredVersions {
 
         // version -> flag
         Map<DataSourceInfo, Boolean> upToDate = new HashMap<>();
-        try(MutableGraphTransaction transaction = transactionFactory.begin(GraphDatabase.DEFAULT_TXN_TIMEOUT)) {
+        try(MutableGraphTransaction transaction = transactionFactory.beginMutable(GraphDatabase.DEFAULT_TXN_TIMEOUT)) {
 
             if (neighboursEnabledMismatch(transaction)) {
                 return false;

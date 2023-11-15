@@ -4,10 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.databaseManagement.GraphDatabaseLifecycleManager;
-import com.tramchester.graph.facade.GraphIdFactory;
-import com.tramchester.graph.facade.GraphTransaction;
-import com.tramchester.graph.facade.GraphTransactionFactory;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.repository.DataSourceRepository;
 import org.neo4j.graphalgo.EvaluationContext;
@@ -88,15 +85,11 @@ public class GraphDatabase implements DatabaseEventListener {
 
     // immutable transactions
 
-    public GraphTransaction beginTx() {
-        return graphTransactionFactory.begin(DEFAULT_TXN_TIMEOUT);
+    public ImmutableGraphTransaction beginTx() {
+        return beginTx(DEFAULT_TXN_TIMEOUT);
     }
 
-    public GraphTransaction beginTx(int timeout, TimeUnit timeUnit) {
-        return beginTx(Duration.of(timeout, timeUnit.toChronoUnit()));
-    }
-
-    public GraphTransaction beginTx(Duration timeout) {
+    public ImmutableGraphTransaction beginTx(Duration timeout) {
         return graphTransactionFactory.begin(timeout);
     }
 
@@ -107,11 +100,11 @@ public class GraphDatabase implements DatabaseEventListener {
     }
 
     public MutableGraphTransaction beginTxMutable() {
-        return graphTransactionFactory.begin(DEFAULT_TXN_TIMEOUT);
+        return graphTransactionFactory.beginMutable(DEFAULT_TXN_TIMEOUT);
     }
 
     public MutableGraphTransaction beginTxMutable(Duration timeout) {
-        return graphTransactionFactory.begin(timeout);
+        return graphTransactionFactory.beginMutable(timeout);
     }
 
     ///

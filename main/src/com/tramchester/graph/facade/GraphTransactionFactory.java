@@ -18,11 +18,12 @@ public class GraphTransactionFactory {
         this.graphIdFactory = graphIdFactory;
     }
 
-//    public MutableGraphTransaction begin() {
-//        return new MutableGraphTransaction(databaseService.beginTx(), graphIdFactory);
-//    }
-
-    public MutableGraphTransaction begin(Duration timeout) {
+    public MutableGraphTransaction beginMutable(Duration timeout) {
         return new MutableGraphTransaction(databaseService.beginTx(timeout.toSeconds(), TimeUnit.SECONDS), graphIdFactory);
+    }
+
+    public ImmutableGraphTransaction begin(Duration timeout) {
+        MutableGraphTransaction contained = beginMutable(timeout);
+        return new ImmutableGraphTransaction(contained);
     }
 }
