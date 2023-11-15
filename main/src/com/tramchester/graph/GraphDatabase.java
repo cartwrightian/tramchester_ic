@@ -33,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 @LazySingleton
 public class GraphDatabase implements DatabaseEventListener {
     private static final Logger logger = LoggerFactory.getLogger(GraphDatabase.class);
+    public static final Duration DEFAULT_TXN_TIMEOUT = Duration.ofMinutes(5);
 
     private final DataSourceRepository dataSourceRepository;
     private final GraphDBConfig graphDBConfig;
@@ -85,29 +86,35 @@ public class GraphDatabase implements DatabaseEventListener {
         return lifecycleManager.isCleanDB();
     }
 
-    public GraphTransaction beginTx() {
-        return graphTransactionFactory.begin();
-    }
+    // immutable transactions
 
-    public MutableGraphTransaction beginTxMutable() {
-        return graphTransactionFactory.begin();
+    public GraphTransaction beginTx() {
+        return graphTransactionFactory.begin(DEFAULT_TXN_TIMEOUT);
     }
 
     public GraphTransaction beginTx(int timeout, TimeUnit timeUnit) {
-        return graphTransactionFactory.begin(timeout, timeUnit);
-    }
-
-    public MutableGraphTransaction beginTxMutable(int timeout, TimeUnit timeUnit) {
-        return graphTransactionFactory.begin(timeout, timeUnit);
+        return beginTx(Duration.of(timeout, timeUnit.toChronoUnit()));
     }
 
     public GraphTransaction beginTx(Duration timeout) {
         return graphTransactionFactory.begin(timeout);
     }
 
+    // mutable transactions
+
+    public MutableGraphTransaction beginTxMutable(int timeout, TimeUnit timeUnit) {
+        return beginTxMutable(Duration.of(timeout, timeUnit.toChronoUnit()));
+    }
+
+    public MutableGraphTransaction beginTxMutable() {
+        return graphTransactionFactory.begin(DEFAULT_TXN_TIMEOUT);
+    }
+
     public MutableGraphTransaction beginTxMutable(Duration timeout) {
         return graphTransactionFactory.begin(timeout);
     }
+
+    ///
 
     public void createIndexs() {
 

@@ -2,6 +2,7 @@ package com.tramchester.unit.graph.databaseManagement;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceInfo;
+import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.facade.GraphTransactionFactory;
 import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
@@ -13,6 +14,7 @@ import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -31,6 +33,7 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
     private MutableGraphTransaction transaction;
     private TramchesterConfig config;
     private DataSourceRepository dataSourceRepository;
+    private Duration timeout = GraphDatabase.DEFAULT_TXN_TIMEOUT;
 
     @BeforeEach
     public void beforeAnyTestsRun() {
@@ -46,7 +49,7 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
     @Test
     public void shouldOutOfDateIfNeighboursNot() {
 
-        EasyMock.expect(transactionFactory.begin()).andReturn(transaction);
+        EasyMock.expect(transactionFactory.begin(timeout)).andReturn(transaction);
         EasyMock.expect(databaseMetaInfo.isNeighboursEnabled(transaction)).andReturn(!config.hasNeighbourConfig());
         transaction.close();
         EasyMock.expectLastCall();
@@ -61,7 +64,7 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
     @Test
     public void shouldOutOfDateIfVersionMissingFromDB() {
 
-        EasyMock.expect(transactionFactory.begin()).andReturn(transaction);
+        EasyMock.expect(transactionFactory.begin(timeout)).andReturn(transaction);
         EasyMock.expect(databaseMetaInfo.isNeighboursEnabled(transaction)).andReturn(config.hasNeighbourConfig());
         EasyMock.expect(databaseMetaInfo.hasVersionInfo(transaction)).andReturn(false);
         transaction.close();
@@ -87,7 +90,7 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
         versionMap.put("tfgm", "v1.1");
         versionMap.put("naptanxml", "v2.3");
 
-        EasyMock.expect(transactionFactory.begin()).andReturn(transaction);
+        EasyMock.expect(transactionFactory.begin(timeout)).andReturn(transaction);
         EasyMock.expect(databaseMetaInfo.isNeighboursEnabled(transaction)).andReturn(config.hasNeighbourConfig());
         EasyMock.expect(databaseMetaInfo.hasVersionInfo(transaction)).andReturn(true);
         EasyMock.expect(databaseMetaInfo.getVersions(transaction)).andReturn(versionMap);
@@ -113,7 +116,7 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
         versionMap.put("tfgm", "v1.1");
         versionMap.put("naptanxml", "v2.3");
 
-        EasyMock.expect(transactionFactory.begin()).andReturn(transaction);
+        EasyMock.expect(transactionFactory.begin(timeout)).andReturn(transaction);
         EasyMock.expect(databaseMetaInfo.isNeighboursEnabled(transaction)).andReturn(config.hasNeighbourConfig());
         EasyMock.expect(databaseMetaInfo.hasVersionInfo(transaction)).andReturn(true);
         EasyMock.expect(databaseMetaInfo.getVersions(transaction)).andReturn(versionMap);
@@ -138,7 +141,7 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
 
         versionMap.put("tfgm", "v1.1");
 
-        EasyMock.expect(transactionFactory.begin()).andReturn(transaction);
+        EasyMock.expect(transactionFactory.begin(timeout)).andReturn(transaction);
         EasyMock.expect(databaseMetaInfo.isNeighboursEnabled(transaction)).andReturn(config.hasNeighbourConfig());
         EasyMock.expect(databaseMetaInfo.hasVersionInfo(transaction)).andReturn(true);
         EasyMock.expect(databaseMetaInfo.getVersions(transaction)).andReturn(versionMap);
@@ -163,7 +166,7 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
         versionMap.put("tfgm", "v1.1");
         versionMap.put("naptanxml", "v2.3");
 
-        EasyMock.expect(transactionFactory.begin()).andReturn(transaction);
+        EasyMock.expect(transactionFactory.begin(timeout)).andReturn(transaction);
         EasyMock.expect(databaseMetaInfo.isNeighboursEnabled(transaction)).andReturn(config.hasNeighbourConfig());
         EasyMock.expect(databaseMetaInfo.hasVersionInfo(transaction)).andReturn(true);
         EasyMock.expect(databaseMetaInfo.getVersions(transaction)).andReturn(versionMap);

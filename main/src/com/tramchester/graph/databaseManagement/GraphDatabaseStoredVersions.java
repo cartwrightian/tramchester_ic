@@ -4,6 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.DataSourceInfo;
+import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.facade.GraphTransactionFactory;
 import com.tramchester.repository.DataSourceRepository;
@@ -36,7 +37,7 @@ public class GraphDatabaseStoredVersions {
 
         // version -> flag
         Map<DataSourceInfo, Boolean> upToDate = new HashMap<>();
-        try(MutableGraphTransaction transaction = transactionFactory.begin()) { // databaseService.beginTx()) {
+        try(MutableGraphTransaction transaction = transactionFactory.begin(GraphDatabase.DEFAULT_TXN_TIMEOUT)) {
 
             if (neighboursEnabledMismatch(transaction)) {
                 return false;
