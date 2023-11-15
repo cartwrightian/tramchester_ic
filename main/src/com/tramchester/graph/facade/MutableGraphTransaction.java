@@ -180,7 +180,7 @@ public class MutableGraphTransaction implements GraphTransaction {
         return wrapNodeAsImmutable(startNode);
     }
 
-    public GraphNode fromEnd(Path path) {
+    public ImmuableGraphNode fromEnd(Path path) {
         final Node endNode = path.endNode();
         if (endNode==null) {
             return null;

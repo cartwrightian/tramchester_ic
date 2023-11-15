@@ -70,7 +70,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     private NodeContentsRepository contentsRepository;
     private Path path;
     private HowIGotHere howIGotHere;
-    private GraphNode node;
+    private ImmuableGraphNode node;
     private ServiceReasons reasons;
     private TramchesterConfig config;
     private SortsPositions sortsPositions;
@@ -135,7 +135,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         serviceHeuristics = createMock(ServiceHeuristics.class);
         sortsPositions = createMock(SortsPositions.class);
         path = createMock(Path.class);
-        node = createMock(GraphNode.class);
+        node = createMock(ImmuableGraphNode.class);
         lastRelationship = createMock(GraphRelationship.class);
         lowestCostsForRoutes = createMock(LowestCostsForDestRoutes.class);
 
