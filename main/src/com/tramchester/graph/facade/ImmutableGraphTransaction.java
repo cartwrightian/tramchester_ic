@@ -56,7 +56,7 @@ public class ImmutableGraphTransaction implements GraphTransaction  {
     }
 
     @Override
-    public List<GraphRelationship> getRouteStationRelationships(RouteStation routeStation, Direction direction) {
+    public List<ImmutableGraphRelationship> getRouteStationRelationships(RouteStation routeStation, Direction direction) {
         return underlying.getRouteStationRelationships(routeStation, direction);
     }
 
@@ -76,7 +76,7 @@ public class ImmutableGraphTransaction implements GraphTransaction  {
     }
 
     @Override
-    public GraphRelationship getRelationshipById(GraphRelationshipId graphRelationshipId) {
+    public ImmutableGraphRelationship getRelationshipById(GraphRelationshipId graphRelationshipId) {
         return underlying.getRelationshipById(graphRelationshipId);
     }
 

@@ -59,7 +59,7 @@ public class MutableGraphTransaction implements GraphTransaction {
         return wrapNode(node);
     }
 
-    public GraphRelationship getRelationshipById(GraphRelationshipId graphRelationshipId) {
+    public ImmutableGraphRelationship getRelationshipById(GraphRelationshipId graphRelationshipId) {
         Relationship relationship = graphRelationshipId.getRelationshipFrom(txn);
         if (relationship==null) {
             return null;
@@ -143,7 +143,7 @@ public class MutableGraphTransaction implements GraphTransaction {
     }
 
     @Override
-    public List<GraphRelationship> getRouteStationRelationships(RouteStation routeStation, Direction direction) {
+    public List<ImmutableGraphRelationship> getRouteStationRelationships(RouteStation routeStation, Direction direction) {
         GraphNode routeStationNode = findNode(routeStation);
         if (routeStationNode==null) {
             return Collections.emptyList();

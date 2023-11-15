@@ -27,7 +27,7 @@ public interface GraphTransaction extends AutoCloseable {
 
     EvaluationContext createEvaluationContext(GraphDatabaseService databaseService);
 
-    List<GraphRelationship> getRouteStationRelationships(RouteStation routeStation, Direction direction);
+    List<ImmutableGraphRelationship> getRouteStationRelationships(RouteStation routeStation, Direction direction);
 
     Iterable<ImmuableGraphNode> iter(Iterable<Node> iterable);
 
@@ -35,7 +35,7 @@ public interface GraphTransaction extends AutoCloseable {
 
     GraphNode wrapNode(Node node);
 
-    GraphRelationship getRelationshipById(GraphRelationshipId graphRelationshipId);
+    ImmutableGraphRelationship getRelationshipById(GraphRelationshipId graphRelationshipId);
 
     ImmuableGraphNode fromEnd(Path path);
 
