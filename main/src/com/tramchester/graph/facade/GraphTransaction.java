@@ -15,6 +15,10 @@ import java.util.stream.Stream;
 public interface GraphTransaction extends AutoCloseable {
     void close();
 
+    ImmutableGraphRelationship wrapRelationship(Relationship relationship);
+
+    GraphNode wrapNode(Node node);
+
     ImmuableGraphNode getNodeById(GraphNodeId nodeId);
 
     Stream<ImmuableGraphNode> findNodes(GraphLabel graphLabel);
@@ -30,10 +34,6 @@ public interface GraphTransaction extends AutoCloseable {
     List<ImmutableGraphRelationship> getRouteStationRelationships(RouteStation routeStation, Direction direction);
 
     Iterable<ImmuableGraphNode> iter(Iterable<Node> iterable);
-
-    GraphRelationship wrapRelationship(Relationship relationship);
-
-    GraphNode wrapNode(Node node);
 
     ImmutableGraphRelationship getRelationshipById(GraphRelationshipId graphRelationshipId);
 

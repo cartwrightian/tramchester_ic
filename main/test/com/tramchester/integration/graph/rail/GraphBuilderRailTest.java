@@ -11,6 +11,7 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphRelationship;
+import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
@@ -85,7 +86,7 @@ class GraphBuilderRailTest {
 
         Station piccadilly = ManchesterPiccadilly.from(transportData);
         GraphNode startNode = txn.findNode(piccadilly);
-        List<GraphRelationship> outboundLinks = startNode.getRelationships(txn, Direction.OUTGOING, LINKED).toList();
+        List<ImmutableGraphRelationship> outboundLinks = startNode.getRelationships(txn, Direction.OUTGOING, LINKED).toList();
 
         assertEquals(35, outboundLinks.size(), outboundLinks.toString());
 

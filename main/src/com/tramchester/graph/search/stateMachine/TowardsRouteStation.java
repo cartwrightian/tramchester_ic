@@ -1,10 +1,7 @@
 package com.tramchester.graph.search.stateMachine;
 
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.GraphRelationship;
-import com.tramchester.graph.facade.GraphTransaction;
-import com.tramchester.graph.facade.ImmutableGraphRelationship;
+import com.tramchester.graph.facade.*;
 import com.tramchester.graph.search.stateMachine.states.RouteStationState;
 
 import java.util.stream.Stream;
@@ -47,7 +44,7 @@ public abstract class TowardsRouteStation<T extends RouteStationState> implement
 //        }
     }
 
-    private <R extends GraphRelationship> Stream<R> getActiveDiversions(GraphNode node, TramDate date, GraphTransaction txn) {
+    private <R extends ImmutableGraphRelationship> Stream<R> getActiveDiversions(GraphNode node, TramDate date, GraphTransaction txn) {
         Stream<R> diversions = node.getRelationships(txn, OUTGOING, DIVERSION_DEPART);
         return diversions.filter(relationship -> relationship.validOn(date));
     }

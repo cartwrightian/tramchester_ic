@@ -12,10 +12,7 @@ import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.*;
-import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.GraphRelationship;
-import com.tramchester.graph.facade.GraphRelationshipId;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.facade.*;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.StationClosuresForTest;
@@ -269,7 +266,7 @@ class ClosedStationsDiversionsTest {
         try (MutableGraphTransaction txn = graphDatabase.beginTxMutable()) {
             exchange.getPlatforms().forEach(platform -> {
                 GraphNode node = txn.findNode(platform);
-                Stream<GraphRelationship> iterable = node.getRelationships(txn, Direction.INCOMING, TransportRelationshipTypes.DIVERSION_DEPART);
+                Stream<ImmutableGraphRelationship> iterable = node.getRelationships(txn, Direction.INCOMING, TransportRelationshipTypes.DIVERSION_DEPART);
 
                 iterable.forEach(relationship -> foundRelationshipIds.add(relationship.getId()));
             });

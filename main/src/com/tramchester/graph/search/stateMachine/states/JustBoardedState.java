@@ -74,7 +74,7 @@ public class JustBoardedState extends RouteStationState {
          * significant overall performance increase for non-trivial geographically diverse networks
          */
         private Stream<GraphRelationship> orderServicesByDistance(GraphNode node, TraversalOps traversalOps, GraphTransaction txn) {
-            Stream<GraphRelationship> toServices = node.getRelationships(txn, OUTGOING, TO_SERVICE);
+            Stream<ImmutableGraphRelationship> toServices = node.getRelationships(txn, OUTGOING, TO_SERVICE);
             return traversalOps.orderRelationshipsByDistance(toServices);
         }
 

@@ -139,7 +139,7 @@ public class ImmuableGraphNode implements GraphNode {
     }
 
     @Override
-    public Stream<GraphRelationship> getRelationships(GraphTransaction txn, Direction direction, TransportRelationshipTypes... transportRelationshipTypes) {
+    public Stream<ImmutableGraphRelationship> getRelationships(GraphTransaction txn, Direction direction, TransportRelationshipTypes... transportRelationshipTypes) {
         return underlying.getRelationships(txn, direction, transportRelationshipTypes);
     }
 

@@ -77,7 +77,7 @@ public class TraversalOps {
         return 1;
     }
 
-    public Stream<GraphRelationship> orderRelationshipsByDistance(Stream<GraphRelationship> relationships) {
+    public Stream<GraphRelationship> orderRelationshipsByDistance(Stream<ImmutableGraphRelationship> relationships) {
 
         Set<SortsPositions.HasStationId<GraphRelationship>> wrapped = relationships.
                 map(relationship -> new RelationshipFacade(relationship, txn)).

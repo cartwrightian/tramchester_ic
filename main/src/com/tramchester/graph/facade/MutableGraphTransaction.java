@@ -167,7 +167,6 @@ public class MutableGraphTransaction implements GraphTransaction {
         return new ImmutableGraphRelationship(underlying);
     }
 
-    // TODO intro immutable?
     public MutableGraphRelationship wrapRelationshipMutable(Relationship relationship) {
         return new MutableGraphRelationship(relationship, idFactory.getIdFor(relationship));
     }

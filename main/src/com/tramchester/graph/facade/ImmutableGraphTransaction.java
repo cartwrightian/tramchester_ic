@@ -66,7 +66,7 @@ public class ImmutableGraphTransaction implements GraphTransaction  {
     }
 
     @Override
-    public GraphRelationship wrapRelationship(Relationship relationship) {
+    public ImmutableGraphRelationship wrapRelationship(Relationship relationship) {
         return underlying.wrapRelationship(relationship);
     }
 

@@ -92,9 +92,9 @@ class TramGraphBuilderTest {
     void shouldHaveLinkRelationshipsCorrectForInterchange() {
         Station cornbrook = Cornbrook.from(stationRepository);
         GraphNode cornbrookNode = txn.findNode(cornbrook);
-        Stream<GraphRelationship> outboundLinks = cornbrookNode.getRelationships(txn, Direction.OUTGOING, LINKED);
+        Stream<ImmutableGraphRelationship> outboundLinks = cornbrookNode.getRelationships(txn, Direction.OUTGOING, LINKED);
 
-        List<GraphRelationship> list = outboundLinks.toList(); //Lists.newArrayList(outboundLinks);
+        List<ImmutableGraphRelationship> list = outboundLinks.toList(); //Lists.newArrayList(outboundLinks);
         assertEquals(3, list.size());
 
         Set<IdFor<Station>> destinations = list.stream().
@@ -126,13 +126,13 @@ class TramGraphBuilderTest {
 
         platforms.forEach(platform -> {
             GraphNode node = txn.findNode(platform);
-            Stream<GraphRelationship> boards = node.getRelationships(txn, Direction.OUTGOING, INTERCHANGE_BOARD);
+            Stream<ImmutableGraphRelationship> boards = node.getRelationships(txn, Direction.OUTGOING, INTERCHANGE_BOARD);
             boards.forEach(board -> {
                 Duration boardCost = board.getCost();
                 assertEquals(Duration.ZERO, boardCost, "board cost wrong for " + platform);
             });
 
-            Stream<GraphRelationship> departs = node.getRelationships(txn, Direction.OUTGOING, INTERCHANGE_DEPART);
+            Stream<ImmutableGraphRelationship> departs = node.getRelationships(txn, Direction.OUTGOING, INTERCHANGE_DEPART);
             departs.forEach(depart -> {
                 Duration enterCost = depart.getCost();
                 assertEquals(Duration.ZERO, enterCost, "depart wrong cost for " + platform.getId());
@@ -164,9 +164,9 @@ class TramGraphBuilderTest {
     void shouldHaveLinkRelationshipsCorrectForEndOfLine() {
         Station alty = Altrincham.from(stationRepository);
         GraphNode altyNode = txn.findNode(alty);
-        Stream<GraphRelationship> outboundLinks = altyNode.getRelationships(txn, Direction.OUTGOING, LINKED);
+        Stream<ImmutableGraphRelationship> outboundLinks = altyNode.getRelationships(txn, Direction.OUTGOING, LINKED);
 
-        List<GraphRelationship> list = outboundLinks.toList();
+        List<ImmutableGraphRelationship> list = outboundLinks.toList();
         assertEquals(1, list.size());
 
         Set<IdFor<Station>> destinations = list.stream().
@@ -205,9 +205,9 @@ class TramGraphBuilderTest {
     void shouldHaveLinkRelationshipsCorrectForNonInterchange() {
         Station exchangeSq = ExchangeSquare.from(stationRepository);
         GraphNode exchangeSqNode = txn.findNode(exchangeSq);
-        Stream<GraphRelationship> outboundLinks = exchangeSqNode.getRelationships(txn, Direction.OUTGOING, LINKED);
+        Stream<ImmutableGraphRelationship> outboundLinks = exchangeSqNode.getRelationships(txn, Direction.OUTGOING, LINKED);
 
-        List<GraphRelationship> list = outboundLinks.toList();
+        List<ImmutableGraphRelationship> list = outboundLinks.toList();
         assertEquals(2, list.size());
 
         Set<IdFor<Station>> destinations = list.stream().
