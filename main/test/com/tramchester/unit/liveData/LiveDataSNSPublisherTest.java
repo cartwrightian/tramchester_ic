@@ -26,6 +26,7 @@ public class LiveDataSNSPublisherTest extends EasyMockSupport {
         TramchesterConfig config = new LocalConfig(liveConfig);
         snsPublisher = createStrictMock(SNSPublisher.class);
         liveDataFetcher = createStrictMock(LiveDataFetcher.class);
+
         publisher = new LiveDataSNSPublisher(config, snsPublisher, liveDataFetcher);
     }
 

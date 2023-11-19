@@ -151,6 +151,10 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("cachingDisabled")
     private Boolean cachingDisabled;
 
+    @NotNull
+    @JsonProperty("environmentName")
+    private String environmentName;
+
     @Override
     public String getInstanceDataUrl() {
         return instanceDataUrl;
@@ -237,6 +241,11 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public double getWalkingMPH() {
         return walkingMPH;
+    }
+
+    @Override
+    public String getEnvironmentName() {
+        return environmentName;
     }
 
     @Override

@@ -32,7 +32,10 @@ if [ "$PLACE" == '' ]; then
         exit;
 fi
 
-logger -s Set up Web server Bucket: "$BUCKET" Build: "$BUILD" Url: "$ARTIFACTSURL" Env: "$PLACE"
+# todo move from PLACE to ENV to be consistent across environments and deployments
+export ENV=$PLACE
+
+logger -s Set up Web server Bucket: "$BUCKET" Build: "$BUILD" Url: "$ARTIFACTSURL" Env: "$ENV"
 
 # cloudwatch logs agent
 logger -s set up amazon cloudwatch logs agent new

@@ -51,8 +51,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TestEnv {
     public static final Path CACHE_DIR = Path.of("testData","cache");
-    public static final String TEST_SNS_TOPIC = "TRAMCHESTR_TEST_TOPIC";
-    public static final String TEST_SQS_QUEUE = "TRAMCHESTR_TEST_QUEUE";
+    private static final String TEST_SNS_TOPIC = "TRAMCHESTER_TEST_TOPIC_";
+    private static final String TEST_SQS_QUEUE = "TRAMCHESTER_TEST_QUEUE_";
 
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(TestEnv.class);
 
@@ -105,7 +105,7 @@ public class TestEnv {
         };
     }
 
-    public static TramchesterConfig GET(TestTramLiveDataConfig testLiveDataConfig) {
+    public static TramchesterConfig GET(TfgmTramLiveDataConfig testLiveDataConfig) {
         return new TestConfig() {
             @Override
             protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
@@ -358,6 +358,28 @@ public class TestEnv {
         // s3://tramchesternewdist/dist/0/database.zip
         return String.format("%sdist/%s/database.zip", getBucketUrl(), releaseNumber);
 
+    }
+
+    public static String getTestQueueName() {
+        if (isCircleci()) {
+            return TEST_SQS_QUEUE+"CI";
+        }
+        return TEST_SQS_QUEUE+ getEnv();
+    }
+
+    public static String getTestSNSTopicName() {
+        if (isCircleci()) {
+            return TEST_SNS_TOPIC+"CI";
+        }
+        return TEST_SNS_TOPIC+ getEnv();
+    }
+
+    private static String getEnv() {
+        String text = System.getenv("ENV");
+        if (text==null) {
+            return "Dev";
+        }
+        return text;
     }
 
     public static class Modes {

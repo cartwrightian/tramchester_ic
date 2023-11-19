@@ -26,6 +26,8 @@ def buildNumber = System.getenv("RELEASE_NUMBER") ?: candidate
 def environment = System.getenv("ENV") ?: "Dev"
 def isWindows = System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')
 
+// NOTE: TestEnv also depends on the environment
+
 def agentPath = '-agentpath:/home/ianc/dev/tools/visualvm_217/visualvm/lib/deployed/jdk16/linux-amd64/libprofilerinterface.so=/home/ianc/dev/tools/visualvm_217/visualvm/lib,5140'
 
 def s3prefix = 'dist/' + buildNumber

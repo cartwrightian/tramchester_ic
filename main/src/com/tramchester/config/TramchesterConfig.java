@@ -26,6 +26,8 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
         dataSources = new HashMap<>();
     }
 
+    public abstract String getEnvironmentName() ;
+
     public abstract Integer getStaticAssetCacheTimeSeconds();
 
     // URL to pull Cloud instance meta-data from

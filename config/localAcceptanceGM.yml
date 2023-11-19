@@ -13,6 +13,7 @@ graphDBConfig:
   graphName: databases/tramchesterAcceptance.db
   neo4jPagecacheMemory: 1000m
 distributionBucket: tramchesternewdist
+environmentName: ${ENV}
 gtfsSourceConfig:
   -
     name: tfgm

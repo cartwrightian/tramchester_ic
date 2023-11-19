@@ -1,5 +1,7 @@
 package com.tramchester.integration.cloud;
 
+import com.github.cliftonlabs.json_simple.JsonObject;
+import com.github.cliftonlabs.json_simple.Jsoner;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.cloud.SNSPublisher;
@@ -21,8 +23,8 @@ import software.amazon.awssdk.services.sqs.model.ReceiveMessageResponse;
 
 import java.util.List;
 
-import static com.tramchester.testSupport.TestEnv.TEST_SQS_QUEUE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SnsPublisherTest {
     private static ComponentContainer componentContainer;
@@ -51,7 +53,6 @@ public class SnsPublisherTest {
         componentContainer.close();
     }
 
-
     @BeforeEach
     void onceBeforeEachTestRuns() {
         snsPublisher = componentContainer.get(SNSPublisher.class);
@@ -63,13 +64,24 @@ public class SnsPublisherTest {
                 waitTimeSeconds(20).
                 build();
 
-        snsPublisher.send(config.getLiveDataSNSTopic(), "soLongAndThanksForAllTheFish");
+        String msgText = "soLongAndThanksForAllTheFish";
+        snsPublisher.send(config.getLiveDataSNSTopic(), msgText);
 
         ReceiveMessageResponse receiveResult = sqsClient.receiveMessage(receiveMsgReq);
 
         List<Message> msgs = receiveResult.messages();
 
         assertEquals(1, msgs.size());
+
+        Message expected = msgs.get(0);
+        String payloadJson = expected.body();
+
+        JsonObject parsed = Jsoner.deserialize(payloadJson, new JsonObject());
+        assertTrue(parsed.containsKey("Message"), payloadJson);
+
+        String receivedMsg = (String) parsed.get("Message");
+
+        assertEquals(msgText, receivedMsg, "payload not same");
 
     }
 
@@ -78,7 +90,7 @@ public class SnsPublisherTest {
 
         String topicArn = SnsAndSqsSupport.createOrGetTopic(snsClient, topicName);
 
-        urlAndArn = SnsAndSqsSupport.createQueueIfNeeded(sqsClient, TEST_SQS_QUEUE);
+        urlAndArn = SnsAndSqsSupport.createQueueIfNeeded(sqsClient, TestEnv.getTestQueueName());
 
         SnsAndSqsSupport.addPolicyForSNS(sqsClient, urlAndArn, topicArn);
 
