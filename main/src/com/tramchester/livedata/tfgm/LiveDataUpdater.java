@@ -53,12 +53,16 @@ public class LiveDataUpdater {
     }
 
     public void refreshRespository()  {
-        logger.info("Refresh repository");
-        String payload  = fetcher.fetch();
-        List<TramStationDepartureInfo> receivedInfos = Collections.emptyList();
-        if (payload.length()>0) {
+        logger.debug("Refresh repository");
+        final String payload  = fetcher.fetch();
+        final List<TramStationDepartureInfo> receivedInfos;
+        if (payload.isEmpty()) {
+            logger.warn("Empty payload");
+            receivedInfos = Collections.emptyList();
+        } else {
             receivedInfos = parser.parse(payload);
         }
+
         int received = receivedInfos.size();
         logger.info(format("Received %s updates", received));
 

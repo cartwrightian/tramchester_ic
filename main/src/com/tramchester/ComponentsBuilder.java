@@ -4,10 +4,7 @@ import com.google.inject.AbstractModule;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.metrics.CacheMetrics;
-import com.tramchester.modules.MappersAndConfigurationModule;
-import com.tramchester.modules.GetReadyModule;
-import com.tramchester.modules.GraphFilterModule;
-import com.tramchester.modules.TransportDataFactoryModule;
+import com.tramchester.modules.*;
 import com.tramchester.dataimport.loader.TransportDataFactory;
 import com.tramchester.dataimport.loader.PopulateTransportDataFromSources;
 import com.tramchester.repository.TransportData;
@@ -30,7 +27,8 @@ public class ComponentsBuilder {
                 new MappersAndConfigurationModule(config, registerCacheMetrics),
                 new GetReadyModule(),
                 new TransportDataFactoryModule<>(transportDataFactoryType),
-                new GraphFilterModule(setupGraphFilter));
+                new GraphFilterModule(setupGraphFilter),
+                new LiveDataModule(config));
 
         return new GuiceContainerDependencies(modules);
     }
