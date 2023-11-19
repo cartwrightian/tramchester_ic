@@ -33,12 +33,12 @@ public class LiveDataSNSPublisherTest extends EasyMockSupport {
     @Test
     void shouldSendSNSForReceivedIfEnable() {
 
-        EasyMock.expect(liveConfig.getSNSTopic()).andStubReturn("aTopic");
+        EasyMock.expect(liveConfig.getSnsTopicPrefix()).andStubReturn("aTopic");
 
         liveDataFetcher.subscribe(publisher);
         EasyMock.expectLastCall();
 
-        snsPublisher.send("aTopic", "someTextToSend");
+        snsPublisher.send("aTopicDev", "someTextToSend");
         EasyMock.expectLastCall();
 
         replayAll();
@@ -50,7 +50,7 @@ public class LiveDataSNSPublisherTest extends EasyMockSupport {
     @Test
     void shouldNotSendSNSForReceivedIfDisabled() {
 
-        EasyMock.expect(liveConfig.getSNSTopic()).andStubReturn("");
+        EasyMock.expect(liveConfig.getSnsTopicPrefix()).andStubReturn("");
 
         replayAll();
         publisher.start();

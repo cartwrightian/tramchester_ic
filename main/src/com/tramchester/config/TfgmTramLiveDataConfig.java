@@ -21,6 +21,10 @@ public interface TfgmTramLiveDataConfig {
         return !getS3Bucket().isEmpty();
     }
 
-    // for sns publish
-    String getSNSTopic();
+
+    /**
+     * For sns publish, use the helper method on config to get full topic
+     * @return JUST the topic prefix
+     */
+    String getSnsTopicPrefix();
 }

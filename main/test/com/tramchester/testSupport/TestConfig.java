@@ -175,4 +175,9 @@ public abstract class TestConfig extends AppConfiguration {
     public boolean redirectToSecure() {
         return true;
     }
+
+    @Override
+    public String getEnvironmentName() {
+        return System.getenv("ENV");
+    }
 }

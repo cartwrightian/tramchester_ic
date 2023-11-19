@@ -72,6 +72,7 @@ tfgmTramliveData:
   refreshPeriodSeconds: 20
   maxNumberStationsWithoutMessages: 10
   maxNumberStationsWithoutData: 5
+  snsTopicPrefix: tramchester_live_data_
 planningEnabled: true
 maxWait: 25
 numberQueries: 3

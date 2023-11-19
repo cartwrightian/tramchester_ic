@@ -632,6 +632,13 @@ tasks.register('pullData', JavaExec) {
     args prodConfig
 }
 
+tasks.register('publishLiveData', JavaExec) {
+    dependsOn classes
+    mainClass = 'com.tramchester.deployment.cli.PublishLiveDataToSNSCLI'
+    classpath = sourceSets.main.runtimeClasspath
+    args 'config/local.yml', '100'
+}
+
 // gm here so include both sets of data
 tasks.register('queryDueTramStatus', JavaExec) {
     dependsOn classes

@@ -33,15 +33,9 @@ if [ "$PLACE" == '' ]; then
 fi
 
 # todo move from PLACE to ENV to be consistent across environments and deployments
-export ENV=$PLACE
+export ENV="$PLACE"
 
 logger -s Set up Web server Bucket: "$BUCKET" Build: "$BUILD" Url: "$ARTIFACTSURL" Env: "$ENV"
-
-# cloudwatch logs agent
-logger -s set up amazon cloudwatch logs agent new
-sed -i.orig "s/PREFIX/web_${PLACE}_${BUILD}/" $target/config/cloudwatch_agent.json
-sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:$target/config/cloudwatch_agent.json -s
-logger -s cloud watch agent configured
 
 cd ~ec2-user || (logger Could not cd to ec2-user && exit)
 mkdir -p server
@@ -59,12 +53,18 @@ unzip "$dist" || (logger -s Could not unzip from "$dist" from "$distUrl" && exit
 # fix ownership
 chown -R ec2-user .
 
+# cloudwatch logs agent
+logger -s set up amazon cloudwatch logs agent new
+sed -i.orig "s/PREFIX/web_${PLACE}_${BUILD}/" $target/config/cloudwatch_agent.json
+sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:$target/config/cloudwatch_agent.json -s
+logger -s cloud watch agent configured
+
 # start
 logger -s invoke start script
 export RAIL_WSDL=$target/config/OpenLDBWS.wsdl
 export RELEASE_NUMBER="$BUILD"
-logger Start tramchester
+logger Start tramchester for $ENV
 export JAVA_OPTS="-Xmx1550m"
 sudo -E -u ec2-user bash ./$target/bin/start.sh &
 
-logger -s Finish Web bootstrap script for "$BUILD" and "$PLACE"
+logger -s Finish Web bootstrap script for "$BUILD" and "$ENV"

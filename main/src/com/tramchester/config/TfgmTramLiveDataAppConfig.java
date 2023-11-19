@@ -11,7 +11,7 @@ public class TfgmTramLiveDataAppConfig implements TfgmTramLiveDataConfig {
     private final Integer maxNumberStationsWithoutMessages;
     private final Integer maxNumberStationsWithoutData;
     private final String s3Prefix;
-    private final String snsTopic;
+    private final String snsTopicPrefix;
 
     public TfgmTramLiveDataAppConfig(@JsonProperty(value = "dataUrl", required = true) String dataUrl,
                                      @JsonProperty(value = "dataSubscriptionKey", required = true) String dataSubscriptionKey,
@@ -20,7 +20,7 @@ public class TfgmTramLiveDataAppConfig implements TfgmTramLiveDataConfig {
                                      @JsonProperty(value = "maxNumberStationsWithoutMessages", required = true) Integer maxNumberStationsWithoutMessages,
                                      @JsonProperty(value = "maxNumberStationsWithoutData", required = true) Integer maxNumberStationsWithoutData,
                                      @JsonProperty(value = "s3Prefix", required = true) String s3Prefix,
-                                     @JsonProperty(value = "snsTopic", required = false) String snsTopic) {
+                                     @JsonProperty(value = "snsTopicPrefix", required = false) String snsTopicPrefix) {
         this.dataUrl = dataUrl;
         this.dataSubscriptionKey = dataSubscriptionKey;
         this.s3Bucket = s3Bucket;
@@ -28,7 +28,7 @@ public class TfgmTramLiveDataAppConfig implements TfgmTramLiveDataConfig {
         this.maxNumberStationsWithoutMessages = maxNumberStationsWithoutMessages;
         this.maxNumberStationsWithoutData = maxNumberStationsWithoutData;
         this.s3Prefix = s3Prefix;
-        this.snsTopic = snsTopic;
+        this.snsTopicPrefix = snsTopicPrefix;
     }
 
     @Override
@@ -45,11 +45,11 @@ public class TfgmTramLiveDataAppConfig implements TfgmTramLiveDataConfig {
     }
 
     @Override
-    public String getSNSTopic() {
-        if (snsTopic ==null) {
+    public String getSnsTopicPrefix() {
+        if (snsTopicPrefix ==null) {
             return "";
         }
-        return snsTopic;
+        return snsTopicPrefix;
     }
 
     @Override

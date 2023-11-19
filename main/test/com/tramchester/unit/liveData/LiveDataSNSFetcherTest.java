@@ -24,13 +24,12 @@ public class LiveDataSNSFetcherTest extends EasyMockSupport {
     void onceBeforeEachTest() {
         TfgmTramLiveDataConfig liveDataConfig = createMock(TfgmTramLiveDataConfig.class);
 
-
         config = TestEnv.GET(liveDataConfig);
         sqsSubscriberFactory = createMock(SQSSubscriberFactory.class);
 
         fetcher = new LiveDataSQSFetcher(sqsSubscriberFactory, config);
 
-        EasyMock.expect(liveDataConfig.getSNSTopic()).andStubReturn(TEST_TOPIC);
+        EasyMock.expect(liveDataConfig.getSnsTopicPrefix()).andStubReturn(TEST_TOPIC);
         EasyMock.expect(liveDataConfig.getRefreshPeriodSeconds()).andStubReturn(refreshPeriod);
     }
 
@@ -40,7 +39,7 @@ public class LiveDataSNSFetcherTest extends EasyMockSupport {
         SQSSubscriber sqsSubscriber = createMock(SQSSubscriber.class);
 
         String queueName = "tramchester_live_data_" + config.getEnvironmentName();
-        EasyMock.expect(sqsSubscriberFactory.getFor(queueName, TEST_TOPIC, refreshPeriod)).andReturn(sqsSubscriber);
+        EasyMock.expect(sqsSubscriberFactory.getFor(queueName, TEST_TOPIC+ config.getEnvironmentName(), refreshPeriod)).andReturn(sqsSubscriber);
 
         String text = "someTextFromAMessage";
         EasyMock.expect(sqsSubscriber.receiveMessage()).andReturn(text);

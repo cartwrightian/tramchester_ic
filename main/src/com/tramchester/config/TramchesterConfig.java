@@ -196,11 +196,14 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
     public String getLiveDataSNSTopic() {
         if (liveTfgmTramDataEnabled()) {
             TfgmTramLiveDataConfig liveDataConfig = getLiveDataConfig();
-            String topic = liveDataConfig.getSNSTopic();
+            String topic = liveDataConfig.getSnsTopicPrefix();
             if (topic==null) {
                 return "";
             }
-            return topic;
+            if (topic.isEmpty()) {
+                return "";
+            }
+            return topic + getEnvironmentName();
         }
         return "";
     }
