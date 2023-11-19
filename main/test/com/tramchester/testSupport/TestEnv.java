@@ -51,7 +51,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TestEnv {
     public static final Path CACHE_DIR = Path.of("testData","cache");
-    private static final String TEST_SNS_TOPIC = "TRAMCHESTER_TEST_TOPIC_";
+    public static final String TEST_SNS_TOPIC_PREFIX = "TRAMCHESTER_TEST_TOPIC_";
     private static final String TEST_SQS_QUEUE = "TRAMCHESTER_TEST_QUEUE_";
 
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(TestEnv.class);
@@ -367,12 +367,12 @@ public class TestEnv {
         return TEST_SQS_QUEUE+ getEnv();
     }
 
-    public static String getTestSNSTopicName() {
-        if (isCircleci()) {
-            return TEST_SNS_TOPIC+"CI";
-        }
-        return TEST_SNS_TOPIC+ getEnv();
-    }
+//    public static String getTestSNSTopicName() {
+//        if (isCircleci()) {
+//            return TEST_SNS_TOPIC+"CI";
+//        }
+//        return TEST_SNS_TOPIC + getEnv();
+//    }
 
     private static String getEnv() {
         String text = System.getenv("PLACE");

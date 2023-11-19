@@ -121,7 +121,7 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
                 return null;
             }
             case EnabledWithSNS -> {
-                return new TestTramLiveDataConfig(TestEnv.getTestSNSTopicName());
+                return new TestTramLiveDataConfig(TestEnv.TEST_SNS_TOPIC_PREFIX);
             }
             default -> throw new RuntimeException("Unknown live data config " + liveData);
         }

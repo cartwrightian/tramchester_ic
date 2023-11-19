@@ -40,6 +40,7 @@ public class SQSSubscriberFactoryTest {
     @BeforeEach
     void onceBeforeEachTestRuns() {
         factory = componentContainer.get(SQSSubscriberFactory.class);
+        SnsAndSqsSupport.clearQueueByName(sqsClient, queueName);
     }
 
     @AfterAll
@@ -49,11 +50,11 @@ public class SQSSubscriberFactoryTest {
     }
 
     @Test
-    void shouldCreateSubscriberAndReceiveMsgs() {
+    void shouldCreateSubscriberAndReceiveMsg() {
         String text = "someTextForInsideTheMessage";
 
         long retentionPeriodSeconds = 60;
-        SQSSubscriber subscriber = factory.getFor(queueName, TestEnv.getTestSNSTopicName(), retentionPeriodSeconds);
+        SQSSubscriber subscriber = factory.getFor(queueName, config.getLiveDataSNSTopic(), retentionPeriodSeconds);
 
         String topicArn = SnsAndSqsSupport.createOrGetTopic(snsClient, config.getLiveDataSNSTopic());
 
@@ -65,6 +66,29 @@ public class SQSSubscriberFactoryTest {
         String result = subscriber.receiveMessage();
 
         assertEquals(text, result);
+
+    }
+
+    @Test
+    void shouldCreateSubscriberAndReceiveNewestMessage() throws InterruptedException {
+
+        long retentionPeriodSeconds = 60;
+        SQSSubscriber subscriber = factory.getFor(queueName, config.getLiveDataSNSTopic(), retentionPeriodSeconds);
+
+        String topicArn = SnsAndSqsSupport.createOrGetTopic(snsClient, config.getLiveDataSNSTopic());
+
+        for (int i = 0; i < 10; i++) {
+            String text = "messageNumber"+i;
+            PublishRequest publishRequest = PublishRequest.builder().
+                    topicArn(topicArn).
+                    message(text).build();
+            snsClient.publish(publishRequest);
+            Thread.sleep(10);
+        }
+
+        String result = subscriber.receiveMessage();
+
+        assertEquals("messageNumber9", result);
 
     }
 }

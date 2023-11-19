@@ -4,14 +4,14 @@ import com.tramchester.config.TfgmTramLiveDataConfig;
 
 public class TestTramLiveDataConfig implements TfgmTramLiveDataConfig {
 
-    private final String snsTopic;
+    private final String snsTopicPrefix;
 
     public TestTramLiveDataConfig() {
         this("");
     }
 
-    public TestTramLiveDataConfig(String snsTopic) {
-        this.snsTopic = snsTopic;
+    public TestTramLiveDataConfig(String snsTopicPrefix) {
+        this.snsTopicPrefix = snsTopicPrefix;
     }
 
     @Override
@@ -45,7 +45,7 @@ public class TestTramLiveDataConfig implements TfgmTramLiveDataConfig {
 
     @Override
     public String getSnsTopicPrefix() {
-        return snsTopic;
+        return snsTopicPrefix;
     }
 
     @Override

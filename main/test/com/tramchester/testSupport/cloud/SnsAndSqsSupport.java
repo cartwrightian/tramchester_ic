@@ -81,18 +81,20 @@ public class SnsAndSqsSupport {
 
     private static void clearQueueByURL(SqsClient sqsClient, String queueUrl) {
         ReceiveMessageRequest receiveMsgRequest = ReceiveMessageRequest.builder().queueUrl(queueUrl).waitTimeSeconds(2).build();
-        ReceiveMessageResponse results = sqsClient.receiveMessage(receiveMsgRequest);
 
+        ReceiveMessageResponse results = sqsClient.receiveMessage(receiveMsgRequest);
         List<Message> msgs = results.messages();
 
-        if (msgs.isEmpty()) {
-            return;
-        }
+        while (!msgs.isEmpty()) {
 
-        List<DeleteMessageBatchRequestEntry> entries = msgs.stream().
-                map(msg -> DeleteMessageBatchRequestEntry.builder().id(msg.messageId()).build()).toList();
-        DeleteMessageBatchRequest batchDeleteReq = DeleteMessageBatchRequest.builder().queueUrl(queueUrl).entries(entries).build();
-        sqsClient.deleteMessageBatch(batchDeleteReq);
+            List<DeleteMessageBatchRequestEntry> entries = msgs.stream().
+                    map(msg -> DeleteMessageBatchRequestEntry.builder().id(msg.messageId()).build()).toList();
+            DeleteMessageBatchRequest batchDeleteReq = DeleteMessageBatchRequest.builder().queueUrl(queueUrl).entries(entries).build();
+            sqsClient.deleteMessageBatch(batchDeleteReq);
+
+            results = sqsClient.receiveMessage(receiveMsgRequest);
+            msgs = results.messages();
+        }
     }
 
     public static void clearQueueByName(SqsClient sqsClient, String queueName) {
@@ -106,7 +108,6 @@ public class SnsAndSqsSupport {
         clearQueueByURL(sqsClient, queueUrl);
 
     }
-
 
     public record QueueUrlAndArn(String queueUrl, String queueArn) {
     }

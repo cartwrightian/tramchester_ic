@@ -10,11 +10,16 @@ import software.amazon.awssdk.services.sqs.model.*;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import static java.lang.String.format;
+import static java.time.format.DateTimeFormatter.ISO_INSTANT;
 
 @LazySingleton
 public class SQSSubscriberFactory {
@@ -48,10 +53,10 @@ public class SQSSubscriberFactory {
 
         String queueUrl = createQueueIfNeeded(queueName, retentionPeriodSeconds);
 
-        ConfiguredSQLSubscriber subscriber = new ConfiguredSQLSubscriber(sqsClient, queueUrl);
-
         String topicARN = snsPublisher.getTopicUrnFor(topicName);
-        subscriber.updatePolicyFor(topicARN);
+        ConfiguredSQLSubscriber subscriber = new ConfiguredSQLSubscriber(sqsClient, queueUrl, topicARN);
+
+        subscriber.updatePolicyFor();
 
         String queueArn = subscriber.getARN();
         snsPublisher.subscribeQueueTo(topicARN, queueArn);
@@ -79,41 +84,85 @@ public class SQSSubscriberFactory {
 
         private final SqsClient sqsClient;
         private final String queueUrl;
+        private final String topicARN;
 
-        public ConfiguredSQLSubscriber(SqsClient sqsClient, String queueUrl) {
+        public ConfiguredSQLSubscriber(SqsClient sqsClient, String queueUrl, String topicARN) {
             this.sqsClient = sqsClient;
             this.queueUrl = queueUrl;
+            this.topicARN = topicARN;
+        }
+
+        private List<Message> receiveMessageBatch(final int maxNumber, Duration timeout) {
+            final List<Message> buffer = new LinkedList<>();
+            LocalDateTime stopTime = LocalDateTime.now().plus(timeout);
+            int countDown = maxNumber;
+            Integer timeoutLong = Math.toIntExact(timeout.getSeconds());
+
+            while(countDown>0 && LocalDateTime.now().isBefore(stopTime)) {
+                ReceiveMessageRequest receiveMsgReq = ReceiveMessageRequest.builder().
+                        queueUrl(queueUrl).
+                        waitTimeSeconds(timeoutLong).
+                        maxNumberOfMessages(10). // 10 is the max
+                        build();
+
+                ReceiveMessageResponse receiveResult = sqsClient.receiveMessage(receiveMsgReq);
+
+                if (receiveResult.hasMessages()) {
+                    List<Message> messages = receiveResult.messages();
+                    buffer.addAll(messages);
+                    countDown = countDown - messages.size();
+                }
+            }
+
+            return buffer;
         }
 
         @Override
         public String receiveMessage() {
-            ReceiveMessageRequest receiveMsgReq = ReceiveMessageRequest.builder().
-                    queueUrl(queueUrl).
-                    waitTimeSeconds(DEFAULT_MSG_RECEIVE_TIMEOUT).
-                    maxNumberOfMessages(1).
-                    build();
-
-            ReceiveMessageResponse receiveResult = sqsClient.receiveMessage(receiveMsgReq);
-
-            List<Message> msgs = receiveResult.messages();
+            List<Message> msgs = receiveMessageBatch(100, Duration.ofSeconds(5));
 
             if (msgs.isEmpty()) {
                 logger.info("No messages received for " + queueUrl);
                 return "";
+            } else {
+                logger.info(format("queue %s received %s messages", queueUrl, msgs.size()));
             }
 
-            logger.debug("Received " + msgs.size() + " messages for queue " + queueUrl);
-
             // only process and delete one message at a time due to way rest of live data works
-            Message message = msgs.get(0);
+            String text = extractRequiredBody(msgs);
 
-            logger.info(format("queue %s received msg %s", queueUrl, message.messageId()));
-
-            String text = extractPayloadFrom(message);
-
-            deleteMessage(message);
+            deleteMessages(msgs);
 
             return text;
+        }
+
+        private String extractRequiredBody(List<Message> msgs) {
+            // discard if not SNS or if not expected topic
+            List<JsonObject> parsedMessages = msgs.stream().
+                    map(msg -> Jsoner.deserialize(msg.body(), new JsonObject())).
+                    filter(json -> json.containsKey("TopicArn")).
+                    filter(json -> topicARN.equals(json.get("TopicArn"))).
+                    filter(json -> json.containsKey("Message")).
+                    filter(json -> json.containsKey("Timestamp")).
+                    toList();
+
+            if (parsedMessages.isEmpty()) {
+                logger.warn("No messages parsed successfully");
+                return "";
+            }
+            List<JsonObject> sorted = parsedMessages.stream().sorted(this::compare).toList();
+            if (sorted.isEmpty()) {
+                logger.warn("No messages remaining after sorting");
+            } else {
+                logger.info("Successful got target message");
+            }
+            return extractPayloadFrom(sorted.get(0));
+        }
+
+        private int compare(JsonObject a, JsonObject b) {
+            Instant timeA = Instant.from(ISO_INSTANT.parse((String) a.get("Timestamp")));
+            Instant timeB = Instant.from(ISO_INSTANT.parse((String) b.get("Timestamp")));
+            return timeB.compareTo(timeA);
         }
 
         private String getARN() {
@@ -125,33 +174,32 @@ public class SQSSubscriberFactory {
             return attributesResult.attributes().get(QueueAttributeName.QUEUE_ARN);
         }
 
-        private void deleteMessage(Message message) {
-            DeleteMessageRequest deleteMessageRequest = DeleteMessageRequest.builder().
-                    queueUrl(queueUrl).
-                    receiptHandle(message.receiptHandle()).build();
+        private void deleteMessages(List<Message> messages) {
 
-            sqsClient.deleteMessage(deleteMessageRequest);
+            List<DeleteMessageBatchRequestEntry> entries = messages.stream().
+                    map(msg -> DeleteMessageBatchRequestEntry.builder().id(msg.messageId()).build()).
+                    toList();
+            DeleteMessageBatchRequest batchRequest = DeleteMessageBatchRequest.builder().queueUrl(queueUrl).entries(entries).build();
+            sqsClient.deleteMessageBatch(batchRequest);
 
-            logger.info(format("Queue: %s deleted message %s", queueUrl, message.messageId()));
+            logger.info(format("Queue: %s deleted %s messages", queueUrl, messages.size()));
         }
 
-        private String extractPayloadFrom(Message message) {
-            final String body = message.body();
-            JsonObject parsed = Jsoner.deserialize(body, new JsonObject());
-            if (parsed.containsKey("Message")) {
-                return (String) parsed.get("Message");
+        private String extractPayloadFrom(JsonObject jsonObject) {
+            if (jsonObject.containsKey("Message")) {
+                return (String) jsonObject.get("Message");
             } else {
-                logger.error(format("Received message %s did not contain Message key, got %s", message.messageId(), body));
+                logger.error(format("Matched message did not contain Message %s", jsonObject));
                 return "";
             }
         }
 
-        public void updatePolicyFor(String topicArn) {
+        public void updatePolicyFor() {
             String queueARN = getARN();
             logger.info(format("Update policy for queue url: %s ARN: %s sns topic ARN: %s",
-                    queueUrl, queueARN, topicArn));
+                    queueUrl, queueARN, topicARN));
 
-            String policyStatement = createPolicyStatement(queueARN, topicArn);
+            String policyStatement = createPolicyStatement(queueARN, topicARN);
 
             Map<QueueAttributeName, String> snsPublishAttributes = new HashMap<>();
             snsPublishAttributes.put(QueueAttributeName.POLICY, policyStatement);
@@ -162,23 +210,24 @@ public class SQSSubscriberFactory {
         }
 
         private static String createPolicyStatement(String queueArn, String topicArn) {
-            return String.format("{\n" +
-                    "  \"Statement\": [\n" +
-                    "    {\n" +
-                    "      \"Effect\": \"Allow\",\n" +
-                    "      \"Principal\": {\n" +
-                    "        \"Service\": \"sns.amazonaws.com\"\n" +
-                    "      },\n" +
-                    "      \"Action\": \"sqs:SendMessage\",\n" +
-                    "      \"Resource\": \"%s\",\n" +
-                    "      \"Condition\": {\n" +
-                    "        \"ArnEquals\": {\n" +
-                    "          \"aws:SourceArn\": \"%s\"\n" +
-                    "        }\n" +
-                    "      }\n" +
-                    "    }\n" +
-                    "  ]\n" +
-                    "}", queueArn, topicArn);
+            return String.format("""
+                    {
+                      "Statement": [
+                        {
+                          "Effect": "Allow",
+                          "Principal": {
+                            "Service": "sns.amazonaws.com"
+                          },
+                          "Action": "sqs:SendMessage",
+                          "Resource": "%s",
+                          "Condition": {
+                            "ArnEquals": {
+                              "aws:SourceArn": "%s"
+                            }
+                          }
+                        }
+                      ]
+                    }""", queueArn, topicArn);
         }
     }
 }

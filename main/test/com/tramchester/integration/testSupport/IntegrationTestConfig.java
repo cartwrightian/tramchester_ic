@@ -4,13 +4,12 @@ import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.StationClosuresConfig;
 import com.tramchester.domain.StationClosures;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.naptan.NaptanRemoteDataSourceConfig;
 import com.tramchester.integration.testSupport.nptg.NPTGDataSourceTestConfig;
 import com.tramchester.integration.testSupport.postcodes.PostCodeDatasourceConfig;
 import com.tramchester.integration.testSupport.rail.RailRemoteDataSourceConfig;
 import com.tramchester.testSupport.TestConfig;
+import com.tramchester.testSupport.TestEnv;
 
 import java.nio.file.Path;
 import java.time.LocalDate;
@@ -57,5 +56,16 @@ public abstract class IntegrationTestConfig extends TestConfig {
     @Override
     public GraphDBConfig getGraphDBConfig() {
         return dbConfig;
+    }
+
+    @Override
+    public String getLiveDataSNSTopic() {
+        String text = super.getLiveDataSNSTopic();
+
+        if (TestEnv.isCircleci()) {
+            return text.replace("Dev", "CI");
+        }
+
+        return text;
     }
 }
