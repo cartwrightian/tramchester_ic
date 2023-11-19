@@ -2,12 +2,12 @@ package com.tramchester.livedata.tfgm;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.cloud.SNSPublisher;
-import com.tramchester.config.TfgmTramLiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 
 @LazySingleton
 public class LiveDataSNSPublisher implements LiveDataFetcher.ReceivesRawData {
@@ -16,7 +16,9 @@ public class LiveDataSNSPublisher implements LiveDataFetcher.ReceivesRawData {
     private final TramchesterConfig config;
     private final SNSPublisher snsPublisher;
     private final LiveDataFetcher liveDataFetcher;
+    private String snsTopic;
 
+    @Inject
     public LiveDataSNSPublisher(TramchesterConfig config, SNSPublisher snsPublisher, LiveDataFetcher liveDataFetcher) {
         this.config = config;
         this.snsPublisher = snsPublisher;
@@ -25,8 +27,10 @@ public class LiveDataSNSPublisher implements LiveDataFetcher.ReceivesRawData {
 
     @PostConstruct
     public void start() {
+        snsTopic = config.getLiveDataSNSTopic();
+
         if (isEnabled()) {
-            logger.info("Enabled, subscribing to live data");
+            logger.info("Enabled, subscribing to live data, will publish on topic " + snsTopic);
             liveDataFetcher.subscribe(this);
         } else {
             logger.info("Not enabled");
@@ -34,15 +38,7 @@ public class LiveDataSNSPublisher implements LiveDataFetcher.ReceivesRawData {
     }
 
     public boolean isEnabled() {
-        if (config.liveTfgmTramDataEnabled()) {
-            TfgmTramLiveDataConfig liveDataConfig = config.getLiveDataConfig();
-            String topic = liveDataConfig.getSNSTopic();
-            if (topic==null) {
-                return false;
-            }
-            return !topic.isEmpty();
-        }
-        return false;
+       return !snsTopic.isEmpty();
     }
 
     @Override
@@ -51,7 +47,7 @@ public class LiveDataSNSPublisher implements LiveDataFetcher.ReceivesRawData {
             logger.error("Should not be called, disabled");
             return;
         }
-        snsPublisher.send(text);
+        snsPublisher.send(snsTopic, text);
     }
 
 }

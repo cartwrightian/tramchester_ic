@@ -51,6 +51,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TestEnv {
     public static final Path CACHE_DIR = Path.of("testData","cache");
+    public static final String TEST_SNS_TOPIC = "TRAMCHESTR_TEST_TOPIC";
+    public static final String TEST_SQS_QUEUE = "TRAMCHESTR_TEST_QUEUE";
+
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(TestEnv.class);
 
     public static final String SERVER_URL_ENV_VAR = "SERVER_URL";

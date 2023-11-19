@@ -26,7 +26,7 @@ import java.util.Optional;
 public class IntegrationTramTestConfig extends IntegrationTestConfig {
 
     public enum LiveData {
-        Enabled, Disabled;
+        Enabled, Disabled, EnabledWithSNS;
     }
 
     public enum Caching {
@@ -113,10 +113,18 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
 
     @Override
     public TfgmTramLiveDataConfig getLiveDataConfig() {
-        if (liveData ==LiveData.Enabled) {
-            return new TestTramLiveDataConfig();
+        switch (liveData) {
+            case Enabled -> {
+                return new TestTramLiveDataConfig();
+            }
+            case Disabled -> {
+                return null;
+            }
+            case EnabledWithSNS -> {
+                return new TestTramLiveDataConfig(TestEnv.TEST_SNS_TOPIC);
+            }
+            default -> throw new RuntimeException("Unknown live data config " + liveData);
         }
-        return null;
     }
 
     private static class GraphDBIntegrationTramTestConfig extends GraphDBTestConfig {

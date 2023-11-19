@@ -98,6 +98,10 @@ dependencies {
     implementation("software.amazon.awssdk:s3:$awsSdkVersion")
     implementation("software.amazon.awssdk:cloudwatch:$awsSdkVersion")
     implementation("software.amazon.awssdk:cloudformation:$awsSdkVersion")
+    implementation("software.amazon.awssdk:sns:$awsSdkVersion")
+    implementation("software.amazon.awssdk:sqs:$awsSdkVersion")
+
+
     // aws cdk
     implementation "software.amazon.awscdk:core:$awsCdkVersion",
             "software.amazon.awscdk:s3:$awsCdkVersion",

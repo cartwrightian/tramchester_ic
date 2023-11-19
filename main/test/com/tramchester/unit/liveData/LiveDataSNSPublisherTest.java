@@ -37,7 +37,7 @@ public class LiveDataSNSPublisherTest extends EasyMockSupport {
         liveDataFetcher.subscribe(publisher);
         EasyMock.expectLastCall();
 
-        snsPublisher.send("someTextToSend");
+        snsPublisher.send("aTopic", "someTextToSend");
         EasyMock.expectLastCall();
 
         replayAll();

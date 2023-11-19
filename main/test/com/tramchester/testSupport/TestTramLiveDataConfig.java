@@ -4,6 +4,16 @@ import com.tramchester.config.TfgmTramLiveDataConfig;
 
 public class TestTramLiveDataConfig implements TfgmTramLiveDataConfig {
 
+    private final String snsTopic;
+
+    public TestTramLiveDataConfig() {
+        this("");
+    }
+
+    public TestTramLiveDataConfig(String snsTopic) {
+        this.snsTopic = snsTopic;
+    }
+
     @Override
     public int getMaxNumberStationsWithoutMessages() {
         return 10;
@@ -35,7 +45,7 @@ public class TestTramLiveDataConfig implements TfgmTramLiveDataConfig {
 
     @Override
     public String getSNSTopic() {
-        return "";
+        return snsTopic;
     }
 
     @Override

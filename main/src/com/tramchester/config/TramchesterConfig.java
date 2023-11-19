@@ -191,4 +191,16 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
         return sourceConfig.getMaxInitialWait();
     }
 
+    public String getLiveDataSNSTopic() {
+        if (liveTfgmTramDataEnabled()) {
+            TfgmTramLiveDataConfig liveDataConfig = getLiveDataConfig();
+            String topic = liveDataConfig.getSNSTopic();
+            if (topic==null) {
+                return "";
+            }
+            return topic;
+        }
+        return "";
+    }
+
 }
