@@ -48,11 +48,11 @@ public class LiveDataHTTPFetcher implements LiveDataFetcher {
                 GET().build();
 
         try {
-            logger.info("Get live tram data from " + uri);
+            logger.debug("Get live tram data from " + uri);
             HttpResponse<String> response = httpClient.send(get, HttpResponse.BodyHandlers.ofString());
             int statusCode = response.statusCode();
             if (statusCode == 200) {
-                logger.info(format("Get from %s response status is %s", uri, statusCode));
+                logger.info(format("Get from %s response status is %s size is %s", uri, statusCode, response.body().length()));
                 return response.body();
             } else {
                 logger.error(format("Got unexpected status code %s from uri %s", statusCode, uri));
