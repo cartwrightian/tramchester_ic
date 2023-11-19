@@ -13,7 +13,7 @@ jobs:
     working_directory: ~/repo
     environment:
       RELEASE_NUMBER: << pipeline.number >>
-      ENV : Dev
+      PLACE : Dev
     steps:
       - checkout
       - run:
@@ -45,6 +45,7 @@ jobs:
       AWS_REGION: eu-west-1
       RELEASE_NUMBER: << pipeline.number >>
       ENV: Dev
+      PLACE: Dev
     steps:
       - checkout
       - restore_cache:
