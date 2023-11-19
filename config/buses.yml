@@ -19,7 +19,7 @@ graphDBConfig:
   graphName: buses.db
   neo4jPagecacheMemory: 300m
 distributionBucket: tramchesternewdist
-environmentName: ${ENV}
+environmentName: ${PLACE}
 gtfsSourceConfig:
   -
     name: tfgm

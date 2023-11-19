@@ -32,10 +32,7 @@ if [ "$PLACE" == '' ]; then
         exit;
 fi
 
-# todo move from PLACE to ENV to be consistent across environments and deployments
-export ENV="$PLACE"
-
-logger -s Set up Web server Bucket: "$BUCKET" Build: "$BUILD" Url: "$ARTIFACTSURL" Env: "$ENV"
+logger -s Set up Web server Bucket: "$BUCKET" Build: "$BUILD" Url: "$ARTIFACTSURL" Env: "$PLACE"
 
 cd ~ec2-user || (logger Could not cd to ec2-user && exit)
 mkdir -p server
@@ -63,8 +60,8 @@ logger -s cloud watch agent configured
 logger -s invoke start script
 export RAIL_WSDL=$target/config/OpenLDBWS.wsdl
 export RELEASE_NUMBER="$BUILD"
-logger Start tramchester for $ENV
+logger Start tramchester for $PLACE
 export JAVA_OPTS="-Xmx1550m"
 sudo -E -u ec2-user bash ./$target/bin/start.sh &
 
-logger -s Finish Web bootstrap script for "$BUILD" and "$ENV"
+logger -s Finish Web bootstrap script for "$BUILD" and "$PLACE"

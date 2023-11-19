@@ -375,7 +375,7 @@ public class TestEnv {
     }
 
     private static String getEnv() {
-        String text = System.getenv("ENV");
+        String text = System.getenv("PLACE");
         if (text==null) {
             return "Dev";
         }

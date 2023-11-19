@@ -14,7 +14,7 @@ server:
     minimumEntitySize: 160B
 secureHost: tramchester.com
 redirectToSecure: true
-environmentName: ${ENV}
+environmentName: ${PLACE}
 staticAssetCacheTimeSeconds: 300
 graphDBConfig:
   graphName: rail.db

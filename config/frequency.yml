@@ -15,7 +15,7 @@ server:
 redirectToSecure: true
 secureHost: tramchester.com
 staticAssetCacheTimeSeconds: 300
-environmentName: ${ENV}
+environmentName: ${PLACE}
 graphDBConfig:
   graphName: ''
   neo4jPagecacheMemory: 0m

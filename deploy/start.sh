@@ -1,7 +1,7 @@
 #!/bin/bash
 
 target=tramchester-"$RELEASE_NUMBER"
-logger -s Start ./$target/bin/tramchester for "$ENV" and $target
+logger -s Start ./$target/bin/tramchester for "$PLACE" and $target
 
 LOGFILE=/home/ec2-user/server/logs/tramchester_local.log
 
