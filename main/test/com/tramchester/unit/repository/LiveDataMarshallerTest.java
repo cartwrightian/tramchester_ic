@@ -6,6 +6,7 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.domain.liveUpdates.LineDirection;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
+import com.tramchester.livedata.repository.LiveDataObserver;
 import com.tramchester.livedata.tfgm.*;
 import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
@@ -13,7 +14,6 @@ import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -22,31 +22,31 @@ import java.util.List;
 import static com.tramchester.testSupport.reference.TramStations.Altrincham;
 import static com.tramchester.testSupport.reference.TramStations.Bury;
 
-public class LiveDataUpdaterTest extends EasyMockSupport {
+public class LiveDataMarshallerTest extends EasyMockSupport {
 
-    private LiveDataFetcher fetcher;
     private LiveDataParser mapper;
-    private LiveDataUpdater repository;
+    private LiveDataMarshaller repository;
     private ProvidesNow providesNow;
     private LocalDateTime lastUpdate;
-    private TramDepartureRepository tramDepartureRepository;
-    private PlatformMessageRepository platformMessageRepository;
+    private LiveDataObserver subscriber;
 
     @BeforeEach
     void beforeEachTestRuns() {
-        fetcher = createMock(LiveDataHTTPFetcher.class);
+        LiveDataFetcher fetcher = createMock(LiveDataHTTPFetcher.class);
         mapper = createMock(LiveDataParser.class);
         providesNow = createMock(ProvidesNow.class);
-        platformMessageRepository = createMock(PlatformMessageRepository.class);
-        tramDepartureRepository = createMock(TramDepartureRepository.class);
 
-        repository = new LiveDataUpdater(platformMessageRepository, tramDepartureRepository, fetcher, mapper, providesNow);
+        repository = new LiveDataMarshaller(fetcher, mapper, providesNow);
+
+        subscriber = createMock(LiveDataObserver.class);
 
         lastUpdate = TestEnv.LocalNow();
+
+        repository.addSubscriber(subscriber);
     }
 
     @Test
-    void shouldUpdateRepositories() {
+    void shouldUpdateSubscriber() {
         List<TramStationDepartureInfo> info = new LinkedList<>();
 
         info.add(createDepartureInfoWithDueTram(lastUpdate, "yyy", "platformIdA",
@@ -57,19 +57,17 @@ public class LiveDataUpdaterTest extends EasyMockSupport {
         EasyMock.expect(providesNow.getNowHourMins()).andStubReturn(TramTime.ofHourMins(lastUpdate.toLocalTime()));
         EasyMock.expect(providesNow.getDate()).andStubReturn(lastUpdate.toLocalDate());
 
-        EasyMock.expect(fetcher.fetch()).andReturn("someData");
         EasyMock.expect(mapper.parse("someData")).andReturn(info);
 
-        EasyMock.expect(platformMessageRepository.updateCache(info)).andReturn(2);
-        EasyMock.expect(tramDepartureRepository.updateCache(info)).andReturn(2);
+        EasyMock.expect(subscriber.seenUpdate(info)).andReturn(true);
 
         replayAll();
-        repository.refreshRespository();
+        repository.rawData("someData");
         verifyAll();
     }
 
     @Test
-    void shouldUpdateRepositoriesIgnoringStaleData() {
+    void shouldUpdateSubscriberIgnoringStaleData() {
         List<TramStationDepartureInfo> info = new LinkedList<>();
 
         Station station = Altrincham.fake();
@@ -85,15 +83,14 @@ public class LiveDataUpdaterTest extends EasyMockSupport {
         EasyMock.expect(providesNow.getNowHourMins()).andStubReturn(TramTime.ofHourMins(lastUpdate.toLocalTime()));
         EasyMock.expect(providesNow.getDate()).andStubReturn(lastUpdate.toLocalDate());
 
-        EasyMock.expect(fetcher.fetch()).andReturn("someData");
         EasyMock.expect(mapper.parse("someData")).andReturn(info);
 
         List<TramStationDepartureInfo> expected = Collections.singletonList(departureInfo);
-        EasyMock.expect(platformMessageRepository.updateCache(expected)).andReturn(1);
-        EasyMock.expect(tramDepartureRepository.updateCache(expected)).andReturn(1);
+
+        EasyMock.expect(subscriber.seenUpdate(expected)).andReturn(true);
 
         replayAll();
-        repository.refreshRespository();
+        repository.rawData("someData");
         verifyAll();
     }
 

@@ -5,7 +5,6 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Platform;
-import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
@@ -13,7 +12,7 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.livedata.mappers.DeparturesMapper;
-import com.tramchester.livedata.repository.TramLiveDataCache;
+import com.tramchester.livedata.repository.LiveDataObserver;
 import com.tramchester.livedata.repository.UpcomingDeparturesSource;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.metrics.HasMetrics;
@@ -23,6 +22,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.time.LocalDateTime;
@@ -38,7 +38,7 @@ import java.util.stream.Stream;
 import static java.lang.String.format;
 
 @LazySingleton
-public class TramDepartureRepository implements UpcomingDeparturesSource, TramLiveDataCache, ReportsCacheStats, HasMetrics {
+public class TramDepartureRepository implements UpcomingDeparturesSource, LiveDataObserver, ReportsCacheStats, HasMetrics {
     private static final Logger logger = LoggerFactory.getLogger(TramDepartureRepository.class);
 
     // TODO Correct limit here?
@@ -48,11 +48,13 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, TramLi
     // platformId -> StationDepartureInfo
     private final Cache<IdFor<Platform>, PlatformDueTrams> dueTramsCache;
     private final ProvidesNow providesNow;
+    private final LiveDataMarshaller updater;
 
     private LocalDateTime lastRefresh;
 
     @Inject
-    public TramDepartureRepository(ProvidesNow providesNow, CacheMetrics registory) {
+    public TramDepartureRepository(LiveDataMarshaller updater, ProvidesNow providesNow, CacheMetrics registory) {
+        this.updater = updater;
         this.providesNow = providesNow;
 
         dueTramsCache = Caffeine.newBuilder().maximumSize(STATION_INFO_CACHE_SIZE).
@@ -61,13 +63,23 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, TramLi
         registory.register(this);
     }
 
+    @PostConstruct
+    public void start() {
+        updater.addSubscriber(this);
+    }
+
     @PreDestroy
     public void dispose() {
         dueTramsCache.invalidateAll();
     }
 
     @Override
-    public int updateCache(List<TramStationDepartureInfo> departureInfos) {
+    public boolean seenUpdate(List<TramStationDepartureInfo> update) {
+        int count = updateRepository(update);
+        return count>0;
+    }
+
+    private int updateRepository(List<TramStationDepartureInfo> departureInfos) {
         int consumed = consumeDepartInfo(departureInfos);
         dueTramsCache.cleanUp();
         lastRefresh = providesNow.getDateTime();
@@ -180,6 +192,10 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, TramLi
 
     // for healthcheck
     public int getNumStationsWithData(LocalDateTime queryDateTime) {
+        if (lastRefresh==null) {
+            logger.error("Never received any data");
+            return 0;
+        }
         if (!queryDateTime.toLocalDate().equals(lastRefresh.toLocalDate())) {
             return 0;
         }
@@ -224,6 +240,8 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, TramLi
     private Integer getNumStationsWithTramsNow() {
         return getNumStationsWithTrams(providesNow.getDateTime());
     }
+
+
 
     private static class PlatformDueTrams {
         private final Platform stationPlatform;

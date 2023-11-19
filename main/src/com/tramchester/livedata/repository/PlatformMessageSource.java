@@ -9,12 +9,11 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.domain.liveUpdates.PlatformMessage;
 import com.tramchester.livedata.tfgm.PlatformMessageRepository;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 @ImplementedBy(PlatformMessageRepository.class)
-public interface PlatformMessageSource extends TramLiveDataCache {
+public interface PlatformMessageSource  {
     Optional<PlatformMessage> messagesFor(IdFor<Platform> platformId, TramDate queryDate, TramTime queryTime);
     List<PlatformMessage> messagesFor(Station station, TramDate queryDate, TramTime queryTime);
 

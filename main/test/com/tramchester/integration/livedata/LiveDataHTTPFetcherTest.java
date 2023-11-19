@@ -45,7 +45,7 @@ class LiveDataHTTPFetcherTest {
 
         // don't want to fetch every time
         fetcher = componentContainer.get(LiveDataHTTPFetcher.class);
-        payload = fetcher.fetch();
+        payload = fetcher.getData();
     }
 
     @AfterAll
@@ -115,7 +115,7 @@ class LiveDataHTTPFetcherTest {
     @LiveDataTestCategory
     @Disabled("Part of spike on character set encoding issue for live api")
     void checkCharacterEncodingOnResponse()  {
-        String rawJSON = fetcher.fetch();
+        String rawJSON = fetcher.getData();
 
         //JSONParser jsonParser = new JSONParser();
         JsonObject parsed = Jsoner.deserialize(rawJSON, new JsonObject());

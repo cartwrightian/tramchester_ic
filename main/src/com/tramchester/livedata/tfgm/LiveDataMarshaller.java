@@ -4,12 +4,12 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.livedata.repository.TramLiveDataCache;
 import com.tramchester.livedata.repository.LiveDataObserver;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.time.Duration;
@@ -22,24 +22,19 @@ import java.util.List;
 import static java.lang.String.format;
 
 @LazySingleton
-public class LiveDataUpdater {
-    private static final Logger logger = LoggerFactory.getLogger(LiveDataUpdater.class);
+public class LiveDataMarshaller implements LiveDataFetcher.ReceivesRawData {
+    private static final Logger logger = LoggerFactory.getLogger(LiveDataMarshaller.class);
 
     private static final Duration TIME_LIMIT = Duration.ofMinutes(20); // only enrich if data is within this many minutes
 
     private final List<LiveDataObserver> observers;
-    private final PlatformMessageRepository platformMessageRepository;
-    private final TramLiveDataCache dueTramsRepository;
 
     private final LiveDataFetcher fetcher;
     private final LiveDataParser parser;
     private final ProvidesNow providesNow;
 
     @Inject
-    public LiveDataUpdater(PlatformMessageRepository platformMessageRepository, TramDepartureRepository tramDepartureRepository,
-                           LiveDataFetcher fetcher, LiveDataParser parser, ProvidesNow providesNow) {
-        this.platformMessageRepository = platformMessageRepository;
-        this.dueTramsRepository = tramDepartureRepository;
+    public LiveDataMarshaller(LiveDataFetcher fetcher, LiveDataParser parser, ProvidesNow providesNow) {
         this.fetcher = fetcher;
         this.parser = parser;
         this.providesNow = providesNow;
@@ -47,14 +42,25 @@ public class LiveDataUpdater {
         observers = new LinkedList<>();
     }
 
+    @PostConstruct
+    public void start() {
+        logger.info("starting");
+        fetcher.subscribe(this);
+        logger.info("started");
+    }
+
     @PreDestroy
     public void dispose() {
+        fetcher.stop();
         observers.clear();
     }
 
-    public void refreshRespository()  {
-        logger.debug("Refresh repository");
-        final String payload  = fetcher.fetch();
+    @Override
+    public void rawData(String text) {
+        processRawData(text);
+    }
+
+    private void processRawData(String payload) {
         final List<TramStationDepartureInfo> receivedInfos;
         if (payload.isEmpty()) {
             logger.warn("Empty payload");
@@ -75,8 +81,6 @@ public class LiveDataUpdater {
             logger.error(msg);
         }
 
-        dueTramsRepository.updateCache(fresh);
-        platformMessageRepository.updateCache(fresh);
         if (!fresh.isEmpty()) {
             invokeObservers(fresh);
         }
@@ -116,7 +120,7 @@ public class LiveDataUpdater {
             return false;
         }
         TramTime updateTime = TramTime.ofHourMins(newDepartureInfo.getLastUpdate().toLocalTime());
-        //if (TramTime.difference(now, updateTime).compareTo(TIME_LIMIT) > 0) {
+
         if (Durations.greaterThan(TramTime.difference(now, updateTime), TIME_LIMIT)) {
             logger.info(format("Received out of date update. Local Now: %s Update: %s ", providesNow.getNowHourMins(), updateTime));
             return false;
@@ -134,8 +138,10 @@ public class LiveDataUpdater {
         }
     }
 
-    public void observeUpdates(LiveDataObserver observer) {
+    public void addSubscriber(LiveDataObserver observer) {
+        logger.info("Add subscriber " + observer.getClass().getSimpleName());
         observers.add(observer);
     }
+
 
 }

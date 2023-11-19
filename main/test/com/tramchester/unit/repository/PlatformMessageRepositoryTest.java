@@ -11,6 +11,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.domain.liveUpdates.LineDirection;
 import com.tramchester.livedata.domain.liveUpdates.PlatformMessage;
 import com.tramchester.livedata.tfgm.Lines;
+import com.tramchester.livedata.tfgm.LiveDataMarshaller;
 import com.tramchester.livedata.tfgm.PlatformMessageRepository;
 import com.tramchester.livedata.tfgm.TramStationDepartureInfo;
 import com.tramchester.metrics.CacheMetrics;
@@ -47,7 +48,9 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         providesNow = createMock(ProvidesNow.class);
         config = createMock(TramchesterConfig.class);
 
-        repository = new PlatformMessageRepository(providesNow, new CacheMetrics(TestEnv.NoopRegisterMetrics()), config);
+        LiveDataMarshaller updater = EasyMock.createMock(LiveDataMarshaller.class);
+
+        repository = new PlatformMessageRepository(updater, providesNow, new CacheMetrics(TestEnv.NoopRegisterMetrics()), config);
 
         LocalDate today = TestEnv.LocalNow().toLocalDate();
         lastUpdate = LocalDateTime.of(today, LocalTime.of(15,42));

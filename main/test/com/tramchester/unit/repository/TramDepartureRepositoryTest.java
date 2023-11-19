@@ -10,6 +10,7 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.livedata.domain.liveUpdates.LineDirection;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.livedata.tfgm.Lines;
+import com.tramchester.livedata.tfgm.LiveDataMarshaller;
 import com.tramchester.livedata.tfgm.TramDepartureRepository;
 import com.tramchester.livedata.tfgm.TramStationDepartureInfo;
 import com.tramchester.metrics.CacheMetrics;
@@ -46,7 +47,8 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
     @BeforeEach
     void beforeEachTestRuns() {
         providesNow = createMock(ProvidesNow.class);
-        departureRepository = new TramDepartureRepository(providesNow, new CacheMetrics(TestEnv.NoopRegisterMetrics()));
+        LiveDataMarshaller updater = EasyMock.createMock(LiveDataMarshaller.class);
+        departureRepository = new TramDepartureRepository(updater, providesNow, new CacheMetrics(TestEnv.NoopRegisterMetrics()));
 
         LocalDate today = TestEnv.LocalNow().toLocalDate();
         date = today;
@@ -90,7 +92,7 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
         EasyMock.expect(providesNow.getDateTime()).andStubReturn(lastUpdate);
 
         replayAll();
-        departureRepository.updateCache(infos);
+        departureRepository.seenUpdate(infos);
         verifyAll();
 
         assertEquals(3, departureRepository.upToDateEntries());
@@ -121,7 +123,7 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
         EasyMock.expect(providesNow.getDateTime()).andStubReturn(lastUpdate);
 
         replayAll();
-        departureRepository.updateCache(infos);
+        departureRepository.seenUpdate(infos);
         verifyAll();
 
         assertEquals(2, departureRepository.upToDateEntries());
@@ -157,7 +159,7 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
         EasyMock.expect(providesNow.getDateTime()).andStubReturn(lastUpdate);
 
         replayAll();
-        departureRepository.updateCache(infos);
+        departureRepository.seenUpdate(infos);
         verifyAll();
 
         assertEquals(1, departureRepository.upToDateEntries());
@@ -187,7 +189,7 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
         EasyMock.expect(providesNow.getDateTime()).andStubReturn(lastUpdate);
 
         replayAll();
-        departureRepository.updateCache(info);
+        departureRepository.seenUpdate(info);
         List<UpcomingDeparture> dueTramsNow = departureRepository.forStation(station);
         List<UpcomingDeparture> dueTramsEarlier = departureRepository.forStation(station);
         List<UpcomingDeparture> dueTramsLater = departureRepository.forStation(station);

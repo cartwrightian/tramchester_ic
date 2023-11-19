@@ -5,12 +5,14 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.cloud.data.LiveDataClientForS3;
 import com.tramchester.cloud.data.S3Keys;
 import com.tramchester.cloud.data.StationDepartureMapper;
+import com.tramchester.livedata.tfgm.LiveDataMarshaller;
 import com.tramchester.livedata.tfgm.TramStationDepartureInfo;
 import com.tramchester.livedata.domain.DTO.StationDepartureInfoDTO;
 import com.tramchester.livedata.repository.LiveDataObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.time.DateTimeException;
 import java.time.LocalDateTime;
@@ -21,25 +23,40 @@ import java.util.stream.Collectors;
 import static java.lang.String.format;
 
 @LazySingleton
-public class UploadsLiveData implements LiveDataObserver {
-    private static final Logger logger = LoggerFactory.getLogger(UploadsLiveData.class);
+public class UploadsLiveDataToS3 implements LiveDataObserver {
+    private static final Logger logger = LoggerFactory.getLogger(UploadsLiveDataToS3.class);
 
     private final StationDepartureMapper mapper;
     private final LiveDataClientForS3 s3;
     private final S3Keys s3Keys;
+    private final LiveDataMarshaller liveDataMarshaller;
 
     @Inject
-    public UploadsLiveData(LiveDataClientForS3 s3, StationDepartureMapper mapper, S3Keys s3Keys) {
+    public UploadsLiveDataToS3(LiveDataClientForS3 s3, StationDepartureMapper mapper, S3Keys s3Keys, LiveDataMarshaller liveDataMarshaller) {
         this.s3 = s3;
         this.mapper = mapper;
         this.s3Keys = s3Keys;
+        this.liveDataMarshaller = liveDataMarshaller;
     }
 
-    public boolean seenUpdate(Collection<TramStationDepartureInfo> stationDepartureInfos) {
-        if (!s3.isEnabled()) {
+    @PostConstruct
+    public void start() {
+        if (s3.isEnabled()) {
+            logger.info("s3 is enabled, subscribing to live data");
+            liveDataMarshaller.addSubscriber(this);
+        } else {
             logger.warn("S3 client not started, no live data will be archived");
-            return false;
         }
+    }
+
+    @Override
+    public boolean seenUpdate(List<TramStationDepartureInfo> stationDepartureInfos) {
+        if (!s3.isEnabled()) {
+            String message = "Should not have been called, s3 is disabled";
+            logger.error(message);
+            throw new RuntimeException(message);
+        }
+
         if (stationDepartureInfos.isEmpty()) {
             logger.error("Invoked with zero departures");
             return false;

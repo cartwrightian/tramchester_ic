@@ -3,6 +3,7 @@ package com.tramchester.modules;
 import com.google.inject.AbstractModule;
 import com.tramchester.config.TfgmTramLiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.livedata.tfgm.DummyLiveDataFetcher;
 import com.tramchester.livedata.tfgm.LiveDataFetcher;
 import com.tramchester.livedata.tfgm.LiveDataHTTPFetcher;
 import org.slf4j.Logger;
@@ -22,6 +23,7 @@ public class LiveDataModule extends AbstractModule {
         TfgmTramLiveDataConfig liveConfig = config.getLiveDataConfig();
         if  (liveConfig==null) {
             logger.warn("tfgm live data disabled");
+            bind(LiveDataFetcher.class).to(DummyLiveDataFetcher.class);
             return;
         }
 

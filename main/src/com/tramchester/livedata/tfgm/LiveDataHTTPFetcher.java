@@ -17,7 +17,7 @@ import java.time.Duration;
 import static java.lang.String.format;
 
 @LazySingleton
-public class LiveDataHTTPFetcher implements LiveDataFetcher {
+public class LiveDataHTTPFetcher extends LiveDataFetcher {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataHTTPFetcher.class);
     public static final int CONNECT_TIMEOUT_MS = 30 * 1000;
 
@@ -29,7 +29,7 @@ public class LiveDataHTTPFetcher implements LiveDataFetcher {
     }
 
     @Override
-    public String fetch() {
+    public String getData() {
 
         HttpClient httpClient = HttpClient.newBuilder().
                 connectTimeout(Duration.ofMillis(CONNECT_TIMEOUT_MS)).

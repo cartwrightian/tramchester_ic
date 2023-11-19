@@ -1,5 +1,41 @@
 package com.tramchester.livedata.tfgm;
 
-public interface LiveDataFetcher {
-    String fetch();
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public abstract class LiveDataFetcher {
+    private static final Logger logger = LoggerFactory.getLogger(LiveDataFetcher.class);
+
+    private final List<ReceivesRawData> subscribers;
+
+    protected LiveDataFetcher() {
+        this.subscribers = new ArrayList<>();
+    }
+
+    public void fetch() {
+        logger.info("Fetch data");
+        final String data = getData();
+        if (subscribers.isEmpty()) {
+            logger.warn("No subscribers!");
+        }
+        subscribers.forEach(subscriber -> subscriber.rawData(data));
+    }
+
+    abstract String getData();
+
+    protected void stop() {
+        subscribers.clear();
+    }
+
+    void subscribe(ReceivesRawData receivesRawData) {
+        logger.info("Register " +receivesRawData.getClass());
+        this.subscribers.add(receivesRawData);
+    }
+
+    interface ReceivesRawData {
+        void rawData(String text);
+    }
 }

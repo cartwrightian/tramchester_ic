@@ -5,11 +5,11 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
-import com.tramchester.livedata.tfgm.LiveDataUpdater;
+import com.tramchester.livedata.tfgm.LiveDataFetcher;
 import com.tramchester.livedata.tfgm.PlatformMessageRepository;
-import com.tramchester.testSupport.testTags.LiveDataMessagesCategory;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.LiveDataMessagesCategory;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,9 +17,10 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class LiveDataUpdaterTest {
+public class PlatformMessageRepositoryTest {
     private static ComponentContainer componentContainer;
 
     private PlatformMessageRepository messageRepo;
@@ -41,9 +42,12 @@ public class LiveDataUpdaterTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
+
+        LiveDataFetcher liveDataFetcher = componentContainer.get(LiveDataFetcher.class);
+
         messageRepo = componentContainer.get(PlatformMessageRepository.class);
-        LiveDataUpdater liveDataUpdater = componentContainer.get(LiveDataUpdater.class);
-        liveDataUpdater.refreshRespository();
+
+        liveDataFetcher.fetch();
     }
 
     @Test

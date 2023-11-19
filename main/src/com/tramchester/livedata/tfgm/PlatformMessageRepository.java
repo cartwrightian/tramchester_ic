@@ -14,6 +14,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.domain.liveUpdates.PlatformMessage;
+import com.tramchester.livedata.repository.LiveDataObserver;
 import com.tramchester.livedata.repository.PlatformMessageSource;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.metrics.HasMetrics;
@@ -35,7 +36,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @LazySingleton
-public class PlatformMessageRepository implements PlatformMessageSource, ReportsCacheStats, HasMetrics {
+public class PlatformMessageRepository implements PlatformMessageSource, ReportsCacheStats, HasMetrics, LiveDataObserver {
     private static final Logger logger = LoggerFactory.getLogger(PlatformMessageRepository.class);
 
     private static final int TIME_LIMIT = 20; // only enrich if data is within this many minutes
@@ -43,13 +44,15 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
     public static final int EMPTY_MESSAGE_WARN_THRESHOLD = 10;
 
     private final Cache<IdFor<Platform>, PlatformMessage> messageCache;
+    private final LiveDataMarshaller updater;
     private final ProvidesNow providesNow;
     private final CacheMetrics cacheMetrics;
     private final TramchesterConfig config;
     private TramDate lastRefresh;
 
     @Inject
-    public PlatformMessageRepository(ProvidesNow providesNow, CacheMetrics cacheMetrics, TramchesterConfig config) {
+    public PlatformMessageRepository(LiveDataMarshaller updater, ProvidesNow providesNow, CacheMetrics cacheMetrics, TramchesterConfig config) {
+        this.updater = updater;
         this.providesNow = providesNow;
         this.cacheMetrics = cacheMetrics;
         this.config = config;
@@ -65,6 +68,7 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
         } else {
             logger.warn("Disabled, live data is not configured");
         }
+        updater.addSubscriber(this);
     }
 
     @PreDestroy
@@ -82,10 +86,13 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
         return config.liveTfgmTramDataEnabled();
     }
 
-    /***
-     * from LiveDataUpdater, which only running if live data is configured
-     */
+
     @Override
+    public boolean seenUpdate(List<TramStationDepartureInfo> received) {
+        int entries = updateCache(received);
+        return entries>0;
+    }
+
     public int updateCache(List<TramStationDepartureInfo> departureInfos) {
         if (!areMetricsEnabled()) {
             logger.error("Unexpected call of updateCache since live data is disabled");
@@ -267,4 +274,5 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
         registersMetrics.add(this, "liveData", "messages", this::numberOfEntries);
         registersMetrics.add(this, "liveData", "stationsWithMessages", this::numberStationsWithMessagesNow);
     }
+
 }

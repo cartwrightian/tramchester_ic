@@ -4,11 +4,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.tramchester.cloud.data.LiveDataClientForS3;
 import com.tramchester.cloud.data.S3Keys;
 import com.tramchester.cloud.data.StationDepartureMapper;
-import com.tramchester.livedata.cloud.UploadsLiveData;
-import com.tramchester.livedata.tfgm.TramStationDepartureInfo;
+import com.tramchester.livedata.cloud.UploadsLiveDataToS3;
 import com.tramchester.livedata.domain.DTO.StationDepartureInfoDTO;
+import com.tramchester.livedata.tfgm.LiveDataMarshaller;
+import com.tramchester.livedata.tfgm.TramStationDepartureInfo;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.unit.repository.LiveDataUpdaterTest;
+import com.tramchester.unit.repository.LiveDataMarshallerTest;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,17 +21,19 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-class UploadsLiveDataTest extends EasyMockSupport {
+class UploadsLiveDataToS3Test extends EasyMockSupport {
 
     private LiveDataClientForS3 clientForS3;
-    private UploadsLiveData uploadsLiveData;
+    private UploadsLiveDataToS3 uploadsLiveDataToS3;
     private List<TramStationDepartureInfo> liveData;
     private StationDepartureMapper mapper;
     private S3Keys s3Keys;
     private LocalDateTime lastUpdateTime;
+    private LiveDataMarshaller liveDataMarshaller;
 
     @BeforeEach
     void beforeEachTestRuns() {
@@ -41,10 +44,12 @@ class UploadsLiveDataTest extends EasyMockSupport {
 
         s3Keys = createMock(S3Keys.class);
 
-        uploadsLiveData = new UploadsLiveData(clientForS3, mapper, s3Keys);
+        liveDataMarshaller = createStrictMock(LiveDataMarshaller.class);
+
+        uploadsLiveDataToS3 = new UploadsLiveDataToS3(clientForS3, mapper, s3Keys, liveDataMarshaller);
 
         liveData = new LinkedList<>();
-        liveData.add(LiveDataUpdaterTest.createDepartureInfoWithDueTram(lastUpdateTime, "displayId",
+        liveData.add(LiveDataMarshallerTest.createDepartureInfoWithDueTram(lastUpdateTime, "displayId",
                 "platforId", "messageTxt", TramStations.NavigationRoad.fake()));
 
     }
@@ -65,7 +70,7 @@ class UploadsLiveDataTest extends EasyMockSupport {
         EasyMock.expect(clientForS3.upload("key", "someJson", lastUpdateTime)).andReturn(true);
 
         replayAll();
-        boolean result = uploadsLiveData.seenUpdate(liveData);
+        boolean result = uploadsLiveDataToS3.seenUpdate(liveData);
         verifyAll();
 
         assertTrue(result);
@@ -81,7 +86,7 @@ class UploadsLiveDataTest extends EasyMockSupport {
         EasyMock.expect(clientForS3.itemExists("prefix", "key")).andReturn(true);
 
         replayAll();
-        boolean result = uploadsLiveData.seenUpdate(liveData);
+        boolean result = uploadsLiveDataToS3.seenUpdate(liveData);
         verifyAll();
 
         assertTrue(result);
@@ -92,20 +97,30 @@ class UploadsLiveDataTest extends EasyMockSupport {
         EasyMock.expect(clientForS3.isEnabled()).andReturn(true);
 
         replayAll();
-        boolean result = uploadsLiveData.seenUpdate(Collections.emptyList());
+        boolean result = uploadsLiveDataToS3.seenUpdate(Collections.emptyList());
         verifyAll();
 
         assertFalse(result);
     }
 
     @Test
-    void shouldNotUploadIfNotStarted() {
+    void shouldNotSubscribeIfS3NotStarted() {
         EasyMock.expect(clientForS3.isEnabled()).andReturn(false);
 
         replayAll();
-        boolean result = uploadsLiveData.seenUpdate(liveData);
+        uploadsLiveDataToS3.start();
         verifyAll();
+    }
 
-        assertFalse(result);
+    @Test
+    void shouldSubscribeIfS3NotStarted() {
+        EasyMock.expect(clientForS3.isEnabled()).andReturn(true);
+
+        liveDataMarshaller.addSubscriber(uploadsLiveDataToS3);
+        EasyMock.expectLastCall();
+
+        replayAll();
+        uploadsLiveDataToS3.start();
+        verifyAll();
     }
 }

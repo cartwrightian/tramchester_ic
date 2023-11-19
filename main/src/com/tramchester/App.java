@@ -9,8 +9,7 @@ import com.tramchester.config.AppConfiguration;
 import com.tramchester.config.TfgmTramLiveDataConfig;
 import com.tramchester.healthchecks.LiveDataJobHealthCheck;
 import com.tramchester.livedata.cloud.CountsUploadedLiveData;
-import com.tramchester.livedata.cloud.UploadsLiveData;
-import com.tramchester.livedata.tfgm.LiveDataUpdater;
+import com.tramchester.livedata.tfgm.LiveDataFetcher;
 import com.tramchester.livedata.tfgm.PlatformMessageRepository;
 import com.tramchester.livedata.tfgm.TramDepartureRepository;
 import com.tramchester.metrics.CacheMetrics;
@@ -270,24 +269,20 @@ public class App extends Application<AppConfiguration>  {
                                                   ScheduledExecutorService executor, MetricRegistry metricRegistry) {
         logger.info("Init live data and live data healthchecks");
         // initial load of live data
-        final LiveDataUpdater updatesData = container.get(LiveDataUpdater.class);
-        updatesData.refreshRespository();
+        final LiveDataFetcher fetchData = container.get(LiveDataFetcher.class);
+        fetchData.fetch();
 
         // refresh live data job
         final int initialDelay = 10;
         final ScheduledFuture<?> liveDataFuture = executor.scheduleAtFixedRate(() -> {
             try {
-                updatesData.refreshRespository();
+                fetchData.fetch();
             } catch (Exception exeception) {
                 logger.error("Unable to refresh live data", exeception);
             }
         }, initialDelay, configuration.getRefreshPeriodSeconds(), TimeUnit.SECONDS);
 
         environment.healthChecks().register("liveDataJobCheck", new LiveDataJobHealthCheck(liveDataFuture));
-
-        // archive live data in S3
-        UploadsLiveData observer = container.get(UploadsLiveData.class);
-        updatesData.observeUpdates(observer);
 
         final TramDepartureRepository tramDepartureRepository = container.get(TramDepartureRepository.class);
         final PlatformMessageRepository messageRepository = container.get(PlatformMessageRepository.class);

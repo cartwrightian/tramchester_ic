@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 
-public class LiveDataFileFetcher implements LiveDataFetcher {
+public class LiveDataFileFetcher extends LiveDataFetcher {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataFileFetcher.class);
     private final Path path;
 
@@ -17,7 +17,7 @@ public class LiveDataFileFetcher implements LiveDataFetcher {
     }
 
     @Override
-    public String fetch() {
+    public String getData() {
         try {
             return FileUtils.readFileToString(path.toFile(),  StandardCharsets.US_ASCII);
         } catch (IOException excep) {
