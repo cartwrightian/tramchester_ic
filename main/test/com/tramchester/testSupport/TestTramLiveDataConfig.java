@@ -34,6 +34,11 @@ public class TestTramLiveDataConfig implements TfgmTramLiveDataConfig {
     public String getS3Bucket() { return ""; }
 
     @Override
+    public String getSNSTopic() {
+        return "";
+    }
+
+    @Override
     public Long getRefreshPeriodSeconds() { return 20L; }
 
 

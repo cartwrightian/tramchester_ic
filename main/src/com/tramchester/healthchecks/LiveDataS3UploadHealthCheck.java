@@ -39,7 +39,7 @@ public class LiveDataS3UploadHealthCheck extends TramchesterHealthCheck {
         if (config==null) {
             return false;
         }
-        return config.isEnabled();
+        return config.isS3Enabled();
     }
 
     @PostConstruct

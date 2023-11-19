@@ -11,6 +11,7 @@ public class TfgmTramLiveDataAppConfig implements TfgmTramLiveDataConfig {
     private final Integer maxNumberStationsWithoutMessages;
     private final Integer maxNumberStationsWithoutData;
     private final String s3Prefix;
+    private final String snsTopic;
 
     public TfgmTramLiveDataAppConfig(@JsonProperty(value = "dataUrl", required = true) String dataUrl,
                                      @JsonProperty(value = "dataSubscriptionKey", required = true) String dataSubscriptionKey,
@@ -18,7 +19,8 @@ public class TfgmTramLiveDataAppConfig implements TfgmTramLiveDataConfig {
                                      @JsonProperty(value = "refreshPeriodSeconds", required = true) Long refreshPeriodSeconds,
                                      @JsonProperty(value = "maxNumberStationsWithoutMessages", required = true) Integer maxNumberStationsWithoutMessages,
                                      @JsonProperty(value = "maxNumberStationsWithoutData", required = true) Integer maxNumberStationsWithoutData,
-                                     @JsonProperty(value = "s3Prefix", required = true) String s3Prefix) {
+                                     @JsonProperty(value = "s3Prefix", required = true) String s3Prefix,
+                                     @JsonProperty(value = "snsTopic", required = false) String snsTopic) {
         this.dataUrl = dataUrl;
         this.dataSubscriptionKey = dataSubscriptionKey;
         this.s3Bucket = s3Bucket;
@@ -26,6 +28,7 @@ public class TfgmTramLiveDataAppConfig implements TfgmTramLiveDataConfig {
         this.maxNumberStationsWithoutMessages = maxNumberStationsWithoutMessages;
         this.maxNumberStationsWithoutData = maxNumberStationsWithoutData;
         this.s3Prefix = s3Prefix;
+        this.snsTopic = snsTopic;
     }
 
     @Override
@@ -39,6 +42,14 @@ public class TfgmTramLiveDataAppConfig implements TfgmTramLiveDataConfig {
     @Override
     public String getS3Bucket() {
         return s3Bucket.toLowerCase();
+    }
+
+    @Override
+    public String getSNSTopic() {
+        if (snsTopic ==null) {
+            return "";
+        }
+        return snsTopic;
     }
 
     @Override

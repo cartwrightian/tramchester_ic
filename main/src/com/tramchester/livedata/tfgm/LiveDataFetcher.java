@@ -30,12 +30,12 @@ public abstract class LiveDataFetcher {
         subscribers.clear();
     }
 
-    void subscribe(ReceivesRawData receivesRawData) {
+    public void subscribe(ReceivesRawData receivesRawData) {
         logger.info("Register " +receivesRawData.getClass());
         this.subscribers.add(receivesRawData);
     }
 
-    interface ReceivesRawData {
+    public interface ReceivesRawData {
         void rawData(String text);
     }
 }

@@ -5,17 +5,22 @@ public interface TfgmTramLiveDataConfig {
 
     String getDataSubscriptionKey();
 
-    String getS3Bucket();
-
     Long getRefreshPeriodSeconds();
 
+    // for alerting
     int getMaxNumberStationsWithoutMessages();
 
     int getMaxNumberStationsWithoutData();
 
+    // for S3 data archiving
     String getS3Prefix();
 
-    default boolean isEnabled() {
+    String getS3Bucket();
+
+    default boolean isS3Enabled() {
         return !getS3Bucket().isEmpty();
     }
+
+    // for sns publish
+    String getSNSTopic();
 }
