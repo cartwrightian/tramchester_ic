@@ -65,19 +65,23 @@ function queryLiveData(app, includeNotes) {
     var modes;
     var locationType;
     if (app.startStop==null) {
-        locationType = app.myLocation.locationType; 'MyLocation';
+        locationType = 'MyLocation';
         modes = app.selectedModes;
     } else {
         locationType = app.startStop.locationType;
         modes = app.startStop.transportModes;
     }
 
-    var locationId = app.startStop.id;
+    var locationId; // = app.startStop.id;
     if (app.myLocation != null) {
         if (locationType == app.myLocation.locationType) { 
             const place = app.location; // should not have location place holder without a valid location
             locationId = place.coords.latitude + ',' + place.coords.longitude
-        } 
+        } else {
+            locationId = app.startStop.id;
+        }
+    } else {
+        locationId = app.startStop.id;
     }
 
     const query = {
