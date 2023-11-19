@@ -13,6 +13,7 @@ jobs:
     working_directory: ~/repo
     environment:
       RELEASE_NUMBER: << pipeline.number >>
+      ENV : Dev
     steps:
       - checkout
       - run:
@@ -43,6 +44,7 @@ jobs:
       TERM: dumb
       AWS_REGION: eu-west-1
       RELEASE_NUMBER: << pipeline.number >>
+      ENV: Dev
     steps:
       - checkout
       - restore_cache:
@@ -79,6 +81,7 @@ jobs:
       LANG: "en_GB.UTF-8"
       LANGUAGE: "en_GB"
       TZ: "Europe/London"
+      ENV: Dev
     steps:
       - browser-tools/install-geckodriver
       - browser-tools/install-chromedriver
@@ -95,8 +98,6 @@ jobs:
             echo LANG=$LANG SERVER_URL=$SEVER_URL RELEASE_NUMBER=$RELEASE_NUMBER
       - run:
           name: deployDevForAcceptance
-          environment:
-            ENV: Dev
           command: |
             google-chrome --version
             firefox --version
