@@ -10,6 +10,7 @@ import com.tramchester.config.TfgmTramLiveDataConfig;
 import com.tramchester.healthchecks.LiveDataJobHealthCheck;
 import com.tramchester.livedata.cloud.CountsUploadedLiveData;
 import com.tramchester.livedata.tfgm.LiveDataFetcher;
+import com.tramchester.livedata.tfgm.LiveDataSNSPublisher;
 import com.tramchester.livedata.tfgm.PlatformMessageRepository;
 import com.tramchester.livedata.tfgm.TramDepartureRepository;
 import com.tramchester.metrics.CacheMetrics;
@@ -271,6 +272,9 @@ public class App extends Application<AppConfiguration>  {
         // initial load of live data
         final LiveDataFetcher fetchData = container.get(LiveDataFetcher.class);
         fetchData.fetch();
+
+        // create publisher, it will check whether enabled or not
+        container.get(LiveDataSNSPublisher.class);
 
         // refresh live data job
         final int initialDelay = 10;

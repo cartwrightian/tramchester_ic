@@ -27,4 +27,12 @@ public interface TfgmTramLiveDataConfig {
      * @return JUST the topic prefix
      */
     String getSnsTopicPrefix();
+
+    default boolean httpsSource() {
+        return getDataUrl().toLowerCase().startsWith("https://");
+    }
+
+    default boolean snsSource() {
+        return getDataUrl().equalsIgnoreCase("sns://");
+    }
 }

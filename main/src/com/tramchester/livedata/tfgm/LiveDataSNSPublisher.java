@@ -2,6 +2,7 @@ package com.tramchester.livedata.tfgm;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.cloud.SNSPublisher;
+import com.tramchester.config.TfgmTramLiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,9 +28,8 @@ public class LiveDataSNSPublisher implements LiveDataFetcher.ReceivesRawData {
 
     @PostConstruct
     public void start() {
-        snsTopic = config.getLiveDataSNSTopic();
-
         if (isEnabled()) {
+            snsTopic = config.getLiveDataSNSTopic();
             logger.info("Enabled, subscribing to live data, will publish on topic " + snsTopic);
             liveDataFetcher.subscribe(this);
         } else {
@@ -38,7 +38,15 @@ public class LiveDataSNSPublisher implements LiveDataFetcher.ReceivesRawData {
     }
 
     public boolean isEnabled() {
-       return !snsTopic.isEmpty();
+        if (!config.liveTfgmTramDataEnabled()) {
+            return false;
+        }
+        TfgmTramLiveDataConfig liveDataConfig = config.getLiveDataConfig();
+        snsTopic = config.getLiveDataSNSTopic();
+        if (snsTopic.isEmpty()) {
+            return false;
+        }
+        return !liveDataConfig.snsSource(); // don't want a loop....
     }
 
     @Override
@@ -47,6 +55,7 @@ public class LiveDataSNSPublisher implements LiveDataFetcher.ReceivesRawData {
             logger.error("Should not be called, disabled");
             return;
         }
+        logger.info("Publishing live data to SNS on topic " + snsTopic);
         snsPublisher.send(snsTopic, text);
     }
 

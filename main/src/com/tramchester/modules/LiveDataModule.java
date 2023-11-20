@@ -28,9 +28,9 @@ public class LiveDataModule extends AbstractModule {
             return;
         }
         String url = liveConfig.getDataUrl();
-        if (url.toLowerCase().startsWith("https://")) {
+        if (liveConfig.httpsSource()) {
             bind(LiveDataFetcher.class).to(LiveDataHTTPFetcher.class);
-        } else if (url.equalsIgnoreCase("sns://")) {
+        } else if (liveConfig.snsSource()) {
             bind(LiveDataFetcher.class).to(LiveDataSQSFetcher.class);
         } else {
             throw new RuntimeException("Unknown scheme for " + url);
