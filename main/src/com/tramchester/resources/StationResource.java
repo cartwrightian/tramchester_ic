@@ -24,6 +24,7 @@ import com.tramchester.geo.StationLocations;
 import com.tramchester.repository.DataSourceRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StationRepositoryPublic;
+import com.tramchester.repository.TransportModeRepository;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -57,6 +58,7 @@ public class StationResource extends UsesRecentCookie implements APIResource {
     private final DTOFactory DTOFactory;
     private final LocationDTOFactory locationDTOFactory;
     private final TramchesterConfig config;
+    private final TransportModeRepository transportModeRepository;
 
     @Inject
     public StationResource(StationRepository stationRepository,
@@ -64,10 +66,11 @@ public class StationResource extends UsesRecentCookie implements APIResource {
                            ProvidesNow providesNow,
                            DataSourceRepository dataSourceRepository, StationLocations stationLocations,
                            DTOFactory DTOFactory,
-                           LocationDTOFactory locationDTOFactory, TramchesterConfig config) {
+                           LocationDTOFactory locationDTOFactory, TramchesterConfig config, TransportModeRepository transportModeRepository) {
         super(updateRecentJourneys, providesNow);
         this.DTOFactory = DTOFactory;
         this.locationDTOFactory = locationDTOFactory;
+        this.transportModeRepository = transportModeRepository;
         logger.info("created");
         this.stationRepository = stationRepository;
         this.dataSourceRepository = dataSourceRepository;
@@ -153,12 +156,40 @@ public class StationResource extends UsesRecentCookie implements APIResource {
         MarginInMeters margin = MarginInMeters.of(config.getNearestStopRangeKM());
         logger.info(format("Get stations with %s of %s,%s", margin, lat, lon));
 
+        EnumSet<TransportMode> modes = transportModeRepository.getModes();
+
         LatLong latLong = new LatLong(lat,lon);
 
         MyLocation location = new MyLocation(latLong);
 
         List<Station> nearestStations = stationLocations.nearestStationsSorted(location,
-                config.getNumOfNearestStopsToOffer(), margin, config.getTransportModes());
+                config.getNumOfNearestStopsToOffer(), margin, modes);
+
+        List<LocationRefDTO> results = toStationRefDTOList(nearestStations);
+
+        return Response.ok(results).build();
+    }
+
+    @GET
+    @Timed
+    @Path("/near/{mode}")
+    @Operation(description = "Get stations close to a given lat/lon")
+    @ApiResponse(content = @Content(array = @ArraySchema(uniqueItems = true, schema = @Schema(implementation = LocationRefDTO.class))))
+    @CacheControl(noCache = true)
+    public Response getNearWithMode(@PathParam("mode") String rawMode, @QueryParam("lat") double lat, @QueryParam("lon") double lon) {
+        MarginInMeters margin = MarginInMeters.of(config.getNearestStopRangeKM());
+        logger.info(format("Get stations with %s of %s,%s and mode %s", margin, lat, lon, rawMode));
+
+        TransportMode mode = TransportMode.valueOf(rawMode);
+
+        EnumSet<TransportMode> modes = EnumSet.of(mode);
+
+        LatLong latLong = new LatLong(lat,lon);
+
+        MyLocation location = new MyLocation(latLong);
+
+        List<Station> nearestStations = stationLocations.nearestStationsSorted(location,
+                config.getNumOfNearestStopsToOffer(), margin, modes);
 
         List<LocationRefDTO> results = toStationRefDTOList(nearestStations);
 

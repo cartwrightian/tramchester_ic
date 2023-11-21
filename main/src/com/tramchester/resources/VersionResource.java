@@ -18,11 +18,10 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.ws.rs.core.Response;
-import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -60,11 +59,7 @@ public class VersionResource implements APIResource {
         logger.info("Get modes");
 
         boolean beta = betaRaw!=null;
-        if (beta) {
-            logger.warn("Beta mode is enabled");
-        }
-
-        Set<TransportMode> modes = beta ? repository.getModes() : Collections.singleton(TransportMode.Tram);
+        Set<TransportMode> modes = repository.getModes(beta);
 
         logger.info("Returning modes " + modes);
 

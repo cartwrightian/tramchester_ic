@@ -66,7 +66,7 @@ public class DataExpiryHealthCheck extends TramchesterHealthCheck {
 
     @Override
     public String getName() {
-        return "dataExpiry";
+        return "dataExpiry"+dataSourceID.name();
     }
 
     @Override

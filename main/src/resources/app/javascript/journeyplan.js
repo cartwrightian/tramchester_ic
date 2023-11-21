@@ -4,10 +4,8 @@ const axios = require('axios');
 import Vue from 'vue'
 
 import vueCookies from 'vue-cookies'
-import Multiselect from 'vue-multiselect'
 
 Vue.use(vueCookies)
-Vue.use(Multiselect)
 
 require('file-loader?name=[name].[ext]!../index.html');
 
@@ -19,7 +17,6 @@ import '@mdi/font/css/materialdesignicons.css'
 // todo still needed?
 import 'jquery/dist/jquery.slim.js'
 
-import 'vue-multiselect/dist/vue-multiselect.min.css'
 import './../css/tramchester.css'
 
 import Notes from "./components/Notes";
@@ -145,8 +142,6 @@ function getStations(app) {
             };
             app.stops.currentLocation.push(app.myLocation);
             getStationsFromServer(app);
-            //app.stops.allStops.set(myLocation.id, myLocation);
-
         }, err => {
             console.log("Location disabled: " + err.message);
             getStationsFromServer(app);
@@ -185,6 +180,31 @@ async function getStationsFromServer(app) {
     app.networkError = false;
  }
 
+ async function getNearest(app) {
+    var place = app.location;
+
+    var gets = [];
+    
+    app.modes.forEach(mode => {
+        const url = '/api/stations/near/'+mode+'?lat=' + place.coords.latitude + '&lon=' + place.coords.longitude;
+        gets.push(axios.get(url));
+    });
+
+    if (gets.length==0) {
+        console.error("No modes?");
+    }
+
+    await Promise.allSettled(gets).then(function(results) {
+        app.stops.nearestStops = [];
+        results.forEach(result => {
+            var receivedStops = result.value.data;
+            receivedStops.forEach(stop => app.stops.nearestStops.push(stop))
+        });
+        app.ready = true;
+    });
+
+}
+
 async function getRecentAndNearest(app) {
     await axios
         .get('/api/stations/recent')
@@ -196,17 +216,7 @@ async function getRecentAndNearest(app) {
             reportError(error);
         });
     if (app.hasGeo && app.location!=null) {
-        var place = app.location;
-        const url = '/api/stations/near/?lat=' + place.coords.latitude + '&lon=' + place.coords.longitude;
-        await axios
-            .get(url)
-            .then(function (response) {
-                app.networkError = false;
-                app.stops.nearestStops = response.data;
-            })
-            .catch(function (error) {
-                reportError(error);
-            });
+        getNearest(app);
     }
 }
 
@@ -307,7 +317,6 @@ var app = new Vue({
             'live-departures' : LiveDepartures,
             'location-selection': LocationSelection,
             'closures' : Closures,
-            'multiselect' : Multiselect
         },
         methods: {
             plan(event){

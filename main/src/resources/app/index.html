@@ -58,9 +58,8 @@
             </v-row>
             <v-row v-if="selectModesEnabled">
                 <v-col class="pl-0">
-                    <multiselect v-model="selectedModes" :options="modes" :multiple="true" :close-on-select="false" :clear-on-select="false" 
-                        :searchable="false"  placeholder="Transport modes" :show-labels="false"  :preselect-first="true" size="sm">
-                    </multiselect>
+                    <v-select v-model="selectedModes" :items="modes" multiple density="compact">
+                    </v-select>
                 </v-col>
                 <v-col>
                     <label for="maxChanges">max changes:</label>
