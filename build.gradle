@@ -1,7 +1,7 @@
 
 plugins {
     id 'com.mgd.core.gradle.s3' version '1.3.4'
-    id 'io.mateo.cxf-codegen' version '1.2.1'
+    id 'io.mateo.cxf-codegen' version '2.1.0'
     id 'java'
     id 'application'
     id 'idea'
@@ -160,7 +160,7 @@ cxfCodegen {
 
 tasks.register("railLiveDataCodeGen", Wsdl2Java) {
     toolOptions {
-        wsdl.set(file(railLiveDataWSDL))
+        wsdl.set(file(railLiveDataWSDL).toPath().toAbsolutePath().toString())
         outputDir.set(file(railCodeGenOutput))
         markGenerated.set(true)
         extendedSoapHeaders.set(true)
