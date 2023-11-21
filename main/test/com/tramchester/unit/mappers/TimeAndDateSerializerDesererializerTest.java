@@ -103,7 +103,7 @@ class TimeAndDateSerializerDesererializerTest extends EasyMockSupport {
         return output.getBuffer().toString();
     }
 
-    private static class ExampleForTramTime {
+    public static class ExampleForTramTime {
 
         @JsonDeserialize(using=TramTimeJsonDeserializer.class)
         @JsonSerialize(using=TramTimeJsonSerializer.class)
@@ -118,7 +118,7 @@ class TimeAndDateSerializerDesererializerTest extends EasyMockSupport {
         }
     }
 
-    private static class ExampleForLocalDate {
+    public static class ExampleForLocalDate {
         @JsonDeserialize(using=LocalDateJsonDeserializer.class)
         @JsonSerialize(using=LocalDateJsonSerializer.class)
         public LocalDate value;
@@ -132,7 +132,7 @@ class TimeAndDateSerializerDesererializerTest extends EasyMockSupport {
         }
     }
 
-    private static class ExampleForLocalDateTime {
+    public static class ExampleForLocalDateTime {
         @JsonDeserialize(using= LocalDateTimeJsonDeserializer.class)
         @JsonSerialize(using=LocalDateTimeJsonSerializer.class)
         public LocalDateTime value;
@@ -146,7 +146,7 @@ class TimeAndDateSerializerDesererializerTest extends EasyMockSupport {
         }
     }
 
-    private static class ExampleForLocalDateTimeAsMillis {
+    public static class ExampleForLocalDateTimeAsMillis {
         @JsonDeserialize(using= LocalDateTimeJsonDeserializerAsMillis.class)
         @JsonSerialize(using=LocalDateTimeJsonSerializeAsMillis.class)
         public LocalDateTime value;
