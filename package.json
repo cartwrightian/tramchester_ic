@@ -37,7 +37,7 @@
     "css-loader": "^6.7.1",
     "deepmerge": "^4.3.1",
     "file-loader": "^6.2.0",
-    "sass": "~1.32",
+    "sass": "~1.69",
     "sass-loader": "^13.3.2",
     "style-loader": "^3.3.1",
     "vue-loader": "^15.10.0",
