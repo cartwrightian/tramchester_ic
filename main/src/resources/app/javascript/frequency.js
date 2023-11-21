@@ -8,17 +8,14 @@ var L = require('leaflet');
 
 require('file-loader?name=[name].[ext]!../frequency.html');
 
-import VueSlider from 'vue-slider-component'
-
-
 import 'leaflet/dist/leaflet.css'
 import './../css/tramchester.css'
-import 'vue-slider-component/theme/default.css'
+
+import vuetify from './plugins/vuetify' // from file in plugins dir
 
 L.Icon.Default.imagePath = '/app/dist/images/';
 require("leaflet/dist/images/marker-icon-2x.png");
 require("leaflet/dist/images/marker-shadow.png");
-
 
 import Footer from './components/Footer';
 import Routes from './components/Routes';
@@ -86,10 +83,10 @@ function queryForFrequencies(gridSize, date, startTime, endTime) {
 }
 
 var mapApp = new Vue({
-    el: '#frequencymap',
+    vuetify,
+    // el: '#frequencymap',
     components: {
         'app-footer': Footer,
-        'VueSlider': VueSlider
     },
     data() {
         return {
@@ -157,7 +154,7 @@ var mapApp = new Vue({
             return false; // needed for display in footer
         }
     }
-});
+}).$mount('#frequencymap');
 
 
 function getFrequencies(searchParams) {

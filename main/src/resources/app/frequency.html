@@ -6,36 +6,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 </head>
 
-<body>
-    <h1 class="tramchesterHeading w-75">Stop Freqency Map</h1>
-    <div id="frequencymap" class="tramchesterApp w-75">
-        <div class="container" id="startAndEnd">
-            <div class="row">
-                <div class="col">
-                    <div id="leafletMap"></div>  
-                </div>          
-                <div class="col">
-                    <div class="mb-2"><div>Hours: {{ hours[0] }} to {{ hours[1] }}</div>
-                        <vue-slider v-model="hours" min="0" max="24" :enable-cross="false"></vue-slider>
-                    </div>
-                    <div class="mb-2"> 
-                            <input type="date" id="date" v-model="date" 
-                                label-calendar="TravelDateCalendar" required></input>
-                            <button id="todayButton" variant="info" @click="dateToNow()">Today</button>
-                    </div>
-                    <div class="mb-2"> 
-                        <button id="drawMap" variant="primary" @click="draw()">Draw</button>  
-                    </div>
-                </div>
-            </div>
+    <body>
+        <h1 class="tramchesterHeading">Experimental Stop Freqency Map</h1>
+        <div id="frequencymap" class="tramchesterApp">
+            <v-app>
+                <v-main>
+                    <v-container id="startAndEnd">
+                        <v-row>
+                            <v-col>
+                                <div id="leafletMap"></div>  
+                            </v-col>          
+                            <v-col>
+                                <div class="mb-2"><div>Hours: {{ hours[0] }} to {{ hours[1] }}</div>
+                                <v-range-slider v-model="hours" :min="0" :max="24" strict></v-range-slider>
+                                <input type="date" id="date" v-model="date" 
+                                        label-calendar="TravelDateCalendar" required></input>
+                                <v-btn color="secondary" small id="todayButton" @click="dateToNow()">Today</v-btn>
+                                <v-btn color="primary" small id="drawMap" @click="draw()">Draw</v-btn>  
+                            </v-col>
+                        </v-row>
+                    </v-container>
+                </v-main>
+            </v-app>
+
+   
         </div>
 
-        <app-footer v-bind:feedinfo="feedinfo" v-bind:havepos="havePos" v-on:network-error="networkErrorOccured()">
-        </app-footer>
+        <script src="/app/frequency.js"></script>
 
-    </div>
-
-<script src="/app/frequency.js"></script>
-
-</body>
+    </body>
 </html>

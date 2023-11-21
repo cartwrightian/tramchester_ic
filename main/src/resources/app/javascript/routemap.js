@@ -9,7 +9,6 @@ require('file-loader?name=[name].[ext]!../routes.html');
 
 import 'leaflet/dist/leaflet.css'
 import './../css/tramchester.css'
-import 'vue-slider-component/theme/default.css'
 import 'leaflet-polylineoffset/leaflet.polylineoffset'
 
 L.Icon.Default.imagePath = '/app/dist/images/';
