@@ -16,11 +16,11 @@ import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
 import com.tramchester.domain.presentation.DTO.factory.LocationDTOFactory;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.RecentJourneys;
-import com.tramchester.domain.presentation.Timestamped;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
+import com.tramchester.mappers.RecentJourneysToStations;
 import com.tramchester.repository.DataSourceRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StationRepositoryPublic;
@@ -59,6 +59,7 @@ public class StationResource extends UsesRecentCookie implements APIResource {
     private final LocationDTOFactory locationDTOFactory;
     private final TramchesterConfig config;
     private final TransportModeRepository transportModeRepository;
+    private final RecentJourneysToStations recentJourneysToStations;
 
     @Inject
     public StationResource(StationRepository stationRepository,
@@ -66,11 +67,12 @@ public class StationResource extends UsesRecentCookie implements APIResource {
                            ProvidesNow providesNow,
                            DataSourceRepository dataSourceRepository, StationLocations stationLocations,
                            DTOFactory DTOFactory,
-                           LocationDTOFactory locationDTOFactory, TramchesterConfig config, TransportModeRepository transportModeRepository) {
+                           LocationDTOFactory locationDTOFactory, TramchesterConfig config, TransportModeRepository transportModeRepository, RecentJourneysToStations recentJourneysToStations) {
         super(updateRecentJourneys, providesNow);
         this.DTOFactory = DTOFactory;
         this.locationDTOFactory = locationDTOFactory;
         this.transportModeRepository = transportModeRepository;
+        this.recentJourneysToStations = recentJourneysToStations;
         logger.info("created");
         this.stationRepository = stationRepository;
         this.dataSourceRepository = dataSourceRepository;
@@ -202,16 +204,19 @@ public class StationResource extends UsesRecentCookie implements APIResource {
     @Operation(description = "Get recent stations based on supplied cookie")
     @ApiResponse(content = @Content(array = @ArraySchema(uniqueItems = true, schema = @Schema(implementation = LocationRefDTO.class))))
     @CacheControl(noCache = true)
-    public Response getRecent(@CookieParam(TRAMCHESTER_RECENT) Cookie cookie) {
+    public Response getRecent(@CookieParam(TRAMCHESTER_RECENT) Cookie cookie, @QueryParam("modes") String rawModes) {
         logger.info(format("Get recent stations for cookie %s", cookie));
+
+        final EnumSet<TransportMode> modes;
+        if (rawModes!=null) {
+            modes = TransportMode.parseCSV(rawModes);
+        } else {
+            modes = transportModeRepository.getModes();
+        }
 
         RecentJourneys recentJourneys = recentFromCookie(cookie);
 
-        Set<Station> recent = recentJourneys.stream().map(Timestamped::getId).
-                map(Station::createId).
-                filter(stationRepository::hasStationId).
-                map(stationRepository::getStationById).
-                collect(Collectors.toSet());
+        Set<Station> recent = recentJourneysToStations.from(recentJourneys, modes);
 
         List<LocationRefDTO> results = toStationRefDTOList(recent);
 

@@ -110,7 +110,6 @@ public class MutableStation implements Station {
     @Override
     public boolean servesMode(TransportMode mode) {
         return hasMode(mode, servesRoutesPickup) || hasMode(mode, servesRoutesDropoff);
-//        return servesRoutesPickup.serves(mode) || servesRoutesDropoff.serves(mode);
     }
 
     private boolean hasMode(TransportMode mode, Set<Route> routes) {
@@ -259,6 +258,10 @@ public class MutableStation implements Station {
         modes.add(pickupFromRoute.getTransportMode());
         servesAgencies.add(pickupFromRoute.getAgency());
         servesRoutesPickup.add(pickupFromRoute);
+    }
+
+    public void addMode(TransportMode mode) {
+        modes.add(mode);
     }
 
 }

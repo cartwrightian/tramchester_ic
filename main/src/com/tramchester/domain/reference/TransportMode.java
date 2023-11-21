@@ -5,6 +5,7 @@ import com.tramchester.domain.HasTransportMode;
 import com.tramchester.domain.HasTransportModes;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public enum TransportMode implements HasTransportMode {
     Bus((short)1),
@@ -67,6 +68,11 @@ public enum TransportMode implements HasTransportMode {
         return false;
         // slow
         //return !SetUtils.intersection(modesA, modesB).isEmpty();
+    }
+
+    public static EnumSet<TransportMode> parseCSV(String csv) {
+        String[] divided = csv.split(",");
+        return EnumSet.copyOf(Arrays.stream(divided).map(TransportMode::valueOf).collect(Collectors.toSet()));
     }
 
     @JsonIgnore

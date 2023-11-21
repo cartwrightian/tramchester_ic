@@ -213,7 +213,7 @@ class StationResourceTest {
     }
 
     @Test
-    void shouldGetRecentStations() throws JsonProcessingException {
+    void shouldGetRecentStationsNoModes() throws JsonProcessingException {
         Cookie cookie = createRecentsCookieFor(TramStations.Altrincham, TramStations.Bury, TramStations.ManAirport);
 
         // All
@@ -232,7 +232,28 @@ class StationResourceTest {
         assertTrue(ids.contains(TramStations.Altrincham.getRawId()));
         assertTrue(ids.contains(TramStations.Bury.getRawId()));
         assertTrue(ids.contains(TramStations.ManAirport.getRawId()));
+    }
 
+    @Test
+    void shouldGetRecentStationsWithModes() throws JsonProcessingException {
+        Cookie cookie = createRecentsCookieFor(TramStations.Altrincham, TramStations.Bury, TramStations.ManAirport);
+
+        // same mode, but tests list parsing
+        Response result = APIClient.getApiResponse(appExtension, "stations/recent?modes=Tram,Tram", List.of(cookie));
+        assertEquals(200, result.getStatus());
+
+        List<LocationRefDTO> stationDtos = result.readEntity(new GenericType<>() {});
+
+        assertEquals(3, stationDtos.size());
+
+        Set<String> ids = stationDtos.stream().
+                map(LocationRefDTO::getId).
+                map(IdForDTO::getActualId).
+                collect(Collectors.toSet());
+
+        assertTrue(ids.contains(TramStations.Altrincham.getRawId()));
+        assertTrue(ids.contains(TramStations.Bury.getRawId()));
+        assertTrue(ids.contains(TramStations.ManAirport.getRawId()));
     }
 
     @NotNull

@@ -207,7 +207,7 @@ async function getStationsFromServer(app) {
 
 async function getRecentAndNearest(app) {
     await axios
-        .get('/api/stations/recent')
+        .get('/api/stations/recent?modes='+app.modes)
         .then(function (response) {
             app.networkError = false;
             app.stops.recentStops = response.data;

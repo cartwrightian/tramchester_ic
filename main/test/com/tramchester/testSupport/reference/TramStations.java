@@ -8,6 +8,7 @@ import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import org.jetbrains.annotations.NotNull;
@@ -136,7 +137,9 @@ public enum TramStations implements FakeStation, HasId<Station> {
     @NotNull
     private MutableStation createMutable() {
         GridPosition grid = CoordinateTransforms.getGridPosition(latlong);
-        return new MutableStation(getId(), NaptanArea.invalidId(), name, latlong, grid, DataSourceID.tfgm, getCode());
+        MutableStation mutableStation = new MutableStation(getId(), NaptanArea.invalidId(), name, latlong, grid, DataSourceID.tfgm, getCode());
+        mutableStation.addMode(TransportMode.Tram);
+        return mutableStation;
     }
 
     public Station fakeWithPlatform(String platformNumber, LatLong latLong, DataSourceID dataSourceID,
@@ -146,7 +149,7 @@ public enum TramStations implements FakeStation, HasId<Station> {
         final Platform platform = MutablePlatform.buildForTFGMTram(platformId, station,
                 latLong, dataSourceID, naptanAreaId);
         station.addPlatform(platform);
+        station.addMode(TransportMode.Tram);
         return station;
-
     }
 }
