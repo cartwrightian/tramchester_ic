@@ -12,6 +12,12 @@ configFile=local.yml
 #  configFile=gm.yml
 #fi
 
+# live data from tfgm servers only if prod, requires nat gateway in the environment, see config files
+if [ "$PLACE" == 'ProdBlue' ] || [ "$PLACE" == 'ProdGreen' ]; then
+    export LIVEDATA_URL="https://api.tfgm.com/odata/Metrolinks"
+    logger tramchester enable live data download from $LIVEDATA_URL
+fi
+
 CONFIG=./$target/config/$configFile
 
 logger -s Config is $CONFIG

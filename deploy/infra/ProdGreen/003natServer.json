@@ -3,10 +3,10 @@
 		"Description" : "cfnassist: set up NAT gateway",
 		"Mappings" : {
 			"environMap" : {
-				"Dev" : { "NatEip" : "eipalloc-1ee56375" },
-				"UAT" : { "NatEip" : "eipalloc-0ab76661" },
-				"ProdGreen" : { "NatEip" : "not-yet" },
-				"ProdBlue" : { "NatEip" : "net-yet" }
+				"Dev" : { "NatEip" : "" },
+				"UAT" : { "NatEip" : "" },
+				"ProdGreen" : { "NatEip" : "eipalloc-1ee56375" },
+				"ProdBlue" : { "NatEip" : "eipalloc-0ab76661" }
 			}
 		},
 		"Parameters" : {
@@ -14,9 +14,18 @@
 			"vpc" : { "Type" : "String" },
 			"natSubnet" : { "Type" : "String" , "Description" : "::public" }
 		},
+		"Conditions": {
+			"CreateNatGateway": {
+				"Fn::Or" : [
+					{ "Fn::Equals": [{"Ref": "env"}, "ProdGreen"] },
+					{ "Fn::Equals": [{"Ref": "env"}, "ProdBlue"] }
+				]
+			}
+		},
 		"Resources" : {
 			"natGateway": {
 				"Type": "AWS::EC2::NatGateway",
+				"Condition" : "CreateNatGateway",
 				"Properties": {
 					"AllocationId": { "Fn::FindInMap" : [ "environMap", { "Ref" : "env" }, "NatEip" ]},
 					"ConnectivityType": "public",

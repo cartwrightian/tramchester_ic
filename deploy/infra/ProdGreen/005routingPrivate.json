@@ -21,6 +21,14 @@
 			"Description": "::natGateway"
 		}
 	},
+	"Conditions": {
+		"HasNatGateway": {
+			"Fn::Or" : [
+				{ "Fn::Equals": [{"Ref": "env"}, "ProdGreen"] },
+				{ "Fn::Equals": [{"Ref": "env"}, "ProdBlue"] }
+			]
+		}
+	},
 	"Resources": {
 		"privateRouteTable": {
 			"Type": "AWS::EC2::RouteTable",
@@ -48,6 +56,7 @@
 		},
 		"privateRouteDefault": {
 			"Type": "AWS::EC2::Route",
+			"Condition": "HasNatGateway",
 			"Properties": {
 				"RouteTableId": {
 					"Ref": "privateRouteTable"
