@@ -54,7 +54,7 @@ public abstract class TestConfig extends AppConfiguration {
 
     @Override
     public Double getNearestStopForWalkingRangeKM() {
-        return 1.2D;
+        return 1.6D;
     }
 
     @Override
