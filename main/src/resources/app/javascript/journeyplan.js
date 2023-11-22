@@ -12,11 +12,6 @@ require('file-loader?name=[name].[ext]!../index.html');
 import vuetify from './plugins/vuetify' // from file in plugins dir
 import '@mdi/font/css/materialdesignicons.css'
 
-// todo move into require above to get auto min or full version?
-
-// todo still needed?
-import 'jquery/dist/jquery.slim.js'
-
 import './../css/tramchester.css'
 
 import Notes from "./components/Notes";
