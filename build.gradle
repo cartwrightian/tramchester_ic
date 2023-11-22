@@ -44,9 +44,8 @@ version = buildNumber
 
 ext {
     dropwizardVersion = '4.0.3'
-    awsCdkVersion = '1.201.0'
-    jacksonVersion = '2.15.3'
-    awsSdkVersion = '2.21.14'
+    jacksonVersion = '2.16.0'
+    awsSdkVersion = '2.21.17'
 }
 
 repositories {
@@ -65,7 +64,7 @@ dependencies {
     implementation('javax.measure:unit-api:2.2')
     implementation("io.dropwizard:dropwizard-core:$dropwizardVersion")
     // slf4j in governator was causing race condition with dropwizard start up code on initial get of logger
-    implementation('com.netflix.governator:governator:1.17.12') {
+    implementation('com.netflix.governator:governator:1.17.13') {
         exclude group: 'org.slf4j', module: 'slf4j-api'
     }
     implementation 'com.google.inject:guice:5.1.0'
@@ -112,7 +111,7 @@ dependencies {
     implementation('org.roaringbitmap:RoaringBitmap:0.9.39')
 
     testImplementation("io.dropwizard:dropwizard-testing:$dropwizardVersion")
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2',
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1',
             'org.junit.platform:junit-platform-launcher:1.9.2',
             'org.assertj:assertj-core:3.24.2',
             'org.easymock:easymock:5.2.0',
