@@ -3,6 +3,8 @@ package com.tramchester.cloud;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import software.amazon.awssdk.awscore.exception.AwsServiceException;
+import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.services.sns.SnsClient;
 import software.amazon.awssdk.services.sns.model.*;
 
@@ -81,6 +83,12 @@ public class SNSPublisher {
     }
 
     public String getTopicUrnFor(String topicName) {
-        return createTopicIfRequire(topicName);
+        try {
+            return createTopicIfRequire(topicName);
+        }
+        catch(AwsServiceException | SdkClientException exception) {
+            logger.error("Unable to get topic from " + topicName, exception);
+            return "";
+        }
     }
 }

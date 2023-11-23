@@ -1,5 +1,6 @@
 package com.tramchester;
 
+import ch.qos.logback.classic.LoggerContext;
 import com.codahale.metrics.MetricRegistry;
 import com.tramchester.cloud.CloudWatchReporter;
 import com.tramchester.cloud.ConfigFromInstanceUserData;
@@ -38,6 +39,7 @@ import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.FilterHolder;
+import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,15 +78,27 @@ public class App extends Application<AppConfiguration>  {
 
     public static void main(String[] args) {
         logEnvironmentalVars(Arrays.asList("PLACE", "BUILD", "JAVA_OPTS", "BUCKET"));
-        Runtime.getRuntime().addShutdownHook(new Thread(() ->
-            {
-                logger.warn("Shutting down");
-            }));
+
+        App app = new App();
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            logger.warn("Shutting down");
+
+            app.getDependencies().close();
+
+            // attempt to flush logs, messages are being lost when exception is uncaught
+            ILoggerFactory factory = LoggerFactory.getILoggerFactory();
+            if(factory instanceof LoggerContext ctx) {
+                ctx.stop();
+            }
+        }));
+
         try {
             logArgs(args);
-            new App().run(args);
+            app.run(args);
         } catch (Exception e) {
             logger.error("Exception, will shutdown ", e);
+
             //LogManager.shutdown();
             System.exit(-1);
         }

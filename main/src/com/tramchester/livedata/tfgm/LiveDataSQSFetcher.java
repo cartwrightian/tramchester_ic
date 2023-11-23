@@ -38,12 +38,20 @@ public class LiveDataSQSFetcher extends LiveDataFetcher {
         String topicName = config.getLiveDataSNSTopic();
         long retentionPeriodSeconds = 60; // shortest period allowed, which might produce stale data,
         // but should never be more than 2 or 3 messages
-        this.sqsSubscriber = sqsSubscriberFactory.getFor(queueName, topicName, retentionPeriodSeconds);
+        sqsSubscriber = sqsSubscriberFactory.getFor(queueName, topicName, retentionPeriodSeconds);
+        if (sqsSubscriber==null) {
+            logger.error("Failed to get subscriber");
+        }
     }
 
     @Override
     String getData() {
-        String text =  sqsSubscriber.receiveMessage();
+        if (sqsSubscriber==null) {
+            logger.warn("No subscriber present");
+            return "";
+        }
+
+        String text = sqsSubscriber.receiveMessage();
         logger.info("Received message of size " + text.length());
         return text;
     }

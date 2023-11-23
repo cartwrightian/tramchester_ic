@@ -5,6 +5,8 @@ import com.github.cliftonlabs.json_simple.Jsoner;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import software.amazon.awssdk.awscore.exception.AwsServiceException;
+import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.*;
 
@@ -13,10 +15,7 @@ import javax.inject.Inject;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static java.lang.String.format;
 import static java.time.format.DateTimeFormatter.ISO_INSTANT;
@@ -24,7 +23,6 @@ import static java.time.format.DateTimeFormatter.ISO_INSTANT;
 @LazySingleton
 public class SQSSubscriberFactory {
     private static final Logger logger = LoggerFactory.getLogger(SQSSubscriberFactory.class);
-    public static final int DEFAULT_MSG_RECEIVE_TIMEOUT = 5;
 
     private SqsClient sqsClient;
     private final SNSPublisher snsPublisher;
@@ -53,15 +51,34 @@ public class SQSSubscriberFactory {
 
         String queueUrl = createQueueIfNeeded(queueName, retentionPeriodSeconds);
 
+        if (queueUrl.isEmpty()) {
+            logger.error("Unable to get queue URL for " + queueName);
+            return null;
+        }
+
         String topicARN = snsPublisher.getTopicUrnFor(topicName);
-        ConfiguredSQLSubscriber subscriber = new ConfiguredSQLSubscriber(sqsClient, queueUrl, topicARN);
 
-        subscriber.updatePolicyFor();
+        if (topicARN.isEmpty()) {
+            logger.error("Unable to get topic");
+            return null;
+        }
 
-        String queueArn = subscriber.getARN();
-        snsPublisher.subscribeQueueTo(topicARN, queueArn);
+        try {
 
-        return subscriber;
+            ConfiguredSQLSubscriber subscriber = new ConfiguredSQLSubscriber(sqsClient, queueUrl, topicARN);
+
+            subscriber.updatePolicyFor();
+
+            String queueArn = subscriber.getARN();
+            snsPublisher.subscribeQueueTo(topicARN, queueArn);
+
+            return subscriber;
+        }
+        catch (AwsServiceException exception) {
+            logger.error(format("Unable to create subscriber for queue %s and topic %s retention %s ",
+                    queueName, topicName, retentionPeriodSeconds), exception);
+            return null;
+        }
     }
 
     private String createQueueIfNeeded(String queueName, long retentionPeriodSeconds) {
@@ -69,14 +86,22 @@ public class SQSSubscriberFactory {
 
         Map<QueueAttributeName, String> attributes = new HashMap<>();
         attributes.put(QueueAttributeName.MESSAGE_RETENTION_PERIOD, Long.toString(retentionPeriodSeconds));
-        CreateQueueRequest createQueueRequest = CreateQueueRequest.builder().queueName(queueName).
-                attributes(attributes).build();
 
-        CreateQueueResponse result = sqsClient.createQueue(createQueueRequest);
+        try {
+            CreateQueueRequest createQueueRequest = CreateQueueRequest.builder().queueName(queueName).
+                    attributes(attributes).build();
 
-        String queueUrl = result.queueUrl();
-        logger.info(format("Got/Create queue %s url: %s retention %s seconds",queueName, queueUrl, retentionPeriodSeconds));
-        return queueUrl;
+            CreateQueueResponse result = sqsClient.createQueue(createQueueRequest);
+
+            String queueUrl = result.queueUrl();
+            logger.info(format("Got/Create queue %s url: %s retention %s seconds",queueName, queueUrl, retentionPeriodSeconds));
+            return queueUrl;
+        }
+        catch (SdkClientException | SqsException awsSdkException) {
+            logger.error("Unable to create queue " + queueName, awsSdkException);
+            return "";
+        }
+
     }
 
     private static class ConfiguredSQLSubscriber implements SQSSubscriber {
@@ -93,6 +118,7 @@ public class SQSSubscriberFactory {
         }
 
         private List<Message> receiveMessageBatch(final int maxNumber, Duration timeout) {
+            logger.info(format("Receive messages max:%s timeout: %s", maxNumber, timeout));
             final List<Message> buffer = new LinkedList<>();
             LocalDateTime stopTime = LocalDateTime.now().plus(timeout);
             int countDown = maxNumber;
@@ -119,7 +145,15 @@ public class SQSSubscriberFactory {
 
         @Override
         public String receiveMessage() {
-            List<Message> msgs = receiveMessageBatch(100, Duration.ofSeconds(5));
+            List<Message> msgs;
+
+            try {
+                msgs = receiveMessageBatch(100, Duration.ofSeconds(5));
+            }
+            catch (SdkClientException | SqsException awsSdkException) {
+                logger.error("Unable to receive messages from queue " + queueUrl, awsSdkException);
+                return "";
+            }
 
             if (msgs.isEmpty()) {
                 logger.info("No messages received for " + queueUrl);
@@ -176,13 +210,18 @@ public class SQSSubscriberFactory {
 
         private void deleteMessages(List<Message> messages) {
 
-            List<DeleteMessageBatchRequestEntry> entries = messages.stream().
-                    map(msg -> DeleteMessageBatchRequestEntry.builder().id(msg.messageId()).build()).
-                    toList();
-            DeleteMessageBatchRequest batchRequest = DeleteMessageBatchRequest.builder().queueUrl(queueUrl).entries(entries).build();
-            sqsClient.deleteMessageBatch(batchRequest);
+            try {
+                List<DeleteMessageBatchRequestEntry> entries = messages.stream().
+                        map(msg -> DeleteMessageBatchRequestEntry.builder().id(msg.messageId()).build()).
+                        toList();
+                DeleteMessageBatchRequest batchRequest = DeleteMessageBatchRequest.builder().queueUrl(queueUrl).entries(entries).build();
+                sqsClient.deleteMessageBatch(batchRequest);
 
-            logger.info(format("Queue: %s deleted %s messages", queueUrl, messages.size()));
+                logger.info(format("Queue: %s deleted %s messages", queueUrl, messages.size()));
+            }
+            catch (SdkClientException | SqsException awsSdkException) {
+                logger.error(format("Unable to delete %s messages from queue %s", messages.size(), queueUrl), awsSdkException);
+            }
         }
 
         private String extractPayloadFrom(JsonObject jsonObject) {

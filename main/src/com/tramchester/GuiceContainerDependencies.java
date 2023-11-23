@@ -85,7 +85,7 @@ public class GuiceContainerDependencies implements ComponentContainer {
         instance.registerAllInto(healthChecks);
     }
 
-    public void close() {
+    synchronized public void close() {
         logger.info("Dependencies close");
 
         if (injector==null) {
