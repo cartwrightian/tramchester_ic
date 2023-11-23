@@ -230,8 +230,8 @@ tasks.register('cfnassist') {
     doLast {
         ant.taskdef(name: 'cfnassist', classname: 'tw.com.ant.CfnAssistAntTask') {
             classpath {
-                fileset(dir: 'lib/cfnassist-1.3.174/lib/', includes: '*.jar')
-                dirset(dir: 'lib/cfnassist-1.3.174/conf/')
+                fileset(dir: 'lib/cfnassist-1.3.182/lib/', includes: '*.jar')
+                dirset(dir: 'lib/cfnassist-1.3.182/conf/')
             }
         }
     }
