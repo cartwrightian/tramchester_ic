@@ -17,7 +17,8 @@
 				  "Effect":"Allow",
 				  "Principal": "*",
 				  "Action":["s3:GetObject"],
-				  "Resource":[ { "Fn::Join": [ "", [ "arn:aws:s3:::", { "Ref": "bucketName" }, "/*"] ] }  ]
+				  "Resource":[ { "Fn::Join": [ "", [ "arn:aws:s3:::", { "Ref": "bucketName" }, "/*"] ] },
+					  { "Fn::Join": [ "", [ "arn:aws:s3:::", { "Ref": "bucketName" }] ] }]
 				},
 				{
 					"Effect":"Allow",

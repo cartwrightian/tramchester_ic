@@ -4,32 +4,17 @@
 		"Parameters" : {
 			"env" : { "Type" : "String" },
 			"vpc" : { "Type" : "String" },
-			"subnetA":{ "Type":"String", "Description":"::subnetA" }
+			"subnetA":{ "Type":"String", "Description":"::subnetA" },
+			"securityGroup" : { "Type":"String", "Description":"::SQSEndpointSecGroup"  }
 		},
 		"Resources" : {
-			"SQSEndpointSecGroup" : {
-				"Type": "AWS::EC2::SecurityGroup",
-				"Properties": {
-					"GroupDescription": "SQS Endpoint security group",
-					"VpcId" : { "Ref" : "vpc" },
-					"SecurityGroupIngress": [
-						{ "IpProtocol": "-1", "CidrIp": "0.0.0.0/0" }
-					],
-					"SecurityGroupEgress": [
-						{ "IpProtocol": "-1", "CidrIp": "0.0.0.0/0" }
-					],
-					"Tags": [
-						{ "Key" : "Name", "Value": { "Fn::Join" : ["_", [ { "Ref": "env" } , "SQSEndpointSecGroup" ] ] } }
-					]
-				}
-			},
-			  "SQSEndpoint" : {
+			  "SNSEndpoint" : {
 				"Type" : "AWS::EC2::VPCEndpoint",
 				"Properties" : {
 				  "VpcEndpointType": "Interface",
-				  "ServiceName" : { "Fn::Join": [ "", [ "com.amazonaws.", { "Ref": "AWS::Region" }, ".sqs" ] ] },
+				  "ServiceName" : { "Fn::Join": [ "", [ "com.amazonaws.", { "Ref": "AWS::Region" }, ".sns" ] ] },
 				  "VpcId" : {"Ref" : "vpc"},
-				  "SecurityGroupIds" : [ { "Ref" : "SQSEndpointSecGroup" }],
+				  "SecurityGroupIds" : [ { "Ref" : "securityGroup" }],
 				  "SubnetIds" : [ { "Ref": "subnetA"} ],
 				  "PrivateDnsEnabled" : "true"
 				}

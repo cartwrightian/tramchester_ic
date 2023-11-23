@@ -15,10 +15,7 @@
 					"SecurityGroupIds" : [
 						{"Ref" : "securityGroup" }
 					],
-					"SubnetId" : {"Ref": "subnet" },
-					"Tags": [
-						{ "Key" : "Name", "Value": { "Fn::Join" : ["_", [ { "Ref": "env" } , "instanceConnectEndpoint" ] ] } }
-					]
+					"SubnetId" : {"Ref": "subnet" }
 				}
 			}
 		}

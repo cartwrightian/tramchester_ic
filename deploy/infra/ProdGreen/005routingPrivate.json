@@ -18,7 +18,8 @@
 		},
 		"natGateway": {
 			"Type": "String",
-			"Description": "::natGateway"
+			"Description": "::natGateway",
+			"Default" : "noNATGatewayPresent"
 		}
 	},
 	"Conditions": {

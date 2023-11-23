@@ -8,19 +8,21 @@
 		},
 		"Resources" : {
 		  "SSMEndpoint" : {
-			"Type" : "AWS::EC2::VPCEndpoint",
-			"Properties" : {
-			  "VpcEndpointType": "Interface",
-			  "ServiceName" : { "Fn::Join": [ "", [ "com.amazonaws.", { "Ref": "AWS::Region" }, ".ssm" ] ] },
-			  "VpcId" : {"Ref" : "vpc"}
-			}
+				"Type" : "AWS::EC2::VPCEndpoint",
+				"Properties" : {
+					"VpcEndpointType": "Interface",
+					"ServiceName" : { "Fn::Join": [ "", [ "com.amazonaws.", { "Ref": "AWS::Region" }, ".ssm" ] ] },
+					"VpcId" : {"Ref" : "vpc"},
+					"PrivateDnsEnabled" : "true"
+				}
 		  },
 		  "SSMMessagesEndpoint" : {
 				"Type" : "AWS::EC2::VPCEndpoint",
 				"Properties" : {
 					"VpcEndpointType": "Interface",
 					"ServiceName" : { "Fn::Join": [ "", [ "com.amazonaws.", { "Ref": "AWS::Region" }, ".ssmmessages" ] ] },
-					"VpcId" : {"Ref" : "vpc"}
+					"VpcId" : {"Ref" : "vpc"},
+					"PrivateDnsEnabled" : "true"
 				}
 			},
 			"EC2MessagesEndpoint" : {
@@ -28,7 +30,8 @@
 				"Properties" : {
 					"VpcEndpointType": "Interface",
 					"ServiceName" : { "Fn::Join": [ "", [ "com.amazonaws.", { "Ref": "AWS::Region" }, ".ec2messages" ] ] },
-					"VpcId" : {"Ref" : "vpc"}
+					"VpcId" : {"Ref" : "vpc"},
+					"PrivateDnsEnabled" : "true"
 				}
 			}
 		}
