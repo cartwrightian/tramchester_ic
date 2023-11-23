@@ -107,7 +107,7 @@ dependencies {
             'org.jetbrains:annotations:24.1.0'
 
     implementation('org.geotools:gt-main:29.3')
-    implementation('org.geotools:gt-epsg-hsql:29.3')
+    implementation('org.geotools:gt-epsg-hsql:30.0')
     implementation('org.roaringbitmap:RoaringBitmap:0.9.39')
 
     testImplementation("io.dropwizard:dropwizard-testing:$dropwizardVersion")
