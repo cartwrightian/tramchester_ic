@@ -67,7 +67,7 @@ bounds:
   maxEasting: 414500
   maxNorthings: 437850
 tfgmTramliveData:
-  dataUrl: https://api.tfgm.com/odata/Metrolinks
+  dataUrl: ${LIVEDATA_URL:- "sns://"}
   dataSubscriptionKey: ${TFGMAPIKEY:- ""}
   s3Bucket: ""
   s3Prefix: ${PLACE:- "test"}

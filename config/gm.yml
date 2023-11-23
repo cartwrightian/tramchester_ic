@@ -83,7 +83,7 @@ remoteSources:
     mandatory: false
     skipUpload: false
 tfgmTramliveData:
-  dataUrl: https://api.tfgm.com/odata/Metrolinks
+  dataUrl: ${LIVEDATA_URL:- "sns://"}
   dataSubscriptionKey: ${TFGMAPIKEY:- ""}
   s3Bucket: ""
   s3Prefix: ${PLACE:- "test"}
