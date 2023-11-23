@@ -1,0 +1,38 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+		"Description" : "set up sqs endpoint for the VPC. Note no way to TAG End points in cloud format, issue open since 2019",
+		"Parameters" : {
+			"env" : { "Type" : "String" },
+			"vpc" : { "Type" : "String" },
+			"subnetA":{ "Type":"String", "Description":"::subnetA" }
+		},
+		"Resources" : {
+			"SQSEndpointSecGroup" : {
+				"Type": "AWS::EC2::SecurityGroup",
+				"Properties": {
+					"GroupDescription": "SQS Endpoint security group",
+					"VpcId" : { "Ref" : "vpc" },
+					"SecurityGroupIngress": [
+						{ "IpProtocol": "-1", "CidrIp": "0.0.0.0/0" }
+					],
+					"SecurityGroupEgress": [
+						{ "IpProtocol": "-1", "CidrIp": "0.0.0.0/0" }
+					],
+					"Tags": [
+						{ "Key" : "Name", "Value": { "Fn::Join" : ["_", [ { "Ref": "env" } , "SQSEndpointSecGroup" ] ] } }
+					]
+				}
+			},
+			  "SQSEndpoint" : {
+				"Type" : "AWS::EC2::VPCEndpoint",
+				"Properties" : {
+				  "VpcEndpointType": "Interface",
+				  "ServiceName" : { "Fn::Join": [ "", [ "com.amazonaws.", { "Ref": "AWS::Region" }, ".sqs" ] ] },
+				  "VpcId" : {"Ref" : "vpc"},
+				  "SecurityGroupIds" : [ { "Ref" : "SQSEndpointSecGroup" }],
+				  "SubnetIds" : [ { "Ref": "subnetA"} ],
+				  "PrivateDnsEnabled" : "true"
+				}
+			  }
+		}
+}

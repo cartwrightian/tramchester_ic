@@ -1,0 +1,35 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+		"Description" : "set up service management endpoints for the VPC. Note no way to TAG End points in cloud format, issue open since 2019",
+		"Parameters" : {
+			"env" : { "Type" : "String" },
+			"vpc" : { "Type" : "String" },
+			"subnetA":{ "Type":"String", "Description":"::subnetA" }
+		},
+		"Resources" : {
+		  "SSMEndpoint" : {
+			"Type" : "AWS::EC2::VPCEndpoint",
+			"Properties" : {
+			  "VpcEndpointType": "Interface",
+			  "ServiceName" : { "Fn::Join": [ "", [ "com.amazonaws.", { "Ref": "AWS::Region" }, ".ssm" ] ] },
+			  "VpcId" : {"Ref" : "vpc"}
+			}
+		  },
+		  "SSMMessagesEndpoint" : {
+				"Type" : "AWS::EC2::VPCEndpoint",
+				"Properties" : {
+					"VpcEndpointType": "Interface",
+					"ServiceName" : { "Fn::Join": [ "", [ "com.amazonaws.", { "Ref": "AWS::Region" }, ".ssmmessages" ] ] },
+					"VpcId" : {"Ref" : "vpc"}
+				}
+			},
+			"EC2MessagesEndpoint" : {
+				"Type" : "AWS::EC2::VPCEndpoint",
+				"Properties" : {
+					"VpcEndpointType": "Interface",
+					"ServiceName" : { "Fn::Join": [ "", [ "com.amazonaws.", { "Ref": "AWS::Region" }, ".ec2messages" ] ] },
+					"VpcId" : {"Ref" : "vpc"}
+				}
+			}
+		}
+}
