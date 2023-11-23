@@ -1,0 +1,23 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+		"Description" : "set up cloudwatch logs endpoint for the VPC. Note no way to TAG End points in cloud format, issue open since 2019",
+		"Parameters" : {
+			"env" : { "Type" : "String" },
+			"vpc" : { "Type" : "String" },
+			"subnetA":{ "Type":"String", "Description":"::subnetA" },
+			"securityGroup" : { "Type":"String", "Description":"::SQSEndpointSecGroup"  }
+		},
+		"Resources" : {
+			  "LogsEndpoint" : {
+				"Type" : "AWS::EC2::VPCEndpoint",
+				"Properties" : {
+				  "VpcEndpointType": "Interface",
+				  "ServiceName" : { "Fn::Join": [ "", [ "com.amazonaws.", { "Ref": "AWS::Region" }, ".logs" ] ] },
+				  "VpcId" : {"Ref" : "vpc"},
+				  "SecurityGroupIds" : [ { "Ref" : "securityGroup" }],
+				  "SubnetIds" : [ { "Ref": "subnetA"} ],
+				  "PrivateDnsEnabled" : "true"
+				}
+			  }
+		}
+}
