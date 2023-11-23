@@ -78,7 +78,7 @@ jobs:
       RELEASE_NUMBER: << pipeline.number >>
       # todo move back to proper url
       #SERVER_URL: "https://alpha.tramchester.com"
-      SERVER_URL: "http://dev-tramchester-alb-588237683.eu-west-1.elb.amazonaws.com"
+      SERVER_URL: "http://dev-tramchester-alb-1669636720.eu-west-1.elb.amazonaws.com"
       LANG: "en_GB.UTF-8"
       LANGUAGE: "en_GB"
       TZ: "Europe/London"
