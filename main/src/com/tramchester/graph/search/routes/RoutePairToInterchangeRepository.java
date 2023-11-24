@@ -19,17 +19,13 @@ import java.util.stream.Collectors;
 public class RoutePairToInterchangeRepository {
     private static final Logger logger = LoggerFactory.getLogger(RoutePairToInterchangeRepository.class);
 
-    //private final RouteIndex routeIndex;
     private final InterchangeRepository interchangeRepository;
-    //private final RouteIndexPairFactory pairFactory;
 
     private final Map<RoutePair, Set<InterchangeStation>> routePairToInterchange;
 
     @Inject
     public RoutePairToInterchangeRepository(InterchangeRepository interchangeRepository) {
-        //this.routeIndex = routeIndex;
         this.interchangeRepository = interchangeRepository;
-        //this.pairFactory = pairFactory;
         routePairToInterchange = new HashMap<>();
     }
 

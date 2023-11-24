@@ -8,18 +8,13 @@ import com.tramchester.caching.ComponentThatCaches;
 import com.tramchester.caching.FileDataCache;
 import com.tramchester.dataexport.HasDataSaver;
 import com.tramchester.domain.Route;
-import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.RouteStationId;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.RouteStation;
-import com.tramchester.domain.places.Station;
-import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.TimedTransaction;
-import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
+import com.tramchester.graph.search.routes.FindRouteStationToInterchangeCosts;
 import com.tramchester.metrics.Timing;
 import org.apache.commons.lang3.tuple.Pair;
-import org.neo4j.graphdb.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,38 +22,35 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.time.Duration;
-import java.time.Instant;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static java.lang.String.format;
-
 @LazySingleton
-public class RouteInterchangeRepository extends ComponentThatCaches<RouteInterchangeRepository.RouteToInterchangeCost, RouteInterchangeRepository.RouteStationToInterchangeCosts> {
+public class RouteInterchangeRepository extends ComponentThatCaches<RouteInterchangeRepository.RouteToInterchangeCost,
+        RouteInterchangeRepository.RouteStationToInterchangeCosts> {
     private static final Logger logger = LoggerFactory.getLogger(RouteInterchangeRepository.class);
 
     private final RouteRepository routeRepository;
     private final StationRepository stationRepository;
     private final InterchangeRepository interchangeRepository;
-    private final GraphDatabase graphDatabase;
+    private final FindRouteStationToInterchangeCosts findRouteStationToInterchangeCosts;
 
     private final Map<Route, Set<InterchangeStation>> interchangesForRoute;
     private RouteStationToInterchangeCosts routeStationToInterchangeCost;
 
     @Inject
     public RouteInterchangeRepository(RouteRepository routeRepository, StationRepository stationRepository, InterchangeRepository interchangeRepository,
-                                      GraphDatabase graphDatabase,
                                       @SuppressWarnings("unused") StagedTransportGraphBuilder.Ready ready,
-                                      FileDataCache fileDataCache) {
+                                      FileDataCache fileDataCache, FindRouteStationToInterchangeCosts findRouteStationToInterchangeCosts) {
         super(fileDataCache, RouteToInterchangeCost.class);
         this.routeRepository = routeRepository;
         this.stationRepository = stationRepository;
         this.interchangeRepository = interchangeRepository;
 
-        this.graphDatabase = graphDatabase;
+        this.findRouteStationToInterchangeCosts = findRouteStationToInterchangeCosts;
         interchangesForRoute = new HashMap<>();
     }
 
@@ -90,9 +82,15 @@ public class RouteInterchangeRepository extends ComponentThatCaches<RouteInterch
         final Set<RouteStation> routeStations = stationRepository.getRouteStations();
         logger.info("Populate for first interchange " + routeStations.size() + " route stations");
 
-        try(TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "populateForRoutes")) {
-            routeRepository.getRoutes().forEach(route -> populateForRoute(timedTransaction.transaction(), route));
-        }
+        Map<RouteStationId, Duration> durations = findRouteStationToInterchangeCosts.getDurations();
+
+        durations.forEach((routeStation, duration) -> {
+            routeStationToInterchangeCost.putCost(routeStation,duration);
+        });
+
+//        try(TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "populateForRoutes")) {
+//            routeRepository.getRoutes().forEach(route -> populateForRoute(timedTransaction.transaction(), route));
+//        }
     }
 
     private void populateRouteToInterchangeMap() {
@@ -117,65 +115,6 @@ public class RouteInterchangeRepository extends ComponentThatCaches<RouteInterch
             return routeStationToInterchangeCost.costFrom(routeStation);
         }
         return Duration.ofSeconds(-999);
-    }
-
-    // TODO Query into separate class
-    private void populateForRoute(final MutableGraphTransaction txn, final Route route) {
-
-        Instant startTime = Instant.now();
-
-        final IdFor<Route> routeId = route.getId();
-
-        final long maxNodes = route.getTrips().stream().
-                flatMap(trip -> trip.getStopCalls().getStationSequence(false).stream()).distinct().count();
-
-        logger.debug("Find stations to interchange least costs for " + routeId + " max nodes " + maxNodes);
-
-        // TODO This query could be better, i.e. total cost and just the cheapest path for each 'rs' ?
-        String template = "MATCH (rs:ROUTE_STATION {route_id:$id})-[r:ON_ROUTE*1..%s {route_id:$id}]->(:INTERCHANGE {route_id:$id})" +
-                " WHERE NOT rs:INTERCHANGE " +
-                " WITH reduce(s = 0, x IN r | s + x.cost) as cost, rs.station_id as start " +
-                " RETURN start, cost";
-
-        final String query = format(template, maxNodes);
-
-        Map<String, Object> params = new HashMap<>();
-        params.put("id", routeId.getGraphId());
-
-        final Result results = txn.execute(query, params);
-
-        Stream<Pair<IdFor<Station>, Long>> stationToInterList = results.stream().
-                map(row -> Pair.of(row.get("start").toString(), (Long) row.get("cost"))).
-                map(pair -> Pair.of(Station.createId(pair.getLeft()), pair.getRight()));
-
-        Map<IdFor<Station>, Long> stationToInterPair = new HashMap<>();
-
-        stationToInterList.forEach(pair -> {
-            final IdFor<Station> key = pair.getKey();
-            final long cost = pair.getValue();
-            if (stationToInterPair.containsKey(key)) {
-                if (cost < stationToInterPair.get(key)) {
-                    stationToInterPair.put(key, cost);
-                }
-            } else {
-                stationToInterPair.put(key, cost);
-            }
-        });
-
-        logger.debug("Found " + stationToInterPair.size() + " results for " + routeId);
-
-        stationToInterPair.forEach((stationIdPair, cost) -> {
-            RouteStationId routeStation = RouteStation.createId(stationIdPair, routeId);
-            routeStationToInterchangeCost.putCost(routeStation, Duration.ofMinutes(cost));
-        });
-
-        stationToInterPair.clear();
-
-        Instant finish = Instant.now();
-        long durationMs = Duration.between(startTime, finish).toMillis();
-        if (durationMs>1000) {
-            logger.warn(format("Route %s max nodes %s took %s milli", route.getId(), maxNodes, durationMs));
-        }
     }
 
     protected static class RouteStationToInterchangeCosts implements FileDataCache.CachesData<RouteToInterchangeCost> {

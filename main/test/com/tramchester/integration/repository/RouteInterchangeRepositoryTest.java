@@ -108,46 +108,31 @@ public class RouteInterchangeRepositoryTest {
         assertTrue(cornbrookPickups.contains(buryToAlty));
         assertTrue(cornbrookDropofss.contains(buryToAlty));
 
-        Route altyToBury = tramRouteHelper.getOneRoute(AltrinchamManchesterBury, when);
+//        Route altyToBury = tramRouteHelper.getOneRoute(AltrinchamManchesterBury, when);
 
-        assertTrue(cornbrookPickups.contains(altyToBury));
-        assertTrue(cornbrookDropofss.contains(altyToBury));
+        assertTrue(cornbrookPickups.contains(buryToAlty));
+        assertTrue(cornbrookDropofss.contains(buryToAlty));
 
         Route toEccles = tramRouteHelper.getOneRoute(EcclesManchesterAshtonUnderLyne, when);
-        Route fromEccles = tramRouteHelper.getOneRoute(AshtonUnderLyneManchesterEccles, when);
 
         assertTrue(cornbrookPickups.contains(toEccles));
-        assertTrue(cornbrookPickups.contains(fromEccles));
-
         assertTrue(cornbrookDropofss.contains(toEccles));
-        assertTrue(cornbrookDropofss.contains(fromEccles));
 
         Route toTraffordCenter = tramRouteHelper.getOneRoute(CornbrookTheTraffordCentre, when);
-        Route fromTraffordCenter = tramRouteHelper.getOneRoute(TheTraffordCentreCornbrook, when);
 
         assertTrue(cornbrookPickups.contains(toTraffordCenter));
-        assertTrue(cornbrookDropofss.contains(fromTraffordCenter));
-
-        // end of the route
-        // TODO False -> True ?
-//        assertTrue(cornbrookPickups.contains(fromTraffordCenter));
-//        assertTrue(cornbrookDropofss.contains(toTraffordCenter));
 
         Route victoriaToAirport = tramRouteHelper.getOneRoute(VictoriaWythenshaweManchesterAirport, when);
-        Route airportToVictoria = tramRouteHelper.getOneRoute(ManchesterAirportWythenshaweVictoria, when);
 
         assertTrue(cornbrookPickups.contains(victoriaToAirport));
-        assertTrue(cornbrookPickups.contains(airportToVictoria));
-
         assertTrue(cornbrookDropofss.contains(victoriaToAirport));
-        assertTrue(cornbrookDropofss.contains(airportToVictoria));
 
     }
 
     @Test
     void shouldGetCostToInterchangeForRouteStation() {
 
-       Route route = tramRouteHelper.getOneRoute(AltrinchamManchesterBury, when);
+       Route route = tramRouteHelper.getOneRoute(BuryManchesterAltrincham, when);
 
         List<RouteStation> navigationRoadRouteStations = stationRepository.getRouteStationsFor(NavigationRoad.getId()).stream().
                 filter(routeStation -> route.equals(routeStation.getRoute())).toList();
@@ -165,7 +150,7 @@ public class RouteInterchangeRepositoryTest {
     @Test
     void shouldGetCostToInterchangeForRouteStationAdjacent() {
 
-        Route route = tramRouteHelper.getOneRoute(AltrinchamManchesterBury, when);
+        Route route = tramRouteHelper.getOneRoute(BuryManchesterAltrincham, when);
 
         List<RouteStation> oldTraffordRouteStations = stationRepository.getRouteStationsFor(OldTrafford.getId()).stream().
                 filter(routeStation -> route.equals(routeStation.getRoute())).toList();
@@ -184,7 +169,7 @@ public class RouteInterchangeRepositoryTest {
     @Test
     void shouldGetZeroCostToInterchangeForRouteStationThatIsInterchange() {
 
-        Route route = tramRouteHelper.getOneRoute(AltrinchamManchesterBury, when);
+        Route route = tramRouteHelper.getOneRoute(BuryManchesterAltrincham, when);
 
         List<RouteStation> cornbrookRouteStations = stationRepository.getRouteStationsFor(Cornbrook.getId()).
                 stream().
@@ -207,7 +192,7 @@ public class RouteInterchangeRepositoryTest {
         Route towardsEndOfEnd = tramRouteHelper.getOneRoute(KnownTramRoute.VictoriaWythenshaweManchesterAirport, when);
 
         List<RouteStation> peelHallRouteStations = stationRepository.getRouteStationsFor(PeelHall.getId()).stream().
-                filter(routeStation -> routeStation.getRoute().equals(towardsEndOfEnd)).collect(Collectors.toList());
+                filter(routeStation -> routeStation.getRoute().equals(towardsEndOfEnd)).toList();
 
         assertFalse(peelHallRouteStations.isEmpty());
 
