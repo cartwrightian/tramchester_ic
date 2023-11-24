@@ -12,6 +12,7 @@ import com.tramchester.dataimport.postcodes.PostcodeBoundingBoxs;
 import com.tramchester.dataimport.postcodes.PostcodeData;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.geo.BoundingBox;
+import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.integration.testSupport.postcodes.PostcodesOnlyEnabledConfig;
 import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.AfterEach;
@@ -61,7 +62,7 @@ class PostcodeBoundingBoxsTest {
         LoaderSaverFactory loaderSaverFactory =new LoaderSaverFactory();
         loaderSaverFactory.start();
 
-        dataCache = new FileDataCache(config, dataRefresh, loaderSaverFactory);
+        dataCache = new FileDataCache(config, dataRefresh, loaderSaverFactory, new GraphFilterActive(false));
         dataCache.start();
 
         postcodeBoundingBoxs = new PostcodeBoundingBoxs(config, dataCache);

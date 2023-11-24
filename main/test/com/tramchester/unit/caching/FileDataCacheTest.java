@@ -13,6 +13,7 @@ import com.tramchester.dataimport.data.RouteIndexData;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Route;
 import com.tramchester.geo.BoundingBox;
+import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.tfgm.TFGMRemoteDataSourceConfig;
@@ -54,7 +55,9 @@ public class FileDataCacheTest extends EasyMockSupport  {
         LoaderSaverFactory loaderSaverFactory = new LoaderSaverFactory();
         loaderSaverFactory.start();
 
-        dataCache = new FileDataCache(new LocalTestConfig(cacheFolder), remoteDataRefreshed, loaderSaverFactory);
+        GraphFilterActive graphFilterActive = new GraphFilterActive(false);
+
+        dataCache = new FileDataCache(new LocalTestConfig(cacheFolder), remoteDataRefreshed, loaderSaverFactory, graphFilterActive);
 
         dataCache.clearFiles();
 

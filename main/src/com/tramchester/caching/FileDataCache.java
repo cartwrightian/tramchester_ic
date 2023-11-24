@@ -7,6 +7,7 @@ import com.tramchester.dataexport.HasDataSaver;
 import com.tramchester.dataimport.RemoteDataAvailable;
 import com.tramchester.dataimport.loader.files.TransportDataFromFile;
 import com.tramchester.domain.DataSourceID;
+import com.tramchester.graph.filters.GraphFilterActive;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,21 +35,28 @@ public class FileDataCache implements DataCache {
     private final TramchesterConfig config;
     private final LoaderSaverFactory loaderSaverFactory;
     private final boolean cachingDisabled;
+    private final boolean graphFilterActive;
     private boolean ready;
 
     @Inject
-    public FileDataCache(TramchesterConfig config, RemoteDataAvailable remoteDataRefreshed, LoaderSaverFactory loaderSaverFactory) {
+    public FileDataCache(TramchesterConfig config, RemoteDataAvailable remoteDataRefreshed, LoaderSaverFactory loaderSaverFactory,
+                         GraphFilterActive graphFilterActive) {
         this.config = config;
         this.cacheFolder = config.getCacheFolder().toAbsolutePath();
         this.remoteDataRefreshed = remoteDataRefreshed;
         this.loaderSaverFactory = loaderSaverFactory;
         this.cachingDisabled = config.getCachingDisabled();
+        this.graphFilterActive = graphFilterActive.isActive();
     }
 
     @PostConstruct
     public void start() {
         if (cachingDisabled) {
-            logger.warn("Disabled");
+            logger.warn("Disabled in config");
+            return;
+        }
+        if (graphFilterActive) {
+            logger.warn("Graph filter is active, disabling");
             return;
         }
 
@@ -77,6 +85,10 @@ public class FileDataCache implements DataCache {
             logger.warn("Not clearing cache, currently disabled");
             return;
         }
+        if (graphFilterActive) {
+            logger.warn("Graph filter is active, disabled");
+            return;
+        }
 
         // TODO Currently clear cache if any data source has refreshed, in future maybe link to Ready dependency chain??
 
@@ -96,7 +108,7 @@ public class FileDataCache implements DataCache {
 
     @PreDestroy
     public void stop() {
-        if (cachingDisabled) {
+        if (cachingDisabled || graphFilterActive) {
             logger.warn("Disabled");
             return;
         }
@@ -118,7 +130,7 @@ public class FileDataCache implements DataCache {
     }
 
     public <CACHETYPE extends CachableData, T extends CachesData<CACHETYPE>> void save(T data, Class<CACHETYPE> theClass) {
-        if (cachingDisabled) {
+        if (cachingDisabled || graphFilterActive) {
             logger.error("NOT saving cache data for " + theClass.getSimpleName() + " as caching is disabled");
             return;
         }
@@ -135,7 +147,7 @@ public class FileDataCache implements DataCache {
     }
 
     public <CACHETYPE extends CachableData, T extends CachesData<CACHETYPE>> boolean has(T cachesData) {
-        if (cachingDisabled) {
+        if (cachingDisabled || graphFilterActive) {
             return false;
         }
         return Files.exists(getPathFor(cachesData));
@@ -150,7 +162,7 @@ public class FileDataCache implements DataCache {
     }
 
     public void clearFiles() {
-        if (cachingDisabled) {
+        if (cachingDisabled || graphFilterActive) {
             logger.error("Will not clear files when disabled");
             return;
         }
