@@ -60,9 +60,7 @@ class FindStationsByNumberLinksTramTest {
 
         IdSet<Station> stationWithLinks = finder.atLeastNLinkedStations(TransportMode.Tram, threshhold);
 
-        IdSet<Station> inConfigAndStationsWithLinks = dataSource.getAdditionalInterchanges().stream().
-                filter(stationWithLinks::contains).
-                collect(IdSet.idCollector());
+        IdSet<Station> inConfigAndStationsWithLinks = IdSet.intersection(stationWithLinks, dataSource.getAdditionalInterchanges());
 
         assertTrue(inConfigAndStationsWithLinks.isEmpty(), "Found also in config " + inConfigAndStationsWithLinks +
                 " stations with links were " + stationWithLinks);

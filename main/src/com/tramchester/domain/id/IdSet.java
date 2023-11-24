@@ -2,7 +2,6 @@ package com.tramchester.domain.id;
 
 
 import com.tramchester.domain.CoreDomain;
-import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import org.apache.commons.collections4.SetUtils;
 import org.jetbrains.annotations.NotNull;
@@ -65,13 +64,6 @@ public class IdSet<T extends CoreDomain> implements Iterable<IdFor<T>> {
         return new IdSet<>(other.theSet);
     }
 
-    @SafeVarargs
-    public static <T extends HasId<T> & CoreDomain> IdSet<T> union(IdSet<T>... ids) {
-        Set<IdFor<T>> newSet = Arrays.stream(ids).
-                flatMap(IdSet::stream).
-                collect(Collectors.toSet());
-        return new IdSet<>(newSet, false);
-    }
 
 
 
@@ -210,11 +202,19 @@ public class IdSet<T extends CoreDomain> implements Iterable<IdFor<T>> {
         return new ArrayList<>(theSet);
     }
 
-//    public IdSet<T> intersection(IdSet<T> other) {
-//        return new IdSet<>(SetUtils.intersection(this.theSet, other.theSet));
-//    }
-
     public static <T extends CoreDomain>  IdSet<T> disjunction(IdSet<T> setA, IdSet<T> setB) {
         return new IdSet<>(SetUtils.disjunction(setA.theSet, setB.theSet));
+    }
+
+    @SafeVarargs
+    public static <T extends HasId<T> & CoreDomain> IdSet<T> union(IdSet<T>... ids) {
+        Set<IdFor<T>> newSet = Arrays.stream(ids).
+                flatMap(IdSet::stream).
+                collect(Collectors.toSet());
+        return new IdSet<>(newSet, false);
+    }
+
+    public static IdSet<Station> intersection(IdSet<Station> setA, IdSet<Station> setB) {
+        return new IdSet<>(SetUtils.intersection(setA.theSet, setB.theSet));
     }
 }

@@ -8,9 +8,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.graphbuild.CompositeStationGraphBuilder;
 import com.tramchester.graph.graphbuild.GraphLabel;
-import com.tramchester.graph.graphbuild.GraphProps;
 import org.jetbrains.annotations.NotNull;
-import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +24,8 @@ public class FindStationsByNumberLinks {
 
     private final GraphDatabase graphDatabase;
 
+    // NOTE: beware circular dependencies here, interchange discover depends on this which is in turn used during
+    // graph building
     @Inject
     public FindStationsByNumberLinks(GraphDatabase graphDatabase,
                                      @SuppressWarnings("unused") CompositeStationGraphBuilder.Ready readyToken) {
@@ -36,17 +36,16 @@ public class FindStationsByNumberLinks {
         logger.info(format("Find at least N outbound for %s N=%s", mode, threshhold));
         Map<String, Object> params = new HashMap<>();
 
-        String stationLabel = GraphLabel.forMode(mode).name();
+        String modeLabel = GraphLabel.forMode(mode).name();
 
         params.put("threshhold", threshhold);
-        params.put("mode", mode.getNumber());
-        // todo b has to be a STATION
-        String query = format("MATCH (a:%s)-[link:LINKED]->(b) " +
-                        "WHERE $mode in link.transport_modes " +
-                        "WITH a, count(link) as num " +
-                        "WHERE num>=$threshhold " +
-                        "RETURN a",
-                stationLabel);
+
+        String query = format("MATCH (a:STATION)-[link:LINKED]->(:STATION) " +
+                        "WHERE a:%s " +
+                        "WITH a, count(link) as numLinks " +
+                        "WHERE numLinks>=$threshhold " +
+                        "RETURN a.station_id as stationId",
+                        modeLabel);
 
         return doQuery(mode, params, query);
     }
@@ -62,8 +61,8 @@ public class FindStationsByNumberLinks {
             Result result = txn.execute(query, params);
             while (result.hasNext()) {
                 Map<String, Object> row = result.next();
-                Node node = (Node) row.get("a");
-                stationIds.add(GraphProps.getStationId(node));
+                String text = (String) row.get("stationId");
+                stationIds.add(Station.createId(text));
             }
             result.close();
         }
