@@ -108,11 +108,11 @@ dependencies {
 
     implementation('org.geotools:gt-main:29.3')
     implementation('org.geotools:gt-epsg-hsql:29.3')
-    implementation('org.roaringbitmap:RoaringBitmap:0.9.39')
+    implementation('org.roaringbitmap:RoaringBitmap:1.0.0')
 
     testImplementation("io.dropwizard:dropwizard-testing:$dropwizardVersion")
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1',
-            'org.junit.platform:junit-platform-launcher:1.9.2',
+            'org.junit.platform:junit-platform-launcher:1.10.1',
             'org.assertj:assertj-core:3.24.2',
             'org.easymock:easymock:5.2.0',
             'org.seleniumhq.selenium:selenium-java:3.141.59',
