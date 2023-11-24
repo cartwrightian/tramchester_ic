@@ -1,13 +1,12 @@
 package com.tramchester.graph;
 
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.RouteStationId;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.facade.MutableGraphTransaction;
-import com.tramchester.graph.graphbuild.GraphProps;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import org.jetbrains.annotations.NotNull;
-import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +35,7 @@ public class FindRouteEndPoints {
                             "MATCH (:ROUTE_STATION)-[r2:ON_ROUTE]->(a:ROUTE_STATION) " +
                             "WHERE $mode in r2.transport_mode AND r1.route_id=r2.route_id" +
                         "}" +
-                " RETURN a";
+                " RETURN a.route_station_id as route_station_id";
 
         IdSet<RouteStation> stationIds = getIdFors(mode, query);
 
@@ -54,7 +53,7 @@ public class FindRouteEndPoints {
                 "MATCH (a:ROUTE_STATION)-[r2:ON_ROUTE]->(:ROUTE_STATION) " +
                 "WHERE $mode in r2.transport_mode AND r1.route_id=r2.route_id" +
                 "}" +
-                " RETURN a";
+                " RETURN a. route_station_id as route_station_id";
 
         IdSet<RouteStation> stationIds = getIdFors(mode, query);
         logger.info("Found " + stationIds.size() + " ends");
@@ -73,8 +72,8 @@ public class FindRouteEndPoints {
             Result result = txn.execute(query, params);
             while (result.hasNext()) {
                 Map<String, Object> row = result.next();
-                Node node = (Node) row.get("a");
-                stationIds.add(GraphProps.getRouteStationIdFrom(node));
+                String text = (String) row.get("route_station_id");
+                stationIds.add(RouteStationId.parse(text));
             }
             result.close();
         }
