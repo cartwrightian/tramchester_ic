@@ -43,7 +43,7 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
         HttpResponse<Void> response = fetchHeaders(originalUrl, localModTime, HttpMethod.HEAD, HttpResponse.BodyHandlers.discarding());
         HttpHeaders headers = response.headers();
 
-        long serverModMillis = getServerModMillis(response);
+        Duration modDuration = getServerModMillis(response);
 
         int httpStatusCode = response.statusCode();
 
@@ -73,32 +73,31 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
             }
         }
 
-        return createURLStatus(finalUrl, serverModMillis, httpStatusCode, redirect);
+        return createURLStatus(finalUrl, modDuration, httpStatusCode, redirect);
     }
 
-    // TODO Pass Durations around here, not long
-    private long getServerModMillis(HttpResponse<?> response) {
+    private Duration getServerModMillis(HttpResponse<?> response) {
         HttpHeaders headers = response.headers();
         Optional<String> lastModifiedHeader = headers.firstValue(LAST_MODIFIED);
 
-        long serverModMillis = 0;
+        Duration serverMod = Duration.ZERO;
         if (lastModifiedHeader.isPresent()) {
             final String lastMod = lastModifiedHeader.get();
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern(LAST_MOD_PATTERN);
             LocalDateTime dateTime = LocalDateTime.parse(lastMod, formatter);
 
-            //Date modTime = DateUtils.parseDate(lastMod);
-            serverModMillis = dateTime.toEpochSecond(ZoneOffset.UTC) * 1000;
+            // to seconds takes an int, millis a long
+            serverMod = Duration.ofMillis(dateTime.toEpochSecond(ZoneOffset.UTC) * 1000);
 
-            logger.info("Mod time for " + response.uri() + " was " + dateTime + " " + serverModMillis + "ms status " + response.statusCode());
+            logger.info("Mod time for " + response.uri() + " was " + dateTime + " " + serverMod + "ms status " + response.statusCode());
 
         } else {
             logger.warn("No mod time header for " + response.uri() + " status " + response.statusCode());
             logger.info("Headers were: ");
             headers.map().forEach((head, contents) -> logger.info(head + ": " + contents));
         }
-        return serverModMillis;
+        return serverMod;
     }
 
     private <T> HttpResponse<T> fetchHeaders(URI uri, LocalDateTime localLastMod, String method,
@@ -130,16 +129,16 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
     }
 
     @NotNull
-    private URLStatus createURLStatus(String url, long serverModMillis, int httpStatusCode, boolean redirected) {
+    private URLStatus createURLStatus(String url, Duration serverMod, int httpStatusCode, boolean redirected) {
         URLStatus result;
-        if (serverModMillis == 0) {
+        if (serverMod.isZero()) {
             if (!redirected) {
                 logger.warn(format("No valid mod time from server, got 0, status code %s for %s", httpStatusCode, url));
             }
             result = new URLStatus(url, httpStatusCode);
 
         } else {
-            LocalDateTime modTime = getLocalDateTime(serverModMillis);
+            LocalDateTime modTime = getLocalDateTime(serverMod);
             logger.debug(format("Mod time %s, status %s for %s", modTime, url, httpStatusCode));
             result = new URLStatus(url, httpStatusCode, modTime);
         }
@@ -152,8 +151,8 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
     }
 
     @NotNull
-    private LocalDateTime getLocalDateTime(long serverModMillis) {
-        return LocalDateTime.ofInstant(Instant.ofEpochSecond(serverModMillis / 1000), TramchesterConfig.TimeZoneId);
+    private LocalDateTime getLocalDateTime(Duration timeSinceEpoch) {
+        return LocalDateTime.ofInstant(Instant.ofEpochSecond(timeSinceEpoch.getSeconds()), TramchesterConfig.TimeZoneId);
     }
 
     @Override
@@ -209,7 +208,7 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
         String finalURL = response.toString();
         logger.info(format("Download is available from %s, save to %s", finalURL, destination));
 
-        long serverModMillis = getServerModMillis(response);
+        Duration serverModMillis = getServerModMillis(response);
         String contentType = getContentType(response);
         String encoding = getContentEncoding(response);
         long len = getLen(response);
@@ -243,16 +242,11 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
         }
 
         URLStatus result;
-        if (serverModMillis>0) {
-            result = new URLStatus(finalURL, statusCode, getLocalDateTime(serverModMillis));
-//            if (!targetFile.setLastModified(serverModMillis)) {
-//                logger.warn("Unable to set mod time on " + targetFile);
-//            } else {
-//                logger.info("Set mod time on " + targetFile + " to " + serverModDateTime);
-//            }
-        } else {
+        if (serverModMillis.isZero()) {
             result = new URLStatus(finalURL, statusCode);
             logger.warn("Server mod time is zero, not updating local file mod time " + logSuffix);
+        } else {
+            result = new URLStatus(finalURL, statusCode, getLocalDateTime(serverModMillis));
         }
 
         return result;
