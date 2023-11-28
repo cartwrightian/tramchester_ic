@@ -5,7 +5,7 @@ plugins {
     id 'java'
     id 'application'
     id 'idea'
-    id 'com.github.johnrengelman.shadow' version '7.1.2'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
 idea{
@@ -70,7 +70,7 @@ dependencies {
     implementation 'com.google.inject:guice:5.1.0'
     // note: exclude of org.glassfish.jersey.inject needed as it clashed with version in DropWizard causing a
     // failure to load the DynamicServiceLocator in glassfish
-    implementation('org.neo4j:neo4j:5.13.0') {
+    implementation('org.neo4j:neo4j:5.14.0') {
         // seem to cause issue with logging on every release, sigh
         exclude group: 'org.neo4j', module:'neo4j-slf4j-provider'
         exclude group: 'org.glassfish.jersey.inject'   // , module: 'jersey-hk2'}
@@ -80,8 +80,8 @@ dependencies {
             'commons-io:commons-io:2.15.0',
             'commons-codec:commons-codec:1.16.0',
             'org.apache.commons:commons-collections4:4.4',
-            'org.apache.commons:commons-compress:1.24.0',
-            'com.github.ben-manes.caffeine:caffeine:3.1.5'
+            'org.apache.commons:commons-compress:1.25.0',
+            'com.github.ben-manes.caffeine:caffeine:3.1.8'
     implementation "com.fasterxml.jackson.core:jackson-core:$jacksonVersion",
             "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",
             "com.fasterxml.jackson.module:jackson-module-afterburner:$jacksonVersion",
