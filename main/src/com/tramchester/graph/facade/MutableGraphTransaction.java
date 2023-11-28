@@ -129,6 +129,7 @@ public class MutableGraphTransaction implements GraphTransaction {
         return findNodeMutable(item.getNodeLabel(), item.getProp(), item.getId().getGraphId());
     }
 
+    // TODO strong typed version so make sure correct ID getGrpahId() is used?
     public Result execute(String queryText, Map<String, Object> queryParams) {
         return txn.execute(queryText, queryParams);
     }

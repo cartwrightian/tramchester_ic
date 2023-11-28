@@ -202,37 +202,16 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         return results;
     }
 
-    public static class TimedPath {
-        private final Path path;
-        private final TramTime queryTime;
-        private final int numChanges;
-
-        public TimedPath(Path path, TramTime queryTime, int numChanges) {
-            this.path = path;
-            this.queryTime = queryTime;
-            this.numChanges = numChanges;
-        }
-
-        public Path getPath() {
-            return path;
-        }
-
-        public TramTime getQueryTime() {
-            return queryTime;
-        }
-
-        public int getNumChanges() {
-            return numChanges;
-        }
+    public record TimedPath(Path path, TramTime queryTime, int numChanges) {
 
         @Override
-        public String toString() {
-            return "TimedPath{" +
-                    "path=" + path +
-                    ", queryTime=" + queryTime +
-                    ", numChanges=" + numChanges +
-                    '}';
+            public String toString() {
+                return "TimedPath{" +
+                        "path=" + path +
+                        ", queryTime=" + queryTime +
+                        ", numChanges=" + numChanges +
+                        '}';
+            }
         }
-    }
 }
 

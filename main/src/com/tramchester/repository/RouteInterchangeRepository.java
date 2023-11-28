@@ -34,7 +34,6 @@ public class RouteInterchangeRepository extends ComponentThatCaches<RouteInterch
     private static final Logger logger = LoggerFactory.getLogger(RouteInterchangeRepository.class);
 
     private final RouteRepository routeRepository;
-    private final StationRepository stationRepository;
     private final InterchangeRepository interchangeRepository;
     private final FindRouteStationToInterchangeCosts findRouteStationToInterchangeCosts;
 
@@ -42,12 +41,11 @@ public class RouteInterchangeRepository extends ComponentThatCaches<RouteInterch
     private RouteStationToInterchangeCosts routeStationToInterchangeCost;
 
     @Inject
-    public RouteInterchangeRepository(RouteRepository routeRepository, StationRepository stationRepository, InterchangeRepository interchangeRepository,
+    public RouteInterchangeRepository(RouteRepository routeRepository, InterchangeRepository interchangeRepository,
                                       @SuppressWarnings("unused") StagedTransportGraphBuilder.Ready ready,
                                       FileDataCache fileDataCache, FindRouteStationToInterchangeCosts findRouteStationToInterchangeCosts) {
         super(fileDataCache, RouteToInterchangeCost.class);
         this.routeRepository = routeRepository;
-        this.stationRepository = stationRepository;
         this.interchangeRepository = interchangeRepository;
 
         this.findRouteStationToInterchangeCosts = findRouteStationToInterchangeCosts;
@@ -79,18 +77,9 @@ public class RouteInterchangeRepository extends ComponentThatCaches<RouteInterch
     }
 
     private void populateRouteStationToFirstInterchangeByRouteStation() {
-        final Set<RouteStation> routeStations = stationRepository.getRouteStations();
-        logger.info("Populate for first interchange " + routeStations.size() + " route stations");
-
+        logger.info("Populate cost to first interchange");
         Map<RouteStationId, Duration> durations = findRouteStationToInterchangeCosts.getDurations();
-
-        durations.forEach((routeStation, duration) -> {
-            routeStationToInterchangeCost.putCost(routeStation,duration);
-        });
-
-//        try(TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "populateForRoutes")) {
-//            routeRepository.getRoutes().forEach(route -> populateForRoute(timedTransaction.transaction(), route));
-//        }
+        durations.forEach((routeStation, duration) -> routeStationToInterchangeCost.putCost(routeStation,duration));
     }
 
     private void populateRouteToInterchangeMap() {

@@ -17,7 +17,6 @@ import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphTransaction;
-import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.search.diagnostics.ReasonsToGraphViz;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
@@ -154,14 +153,14 @@ public class RouteCalculatorSupport {
                                     GraphTransaction txn) {
 
         final List<TransportStage<?, ?>> stages = pathToStages.mapDirect(path, journeyRequest, lowestCostForRoutes, destinations, txn);
-        final List<Location<?>> locationList = mapPathToLocations.mapToLocations(path.getPath(), txn);
+        final List<Location<?>> locationList = mapPathToLocations.mapToLocations(path.path(), txn);
 
         if (stages.isEmpty()) {
             logger.error("No stages were mapped for " + journeyRequest + " for " + locationList);
         }
         TramTime arrivalTime = getArrivalTimeFor(stages, journeyRequest);
         TramTime departTime = getDepartTimeFor(stages, journeyRequest);
-        return new Journey(departTime, path.getQueryTime(), arrivalTime, stages, locationList, path.getNumChanges(),
+        return new Journey(departTime, path.queryTime(), arrivalTime, stages, locationList, path.numChanges(),
                 journeyIndex.getAndIncrement());
     }
 

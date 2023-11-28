@@ -250,14 +250,6 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
     }
 
     private MutableGraphNode createRouteStationNode(MutableGraphTransaction tx, RouteStation routeStation, GraphBuilderCache builderCache) {
-//        Node existing = graphDatabase.findNode(tx,
-//                GraphLabel.ROUTE_STATION, GraphPropertyKey.ROUTE_STATION_ID.getText(), routeStation.getId().getGraphId());
-//
-//        if (existing!=null) {
-//            final String msg = "Existing route station node for " + routeStation + " with id " + routeStation.getId();
-//            logger.error(msg);
-//            throw new RuntimeException(msg);
-//        }
 
         boolean hasAlready = tx.hasAnyMatching(GraphLabel.ROUTE_STATION, GraphPropertyKey.ROUTE_STATION_ID.getText(), routeStation.getId().getGraphId());
 
@@ -275,13 +267,11 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         MutableGraphNode routeStationNode = createGraphNode(tx, labels);
 
         logger.debug(format("Creating route station %s nodeId %s", routeStation.getId(), routeStationNode.getId()));
-        //GraphProps.setProperty(routeStationNode, routeStation);
         routeStationNode.set(routeStation);
         routeStationNode.set(routeStation.getStation());
         routeStationNode.set(routeStation.getRoute());
 
         routeStationNode.setTransportMode(mode);
-//        setProperty(graphNode.getNode(), mode);
 
         builderCache.putRouteStation(routeStation.getId(), routeStationNode);
         return routeStationNode;
@@ -302,22 +292,6 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
                     modes, station.getId()));
         }
     }
-
-//    private void setTransportMode(Station station, Node node) {
-//        Set<TransportMode> modes = station.getTransportModes();
-//        if (modes.isEmpty()) {
-//            logger.error("No transport modes set for " + station.getId());
-//            return;
-//        }
-//        if (modes.size()==1) {
-//            TransportMode first = modes.iterator().next();
-//            setProperty(node, first);
-//        } else {
-//            logger.error(format("Unable to set transportmode property, more than one mode (%s) for %s",
-//                    modes, station.getId()));
-//        }
-//    }
-
 
     public static class Ready {
         private Ready() {

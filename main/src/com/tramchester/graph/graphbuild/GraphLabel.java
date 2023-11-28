@@ -14,8 +14,8 @@ public enum GraphLabel implements Label {
     GROUPED,  // grouped station node
     ROUTE_STATION,
     STATION, // any station node must have this label
-    HAS_PLATFORMS, // label added to stations if have platforms
-    INTERCHANGE, // label added to stations if they are interchanges
+    HAS_PLATFORMS, // label added to stations iff have platforms
+    INTERCHANGE, // label added to route stations if they are interchanges
     // transport modes - added to route stations
     TRAM,
     BUS,

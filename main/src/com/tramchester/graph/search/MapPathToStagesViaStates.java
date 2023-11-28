@@ -72,10 +72,10 @@ public class MapPathToStagesViaStates implements PathToStages {
     public List<TransportStage<?, ?>> mapDirect(RouteCalculator.TimedPath timedPath, JourneyRequest journeyRequest,
                                                 LowestCostsForDestRoutes lowestCostForRoutes, LocationSet endStations,
                                                 GraphTransaction txn) {
-        final Path path = timedPath.getPath();
-        final TramTime queryTime = timedPath.getQueryTime();
+        final Path path = timedPath.path();
+        final TramTime queryTime = timedPath.queryTime();
         logger.info(format("Mapping path length %s to transport stages for %s at %s with %s changes",
-                path.length(), journeyRequest, queryTime, timedPath.getNumChanges()));
+                path.length(), journeyRequest, queryTime, timedPath.numChanges()));
 
         final LatLong destinationLatLon = sortsPosition.midPointFrom(endStations);
 

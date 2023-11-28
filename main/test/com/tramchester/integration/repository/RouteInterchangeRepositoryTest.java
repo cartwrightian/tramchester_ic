@@ -54,9 +54,10 @@ public class RouteInterchangeRepositoryTest {
     void onceBeforeEachTestRuns() {
         stationRepository = componentContainer.get(StationRepository.class);
         RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
-        routeInterchanges = componentContainer.get(RouteInterchangeRepository.class);
         tramRouteHelper = new TramRouteHelper(routeRepository);
         interchangeRepository = componentContainer.get(InterchangeRepository.class);
+
+        routeInterchanges = componentContainer.get(RouteInterchangeRepository.class);
 
         when = TestEnv.testDay();
 
