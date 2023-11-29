@@ -5,6 +5,7 @@ import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.MutableServiceCalendar;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.PlatformStopCall;
 import com.tramchester.domain.input.Trip;
@@ -55,9 +56,9 @@ class ServiceTest {
 
     @Test
     void shouldHaveTimeRange() {
-        Platform platformA = new MutablePlatform(Platform.createId(manAirport,"platA"), manAirport, "man airport",
+        Platform platformA = new MutablePlatform(PlatformId.createId(manAirport, "platA"), manAirport, "man airport",
                 dataSourceId, "1", areaId, nearWythenshaweHosp.latLong(), nearWythenshaweHosp.grid(), isMarkedInterchange);
-        Platform platformB = new MutablePlatform(Platform.createId(shudehill,"platB"), shudehill, "shudehill",
+        Platform platformB = new MutablePlatform(PlatformId.createId(shudehill, "platB"), shudehill, "shudehill",
                 dataSourceId, "2", areaId, nearShudehill.latLong(), nearShudehill.grid(), isMarkedInterchange);
 
         Route route = TestEnv.getTramTestRoute();
@@ -85,9 +86,9 @@ class ServiceTest {
 
     @Test
     void shouldHaveTimeRangeCrossesMidnight() {
-        Platform platformA = new MutablePlatform(Platform.createId(manAirport,"platA"), manAirport, "man airport",
+        Platform platformA = new MutablePlatform(PlatformId.createId(manAirport, "platA"), manAirport, "man airport",
                 dataSourceId, "1", areaId, nearWythenshaweHosp.latLong(), nearWythenshaweHosp.grid(), isMarkedInterchange);
-        Platform platformB = new MutablePlatform(Platform.createId(shudehill,"platB"), shudehill, "shudehill",
+        Platform platformB = new MutablePlatform(PlatformId.createId(shudehill, "platB"), shudehill, "shudehill",
                 dataSourceId, "2", areaId, nearShudehill.latLong(), nearShudehill.grid(), isMarkedInterchange);
 
         Route route = TestEnv.getTramTestRoute();

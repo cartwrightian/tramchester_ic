@@ -256,7 +256,7 @@ public class RailTransportDataFromFilesTest {
         IdFor<Station> stationId = ManchesterPiccadilly.getId();
         Station station = transportData.getStationById(stationId);
 
-        IdFor<Platform> platformId = Platform.createId(station, "12");
+        IdFor<Platform> platformId = PlatformId.createId(station, "12");
 
         Optional<Platform> result = station.getPlatforms().stream().filter(platform -> platform.getId().equals(platformId)).findFirst();
 

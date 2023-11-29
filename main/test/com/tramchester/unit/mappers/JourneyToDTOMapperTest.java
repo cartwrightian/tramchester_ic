@@ -4,6 +4,7 @@ package com.tramchester.unit.mappers;
 import com.tramchester.domain.*;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdForDTO;
+import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.MyLocation;
@@ -278,7 +279,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         Station middle = transportData.getSecond();
         Station finish = transportData.getInterchange();
 
-        Platform platform = MutablePlatform.buildForTFGMTram(Platform.createId(start, "1"), start,
+        Platform platform = MutablePlatform.buildForTFGMTram(PlatformId.createId(start, "1"), start,
                 start.getLatLong(), DataSourceID.unknown, NaptanArea.invalidId());
 
         VehicleStage rawStageA = getRawVehicleStage(start, middle, createRoute("route text"), startTime,

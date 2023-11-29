@@ -2,7 +2,6 @@ package com.tramchester.unit.domain;
 
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.MutablePlatform;
-import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.PlatformId;
@@ -26,7 +25,7 @@ class PlatformTest {
         IdFor<NaptanArea> areaId = NaptanArea.createId("area55");
         boolean isMarkedInterchange = true;
         Station station = TramStations.Altrincham.fake();
-        PlatformId platformId = Platform.createId(station, "2");
+        PlatformId platformId = PlatformId.createId(station, "2");
         MutablePlatform platform = new MutablePlatform(platformId,
                 station, "StationName", DataSourceID.tfgm, "2",
                 areaId, nearAltrincham.latLong(), nearAltrincham.grid(), isMarkedInterchange);
