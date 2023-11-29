@@ -437,7 +437,7 @@ tasks.register('integrationGM', Test) {
     filter {
         includeTestsMatching "com.tramchester.integration.*"
     }
-    systemProperty("com.tramchester.config", "RailAndTramGreaterManchesterConfig")
+    //systemProperty("com.tramchester.config", "RailAndTramGreaterManchesterConfig")
     testLogging {
         exceptionFormat "full" // default is "short"
         events "passed", "failed", "standardError"
@@ -504,6 +504,7 @@ def integrationRailConfig = {
     useJUnitPlatform {
         includeTags "TrainTest"
     }
+    systemProperty("com.tramchester.config", "IntegrationRailTestConfig")
     filter {
         includeTestsMatching "com.tramchester.integration.*"
     }

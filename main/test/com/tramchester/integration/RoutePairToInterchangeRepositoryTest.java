@@ -41,7 +41,6 @@ public class RoutePairToInterchangeRepositoryTest {
     private final EnumSet<TransportMode> modes = TramsOnly;
     private TramDate date;
     private RoutePairToInterchangeRepository repository;
-    //private RouteIndex routeIndex;
 
     @BeforeAll
     static void onceBeforeAnyTestRuns(TramchesterConfig tramchesterConfig) {

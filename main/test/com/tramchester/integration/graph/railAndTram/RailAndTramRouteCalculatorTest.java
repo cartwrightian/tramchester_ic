@@ -128,7 +128,7 @@ public class RailAndTramRouteCalculatorTest {
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 1, maxDurationFromConfig,
                 1, TramsOnly);
 
-        journeyRequest.setDiag(true);
+//        journeyRequest.setDiag(true);
 
         Set<Journey> journeys = testFacade.calculateRouteAsSet(Victoria, Eccles, journeyRequest);
         assertFalse(journeys.isEmpty());
@@ -142,7 +142,7 @@ public class RailAndTramRouteCalculatorTest {
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 1, maxDurationFromConfig,
                 1, EnumSet.of(Tram, Train));
 
-        journeyRequest.setDiag(true);
+//        journeyRequest.setDiag(true);
 
         Set<Journey> journeys = testFacade.calculateRouteAsSet(Victoria, Eccles, journeyRequest);
         assertFalse(journeys.isEmpty());

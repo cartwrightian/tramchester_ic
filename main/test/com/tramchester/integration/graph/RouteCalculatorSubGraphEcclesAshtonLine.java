@@ -92,7 +92,7 @@ class RouteCalculatorSubGraphEcclesAshtonLine {
     void ShouldReproIssueWithMediaCityToVelopark() {
         JourneyRequest request = new JourneyRequest(when, TramTime.of(8, 5), false,
                 1, maxJourneyDuration, 2, TramsOnly);
-        request.setDiag(true);
+//        request.setDiag(true);
 
         assertFalse(calculator.calculateRouteAsSet(MediaCityUK, VeloPark, request).isEmpty());
     }

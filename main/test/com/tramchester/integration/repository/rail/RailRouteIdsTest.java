@@ -21,7 +21,8 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.graph.filters.GraphFilterActive;
-import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
+import com.tramchester.integration.testSupport.ConfigParameterResolver;
+import com.tramchester.integration.testSupport.OnlyIfModesExact;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.repository.AgencyRepository;
@@ -34,15 +35,19 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.tramchester.dataimport.rail.reference.TrainOperatingCompanies.TP;
+import static com.tramchester.domain.reference.TransportMode.RailReplacementBus;
+import static com.tramchester.domain.reference.TransportMode.Train;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
 import static com.tramchester.testSupport.TestEnv.assertSetEquals;
 import static org.junit.jupiter.api.Assertions.*;
 
+@ExtendWith({ConfigParameterResolver.class, OnlyIfModesExact.ExactMatchToConfiguredModesExtension.class})
 @TrainTest
 @GMTest
 public class RailRouteIdsTest {
@@ -57,8 +62,8 @@ public class RailRouteIdsTest {
     private AgencyRepository agencyRepository;
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() {
-        config = new IntegrationRailTestConfig();
+    static void onceBeforeAnyTestsRun(TramchesterConfig tramchesterConfig) {
+        config = tramchesterConfig;
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
@@ -106,6 +111,7 @@ public class RailRouteIdsTest {
     }
 
     @Test
+    @OnlyIfModesExact({Train, RailReplacementBus})
     void shouldHaveDiffRouteIdsForMaccAndWilmslowRoutes() {
 
         List<Station> fromManchesterViaWilmslow = getStations(ManchesterPiccadilly, Stockport,
@@ -122,6 +128,7 @@ public class RailRouteIdsTest {
     }
 
     @Test
+    @OnlyIfModesExact({Train, RailReplacementBus})
     void shouldHaveLondonToManchesterWhereOneRouteIsSubsetOfOther() {
 
         List<Station> fromManchester = getStations(ManchesterPiccadilly, Stockport, Wilmslow, Crewe, LondonEuston);
@@ -167,11 +174,13 @@ public class RailRouteIdsTest {
     }
 
     @Test
+    @OnlyIfModesExact({Train, RailReplacementBus})
     void shouldHaveLongestRouteAndSubsetsWithSameId() {
 
         StationIdPair beginEnd = StationIdPair.of(ManchesterPiccadilly.getId(), LondonEuston.getId());
 
-        Optional<RailRouteIds.RailRouteCallingPointsWithRouteId> findLongest = railRouteIdRepository.getCallingPointsFor(TrainOperatingCompanies.VT.getAgencyId()).stream().
+        Optional<RailRouteIds.RailRouteCallingPointsWithRouteId> findLongest = railRouteIdRepository.
+                getCallingPointsFor(TrainOperatingCompanies.VT.getAgencyId()).stream().
                 filter(railRoute -> railRoute.getBeginEnd().equals(beginEnd)).
                 max(Comparator.comparingInt(RailRouteIds.RailRouteCallingPointsWithRouteId::numberCallingPoints));
 
@@ -180,7 +189,8 @@ public class RailRouteIdsTest {
         RailRouteIds.RailRouteCallingPointsWithRouteId longest = findLongest.get();
         IdFor<Route> routeIdForLongest = longest.getRouteId();
 
-        IdFor<Route> routeIdForShorter = railRouteIdRepository.getRouteIdFor(agencyId, getStations(ManchesterPiccadilly, Stockport, Macclesfield,
+        IdFor<Route> routeIdForShorter = railRouteIdRepository.getRouteIdFor(agencyId, getStations(ManchesterPiccadilly,
+                Stockport, Macclesfield,
                 StokeOnTrent, LondonEuston));
 
         assertEquals(routeIdForLongest, routeIdForShorter);
@@ -193,7 +203,7 @@ public class RailRouteIdsTest {
         StationIdPair manchesterLondon = StationIdPair.of(ManchesterPiccadilly.getId(), LondonEuston.getId());
         List<RailRouteIds.RailRouteCallingPointsWithRouteId> routes = railRouteIdRepository.getCallingPointsFor(agencyId).stream().
                 filter(callingPoints -> callingPoints.getBeginEnd().equals(manchesterLondon)).
-                collect(Collectors.toList());
+                toList();
 
         // was 36 under old ID scheme
         assertEquals(11, routes.size(), routes.toString());
