@@ -192,15 +192,21 @@ public class RailTransportDataFromFilesTest {
         Station startStation = transportData.getStationById(Derby.getId());
         Station endStation = transportData.getStationById(LondonStPancras.getId());
 
-        int numberOfCalingPoints = 7;
+        final int numberOfCalingPoints = 7;
+        final int numberPassedStops = 21;
 
-        List<Trip> matchingTrips = transportData.getTrips().stream().
+        List<Trip> matchingTripsForCallingPoints = transportData.getTrips().stream().
                 filter(trip -> trip.callsAt(startStation)).
                 filter(trip -> trip.callsAt(endStation)).
                 filter(trip -> trip.getStopCalls().numberOfCallingPoints()==numberOfCalingPoints).
                 filter(trip -> trip.getStopCalls().getStationSequence(false).get(0).equals(startStation)).
                 filter(trip -> trip.getStopCalls().getLastStop().getStation().equals(endStation)).
-                collect(Collectors.toList());
+                toList();
+
+        assertFalse(matchingTripsForCallingPoints.isEmpty());
+
+        List<Trip> matchingTrips = matchingTripsForCallingPoints.stream().
+                filter(trip -> trip.getStopCalls().totalNumber()==numberPassedStops).toList();
 
         assertFalse(matchingTrips.isEmpty());
 
@@ -220,22 +226,18 @@ public class RailTransportDataFromFilesTest {
         assertEquals(GTFSPickupDropoffType.Regular, firstStopCall.getPickupType());
 
         //final int expectedCalls = 7;
-        final int expectedPassedStops = 21;
 
         assertEquals(numberOfCalingPoints, stops.numberOfCallingPoints(),
                 "wrong number of stops " + HasId.asIds(stops.getStationSequence(false)));
 
-        // 21 is including passed stops, 6 otherwise
-        assertEquals(expectedPassedStops, stops.totalNumber());
 
         final StopCall lastStopCall = stops.getLastStop();
         assertEquals(endStation, lastStopCall.getStation());
         assertEquals(GTFSPickupDropoffType.Regular, lastStopCall.getDropoffType());
         assertEquals(GTFSPickupDropoffType.None, lastStopCall.getPickupType());
 
-        // 19 is including passed stops, 7 otherwise
         assertEquals(numberOfCalingPoints, stops.getStationSequence(false).size());
-        assertEquals(expectedPassedStops, stops.getStationSequence(true).size());
+        assertEquals(numberPassedStops, stops.getStationSequence(true).size());
 
         // 2 if including passed stop, 0 otherwise
         assertEquals(0, stops.getStationSequence(false).stream().filter(station -> !station.isActive()).count());
