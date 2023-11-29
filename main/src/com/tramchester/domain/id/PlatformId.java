@@ -10,16 +10,6 @@ public class PlatformId extends ContainsId<Platform> {
     private final String platformNumber;
     private final StringIdFor<Platform> containedId;
 
-//    private PlatformId(String stationText, String platformNumber) {
-//        containedId = new StringIdFor<>(stationText + platformNumber, Platform.class);
-//        this.platformNumber = platformNumber;
-//    }
-
-//    @Deprecated
-//    public static PlatformId createId(String text, String platformNumber) {
-//        return new PlatformId(text, platformNumber);
-//    }
-
     private PlatformId(IdFor<Station> stationId, String platformNumber) {
         this.containedId = StringIdFor.concat(stationId, platformNumber, Platform.class);
         this.platformNumber = platformNumber;

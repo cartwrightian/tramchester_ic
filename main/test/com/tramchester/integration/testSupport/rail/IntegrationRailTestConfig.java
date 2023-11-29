@@ -89,7 +89,7 @@ public class IntegrationRailTestConfig extends IntegrationTestConfig {
 
         @Override
         public String getNeo4jPagecacheMemory() {
-            return "1000m";
+            return "600m";
         }
     }
 

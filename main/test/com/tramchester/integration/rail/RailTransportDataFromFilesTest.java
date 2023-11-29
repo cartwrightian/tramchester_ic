@@ -160,7 +160,7 @@ public class RailTransportDataFromFilesTest {
         List<IdFor<Agency>> missingTrainOperatingCompanyName = results.stream().
                 map(Agency::getId).
                 filter(id -> TrainOperatingCompanies.companyNameFor(id).equals(TrainOperatingCompanies.UNKNOWN.getCompanyName())).
-                collect(Collectors.toList());
+                toList();
 
         assertTrue(missingTrainOperatingCompanyName.isEmpty(), missingTrainOperatingCompanyName.toString());
 

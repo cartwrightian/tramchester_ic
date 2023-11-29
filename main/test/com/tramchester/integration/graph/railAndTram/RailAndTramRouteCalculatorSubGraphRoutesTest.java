@@ -25,6 +25,7 @@ import com.tramchester.testSupport.testTags.GMTest;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.util.List;
 import java.util.Set;
@@ -110,7 +111,7 @@ public class RailAndTramRouteCalculatorSubGraphRoutesTest {
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 1, maxDurationFromConfig,
                 1, TramsOnly);
 
-        journeyRequest.setDiag(true);
+        //journeyRequest.setDiag(true);
 
         Set<Journey> journeys = testFacade.calculateRouteAsSet(Victoria, Eccles, journeyRequest);
         assertFalse(journeys.isEmpty());
@@ -119,6 +120,11 @@ public class RailAndTramRouteCalculatorSubGraphRoutesTest {
     private static class Config extends RailAndTramGreaterManchesterConfig {
         public Config() {
             super("RailAndTramRouteCalculatorSubGraphRoutesTest.bd");
+        }
+
+        @Override
+        public Path getCacheFolder() {
+            return TestEnv.CACHE_DIR.resolve("RailAndTramRouteCalculatorSubGraphRoutesTest");
         }
     }
 

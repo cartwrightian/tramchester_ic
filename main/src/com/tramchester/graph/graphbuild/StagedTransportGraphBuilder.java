@@ -173,7 +173,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         }
 
         try(Timing ignored = new Timing(logger,"service, hour for " + agency.getId())) {
-            getRoutesForAgency(agency).parallel().forEach(route -> {
+            // try removing parallel, transaction memory is running out
+            getRoutesForAgency(agency).forEach(route -> {
                 try (MutableGraphTransaction tx = graphDatabase.beginTxMutable()) {
                     createServiceAndHourNodesForRoute(tx, route, builderCache);
                     tx.commit();
@@ -241,8 +242,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
     private void createServiceAndHourNodesForRoute(MutableGraphTransaction tx, Route route, GraphBuilderCache stationCache) {
         route.getTrips().forEach(trip -> {
-                StopCalls stops = trip.getStopCalls();
-                List<StopCalls.StopLeg> legs = stops.getLegs(graphFilter.isFiltered());
+                final StopCalls stops = trip.getStopCalls();
+                final List<StopCalls.StopLeg> legs = stops.getLegs(graphFilter.isFiltered());
                 legs.forEach(leg -> {
 
                     if (includeBothStops(leg)) {
@@ -250,11 +251,11 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                             throw new RuntimeException("Invalid dept time for " + leg);
                         }
 
-                        IdFor<Station> beginId = leg.getFirstStation().getId();
-                        IdFor<Station> endId = leg.getSecondStation().getId();
+                        final IdFor<Station> beginId = leg.getFirstStation().getId();
+                        final IdFor<Station> endId = leg.getSecondStation().getId();
 
-                        Service service = trip.getService();
-                        MutableGraphNode serviceNode = createServiceNodeAndRelationshipFromRouteStation(tx, route, service,
+                        final Service service = trip.getService();
+                        final MutableGraphNode serviceNode = createServiceNodeAndRelationshipFromRouteStation(tx, route, service,
                                 beginId, endId, stationCache);
 
                         createHourNodeAndRelationshipFromService(tx, route.getId(), service,
@@ -283,18 +284,13 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         //  org.neo4j.graphdb.spatial.Point instead?
         svcNode.setTowards(endId);
 
-        //GraphNode svcNode = GraphNode.from(svcNodeRaw);
-
         routeBuilderCache.putService(route.getId(), service, beginId, endId, svcNode);
 
         // start route station -> svc node
         MutableGraphNode routeStationStart = routeBuilderCache.getRouteStation(tx, route, beginId);
         MutableGraphRelationship svcRelationship = createRelationship(tx, routeStationStart, svcNode, TO_SERVICE);
-        //setProperty(svcRelationship, service);
         svcRelationship.set(service);
-        //setCostProp(svcRelationship, Duration.ZERO);
         svcRelationship.setCost(Duration.ZERO);
-//        setProperty(svcRelationship, route);
         svcRelationship.set(route);
         return svcNode;
 
@@ -569,11 +565,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             builderCache.putHour(routeId, service, startId, hour, hourNode);
 
             // service node -> time node
-            //Node serviceNode = stationCache.getServiceNode(tx, routeId, service, startId, endId);
             MutableGraphRelationship serviceNodeToHour = createRelationship(tx, serviceNode, hourNode, TransportRelationshipTypes.TO_HOUR);
-            //setCostProp(serviceNodeToHour, Duration.ZERO);
             serviceNodeToHour.setCost(Duration.ZERO);
-            //setHourProp(serviceNodeToHour, hour);
             serviceNodeToHour.setHour(hour);
         }
 

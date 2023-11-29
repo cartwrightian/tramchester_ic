@@ -92,7 +92,7 @@ public class RailTransportDataFromFilesTest {
         // should be 2??
         assertEquals(1, platforms.size());
 
-        assertEquals(Platform.createId(station,"UNK"), platforms.get(0).getId());
+        assertEquals(PlatformId.createId(station,"UNK"), platforms.get(0).getId());
         assertEquals("UNK", platforms.get(0).getPlatformNumber());
     }
 
@@ -148,7 +148,7 @@ public class RailTransportDataFromFilesTest {
                 map(Agency::getId).
                 filter(id -> !Agency.IsMetrolink(id)).
                 filter(id -> TrainOperatingCompanies.companyNameFor(id).equals(TrainOperatingCompanies.UNKNOWN.getCompanyName())).
-                collect(Collectors.toList());
+                toList();
 
         assertTrue(missingTrainOperatingCompanyName.isEmpty(), missingTrainOperatingCompanyName.toString());
 
@@ -171,7 +171,7 @@ public class RailTransportDataFromFilesTest {
                 filter(trip -> trip.callsAt(endStation)).
                 filter(trip -> trip.getStopCalls().getStationSequence(false).get(0).equals(startStation)).
                 filter(trip -> trip.getStopCalls().getLastStop().getStation().equals(endStation)).
-                collect(Collectors.toList());
+                toList();
 
         assertFalse(matchingTrips.isEmpty());
 

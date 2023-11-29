@@ -204,7 +204,7 @@ public class RailAndTramRouteCalculatorTest {
                 4, maxDurationFromConfig, 3, TramsOnly);
         Set<Journey> journeys =  testFacade.calculateRouteAsSet(Bury, TramStations.Altrincham, request);
 
-        assertTrue(journeys.size()>0);
+        assertFalse(journeys.isEmpty());
 
         final Set<Integer> uniqueNumChanges = journeys.stream().map(Journey::getRequestedNumberChanges).collect(Collectors.toSet());
 
@@ -215,7 +215,7 @@ public class RailAndTramRouteCalculatorTest {
 
                 final List<TransportStage<?, ?>> journeyStages = journey.getStages();
                 assertFalse(uniqueStages.contains(journeyStages), journeyStages +
-                        " is present multuiple times in " + journeys);
+                        " is present multiple times in " + journeys);
                 uniqueStages.add(journeyStages);
             });
         });

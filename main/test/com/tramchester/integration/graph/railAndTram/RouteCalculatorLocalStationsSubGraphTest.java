@@ -32,6 +32,7 @@ import com.tramchester.testSupport.testTags.GMTest;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -305,6 +306,11 @@ class RouteCalculatorLocalStationsSubGraphTest {
     private static class SubgraphConfig extends RailAndTramGreaterManchesterConfig {
         public SubgraphConfig() {
             super("subgraph_trainTramLocal_tramchester.db");
+        }
+
+        @Override
+        public Path getCacheFolder() {
+            return TestEnv.CACHE_DIR.resolve("RouteCalculatorLocalStationsSubGraphTest");
         }
     }
 
