@@ -68,7 +68,6 @@ public class TestEnv {
     private static final TramDate monday;
 
     public static final DateTimeFormatter dateFormatDashes = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    public static final DateTimeFormatter dateFormatSimple = DateTimeFormatter.ofPattern("ddMMyyyy");
     public static final Path LiveDataExampleFile = Paths.get("data","test","liveDataSample.json");
     public static final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:00");
     public static final String BRISTOL_BUSSTOP_OCTOCODE = "0100BRP90268";
@@ -82,11 +81,7 @@ public class TestEnv {
 
     public static final String MANCHESTER_AIRPORT_BUS_AREA = "180GMABS";
 
-    public static final String BACKUP_TIMETABLE_URL = "https://tramchesternewdist.s3.eu-west-1.amazonaws.com/XXXX/tfgm_data.zip";
-
     public static final String TFGM_TIMETABLE_URL = "https://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip";
-
-    public static final String TFGM_UNZIP_FOLDER = "TfGMgtfs";
 
     public static final String NAPTAN_BASE_URL = "https://naptan.api.dft.gov.uk/v1/access-nodes"; // ?dataFormat=csv
 
@@ -234,16 +229,6 @@ public class TestEnv {
 
     public static BoundingBox getGreaterManchester() { return new BoundingBox(370000, 380000, 398500, 414500); }
 
-    /***
-     * Use KnownLocations instead
-     * @return a location near st peters square
-     */
-    @Deprecated
-    public static LatLong stPetersSquareLocation() {
-        return new LatLong(53.47825,-2.24314);
-    }
-
-
     public static CacheMetrics.RegistersCacheMetrics NoopRegisterMetrics() {
         return new CacheMetrics.RegistersCacheMetrics() {
             @Override
@@ -366,13 +351,6 @@ public class TestEnv {
         }
         return TEST_SQS_QUEUE+ getEnv();
     }
-
-//    public static String getTestSNSTopicName() {
-//        if (isCircleci()) {
-//            return TEST_SNS_TOPIC+"CI";
-//        }
-//        return TEST_SNS_TOPIC + getEnv();
-//    }
 
     private static String getEnv() {
         String text = System.getenv("PLACE");

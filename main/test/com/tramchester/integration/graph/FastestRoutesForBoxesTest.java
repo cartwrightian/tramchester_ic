@@ -19,6 +19,7 @@ import com.tramchester.domain.JourneyRequest;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -102,7 +103,7 @@ class FastestRoutesForBoxesTest {
     void shouldFindRoutesForAllExceptStart() {
         TramStations testStationWithInvalidPosition = TramStations.StPetersSquare;
 
-        LatLong latLong = TestEnv.stPetersSquareLocation();
+        LatLong latLong = KnownLocations.nearStPetersSquare.latLong();
         GridPosition grid = CoordinateTransforms.getGridPosition(latLong);
 
         IdFor<NaptanArea> areaId = NaptanArea.invalidId();
@@ -119,7 +120,7 @@ class FastestRoutesForBoxesTest {
 
         List<BoundingBoxWithCost> destinationBox = results.
                 filter(boundingBoxWithCost -> boundingBoxWithCost.getDuration().isZero()).
-                collect(Collectors.toList());
+                toList();
 
         assertEquals(1, destinationBox.size());
         assertTrue(destinationBox.get(0).contained(destination.getGridPosition()));

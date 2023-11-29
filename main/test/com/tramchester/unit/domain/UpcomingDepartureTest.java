@@ -11,6 +11,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -55,7 +56,7 @@ class UpcomingDepartureTest {
 
         assertFalse(departure.hasPlatform());
 
-        LatLong nearBury = TestEnv.stPetersSquareLocation();
+        LatLong nearBury = KnownLocations.nearBury.latLong();
         Platform platform = MutablePlatform.buildForTFGMTram("id", TramStations.Bury.fake(), nearBury, DataSourceID.tfgm,
                 NaptanArea.createId("areaId1"));
         departure.setPlatform(platform);

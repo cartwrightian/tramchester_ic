@@ -17,6 +17,7 @@ import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
 import com.tramchester.unit.graph.calculation.SimpleGraphConfig;
@@ -207,7 +208,7 @@ public class GraphPropsTest {
     void shouldSetPlatformId() {
 
         IdFor<NaptanArea> areaId = StringIdFor.createId("areaId", NaptanArea.class);
-        Station station = TramStations.PiccadillyGardens.fakeWithPlatform("2", TestEnv.stPetersSquareLocation(),
+        Station station = TramStations.PiccadillyGardens.fakeWithPlatform("2", KnownLocations.nearPiccGardens.latLong(),
                 DataSourceID.tfgm, areaId);
 
         List<Platform> platforms = new ArrayList<>(station.getPlatforms());

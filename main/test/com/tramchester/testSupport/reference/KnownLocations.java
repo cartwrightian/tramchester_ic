@@ -17,6 +17,7 @@ public enum KnownLocations implements HasGridPosition {
     nearKnutsfordBusStation(53.3026112D,-2.3774635D),
     nearStPetersSquare(53.4776898D,-2.2432105D),
     nearWythenshaweHosp(53.3874309,-2.2945628),
+    nearBury(53.5913661,-2.3006942),
     atRoundthornTram(53.389264, -2.2971255);
 
     private final LatLong latLong;
