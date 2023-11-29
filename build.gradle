@@ -429,7 +429,7 @@ tasks.register('integrationProfile', Test) {
 tasks.register('integrationGM', Test) {
     dependsOn compileJava
     minHeapSize = "1000m"
-    maxHeapSize = "1750m"
+    maxHeapSize = "2000m"
     useJUnitPlatform {
         includeTags "GMTest"
         includeTags "dataExpiry"
@@ -708,8 +708,8 @@ tasks.register('upload') {
 // >>>>> https://data.atoc.org/member-area
 
 tasks.register('uploadRailToS3', S3Upload) {
-    key = 'railData/ttis697.zip'
-    file = 'data/rail/ttis697.zip'
+    key = 'railData/ttis928.zip'
+    file = 'data/rail/ttis928.zip'
     overwrite = false
 }
 

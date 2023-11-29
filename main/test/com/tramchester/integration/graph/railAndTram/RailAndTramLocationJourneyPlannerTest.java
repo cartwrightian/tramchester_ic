@@ -89,7 +89,7 @@ class RailAndTramLocationJourneyPlannerTest {
         // allowedModes=[Tram, Train, RailReplacementBus]}
 
         TramTime time = TramTime.of(10,17);
-        TramDate date = TramDate.of(2023, 5, 17);
+        TramDate date = TestEnv.testDay(); TramDate.of(2023, 5, 17);
 
         JourneyRequest request = new JourneyRequest(date, time, false, 3,
                 maxJourneyDuration, 5, TrainAndTram);

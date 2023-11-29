@@ -34,7 +34,7 @@ gtfsSourceConfig:
     addWalksForClosed: true
 remoteSources:
   - name: rail
-    dataURL: ${RAIL_DATAURL:-s3://tramchesternewdist/railData/ttis697.zip}
+    dataURL: ${RAIL_DATAURL:-s3://tramchesternewdist/railData/ttis928.zip}
     dataCheckURL: ""
     dataPath: data/rail
     downloadPath: data/rail
@@ -73,7 +73,7 @@ remoteSources:
     skipUpload: false
 rail:
   dataPath: data/rail
-  version: 697
+  version: 928
   modes: [ Train, RailReplacementBus ]
   initialWaitMinutes: 60
 cacheFolder: data/cache

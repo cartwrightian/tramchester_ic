@@ -11,7 +11,7 @@ public class RailRemoteDataSourceConfig extends RemoteDataSourceConfig {
     // http://data.atoc.org/how-to
     // https://data.atoc.org/member-area
 
-    public static final String VERSION = "697";
+    public static final String VERSION = "928";
 
     private static final String CURRENT_PREFIX = "ttis"+VERSION;
 

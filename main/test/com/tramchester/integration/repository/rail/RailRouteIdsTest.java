@@ -96,7 +96,7 @@ public class RailRouteIdsTest {
         RailRouteId idB = railRouteIdRepository.getRouteId(new RailRouteCallingPoints(TP.getAgencyId(), idsB));
 
         assertNotEquals(idA, idB);
-        assertEquals(Route.createId("MNCRIAP:SBRN=>TP:2"), idA);
+        assertEquals(Route.createId("MNCRIAP:SBRN=>TP:3"), idA);
         assertEquals(Route.createId("MNCRIAP:SBRN=>TP:1"), idB);
 
     }
@@ -196,7 +196,7 @@ public class RailRouteIdsTest {
                 collect(Collectors.toList());
 
         // was 36 under old ID scheme
-        assertEquals(6, routes.size(), routes.toString());
+        assertEquals(11, routes.size(), routes.toString());
     }
 
     @Test

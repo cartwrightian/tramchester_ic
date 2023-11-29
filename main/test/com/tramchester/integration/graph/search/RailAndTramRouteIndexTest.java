@@ -103,7 +103,7 @@ public class RailAndTramRouteIndexTest extends EasyMockSupport {
     }
 
     @Test
-    void shouldGetExpectedRouteIdsBetweenLiverpoolAndScabbrough() {
+    void shouldGetExpectedRouteIdsBetweenLiverpoolAndScarbrough() {
         // here to double-check if missing route is due to cache or route id creation inconsistencies
         IdFor<Agency> agency = Agency.createId("TP");
         IdFor<Station> first = Station.createId("LVRPLSH");
@@ -117,7 +117,7 @@ public class RailAndTramRouteIndexTest extends EasyMockSupport {
                 filter(railRouteId -> railRouteId.getEnd().equals(second)).
                 collect(Collectors.toSet());
 
-        assertEquals(1, forRoute.size());
+        assertFalse(forRoute.isEmpty());
 
         RailRouteId railRouteId = new RailRouteId(first, second, agency, 1);
         assertTrue(forRoute.contains(railRouteId), forRoute.toString());

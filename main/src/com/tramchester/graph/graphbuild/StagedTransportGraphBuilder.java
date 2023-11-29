@@ -377,14 +377,14 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         if (isFirstStop && dropoff && !trip.isFiltered()) {
             String msg = "Drop off at first station for stop " + station.getId() + " trip " + trip.getId() + " " + stopCall.getDropoffType()
                     + " seq:" + stopCall.getGetSequenceNumber();
-            logger.info(msg);
+            logger.debug(msg);
         }
 
         boolean isLastStop = stopCall.equals(trip.getStopCalls().getLastStop());
         if (isLastStop && pickup && !trip.isFiltered()) {
             String msg = "Pick up at last station for stop " + station.getId() + " trip " + trip.getId() + " " + stopCall.getPickupType()
                     + " seq:" + stopCall.getGetSequenceNumber();
-            logger.info(msg);
+            logger.debug(msg);
         }
 
         boolean isInterchange = interchangeRepository.isInterchange(station);
