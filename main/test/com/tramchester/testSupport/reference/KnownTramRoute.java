@@ -15,34 +15,26 @@ import java.util.Set;
  */
 public enum KnownTramRoute {
 
-    //AltrinchamPiccadilly("Purple Line", Inbound, "Altrincham - Piccadilly"),
     PiccadillyAltrincham("Purple Line", "Piccadilly - Altrincham", "842"),
 
-    //AltrinchamManchesterBury("Green Line", Inbound, "Altrincham - Manchester - Bury"),
-    BuryManchesterAltrincham("Green Line", "Bury - Manchester - Altrincham", "841"),
+    BuryManchesterAltrincham("Green Line", "Crumpsall - Manchester - Altrincham", "841"),
 
-    //AshtonUnderLyneManchesterEccles("Blue Line", Inbound, "Ashton Under Lyne - Manchester - Eccles"),
     EcclesManchesterAshtonUnderLyne("Blue Line", "Eccles - Manchester - Ashton Under Lyne", "843"),
 
-    //BuryPiccadilly("Yellow Line", Inbound,"Bury - Piccadilly"),
     PiccadillyBury("Yellow Line", "Piccadilly - Bury", "844"),
 
-    //EastDidisburyManchesterShawandCromptonRochdale("Pink Line", Inbound, "East Didsbury - Manchester - Shaw and Crompton - Rochdale"),
-    RochdaleShawandCromptonManchesterEastDidisbury("Pink Line", "Rochdale - Shaw and Crompton - Manchester - East Didsbury", "845"),
+    RochdaleShawandCromptonManchesterEastDidisbury("Pink Line",
+            "Rochdale - Shaw and Crompton - Manchester - East D", "845"),
 
-    //ManchesterAirportWythenshaweVictoria("Navy Line", Inbound, "Manchester Airport - Wythenshawe - Victoria"),
     VictoriaWythenshaweManchesterAirport("Navy Line", "Victoria - Wythenshawe - Manchester Airport", "848"),
 
-    //TheTraffordCentreCornbrook("Red Line", Inbound, "The Trafford Centre - Cornbrook"),
-    CornbrookTheTraffordCentre("Red Line", "Cornbrook - The Trafford Centre", "849");
+    CornbrookTheTraffordCentre("Red Line", "Deansgate Castlefield - The Trafford Centre", "849");
 
-//    private final IdFor<Route> fakeId;
-//    private final RouteDirection direction;
     private final String shortName;
     private final String longName;
     private final IdFor<Route> id;
 
-    // tram route merge workaround, TODO inline these at some point?
+    // tram route merge workaround, TODO inline these at some point
     @Deprecated
     public static final KnownTramRoute AltrinchamPiccadilly = KnownTramRoute.PiccadillyAltrincham;
     @Deprecated
@@ -69,7 +61,7 @@ public enum KnownTramRoute {
         routes.add(PiccadillyAltrincham);
 
         if (!date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
-            // not docuemented anywhere, but does not appear any trams on this route on Sundays
+            // not documented anywhere, but does not appear any trams on this route on Sundays
             routes.add(BuryManchesterAltrincham);
         }
 

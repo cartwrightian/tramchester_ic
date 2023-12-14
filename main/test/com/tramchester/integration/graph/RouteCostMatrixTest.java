@@ -94,7 +94,7 @@ public class RouteCostMatrixTest {
 
     @Test
     void shouldHaveExpectedIndexWhereNoDirectInterchangePossible() {
-        Route routeA = routeHelper.getOneRoute(BuryPiccadilly, date);
+        Route routeA = routeHelper.getOneRoute(PiccadillyBury, date);
         Route routeB = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
 
         int depth = routeMatrix.getConnectionDepthFor(routeA, routeB);
@@ -104,7 +104,7 @@ public class RouteCostMatrixTest {
     @Test
     void shouldHaveExpectedIndexForEcclesRouteOntoAltyRoute() {
         Route routeA = routeHelper.getOneRoute(EcclesManchesterAshtonUnderLyne, date);
-        Route routeB = routeHelper.getOneRoute(AltrinchamManchesterBury, date);
+        Route routeB = routeHelper.getOneRoute(BuryManchesterAltrincham, date);
 
         int depth = routeMatrix.getConnectionDepthFor(routeA, routeB);
         assertEquals(1, depth);
@@ -112,7 +112,7 @@ public class RouteCostMatrixTest {
 
     @Test
     void shouldHaveExpectedIndexForEcclesRouteFromAltyRoute() {
-        Route routeA = routeHelper.getOneRoute(AltrinchamManchesterBury, date);
+        Route routeA = routeHelper.getOneRoute(BuryManchesterAltrincham, date);
         Route routeB = routeHelper.getOneRoute(VictoriaWythenshaweManchesterAirport, date);
 
         int depth = routeMatrix.getConnectionDepthFor(routeA, routeB);
@@ -121,7 +121,7 @@ public class RouteCostMatrixTest {
 
     @Test
     void shouldHaveExpectedInterchangeForSimpleInterchange() {
-        Route routeA = routeHelper.getOneRoute(AltrinchamManchesterBury, date);
+        Route routeA = routeHelper.getOneRoute(BuryManchesterAltrincham, date);
         Route routeB = routeHelper.getOneRoute(VictoriaWythenshaweManchesterAirport, date);
 
         RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
@@ -141,7 +141,7 @@ public class RouteCostMatrixTest {
 
     @Test
     void shouldHaveExpectedInterchangeForSimpleInterchangeFiltered() {
-        Route routeA = routeHelper.getOneRoute(AltrinchamManchesterBury, date);
+        Route routeA = routeHelper.getOneRoute(BuryManchesterAltrincham, date);
         Route routeB = routeHelper.getOneRoute(VictoriaWythenshaweManchesterAirport, date);
 
         RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
@@ -163,7 +163,7 @@ public class RouteCostMatrixTest {
     void shouldHaveExpectedInterchangeForSimpleInterchangeNotOnDate() {
 
         // use date where we can get routes
-        Route routeA = routeHelper.getOneRoute(AltrinchamManchesterBury, date);
+        Route routeA = routeHelper.getOneRoute(BuryManchesterAltrincham, date);
         Route routeB = routeHelper.getOneRoute(VictoriaWythenshaweManchesterAirport, date);
 
         RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
@@ -185,7 +185,7 @@ public class RouteCostMatrixTest {
     @Test
     void shouldCheckFor2Changes() {
 
-        Route routeA = routeHelper.getOneRoute(BuryPiccadilly, date);
+        Route routeA = routeHelper.getOneRoute(PiccadillyBury, date);
         Route routeB = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
 
         assertEquals(2, routeMatrix.getConnectionDepthFor(routeA, routeB));
@@ -203,12 +203,12 @@ public class RouteCostMatrixTest {
 
         assertEquals(2, results.getDepth());
 
-        assertEquals(4, results.numberPossible(), results.toString()); // two sets of changes needed
+        assertEquals(3, results.numberPossible(), results.toString()); // two sets of changes needed
     }
 
     @Test
     void shouldHaveExpectedBacktrackFor1Changes() {
-        Route routeA = routeHelper.getOneRoute(AltrinchamManchesterBury, date);
+        Route routeA = routeHelper.getOneRoute(BuryManchesterAltrincham, date);
         Route routeB = routeHelper.getOneRoute(VictoriaWythenshaweManchesterAirport, date);
         RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
 
@@ -245,7 +245,7 @@ public class RouteCostMatrixTest {
 
     @Test
     void shouldHaveExpectedBacktrackFor2Changes() {
-        Route routeA = routeHelper.getOneRoute(BuryPiccadilly, date);
+        Route routeA = routeHelper.getOneRoute(PiccadillyBury, date);
         Route routeB = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
         RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
 
@@ -288,7 +288,7 @@ public class RouteCostMatrixTest {
 
     @Test
     void shouldCheckFor2ChangesFiltered() {
-        Route routeA = routeHelper.getOneRoute(BuryPiccadilly, date);
+        Route routeA = routeHelper.getOneRoute(PiccadillyBury, date);
         Route routeB = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
         RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
 
@@ -323,7 +323,7 @@ public class RouteCostMatrixTest {
     void shouldReproIssueWithGreenLineRoute() {
         RouteIndexPairFactory pairFactory = componentContainer.get(RouteIndexPairFactory.class);
 
-        Route greenInbound = routeHelper.getOneRoute(AltrinchamManchesterBury, date);
+        Route greenInbound = routeHelper.getOneRoute(BuryManchesterAltrincham, date);
 
         short greenIndex = routeIndex.indexFor(greenInbound.getId());
 
@@ -347,7 +347,7 @@ public class RouteCostMatrixTest {
 
     @Test
     void shouldGetBitsSetIfAlreadySetForLowerDepth() {
-        Route routeA = routeHelper.getOneRoute(TheTraffordCentreCornbrook, date);
+        Route routeA = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
         Route routeB = routeHelper.getOneRoute(BuryManchesterAltrincham, date);
 
         RouteIndexPair indexPair = routeIndex.getPairFor(RoutePair.of(routeA, routeB));

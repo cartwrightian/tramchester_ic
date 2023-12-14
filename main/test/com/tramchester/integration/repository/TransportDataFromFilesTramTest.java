@@ -288,8 +288,8 @@ public class TransportDataFromFilesTramTest {
                 map(routeStation -> Pair.of(routeStation.getStationId(), routeStation.getRoute().getName())).
                 collect(Collectors.toSet());
 
-        // 8 -> 4
-        assertEquals(4, routeStationPairs.size(), routeStations.toString());
+        // 8 -> 4 -> 5
+        assertEquals(5, routeStationPairs.size(), routeStations.toString());
 
         Set<String> routeNames =
                 routeStations.stream().
@@ -297,12 +297,9 @@ public class TransportDataFromFilesTramTest {
                         map(Route::getName).collect(Collectors.toSet());
 
         assertTrue(routeNames.contains(VictoriaWythenshaweManchesterAirport.longName()), routeNames.toString());
-        assertTrue(routeNames.contains(ManchesterAirportWythenshaweVictoria.longName()), routeNames.toString());
 
-        assertTrue(routeNames.contains(AltrinchamManchesterBury.longName()), routeNames.toString());
         assertTrue(routeNames.contains(BuryManchesterAltrincham.longName()), routeNames.toString());
 
-        assertTrue(routeNames.contains(BuryPiccadilly.longName()), routeNames.toString());
         assertTrue(routeNames.contains(PiccadillyBury.longName()), routeNames.toString());
 
     }

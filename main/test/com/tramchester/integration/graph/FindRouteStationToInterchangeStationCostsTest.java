@@ -99,7 +99,7 @@ public class FindRouteStationToInterchangeStationCostsTest {
 
         Duration cost = allCosts.get(routeStation.getId());
 
-        assertEquals(Duration.ofMinutes(14), cost);
+        assertEquals(Duration.ofMinutes(17), cost);
     }
 
     @Test
@@ -117,7 +117,7 @@ public class FindRouteStationToInterchangeStationCostsTest {
         Duration cost = allCosts.get(oldTrafford.getId());
 
         // cost to trafford bar
-        assertMinutesEquals(2, cost);
+        assertMinutesEquals(3, cost);
 
     }
 

@@ -8,8 +8,6 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.RoutePair;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.id.IdForDTO;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
@@ -132,24 +130,19 @@ public class RouteRepositoryTest {
 
     @Test
     void shouldHaveEndOfLinesExpectedPickupAndDropoffRoutes() {
-        Route fromAltrincamToBury = routeHelper.getOneRoute(AltrinchamManchesterBury, when);
         Route fromBuryToAltrincham = routeHelper.getOneRoute(BuryManchesterAltrincham, when);
 
         Station endOfLine = stationRepository.getStationById(Altrincham.getId());
 
-        // As routes no longer directional this doesn't work at the route level any more
+        // As routes no longer directional this doesn't work at the route level anymore
 
         //assertFalse(endOfLine.servesRouteDropOff(fromAltrincamToBury));
-        assertTrue(endOfLine.servesRoutePickup(fromAltrincamToBury));
+        //assertTrue(endOfLine.servesRoutePickup(fromAltrincamToBury));
 
         assertTrue(endOfLine.servesRouteDropOff(fromBuryToAltrincham));
-        //assertFalse(endOfLine.servesRoutePickup(fromBuryToAltrincham));
 
-        // should serve both routes fully
         Station notEndOfLine = stationRepository.getStationById(NavigationRoad.getId());
 
-        assertTrue(notEndOfLine.servesRouteDropOff(fromAltrincamToBury));
-        assertTrue(notEndOfLine.servesRoutePickup(fromAltrincamToBury));
         assertTrue(notEndOfLine.servesRouteDropOff(fromBuryToAltrincham));
         assertTrue(notEndOfLine.servesRoutePickup(fromBuryToAltrincham));
     }
@@ -194,10 +187,10 @@ public class RouteRepositoryTest {
     @Test
     void shouldReproIssueWithUnsymmetricDateOverlap() {
 
-        TramDate date = when.plusWeeks(2);
+        TramDate date = when.plusWeeks(1);
 
-        Route routeA = routeHelper.getOneRoute(BuryPiccadilly, date); // routeRepository.getRouteById(createId("METLYELL:I:CURRENT"));
-        Route routeB = routeHelper.getOneRoute(AltrinchamManchesterBury, date); // routeRepository.getRouteById(createId("METLGREE:I:CURRENT"));
+        Route routeA = routeHelper.getOneRoute(PiccadillyBury, date);
+        Route routeB = routeHelper.getOneRoute(BuryManchesterAltrincham, date);
 
         assertTrue(routeA.isAvailableOn(date));
         assertTrue(routeB.isAvailableOn(date));

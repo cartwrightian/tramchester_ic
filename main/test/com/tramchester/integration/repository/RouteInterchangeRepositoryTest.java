@@ -145,7 +145,7 @@ public class RouteInterchangeRepositoryTest {
         Duration cost = routeInterchanges.costToInterchange(navigationRoad);
 
         // cost to trafford bar
-        assertMinutesEquals(14, cost);
+        assertMinutesEquals(17, cost);
     }
 
     @Test
@@ -163,7 +163,7 @@ public class RouteInterchangeRepositoryTest {
         Duration cost = routeInterchanges.costToInterchange(oldTrafford);
 
         // cost to trafford bar
-        assertMinutesEquals(2, cost);
+        assertMinutesEquals(3, cost);
 
     }
 

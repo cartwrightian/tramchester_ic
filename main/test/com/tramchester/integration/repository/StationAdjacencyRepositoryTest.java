@@ -15,7 +15,6 @@ import org.junit.jupiter.api.*;
 import java.time.Duration;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
 import static com.tramchester.testSupport.reference.TramStations.*;
@@ -45,7 +44,7 @@ class StationAdjacencyRepositoryTest {
     }
 
     @Test
-    void shouldGiveCorrectCostForAdjaceny() {
+    void shouldGiveCorrectCostForAdjacency() {
         assertMinutesEquals(3, getAdjacent(Altrincham, NavigationRoad));
         assertMinutesEquals(3, getAdjacent(Altrincham, NavigationRoad));
         assertMinutesEquals(4, getAdjacent(Cornbrook, Deansgate));
@@ -62,7 +61,7 @@ class StationAdjacencyRepositoryTest {
         List<StationPair> results = pairs.stream().
                 filter(pair -> pair.getBegin().getId().equals(stationId) ||
                         pair.getEnd().getId().equals(stationId)).
-                collect(Collectors.toList());
+                toList();
         Assertions.assertEquals(4, results.size(), pairs.toString());
     }
 

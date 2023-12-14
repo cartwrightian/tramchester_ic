@@ -82,14 +82,17 @@ public class RunningRoutesAndServicesTest {
     @Test
     void shouldConsiderServicesFromDayBeforeIfTheyAreStillRunningTheFollowingDay() {
 
-        TramDate when = TestEnv.nextSaturday().minusDays(1);
+        TramDate when = TestEnv.avoidChristmasDate(TestEnv.nextSaturday().minusDays(1));
 
         RunningRoutesAndServices.FilterForDate filter = runningRoutesAndServices.getFor(when);
 
-        Optional<Route> findRoute = transportData.getRoutes().stream().filter(CrossesDay::intoNextDay).findFirst();
+        // findFirst here means can be nondeterministic
+        Optional<Route> findRoute = transportData.getRoutes().stream().
+                filter(route -> route.getId().equals(KnownTramRoute.CornbrookTheTraffordCentre.getId())).
+                filter(CrossesDay::intoNextDay).findFirst();
         assertTrue(findRoute.isPresent());
 
-        Route route = findRoute.get(); //helper.getOneRoute(KnownTramRoute.BuryManchesterAltrincham, when);
+        Route route = findRoute.get();
         IdFor<Route> routeId = route.getId();
 
         assertTrue(filter.isRouteRunning(routeId, false));
