@@ -9,7 +9,7 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.facade.MutableGraphTransaction;
-import com.tramchester.graph.search.routes.FindRouteStationToInterchangeCosts;
+import com.tramchester.graph.search.routes.FindRouteStationsWithPathToInterchange;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.RouteRepository;
@@ -23,23 +23,19 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
 import static com.tramchester.testSupport.reference.KnownTramRoute.BuryManchesterAltrincham;
 import static com.tramchester.testSupport.reference.TramStations.Cornbrook;
 import static com.tramchester.testSupport.reference.TramStations.OldTrafford;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class FindRouteStationToInterchangeStationCostsTest {
+public class FindRouteStationsWithPathToInterchangeTest {
     private static ComponentContainer componentContainer;
-    private static Map<RouteStationId, Duration> allCosts;
-    private static FindRouteStationToInterchangeCosts finder;
+    private static Set<RouteStationId> havePaths;
+    private static FindRouteStationsWithPathToInterchange finder;
     private TramRouteHelper tramRouteHelper;
     private TramDate when;
     private StationRepository stationRepository;
@@ -48,8 +44,8 @@ public class FindRouteStationToInterchangeStationCostsTest {
     static void onceBeforeAnyTestsRun() {
         componentContainer = new ComponentsBuilder().create(new IntegrationTramTestConfig(), TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
-        finder = componentContainer.get(FindRouteStationToInterchangeCosts.class);
-        allCosts = finder.getDurations();
+        finder = componentContainer.get(FindRouteStationsWithPathToInterchange.class);
+        havePaths = finder.havePathToInterchange();
 
     }
 
@@ -68,14 +64,26 @@ public class FindRouteStationToInterchangeStationCostsTest {
     }
 
     @Test
+    void shouldHavePathToInterchangeForAllTramStations() {
+        // this might not be the case for bus or train
+        InterchangeRepository interchangeRepository = componentContainer.get(InterchangeRepository.class);
+
+        Set<RouteStation> allRouteStations = stationRepository.getRouteStations().
+                stream().filter(routeStation -> !interchangeRepository.isInterchange(routeStation.getStationId())).
+                collect(Collectors.toSet());
+
+        assertEquals(havePaths.size(), allRouteStations.size());
+    }
+
+    @Test
     void shouldHaveExpectedNumberOfResultsForARoute() {
         GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
         InterchangeRepository interchangeRepository = componentContainer.get(InterchangeRepository.class);
         Route route = tramRouteHelper.getOneRoute(KnownTramRoute.EcclesManchesterAshtonUnderLyne, when);
 
-        Map<RouteStationId, Duration> costToInterchangeForRoute;
+        Set<RouteStationId> havePaths;
         try(MutableGraphTransaction txn = graphDatabase.beginTxMutable()) {
-            costToInterchangeForRoute = finder.getCostsForRoute(txn, route);
+            havePaths = finder.havePathToInterchange(txn, route);
         }
 
         Set<RouteStation> notInterchangesOnRoute = stationRepository.getRouteStations().stream().
@@ -83,9 +91,7 @@ public class FindRouteStationToInterchangeStationCostsTest {
                 filter(routeStation -> !interchangeRepository.isInterchange(routeStation.getStationId())).
                 collect(Collectors.toSet());
 
-        assertEquals(notInterchangesOnRoute.size(), costToInterchangeForRoute.size());
-
-        costToInterchangeForRoute.forEach((key, value) -> assertFalse(value.isZero(), "should not be zero for " + key));
+        assertEquals(notInterchangesOnRoute.size(), havePaths.size());
 
     }
 
@@ -97,9 +103,7 @@ public class FindRouteStationToInterchangeStationCostsTest {
 
         RouteStation routeStation = stationRepository.getRouteStation(naviRoad, route);
 
-        Duration cost = allCosts.get(routeStation.getId());
-
-        assertEquals(Duration.ofMinutes(17), cost);
+        assertTrue(havePaths.contains(routeStation.getId()));
     }
 
     @Test
@@ -114,10 +118,7 @@ public class FindRouteStationToInterchangeStationCostsTest {
 
         RouteStation oldTrafford = oldTraffordRouteStations.get(0);
 
-        Duration cost = allCosts.get(oldTrafford.getId());
-
-        // cost to trafford bar
-        assertMinutesEquals(3, cost);
+        assertTrue(havePaths.contains(oldTrafford.getId()));
 
     }
 
@@ -133,8 +134,8 @@ public class FindRouteStationToInterchangeStationCostsTest {
 
         assertFalse(cornbrookRouteStations.isEmpty());
 
-        long cornBrookinterchangeCosts = allCosts.entrySet().stream().
-                filter(entry -> entry.getKey().getStationId().equals(Cornbrook.getId())).count();
+        long cornBrookinterchangeCosts = havePaths.stream().
+                filter(routeStationId -> routeStationId.getStationId().equals(Cornbrook.getId())).count();
 
         assertEquals(0L, cornBrookinterchangeCosts, "cornbrook is an interchange");
 

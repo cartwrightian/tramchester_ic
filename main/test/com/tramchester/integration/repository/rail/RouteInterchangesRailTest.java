@@ -4,11 +4,11 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
 import com.tramchester.dataimport.rail.repository.RailRouteIds;
-import com.tramchester.domain.id.RailRouteId;
-import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.RailRouteId;
+import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
@@ -22,16 +22,14 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
-import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
 import static java.lang.String.format;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TrainTest
 public class RouteInterchangesRailTest {
@@ -89,8 +87,11 @@ public class RouteInterchangesRailTest {
         RouteStation miltonKeynesRouteStation = stationRepository.getRouteStationById(RouteStation.createId(MiltonKeynesCentral.getId(),
                 route.getId()));
 
-        Duration costToNextInterchange = routeInterchanges.costToInterchange(miltonKeynesRouteStation);
-        assertEquals(Duration.ZERO, costToNextInterchange);
+//        Duration costToNextInterchange = routeInterchanges.costToInterchange(miltonKeynesRouteStation);
+//        assertEquals(Duration.ZERO, costToNextInterchange);
+
+        boolean pathToInterchange = routeInterchanges.hasPathToInterchange(miltonKeynesRouteStation);
+        assertTrue(pathToInterchange);
     }
 
     @Test
@@ -107,7 +108,7 @@ public class RouteInterchangesRailTest {
         List<Route> manchesterToChesterRoutes = piccadilly.getPickupRoutes().stream().
                 filter(route -> route.getShortName().equals(routeShortName)).
                 filter(route -> route.getName().contains(delamere.getName()) && route.getName().contains(hale.getName())).
-                collect(Collectors.toList());
+                toList();
 
         assertFalse(manchesterToChesterRoutes.isEmpty(), "no routes found");
 
@@ -115,11 +116,11 @@ public class RouteInterchangesRailTest {
 
         RouteStation stockportRouteStation = stationRepository.getRouteStationById(RouteStation.createId(Stockport.getId(),
                 manchesterToChester));
-        assertEquals(Duration.ZERO, routeInterchanges.costToInterchange(stockportRouteStation));
+        assertTrue(routeInterchanges.hasPathToInterchange(stockportRouteStation));
 
         RouteStation delamereRouteStation = stationRepository.getRouteStationById(RouteStation.createId(delamere.getId(),
                 manchesterToChester));
-        assertMinutesEquals(19, routeInterchanges.costToInterchange(delamereRouteStation));
+        assertTrue(routeInterchanges.hasPathToInterchange(delamereRouteStation));
 
     }
 }

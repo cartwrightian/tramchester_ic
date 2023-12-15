@@ -213,23 +213,11 @@ public class ServiceHeuristics {
         }
         // otherwise, a change to a different route is needed
 
-        final Duration costToFirstInterchange = routeInterchanges.costToInterchange(routeStation);
-        //logger.info("Cost to first interchange " + costToFirstInterchange);
+        final boolean hasPathToInterchange = routeInterchanges.hasPathToInterchange(routeStation);
 
-        if (costToFirstInterchange.isNegative()) {
+        if (!hasPathToInterchange) {
             // change required from current route, but no interchange is available for this station/route combination
             return reasons.recordReason(ServiceReason.InterchangeNotReachable(howIGotHere));
-        }
-
-        // TODO Useful??
-        if (bestSoFar.everArrived()) {
-            Duration lowestCost = bestSoFar.getLowestDuration();
-            Duration costToNextInterchange = totalCostSoFar.plus(costToFirstInterchange);
-            //if (costToNextInterchange.compareTo(lowestCost) > 0) {
-            if (Durations.greaterThan(costToNextInterchange, lowestCost)) {
-                // cost of getting to interchange, plus current total cost, is greater than existing best effort
-                return reasons.recordReason(ServiceReason.LongerViaInterchange(howIGotHere));
-            }
         }
 
         return valid(ReasonCode.Reachable, howIGotHere, reasons);

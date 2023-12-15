@@ -12,7 +12,7 @@ import com.tramchester.domain.id.RouteStationId;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
-import com.tramchester.graph.search.routes.FindRouteStationToInterchangeCosts;
+import com.tramchester.graph.search.routes.FindRouteStationsWithPathToInterchange;
 import com.tramchester.metrics.Timing;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import java.time.Duration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -29,26 +28,26 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 @LazySingleton
-public class RouteInterchangeRepository extends ComponentThatCaches<RouteInterchangeRepository.RouteToInterchangeCost,
-        RouteInterchangeRepository.RouteStationToInterchangeCosts> {
+public class RouteInterchangeRepository extends ComponentThatCaches<RouteInterchangeRepository.RouteInterchangeWithPath,
+        RouteInterchangeRepository.RouteStationWithPathToInterchange> {
     private static final Logger logger = LoggerFactory.getLogger(RouteInterchangeRepository.class);
 
     private final RouteRepository routeRepository;
     private final InterchangeRepository interchangeRepository;
-    private final FindRouteStationToInterchangeCosts findRouteStationToInterchangeCosts;
+    private final FindRouteStationsWithPathToInterchange findRouteStationsWithPathToInterchange;
 
     private final Map<Route, Set<InterchangeStation>> interchangesForRoute;
-    private RouteStationToInterchangeCosts routeStationToInterchangeCost;
+    private RouteStationWithPathToInterchange withPathToInterchange;
 
     @Inject
     public RouteInterchangeRepository(RouteRepository routeRepository, InterchangeRepository interchangeRepository,
                                       @SuppressWarnings("unused") StagedTransportGraphBuilder.Ready ready,
-                                      FileDataCache fileDataCache, FindRouteStationToInterchangeCosts findRouteStationToInterchangeCosts) {
-        super(fileDataCache, RouteToInterchangeCost.class);
+                                      FileDataCache fileDataCache, FindRouteStationsWithPathToInterchange findRouteStationsWithPathToInterchange) {
+        super(fileDataCache, RouteInterchangeWithPath.class);
         this.routeRepository = routeRepository;
         this.interchangeRepository = interchangeRepository;
 
-        this.findRouteStationToInterchangeCosts = findRouteStationToInterchangeCosts;
+        this.findRouteStationsWithPathToInterchange = findRouteStationsWithPathToInterchange;
         interchangesForRoute = new HashMap<>();
     }
 
@@ -57,8 +56,8 @@ public class RouteInterchangeRepository extends ComponentThatCaches<RouteInterch
         logger.info("starting");
         populateRouteToInterchangeMap();
 
-        routeStationToInterchangeCost = new RouteStationToInterchangeCosts();
-        if (super.loadFromCache(routeStationToInterchangeCost)) {
+        withPathToInterchange = new RouteStationWithPathToInterchange();
+        if (super.loadFromCache(withPathToInterchange)) {
             logger.info("Loaded from cache");
         }
         else {
@@ -71,15 +70,15 @@ public class RouteInterchangeRepository extends ComponentThatCaches<RouteInterch
     public void stop() {
         logger.info("Stopping");
         interchangesForRoute.clear();
-        super.saveCacheIfNeeded(routeStationToInterchangeCost);
-        routeStationToInterchangeCost.clear();
+        super.saveCacheIfNeeded(withPathToInterchange);
+        withPathToInterchange.clear();
         logger.info("Stopped");
     }
 
     private void populateRouteStationToFirstInterchangeByRouteStation() {
         logger.info("Populate cost to first interchange");
-        Map<RouteStationId, Duration> durations = findRouteStationToInterchangeCosts.getDurations();
-        durations.forEach((routeStation, duration) -> routeStationToInterchangeCost.putCost(routeStation,duration));
+        Set<RouteStationId> havePaths = findRouteStationsWithPathToInterchange.havePathToInterchange();
+        havePaths.forEach((routeStation) -> withPathToInterchange.put(routeStation));
     }
 
     private void populateRouteToInterchangeMap() {
@@ -96,77 +95,64 @@ public class RouteInterchangeRepository extends ComponentThatCaches<RouteInterch
         return interchangesForRoute.get(route);
     }
 
-    public Duration costToInterchange(RouteStation routeStation) {
+    public boolean hasPathToInterchange(RouteStation routeStation) {
         if (interchangeRepository.isInterchange(routeStation.getStation())) {
-            return Duration.ZERO;
+            return true;
         }
-        if (routeStationToInterchangeCost.hasRouteStation(routeStation)) {
-            return routeStationToInterchangeCost.costFrom(routeStation);
-        }
-        return Duration.ofSeconds(-999);
+        return withPathToInterchange.hasRouteStation(routeStation);
     }
 
-    protected static class RouteStationToInterchangeCosts implements FileDataCache.CachesData<RouteToInterchangeCost> {
-        private final Map<RouteStationId, Duration> costs;
+    protected static class RouteStationWithPathToInterchange implements FileDataCache.CachesData<RouteInterchangeWithPath> {
+        private final Set<RouteStationId> hasPath;
 
-        private RouteStationToInterchangeCosts() {
-            costs = new HashMap<>();
+        private RouteStationWithPathToInterchange() {
+            hasPath = new HashSet<>();
         }
 
         @Override
-        public void cacheTo(HasDataSaver<RouteToInterchangeCost> hasDataSaver) {
-            hasDataSaver.cacheStream(costs.entrySet().stream().map(RouteToInterchangeCost::from));
+        public void cacheTo(HasDataSaver<RouteInterchangeWithPath> hasDataSaver) {
+            hasDataSaver.cacheStream(hasPath.stream().map(RouteInterchangeWithPath::from));
         }
 
         @Override
         public String getFilename() {
-            return "RouteStationToInterchangeCosts.json";
+            return "RouteStationWithPathToInterchange.json";
         }
 
         @Override
-        public void loadFrom(Stream<RouteToInterchangeCost> stream) {
+        public void loadFrom(Stream<RouteInterchangeWithPath> stream) {
             stream.forEach(item ->
-                    costs.put(item.getRouteStationId(), Duration.ofSeconds(item.getSeconds())));
+                    hasPath.add(item.getRouteStationId()));
         }
 
         public void clear() {
-            costs.clear();
+            hasPath.clear();
         }
 
         public boolean hasRouteStation(RouteStation routeStation) {
-            return costs.containsKey(routeStation.getId());
+            return hasPath.contains(routeStation.getId());
         }
 
-        public Duration costFrom(RouteStation routeStation) {
-            return costs.get(routeStation.getId());
-        }
-
-        public void putCost(RouteStationId routeStation, Duration duration) {
-            costs.put(routeStation, duration);
+        public void put(RouteStationId routeStation) {
+            hasPath.add(routeStation);
         }
     }
 
-    protected static class RouteToInterchangeCost implements CachableData {
+    protected static class RouteInterchangeWithPath implements CachableData {
         private final RouteStationId routeStationId;
-        private final long seconds;
 
         @JsonCreator
-        public RouteToInterchangeCost(@JsonProperty("routeStationId") RouteStationId routeStationId,
-                                      @JsonProperty("seconds") long seconds) {
+        public RouteInterchangeWithPath(@JsonProperty("routeStationId") RouteStationId routeStationId) {
             this.routeStationId = routeStationId;
-            this.seconds = seconds;
         }
 
-        public static RouteToInterchangeCost from(Map.Entry<RouteStationId, Duration> enrty) {
-            return new RouteToInterchangeCost(enrty.getKey(), enrty.getValue().getSeconds());
+        public static RouteInterchangeWithPath from(RouteStationId routeStationId) {
+            return new RouteInterchangeWithPath(routeStationId);
         }
 
         public RouteStationId getRouteStationId() {
             return routeStationId;
         }
 
-        public long getSeconds() {
-            return seconds;
-        }
     }
 }

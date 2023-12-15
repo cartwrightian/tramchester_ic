@@ -10,22 +10,21 @@ import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
-import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.RouteInterchangeRepository;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.reference.KnownTramRoute;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -36,7 +35,6 @@ public class RouteInterchangeRepositoryTest {
     private RouteInterchangeRepository routeInterchanges;
     private StationRepository stationRepository;
     private TramRouteHelper tramRouteHelper;
-    private InterchangeRepository interchangeRepository;
     private TramDate when;
 
     @BeforeAll
@@ -55,7 +53,6 @@ public class RouteInterchangeRepositoryTest {
         stationRepository = componentContainer.get(StationRepository.class);
         RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
         tramRouteHelper = new TramRouteHelper(routeRepository);
-        interchangeRepository = componentContainer.get(InterchangeRepository.class);
 
         routeInterchanges = componentContainer.get(RouteInterchangeRepository.class);
 
@@ -131,7 +128,7 @@ public class RouteInterchangeRepositoryTest {
     }
 
     @Test
-    void shouldGetCostToInterchangeForRouteStation() {
+    void shouldHavePathToInterchangeForRouteStation() {
 
        Route route = tramRouteHelper.getOneRoute(BuryManchesterAltrincham, when);
 
@@ -142,14 +139,13 @@ public class RouteInterchangeRepositoryTest {
 
         RouteStation navigationRoad = navigationRoadRouteStations.get(0);
 
-        Duration cost = routeInterchanges.costToInterchange(navigationRoad);
+        boolean hasPath = routeInterchanges.hasPathToInterchange(navigationRoad);
 
-        // cost to trafford bar
-        assertMinutesEquals(17, cost);
+        assertTrue(hasPath);
     }
 
     @Test
-    void shouldGetCostToInterchangeForRouteStationAdjacent() {
+    void shouldHavePathToInterchangeForRouteStationAdjacent() {
 
         Route route = tramRouteHelper.getOneRoute(BuryManchesterAltrincham, when);
 
@@ -160,15 +156,14 @@ public class RouteInterchangeRepositoryTest {
 
         RouteStation oldTrafford = oldTraffordRouteStations.get(0);
 
-        Duration cost = routeInterchanges.costToInterchange(oldTrafford);
+        boolean hasPath = routeInterchanges.hasPathToInterchange(oldTrafford);
 
-        // cost to trafford bar
-        assertMinutesEquals(3, cost);
+        assertTrue(hasPath);
 
     }
 
     @Test
-    void shouldGetZeroCostToInterchangeForRouteStationThatIsInterchange() {
+    void shouldHavePathInterchangeForRouteStationThatIsInterchange() {
 
         Route route = tramRouteHelper.getOneRoute(BuryManchesterAltrincham, when);
 
@@ -180,44 +175,11 @@ public class RouteInterchangeRepositoryTest {
         assertFalse(cornbrookRouteStations.isEmpty());
 
         cornbrookRouteStations.forEach(routeStation -> {
-                    Duration cost = routeInterchanges.costToInterchange(routeStation);
-                    assertTrue(cost.isZero());
+                    boolean hasPath = routeInterchanges.hasPathToInterchange(routeStation);
+                    assertTrue(hasPath);
                 }
         );
     }
-
-    @Disabled("no longer applies with new route data")
-    @Test
-    void shouldGetMaxCostIfNoInterchangeBetweenStationAndEndOfTheRoute() {
-
-        Route towardsEndOfEnd = tramRouteHelper.getOneRoute(KnownTramRoute.VictoriaWythenshaweManchesterAirport, when);
-
-        List<RouteStation> peelHallRouteStations = stationRepository.getRouteStationsFor(PeelHall.getId()).stream().
-                filter(routeStation -> routeStation.getRoute().equals(towardsEndOfEnd)).toList();
-
-        assertFalse(peelHallRouteStations.isEmpty());
-
-        peelHallRouteStations.forEach(routeStation -> {
-            Duration cost = routeInterchanges.costToInterchange(routeStation);
-            assertTrue(cost.isNegative());
-        });
-
-    }
-
-    @Test
-    void shouldHaveConsistencyOnZeroCostToInterchangeAndInterchanges() {
-        Set<RouteStation> zeroCostToInterchange = stationRepository.getRouteStations().stream().
-                filter(routeStation -> routeInterchanges.costToInterchange(routeStation).isZero()).
-                collect(Collectors.toSet());
-
-        Set<RouteStation> zeroCostButNotInterchange = zeroCostToInterchange.stream().
-                filter(zeroCost -> !interchangeRepository.isInterchange(zeroCost.getStation())).
-                collect(Collectors.toSet());
-
-        assertTrue(zeroCostButNotInterchange.isEmpty(), zeroCostButNotInterchange.toString());
-    }
-
-
 
 }
 

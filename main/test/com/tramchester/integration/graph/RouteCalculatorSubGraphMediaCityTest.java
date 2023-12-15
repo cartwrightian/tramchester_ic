@@ -170,7 +170,7 @@ class RouteCalculatorSubGraphMediaCityTest {
     }
 
     @Test
-    void shouldHaveExpectedCostsToInterchanges() {
+    void shouldHavePathsToInterchanges() {
         RouteInterchangeRepository routeInterchangeRepository = componentContainer.get(RouteInterchangeRepository.class);
 
         Station salfordQuay = SalfordQuay.from(stationRepository);
@@ -178,8 +178,10 @@ class RouteCalculatorSubGraphMediaCityTest {
         Set<Route> pickups = salfordQuay.getPickupRoutes();
 
         long routesWithInterchanges = pickups.stream().map(route -> stationRepository.getRouteStation(salfordQuay, route)).
-                map(routeInterchangeRepository::costToInterchange).
-                filter(duration -> !duration.isNegative()).count();
+                filter(routeInterchangeRepository::hasPathToInterchange).
+//                map(routeInterchangeRepository::hasPathToInterchange).
+//                filter(duration -> !duration.isNegative()).
+                count();
 
         assertNotEquals(0, routesWithInterchanges);
     }
