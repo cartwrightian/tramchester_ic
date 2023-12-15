@@ -187,7 +187,7 @@ public class RouteRepositoryTest {
     @Test
     void shouldReproIssueWithUnsymmetricDateOverlap() {
 
-        TramDate date = when.plusWeeks(1);
+        TramDate date =  when;
 
         Route routeA = routeHelper.getOneRoute(PiccadillyBury, date);
         Route routeB = routeHelper.getOneRoute(BuryManchesterAltrincham, date);
