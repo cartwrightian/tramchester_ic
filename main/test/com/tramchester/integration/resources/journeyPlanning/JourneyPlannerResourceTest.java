@@ -80,6 +80,7 @@ public class JourneyPlannerResourceTest {
     }
 
     private void checkAltyToCornbrook(TramTime queryTime, boolean arriveBy) {
+        final List<String> possibleHeadsigns = Arrays.asList( Bury.getName(), Piccadilly.getName());
 
         JourneyQueryDTO query = journeyPlanner.getQueryDTO(when, queryTime, Altrincham, Cornbrook, arriveBy, 0);
 
@@ -90,6 +91,10 @@ public class JourneyPlannerResourceTest {
 
         journeys.forEach(journey -> {
             VehicleStageDTO firstStage = (VehicleStageDTO) journey.getStages().get(0);
+
+            String headSign = firstStage.getHeadSign();
+            assertTrue(possibleHeadsigns.contains(headSign), "unexpected headsign " + headSign);
+
             PlatformDTO platform = firstStage.getPlatform();
             if (arriveBy) {
                 assertTrue(journey.getFirstDepartureTime().isBefore(queryTime.toDate(when)));
@@ -108,10 +113,30 @@ public class JourneyPlannerResourceTest {
         Set<Integer> indexs = journeys.stream().map(JourneyDTO::getIndex).collect(Collectors.toSet());
         assertEquals(journeys.size(), indexs.size(), "mismatch on indexes " + indexs);
 
-        // not meaningful to assert on these due to filtering out of duplicates
-//        for (int i = 0; i < journeys.size(); i++) {
-//            assertTrue(indexs.contains(i), "missing index " + i + " in " + indexs);
-//        }
+    }
+
+    @Test
+    void shouldHaveCorrectHeadsignAltrinchamToDeangate() {
+        // repro issue with failing acceptance test Wrong headsign, got 'Piccadilly (Manchester Metrolink)'
+        final List<String> possibleHeadsigns = Arrays.asList( Bury.getName(), Piccadilly.getName());
+
+        TramTime queryTime = TramTime.of(10,0);
+
+        TramDate problemDate = TramDate.of(2023, 12,28);
+        JourneyQueryDTO query = journeyPlanner.getQueryDTO(problemDate, queryTime, TramStations.Altrincham,
+                Deansgate, false, 0);
+
+        JourneyPlanRepresentation plan = journeyPlanner.getJourneyPlan(query);
+
+        Set<JourneyDTO> journeys = plan.getJourneys();
+        assertFalse(journeys.isEmpty());
+
+        journeys.forEach(journey -> {
+            VehicleStageDTO firstStage = (VehicleStageDTO) journey.getStages().get(0);
+
+            String headSign = firstStage.getHeadSign();
+            assertTrue(possibleHeadsigns.contains(headSign), "unexpected headsign " + headSign);
+        });
     }
 
     @Test
@@ -257,7 +282,7 @@ public class JourneyPlannerResourceTest {
 
         Set<JourneyDTO> journeys = results.getJourneys();
 
-        assertTrue(journeys.size()>0, "no journeys");
+        assertFalse(journeys.isEmpty(), "no journeys");
         checkDepartsAfterPreviousArrival("Altrincham to airport at 11:43 sunday", journeys);
     }
 
@@ -312,7 +337,7 @@ public class JourneyPlannerResourceTest {
         JourneyPlanRepresentation results = validateAtLeastOneJourney(Deansgate,
                 ManAirport, when, TramTime.of(23,5));
 
-        assertTrue(results.getJourneys().size()>0);
+        assertFalse(results.getJourneys().isEmpty());
     }
 
     @Test
@@ -380,7 +405,7 @@ public class JourneyPlannerResourceTest {
         Set<JourneyDTO> journeys = results.getJourneys();
 
         String message = String.format("from %s to %s at %s on %s", start, end, queryTime, date);
-        assertTrue(journeys.size() > 0, "Unable to find journey " + message);
+        assertFalse(journeys.isEmpty(), "Unable to find journey " + message);
         checkDepartsAfterPreviousArrival(message, journeys);
         journeys.forEach(journey -> assertFalse(journey.getStages().isEmpty(), "Missing stages for journey"+journey));
         return results;

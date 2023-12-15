@@ -38,8 +38,6 @@ public class StageDTOFactory {
         Route route = source.getRoute();
         RouteRefDTO routeRefDTO = new RouteRefDTO(route);
 
-        //String tripId = source.getTripId().isValid() ? source.getTripId().forDTO() : "";
-
         final Duration duration = source.getDuration();
         if (source instanceof WalkingStage<?,?> || source instanceof ConnectingStage<?,?>) {
             return new SimpleStageDTO(firstStation,

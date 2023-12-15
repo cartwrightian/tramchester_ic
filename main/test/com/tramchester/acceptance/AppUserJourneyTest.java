@@ -256,7 +256,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
 
         validateAStage(stage, firstResult.getDepartTime(), "Board Tram", Altrincham.getName(),
                 Collections.singletonList(1),
-                BuryManchesterAltrincham, Bury.getName(), 9);
+                PiccadillyAltrincham, Piccadilly.getName(), 9);
     }
 
     @ParameterizedTest(name = "{displayName} {arguments}")
@@ -574,7 +574,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
     public static void validateAStage(Stage stage, Set<TramTime> departTimes, String action, String actionStation, List<Integer> platforms,
                                       Set<KnownTramRoute> expectedRoutes, Set<String> headsigns, int passedStops) {
 
-        Set<String> expectedRoutesNames = expectedRoutes.stream().map(knownTramRoute -> knownTramRoute.longName()).collect(Collectors.toSet());
+        Set<String> expectedRoutesNames = expectedRoutes.stream().map(KnownTramRoute::longName).collect(Collectors.toSet());
 
         assertTrue(departTimes.stream().allMatch(TramTime::isValid),"departTime not valid");
 
@@ -589,7 +589,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
         assertTrue(expectedRoutesNames.contains(stageRoute), "Wrong linename, got '"+ stageRoute +"' but needed one of " + expectedRoutesNames);
 
         String stageHeadsign = stage.getHeadsign();
-        assertTrue(headsigns.contains(stageHeadsign), "Wrong headsign, got '"+ stageHeadsign +"' but needed " + headsigns);
+        assertTrue(headsigns.contains(stageHeadsign), "Wrong headsign, got '"+ stageHeadsign +"' but needed one of" + headsigns);
 
         assertEquals(passedStops, stage.getPassedStops(), "passedStops");
     }

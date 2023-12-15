@@ -590,6 +590,8 @@ tasks.register('acceptance', Test) {
 }
 
 tasks.register('localAcceptance', Test) {
+    minHeapSize = "1000m"
+    maxHeapSize = "1750m"
     configure acceptanceTestConfiguration
 }
 

@@ -1,10 +1,8 @@
 package com.tramchester.dataimport.data;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.Trip;
 
 @SuppressWarnings("unused")
@@ -26,10 +24,6 @@ public class TripData {
     private String removeSpaces(String text) {
         return text.replaceAll(" ","");
     }
-
-//    public IdFor<Route> getRouteId() {
-//        return Route.createId(removeSpaces(routeId));
-//    }
 
     public String getRouteId() {
         return removeSpaces(routeId);

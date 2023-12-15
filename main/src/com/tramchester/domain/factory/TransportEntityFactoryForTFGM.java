@@ -3,16 +3,19 @@ package com.tramchester.domain.factory;
 import com.tramchester.dataimport.data.RouteData;
 import com.tramchester.dataimport.data.StopData;
 import com.tramchester.dataimport.data.StopTimeData;
+import com.tramchester.dataimport.data.TripData;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.NaptanRecord;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.GTFSTransportationType;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.repository.naptan.NaptanRepository;
@@ -22,9 +25,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
-import java.util.*;
-
-import static java.lang.String.format;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
 
@@ -105,7 +108,7 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
 
         PlatformId platformId = createPlatformId(stationId, stopCode);
 
-        final String platformNumber = platformId.getNumber(); // stopId.substring(stopId.length()-1);
+        final String platformNumber = platformId.getNumber();
 
         IdFor<NaptanArea> areaId = IdFor.invalid(NaptanArea.class);
         LatLong latLong = stopData.getLatLong();
@@ -128,6 +131,14 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
     }
 
     @Override
+    public MutableTrip createTrip(TripData tripData, MutableService service, Route route, TransportMode transportMode) {
+        final String headSign = removeMetrolinkPostfix(tripData.getHeadsign());
+        final MutableTrip trip = new MutableTrip(tripData.getTripId(), headSign, service, route, transportMode);
+        service.addTrip(trip);
+        return trip;
+    }
+
+    @Override
     public IdFor<Platform> getPlatformId(StopTimeData stopTimeData, Station station) {
         String originalCode = originalCodeForStop.get(stopTimeData.getStopId()); // contains the platform suffix
         return createPlatformId(station.getId(), originalCode);
@@ -147,8 +158,13 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
         String text = stopData.getName();
         text = text.replace("\"", "").trim();
 
+        return removeMetrolinkPostfix(text);
+    }
+
+    @NotNull
+    private static String removeMetrolinkPostfix(String text) {
         if (text.endsWith(METROLINK_NAME_POSTFIX)) {
-            return text.replace(METROLINK_NAME_POSTFIX,"").trim();
+            return text.replace(METROLINK_NAME_POSTFIX, "").trim();
         } else {
             return text;
         }
@@ -215,56 +231,5 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
         return routeType;
 
     }
-
-    // Inbound vs Outbound are no longer a thing in the latest tfgm data
-
-//    @Deprecated
-//    private static class RouteIdSwapWorkaround {
-//        private final String idPrefixFromData;
-//        private final String replacementPrefix;
-//        private final String mustMatchLongName;
-//
-//        private static final Map<String, RouteIdSwapWorkaround> mapping;
-//
-//        static {
-//            List<RouteIdSwapWorkaround> table = Arrays.asList(
-//                    of("METLRED:I:", "METLRED:O:", "Cornbrook - The Trafford Centre"),
-//                    of("METLRED:O:", "METLRED:I:", "The Trafford Centre - Cornbrook"),
-//                    of("METLNAVY:I:", "METLNAVY:O:", "Victoria - Wythenshawe - Manchester Airport"),
-//                    of("METLNAVY:O:", "METLNAVY:I:", "Manchester Airport - Wythenshawe - Victoria"));
-//            mapping = new HashMap<>();
-//            table.forEach(item -> mapping.put(item.mustMatchLongName, item));
-//        }
-//
-//        private static RouteIdSwapWorkaround of(String idPrefixFromData, String replacementPrefix, String mustMatchLongName) {
-//            return new RouteIdSwapWorkaround(idPrefixFromData, replacementPrefix, mustMatchLongName);
-//        }
-//
-//        private RouteIdSwapWorkaround(String idPrefixFromData, String replacementPrefix, String mustMatchLongName) {
-//            this.idPrefixFromData = idPrefixFromData;
-//            this.replacementPrefix = replacementPrefix;
-//            this.mustMatchLongName = mustMatchLongName;
-//        }
-//
-//        public static IdFor<Route> getCorrectIdFor(final RouteData routeData) {
-//            final String idText = routeData.getId();
-//            final String longName = routeData.getLongName();
-//            if (!mapping.containsKey(longName)) {
-//                return Route.createId(idText);
-//            }
-//
-//            final String routeIdAsString = routeData.getId();
-//            RouteIdSwapWorkaround workaroundForLongname = mapping.get(longName);
-//            if (routeIdAsString.startsWith(workaroundForLongname.idPrefixFromData)) {
-//                String replacementIdAsString = routeIdAsString.replace(workaroundForLongname.idPrefixFromData, workaroundForLongname.replacementPrefix);
-//                logger.warn(format("Workaround for route ID issue, replaced %s with %s", routeIdAsString, replacementIdAsString));
-//                return Route.createId(replacementIdAsString);
-//            } else {
-//                logger.warn("Workaround for " + routeData + " no longer needed?");
-//                return Route.createId(idText);
-//            }
-//
-//        }
-//    }
 
 }
