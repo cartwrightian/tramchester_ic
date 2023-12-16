@@ -7,9 +7,9 @@ export default {
             itemsPerPage: 5,
             page: 1,
             headers: [
-                {value:'transportMode', text:'type', sortable: true},
+                // {value:'transportMode', text:'', sortable: true},
                 {value:'from', text:'From', sortable:true},
-                {value:'dueTimeAsDate', text:'Time', sortable: true}, 
+                {value:'dueTimeAsDate', text:'Time', sortable: true, width: '1px'}, 
                 {value:'carriages', text:''},
                 {value:'status', text:'Status'},
                 {value:'destination', text:'Towards', sortable:true}
@@ -46,6 +46,7 @@ export default {
             <v-card>
                 <v-card-title>Live Departures</v-card-title>
                 <v-data-table id="departures"
+                    :mobile-breakpoint="0"
                     :items="localDueTrams"
                     :page.sync="page"
                     :items-per-page="itemsPerPage"
@@ -53,7 +54,7 @@ export default {
                     dense
                     v-model:sort-by="sortBy"
                     hide-default-footer
-                    class="elevation-1">
+                    class="elevation-1 live-departures-table">
                     <template v-slot:item.dueTimeAsDate="{ item }">
                         <div>{{ dueTimeFormatter(item.dueTimeAsDate) }}</div>
                     </template>

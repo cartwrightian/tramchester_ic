@@ -24,7 +24,7 @@ export default {
     },
     template: `
     <div id="footer">
-        <v-card>
+        <v-card class="model-body">
             <v-container>
                  <v-row justify="center" no-gutters>
                     <v-col>Build
