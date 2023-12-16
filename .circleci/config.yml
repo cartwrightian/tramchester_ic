@@ -76,9 +76,8 @@ jobs:
       TERM: dumb
       AWS_REGION: eu-west-1
       RELEASE_NUMBER: << pipeline.number >>
-      # todo move back to proper url
-      #SERVER_URL: "https://alpha.tramchester.com"
-      SERVER_URL: "http://dev-tramchester-alb-1669636720.eu-west-1.elb.amazonaws.com"
+      SERVER_URL: "https://alpha.tramchester.com"
+      #SERVER_URL: "http://dev-tramchester-alb-1669636720.eu-west-1.elb.amazonaws.com"
       LANG: "en_GB.UTF-8"
       LANGUAGE: "en_GB"
       TZ: "Europe/London"
@@ -147,7 +146,6 @@ jobs:
       RELEASE_NUMBER: << pipeline.number >>
     steps:
       - checkout
-      # Download and cache dependencies
       - restore_cache:
           keys:
           - v1-gradle-deps-{{ checksum "build.gradle" }}
@@ -157,7 +155,7 @@ jobs:
       - run:
           name: deployProd
           environment:
-            ENV: ProdGreen
+            ENV: ProdBlue
             AWS_REGION: eu-west-1
           command: |
             echo release number is $RELEASE_NUMBER
@@ -174,10 +172,10 @@ workflows:
     - acceptance:
         requires:
           - integration
-#    - hold:
-#        type: approval
-#        requires:
-#          - acceptance
-#    - deployProd:
-#        requires:
-#        - hold
+    - hold:
+        type: approval
+        requires:
+          - acceptance
+    - deployProd:
+        requires:
+        - hold

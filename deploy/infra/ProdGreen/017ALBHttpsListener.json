@@ -1,0 +1,32 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+		"Description" : "cfnassist: https listener",
+		"Parameters" : {
+			"env" : { "Type" : "String" },
+			"vpc" : { "Type" : "String" },
+			"LoadBalancerArn" : { "Type": "String", "Description" : "::CFN_TAG" },
+			"TargetGroupArn" : { "Type": "String", "Description" : "::CFN_TAG" }
+		},
+		"Resources" : {
+			"HTTPSListener": {
+				"Type": "AWS::ElasticLoadBalancingV2::Listener",
+				"Properties": {
+					"Port" : "443",
+					"Protocol": "HTTPS",
+					"LoadBalancerArn": { "Ref":  "LoadBalancerArn"},
+					"DefaultActions": [
+						{
+							"Type": "forward",
+							"TargetGroupArn": { "Ref":  "TargetGroupArn"}
+						}
+					],
+					"Certificates": [
+						{ "CertificateARN" : "arn:aws:acm:eu-west-1:619378453009:certificate/6e2b162a-fafe-4dba-b8e2-782baa4098ed" }
+					]
+				}
+			}
+		},
+		"Outputs" : {
+			"HTTPSListenerArn" : { "Value" : { "Fn::GetAtt" : [ "HTTPSListener", "ListenerArn" ] }, "Description":"::CFN_TAG" }
+		}
+}
