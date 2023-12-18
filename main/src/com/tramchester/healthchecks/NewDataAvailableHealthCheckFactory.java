@@ -1,6 +1,7 @@
 package com.tramchester.healthchecks;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.GetsFileModTime;
 import com.tramchester.dataimport.HttpDownloadAndModTime;
@@ -48,7 +49,9 @@ public class NewDataAvailableHealthCheckFactory implements HealthCheckFactory {
     @PostConstruct
     public void start() {
         config.getRemoteDataSourceConfig().stream().
-                filter(source -> !source.getDataCheckUrl().isBlank()).forEach(config ->
+                filter(RemoteDataSourceConfig::isMandatory).
+                filter(source -> !source.getDataCheckUrl().isBlank()).
+                forEach(config ->
                 healthCheckList.add(new NewDataAvailableHealthCheck(config, httpDownloadAndModTime, s3DownloadAndModTime,
                         fileModTime, serviceTimeLimits)));
     }
