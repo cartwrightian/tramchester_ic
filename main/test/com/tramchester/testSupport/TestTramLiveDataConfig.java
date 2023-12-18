@@ -44,7 +44,7 @@ public class TestTramLiveDataConfig implements TfgmTramLiveDataConfig {
     public String getS3Bucket() { return ""; }
 
     @Override
-    public String getSnsTopicPrefix() {
+    public String getSnsTopicPublishPrefix() {
         return snsTopicPrefix;
     }
 

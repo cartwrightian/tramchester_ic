@@ -1,7 +1,13 @@
 package com.tramchester.config;
 
+import java.net.URI;
+
 public interface TfgmTramLiveDataConfig {
     String getDataUrl();
+
+    default URI getDataURI() {
+        return URI.create(getDataUrl());
+    }
 
     String getDataSubscriptionKey();
 
@@ -26,13 +32,13 @@ public interface TfgmTramLiveDataConfig {
      * For sns publish, use the helper method on config to get full topic
      * @return JUST the topic prefix
      */
-    String getSnsTopicPrefix();
+    String getSnsTopicPublishPrefix();
 
     default boolean httpsSource() {
-        return getDataUrl().toLowerCase().startsWith("https://");
+        return getDataURI().getScheme().equals("https");
     }
 
     default boolean snsSource() {
-        return getDataUrl().equalsIgnoreCase("sns://");
+        return getDataURI().getScheme().equals("sns");
     }
 }

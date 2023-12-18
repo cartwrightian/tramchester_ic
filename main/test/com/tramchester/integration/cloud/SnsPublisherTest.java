@@ -4,7 +4,7 @@ import com.github.cliftonlabs.json_simple.JsonObject;
 import com.github.cliftonlabs.json_simple.Jsoner;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.cloud.SNSPublisher;
+import com.tramchester.cloud.SNSPublisherSubscriber;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.cloud.SnsAndSqsSupport;
@@ -33,7 +33,7 @@ public class SnsPublisherTest {
     private static String subscriptionArn;
     private static IntegrationTramTestConfig config;
     private static SnsAndSqsSupport.QueueUrlAndArn urlAndArn;
-    private SNSPublisher snsPublisher;
+    private SNSPublisherSubscriber snsPublisherSubscrinber;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -55,7 +55,7 @@ public class SnsPublisherTest {
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
-        snsPublisher = componentContainer.get(SNSPublisher.class);
+        snsPublisherSubscrinber = componentContainer.get(SNSPublisherSubscriber.class);
     }
 
     @Test
@@ -65,7 +65,7 @@ public class SnsPublisherTest {
                 build();
 
         String msgText = "soLongAndThanksForAllTheFish";
-        snsPublisher.send(config.getLiveDataSNSTopic(), msgText);
+        snsPublisherSubscrinber.send(config.getLiveDataSNSPublishTopic(), msgText);
 
         ReceiveMessageResponse receiveResult = sqsClient.receiveMessage(receiveMsgReq);
 
@@ -86,7 +86,7 @@ public class SnsPublisherTest {
     }
 
     static void subscribeToTestMessages() {
-        String topicName = config.getLiveDataSNSTopic();
+        String topicName = config.getLiveDataSNSPublishTopic();
 
         String topicArn = SnsAndSqsSupport.createOrGetTopic(snsClient, topicName);
 

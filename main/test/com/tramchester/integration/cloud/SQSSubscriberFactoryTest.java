@@ -54,9 +54,9 @@ public class SQSSubscriberFactoryTest {
         String text = "someTextForInsideTheMessage";
 
         long retentionPeriodSeconds = 60;
-        SQSSubscriber subscriber = factory.getFor(queueName, config.getLiveDataSNSTopic(), retentionPeriodSeconds);
+        SQSSubscriber subscriber = factory.getFor(queueName, config.getLiveDataSNSPublishTopic(), retentionPeriodSeconds);
 
-        String topicArn = SnsAndSqsSupport.createOrGetTopic(snsClient, config.getLiveDataSNSTopic());
+        String topicArn = SnsAndSqsSupport.createOrGetTopic(snsClient, config.getLiveDataSNSPublishTopic());
 
         PublishRequest publishRequest = PublishRequest.builder().
                 topicArn(topicArn).
@@ -73,9 +73,9 @@ public class SQSSubscriberFactoryTest {
     void shouldCreateSubscriberAndReceiveNewestMessage() throws InterruptedException {
 
         long retentionPeriodSeconds = 60;
-        SQSSubscriber subscriber = factory.getFor(queueName, config.getLiveDataSNSTopic(), retentionPeriodSeconds);
+        SQSSubscriber subscriber = factory.getFor(queueName, config.getLiveDataSNSPublishTopic(), retentionPeriodSeconds);
 
-        String topicArn = SnsAndSqsSupport.createOrGetTopic(snsClient, config.getLiveDataSNSTopic());
+        String topicArn = SnsAndSqsSupport.createOrGetTopic(snsClient, config.getLiveDataSNSPublishTopic());
 
         for (int i = 0; i < 10; i++) {
             String text = "messageNumber"+i;

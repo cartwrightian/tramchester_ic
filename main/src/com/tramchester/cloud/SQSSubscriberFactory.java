@@ -25,11 +25,11 @@ public class SQSSubscriberFactory {
     private static final Logger logger = LoggerFactory.getLogger(SQSSubscriberFactory.class);
 
     private SqsClient sqsClient;
-    private final SNSPublisher snsPublisher;
+    private final SNSPublisherSubscriber snsPublisherSubscrinber;
 
     @Inject
-    public SQSSubscriberFactory(SNSPublisher snsPublisher) {
-        this.snsPublisher = snsPublisher;
+    public SQSSubscriberFactory(SNSPublisherSubscriber snsPublisherSubscrinber) {
+        this.snsPublisherSubscrinber = snsPublisherSubscrinber;
     }
 
     @PostConstruct
@@ -49,6 +49,13 @@ public class SQSSubscriberFactory {
     public SQSSubscriber getFor(String queueName, String topicName, long retentionPeriodSeconds) {
         logger.info(format("Get subscriber for queue %s and topic %s retention %s ", queueName, topicName, retentionPeriodSeconds));
 
+        if (topicName==null) {
+            throw new RuntimeException("Null topic");
+        }
+        if (topicName.isEmpty()) {
+            throw new RuntimeException("Empty topic");
+        }
+
         String queueUrl = createQueueIfNeeded(queueName, retentionPeriodSeconds);
 
         if (queueUrl.isEmpty()) {
@@ -56,7 +63,7 @@ public class SQSSubscriberFactory {
             return null;
         }
 
-        String topicARN = snsPublisher.getTopicUrnFor(topicName);
+        String topicARN = snsPublisherSubscrinber.getTopicUrnFor(topicName);
 
         if (topicARN.isEmpty()) {
             logger.error("Unable to get topic");
@@ -70,7 +77,7 @@ public class SQSSubscriberFactory {
             subscriber.updatePolicyFor();
 
             String queueArn = subscriber.getARN();
-            snsPublisher.subscribeQueueTo(topicARN, queueArn);
+            snsPublisherSubscrinber.subscribeQueueTo(topicARN, queueArn);
 
             return subscriber;
         }

@@ -45,7 +45,7 @@ public class TfgmTramLiveDataAppConfig implements TfgmTramLiveDataConfig {
     }
 
     @Override
-    public String getSnsTopicPrefix() {
+    public String getSnsTopicPublishPrefix() {
         if (snsTopicPrefix ==null) {
             return "";
         }

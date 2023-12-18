@@ -51,7 +51,7 @@ public class FetchInstanceMetadata implements FetchMetadata {
         String host = url.getHost();
         int port = (url.getPort()==-1) ? 80 : url.getPort();
 
-        logger.info(format("Attempt to getPlatformById instance user data from host:%s port%s url:%s",
+        logger.info(format("Attempt to get instance user data from host:%s port%s url:%s",
                 host, port, url));
 
         HttpClient httpClient = HttpClient.newBuilder().
@@ -67,11 +67,19 @@ public class FetchInstanceMetadata implements FetchMetadata {
             byte[] contents = response.body();
             return new String(contents);
 
-        } catch (URISyntaxException | IOException e) {
-            String msg = format("Unable to get data from to %s:%s [/%s]", host, port, host);
+        } catch (URISyntaxException e) {
+            String msg = format("URISyntaxException, Unable to get data from to %s:%s [%s]", host, port, url);
             logger.warn(msg, e);
+        } catch (IOException e) {
+            String exceptionMsg = e.getMessage();
+            if ("HTTP connect timed out".equals(exceptionMsg)) {
+                logger.info(format("Timed out connecting to %s, assume not running in cloud", host));
+            } else {
+                String msg = format("IOException, Unable to get data from to %s:%s [%s] msg:'%s'", host, port, url, exceptionMsg);
+                logger.warn(msg, e);
+            }
         } catch (InterruptedException e) {
-            String msg = format("Interrupted during connection to %s:%s [/%s] failed: Connection refused", host, port, host);
+            String msg = format("Interrupted during connection to %s:%s [%s] failed: Connection refused", host, port, url);
             logger.error(msg, e);
         }
         return "";

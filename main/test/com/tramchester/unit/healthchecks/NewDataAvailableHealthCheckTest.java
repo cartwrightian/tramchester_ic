@@ -49,7 +49,6 @@ class NewDataAvailableHealthCheckTest extends EasyMockSupport {
     @Test
     void shouldReportHealthyWhenNONewDataAvailable() throws IOException, InterruptedException {
 
-        EasyMock.expect(dataSourceConfig.getIsS3()).andReturn(false);
         EasyMock.expect(dataSourceConfig.getDataCheckUrl()).andReturn(expectedURL.toString());
         EasyMock.expect(dataSourceConfig.isMandatory()).andReturn(true);
 
@@ -67,7 +66,6 @@ class NewDataAvailableHealthCheckTest extends EasyMockSupport {
     @Test
     void shouldReportUnHealthyWhenNewDataAvailable() throws IOException, InterruptedException {
 
-        EasyMock.expect(dataSourceConfig.getIsS3()).andReturn(false);
         EasyMock.expect(dataSourceConfig.getDataCheckUrl()).andReturn(expectedURL.toString());
         EasyMock.expect(dataSourceConfig.isMandatory()).andReturn(true);
 
@@ -85,7 +83,6 @@ class NewDataAvailableHealthCheckTest extends EasyMockSupport {
     @Test
     void shouldReportUnHealthyWhenDataMissing() throws IOException, InterruptedException {
 
-        EasyMock.expect(dataSourceConfig.getIsS3()).andReturn(false);
         EasyMock.expect(dataSourceConfig.getDataCheckUrl()).andReturn(expectedURL.toString());
         EasyMock.expect(dataSourceConfig.isMandatory()).andReturn(true);
 
@@ -103,7 +100,6 @@ class NewDataAvailableHealthCheckTest extends EasyMockSupport {
     @Test
     void shouldReportHealthyWhenNONewDataAvailableS3() {
 
-        EasyMock.expect(dataSourceConfig.getIsS3()).andReturn(true);
         EasyMock.expect(dataSourceConfig.getDataCheckUrl()).andReturn(expecteds3URI.toString());
         EasyMock.expect(dataSourceConfig.isMandatory()).andReturn(true);
 
@@ -119,9 +115,8 @@ class NewDataAvailableHealthCheckTest extends EasyMockSupport {
     }
 
     @Test
-    void shouldReportUnHealthyWhenNewDataAvailableS3() throws IOException, InterruptedException {
+    void shouldReportUnHealthyWhenNewDataAvailableS3() {
 
-        EasyMock.expect(dataSourceConfig.getIsS3()).andReturn(true);
         EasyMock.expect(dataSourceConfig.getDataCheckUrl()).andReturn(expecteds3URI.toString());
         EasyMock.expect(dataSourceConfig.isMandatory()).andReturn(true);
 
@@ -137,9 +132,8 @@ class NewDataAvailableHealthCheckTest extends EasyMockSupport {
     }
 
     @Test
-    void shouldReportUnHealthyWhenDataMissingS3() throws IOException, InterruptedException {
+    void shouldReportUnHealthyWhenDataMissingS3() {
 
-        EasyMock.expect(dataSourceConfig.getIsS3()).andReturn(true);
         EasyMock.expect(dataSourceConfig.getDataCheckUrl()).andReturn(expecteds3URI.toString());
         EasyMock.expect(dataSourceConfig.isMandatory()).andReturn(true);
 

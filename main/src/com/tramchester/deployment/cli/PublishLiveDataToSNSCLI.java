@@ -58,7 +58,7 @@ public class PublishLiveDataToSNSCLI extends BaseCLI {
             logger.error("Live data needs to be enabled in config");
             return false;
         }
-        String liveDataSNSTopic = config.getLiveDataSNSTopic();
+        String liveDataSNSTopic = config.getLiveDataSNSPublishTopic();
         if (liveDataSNSTopic.isEmpty()) {
             logger.error("No SNS topic in config (snsTopic)");
             return false;

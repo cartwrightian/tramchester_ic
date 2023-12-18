@@ -59,8 +59,8 @@ public abstract class IntegrationTestConfig extends TestConfig {
     }
 
     @Override
-    public String getLiveDataSNSTopic() {
-        String text = super.getLiveDataSNSTopic();
+    public String getLiveDataSNSPublishTopic() {
+        String text = super.getLiveDataSNSPublishTopic();
 
         if (TestEnv.isCircleci()) {
             return text.replace("Dev", "CI");

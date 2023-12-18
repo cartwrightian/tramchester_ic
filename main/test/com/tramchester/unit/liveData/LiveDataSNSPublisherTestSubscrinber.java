@@ -1,6 +1,6 @@
 package com.tramchester.unit.liveData;
 
-import com.tramchester.cloud.SNSPublisher;
+import com.tramchester.cloud.SNSPublisherSubscriber;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TfgmTramLiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
@@ -17,9 +17,9 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class LiveDataSNSPublisherTest extends EasyMockSupport {
+public class LiveDataSNSPublisherTestSubscrinber extends EasyMockSupport {
     private LiveDataSNSPublisher publisher;
-    private SNSPublisher snsPublisher;
+    private SNSPublisherSubscriber snsPublisher;
     private TfgmTramLiveDataConfig liveConfig;
     private LiveDataFetcher liveDataFetcher;
 
@@ -27,7 +27,7 @@ public class LiveDataSNSPublisherTest extends EasyMockSupport {
     void beforeEachTest() {
         liveConfig = createMock(TfgmTramLiveDataConfig.class);
         TramchesterConfig config = new LocalConfig(liveConfig);
-        snsPublisher = createStrictMock(SNSPublisher.class);
+        snsPublisher = createStrictMock(SNSPublisherSubscriber.class);
         liveDataFetcher = createStrictMock(LiveDataFetcher.class);
 
         publisher = new LiveDataSNSPublisher(config, snsPublisher, liveDataFetcher);
@@ -36,7 +36,7 @@ public class LiveDataSNSPublisherTest extends EasyMockSupport {
     @Test
     void shouldSendSNSForReceivedIfEnable() {
 
-        EasyMock.expect(liveConfig.getSnsTopicPrefix()).andStubReturn("aTopic");
+        EasyMock.expect(liveConfig.getSnsTopicPublishPrefix()).andStubReturn("aTopic");
         EasyMock.expect(liveConfig.snsSource()).andStubReturn(false);
 
         liveDataFetcher.subscribe(publisher);
@@ -55,7 +55,7 @@ public class LiveDataSNSPublisherTest extends EasyMockSupport {
     @Test
     void shouldCaptureFailure() {
 
-        EasyMock.expect(liveConfig.getSnsTopicPrefix()).andStubReturn("aTopic");
+        EasyMock.expect(liveConfig.getSnsTopicPublishPrefix()).andStubReturn("aTopic");
         EasyMock.expect(liveConfig.snsSource()).andStubReturn(false);
 
         liveDataFetcher.subscribe(publisher);
@@ -74,7 +74,7 @@ public class LiveDataSNSPublisherTest extends EasyMockSupport {
     @Test
     void shouldNotSendSNSForReceivedIfDisabledNoTopic() {
 
-        EasyMock.expect(liveConfig.getSnsTopicPrefix()).andStubReturn("");
+        EasyMock.expect(liveConfig.getSnsTopicPublishPrefix()).andStubReturn("");
 
         replayAll();
         publisher.start();
@@ -85,7 +85,7 @@ public class LiveDataSNSPublisherTest extends EasyMockSupport {
     @Test
     void shouldNotSendSNSForReceivedIfTopicButSNSSource() {
 
-        EasyMock.expect(liveConfig.getSnsTopicPrefix()).andStubReturn("validTopic");
+        EasyMock.expect(liveConfig.getSnsTopicPublishPrefix()).andStubReturn("validTopic");
         EasyMock.expect(liveConfig.snsSource()).andStubReturn(true);
 
         replayAll();

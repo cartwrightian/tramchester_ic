@@ -16,14 +16,14 @@ import java.util.Map;
 import static java.lang.String.format;
 
 @LazySingleton
-public class SNSPublisher {
-    private static final Logger logger = LoggerFactory.getLogger(SNSPublisher.class);
+public class SNSPublisherSubscriber {
+    private static final Logger logger = LoggerFactory.getLogger(SNSPublisherSubscriber.class);
 
     private final Map<String, String> topicMap;
     private SnsClient snsClient;
 
     @Inject
-    public SNSPublisher() {
+    public SNSPublisherSubscriber() {
         topicMap = new HashMap<>();
     }
 
