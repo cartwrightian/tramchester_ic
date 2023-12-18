@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import static java.lang.String.format;
+
 @LazySingleton
 public class LiveDataSNSPublisher implements LiveDataFetcher.ReceivesRawData {
     private static final Logger logger = LoggerFactory.getLogger(LiveDataSNSPublisher.class);
@@ -18,6 +20,7 @@ public class LiveDataSNSPublisher implements LiveDataFetcher.ReceivesRawData {
     private final SNSPublisher snsPublisher;
     private final LiveDataFetcher liveDataFetcher;
     private String snsTopic;
+    private boolean lastSendOk;
 
     @Inject
     public LiveDataSNSPublisher(TramchesterConfig config, SNSPublisher snsPublisher, LiveDataFetcher liveDataFetcher) {
@@ -55,8 +58,15 @@ public class LiveDataSNSPublisher implements LiveDataFetcher.ReceivesRawData {
             logger.error("Should not be called, disabled");
             return;
         }
+
         logger.info("Publishing live data to SNS on topic " + snsTopic);
-        snsPublisher.send(snsTopic, text);
+        lastSendOk = snsPublisher.send(snsTopic, text);
+        if (!lastSendOk) {
+            logger.error(format("Failed to publish live data on topic %s, check logs", snsTopic));
+        }
     }
 
+    public boolean getLastSentOk() {
+        return lastSendOk;
+    }
 }

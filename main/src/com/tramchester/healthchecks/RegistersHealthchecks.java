@@ -29,6 +29,7 @@ public class RegistersHealthchecks {
                                  LiveDataMessagesHealthCheck liveDataMessagesHealthCheck,
                                  LiveDataS3UploadHealthCheck liveDataS3UploadHealthCheck,
                                  ClientForS3Healthcheck clientForS3Healthcheck,
+                                 LiveDataSNSPublisherHealthCheck liveDataSNSPublisherHealthCheck,
                                  SendMetricsToCloudWatchHealthcheck sendMetricsToCloudWatchHealthcheck, ProvidesNow providesNow) {
         this.providesNow = providesNow;
         this.healthChecks = new HashSet<>();
@@ -40,6 +41,7 @@ public class RegistersHealthchecks {
         addIfEnabled(sendMetricsToCloudWatchHealthcheck);
 
         // live data health checks
+        addIfEnabled(liveDataSNSPublisherHealthCheck);
         addIfEnabled(liveDataHealthCheck);
         addIfEnabled(liveDataMessagesHealthCheck);
         addIfEnabled(liveDataS3UploadHealthCheck);

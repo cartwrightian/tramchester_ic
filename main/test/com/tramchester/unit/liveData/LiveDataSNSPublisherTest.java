@@ -14,6 +14,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 public class LiveDataSNSPublisherTest extends EasyMockSupport {
     private LiveDataSNSPublisher publisher;
     private SNSPublisher snsPublisher;
@@ -39,13 +42,33 @@ public class LiveDataSNSPublisherTest extends EasyMockSupport {
         liveDataFetcher.subscribe(publisher);
         EasyMock.expectLastCall();
 
-        snsPublisher.send("aTopicDev", "someTextToSend");
-        EasyMock.expectLastCall();
+        EasyMock.expect(snsPublisher.send("aTopicDev", "someTextToSend")).andReturn(true);
 
         replayAll();
         publisher.start();
         publisher.rawData("someTextToSend");
         verifyAll();
+
+        assertTrue(publisher.getLastSentOk());
+    }
+
+    @Test
+    void shouldCaptureFailure() {
+
+        EasyMock.expect(liveConfig.getSnsTopicPrefix()).andStubReturn("aTopic");
+        EasyMock.expect(liveConfig.snsSource()).andStubReturn(false);
+
+        liveDataFetcher.subscribe(publisher);
+        EasyMock.expectLastCall();
+
+        EasyMock.expect(snsPublisher.send("aTopicDev", "someTextToSend")).andReturn(false);
+
+        replayAll();
+        publisher.start();
+        publisher.rawData("someTextToSend");
+        verifyAll();
+
+        assertFalse(publisher.getLastSentOk());
     }
 
     @Test

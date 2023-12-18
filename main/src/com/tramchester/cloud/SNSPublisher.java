@@ -34,17 +34,24 @@ public class SNSPublisher {
         logger.info("started");
     }
 
-    public void send(String topic, String text) {
+    public boolean send(String topic, String text) {
         String arn = createTopicIfRequire(topic);
-        publish(arn, text);
+        return publish(arn, text);
     }
 
-    private void publish(String arn, String text) {
+    private boolean publish(String arn, String text) {
         PublishRequest publishRequest = PublishRequest.builder().topicArn(arn).message(text).build();
 
-        PublishResponse result = snsClient.publish(publishRequest);
+        try {
+            PublishResponse result = snsClient.publish(publishRequest);
+            logger.info(format("Published message arn: %s messageId: %s", arn, result.messageId()));
+            return true;
+        }
+        catch(SnsException snsException) {
+            logger.warn(format("Failed to publish for topic arn %s", arn), snsException);
+            return false;
+        }
 
-        logger.info(format("Published message arn: %s messageId: %s", arn, result.messageId()));
     }
 
     public void subscribeQueueTo(String topicARN, String queueARN) {
