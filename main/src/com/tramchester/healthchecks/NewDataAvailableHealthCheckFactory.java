@@ -4,6 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.GetsFileModTime;
 import com.tramchester.dataimport.HttpDownloadAndModTime;
+import com.tramchester.dataimport.S3DownloadAndModTime;
 import com.tramchester.domain.ServiceTimeLimits;
 
 import javax.annotation.PostConstruct;
@@ -17,16 +18,19 @@ import java.util.List;
 public class NewDataAvailableHealthCheckFactory implements HealthCheckFactory {
 
     private final TramchesterConfig config;
-    private final HttpDownloadAndModTime urlDownloader;
+    private final HttpDownloadAndModTime httpDownloadAndModTime;
+    private final S3DownloadAndModTime s3DownloadAndModTime;
     private final GetsFileModTime fileModTime;
     private final List<TramchesterHealthCheck> healthCheckList;
     private final ServiceTimeLimits serviceTimeLimits;
 
     @Inject
-    public NewDataAvailableHealthCheckFactory(TramchesterConfig config, HttpDownloadAndModTime urlDownloader,
-                                              GetsFileModTime fileModTime, ServiceTimeLimits serviceTimeLimits) {
+    public NewDataAvailableHealthCheckFactory(TramchesterConfig config, HttpDownloadAndModTime httpDownloadAndModTime,
+                                              S3DownloadAndModTime s3DownloadAndModTime, GetsFileModTime fileModTime,
+                                              ServiceTimeLimits serviceTimeLimits) {
         this.config = config;
-        this.urlDownloader = urlDownloader;
+        this.httpDownloadAndModTime = httpDownloadAndModTime;
+        this.s3DownloadAndModTime = s3DownloadAndModTime;
         this.fileModTime = fileModTime;
         this.serviceTimeLimits = serviceTimeLimits;
         healthCheckList = new ArrayList<>();
@@ -45,7 +49,8 @@ public class NewDataAvailableHealthCheckFactory implements HealthCheckFactory {
     public void start() {
         config.getRemoteDataSourceConfig().stream().
                 filter(source -> !source.getDataCheckUrl().isBlank()).forEach(config ->
-                healthCheckList.add(new NewDataAvailableHealthCheck(config, urlDownloader, fileModTime, serviceTimeLimits)));
+                healthCheckList.add(new NewDataAvailableHealthCheck(config, httpDownloadAndModTime, s3DownloadAndModTime,
+                        fileModTime, serviceTimeLimits)));
     }
 
 }

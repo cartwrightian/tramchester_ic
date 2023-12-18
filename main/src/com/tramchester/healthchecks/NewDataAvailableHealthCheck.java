@@ -1,9 +1,7 @@
 package com.tramchester.healthchecks;
 
 import com.tramchester.config.RemoteDataSourceConfig;
-import com.tramchester.dataimport.GetsFileModTime;
-import com.tramchester.dataimport.HttpDownloadAndModTime;
-import com.tramchester.dataimport.URLStatus;
+import com.tramchester.dataimport.*;
 import com.tramchester.domain.ServiceTimeLimits;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,25 +14,34 @@ public class NewDataAvailableHealthCheck extends TramchesterHealthCheck {
     private static final Logger logger = LoggerFactory.getLogger(NewDataAvailableHealthCheck.class);
 
     private final RemoteDataSourceConfig config;
-    private final HttpDownloadAndModTime urlDownloader;
+    private final HttpDownloadAndModTime httpDownloadAndModTime;
+    private final S3DownloadAndModTime s3DownloadAndModTime;
     private final GetsFileModTime getsFileModTime;
 
-    public NewDataAvailableHealthCheck(RemoteDataSourceConfig config, HttpDownloadAndModTime urlDownloader,
+    public NewDataAvailableHealthCheck(RemoteDataSourceConfig config, HttpDownloadAndModTime httpDownloadAndModTime,
+                                       S3DownloadAndModTime s3DownloadAndModTime,
                                        GetsFileModTime getsFileModTime, ServiceTimeLimits serviceTimeLimits) {
         super(serviceTimeLimits);
         this.config = config;
-        this.urlDownloader = urlDownloader;
+        this.httpDownloadAndModTime = httpDownloadAndModTime;
+        this.s3DownloadAndModTime = s3DownloadAndModTime;
         this.getsFileModTime = getsFileModTime;
     }
 
     @Override
     protected Result check() {
+        DownloadAndModTime downloadAndModTime;
+        if (config.getIsS3()) {
+            downloadAndModTime = s3DownloadAndModTime;
+        } else {
+            downloadAndModTime = httpDownloadAndModTime;
+        }
         URI dataCheckUrl = URI.create(config.getDataCheckUrl());
 
         try {
             LocalDateTime localFileModTime = getsFileModTime.getFor(config);
 
-            final URLStatus status = urlDownloader.getStatusFor(dataCheckUrl, localFileModTime, config.isMandatory());
+            final URLStatus status = downloadAndModTime.getStatusFor(dataCheckUrl, localFileModTime, config.isMandatory());
 
             if (!status.isOk()) {
                 String msg = String.format("Got http status %s for %s", status.getStatusCode(), dataCheckUrl);

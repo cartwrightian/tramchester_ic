@@ -39,7 +39,7 @@ public class RegistersHealthchecks {
         addIfEnabled(clientForS3Healthcheck);
         addIfEnabled(sendMetricsToCloudWatchHealthcheck);
 
-        // live data healthchecks
+        // live data health checks
         addIfEnabled(liveDataHealthCheck);
         addIfEnabled(liveDataMessagesHealthCheck);
         addIfEnabled(liveDataS3UploadHealthCheck);

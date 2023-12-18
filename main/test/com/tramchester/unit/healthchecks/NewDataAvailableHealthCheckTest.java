@@ -1,69 +1,61 @@
 package com.tramchester.unit.healthchecks;
 
 import com.codahale.metrics.health.HealthCheck;
-import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.GetsFileModTime;
 import com.tramchester.dataimport.HttpDownloadAndModTime;
+import com.tramchester.dataimport.S3DownloadAndModTime;
 import com.tramchester.dataimport.URLStatus;
-import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.ServiceTimeLimits;
 import com.tramchester.healthchecks.NewDataAvailableHealthCheck;
-import com.tramchester.testSupport.tfgm.TFGMRemoteDataSourceConfig;
-import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
 
 class NewDataAvailableHealthCheckTest extends EasyMockSupport {
+    private URI expecteds3URI;
+    private URI expectedURL;
 
-    private HttpDownloadAndModTime urlDownloader;
+    private HttpDownloadAndModTime httpDownloadAndModTime;
     private GetsFileModTime getsFileModTime;
     private NewDataAvailableHealthCheck healthCheck;
-    private URI expectedURL;
     private LocalDateTime time;
     private RemoteDataSourceConfig dataSourceConfig;
+    private S3DownloadAndModTime s3DownloadAndModTime;
 
     @BeforeEach
-    void beforeEachTestRuns() throws IOException {
-        TramchesterConfig config = new LocalTestConfig(Files.createTempDirectory("FetchDataFromUrlTest"));
-        urlDownloader = createMock(HttpDownloadAndModTime.class);
+    void beforeEachTestRuns() {
+        dataSourceConfig = createMock(RemoteDataSourceConfig.class);
+
+        httpDownloadAndModTime = createStrictMock(HttpDownloadAndModTime.class);
+        s3DownloadAndModTime = createStrictMock(S3DownloadAndModTime.class);
         getsFileModTime = createMock(GetsFileModTime.class);
-        dataSourceConfig = config.getDataRemoteSourceConfig(DataSourceID.tfgm); // config.getRemoteDataSourceConfig().get(0);
-        expectedURL = URI.create(dataSourceConfig.getDataUrl());
+        expectedURL = URI.create("http://somedata.source.com/path");
+        expecteds3URI = URI.create("s3://tramchesternewdist/dist/642/tfgm_data.zip");
         ServiceTimeLimits serviceTimeLimits = new ServiceTimeLimits();
 
-        healthCheck = new NewDataAvailableHealthCheck(dataSourceConfig, urlDownloader, getsFileModTime, serviceTimeLimits);
+        healthCheck = new NewDataAvailableHealthCheck(dataSourceConfig, httpDownloadAndModTime, s3DownloadAndModTime,
+                getsFileModTime, serviceTimeLimits);
         time = TestEnv.LocalNow();
-    }
-
-    @AfterEach
-    void removeTmpFile() throws IOException {
-        Path tmpDir = dataSourceConfig.getDataPath();
-        if (Files.exists(tmpDir)) {
-            Files.delete(tmpDir);
-        }
     }
 
     @Test
     void shouldReportHealthyWhenNONewDataAvailable() throws IOException, InterruptedException {
 
+        EasyMock.expect(dataSourceConfig.getIsS3()).andReturn(false);
+        EasyMock.expect(dataSourceConfig.getDataCheckUrl()).andReturn(expectedURL.toString());
+        EasyMock.expect(dataSourceConfig.isMandatory()).andReturn(true);
+
         URLStatus status = new URLStatus(expectedURL, 200, time.minusDays(1));
 
-        EasyMock.expect(urlDownloader.getStatusFor(expectedURL, time, true)).andReturn(status);
+        EasyMock.expect(httpDownloadAndModTime.getStatusFor(expectedURL, time, true)).andReturn(status);
         EasyMock.expect(getsFileModTime.getFor(dataSourceConfig)).andReturn(time);
 
         replayAll();
@@ -75,9 +67,13 @@ class NewDataAvailableHealthCheckTest extends EasyMockSupport {
     @Test
     void shouldReportUnHealthyWhenNewDataAvailable() throws IOException, InterruptedException {
 
+        EasyMock.expect(dataSourceConfig.getIsS3()).andReturn(false);
+        EasyMock.expect(dataSourceConfig.getDataCheckUrl()).andReturn(expectedURL.toString());
+        EasyMock.expect(dataSourceConfig.isMandatory()).andReturn(true);
+
         URLStatus status = new URLStatus(expectedURL, 200, time.plusDays(1));
 
-        EasyMock.expect(urlDownloader.getStatusFor(expectedURL, time, true)).andReturn(status);
+        EasyMock.expect(httpDownloadAndModTime.getStatusFor(expectedURL, time, true)).andReturn(status);
         EasyMock.expect(getsFileModTime.getFor(dataSourceConfig)).andReturn(time);
 
         replayAll();
@@ -89,9 +85,13 @@ class NewDataAvailableHealthCheckTest extends EasyMockSupport {
     @Test
     void shouldReportUnHealthyWhenDataMissing() throws IOException, InterruptedException {
 
+        EasyMock.expect(dataSourceConfig.getIsS3()).andReturn(false);
+        EasyMock.expect(dataSourceConfig.getDataCheckUrl()).andReturn(expectedURL.toString());
+        EasyMock.expect(dataSourceConfig.isMandatory()).andReturn(true);
+
         URLStatus status = new URLStatus(expectedURL, 200);
 
-        EasyMock.expect(urlDownloader.getStatusFor(expectedURL, time, true)).andReturn(status);
+        EasyMock.expect(httpDownloadAndModTime.getStatusFor(expectedURL, time, true)).andReturn(status);
         EasyMock.expect(getsFileModTime.getFor(dataSourceConfig)).andReturn(time);
 
         replayAll();
@@ -100,22 +100,58 @@ class NewDataAvailableHealthCheckTest extends EasyMockSupport {
         verifyAll();
     }
 
-    private static class LocalTestConfig extends TestConfig {
-        private final Path downloadPath;
+    @Test
+    void shouldReportHealthyWhenNONewDataAvailableS3() {
 
-        private LocalTestConfig(Path downloadPath) {
-            this.downloadPath = downloadPath;
-        }
+        EasyMock.expect(dataSourceConfig.getIsS3()).andReturn(true);
+        EasyMock.expect(dataSourceConfig.getDataCheckUrl()).andReturn(expecteds3URI.toString());
+        EasyMock.expect(dataSourceConfig.isMandatory()).andReturn(true);
 
-        @Override
-        protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
-            return null;
-        }
+        URLStatus status = new URLStatus(expecteds3URI, 200, time.minusDays(1));
 
-        @Override
-        public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
-            return Collections.singletonList(TFGMRemoteDataSourceConfig.createFor(downloadPath));
-        }
+        EasyMock.expect(s3DownloadAndModTime.getStatusFor(expecteds3URI, time, true)).andReturn(status);
+        EasyMock.expect(getsFileModTime.getFor(dataSourceConfig)).andReturn(time);
+
+        replayAll();
+        HealthCheck.Result result = healthCheck.execute();
+        Assertions.assertTrue(result.isHealthy());
+        verifyAll();
+    }
+
+    @Test
+    void shouldReportUnHealthyWhenNewDataAvailableS3() throws IOException, InterruptedException {
+
+        EasyMock.expect(dataSourceConfig.getIsS3()).andReturn(true);
+        EasyMock.expect(dataSourceConfig.getDataCheckUrl()).andReturn(expecteds3URI.toString());
+        EasyMock.expect(dataSourceConfig.isMandatory()).andReturn(true);
+
+        URLStatus status = new URLStatus(expectedURL, 200, time.plusDays(1));
+
+        EasyMock.expect(s3DownloadAndModTime.getStatusFor(expecteds3URI, time, true)).andReturn(status);
+        EasyMock.expect(getsFileModTime.getFor(dataSourceConfig)).andReturn(time);
+
+        replayAll();
+        HealthCheck.Result result = healthCheck.execute();
+        Assertions.assertFalse(result.isHealthy());
+        verifyAll();
+    }
+
+    @Test
+    void shouldReportUnHealthyWhenDataMissingS3() throws IOException, InterruptedException {
+
+        EasyMock.expect(dataSourceConfig.getIsS3()).andReturn(true);
+        EasyMock.expect(dataSourceConfig.getDataCheckUrl()).andReturn(expecteds3URI.toString());
+        EasyMock.expect(dataSourceConfig.isMandatory()).andReturn(true);
+
+        URLStatus status = new URLStatus(expectedURL, 200);
+
+        EasyMock.expect(s3DownloadAndModTime.getStatusFor(expecteds3URI, time, true)).andReturn(status);
+        EasyMock.expect(getsFileModTime.getFor(dataSourceConfig)).andReturn(time);
+
+        replayAll();
+        HealthCheck.Result result = healthCheck.execute();
+        Assertions.assertFalse(result.isHealthy());
+        verifyAll();
     }
 
 }
