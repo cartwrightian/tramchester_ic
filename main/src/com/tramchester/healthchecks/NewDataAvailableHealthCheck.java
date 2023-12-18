@@ -31,12 +31,14 @@ public class NewDataAvailableHealthCheck extends TramchesterHealthCheck {
     @Override
     protected Result check() {
         DownloadAndModTime downloadAndModTime;
-        if (config.getIsS3()) {
+
+        URI dataCheckUrl = URI.create(config.getDataCheckUrl());
+
+        if (dataCheckUrl.getScheme().equals("s3")) {
             downloadAndModTime = s3DownloadAndModTime;
         } else {
             downloadAndModTime = httpDownloadAndModTime;
         }
-        URI dataCheckUrl = URI.create(config.getDataCheckUrl());
 
         try {
             LocalDateTime localFileModTime = getsFileModTime.getFor(config);
