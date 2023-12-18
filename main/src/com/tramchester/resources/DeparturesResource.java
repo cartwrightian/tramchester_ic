@@ -39,6 +39,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("unused")
 @Path("/departures")
 @Produces(MediaType.APPLICATION_JSON)
 public class DeparturesResource extends TransportResource implements APIResource {

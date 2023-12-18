@@ -262,9 +262,6 @@ class ProvidesTramNotesTest extends EasyMockSupport {
         if (date.isChristmasPeriod()) {
             expected++;
         }
-//        if (ProvidesTramNotes.summer2022Closure(serviceDate.getDate())) {
-//            expected++;
-//        }
         assertEquals(expected, notes.size());
     }
 
@@ -297,9 +294,6 @@ class ProvidesTramNotesTest extends EasyMockSupport {
         if (serviceDate.isChristmasPeriod()) {
             expected++;
         }
-//        if (ProvidesTramNotes.summer2022Closure(serviceDate.getDate())) {
-//            expected++;
-//        }
         assertEquals(expected, notes.size());
     }
 
@@ -310,7 +304,6 @@ class ProvidesTramNotesTest extends EasyMockSupport {
         VehicleStage stageA = createStageWithBoardingPlatform("1", nearPiccGardens);
 
         TramDate localDate = TramDate.from(lastUpdate).plusDays(2);
-        //TramServiceDate queryDate = new TramServiceDate(localDate);
         TramTime queryTime = TramTime.ofHourMins(lastUpdate.toLocalTime());
 
         PlatformMessage info = createPlatformMessage(lastUpdate, Pomona, "a message");
@@ -397,10 +390,6 @@ class ProvidesTramNotesTest extends EasyMockSupport {
         if (date.isChristmasPeriod()) {
             expected++;
         }
-
-//        if (ProvidesTramNotes.summer2022Closure(serviceDate.getDate())) {
-//            expected++;
-//        }
 
         assertEquals(expected, notes.size());
         assertTrue(notes.contains(noteOne), notes.toString());

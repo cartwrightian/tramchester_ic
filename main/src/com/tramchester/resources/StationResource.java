@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
-//@Api
+@SuppressWarnings("unused")
 @Path("/stations")
 @Produces(MediaType.APPLICATION_JSON)
 public class StationResource extends UsesRecentCookie implements APIResource {
