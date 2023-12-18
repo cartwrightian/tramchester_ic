@@ -313,7 +313,7 @@ public class RouteCalculatorTest {
                 maxJourneyDuration, maxNumResults, requestedModes);
         Set<Journey> results =  calculator.calculateRouteAsSet(Altrincham, ManAirport, request);
 
-        assertTrue(results.size()>0, "no results");    // results is iterator
+        assertFalse(results.isEmpty(), "no results");    // results is iterator
         for (Journey result : results) {
             List<TransportStage<?,?>> stages = result.getStages();
             assertEquals(2,stages.size());
@@ -446,7 +446,7 @@ public class RouteCalculatorTest {
                 4, maxJourneyDuration, 3, requestedModes);
         Set<Journey> journeys =  calculator.calculateRouteAsSet(Bury, Altrincham, request);
 
-        assertTrue(journeys.size()>0);
+        assertFalse(journeys.isEmpty());
 
         Set<Integer> reqNumChanges = journeys.stream().map(Journey::getRequestedNumberChanges).collect(Collectors.toSet());
 
@@ -588,7 +588,7 @@ public class RouteCalculatorTest {
     @NotNull
     private Set<Journey> checkJourneys(TramStations start, TramStations dest, TramTime time, TramDate date, Set<Journey> journeys) {
         String message = "from " + start.getId() + " to " + dest.getId() + " at " + time + " on " + date;
-        assertTrue(journeys.size() > 0, "Unable to find journey " + message);
+        assertFalse(journeys.isEmpty(), "Unable to find journey " + message);
         journeys.forEach(journey -> assertFalse(journey.getStages().isEmpty(), message + " missing stages for journey" + journey));
         journeys.forEach(journey -> {
             List<TransportStage<?,?>> stages = journey.getStages();

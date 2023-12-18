@@ -41,6 +41,7 @@ import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
+@SuppressWarnings("unused")
 @Path("/journey")
 @Produces(MediaType.APPLICATION_JSON)
 public class JourneyPlannerResource extends UsesRecentCookie implements APIResource, GraphDatabaseDependencyMarker {
@@ -56,8 +57,8 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
     @Inject
     public JourneyPlannerResource(UpdateRecentJourneys updateRecentJourneys,
                                   GraphDatabase graphDatabase,
-                                  ProvidesNow providesNow, LocationJourneyPlanner locToLocPlanner, JourneyToDTOMapper journeyToDTOMapper, TramchesterConfig config,
-                                  JourneyDTODuplicateFilter duplicateFilter, LocationRepository locationRepository) {
+                                  ProvidesNow providesNow, LocationJourneyPlanner locToLocPlanner, JourneyToDTOMapper journeyToDTOMapper,
+                                  TramchesterConfig config, JourneyDTODuplicateFilter duplicateFilter, LocationRepository locationRepository) {
         super(updateRecentJourneys, providesNow);
         this.locToLocPlanner = locToLocPlanner;
         this.journeyToDTOMapper = journeyToDTOMapper;

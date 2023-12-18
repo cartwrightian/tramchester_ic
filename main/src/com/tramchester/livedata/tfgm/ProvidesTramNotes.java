@@ -30,13 +30,12 @@ public class ProvidesTramNotes implements ProvidesNotes {
     private static final Logger logger = LoggerFactory.getLogger(ProvidesTramNotes.class);
 
     private static final String EMPTY = "<no message>";
-    public static final String website = "Please check <a href=\"http://www.metrolink.co.uk/pages/pni.aspx\">TFGM</a> for details.";
+    public static final String website = "Please check <a href=\"https://tfgm.com/travel-updates/travel-alerts#tram\">TFGM</a> for details.";
     public static final String weekend = "At the weekend your journey may be affected by improvement works." + website;
     public static final String christmas = "There are changes to Metrolink services during Christmas and New Year." + website;
-    public static final String christmas2021 = "There are changes to services between 24th Dec and 3rd January. " +
-            "Please check <a = href=\"https://tfgm.com/christmas-services\">TFGM</a> for details.";
-    public static final String summer2022 = "From Saturday 16 July until Friday 21 October, engineering work will take " +
-            "place on the Eccles line, a <a = href=\"https://tfgm.com/eccles-line\">replacement bus service</a> will be in operation. ";
+    public static final String christmas2023 = "There are changes to services between 24th Dec and 1st January. " +
+            "Please check <a = href=\"https://tfgm.com/winter-travel/christmas-operating-times\">TFGM</a> for details.";
+
     private static final int MESSAGE_LIFETIME = 5;
 
     private final PlatformMessageSource platformMessageSource;
@@ -108,8 +107,8 @@ public class ProvidesTramNotes implements ProvidesNotes {
         }
         if (queryDate.isChristmasPeriod()) {
             int year = queryDate.getYear();
-            if (year==2021 || year==2022) {
-                notes.add(new Note(christmas2021, Christmas));
+            if (year==2023 || year==2024) {
+                notes.add(new Note(christmas2023, Christmas));
             } else {
                 notes.add(new Note(christmas, Christmas));
             }

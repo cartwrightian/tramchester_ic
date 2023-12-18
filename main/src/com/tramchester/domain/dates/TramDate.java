@@ -199,7 +199,7 @@ public class TramDate implements Comparable<TramDate> {
         if (month==Month.DECEMBER && day>23) {
             return true;
         }
-        if (month==Month.JANUARY && day<3) {
+        if (month==Month.JANUARY && day<2) {
             return true;
         }
         return false;

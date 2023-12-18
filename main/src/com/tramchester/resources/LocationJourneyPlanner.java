@@ -60,8 +60,9 @@ public class LocationJourneyPlanner {
     public LocationJourneyPlanner(StationLocations stationLocations, TramchesterConfig config, RouteCalculator routeCalculator,
                                   RouteCalculatorArriveBy routeCalculatorArriveBy, NodeContentsRepository nodeOperations,
                                   GraphFilter graphFilter, RouteToRouteCosts routeToRouteCosts, Geography geography) {
-        this.geography = geography;
         logger.info("created");
+
+        this.geography = geography;
         this.config = config;
         this.routeCalculator = routeCalculator;
         this.routeCalculatorArriveBy = routeCalculatorArriveBy;

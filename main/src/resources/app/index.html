@@ -91,15 +91,12 @@
     </v-container>
     </form>
 
-
-    <div id="networkError" selectable v-if="networkError" class="w-75 tramchesterApp">
-        <div class="card bg-danger">
-            <div class="card-header">Network Error</div>
-            <div class="card-body">
-                <p class="card-text">Unable to commmunicate with server, please check your network connection</p>
-            </div>
-        </div>
-    </div>
+    <v-card id="networkError" selectable v-if="networkError" class="mt-2 ml-0 mr-0">
+        <v-card-title>Network Error</v-card-title>
+        <v-card-text>
+            Unable to commmunicate with server, please check your network connection and try again
+        </v-card-text>
+    </v-card>
 
     <div id="outputs" class="mt-2 ml-0 mr-0">
         <notes :journeys="journeys" :livedataresponse="liveDepartureResponse"></notes>

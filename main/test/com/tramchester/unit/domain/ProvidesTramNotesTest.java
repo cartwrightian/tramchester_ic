@@ -174,9 +174,9 @@ class ProvidesTramNotesTest extends EasyMockSupport {
     void shouldHaveNoteForChristmasTramServices() {
         EasyMock.expect(platformMessageSource.isEnabled()).andStubReturn(true);
 
-        int year = 2021;
-        TramDate date = TramDate.of(year, 12, 23);
-        Note christmasNote = new Note(ProvidesTramNotes.christmas2021, Note.NoteType.Christmas);
+        int year = 2023;
+        TramDate beforeChristmas = TramDate.of(year, 12, 23);
+        Note christmasNote = new Note(ProvidesTramNotes.christmas2023, Note.NoteType.Christmas);
 
         Journey journey = createMock(Journey.class);
         EasyMock.expect(journey.getTransportModes()).andStubReturn(Collections.singleton(Tram));
@@ -184,18 +184,18 @@ class ProvidesTramNotesTest extends EasyMockSupport {
 
         replayAll();
 
-        List<Note> result = providesNotes.createNotesForJourney(journey, date);
+        List<Note> result = providesNotes.createNotesForJourney(journey, beforeChristmas);
         assertThat(result, not(hasItem(christmasNote)));
 
-        for(int offset=1; offset<11; offset++) {
-            TramDate queryDate = date.plusDays(offset);
+        for(int offset=1; offset<10; offset++) {
+            TramDate queryDate = beforeChristmas.plusDays(offset);
             result = providesNotes.createNotesForJourney(journey, queryDate);
             assertThat(queryDate.toString(), result, hasItem(christmasNote));
         }
 
-        date = TramDate.of(year+1, 1, 3);
+        TramDate afterChristmas = TramDate.of(year+1, 1, 2);
 
-        result = providesNotes.createNotesForJourney(journey, date);
+        result = providesNotes.createNotesForJourney(journey, afterChristmas);
 
         verifyAll();
 
