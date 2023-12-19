@@ -2,7 +2,9 @@ package com.tramchester.domain.presentation;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 
+import java.util.List;
 import java.util.Objects;
 
 
@@ -28,6 +30,10 @@ public class Note {
 
     public String getText() {
         return text;
+    }
+
+    public List<LocationRefDTO> getDisplayedAt() {
+        return null;
     }
 
     public enum NoteType {

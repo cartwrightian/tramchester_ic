@@ -1,15 +1,5 @@
 
 
-function countItems(text, list) {
-    var count = 0;
-    list.forEach(item => {
-        if (text==item) {
-            count++;
-        }
-    });
-    return count;
-}
-
 export default { 
     props: ['journeys','livedataresponse']
     ,
@@ -36,26 +26,20 @@ export default {
         liveMessages: function() {
             var messages = [];
 
-            var allContents = [];
-            var produced = [];
-            this.notes.forEach(note => {
-                allContents.push(note.text);
-            });
             this.notes.forEach(note => {
                 var result = note.text;
                 if (note.noteType=='Live') {
-                    var count = countItems(note.text, allContents);
+                    const countPlaces = note.displayedAt.length;
                     result = "'" + note.text + "' - Metrolink";
-                    if (count==1) {
-                        result = result + ", " + note.stationRef.name;
+                    if (countPlaces<3) {
+                        for (let index = 0; index < countPlaces; index++) {
+                            result = result + ", " + note.displayedAt[index].name;
+                        }
                     } 
                 }
-                if (!produced.includes(result)) {
-                    messages.push({noteType: note.noteType, text: result}); 
-                    produced.push(result);
-                } 
+                messages.push({noteType: note.noteType, text: result})
+            })
 
-            });
             return messages;
         }
     },

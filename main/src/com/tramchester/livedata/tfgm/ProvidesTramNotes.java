@@ -1,5 +1,6 @@
 package com.tramchester.livedata.tfgm;
 
+import com.google.common.collect.Sets;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.Platform;
@@ -15,6 +16,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.domain.liveUpdates.PlatformMessage;
 import com.tramchester.livedata.repository.PlatformMessageSource;
 import com.tramchester.livedata.repository.ProvidesNotes;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,10 +24,8 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.tramchester.domain.presentation.Note.NoteType.*;
 
@@ -73,7 +73,8 @@ public class ProvidesTramNotes implements ProvidesNotes {
         List<Note> notes = new ArrayList<>(getNotesForADate(queryDate));
 
         if (platformMessageSource.isEnabled()) {
-            notes.addAll(getPlatformNotesFor(journey, queryDate));
+            List<StationNote> platformNotesFor = getPlatformNotesFor(journey, queryDate);
+            notes.addAll(platformNotesFor);
         }
 
         return notes;
@@ -93,19 +94,34 @@ public class ProvidesTramNotes implements ProvidesNotes {
     }
 
     private List<StationNote> getPlatformNotesFor(Journey journey, TramDate queryDate) {
-        return journey.getCallingPlatformIds().stream().
-                flatMap(platformId -> getLiveNotesForPlatform(platformId, queryDate, journey.getQueryTime()).stream()).
-                toList();
+
+        Set<PlatformMessage> allMessages = journey.getCallingPlatformIds().stream().
+                map(platformId -> getMessageFor(platformId, queryDate, journey.getQueryTime())).
+                filter(Optional::isPresent).
+                map(Optional::get).
+                collect(Collectors.toSet());
+
+        return createUniqueNotesFor(allMessages);
+
     }
 
     private List<StationNote> createLiveNotesForStations(List<Station> stations, TramDate date, TramTime time) {
 
-        return stations.stream().
+        Set<PlatformMessage> allMessages = stations.stream().
                 flatMap(station -> platformMessageSource.messagesFor(station, date, time).stream()).
-                filter(this::notEmpty).
-                map(platformMessage -> stationDTOFactory.createStationNote(Live, platformMessage)).
-                toList();
+                filter(this::notEmpty).collect(Collectors.toSet());
 
+        return createUniqueNotesFor(allMessages);
+    }
+
+    @NotNull
+    private List<StationNote> createUniqueNotesFor(Set<PlatformMessage> allMessages) {
+        Map<String, Set<Station>> uniqueText = allMessages.stream().
+                collect(Collectors.toMap(PlatformMessage::getMessage,
+                        platformMessage -> Collections.singleton(platformMessage.getStation()),
+                        Sets::union));
+
+        return uniqueText.entrySet().stream().map(entry -> stationDTOFactory.createStationNote(Live, entry.getKey(), entry.getValue())).toList();
     }
 
     private List<Note> getNotesForADate(TramDate queryDate) {
@@ -124,19 +140,20 @@ public class ProvidesTramNotes implements ProvidesNotes {
         return notes;
     }
 
-    private List<StationNote> getLiveNotesForPlatform(IdFor<Platform> platformId, TramDate queryDate, TramTime queryTime) {
+    private Optional<PlatformMessage> getMessageFor(IdFor<Platform> platformId, TramDate queryDate, TramTime queryTime) {
         Optional<PlatformMessage> maybe = platformMessageSource.messagesFor(platformId, queryDate, queryTime);
         if (maybe.isEmpty()) {
             logger.warn("No messages found for " + platformId + " at " + queryDate +  " " + queryTime);
-            return Collections.emptyList();
+            return maybe;
         }
+
         PlatformMessage platformMessage = maybe.get();
         LocalDateTime lastUpdate = platformMessage.getLastUpdate();
         TramDate lastUpdateDate = TramDate.from(lastUpdate);
         if (!lastUpdateDate.isEqual(queryDate)) {
             // message is not for journey time, perhaps journey is a future date or live data is stale
             logger.info("No messages available for " + queryDate + " last up date was " + lastUpdate);
-            return Collections.emptyList();
+            return Optional.empty();
         }
 
         TramTime updateTime = TramTime.ofHourMins(lastUpdate.toLocalTime());
@@ -144,14 +161,10 @@ public class ProvidesTramNotes implements ProvidesNotes {
         TimeRange range = TimeRange.of(updateTime, Duration.ofMinutes(1), Duration.ofMinutes(MESSAGE_LIFETIME));
         if (!range.contains(queryTime)) {
             logger.info("No data available for " + queryTime + " as not within " + range);
-            return Collections.emptyList();
+            return Optional.empty();
         }
 
-        if (notEmpty(platformMessage)) {
-            return Collections.singletonList(stationDTOFactory.createStationNote(Live, platformMessage));
-        } else {
-            return Collections.emptyList();
-        }
+        return maybe;
     }
 
     private boolean notEmpty(PlatformMessage msg) {

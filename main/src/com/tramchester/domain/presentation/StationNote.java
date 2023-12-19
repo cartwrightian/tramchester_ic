@@ -2,29 +2,30 @@ package com.tramchester.domain.presentation;
 
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 
+import java.util.List;
+
 public class StationNote extends Note {
 
-    private LocationRefDTO stationRef;
+    private List<LocationRefDTO> displayedAt;
 
     public StationNote() {
         // deserialisation
         super();
     }
 
-    public StationNote(NoteType noteType, String text, LocationRefDTO locationRefDTO) {
+    public StationNote(NoteType noteType, String text, List<LocationRefDTO> displayedAt) {
         super(text, noteType);
-        this.stationRef = locationRefDTO;
+        this.displayedAt = displayedAt;
     }
 
-    @SuppressWarnings("WeakerAccess")
-    public LocationRefDTO getStationRef() {
-        return stationRef;
+    public List<LocationRefDTO>  getDisplayedAt() {
+        return displayedAt;
     }
 
     @Override
     public String toString() {
         return "StationNote{" +
-                "station=" + stationRef +
+                "station=" + displayedAt +
                 "} " + super.toString();
     }
 
@@ -36,13 +37,13 @@ public class StationNote extends Note {
 
         StationNote that = (StationNote) o;
 
-        return getStationRef() != null ? getStationRef().equals(that.getStationRef()) : that.getStationRef() == null;
+        return getDisplayedAt() != null ? getDisplayedAt().equals(that.getDisplayedAt()) : that.getDisplayedAt() == null;
     }
 
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + (getStationRef() != null ? getStationRef().hashCode() : 0);
+        result = 31 * result + (getDisplayedAt() != null ? getDisplayedAt().hashCode() : 0);
         return result;
     }
 }

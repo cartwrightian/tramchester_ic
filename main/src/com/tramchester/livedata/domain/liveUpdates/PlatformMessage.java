@@ -7,17 +7,18 @@ import com.tramchester.livedata.tfgm.TramStationDepartureInfo;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 public class PlatformMessage {
     private final Platform stationPlatform;
-    private final String message;
+    private final String text;
     private final LocalDateTime lastUpdate;
     private final Station station;
     private final String displayId;
 
-    public PlatformMessage(Platform stationPlatform, String message, LocalDateTime lastUpdate, Station station, String displayId) {
+    public PlatformMessage(Platform stationPlatform, String text, LocalDateTime lastUpdate, Station station, String displayId) {
         this.stationPlatform = stationPlatform;
-        this.message = message;
+        this.text = text;
         this.lastUpdate = lastUpdate;
         this.station = station;
         this.displayId = displayId;
@@ -30,7 +31,7 @@ public class PlatformMessage {
 
     @NotNull
     public String getMessage() {
-        return message;
+        return text;
     }
 
     public Station getStation() {
@@ -44,7 +45,7 @@ public class PlatformMessage {
     public String toString() {
         return "PlatformMessage{" +
                 "stationPlatform=" + stationPlatform +
-                ", message='" + message + '\'' +
+                ", message='" + text + '\'' +
                 ", lastUpdate=" + lastUpdate +
                 ", station=" + HasId.asId(station) +
                 ", displayId='" + displayId + '\'' +
@@ -53,5 +54,19 @@ public class PlatformMessage {
 
     public String getDisplayId() {
         return displayId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PlatformMessage that = (PlatformMessage) o;
+        return Objects.equals(stationPlatform, that.stationPlatform) && Objects.equals(text, that.text)
+                && Objects.equals(lastUpdate, that.lastUpdate) && Objects.equals(station, that.station) && Objects.equals(displayId, that.displayId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(stationPlatform, text, lastUpdate, station, displayId);
     }
 }

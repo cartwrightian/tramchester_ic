@@ -5,7 +5,9 @@ import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.domain.presentation.DTO.StationMessagesDTO;
+import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.APIClient;
@@ -24,7 +26,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -64,7 +69,20 @@ class StationMessagesResourceTest {
         assertEquals(200, response.getStatus());
         StationMessagesDTO departureList = response.readEntity(StationMessagesDTO.class);
 
-        assertFalse(departureList.getNotes().isEmpty(), "no notes found for " + stationWithNotes.getName());
+        List<Note> notes = departureList.getNotes();
+        assertFalse(notes.isEmpty(), "no notes found for " + stationWithNotes.getName());
+
+        Set<Note> forStation = notes.stream().
+                filter(note -> getDisplayedAtIdsFor(note).contains(IdForDTO.createFor(stationWithNotes))).
+                collect(Collectors.toSet());
+
+        assertEquals(notes.size(), forStation.size());
+
+    }
+
+    private Set<IdForDTO> getDisplayedAtIdsFor(Note note) {
+        return note.getDisplayedAt().stream().
+               map(LocationRefDTO::getId).collect(Collectors.toSet());
     }
 
     private Response getResponseForStation(Station station) {

@@ -80,7 +80,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         DTOFactory = createMock(DTOFactory.class);
 
         LocationRefDTO stationRef = new LocationRefDTO(StPetersSquare.fake());
-        notes = Collections.singletonList(new StationNote(Note.NoteType.Live, "someText", stationRef));
+        notes = Collections.singletonList(new StationNote(Note.NoteType.Live, "someText", Collections.singletonList(stationRef)));
 
         mapper = new JourneyToDTOMapper(stageFactory, DTOFactory, providesNotes);
         stages = new LinkedList<>();
