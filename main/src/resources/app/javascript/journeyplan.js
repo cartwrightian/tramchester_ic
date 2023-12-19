@@ -63,7 +63,7 @@ function queryLiveData(app, includeNotes) {
         modes = app.startStop.transportModes;
     }
 
-    var locationId; // = app.startStop.id;
+    var locationId; 
     if (app.myLocation != null) {
         if (locationType == app.myLocation.locationType) { 
             const place = app.location; // should not have location place holder without a valid location
@@ -233,6 +233,21 @@ function addParsedDatesToLive(liveData) {
     return liveData;
 }
 
+function getNotesFor(app, stop) {
+    axios.get('api/stationMessages/'+stop.id, {timeout: 60000 })
+        .then(function(response) {
+            app.networkError = false;
+            app.liveDepartureResponse = response.data;
+            app.searchInProgress = false;
+            app.ready = true;
+        }).
+        catch(function (error) {
+            app.ready = true;
+            app.searchInProgress = false;
+            reportError(error);
+        });
+}
+
 function queryServerForJourneysPost(app, startStop, endStop, queryTime, queryDate, queryArriveBy, changes) {
 
     var query = { 
@@ -334,13 +349,16 @@ var app = new Vue({
             queryNearbyTrams() {
                 app.liveInProgress = true;
                 this.$nextTick(function () {
-                    queryLiveData(app, false);
+                    queryLiveData(app, true);
                 });
             },
             queryServer() {
                 queryServerForJourneysPost(app, this.startStop, this.endStop, this.time,
                     this.date, this.arriveBy, this.maxChanges);
                 displayLiveData(app);
+                // if (this.journeys.length==0) {
+                //     getNotesFor(app, this.startStop)
+                // }
             },
             setCookie() {
                 var cookie = { 'visited' : true };
@@ -369,8 +387,6 @@ var app = new Vue({
             var cookie = this.$cookies.get("tramchesterVisited");
             if (cookie==null) {
                 this.cookieDialog = true
-                // var modal = new bootstrap.Modal(this.$refs.cookieModal,{});
-                // modal.show();
             }
             getFeedinfo(this);
             let urlParams = new URLSearchParams(window.location.search);

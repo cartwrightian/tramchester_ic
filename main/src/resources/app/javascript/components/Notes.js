@@ -16,8 +16,10 @@ export default {
     computed: { 
         notes: function() {
 
+            var haveJourneys = this.journeys!=null;
+
             var allNotes = [];
-            if (this.journeys!=null) {
+            if (haveJourneys && this.journeys.length>0) {
                 this.journeys.forEach(item => {
                     item.journey.notes.forEach(note => {
                         allNotes.push(note);

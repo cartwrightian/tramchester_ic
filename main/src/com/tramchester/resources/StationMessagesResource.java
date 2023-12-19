@@ -4,7 +4,6 @@ import com.codahale.metrics.annotation.Timed;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.StationMessagesDTO;
 import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.time.ProvidesNow;
@@ -51,8 +50,8 @@ public class StationMessagesResource extends TransportResource implements APIRes
     @Timed
     @Path("/{id}")
     @Operation(description = "Get station by id")
-    @ApiResponse(content = @Content(schema = @Schema(implementation = LocationDTO.class)))
-    @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.DAYS)
+    @ApiResponse(content = @Content(schema = @Schema(implementation = StationMessagesDTO.class)))
+    @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.MINUTES)
     public Response get(@PathParam("id") String text) {
         logger.info("Get station by id: " + text);
 

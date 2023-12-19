@@ -136,17 +136,16 @@ public class ProvidesTramNotes implements ProvidesNotes {
         }
         PlatformMessage info = maybe.get();
         LocalDateTime lastUpdate = info.getLastUpdate();
-        TramDate lastUpdateDate = TramDate.of(lastUpdate.toLocalDate());
+        TramDate lastUpdateDate = TramDate.from(lastUpdate);
         if (!lastUpdateDate.isEqual(queryDate)) {
             // message is not for journey time, perhaps journey is a future date or live data is stale
             logger.info("No messages available for " + queryDate + " last up date was " + lastUpdate);
             return;
         }
-        TramTime updateTime = TramTime.ofHourMins(lastUpdate.toLocalTime());
 
+        TramTime updateTime = TramTime.ofHourMins(lastUpdate.toLocalTime());
         // 1 minutes here as time sync on live api has been out by 1 min
         TimeRange range = TimeRange.of(updateTime, Duration.ofMinutes(1), Duration.ofMinutes(MESSAGE_LIFETIME));
-        //if (!queryTime.between(updateTime.minusMinutes(1), updateTime.plusMinutes(MESSAGE_LIFETIME))) {
         if (!range.contains(queryTime)) {
             logger.info("No data available for " + queryTime + " as not within " + range);
             return;

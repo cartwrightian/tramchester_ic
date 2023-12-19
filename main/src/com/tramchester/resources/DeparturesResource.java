@@ -27,17 +27,16 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 @SuppressWarnings("unused")
 @Path("/departures")
@@ -111,7 +110,7 @@ public class DeparturesResource extends TransportResource implements APIResource
         if (departuresQuery.getIncludeNotes()) {
             List<Station> nearbyStations = dueTrams.stream().
                     map(UpcomingDeparture::getDisplayLocation).
-                    distinct().collect(Collectors.toList());
+                    distinct().toList();
             notes = providesNotes.createNotesForStations(nearbyStations, queryDate, queryTime);
             if (notes.isEmpty()) {
                 logger.warn("Notes empty for " + location.getId() + " at " + queryTime);
