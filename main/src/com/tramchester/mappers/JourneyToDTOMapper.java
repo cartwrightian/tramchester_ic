@@ -9,14 +9,11 @@ import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
 import com.tramchester.domain.presentation.DTO.SimpleStageDTO;
 import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
 import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
-import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.presentation.TravelAction;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.WalkingStage;
-import com.tramchester.livedata.repository.ProvidesNotes;
-import com.tramchester.livedata.tfgm.ProvidesTramNotes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,16 +28,16 @@ public class JourneyToDTOMapper {
     private static final Logger logger = LoggerFactory.getLogger(JourneyToDTOMapper.class);
     private final StageDTOFactory stageFactory;
     private final DTOFactory stationDTOFactory;
-    private final ProvidesNotes providesNotes;
 
     @Inject
-    public JourneyToDTOMapper(StageDTOFactory stageFactory, DTOFactory DTOFactory, ProvidesTramNotes providesNotes) {
+    public JourneyToDTOMapper(StageDTOFactory stageFactory, DTOFactory DTOFactory) {
         this.stageFactory = stageFactory;
         this.stationDTOFactory = DTOFactory;
-        this.providesNotes = providesNotes;
     }
 
     public JourneyDTO createJourneyDTO(Journey journey, TramDate queryDate) {
+        logger.info("Mapping journey with " + journey.getStages().size() + " stages for " + queryDate);
+
         List<SimpleStageDTO> stages = new ArrayList<>();
 
         List<TransportStage<?,?>> rawJourneyStages = journey.getStages();
@@ -59,8 +56,6 @@ public class JourneyToDTOMapper {
             stages.add(stageDTO);
         }
 
-        List<Note> notes = providesNotes.createNotesForJourney(journey, queryDate);
-
         LocationRefWithPosition begin = stationDTOFactory.createLocationRefWithPosition(journey.getBeginning());
 
         List<LocationRefWithPosition> changeStations = asListOf(journey.getChangeStations());
@@ -70,7 +65,7 @@ public class JourneyToDTOMapper {
         LocalDate date = queryDate.toLocalDate();
         return new JourneyDTO(begin, stages,
                 journey.getArrivalTime().toDate(date), journey.getDepartTime().toDate(date),
-                changeStations, queryTime, notes,
+                changeStations, queryTime,
                 path, date, journey.getJourneyIndex());
     }
 

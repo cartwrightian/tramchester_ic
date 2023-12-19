@@ -9,10 +9,11 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.tfgm.ProvidesTramNotes;
 
 import java.util.List;
+import java.util.Set;
 
 @ImplementedBy(ProvidesTramNotes.class)
 public interface ProvidesNotes {
-    List<Note> createNotesForJourney(Journey journey, TramDate queryDate);
+    List<Note> createNotesForJourneys(Set<Journey> journeys, TramDate queryDate);
 
     List<Note> createNotesForStations(List<Station> stations, TramDate queryDate, TramTime time);
 }

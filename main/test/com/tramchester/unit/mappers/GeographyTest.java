@@ -58,7 +58,7 @@ public class GeographyTest {
         Location<?> start = TramStations.StPetersSquare.fake();
         Location<?> end = TramStations.PiccadillyGardens.fake();
 
-        int expectedSeconds = 345;
+        int expectedSeconds = 346;
 
         Duration result = geography.getWalkingDuration(start, end);
 

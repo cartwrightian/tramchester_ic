@@ -2,10 +2,9 @@ package com.tramchester.unit.mappers;
 
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
-import com.tramchester.domain.presentation.DTO.VehicleStageDTO;
 import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
 import com.tramchester.domain.presentation.DTO.SimpleStageDTO;
-import com.tramchester.domain.presentation.Note;
+import com.tramchester.domain.presentation.DTO.VehicleStageDTO;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.mappers.JourneyDTODuplicateFilter;
 import com.tramchester.testSupport.TestEnv;
@@ -121,7 +120,6 @@ class JourneyDTODuplicateFilterTest {
 
     private JourneyDTO createJourneyFor(TramTime departTime, int duration, List<LocationRefWithPosition> changeStations,
                                         List<LocationRefWithPosition> path, int journeyIndex) {
-        List<Note> notes = Collections.emptyList();
         LocationRefWithPosition begin = getStationRef(Ashton);
         VehicleStageDTO stageA = new VehicleStageDTO();
         VehicleStageDTO stageB = new VehicleStageDTO();
@@ -132,7 +130,7 @@ class JourneyDTODuplicateFilterTest {
 
         return new JourneyDTO(begin, stages,
                 expectedArrivalTime, firstDepartureTime,
-                changeStations, queryTime, notes,
+                changeStations, queryTime,
                 path, queryDate, journeyIndex);
     }
 

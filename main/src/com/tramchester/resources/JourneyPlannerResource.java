@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.inject.Inject;
 import com.tramchester.RedirectToHttpsUsingELBProtoHeader;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.UpdateRecentJourneys;
 import com.tramchester.domain.dates.TramDate;
@@ -12,11 +13,13 @@ import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.DTO.JourneyQueryDTO;
+import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.livedata.repository.ProvidesNotes;
 import com.tramchester.mappers.JourneyDTODuplicateFilter;
 import com.tramchester.mappers.JourneyToDTOMapper;
 import com.tramchester.repository.LocationRepository;
@@ -34,6 +37,7 @@ import java.net.URI;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -53,12 +57,13 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
     private final TramchesterConfig config;
     private final JourneyDTODuplicateFilter duplicateFilter;
     private final LocationRepository locationRepository;
+    private final ProvidesNotes providesNotes;
 
     @Inject
     public JourneyPlannerResource(UpdateRecentJourneys updateRecentJourneys,
                                   GraphDatabase graphDatabase,
                                   ProvidesNow providesNow, LocationJourneyPlanner locToLocPlanner, JourneyToDTOMapper journeyToDTOMapper,
-                                  TramchesterConfig config, JourneyDTODuplicateFilter duplicateFilter, LocationRepository locationRepository) {
+                                  TramchesterConfig config, JourneyDTODuplicateFilter duplicateFilter, LocationRepository locationRepository, ProvidesNotes providesNotes) {
         super(updateRecentJourneys, providesNow);
         this.locToLocPlanner = locToLocPlanner;
         this.journeyToDTOMapper = journeyToDTOMapper;
@@ -66,6 +71,7 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         this.locationRepository = locationRepository;
         this.graphDatabase = graphDatabase;
         this.config = config;
+        this.providesNotes = providesNotes;
     }
 
     // Content-Type header in the POST request with a value of application/json
@@ -101,19 +107,25 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
 
         try(MutableGraphTransaction tx = graphDatabase.beginTxMutable() ) {
 
-            Stream<JourneyDTO> dtoStream = getJourneyDTOStream(tx, query.getTramDate(), query.getTime(),
+            TramDate queryTramDate = query.getTramDate();
+            Stream<Journey> journeyStream = getJourneys(tx, queryTramDate, query.getTime(),
                     start, dest, query.isArriveBy(), query.getMaxChanges(), modes);
 
+            Set<Journey> journeys = journeyStream.collect(Collectors.toSet());
+            journeyStream.close(); // important, onCLose used to trigger removal of walk nodes etc.
+
+            List<Note> notes = providesNotes.createNotesForJourneys(journeys, queryTramDate);
+
             // duplicates where same path and timings, just different change points
-            Set<JourneyDTO> journeyDTOS = dtoStream.collect(Collectors.toSet());
+            Set<JourneyDTO> journeyDTOS = journeys.stream().
+                    map(journey -> journeyToDTOMapper.createJourneyDTO(journey,queryTramDate)).collect(Collectors.toSet());
             Set<JourneyDTO> filtered = duplicateFilter.apply(journeyDTOS);
             int diff = journeyDTOS.size()-filtered.size();
             if (diff!=0) {
                 logger.info(format("Filtered out %s of %s journeys", diff, journeyDTOS.size()));
             }
 
-            JourneyPlanRepresentation planRepresentation = new JourneyPlanRepresentation(filtered);
-            dtoStream.close();
+            JourneyPlanRepresentation planRepresentation = new JourneyPlanRepresentation(filtered, notes);
 
             if (planRepresentation.getJourneys().isEmpty()) {
                 logger.warn(format("No journeys found from %s to %s at %s on %s",
@@ -160,10 +172,14 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         MutableGraphTransaction tx =  graphDatabase.beginTxMutable();
 
         try {
-            Stream<JourneyDTO> dtoStream = getJourneyDTOStream(tx, query.getTramDate(), query.getTime(), start, dest, query.isArriveBy(),
-                    query.getMaxChanges(), modes);
+            TramDate date = query.getTramDate();
+            Stream<JourneyDTO> dtoStream = getJourneys(tx, date, query.getTime(), start, dest,
+                    query.isArriveBy(), query.getMaxChanges(), modes).
+                    map(journey -> journeyToDTOMapper.createJourneyDTO(journey, date));
 
             JsonStreamingOutput<JourneyDTO> jsonStreamingOutput = new JsonStreamingOutput<>(tx, dtoStream, super.mapper);
+
+            // stream is closed in JsonStreamingOutput
 
             boolean secure = isHttps(forwardedHeader);
             return buildResponse(Response.ok(jsonStreamingOutput), start, dest, cookie, uriInfo, secure);
@@ -181,8 +197,8 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         return responseBuilder.build();
     }
 
-    private Stream<JourneyDTO> getJourneyDTOStream(MutableGraphTransaction tx, TramDate date, LocalTime time, Location<?> start,
-                                                   Location<?> dest, boolean arriveBy, int maxChanges, EnumSet<TransportMode> modes) {
+    private Stream<Journey> getJourneys(MutableGraphTransaction tx, TramDate date, LocalTime time, Location<?> start,
+                                        Location<?> dest, boolean arriveBy, int maxChanges, EnumSet<TransportMode> modes) {
 
         TramTime queryTime = TramTime.ofHourMins(time);
         final Duration maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
@@ -193,8 +209,8 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         logger.info(format("Plan journey from %s to %s on %s", start.getId(), dest.getId(), journeyRequest));
 
         return locToLocPlanner.quickestRouteForLocation(tx, start, dest, journeyRequest).
-                filter(journey -> !journey.getStages().isEmpty()).
-                map(journey -> journeyToDTOMapper.createJourneyDTO(journey, journeyRequest.getDate()));
+                filter(journey -> !journey.getStages().isEmpty());
+        //.map(journey -> journeyToDTOMapper.createJourneyDTO(journey, journeyRequest.getDate()));
 
     }
 

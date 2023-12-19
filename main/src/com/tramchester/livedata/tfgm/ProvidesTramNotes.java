@@ -51,6 +51,7 @@ public class ProvidesTramNotes implements ProvidesNotes {
         this.stationDTOFactory = stationDTOFactory;
     }
 
+    @SuppressWarnings("unused")
     @PostConstruct
     void start() {
         logger.info("starting");
@@ -60,12 +61,12 @@ public class ProvidesTramNotes implements ProvidesNotes {
         logger.info("started");
     }
 
-    /***
-     * From JourneyDTO prep
-     */
     @Override
-    public List<Note> createNotesForJourney(Journey journey, TramDate queryDate) {
-        if (!journey.getTransportModes().contains(TransportMode.Tram)) {
+    public List<Note> createNotesForJourneys(Set<Journey> journeys, TramDate queryDate) {
+        Set<TransportMode> modes = journeys.stream().
+                flatMap(journey -> journey.getTransportModes().stream()).
+                collect(Collectors.toSet());
+        if (!modes.contains(TransportMode.Tram)) {
             logger.info("Not a tram journey, providing no notes");
             return Collections.emptyList();
         }
@@ -73,11 +74,12 @@ public class ProvidesTramNotes implements ProvidesNotes {
         List<Note> notes = new ArrayList<>(getNotesForADate(queryDate));
 
         if (platformMessageSource.isEnabled()) {
-            List<StationNote> platformNotesFor = getPlatformNotesFor(journey, queryDate);
+            List<StationNote> platformNotesFor = getPlatformNotesFor(journeys, queryDate);
             notes.addAll(platformNotesFor);
         }
 
         return notes;
+
     }
 
     @Override
@@ -93,10 +95,10 @@ public class ProvidesTramNotes implements ProvidesNotes {
         return notes;
     }
 
-    private List<StationNote> getPlatformNotesFor(Journey journey, TramDate queryDate) {
+    private List<StationNote> getPlatformNotesFor(Set<Journey> journeys, TramDate queryDate) {
 
-        Set<PlatformMessage> allMessages = journey.getCallingPlatformIds().stream().
-                map(platformId -> getMessageFor(platformId, queryDate, journey.getQueryTime())).
+        Set<PlatformMessage> allMessages = journeys.stream().
+                flatMap(journey -> journey.getCallingPlatformIds().stream().map(platformId -> getMessageFor(platformId, queryDate, journey.getQueryTime()))).
                 filter(Optional::isPresent).
                 map(Optional::get).
                 collect(Collectors.toSet());

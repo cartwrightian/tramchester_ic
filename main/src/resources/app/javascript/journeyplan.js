@@ -262,6 +262,7 @@ function queryServerForJourneysPost(app, startStop, endStop, queryTime, queryDat
         then(function (response) {
             app.networkError = false;
             app.journeys = addParsedDatesToJourney(response.data.journeys);
+            app.notes = response.data.notes;
             getRecentAndNearest(app);
             app.searchInProgress = false;
             app.ready = true;
@@ -299,6 +300,7 @@ function queryServerForJourneysPost(app, startStop, endStop, queryTime, queryDat
     date: getCurrentDate(),
     maxChanges: 3,                  // todo from server side
     journeys: null,
+    notes: [],
     liveDepartureResponse: null,
     feedinfo: [],
     modes: [],

@@ -60,8 +60,9 @@ public class Geography {
     }
 
     private Duration getWalkingDuration(Quantity<Length> distance) {
-        Double seconds = getWalkingTime(distance).to(SECOND).getValue().doubleValue();
-        return Duration.of(seconds.longValue(), SECONDS);
+        double seconds = getWalkingTime(distance).to(SECOND).getValue().doubleValue();
+        Double roundUp = Math.ceil(seconds);
+        return Duration.of(roundUp.longValue(), SECONDS);
     }
 
     public Duration getWalkingDuration(Location<?> locationA, Location<?> locationB) {

@@ -294,21 +294,24 @@ public class JourneyPlannerResourceTest {
 
         JourneyQueryDTO query2 = journeyPlanner.getQueryDTO(TestEnv.nextSunday(), TramTime.of(11, 43), Altrincham, ManAirport, false, 3);
 
-        JourneyPlanRepresentation results = journeyPlanner.getJourneyPlan(query2);
+        JourneyPlanRepresentation resultsA = journeyPlanner.getJourneyPlan(query2);
 
-        results.getJourneys().forEach(journeyDTO -> assertThat(journeyDTO.getNotes(), hasItem(weekendNote)));
+        assertThat(resultsA.getNotes(), hasItem(weekendNote));
+        //results.getJourneys().forEach(journeyDTO -> assertThat(journeyDTO.getNotes(), hasItem(weekendNote)));
 
         JourneyQueryDTO query1 = journeyPlanner.getQueryDTO(TestEnv.nextSaturday(), TramTime.of(11, 43), Altrincham, ManAirport, false, 3);
 
-        results = journeyPlanner.getJourneyPlan(query1);
+        JourneyPlanRepresentation resultsB = journeyPlanner.getJourneyPlan(query1);
 
-        results.getJourneys().forEach(journeyDTO -> assertThat(journeyDTO.getNotes(), hasItem(weekendNote)));
+        assertThat(resultsB.getNotes(), hasItem(weekendNote));
+        //results.getJourneys().forEach(journeyDTO -> assertThat(journeyDTO.getNotes(), hasItem(weekendNote)));
 
         JourneyQueryDTO query = journeyPlanner.getQueryDTO(TestEnv.nextMonday(), TramTime.of(11, 43), Altrincham, ManAirport, false, 3);
 
         JourneyPlanRepresentation notWeekendResult = journeyPlanner.getJourneyPlan(query);
 
-        notWeekendResult.getJourneys().forEach(journeyDTO -> assertThat(journeyDTO.getNotes(), not(hasItem(weekendNote))));
+        assertThat(notWeekendResult.getNotes(), not(hasItem(weekendNote)));
+//        notWeekendResult.getJourneys().forEach(journeyDTO -> assertThat(journeyDTO.getNotes(), not(hasItem(weekendNote))));
 
     }
 

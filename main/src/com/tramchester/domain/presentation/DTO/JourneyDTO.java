@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.mappers.serialisation.*;
 
@@ -24,7 +23,6 @@ public class JourneyDTO {
     private LocalDateTime firstDepartureTime;  // needed to handle 'next day' results
     private List<LocationRefWithPosition> changeStations;
     private TramTime queryTime;
-    private List<Note> notes;
     private List<LocationRefWithPosition> path;
     private LocalDate queryDate;
     private int index;
@@ -35,15 +33,15 @@ public class JourneyDTO {
 
     public JourneyDTO(LocationRefWithPosition begin, List<SimpleStageDTO> stages,
                       LocalDateTime expectedArrivalTime, LocalDateTime firstDepartureTime,
-                      List<LocationRefWithPosition> changeStations, TramTime queryTime, List<Note> notes,
+                      List<LocationRefWithPosition> changeStations, TramTime queryTime,
                       List<LocationRefWithPosition> path, TramDate queryDate, int index) {
-        this(begin, stages, expectedArrivalTime, firstDepartureTime, changeStations, queryTime, notes,
+        this(begin, stages, expectedArrivalTime, firstDepartureTime, changeStations, queryTime,
                 path, queryDate.toLocalDate(), index);
     }
 
     public JourneyDTO(LocationRefWithPosition begin, List<SimpleStageDTO> stages,
                       LocalDateTime expectedArrivalTime, LocalDateTime firstDepartureTime,
-                      List<LocationRefWithPosition> changeStations, TramTime queryTime, List<Note> notes,
+                      List<LocationRefWithPosition> changeStations, TramTime queryTime,
                       List<LocationRefWithPosition> path, LocalDate queryDate, int index) {
         this.begin = begin;
         this.stages = stages;
@@ -51,7 +49,6 @@ public class JourneyDTO {
         this.firstDepartureTime = firstDepartureTime;
         this.changeStations = changeStations;
         this.queryTime = queryTime;
-        this.notes = notes;
         this.path = path;
         this.queryDate = queryDate;
         this.index = index;
@@ -97,10 +94,6 @@ public class JourneyDTO {
     @JsonDeserialize(using = TramTimeJsonDeserializer.class)
     public TramTime getQueryTime() {
         return queryTime;
-    }
-
-    public List<Note> getNotes() {
-        return notes;
     }
 
     public List<LocationRefWithPosition> getPath() {

@@ -138,13 +138,12 @@ class MapStatesToStages implements JourneyStateUpdate {
     public void beginWalk(GraphNode beforeWalkNode, boolean atStart, Duration cost) {
         logger.debug("Walk cost " + cost);
         if (atStart) {
-            LatLong walkStartLocation = beforeWalkNode.getLatLong(); // GraphProps.getLatLong(beforeWalkNode);
+            LatLong walkStartLocation = beforeWalkNode.getLatLong();
             walkFromStartPending = new WalkFromStartPending(walkStartLocation);
             walkStartStation = null;
             beginWalkClock = getActualClock();
-            logger.info("Begin walk from start " + walkStartLocation);
+            logger.info("Begin walk from start " + walkStartLocation + " at " + beginWalkClock) ;
         } else {
-            //return getStationIdFrom(node.getNode());
             walkStartStation = beforeWalkNode.getStationId();
             beginWalkClock = getActualClock().minus(cost);
             logger.info("Begin walk from station " + walkStartStation + " at " + beginWalkClock);
@@ -157,9 +156,8 @@ class MapStatesToStages implements JourneyStateUpdate {
         Duration duration = TramTime.difference(beginWalkClock, getActualClock());
 
         if (walkFromStartPending != null) {
-            boolean atStation = endWalkNode.hasStationId(); // GraphProps.hasProperty(STATION_ID, endWalkNode);
+            boolean atStation = endWalkNode.hasStationId();
             if (atStation) {
-                //return getStationIdFrom(node.getNode());
                 IdFor<Station> destinationStationId = endWalkNode.getStationId();
                 Station destination = stationRepository.getStationById(destinationStationId);
                 walkFromStartPending.setDestinationAndDuration(totalCost, destination, duration);
@@ -170,7 +168,7 @@ class MapStatesToStages implements JourneyStateUpdate {
             if (walkStartStation!=null) {
                 // walk from a station
                 Station walkStation = stationRepository.getStationById(walkStartStation);
-                LatLong walkEnd = endWalkNode.getLatLong(); //GraphProps.getLatLong(endWalkNode);
+                LatLong walkEnd = endWalkNode.getLatLong();
                 MyLocation destination = MyLocation.create(walkEnd);
 
                 logger.info("End walk from station to " + walkEnd + " duration " + duration);
@@ -186,8 +184,8 @@ class MapStatesToStages implements JourneyStateUpdate {
 
     @Override
     public void toNeighbour(GraphNode startNode, GraphNode endNode, Duration cost) {
-        IdFor<Station> startId = startNode.getStationId(); // GraphProps.getStationId(startNode);
-        IdFor<Station> endId = endNode.getStationId(); //GraphProps.getStationId(endNode);
+        IdFor<Station> startId = startNode.getStationId();
+        IdFor<Station> endId = endNode.getStationId();
         Station start = stationRepository.getStationById(startId);
         Station end = stationRepository.getStationById(endId);
         ConnectingStage<Station,Station> connectingStage = new ConnectingStage<>(start, end, cost, getActualClock());
