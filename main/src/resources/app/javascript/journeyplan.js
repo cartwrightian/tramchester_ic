@@ -45,7 +45,7 @@ function displayLiveData(app) {
     if (today.getMonth()==queryDate.getMonth()
         && today.getYear()==queryDate.getYear()
         && today.getDate()==queryDate.getDate()) {
-        queryLiveData(app, true);
+        queryLiveData(app, false);
     } else {
         app.liveDepartureResponse = null;
     }
@@ -86,6 +86,9 @@ function queryLiveData(app, includeNotes) {
     axios.post( '/api/departures/location', query, { timeout: 11000 }).
         then(function (response) {
             app.liveDepartureResponse = addParsedDatesToLive(response.data);
+            if (includeNotes) {
+                app.notes = response.data.notes;
+            }
             app.networkError = false;
             app.liveInProgress = false;
         }).
@@ -233,21 +236,6 @@ function addParsedDatesToLive(liveData) {
     return liveData;
 }
 
-function getNotesFor(app, stop) {
-    axios.get('api/stationMessages/'+stop.id, {timeout: 60000 })
-        .then(function(response) {
-            app.networkError = false;
-            app.liveDepartureResponse = response.data;
-            app.searchInProgress = false;
-            app.ready = true;
-        }).
-        catch(function (error) {
-            app.ready = true;
-            app.searchInProgress = false;
-            reportError(error);
-        });
-}
-
 function queryServerForJourneysPost(app, startStop, endStop, queryTime, queryDate, queryArriveBy, changes) {
 
     var query = { 
@@ -358,9 +346,6 @@ var app = new Vue({
                 queryServerForJourneysPost(app, this.startStop, this.endStop, this.time,
                     this.date, this.arriveBy, this.maxChanges);
                 displayLiveData(app);
-                // if (this.journeys.length==0) {
-                //     getNotesFor(app, this.startStop)
-                // }
             },
             setCookie() {
                 var cookie = { 'visited' : true };

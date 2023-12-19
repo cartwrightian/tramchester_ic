@@ -1,27 +1,11 @@
 
 
 export default { 
-    props: ['journeys','livedataresponse']
+    props: ['receivednotes','livedataresponse']
     ,
     computed: { 
         notes: function() {
-
-            var haveJourneys = this.journeys!=null;
-
-            var allNotes = [];
-            if (haveJourneys && this.journeys.length>0) {
-                this.journeys.forEach(item => {
-                    item.journey.notes.forEach(note => {
-                        allNotes.push(note);
-                    })
-                });    
-            } else if (this.livedataresponse!=null) {
-                this.livedataresponse.notes.forEach(note => {
-                    allNotes.push(note);
-                });   
-            }
-            
-            return allNotes;
+            return this.receivednotes;
         },
         liveMessages: function() {
             var messages = [];
@@ -30,11 +14,16 @@ export default {
                 var result = note.text;
                 if (note.noteType=='Live') {
                     const countPlaces = note.displayedAt.length;
-                    result = "'" + note.text + "' - Metrolink";
+                    result = "'" + note.text + "' - Metrolink.";
                     if (countPlaces<3) {
+                        result = result + "(";
                         for (let index = 0; index < countPlaces; index++) {
-                            result = result + ", " + note.displayedAt[index].name;
+                            if (index>0) {
+                                result = result + ", ";
+                            }
+                            result = result + note.displayedAt[index].name;
                         }
+                        result = result + ")"
                     } 
                 }
                 messages.push({noteType: note.noteType, text: result})
