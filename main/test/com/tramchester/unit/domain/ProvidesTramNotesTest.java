@@ -367,10 +367,10 @@ class ProvidesTramNotesTest extends EasyMockSupport {
         final StationNote noteThree = new StationNote(Live, messageOne, createStationRefFor(MediaCityUK));
         final StationNote noteFour = new StationNote(Live, messageTwo, createStationRefFor(Altrincham));
 
-        EasyMock.expect(stationDTOFactory.createStationNote(Live, messageOne, Pomona.fake())).andReturn(noteOne);
-        EasyMock.expect(stationDTOFactory.createStationNote(Live, messageOne, Cornbrook.fake())).andReturn(noteTwo);
-        EasyMock.expect(stationDTOFactory.createStationNote(Live, messageOne, MediaCityUK.fake())).andReturn(noteThree);
-        EasyMock.expect(stationDTOFactory.createStationNote(Live, messageTwo, Altrincham.fake())).andReturn(noteFour);
+        EasyMock.expect(stationDTOFactory.createStationNote(Live, infoA)).andReturn(noteOne);
+        EasyMock.expect(stationDTOFactory.createStationNote(Live, infoC)).andReturn(noteTwo);
+        EasyMock.expect(stationDTOFactory.createStationNote(Live, infoE)).andReturn(noteThree);
+        EasyMock.expect(stationDTOFactory.createStationNote(Live, infoB)).andReturn(noteFour);
 
         List<TransportStage<?,?>> stages = Arrays.asList(stageABury, stageBCornbrook, stageCNavigationRoad, stageDAshton, stageEAlty);
 
@@ -416,16 +416,20 @@ class ProvidesTramNotesTest extends EasyMockSupport {
         //TramServiceDate queryDate = new TramServiceDate(localDate);
 
         TramTime queryTime = TramTime.ofHourMins(lastUpdate.toLocalTime());
-        EasyMock.expect(platformMessageSource.messagesFor(pomona, localDate, queryTime)).
-                andReturn(Collections.singletonList(createPlatformMessage(lastUpdate, Pomona, "second message")));
-        EasyMock.expect(platformMessageSource.messagesFor(velopark, localDate, queryTime)).
-                andReturn(Collections.singletonList(createPlatformMessage(lastUpdate, VeloPark, "first message")));
-        EasyMock.expect(platformMessageSource.messagesFor(cornbrook, localDate, queryTime)).
-                andReturn(Collections.singletonList(createPlatformMessage(lastUpdate, Cornbrook, "second message")));
+        PlatformMessage firstMessage = createPlatformMessage(lastUpdate, VeloPark, "first text");
+        PlatformMessage secondMessage = createPlatformMessage(lastUpdate, Pomona, "second text");
+        PlatformMessage thirdMessage = createPlatformMessage(lastUpdate, Cornbrook, "second text");
 
-        EasyMock.expect(stationDTOFactory.createStationNote(Live, "second message", pomona)).andReturn(firstNote);
-        EasyMock.expect(stationDTOFactory.createStationNote(Live, "first message", velopark)).andReturn(secondNote);
-        EasyMock.expect(stationDTOFactory.createStationNote(Live,"second message", cornbrook)).andReturn(thirdNote);
+        EasyMock.expect(platformMessageSource.messagesFor(pomona, localDate, queryTime)).
+                andReturn(Collections.singletonList(secondMessage));
+        EasyMock.expect(platformMessageSource.messagesFor(velopark, localDate, queryTime)).
+                andReturn(Collections.singletonList(firstMessage));
+        EasyMock.expect(platformMessageSource.messagesFor(cornbrook, localDate, queryTime)).
+                andReturn(Collections.singletonList(thirdMessage));
+
+        EasyMock.expect(stationDTOFactory.createStationNote(Live, secondMessage)).andReturn(firstNote);
+        EasyMock.expect(stationDTOFactory.createStationNote(Live, firstMessage)).andReturn(secondNote);
+        EasyMock.expect(stationDTOFactory.createStationNote(Live,thirdMessage)).andReturn(thirdNote);
 
         replayAll();
         List<Note> notes = providesNotes.createNotesForStations(stations, localDate, queryTime);

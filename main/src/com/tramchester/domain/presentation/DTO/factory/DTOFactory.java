@@ -13,6 +13,7 @@ import com.tramchester.domain.presentation.DTO.StationGroupDTO;
 import com.tramchester.domain.presentation.DTO.StationLinkDTO;
 import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.presentation.StationNote;
+import com.tramchester.livedata.domain.liveUpdates.PlatformMessage;
 import tech.units.indriya.unit.Units;
 
 import javax.inject.Inject;
@@ -54,5 +55,10 @@ public class DTOFactory {
     public StationNote createStationNote(Note.NoteType noteType, String text, Station station) {
         LocationRefDTO stationRef = createLocationRefDTO(station);
         return new StationNote(noteType, text, stationRef);
+    }
+
+    public StationNote createStationNote(Note.NoteType noteType, PlatformMessage platformMessage) {
+        LocationRefDTO stationRef = createLocationRefDTO(platformMessage.getStation());
+        return new StationNote(noteType, platformMessage.getMessage(), stationRef);
     }
 }

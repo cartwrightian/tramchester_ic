@@ -8,6 +8,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
 import com.tramchester.domain.presentation.Note;
+import com.tramchester.domain.presentation.StationNote;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
@@ -21,7 +22,10 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 import static com.tramchester.domain.presentation.Note.NoteType.*;
 
@@ -66,18 +70,15 @@ public class ProvidesTramNotes implements ProvidesNotes {
             return Collections.emptyList();
         }
 
-        List<Note> notes = new LinkedList<>(createNotesForADate(queryDate));
+        List<Note> notes = new ArrayList<>(getNotesForADate(queryDate));
 
         if (platformMessageSource.isEnabled()) {
-            notes.addAll(liveNotesForJourney(journey, queryDate));
+            notes.addAll(getPlatformNotesFor(journey, queryDate));
         }
 
         return notes;
     }
 
-    /***
-     * From DeparturesResource
-     */
     @Override
     public List<Note> createNotesForStations(List<Station> stations, TramDate queryDate, TramTime time) {
         if (!platformMessageSource.isEnabled()) {
@@ -85,22 +86,29 @@ public class ProvidesTramNotes implements ProvidesNotes {
             return Collections.emptyList();
         }
 
-        List<Note> notes = new LinkedList<>();
-        notes.addAll(createNotesForADate(queryDate));
+        List<Note> notes = new ArrayList<>();
+        notes.addAll(getNotesForADate(queryDate));
         notes.addAll(createLiveNotesForStations(stations, queryDate, time));
         return notes;
     }
 
-    private List<Note> createLiveNotesForStations(List<Station> stations, TramDate date, TramTime time) {
-        List<Note> notes = new ArrayList<>();
-
-        stations.forEach(station -> platformMessageSource.messagesFor(station, date, time).forEach(info ->
-                addRelevantNote(notes, info)));
-
-        return notes;
+    private List<StationNote> getPlatformNotesFor(Journey journey, TramDate queryDate) {
+        return journey.getCallingPlatformIds().stream().
+                flatMap(platformId -> getLiveNotesForPlatform(platformId, queryDate, journey.getQueryTime()).stream()).
+                toList();
     }
 
-    private List<Note> createNotesForADate(TramDate queryDate) {
+    private List<StationNote> createLiveNotesForStations(List<Station> stations, TramDate date, TramTime time) {
+
+        return stations.stream().
+                flatMap(station -> platformMessageSource.messagesFor(station, date, time).stream()).
+                filter(this::notEmpty).
+                map(platformMessage -> stationDTOFactory.createStationNote(Live, platformMessage)).
+                toList();
+
+    }
+
+    private List<Note> getNotesForADate(TramDate queryDate) {
         ArrayList<Note> notes = new ArrayList<>();
         if (queryDate.isWeekend()) {
             notes.add(new Note(weekend, Weekend));
@@ -116,31 +124,19 @@ public class ProvidesTramNotes implements ProvidesNotes {
         return notes;
     }
 
-    private List<Note> liveNotesForJourney(Journey journey, TramDate queryDate) {
-        // Map: Note -> Location
-        List<Note> notes = new ArrayList<>();
-
-        // find all the platforms involved in a journey, so board, depart and changes
-        // add messages for those platforms
-        journey.getCallingPlatformIds().forEach(platform -> addLiveNotesForPlatform(notes, platform, queryDate,
-                journey.getQueryTime()));
-
-        return notes;
-    }
-
-    private void addLiveNotesForPlatform(List<Note> notes, IdFor<Platform> platformId, TramDate queryDate, TramTime queryTime) {
+    private List<StationNote> getLiveNotesForPlatform(IdFor<Platform> platformId, TramDate queryDate, TramTime queryTime) {
         Optional<PlatformMessage> maybe = platformMessageSource.messagesFor(platformId, queryDate, queryTime);
         if (maybe.isEmpty()) {
             logger.warn("No messages found for " + platformId + " at " + queryDate +  " " + queryTime);
-            return;
+            return Collections.emptyList();
         }
-        PlatformMessage info = maybe.get();
-        LocalDateTime lastUpdate = info.getLastUpdate();
+        PlatformMessage platformMessage = maybe.get();
+        LocalDateTime lastUpdate = platformMessage.getLastUpdate();
         TramDate lastUpdateDate = TramDate.from(lastUpdate);
         if (!lastUpdateDate.isEqual(queryDate)) {
             // message is not for journey time, perhaps journey is a future date or live data is stale
             logger.info("No messages available for " + queryDate + " last up date was " + lastUpdate);
-            return;
+            return Collections.emptyList();
         }
 
         TramTime updateTime = TramTime.ofHourMins(lastUpdate.toLocalTime());
@@ -148,23 +144,18 @@ public class ProvidesTramNotes implements ProvidesNotes {
         TimeRange range = TimeRange.of(updateTime, Duration.ofMinutes(1), Duration.ofMinutes(MESSAGE_LIFETIME));
         if (!range.contains(queryTime)) {
             logger.info("No data available for " + queryTime + " as not within " + range);
-            return;
+            return Collections.emptyList();
         }
-        addRelevantNote(notes, info);
-    }
 
-    private void addRelevantNote(List<Note> notes, PlatformMessage info) {
-
-        String message = info.getMessage();
-        if (usefulNote(message)) {
-            logger.info("Added message from " + info);
-            notes.add(stationDTOFactory.createStationNote(Live, message, info.getStation()));
+        if (notEmpty(platformMessage)) {
+            return Collections.singletonList(stationDTOFactory.createStationNote(Live, platformMessage));
         } else {
-            logger.info("Filtered message from " + info);
+            return Collections.emptyList();
         }
     }
 
-    private boolean usefulNote(String text) {
+    private boolean notEmpty(PlatformMessage msg) {
+        String text = msg.getMessage();
         return ! (text.isEmpty() || EMPTY.equals(text));
     }
 }
