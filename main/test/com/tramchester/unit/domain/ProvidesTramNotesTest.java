@@ -89,6 +89,17 @@ class ProvidesTramNotesTest extends EasyMockSupport {
     }
 
     @Test
+    void shouldAddNotesForSaturdayJourneyWhenNoJourneysFound() {
+        TramDate queryDate = TramDate.of(2022,7,9);
+
+        replayAll();
+        List<Note> result = providesNotes.createNotesForJourneys(Collections.emptySet(), queryDate);
+        verifyAll();
+
+        assertThat(result, hasItem(new Note(ProvidesTramNotes.weekend, Note.NoteType.Weekend)));
+    }
+
+    @Test
     void shouldAddNotesForSaturdayMultipleJourneys() {
         EasyMock.expect(platformMessageSource.isEnabled()).andReturn(true);
 

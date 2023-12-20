@@ -63,6 +63,11 @@ public class ProvidesTramNotes implements ProvidesNotes {
 
     @Override
     public List<Note> createNotesForJourneys(Set<Journey> journeys, TramDate queryDate) {
+        if (journeys.isEmpty()) {
+            logger.info("No journeys, return notes for a date");
+            return getNotesForADate(queryDate);
+        }
+
         Set<TransportMode> modes = journeys.stream().
                 flatMap(journey -> journey.getTransportModes().stream()).
                 collect(Collectors.toSet());
