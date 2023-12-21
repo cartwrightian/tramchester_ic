@@ -21,4 +21,9 @@ public class GraphDBTestConfig implements GraphDBConfig {
         return "100m";
     }
 
+    @Override
+    public String getMemoryTransactionGlobalMaxSize() {
+        return "650m";
+    }
+
 }

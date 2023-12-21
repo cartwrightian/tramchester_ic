@@ -19,6 +19,7 @@ environmentName: ${PLACE}
 graphDBConfig:
   graphName: ''
   neo4jPagecacheMemory: 0m
+  memoryTransactionGlobalMaxSize: 0m
 gtfsSourceConfig:
   -
     name: tfgm

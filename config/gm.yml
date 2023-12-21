@@ -18,6 +18,7 @@ staticAssetCacheTimeSeconds: 300
 graphDBConfig:
   graphName: databases/gm_rail.db
   neo4jPagecacheMemory: 1000m
+  memoryTransactionGlobalMaxSize: 650m
 distributionBucket: tramchesternewdist
 instanceDataUrl: http://169.254.169.254
 environmentName: ${PLACE}

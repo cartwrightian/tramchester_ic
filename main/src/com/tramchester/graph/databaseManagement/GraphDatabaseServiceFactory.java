@@ -16,14 +16,12 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.event.DatabaseEventContext;
 import org.neo4j.graphdb.event.DatabaseEventListener;
 import org.neo4j.io.ByteUnit;
-import org.neo4j.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import java.nio.ByteBuffer;
 import java.nio.file.Path;
 
 import static org.neo4j.configuration.GraphDatabaseSettings.DEFAULT_DATABASE_NAME;
@@ -70,6 +68,7 @@ public class GraphDatabaseServiceFactory implements DatabaseEventListener {
 
         try (Timing ignored = new Timing(logger, "DatabaseManagementService build")) {
             Long neo4jPagecacheMemory = ByteUnit.parse(dbConfig.getNeo4jPagecacheMemory());
+            Long memoryTransactionGlobalMaxSize = ByteUnit.parse(dbConfig.getMemoryTransactionGlobalMaxSize());
             managementServiceImpl = new DatabaseManagementServiceBuilder( graphFile ).
 
             // TODO need to bring this back somehow, memory usage has crept up without it
@@ -81,7 +80,8 @@ public class GraphDatabaseServiceFactory implements DatabaseEventListener {
                     setConfig(GraphDatabaseSettings.pagecache_memory, neo4jPagecacheMemory).
 
                     // dbms.memory.transaction.total.max
-                    setConfig(GraphDatabaseSettings.memory_transaction_global_max_size,SettingValueParsers.BYTES.parse("600m")).
+                    setConfig(GraphDatabaseSettings.memory_transaction_global_max_size, memoryTransactionGlobalMaxSize).
+                        //SettingValueParsers.BYTES.parse("600m")).
 
                     // NOTE: dbms.memory.transaction.total.max is 70% of heap size limit
                     setConfig(BootloaderSettings.max_heap_size, SettingValueParsers.BYTES.parse("580m")).

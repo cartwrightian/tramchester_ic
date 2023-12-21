@@ -14,11 +14,14 @@ public class GraphDBAppConfig extends Configuration implements GraphDBConfig {
     // TODO Make a path, rename config name
     private final String graphName;
     private final String neo4jPagecacheMemory;
+    private final String memoryTransactionGlobalMaxSize;
 
     public GraphDBAppConfig(@JsonProperty(value = "graphName", required = true) String graphName,
-                            @JsonProperty(value = "neo4jPagecacheMemory", required = true) String neo4jPagecacheMemory) {
+                            @JsonProperty(value = "neo4jPagecacheMemory", required = true) String neo4jPagecacheMemory,
+                            @JsonProperty(value = "memoryTransactionGlobalMaxSize", required = true) String memoryTransactionGlobalMaxSize) {
         this.graphName = graphName;
         this.neo4jPagecacheMemory = neo4jPagecacheMemory;
+        this.memoryTransactionGlobalMaxSize = memoryTransactionGlobalMaxSize;
     }
 
     @Override
@@ -34,10 +37,16 @@ public class GraphDBAppConfig extends Configuration implements GraphDBConfig {
     }
 
     @Override
+    public String getMemoryTransactionGlobalMaxSize() {
+        return memoryTransactionGlobalMaxSize;
+    }
+
+    @Override
     public String toString() {
         return "GraphDBAppConfig{" +
                 "graphName='" + graphName + '\'' +
                 ", neo4jPagecacheMemory='" + neo4jPagecacheMemory + '\'' +
-                "} " + super.toString();
+                ", memoryTransactionGlobalMaxSize='" + memoryTransactionGlobalMaxSize + '\'' +
+                '}';
     }
 }

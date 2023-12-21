@@ -12,6 +12,7 @@ staticAssetCacheTimeSeconds: 300
 graphDBConfig:
   graphName: databases/tramchesterAcceptance.db
   neo4jPagecacheMemory: 1000m
+  memoryTransactionGlobalMaxSize: 650m
 distributionBucket: tramchesternewdist
 environmentName: ${PLACE}
 gtfsSourceConfig:
