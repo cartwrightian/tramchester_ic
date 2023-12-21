@@ -37,6 +37,7 @@ import java.time.Duration;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.GTFSPickupDropoffType.None;
@@ -54,7 +55,7 @@ public class RailTimetableMapper {
                 .appendValue(YEAR, 4)
                 .appendValue(MONTH_OF_YEAR, 2)
                 .appendValue(DAY_OF_MONTH, 2).toFormatter();
-    //private static DataSourceID dataSourceID;
+
     private final RailServiceGroups railServiceGroups;
 
     private enum State {
@@ -66,7 +67,7 @@ public class RailTimetableMapper {
 
     private final CreatesTransportDataForRail processor;
     private final Set<Pair<TrainStatus, TrainCategory>> travelCombinations;
-    private final Set<RawService> skipped;
+    private final AtomicInteger skippedService;
 
     private State currentState;
     private boolean overlay;
@@ -78,14 +79,14 @@ public class RailTimetableMapper {
         currentState = State.Between;
         overlay = false;
         travelCombinations = new HashSet<>();
-        skipped = new HashSet<>();
+        skippedService = new AtomicInteger(0);
 
         railServiceGroups = new RailServiceGroups(container);
         processor = new CreatesTransportDataForRail(stations, container, travelCombinations,
                 config, filter, bounds, railServiceGroups, railRouteRepository);
     }
 
-    public void seen(RailTimetableRecord record) {
+    public void seen(final RailTimetableRecord record) {
         switch (record.getRecordType()) {
             case TiplocInsert -> tipLocInsert(record);
             case BasicSchedule -> seenBegin(record);
@@ -96,7 +97,7 @@ public class RailTimetableMapper {
         }
     }
 
-    private void tipLocInsert(RailTimetableRecord record) {
+    private void tipLocInsert(final RailTimetableRecord record) {
         // TODO Deal with stations present in TiplocInsert but not in RailStationRecordsRepository
 //        TIPLOCInsert insert = (TIPLOCInsert) record;
 //        String atocCode = insert.getTiplocCode();
@@ -123,7 +124,7 @@ public class RailTimetableMapper {
     private void seenEnd(final RailTimetableRecord record) {
         guardState(State.SeenOrigin, record);
         rawService.finish(record);
-        processor.consume(rawService, overlay, skipped);
+        processor.consume(rawService, overlay, skippedService);
         currentState = State.Between;
         overlay = false;
     }
@@ -152,14 +153,14 @@ public class RailTimetableMapper {
         travelCombinations.forEach(pair -> logger.info(String.format("Rail loaded: Status: %s Category: %s",
                 pair.getLeft(), pair.getRight())));
         railServiceGroups.reportUnmatchedCancellations();
-        reportSkipped(skipped);
+        reportSkipped();
     }
 
-    private void reportSkipped(final Set<RawService> skipped) {
-        if (skipped.isEmpty()) {
-            return;
+    private void reportSkipped() {
+        int count = skippedService.get();
+        if (count>0) {
+            logger.warn("Skipped " + count + " records");
         }
-        logger.warn("Skipped " + skipped.size() + " records");
     }
 
     private void guardState(final State expectedState, final RailTimetableRecord record) {
@@ -233,13 +234,14 @@ public class RailTimetableMapper {
             platformLookup = new HashMap<>();
         }
 
-        public void consume(final RawService rawService, final boolean isOverlay, final Set<RawService> skipped) {
+        public void consume(final RawService rawService, final boolean isOverlay, final AtomicInteger skipped) {
             BasicSchedule basicSchedule = rawService.basicScheduleRecord;
 
             switch (basicSchedule.getTransactionType()) {
                 case New -> {
                     if (!createNew(rawService, isOverlay)) {
-                        skipped.add(rawService);
+                        //skipped.add(rawService);
+                        skipped.getAndIncrement();
                     }
                 }
                 case Delete -> delete(rawService.basicScheduleRecord);
