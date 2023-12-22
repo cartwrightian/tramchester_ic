@@ -4,6 +4,7 @@ import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.dataimport.data.CalendarDateData;
 import com.tramchester.domain.MutableService;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.dates.MutableExceptionsOnlyServiceCalendar;
 import com.tramchester.domain.dates.MutableServiceCalendar;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.dates.TramDateSet;
@@ -39,16 +40,17 @@ public class CalendarDateLoader {
         IdSet<Service> missingCalendarDates = new IdSet<>();
         AtomicInteger countCalendarDates = new AtomicInteger(0);
 
-        calendarsDates.forEach(date -> {
-            IdFor<Service> serviceId = date.getServiceId();
+        calendarsDates.forEach(excpetionDate -> {
+            IdFor<Service> serviceId = excpetionDate.getServiceId();
             MutableService service = buildable.getMutableService(serviceId);
             if (service != null) {
                 if (service.hasCalendar()) {
                     countCalendarDates.getAndIncrement();
-                    addException(date, service.getMutableCalendar(), serviceId, noServices);
+                    addException(excpetionDate, service.getMutableCalendar(), serviceId, noServices);
                 } else {
-                    // TODO Create a one off entry? Auto populate based on all exceptions? i.e. days of week
-                    logger.error("Missing calendar for service " + service.getId() + " so could not add " + date);
+                    logger.warn("Missing calendar for service " + service.getId() + " so add exception only calendar");
+                    service.setCalendar(new MutableExceptionsOnlyServiceCalendar());
+                    addException(excpetionDate, service.getMutableCalendar(), serviceId, noServices);
                     missingCalendarDates.add(serviceId);
                 }
             } else  {

@@ -3,10 +3,12 @@ package com.tramchester.domain.dates;
 import org.apache.commons.collections4.SetUtils;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.function.*;
 import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class TramDateSet implements Iterable<TramDate> {
@@ -14,10 +16,6 @@ public class TramDateSet implements Iterable<TramDate> {
 
     public TramDateSet() {
         dates = new TreeSet<>();
-    }
-
-    public TramDateSet(TramDateSet other) {
-        dates = new TreeSet<>(other.dates);
     }
 
     public TramDateSet add(TramDate date) {
@@ -79,21 +77,6 @@ public class TramDateSet implements Iterable<TramDate> {
         return Objects.hash(dates);
     }
 
-    public boolean containsAny(TramDateSet candidates) {
-        if (isEmpty()) {
-            return false;
-        }
-        DateRange dateRange = DateRange.of(dates.first(), dates.last());
-        for (TramDate tramDate : candidates) {
-            if (dateRange.contains(tramDate)) {
-                if (dates.contains(tramDate)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
     /***
      * Check if this contains ALL of the candidates
      * @param candidates to check
@@ -145,4 +128,20 @@ public class TramDateSet implements Iterable<TramDate> {
         };
     }
 
+    public EnumSet<DayOfWeek> getDays() {
+        Set<DayOfWeek> days = dates.stream().map(TramDate::getDayOfWeek).collect(Collectors.toSet());
+        return EnumSet.copyOf(days);
+    }
+
+    public long size() {
+        return dates.size();
+    }
+
+    public TramDate first() {
+        return dates.first();
+    }
+
+    public TramDate last() {
+        return dates.last();
+    }
 }

@@ -2,7 +2,7 @@ package com.tramchester.domain.factory;
 
 import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.*;
-import com.tramchester.domain.dates.MutableServiceCalendar;
+import com.tramchester.domain.dates.MutableNormalServiceCalendar;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.*;
@@ -80,8 +80,8 @@ public abstract class TransportEntityFactory {
                 stopTimeData.getStopSequence(), stopTimeData.getPickupType(), stopTimeData.getDropOffType(), trip);
     }
 
-    public MutableServiceCalendar createServiceCalendar(CalendarData calendarData) {
-        return new MutableServiceCalendar(calendarData);
+    public MutableNormalServiceCalendar createServiceCalendar(CalendarData calendarData) {
+        return new MutableNormalServiceCalendar(calendarData);
     }
 
     public GTFSTransportationType getRouteType(RouteData routeData, IdFor<Agency> agencyId) {

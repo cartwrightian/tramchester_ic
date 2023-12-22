@@ -12,7 +12,7 @@ import java.util.EnumSet;
 import static java.time.DayOfWeek.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-class MutableServiceCalendarTest {
+class MutableNormalServiceCalendarTest {
 
     // TODO CalendarDates seen but no calendar??
 
@@ -22,7 +22,7 @@ class MutableServiceCalendarTest {
         TramDate startDate = TramDate.of(2014, 10, 5);
         TramDate endDate = TramDate.of(2014, 12, 25);
 
-        ServiceCalendar serviceCalendar = new MutableServiceCalendar(new DateRange(startDate, endDate), TestEnv.allDays());
+        ServiceCalendar serviceCalendar = new MutableNormalServiceCalendar(new DateRange(startDate, endDate), TestEnv.allDays());
 
         assertTrue(serviceCalendar.operatesOn(startDate));
         assertTrue(serviceCalendar.operatesOn(endDate), "not operating " + serviceCalendar);
@@ -39,7 +39,7 @@ class MutableServiceCalendarTest {
         TramDate startDate = TramDate.of(2014, 10, 5);
         TramDate endDate = TramDate.of(2014, 12, 25);
 
-        MutableServiceCalendar serviceCalendar = new MutableServiceCalendar(new DateRange(startDate, endDate), TestEnv.allDays());
+        MutableNormalServiceCalendar serviceCalendar = new MutableNormalServiceCalendar(new DateRange(startDate, endDate), TestEnv.allDays());
 
         assertTrue(serviceCalendar.operatesOn(TramDate.of(2014, 11, 30)));
 
@@ -55,7 +55,7 @@ class MutableServiceCalendarTest {
         TramDate startDate = TramDate.of(2020, 10, 5);
         TramDate endDate = TramDate.of(2020, 12, 10);
 
-        MutableServiceCalendar serviceCalendar = new MutableServiceCalendar(new DateRange(startDate, endDate), TestEnv.allDays());
+        MutableNormalServiceCalendar serviceCalendar = new MutableNormalServiceCalendar(new DateRange(startDate, endDate), TestEnv.allDays());
 
         TramDate queryDate = TramDate.of(2020, 12, 1);
         assertTrue(serviceCalendar.operatesOn(queryDate));
@@ -73,7 +73,7 @@ class MutableServiceCalendarTest {
 
         DayOfWeek dayOfWeek = testDay.getDayOfWeek();
 
-        MutableServiceCalendar serviceCalendar = new MutableServiceCalendar(startDate, endDate, dayOfWeek);
+        MutableNormalServiceCalendar serviceCalendar = new MutableNormalServiceCalendar(startDate, endDate, dayOfWeek);
 
         assertTrue(serviceCalendar.operatesOn(testDay));
 
@@ -100,7 +100,7 @@ class MutableServiceCalendarTest {
         final TramDate startDate = TramDate.from(TestEnv.LocalNow());
         final TramDate endDate = testDay.plusWeeks(4);
 
-        ServiceCalendar serviceCalendar = new MutableServiceCalendar(startDate, endDate,
+        ServiceCalendar serviceCalendar = new MutableNormalServiceCalendar(startDate, endDate,
                 DayOfWeek.SATURDAY, DayOfWeek.SUNDAY);
 
         TramDate localDate = startDate;
@@ -121,9 +121,9 @@ class MutableServiceCalendarTest {
 
         DateRange dateRange = DateRange.of(startDateA, endDateA);
 
-        MutableServiceCalendar calendarA = new MutableServiceCalendar(dateRange, EnumSet.of(MONDAY, TUESDAY, WEDNESDAY));
+        MutableNormalServiceCalendar calendarA = new MutableNormalServiceCalendar(dateRange, EnumSet.of(MONDAY, TUESDAY, WEDNESDAY));
 
-        MutableServiceCalendar calendarB = new MutableServiceCalendar(dateRange, EnumSet.of(WEDNESDAY, THURSDAY));
+        MutableNormalServiceCalendar calendarB = new MutableNormalServiceCalendar(dateRange, EnumSet.of(WEDNESDAY, THURSDAY));
 
         assertTrue(calendarA.anyDateOverlaps(calendarB));
         assertTrue(calendarB.anyDateOverlaps(calendarA));
@@ -203,7 +203,7 @@ class MutableServiceCalendarTest {
 
         EnumSet<DayOfWeek> days = EnumSet.noneOf(DayOfWeek.class);
 
-        MutableServiceCalendar rangeForNone = createCalendar(startDate, endDate, days);
+        MutableNormalServiceCalendar rangeForNone = createCalendar(startDate, endDate, days);
         assertEquals(0, rangeForNone.numberDaysOperating());
 
         rangeForNone.includeExtraDate(startDate.plusDays(1));
@@ -219,7 +219,7 @@ class MutableServiceCalendarTest {
 
         days.add(MONDAY);
 
-        MutableServiceCalendar rangeForMondays = createCalendar(startDate, endDate, days);
+        MutableNormalServiceCalendar rangeForMondays = createCalendar(startDate, endDate, days);
 
         rangeForMondays.excludeDate(startDate);
         assertEquals(1, rangeForMondays.numberDaysOperating()); // 2 mondays, minus first one
@@ -229,7 +229,7 @@ class MutableServiceCalendarTest {
 
         days.add(FRIDAY);
 
-        MutableServiceCalendar rangeForTwoDays = createCalendar(startDate, endDate, days);
+        MutableNormalServiceCalendar rangeForTwoDays = createCalendar(startDate, endDate, days);
 
         rangeForTwoDays.excludeDate(startDate);
         TramDate friday = startDate.plusDays(4);
@@ -241,7 +241,7 @@ class MutableServiceCalendarTest {
         rangeForTwoDays.includeExtraDate(startDate.plusDays(1));
         assertEquals(3, rangeForTwoDays.numberDaysOperating());
 
-        MutableServiceCalendar rangeForAllDays = createCalendar(startDate, endDate, EnumSet.allOf(DayOfWeek.class));
+        MutableNormalServiceCalendar rangeForAllDays = createCalendar(startDate, endDate, EnumSet.allOf(DayOfWeek.class));
 
         rangeForAllDays.excludeDate(startDate);
         rangeForAllDays.excludeDate(endDate);
@@ -250,8 +250,8 @@ class MutableServiceCalendarTest {
     }
 
     @NotNull
-    private MutableServiceCalendar createCalendar(TramDate startDate, TramDate endDate, EnumSet<DayOfWeek> daysOfWeek) {
-        return new MutableServiceCalendar(DateRange.of(startDate, endDate), daysOfWeek);
+    private MutableNormalServiceCalendar createCalendar(TramDate startDate, TramDate endDate, EnumSet<DayOfWeek> daysOfWeek) {
+        return new MutableNormalServiceCalendar(DateRange.of(startDate, endDate), daysOfWeek);
     }
 
 

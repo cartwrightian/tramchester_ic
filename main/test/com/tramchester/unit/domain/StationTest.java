@@ -3,7 +3,7 @@ package com.tramchester.unit.domain;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.dates.DateRange;
-import com.tramchester.domain.dates.MutableServiceCalendar;
+import com.tramchester.domain.dates.MutableNormalServiceCalendar;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.MutableStation;
@@ -154,7 +154,7 @@ class StationTest {
     @NotNull
     private MutableService createService(EnumSet<DayOfWeek> days, DateRange dateRange, String serviceId) {
         MutableService service = new MutableService(Service.createId(serviceId), DataSourceID.tfgm);
-        MutableServiceCalendar serviceCalendar = new MutableServiceCalendar(dateRange, days);
+        MutableNormalServiceCalendar serviceCalendar = new MutableNormalServiceCalendar(dateRange, days);
         service.setCalendar(serviceCalendar);
         return service;
     }

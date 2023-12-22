@@ -35,6 +35,22 @@ public class TramDate implements Comparable<TramDate> {
         return of(localDateTime.toLocalDate());
     }
 
+    public static TramDate min(TramDate dateA, TramDate dateB) {
+        if (dateA.isBefore(dateB)) {
+            return dateA;
+        } else {
+            return dateB;
+        }
+    }
+
+    public static TramDate max(TramDate dateA, TramDate dateB) {
+        if (dateA.isAfter(dateB)) {
+            return dateA;
+        } else {
+            return dateB;
+        }
+    }
+
     // replicate LocalDate approach
     public DayOfWeek calcDayOfWeek(long epochDays) {
         int enumAsInt = Math.floorMod(epochDays + 3, 7);

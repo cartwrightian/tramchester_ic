@@ -9,12 +9,15 @@ import java.util.Optional;
 public class AggregateServiceCalendar implements ServiceCalendar, HasDaysBitmap {
 
     private final EnumSet<DayOfWeek> aggregatedDays;
+    private final DaysBitmap days;
+
+    // for diagnostics only
     private final TramDateSet additional;
     private final TramDateSet removed;
+
     private final boolean cancelled;
     private final DateRange aggregatedRange;
 
-    private final DaysBitmap days;
 
     public AggregateServiceCalendar(Collection<ServiceCalendar> calendars) {
 
@@ -30,8 +33,8 @@ public class AggregateServiceCalendar implements ServiceCalendar, HasDaysBitmap 
         calendars.forEach(calendar -> {
             setDaysFor(calendar);
             aggregatedDays.addAll(calendar.getOperatingDays());
-            additional.addAll(calendar.getAdditions());
-            allExcluded.addAll(calendar.getRemoved());
+//            additional.addAll(calendar.getAdditions());
+//            allExcluded.addAll(calendar.getRemoved());
         });
 
         // only keep an excluded date if it's not available via any of the other contained calendars
@@ -116,15 +119,15 @@ public class AggregateServiceCalendar implements ServiceCalendar, HasDaysBitmap 
         return aggregatedDays;
     }
 
-    @Override
-    public TramDateSet getAdditions() {
-        return additional;
-    }
-
-    @Override
-    public TramDateSet getRemoved() {
-        return removed;
-    }
+//    @Override
+//    public TramDateSet getAdditions() {
+//        return additional;
+//    }
+//
+//    @Override
+//    public TramDateSet getRemoved() {
+//        return removed;
+//    }
 
     @Override
     public boolean isCancelled() {
@@ -156,7 +159,7 @@ public class AggregateServiceCalendar implements ServiceCalendar, HasDaysBitmap 
 
         StringBuilder found = new StringBuilder();
         aggregatedDays.forEach(dayOfWeek -> {
-            if (found.length() > 0) {
+            if (!found.isEmpty()) {
                 found.append(",");
             }
             found.append(dayOfWeek.name());

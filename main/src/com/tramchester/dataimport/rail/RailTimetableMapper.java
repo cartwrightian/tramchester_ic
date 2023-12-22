@@ -240,7 +240,6 @@ public class RailTimetableMapper {
             switch (basicSchedule.getTransactionType()) {
                 case New -> {
                     if (!createNew(rawService, isOverlay)) {
-                        //skipped.add(rawService);
                         skipped.getAndIncrement();
                     }
                 }
@@ -295,7 +294,7 @@ public class RailTimetableMapper {
 
             final List<Station> withinBoundsCallingStations = allCalledAtStations.stream().
                     filter(bounds::contained).
-                    collect(Collectors.toList());
+                    toList();
 
             if (withinBoundsCallingStations.isEmpty() || withinBoundsCallingStations.size()==1) {
                 // likely due to all stations being filtered out as beyond geo bounds

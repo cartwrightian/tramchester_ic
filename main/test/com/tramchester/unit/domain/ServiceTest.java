@@ -2,7 +2,7 @@ package com.tramchester.unit.domain;
 
 import com.tramchester.domain.*;
 import com.tramchester.domain.dates.DateRange;
-import com.tramchester.domain.dates.MutableServiceCalendar;
+import com.tramchester.domain.dates.MutableNormalServiceCalendar;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.PlatformId;
@@ -46,7 +46,7 @@ class ServiceTest {
         TramDate startDate = TramDate.of(2014, 10, 5);
         TramDate endDate = TramDate.of(2014, 12, 25);
 
-        MutableServiceCalendar serviceCalendar = new MutableServiceCalendar(new DateRange(startDate, endDate), TestEnv.allDays());
+        MutableNormalServiceCalendar serviceCalendar = new MutableNormalServiceCalendar(new DateRange(startDate, endDate), TestEnv.allDays());
 
         service.setCalendar(serviceCalendar);
 

@@ -114,6 +114,27 @@ public class DateRangeTest {
         }
     }
 
+    @Test
+    void shouldHaveEmptyRange() {
+        DateRange range = DateRange.Empty();
+
+        assertTrue(range.isEmpty());
+        assertFalse(range.contains(TramDate.of(2023,1,15)));
+
+        DateRange other = DateRange.of(TramDate.of(2023,1,2), TramDate.of(2023, 2, 28));
+
+        assertFalse(other.overlapsWith(range));
+        assertFalse(range.overlapsWith(other));
+
+        assertEquals(0L,range.numberOfDays());
+
+        long count = range.stream().count();
+        assertEquals(0,count);
+
+        assertEquals("DateRange{EMPTY}", range.toString());
+
+    }
+
     @Disabled("Performance testing only")
     @RepeatedTest(100)
     void performanceOfIncludes() {

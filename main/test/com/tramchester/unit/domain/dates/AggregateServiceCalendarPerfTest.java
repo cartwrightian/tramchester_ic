@@ -1,22 +1,15 @@
 package com.tramchester.unit.domain.dates;
 
 import com.tramchester.domain.dates.*;
-import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.RepeatedTest;
-import org.junit.jupiter.api.Test;
 
 import java.time.DayOfWeek;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
-
-import static java.time.DayOfWeek.THURSDAY;
-import static java.time.DayOfWeek.TUESDAY;
-import static org.junit.jupiter.api.Assertions.*;
 
 @Disabled("Performance Testing Only")
 public class AggregateServiceCalendarPerfTest {
@@ -45,7 +38,7 @@ public class AggregateServiceCalendarPerfTest {
             int daysForRange = random.nextInt(1, maxRangeSize);
             TramDate date = startDate.plusDays(offset);
             DateRange range = DateRange.of(date, date.plusDays(daysForRange));
-            MutableServiceCalendar serviceCalendar = new MutableServiceCalendar(range, getDaysOfWeek(random));
+            MutableNormalServiceCalendar serviceCalendar = new MutableNormalServiceCalendar(range, getDaysOfWeek(random));
 
             int numberToAdd = random.nextInt(0, 10);
             for (int j = 0; j < numberToAdd; j++) {

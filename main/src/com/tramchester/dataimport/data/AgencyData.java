@@ -3,10 +3,11 @@ package com.tramchester.dataimport.data;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
 
 @SuppressWarnings("unused")
 public class AgencyData {
+
+    // todo agency_noc?
 
     @JsonProperty("agency_id")
     private String id;

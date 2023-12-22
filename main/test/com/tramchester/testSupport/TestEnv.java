@@ -74,9 +74,10 @@ public class TestEnv {
 
     private static final Agency MET = MutableAgency.build(DataSourceID.tfgm, MutableAgency.METL, "Metrolink");
 
-    public static final Agency StagecoachManchester = MutableAgency.build(DataSourceID.tfgm, Agency.createId("SCMN"),
+    public static final Agency StagecoachManchester = MutableAgency.build(DataSourceID.tfgm, Agency.createId("7778462"),
             "Stagecoach Manchester");
-    public static final Agency WarringtonsOwnBuses = MutableAgency.build(DataSourceID.tfgm, Agency.createId("WBTR"),
+
+    public static final Agency WarringtonsOwnBuses = MutableAgency.build(DataSourceID.tfgm, Agency.createId("7778560"),
             "Warrington's Own Buses");
 
     public static final String MANCHESTER_AIRPORT_BUS_AREA = "180GMABS";

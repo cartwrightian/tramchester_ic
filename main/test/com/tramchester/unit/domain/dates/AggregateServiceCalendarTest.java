@@ -29,34 +29,34 @@ public class AggregateServiceCalendarTest {
     // TODO Scenarios where individual services are cancelled meaning cannot just check daterange at end of operatesOn()
 
     @Test
-    void shouldHaveCorrectDateRange() {
+    void shouldHaveCorrectDateRangeNormalCalendar() {
         TramDate startDate = TramDate.of(2014, 10, 5);
         TramDate endDate = TramDate.of(2014, 10, 25);
 
         DateRange rangeA = DateRange.of(startDate, endDate);
         DateRange rangeB = DateRange.of(startDate.plusDays(1), endDate.minusDays(1));
 
-        MutableServiceCalendar calendarA = new MutableServiceCalendar(rangeA, allDays);
-        MutableServiceCalendar calendarB = new MutableServiceCalendar(rangeB, allDays);
+        MutableNormalServiceCalendar calendarA = new MutableNormalServiceCalendar(rangeA, allDays);
+        MutableNormalServiceCalendar calendarB = new MutableNormalServiceCalendar(rangeB, allDays);
 
         AggregateServiceCalendar aggregate1 = new AggregateServiceCalendar(Arrays.asList(calendarA, calendarB));
 
         assertEquals(rangeA, aggregate1.getDateRange());
 
         DateRange rangeC = DateRange.of(startDate.minusDays(1), endDate.plusDays(1));
-        MutableServiceCalendar calendarC = new MutableServiceCalendar(rangeC, allDays);
+        MutableNormalServiceCalendar calendarC = new MutableNormalServiceCalendar(rangeC, allDays);
 
         AggregateServiceCalendar aggregate2 = new AggregateServiceCalendar(Arrays.asList(calendarA, calendarC));
         assertEquals(rangeC, aggregate2.getDateRange());
 
         DateRange rangeD = DateRange.of(startDate.minusDays(10), endDate.minusDays(1));
-        MutableServiceCalendar calendarD = new MutableServiceCalendar(rangeD, allDays);
+        MutableNormalServiceCalendar calendarD = new MutableNormalServiceCalendar(rangeD, allDays);
 
         AggregateServiceCalendar aggregate3 = new AggregateServiceCalendar(Arrays.asList(calendarA, calendarD));
         assertEquals(DateRange.of(startDate.minusDays(10), endDate), aggregate3.getDateRange());
 
         DateRange rangeE = DateRange.of(startDate, endDate.plusDays(1));
-        MutableServiceCalendar calendarE = new MutableServiceCalendar(rangeE, allDays);
+        MutableNormalServiceCalendar calendarE = new MutableNormalServiceCalendar(rangeE, allDays);
 
         AggregateServiceCalendar aggregate4 = new AggregateServiceCalendar(Arrays.asList(calendarA, calendarE));
         assertEquals(DateRange.of(startDate, endDate.plusDays(1)), aggregate4.getDateRange());
@@ -71,9 +71,9 @@ public class AggregateServiceCalendarTest {
         final TramDate startDateB = endDateA.plusDays(1);
         final TramDate endDateB = TramDate.of(2020, 12, 25);
 
-        MutableServiceCalendar calendarA = new MutableServiceCalendar(DateRange.of(startDateA, endDateA), EnumSet.of(TUESDAY));
+        MutableNormalServiceCalendar calendarA = new MutableNormalServiceCalendar(DateRange.of(startDateA, endDateA), EnumSet.of(TUESDAY));
 
-        MutableServiceCalendar calendarB = new MutableServiceCalendar(DateRange.of(startDateB, endDateB), EnumSet.of(THURSDAY));
+        MutableNormalServiceCalendar calendarB = new MutableNormalServiceCalendar(DateRange.of(startDateB, endDateB), EnumSet.of(THURSDAY));
 
         AggregateServiceCalendar serviceCalendar = new AggregateServiceCalendar(Arrays.asList(calendarA, calendarB));
 
@@ -111,9 +111,9 @@ public class AggregateServiceCalendarTest {
         final TramDate startDateB = TramDate.of(2020, 12, 5);
         final TramDate endDateB = TramDate.of(2020, 12, 25);
 
-        MutableServiceCalendar calendarA = new MutableServiceCalendar(DateRange.of(startDateA, endDateA), allDays);
+        MutableNormalServiceCalendar calendarA = new MutableNormalServiceCalendar(DateRange.of(startDateA, endDateA), allDays);
 
-        MutableServiceCalendar calendarB = new MutableServiceCalendar(DateRange.of(startDateB, endDateB), allDays);
+        MutableNormalServiceCalendar calendarB = new MutableNormalServiceCalendar(DateRange.of(startDateB, endDateB), allDays);
 
         AggregateServiceCalendar aggregateServiceCalendar = new AggregateServiceCalendar(Arrays.asList(calendarA, calendarB));
 
@@ -144,8 +144,8 @@ public class AggregateServiceCalendarTest {
         final TramDate startDateB = endDateA.minusDays(1);
         final TramDate endDateB = TramDate.of(2020, 12, 25);
 
-        MutableServiceCalendar calendarA = new MutableServiceCalendar(DateRange.of(startDateA, endDateA), allDays);
-        MutableServiceCalendar calendarB = new MutableServiceCalendar(DateRange.of(startDateB, endDateB), allDays);
+        MutableNormalServiceCalendar calendarA = new MutableNormalServiceCalendar(DateRange.of(startDateA, endDateA), allDays);
+        MutableNormalServiceCalendar calendarB = new MutableNormalServiceCalendar(DateRange.of(startDateB, endDateB), allDays);
 
         AggregateServiceCalendar route = new AggregateServiceCalendar(Arrays.asList(calendarA, calendarB));
 
@@ -165,8 +165,8 @@ public class AggregateServiceCalendarTest {
         final TramDate startDate = TramDate.of(2020, 11, 5);
         final TramDate endDate = TramDate.of(2020, 11, 25);
 
-        MutableServiceCalendar calendarA = new MutableServiceCalendar(DateRange.of(startDate, endDate), allDays);
-        MutableServiceCalendar calendarB = new MutableServiceCalendar(DateRange.of(startDate, endDate), noDays);
+        MutableNormalServiceCalendar calendarA = new MutableNormalServiceCalendar(DateRange.of(startDate, endDate), allDays);
+        MutableNormalServiceCalendar calendarB = new MutableNormalServiceCalendar(DateRange.of(startDate, endDate), noDays);
 
         assertFalse(calendarA.anyDateOverlaps(calendarB));
         assertFalse(calendarB.anyDateOverlaps(calendarA));
@@ -183,9 +183,9 @@ public class AggregateServiceCalendarTest {
         final TramDate startDate = TramDate.of(2020, 11, 5);
         final TramDate endDate = TramDate.of(2020, 11, 25);
 
-        MutableServiceCalendar calendarA = new MutableServiceCalendar(DateRange.of(startDate, endDate), allDays);
+        MutableNormalServiceCalendar calendarA = new MutableNormalServiceCalendar(DateRange.of(startDate, endDate), allDays);
 
-        MutableServiceCalendar calendarB = new MutableServiceCalendar(DateRange.of(startDate, endDate), noDays);
+        MutableNormalServiceCalendar calendarB = new MutableNormalServiceCalendar(DateRange.of(startDate, endDate), noDays);
         calendarB.includeExtraDate(startDate.plusDays(1));
 
         assertTrue(calendarA.anyDateOverlaps(calendarB));
@@ -208,10 +208,10 @@ public class AggregateServiceCalendarTest {
 
         DateRange dateRange = DateRange.of(startDate, endDate);
 
-        MutableServiceCalendar calendarA = new MutableServiceCalendar(dateRange, allDays);
+        MutableNormalServiceCalendar calendarA = new MutableNormalServiceCalendar(dateRange, allDays);
         calendarA.excludeDate(specialDay); // exclude
 
-        MutableServiceCalendar calendarB = new MutableServiceCalendar(dateRange, noDays);
+        MutableNormalServiceCalendar calendarB = new MutableNormalServiceCalendar(dateRange, noDays);
         calendarB.includeExtraDate(specialDay); // include
 
         assertFalse(calendarA.anyDateOverlaps(calendarB));
@@ -233,11 +233,11 @@ public class AggregateServiceCalendarTest {
         final TramDate startDateB = TramDate.of(2020, 12, 5);
         final TramDate endDateB = TramDate.of(2020, 12, 25);
 
-        MutableServiceCalendar calendarA = new MutableServiceCalendar(DateRange.of(startDateA, endDateA), allDays);
+        MutableNormalServiceCalendar calendarA = new MutableNormalServiceCalendar(DateRange.of(startDateA, endDateA), allDays);
         TramDate exclusionOne = TramDate.of(2020, 11, 10);
         calendarA.excludeDate(exclusionOne);
 
-        MutableServiceCalendar calendarB = new MutableServiceCalendar(DateRange.of(startDateB, endDateB), allDays);
+        MutableNormalServiceCalendar calendarB = new MutableNormalServiceCalendar(DateRange.of(startDateB, endDateB), allDays);
         TramDate exclusionTwo = TramDate.of(2020, 12, 10);
         calendarB.excludeDate(exclusionTwo);
 
@@ -254,11 +254,11 @@ public class AggregateServiceCalendarTest {
 
         DateRange dateRange = DateRange.of(startDate, endDate);
 
-        MutableServiceCalendar calendarA = new MutableServiceCalendar(dateRange, noDays);
+        MutableNormalServiceCalendar calendarA = new MutableNormalServiceCalendar(dateRange, noDays);
         TramDate additionOne = TramDate.of(2020, 11, 10);
         calendarA.includeExtraDate(additionOne);
 
-        MutableServiceCalendar calendarB = new MutableServiceCalendar(dateRange, noDays);
+        MutableNormalServiceCalendar calendarB = new MutableNormalServiceCalendar(dateRange, noDays);
         TramDate additionTwo = TramDate.of(2020, 11, 12);
         calendarB.includeExtraDate(additionTwo);
 
@@ -279,11 +279,11 @@ public class AggregateServiceCalendarTest {
 
         DateRange dateRange = DateRange.of(startDate, endDate);
 
-        MutableServiceCalendar calendarA = new MutableServiceCalendar(dateRange, noDays);
+        MutableNormalServiceCalendar calendarA = new MutableNormalServiceCalendar(dateRange, noDays);
         TramDate additionOne = TramDate.of(2020, 11, 10);
         calendarA.includeExtraDate(additionOne);
 
-        MutableServiceCalendar calendarB = new MutableServiceCalendar(dateRange, noDays);
+        MutableNormalServiceCalendar calendarB = new MutableNormalServiceCalendar(dateRange, noDays);
         TramDate additionTwo = TramDate.of(2020, 11, 12);
         calendarB.includeExtraDate(additionTwo);
 
@@ -305,11 +305,11 @@ public class AggregateServiceCalendarTest {
 
         DateRange dateRange = DateRange.of(startDate, endDate);
 
-        MutableServiceCalendar calendarA = new MutableServiceCalendar(dateRange, noDays);
+        MutableNormalServiceCalendar calendarA = new MutableNormalServiceCalendar(dateRange, noDays);
         TramDate addition = TramDate.of(2020, 11, 10);
         calendarA.includeExtraDate(addition);
 
-        MutableServiceCalendar calendarB = new MutableServiceCalendar(dateRange, noDays);
+        MutableNormalServiceCalendar calendarB = new MutableNormalServiceCalendar(dateRange, noDays);
         calendarB.includeExtraDate(addition);
 
         assertTrue(calendarA.anyDateOverlaps(calendarB));
@@ -329,11 +329,11 @@ public class AggregateServiceCalendarTest {
 
         DateRange dateRange = DateRange.of(startDateA, endDateA);
 
-        MutableServiceCalendar calendarA = new MutableServiceCalendar(dateRange, EnumSet.of(MONDAY, TUESDAY));
+        MutableNormalServiceCalendar calendarA = new MutableNormalServiceCalendar(dateRange, EnumSet.of(MONDAY, TUESDAY));
         TramDate addition = TramDate.of(2020, 11, 10);
         calendarA.includeExtraDate(addition);
 
-        MutableServiceCalendar calendarB = new MutableServiceCalendar(dateRange, EnumSet.of(WEDNESDAY, THURSDAY));
+        MutableNormalServiceCalendar calendarB = new MutableNormalServiceCalendar(dateRange, EnumSet.of(WEDNESDAY, THURSDAY));
         calendarB.includeExtraDate(addition);
 
         assertTrue(calendarA.anyDateOverlaps(calendarB));
@@ -353,9 +353,9 @@ public class AggregateServiceCalendarTest {
 
         DateRange dateRange = DateRange.of(startDateA, endDateA);
 
-        MutableServiceCalendar calendarA = new MutableServiceCalendar(dateRange, EnumSet.of(MONDAY, TUESDAY));
+        MutableNormalServiceCalendar calendarA = new MutableNormalServiceCalendar(dateRange, EnumSet.of(MONDAY, TUESDAY));
 
-        MutableServiceCalendar calendarB = new MutableServiceCalendar(dateRange, EnumSet.of(WEDNESDAY, THURSDAY));
+        MutableNormalServiceCalendar calendarB = new MutableNormalServiceCalendar(dateRange, EnumSet.of(WEDNESDAY, THURSDAY));
 
         assertFalse(calendarA.anyDateOverlaps(calendarB));
         assertFalse(calendarB.anyDateOverlaps(calendarA));
@@ -375,11 +375,11 @@ public class AggregateServiceCalendarTest {
         TramDate specialDay = TramDate.of(2020, 11, 10);
 
         // does not run on special day
-        MutableServiceCalendar calendarA = new MutableServiceCalendar(DateRange.of(startDateA, endDateA), allDays);
+        MutableNormalServiceCalendar calendarA = new MutableNormalServiceCalendar(DateRange.of(startDateA, endDateA), allDays);
         calendarA.excludeDate(specialDay);
 
         // runs ONLY on special day
-        MutableServiceCalendar calendarB = new MutableServiceCalendar(DateRange.of(startDateA, endDateA), noDays);
+        MutableNormalServiceCalendar calendarB = new MutableNormalServiceCalendar(DateRange.of(startDateA, endDateA), noDays);
         calendarB.includeExtraDate(specialDay);
 
         AggregateServiceCalendar aggregateServiceCalendar = new AggregateServiceCalendar(Arrays.asList(calendarA, calendarB));
@@ -393,7 +393,7 @@ public class AggregateServiceCalendarTest {
         TramDate startDate = TramDate.of(2020, 11, 5);
         TramDate endDate = TramDate.of(2020, 11, 25);
 
-        MutableServiceCalendar calendar = new MutableServiceCalendar(DateRange.of(startDate, endDate), noDays);
+        MutableNormalServiceCalendar calendar = new MutableNormalServiceCalendar(DateRange.of(startDate, endDate), noDays);
         TramDate extraRunningDate = TramDate.of(2020, 11, 10);
         calendar.includeExtraDate(extraRunningDate);
 
@@ -414,9 +414,9 @@ public class AggregateServiceCalendarTest {
 
         EnumSet<DayOfWeek> monday = EnumSet.of(MONDAY);
 
-        MutableServiceCalendar serviceA = createServiceCal(startDate, endDate, monday);
+        MutableNormalServiceCalendar serviceA = createServiceCal(startDate, endDate, monday);
         serviceA.excludeDate(removed);
-        MutableServiceCalendar serviceB = createServiceCal(startDate, endDate, monday);
+        MutableNormalServiceCalendar serviceB = createServiceCal(startDate, endDate, monday);
         serviceB.excludeDate(removed);
 
         // should match
@@ -435,9 +435,9 @@ public class AggregateServiceCalendarTest {
 
         EnumSet<DayOfWeek> monday = EnumSet.of(MONDAY);
 
-        MutableServiceCalendar serviceA = createServiceCal(startDate, endDate, monday);
+        MutableNormalServiceCalendar serviceA = createServiceCal(startDate, endDate, monday);
         serviceA.excludeDate(removed);
-        MutableServiceCalendar serviceB = createServiceCal(startDate, endDate, monday);
+        MutableNormalServiceCalendar serviceB = createServiceCal(startDate, endDate, monday);
 
         // should match
         assertTrue(serviceA.anyDateOverlaps(serviceB));
@@ -455,8 +455,8 @@ public class AggregateServiceCalendarTest {
 
         EnumSet<DayOfWeek> monday = EnumSet.of(MONDAY);
 
-        MutableServiceCalendar serviceA = createServiceCal(startDate, endDate, monday);
-        MutableServiceCalendar serviceB = createServiceCal(startDate, endDate, monday);
+        MutableNormalServiceCalendar serviceA = createServiceCal(startDate, endDate, monday);
+        MutableNormalServiceCalendar serviceB = createServiceCal(startDate, endDate, monday);
         serviceB.excludeDate(removed);
 
         // should match
@@ -495,10 +495,10 @@ public class AggregateServiceCalendarTest {
         TramDate startDate = TramDate.of(2022, 8, 1); // a monday
         TramDate endDate = TramDate.of(2022, 8, 14);
 
-        ServiceCalendar calendarA = new MutableServiceCalendar(DateRange.of(startDate, endDate), EnumSet.of(MONDAY));
+        ServiceCalendar calendarA = new MutableNormalServiceCalendar(DateRange.of(startDate, endDate), EnumSet.of(MONDAY));
         assertEquals(2, calendarA.numberDaysOperating());
 
-        ServiceCalendar calendarB = new MutableServiceCalendar(DateRange.of(startDate, endDate), EnumSet.of(FRIDAY));
+        ServiceCalendar calendarB = new MutableNormalServiceCalendar(DateRange.of(startDate, endDate), EnumSet.of(FRIDAY));
         assertEquals(2, calendarB.numberDaysOperating());
 
         AggregateServiceCalendar aggregateServiceCalendar = new AggregateServiceCalendar(Arrays.asList(calendarA, calendarB));
@@ -512,10 +512,10 @@ public class AggregateServiceCalendarTest {
         TramDate startDate = TramDate.of(2022, 8, 1); // a monday
         TramDate endDate = TramDate.of(2022, 8, 14);
 
-        MutableServiceCalendar calendarA = new MutableServiceCalendar(DateRange.of(startDate, endDate), EnumSet.of(MONDAY));
+        MutableNormalServiceCalendar calendarA = new MutableNormalServiceCalendar(DateRange.of(startDate, endDate), EnumSet.of(MONDAY));
         assertEquals(2, calendarA.numberDaysOperating());
 
-        MutableServiceCalendar calendarB = new MutableServiceCalendar(DateRange.of(startDate, endDate), EnumSet.of(FRIDAY));
+        MutableNormalServiceCalendar calendarB = new MutableNormalServiceCalendar(DateRange.of(startDate, endDate), EnumSet.of(FRIDAY));
         assertEquals(2, calendarB.numberDaysOperating());
 
         assertEquals(4, createAggregrate(calendarA, calendarB).numberDaysOperating());
@@ -536,10 +536,10 @@ public class AggregateServiceCalendarTest {
         TramDate startDate = TramDate.of(2022, 8, 1); // a monday
         TramDate endDate = TramDate.of(2022, 8, 14);
 
-        MutableServiceCalendar calendarA = new MutableServiceCalendar(DateRange.of(startDate, endDate), EnumSet.of(MONDAY));
+        MutableNormalServiceCalendar calendarA = new MutableNormalServiceCalendar(DateRange.of(startDate, endDate), EnumSet.of(MONDAY));
         assertEquals(2, calendarA.numberDaysOperating());
 
-        MutableServiceCalendar calendarB = new MutableServiceCalendar(DateRange.of(startDate, endDate), EnumSet.of(MONDAY));
+        MutableNormalServiceCalendar calendarB = new MutableNormalServiceCalendar(DateRange.of(startDate, endDate), EnumSet.of(MONDAY));
         assertEquals(2, calendarB.numberDaysOperating());
 
         assertEquals(2, createAggregrate(calendarA, calendarB).numberDaysOperating());
@@ -553,12 +553,12 @@ public class AggregateServiceCalendarTest {
     }
 
     @NotNull
-    private AggregateServiceCalendar createAggregrate(MutableServiceCalendar calendarA, ServiceCalendar calendarB) {
+    private AggregateServiceCalendar createAggregrate(MutableNormalServiceCalendar calendarA, ServiceCalendar calendarB) {
         return new AggregateServiceCalendar(Arrays.asList(calendarA, calendarB));
     }
 
-    private MutableServiceCalendar createServiceCal(TramDate startDate, TramDate endDate, EnumSet<DayOfWeek> dayOfWeeks) {
-        return new MutableServiceCalendar(DateRange.of(startDate, endDate), dayOfWeeks);
+    private MutableNormalServiceCalendar createServiceCal(TramDate startDate, TramDate endDate, EnumSet<DayOfWeek> dayOfWeeks) {
+        return new MutableNormalServiceCalendar(DateRange.of(startDate, endDate), dayOfWeeks);
     }
 
 

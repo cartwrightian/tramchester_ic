@@ -3,7 +3,7 @@ package com.tramchester.testSupport.reference;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.dataimport.loader.TransportDataFactory;
 import com.tramchester.domain.*;
-import com.tramchester.domain.dates.MutableServiceCalendar;
+import com.tramchester.domain.dates.MutableNormalServiceCalendar;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.PlatformId;
@@ -96,10 +96,10 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         TramDate startDate = TramDate.of(2014, 2, 10);
         TramDate endDate = TramDate.of(2020, 8, 15);
 
-        MutableServiceCalendar serviceCalendarA = new MutableServiceCalendar(startDate, endDate, DayOfWeek.MONDAY);
-        MutableServiceCalendar serviceCalendarB = new MutableServiceCalendar(startDate, endDate, DayOfWeek.MONDAY);
-        MutableServiceCalendar serviceCalendarC = new MutableServiceCalendar(startDate, endDate,DayOfWeek.MONDAY);
-        MutableServiceCalendar serviceCalendarD = new MutableServiceCalendar(startDate, endDate,DayOfWeek.MONDAY);
+        MutableNormalServiceCalendar serviceCalendarA = new MutableNormalServiceCalendar(startDate, endDate, DayOfWeek.MONDAY);
+        MutableNormalServiceCalendar serviceCalendarB = new MutableNormalServiceCalendar(startDate, endDate, DayOfWeek.MONDAY);
+        MutableNormalServiceCalendar serviceCalendarC = new MutableNormalServiceCalendar(startDate, endDate,DayOfWeek.MONDAY);
+        MutableNormalServiceCalendar serviceCalendarD = new MutableNormalServiceCalendar(startDate, endDate,DayOfWeek.MONDAY);
 
         serviceA.setCalendar(serviceCalendarA);
         serviceB.setCalendar(serviceCalendarB);

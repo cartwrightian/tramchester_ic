@@ -6,7 +6,6 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.integration.testSupport.ConfigParameterResolver;
 import com.tramchester.repository.RouteRepository;
@@ -29,8 +28,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(ConfigParameterResolver.class)
 @DualTest
@@ -39,6 +37,7 @@ class KnownTramRouteTest {
     private static ComponentContainer componentContainer;
     private RouteRepository routeRepository;
     private TramDate when;
+    private DateRange dateRange;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun(TramchesterConfig tramchesterConfig) {
@@ -53,17 +52,26 @@ class KnownTramRouteTest {
 
     @BeforeEach
     void setUp() {
-        when = TestEnv.testDay();
         routeRepository = componentContainer.get(RouteRepository.class);
+
+        when = TestEnv.testDay();
+        TramDate start = TramDate.from(TestEnv.LocalNow());
+        dateRange = DateRange.of(start, when);
+    }
+
+    private Stream<TramDate> getDateRange() {
+        return dateRange.stream().filter(date -> !date.isChristmasPeriod());
+    }
+
+    @Test
+    void shouldHaveSomeDatesToTest() {
+        assertFalse(getDateRange().collect(Collectors.toSet()).isEmpty());
     }
 
     @Test
     void shouldHaveCorrectIds() {
-        TramDate start = TramDate.from(TestEnv.LocalNow());
 
-        DateRange dateRange = DateRange.of(start, when);
-
-        dateRange.stream().forEach(date -> {
+        getDateRange().forEach(date -> {
             IdSet<Route> loadedIds = getLoadedTramRoutes(date).collect(IdSet.collector());
 
             IdSet<Route> knownTramOnDates = KnownTramRoute.getFor(date).stream().map(KnownTramRoute::getId).
@@ -79,11 +87,7 @@ class KnownTramRouteTest {
     @Test
     void shouldHaveCorrectLongNamesForKnownRoutesForDates() {
 
-        TramDate start = TramDate.from(TestEnv.LocalNow());
-
-        DateRange dateRange = DateRange.of(start, when);
-
-        dateRange.stream().forEach(date -> {
+        getDateRange().forEach(date -> {
             Set<String> loadedLongNames = getLoadedTramRoutes(date).map(Route::getName).collect(Collectors.toSet());
 
             Set<String> knownTramOnDates = KnownTramRoute.getFor(date).stream().map(KnownTramRoute::longName).collect(Collectors.toSet());
@@ -99,11 +103,7 @@ class KnownTramRouteTest {
     void shouldHaveShortNameMatching() {
         // Assumes long name match, if this fails get shouldHaveCorrectLongNamesForKnownRoutesForDates working first
 
-        TramDate start = TramDate.from(TestEnv.LocalNow());
-
-        DateRange dateRange = DateRange.of(start, when);
-
-        dateRange.stream().forEach(date -> {
+        getDateRange().forEach(date -> {
             Set<Route> loadedRoutes = getLoadedTramRoutes(date).collect(Collectors.toSet());
             KnownTramRoute.getFor(date).forEach(knownTramRoute -> {
                 String prefix = "On " + date + " ";
@@ -113,9 +113,6 @@ class KnownTramRouteTest {
                 Route loadedRoute = findLoadedFor.get(0);
                 assertEquals(loadedRoute.getShortName(), knownTramRoute.shortName(), prefix + "short name incorrect for " + knownTramRoute);
 
-//                IdForDTO idForDTO = IdForDTO.createFor(loadedRoute);
-//                assertTrue(idForDTO.getActualId().contains(knownTramRoute.direction().getSuffix()),
-//                        prefix + "direction incorrect for " + knownTramRoute + " " + knownTramRoute.direction() +" and ID " + idForDTO);
             });
         });
     }

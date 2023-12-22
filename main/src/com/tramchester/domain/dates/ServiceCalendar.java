@@ -11,7 +11,7 @@ public interface ServiceCalendar {
     void summariseDates(PrintStream printStream);
 
     /***
-     * Range of dates (from data source) given for the this service. NOTE: service might not actually operate on
+     * Range of dates (from data source) given for this service. NOTE: service might not actually operate on
      * any of these dates depending on removed, additional and operatingdays
      * @return
      */
@@ -29,10 +29,6 @@ public interface ServiceCalendar {
      * @return Set of days service operates ignoring additional and removed days
      */
     EnumSet<DayOfWeek> getOperatingDays();
-
-    TramDateSet getAdditions();
-
-    TramDateSet getRemoved();
 
     boolean isCancelled();
 

@@ -1,15 +1,14 @@
 package com.tramchester.domain.dates;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.stream.IntStream;
-import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 public class DateRange {
     private final TramDate startDate;
     private final TramDate endDate;
+
+    private static final DateRange Empty = of(null, null);
 
     public DateRange(TramDate startDate, TramDate endDate) {
         this.startDate = startDate;
@@ -20,7 +19,14 @@ public class DateRange {
         return new DateRange(startDate, endDate);
     }
 
+    public static DateRange Empty() {
+        return Empty;
+    }
+
     public boolean contains(final TramDate queryDate) {
+        if (isEmpty()) {
+            return false;
+        }
         if (queryDate.isAfter(endDate) || queryDate.isBefore(startDate)) {
             return false;
         }
@@ -37,11 +43,16 @@ public class DateRange {
 
     @Override
     public int hashCode() {
+        guardForEmpty();
         return Objects.hash(startDate, endDate);
     }
 
     @Override
     public String toString() {
+        if (isEmpty()) {
+            return "DateRange{EMPTY}";
+        }
+
         return "DateRange{" +
                 "startDate=" + startDate +
                 ", endDate=" + endDate +
@@ -49,10 +60,17 @@ public class DateRange {
     }
 
     public boolean overlapsWith(DateRange other) {
+        if (other.isEmpty() || this.isEmpty()) {
+            return false;
+        }
         return between(other, startDate) ||
                 between(other, endDate) ||
                 between(this, other.startDate) ||
                 between(this, other.endDate);
+    }
+
+    public boolean isEmpty() {
+        return this==Empty;
     }
 
     private static boolean between(DateRange dateRange, TramDate date) {
@@ -63,10 +81,18 @@ public class DateRange {
     }
 
     public TramDate getEndDate() {
+        guardForEmpty();
         return endDate;
     }
 
+    private void guardForEmpty() {
+        if (isEmpty()) {
+            throw new RuntimeException("Empty range");
+        }
+    }
+
     public TramDate getStartDate() {
+        guardForEmpty();
         return startDate;
     }
 
@@ -75,6 +101,10 @@ public class DateRange {
      * @return stream of dates
      */
     public Stream<TramDate> stream() {
+        if (isEmpty()) {
+            return Stream.empty();
+        }
+
         long start = startDate.toEpochDay();
         long end = endDate.toEpochDay();
         int range = 1 + Math.toIntExact(Math.subtractExact(end, start));
@@ -85,6 +115,9 @@ public class DateRange {
     }
 
     public long numberOfDays() {
+        if (isEmpty()) {
+            return 0;
+        }
         long diff = Math.subtractExact(endDate.toEpochDay(), startDate.toEpochDay());
         // inclusive, so add one
         return Math.abs(diff+1);
