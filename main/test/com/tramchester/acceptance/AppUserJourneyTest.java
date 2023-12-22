@@ -256,7 +256,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
 
         validateAStage(stage, firstResult.getDepartTime(), "Board Tram", Altrincham.getName(),
                 Collections.singletonList(1),
-                PiccadillyAltrincham, Piccadilly.getName(), 9);
+                KnownTramRoute.BuryManchesterAltrincham, Bury.getName(), 9);
     }
 
     @ParameterizedTest(name = "{displayName} {arguments}")
