@@ -13,7 +13,7 @@ public interface ServiceCalendar {
     /***
      * Range of dates (from data source) given for this service. NOTE: service might not actually operate on
      * any of these dates depending on removed, additional and operatingdays
-     * @return
+     * @return range for calendar
      */
     DateRange getDateRange();
 
@@ -35,4 +35,6 @@ public interface ServiceCalendar {
     boolean anyDateOverlaps(ServiceCalendar other);
 
     long numberDaysOperating();
+
+    DaysBitmap getDaysBitmap();
 }

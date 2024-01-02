@@ -6,10 +6,10 @@ import java.io.PrintStream;
 import java.time.DayOfWeek;
 import java.util.*;
 
-public class MutableNormalServiceCalendar implements MutableServiceCalendar, HasDaysBitmap {
+public class MutableNormalServiceCalendar implements MutableServiceCalendar {
     private final DateRange dateRange;
     private final EnumSet<DayOfWeek> operatingDays;
-    private final DaysBitmap days;
+    private final MutableDaysBitmap days;
 
     // for diagnosis only
     private final TramDateSet additional;
@@ -42,7 +42,7 @@ public class MutableNormalServiceCalendar implements MutableServiceCalendar, Has
         long firstEpochDay = dateRange.getStartDate().toEpochDay();
 
         int size = Math.toIntExact(dateRange.numberOfDays()); // will throw if overflow
-        days = new DaysBitmap(firstEpochDay,size);
+        days = new MutableDaysBitmap(firstEpochDay,size);
         days.setDaysOfWeek(operatingDays);
 
     }
@@ -127,23 +127,13 @@ public class MutableNormalServiceCalendar implements MutableServiceCalendar, Has
         return operatingDays;
     }
 
-//    @Override
-//    public TramDateSet getAdditions() {
-//        return additional;
-//    }
-//
-//    @Override
-//    public TramDateSet getRemoved() {
-//        return removed;
-//    }
-
     @Override
     public boolean isCancelled() {
         return cancelled;
     }
 
     @Override
-    public DaysBitmap getDays() {
+    public DaysBitmap getDaysBitmap() {
         return days;
     }
 
@@ -152,13 +142,13 @@ public class MutableNormalServiceCalendar implements MutableServiceCalendar, Has
         if (otherCalendar==null) {
             throw new RuntimeException("otherCalendar was null");
         }
-        HasDaysBitmap other = (HasDaysBitmap) otherCalendar;
-        //noinspection ConstantConditions
-        if (other==null) {
-            throw new RuntimeException("Cannot compute overlap as Not DaysAsBitmap " + otherCalendar.toString());
-        }
+//        HasDaysBitmap other = (HasDaysBitmap) otherCalendar;
+//        //noinspection ConstantConditions
+//        if (other==null) {
+//            throw new RuntimeException("Cannot compute overlap as Not DaysAsBitmap " + otherCalendar.toString());
+//        }
 
-        return this.days.anyOverlap(other.getDays());
+        return this.days.anyOverlap(otherCalendar.getDaysBitmap());
     }
 
     @Override

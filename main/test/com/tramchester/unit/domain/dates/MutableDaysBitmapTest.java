@@ -11,7 +11,7 @@ import java.util.EnumSet;
 import static java.time.DayOfWeek.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class DaysBitmapTest {
+public class MutableDaysBitmapTest {
 
     private TramDate when;
     private long epochDay;
@@ -24,7 +24,7 @@ public class DaysBitmapTest {
 
     @Test
     void shouldSetADay() {
-        DaysBitmap days = new DaysBitmap(epochDay, 100);
+        MutableDaysBitmap days = new MutableDaysBitmap(epochDay, 100);
 
         assertEquals(epochDay, days.getBeginningEpochDay());
 
@@ -53,7 +53,7 @@ public class DaysBitmapTest {
 
     @Test
     void shouldSetDaysOfWeek() {
-        DaysBitmap days = new DaysBitmap(epochDay, 100);
+        MutableDaysBitmap days = new MutableDaysBitmap(epochDay, 100);
 
         EnumSet<DayOfWeek> daysOfWeek = EnumSet.of(MONDAY, WEDNESDAY, SATURDAY);
         days.setDaysOfWeek(daysOfWeek);
@@ -75,7 +75,7 @@ public class DaysBitmapTest {
         int size = 5;
         TramDate endDate = when.plusDays(size-1);
 
-        DaysBitmap daysBitmap = new DaysBitmap(epochDay, size);
+        MutableDaysBitmap daysBitmap = new MutableDaysBitmap(epochDay, size);
 
         daysBitmap.setDaysOfWeek(TestEnv.allDays());
 
@@ -85,8 +85,8 @@ public class DaysBitmapTest {
 
     @Test
     void shouldGiveExpectedResultsWhenMatchingDateAndSize() {
-        DaysBitmap first = new DaysBitmap(epochDay,14);
-        DaysBitmap second = new DaysBitmap(epochDay, 14);
+        MutableDaysBitmap first = new MutableDaysBitmap(epochDay,14);
+        MutableDaysBitmap second = new MutableDaysBitmap(epochDay, 14);
 
         assertFalse(first.anyOverlap(second));
         assertFalse(second.anyOverlap(first));
@@ -101,8 +101,8 @@ public class DaysBitmapTest {
 
     @Test
     void shouldGiveExpectedResultsWhenOverlapDateAtEnd() {
-        DaysBitmap first = new DaysBitmap(epochDay,14);
-        DaysBitmap second = new DaysBitmap(epochDay+5, 14);
+        MutableDaysBitmap first = new MutableDaysBitmap(epochDay,14);
+        MutableDaysBitmap second = new MutableDaysBitmap(epochDay+5, 14);
 
         assertFalse(first.anyOverlap(second));
         assertFalse(second.anyOverlap(first));
@@ -117,8 +117,8 @@ public class DaysBitmapTest {
 
     @Test
     void shouldGiveExpectedResultsWhenOverlapDateAtStart() {
-        DaysBitmap first = new DaysBitmap(epochDay,14);
-        DaysBitmap second = new DaysBitmap(epochDay-5, 14);
+        MutableDaysBitmap first = new MutableDaysBitmap(epochDay,14);
+        MutableDaysBitmap second = new MutableDaysBitmap(epochDay-5, 14);
 
         assertFalse(first.anyOverlap(second));
         assertFalse(second.anyOverlap(first));
@@ -133,8 +133,8 @@ public class DaysBitmapTest {
 
     @Test
     void shouldInsertAnotherOverlapsBeforeSamller() {
-        DaysBitmap first = new DaysBitmap(epochDay,14);
-        DaysBitmap second = new DaysBitmap(epochDay-5, 10);
+        MutableDaysBitmap first = new MutableDaysBitmap(epochDay,14);
+        MutableDaysBitmap second = new MutableDaysBitmap(epochDay-5, 10);
 
         TramDate date = when.plusDays(1);
         second.set(date);
@@ -145,8 +145,8 @@ public class DaysBitmapTest {
 
     @Test
     void shouldInsertAnotherOverlapsBeforeSLarger() {
-        DaysBitmap first = new DaysBitmap(epochDay,14);
-        DaysBitmap second = new DaysBitmap(epochDay-5, 28);
+        MutableDaysBitmap first = new MutableDaysBitmap(epochDay,14);
+        MutableDaysBitmap second = new MutableDaysBitmap(epochDay-5, 28);
 
         TramDate date = when.plusDays(1);
         second.set(date);
@@ -158,8 +158,8 @@ public class DaysBitmapTest {
 
     @Test
     void shouldInsertAnotherOverlapsAfter() {
-        DaysBitmap first = new DaysBitmap(epochDay,14);
-        DaysBitmap second = new DaysBitmap(epochDay+5, 18);
+        MutableDaysBitmap first = new MutableDaysBitmap(epochDay,14);
+        MutableDaysBitmap second = new MutableDaysBitmap(epochDay+5, 18);
 
         TramDate date = when.plusDays(1 + 5);
         second.set(date);
@@ -170,8 +170,8 @@ public class DaysBitmapTest {
 
     @Test
     void shouldInsertAnotherOverlapsAfterSmaller() {
-        DaysBitmap first = new DaysBitmap(epochDay,14);
-        DaysBitmap second = new DaysBitmap(epochDay+5, 5);
+        MutableDaysBitmap first = new MutableDaysBitmap(epochDay,14);
+        MutableDaysBitmap second = new MutableDaysBitmap(epochDay+5, 5);
 
         TramDate date = when.plusDays(1 + 5);
         second.set(date);
@@ -182,8 +182,8 @@ public class DaysBitmapTest {
 
     @Test
     void shouldHaveExpectedOverlapMiddle() {
-        DaysBitmap first = new DaysBitmap(16485,269);
-        DaysBitmap second = new DaysBitmap(16612, 54);
+        MutableDaysBitmap first = new MutableDaysBitmap(16485,269);
+        MutableDaysBitmap second = new MutableDaysBitmap(16612, 54);
 
         first.setDaysOfWeek(TestEnv.allDays());
         second.setDaysOfWeek(TestEnv.allDays());
@@ -199,8 +199,8 @@ public class DaysBitmapTest {
     void shouldHaveExpectedOverlapsLastDay() {
         // fromIndex 153 > toIndex: 152 this: DaysBitmap{beginningDay=16527, days={}, size=153} otherStartDay: 16680 other size: 317
 
-        DaysBitmap first = new DaysBitmap(epochDay, 3);
-        DaysBitmap second = new DaysBitmap(epochDay+2, 15);
+        MutableDaysBitmap first = new MutableDaysBitmap(epochDay, 3);
+        MutableDaysBitmap second = new MutableDaysBitmap(epochDay+2, 15);
 
 
         first.set(when.plusDays(2));
@@ -212,8 +212,8 @@ public class DaysBitmapTest {
 
     @Test
     void shouldInsertAnotherOverlapsExact() {
-        DaysBitmap first = new DaysBitmap(epochDay,14);
-        DaysBitmap second = new DaysBitmap(epochDay, 14);
+        MutableDaysBitmap first = new MutableDaysBitmap(epochDay,14);
+        MutableDaysBitmap second = new MutableDaysBitmap(epochDay, 14);
 
         second.set(when);
         TramDate lastDay = when.plusDays(13);
@@ -232,10 +232,10 @@ public class DaysBitmapTest {
 
         EnumSet<DayOfWeek> monday = EnumSet.of(MONDAY);
 
-        DaysBitmap serviceA = createDaysBitmap(startDate, endDate, monday);
-        DaysBitmap serviceB = createDaysBitmap(startDate, endDate, EnumSet.of(DayOfWeek.SUNDAY));
-        DaysBitmap serviceC = createDaysBitmap(startDate.minusDays(10), startDate.minusDays(5), monday);
-        DaysBitmap serviceD = createDaysBitmap(startDate, endDate, monday);
+        MutableDaysBitmap serviceA = createDaysBitmap(startDate, endDate, monday);
+        MutableDaysBitmap serviceB = createDaysBitmap(startDate, endDate, EnumSet.of(DayOfWeek.SUNDAY));
+        MutableDaysBitmap serviceC = createDaysBitmap(startDate.minusDays(10), startDate.minusDays(5), monday);
+        MutableDaysBitmap serviceD = createDaysBitmap(startDate, endDate, monday);
 
         assertTrue(serviceA.anyOverlap(serviceA));
 
@@ -249,10 +249,10 @@ public class DaysBitmapTest {
         assertTrue(serviceA.anyOverlap(serviceD));
     }
 
-    private DaysBitmap createDaysBitmap(TramDate startDate, TramDate endDate, EnumSet<DayOfWeek> operatingDays) {
+    private MutableDaysBitmap createDaysBitmap(TramDate startDate, TramDate endDate, EnumSet<DayOfWeek> operatingDays) {
         long begin = startDate.toEpochDay();
         int size = Math.toIntExact(Math.subtractExact(endDate.toEpochDay(), begin));
-        DaysBitmap daysBitmap = new DaysBitmap(begin, size);
+        MutableDaysBitmap daysBitmap = new MutableDaysBitmap(begin, size);
         daysBitmap.setDaysOfWeek(operatingDays);
         return daysBitmap;
     }

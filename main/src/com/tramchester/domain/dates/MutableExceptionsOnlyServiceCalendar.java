@@ -2,7 +2,9 @@ package com.tramchester.domain.dates;
 
 import java.io.PrintStream;
 import java.time.DayOfWeek;
+import java.util.BitSet;
 import java.util.EnumSet;
+import java.util.stream.IntStream;
 
 public class MutableExceptionsOnlyServiceCalendar implements MutableServiceCalendar {
 
@@ -102,11 +104,66 @@ public class MutableExceptionsOnlyServiceCalendar implements MutableServiceCalen
     }
 
     @Override
+    public DaysBitmap getDaysBitmap() {
+        if (additional.isEmpty()) {
+            if (removed.isEmpty()) {
+                throw new RuntimeException("Fully empty, cannot create bitmap");
+            }
+            return new NoneSetDaysBitmap(removed.first());
+        }
+
+        long start = additional.first().toEpochDay();
+        long end = additional.last().toEpochDay();
+        long diff = (end-start) + 1;
+        MutableDaysBitmap bitmap = new MutableDaysBitmap(start, Math.toIntExact(diff));
+        additional.forEach(bitmap::set);
+        return bitmap;
+    }
+
+    @Override
     public String toString() {
         return "MutableExceptionsOnlyServiceCalendar{" +
                 "additional=" + additional +
                 ", removed=" + removed +
                 ", cancelled=" + cancelled +
                 '}';
+    }
+
+    private static class NoneSetDaysBitmap implements DaysBitmap {
+        private final long start;
+
+        public NoneSetDaysBitmap(TramDate start) {
+            this.start = start.toEpochDay();
+        }
+
+        @Override
+        public boolean isSet(TramDate date) {
+            return false;
+        }
+
+        @Override
+        public boolean contains(DaysBitmap other) {
+            return false;
+        }
+
+        @Override
+        public BitSet createOverlapWith(DaysBitmap other) {
+            return new BitSet(0);
+        }
+
+        @Override
+        public long getBeginningEpochDay() {
+            return start;
+        }
+
+        @Override
+        public IntStream streamDays() {
+            return IntStream.empty();
+        }
+
+        @Override
+        public int size() {
+            return 0;
+        }
     }
 }

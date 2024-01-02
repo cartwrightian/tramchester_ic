@@ -6,10 +6,10 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Optional;
 
-public class AggregateServiceCalendar implements ServiceCalendar, HasDaysBitmap {
+public class AggregateServiceCalendar implements ServiceCalendar {
 
     private final EnumSet<DayOfWeek> aggregatedDays;
-    private final DaysBitmap days;
+    private final MutableDaysBitmap days;
 
     // for diagnostics only
     private final TramDateSet additional;
@@ -41,18 +41,17 @@ public class AggregateServiceCalendar implements ServiceCalendar, HasDaysBitmap 
         removed = allExcluded.stream().filter(date -> !days.isSet(date)).collect(TramDateSet.collector());
     }
 
-    private DaysBitmap createDaysBitset(DateRange dateRange) {
+    private MutableDaysBitmap createDaysBitset(DateRange dateRange) {
         long earliest = dateRange.getStartDate().toEpochDay();
         long latest = dateRange.getEndDate().toEpochDay();
 
         int size = Math.toIntExact(Math.subtractExact(latest, earliest));
 
-        return new DaysBitmap(earliest, size);
+        return new MutableDaysBitmap(earliest, size);
     }
 
     private void setDaysFor(ServiceCalendar calendar) {
-        HasDaysBitmap other = (HasDaysBitmap) calendar;
-        days.insert(other.getDays());
+        days.insert(calendar.getDaysBitmap());
     }
 
     private static DateRange calculateDateRange(Collection<ServiceCalendar> calendars) {
@@ -87,8 +86,7 @@ public class AggregateServiceCalendar implements ServiceCalendar, HasDaysBitmap 
 
     @Override
     public boolean anyDateOverlaps(ServiceCalendar other) {
-        HasDaysBitmap otherDays = (HasDaysBitmap) other;
-        return this.days.anyOverlap(otherDays.getDays());
+        return this.days.anyOverlap(other.getDaysBitmap());
     }
 
     @Override
@@ -118,16 +116,6 @@ public class AggregateServiceCalendar implements ServiceCalendar, HasDaysBitmap 
     public EnumSet<DayOfWeek> getOperatingDays() {
         return aggregatedDays;
     }
-
-//    @Override
-//    public TramDateSet getAdditions() {
-//        return additional;
-//    }
-//
-//    @Override
-//    public TramDateSet getRemoved() {
-//        return removed;
-//    }
 
     @Override
     public boolean isCancelled() {
@@ -168,7 +156,7 @@ public class AggregateServiceCalendar implements ServiceCalendar, HasDaysBitmap 
     }
 
     @Override
-    public DaysBitmap getDays() {
+    public DaysBitmap getDaysBitmap() {
         return days;
     }
 

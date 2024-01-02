@@ -1,13 +1,12 @@
 package com.tramchester.unit.domain;
 
-import com.tramchester.domain.dates.DateRange;
-import com.tramchester.domain.dates.MutableExceptionsOnlyServiceCalendar;
-import com.tramchester.domain.dates.MutableServiceCalendar;
-import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.dates.*;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.Test;
 
 import java.time.DayOfWeek;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -21,7 +20,7 @@ class MutableExceptionsOnlyServiceCalendarTest {
         TramDate startDate = TramDate.of(2014, 10, 5);
         TramDate endDate = TramDate.of(2014, 12, 25);
 
-        MutableServiceCalendar serviceCalendar = new MutableExceptionsOnlyServiceCalendar();
+        MutableExceptionsOnlyServiceCalendar serviceCalendar = new MutableExceptionsOnlyServiceCalendar();
         serviceCalendar.includeExtraDate(startDate);
         serviceCalendar.includeExtraDate(endDate);
 
@@ -32,6 +31,24 @@ class MutableExceptionsOnlyServiceCalendarTest {
         assertFalse(serviceCalendar.operatesOn(TramDate.of(2016, 11, 30)));
         assertFalse(serviceCalendar.operatesOn(startDate.minusDays(1)));
         assertFalse(serviceCalendar.operatesOn(endDate.plusDays(1)));
+
+        DaysBitmap daysBitmap = serviceCalendar.getDaysBitmap();
+        assertEquals(startDate.toEpochDay(), daysBitmap.getBeginningEpochDay());
+
+        long diff = endDate.toEpochDay() - startDate.toEpochDay();
+        assertEquals(diff+1, daysBitmap.size());
+
+        assertTrue(daysBitmap.isSet(startDate));
+        assertTrue(daysBitmap.isSet(endDate));
+
+        assertFalse(daysBitmap.isSet(startDate.plusDays(1)));
+        assertFalse(daysBitmap.isSet(endDate.minusDays(1)));
+
+        Set<Long> inBitmap = daysBitmap.streamDays().mapToLong(anInt -> anInt).boxed().collect(Collectors.toSet());
+        assertTrue(inBitmap.contains(0L), inBitmap.toString());
+        assertTrue(inBitmap.contains(diff), inBitmap.toString());
+        assertEquals(2, inBitmap.size());
+
     }
 
     @Test
@@ -95,6 +112,12 @@ class MutableExceptionsOnlyServiceCalendarTest {
         DateRange rangeB = serviceCalendar.getDateRange();
         assertEquals(dateA, rangeB.getStartDate());
         assertEquals(dateB, rangeB.getEndDate());
+
+        DaysBitmap bitmap = serviceCalendar.getDaysBitmap();
+
+        assertEquals(dateA.toEpochDay(),bitmap.getBeginningEpochDay());
+        assertEquals(0, bitmap.size());
+        assertTrue(bitmap.streamDays().boxed().collect(Collectors.toSet()).isEmpty());
     }
 
     @Test
@@ -179,11 +202,6 @@ class MutableExceptionsOnlyServiceCalendarTest {
 
 
     }
-
-//    @NotNull
-//    private MutableServiceCalendar createCalendar(TramDate startDate, TramDate endDate, EnumSet<DayOfWeek> daysOfWeek) {
-//        return new MutableNormalServiceCalendar(DateRange.of(startDate, endDate), daysOfWeek);
-//    }
 
 
 }
