@@ -50,14 +50,15 @@ class ValidateBusTestStations {
         List<BusStations> testStations = Arrays.asList(BusStations.values());
 
         testStations.forEach(enumValue -> {
-            Station testStation = BusStations.of(enumValue);
-
+            Station testStation = enumValue.fake();
             Station realStation = enumValue.from(stationRepository);
 
             String testStationName = testStation.getName();
             assertEquals(realStation.getName(), testStationName, "name wrong for id: " + testStation.getId());
+
             // area enriched/loaded from naptan data
             //assertEquals(realStation.getArea(), testStation.getArea(),"area wrong for " + testStationName);
+
             assertEquals(realStation.getTransportModes(), testStation.getTransportModes(), "mode wrong for " + testStationName);
             TestEnv.assertLatLongEquals(realStation.getLatLong(), testStation.getLatLong(), 0.001,
                     "latlong wrong for " + testStationName);

@@ -3,11 +3,11 @@ package com.tramchester.testSupport.reference;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdForDTO;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import org.jetbrains.annotations.NotNull;
@@ -55,6 +55,9 @@ public enum BusStations implements FakeStation {
         this.latlong = latlong;
     }
 
+    /***
+     * use fake() instead
+     */
     @Deprecated
     public static Station of(BusStations enumValue) {
         return enumValue.fake();
@@ -88,7 +91,9 @@ public enum BusStations implements FakeStation {
     @NotNull
     private MutableStation createMutable() {
         GridPosition grid = CoordinateTransforms.getGridPosition(latlong);
-        return new MutableStation(getId(), NaptanArea.invalidId(), name, latlong, grid, DataSourceID.tfgm, getRawId());
+        MutableStation mutableStation = new MutableStation(getId(), NaptanArea.invalidId(), name, latlong, grid, DataSourceID.tfgm, getRawId());
+        mutableStation.addMode(TransportMode.Bus);
+        return mutableStation;
     }
 
     public enum Composites {

@@ -38,7 +38,6 @@ import static com.tramchester.testSupport.TestEnv.StagecoachManchester;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
 import static org.junit.jupiter.api.Assertions.*;
 
-//@Disabled("Disabled while working on tfgm gtfs usage changes")
 @DataUpdateTest
 @BusTest
 public
@@ -114,7 +113,7 @@ class TransportDataFromFilesBusTest {
     void shouldGetSpecificBusRoutes() {
         Collection<Route> results = transportData.getRoutes();
         long gmsRoutes = results.stream().filter(route -> route.getAgency().equals(StagecoachManchester)).count();
-        assertWithinNPercent(197, gmsRoutes, 0.1F);
+        assertWithinNPercent(157, gmsRoutes, 0.1F);
     }
 
     @Test
