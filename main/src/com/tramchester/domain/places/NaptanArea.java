@@ -28,8 +28,7 @@ public class NaptanArea implements HasGridPosition, HasId<NaptanArea>, CoreDomai
     }
 
     public static NaptanArea Invalid() {
-        // todo should be StringIdFor.invalid()
-        return new NaptanArea(StringIdFor.createId("Invalid", NaptanArea.class), "Invalid", GridPosition.Invalid, false,
+        return new NaptanArea(IdFor.invalid(NaptanArea.class), "Invalid", GridPosition.Invalid, false,
                 NaptanStopAreaType.Unknown);
     }
 

@@ -26,6 +26,9 @@ public class ActiveGraphFilter implements GraphFilter, ConfigurableGraphFilter {
 
     @Override
     public boolean isFiltered() {
+        if (routeIds.isEmpty() && serviceIds.isEmpty() && stationsIds.isEmpty() && agencyIds.isEmpty()) {
+            throw new RuntimeException("Misconfigured filter, none set");
+        }
         return true;
     }
 

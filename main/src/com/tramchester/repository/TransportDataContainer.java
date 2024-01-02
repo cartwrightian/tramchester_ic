@@ -197,7 +197,6 @@ public class TransportDataContainer implements TransportData, WriteableTransport
         return stationsById.getValues().stream().
                 filter(station -> station.getDataSourceID().equals(dataSourceID)).
                 filter(station -> station.getTransportModes().contains(mode)).count();
-        //return stationsById.size();
     }
 
     @Override
@@ -305,6 +304,17 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     @Override
     public Agency get(IdFor<Agency> id) {
         return agencies.get(id);
+    }
+
+    @Override
+    public IdFor<Agency> findByName(String name) {
+        Optional<Agency> found = agencies.filterStream(item -> name.equals(item.getName())).findFirst();
+
+        if (found.isPresent()) {
+            return found.get().getId();
+        } else {
+            return IdFor.invalid(Agency.class);
+        }
     }
 
     @Override
@@ -476,6 +486,9 @@ public class TransportDataContainer implements TransportData, WriteableTransport
 
     @Override
     public Set<Route> findRoutesByName(IdFor<Agency> agencyId, String longName) {
+        if (!agencyId.isValid()) {
+            throw new RuntimeException("Invalid agency id");
+        }
         return routes.getValues().stream().
                 filter(route -> route.getAgency().getId().equals(agencyId)).
                 filter(route -> route.getName().equals(longName)).

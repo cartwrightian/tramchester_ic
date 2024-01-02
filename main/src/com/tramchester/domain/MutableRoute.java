@@ -8,7 +8,6 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
-import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -141,8 +140,12 @@ public class MutableRoute implements Route {
 
     @Override
     public boolean isDateOverlap(final Route otherRoute) {
+        // some bus routes for tfgm have no trips/services
         if (services.isEmpty()) {
-            throw new RuntimeException("Route has no services");
+            return false;
+        }
+        if (otherRoute.getServices().isEmpty()) {
+            return false;
         }
         final MutableRoute otherMutableRoute = (MutableRoute) otherRoute;
         return routeCalendar.anyOverlapInRunning(otherMutableRoute.routeCalendar);
@@ -164,6 +167,10 @@ public class MutableRoute implements Route {
 
     @Override
     public boolean isAvailableOn(TramDate date) {
+        if (this.services.isEmpty()) {
+            // some bus routes for tfgm have no trips/services
+            return false;
+        }
         return routeCalendar.isAvailableOn(date);
     }
 

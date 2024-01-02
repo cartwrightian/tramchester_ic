@@ -130,6 +130,18 @@ class TransportDataFromFilesBusTest {
     }
 
     @Test
+    void shouldHaveRoutesWithServices() {
+        Set<Route> routes = transportData.getRoutes();
+
+        Set<Route> noSvcs = routes.stream().filter(route -> route.getServices().isEmpty()).collect(Collectors.toSet());
+
+        //assertTrue(noSvcs.isEmpty(), HasId.asIds(noSvcs));
+        // see next test
+        assertEquals(2, noSvcs.size(),  HasId.asIds(noSvcs));
+
+    }
+
+    @Test
     void shouldHaveNotHaveRoutesWithZeroTrips() {
         Set<Route> routes = transportData.getRoutes();
 
@@ -140,7 +152,7 @@ class TransportDataFromFilesBusTest {
 
 //        assertEquals(Collections.emptySet(), emptyRoutes);
 
-        // should be zero? but seem to have one at the moment
+        // should be zero? but seem to have 2 at the moment, see also above
         assertEquals(2, emptyRoutes.size());
 
     }

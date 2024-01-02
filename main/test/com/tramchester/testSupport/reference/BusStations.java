@@ -100,6 +100,7 @@ public enum BusStations implements FakeStation {
         // closed for rebuilding....
         //StockportBusStation("Stockport Bus Station"),
         StockportTempBusStation("Stockport Heaton Lane Bus Station"),
+        ShudehillInterchange("Shudehill Interchange"),
         AltrinchamInterchange("Altrincham Interchange");
 
         private final String compositeName;

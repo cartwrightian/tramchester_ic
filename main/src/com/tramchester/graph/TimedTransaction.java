@@ -2,6 +2,7 @@ package com.tramchester.graph;
 
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.metrics.Timing;
+import org.neo4j.graphdb.TransientTransactionFailureException;
 import org.slf4j.Logger;
 
 import java.time.Duration;
@@ -12,19 +13,19 @@ public class TimedTransaction implements AutoCloseable {
     private final Logger logger;
     private final String name;
     private final Timing timing;
-    private boolean commited;
+    private boolean committed;
 
     public TimedTransaction(GraphDatabase graphDatabase, Logger logger, String name) {
         this.transaction = graphDatabase.beginTxMutable();
         this.logger = logger;
         this.name = name;
         timing = new Timing(logger, "transaction " + name);
-        commited = false;
+        committed = false;
     }
 
     @Override
     public void close() {
-        if (!commited) {
+        if (!committed) {
             logger.warn("transaction " + name + " was not committed");
         }
         transaction.close();
@@ -36,10 +37,17 @@ public class TimedTransaction implements AutoCloseable {
     }
 
     public void commit() {
-        commited = true;
+        committed = true;
         Instant start = Instant.now();
-        transaction.commit();
-        Instant finish = Instant.now();
-        logger.info("TIMING: " + name + " COMMIT TOOK: " + Duration.between(start, finish).toMillis() +" ms");
+        try {
+            transaction.commit();
+            Instant finish = Instant.now();
+            logger.info("TIMING: " + name + " COMMIT TOOK: " + Duration.between(start, finish).toMillis() + " ms");
+        }
+        catch (TransientTransactionFailureException exception) {
+            Instant finish = Instant.now();
+            logger.error("TXN FAILED: " + name + " AFTER: " + Duration.between(start, finish).toMillis() + " ms", exception);
+            throw new RuntimeException("Transaction " + name + " failed", exception);
+        }
     }
 }

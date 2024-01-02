@@ -10,4 +10,5 @@ import java.util.Set;
 public interface AgencyRepository {
     Set<Agency> getAgencies();
     Agency get(IdFor<Agency> id);
+    IdFor<Agency> findByName(String name);
 }

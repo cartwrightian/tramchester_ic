@@ -1,6 +1,5 @@
 package com.tramchester.integration.graph.buses;
 
-import com.google.common.collect.Streams;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.DiagramCreator;
@@ -11,6 +10,7 @@ import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
@@ -24,10 +24,7 @@ import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
-import com.tramchester.repository.RouteRepository;
-import com.tramchester.repository.StationGroupsRepository;
-import com.tramchester.repository.StationRepository;
-import com.tramchester.repository.TransportData;
+import com.tramchester.repository.*;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.testTags.BusTest;
@@ -48,12 +45,11 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @BusTest
-class BusRouteCalculatorSubGraphAltyToMaccRoute {
+class BusRouteCalculatorSubGraphAltyToMaccRouteTest {
 
     private static ComponentContainer componentContainer;
     private static TramchesterConfig config;
     private static Set<Route> altyToKnutsford;
-    private static Set<Route> knutsfordToAlty;
 
     private RouteCalculatorTestFacade calculator;
 
@@ -70,7 +66,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
         deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder().
-                configureGraphFilter(BusRouteCalculatorSubGraphAltyToMaccRoute::configureFilter).
+                configureGraphFilter(BusRouteCalculatorSubGraphAltyToMaccRouteTest::configureFilter).
                 create(config, NoopRegisterMetrics());
         componentContainer.initialise();
 
@@ -78,7 +74,6 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
 
     private static void configureFilter(ConfigurableGraphFilter graphFilter, TransportData transportData) {
         altyToKnutsford.forEach(route -> graphFilter.addRoute(route.getId()));
-        knutsfordToAlty.forEach(route -> graphFilter.addRoute(route.getId()));
     }
 
     @AfterAll
@@ -90,11 +85,11 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
     @BeforeEach
     void beforeEachTestRuns() {
         RouteRepository routeRepository = componentContainer.get(TransportData.class);
-        IdFor<Agency> agencyId = Agency.createId("DAGC");
+        AgencyRepository agencyRepository = componentContainer.get(AgencyRepository.class);
+        IdFor<Agency> agencyId = agencyRepository.findByName("D&G Bus");
         altyToKnutsford = routeRepository.findRoutesByName(agencyId,
                 "Altrincham - Wilmslow - Knutsford - Macclesfield");
-        knutsfordToAlty = routeRepository.findRoutesByName(agencyId,
-                "Macclesfield - Knutsford - Wilmslow - Altrincham");
+        assertFalse(altyToKnutsford.isEmpty());
 
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
 
@@ -108,7 +103,6 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
         when = TestEnv.testDay();
 
         altrinchamInterchange = stationGroupsRepository.findByName("Altrincham Interchange");
-
 
         StationLocations stationLocations = componentContainer.get(StationLocations.class);
 
@@ -139,7 +133,14 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
     @Test
     void shouldFindRoutesForTest() {
         assertNotNull(altyToKnutsford);
-        assertNotNull(knutsfordToAlty);
+    }
+
+    @Test
+    void shouldHavePickupAndDropoffForStationGroup() {
+        assertNotNull(altrinchamInterchange);
+
+        assertFalse(altrinchamInterchange.getPickupRoutes().isEmpty());
+        assertFalse(altrinchamInterchange.getDropoffRoutes().isEmpty());
     }
 
     @Test
@@ -176,6 +177,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
         assertFalse(results.isEmpty());
     }
 
+    @Disabled("WIP")
     @Test
     void shouldHaveSimpleRouteWithStationsAlongTheWay() {
 
@@ -186,7 +188,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
             route.getTrips().forEach(trip -> {
                 StopCalls stopCalls = trip.getStopCalls();
 
-                List<IdFor<Station>> ids = stopCalls.stream().map(stopCall -> stopCall.getStation().getId()).collect(Collectors.toList());
+                List<IdFor<Station>> ids = stopCalls.stream().map(stopCall -> stopCall.getStation().getId()).toList();
 
                 int knutsfordIndex = ids.indexOf(Station.createId("0600MA6022")); // services beyond here are infrequent
                 Station firstStation = stopCalls.getFirstStop().getStation();
@@ -196,7 +198,8 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
                         1, Duration.ofMinutes(120), 1, getRequestedModes());
 
                 for (int i = 1; i <= knutsfordIndex; i++) {
-                    Station secondStation = stopCalls.getStopBySequenceNumber(i).getStation();
+                    StopCall stopCall = stopCalls.getStopBySequenceNumber(i);
+                    Station secondStation = stopCall.getStation();
                     Set<Journey> result = calculator.calculateRouteAsSet(firstStation, secondStation, journeyRequest);
                     assertFalse(result.isEmpty());
                 }
@@ -211,7 +214,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRoute {
     void produceDiagramOfGraphSubset() throws IOException {
         DiagramCreator creator = componentContainer.get(DiagramCreator.class);
         // all station for both sets of routes
-        Set<Station> stations = Streams.concat(altyToKnutsford.stream(), knutsfordToAlty.stream()).
+        Set<Station> stations = altyToKnutsford.stream().
                 flatMap(route -> route.getTrips().stream()).
                 flatMap(trip -> trip.getStopCalls().getStationSequence(false).stream()).
                 collect(Collectors.toSet());

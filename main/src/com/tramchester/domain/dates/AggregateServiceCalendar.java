@@ -12,8 +12,9 @@ public class AggregateServiceCalendar implements ServiceCalendar {
     private final MutableDaysBitmap days;
 
     // for diagnostics only
-    private final TramDateSet additional;
-    private final TramDateSet removed;
+    private final Collection<ServiceCalendar> sources;
+//    private final TramDateSet additional;
+//    private final TramDateSet removed;
 
     private final boolean cancelled;
     private final DateRange aggregatedRange;
@@ -21,15 +22,19 @@ public class AggregateServiceCalendar implements ServiceCalendar {
 
     public AggregateServiceCalendar(Collection<ServiceCalendar> calendars) {
 
+        if (calendars.isEmpty()) {
+            throw new RuntimeException("Cannot create aggregate for no calendars");
+        }
+
         aggregatedRange = calculateDateRange(calendars);
         cancelled = calendars.stream().allMatch(ServiceCalendar::isCancelled);
 
-        additional = new TramDateSet();
+        sources = calendars;
         aggregatedDays = EnumSet.noneOf(DayOfWeek.class);
 
         days = createDaysBitset(aggregatedRange);
 
-        TramDateSet allExcluded = new TramDateSet();
+//        TramDateSet allExcluded = new TramDateSet();
         calendars.forEach(calendar -> {
             setDaysFor(calendar);
             aggregatedDays.addAll(calendar.getOperatingDays());
@@ -38,7 +43,7 @@ public class AggregateServiceCalendar implements ServiceCalendar {
         });
 
         // only keep an excluded date if it's not available via any of the other contained calendars
-        removed = allExcluded.stream().filter(date -> !days.isSet(date)).collect(TramDateSet.collector());
+        //removed = allExcluded.stream().filter(date -> !days.isSet(date)).collect(TramDateSet.collector());
     }
 
     private MutableDaysBitmap createDaysBitset(DateRange dateRange) {
@@ -55,6 +60,9 @@ public class AggregateServiceCalendar implements ServiceCalendar {
     }
 
     private static DateRange calculateDateRange(Collection<ServiceCalendar> calendars) {
+        if (calendars.isEmpty()) {
+            throw new RuntimeException("No calendars supplied");
+        }
         final Optional<TramDate> begin = calendars.stream().map(calendar -> calendar.getDateRange().getStartDate()).
                 reduce(AggregateServiceCalendar::earliest);
 
@@ -128,12 +136,13 @@ public class AggregateServiceCalendar implements ServiceCalendar {
             printStream.print("CANCELLED: ");
         }
         printStream.printf("%s days %s%n", getDateRange(), reportDays());
-        if (!additional.isEmpty()) {
-            printStream.println("Additional on: " + additional);
-        }
-        if (!removed.isEmpty()) {
-            printStream.println("Not running on: " + removed);
-        }
+        printStream.println("source calendars: " + sources.toString());
+//        if (!additional.isEmpty()) {
+//            printStream.println("Additional on: " + additional);
+//        }
+//        if (!removed.isEmpty()) {
+//            printStream.println("Not running on: " + removed);
+//        }
     }
 
     private String reportDays() {
@@ -164,8 +173,6 @@ public class AggregateServiceCalendar implements ServiceCalendar {
     public String toString() {
         return "AggregateServiceCalendar{" +
                 "aggregatedDays=" + aggregatedDays +
-                ", additional=" + additional +
-                ", removed=" + removed +
                 ", cancelled=" + cancelled +
                 ", aggregatedRange=" + aggregatedRange +
                 ", days=" + days +

@@ -462,7 +462,7 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
                 List<Integer> toSet = IntStream.range(0, numberOfRoutes).
                         //parallel().
                         filter(toIndex -> (fromIndex == toIndex) || from.isDateOverlap(index.getRouteFor((short)toIndex))).
-                        boxed().collect(Collectors.toList());
+                        boxed().toList();
                 numberSet = numberSet + toSet.size();
                 toSet.forEach(resultsForRoute::set);
                 overlapMasks[i] = resultsForRoute;
@@ -629,9 +629,9 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
         private final IndexedBitSet[] bitSets;
 
         private CostsPerDegree() {
-            bitSets = new IndexedBitSet[MAX_DEPTH];
+            bitSets = new IndexedBitSet[MAX_DEPTH+1];
 
-            for (int depth = 0; depth < MAX_DEPTH; depth++) {
+            for (int depth = 0; depth <= MAX_DEPTH; depth++) {
                 bitSets[depth] = IndexedBitSet.Square(numRoutes);
             }
         }
