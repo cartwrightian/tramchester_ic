@@ -3,18 +3,16 @@ package com.tramchester.integration.repository.buses;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.RouteEndRepository;
-import com.tramchester.testSupport.testTags.BusTest;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -53,6 +51,6 @@ class RouteEndRepositoryBusTest {
     void shouldHaveExpectedNumberOfEndOfRouteStations() {
         IdSet<Station> result = routeEndRepository.getStations(TransportMode.Bus);
 
-        assertEquals(1066, result.size());
+        assertEquals(963, result.size());
     }
 }

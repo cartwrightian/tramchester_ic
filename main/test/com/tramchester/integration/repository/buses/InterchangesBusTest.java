@@ -11,10 +11,7 @@ import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.BusTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -48,7 +45,6 @@ class InterchangesBusTest {
     @Test
     void shouldFindBusInterchanges() {
         IdSet<Station> interchanges = interchangeRepository.getAllInterchanges().stream().
-                //filter(interchange -> interchange.getTransportModes().contains(Bus)).
                 map(InterchangeStation::getStationId).
                 collect(IdSet.idCollector());
         assertFalse(interchanges.isEmpty());
@@ -57,15 +53,16 @@ class InterchangesBusTest {
         assertFalse(interchanges.contains(StockportNewbridgeLane.getId()));
 
         assertTrue(interchanges.contains(StopAtAltrinchamInterchange.getId()));
-        // stockport bus station is closed
-        //assertTrue(interchanges.contains(StopAtStockportBusStation.getId()));
 
     }
 
+    @Disabled("route no longer exists")
     @Test
     void shouldNotCountLinksForSameRoute() {
         // Was here to diagnose issues with automatic id of interchanges
         Route route = routeRepository.getRouteById(Route.createId("SCMN149A:O:CURRENT"));
+
+        assertNotNull(route);
 
         Set<InterchangeStation> interForRoutes = interchangeRepository.getAllInterchanges().stream().
                 filter(interchangeStation -> interchangeStation.getPickupRoutes().contains(route)).collect(Collectors.toSet());
