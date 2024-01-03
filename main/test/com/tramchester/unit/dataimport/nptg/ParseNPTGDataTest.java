@@ -1,11 +1,13 @@
 package com.tramchester.unit.dataimport.nptg;
 
 import com.tramchester.dataimport.nptg.NPTGData;
+import com.tramchester.geo.GridPosition;
 import com.tramchester.unit.dataimport.ParserTestCSVHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ParseNPTGDataTest extends ParserTestCSVHelper<NPTGData> {
 
@@ -29,6 +31,11 @@ public class ParseNPTGDataTest extends ParserTestCSVHelper<NPTGData> {
         assertEquals("1800SJ11291", item.getActoCode());
         assertEquals("Ashley Heath", item.getLocalityName());
         assertEquals("Altrincham", item.getParentLocalityName());
+
+        GridPosition gridPosition = item.getGridPosition();
+        assertTrue(gridPosition.isValid());
+        assertEquals(377283L, gridPosition.getEastings());
+        assertEquals(386186L, gridPosition.getNorthings());
     }
 
 

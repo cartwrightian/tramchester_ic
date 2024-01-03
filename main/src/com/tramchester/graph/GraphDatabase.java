@@ -35,7 +35,7 @@ public class GraphDatabase implements DatabaseEventListener {
     private final DataSourceRepository dataSourceRepository;
     private final GraphDBConfig graphDBConfig;
     private final GraphDatabaseLifecycleManager lifecycleManager;
-    private final GraphIdFactory graphIdFactory;
+//    private final GraphIdFactory graphIdFactory;
     private final TramchesterConfig tramchesterConfig;
     private boolean indexesOnline;
 
@@ -44,12 +44,12 @@ public class GraphDatabase implements DatabaseEventListener {
 
     @Inject
     public GraphDatabase(TramchesterConfig configuration, DataSourceRepository dataSourceRepository,
-                         GraphDatabaseLifecycleManager lifecycleManager, GraphIdFactory graphIdFactory) {
+                         GraphDatabaseLifecycleManager lifecycleManager) {
         this.dataSourceRepository = dataSourceRepository;
         this.tramchesterConfig = configuration;
         this.graphDBConfig = configuration.getGraphDBConfig();
         this.lifecycleManager = lifecycleManager;
-        this.graphIdFactory = graphIdFactory;
+//        this.graphIdFactory = graphIdFactory;
         indexesOnline = false;
     }
 
@@ -60,7 +60,7 @@ public class GraphDatabase implements DatabaseEventListener {
             final Path dbPath = graphDBConfig.getDbPath();
             boolean fileExists = Files.exists(dbPath);
             databaseService = lifecycleManager.startDatabase(dataSourceRepository, dbPath, fileExists);
-            graphTransactionFactory = new GraphTransactionFactory(databaseService, graphIdFactory);
+            graphTransactionFactory = new GraphTransactionFactory(databaseService);
             logger.info("graph db started ");
         } else {
             logger.warn("Planning is disabled, not starting the graph database");

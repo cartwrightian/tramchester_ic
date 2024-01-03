@@ -31,7 +31,8 @@ public class AgencyBuilderNodeCache implements ServiceNodeCache, HourNodeCache {
 
     // TODO This has to be route station to route Station
     @Override
-    public MutableGraphNode getServiceNode(MutableGraphTransaction txn, IdFor<Route> routeId, Service service, IdFor<Station> startStation, IdFor<Station> endStation) {
+    public MutableGraphNode getServiceNode(MutableGraphTransaction txn, IdFor<Route> routeId, Service service,
+                                           IdFor<Station> startStation, IdFor<Station> endStation) {
         String id = CreateKeys.getServiceKey(routeId, service.getId(), startStation, endStation);
         return txn.getNodeByIdMutable(svcNodes.get(id));
     }

@@ -38,7 +38,7 @@ public class GraphDatabaseLifecycleManagerTest extends EasyMockSupport {
         storedVersions = createMock(GraphDatabaseStoredVersions.class);
         dataSourceRepos = createMock(DataSourceRepository.class);
         GraphIdFactory graphIdFactory = createMock(GraphIdFactory.class);
-        graphDatabaseLifecycleManager = new GraphDatabaseLifecycleManager(config, serviceFactory, storedVersions, graphIdFactory);
+        graphDatabaseLifecycleManager = new GraphDatabaseLifecycleManager(config, serviceFactory, storedVersions);
     }
 
     @Test

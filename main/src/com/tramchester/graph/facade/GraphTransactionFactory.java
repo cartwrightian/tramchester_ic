@@ -11,14 +11,16 @@ import java.util.concurrent.TimeUnit;
  */
 public class GraphTransactionFactory {
     private final GraphDatabaseService databaseService;
-    private final GraphIdFactory graphIdFactory;
+//    private final GraphIdFactory graphIdFactory;
 
-    public GraphTransactionFactory(GraphDatabaseService databaseService, GraphIdFactory graphIdFactory) {
+    public GraphTransactionFactory(GraphDatabaseService databaseService) {
         this.databaseService = databaseService;
-        this.graphIdFactory = graphIdFactory;
+//        this.graphIdFactory = graphIdFactory;
     }
 
     public MutableGraphTransaction beginMutable(Duration timeout) {
+        // graph id factory scoped to transaction level to avoid memory usages issues
+        GraphIdFactory graphIdFactory = new GraphIdFactory();
         return new MutableGraphTransaction(databaseService.beginTx(timeout.toSeconds(), TimeUnit.SECONDS), graphIdFactory);
     }
 

@@ -1,10 +1,14 @@
 package com.tramchester.repository.nptg;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.nptg.NPTGData;
 import com.tramchester.dataimport.nptg.NPTGDataLoader;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.NaptanRecord;
+import com.tramchester.geo.BoundingBox;
+import com.tramchester.geo.GridPosition;
+import com.tramchester.geo.MarginInMeters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,13 +27,15 @@ public class NPTGRepository {
     private static final Logger logger = LoggerFactory.getLogger(NPTGRepository.class);
 
     private final NPTGDataLoader dataLoader;
+    private final TramchesterConfig config;
 
     // acto code
     private final Map<IdFor<NaptanRecord>, NPTGData> nptgDataMap;
 
     @Inject
-    public NPTGRepository(NPTGDataLoader dataLoader) {
+    public NPTGRepository(NPTGDataLoader dataLoader, TramchesterConfig config) {
         this.dataLoader = dataLoader;
+        this.config = config;
         nptgDataMap = new HashMap<>();
     }
 
@@ -39,8 +45,11 @@ public class NPTGRepository {
             logger.warn("Disabled");
             return;
         }
-        logger.info("Starting");
-        loadData();
+        BoundingBox bounds = config.getBounds();
+        final Double range = config.getNearestStopForWalkingRangeKM();
+        final MarginInMeters margin = MarginInMeters.of(range);
+        logger.info("Starting for " + bounds + " and margin " + margin);
+        loadData(bounds, margin);
         if (nptgDataMap.isEmpty()) {
             logger.error("Failed to load any data.");
         } else {
@@ -49,8 +58,17 @@ public class NPTGRepository {
         logger.info("started");
     }
 
-    private void loadData() {
-        dataLoader.getData().forEach(item -> nptgDataMap.put(getActoCodeFor(item), item));
+    private void loadData(BoundingBox bounds, MarginInMeters margin) {
+        dataLoader.getData().filter(nptgData -> filterBy(bounds, margin, nptgData)).
+                forEach(item -> nptgDataMap.put(getActoCodeFor(item), item));
+    }
+
+    private boolean filterBy(final BoundingBox bounds, final MarginInMeters margin, final NPTGData item) {
+        final GridPosition gridPosition = item.getGridPosition();
+        if (!gridPosition.isValid()) {
+            return false;
+        }
+        return bounds.within(margin, gridPosition);
     }
 
     private IdFor<NaptanRecord> getActoCodeFor(NPTGData nptgData) {

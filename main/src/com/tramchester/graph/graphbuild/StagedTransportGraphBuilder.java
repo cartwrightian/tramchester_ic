@@ -127,7 +127,6 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             for(Agency agency : transportData.getAgencies()) {
                 if (graphFilter.shouldIncludeAgency(agency)) {
                     try (Timing ignored1 = new Timing(logger,"Add agency " + agency.getId() + " " + agency.getName())) {
-
                         buildForAgency(graphDatabase, agency, stationAndPlatformNodeCache, routeStationNodeCache, boardingDepartNodeCache);
                     }
                 }

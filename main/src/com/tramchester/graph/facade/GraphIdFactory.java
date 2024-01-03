@@ -1,14 +1,12 @@
 package com.tramchester.graph.facade;
 
-import com.netflix.governator.guice.lazy.LazySingleton;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-/// NOTE : TODO should this be transaction scoped? Control memory usage to some extent? Or use a caffeine based cache?
-@LazySingleton
+/// NOTE : TODO use a caffeine based cache?
 public class GraphIdFactory {
     private final ConcurrentMap<String, GraphNodeId> nodeIds;
     private final ConcurrentMap<String, GraphRelationshipId> relationshipIds;

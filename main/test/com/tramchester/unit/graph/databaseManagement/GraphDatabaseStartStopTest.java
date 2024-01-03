@@ -4,7 +4,6 @@ import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.databaseManagement.GraphDatabaseLifecycleManager;
-import com.tramchester.graph.facade.GraphIdFactory;
 import com.tramchester.integration.testSupport.GraphDBTestConfig;
 import com.tramchester.integration.testSupport.IntegrationTestConfig;
 import com.tramchester.repository.DataSourceRepository;
@@ -18,7 +17,8 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -50,9 +50,9 @@ class GraphDatabaseStartStopTest extends EasyMockSupport {
         graphDatabaseService = createMock(GraphDatabaseService.class);
         dataSourceRepository = createMock(DataSourceRepository.class);
 
-        GraphIdFactory graphIdFactory = createMock(GraphIdFactory.class);
+//        GraphIdFactory graphIdFactory = createMock(GraphIdFactory.class);
 
-        graphDatabase = new GraphDatabase(config, dataSourceRepository, lifecycleManager, graphIdFactory);
+        graphDatabase = new GraphDatabase(config, dataSourceRepository, lifecycleManager);
 
         final Path dbPath = dbConfig.getDbPath();
         Files.createDirectories(dbPath.getParent());

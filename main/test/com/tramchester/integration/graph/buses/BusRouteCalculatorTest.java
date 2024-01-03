@@ -28,7 +28,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.TestEnv.Modes.BusesOnly;
 import static com.tramchester.testSupport.reference.BusStations.*;
@@ -142,7 +141,7 @@ class BusRouteCalculatorTest {
         // algo seems to return very large number of changes even when 2 is possible??
         List<Journey> journeys2Stages = journeysMaxChanges.stream().
                 filter(journey -> countNonConnectStages(journey) <= 3).
-                collect(Collectors.toList());
+                toList();
         assertFalse(journeys2Stages.isEmpty());
     }
 
@@ -239,7 +238,7 @@ class BusRouteCalculatorTest {
         Set<Journey> journeys = calculator.calculateRouteAsSet(PiccadilyStationStopA, stockportBusStation, journeyRequest);
         assertFalse(journeys.isEmpty());
         List<Journey> threeStagesOrLess = journeys.stream().filter(
-                journey -> journey.getStages().size() <= (maxChanges + 1)).collect(Collectors.toList());
+                journey -> journey.getStages().size() <= (maxChanges + 1)).toList();
         assertFalse(threeStagesOrLess.isEmpty());
     }
 
