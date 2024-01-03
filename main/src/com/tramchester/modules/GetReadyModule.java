@@ -6,7 +6,7 @@ import com.tramchester.dataimport.FetchDataFromUrl;
 import com.tramchester.dataimport.UnzipFetchedData;
 import com.tramchester.graph.AddNeighboursGraphBuilder;
 import com.tramchester.graph.AddWalksForClosedGraphBuilder;
-import com.tramchester.graph.graphbuild.CompositeStationGraphBuilder;
+import com.tramchester.graph.graphbuild.StationGroupsGraphBuilder;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
 import com.tramchester.repository.TransportData;
@@ -30,7 +30,7 @@ public class GetReadyModule extends AbstractModule {
     }
 
     @Provides
-    CompositeStationGraphBuilder.Ready providesReadyToken(CompositeStationGraphBuilder graphBuilder) {
+    StationGroupsGraphBuilder.Ready providesReadyToken(StationGroupsGraphBuilder graphBuilder) {
         return graphBuilder.getReady();
     }
 

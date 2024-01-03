@@ -6,13 +6,9 @@ import com.tramchester.dataimport.nptg.NPTGDataLoader;
 import java.nio.file.Path;
 import java.time.Duration;
 
-/****
- *   - name: nptg
- *     dataURL: https://naptan.app.dft.gov.uk/datarequest/nptg.ashx?format=csv
- *     dataCheckURL:
- *     dataPath: data/nptg
- *     filename: nptg_data.zip
- */
+
+ //name: nptg
+ // dataURL: https://beta-naptan.dft.gov.uk/Download/National/csv
 
 public class NPTGDataSourceTestConfig extends RemoteDataSourceConfig {
     @Override
@@ -34,8 +30,6 @@ public class NPTGDataSourceTestConfig extends RemoteDataSourceConfig {
     public String getDataUrl() {
         return "https://beta-naptan.dft.gov.uk/Download/National/csv";
         //return "https://beta-naptan.dft.gov.uk/Download/File/Localities.csv";
-        //return "https://naptan.app.dft.gov.uk/datarequest/nptg.ashx?format=csv";
-        //return "http://www.dft.gov.uk/nptg/snapshot/nptgcsv.zip";
     }
 
     @Override

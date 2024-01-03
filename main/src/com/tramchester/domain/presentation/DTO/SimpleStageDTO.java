@@ -119,10 +119,10 @@ public class SimpleStageDTO {
 
     @Override
     public String toString() {
-        return "StageDTO{" +
-                "firstStation=" + firstStation +
-                ", lastStation=" + lastStation +
-                ", actionStation=" + actionStation +
+        return "SimpleStageDTO{" +
+                "firstStation=" + firstStation.getId() +
+                ", lastStation=" + lastStation.getId() +
+                ", actionStation=" + actionStation.getId() +
                 ", queryDate=" + queryDate +
                 ", firstDepartureTime=" + firstDepartureTime +
                 ", expectedArrivalTime=" + expectedArrivalTime +

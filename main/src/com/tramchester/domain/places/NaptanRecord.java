@@ -12,7 +12,7 @@ import com.tramchester.repository.naptan.NaptanStopType;
 import java.util.List;
 
 public class NaptanRecord implements HasId<NaptanRecord>, CoreDomain {
-    private final IdFor<NaptanRecord> id;
+    private final IdFor<NaptanRecord> id; // actoCode
     private final String name;
     private final GridPosition gridPosition;
     private final String suburb;

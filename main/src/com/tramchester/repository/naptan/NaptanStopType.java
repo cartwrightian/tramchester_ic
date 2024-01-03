@@ -47,7 +47,7 @@ public enum NaptanStopType {
         return NaptanStopType.unknown;
     }
 
-    public static boolean isInterchance(NaptanStopType stopType) {
+    public static boolean isInterchange(NaptanStopType stopType) {
         return switch (stopType) {
             case busCoachTrolleyStationBay, busCoachTrolleyStationVariableBay, busCoachStationEntrance,
                     busCoachStationAccess-> true;

@@ -63,9 +63,9 @@ public class VehicleStageDTO extends SimpleStageDTO {
 
     @Override
     public String toString() {
-        return "StageDTO{" +
+        return "VehicleStageDTO{" +
                 "hasPlatform=" + hasPlatform +
-                ", platform=" + platform +
+                ", platform=" + platform.getId() +
                 ", tripId=" + tripId +
                 "} " + super.toString();
     }

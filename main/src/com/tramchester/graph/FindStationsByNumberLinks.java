@@ -6,7 +6,7 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.facade.MutableGraphTransaction;
-import com.tramchester.graph.graphbuild.CompositeStationGraphBuilder;
+import com.tramchester.graph.graphbuild.StationGroupsGraphBuilder;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Result;
@@ -28,7 +28,7 @@ public class FindStationsByNumberLinks {
     // graph building
     @Inject
     public FindStationsByNumberLinks(GraphDatabase graphDatabase,
-                                     @SuppressWarnings("unused") CompositeStationGraphBuilder.Ready readyToken) {
+                                     @SuppressWarnings("unused") StationGroupsGraphBuilder.Ready readyToken) {
         this.graphDatabase = graphDatabase;
     }
 

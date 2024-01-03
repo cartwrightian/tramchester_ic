@@ -4,14 +4,13 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.StationGroup;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -23,7 +22,7 @@ import java.util.Set;
 
 import static com.tramchester.domain.reference.TransportMode.Bus;
 import static com.tramchester.integration.testSupport.Assertions.assertIdEquals;
-import static com.tramchester.testSupport.reference.BusStations.ManchesterAirportStation;
+import static com.tramchester.testSupport.reference.BusStations.Composites.AltrinchamInterchange;
 import static org.junit.jupiter.api.Assertions.*;
 
 @BusTest
@@ -52,7 +51,7 @@ class StationGroupRepositoryTest {
 
     @Test
     void shouldFindExpectedCompositeStations() {
-        final StationGroup groupedStations = stationGroupsRepository.findByName(BusStations.Composites.AltrinchamInterchange.getName());
+        final StationGroup groupedStations = stationGroupsRepository.findByName(AltrinchamInterchange.getName());
         assertNotNull(groupedStations);
 
         assertEquals(8, groupedStations.getContained().size(), groupedStations.toString());
@@ -87,13 +86,5 @@ class StationGroupRepositoryTest {
         });
     }
 
-    @Test
-    void shouldGetCorrectForNonCompositeStation() {
-        Station resultA = stationRepository.getStationById(ManchesterAirportStation.getId());
-        Station resultFull = stationRepository.getStationById(ManchesterAirportStation.getId());
-
-        assertEquals(resultFull, resultA);
-
-    }
 
 }

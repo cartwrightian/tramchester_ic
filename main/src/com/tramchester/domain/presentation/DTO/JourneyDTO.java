@@ -81,7 +81,7 @@ public class JourneyDTO {
     @Override
     public String toString() {
         return "JourneyDTO{" +
-                "begin=" + begin +
+                "begin=" + begin.getId() +
                 ", stages=" + stages +
                 ", expectedArrivalTime=" + expectedArrivalTime +
                 ", firstDepartureTime=" + firstDepartureTime +

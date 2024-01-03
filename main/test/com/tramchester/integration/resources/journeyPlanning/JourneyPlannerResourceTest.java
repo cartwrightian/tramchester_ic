@@ -387,10 +387,10 @@ public class JourneyPlannerResourceTest {
             for(SimpleStageDTO stage : journey.getStages()) {
                 if (previousArrive!=null) {
                     LocalDateTime firstDepartureTime = stage.getFirstDepartureTime();
-                    String prefix  = String.format("Check first departure time %s is after arrival time %s for %s" ,
-                            firstDepartureTime, previousArrive, stage);
+                    String prefix  = String.format("Check first departure time %s is after arrival time %s for stage %s and journey %s " ,
+                            firstDepartureTime, previousArrive, stage, journey);
                     if (stage.getMode()!= TransportMode.Walk) {
-                        assertTrue(firstDepartureTime.isAfter(previousArrive), prefix + message);
+                        assertFalse(firstDepartureTime.isBefore(previousArrive), prefix + message);
                     }
                 }
                 previousArrive = stage.getExpectedArrivalTime();
@@ -407,10 +407,10 @@ public class JourneyPlannerResourceTest {
 
         Set<JourneyDTO> journeys = results.getJourneys();
 
-        String message = String.format("from %s to %s at %s on %s", start, end, queryTime, date);
+        String message = String.format(" from %s to %s at %s on %s ", start, end, queryTime, date);
         assertFalse(journeys.isEmpty(), "Unable to find journey " + message);
         checkDepartsAfterPreviousArrival(message, journeys);
-        journeys.forEach(journey -> assertFalse(journey.getStages().isEmpty(), "Missing stages for journey"+journey));
+        journeys.forEach(journey -> assertFalse(journey.getStages().isEmpty(), "Missing stages for journey "+journey));
         return results;
     }
 

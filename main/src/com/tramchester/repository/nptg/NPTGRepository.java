@@ -14,18 +14,17 @@ import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
 
-/***
- * National Public Transport Gazetteer
- *
- * https://data.gov.uk/dataset/3b1766bf-04a3-44f5-bea9-5c74cf002e1d/national-public-transport-gazetteer-nptg
- *
- *  Cross referenced by naptan data via the nptgLocalityCode
- */
+// National Public Transport Gazetteer
+// https://data.gov.uk/dataset/3b1766bf-04a3-44f5-bea9-5c74cf002e1d/national-public-transport-gazetteer-nptg
+//Cross-referenced by naptan data via the nptgLocalityCode
+
 @LazySingleton
 public class NPTGRepository {
     private static final Logger logger = LoggerFactory.getLogger(NPTGRepository.class);
 
     private final NPTGDataLoader dataLoader;
+
+    // acto code
     private final Map<IdFor<NaptanRecord>, NPTGData> nptgDataMap;
 
     @Inject
@@ -51,7 +50,6 @@ public class NPTGRepository {
     }
 
     private void loadData() {
-        // TODO
         dataLoader.getData().forEach(item -> nptgDataMap.put(getActoCodeFor(item), item));
     }
 

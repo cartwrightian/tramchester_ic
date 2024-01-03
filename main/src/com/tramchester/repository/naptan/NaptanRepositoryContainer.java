@@ -41,6 +41,7 @@ public class NaptanRepositoryContainer implements NaptanRepository {
 
     private final IdMap<NaptanRecord> stops;
     private final IdMap<NaptanArea> areas;
+    // for rail station lookup
     private final Map<IdFor<Station>, IdFor<NaptanRecord>> tiplocToAtco;
 
     @Inject
@@ -103,7 +104,7 @@ public class NaptanRepositoryContainer implements NaptanRepository {
             List<String> active = areas.stream().
                     filter(this::checkIfActive).
                     map(NaptanXMLStopAreaRef::getId).
-                    collect(Collectors.toList());
+                    toList();
             stops.get(recordId).setAreaCodes(active);
         });
 
@@ -154,7 +155,9 @@ public class NaptanRepositoryContainer implements NaptanRepository {
         return new NaptanArea(id, areaData.getName(), areaData.getGridPosition(), areaData.isActive(), areaData.getAreaType());
     }
 
-    private NaptanRecord createRecord(final NaptanStopData original, final Map<IdFor<NaptanRecord>, List<NaptanXMLStopAreaRef>> pendingAreaIds) {
+    private NaptanRecord createRecord(final NaptanStopData original, final Map<IdFor<NaptanRecord>,
+            List<NaptanXMLStopAreaRef>> pendingAreaIds) {
+
         final IdFor<NaptanRecord> id = original.getAtcoCode();
 
         String suburb = original.getSuburb();

@@ -9,7 +9,7 @@ import com.tramchester.graph.*;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.facade.MutableGraphTransaction;
-import com.tramchester.graph.graphbuild.CompositeStationGraphBuilder;
+import com.tramchester.graph.graphbuild.StationGroupsGraphBuilder;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.integration.testSupport.NeighboursTestConfig;
 import com.tramchester.repository.StationGroupsRepository;
@@ -48,7 +48,7 @@ class AddNeighboursGraphBuilderTest {
         graphDatabase = componentContainer.get(GraphDatabase.class);
 
         // make sure composites added to the DB
-        CompositeStationGraphBuilder builder = componentContainer.get(CompositeStationGraphBuilder.class);
+        StationGroupsGraphBuilder builder = componentContainer.get(StationGroupsGraphBuilder.class);
         builder.getReady();
 
         // force init of main DB and hence save of VERSION node, so avoid multiple rebuilds of the DB

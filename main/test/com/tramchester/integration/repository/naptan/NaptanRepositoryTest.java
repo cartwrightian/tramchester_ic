@@ -4,7 +4,6 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.NaptanRecord;
 import com.tramchester.domain.places.Station;
@@ -178,7 +177,7 @@ class NaptanRepositoryTest {
     @Test
     void shouldFindKnutsford() {
 
-        final IdFor<Station> stopId = Station.createId("0600MA6020");
+        final IdFor<Station> stopId = BusStations.KnutsfordStationStand3.getId();
         NaptanRecord fromNaptan = respository.getForActo(stopId);
         assertNotNull(fromNaptan);
 

@@ -23,11 +23,11 @@ import java.time.Duration;
 import java.util.Set;
 
 /***
- * Add nodes and relationships for composite stations to the exitsing graph
+ * Add nodes and relationships for composite stations to the existing graph
  */
 @LazySingleton
-public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
-    private static final Logger logger = LoggerFactory.getLogger(CompositeStationGraphBuilder.class);
+public class StationGroupsGraphBuilder extends CreateNodesAndRelationships {
+    private static final Logger logger = LoggerFactory.getLogger(StationGroupsGraphBuilder.class);
 
     private final GraphDatabase graphDatabase;
     private final StationGroupsRepository stationGroupsRepository;
@@ -39,10 +39,10 @@ public class CompositeStationGraphBuilder extends CreateNodesAndRelationships {
     // NOTE: cannot use graphquery here as creates a circular dependency on this class
 
     @Inject
-    public CompositeStationGraphBuilder(GraphDatabase graphDatabase, StationGroupsRepository stationGroupsRepository,
-                                        TramchesterConfig config, GraphFilter graphFilter,
-                                        @SuppressWarnings("unused") StationsAndLinksGraphBuilder.Ready stationsAndLinksAreBuilt,
-                                        GraphBuilderCache builderCache, Geography geography) {
+    public StationGroupsGraphBuilder(GraphDatabase graphDatabase, StationGroupsRepository stationGroupsRepository,
+                                     TramchesterConfig config, GraphFilter graphFilter,
+                                     @SuppressWarnings("unused") StationsAndLinksGraphBuilder.Ready stationsAndLinksAreBuilt,
+                                     GraphBuilderCache builderCache, Geography geography) {
         super(graphDatabase);
         this.graphDatabase = graphDatabase;
         this.stationGroupsRepository = stationGroupsRepository;

@@ -29,13 +29,14 @@ import static java.lang.String.format;
 
 /***
  * Wrap stations with same area id inside a group so at API/UI level see unique list of station names
+ * TODO area ref id is missing for some stations, need to find an alternative or different way to do this?
  */
 @LazySingleton
 public class StationGroupsRepository {
     private static final Logger logger = LoggerFactory.getLogger(StationGroupsRepository.class);
 
     private final TramchesterConfig config;
-    private final NaptanRepository naptanRespository;
+    private final NaptanRepository naptanRepository;
     private final StationRepository stationRepository;
     private final Geography geography;
     private final GraphFilter graphFilter;
@@ -47,13 +48,13 @@ public class StationGroupsRepository {
 
     @Inject
     public StationGroupsRepository(StationRepository stationRepository, TramchesterConfig config,
-                                   Geography geography, NaptanRepository naptanRespository, GraphFilter graphFilter) {
+                                   Geography geography, NaptanRepository naptanRepository, GraphFilter graphFilter) {
         this.config = config;
         this.geography = geography;
-        this.enabled = naptanRespository.isEnabled();
+        this.enabled = naptanRepository.isEnabled();
 
         this.stationRepository = stationRepository;
-        this.naptanRespository = naptanRespository;
+        this.naptanRepository = naptanRepository;
         this.graphFilter = graphFilter;
 
         stationGroups = new HashMap<>();
@@ -100,7 +101,7 @@ public class StationGroupsRepository {
         }
 
         if (dataSource.getDataSourceId()==DataSourceID.tfgm && modes.contains(Bus)) {
-            if (!naptanRespository.isEnabled()) {
+            if (!naptanRepository.isEnabled()) {
                 String msg = "Naptan config not present in remoteSources, it is required when Bus is enabled for TFGM " + dataSource;
                 logger.error(msg);
                 throw new RuntimeException(msg);
@@ -111,19 +112,19 @@ public class StationGroupsRepository {
         modes.forEach(mode -> capture(dataSource.getDataSourceId(), mode) );
     }
 
-    private void capture(DataSourceID dataSourceID, TransportMode mode) {
+    private void capture(final DataSourceID dataSourceID, final TransportMode mode) {
 
-        Map<IdFor<NaptanArea>, Set<Station>> groupedByName = stationRepository.getStationsFromSource(dataSourceID).
+        Map<IdFor<NaptanArea>, Set<Station>> groupedByAreaId = stationRepository.getStationsFromSource(dataSourceID).
                 filter(graphFilter::shouldInclude).
                 filter(station -> station.servesMode(mode)).
                 filter(station -> station.getAreaId().isValid()).
                 collect(Collectors.groupingBy(Station::getAreaId, Collectors.toSet()));
 
-        groupedByName.entrySet().stream().
+        groupedByAreaId.entrySet().stream().
                 filter(item -> item.getValue().size() > 1).
                 forEach(item -> groupByAreaAndAdd(item.getKey(), item.getValue()));
 
-        logger.info("Created " + stationGroups.size() + " composite stations from " + groupedByName.size());
+        logger.info("Created " + stationGroups.size() + " composite stations from " + groupedByAreaId.size());
     }
 
     private void groupByAreaAndAdd(IdFor<NaptanArea> areaId, Set<Station> stationsInArea) {
@@ -135,8 +136,8 @@ public class StationGroupsRepository {
         Duration changeTimeNeeded = computeChangeTimeNeeded(stationsToGroup);
 
         String areaName  = areaId.toString();
-        if (naptanRespository.containsArea(areaId)) {
-            NaptanArea area = naptanRespository.getAreaFor(areaId);
+        if (naptanRepository.containsArea(areaId)) {
+            NaptanArea area = naptanRepository.getAreaFor(areaId);
             areaName = area.getName();
         } else {
             logger.error(format("Using %s as name, missing area code %s for station group %s", areaName, areaId, HasId.asIds(stationsToGroup)));
