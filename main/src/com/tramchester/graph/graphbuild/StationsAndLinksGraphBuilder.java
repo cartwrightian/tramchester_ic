@@ -17,6 +17,9 @@ import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.TimedTransaction;
 import com.tramchester.graph.facade.*;
 import com.tramchester.graph.filters.GraphFilter;
+import com.tramchester.graph.graphbuild.caching.GraphBuilderCache;
+import com.tramchester.graph.graphbuild.caching.RouteStationNodeCache;
+import com.tramchester.graph.graphbuild.caching.StationAndPlatformNodeCache;
 import com.tramchester.metrics.Timing;
 import com.tramchester.repository.TransportData;
 import org.slf4j.Logger;
@@ -72,7 +75,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
             if (graphFilter.isFiltered()) {
                 logger.warn("Graph is filtered " + graphFilter);
             }
-            buildGraphwithFilter(graphDatabase, builderCache);
+            buildGraphwithFilter(graphDatabase, super.getStationAndPlatformNodeCache(), super.getRouteStationNodeCache());
             logger.info("Graph rebuild is finished for " + graphDBConfig.getDbPath());
         } else {
             logger.info("No rebuild of graph, using existing data");
@@ -80,7 +83,8 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         }
     }
 
-    private void buildGraphwithFilter(GraphDatabase graphDatabase, GraphBuilderCache builderCache) {
+    private void buildGraphwithFilter(GraphDatabase graphDatabase, StationAndPlatformNodeCache stationAndPlatformNodeCache,
+                                      RouteStationNodeCache routeStationNodeCache) {
         logger.info("Building graph for feedinfo: " + transportData.summariseDataSourceInfo());
         logMemory("Before graph build");
 
@@ -95,8 +99,8 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
                             logger.info("Skipping " + station.getId() + " as no transport modes are set, non stopping station");
                         } else {
                             GraphNode stationNode = createStationNode(tx, station);
-                            createPlatformsForStation(tx, station, builderCache);
-                            builderCache.putStation(station.getId(), stationNode);
+                            createPlatformsForStation(tx, station, stationAndPlatformNodeCache);
+                            stationAndPlatformNodeCache.putStation(station.getId(), stationNode);
                         }
                     }
                 }
@@ -105,7 +109,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
 
             for(Agency agency : transportData.getAgencies()) {
                 if (graphFilter.shouldIncludeAgency(agency)) {
-                    addRouteStationsAndLinksFor(agency, builderCache);
+                    addRouteStationsAndLinksFor(agency, stationAndPlatformNodeCache, routeStationNodeCache);
                 }
             }
         } catch (Exception except) {
@@ -118,7 +122,8 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         logMemory("After graph build");
     }
 
-    private void addRouteStationsAndLinksFor(Agency agency, GraphBuilderCache builderCache) {
+    private void addRouteStationsAndLinksFor(Agency agency, StationAndPlatformNodeCache stationAndPlatformNodeCache,
+                                             RouteStationNodeCache routeStationNodeCache) {
 
         Set<Route> routes = agency.getRoutes().stream().filter(graphFilter::shouldIncludeRoute).collect(Collectors.toSet());
         if (routes.isEmpty()) {
@@ -145,11 +150,12 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
                         filter(station -> station.servesRouteDropOff(route) || station.servesRoutePickup(route)).
                         map(station -> transportData.getRouteStation(station, route)).
                         forEach(routeStation -> {
-                            MutableGraphNode routeStationNode = createRouteStationNode(tx, routeStation, builderCache);
-                            linkStationAndRouteStation(tx, routeStation.getStation(), routeStationNode, route.getTransportMode());
+                            MutableGraphNode routeStationNode = createRouteStationNode(tx, routeStation, routeStationNodeCache);
+                            linkStationAndRouteStation(tx, routeStation.getStation(), routeStationNode, route.getTransportMode(),
+                                    stationAndPlatformNodeCache);
                         });
 
-                createLinkRelationships(tx, route, builderCache);
+                createLinkRelationships(tx, route, stationAndPlatformNodeCache);
 
                 logger.debug("Route " + asId + " added ");
             });
@@ -157,8 +163,9 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         }
     }
 
-    private void linkStationAndRouteStation(MutableGraphTransaction txn, Station station, MutableGraphNode routeStationNode, TransportMode transportMode) {
-        MutableGraphNode stationNode = builderCache.getStation(txn, station.getId());
+    private void linkStationAndRouteStation(MutableGraphTransaction txn, Station station, MutableGraphNode routeStationNode,
+                                            TransportMode transportMode, StationAndPlatformNodeCache cache) {
+        MutableGraphNode stationNode = cache.getStation(txn, station.getId());
 
         final MutableGraphRelationship stationToRoute = stationNode.createRelationshipTo(txn, routeStationNode, STATION_TO_ROUTE);
         final MutableGraphRelationship routeToStation = routeStationNode.createRelationshipTo(txn, stationNode, ROUTE_TO_STATION);
@@ -176,7 +183,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
 
     // NOTE: for services that skip some stations, but same stations not skipped by other services
     // this will create multiple links
-    private void createLinkRelationships(MutableGraphTransaction tx, Route route, GraphBuilderCache routeBuilderCache) {
+    private void createLinkRelationships(MutableGraphTransaction tx, Route route, StationAndPlatformNodeCache stationAndPlatformNodeCache) {
 
         // TODO this uses the first cost we encounter for the link, while this is accurate for tfgm trams it does
         //  not give the correct results for buses and trains where time between station can vary depending upon the
@@ -199,8 +206,8 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
             });
 
         pairs.keySet().forEach(pair -> {
-            MutableGraphNode startNode = routeBuilderCache.getStation(tx, pair.getBeginId());
-            MutableGraphNode endNode = routeBuilderCache.getStation(tx, pair.getEndId());
+            MutableGraphNode startNode = stationAndPlatformNodeCache.getStation(tx, pair.getBeginId());
+            MutableGraphNode endNode = stationAndPlatformNodeCache.getStation(tx, pair.getEndId());
             createLinkRelationship(startNode, endNode, route.getTransportMode(), tx);
         });
 
@@ -236,7 +243,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         stationsLinked.addTransportMode(mode);
     }
 
-    private void createPlatformsForStation(MutableGraphTransaction txn, Station station, GraphBuilderCache routeBuilderCache) {
+    private void createPlatformsForStation(MutableGraphTransaction txn, Station station, StationAndPlatformNodeCache stationAndPlatformNodeCache) {
         for (Platform platform : station.getPlatforms()) {
 
             MutableGraphNode platformNode = txn.createNode(GraphLabel.PLATFORM);
@@ -245,11 +252,11 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
             platformNode.setPlatformNumber(platform);
             setTransportMode(station, platformNode);
 
-            routeBuilderCache.putPlatform(platform.getId(), platformNode);
+            stationAndPlatformNodeCache.putPlatform(platform.getId(), platformNode);
         }
     }
 
-    private MutableGraphNode createRouteStationNode(MutableGraphTransaction tx, RouteStation routeStation, GraphBuilderCache builderCache) {
+    private MutableGraphNode createRouteStationNode(MutableGraphTransaction tx, RouteStation routeStation, RouteStationNodeCache routeStationNodeCache) {
 
         boolean hasAlready = tx.hasAnyMatching(GraphLabel.ROUTE_STATION, GraphPropertyKey.ROUTE_STATION_ID.getText(), routeStation.getId().getGraphId());
 
@@ -273,7 +280,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
 
         routeStationNode.setTransportMode(mode);
 
-        builderCache.putRouteStation(routeStation.getId(), routeStationNode);
+        routeStationNodeCache.putRouteStation(routeStation.getId(), routeStationNode);
         return routeStationNode;
     }
 

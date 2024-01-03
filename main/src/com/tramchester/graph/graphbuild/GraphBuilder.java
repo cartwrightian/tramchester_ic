@@ -4,6 +4,7 @@ import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.HasGraphDBConfig;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.filters.GraphFilter;
+import com.tramchester.graph.graphbuild.caching.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,7 +15,7 @@ public abstract class GraphBuilder extends CreateNodesAndRelationships {
 
     protected final GraphDBConfig graphDBConfig;
     protected final GraphFilter graphFilter;
-    protected final GraphBuilderCache builderCache;
+    private final GraphBuilderCache builderCache;
 
     protected GraphBuilder(GraphDatabase graphDatabase, GraphFilter graphFilter, HasGraphDBConfig config,
                            GraphBuilderCache builderCache) {
@@ -29,4 +30,30 @@ public abstract class GraphBuilder extends CreateNodesAndRelationships {
                 Runtime.getRuntime().freeMemory(), Runtime.getRuntime().totalMemory()));
     }
 
+    protected StationAndPlatformNodeCache getStationAndPlatformNodeCache() {
+        return builderCache;
+    }
+
+    protected RouteStationNodeCache getRouteStationNodeCache() {
+        return builderCache;
+    }
+
+    @Deprecated
+    protected ServiceNodeCache getServiceNodeCache() {
+        return builderCache;
+    }
+
+    @Deprecated
+    protected HourNodeCache getHourNodeCache() {
+        return builderCache;
+    }
+
+    // TODO can this be agency scoped?
+    protected BoardingDepartNodeCache getBoardingDepartNodeCache() {
+        return builderCache;
+    }
+
+    protected void fullClearCache() {
+        builderCache.fullClear();
+    }
 }

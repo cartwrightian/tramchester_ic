@@ -12,6 +12,7 @@ import com.tramchester.graph.TimedTransaction;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.facade.MutableGraphNode;
 import com.tramchester.graph.filters.GraphFilter;
+import com.tramchester.graph.graphbuild.caching.GraphBuilderCache;
 import com.tramchester.mappers.Geography;
 import com.tramchester.repository.StationGroupsRepository;
 import org.slf4j.Logger;
@@ -78,7 +79,7 @@ public class StationGroupsGraphBuilder extends CreateNodesAndRelationships {
         reportStats();
     }
 
-    // force contsruction via guide to generate ready token, needed where no direct code dependency on this class
+    // force construction via guide to generate ready token, needed where no direct code dependency on this class
     public Ready getReady() {
         return new Ready();
     }
@@ -137,9 +138,6 @@ public class StationGroupsGraphBuilder extends CreateNodesAndRelationships {
 
     private boolean hasDBFlag(MutableGraphTransaction txn) {
         return txn.hasAnyMatching(GraphLabel.COMPOSITES_ADDED);
-        //ResourceIterator<Node> query = graphDatabase.findNodes(txn, GraphLabel.COMPOSITES_ADDED);
-        //List<Node> nodes = query.stream().toList();
-        //return !nodes.isEmpty();
     }
 
     private void addDBFlag(MutableGraphTransaction txn) {

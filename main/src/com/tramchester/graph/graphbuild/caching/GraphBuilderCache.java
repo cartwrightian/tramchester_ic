@@ -1,4 +1,4 @@
-package com.tramchester.graph.graphbuild;
+package com.tramchester.graph.graphbuild.caching;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Platform;
@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static java.lang.String.format;
 
 @LazySingleton
-public class GraphBuilderCache {
+public class GraphBuilderCache implements HourNodeCache, RouteStationNodeCache, ServiceNodeCache, BoardingDepartNodeCache, StationAndPlatformNodeCache {
     private static final Logger logger = LoggerFactory.getLogger(GraphBuilderCache.class);
 
     private boolean cleared;
@@ -47,7 +47,7 @@ public class GraphBuilderCache {
         departs = new ConcurrentHashMap<>();
     }
 
-    protected void fullClear() {
+    public void fullClear() {
         if (cleared) {
             throw new RuntimeException("Already cleared");
         }
@@ -60,22 +60,35 @@ public class GraphBuilderCache {
         logger.info("Full cleared");
     }
 
-    // memory usage management
-    protected void routeClear() {
-        svcNodes.clear();
+//    // memory usage management
+//    public void routeClear() {
+//        svcNodes.clear();
+//        hourNodes.clear();
+//        logger.debug("Route Clear");
+//    }
+
+    @Override
+    public void clearHourNodes() {
         hourNodes.clear();
-        logger.debug("Route Clear");
     }
 
+    @Override
+    public void clearServiceNodes() {
+        svcNodes.clear();
+    }
+
+    @Override
     public void putRouteStation(IdFor<RouteStation> id, GraphNode routeStationNode) {
         routeStations.put(id, routeStationNode.getId());
     }
 
-    protected void putStation(IdFor<Station> station, GraphNode stationNode) {
+    @Override
+    public void putStation(IdFor<Station> station, GraphNode stationNode) {
         stationsToNodeId.put(station, stationNode.getId());
     }
 
-    protected MutableGraphNode getRouteStation(MutableGraphTransaction txn, Route route, IdFor<Station> stationId) {
+    @Override
+    public MutableGraphNode getRouteStation(MutableGraphTransaction txn, Route route, IdFor<Station> stationId) {
         IdFor<RouteStation> routeStationId = RouteStation.createId(stationId, route.getId());
         if (!routeStations.containsKey(routeStationId)) {
             String message = "Cannot find routestation node in cache " + routeStationId; // + " cache " + routeStations;
@@ -86,83 +99,91 @@ public class GraphBuilderCache {
         return txn.getNodeByIdMutable(routeStations.get(routeStationId));
     }
 
-    protected MutableGraphNode getRouteStation(MutableGraphTransaction txn, IdFor<RouteStation> id) {
+    public MutableGraphNode getRouteStation(MutableGraphTransaction txn, IdFor<RouteStation> id) {
         if (!routeStations.containsKey(id)) {
             String message = "Cannot find routestation node in cache " + id;
             logger.error(message);
             throw new RuntimeException(message);
         }
-//        return GraphNode.fromTransaction(txn, routeStations.get(id));
         return txn.getNodeByIdMutable(routeStations.get(id));
     }
 
+    @Override
     public boolean hasRouteStation(Route route, IdFor<Station> stationId) {
         IdFor<RouteStation> routeStationId = RouteStation.createId(stationId, route.getId());
         return routeStations.containsKey(routeStationId);
     }
 
-    protected MutableGraphNode getStation(MutableGraphTransaction txn, IdFor<Station> stationId) {
+    @Override
+    public MutableGraphNode getStation(MutableGraphTransaction txn, IdFor<Station> stationId) {
         if (!stationsToNodeId.containsKey(stationId)) {
             String message = "Missing station in cache, station: " + stationId + " Cache: " + stationsToNodeId;
             logger.error(message);
             throw new RuntimeException(message);
         }
-//        Long id = stationsToNodeId.get(stationId);
-//        return GraphNode.fromTransaction(txn, id);
+
         return txn.getNodeByIdMutable(stationsToNodeId.get(stationId));
     }
 
-    protected MutableGraphNode getPlatform(MutableGraphTransaction txn, IdFor<Platform> platformId) {
+    @Override
+    public MutableGraphNode getPlatform(MutableGraphTransaction txn, IdFor<Platform> platformId) {
         if (!platforms.containsKey(platformId)) {
             throw new RuntimeException("Missing platform id " + platformId);
         }
-        //return GraphNode.fromTransaction(txn, platforms.get(platformId));
         return txn.getNodeByIdMutable(platforms.get(platformId));
     }
 
-    protected void putPlatform(IdFor<Platform> platformId, GraphNode platformNode) {
+    @Override
+    public void putPlatform(IdFor<Platform> platformId, GraphNode platformNode) {
         platforms.put(platformId, platformNode.getId());
     }
 
-    protected void putService(IdFor<Route> routeId, Service service, IdFor<Station> begin, IdFor<Station> end, GraphNode svcNode) {
+    @Override
+    public void putService(IdFor<Route> routeId, Service service, IdFor<Station> begin, IdFor<Station> end, GraphNode svcNode) {
         String key = CreateKeys.getServiceKey(routeId, service.getId(), begin, end);
         svcNodes.put(key, svcNode.getId());
     }
 
     // TODO This has to be route station to route Station
-    protected MutableGraphNode getServiceNode(MutableGraphTransaction txn, IdFor<Route> routeId, Service service, IdFor<Station> startStation, IdFor<Station> endStation) {
+    @Override
+    public MutableGraphNode getServiceNode(MutableGraphTransaction txn, IdFor<Route> routeId, Service service, IdFor<Station> startStation, IdFor<Station> endStation) {
         String id = CreateKeys.getServiceKey(routeId, service.getId(), startStation, endStation);
         return txn.getNodeByIdMutable(svcNodes.get(id));
     }
 
-    protected void putHour(IdFor<Route> routeId, Service service, IdFor<Station> station, Integer hour, GraphNode node) {
+    @Override
+    public void putHour(IdFor<Route> routeId, Service service, IdFor<Station> station, Integer hour, GraphNode node) {
         String hourKey = CreateKeys.getHourKey(routeId, service.getId(), station, hour);
         hourNodes.put(hourKey, node.getId());
     }
 
-    protected MutableGraphNode getHourNode(MutableGraphTransaction txn, IdFor<Route> routeId, Service service, IdFor<Station> station, Integer hour) {
+    @Override
+    public MutableGraphNode getHourNode(MutableGraphTransaction txn, IdFor<Route> routeId, Service service, IdFor<Station> station, Integer hour) {
         String key = CreateKeys.getHourKey(routeId, service.getId(), station, hour);
         if (!hourNodes.containsKey(key)) {
             throw new RuntimeException(format("Missing hour node for key %s service %s station %s hour %s",
                     key, service.getId(), station, hour));
         }
-        //return GraphNode.fromTransaction(txn, hourNodes.get(key));
         return txn.getNodeByIdMutable(hourNodes.get(key));
     }
 
-    protected void putBoarding(GraphNodeId platformOrStation, GraphNodeId routeStationNodeId) {
+    @Override
+    public void putBoarding(GraphNodeId platformOrStation, GraphNodeId routeStationNodeId) {
         putRelationship(boardings, platformOrStation, routeStationNodeId);
     }
 
-    protected boolean hasBoarding(GraphNodeId platformOrStation, GraphNodeId routeStationNodeId) {
+    @Override
+    public boolean hasBoarding(GraphNodeId platformOrStation, GraphNodeId routeStationNodeId) {
         return hasRelationship(boardings, platformOrStation, routeStationNodeId);
     }
 
-    protected boolean hasDeparts(GraphNodeId platformOrStation, GraphNodeId routeStationNodeId) {
+    @Override
+    public boolean hasDeparts(GraphNodeId platformOrStation, GraphNodeId routeStationNodeId) {
         return hasRelationship(departs, platformOrStation, routeStationNodeId);
     }
 
-    protected void putDepart(GraphNodeId boardingNodeId, GraphNodeId routeStationNodeId) {
+    @Override
+    public void putDepart(GraphNodeId boardingNodeId, GraphNodeId routeStationNodeId) {
         putRelationship(departs, boardingNodeId, routeStationNodeId);
     }
 
@@ -183,15 +204,17 @@ public class GraphBuilderCache {
         return false;
     }
 
+    @Override
     public boolean hasServiceNode(IdFor<Route> routeId, Service service, IdFor<Station> begin, IdFor<Station> end) {
         return svcNodes.containsKey(CreateKeys.getServiceKey(routeId, service.getId(), begin,end));
     }
 
+
+
+    @Override
     public boolean hasHourNode(IdFor<Route> routeId, Service service, IdFor<Station> startId, Integer hour) {
         return hourNodes.containsKey(CreateKeys.getHourKey(routeId, service.getId(), startId, hour));
     }
-
-
 
     private static class CreateKeys {
 

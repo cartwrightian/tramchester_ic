@@ -114,5 +114,9 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
             return "300m";
         }
 
+        @Override
+        public String getMemoryTransactionGlobalMaxSize() {
+            return "700m";
+        }
     }
 }
