@@ -199,9 +199,10 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
         try(Timing ignored = new Timing(logger,"time and update for trips for " + agency.getId())) {
             // removed the parallel, undefined behaviours with shared txn
-            final TransactionStrategy transactionStrategy = new RouteTripTransactionStrategy(graphDatabase, config);
 
             getRoutesForAgency(agency).forEach(route -> {
+                int numTrips = route.getNumberTrips();
+                final TransactionStrategy transactionStrategy = new RouteTripTransactionStrategy(graphDatabase, config, numTrips);
                 transactionStrategy.routeBegin(route);
                 createMinuteNodesAndRecordUpdatesForTrips(transactionStrategy, route, agencyBuilderNodeCache, routeStationNodeCache);
                 transactionStrategy.routeDone();

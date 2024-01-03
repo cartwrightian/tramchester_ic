@@ -180,6 +180,11 @@ public class MutableRoute implements Route {
     }
 
     @Override
+    public int getNumberTrips() {
+        return trips.size();
+    }
+
+    @Override
     public boolean intoNextDay() {
         if (intoNextDay==null) {
             intoNextDay = trips.stream().anyMatch(Trip::intoNextDay);

@@ -18,14 +18,20 @@ public class RouteTripTransactionStrategy implements TransactionStrategy {
 
     private final GraphDatabase graphDatabase;
     private final boolean eachTrip;
+    private final int numTrips;
 
     private MutableGraphTransaction transaction;
     private Instant startRoute;
     private IdFor<Route> routeId;
 
-    public RouteTripTransactionStrategy(GraphDatabase graphDatabase, TramchesterConfig config) {
+    public RouteTripTransactionStrategy(GraphDatabase graphDatabase, TramchesterConfig config, int numTrips) {
         this.graphDatabase = graphDatabase;
-        eachTrip = config.getTransportModes().contains(TransportMode.Bus);
+        if (config.getTransportModes().contains(TransportMode.Bus)) {
+            eachTrip = (numTrips>800);
+        } else {
+            eachTrip = false;
+        }
+        this.numTrips = numTrips;
     }
 
     @Override
@@ -43,8 +49,8 @@ public class RouteTripTransactionStrategy implements TransactionStrategy {
             transaction.commit();
         }
         Instant finish = Instant.now();
-        logger.info(String.format("TIMING: %s TOOK: %s ms (Commit per trip: %s)",
-                routeId, Duration.between(startRoute, finish).toMillis(), eachTrip));
+        logger.info(String.format("TIMING: %s TOOK: %s ms (Commit per trip: %s, number of trips %s)",
+                routeId, Duration.between(startRoute, finish).toMillis(), eachTrip, numTrips));
     }
 
     @Override
