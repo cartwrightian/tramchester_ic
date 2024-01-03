@@ -15,5 +15,4 @@ public interface HourNodeCache {
 
     boolean hasHourNode(IdFor<Route> routeId, Service service, IdFor<Station> startId, Integer hour);
 
-    void clearHourNodes();
 }

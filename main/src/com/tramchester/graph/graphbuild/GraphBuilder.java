@@ -38,21 +38,6 @@ public abstract class GraphBuilder extends CreateNodesAndRelationships {
         return builderCache;
     }
 
-    @Deprecated
-    protected ServiceNodeCache getServiceNodeCache() {
-        return builderCache;
-    }
-
-    @Deprecated
-    protected HourNodeCache getHourNodeCache() {
-        return builderCache;
-    }
-
-    // TODO can this be agency scoped?
-    protected BoardingDepartNodeCache getBoardingDepartNodeCache() {
-        return builderCache;
-    }
-
     protected void fullClearCache() {
         builderCache.fullClear();
     }

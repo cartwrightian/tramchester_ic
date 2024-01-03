@@ -99,7 +99,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             if (graphFilter.isFiltered()) {
                 logger.warn("Graph is filtered " + graphFilter);
             }
-            buildGraphwithFilter(graphDatabase);
+            buildGraphWithFilter(graphDatabase);
             graphDatabase.waitForIndexes();
             logger.info("Graph rebuild is finished for " + graphDBConfig.getDbPath());
         } else {
@@ -109,7 +109,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         logger.info("started");
     }
 
-    private void buildGraphwithFilter(GraphDatabase graphDatabase) {
+    private void buildGraphWithFilter(GraphDatabase graphDatabase) {
         logger.info("Building graph for data source: " + transportData.summariseDataSourceInfo());
         logMemory("Before graph build");
 
@@ -117,7 +117,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
             StationAndPlatformNodeCache stationAndPlatformNodeCache = getStationAndPlatformNodeCache();
             RouteStationNodeCache routeStationNodeCache = getRouteStationNodeCache();
-            BoardingDepartNodeCache boardingDepartNodeCache = getBoardingDepartNodeCache();
+
+            BoardingDepartNodeCache boardingDepartNodeCache = new BoardingDepartNodeCache();
 
             // just for tfgm trams currently
             linkStationsAndPlatforms(stationAndPlatformNodeCache);
@@ -174,9 +175,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     private void buildForAgency(final GraphDatabase graphDatabase, final Agency agency, StationAndPlatformNodeCache stationAndPlatformCache,
                                 RouteStationNodeCache routeStationNodeCache, BoardingDepartNodeCache boardingDepartNodeCache) {
 
-        // todo serviceNodeCache and hourNodeCache can be scoped here
-        ServiceNodeCache serviceNodeCache = super.getServiceNodeCache();
-        HourNodeCache hourNodeCache = super.getHourNodeCache();
+        // serviceNodeCache and hourNodeCache
+        AgencyBuilderNodeCache agencyBuilderNodeCache = new AgencyBuilderNodeCache();
 
         if (getRoutesForAgency(agency).findAny().isEmpty()) {
             return;
@@ -192,7 +192,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             // removed the parallel, undefined behaviours with shared txn
             getRoutesForAgency(agency).forEach(route -> {
                 try (MutableGraphTransaction tx = graphDatabase.beginTxMutable()) {
-                    createServiceAndHourNodesForRoute(tx, route, routeStationNodeCache, serviceNodeCache, hourNodeCache);
+                    createServiceAndHourNodesForRoute(tx, route, routeStationNodeCache, agencyBuilderNodeCache, agencyBuilderNodeCache);
                     tx.commit();
                 }
             });
@@ -204,7 +204,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
             getRoutesForAgency(agency).forEach(route -> {
                 transactionStrategy.routeBegin(route);
-                createMinuteNodesAndRecordUpdatesForTrips(transactionStrategy, route, hourNodeCache, routeStationNodeCache);
+                createMinuteNodesAndRecordUpdatesForTrips(transactionStrategy, route, agencyBuilderNodeCache, routeStationNodeCache);
                 transactionStrategy.routeDone();
             });
         }
@@ -216,9 +216,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             timedTransaction.commit();
         }
 
-        hourNodeCache.clearHourNodes();
-        serviceNodeCache.clearServiceNodes();
-
+        agencyBuilderNodeCache.clear();
     }
 
     @NotNull
@@ -443,7 +441,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
     }
 
-    private void createDeparts(BoardingDepartNodeCache routeBuilderCache, Station station, boolean isInterchange,
+    private void createDeparts(BoardingDepartNodeCache boardingDepartNodeCache, Station station, boolean isInterchange,
                                MutableGraphNode boardingNode, IdFor<RouteStation> routeStationId,
                                MutableGraphNode routeStationNode, MutableGraphTransaction txn) {
 
@@ -463,7 +461,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         departRelationship.setCost(departCost);
         departRelationship.setRouteStationId(routeStationId);
         departRelationship.set(station);
-        routeBuilderCache.putDepart(boardingNode.getId(), routeStationNode.getId());
+        boardingDepartNodeCache.putDepart(boardingNode.getId(), routeStationNode.getId());
 
         if (departType.equals(DIVERSION_DEPART)) {
             Set<DateRange> ranges = stationsWithDiversionRepository.getDateRangesFor(station);
@@ -471,7 +469,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         }
     }
 
-    private void createBoarding(BoardingDepartNodeCache routeBuilderCache, StopCall stop, Route route, Station station,
+    private void createBoarding(BoardingDepartNodeCache boardingDepartNodeCache, StopCall stop, Route route, Station station,
                                 boolean isInterchange, MutableGraphNode platformOrStation, IdFor<RouteStation> routeStationId,
                                 MutableGraphNode routeStationNode, MutableGraphTransaction txn) {
         TransportRelationshipTypes boardType = isInterchange ? INTERCHANGE_BOARD : BOARD;
@@ -487,7 +485,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         if (stop.hasPlatfrom()) {
             boardRelationship.set(stop.getPlatform());
         }
-        routeBuilderCache.putBoarding(platformOrStation.getId(), routeStationNode.getId());
+        boardingDepartNodeCache.putBoarding(platformOrStation.getId(), routeStationNode.getId());
     }
 
     private void createOnRouteRelationship(MutableGraphNode from, MutableGraphNode to, Route route, StopCallRepository.Costs costs,

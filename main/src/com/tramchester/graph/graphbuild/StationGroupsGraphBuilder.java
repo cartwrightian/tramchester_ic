@@ -13,6 +13,7 @@ import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.facade.MutableGraphNode;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.caching.GraphBuilderCache;
+import com.tramchester.graph.graphbuild.caching.StationAndPlatformNodeCache;
 import com.tramchester.mappers.Geography;
 import com.tramchester.repository.StationGroupsRepository;
 import org.slf4j.Logger;
@@ -34,7 +35,7 @@ public class StationGroupsGraphBuilder extends CreateNodesAndRelationships {
     private final StationGroupsRepository stationGroupsRepository;
     private final TramchesterConfig config;
     private final GraphFilter graphFilter;
-    private final GraphBuilderCache builderCache;
+    private final StationAndPlatformNodeCache stationAndPlatformNodeCache;
     private final Geography geography;
 
     // NOTE: cannot use graphquery here as creates a circular dependency on this class
@@ -49,7 +50,7 @@ public class StationGroupsGraphBuilder extends CreateNodesAndRelationships {
         this.stationGroupsRepository = stationGroupsRepository;
         this.config = config;
         this.graphFilter = graphFilter;
-        this.builderCache = builderCache;
+        this.stationAndPlatformNodeCache = builderCache;
         this.geography = geography;
     }
 
@@ -126,7 +127,7 @@ public class StationGroupsGraphBuilder extends CreateNodesAndRelationships {
                 filter(graphFilter::shouldInclude).
                 forEach(station -> {
                     final Duration walkingCost = geography.getWalkingDuration(stationGroup, station);
-                    MutableGraphNode childNode = builderCache.getStation(txn, station.getId());
+                    MutableGraphNode childNode = stationAndPlatformNodeCache.getStation(txn, station.getId());
                     if (childNode==null) {
                         throw new RuntimeException("cannot find node for " + station);
                     }

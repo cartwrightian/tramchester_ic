@@ -15,5 +15,4 @@ public interface ServiceNodeCache {
 
     boolean hasServiceNode(IdFor<Route> routeId, Service service, IdFor<Station> begin, IdFor<Station> end);
 
-    void clearServiceNodes();
 }
