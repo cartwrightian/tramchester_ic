@@ -9,7 +9,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.StationHelper;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -30,8 +29,6 @@ class StationGroupTest {
         MutableStation stationA = StationHelper.forTestMutable("id", "area", "stopName",
                 latLong, dataSourceID, "stationCode");
 
-        //Service service = MutableService.build(Service.createId("serviceId"));
-
         Route route = TestEnv.getTramTestRoute();
         stationA.addRoutePickUp(route);
 
@@ -40,7 +37,7 @@ class StationGroupTest {
 
         IdFor<NPTGLocality> areaId = NPTGLocality.createId("areaId");
         StationGroup groupedStations = new StationGroup(Collections.singleton(stationA), areaId,
-                "compName", Duration.ofMinutes(1));
+                "compName");
 
         assertEquals(LocationType.StationGroup, groupedStations.getLocationType());
 
@@ -69,7 +66,6 @@ class StationGroupTest {
 
     @Test
     void shouldHaveCorrectValuesForTwoStation() {
-//        Service service = MutableService.build(StringIdFor.createId("serviceId"));
 
         MutableStation stationA = StationHelper.forTestMutable("idA", "areaA", "stopNameA",
                 new LatLong(2, 4), dataSourceID, "stationCodeA");
@@ -91,7 +87,7 @@ class StationGroupTest {
 
         Set<Station> stations = new HashSet<>(Arrays.asList(stationA, stationB));
         IdFor<NPTGLocality> areaId = NPTGLocality.createId("areaId");
-        StationGroup stationGroup = new StationGroup(stations, areaId, "compName",Duration.ofMinutes(12));
+        StationGroup stationGroup = new StationGroup(stations, areaId, "compName");
 
         assertEquals(LocationType.StationGroup, stationGroup.getLocationType());
 
@@ -125,7 +121,7 @@ class StationGroupTest {
     @Test
     void shouldHaveCorrectPickupAndDropoff() {
 
-        //Service service = MutableService.build(Service.createId("serviceId"));
+        // Service service = MutableService.build(Service.createId("serviceId"));
 
         MutableStation stationA = StationHelper.forTestMutable("idA", "areaA", "stopNameA",
                 new LatLong(2, 4), dataSourceID, "stationCodeA");
@@ -138,7 +134,7 @@ class StationGroupTest {
 
         Set<Station> stations = new HashSet<>(Arrays.asList(stationA, stationB));
         IdFor<NPTGLocality> areaId = NPTGLocality.createId("areaId");
-        StationGroup stationGroup = new StationGroup(stations, areaId, "compName",Duration.ofMinutes(11));
+        StationGroup stationGroup = new StationGroup(stations, areaId, "compName");
 
         assertFalse(stationGroup.hasPickup());
         assertFalse(stationGroup.hasDropoff());
@@ -151,25 +147,5 @@ class StationGroupTest {
 
     }
 
-    @Test
-    void shouldHaveCorrectMinChangeCostForACompositeStation() {
-        final LatLong positionA = new LatLong(3, 4);
-        final LatLong positionB = new LatLong(2, 5);
-
-        Station stationA = StationHelper.forTest("idA", "areaA", "stopNameA",
-                positionA, dataSourceID, "stationCodeA");
-
-        Station stationB = StationHelper.forTest("idB", "areaB", "stopNameB",
-                positionB, dataSourceID, "stationCodeB");
-
-        IdFor<NPTGLocality> areaId = NPTGLocality.createId("areaId");
-
-        final Duration changeTimeNeeded = Duration.ofMinutes(42);
-        StationGroup stationGroup = new StationGroup( new HashSet<>(Arrays.asList(stationA, stationB)),
-                areaId, "compName", changeTimeNeeded);
-
-
-        assertEquals(changeTimeNeeded, stationGroup.getMinimumChangeCost());
-    }
 
 }

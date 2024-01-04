@@ -115,11 +115,13 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
         GridPosition gridPosition = CoordinateTransforms.getGridPosition(latLong);
 
         if (naptanRepository.isEnabled()) {
-            NaptanRecord naptanData = naptanRepository.getForActo(platformId);
+            if (naptanRepository.containsActo(platformId)) {
+                NaptanRecord naptanData = naptanRepository.getForActo(platformId);
 
-            areaId = naptanData.getLocalityId();
-            gridPosition = naptanData.getGridPosition();
-            latLong = naptanData.getLatLong();
+                areaId = naptanData.getLocalityId();
+                gridPosition = naptanData.getGridPosition();
+                latLong = naptanData.getLatLong();
+            }
 
             // TODO Add logging if there is a significant diff in position data?
         }

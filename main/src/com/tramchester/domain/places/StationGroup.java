@@ -13,7 +13,6 @@ import com.tramchester.geo.GridPosition;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.graphbuild.GraphLabel;
 
-import java.time.Duration;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Set;
@@ -24,28 +23,25 @@ import java.util.stream.Collectors;
 // TODO Should the ID here be NaptanArea Id not station ID?
 
 /***
- * Stations grouped togther as in same naptan area id
- *
+ * Stations grouped together as in same nptg locality, use as starting or end point for a journey
  * see also class: com.tramchester.graph.GraphQuery::getGroupedNode
  */
 public class StationGroup implements Location<StationGroup> {
     private final IdFor<StationGroup> id;
-    private final IdFor<NPTGLocality> areaId;
+    private final IdFor<NPTGLocality> localityId;
     private final Set<Station> groupedStations;
     private final String name;
-    private final Duration minChangeCost;
 
     private final LatLong latLong;
     private final DataSourceID dataSourceId;
 
-    public StationGroup(Set<Station> groupedStations, IdFor<NPTGLocality> areaId, String name, Duration changeTimeNeeded) {
-        this.id = StringIdFor.convert(areaId, StationGroup.class);
+    public StationGroup(Set<Station> groupedStations, IdFor<NPTGLocality> localityId, String name) {
+        this.id = StringIdFor.convert(localityId, StationGroup.class);
         this.latLong = computeLatLong(groupedStations);
         this.dataSourceId = computeDataSourceId(groupedStations);
         this.groupedStations = groupedStations;
-        this.areaId = areaId;
+        this.localityId = localityId;
         this.name = name;
-        this.minChangeCost = changeTimeNeeded;
     }
 
     public static IdFor<StationGroup> createId(String text) {
@@ -78,7 +74,7 @@ public class StationGroup implements Location<StationGroup> {
 
     @Override
     public IdFor<NPTGLocality> getLocalityId() {
-        return areaId;
+        return localityId;
     }
 
     @Override
@@ -141,21 +137,15 @@ public class StationGroup implements Location<StationGroup> {
         return anyMatch(Location::isActive);
     }
 
-//    @Deprecated
-//    @Override
-//    public String forDTO() {
-//        return id.forDTO();
-//    }
-
     @Override
     public EnumSet<TransportMode> getTransportModes() {
         Set<TransportMode> transportModes = flatten(Station::getTransportModes);
         return EnumSet.copyOf(transportModes);
     }
 
-    public Duration getMinimumChangeCost() {
-        return minChangeCost;
-    }
+//    public Duration getMinimumChangeCost() {
+//        return minChangeCost;
+//    }
 
     private boolean anyMatch(Predicate<Station> predicate) {
         return groupedStations.stream().anyMatch(predicate);
@@ -187,10 +177,9 @@ public class StationGroup implements Location<StationGroup> {
     @Override
     public String toString() {
         return "GroupedStations{" +
-                "areaId=" + areaId +
+                "areaId=" + localityId +
                 ", groupedStations=" + HasId.asIds(groupedStations) +
                 ", name='" + name + '\'' +
-                ", minChangeCost=" + minChangeCost +
                 ", id=" + id +
                 ", latLong=" + latLong +
                 ", dataSourceId=" + dataSourceId +

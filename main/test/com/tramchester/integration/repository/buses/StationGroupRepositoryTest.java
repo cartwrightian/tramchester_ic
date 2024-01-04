@@ -11,18 +11,17 @@ import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.BusStations;
+import com.tramchester.testSupport.reference.KnowLocality;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
 import java.util.Set;
 
 import static com.tramchester.domain.reference.TransportMode.Bus;
-import static com.tramchester.integration.testSupport.Assertions.assertIdEquals;
-import static com.tramchester.testSupport.reference.BusStations.Composites.AltrinchamInterchange;
 import static org.junit.jupiter.api.Assertions.*;
 
 @BusTest
@@ -51,14 +50,17 @@ class StationGroupRepositoryTest {
 
     @Test
     void shouldFindExpectedCompositeStations() {
-        final StationGroup groupedStations = stationGroupsRepository.findByName(AltrinchamInterchange.getName());
+        final StationGroup groupedStations = stationGroupsRepository.findByName("Altrincham");
         assertNotNull(groupedStations);
 
-        assertEquals(8, groupedStations.getContained().size(), groupedStations.toString());
+        Set<Station> contained = groupedStations.getContained();
+        assertEquals(27, contained.size(), groupedStations.toString());
 
         assertEquals(LocationType.StationGroup, groupedStations.getLocationType());
-        assertIdEquals("180GAMIC", groupedStations.getLocalityId());
-        assertEquals(Duration.ofMinutes(1).plusSeconds(37), groupedStations.getMinimumChangeCost());
+        assertEquals(KnowLocality.Altrincham.getId(), groupedStations.getLocalityId());
+
+        IdSet<Station> ids = contained.stream().collect(IdSet.collector());
+        assertTrue(ids.contains(BusStations.StopAtAltrinchamInterchange.getId()));
     }
 
     @Test

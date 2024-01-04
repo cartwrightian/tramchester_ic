@@ -4,7 +4,6 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
-import com.tramchester.domain.StationPair;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.NPTGLocality;
@@ -12,7 +11,6 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.filters.GraphFilter;
-import com.tramchester.mappers.Geography;
 import com.tramchester.repository.naptan.NaptanRepository;
 import com.tramchester.repository.nptg.NPTGRepository;
 import org.slf4j.Logger;
@@ -21,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -40,7 +37,6 @@ public class StationGroupsRepository {
     private final NaptanRepository naptanRepository;
     private final NPTGRepository nptgRepository;
     private final StationRepository stationRepository;
-    private final Geography geography;
     private final GraphFilter graphFilter;
 
     private final boolean enabled;
@@ -50,11 +46,10 @@ public class StationGroupsRepository {
 
     @Inject
     public StationGroupsRepository(StationRepository stationRepository, TramchesterConfig config,
-                                   NPTGRepository nptgRepository, Geography geography, NaptanRepository naptanRepository,
+                                   NPTGRepository nptgRepository, NaptanRepository naptanRepository,
                                    GraphFilter graphFilter) {
         this.config = config;
         this.nptgRepository = nptgRepository;
-        this.geography = geography;
         this.enabled = naptanRepository.isEnabled();
 
         this.stationRepository = stationRepository;
@@ -137,8 +132,6 @@ public class StationGroupsRepository {
 
     private void addComposite(IdFor<NPTGLocality> areaId, Set<Station> stationsToGroup) {
 
-        Duration changeTimeNeeded = computeChangeTimeNeeded(stationsToGroup);
-
         String areaName  = areaId.toString();
         if (nptgRepository.hasLocaility(areaId)) {
             NPTGLocality locality = nptgRepository.get(areaId);
@@ -147,30 +140,10 @@ public class StationGroupsRepository {
             logger.error(format("Using %s as name, missing area code %s for station group %s", areaName, areaId, HasId.asIds(stationsToGroup)));
         }
 
-        StationGroup stationGroup = new StationGroup(stationsToGroup, areaId, areaName, changeTimeNeeded);
+        StationGroup stationGroup = new StationGroup(stationsToGroup, areaId, areaName);
 
         stationGroups.put(areaId, stationGroup);
         stationGroupsByName.put(areaName, stationGroup);
-    }
-
-    private Duration computeChangeTimeNeeded(Set<Station> stationsToGroup) {
-        // find greatest distance between the stations, then convert to a cost
-        Set<StationPair> allPairs = stationsToGroup.stream().
-                flatMap(stationA -> stationsToGroup.stream().map(stationB -> StationPair.of(stationA, stationB))).
-                filter(pair -> !pair.getBegin().equals(pair.getEnd())).
-                collect(Collectors.toSet());
-
-        Optional<Duration> furthestQuery = allPairs.stream().
-                map(pair -> geography.getWalkingDuration(pair.getBegin(), pair.getEnd())).
-                max(Duration::compareTo);
-
-        if (furthestQuery.isEmpty()) {
-            final String message = "Cannot compute max link cost for " + stationsToGroup;
-            logger.error(message);
-            throw new RuntimeException(message);
-        }
-
-        return furthestQuery.get();
     }
 
     private void guardIsEnabled() {
