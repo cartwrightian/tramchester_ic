@@ -5,7 +5,7 @@ import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.StationClosures;
-import com.tramchester.domain.places.NaptanArea;
+import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
@@ -55,7 +55,7 @@ class StationGroupRepositoryTest {
 
     @Test
     void shouldHaveExpectedTramStationGroup() {
-        StationGroup found = stationGroupsRepository.getStationGroup(NaptanArea.createId("940GZZMAALT"));
+        StationGroup found = stationGroupsRepository.getStationGroup(NPTGLocality.createId("940GZZMAALT"));
 
         // only load groups with more than one stop, for tram stops this is none at all
         assertNull(found, stationGroupsRepository.getAllGroups().toString());

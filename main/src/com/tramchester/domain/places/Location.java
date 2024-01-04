@@ -18,7 +18,7 @@ public interface Location<TYPE extends Location<?>> extends HasId<TYPE>, HasGrid
 
     GridPosition getGridPosition();
 
-    IdFor<NaptanArea> getAreaId();
+    IdFor<NPTGLocality> getLocalityId();
 
     boolean hasPlatforms();
 

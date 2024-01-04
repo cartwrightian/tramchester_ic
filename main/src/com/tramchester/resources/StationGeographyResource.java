@@ -5,6 +5,7 @@ import com.codahale.metrics.annotation.Timed;
 import com.google.inject.Inject;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.StationLink;
+import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
@@ -13,6 +14,7 @@ import com.tramchester.graph.search.FindStationLinks;
 import com.tramchester.repository.NeighboursRepository;
 import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.naptan.NaptanRepository;
+import com.tramchester.repository.nptg.NPTGRepository;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -45,13 +47,15 @@ public class StationGeographyResource implements APIResource, GraphDatabaseDepen
     private final TramchesterConfig config;
     private final StationLocations stationLocations;
     private final NaptanRepository naptanRespository;
+    private final NPTGRepository nptgRepository;
     private final DTOFactory dtoFactory;
 
     @Inject
     public StationGeographyResource(FindStationLinks findStationLinks, NeighboursRepository neighboursRepository,
                                     StationGroupsRepository stationGroupsRepository, TramchesterConfig config,
-                                    StationLocations stationLocations, NaptanRepository naptanRespository, DTOFactory dtoFactory) {
+                                    StationLocations stationLocations, NaptanRepository naptanRespository, NPTGRepository nptgRepository, DTOFactory dtoFactory) {
         this.naptanRespository = naptanRespository;
+        this.nptgRepository = nptgRepository;
         this.dtoFactory = dtoFactory;
         this.findStationLinks = findStationLinks;
         this.neighboursRepository = neighboursRepository;
@@ -116,13 +120,13 @@ public class StationGeographyResource implements APIResource, GraphDatabaseDepen
     public Response getAreas() {
         logger.info("Get areas");
 
-        Set<NaptanArea> areas = naptanRespository.getAreas();
+        Set<NPTGLocality> areas = nptgRepository.getAll();
 
         logger.info("Get boundaries for " + areas.size() + " areas");
 
         List<AreaBoundaryDTO> allBoundaries = areas.stream().
                 filter(area -> stationLocations.hasStationsOrPlatformsIn(area.getId())).
-                filter(area -> naptanRespository.hasAreaRecordsFor(area.getId())).
+//                filter(area -> naptanRespository.hasAreaRecordsFor(area.getId())).
                 map(area -> new AreaBoundaryDTO(stationLocations.getBoundaryFor(area.getId()), area))
                 .collect(Collectors.toList());
 

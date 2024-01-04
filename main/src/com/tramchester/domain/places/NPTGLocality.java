@@ -2,10 +2,11 @@ package com.tramchester.domain.places;
 
 import com.tramchester.dataimport.nptg.NPTGData;
 import com.tramchester.domain.CoreDomain;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 
-public class NPTGLocality implements CoreDomain {
+public class NPTGLocality implements CoreDomain, HasId<NPTGLocality> {
     private final IdFor<NPTGLocality> id;
     private final String localityName;
     private final String parentLocalityName;
@@ -18,6 +19,10 @@ public class NPTGLocality implements CoreDomain {
 
     public static IdFor<NPTGLocality> createId(String text) {
         return StringIdFor.createId(text, NPTGLocality.class);
+    }
+
+    public static IdFor<NPTGLocality> InvalidId() {
+        return StringIdFor.invalid(NPTGLocality.class);
     }
 
     public IdFor<NPTGLocality> getId() {

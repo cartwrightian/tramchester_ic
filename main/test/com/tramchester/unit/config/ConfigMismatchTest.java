@@ -99,7 +99,7 @@ class ConfigMismatchTest {
     }
 
     @Test
-    void shouldHaveKeyParametersSameForRailntegrationTests() throws IOException, ConfigurationException {
+    void shouldHaveKeyParametersSameForRailIntegrationTests() throws IOException, ConfigurationException {
 
         AppConfiguration appConfig = loadConfigFromFile("rail.yml");
         IntegrationRailTestConfig testConfig = new IntegrationRailTestConfig();

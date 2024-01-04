@@ -8,14 +8,12 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.time.TimeRange;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.graphbuild.GraphLabel;
 
 import java.time.Duration;
-import java.time.LocalDate;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Set;
@@ -32,7 +30,7 @@ import java.util.stream.Collectors;
  */
 public class StationGroup implements Location<StationGroup> {
     private final IdFor<StationGroup> id;
-    private final IdFor<NaptanArea> areaId;
+    private final IdFor<NPTGLocality> areaId;
     private final Set<Station> groupedStations;
     private final String name;
     private final Duration minChangeCost;
@@ -40,7 +38,7 @@ public class StationGroup implements Location<StationGroup> {
     private final LatLong latLong;
     private final DataSourceID dataSourceId;
 
-    public StationGroup(Set<Station> groupedStations, IdFor<NaptanArea> areaId, String name, Duration changeTimeNeeded) {
+    public StationGroup(Set<Station> groupedStations, IdFor<NPTGLocality> areaId, String name, Duration changeTimeNeeded) {
         this.id = StringIdFor.convert(areaId, StationGroup.class);
         this.latLong = computeLatLong(groupedStations);
         this.dataSourceId = computeDataSourceId(groupedStations);
@@ -79,7 +77,7 @@ public class StationGroup implements Location<StationGroup> {
     }
 
     @Override
-    public IdFor<NaptanArea> getAreaId() {
+    public IdFor<NPTGLocality> getLocalityId() {
         return areaId;
     }
 

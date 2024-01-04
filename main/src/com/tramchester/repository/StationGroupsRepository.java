@@ -7,13 +7,14 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.StationPair;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.places.NaptanArea;
+import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.mappers.Geography;
 import com.tramchester.repository.naptan.NaptanRepository;
+import com.tramchester.repository.nptg.NPTGRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,19 +38,22 @@ public class StationGroupsRepository {
 
     private final TramchesterConfig config;
     private final NaptanRepository naptanRepository;
+    private final NPTGRepository nptgRepository;
     private final StationRepository stationRepository;
     private final Geography geography;
     private final GraphFilter graphFilter;
 
     private final boolean enabled;
 
-    private final Map<IdFor<NaptanArea>, StationGroup> stationGroups;
+    private final Map<IdFor<NPTGLocality>, StationGroup> stationGroups;
     private final Map<String, StationGroup> stationGroupsByName;
 
     @Inject
     public StationGroupsRepository(StationRepository stationRepository, TramchesterConfig config,
-                                   Geography geography, NaptanRepository naptanRepository, GraphFilter graphFilter) {
+                                   NPTGRepository nptgRepository, Geography geography, NaptanRepository naptanRepository,
+                                   GraphFilter graphFilter) {
         this.config = config;
+        this.nptgRepository = nptgRepository;
         this.geography = geography;
         this.enabled = naptanRepository.isEnabled();
 
@@ -114,11 +118,11 @@ public class StationGroupsRepository {
 
     private void capture(final DataSourceID dataSourceID, final TransportMode mode) {
 
-        Map<IdFor<NaptanArea>, Set<Station>> groupedByAreaId = stationRepository.getStationsFromSource(dataSourceID).
+        Map<IdFor<NPTGLocality>, Set<Station>> groupedByAreaId = stationRepository.getStationsFromSource(dataSourceID).
                 filter(graphFilter::shouldInclude).
                 filter(station -> station.servesMode(mode)).
-                filter(station -> station.getAreaId().isValid()).
-                collect(Collectors.groupingBy(Station::getAreaId, Collectors.toSet()));
+                filter(station -> station.getLocalityId().isValid()).
+                collect(Collectors.groupingBy(Station::getLocalityId, Collectors.toSet()));
 
         groupedByAreaId.entrySet().stream().
                 filter(item -> item.getValue().size() > 1).
@@ -127,18 +131,18 @@ public class StationGroupsRepository {
         logger.info("Created " + stationGroups.size() + " composite stations from " + groupedByAreaId.size());
     }
 
-    private void groupByAreaAndAdd(IdFor<NaptanArea> areaId, Set<Station> stationsInArea) {
+    private void groupByAreaAndAdd(IdFor<NPTGLocality> areaId, Set<Station> stationsInArea) {
         stationsInArea.forEach(station ->  addComposite(areaId, stationsInArea));
     }
 
-    private void addComposite(IdFor<NaptanArea> areaId, Set<Station> stationsToGroup) {
+    private void addComposite(IdFor<NPTGLocality> areaId, Set<Station> stationsToGroup) {
 
         Duration changeTimeNeeded = computeChangeTimeNeeded(stationsToGroup);
 
         String areaName  = areaId.toString();
-        if (naptanRepository.containsArea(areaId)) {
-            NaptanArea area = naptanRepository.getAreaFor(areaId);
-            areaName = area.getName();
+        if (nptgRepository.hasLocaility(areaId)) {
+            NPTGLocality locality = nptgRepository.get(areaId);
+            areaName = locality.getLocalityName();
         } else {
             logger.error(format("Using %s as name, missing area code %s for station group %s", areaName, areaId, HasId.asIds(stationsToGroup)));
         }
@@ -195,7 +199,7 @@ public class StationGroupsRepository {
         return new HashSet<>(stationGroups.values());
     }
 
-    public StationGroup getStationGroup(IdFor<NaptanArea> areaId) {
+    public StationGroup getStationGroup(IdFor<NPTGLocality> areaId) {
         guardIsEnabled();
         return stationGroups.get(areaId);
     }

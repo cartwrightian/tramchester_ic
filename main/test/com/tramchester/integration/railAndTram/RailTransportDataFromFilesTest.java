@@ -101,7 +101,7 @@ public class RailTransportDataFromFilesTest {
         Station result = transportData.getStationById(ManchesterPiccadilly.getId());
 
         assertEquals("Manchester Piccadilly Rail Station", result.getName());
-        assertIdEquals("910GMNCRPIC", result.getAreaId());
+        assertIdEquals("910GMNCRPIC", result.getLocalityId());
     }
 
     // out of bounds stations no longer loaded

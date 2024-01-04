@@ -4,7 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.places.NaptanArea;
+import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.TransportStage;
@@ -142,8 +142,8 @@ public class MapPathToStagesViaStates implements PathToStages {
 
         final List<TransportStage<StationGroup, StationGroup>> toAdd = new ArrayList<>();
 
-        IdFor<NaptanArea> startId = startNode.getAreaId();
-        IdFor<NaptanArea> endId = endNode.getAreaId();
+        IdFor<NPTGLocality> startId = startNode.getAreaId();
+        IdFor<NPTGLocality> endId = endNode.getAreaId();
 
         StationGroup start = stationGroupsRepository.getStationGroup(startId);
         StationGroup end = stationGroupsRepository.getStationGroup(endId);

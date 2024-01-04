@@ -2,8 +2,6 @@ package com.tramchester.integration.geo;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
@@ -12,8 +10,9 @@ import com.tramchester.geo.StationLocations;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.BusStations;
+import com.tramchester.testSupport.reference.KnowLocality;
 import com.tramchester.testSupport.reference.TestPostcodes;
-import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -27,7 +26,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @BusTest
 class BusStationsLocationsTest {
-    public static final String SHUDEHILL_INTERCHANGE_AREA_CODE = "180GSHIC";
     private static ComponentContainer componentContainer;
     private static IntegrationBusTestConfig testConfig;
     private static EnumSet<TransportMode> modes;
@@ -71,22 +69,21 @@ class BusStationsLocationsTest {
     void shouldGetAllStationsCloseToCentralBury() {
         List<Station> result = stationLocations.nearestStationsSorted(TestPostcodes.CentralBury, 500,
                 inMeters, modes);
-        assertEquals(38, result.size());
+        assertEquals(40, result.size());
     }
 
     @Test
     void shouldGetAllStationsCloseToCentralAlty() {
-        List<Station> result = stationLocations.nearestStationsSorted(TramStations.Altrincham.from(stationRepository),
+        List<Station> result = stationLocations.nearestStationsSorted(BusStations.StopAtAltrinchamInterchange.from(stationRepository),
                 500, inMeters, modes);
-        assertEquals(17, result.size());
+        assertEquals(18, result.size());
     }
 
     @Test
     void shouldGetBoundary() {
-        IdFor<NaptanArea> areaId = NaptanArea.createId(SHUDEHILL_INTERCHANGE_AREA_CODE);
 
-        List<LatLong> points = stationLocations.getBoundaryFor(areaId);
+        List<LatLong> points = stationLocations.getBoundaryFor(KnowLocality.Shudehill.getId());
 
-        assertEquals(10, points.size());
+        assertEquals(8, points.size());
     }
 }

@@ -5,10 +5,7 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.places.NaptanArea;
-import com.tramchester.domain.places.RouteStation;
-import com.tramchester.domain.places.Station;
-import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.places.*;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
@@ -122,8 +119,8 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
         node.setProperty(SOURCE_NAME_PROP.getText(), sourceName);
     }
 
-    public void setAreaId(IdFor<NaptanArea> areaId) {
-        node.setProperty(AREA_ID.getText(), areaId.getGraphId());
+    public void setAreaId(IdFor<NPTGLocality> localityId) {
+        node.setProperty(AREA_ID.getText(), localityId.getGraphId());
     }
 
     public void setTowards(IdFor<Station> stationId) {
@@ -222,8 +219,8 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
     }
 
     @Override
-    public IdFor<NaptanArea> getAreaId() {
-        return getIdFor(NaptanArea.class, node);
+    public IdFor<NPTGLocality> getAreaId() {
+        return getIdFor(NPTGLocality.class, node);
     }
 
     public IdFor<Trip> getTripId() {

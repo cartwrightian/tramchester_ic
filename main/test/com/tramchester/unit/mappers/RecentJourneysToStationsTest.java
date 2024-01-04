@@ -5,7 +5,7 @@ import com.tramchester.domain.MutableRoute;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.MutableStation;
-import com.tramchester.domain.places.NaptanArea;
+import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.RecentJourneys;
@@ -44,7 +44,7 @@ public class RecentJourneysToStationsTest extends EasyMockSupport {
         stationRepository = createMock(StationRepository.class);
         mapper = new RecentJourneysToStations(stationRepository);
 
-        stockportRail = new MutableStation(Stockport.getId(), NaptanArea.invalidId(), "Stockport Train",
+        stockportRail = new MutableStation(Stockport.getId(), NPTGLocality.InvalidId(), "Stockport Train",
                 LatLong.Invalid, GridPosition.Invalid, DataSourceID.tfgm, "XXX64");
         Route railRoute = new MutableRoute(Route.createId("fake"), "short", "long",
                 TestEnv.NorthernTrainsAgency(), TransportMode.Train);

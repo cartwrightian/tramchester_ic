@@ -4,9 +4,10 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.BoundingBoxWithCost;
 import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.MutableStation;
-import com.tramchester.domain.places.NaptanArea;
+import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramTime;
@@ -15,7 +16,6 @@ import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.search.FastestRoutesForBoxes;
-import com.tramchester.domain.JourneyRequest;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -106,7 +106,7 @@ class FastestRoutesForBoxesTest {
         LatLong latLong = KnownLocations.nearStPetersSquare.latLong();
         GridPosition grid = CoordinateTransforms.getGridPosition(latLong);
 
-        IdFor<NaptanArea> areaId = NaptanArea.invalidId();
+        IdFor<NPTGLocality> areaId = NPTGLocality.InvalidId();
         Station destination = new MutableStation(testStationWithInvalidPosition.getId(), areaId,
                 testStationWithInvalidPosition.getName(), latLong, grid, DataSourceID.tfgm,
                 testStationWithInvalidPosition.getCode());

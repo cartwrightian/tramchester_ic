@@ -4,7 +4,7 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.MutableStation;
-import com.tramchester.domain.places.NaptanArea;
+import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
@@ -91,7 +91,8 @@ public enum BusStations implements FakeStation {
     @NotNull
     private MutableStation createMutable() {
         GridPosition grid = CoordinateTransforms.getGridPosition(latlong);
-        MutableStation mutableStation = new MutableStation(getId(), NaptanArea.invalidId(), name, latlong, grid, DataSourceID.tfgm, getRawId());
+        MutableStation mutableStation = new MutableStation(getId(), NPTGLocality.InvalidId(), name, latlong, grid,
+                DataSourceID.tfgm, getRawId());
         mutableStation.addMode(TransportMode.Bus);
         return mutableStation;
     }
@@ -114,5 +115,4 @@ public enum BusStations implements FakeStation {
         }
     }
 
-    public static final IdFor<NaptanArea> KnutfordStationAreaId = NaptanArea.createId("060GMA294");
 }

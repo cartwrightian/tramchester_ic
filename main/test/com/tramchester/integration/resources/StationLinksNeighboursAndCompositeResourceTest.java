@@ -5,7 +5,7 @@ import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdForDTO;
-import com.tramchester.domain.places.NaptanArea;
+import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
@@ -19,14 +19,14 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.testTags.BusTest;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import jakarta.ws.rs.core.GenericType;
+import jakarta.ws.rs.core.Response;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import jakarta.ws.rs.core.GenericType;
-import jakarta.ws.rs.core.Response;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -123,7 +123,7 @@ class StationLinksNeighboursAndCompositeResourceTest {
         List<StationGroupDTO> groups = response.readEntity(new GenericType<>() {});
         assertFalse(groups.isEmpty());
 
-        IdFor<NaptanArea> expectedAreaId = actualComposite.getAreaId();
+        IdFor<NPTGLocality> expectedAreaId = actualComposite.getLocalityId();
         Optional<StationGroupDTO> found = groups.stream().
                 filter(item -> item.getAreaId().equals(new IdForDTO(expectedAreaId))).findFirst();
         assertTrue(found.isPresent());

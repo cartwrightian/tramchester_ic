@@ -3,27 +3,26 @@ package com.tramchester.integration.repository.naptan;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.places.NaptanArea;
+import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.NaptanRecord;
 import com.tramchester.domain.places.Station;
-import com.tramchester.geo.GridPosition;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithNaptan;
 import com.tramchester.repository.naptan.NaptanRepository;
 import com.tramchester.repository.naptan.NaptanRepositoryContainer;
-import com.tramchester.repository.naptan.NaptanStopType;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
+import com.tramchester.testSupport.reference.KnowLocality;
 import com.tramchester.testSupport.reference.TramStations;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-import static com.tramchester.integration.testSupport.Assertions.assertIdEquals;
-import static com.tramchester.testSupport.TestEnv.MANCHESTER_AIRPORT_BUS_AREA;
-import static com.tramchester.testSupport.reference.BusStations.KnutfordStationAreaId;
 import static org.junit.jupiter.api.Assertions.*;
 
 class NaptanRepositoryTest {
@@ -48,23 +47,21 @@ class NaptanRepositoryTest {
     }
 
     @Test
-    void shouldContainTramWithinArea() {
+    void shouldContainAllStopsWithinLocality() {
         IdFor<Station> actoCode = TramStations.Shudehill.getId();
         assertTrue(respository.containsActo(actoCode));
 
         NaptanRecord data = respository.getForActo(actoCode);
         assertEquals("Manchester City Centre", data.getSuburb());
 
-        IdSet<NaptanArea> activeAreaCodes = respository.activeCodes(data.getAreaCodes());
-        assertFalse(activeAreaCodes.isEmpty());
-        //assertTrue(activeAreaCodes.contains(data.getAreaCodes()));
+        IdFor<NPTGLocality> localityId = data.getLocalityId();
 
-        IdSet<NaptanRecord> allRecordsForArea = activeAreaCodes.stream().
-                flatMap(activeArea -> respository.getRecordsFor(activeArea).stream()).
-                collect(IdSet.collector());
+        Set<NaptanRecord> withinLocality = respository.getRecordsForLocality(localityId);
 
-        assertEquals(3, allRecordsForArea.size(), allRecordsForArea.toString());
+        assertEquals(422, withinLocality.size(), withinLocality.toString());
     }
+
+    // TODO Test with type of stop
 
     @Test
     void shouldContainBusStopWithinArea() {
@@ -74,9 +71,8 @@ class NaptanRepositoryTest {
         NaptanRecord record = respository.getForActo(actoCode);
         assertEquals("Manchester Airport", record.getSuburb());
 
-        final List<IdFor<NaptanArea>> areaCodes = record.getAreaCodes().toList();
-        assertEquals(1, areaCodes.size());
-        assertIdEquals(MANCHESTER_AIRPORT_BUS_AREA, areaCodes.get(0));
+        final IdFor<NPTGLocality> areaCode = record.getLocalityId();
+        assertEquals(KnowLocality.ManchesterAirport.getId(), areaCode);
     }
 
     @Test
@@ -95,10 +91,9 @@ class NaptanRepositoryTest {
         assertEquals(record.getSuburb(), "Macclesfield");
         assertEquals(record.getId(), NaptanRecord.createId("9100MACLSFD"));
 
-        final List<IdFor<NaptanArea>> areaCodes = record.getAreaCodes().toList();
+        final IdFor<NPTGLocality> areaCode = record.getLocalityId();
 
-        assertEquals(1, areaCodes.size());
-        assertIdEquals("910GMACLSFD", areaCodes.get(0));
+        assertEquals(KnowLocality.Macclesfield.getId(), areaCode);
     }
 
     @Test
@@ -112,23 +107,28 @@ class NaptanRepositoryTest {
         assertEquals("Altrincham", record.getSuburb());
         assertEquals(NaptanRecord.createId("9100ALTRNHM"), record.getId());
 
-        final List<IdFor<NaptanArea>> areaCodes = record.getAreaCodes().toList();
-        assertEquals(1, areaCodes.size());
-        assertIdEquals("910GALTRNHM", areaCodes.get(0));
+        IdFor<NPTGLocality> areaCode = record.getLocalityId();
+        assertEquals(KnowLocality.Altrincham.getId(), areaCode);
     }
 
     @Test
     void shouldHaveNaptanAreaForAltrinchamStation() {
-        final IdFor<NaptanArea> altyRailStationArea = NaptanArea.createId("910GALTRNHM");
+        final IdFor<NPTGLocality> altyRailStationArea = KnowLocality.Altrincham.getId();
         assertTrue(respository.containsArea(altyRailStationArea));
-        NaptanArea area = respository.getAreaFor(altyRailStationArea);
-        assertEquals("Altrincham Rail Station", area.getName());
-        assertEquals(new GridPosition(377026, 387931), area.getGridPosition());
+        Set<NaptanRecord> inLocation = respository.getRecordsForLocality(altyRailStationArea);
+
+        assertFalse(inLocation.isEmpty());
+
+        Set<IdFor<NaptanRecord>> ids = inLocation.stream().map(NaptanRecord::getId).collect(Collectors.toSet());
+
+        assertTrue(ids.contains(NaptanRecord.createId(TramStations.Altrincham.getRawId())));
+        assertTrue(ids.contains(NaptanRecord.createId(BusStations.StopAtAltrinchamInterchange.getRawId())));
+
     }
 
     @Test
     void shouldNotContainAreaOutOfBounds() {
-        assertFalse(respository.containsArea(NaptanArea.createId("910GEUSTON")));
+        assertFalse(respository.containsArea(KnowLocality.LondonWestminster.getId()));
     }
 
     @Test
@@ -136,50 +136,6 @@ class NaptanRepositoryTest {
         // stop in bristol, checked exists in full data in NaPTANDataImportTest
         IdFor<Station> actoCode = Station.createId(TestEnv.BRISTOL_BUSSTOP_OCTOCODE);
         assertFalse(respository.containsActo(actoCode));
-    }
-
-    @Disabled("WIP")
-    @Test
-    void shouldHaveExpectedStructureForMultiplatformTram() {
-
-        IdFor<Station> stationId = TramStations.StPetersSquare.getId();
-
-        assertTrue(respository.containsActo(stationId));
-        NaptanRecord stationRecord = respository.getForActo(stationId);
-
-        assertEquals(NaptanStopType.tramMetroUndergroundAccess, stationRecord.getStopType());
-
-//        IdSet<NaptanArea> stationAreaCodes = stationRecord.getAreaCodes();
-//
-//        IdFor<Platform> platformId = StringIdFor.createId("9400ZZMASTP1");
-
-//        assertTrue(respository.containsActo(platformId));
-//        NaptanRecord platform1Record = respository.getForActo(platformId);
-//
-//        assertEquals(NaptanStopType.tramMetroUndergroundPlatform, platform1Record.getStopType());
-//        assertEquals("Platform 1", platform1Record.getName());
-//
-//        IdSet<NaptanArea> platformAreaCodes = platform1Record.getAreaCodes();
-//
-//        IdSet<NaptanArea> overlaps = stationAreaCodes.intersection(platformAreaCodes);
-//        assertFalse(overlaps.isEmpty());
-
-    }
-
-    @Test
-    void shouldHaveAltyTramStation() {
-
-        IdFor<Station> altyTramId = TramStations.Altrincham.getId();
-
-        assertTrue(respository.containsActo(altyTramId));
-        NaptanRecord record = respository.getForActo(altyTramId);
-
-        assertEquals("Altrincham (Manchester Metrolink)", record.getName());
-        assertEquals("Altrincham", record.getSuburb());
-
-        final List<IdFor<NaptanArea>> areaCodes = record.getAreaCodes().toList();
-        assertEquals(1, areaCodes.size(), "Missing area code");
-        assertIdEquals("940GZZMAALT", areaCodes.get(0));
     }
 
     @Test
@@ -192,7 +148,6 @@ class NaptanRepositoryTest {
         }
     }
 
-    @Disabled("knutsford no longer has an area code in the data")
     @Test
     void shouldFindKnutsfordArea() {
 
@@ -200,18 +155,12 @@ class NaptanRepositoryTest {
         NaptanRecord fromNaptan = respository.getForActo(stopId);
         assertNotNull(fromNaptan);
 
-        IdSet<NaptanArea> areaCodes = fromNaptan.getAreaCodes();
-        assertFalse(areaCodes.isEmpty(), "no area codes " + fromNaptan);
+        IdFor<NPTGLocality> locality = fromNaptan.getLocalityId();
+        assertEquals(KnowLocality.Knutsford.getId(), locality);
 
-        IdSet<NaptanArea> activeAreaCodes = respository.activeCodes(areaCodes);
-        assertFalse(activeAreaCodes.isEmpty());
-        assertTrue(activeAreaCodes.contains(KnutfordStationAreaId));
+        Set<NaptanRecord> allRecordsForArea = respository.getRecordsForLocality(locality);
 
-        IdSet<NaptanRecord> allRecordsForArea = activeAreaCodes.stream().
-                flatMap(activeArea -> respository.getRecordsFor(activeArea).stream()).
-                collect(IdSet.collector());
-
-        assertEquals(4, allRecordsForArea.size(), allRecordsForArea.toString());
+        assertEquals(51, allRecordsForArea.size(), allRecordsForArea.toString());
     }
 
 }

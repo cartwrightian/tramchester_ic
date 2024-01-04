@@ -12,7 +12,7 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.MutableStation;
-import com.tramchester.domain.places.NaptanArea;
+import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.GTFSTransportationType;
@@ -89,7 +89,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     @BeforeEach
     void onceBeforeEachTestRuns() {
         MutableStation forTest = new MutableStation(Station.createId("destinationStationId"),
-                NaptanArea.createId("area"), "name",
+                NPTGLocality.createId("area"), "name",
                 new LatLong(1, 1), new GridPosition(1000,1000), DataSourceID.tfgm,
                 "stationCode");
 

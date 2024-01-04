@@ -7,13 +7,11 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.time.TimeRange;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.graphbuild.GraphLabel;
 
-import java.time.LocalDate;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
@@ -23,9 +21,6 @@ public class MyLocation implements Location<MyLocation> {
     @Deprecated
     public static final String MY_LOCATION_PLACEHOLDER_ID = "MyLocationPlaceholderId";
 
-//    @Deprecated
-//    private static final IdFor<MyLocation> LocationPlaceHolder = StringIdFor.createId(MY_LOCATION_PLACEHOLDER_ID);
-//
     public static IdFor<MyLocation> createId(LatLong latLong) {
         String text = String.format("%s,%s", latLong.getLat(), latLong.getLon());
         return StringIdFor.createId(text, MyLocation.class);
@@ -77,8 +72,8 @@ public class MyLocation implements Location<MyLocation> {
     }
 
     @Override
-    public IdFor<NaptanArea> getAreaId() {
-        return StringIdFor.invalid(NaptanArea.class);
+    public IdFor<NPTGLocality> getLocalityId() {
+        return StringIdFor.invalid(NPTGLocality.class);
     }
 
     @Override

@@ -57,7 +57,7 @@ class StationGroupRepositoryTest {
         assertEquals(8, groupedStations.getContained().size(), groupedStations.toString());
 
         assertEquals(LocationType.StationGroup, groupedStations.getLocationType());
-        assertIdEquals("180GAMIC", groupedStations.getAreaId());
+        assertIdEquals("180GAMIC", groupedStations.getLocalityId());
         assertEquals(Duration.ofMinutes(1).plusSeconds(37), groupedStations.getMinimumChangeCost());
     }
 

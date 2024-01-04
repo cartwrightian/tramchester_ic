@@ -3,10 +3,7 @@ package com.tramchester.geo;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.places.Location;
-import com.tramchester.domain.places.NaptanArea;
-import com.tramchester.domain.places.NaptanRecord;
-import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.*;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.mappers.Geography;
@@ -37,7 +34,7 @@ public class StationLocations implements StationLocationsRepository {
     private final Geography geography;
     private final Set<BoundingBox> quadrants;
 
-    private final Map<IdFor<NaptanArea>, LocationSet> locationsInNaptanArea;
+    private final Map<IdFor<NPTGLocality>, LocationSet> locationsWithinLocality;
     private final Map<BoundingBox, Set<Station>> stationBoxes;
 
     private BoundingBox bounds;
@@ -52,7 +49,7 @@ public class StationLocations implements StationLocationsRepository {
 
         quadrants = new HashSet<>();
         stationBoxes = new HashMap<>();
-        locationsInNaptanArea = new HashMap<>();
+        locationsWithinLocality = new HashMap<>();
     }
 
     @PostConstruct
@@ -75,7 +72,7 @@ public class StationLocations implements StationLocationsRepository {
         stationBoxes.values().forEach(Set::clear);
         stationBoxes.clear();
         quadrants.clear();
-        locationsInNaptanArea.clear();
+        locationsWithinLocality.clear();
         logger.info("Stopped");
     }
 
@@ -119,27 +116,27 @@ public class StationLocations implements StationLocationsRepository {
 
     private void populateAreas() {
         stationRepository.getActiveStationStream().
-                filter(location -> location.getAreaId().isValid()).
-                collect(Collectors.groupingBy(Location::getAreaId)).entrySet()
+                filter(location -> location.getLocalityId().isValid()).
+                collect(Collectors.groupingBy(Location::getLocalityId)).entrySet()
                 .stream().
                 filter(entry -> !entry.getValue().isEmpty()).
-                forEach(entry -> locationsInNaptanArea.put(entry.getKey(), new LocationSet(entry.getValue())));
+                forEach(entry -> locationsWithinLocality.put(entry.getKey(), new LocationSet(entry.getValue())));
 
         platformRepository.getPlaformStream().
                 filter(Location::isActive).
-                collect(Collectors.groupingBy(Location::getAreaId)).entrySet()
+                collect(Collectors.groupingBy(Location::getLocalityId)).entrySet()
                 .stream().
                 filter(entry -> !entry.getValue().isEmpty()).
                 forEach(entry -> updateLocations(entry.getKey(), new LocationSet(entry.getValue())));
 
-        logger.info("Added " + locationsInNaptanArea.size() + " areas which have stations");
+        logger.info("Added " + locationsWithinLocality.size() + " areas which have stations");
     }
 
-    private void updateLocations(IdFor<NaptanArea> areaId, LocationSet toAdd) {
-        if (locationsInNaptanArea.containsKey(areaId)) {
-            locationsInNaptanArea.get(areaId).addAll(toAdd);
+    private void updateLocations(IdFor<NPTGLocality> localityIdFor, LocationSet toAdd) {
+        if (locationsWithinLocality.containsKey(localityIdFor)) {
+            locationsWithinLocality.get(localityIdFor).addAll(toAdd);
         } else {
-            locationsInNaptanArea.put(areaId, toAdd);
+            locationsWithinLocality.put(localityIdFor, toAdd);
         }
     }
 
@@ -148,8 +145,8 @@ public class StationLocations implements StationLocationsRepository {
     }
 
     @Override
-    public LocationSet getLocationsWithin(IdFor<NaptanArea> areaId) {
-        return locationsInNaptanArea.get(areaId);
+    public LocationSet getLocationsWithin(IdFor<NPTGLocality> areaId) {
+        return locationsWithinLocality.get(areaId);
     }
 
     /***
@@ -158,9 +155,9 @@ public class StationLocations implements StationLocationsRepository {
      * @return A list of points on convex hull containing the points within the given area
      */
     @Override
-    public List<LatLong> getBoundaryFor(IdFor<NaptanArea> areaId) {
+    public List<LatLong> getBoundaryFor(IdFor<NPTGLocality> areaId) {
 
-        Set<NaptanRecord> records = naptanRespository.getRecordsFor(areaId);
+        Set<NaptanRecord> records = naptanRespository.getRecordsForLocality(areaId);
 
         Stream<LatLong> points = records.stream().
                 map(NaptanRecord::getGridPosition).
@@ -181,9 +178,9 @@ public class StationLocations implements StationLocationsRepository {
     }
 
     @Override
-    public boolean hasStationsOrPlatformsIn(IdFor<NaptanArea> areaId) {
+    public boolean hasStationsOrPlatformsIn(IdFor<NPTGLocality> areaId) {
         // map only populated if an area does contain a station or platform
-        return locationsInNaptanArea.containsKey(areaId);
+        return locationsWithinLocality.containsKey(areaId);
     }
 
     @Override

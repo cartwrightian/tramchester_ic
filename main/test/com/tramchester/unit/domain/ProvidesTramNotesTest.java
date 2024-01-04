@@ -5,7 +5,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.places.NaptanArea;
+import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
@@ -486,7 +486,7 @@ class ProvidesTramNotesTest extends EasyMockSupport {
 
     private PlatformMessage createPlatformMessage(LocalDateTime lastUpdate, TramStations tramStation, String message) {
 
-        Station station = tramStation.fakeWithPlatform("1", tramStation.getLatLong(), DataSourceID.unknown, NaptanArea.invalidId());
+        Station station = tramStation.fakeWithPlatform("1", tramStation.getLatLong(), DataSourceID.unknown, NPTGLocality.InvalidId());
 
         Platform platform = TestEnv.findOnlyPlatform(station);
         return new PlatformMessage(platform, message, lastUpdate, station, "displayId");
@@ -509,7 +509,7 @@ class ProvidesTramNotesTest extends EasyMockSupport {
         // TODO
         List<Integer> passedStations = new ArrayList<>();
 
-        final Station firstStation = Ashton.fakeWithPlatform(platformNumber,  latLong, DataSourceID.unknown, NaptanArea.invalidId());
+        final Station firstStation = Ashton.fakeWithPlatform(platformNumber,  latLong, DataSourceID.unknown, NPTGLocality.InvalidId());
 
         VehicleStage vehicleStage = new VehicleStage(firstStation, TestEnv.getTramTestRoute(), Tram,
                 trip, departTime, PiccadillyGardens.fake(), passedStations);

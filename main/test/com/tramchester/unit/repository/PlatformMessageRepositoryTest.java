@@ -5,7 +5,7 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.PlatformId;
-import com.tramchester.domain.places.NaptanArea;
+import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
@@ -57,7 +57,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         lastUpdate = LocalDateTime.of(today, LocalTime.of(15,42));
 
         station = TramStations.Shudehill.fakeWithPlatform("someId1", Shudehill.getLatLong(),
-                DataSourceID.unknown, NaptanArea.invalidId());
+                DataSourceID.unknown, NPTGLocality.InvalidId());
         platform = TestEnv.findOnlyPlatform(station);
     }
 
@@ -106,7 +106,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
 
 //        final Platform platform = MutablePlatform.buildForTFGMTram("XXXX", "platform name", Ashton.getLatLong(), DataSourceID.unknown, IdFor.invalid());
         Station otherStation = TramStations.Ashton.fakeWithPlatform("XXXX", Ashton.getLatLong(),
-                DataSourceID.unknown, NaptanArea.invalidId());
+                DataSourceID.unknown, NPTGLocality.InvalidId());
 
         List<PlatformMessage> noStationMsg = repository.messagesFor(otherStation, date, updateTime);
         assertTrue(noStationMsg.isEmpty());

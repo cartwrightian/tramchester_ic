@@ -3,7 +3,7 @@ package com.tramchester.unit.repository;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Platform;
-import com.tramchester.domain.places.NaptanArea;
+import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
@@ -55,7 +55,7 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
         lastUpdate = LocalDateTime.of(today, LocalTime.of(15,42));
 
         station = Shudehill.fakeWithPlatform("someId1", Shudehill.getLatLong(),
-                DataSourceID.unknown, NaptanArea.invalidId());
+                DataSourceID.unknown, NPTGLocality.InvalidId());
         platform = TestEnv.findOnlyPlatform(station);
     }
 
@@ -71,7 +71,7 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
 
         // second station, has due tram
         Station secondStation = Altrincham.fakeWithPlatform("a1", Altrincham.getLatLong(), DataSourceID.unknown,
-                NaptanArea.invalidId());
+                NPTGLocality.InvalidId());
         Platform platfromForSecondStation = TestEnv.findOnlyPlatform(secondStation);
 
         UpcomingDeparture dueTramOther = new UpcomingDeparture(date, secondStation, ManAirport.fake(), "Due",
@@ -81,7 +81,7 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
 
         // third, no due trams
         Station thirdStation = TraffordCentre.fakeWithPlatform("b2", TraffordCentre.getLatLong(),
-                DataSourceID.unknown, NaptanArea.invalidId());
+                DataSourceID.unknown, NPTGLocality.InvalidId());
         Platform platfromForThirdStation = TestEnv.findOnlyPlatform(thirdStation);
 
         TramStationDepartureInfo thirdStationInfo = new TramStationDepartureInfo("displayId3", Lines.Airport,
@@ -111,7 +111,7 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
                 "some message", station, dueTram);
 
         Station otherStation = Altrincham.fakeWithPlatform("other1", Altrincham.getLatLong(),
-                DataSourceID.unknown, NaptanArea.invalidId());
+                DataSourceID.unknown, NPTGLocality.InvalidId());
         Platform otherPlatform = TestEnv.findOnlyPlatform(otherStation);
 
                 Station destinationManAirport = ManAirport.fake();

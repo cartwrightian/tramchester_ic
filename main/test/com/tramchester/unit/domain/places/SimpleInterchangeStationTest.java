@@ -19,7 +19,7 @@ public class SimpleInterchangeStationTest {
         Route routeTwo = TestEnv.getTramTestRoute(Route.createId("route2"), "route 2 name");
 
         IdFor<Station> stationId = Station.createId("stationId");
-        MutableStation station = new MutableStation(stationId, NaptanArea.createId("naptanId"),
+        MutableStation station = new MutableStation(stationId, NPTGLocality.createId("naptanId"),
                 "station name", nearStPetersSquare.latLong(), nearStPetersSquare.grid(),  DataSourceID.tfgm, "code");
         station.addRouteDropOff(routeOne);
         station.addRoutePickUp(routeTwo);

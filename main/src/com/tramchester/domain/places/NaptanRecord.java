@@ -3,16 +3,14 @@ package com.tramchester.domain.places;
 import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.repository.naptan.NaptanStopType;
 
-import java.util.List;
-
 public class NaptanRecord implements HasId<NaptanRecord>, CoreDomain {
     private final IdFor<NaptanRecord> id; // actoCode
+    private final IdFor<NPTGLocality> localityId;
     private final String name;
     private final GridPosition gridPosition;
     private final String suburb;
@@ -20,11 +18,11 @@ public class NaptanRecord implements HasId<NaptanRecord>, CoreDomain {
     private final NaptanStopType stopType;
     private final LatLong latlong;
 
-    private List<String> stopAreaCodes;
-
-    public NaptanRecord(IdFor<NaptanRecord> id, String name, GridPosition gridPosition, LatLong latlong, String suburb, String town,
+    public NaptanRecord(IdFor<NaptanRecord> id, IdFor<NPTGLocality> localityId, String name, GridPosition gridPosition,
+                        LatLong latlong, String suburb, String town,
                         NaptanStopType stopType) {
         this.id = id;
+        this.localityId = localityId;
         this.name = name;
         this.gridPosition = gridPosition;
         this.latlong = latlong;
@@ -62,13 +60,6 @@ public class NaptanRecord implements HasId<NaptanRecord>, CoreDomain {
         return latlong;
     }
 
-    /***
-     * @return the id's for the StopArea's associated with this stop/station/location
-     */
-    public IdSet<NaptanArea> getAreaCodes() {
-        return stopAreaCodes.stream().map(NaptanArea::createId).collect(IdSet.idCollector());
-    }
-
     @Override
     public String toString() {
         return "NaptanRecord{" +
@@ -78,11 +69,15 @@ public class NaptanRecord implements HasId<NaptanRecord>, CoreDomain {
                 ", suburb='" + suburb + '\'' +
                 ", town='" + town + '\'' +
                 ", stopType=" + stopType +
-                ", stopAreaCodes=" + stopAreaCodes +
                 '}';
     }
 
-    public void setAreaCodes(List<String> stopAreaCodes) {
-        this.stopAreaCodes = stopAreaCodes;
+//    @Deprecated
+//    public void setAreaCodes(List<String> stopAreaCodes) {
+//        this.stopAreaCodes = stopAreaCodes;
+//    }
+
+    public IdFor<NPTGLocality> getLocalityId() {
+        return localityId;
     }
 }

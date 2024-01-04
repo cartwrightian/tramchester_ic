@@ -5,7 +5,7 @@ import com.tramchester.domain.MutablePlatform;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.MutableStation;
-import com.tramchester.domain.places.NaptanArea;
+import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.domain.presentation.DTO.RouteRefDTO;
@@ -46,9 +46,9 @@ class LocationDTOTest {
         testStation.addRoutePickUp(TestEnv.getTramTestRoute(Route.createId("routeIdB"), "routeNameB"));
 
         testStation.addPlatform(MutablePlatform.buildForTFGMTram("1", testStation, new LatLong(1.2, 1),
-                DataSourceID.unknown, NaptanArea.invalidId()));
+                DataSourceID.unknown, NPTGLocality.InvalidId()));
         testStation.addPlatform(MutablePlatform.buildForTFGMTram("2", testStation, new LatLong(1.1, 1),
-                DataSourceID.unknown, NaptanArea.invalidId()));
+                DataSourceID.unknown, NPTGLocality.InvalidId()));
 
         LocationDTO dto = factory.createLocationDTO(testStation); //new LocationDTO(testStation);
 

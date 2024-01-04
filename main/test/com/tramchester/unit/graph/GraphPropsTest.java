@@ -6,14 +6,17 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.RailRouteId;
 import com.tramchester.domain.id.StringIdFor;
-import com.tramchester.domain.places.NaptanArea;
+import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.TransportRelationshipTypes;
-import com.tramchester.graph.facade.*;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.MutableGraphNode;
+import com.tramchester.graph.facade.MutableGraphRelationship;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.testSupport.TestEnv;
@@ -30,7 +33,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class GraphPropsTest {
 
@@ -207,7 +211,7 @@ public class GraphPropsTest {
     @Test
     void shouldSetPlatformId() {
 
-        IdFor<NaptanArea> areaId = StringIdFor.createId("areaId", NaptanArea.class);
+        IdFor<NPTGLocality> areaId = NPTGLocality.createId("areaId");
         Station station = TramStations.PiccadillyGardens.fakeWithPlatform("2", KnownLocations.nearPiccGardens.latLong(),
                 DataSourceID.tfgm, areaId);
 

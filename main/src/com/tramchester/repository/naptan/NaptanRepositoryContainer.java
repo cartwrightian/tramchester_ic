@@ -36,8 +36,6 @@ public class NaptanRepositoryContainer implements NaptanRepository {
     private final TramchesterConfig config;
 
     private final IdMap<NaptanRecord> stops;
-    private final IdMap<NaptanArea> areas;
-    // for rail station lookup
     private final Map<IdFor<Station>, IdFor<NaptanRecord>> tiplocToAtco;
 
     @Inject
@@ -46,7 +44,6 @@ public class NaptanRepositoryContainer implements NaptanRepository {
         this.nptgRepository = nptgRepository;
         this.config = config;
         stops = new IdMap<>();
-        areas = new IdMap<>();
         tiplocToAtco = new HashMap<>();
     }
 
@@ -71,7 +68,6 @@ public class NaptanRepositoryContainer implements NaptanRepository {
         logger.info("stopping");
         stops.clear();
         tiplocToAtco.clear();
-        areas.clear();
         logger.info("stopped");
     }
 
@@ -89,37 +85,10 @@ public class NaptanRepositoryContainer implements NaptanRepository {
 
         naptanDataImporter.loadData(consumer);
 
-        logger.info("Loaded " + areas.size() + " areas");
         logger.info("Loaded " + stops.size() + " stops");
         logger.info("Loaded " + tiplocToAtco.size() + " mappings for rail stations" );
 
         consumer.logSkipped(logger);
-
-        logger.info("Post filter stops for active areas codes");
-        pendingAreaIds.forEach((recordId, areas) -> {
-            List<String> active = areas.stream().
-                    filter(this::checkIfActive).
-                    map(NaptanXMLStopAreaRef::getId).
-                    toList();
-            stops.get(recordId).setAreaCodes(active);
-        });
-
-        pendingAreaIds.clear();
-        logger.info("Finished updating area codes");
-
-    }
-
-    private boolean consumeStopArea(final NaptanStopAreaData areaData, final BoundingBox bounds, final MarginInMeters margin) {
-        if (areaData.getStopAreaCode().isBlank()) {
-            return false;
-        }
-        if (filterBy(bounds, margin, areaData)) {
-            final NaptanArea record = createArea(areaData);
-            areas.add(record);
-            return true;
-        } else {
-            return false;
-        }
     }
 
     private boolean consumeStop(final NaptanStopData stopData, final BoundingBox bounds, final MarginInMeters margin,
@@ -141,14 +110,6 @@ public class NaptanRepositoryContainer implements NaptanRepository {
         } else {
             return false;
         }
-    }
-
-    private NaptanArea createArea(final NaptanStopAreaData areaData) {
-        if (areaData.getStatus().isEmpty()) {
-            logger.warn("No status set for " + areaData.getStopAreaCode());
-        }
-        final IdFor<NaptanArea> id = NaptanArea.createId(areaData.getStopAreaCode());
-        return new NaptanArea(id, areaData.getName(), areaData.getGridPosition(), areaData.isActive(), areaData.getAreaType());
     }
 
     private NaptanRecord createRecord(final NaptanStopData original, final Map<IdFor<NaptanRecord>,
@@ -183,24 +144,8 @@ public class NaptanRepositoryContainer implements NaptanRepository {
                 collect(Collectors.toList());
         pendingAreaIds.put(atcoCode, areaIds);
 
-        // Seems very common in the data, not sure what we can about it anyway?
-//        if (areaIds.size()>1) {
-//            logger.warn("Multiple stop area refs active for acto code: " + id);
-//        }
-
-        return new NaptanRecord(atcoCode, original.getCommonName(), original.getGridPosition(), original.getLatLong(),
+        return new NaptanRecord(atcoCode, localityCode, original.getCommonName(), original.getGridPosition(), original.getLatLong(),
                 suburb, town, original.getStopType());
-    }
-
-    private boolean checkIfActive(NaptanXMLStopAreaRef area) {
-        final IdFor<NaptanArea> areaId = NaptanArea.createId(area.getId());
-        if (areas.hasId(areaId)) {
-            return areas.get(areaId).isActive();
-        } else {
-            // this seems to happen a lot, perhaps area ids are generated automatically?
-            //logger.warn(format("Area %s is not present in areas, but is referenced by a stop", area.getId()));
-            return false;
-        }
     }
 
     private boolean filterBy(final BoundingBox bounds, final MarginInMeters margin, final NaptanXMLData item) {
@@ -259,20 +204,9 @@ public class NaptanRepositoryContainer implements NaptanRepository {
     }
 
     @Override
-    public NaptanArea getAreaFor(IdFor<NaptanArea> id) {
-        return areas.get(id);
-    }
-
-    @Override
-    public boolean containsArea(IdFor<NaptanArea> id) {
-        return areas.hasId(id);
-    }
-
-    @Override
-    public IdSet<NaptanArea> activeCodes(IdSet<NaptanArea> ids) {
-        return ids.stream().
-                filter(areas::hasId).
-                filter(id -> areas.get(id).isActive()).collect(IdSet.idCollector());
+    public boolean containsArea(IdFor<NPTGLocality> id) {
+        // TODO use a map to do this?
+        return stops.getValuesStream().anyMatch(stop -> stop.getLocalityId().equals(id));
     }
 
     /***
@@ -282,24 +216,9 @@ public class NaptanRepositoryContainer implements NaptanRepository {
      * @return matching record
      */
     @Override
-    public Set<NaptanRecord> getRecordsFor(IdFor<NaptanArea> areaId) {
-        return stops.filterStream(stop -> stop.getAreaCodes().contains(areaId)).collect(Collectors.toSet());
-    }
-
-    /***
-     * Any records for this area? For stations in an area use StationLocations.
-     * @see com.tramchester.geo.StationLocations
-     * @param areaId naptan area id
-     * @return true/false
-     */
-    @Override
-    public boolean hasAreaRecordsFor(IdFor<NaptanArea> areaId) {
-        return stops.getValuesStream().anyMatch(stop -> stop.getAreaCodes().contains(areaId));
-    }
-
-    @Override
-    public Set<NaptanArea> getAreas() {
-        return new HashSet<>(areas.getValues());
+    public Set<NaptanRecord> getRecordsForLocality(IdFor<NPTGLocality> areaId) {
+        // TODO use a map to do this?
+        return stops.filterStream(stop -> areaId.equals(stop.getLocalityId())).collect(Collectors.toSet());
     }
 
     private class Consumer implements NaptanFromXMLFile.NaptanXmlConsumer {
@@ -320,9 +239,9 @@ public class NaptanRepositoryContainer implements NaptanRepository {
 
         @Override
         public void process(NaptanStopAreaData element) {
-            if (!consumeStopArea(element, bounds, margin)) {
-                skippedStopArea++;
-            }
+//            if (!consumeStopArea(element, bounds, margin)) {
+//                skippedStopArea++;
+//            }
         }
 
         @Override

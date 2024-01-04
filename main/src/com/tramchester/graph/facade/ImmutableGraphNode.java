@@ -6,7 +6,7 @@ import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.places.NaptanArea;
+import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
@@ -167,7 +167,7 @@ public class ImmutableGraphNode implements GraphNode {
     }
 
     @Override
-    public IdFor<NaptanArea> getAreaId() {
+    public IdFor<NPTGLocality> getAreaId() {
         return underlying.getAreaId();
     }
 

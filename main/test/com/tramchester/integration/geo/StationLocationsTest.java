@@ -6,7 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.places.NaptanArea;
+import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.MarginInMeters;
@@ -91,7 +91,7 @@ public class StationLocationsTest {
     void shouldHaveStationsInAnArea() {
         Station station = TramStations.StPetersSquare.from(stationRepository);
 
-        IdFor<NaptanArea> areaId = station.getAreaId();
+        IdFor<NPTGLocality> areaId = station.getLocalityId();
         assertTrue(areaId.isValid());
 
         assertTrue(locations.hasStationsOrPlatformsIn(areaId));
@@ -109,7 +109,7 @@ public class StationLocationsTest {
         assertEquals(4, platforms.size());
 
         platforms.forEach(platform -> {
-            IdFor<NaptanArea> areaId = platform.getAreaId();
+            IdFor<NPTGLocality> areaId = platform.getLocalityId();
             assertTrue(areaId.isValid(), "platform " + platform);
 
             assertTrue(locations.hasStationsOrPlatformsIn(areaId), "platform " + platform);

@@ -2,14 +2,17 @@ package com.tramchester.graph.search.diagnostics;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.places.NaptanArea;
+import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.caches.NodeContentsRepository;
-import com.tramchester.graph.facade.*;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphNodeId;
+import com.tramchester.graph.facade.GraphRelationship;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.repository.naptan.NaptanRepository;
+import com.tramchester.repository.nptg.NPTGRepository;
 import org.apache.commons.lang3.tuple.Pair;
 import org.neo4j.graphdb.RelationshipType;
 
@@ -24,16 +27,16 @@ import static java.lang.String.format;
 @LazySingleton
 public class ReasonsToGraphViz {
 
-    private final NaptanRepository naptanRespository;
+    private final NPTGRepository nptgRepository;
     private final StationRepository stationRepository;
     private final NodeContentsRepository nodeContentsRepository;
 
     private static final boolean includeAll = false;
 
     @Inject
-    public ReasonsToGraphViz(NaptanRepository naptanRespository, StationRepository stationRepository,
+    public ReasonsToGraphViz(NPTGRepository nptgRepository, StationRepository stationRepository,
                              NodeContentsRepository nodeContentsRepository) {
-        this.naptanRespository = naptanRespository;
+        this.nptgRepository = nptgRepository;
         this.stationRepository = stationRepository;
         this.nodeContentsRepository = nodeContentsRepository;
     }
@@ -101,9 +104,9 @@ public class ReasonsToGraphViz {
 
         if (labels.contains(GraphLabel.GROUPED)) {
             //return getAreaIdFromGrouped(graphNode.getNode());
-            IdFor<NaptanArea> areaId = node.getAreaId();
-            NaptanArea area = naptanRespository.getAreaFor(areaId);
-            ids.append(System.lineSeparator()).append(area.getName());
+            IdFor<NPTGLocality> areaId = node.getAreaId();
+            NPTGLocality area = nptgRepository.get(areaId);
+            ids.append(System.lineSeparator()).append(area.getLocalityName()+" "+area.getParentLocalityName());
             return ids.toString();
         }
 

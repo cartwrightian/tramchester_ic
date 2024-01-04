@@ -5,6 +5,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.nptg.NPTGData;
 import com.tramchester.dataimport.nptg.NPTGDataLoader;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdMap;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.GridPosition;
@@ -15,8 +16,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Set;
 
 // National Public Transport Gazetteer
 // https://data.gov.uk/dataset/3b1766bf-04a3-44f5-bea9-5c74cf002e1d/national-public-transport-gazetteer-nptg
@@ -30,13 +30,13 @@ public class NPTGRepository {
     private final NPTGDataLoader dataLoader;
     private final TramchesterConfig config;
 
-    private final Map<IdFor<NPTGLocality>, NPTGLocality> nptgDataMap;
+    private final IdMap<NPTGLocality> nptgDataMap;
 
     @Inject
     public NPTGRepository(NPTGDataLoader dataLoader, TramchesterConfig config) {
         this.dataLoader = dataLoader;
         this.config = config;
-        nptgDataMap = new HashMap<>();
+        nptgDataMap = new IdMap<>();
     }
 
     @PostConstruct
@@ -61,7 +61,7 @@ public class NPTGRepository {
     private void loadData(BoundingBox bounds, MarginInMeters margin) {
         dataLoader.getData().filter(nptgData -> filterBy(bounds, margin, nptgData)).
                 map(NPTGLocality::new).
-                forEach(item -> nptgDataMap.put(item.getId(), item));
+                forEach(nptgDataMap::add);
     }
 
     private boolean filterBy(final BoundingBox bounds, final MarginInMeters margin, final NPTGData item) {
@@ -78,10 +78,14 @@ public class NPTGRepository {
     }
 
     public boolean hasLocaility(IdFor<NPTGLocality> localityCode) {
-        return nptgDataMap.containsKey(localityCode);
+        return nptgDataMap.hasId(localityCode);
     }
 
     public NPTGLocality get(IdFor<NPTGLocality> localityCode) {
         return nptgDataMap.get(localityCode);
+    }
+
+    public Set<NPTGLocality> getAll() {
+        return nptgDataMap.getValues();
     }
 }

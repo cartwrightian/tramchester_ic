@@ -8,6 +8,7 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithNaptan;
 import com.tramchester.repository.nptg.NPTGRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.KnowLocality;
 import com.tramchester.testSupport.testTags.GMTest;
 import com.tramchester.testSupport.testTags.TrainTest;
 import org.junit.jupiter.api.AfterAll;
@@ -56,7 +57,7 @@ public class NPTGRepositoryTest {
     @Test
     void shouldNotHaveWestminsterAsOutOfBounds() {
 
-        IdFor<NPTGLocality> id = NPTGLocality.createId("E0034961");
+        IdFor<NPTGLocality> id = KnowLocality.LondonWestminster.getId();
 
         assertFalse(repository.hasLocaility(id));
     }

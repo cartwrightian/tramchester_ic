@@ -3,7 +3,7 @@ package com.tramchester;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Location;
-import com.tramchester.domain.places.NaptanArea;
+import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
@@ -12,7 +12,7 @@ import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.repository.naptan.NaptanRepository;
+import com.tramchester.repository.nptg.NPTGRepository;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Direction;
 import org.slf4j.Logger;
@@ -38,17 +38,17 @@ public class DiagramCreator {
     private final TransportRelationshipTypes[] toplevelRelationships =
             new TransportRelationshipTypes[]{LINKED, ON_ROUTE, ROUTE_TO_STATION, STATION_TO_ROUTE, DIVERSION };
     private final StationRepository stationRepository;
-    private final NaptanRepository naptanRespository;
+    private final NPTGRepository nptgRepository;
 
     private static final Path diagramsFolder = Path.of("diagrams");
 
     @Inject
     public DiagramCreator(GraphDatabase graphDatabase, StationRepository stationRepository,
-                          NaptanRepository naptanRespository) {
+                          NPTGRepository nptgRepository) {
         // ready is token to express dependency on having a built graph DB
         this.graphDatabase = graphDatabase;
         this.stationRepository = stationRepository;
-        this.naptanRespository = naptanRespository;
+        this.nptgRepository = nptgRepository;
     }
 
     public void create(Path filename, Station station, int depthLimit, boolean topLevel) throws IOException {
@@ -237,9 +237,13 @@ public class DiagramCreator {
         }
         if (node.hasLabel(GROUPED)) {
             //return getAreaIdFromGrouped(graphNode.getNode());
-            IdFor<NaptanArea> areaId = node.getAreaId();
-            NaptanArea area = naptanRespository.getAreaFor(areaId);
-            return format("%s\n%s", area.getName(), areaId.getGraphId());
+            IdFor<NPTGLocality> areaId = node.getAreaId();
+            if (nptgRepository.hasLocaility(areaId)) {
+                NPTGLocality area = nptgRepository.get(areaId);
+                return format("%s %s\n%s", area.getLocalityName(), area.getParentLocalityName(), areaId.getGraphId());
+            } else {
+                return format("unknown locality %s\n%s", areaId, areaId.getGraphId());
+            }
         }
         if (node.hasLabel(STATION)) {
             //return getStationIdFrom(node.getNode());
@@ -263,7 +267,7 @@ public class DiagramCreator {
             //return getStationIdFrom(node.getNode());
             IdFor<Station> stationId = node.getStationId();
             Station station = stationRepository.getStationById(stationId);
-            return format("%s\n%s\n%s", station.getName(), station.getAreaId(), stationId.getGraphId());
+            return format("%s\n%s\n%s", station.getName(), station.getLocalityId(), stationId.getGraphId());
         }
 
         return "No_Label";

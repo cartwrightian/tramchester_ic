@@ -5,7 +5,7 @@ import com.tramchester.domain.MutablePlatform;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.*;
 import com.tramchester.domain.places.MutableStation;
-import com.tramchester.domain.places.NaptanArea;
+import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
@@ -137,17 +137,17 @@ public enum TramStations implements FakeStation, HasId<Station> {
     @NotNull
     private MutableStation createMutable() {
         GridPosition grid = CoordinateTransforms.getGridPosition(latlong);
-        MutableStation mutableStation = new MutableStation(getId(), NaptanArea.invalidId(), name, latlong, grid, DataSourceID.tfgm, getCode());
+        MutableStation mutableStation = new MutableStation(getId(), NPTGLocality.InvalidId(), name, latlong, grid, DataSourceID.tfgm, getCode());
         mutableStation.addMode(TransportMode.Tram);
         return mutableStation;
     }
 
     public Station fakeWithPlatform(String platformNumber, LatLong latLong, DataSourceID dataSourceID,
-                                    IdFor<NaptanArea> naptanAreaId) {
+                                    IdFor<NPTGLocality> localityCode) {
         MutableStation station = createMutable();
         PlatformId platformId = PlatformId.createId(station, platformNumber);
         final Platform platform = MutablePlatform.buildForTFGMTram(platformId, station,
-                latLong, dataSourceID, naptanAreaId);
+                latLong, dataSourceID, localityCode);
         station.addPlatform(platform);
         station.addMode(TransportMode.Tram);
         return station;

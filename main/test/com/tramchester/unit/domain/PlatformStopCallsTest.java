@@ -6,7 +6,7 @@ import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.PlatformStopCall;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.places.NaptanArea;
+import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
@@ -43,7 +43,7 @@ class PlatformStopCallsTest {
         stationC = TramStations.Cornbrook;
         stationD = TramStations.Deansgate;
         platformD = MutablePlatform.buildForTFGMTram("statD1", stationD.fake(),
-                stationD.getLatLong(), DataSourceID.unknown, NaptanArea.invalidId());
+                stationD.getLatLong(), DataSourceID.unknown, NPTGLocality.InvalidId());
 
         Service service = MutableService.build(Service.createId("svc1"), DataSourceID.tfgm);
         trip = MutableTrip.build(Trip.createId("tripId"), "headSign", service,

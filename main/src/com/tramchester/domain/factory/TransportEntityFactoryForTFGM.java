@@ -10,7 +10,7 @@ import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.places.MutableStation;
-import com.tramchester.domain.places.NaptanArea;
+import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.NaptanRecord;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
@@ -36,16 +36,16 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
 
     private static final Logger logger = LoggerFactory.getLogger(TransportEntityFactoryForTFGM.class);
 
-    private final NaptanRepository naptanRespository;
+    private final NaptanRepository naptanRepository;
 
     private final Duration minChangeDuration = Duration.ofMinutes(MutableStation.DEFAULT_MIN_CHANGE_TIME);
 
     private final Map<String, IdFor<Station>> stopIdToStationId;
     private final Map<String, String> originalCodeForStop; // stopId -> full stopCode with platform suffix
 
-    public TransportEntityFactoryForTFGM(NaptanRepository naptanRespository) {
+    public TransportEntityFactoryForTFGM(NaptanRepository naptanRepository) {
         super();
-        this.naptanRespository = naptanRespository;
+        this.naptanRepository = naptanRepository;
         this.stopIdToStationId = new HashMap<>();
         this.originalCodeForStop = new HashMap<>();
     }
@@ -74,18 +74,18 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
     public MutableStation createStation(IdFor<Station> stationId, StopData stopData) {
 
         boolean isInterchange = false;
-        IdFor<NaptanArea> areaId = IdFor.invalid(NaptanArea.class);
+        IdFor<NPTGLocality> areaId = NPTGLocality.InvalidId();
         LatLong latLong = stopData.getLatLong();
         GridPosition position = CoordinateTransforms.getGridPosition(latLong);
         String stationCode = stopData.getCode();
 
-        if (naptanRespository.isEnabled()) {
+        if (naptanRepository.isEnabled()) {
             // enrich details from naptan where possible
-            if (naptanRespository.containsActo(Station.createId(stationCode))) {
-                NaptanRecord naptanData = naptanRespository.getForActo(stationId);
+            if (naptanRepository.containsActo(Station.createId(stationCode))) {
+                NaptanRecord naptanData = naptanRepository.getForActo(stationId);
 
                 isInterchange = NaptanStopType.isInterchange(naptanData.getStopType());
-                areaId = chooseArea(naptanRespository, naptanData.getAreaCodes());
+                areaId = naptanData.getLocalityId();
                 position = naptanData.getGridPosition();
                 latLong = naptanData.getLatLong();
             }
@@ -110,14 +110,14 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
 
         final String platformNumber = platformId.getNumber();
 
-        IdFor<NaptanArea> areaId = IdFor.invalid(NaptanArea.class);
+        IdFor<NPTGLocality> areaId = NPTGLocality.InvalidId();
         LatLong latLong = stopData.getLatLong();
         GridPosition gridPosition = CoordinateTransforms.getGridPosition(latLong);
 
-        if (naptanRespository.isEnabled()) {
-            NaptanRecord naptanData = naptanRespository.getForActo(platformId);
+        if (naptanRepository.isEnabled()) {
+            NaptanRecord naptanData = naptanRepository.getForActo(platformId);
 
-            areaId = chooseArea(naptanRespository, naptanData.getAreaCodes());
+            areaId = naptanData.getLocalityId();
             gridPosition = naptanData.getGridPosition();
             latLong = naptanData.getLatLong();
 

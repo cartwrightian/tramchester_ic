@@ -9,7 +9,7 @@ import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.PlatformStopCall;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.places.NaptanArea;
+import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.TestEnv;
@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class ServiceTest {
 
     private final DataSourceID dataSourceId = DataSourceID.tfgm;
-    private final IdFor<NaptanArea> areaId = NaptanArea.invalidId();
+    private final IdFor<NPTGLocality> areaId = NPTGLocality.InvalidId();
     private final boolean isMarkedInterchange = false;
     private Station manAirport;
     private Station shudehill;

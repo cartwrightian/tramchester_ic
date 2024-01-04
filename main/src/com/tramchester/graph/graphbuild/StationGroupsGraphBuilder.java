@@ -3,6 +3,7 @@ package com.tramchester.graph.graphbuild;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
@@ -114,7 +115,7 @@ public class StationGroupsGraphBuilder extends CreateNodesAndRelationships {
 
     private MutableGraphNode createGroupedStationNodes(MutableGraphTransaction txn, StationGroup stationGroup) {
         MutableGraphNode groupNode = createGraphNode(txn, GraphLabel.GROUPED);
-        IdFor<NaptanArea> areaId = stationGroup.getAreaId();
+        IdFor<NPTGLocality> areaId = stationGroup.getLocalityId();
         groupNode.setAreaId(areaId);
         groupNode.set(stationGroup);
         return groupNode;

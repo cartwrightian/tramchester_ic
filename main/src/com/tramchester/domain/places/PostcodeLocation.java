@@ -72,8 +72,9 @@ public class PostcodeLocation implements Location<PostcodeLocation>, CoreDomain,
     }
 
     @Override
-    public IdFor<NaptanArea> getAreaId() {
-        return StringIdFor.invalid(NaptanArea.class);
+    public IdFor<NPTGLocality> getLocalityId() {
+        // note: if needed since know grid for locality and for postcode could associate
+        return StringIdFor.invalid(NPTGLocality.class);
     }
 
     @Override

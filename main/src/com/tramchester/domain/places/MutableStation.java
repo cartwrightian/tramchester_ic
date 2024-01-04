@@ -22,7 +22,7 @@ public class MutableStation implements Station {
     // TODO into config?
     public static final int DEFAULT_MIN_CHANGE_TIME = 1;
 
-    private final IdFor<NaptanArea> areaId;
+    private final IdFor<NPTGLocality> localityId;
     private final IdFor<Station> id;
     private final String name;
     private final String code;
@@ -38,18 +38,18 @@ public class MutableStation implements Station {
     private final EnumSet<TransportMode> modes;
     private final Duration changeTimeNeeded;
 
-    public MutableStation(IdFor<Station> id, IdFor<NaptanArea> areaId, String stationName, LatLong latLong, GridPosition gridPosition,
+    public MutableStation(IdFor<Station> id, IdFor<NPTGLocality> localityId, String stationName, LatLong latLong, GridPosition gridPosition,
                           DataSourceID dataSourceID, String code) {
         // todo default change duration from config for the data source?
-        this(id, areaId, stationName, latLong, gridPosition, dataSourceID, false,
+        this(id, localityId, stationName, latLong, gridPosition, dataSourceID, false,
                 Duration.ofMinutes(DEFAULT_MIN_CHANGE_TIME), code);
     }
 
     // for some data sources we know if station is an interchange
-    public MutableStation(IdFor<Station> id, IdFor<NaptanArea> areaId, String stationName, LatLong latLong, GridPosition gridPosition,
+    public MutableStation(IdFor<Station> id, IdFor<NPTGLocality> localityId, String stationName, LatLong latLong, GridPosition gridPosition,
                           DataSourceID dataSourceID, boolean isMarkedInterchange, Duration changeTimeNeeded,
                           String code) {
-        this.areaId = areaId;
+        this.localityId = localityId;
         this.gridPosition = gridPosition;
         this.dataSourceID = dataSourceID;
         this.isMarkedInterchange = isMarkedInterchange;
@@ -68,7 +68,7 @@ public class MutableStation implements Station {
     }
 
     public static Station Unknown(DataSourceID dataSourceID) {
-        return new MutableStation(StringIdFor.createId("unknown", Station.class), NaptanArea.Invalid().getId(), "Unknown",
+        return new MutableStation(StringIdFor.createId("unknown", Station.class), NPTGLocality.InvalidId(), "Unknown",
                 LatLong.Invalid, GridPosition.Invalid, dataSourceID, false, Duration.ZERO, "unknown");
     }
 
@@ -88,8 +88,8 @@ public class MutableStation implements Station {
     }
 
     @Override
-    public IdFor<NaptanArea> getAreaId() {
-        return areaId;
+    public IdFor<NPTGLocality> getLocalityId() {
+        return localityId;
     }
 
     @Override
@@ -229,7 +229,7 @@ public class MutableStation implements Station {
     @Override
     public String toString() {
         return "Station{" +
-                "areaId='" + areaId + '\'' +
+                "areaId='" + localityId + '\'' +
                 ", id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", stationCode='" + code + '\'' +

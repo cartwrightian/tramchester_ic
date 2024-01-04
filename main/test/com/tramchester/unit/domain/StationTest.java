@@ -7,7 +7,7 @@ import com.tramchester.domain.dates.MutableNormalServiceCalendar;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.MutableStation;
-import com.tramchester.domain.places.NaptanArea;
+import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.testSupport.TestEnv;
@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class StationTest {
 
-    private final IdFor<NaptanArea> areaId = NaptanArea.createId("area");
+    private final IdFor<NPTGLocality> areaId = NPTGLocality.createId("area");
 
     @Test
     void testShouldCreateCorrecly() {
@@ -38,7 +38,7 @@ class StationTest {
         assertEquals(Station.createId("id"), tramStation.getId());
         assertEquals(-2.0, tramStation.getLatLong().getLat(),0);
         assertEquals(2.3, tramStation.getLatLong().getLon(),0);
-        assertEquals(areaId, tramStation.getAreaId());
+        assertEquals(areaId, tramStation.getLocalityId());
         assertEquals(DataSourceID.tfgm, tramStation.getDataSourceID());
         assertEquals("stationCode", tramStation.getCode());
     }
@@ -52,7 +52,7 @@ class StationTest {
         assertEquals(Station.createId("id"), busStation.getId());
         assertEquals(-2.0, busStation.getLatLong().getLat(),0);
         assertEquals(2.3, busStation.getLatLong().getLon(),0);
-        assertEquals(areaId, busStation.getAreaId());
+        assertEquals(areaId, busStation.getLocalityId());
         //assertTrue(TransportMode.isBus(busStation));
     }
 

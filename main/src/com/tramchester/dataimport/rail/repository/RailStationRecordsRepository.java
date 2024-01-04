@@ -7,17 +7,17 @@ import com.tramchester.dataimport.rail.records.PhysicalStationRecord;
 import com.tramchester.dataimport.rail.records.RailLocationRecord;
 import com.tramchester.dataimport.rail.records.reference.RailInterchangeType;
 import com.tramchester.domain.DataSourceID;
-import com.tramchester.domain.factory.TransportEntityFactory;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.MutableStation;
-import com.tramchester.domain.places.NaptanArea;
+import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.NaptanRecord;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.repository.naptan.NaptanRepository;
+import com.tramchester.repository.nptg.NPTGRepository;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,14 +46,16 @@ public class RailStationRecordsRepository {
     private final ProvidesRailStationRecords providesRailStationRecords;
     private final RailStationCRSRepository crsRepository;
     private final NaptanRepository naptanRepository;
+    private final NPTGRepository nptgRepository;
     private final boolean enabled;
 
     @Inject
     public RailStationRecordsRepository(ProvidesRailStationRecords providesRailStationRecords, RailStationCRSRepository crsRepository,
-                                        NaptanRepository naptanRepository, TramchesterConfig config) {
+                                        NaptanRepository naptanRepository, NPTGRepository nptgRepository, TramchesterConfig config) {
         this.providesRailStationRecords = providesRailStationRecords;
         this.crsRepository = crsRepository;
         this.naptanRepository = naptanRepository;
+        this.nptgRepository = nptgRepository;
         inUseStations = new IdSet<>();
         tiplocMap = new HashMap<>();
         missing = new HashSet<>();
@@ -119,21 +121,23 @@ public class RailStationRecordsRepository {
 
         String name = record.getName();
         GridPosition grid = GridPosition.Invalid;
-        IdFor<NaptanArea> areaId = NaptanArea.invalidId();
+        IdFor<NPTGLocality> areaId = NPTGLocality.InvalidId();
         boolean isInterchange = (record.getRailInterchangeType()!= RailInterchangeType.None);
 
         if (naptanRepository.containsTiploc(id)) {
-            // prefer naptan data if available
-            NaptanRecord stopsData = naptanRepository.getForTiploc(id);
-            grid = stopsData.getGridPosition();
-            name = stopsData.getName();
-            areaId = TransportEntityFactory.chooseArea(naptanRepository, stopsData.getAreaCodes());
+            // prefer nptg data if available, first try to find atloc code for the station, then if found use to get
+            // the locality id for the station
+            NaptanRecord naptanRecord = naptanRepository.getForTiploc(id);
+            if (naptanRecord!=null) {
+                areaId = naptanRecord.getLocalityId();
+                grid = naptanRecord.getGridPosition();
+//                areaId = TransportEntityFactory.chooseArea(naptanRepository, naptanRecord.getAreaCodes());
+            }
         }
 
         if (!grid.isValid()) {
             // not from naptan, try to get from rail data
             if (record.getEasting() == Integer.MIN_VALUE || record.getNorthing() == Integer.MIN_VALUE) {
-                // have missing grid for this station, was 00000
                 grid = GridPosition.Invalid;
             } else {
                 grid = convertToOsGrid(record.getEasting(), record.getNorthing());

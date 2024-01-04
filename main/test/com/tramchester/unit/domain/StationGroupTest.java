@@ -35,10 +35,10 @@ class StationGroupTest {
         Route route = TestEnv.getTramTestRoute();
         stationA.addRoutePickUp(route);
 
-        Platform platform = MutablePlatform.buildForTFGMTram("platformId", stationA, latLong, DataSourceID.unknown, NaptanArea.invalidId());
+        Platform platform = MutablePlatform.buildForTFGMTram("platformId", stationA, latLong, DataSourceID.unknown, NPTGLocality.InvalidId());
         stationA.addPlatform(platform);
 
-        IdFor<NaptanArea> areaId = NaptanArea.createId("areaId");
+        IdFor<NPTGLocality> areaId = NPTGLocality.createId("areaId");
         StationGroup groupedStations = new StationGroup(Collections.singleton(stationA), areaId,
                 "compName", Duration.ofMinutes(1));
 
@@ -49,7 +49,7 @@ class StationGroupTest {
         assertEquals(-2.0, groupedStations.getLatLong().getLat(),0);
         assertEquals(2.3, groupedStations.getLatLong().getLon(),0);
 
-        assertEquals(areaId, groupedStations.getAreaId());
+        assertEquals(areaId, groupedStations.getLocalityId());
         assertEquals(StationGroup.createId("areaId"), groupedStations.getId());
         assertEquals("areaId", groupedStations.getId().getGraphId());
         //assertEquals("areaId", groupedStations.getId().forDTO());
@@ -77,7 +77,7 @@ class StationGroupTest {
 
         stationA.addRouteDropOff(routeA);
         Platform platformA = MutablePlatform.buildForTFGMTram("platformIdA", stationA,
-                new LatLong(2, 4), DataSourceID.unknown, NaptanArea.invalidId());
+                new LatLong(2, 4), DataSourceID.unknown, NPTGLocality.InvalidId());
         stationA.addPlatform(platformA);
 
         MutableStation stationB = StationHelper.forTestMutable("idB", "areaB", "stopNameB",
@@ -86,11 +86,11 @@ class StationGroupTest {
         stationB.addRouteDropOff(routeB);
         stationB.addRoutePickUp(routeA);
         Platform platformB = MutablePlatform.buildForTFGMTram("platformIdB", stationB,
-                new LatLong(4, 8), DataSourceID.unknown, NaptanArea.invalidId());
+                new LatLong(4, 8), DataSourceID.unknown, NPTGLocality.InvalidId());
         stationB.addPlatform(platformB);
 
         Set<Station> stations = new HashSet<>(Arrays.asList(stationA, stationB));
-        IdFor<NaptanArea> areaId = NaptanArea.createId("areaId");
+        IdFor<NPTGLocality> areaId = NPTGLocality.createId("areaId");
         StationGroup stationGroup = new StationGroup(stations, areaId, "compName",Duration.ofMinutes(12));
 
         assertEquals(LocationType.StationGroup, stationGroup.getLocationType());
@@ -104,7 +104,7 @@ class StationGroupTest {
 
         assertEquals(3, stationGroup.getLatLong().getLat(),0);
         assertEquals(6, stationGroup.getLatLong().getLon(),0);
-        assertEquals(areaId, stationGroup.getAreaId());
+        assertEquals(areaId, stationGroup.getLocalityId());
 
         final Set<TransportMode> transportModes = stationGroup.getTransportModes();
         assertEquals(2, transportModes.size());
@@ -137,7 +137,7 @@ class StationGroupTest {
                 "routeNameB", TestEnv.StagecoachManchester, Bus);
 
         Set<Station> stations = new HashSet<>(Arrays.asList(stationA, stationB));
-        IdFor<NaptanArea> areaId = NaptanArea.createId("areaId");
+        IdFor<NPTGLocality> areaId = NPTGLocality.createId("areaId");
         StationGroup stationGroup = new StationGroup(stations, areaId, "compName",Duration.ofMinutes(11));
 
         assertFalse(stationGroup.hasPickup());
@@ -162,7 +162,7 @@ class StationGroupTest {
         Station stationB = StationHelper.forTest("idB", "areaB", "stopNameB",
                 positionB, dataSourceID, "stationCodeB");
 
-        IdFor<NaptanArea> areaId = NaptanArea.createId("areaId");
+        IdFor<NPTGLocality> areaId = NPTGLocality.createId("areaId");
 
         final Duration changeTimeNeeded = Duration.ofMinutes(42);
         StationGroup stationGroup = new StationGroup( new HashSet<>(Arrays.asList(stationA, stationB)),

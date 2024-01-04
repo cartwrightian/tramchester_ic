@@ -5,7 +5,7 @@ import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdForDTO;
-import com.tramchester.domain.places.NaptanArea;
+import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.AreaBoundaryDTO;
 import com.tramchester.domain.presentation.DTO.BoxDTO;
@@ -18,17 +18,17 @@ import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.naptan.ResourceTramTestConfigWithNaptan;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.repository.naptan.NaptanRepository;
+import com.tramchester.repository.nptg.NPTGRepository;
 import com.tramchester.resources.StationGeographyResource;
 import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import jakarta.ws.rs.core.GenericType;
+import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import jakarta.ws.rs.core.Response;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -45,7 +45,7 @@ class StationGeographyResourceTest {
 
     private static GuiceContainerDependencies dependencies;
     private DTOFactory DTOFactory;
-    private NaptanRepository naptanRepository;
+    private NPTGRepository nptgRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -56,7 +56,7 @@ class StationGeographyResourceTest {
     @BeforeEach
     void beforeEachTestRuns() {
         DTOFactory = dependencies.get(DTOFactory.class);
-        naptanRepository = dependencies.get(NaptanRepository.class);
+        nptgRepository = dependencies.get(NPTGRepository.class);
     }
 
     @Test
@@ -114,7 +114,7 @@ class StationGeographyResourceTest {
     }
 
     @Test
-    void shouldGetAreas() {
+    void shouldGetLocality() {
         StationRepository stationRepository = dependencies.get(StationRepository.class);
 
         String endPoint = "geo/areas";
@@ -129,12 +129,12 @@ class StationGeographyResourceTest {
         Set<IdForDTO> areaIds = areas.stream().map(AreaBoundaryDTO::getAreaId).collect(Collectors.toSet());
 
         Station bury = Bury.from(stationRepository);
-        IdFor<NaptanArea> naptanId = bury.getAreaId();
-        NaptanArea naptanArea = naptanRepository.getAreaFor(naptanId);
+        IdFor<NPTGLocality> buryLocalityId = bury.getLocalityId();
+        NPTGLocality record = nptgRepository.get(buryLocalityId);
 
-        boolean found = areaIds.stream().anyMatch(areaId -> areaId.equals(IdForDTO.createFor(naptanArea)));
+        boolean found = areaIds.stream().anyMatch(areaId -> areaId.equals(IdForDTO.createFor(record)));
 
-        assertTrue(found, naptanId + " not found in " + areaIds);
+        assertTrue(found, buryLocalityId + " not found in " + areaIds);
     }
 
     private StationLinkDTO createLink(TramStations begin, TramStations end) {

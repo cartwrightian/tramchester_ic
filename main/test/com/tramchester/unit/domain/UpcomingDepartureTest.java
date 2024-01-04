@@ -4,7 +4,7 @@ import com.tramchester.domain.Agency;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.MutablePlatform;
 import com.tramchester.domain.Platform;
-import com.tramchester.domain.places.NaptanArea;
+import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
@@ -58,7 +58,7 @@ class UpcomingDepartureTest {
 
         LatLong nearBury = KnownLocations.nearBury.latLong();
         Platform platform = MutablePlatform.buildForTFGMTram("id", TramStations.Bury.fake(), nearBury, DataSourceID.tfgm,
-                NaptanArea.createId("areaId1"));
+                NPTGLocality.createId("areaId1"));
         departure.setPlatform(platform);
 
         assertTrue(departure.hasPlatform());

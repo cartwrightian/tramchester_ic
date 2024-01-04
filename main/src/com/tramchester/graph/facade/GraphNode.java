@@ -5,7 +5,7 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.places.NaptanArea;
+import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
@@ -39,7 +39,7 @@ public interface GraphNode {
 
     IdFor<Route> getRouteId();
 
-    IdFor<NaptanArea> getAreaId();
+    IdFor<NPTGLocality> getAreaId();
 
     boolean hasTripId();
 

@@ -4,27 +4,21 @@ import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.*;
 import com.tramchester.domain.dates.MutableNormalServiceCalendar;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.*;
 import com.tramchester.domain.places.MutableStation;
-import com.tramchester.domain.places.NaptanArea;
+import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
-import com.tramchester.repository.naptan.NaptanRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
-import static java.lang.String.format;
-
 public abstract class TransportEntityFactory {
 
-    private static final Logger logger = LoggerFactory.getLogger(TransportEntityFactory.class);
+//    private static final Logger logger = LoggerFactory.getLogger(TransportEntityFactory.class);
 
     public TransportEntityFactory() {
     }
@@ -60,7 +54,8 @@ public abstract class TransportEntityFactory {
     }
 
     public MutableStation createStation(IdFor<Station> stationId, StopData stopData) {
-        IdFor<NaptanArea> areaId = NaptanArea.invalidId();
+        // default is not to enrich from naptan and nptg
+        IdFor<NPTGLocality> areaId = NPTGLocality.InvalidId();
         GridPosition position = CoordinateTransforms.getGridPosition(stopData.getLatLong());
         return new MutableStation(stationId, areaId, stopData.getName(), stopData.getLatLong(), position, getDataSourceId(), stopData.getCode());
     }
@@ -101,23 +96,23 @@ public abstract class TransportEntityFactory {
 
     public abstract IdFor<Platform> getPlatformId(StopTimeData stopTimeData, Station station);
 
-    public static IdFor<NaptanArea> chooseArea(NaptanRepository naptanRepository, IdSet<NaptanArea> areaCodes) {
-        if (areaCodes.isEmpty()) {
-            return NaptanArea.invalidId();
-        }
-
-        IdSet<NaptanArea> active = naptanRepository.activeCodes(areaCodes);
-        if (active.isEmpty()) {
-            logger.info(format("None of the area codes %s were active ", areaCodes));
-            return NaptanArea.invalidId();
-        }
-        if (active.size()==1) {
-            return active.toList().get(0);
-        }
-
-        final String message = "More than one active code is present in the data set " + areaCodes;
-        logger.error(message);
-        throw new RuntimeException(message);
-    }
+//    public static IdFor<NaptanArea> chooseArea(NaptanRepository naptanRepository, IdSet<NaptanArea> areaCodes) {
+//        if (areaCodes.isEmpty()) {
+//            return NaptanArea.invalidId();
+//        }
+//
+//        IdSet<NaptanArea> active = naptanRepository.activeCodes(areaCodes);
+//        if (active.isEmpty()) {
+//            logger.info(format("None of the area codes %s were active ", areaCodes));
+//            return NaptanArea.invalidId();
+//        }
+//        if (active.size()==1) {
+//            return active.toList().get(0);
+//        }
+//
+//        final String message = "More than one active code is present in the data set " + areaCodes;
+//        logger.error(message);
+//        throw new RuntimeException(message);
+//    }
 
 }

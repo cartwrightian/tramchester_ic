@@ -4,10 +4,7 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.places.Location;
-import com.tramchester.domain.places.MyLocation;
-import com.tramchester.domain.places.NaptanArea;
-import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.*;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
@@ -223,11 +220,11 @@ class JourneyTest {
         final TramTime departureTimeA = queryTime.plusMinutes(10);
 
         final Station alty = Altrincham.fakeWithPlatform("1",  nearAltrincham.latLong(),
-                DataSourceID.unknown, NaptanArea.invalidId());
+                DataSourceID.unknown, NPTGLocality.InvalidId());
         final Platform platform1 = TestEnv.findOnlyPlatform(alty);
 
         final Station stPeters = StPetersSquare.fakeWithPlatform("2", nearStPetersSquare.latLong(),
-                DataSourceID.unknown, NaptanArea.invalidId());
+                DataSourceID.unknown, NPTGLocality.InvalidId());
         final Platform platform2 = TestEnv.findOnlyPlatform(stPeters);
 
         final VehicleStage stageA = createVehicleStage(alty, stPeters, Bus, departureTimeA, 13);

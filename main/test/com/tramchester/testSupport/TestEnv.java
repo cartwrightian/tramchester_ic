@@ -20,7 +20,7 @@ import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.input.PlatformStopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Location;
-import com.tramchester.domain.places.NaptanArea;
+import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
@@ -88,8 +88,6 @@ public class TestEnv {
 
     public static final Agency WarringtonsOwnBuses = MutableAgency.build(DataSourceID.tfgm, Agency.createId("7778560"),
             "Warrington's Own Buses");
-
-    public static final String MANCHESTER_AIRPORT_BUS_AREA = "180GMABS";
 
     public static final String TFGM_TIMETABLE_URL = "https://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip";
 
@@ -218,10 +216,9 @@ public class TestEnv {
                                                       TramTime depart) {
         final Station station = tramStation.fake();
 
-        //PlatformId platformId = new PlatformId(station.getId(), stopId);
         PlatformId platformId = TransportEntityFactoryForTFGM.createPlatformId(station.getId(), stopCode);
         Platform platform = MutablePlatform.buildForTFGMTram(platformId, station, tramStation.getLatLong(),
-                DataSourceID.unknown, NaptanArea.invalidId());
+                DataSourceID.unknown, NPTGLocality.InvalidId());
         GTFSPickupDropoffType pickupDropoff = GTFSPickupDropoffType.Regular;
 
         return new PlatformStopCall(platform, station, arrive, depart, seq, pickupDropoff, pickupDropoff, trip);
@@ -304,7 +301,7 @@ public class TestEnv {
         //PlatformId platformId = new PlatformId(station.getId(), platformNumber);
         PlatformId platformId = PlatformId.createId(station.getId(), platformNumber);
         return MutablePlatform.buildForTFGMTram(platformId, station, station.getLatLong(),
-                station.getDataSourceID(), station.getAreaId());
+                station.getDataSourceID(), station.getLocalityId());
     }
 
     public static Platform findOnlyPlatform(Station station) {

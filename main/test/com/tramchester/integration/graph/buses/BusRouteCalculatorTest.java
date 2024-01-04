@@ -18,6 +18,7 @@ import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.KnowLocality;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
@@ -79,7 +80,7 @@ class BusRouteCalculatorTest {
         stockportBusStation = stationGroupsRepository.findByName(Composites.StockportTempBusStation.getName());
         altrinchamInterchange = stationGroupsRepository.findByName(Composites.AltrinchamInterchange.getName());
 
-        knutsfordBusStation = stationGroupsRepository.getStationGroup(KnutfordStationAreaId);
+        knutsfordBusStation = stationGroupsRepository.getStationGroup(KnowLocality.Knutsford.getId());
         shudehillInterchange = stationGroupsRepository.findByName("Shudehill Interchange");
     }
 

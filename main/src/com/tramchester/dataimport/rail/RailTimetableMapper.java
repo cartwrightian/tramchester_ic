@@ -17,10 +17,7 @@ import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.RailPlatformStopCall;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.places.MutableStation;
-import com.tramchester.domain.places.NaptanArea;
-import com.tramchester.domain.places.RouteStation;
-import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.*;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.Durations;
@@ -374,7 +371,7 @@ public class RailTimetableMapper {
             final EnumSet<LocationActivityCode> activity = railLocation.getActivity();
 
             // Platform
-            final IdFor<NaptanArea> areaId = station.getAreaId(); // naptan seems only to have rail stations, not platforms
+            final IdFor<NPTGLocality> areaId = station.getLocalityId(); // naptan seems only to have rail stations, not platforms
             final MutablePlatform platform = getOrCreatePlatform(station, railLocation, areaId);
 
             station.addPlatform(platform);
@@ -497,7 +494,7 @@ public class RailTimetableMapper {
         }
 
         private MutablePlatform getOrCreatePlatform(final Station originStation, final RailLocationRecord originLocation,
-                                                    final IdFor<NaptanArea> areaId) {
+                                                    final IdFor<NPTGLocality> areaId) {
 
             final String originLocationPlatform = originLocation.getPlatform();
             final String platformNumber = originLocationPlatform.isEmpty() ? "UNK" : originLocationPlatform;

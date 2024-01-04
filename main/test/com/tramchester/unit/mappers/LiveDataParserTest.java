@@ -5,7 +5,7 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.MutableAgency;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.PlatformId;
-import com.tramchester.domain.places.NaptanArea;
+import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
 import com.tramchester.livedata.domain.liveUpdates.LineDirection;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
@@ -59,11 +59,11 @@ class LiveDataParserTest extends EasyMockSupport {
         platformRepository = createMock(PlatformRepository.class);
 
         Station mediaCity = MediaCityUK.fakeWithPlatform("2", MediaCityUK.getLatLong(),
-                DataSourceID.unknown, NaptanArea.invalidId());
+                DataSourceID.unknown, NPTGLocality.InvalidId());
         platformMC = TestEnv.findOnlyPlatform(mediaCity);
 
         Station airport = ManAirport.fakeWithPlatform("1",
-                ManAirport.getLatLong(), DataSourceID.unknown, NaptanArea.invalidId());
+                ManAirport.getLatLong(), DataSourceID.unknown, NPTGLocality.InvalidId());
         final Platform platformAirport = TestEnv.findOnlyPlatform(airport);
 
         EasyMock.expect(stationRepository.getStationById(MediaCityUK.getId())).andStubReturn(mediaCity);

@@ -4,7 +4,7 @@ import com.google.common.collect.Streams;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.places.LocationType;
-import com.tramchester.domain.places.NaptanArea;
+import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
@@ -31,18 +31,18 @@ public class MutablePlatform implements Platform {
     private final Set<Route> servesRoutesPickup;
     private final Set<Route> servesRoutesDropoff;
     private final DataSourceID dataSourceId;
-    private final IdFor<NaptanArea> areaId;
+    private final IdFor<NPTGLocality> localityId;
     private final boolean isMarkedInterchange;
     private final GridPosition gridPosition;
     private final Station station;
 
     public MutablePlatform(IdFor<Platform> id, Station station, String platformName, DataSourceID dataSourceId, String platformNumber,
-                           IdFor<NaptanArea> areaId, LatLong latLong, GridPosition gridPosition, boolean isMarkedInterchange) {
+                           IdFor<NPTGLocality> localityId, LatLong latLong, GridPosition gridPosition, boolean isMarkedInterchange) {
         this.id = id;
         this.station = station;
         this.dataSourceId = dataSourceId;
         this.platformNumber = platformNumber;
-        this.areaId = areaId;
+        this.localityId = localityId;
         this.gridPosition = gridPosition;
         this.isMarkedInterchange = isMarkedInterchange;
         this.name = format("%s platform %s", platformName, platformNumber);
@@ -58,20 +58,20 @@ public class MutablePlatform implements Platform {
      * @param station the parent station
      * @param latLong the position
      * @param dataSourceId the source
-     * @param areaId the areas
+     * @param localityId the nptg locality code
      * @return Platform for testing only
      */
     public static Platform buildForTFGMTram(PlatformId id, Station station, LatLong latLong, DataSourceID dataSourceId,
-                                            IdFor<NaptanArea> areaId) {
+                                            IdFor<NPTGLocality> localityId) {
         String platformNumber = id.getNumber();
         GridPosition gridPosition = CoordinateTransforms.getGridPosition(latLong);
         boolean isMarkedInterchange = false;
         return new MutablePlatform(id, station, station.getName(), dataSourceId, platformNumber,
-                areaId, latLong, gridPosition, isMarkedInterchange);
+                localityId, latLong, gridPosition, isMarkedInterchange);
     }
 
     public static Platform buildForTFGMTram(String platformNummber, Station station, LatLong latLong, DataSourceID dataSourceId,
-                                            IdFor<NaptanArea> areaId) {
+                                            IdFor<NPTGLocality> areaId) {
         PlatformId platformId = PlatformId.createId(station, platformNummber);
         return buildForTFGMTram(platformId, station, latLong, dataSourceId, areaId);
     }
@@ -141,8 +141,8 @@ public class MutablePlatform implements Platform {
     }
 
     @Override
-    public IdFor<NaptanArea> getAreaId() {
-        return areaId;
+    public IdFor<NPTGLocality> getLocalityId() {
+        return localityId;
     }
 
     @Override

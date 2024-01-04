@@ -43,13 +43,13 @@ public class LinkedInterchangeStationTest {
         tramPickup = TestEnv.getTramTestRoute(Route.createId("routeTram2"), "tram route 2 name");
 
         tramId = Station.createId("tramStationId");
-        tramStation = new MutableStation(tramId, NaptanArea.createId("naptanId1"),
+        tramStation = new MutableStation(tramId, NPTGLocality.createId("naptanId1"),
                 "station name", nearStPetersSquare.latLong(), nearStPetersSquare.grid(),  DataSourceID.tfgm, "codeA");
         tramStation.addRouteDropOff(tramDropoff);
         tramStation.addRoutePickUp(tramPickup);
 
         trainId = Station.createId("railStationId");
-        trainStation = new MutableStation(trainId, NaptanArea.createId("napranId2"),
+        trainStation = new MutableStation(trainId, NPTGLocality.createId("napranId2"),
                 "rail stations", nearPiccGardens.latLong(), nearPiccGardens.grid(), DataSourceID.rail, "codeB");
 
         trainDropoff = getTrainTestRoute(Route.createId("routeTrain1"), "train route 1 name");
@@ -110,7 +110,7 @@ public class LinkedInterchangeStationTest {
         Route tramDropoffB = TestEnv.getTramTestRoute(Route.createId("routeTram4"), "tram route 4 name");
 
         IdFor<Station> tramIdB = Station.createId("tramStationBId");
-        MutableStation tramStationB = new MutableStation(tramIdB, NaptanArea.createId("naptanId1"),
+        MutableStation tramStationB = new MutableStation(tramIdB, NPTGLocality.createId("naptanId1"),
                 "station B name", nearStPetersSquare.latLong(), nearStPetersSquare.grid(), DataSourceID.tfgm,
                 "codeB");
         tramStationB.addRoutePickUp(tramPickupB);

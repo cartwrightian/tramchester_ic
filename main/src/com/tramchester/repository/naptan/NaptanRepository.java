@@ -2,11 +2,7 @@ package com.tramchester.repository.naptan;
 
 import com.google.inject.ImplementedBy;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.places.Location;
-import com.tramchester.domain.places.NaptanArea;
-import com.tramchester.domain.places.NaptanRecord;
-import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.*;
 
 import java.util.Set;
 
@@ -22,17 +18,9 @@ public interface NaptanRepository {
 
     boolean containsTiploc(IdFor<Station> tiploc);
 
-    NaptanArea getAreaFor(IdFor<NaptanArea> id);
+    boolean containsArea(IdFor<NPTGLocality> localityId);
 
-    boolean containsArea(IdFor<NaptanArea> id);
-
-    IdSet<NaptanArea> activeCodes(IdSet<NaptanArea> ids);
-
-    Set<NaptanRecord> getRecordsFor(IdFor<NaptanArea> areaId);
-
-    boolean hasAreaRecordsFor(IdFor<NaptanArea> areaId);
-
-    Set<NaptanArea> getAreas();
+    Set<NaptanRecord> getRecordsForLocality(IdFor<NPTGLocality> localityId);
 
     boolean isEnabled();
 }
