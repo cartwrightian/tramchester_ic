@@ -7,9 +7,11 @@ import com.tramchester.dataimport.NaPTAN.xml.NaptanDataCallbackImporter;
 import com.tramchester.dataimport.NaPTAN.xml.NaptanFromXMLFile;
 import com.tramchester.dataimport.NaPTAN.xml.stopArea.NaptanStopAreaData;
 import com.tramchester.dataimport.NaPTAN.xml.stopPoint.NaptanStopData;
-import com.tramchester.dataimport.NaPTAN.xml.stopPoint.NaptanXMLStopAreaRef;
 import com.tramchester.domain.id.*;
-import com.tramchester.domain.places.*;
+import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.NPTGLocality;
+import com.tramchester.domain.places.NaptanRecord;
+import com.tramchester.domain.places.Station;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.MarginInMeters;
@@ -20,10 +22,15 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
+import static java.util.stream.Collectors.toSet;
 
 // http://naptan.dft.gov.uk/naptan/schema/2.5/doc/NaPTANSchemaGuide-2.5-v0.67.pdf
 
@@ -37,6 +44,7 @@ public class NaptanRepositoryContainer implements NaptanRepository {
 
     private final IdMap<NaptanRecord> stops;
     private final Map<IdFor<Station>, IdFor<NaptanRecord>> tiplocToAtco;
+    private Map<IdFor<NPTGLocality>, IdSet<NaptanRecord>> localities;
 
     @Inject
     public NaptanRepositoryContainer(NaptanDataCallbackImporter naptanDataImporter, NPTGRepository nptgRepository, TramchesterConfig config) {
@@ -45,6 +53,7 @@ public class NaptanRepositoryContainer implements NaptanRepository {
         this.config = config;
         stops = new IdMap<>();
         tiplocToAtco = new HashMap<>();
+        localities = Collections.emptyMap();
     }
 
     @PostConstruct
@@ -73,32 +82,37 @@ public class NaptanRepositoryContainer implements NaptanRepository {
 
     private void loadStopDataForConfiguredArea() {
 
-        Map<IdFor<NaptanRecord>, List<NaptanXMLStopAreaRef>> pendingAreaIds = new HashMap<>();
-
         final BoundingBox bounds = config.getBounds();
         final Double range = config.getNearestStopForWalkingRangeKM();
         final MarginInMeters margin = MarginInMeters.of(range);
 
         logger.info("Loading data for " + bounds + " and range " + margin);
 
-        Consumer consumer = new Consumer(bounds, margin, pendingAreaIds);
+        Consumer consumer = new Consumer(bounds, margin);
 
         naptanDataImporter.loadData(consumer);
 
+        populateLocalityMap();
+
         logger.info("Loaded " + stops.size() + " stops");
-        logger.info("Loaded " + tiplocToAtco.size() + " mappings for rail stations" );
+        logger.info("Loaded " + tiplocToAtco.size() + " mappings for rail stations");
+        logger.info("Loaded " + localities.size() + " localities");
 
         consumer.logSkipped(logger);
     }
 
-    private boolean consumeStop(final NaptanStopData stopData, final BoundingBox bounds, final MarginInMeters margin,
-                             final Map<IdFor<NaptanRecord>, List<NaptanXMLStopAreaRef>> pendingAreaIds) {
+    private void populateLocalityMap() {
+        Collector<NaptanRecord, IdSet<NaptanRecord>, IdSet<NaptanRecord>> collector = IdSet.collector();
+        localities = stops.getValuesStream().collect(Collectors.groupingBy(NaptanRecord::getLocalityId, collector));
+    }
+
+    private boolean consumeStop(final NaptanStopData stopData, final BoundingBox bounds, final MarginInMeters margin) {
         if (!stopData.hasValidAtcoCode()) {
             return false;
         }
 
         if (filterBy(bounds, margin, stopData)) {
-            final NaptanRecord record = createRecord(stopData, pendingAreaIds);
+            final NaptanRecord record = createRecord(stopData);
             stops.add(record);
 
             if (stopData.hasRailInfo()) {
@@ -112,8 +126,7 @@ public class NaptanRepositoryContainer implements NaptanRepository {
         }
     }
 
-    private NaptanRecord createRecord(final NaptanStopData original, final Map<IdFor<NaptanRecord>,
-            List<NaptanXMLStopAreaRef>> pendingAreaIds) {
+    private NaptanRecord createRecord(final NaptanStopData original) {
         IdFor<NaptanRecord> atcoCode = original.getAtcoCode();
 
         String rawLocalityCode = original.getNptgLocality();
@@ -133,16 +146,6 @@ public class NaptanRepositoryContainer implements NaptanRepository {
         } else {
             logger.warn(format("Naptan localityCode '%s' missing from nptg for acto %s", localityCode, atcoCode));
         }
-
-        final List<NaptanXMLStopAreaRef> stopAreaRefs = original.stopAreasRefs();
-
-        // TODO Unlcear how useful this actually is, see also StationArea's etc, switch to nptg locality instead?
-        // record pending areas, need to have loaded entire file before can properly check if active or not
-        // see load method above
-        List<NaptanXMLStopAreaRef> areaIds = stopAreaRefs.stream().
-                filter(NaptanXMLStopAreaRef::isActive). // filter out if marked inactive for *this* stop
-                collect(Collectors.toList());
-        pendingAreaIds.put(atcoCode, areaIds);
 
         return new NaptanRecord(atcoCode, localityCode, original.getCommonName(), original.getGridPosition(), original.getLatLong(),
                 suburb, town, original.getStopType());
@@ -205,34 +208,32 @@ public class NaptanRepositoryContainer implements NaptanRepository {
 
     @Override
     public boolean containsArea(IdFor<NPTGLocality> id) {
-        // TODO use a map to do this?
-        return stops.getValuesStream().anyMatch(stop -> stop.getLocalityId().equals(id));
+        return localities.containsKey(id);
+//        return stops.getValuesStream().anyMatch(stop -> stop.getLocalityId().equals(id));
     }
 
     /***
      * Naptan records for an area. For stations in an area use StationLocations.
      * @see com.tramchester.geo.StationLocations
-     * @param areaId naptan area id
+     * @param localityId NPTG locality id
      * @return matching record
      */
     @Override
-    public Set<NaptanRecord> getRecordsForLocality(IdFor<NPTGLocality> areaId) {
-        // TODO use a map to do this?
-        return stops.filterStream(stop -> areaId.equals(stop.getLocalityId())).collect(Collectors.toSet());
+    public Set<NaptanRecord> getRecordsForLocality(IdFor<NPTGLocality> localityId) {
+        return localities.get(localityId).stream().map(stops::get).collect(toSet());
+//        return stops.filterStream(stop -> areaId.equals(stop.getLocalityId())).collect(Collectors.toSet());
     }
 
     private class Consumer implements NaptanFromXMLFile.NaptanXmlConsumer {
 
         private final BoundingBox bounds;
         private final MarginInMeters margin;
-        private final Map<IdFor<NaptanRecord>, List<NaptanXMLStopAreaRef>> pendingAreaIds;
         int skippedStopArea;
         int skippedStop;
 
-        private Consumer(BoundingBox bounds, MarginInMeters margin, Map<IdFor<NaptanRecord>, List<NaptanXMLStopAreaRef>> pendingAreaIds) {
+        private Consumer(BoundingBox bounds, MarginInMeters margin) {
             this.bounds = bounds;
             this.margin = margin;
-            this.pendingAreaIds = pendingAreaIds;
             skippedStop = 0;
             skippedStopArea = 0;
         }
@@ -246,7 +247,7 @@ public class NaptanRepositoryContainer implements NaptanRepository {
 
         @Override
         public void process(NaptanStopData element) {
-            if (!consumeStop(element, bounds, margin, pendingAreaIds)) {
+            if (!consumeStop(element, bounds, margin)) {
                 skippedStop++;
             }
         }
