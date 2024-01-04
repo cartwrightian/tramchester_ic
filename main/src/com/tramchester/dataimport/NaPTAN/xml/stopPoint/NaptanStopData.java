@@ -5,7 +5,6 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.tramchester.dataimport.NaPTAN.NaptanRailStationData;
 import com.tramchester.dataimport.NaPTAN.NaptanXMLData;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.NaptanRecord;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.GridPosition;
@@ -66,10 +65,10 @@ public class NaptanStopData implements NaptanXMLData {
     public boolean hasRailInfo() {
         return stopClassification.hasRailInfo();
     }
-//
-//    public String getNptgLocality() {
-//        return place.getNptgLocalityRef();
-//    }
+
+    public String getNptgLocality() {
+        return place.getNptgLocalityRef();
+    }
 
     public GridPosition getGridPosition() {
         return place.getLocation().getGridPosition();

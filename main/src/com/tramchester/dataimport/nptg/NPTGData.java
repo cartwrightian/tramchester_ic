@@ -4,16 +4,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.geo.GridPosition;
 
 
-// National Public Transport Gazetteer
- // https://data.gov.uk/dataset/3b1766bf-04a3-44f5-bea9-5c74cf002e1d/national-public-transport-gazetteer-nptg
+ // National Public Transport Gazetteer
  //
  // Cross-referenced by naptan data via the nptgLocalityCode
  //
 public class NPTGData {
 
     public static final String UK_Ord_Survey = "UKOS";
-    @JsonProperty("ATCOCode")
-    private String actoCode;
+    @JsonProperty("NptgLocalityCode")
+    private String nptgLocalityCode;
 
     @JsonProperty("LocalityName")
     private String localityName;
@@ -34,8 +33,8 @@ public class NPTGData {
         // deserialisation
     }
 
-    public String getActoCode() {
-        return actoCode;
+    public String getNptgLocalityCode() {
+        return nptgLocalityCode;
     }
 
     public String getLocalityName() {
@@ -45,7 +44,7 @@ public class NPTGData {
      @Override
      public String toString() {
          return "NPTGData{" +
-                 "actoCode='" + actoCode + '\'' +
+                 "nptgLocalityCode='" + nptgLocalityCode + '\'' +
                  ", localityName='" + localityName + '\'' +
                  ", parentLocalityName='" + parentLocalityName + '\'' +
                  ", gridType='" + gridType + '\'' +
@@ -58,12 +57,8 @@ public class NPTGData {
         return parentLocalityName;
     }
 
-     public String getGridType() {
-         return gridType;
-     }
-
     public GridPosition getGridPosition() {
-        if (gridType.equals(UK_Ord_Survey)) {
+        if (gridType.isEmpty() || gridType.equals(UK_Ord_Survey)) {
             try {
                 long eastingNumber = Long.parseLong(easting);
                 long northingNumber = Long.parseLong(northing);

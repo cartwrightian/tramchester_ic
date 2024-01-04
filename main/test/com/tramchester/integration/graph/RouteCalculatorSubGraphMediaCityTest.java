@@ -169,6 +169,7 @@ class RouteCalculatorSubGraphMediaCityTest {
         assertFalse(results.isEmpty());
     }
 
+    @Disabled("router interchange repos is going away")
     @Test
     void shouldHavePathsToInterchanges() {
         RouteInterchangeRepository routeInterchangeRepository = componentContainer.get(RouteInterchangeRepository.class);

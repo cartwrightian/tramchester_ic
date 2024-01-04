@@ -23,6 +23,7 @@ import java.util.List;
 
 import static com.tramchester.integration.testSupport.Assertions.assertIdEquals;
 import static com.tramchester.testSupport.TestEnv.MANCHESTER_AIRPORT_BUS_AREA;
+import static com.tramchester.testSupport.reference.BusStations.KnutfordStationAreaId;
 import static org.junit.jupiter.api.Assertions.*;
 
 class NaptanRepositoryTest {
@@ -130,6 +131,13 @@ class NaptanRepositoryTest {
         assertFalse(respository.containsArea(NaptanArea.createId("910GEUSTON")));
     }
 
+    @Test
+    void shouldNotContainStopOutOfArea() {
+        // stop in bristol, checked exists in full data in NaPTANDataImportTest
+        IdFor<Station> actoCode = Station.createId(TestEnv.BRISTOL_BUSSTOP_OCTOCODE);
+        assertFalse(respository.containsActo(actoCode));
+    }
+
     @Disabled("WIP")
     @Test
     void shouldHaveExpectedStructureForMultiplatformTram() {
@@ -175,31 +183,35 @@ class NaptanRepositoryTest {
     }
 
     @Test
-    void shouldFindKnutsford() {
+    void shouldFindAllTestBusStations() {
+        for(BusStations station :BusStations.values()) {
+            IdFor<Station> actoCode = station.getId();
+            assertTrue(respository.containsActo(actoCode), "missing for " + station);
+            NaptanRecord fromNaptan = respository.getForActo(actoCode);
+            assertEquals(station.getName(), fromNaptan.getName());
+        }
+    }
+
+    @Disabled("knutsford no longer has an area code in the data")
+    @Test
+    void shouldFindKnutsfordArea() {
 
         final IdFor<Station> stopId = BusStations.KnutsfordStationStand3.getId();
         NaptanRecord fromNaptan = respository.getForActo(stopId);
         assertNotNull(fromNaptan);
 
-        // knutsford no longer has an area code in the data
-//        IdSet<NaptanArea> areaCodes = fromNaptan.getAreaCodes();
-//        assertFalse(areaCodes.isEmpty(), "no area codes " + fromNaptan);
-//
-//        IdSet<NaptanArea> activeAreaCodes = respository.activeCodes(areaCodes);
-//        assertFalse(activeAreaCodes.isEmpty());
-//        assertTrue(activeAreaCodes.contains(KnutfordStationAreaId));
-//
-//        IdSet<NaptanRecord> allRecordsForArea = activeAreaCodes.stream().
-//                flatMap(activeArea -> respository.getRecordsFor(activeArea).stream()).
-//                collect(IdSet.collector());
-//
-//        assertEquals(4, allRecordsForArea.size(), allRecordsForArea.toString());
+        IdSet<NaptanArea> areaCodes = fromNaptan.getAreaCodes();
+        assertFalse(areaCodes.isEmpty(), "no area codes " + fromNaptan);
+
+        IdSet<NaptanArea> activeAreaCodes = respository.activeCodes(areaCodes);
+        assertFalse(activeAreaCodes.isEmpty());
+        assertTrue(activeAreaCodes.contains(KnutfordStationAreaId));
+
+        IdSet<NaptanRecord> allRecordsForArea = activeAreaCodes.stream().
+                flatMap(activeArea -> respository.getRecordsFor(activeArea).stream()).
+                collect(IdSet.collector());
+
+        assertEquals(4, allRecordsForArea.size(), allRecordsForArea.toString());
     }
 
-    @Test
-    void shouldNotContainStopOutOfArea() {
-        // stop in bristol, checked exists in full data in NaPTANDataImportTest
-        IdFor<Station> actoCode = Station.createId(TestEnv.BRISTOL_BUSSTOP_OCTOCODE);
-        assertFalse(respository.containsActo(actoCode));
-    }
 }

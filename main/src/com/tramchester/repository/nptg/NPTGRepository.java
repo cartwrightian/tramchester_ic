@@ -5,7 +5,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.nptg.NPTGData;
 import com.tramchester.dataimport.nptg.NPTGDataLoader;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.places.NaptanRecord;
+import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.MarginInMeters;
@@ -20,7 +20,8 @@ import java.util.Map;
 
 // National Public Transport Gazetteer
 // https://data.gov.uk/dataset/3b1766bf-04a3-44f5-bea9-5c74cf002e1d/national-public-transport-gazetteer-nptg
-//Cross-referenced by naptan data via the nptgLocalityCode
+// http://naptan.dft.gov.uk/naptan/schema/2.5/doc/NaPTANSchemaGuide-2.5-v0.67.pdf
+// Cross-referenced by naptan data via the nptgLocalityCode
 
 @LazySingleton
 public class NPTGRepository {
@@ -29,8 +30,7 @@ public class NPTGRepository {
     private final NPTGDataLoader dataLoader;
     private final TramchesterConfig config;
 
-    // acto code
-    private final Map<IdFor<NaptanRecord>, NPTGData> nptgDataMap;
+    private final Map<IdFor<NPTGLocality>, NPTGLocality> nptgDataMap;
 
     @Inject
     public NPTGRepository(NPTGDataLoader dataLoader, TramchesterConfig config) {
@@ -60,7 +60,8 @@ public class NPTGRepository {
 
     private void loadData(BoundingBox bounds, MarginInMeters margin) {
         dataLoader.getData().filter(nptgData -> filterBy(bounds, margin, nptgData)).
-                forEach(item -> nptgDataMap.put(getActoCodeFor(item), item));
+                map(NPTGLocality::new).
+                forEach(item -> nptgDataMap.put(item.getId(), item));
     }
 
     private boolean filterBy(final BoundingBox bounds, final MarginInMeters margin, final NPTGData item) {
@@ -71,20 +72,16 @@ public class NPTGRepository {
         return bounds.within(margin, gridPosition);
     }
 
-    private IdFor<NaptanRecord> getActoCodeFor(NPTGData nptgData) {
-        return NaptanRecord.createId(nptgData.getActoCode());
-    }
-
     @PreDestroy
     private void stop() {
         nptgDataMap.clear();
     }
 
-    public NPTGData getByActoCode(IdFor<NaptanRecord> atcoCode) {
-        return nptgDataMap.get(atcoCode);
+    public boolean hasLocaility(IdFor<NPTGLocality> localityCode) {
+        return nptgDataMap.containsKey(localityCode);
     }
 
-    public boolean hasActoCode(IdFor<NaptanRecord> actoCode) {
-        return nptgDataMap.containsKey(actoCode);
+    public NPTGLocality get(IdFor<NPTGLocality> localityCode) {
+        return nptgDataMap.get(localityCode);
     }
 }

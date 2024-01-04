@@ -2,16 +2,12 @@ package com.tramchester.integration.repository.nptg;
 
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
-import com.tramchester.dataimport.nptg.NPTGData;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
-import com.tramchester.domain.places.NaptanRecord;
-import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithNaptan;
 import com.tramchester.repository.nptg.NPTGRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.testTags.GMTest;
 import com.tramchester.testSupport.testTags.TrainTest;
 import org.junit.jupiter.api.AfterAll;
@@ -19,7 +15,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static com.tramchester.testSupport.reference.TramStations.Deansgate;
 import static org.junit.jupiter.api.Assertions.*;
 
 @GMTest
@@ -48,31 +43,23 @@ public class NPTGRepositoryTest {
     @Test
     void shouldGetKnownLocationData() {
 
-        IdFor<NaptanRecord> actoCode = NaptanRecord.createId(Deansgate.getRawId());
+        IdFor<NPTGLocality> id = NPTGLocality.createId("N0074933");
 
-        assertTrue(repository.hasActoCode(actoCode));
-        NPTGData result = repository.getByActoCode(actoCode);
+        assertTrue(repository.hasLocaility(id));
+        NPTGLocality result = repository.get(id);
         assertNotNull(result);
 
-        assertEquals("Manchester City Centre", result.getLocalityName());
-        assertEquals("Manchester", result.getParentLocalityName(), result.toString());
+        assertEquals("Castlefield", result.getLocalityName());
+        assertEquals("Manchester City Centre", result.getParentLocalityName(), result.toString());
     }
 
     @Test
-    void shouldHaveKnutsfordBusStop() {
-        final IdFor<Station> actoCode = BusStations.KnutsfordStationStand3.getId();
+    void shouldNotHaveWestminsterAsOutOfBounds() {
 
-        IdFor<NaptanRecord> id = StringIdFor.convert(actoCode, NaptanRecord.class);
-        NPTGData result = repository.getByActoCode(id);
-        assertNotNull(result);
+        IdFor<NPTGLocality> id = NPTGLocality.createId("E0034961");
 
-        assertEquals("Knutsford", result.getLocalityName());
+        assertFalse(repository.hasLocaility(id));
     }
 
-    @Test
-    void shouldNotHaveWembleyCentralTubeAsOutOfBounds() {
-        IdFor<NaptanRecord> actoCode = NaptanRecord.createId("9400ZZLUWYC1");
-        assertFalse(repository.hasActoCode(actoCode));
-    }
 
 }

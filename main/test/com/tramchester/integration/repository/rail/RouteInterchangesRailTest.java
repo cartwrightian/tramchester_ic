@@ -6,9 +6,7 @@ import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
 import com.tramchester.dataimport.rail.repository.RailRouteIds;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.RailRouteId;
-import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
@@ -24,7 +22,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
 import static java.lang.String.format;
@@ -75,20 +72,8 @@ public class RouteInterchangesRailTest {
 
         Route route = routeRepository.getRouteById(foundId);
 
-        Set<InterchangeStation> interchanges = routeInterchanges.getFor(route);
-        IdSet<Station> stationIds = interchanges.stream().map(InterchangeStation::getStationId).collect(IdSet.idCollector());
-
-        assertTrue(stationIds.contains(Stockport.getId()));
-        assertTrue(stationIds.contains(Macclesfield.getId()));
-        assertTrue(stationIds.contains(StokeOnTrent.getId()));
-        assertTrue(stationIds.contains(MiltonKeynesCentral.getId()));
-        assertTrue(stationIds.contains(LondonEuston.getId()));
-
         RouteStation miltonKeynesRouteStation = stationRepository.getRouteStationById(RouteStation.createId(MiltonKeynesCentral.getId(),
                 route.getId()));
-
-//        Duration costToNextInterchange = routeInterchanges.costToInterchange(miltonKeynesRouteStation);
-//        assertEquals(Duration.ZERO, costToNextInterchange);
 
         boolean pathToInterchange = routeInterchanges.hasPathToInterchange(miltonKeynesRouteStation);
         assertTrue(pathToInterchange);

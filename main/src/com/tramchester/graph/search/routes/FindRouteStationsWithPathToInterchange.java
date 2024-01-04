@@ -57,6 +57,7 @@ public class FindRouteStationsWithPathToInterchange {
         }
     }
 
+    // TODO far too slow for Bus data - is optimisation for ServiceHeuristics worth the trouble???
     public Set<RouteStationId> havePathToInterchange(final MutableGraphTransaction txn, final Route route) {
 
         final Instant startTime = Instant.now();

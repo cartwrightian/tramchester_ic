@@ -4,7 +4,7 @@ import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.StationClosuresConfig;
 import com.tramchester.domain.StationClosures;
-import com.tramchester.integration.testSupport.naptan.NaptanRemoteDataSourceConfig;
+import com.tramchester.integration.testSupport.naptan.NaptanRemoteDataSourceTestConfig;
 import com.tramchester.integration.testSupport.nptg.NPTGDataSourceTestConfig;
 import com.tramchester.integration.testSupport.postcodes.PostCodeDatasourceConfig;
 import com.tramchester.integration.testSupport.rail.RailRemoteDataSourceConfig;
@@ -20,7 +20,7 @@ import java.util.List;
 
 public abstract class IntegrationTestConfig extends TestConfig {
 
-    protected final NaptanRemoteDataSourceConfig remoteNaptanXMLConfig;
+    protected final NaptanRemoteDataSourceTestConfig remoteNaptanXMLConfig;
     protected final PostCodeDatasourceConfig postCodeDatasourceConfig;
     protected final RemoteDataSourceConfig remoteNPTGconfig;
 
@@ -45,7 +45,7 @@ public abstract class IntegrationTestConfig extends TestConfig {
 
     protected IntegrationTestConfig(GraphDBTestConfig dbConfig) {
         final Path naptanLocalDataPath = Path.of("data/naptan");
-        remoteNaptanXMLConfig = new NaptanRemoteDataSourceConfig(naptanLocalDataPath);
+        remoteNaptanXMLConfig = new NaptanRemoteDataSourceTestConfig(naptanLocalDataPath);
         remoteNPTGconfig = new NPTGDataSourceTestConfig();
         postCodeDatasourceConfig = new PostCodeDatasourceConfig();
         railRemoteDataSource = new RailRemoteDataSourceConfig("data/rail");

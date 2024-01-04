@@ -7,8 +7,8 @@ import java.nio.file.Path;
 import java.time.Duration;
 
 
- //name: nptg
- // dataURL: https://beta-naptan.dft.gov.uk/Download/National/csv
+ // name: nptg
+ // https://beta-naptan.dft.gov.uk/Download/Nptg
 
 public class NPTGDataSourceTestConfig extends RemoteDataSourceConfig {
     @Override
@@ -28,8 +28,7 @@ public class NPTGDataSourceTestConfig extends RemoteDataSourceConfig {
 
     @Override
     public String getDataUrl() {
-        return "https://beta-naptan.dft.gov.uk/Download/National/csv";
-        //return "https://beta-naptan.dft.gov.uk/Download/File/Localities.csv";
+        return "https://beta-naptan.dft.gov.uk/Download/Nptg/csv";
     }
 
     @Override

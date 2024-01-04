@@ -199,5 +199,44 @@ public class RouteRepositoryTest {
         assertTrue(routeB.isDateOverlap(routeA), "no overlap for " + routeB + " and " + routeA);
     }
 
+    @Test
+    void shouldHaveExpectedRoutesAtCornbrook() {
+        TramRouteHelper tramRouteHelper = new TramRouteHelper(routeRepository);
+
+        Station cornbrook = Cornbrook.from(stationRepository);
+
+        TramDate date = TestEnv.testDay();
+
+        Set<Route> cornbrookPickups = cornbrook.getPickupRoutes().stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
+        Set<Route> cornbrookDropofss = cornbrook.getDropoffRoutes().stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
+
+        int throughRoutes = 6; // might not match the map, which includes psuedo-routes that are made of trams running part of an existing route
+        assertEquals(throughRoutes  , cornbrookPickups.size(), HasId.asIds(cornbrookPickups));
+        assertEquals(throughRoutes , cornbrookDropofss.size(), HasId.asIds(cornbrookDropofss));
+
+        Route buryToAlty = tramRouteHelper.getOneRoute(BuryManchesterAltrincham, when);
+
+        assertTrue(cornbrookPickups.contains(buryToAlty));
+        assertTrue(cornbrookDropofss.contains(buryToAlty));
+
+        assertTrue(cornbrookPickups.contains(buryToAlty));
+        assertTrue(cornbrookDropofss.contains(buryToAlty));
+
+        Route toEccles = tramRouteHelper.getOneRoute(EcclesManchesterAshtonUnderLyne, when);
+
+        assertTrue(cornbrookPickups.contains(toEccles));
+        assertTrue(cornbrookDropofss.contains(toEccles));
+
+        Route toTraffordCenter = tramRouteHelper.getOneRoute(CornbrookTheTraffordCentre, when);
+
+        assertTrue(cornbrookPickups.contains(toTraffordCenter));
+
+        Route victoriaToAirport = tramRouteHelper.getOneRoute(VictoriaWythenshaweManchesterAirport, when);
+
+        assertTrue(cornbrookPickups.contains(victoriaToAirport));
+        assertTrue(cornbrookDropofss.contains(victoriaToAirport));
+
+    }
+
 
 }

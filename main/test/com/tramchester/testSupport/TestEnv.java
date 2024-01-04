@@ -1,6 +1,8 @@
 package com.tramchester.testSupport;
 
 import com.codahale.metrics.Gauge;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tramchester.App;
 import com.tramchester.ComponentContainer;
 import com.tramchester.caching.FileDataCache;
 import com.tramchester.config.AppConfiguration;
@@ -28,8 +30,15 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.testSupport.reference.TramStations;
+import io.dropwizard.configuration.ConfigurationException;
+import io.dropwizard.configuration.FileConfigurationSourceProvider;
+import io.dropwizard.configuration.SubstitutingSourceProvider;
+import io.dropwizard.configuration.YamlConfigurationFactory;
+import io.dropwizard.jackson.Jackson;
+import jakarta.validation.Validator;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.io.FileUtils;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
@@ -83,8 +92,6 @@ public class TestEnv {
     public static final String MANCHESTER_AIRPORT_BUS_AREA = "180GMABS";
 
     public static final String TFGM_TIMETABLE_URL = "https://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip";
-
-    public static final String NAPTAN_BASE_URL = "https://naptan.api.dft.gov.uk/v1/access-nodes"; // ?dataFormat=csv
 
     public final static HashSet<GTFSTransportationType> tramAndBus =
             new HashSet<>(Arrays.asList(GTFSTransportationType.tram, GTFSTransportationType.bus));
@@ -359,6 +366,27 @@ public class TestEnv {
             return "Dev";
         }
         return text;
+    }
+
+    public static AppConfiguration LoadConfigFromFile(Path fullPathToConfig) throws IOException, ConfigurationException {
+        YamlConfigurationFactory<AppConfiguration> factory = getValidatingFactory();
+
+        FileConfigurationSourceProvider fileProvider = new FileConfigurationSourceProvider();
+
+        final SubstitutingSourceProvider provider = new SubstitutingSourceProvider(fileProvider, App.getEnvVarSubstitutor());
+
+        return factory.build(provider, fullPathToConfig.toString());
+
+    }
+
+    @NotNull
+    private static YamlConfigurationFactory<AppConfiguration> getValidatingFactory() {
+        Class<AppConfiguration> klass = AppConfiguration.class;
+        Validator validator = null;
+        ObjectMapper objectMapper = Jackson.newObjectMapper();
+
+        String properyPrefix = "dw";
+        return new YamlConfigurationFactory<>(klass, validator, objectMapper, properyPrefix);
     }
 
     public static class Modes {

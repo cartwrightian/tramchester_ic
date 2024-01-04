@@ -2,28 +2,22 @@ package com.tramchester.repository;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.inject.Inject;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.caching.CachableData;
 import com.tramchester.caching.ComponentThatCaches;
 import com.tramchester.caching.FileDataCache;
 import com.tramchester.dataexport.HasDataSaver;
-import com.tramchester.domain.Route;
 import com.tramchester.domain.id.RouteStationId;
-import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.search.routes.FindRouteStationsWithPathToInterchange;
-import com.tramchester.metrics.Timing;
-import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.inject.Inject;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -32,29 +26,24 @@ public class RouteInterchangeRepository extends ComponentThatCaches<RouteInterch
         RouteInterchangeRepository.RouteStationWithPathToInterchange> {
     private static final Logger logger = LoggerFactory.getLogger(RouteInterchangeRepository.class);
 
-    private final RouteRepository routeRepository;
     private final InterchangeRepository interchangeRepository;
     private final FindRouteStationsWithPathToInterchange findRouteStationsWithPathToInterchange;
 
-    private final Map<Route, Set<InterchangeStation>> interchangesForRoute;
     private RouteStationWithPathToInterchange withPathToInterchange;
 
     @Inject
-    public RouteInterchangeRepository(RouteRepository routeRepository, InterchangeRepository interchangeRepository,
+    public RouteInterchangeRepository(InterchangeRepository interchangeRepository,
                                       @SuppressWarnings("unused") StagedTransportGraphBuilder.Ready ready,
                                       FileDataCache fileDataCache, FindRouteStationsWithPathToInterchange findRouteStationsWithPathToInterchange) {
         super(fileDataCache, RouteInterchangeWithPath.class);
-        this.routeRepository = routeRepository;
         this.interchangeRepository = interchangeRepository;
 
         this.findRouteStationsWithPathToInterchange = findRouteStationsWithPathToInterchange;
-        interchangesForRoute = new HashMap<>();
     }
 
     @PostConstruct
     public void start() {
         logger.info("starting");
-        populateRouteToInterchangeMap();
 
         withPathToInterchange = new RouteStationWithPathToInterchange();
         if (super.loadFromCache(withPathToInterchange)) {
@@ -69,7 +58,6 @@ public class RouteInterchangeRepository extends ComponentThatCaches<RouteInterch
     @PreDestroy
     public void stop() {
         logger.info("Stopping");
-        interchangesForRoute.clear();
         super.saveCacheIfNeeded(withPathToInterchange);
         withPathToInterchange.clear();
         logger.info("Stopped");
@@ -81,20 +69,7 @@ public class RouteInterchangeRepository extends ComponentThatCaches<RouteInterch
         havePaths.forEach((routeStation) -> withPathToInterchange.put(routeStation));
     }
 
-    private void populateRouteToInterchangeMap() {
-        try (Timing ignored = new Timing(logger,"Populate interchanges for routes")) {
-            routeRepository.getRoutes().forEach(route -> interchangesForRoute.put(route, new HashSet<>()));
-            Set<InterchangeStation> allInterchanges = interchangeRepository.getAllInterchanges();
-            allInterchanges.stream().
-                    flatMap(inter -> inter.getDropoffRoutes().stream().map(route -> Pair.of(route, inter))).
-                    forEach(pair -> interchangesForRoute.get(pair.getLeft()).add(pair.getRight()));
-        }
-    }
-
-    public Set<InterchangeStation> getFor(Route route) {
-        return interchangesForRoute.get(route);
-    }
-
+    // supports some optimisation of routing
     public boolean hasPathToInterchange(RouteStation routeStation) {
         if (interchangeRepository.isInterchange(routeStation.getStation())) {
             return true;

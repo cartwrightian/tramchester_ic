@@ -2,18 +2,18 @@ package com.tramchester.integration.testSupport.naptan;
 
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.domain.DataSourceID;
-import com.tramchester.testSupport.TestEnv;
 
 import java.nio.file.Path;
 import java.time.Duration;
 
-// https://naptan.api.dft.gov.uk/v1/access-nodes?dataFormat=csv
 
-public class NaptanRemoteDataSourceConfig extends RemoteDataSourceConfig {
+public class NaptanRemoteDataSourceTestConfig extends RemoteDataSourceConfig {
+    public static final String NAPTAN_BASE_URL = "https://naptan.api.dft.gov.uk/v1/access-nodes"; // ?dataFormat=csv
+
     private final Path dataPath;
     private final String format;
 
-    public NaptanRemoteDataSourceConfig(Path dataPath) {
+    public NaptanRemoteDataSourceTestConfig(Path dataPath) {
         this.dataPath = dataPath;
         format = "xml";
     }
@@ -36,7 +36,8 @@ public class NaptanRemoteDataSourceConfig extends RemoteDataSourceConfig {
     @Override
     public String getDataUrl() {
         // ?dataFormat=csv
-        return String.format("%s?dataFormat=%s", TestEnv.NAPTAN_BASE_URL, format);
+        //return String.format("%s?dataFormat=%s", NAPTAN_BASE_URL, format);
+        return "https://beta-naptan.dft.gov.uk/Download/National/xml";
     }
 
     @Override

@@ -43,7 +43,7 @@ class BusRouteCalculatorTest {
     private static IntegrationBusTestConfig testConfig;
 
     private RouteCalculatorTestFacade calculator;
-    private StationGroupsRepository compositeStationRepository;
+    private StationGroupsRepository stationGroupsRepository;
     private StationRepository stationRepository;
 
     private final TramDate when = TestEnv.testDay();
@@ -73,15 +73,14 @@ class BusRouteCalculatorTest {
         maxJourneyDuration = Duration.ofMinutes(testConfig.getMaxJourneyDuration());
         txn = database.beginTxMutable(TXN_TIMEOUT, TimeUnit.SECONDS);
         stationRepository = componentContainer.get(StationRepository.class);
-        compositeStationRepository = componentContainer.get(StationGroupsRepository.class);
+        stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
         calculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
 
-        stockportBusStation = compositeStationRepository.findByName(Composites.StockportTempBusStation.getName());
-        altrinchamInterchange = compositeStationRepository.findByName(Composites.AltrinchamInterchange.getName());
+        stockportBusStation = stationGroupsRepository.findByName(Composites.StockportTempBusStation.getName());
+        altrinchamInterchange = stationGroupsRepository.findByName(Composites.AltrinchamInterchange.getName());
 
-
-        knutsfordBusStation = compositeStationRepository.getStationGroup(KnutfordStationAreaId);
-        shudehillInterchange = compositeStationRepository.findByName("Shudehill Interchange");
+        knutsfordBusStation = stationGroupsRepository.getStationGroup(KnutfordStationAreaId);
+        shudehillInterchange = stationGroupsRepository.findByName("Shudehill Interchange");
     }
 
     @AfterEach
@@ -153,7 +152,7 @@ class BusRouteCalculatorTest {
     @Test
     void shouldFindJourneyInFutureCorrectly() {
         // attempt to repro seen in ui where zero journeys
-        StationGroup start = compositeStationRepository.findByName("Taylor Road, Oldfield Brow, Altrincham");
+        StationGroup start = stationGroupsRepository.findByName("Taylor Road, Oldfield Brow, Altrincham");
 
         assertNotNull(start);
 
@@ -172,7 +171,7 @@ class BusRouteCalculatorTest {
 
         TramTime time = TramTime.of(10, 40);
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 1,
-                Duration.ofMinutes(120), 1, EnumSet.noneOf(TransportMode.class));
+                Duration.ofMinutes(120), 1, EnumSet.allOf(TransportMode.class));
         Set<Journey> results = calculator.calculateRouteAsSet(altrinchamInterchange, end, journeyRequest);
 
         assertFalse(results.isEmpty());
@@ -182,7 +181,7 @@ class BusRouteCalculatorTest {
     @Test
     void shouldHandleJourneyDirectWithinASingleComposite() {
 
-        StationGroup piccadillyComp = compositeStationRepository.findByName("Piccadilly Rail Station");
+        StationGroup piccadillyComp = stationGroupsRepository.findByName("Piccadilly Rail Station");
         List<Station> stations = new ArrayList<>(piccadillyComp.getContained());
         assertTrue(stations.size()>2);
         Station start = stations.get(0);
@@ -202,7 +201,7 @@ class BusRouteCalculatorTest {
 
         TramTime time = TramTime.of(11, 20);
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false,
-                3, Duration.ofMinutes(120), 1,  EnumSet.noneOf(TransportMode.class));
+                3, Duration.ofMinutes(120), 1,  EnumSet.allOf(TransportMode.class));
 
         Set<Journey> results = calculator.calculateRouteAsSet(knutsfordBusStation, altrinchamInterchange, journeyRequest);
 
@@ -291,7 +290,7 @@ class BusRouteCalculatorTest {
 
     @Test
     void shouldReproPerfIssueAltyToAirport() {
-        StationGroup airport = compositeStationRepository.findByName("Manchester Airport The Station");
+        StationGroup airport = stationGroupsRepository.findByName("Manchester Airport The Station");
 
         //LocalDate date =  LocalDate.of(2021, 6, 30);
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(11,11),

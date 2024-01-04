@@ -1,8 +1,6 @@
 package com.tramchester.unit.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tramchester.App;
 import com.tramchester.config.*;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.StationIdPair;
@@ -10,12 +8,8 @@ import com.tramchester.integration.testSupport.RailAndTramGreaterManchesterConfi
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
+import com.tramchester.testSupport.TestEnv;
 import io.dropwizard.configuration.ConfigurationException;
-import io.dropwizard.configuration.FileConfigurationSourceProvider;
-import io.dropwizard.configuration.SubstitutingSourceProvider;
-import io.dropwizard.configuration.YamlConfigurationFactory;
-import io.dropwizard.jackson.Jackson;
-import jakarta.validation.Validator;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
@@ -47,7 +41,7 @@ class ConfigMismatchTest {
         Set<Path> configFiles = getConfigFiles();
 
         for (Path config : configFiles) {
-            loadConfigFromFile(config);
+            TestEnv.LoadConfigFromFile(config);
         }
     }
 
@@ -56,7 +50,7 @@ class ConfigMismatchTest {
         Set<Path> configFiles = getConfigFiles();
 
         for(Path config : configFiles) {
-            AppConfiguration configuration = loadConfigFromFile(config);
+            AppConfiguration configuration = TestEnv.LoadConfigFromFile(config);
             List<RemoteDataSourceConfig> remoteSourceConfigs = configuration.getRemoteDataSourceConfig();
             for(RemoteDataSourceConfig remoteSourceConfig : remoteSourceConfigs) {
                 final DataSourceID dataSourceID = DataSourceID.findOrUnknown(remoteSourceConfig.getName());
@@ -384,28 +378,7 @@ class ConfigMismatchTest {
 
     private AppConfiguration loadConfigFromFile(String configFilename) throws IOException, ConfigurationException {
         Path mainConfig = Paths.get("config", configFilename).toAbsolutePath();
-        return loadConfigFromFile(mainConfig);
-    }
-
-    private AppConfiguration loadConfigFromFile(Path fullPathToConfig) throws IOException, ConfigurationException {
-        YamlConfigurationFactory<AppConfiguration> factory = getValidatingFactory();
-
-        FileConfigurationSourceProvider fileProvider = new FileConfigurationSourceProvider();
-
-        final SubstitutingSourceProvider provider = new SubstitutingSourceProvider(fileProvider, App.getEnvVarSubstitutor());
-
-        return factory.build(provider, fullPathToConfig.toString());
-
-    }
-
-    @NotNull
-    private YamlConfigurationFactory<AppConfiguration> getValidatingFactory() {
-        Class<AppConfiguration> klass = AppConfiguration.class;
-        Validator validator = null;
-        ObjectMapper objectMapper = Jackson.newObjectMapper();
-
-        String properyPrefix = "dw";
-        return new YamlConfigurationFactory<>(klass, validator, objectMapper, properyPrefix);
+        return TestEnv.LoadConfigFromFile(mainConfig);
     }
 
     @NotNull

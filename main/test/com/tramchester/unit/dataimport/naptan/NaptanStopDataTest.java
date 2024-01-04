@@ -57,12 +57,11 @@ class NaptanStopDataTest extends ParserTestXMLHelper<NaptanStopData> {
         assertIdEquals("9400ZZMAWWD2", data.getAtcoCode(), data.toString());
         assertEquals("mantwgdp", data.getNaptanCode());
         assertEquals("Westwood (Manchester Metrolink)", data.getCommonName());
+        assertEquals("E0029527", data.getNptgLocality());
         assertEquals("", data.getSuburb());
         assertEquals("", data.getTown());
         assertEquals(new GridPosition(391760,405082), data.getGridPosition());
         assertEquals(new LatLong(53.54231581884D, -2.12581352411D), data.getLatLong());
-        // no longer needed, nptg now keyed by ATCOCode
-        //assertEquals("E0029527", data.getNptgLocality());
         assertEquals(tramMetroUndergroundPlatform, data.getStopType());
     }
 
@@ -158,6 +157,7 @@ class NaptanStopDataTest extends ParserTestXMLHelper<NaptanStopData> {
         assertIdEquals("2800S16001B", data.getAtcoCode());
         assertEquals("mergjtpm", data.getNaptanCode());
         assertEquals("St Helens Bus Station", data.getCommonName());
+        assertEquals("E0057858", data.getNptgLocality());
         assertEquals("St Helens", data.getSuburb());
         assertEquals("St Helens", data.getTown());
         assertEquals("Stand 2", data.getIndicator());

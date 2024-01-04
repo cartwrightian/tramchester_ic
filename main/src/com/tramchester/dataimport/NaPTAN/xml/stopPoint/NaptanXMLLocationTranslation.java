@@ -14,24 +14,30 @@ public class NaptanXMLLocationTranslation {
     final private Integer easting;
     final private Integer northing;
     final private Double latitude;
+    private final String gridType;
     private final Double longitude;
 
     @JsonCreator
     public NaptanXMLLocationTranslation(@JsonProperty("Easting") Integer easting,
                                         @JsonProperty("Northing") Integer northing,
                                         @JsonProperty("Latitude") Double latitude,
+                                        @JsonProperty("GridType") String gridType,
                                         @JsonProperty("Longitude") Double longitude) {
         this.easting = easting;
         this.northing = northing;
         this.latitude = latitude;
+        this.gridType = gridType;
         this.longitude = longitude;
     }
 
     public GridPosition getGridPosition() {
-        if (easting==0 || northing==0) {
-            return GridPosition.Invalid;
+        if (gridType==null || "UKOS".equals(gridType)) {
+            if (easting==0 || northing==0) {
+                return GridPosition.Invalid;
+            }
+            return new GridPosition(easting, northing);
         }
-        return new GridPosition(easting, northing);
+        return GridPosition.Invalid;
     }
 
     public LatLong getLatLong() {

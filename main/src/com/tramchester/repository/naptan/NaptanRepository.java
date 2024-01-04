@@ -30,7 +30,7 @@ public interface NaptanRepository {
 
     Set<NaptanRecord> getRecordsFor(IdFor<NaptanArea> areaId);
 
-    boolean hasRecordsFor(IdFor<NaptanArea> areaId);
+    boolean hasAreaRecordsFor(IdFor<NaptanArea> areaId);
 
     Set<NaptanArea> getAreas();
 

@@ -10,12 +10,11 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
+import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.diagnostics.*;
-import com.tramchester.repository.RouteInterchangeRepository;
 import com.tramchester.repository.StationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,13 +37,12 @@ public class ServiceHeuristics {
     private final NodeContentsRepository nodeOperations;
     private final int currentChangesLimit;
     private final LowestCostsForDestRoutes lowestCostsForDestRoutes;
-    private final RouteInterchangeRepository routeInterchanges;
+//    private final RouteInterchangeRepository routeInterchanges;
 
-    public ServiceHeuristics(StationRepository stationRepository, RouteInterchangeRepository routeInterchanges, NodeContentsRepository nodeOperations,
+    public ServiceHeuristics(StationRepository stationRepository, NodeContentsRepository nodeOperations,
                              JourneyConstraints journeyConstraints, TramTime actualQueryTime,
                              int currentChangesLimit) {
         this.stationRepository = stationRepository;
-        this.routeInterchanges = routeInterchanges;
         this.nodeOperations = nodeOperations;
 
         this.journeyConstraints = journeyConstraints;
@@ -213,12 +211,13 @@ public class ServiceHeuristics {
         }
         // otherwise, a change to a different route is needed
 
-        final boolean hasPathToInterchange = routeInterchanges.hasPathToInterchange(routeStation);
-
-        if (!hasPathToInterchange) {
-            // change required from current route, but no interchange is available for this station/route combination
-            return reasons.recordReason(ServiceReason.InterchangeNotReachable(howIGotHere));
-        }
+        // little diff to tram performance, too costly to (pre-)compute for buses
+//        final boolean hasPathToInterchange = routeInterchanges.hasPathToInterchange(routeStation);
+//
+//        if (!hasPathToInterchange) {
+//            // change required from current route, but no interchange is available for this station/route combination
+//            return reasons.recordReason(ServiceReason.InterchangeNotReachable(howIGotHere));
+//        }
 
         return valid(ReasonCode.Reachable, howIGotHere, reasons);
     }
@@ -226,7 +225,6 @@ public class ServiceHeuristics {
     public HeuristicsReason journeyDurationUnderLimit(final Duration totalDuration, final HowIGotHere howIGotHere, ServiceReasons reasons) {
         reasons.incrementTotalChecked();
 
-        //if (totalDuration.compareTo(journeyConstraints.getMaxJourneyDuration()) > 0) {
         if (Durations.greaterThan(totalDuration, journeyConstraints.getMaxJourneyDuration())) {
             return reasons.recordReason(ServiceReason.TookTooLong(actualQueryTime.plus(totalDuration), howIGotHere));
         }

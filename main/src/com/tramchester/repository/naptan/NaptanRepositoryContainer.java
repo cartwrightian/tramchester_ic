@@ -8,12 +8,8 @@ import com.tramchester.dataimport.NaPTAN.xml.NaptanFromXMLFile;
 import com.tramchester.dataimport.NaPTAN.xml.stopArea.NaptanStopAreaData;
 import com.tramchester.dataimport.NaPTAN.xml.stopPoint.NaptanStopData;
 import com.tramchester.dataimport.NaPTAN.xml.stopPoint.NaptanXMLStopAreaRef;
-import com.tramchester.dataimport.nptg.NPTGData;
 import com.tramchester.domain.id.*;
-import com.tramchester.domain.places.Location;
-import com.tramchester.domain.places.NaptanArea;
-import com.tramchester.domain.places.NaptanRecord;
-import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.*;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.MarginInMeters;
@@ -157,14 +153,16 @@ public class NaptanRepositoryContainer implements NaptanRepository {
 
     private NaptanRecord createRecord(final NaptanStopData original, final Map<IdFor<NaptanRecord>,
             List<NaptanXMLStopAreaRef>> pendingAreaIds) {
+        IdFor<NaptanRecord> atcoCode = original.getAtcoCode();
 
-        final IdFor<NaptanRecord> id = original.getAtcoCode();
+        String rawLocalityCode = original.getNptgLocality();
+        final IdFor<NPTGLocality> localityCode = NPTGLocality.createId(rawLocalityCode);
 
         String suburb = original.getSuburb();
         String town = original.getTown();
 
-        if (nptgRepository.hasActoCode(id)) {
-            final NPTGData extra = nptgRepository.getByActoCode(original.getAtcoCode());
+        if (nptgRepository.hasLocaility(localityCode)) {
+            final NPTGLocality extra = nptgRepository.get(localityCode);
             if (suburb.isBlank()) {
                 suburb = extra.getLocalityName();
             }
@@ -172,24 +170,25 @@ public class NaptanRepositoryContainer implements NaptanRepository {
                 town = extra.getParentLocalityName();
             }
         } else {
-            logger.warn(format("Naptan acto '%s' missing from nptg", id));
+            logger.warn(format("Naptan localityCode '%s' missing from nptg for acto %s", localityCode, atcoCode));
         }
 
         final List<NaptanXMLStopAreaRef> stopAreaRefs = original.stopAreasRefs();
 
+        // TODO Unlcear how useful this actually is, see also StationArea's etc, switch to nptg locality instead?
         // record pending areas, need to have loaded entire file before can properly check if active or not
         // see load method above
         List<NaptanXMLStopAreaRef> areaIds = stopAreaRefs.stream().
                 filter(NaptanXMLStopAreaRef::isActive). // filter out if marked inactive for *this* stop
                 collect(Collectors.toList());
-        pendingAreaIds.put(id, areaIds);
+        pendingAreaIds.put(atcoCode, areaIds);
 
         // Seems very common in the data, not sure what we can about it anyway?
 //        if (areaIds.size()>1) {
 //            logger.warn("Multiple stop area refs active for acto code: " + id);
 //        }
 
-        return new NaptanRecord(id, original.getCommonName(), original.getGridPosition(), original.getLatLong(),
+        return new NaptanRecord(atcoCode, original.getCommonName(), original.getGridPosition(), original.getLatLong(),
                 suburb, town, original.getStopType());
     }
 
@@ -294,7 +293,7 @@ public class NaptanRepositoryContainer implements NaptanRepository {
      * @return true/false
      */
     @Override
-    public boolean hasRecordsFor(IdFor<NaptanArea> areaId) {
+    public boolean hasAreaRecordsFor(IdFor<NaptanArea> areaId) {
         return stops.getValuesStream().anyMatch(stop -> stop.getAreaCodes().contains(areaId));
     }
 
