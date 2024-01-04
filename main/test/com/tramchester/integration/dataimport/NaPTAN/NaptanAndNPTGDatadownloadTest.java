@@ -8,6 +8,7 @@ import com.tramchester.dataimport.RemoteDataAvailable;
 import com.tramchester.dataimport.UnzipFetchedData;
 import com.tramchester.dataimport.nptg.NPTGDataLoader;
 import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithNaptan;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.AfterAll;
@@ -19,6 +20,7 @@ import java.io.FileFilter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -30,7 +32,7 @@ public class NaptanAndNPTGDatadownloadTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        testConfig = new IntegrationTramTestConfigWithNaptan();
+        testConfig = new IntegrationTramTestConfigWithNaptan(EnumSet.of(TransportMode.Bus, TransportMode.Tram, TransportMode.Train));
         componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }

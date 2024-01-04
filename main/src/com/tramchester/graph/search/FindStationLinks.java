@@ -76,11 +76,8 @@ public class FindStationLinks {
 
     private StationLink createLink(GraphTransaction txn, GraphRelationship relationship) {
 
-        //GraphNode startNode = relationship.getStartNode(txn);
-        //GraphNode endNode = relationship.getEndNode(txn);
-
-        IdFor<Station> startId = relationship.getStartStationId(); // startNode.getStationId();
-        IdFor<Station> endId = relationship.getEndStationId(); //endNode.getStationId();
+        IdFor<Station> startId = relationship.getStartStationId();
+        IdFor<Station> endId = relationship.getEndStationId();
 
         Station start = stationRepository.getStationById(startId);
         Station end = stationRepository.getStationById(endId);

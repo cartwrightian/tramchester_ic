@@ -6,14 +6,12 @@ import com.google.inject.Inject;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.StationLink;
 import com.tramchester.domain.places.NPTGLocality;
-import com.tramchester.domain.places.NaptanArea;
 import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.search.FindStationLinks;
 import com.tramchester.repository.NeighboursRepository;
 import com.tramchester.repository.StationGroupsRepository;
-import com.tramchester.repository.naptan.NaptanRepository;
 import com.tramchester.repository.nptg.NPTGRepository;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,10 +23,10 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -46,15 +44,13 @@ public class StationGeographyResource implements APIResource, GraphDatabaseDepen
     private final StationGroupsRepository stationGroupsRepository;
     private final TramchesterConfig config;
     private final StationLocations stationLocations;
-    private final NaptanRepository naptanRespository;
     private final NPTGRepository nptgRepository;
     private final DTOFactory dtoFactory;
 
     @Inject
     public StationGeographyResource(FindStationLinks findStationLinks, NeighboursRepository neighboursRepository,
                                     StationGroupsRepository stationGroupsRepository, TramchesterConfig config,
-                                    StationLocations stationLocations, NaptanRepository naptanRespository, NPTGRepository nptgRepository, DTOFactory dtoFactory) {
-        this.naptanRespository = naptanRespository;
+                                    StationLocations stationLocations, NPTGRepository nptgRepository, DTOFactory dtoFactory) {
         this.nptgRepository = nptgRepository;
         this.dtoFactory = dtoFactory;
         this.findStationLinks = findStationLinks;

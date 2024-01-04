@@ -22,10 +22,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
@@ -44,6 +41,9 @@ public class NaptanRepositoryContainer implements NaptanRepository {
 
     private final IdMap<NaptanRecord> stops;
     private final Map<IdFor<Station>, IdFor<NaptanRecord>> tiplocToAtco;
+
+    private final EnumSet<NaptanStopType> requiredStopTypes;
+
     private Map<IdFor<NPTGLocality>, IdSet<NaptanRecord>> localities;
 
     @Inject
@@ -54,6 +54,7 @@ public class NaptanRepositoryContainer implements NaptanRepository {
         stops = new IdMap<>();
         tiplocToAtco = new HashMap<>();
         localities = Collections.emptyMap();
+        requiredStopTypes = NaptanStopType.getTypesFor(config.getTransportModes());
     }
 
     @PostConstruct
@@ -102,12 +103,16 @@ public class NaptanRepositoryContainer implements NaptanRepository {
     }
 
     private void populateLocalityMap() {
-        Collector<NaptanRecord, IdSet<NaptanRecord>, IdSet<NaptanRecord>> collector = IdSet.collector();
+        final Collector<NaptanRecord, IdSet<NaptanRecord>, IdSet<NaptanRecord>> collector = IdSet.collector();
         localities = stops.getValuesStream().collect(Collectors.groupingBy(NaptanRecord::getLocalityId, collector));
     }
 
     private boolean consumeStop(final NaptanStopData stopData, final BoundingBox bounds, final MarginInMeters margin) {
         if (!stopData.hasValidAtcoCode()) {
+            return false;
+        }
+
+        if (!requiredStopTypes.contains(stopData.getStopType())) {
             return false;
         }
 
@@ -127,28 +132,29 @@ public class NaptanRepositoryContainer implements NaptanRepository {
     }
 
     private NaptanRecord createRecord(final NaptanStopData original) {
-        IdFor<NaptanRecord> atcoCode = original.getAtcoCode();
+        final IdFor<NaptanRecord> atcoCode = original.getAtcoCode();
+        final NaptanStopType stopType = original.getStopType();
 
-        String rawLocalityCode = original.getNptgLocality();
+        final String rawLocalityCode = original.getNptgLocality();
         final IdFor<NPTGLocality> localityCode = NPTGLocality.createId(rawLocalityCode);
 
         String suburb = original.getSuburb();
         String town = original.getTown();
 
         if (nptgRepository.hasLocaility(localityCode)) {
-            final NPTGLocality extra = nptgRepository.get(localityCode);
+            final NPTGLocality locality = nptgRepository.get(localityCode);
             if (suburb.isBlank()) {
-                suburb = extra.getLocalityName();
+                suburb = locality.getLocalityName();
             }
             if (town.isBlank()) {
-                town = extra.getParentLocalityName();
+                town = locality.getParentLocalityName();
             }
         } else {
             logger.warn(format("Naptan localityCode '%s' missing from nptg for acto %s", localityCode, atcoCode));
         }
 
         return new NaptanRecord(atcoCode, localityCode, original.getCommonName(), original.getGridPosition(), original.getLatLong(),
-                suburb, town, original.getStopType());
+                suburb, town, stopType);
     }
 
     private boolean filterBy(final BoundingBox bounds, final MarginInMeters margin, final NaptanXMLData item) {
@@ -221,7 +227,6 @@ public class NaptanRepositoryContainer implements NaptanRepository {
     @Override
     public Set<NaptanRecord> getRecordsForLocality(IdFor<NPTGLocality> localityId) {
         return localities.get(localityId).stream().map(stops::get).collect(toSet());
-//        return stops.filterStream(stop -> areaId.equals(stop.getLocalityId())).collect(Collectors.toSet());
     }
 
     private class Consumer implements NaptanFromXMLFile.NaptanXmlConsumer {
@@ -240,9 +245,7 @@ public class NaptanRepositoryContainer implements NaptanRepository {
 
         @Override
         public void process(NaptanStopAreaData element) {
-//            if (!consumeStopArea(element, bounds, margin)) {
-//                skippedStopArea++;
-//            }
+            // no-op
         }
 
         @Override

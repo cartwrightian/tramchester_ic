@@ -19,6 +19,7 @@ import org.junit.jupiter.api.*;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
@@ -78,6 +79,7 @@ class StationGroupRepositoryTest {
         private final TFGMGTFSSourceTestConfig gtfsSourceConfig;
 
         private TestConfigWithGroupsEnabledWithTram() {
+            super(EnumSet.of(TransportMode.Bus, TransportMode.Tram, TransportMode.Train));
             List<StationClosures> closedStations = Collections.emptyList();
             final Set<TransportMode> groupStationModes = Collections.singleton(TransportMode.Tram);
 

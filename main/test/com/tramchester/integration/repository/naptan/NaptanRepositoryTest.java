@@ -6,6 +6,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.NaptanRecord;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithNaptan;
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.EnumSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -31,7 +33,8 @@ class NaptanRepositoryTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        IntegrationTramTestConfig testConfig = new IntegrationTramTestConfigWithNaptan();
+        IntegrationTramTestConfig testConfig = new IntegrationTramTestConfigWithNaptan(
+                EnumSet.of(TransportMode.Bus, TransportMode.Tram, TransportMode.Train));
         componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
@@ -58,7 +61,7 @@ class NaptanRepositoryTest {
 
         Set<NaptanRecord> withinLocality = respository.getRecordsForLocality(localityId);
 
-        assertEquals(422, withinLocality.size(), withinLocality.toString());
+        assertEquals(391, withinLocality.size(), withinLocality.toString());
     }
 
     // TODO Test with type of stop
