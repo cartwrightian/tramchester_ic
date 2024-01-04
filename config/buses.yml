@@ -42,15 +42,19 @@ remoteSources:
     dataPath: data/bus
     filename: tfgm_data.zip
   - name: naptanxml
-    dataURL: https://naptan.api.dft.gov.uk/v1/access-nodes?dataFormat=xml
+    dataURL: ${NAPTAN_DATAURL:- s3://tramchesternewdist/dist/${RELEASE_NUMBER}/NaPTAN.xml.zip}
     dataCheckURL: ""
     dataPath: data/naptan
-    filename: Stops.xml
+    downloadPath:  data/naptan
+    filename: ${NAPTAN_FILE:- NaPTAN.xml.zip}
+    defaultExpiryDays: 14
   - name: nptg
-    dataURL: http://www.dft.gov.uk/nptg/snapshot/nptgcsv.zip
+    dataURL: ${NPTG_DATAURL:- s3://tramchesternewdist/dist/${RELEASE_NUMBER}/Localities.csv.zip}
     dataCheckURL: ""
     dataPath: data/nptg
-    filename: nptgcsv.zip
+    downloadPath: data/nptg
+    filename: ${NPTG_FILE:- Localities.csv.zip}
+    defaultExpiryDays: 14
   - name: postcode
     dataURL: https://api.os.uk/downloads/v1/products/CodePointOpen/downloads?area=GB&format=CSV&redirect
     dataCheckURL: ""

@@ -39,25 +39,33 @@ rail:
   initialWaitMinutes: 60
 remoteSources:
   - name: tfgm
-    dataURL: ${TRAM_DATAURL:- http://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip}
-    dataCheckURL: http://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip
-    dataPath: data/bus
+    dataURL: ${TRAM_DATAURL:- s3://tramchesternewdist/dist/${RELEASE_NUMBER}/tfgm_data.zip}
+    dataCheckURL: https://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip
+    dataPath: data/tram
+    downloadPath: data/tram
     filename: tfgm_data.zip
+    defaultExpiryDays: 1
   - name: rail
-    dataURL: s3://tramchesternewdist/railData/ttis285.zip
+    dataURL: ${RAIL_DATAURL:-s3://tramchesternewdist/railData/ttis928.zip}
     dataCheckURL: ""
     dataPath: data/rail
-    filename: ttis285.zip
+    downloadPath: data/rail
+    filename: rail_data.zip
+    defaultExpiryDays: 1
   - name: naptanxml
-    dataURL: https://naptan.api.dft.gov.uk/v1/access-nodes?dataFormat=xml
+    dataURL: ${NAPTAN_DATAURL:- s3://tramchesternewdist/dist/${RELEASE_NUMBER}/NaPTAN.xml.zip}
     dataCheckURL: ""
     dataPath: data/naptan
-    filename: Stops.xml
+    downloadPath:  data/naptan
+    filename: ${NAPTAN_FILE:- NaPTAN.xml.zip}
+    defaultExpiryDays: 14
   - name: nptg
-    dataURL: http://www.dft.gov.uk/nptg/snapshot/nptgcsv.zip
+    dataURL: ${NPTG_DATAURL:- s3://tramchesternewdist/dist/${RELEASE_NUMBER}/Localities.csv.zip}
     dataCheckURL: ""
     dataPath: data/nptg
-    filename: nptgcsv.zip
+    downloadPath: data/nptg
+    filename: ${NPTG_FILE:- Localities.csv.zip}
+    defaultExpiryDays: 14
 cacheFolder: data/cacheFrequency
 calcTimeoutMillis: 3500
 bounds:
