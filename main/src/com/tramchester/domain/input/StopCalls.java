@@ -21,6 +21,8 @@ public class StopCalls {
     private final SortedMap<Integer, StopCall> orderedStopCalls;
     private final Map<IdFor<Station>, Integer> stationIndex;
     private final Trip parentTrip;
+    private final List<StopLeg> legs;
+
     private boolean intoNextDay;
 
     public StopCalls(Trip parent) {
@@ -28,6 +30,7 @@ public class StopCalls {
         orderedStopCalls = new TreeMap<>();
         stationIndex = new HashMap<>();
         intoNextDay = false;
+        legs = new ArrayList<>();
     }
 
     public void dispose() {
@@ -108,22 +111,22 @@ public class StopCalls {
             throw new RuntimeException(msg);
         }
 
-        // Assume sorted map
-
-        final List<StopLeg> legs = new ArrayList<>();
-        final Iterator<StopCall> stopsIter = orderedStopCalls.values().iterator();
-        StopCall next = null;
-        while (stopsIter.hasNext()) {
-            final StopCall first = findNextStationStop(stopsIter, next);
-            final StopCall second = findNextStationStop(stopsIter);
-            if (first!=null && second!=null) {
-                final StopLeg stopLeg = new StopLeg(first, second);
-                legs.add(stopLeg);
+        // called many times during graph build, so only populate the once
+        if (legs.isEmpty()) {
+            final Iterator<StopCall> stopsIter = orderedStopCalls.values().iterator();
+            StopCall next = null;
+            while (stopsIter.hasNext()) {
+                final StopCall first = findNextStationStop(stopsIter, next);
+                final StopCall second = findNextStationStop(stopsIter);
+                if (first != null && second != null) {
+                    final StopLeg stopLeg = new StopLeg(first, second);
+                    legs.add(stopLeg);
+                }
+                next = second;
             }
-            next = second;
-        }
-        if (legs.isEmpty() && !graphIsFiltered) {
-            logger.warn("No stop legs generated for " + this);
+            if (legs.isEmpty() && !graphIsFiltered) {
+                logger.warn("No stop legs generated for " + this);
+            }
         }
         return legs;
     }

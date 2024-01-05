@@ -25,6 +25,7 @@ import javax.inject.Inject;
 import java.util.*;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toSet;
@@ -214,6 +215,11 @@ public class NaptanRepositoryContainer implements NaptanRepository {
 
     public boolean isEnabled() {
         return naptanDataImporter.isEnabled();
+    }
+
+    @Override
+    public Stream<NaptanRecord> getAll() {
+        return stops.getValuesStream();
     }
 
     /***

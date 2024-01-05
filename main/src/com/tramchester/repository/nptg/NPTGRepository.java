@@ -27,6 +27,9 @@ import java.util.Set;
 public class NPTGRepository {
     private static final Logger logger = LoggerFactory.getLogger(NPTGRepository.class);
 
+    // some localities referenced from station/stops loaded within bounds might themselves lie outside
+    private static final long MARGIN_IN_METERS = 3000;
+
     private final NPTGDataLoader dataLoader;
     private final TramchesterConfig config;
 
@@ -46,8 +49,9 @@ public class NPTGRepository {
             return;
         }
         BoundingBox bounds = config.getBounds();
-        final Double range = config.getNearestStopForWalkingRangeKM();
-        final MarginInMeters margin = MarginInMeters.of(range);
+
+        final MarginInMeters margin = MarginInMeters.of(MARGIN_IN_METERS);
+
         logger.info("Starting for " + bounds + " and margin " + margin);
         loadData(bounds, margin);
         if (nptgDataMap.isEmpty()) {

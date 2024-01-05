@@ -2,9 +2,13 @@ package com.tramchester.repository.naptan;
 
 import com.google.inject.ImplementedBy;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.places.*;
+import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.NPTGLocality;
+import com.tramchester.domain.places.NaptanRecord;
+import com.tramchester.domain.places.Station;
 
 import java.util.Set;
+import java.util.stream.Stream;
 
 @ImplementedBy(NaptanRepositoryContainer.class)
 public interface NaptanRepository {
@@ -23,4 +27,6 @@ public interface NaptanRepository {
     Set<NaptanRecord> getRecordsForLocality(IdFor<NPTGLocality> localityId);
 
     boolean isEnabled();
+
+    Stream<NaptanRecord> getAll();
 }

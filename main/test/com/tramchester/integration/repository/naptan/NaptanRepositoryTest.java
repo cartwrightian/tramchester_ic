@@ -51,7 +51,7 @@ class NaptanRepositoryTest {
     }
 
     @Test
-    void shouldContainAllStopsWithinLocality() {
+    void shouldContainExpectedStopsWithinLocality() {
         IdFor<Station> actoCode = TramStations.Shudehill.getId();
         assertTrue(respository.containsActo(actoCode));
 
@@ -64,8 +64,6 @@ class NaptanRepositoryTest {
 
         assertEquals(168, withinLocality.size(), withinLocality.toString());
     }
-
-    // TODO Test with type of stop
 
     @Test
     void shouldContainBusStopWithinArea() {

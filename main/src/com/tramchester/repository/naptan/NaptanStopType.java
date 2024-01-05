@@ -9,30 +9,35 @@ import static com.tramchester.domain.reference.TransportMode.*;
 
 public enum NaptanStopType {
 
-     	taxiRank("TXR", Constants.NotApplicable),
-     	sharedTaxiRank("STR", Constants.NotApplicable),
-     	carSetDownPickUpArea("SDA", Constants.NotApplicable),
+    airportEntrance("AIR", Constants.NotApplicable),
+    airAccessArea("GAT", Constants.NotApplicable),
 
-     	ferryOrPortAccess("FER", Constants.NotApplicable),
-     	ferryOrPortBerth("FBT", Constants.Boats),
+    taxiRank("TXR", Constants.NotApplicable),
+    sharedTaxiRank("STR", Constants.NotApplicable),
+    carSetDownPickUpArea("SDA", Constants.NotApplicable),
 
-     	railStationEntrance("RSE", Constants.NotApplicable),
-     	railAccess("RLY", Constants.Rail),
-     	railPlatform("RPL", Constants.Rail),
+    ferryTerminalDockEntrance("FTD", Constants.NotApplicable),
+    ferryOrPortAccess("FER", Constants.NotApplicable),
+    ferryOrPortBerth("FBT", Constants.Boats),
 
-     	tramMetroUndergroundEntrance("TMU", Constants.TramOrMetro),
-     	tramMetroUndergroundAccess("MET", Constants.TramOrMetro),
-     	tramMetroUndergroundPlatform("PLT", Constants.TramOrMetro),
+    railStationEntrance("RSE", Constants.NotApplicable),
+    railAccess("RLY", Constants.Rail),
+    railPlatform("RPL", Constants.Rail),
 
-     	liftOrCableCarStationEntrance("LCE", Constants.NotApplicable),
-     	liftOrCableCarSetDownPickUpArea("LPL", Constants.NotApplicable),
+    tramMetroUndergroundEntrance("TMU", Constants.TramOrMetro),
+    tramMetroUndergroundAccess("MET", Constants.TramOrMetro),
+    tramMetroUndergroundPlatform("PLT", Constants.TramOrMetro),
 
-     	busCoachStationEntrance("BCE", Constants.NotApplicable),
-     	busCoachStationAccess("BST", Constants.NotApplicable),
-     	busCoachTrolleyStationBay("BCS", Constants.Buses),
-     	busCoachTrolleyStationVariableBay("BCQ", Constants.Buses),
-        busCoachTrolleyStopOnStreet("BCT", Constants.Buses),
-        unknown("UNKNOWN",  Constants.NotApplicable);
+    liftOrCableCarStationEntrance("LCE", Constants.NotApplicable),
+    liftOrCableCarSetDownPickUpArea("LPL", Constants.NotApplicable),
+
+    busCoachStationEntrance("BCE", Constants.NotApplicable),
+    busCoachStationAccess("BST", Constants.NotApplicable),
+    busCoachTrolleyStationBay("BCS", Constants.Buses),
+    busCoachTrolleyStationVariableBay("BCQ", Constants.Buses),
+    busCoachTrolleyStopOnStreet("BCT", Constants.Buses),
+    busCoachPrivate("BCP", Constants.NotApplicable),
+    unknown("UNKNOWN",  Constants.NotApplicable);
 
     private final String code;
     private final EnumSet<TransportMode> validModes;

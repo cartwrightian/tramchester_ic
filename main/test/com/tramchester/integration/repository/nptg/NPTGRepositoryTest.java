@@ -3,10 +3,13 @@ package com.tramchester.integration.repository.nptg;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.NPTGLocality;
+import com.tramchester.domain.places.NaptanRecord;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithNaptan;
+import com.tramchester.repository.naptan.NaptanRepository;
 import com.tramchester.repository.nptg.NPTGRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnowLocality;
@@ -51,11 +54,19 @@ public class NPTGRepositoryTest {
         IdFor<NPTGLocality> id = NPTGLocality.createId("N0074933");
 
         assertTrue(repository.hasLocaility(id));
-        NPTGLocality result = repository.get(id);
-        assertNotNull(result);
 
+        NPTGLocality result = repository.get(id);
         assertEquals("Castlefield", result.getLocalityName());
         assertEquals("Manchester City Centre", result.getParentLocalityName(), result.toString());
+    }
+
+    @Test
+    void shouldGetLocalityOnEdgeOfGMBounds() {
+        IdFor<NPTGLocality> id = NPTGLocality.createId("E0044412");
+
+        assertTrue(repository.hasLocaility(id));
+        NPTGLocality result = repository.get(id);
+        assertEquals("Cuddington", result.getLocalityName());
     }
 
     @Test
@@ -64,6 +75,19 @@ public class NPTGRepositoryTest {
         IdFor<NPTGLocality> id = KnowLocality.LondonWestminster.getId();
 
         assertFalse(repository.hasLocaility(id));
+    }
+
+    @Test
+    void shouldHaveRecordForAllLoadedNaptanStops() {
+        // to assist in setting margin for bounds
+        NaptanRepository naptanRepository = componentContainer.get(NaptanRepository.class);
+
+        IdSet<NPTGLocality> missingRecords = naptanRepository.getAll().
+                map(NaptanRecord::getLocalityId).
+                filter(localityId -> !repository.hasLocaility(localityId)).
+                collect(IdSet.idCollector());
+
+        assertEquals(0, missingRecords.size(), missingRecords.toString());
     }
 
 
