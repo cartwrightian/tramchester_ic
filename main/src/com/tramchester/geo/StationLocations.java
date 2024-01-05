@@ -59,7 +59,7 @@ public class StationLocations implements StationLocationsRepository {
         logger.info("Created bounds for active stations: " + bounds);
         createQuadrants();
         if (naptanRespository.isEnabled()) {
-            populateAreas();
+            populateLocality();
         } else {
             logger.warn("Naptan repository is disabled, no area data will be populated");
         }
@@ -77,44 +77,36 @@ public class StationLocations implements StationLocationsRepository {
     }
 
     private void createQuadrants() {
-        populateQuadrants(bounds, DEPTH_LIMIT);
-        logger.info("Added " + quadrants.size() + " quadrants");
-        quadrants.forEach(quadrant -> {
-            // NOTE assumption - composite stations cannot be outside bounds defined by stations themselves since
-            // composite location defined to be middle of composed stations
-            Set<Station> foundInQuadrant = stationRepository.getActiveStationStream().
-                    filter(station -> station.getGridPosition().isValid()).
-                    filter(station -> quadrant.contained(station.getGridPosition())).
-                    collect(Collectors.toSet());
-            stationBoxes.put(quadrant, foundInQuadrant);
-        });
+        final Set<Station> allStations = stationRepository.getActiveStationStream().
+                filter(station -> station.getGridPosition().isValid()).
+                collect(Collectors.toSet());
+        populateQuadrants(bounds, DEPTH_LIMIT, allStations);
+        logger.info("Discovered " + quadrants.size() + " quadrants");
     }
 
-    private void populateQuadrants(BoundingBox box, int depthLimit) {
-        int currentLimit = depthLimit - 1;
+    private void populateQuadrants(final BoundingBox box, final int depthLimit, Set<Station> inside) {
+        final int currentLimit = depthLimit - 1;
 
         if (currentLimit<=0 || box.width() <= GRID_SIZE_METERS || box.height() <= GRID_SIZE_METERS) {
             logger.debug("Added " + box);
             quadrants.add(box);
+            stationBoxes.put(box, inside);
             return;
         }
 
-        Set<GridPosition> insideBox = stationRepository.getActiveStationStream().
-                map(Station::getGridPosition).
-                filter(GridPosition::isValid).
-                filter(box::contained).
-                collect(Collectors.toSet());
-
-        Set<BoundingBox> newQuadrants = box.quadrants();
+        // break current box into quadrants, but only if quadrant contains stations
+        final Set<BoundingBox> newQuadrants = box.quadrants();
         newQuadrants.forEach(quadrant -> {
-            if (insideBox.stream().anyMatch(quadrant::contained)) {
-                // TODO if need could inject list of station into recursive step, save recomputing
-                populateQuadrants(quadrant, currentLimit);
+            Set<Station> insideNewQuadrant = inside.stream().
+                    filter(station -> quadrant.contained(station.getGridPosition())).
+                    collect(Collectors.toSet());
+            if (!insideNewQuadrant.isEmpty()) {
+                populateQuadrants(quadrant, currentLimit, insideNewQuadrant);
             }
         });
     }
 
-    private void populateAreas() {
+    private void populateLocality() {
         stationRepository.getActiveStationStream().
                 filter(location -> location.getLocalityId().isValid()).
                 collect(Collectors.groupingBy(Location::getLocalityId)).entrySet()

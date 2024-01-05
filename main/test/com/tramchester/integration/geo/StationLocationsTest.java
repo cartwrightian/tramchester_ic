@@ -64,6 +64,11 @@ public class StationLocationsTest {
     }
 
     @Test
+    void shouldHaveExpectedNumberOfQuadrant() {
+        assertEquals(88, locations.getQuadrants().size());
+    }
+
+    @Test
     void shouldHaveLocationsInBounds() {
         MarginInMeters margin = MarginInMeters.of(config.getNearestStopForWalkingRangeKM());
         final BoundingBox fullBoundsOfAllTramStations = locations.getActiveStationBounds();
