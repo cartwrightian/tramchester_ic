@@ -101,7 +101,7 @@ public class StopCalls {
      * BUT does include legs that might only pickup or dropoff passengers
      * @param graphIsFiltered is filtering enabled, controls diagnostic messages
      */
-    public List<StopLeg> getLegs(boolean graphIsFiltered) {
+    public List<StopLeg> getLegs(final boolean graphIsFiltered) {
         if (orderedStopCalls.isEmpty()) {
             String msg = "Missing stops, parent trip " + parentTrip;
             logger.error(msg);
@@ -110,14 +110,14 @@ public class StopCalls {
 
         // Assume sorted map
 
-        List<StopLeg> legs = new ArrayList<>();
-        Iterator<StopCall> stopsIter = orderedStopCalls.values().iterator();
+        final List<StopLeg> legs = new ArrayList<>();
+        final Iterator<StopCall> stopsIter = orderedStopCalls.values().iterator();
         StopCall next = null;
         while (stopsIter.hasNext()) {
-            StopCall first = findNextStationStop(stopsIter, next);
-            StopCall second = findNextStationStop(stopsIter);
+            final StopCall first = findNextStationStop(stopsIter, next);
+            final StopCall second = findNextStationStop(stopsIter);
             if (first!=null && second!=null) {
-                StopLeg stopLeg = new StopLeg(first, second);
+                final StopLeg stopLeg = new StopLeg(first, second);
                 legs.add(stopLeg);
             }
             next = second;
@@ -128,7 +128,7 @@ public class StopCalls {
         return legs;
     }
 
-    private StopCall findNextStationStop(Iterator<StopCall> iter, StopCall next) {
+    private StopCall findNextStationStop(final Iterator<StopCall> iter, final StopCall next) {
         if (next!=null) {
             if (next.callsAtStation()) {
                 return next;
@@ -137,9 +137,9 @@ public class StopCalls {
         return findNextStationStop(iter);
     }
 
-    private StopCall findNextStationStop(Iterator<StopCall> iter) {
+    private StopCall findNextStationStop(final Iterator<StopCall> iter) {
         while (iter.hasNext()) {
-            StopCall current = iter.next();
+            final StopCall current = iter.next();
             if (current.callsAtStation()) {
                 return current;
             }

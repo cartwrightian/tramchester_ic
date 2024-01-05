@@ -21,10 +21,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.apache.commons.lang3.tuple.Triple;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.time.Duration;
@@ -115,6 +112,7 @@ public class JourneyPlannerResourceTest {
 
     }
 
+    @Disabled("date now out of range")
     @Test
     void shouldHaveCorrectHeadsignAltrinchamToDeangate() {
         // repro issue with failing acceptance test Wrong headsign, got 'Piccadilly (Manchester Metrolink)'
@@ -129,7 +127,7 @@ public class JourneyPlannerResourceTest {
         JourneyPlanRepresentation plan = journeyPlanner.getJourneyPlan(query);
 
         Set<JourneyDTO> journeys = plan.getJourneys();
-        assertFalse(journeys.isEmpty());
+        assertFalse(journeys.isEmpty(), "no results for " + query);
 
         journeys.forEach(journey -> {
             VehicleStageDTO firstStage = (VehicleStageDTO) journey.getStages().get(0);

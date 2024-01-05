@@ -3,13 +3,13 @@ package com.tramchester.integration.graph.buses;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
-import com.tramchester.graph.graphbuild.StationGroupsGraphBuilder;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
+import com.tramchester.graph.graphbuild.StationGroupsGraphBuilder;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.TransportData;
-import com.tramchester.testSupport.testTags.BusTest;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
@@ -30,7 +30,7 @@ class GraphBuildForBusPerformanceTest {
         TestEnv.deleteDBIfPresent(testConfig);
 
         componentContainer = new ComponentsBuilder().
-                configureGraphFilter(GraphBuildForBusPerformanceTest::configureFilter).
+//                configureGraphFilter(GraphBuildForBusPerformanceTest::configureFilter).
                 create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }

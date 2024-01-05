@@ -1,5 +1,6 @@
 package com.tramchester.dataimport.nptg;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.geo.GridPosition;
 
@@ -8,6 +9,7 @@ import com.tramchester.geo.GridPosition;
  //
  // Cross-referenced by naptan data via the nptgLocalityCode
  //
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class NPTGData {
 
     public static final String UK_Ord_Survey = "UKOS";

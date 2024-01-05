@@ -36,6 +36,13 @@ public interface PathResults {
         public Stream<QueryPathsWithDepth.QueryPath> stream() {
             return pathFor.stream().filter(QueryPathsWithDepth::hasAny);
         }
+
+        @Override
+        public String toString() {
+            return "HasPathResults{" +
+                    "pathFor=" + pathFor +
+                    '}';
+        }
     }
 
     class NoPathResults implements PathResults {

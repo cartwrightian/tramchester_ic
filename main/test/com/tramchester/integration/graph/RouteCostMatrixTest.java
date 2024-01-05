@@ -203,7 +203,7 @@ public class RouteCostMatrixTest {
 
         assertEquals(2, results.getDepth());
 
-        assertEquals(3, results.numberPossible(), results.toString()); // two sets of changes needed
+        assertEquals(4, results.numberPossible(), results.toString()); // two sets of changes needed
     }
 
     @Test

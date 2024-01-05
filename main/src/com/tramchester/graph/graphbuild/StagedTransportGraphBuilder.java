@@ -14,7 +14,6 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.StationTime;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.*;
@@ -200,13 +199,15 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         try(Timing ignored = new Timing(logger,"time and update for trips for " + agency.getId())) {
             // removed the parallel, undefined behaviours with shared txn
 
+            BatchTransactionStrategy transactionStrategy = new BatchTransactionStrategy(graphDatabase,500);
             getRoutesForAgency(agency).forEach(route -> {
-                int numTrips = route.getNumberTrips();
-                final TransactionStrategy transactionStrategy = new RouteTripTransactionStrategy(graphDatabase, config, numTrips);
+//                int numTrips = route.getNumberTrips();
+//                final TransactionStrategy transactionStrategy = new RouteTripTransactionStrategy(graphDatabase, config, numTrips);
                 transactionStrategy.routeBegin(route);
                 createMinuteNodesAndRecordUpdatesForTrips(transactionStrategy, route, agencyBuilderNodeCache, routeStationNodeCache);
                 transactionStrategy.routeDone();
             });
+            transactionStrategy.close();
         }
 
         try (TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "boards & departs for " + agency.getId())) {
@@ -335,29 +336,33 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         }
     }
 
-    private void createOnRouteRelationships(MutableGraphTransaction tx, Route route, RouteStationNodeCache routeBuilderCache) {
+    private void createOnRouteRelationships(final MutableGraphTransaction tx, final Route route, final RouteStationNodeCache routeBuilderCache) {
 
-        Map<StopCalls.StopLeg, Duration> pairs = new HashMap<>();
+//        final TransportMode routeTransportMode = route.getTransportMode();
+//        final boolean isBusRoute = routeTransportMode == TransportMode.Bus;
+
+        final Set<StopCalls.StopLeg> pairs = new HashSet<>();
         route.getTrips().forEach(trip -> {
-            StopCalls stops = trip.getStopCalls();
+            final StopCalls stops = trip.getStopCalls();
             stops.getLegs(graphFilter.isFiltered()).forEach(leg -> {
                 if (includeBothStops(leg)) {
-                    if (!pairs.containsKey(leg)) {
-                        // TODO need cost representative of the route as whole
-                        Duration cost = leg.getCost();
-                        if (cost.isZero() && route.getTransportMode() != TransportMode.Bus) {
-                            // this can happen a lot for buses
-                            logger.warn(format("Zero cost for trip %s for %s", trip.getId(), leg));
-                        }
-                        pairs.put(leg, cost);
-                    }
+                    pairs.add(leg);
+//                    if (!pairs.contains(leg)) {
+//                        // TODO need cost representative of the route as whole
+//                        final Duration cost = leg.getCost();
+//                        if (cost.isZero() && !isBusRoute) {
+//                            // this can happen a lot for buses
+//                            logger.warn(format("Zero cost for trip %s for %s", trip.getId(), leg));
+//                        }
+//                        pairs.put(leg, cost);
+//                    }
                 }
             });
         });
 
-        pairs.forEach((leg, unused) -> {
-            IdFor<Station> beginId = leg.getFirstStation().getId();
-            IdFor<Station> endId = leg.getSecondStation().getId();
+        pairs.forEach((leg) -> {
+            final IdFor<Station> beginId = leg.getFirstStation().getId();
+            final IdFor<Station> endId = leg.getSecondStation().getId();
             if (!routeBuilderCache.hasRouteStation(route, beginId)) {
                 String message = format("Missing first route station (%s, %s) in cache for route: %s and leg: %s",
                         route.getId(), beginId, route, leg);
@@ -368,10 +373,10 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                         route.getId(), beginId, route, leg.getFirst());
                 throw new RuntimeException(message);
             }
-            MutableGraphNode startNode = routeBuilderCache.getRouteStation(tx, route, beginId);
-            MutableGraphNode endNode = routeBuilderCache.getRouteStation(tx, route, endId);
+            final MutableGraphNode startNode = routeBuilderCache.getRouteStation(tx, route, beginId);
+            final MutableGraphNode endNode = routeBuilderCache.getRouteStation(tx, route, endId);
 
-            StopCallRepository.Costs costs = stopCallRepository.getCostsBetween(route, leg.getFirstStation(), leg.getSecondStation());
+            final StopCallRepository.Costs costs = stopCallRepository.getCostsBetween(route, leg.getFirstStation(), leg.getSecondStation());
 
             createOnRouteRelationship(startNode, endNode, route, costs, tx);
         });
@@ -488,20 +493,21 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         boardingDepartNodeCache.putBoarding(platformOrStation.getId(), routeStationNode.getId());
     }
 
-    private void createOnRouteRelationship(MutableGraphNode from, MutableGraphNode to, Route route, StopCallRepository.Costs costs,
-                                           MutableGraphTransaction txn) {
+    private void createOnRouteRelationship(final MutableGraphNode from, final MutableGraphNode to, final Route route,
+                                           final StopCallRepository.Costs costs,
+                                           final MutableGraphTransaction txn) {
 
-        Set<GraphNodeId> endNodesIds = Collections.emptySet();
-
+        final Set<GraphNodeId> endNodesIds;
         if (from.hasRelationship(OUTGOING, ON_ROUTE)) {
             // diff outbounds for same route actually a normal situation, where (especially) trains go via
             // different paths even thought route is the "same", or back to the depot
             endNodesIds = from.getRelationships(txn, OUTGOING, ON_ROUTE).
                     map(relationship -> relationship.getEndNodeId(txn)).
                     collect(Collectors.toSet());
+        } else {
+            endNodesIds = Collections.emptySet();
         }
 
-        //if (!endNodes.contains(to)) {
         if (!endNodesIds.contains(to.getId())) {
             MutableGraphRelationship onRoute = createRelationship(txn, from, to, ON_ROUTE);
             onRoute.set(route);

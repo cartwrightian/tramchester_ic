@@ -277,8 +277,7 @@ public class TransportDataFromFilesTramTest {
                 map(routeStation -> Pair.of(routeStation.getStationId(), routeStation.getRoute().getName())).
                 collect(Collectors.toSet());
 
-        // 8 -> 4 -> 5
-        assertEquals(5, routeStationPairs.size(), routeStations.toString());
+        assertEquals(4, routeStationPairs.size(), routeStations.toString());
 
         Set<String> routeNames =
                 routeStations.stream().

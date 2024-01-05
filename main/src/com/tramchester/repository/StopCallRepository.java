@@ -116,11 +116,13 @@ public class StopCallRepository implements ReportsCacheStats {
     }
 
     @NotNull
-    private Costs calculateCosts(Route route, Station first, Station second) {
-        List<Duration> allCosts = route.getTrips().stream().
-                flatMap(trip -> trip.getStopCalls().getLegs(graphFilter.isActive()).stream()).
+    private Costs calculateCosts(final Route route, final Station first, final Station second) {
+        final boolean graphFilterActive = graphFilter.isActive();
+        final List<Duration> allCosts = route.getTrips().stream().
+                flatMap(trip -> trip.getStopCalls().getLegs(graphFilterActive).stream()).
                 filter(leg -> leg.getFirstStation().equals(first) && leg.getSecondStation().equals(second)).
-                map(StopCalls.StopLeg::getCost).collect(Collectors.toList());
+                map(StopCalls.StopLeg::getCost).
+                collect(Collectors.toList());
 
         if (allCosts.isEmpty()) {
             String msg = String.format("Found no costs (stop legs) for stations %s and %s on route %s. Are they adjacent stations?",
