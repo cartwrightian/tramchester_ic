@@ -66,7 +66,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     private final StopCallRepository stopCallRepository;
     private final StationsWithDiversionRepository stationsWithDiversionRepository;
 
-    // force contsruction via guice to generate ready token, needed where no direct code dependency on this class
+    // force construction via guice to generate ready token, needed where no direct code dependency on this class
     public Ready getReady() {
         return new Ready();
     }
@@ -143,10 +143,10 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         logMemory("After graph build");
     }
 
-    private void linkStationsAndPlatforms(StationAndPlatformNodeCache stationAndPlatformNodeCache) {
+    private void linkStationsAndPlatforms(final StationAndPlatformNodeCache stationAndPlatformNodeCache) {
 
         try(TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "link stations & platforms")) {
-            MutableGraphTransaction txn = timedTransaction.transaction();
+            final MutableGraphTransaction txn = timedTransaction.transaction();
             transportData.getActiveStationStream().
                     filter(Station::hasPlatforms).
                     filter(graphFilter::shouldInclude).
@@ -155,15 +155,15 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         }
     }
 
-    private void addVersionNode(GraphDatabase graphDatabase, DataSourceRepository infos) {
-        if (!infos.hasDataSourceInfo()) {
+    private void addVersionNode(final GraphDatabase graphDatabase, final DataSourceRepository sourceRepository) {
+        if (!sourceRepository.hasDataSourceInfo()) {
             logger.error("No data source info was provided, version will not be set in the DB");
             return;
         }
 
         try(MutableGraphTransaction tx = graphDatabase.beginTxMutable()) {
             logger.info("Adding version node to the DB");
-            databaseMetaInfo.createVersionNode(tx, infos);
+            databaseMetaInfo.createVersionNode(tx, sourceRepository);
             tx.commit();
         }
     }
