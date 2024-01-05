@@ -78,13 +78,13 @@ public class StationAvailabilityRepository {
 
         if (!addFor(dropoffsForLocation, station, station.getDropoffRoutes(), StopCall::getArrivalTime)) {
             if (!graphFilter) {
-                logger.info("No dropoffs for " + station.getId());
+                logger.debug("No dropoffs for " + station.getId());
             }
             dropoffsForLocation.put(station, new ServedRoute()); // empty
         }
         if (!addFor(pickupsForLocation, station, station.getPickupRoutes(), StopCall::getDepartureTime)) {
             if (!graphFilter) {
-                logger.info("No pickups for " + station.getId());
+                logger.debug("No pickups for " + station.getId());
             }
             pickupsForLocation.put(station, new ServedRoute()); // empty
         }

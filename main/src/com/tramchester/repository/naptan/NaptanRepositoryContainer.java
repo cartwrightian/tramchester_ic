@@ -112,6 +112,14 @@ public class NaptanRepositoryContainer implements NaptanRepository {
             return false;
         }
 
+        if (!"active".equals(stopData.getStatus())) {
+            return false;
+        }
+
+        if (stopData.getStopType()==NaptanStopType.unknown) {
+            logger.warn("Unknown stop type for " + stopData.getAtcoCode());
+        }
+
         if (!requiredStopTypes.contains(stopData.getStopType())) {
             return false;
         }
@@ -143,18 +151,36 @@ public class NaptanRepositoryContainer implements NaptanRepository {
 
         if (nptgRepository.hasLocaility(localityCode)) {
             final NPTGLocality locality = nptgRepository.get(localityCode);
-            if (suburb.isBlank()) {
-                suburb = locality.getLocalityName();
-            }
             if (town.isBlank()) {
-                town = locality.getParentLocalityName();
+                town = getTownFrom(locality);
+            }
+            if (suburb.isBlank()) {
+                suburb = getSuburb(locality);
             }
         } else {
             logger.warn(format("Naptan localityCode '%s' missing from nptg for acto %s", localityCode, atcoCode));
         }
 
         return new NaptanRecord(atcoCode, localityCode, original.getCommonName(), original.getGridPosition(), original.getLatLong(),
-                suburb, town, stopType);
+                suburb, town, stopType, original.isLocalityCentre());
+    }
+
+    private String getSuburb(NPTGLocality locality) {
+        if (locality.getParentLocalityName().isEmpty()) {
+            // not a suburb/subunit of somewhere else
+            return "";
+        } else {
+            return locality.getLocalityName();
+        }
+    }
+
+    private String getTownFrom(NPTGLocality locality) {
+        String parentLocalityName = locality.getParentLocalityName();
+        if (parentLocalityName.isEmpty()) {
+            return locality.getLocalityName();
+        } else {
+            return parentLocalityName;
+        }
     }
 
     private boolean filterBy(final BoundingBox bounds, final MarginInMeters margin, final NaptanXMLData item) {

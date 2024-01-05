@@ -9,24 +9,29 @@ import static com.tramchester.domain.reference.TransportMode.*;
 
 public enum NaptanStopType {
 
-     	busCoachTrolleyStopOnStreet("BCT", Constants.Buses),
      	taxiRank("TXR", Constants.NotApplicable),
      	sharedTaxiRank("STR", Constants.NotApplicable),
      	carSetDownPickUpArea("SDA", Constants.NotApplicable),
-     	ferryOrPortAccess("FER", Constants.Boats),
+
+     	ferryOrPortAccess("FER", Constants.NotApplicable),
      	ferryOrPortBerth("FBT", Constants.Boats),
-     	railStationEntrance("RSE", Constants.Rail),
+
+     	railStationEntrance("RSE", Constants.NotApplicable),
      	railAccess("RLY", Constants.Rail),
      	railPlatform("RPL", Constants.Rail),
+
      	tramMetroUndergroundEntrance("TMU", Constants.TramOrMetro),
      	tramMetroUndergroundAccess("MET", Constants.TramOrMetro),
      	tramMetroUndergroundPlatform("PLT", Constants.TramOrMetro),
+
      	liftOrCableCarStationEntrance("LCE", Constants.NotApplicable),
      	liftOrCableCarSetDownPickUpArea("LPL", Constants.NotApplicable),
-     	busCoachStationEntrance("BCE", Constants.Buses),
-     	busCoachStationAccess("BST", Constants.Buses),
+
+     	busCoachStationEntrance("BCE", Constants.NotApplicable),
+     	busCoachStationAccess("BST", Constants.NotApplicable),
      	busCoachTrolleyStationBay("BCS", Constants.Buses),
      	busCoachTrolleyStationVariableBay("BCQ", Constants.Buses),
+        busCoachTrolleyStopOnStreet("BCT", Constants.Buses),
         unknown("UNKNOWN",  Constants.NotApplicable);
 
     private final String code;

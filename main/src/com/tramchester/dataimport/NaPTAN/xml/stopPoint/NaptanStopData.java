@@ -22,6 +22,7 @@ public class NaptanStopData implements NaptanXMLData {
     // Matches ID for TFGM gtfs data
     final private String atcoCode;
 
+    private final String status;
     final private String naptanCode;
     final private NaptanXMLPlace place;
     final private NaptanXMLDescriptor descriptor;
@@ -30,12 +31,14 @@ public class NaptanStopData implements NaptanXMLData {
 
     @JsonCreator
     public NaptanStopData(@JsonProperty("AtcoCode") String atcoCode,
+                          @JacksonXmlProperty(localName = "Status", isAttribute = true) String status,
                           @JsonProperty("NaptanCode") String naptanCode,
                           @JsonProperty("Place") NaptanXMLPlace place,
                           @JsonProperty("Descriptor") NaptanXMLDescriptor descriptor,
                           @JsonProperty("StopClassification") NaptanXMLStopClassification stopClassification,
                           @JacksonXmlProperty(localName = "StopAreas") List<NaptanXMLStopAreaRef> stopAreas) {
         this.atcoCode = atcoCode;
+        this.status = status;
         this.naptanCode = naptanCode;
         this.place = place;
         this.descriptor = descriptor;
@@ -107,8 +110,9 @@ public class NaptanStopData implements NaptanXMLData {
 
     @Override
     public String toString() {
-        return "NaptanStopXMLData{" +
+        return "NaptanStopData{" +
                 "atcoCode='" + atcoCode + '\'' +
+                ", status='" + status + '\'' +
                 ", naptanCode='" + naptanCode + '\'' +
                 ", place=" + place +
                 ", descriptor=" + descriptor +
@@ -117,4 +121,11 @@ public class NaptanStopData implements NaptanXMLData {
                 '}';
     }
 
+    public boolean isLocalityCentre() {
+        return "1".equals(place.getLocalityCentre());
+    }
+
+    public String getStatus() {
+        return status;
+    }
 }

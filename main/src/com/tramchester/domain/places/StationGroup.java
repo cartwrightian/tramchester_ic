@@ -36,6 +36,9 @@ public class StationGroup implements Location<StationGroup> {
     private final DataSourceID dataSourceId;
 
     public StationGroup(Set<Station> groupedStations, IdFor<NPTGLocality> localityId, String name) {
+        if (groupedStations.isEmpty()) {
+            throw new RuntimeException("Attempt to create empty group for " + localityId + " name name " +name);
+        }
         this.id = StringIdFor.convert(localityId, StationGroup.class);
         this.latLong = computeLatLong(groupedStations);
         this.dataSourceId = computeDataSourceId(groupedStations);
@@ -142,10 +145,6 @@ public class StationGroup implements Location<StationGroup> {
         Set<TransportMode> transportModes = flatten(Station::getTransportModes);
         return EnumSet.copyOf(transportModes);
     }
-
-//    public Duration getMinimumChangeCost() {
-//        return minChangeCost;
-//    }
 
     private boolean anyMatch(Predicate<Station> predicate) {
         return groupedStations.stream().anyMatch(predicate);

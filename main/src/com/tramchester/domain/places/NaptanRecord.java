@@ -16,11 +16,12 @@ public class NaptanRecord implements HasId<NaptanRecord>, CoreDomain {
     private final String suburb;
     private final String town;
     private final NaptanStopType stopType;
+    private final boolean localityCenter;
     private final LatLong latlong;
 
     public NaptanRecord(IdFor<NaptanRecord> id, IdFor<NPTGLocality> localityId, String name, GridPosition gridPosition,
                         LatLong latlong, String suburb, String town,
-                        NaptanStopType stopType) {
+                        NaptanStopType stopType, boolean localityCenter) {
         this.id = id;
         this.localityId = localityId;
         this.name = name;
@@ -29,6 +30,7 @@ public class NaptanRecord implements HasId<NaptanRecord>, CoreDomain {
         this.suburb = suburb;
         this.town = town;
         this.stopType = stopType;
+        this.localityCenter = localityCenter;
     }
 
     public static IdFor<NaptanRecord> createId(String text) {
@@ -48,6 +50,8 @@ public class NaptanRecord implements HasId<NaptanRecord>, CoreDomain {
         return name;
     }
 
+    public String getTown() { return town; }
+
     public NaptanStopType getStopType() {
         return stopType;
     }
@@ -60,24 +64,28 @@ public class NaptanRecord implements HasId<NaptanRecord>, CoreDomain {
         return latlong;
     }
 
+    public boolean isLocalityCenter() {
+        return localityCenter;
+    }
+
     @Override
     public String toString() {
         return "NaptanRecord{" +
                 "id=" + id +
+                ", localityId=" + localityId +
                 ", name='" + name + '\'' +
                 ", gridPosition=" + gridPosition +
                 ", suburb='" + suburb + '\'' +
                 ", town='" + town + '\'' +
                 ", stopType=" + stopType +
+                ", localityCenter=" + localityCenter +
+                ", latlong=" + latlong +
                 '}';
     }
-
-//    @Deprecated
-//    public void setAreaCodes(List<String> stopAreaCodes) {
-//        this.stopAreaCodes = stopAreaCodes;
-//    }
 
     public IdFor<NPTGLocality> getLocalityId() {
         return localityId;
     }
+
+
 }

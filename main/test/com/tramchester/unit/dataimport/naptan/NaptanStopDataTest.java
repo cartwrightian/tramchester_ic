@@ -56,6 +56,7 @@ class NaptanStopDataTest extends ParserTestXMLHelper<NaptanStopData> {
 
         assertIdEquals("9400ZZMAWWD2", data.getAtcoCode(), data.toString());
         assertEquals("mantwgdp", data.getNaptanCode());
+        assertEquals("active", data.getStatus());
         assertEquals("Westwood (Manchester Metrolink)", data.getCommonName());
         assertEquals("E0029527", data.getNptgLocality());
         assertEquals("", data.getSuburb());
@@ -139,7 +140,7 @@ class NaptanStopDataTest extends ParserTestXMLHelper<NaptanStopData> {
     @Test
     void shouldParseForBusStationWithIndicator() throws XMLStreamException, IOException {
         String text = "<NaPTAN><StopPoints><StopPoint CreationDateTime=\"1969-12-31T00:00:00\" ModificationDateTime=\"1969-12-31" +
-                "T23:00:00\" Modification=\"new\" RevisionNumber=\"0\" Status=\"active\"><AtcoCode>2800S16001B</AtcoCode><NaptanCode>mergjtpm</N" +
+                "T23:00:00\" Modification=\"new\" RevisionNumber=\"0\" Status=\"inactive\"><AtcoCode>2800S16001B</AtcoCode><NaptanCode>mergjtpm</N" +
                 "aptanCode><Descriptor><CommonName xml:lang=\"en\">St Helens Bus Station</CommonName><ShortCommonName xml:lang=\"en\">St Hele" +
                 "ns Bus St 2</ShortCommonName><Landmark xml:lang=\"en\">Bus Station</Landmark><Street xml:lang=\"en\">St Helens Bus Station</" +
                 "Street><Indicator xml:lang=\"en\">Stand 2</Indicator></Descriptor><Place><NptgLocalityRef>E0057858</NptgLocalityRef><Subur" +
@@ -156,6 +157,7 @@ class NaptanStopDataTest extends ParserTestXMLHelper<NaptanStopData> {
 
         assertIdEquals("2800S16001B", data.getAtcoCode());
         assertEquals("mergjtpm", data.getNaptanCode());
+        assertEquals("inactive", data.getStatus());
         assertEquals("St Helens Bus Station", data.getCommonName());
         assertEquals("E0057858", data.getNptgLocality());
         assertEquals("St Helens", data.getSuburb());

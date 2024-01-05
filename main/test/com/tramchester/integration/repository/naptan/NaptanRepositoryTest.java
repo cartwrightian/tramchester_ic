@@ -12,6 +12,7 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithNaptan;
 import com.tramchester.repository.naptan.NaptanRepository;
 import com.tramchester.repository.naptan.NaptanRepositoryContainer;
+import com.tramchester.repository.naptan.NaptanStopType;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.reference.KnowLocality;
@@ -61,7 +62,7 @@ class NaptanRepositoryTest {
 
         Set<NaptanRecord> withinLocality = respository.getRecordsForLocality(localityId);
 
-        assertEquals(391, withinLocality.size(), withinLocality.toString());
+        assertEquals(168, withinLocality.size(), withinLocality.toString());
     }
 
     // TODO Test with type of stop
@@ -91,7 +92,8 @@ class NaptanRepositoryTest {
 
         NaptanRecord record = respository.getForTiploc(tiploc);
         assertEquals(record.getName(), "Macclesfield Rail Station");
-        assertEquals(record.getSuburb(), "Macclesfield");
+        assertEquals(record.getTown(), "Macclesfield");
+        assertTrue(record.getSuburb().isEmpty());
         assertEquals(record.getId(), NaptanRecord.createId("9100MACLSFD"));
 
         final IdFor<NPTGLocality> areaCode = record.getLocalityId();
@@ -107,7 +109,8 @@ class NaptanRepositoryTest {
         NaptanRecord record = respository.getForTiploc(altyTrainId);
 
         assertEquals("Altrincham Rail Station", record.getName());
-        assertEquals("Altrincham", record.getSuburb());
+        assertEquals("Altrincham", record.getTown());
+        assertTrue(record.getSuburb().isEmpty());
         assertEquals(NaptanRecord.createId("9100ALTRNHM"), record.getId());
 
         IdFor<NPTGLocality> areaCode = record.getLocalityId();
@@ -135,13 +138,6 @@ class NaptanRepositoryTest {
     }
 
     @Test
-    void shouldNotContainStopOutOfArea() {
-        // stop in bristol, checked exists in full data in NaPTANDataImportTest
-        IdFor<Station> actoCode = Station.createId(TestEnv.BRISTOL_BUSSTOP_OCTOCODE);
-        assertFalse(respository.containsActo(actoCode));
-    }
-
-    @Test
     void shouldFindAllTestBusStations() {
         for(BusStations station :BusStations.values()) {
             IdFor<Station> actoCode = station.getId();
@@ -152,7 +148,7 @@ class NaptanRepositoryTest {
     }
 
     @Test
-    void shouldFindKnutsfordArea() {
+    void shouldFindKnutsfordLocalityStations() {
 
         final IdFor<Station> stopId = BusStations.KnutsfordStationStand3.getId();
         NaptanRecord fromNaptan = respository.getForActo(stopId);
@@ -163,7 +159,23 @@ class NaptanRepositoryTest {
 
         Set<NaptanRecord> allRecordsForArea = respository.getRecordsForLocality(locality);
 
-        assertEquals(51, allRecordsForArea.size(), allRecordsForArea.toString());
+        assertEquals(46, allRecordsForArea.size(), allRecordsForArea.toString());
+
+        Set<NaptanRecord> central = allRecordsForArea.stream().filter(NaptanRecord::isLocalityCenter).collect(Collectors.toSet());
+
+        assertEquals(8, central.size());
+
+        Set<NaptanRecord> busStationStops = central.stream().
+                filter(naptanRecord -> naptanRecord.getStopType().equals(NaptanStopType.busCoachTrolleyStationBay)).
+                collect(Collectors.toSet());
+
+        assertEquals(3, busStationStops.size());
+
+        busStationStops.forEach(naptanRecord -> {
+            assertEquals("Bus Station", naptanRecord.getName(), "wrong name for " + naptanRecord);
+            assertEquals("Knutsford", naptanRecord.getTown(), "wrong town for " + naptanRecord);
+            assertEquals("", naptanRecord.getSuburb(), "wrong suburb for " + naptanRecord);
+        });
     }
 
 }

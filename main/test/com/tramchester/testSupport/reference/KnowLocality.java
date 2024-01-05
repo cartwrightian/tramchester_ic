@@ -9,6 +9,7 @@ public enum KnowLocality {
     Macclesfield("N0076467"),
     Shudehill("N0077806"),
     ManchesterAirport("N0075057"),
+    Stockport("E0057819"),
     Knutsford("E0044368");
 
     private final String localityId;

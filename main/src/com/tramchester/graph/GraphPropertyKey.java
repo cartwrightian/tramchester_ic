@@ -5,7 +5,7 @@ import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.places.NaptanArea;
+import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 
@@ -60,7 +60,7 @@ public enum GraphPropertyKey {
         if (klass.equals(Service.class)) {
             return SERVICE_ID;
         }
-        if (klass.equals(NaptanArea.class)) {
+        if (klass.equals(NPTGLocality.class)) {
             return AREA_ID;
         }
         throw new RuntimeException("Missing key for type" + klass);

@@ -13,16 +13,19 @@ public class NaptanXMLPlace {
     private final String suburb;
     private final String town;
     private final String nptgLocalityRef;
+    private final String localityCentre;
 
     @JsonCreator
     public NaptanXMLPlace(@JsonProperty("Location") NaptanXMLLocation location,
                           @JsonProperty("Suburb") String suburb,
                           @JsonProperty("Town") String town,
-                          @JsonProperty("NptgLocalityRef") String nptgLocalityRef) {
+                          @JsonProperty("NptgLocalityRef") String nptgLocalityRef,
+                          @JsonProperty("LocalityCentre") String localityCentre) {
         this.location = location;
         this.suburb = suburb;
         this.town = town;
         this.nptgLocalityRef = nptgLocalityRef;
+        this.localityCentre = localityCentre;
     }
 
     public NaptanXMLLocation getLocation() {
@@ -44,10 +47,15 @@ public class NaptanXMLPlace {
                 ", suburb='" + suburb + '\'' +
                 ", town='" + town + '\'' +
                 ", nptgLocalityRef='" + nptgLocalityRef + '\'' +
+                ", localityCentre='" + localityCentre + '\'' +
                 '}';
     }
 
     public String getNptgLocalityRef() {
         return nptgLocalityRef;
+    }
+
+    public String getLocalityCentre() {
+        return localityCentre;
     }
 }
