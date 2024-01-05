@@ -4,9 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.metrics.Timing;
-import org.neo4j.configuration.BootloaderSettings;
 import org.neo4j.configuration.GraphDatabaseSettings;
-import org.neo4j.configuration.SettingValueParsers;
 import org.neo4j.configuration.connectors.BoltConnector;
 import org.neo4j.configuration.connectors.HttpConnector;
 import org.neo4j.configuration.connectors.HttpsConnector;
@@ -67,8 +65,8 @@ public class GraphDatabaseServiceFactory implements DatabaseEventListener {
     private void createManagementService() {
 
         try (Timing ignored = new Timing(logger, "DatabaseManagementService build")) {
-            Long neo4jPagecacheMemory = ByteUnit.parse(dbConfig.getNeo4jPagecacheMemory());
-            Long memoryTransactionGlobalMaxSize = ByteUnit.parse(dbConfig.getMemoryTransactionGlobalMaxSize());
+            final long neo4jPagecacheMemory = ByteUnit.parse(dbConfig.getNeo4jPagecacheMemory());
+            final long memoryTransactionGlobalMaxSize = ByteUnit.parse(dbConfig.getMemoryTransactionGlobalMaxSize());
             managementServiceImpl = new DatabaseManagementServiceBuilder( graphFile ).
 
             // TODO need to bring this back somehow, memory usage has crept up without it
@@ -79,18 +77,15 @@ public class GraphDatabaseServiceFactory implements DatabaseEventListener {
                     // see https://neo4j.com/docs/operations-manual/current/performance/memory-configuration/#heap-sizing
                     setConfig(GraphDatabaseSettings.pagecache_memory, neo4jPagecacheMemory).
 
-                    // dbms.memory.transaction.total.max
                     setConfig(GraphDatabaseSettings.memory_transaction_global_max_size, memoryTransactionGlobalMaxSize).
-                        //SettingValueParsers.BYTES.parse("600m")).
-
-                    // NOTE: dbms.memory.transaction.total.max is 70% of heap size limit
-                    setConfig(BootloaderSettings.max_heap_size, SettingValueParsers.BYTES.parse("580m")).
-
-                    // deprecated
-                    //setConfig(GraphDatabaseSettings.tx_state_max_off_heap_memory, SettingValueParsers.BYTES.parse("512m")).
 
                     // txn logs, no need to save beyond current one
                     setConfig(GraphDatabaseSettings.keep_logical_logs, "false").
+
+                    // perf test, made little difference
+                    //setConfig(GraphDatabaseSettings.pagecache_buffered_flush_enabled, true).
+
+                    setConfig(GraphDatabaseSettings.debug_log_enabled, false).
 
                     // operating in embedded mode
                     setConfig(HttpConnector.enabled, false).

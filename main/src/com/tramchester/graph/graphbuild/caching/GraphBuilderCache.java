@@ -14,17 +14,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 @LazySingleton
 public class GraphBuilderCache implements RouteStationNodeCache, StationAndPlatformNodeCache {
     private static final Logger logger = LoggerFactory.getLogger(GraphBuilderCache.class);
 
     private boolean cleared;
-    private final Map<IdFor<RouteStation>, GraphNodeId> routeStations;
-    private final Map<IdFor<Station>, GraphNodeId> stationsToNodeId;
-    private final Map<IdFor<Platform>, GraphNodeId> platforms;
+    private final ConcurrentMap<IdFor<RouteStation>, GraphNodeId> routeStations;
+    private final ConcurrentMap<IdFor<Station>, GraphNodeId> stationsToNodeId;
+    private final ConcurrentMap<IdFor<Platform>, GraphNodeId> platforms;
 
     @Inject
     public GraphBuilderCache() {

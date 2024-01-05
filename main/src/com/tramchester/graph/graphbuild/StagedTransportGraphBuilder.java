@@ -120,14 +120,14 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             // just for tfgm trams currently
             linkStationsAndPlatforms(stationAndPlatformNodeCache);
 
-            // TODO Agencies could be done in parallel as should be no overlap except at station level?
-            for(final Agency agency : transportData.getAgencies()) {
-                if (graphFilter.shouldIncludeAgency(agency)) {
-                    try (Timing ignored1 = new Timing(logger,"Add agency " + agency.getId() + " " + agency.getName())) {
-                        buildForAgency(graphDatabase, agency, stationAndPlatformNodeCache, routeStationNodeCache, boardingDepartNodeCache);
-                    }
-                }
-            }
+            transportData.getAgencies().stream().
+                    parallel().
+                    filter(graphFilter::shouldIncludeAgency).
+                    forEach(agency ->  {
+                        try (Timing ignored1 = new Timing(logger,"Add agency " + agency.getId() + " " + agency.getName())) {
+                            buildForAgency(graphDatabase, agency, stationAndPlatformNodeCache, routeStationNodeCache, boardingDepartNodeCache);
+                        }
+                    });
 
             // only add version node if we manage to build graph, so partial builds that fail cause a rebuild
             addVersionNode(graphDatabase, transportData);
@@ -195,9 +195,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         }
 
         try(Timing ignored = new Timing(logger,"time and update for trips for " + agency.getId())) {
-            // removed the parallel, undefined behaviours with shared txn
-
-            final BatchTransactionStrategy transactionStrategy = new BatchTransactionStrategy(graphDatabase,500);
+            // moved the parallel up one level, undefined behaviours with shared txn
+            final BatchTransactionStrategy transactionStrategy = new BatchTransactionStrategy(graphDatabase,100, agency.getId());
             getRoutesForAgency(agency).forEach(route -> {
                 transactionStrategy.routeBegin(route);
                 createMinuteNodesAndRecordUpdatesForTrips(transactionStrategy, route, agencyBuilderNodeCache, routeStationNodeCache);

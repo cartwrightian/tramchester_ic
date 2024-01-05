@@ -2,12 +2,10 @@ package com.tramchester.integration.graph.buses;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.graphbuild.StationGroupsGraphBuilder;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
-import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.AfterAll;
@@ -35,9 +33,9 @@ class GraphBuildForBusPerformanceTest {
         componentContainer.initialise();
     }
 
-    private static void configureFilter(ConfigurableGraphFilter graphFilter, TransportData transportData) {
-        graphFilter.addAgency(TestEnv.StagecoachManchester.getId());
-    }
+//    private static void configureFilter(ConfigurableGraphFilter graphFilter, TransportData transportData) {
+//        graphFilter.addAgency(TestEnv.StagecoachManchester.getId());
+//    }
 
     @AfterAll
     static void OnceAfterAllTestsAreFinished() throws IOException {

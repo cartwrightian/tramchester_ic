@@ -1,6 +1,8 @@
 package com.tramchester.graph.graphbuild;
 
+import com.tramchester.domain.Agency;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.facade.MutableGraphTransaction;
@@ -14,13 +16,15 @@ public class BatchTransactionStrategy implements TransactionStrategy {
 
     private final GraphDatabase graphDatabase;
     private final int batchSize;
+    private final IdFor<Agency> agencyId;
     private final AtomicInteger tripCount;
 
     private MutableGraphTransaction transaction;
 
-    public BatchTransactionStrategy(GraphDatabase graphDatabase, int batchSize) {
+    public BatchTransactionStrategy(GraphDatabase graphDatabase, int batchSize, IdFor<Agency> agencyId) {
         this.graphDatabase = graphDatabase;
         this.batchSize = batchSize;
+        this.agencyId = agencyId;
         tripCount = new AtomicInteger(0);
         transaction = null;
     }
@@ -45,9 +49,9 @@ public class BatchTransactionStrategy implements TransactionStrategy {
 
     @Override
     public void tripDone() {
-        int current = tripCount.getAndIncrement();
+        final int current = tripCount.getAndIncrement();
         if (current>batchSize) {
-            logger.info("Commit transaction after " + current + " trips");
+            logger.info("Agency " + agencyId + " commit after " + current + " trips ");
             transaction.commit();
             transaction = null;
         }
@@ -60,8 +64,8 @@ public class BatchTransactionStrategy implements TransactionStrategy {
 
     public void close() {
         if (transaction!=null) {
-            int current = tripCount.get();
-            logger.info("Commit transaction after " + current + " trips");
+            final int current = tripCount.get();
+            logger.info("Agency " + agencyId + " commit after " + current + " trips ");
             transaction.commit();
             transaction = null;
         }

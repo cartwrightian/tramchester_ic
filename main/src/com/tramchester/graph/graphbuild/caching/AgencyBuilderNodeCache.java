@@ -9,14 +9,14 @@ import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.MutableGraphNode;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import static java.lang.String.format;
 
 public class AgencyBuilderNodeCache implements ServiceNodeCache, HourNodeCache {
-    private final Map<String, GraphNodeId> svcNodes;
-    private final Map<String, GraphNodeId> hourNodes;
+    private final ConcurrentMap<String, GraphNodeId> svcNodes;
+    private final ConcurrentMap<String, GraphNodeId> hourNodes;
 
     public AgencyBuilderNodeCache() {
         svcNodes = new ConcurrentHashMap<>();

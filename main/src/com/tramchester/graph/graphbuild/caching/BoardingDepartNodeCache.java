@@ -6,11 +6,12 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public class BoardingDepartNodeCache {
 
-    private final Map<GraphNodeId, Set<GraphNodeId>> boardings;
-    private final Map<GraphNodeId, Set<GraphNodeId>> departs;
+    private final ConcurrentMap<GraphNodeId, Set<GraphNodeId>> boardings;
+    private final ConcurrentMap<GraphNodeId, Set<GraphNodeId>> departs;
 
     public BoardingDepartNodeCache() {
         boardings = new ConcurrentHashMap<>();
