@@ -3,7 +3,6 @@ package com.tramchester.integration.repository.rail;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Route;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
@@ -55,13 +54,13 @@ public class StopCallRepositoryRailTest {
                 filter(Route::intoNextDay).
                 flatMap(route -> route.getTrips().stream()).
                 filter(Trip::intoNextDay).
-                collect(Collectors.toList());
+                toList();
 
         assertFalse(crossMidnightTrips.isEmpty());
 
         List<Trip> trips = crossMidnightTrips.stream().
                 filter(trip -> trip.getStopCalls().getLegs(false).stream().anyMatch(leg -> !leg.getFirst().intoNextDay() && leg.getSecond().intoNextDay())).
-                collect(Collectors.toList());
+                toList();
 
         assertFalse(trips.isEmpty());
         Trip trip = trips.get(0);
@@ -69,7 +68,7 @@ public class StopCallRepositoryRailTest {
         List<StopCalls.StopLeg> legsIntoNextDay = trip.getStopCalls().getLegs(false).stream().
                 filter(stopLeg -> !stopLeg.getFirst().intoNextDay()).
                 filter(stopLeg -> stopLeg.getSecond().intoNextDay()).
-                collect(Collectors.toList());
+                toList();
 
         assertFalse(legsIntoNextDay.isEmpty());
 
@@ -93,7 +92,7 @@ public class StopCallRepositoryRailTest {
 
         Set<Route> calling = routeRepository.getRoutes().stream().
                 flatMap(route -> route.getTrips().stream()).
-                filter(trip -> trip.callsAt(mulsecoomb) && trip.callsAt(londonRoadBrighton)).
+                filter(trip -> trip.callsAt(mulsecoomb.getId()) && trip.callsAt(londonRoadBrighton.getId())).
                 filter(trip -> isBefore(trip, mulsecoomb, londonRoadBrighton)).
                 map(Trip::getRoute).
                 collect(Collectors.toSet());

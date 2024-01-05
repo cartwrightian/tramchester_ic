@@ -257,7 +257,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
 
     @Override
     public Set<Trip> getTripsFor(Station station, TramDate date) {
-        return trips.filterStream(trip -> trip.callsAt(station) && trip.operatesOn(date)).collect(Collectors.toSet());
+        return trips.filterStream(trip -> trip.callsAt(station.getId()) && trip.operatesOn(date)).collect(Collectors.toSet());
     }
 
     @Override

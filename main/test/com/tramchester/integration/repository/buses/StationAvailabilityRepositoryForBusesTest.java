@@ -12,19 +12,15 @@ import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
-import com.tramchester.repository.ClosedStationsRepository;
-import com.tramchester.repository.StationAvailabilityRepository;
-import com.tramchester.repository.StationGroupsRepository;
-import com.tramchester.repository.StationRepository;
+import com.tramchester.repository.*;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
+import com.tramchester.testSupport.reference.KnowLocality;
 import com.tramchester.testSupport.testTags.BusTest;
 import com.tramchester.testSupport.testTags.DataExpiryCategory;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.time.Duration;
 import java.util.EnumSet;
@@ -33,7 +29,6 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.domain.time.TramTime.of;
-import static com.tramchester.testSupport.reference.BusStations.Composites.ShudehillInterchange;
 import static org.junit.jupiter.api.Assertions.*;
 
 @BusTest
@@ -99,7 +94,7 @@ public class StationAvailabilityRepositoryForBusesTest {
 
     @Test
     void shouldCheckStationGroupsAsExpected() {
-        StationGroup stationGroup = stationGroupsRepository.findByName(BusStations.Composites.AltrinchamInterchange.getName());
+        StationGroup stationGroup = stationGroupsRepository.getStationGroup(KnowLocality.Altrincham.getId()); //.findByName(BusStations.Composites.AltrinchamInterchange.getName());
         assertNotNull(stationGroup);
 
         boolean duringTheDay = availabilityRepository.isAvailable(stationGroup, when, TimeRange.of(of(8,45), of(10,45)), modes);
@@ -111,11 +106,12 @@ public class StationAvailabilityRepositoryForBusesTest {
     @DataExpiryCategory
     @Test
     void shouldHaveExpectedRoutesAvailableForDatesAndTimeRangesOverMidnight() {
-        StationGroup shudeHillInterchange = stationGroupsRepository.findByName(ShudehillInterchange.getName());
+        StationGroup shudeHillInterchange = stationGroupsRepository.getStationGroup(KnowLocality.Shudehill.getId());
 
         long maxDuration = config.getMaxJourneyDuration();
 
         TimeRange timeRange = TimeRange.of(TramTime.of(22, 50), Duration.ZERO, Duration.ofMinutes(maxDuration));
+
         Set<Route> pickupResults = availabilityRepository.getPickupRoutesFor(shudeHillInterchange, when, timeRange, modes);
         assertFalse(pickupResults.isEmpty(), "for " + timeRange + " missing pickup routes from " + shudeHillInterchange);
 
@@ -134,7 +130,7 @@ public class StationAvailabilityRepositoryForBusesTest {
     @DataExpiryCategory
     @Test
     void shouldHaveExpectedRoutesAvailableForDatesAndTimeRangesAfterMidnight() {
-        StationGroup shudeHillInterchange = stationGroupsRepository.findByName(ShudehillInterchange.getName());
+        StationGroup shudeHillInterchange = stationGroupsRepository.getStationGroup(KnowLocality.Shudehill.getId());
 
         long maxDuration = config.getMaxJourneyDuration();
 
@@ -199,6 +195,21 @@ public class StationAvailabilityRepositoryForBusesTest {
 
             assertTrue(notAvailableEarly.isEmpty(), "Not available " + date + " " + earlyRange + " " + HasId.asIds(notAvailableEarly));
         });
+    }
+
+    @Disabled("performance testing")
+    @Test
+    void shouldCreateRepository() {
+        TripRepository tripRepository = componentContainer.get(TripRepository.class);
+        StationAvailabilityRepository stationAvailabilityRepository =
+                new StationAvailabilityRepository(stationRepository, closedStationRepository,
+                        new GraphFilterActive(false), tripRepository);
+
+        for (int i = 0; i < 10; i++) {
+            stationAvailabilityRepository.start();
+            stationAvailabilityRepository.stop();
+        }
+
     }
 
 }

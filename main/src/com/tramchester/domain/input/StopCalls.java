@@ -67,22 +67,17 @@ public class StopCalls {
         return orderedStopCalls.get(callingNumber);
     }
 
-    public boolean callsAt(HasId<Station> hasId) {
+    public boolean callsAt(final HasId<Station> hasId) {
         return callsAt(hasId.getId());
     }
 
-    public boolean callsAt(IdFor<Station> stationId) {
+    public boolean callsAt(final IdFor<Station> stationId) {
         return stationIndex.containsKey(stationId);
     }
 
-    public StopCall getStopFor(HasId<Station> hasId) {
-        IdFor<Station> id = hasId.getId();
-        if (!stationIndex.containsKey(id)) {
-            return null;
-        }
-        int index = stationIndex.get(id);
+    public StopCall getStopFor(IdFor<Station> stationId) {
+        final int index = stationIndex.get(stationId);
         return orderedStopCalls.get(index);
-
     }
 
     public Stream<StopCall> stream() {
@@ -181,6 +176,8 @@ public class StopCalls {
     public Trip getTrip() {
         return parentTrip;
     }
+
+
 
     public static class StopLeg {
         private final StopCall first;

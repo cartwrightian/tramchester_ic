@@ -167,8 +167,8 @@ public class RailTransportDataFromFilesTest {
         Station endStation = transportData.getStationById(Mobberley.getId());
 
         List<Trip> matchingTrips = transportData.getTrips().stream().
-                filter(trip -> trip.callsAt(startStation)).
-                filter(trip -> trip.callsAt(endStation)).
+                filter(trip -> trip.callsAt(startStation.getId())).
+                filter(trip -> trip.callsAt(endStation.getId())).
                 filter(trip -> trip.getStopCalls().getStationSequence(false).get(0).equals(startStation)).
                 filter(trip -> trip.getStopCalls().getLastStop().getStation().equals(endStation)).
                 toList();

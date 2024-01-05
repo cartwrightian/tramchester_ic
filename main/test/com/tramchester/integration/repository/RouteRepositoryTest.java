@@ -95,7 +95,7 @@ public class RouteRepositoryTest {
 
         List<Trip> ecclesTripsViaShudehill = towardsEcclesRoute.getTrips().stream().
                 filter(trip -> trip.getStopCalls().getFirstStop().getStationId().equals(Ashton.getId())).
-                filter(trip -> trip.callsAt(Shudehill)).toList();
+                filter(trip -> trip.callsAt(Shudehill.getId())).toList();
 
         List<StopCall> fromVictoria = ecclesTripsViaShudehill.stream().
                 map(trip -> trip.getStopCalls().getFirstStop()).

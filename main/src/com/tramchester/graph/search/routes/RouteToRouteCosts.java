@@ -303,11 +303,11 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                 collect(Collectors.toSet());
     }
 
-    private Set<Route> dropoffRoutesFor(LocationSet locations, TramDate date, TimeRange timeRange, Set<TransportMode> modes) {
+    private Set<Route> dropoffRoutesFor(LocationSet locations, TramDate date, TimeRange timeRange, EnumSet<TransportMode> modes) {
         return availabilityRepository.getDropoffRoutesFor(locations, date, timeRange, modes);
     }
 
-    private Set<Route> pickupRoutesFor(LocationSet locations, TramDate date, TimeRange timeRange, Set<TransportMode> modes) {
+    private Set<Route> pickupRoutesFor(LocationSet locations, TramDate date, TimeRange timeRange, EnumSet<TransportMode> modes) {
         return availabilityRepository.getPickupRoutesFor(locations, date, timeRange, modes);
     }
 

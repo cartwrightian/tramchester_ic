@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -45,7 +46,7 @@ public class RouteReachable {
     }
 
     // supports position inference on live data
-    public List<Route> getRoutesFromStartToNeighbour(StationPair pair, TramDate date, TimeRange timeRange, Set<TransportMode> modes) {
+    public List<Route> getRoutesFromStartToNeighbour(StationPair pair, TramDate date, TimeRange timeRange, EnumSet<TransportMode> modes) {
         List<Route> results = new ArrayList<>();
         final Station startStation = pair.getBegin();
         final Set<Route> firstRoutes = availabilityRepository.getPickupRoutesFor(startStation, date, timeRange, modes);

@@ -10,8 +10,6 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
 
-import java.util.Set;
-
 public interface Trip extends HasId<Trip>, HasTransportMode, GraphProperty, CoreDomain {
 
     static IdFor<Trip> createId(String text) {
@@ -42,7 +40,7 @@ public interface Trip extends HasId<Trip>, HasTransportMode, GraphProperty, Core
 
     boolean hasStops();
 
-    boolean callsAt(HasId<Station> station);
+    boolean callsAt(IdFor<Station> station);
 
     boolean operatesOn(TramDate date);
 

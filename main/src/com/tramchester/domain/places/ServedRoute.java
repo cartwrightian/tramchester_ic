@@ -27,8 +27,8 @@ public class ServedRoute {
         allServedModes = EnumSet.noneOf(TransportMode.class);
     }
 
-    public void add(Route route, Service service, TramTime callingTime) {
-        RouteAndService routeAndService = new RouteAndService(route, service);
+    public void add(final Route route, final Service service, final TramTime callingTime) {
+        final RouteAndService routeAndService = new RouteAndService(route, service);
         routeAndServices.add(routeAndService);
 
         if (callingTime.isValid()) {
@@ -48,8 +48,8 @@ public class ServedRoute {
     }
 
     // TODO Remove date filtering here?
-    public Set<Route> getRoutes(TramDate date, TimeRange range, Set<TransportMode> modes) {
-        Set<Route> results = getRouteForDateAndTimeRange(date, range, modes);
+    public Set<Route> getRoutes(final TramDate date, final TimeRange range, final EnumSet<TransportMode> modes) {
+        final Set<Route> results = getRouteForDateAndTimeRange(date, range, modes);
         if (range.intoNextDay()) {
             TimeRange nextDayRange = range.forFollowingDay();
             TramDate followingDay = date.plusDays(1);
@@ -65,7 +65,7 @@ public class ServedRoute {
 
     // TODO Remove date filtering here?
     @NotNull
-    private Set<Route> getRouteForDateAndTimeRange(TramDate date, TimeRange range, Set<TransportMode> modes) {
+    private Set<Route> getRouteForDateAndTimeRange(final TramDate date, final TimeRange range, final EnumSet<TransportMode> modes) {
         return routeAndServices.stream().
                 filter(routeAndService -> routeAndService.isAvailableOn(date)).
                 filter(routeAndService -> hasTimeRangerOverlap(range, routeAndService)).
@@ -74,13 +74,9 @@ public class ServedRoute {
                 collect(Collectors.toSet());
     }
 
-    public boolean anyAvailable(TramDate when, TimeRange timeRange, Set<TransportMode> requestedModes) {
+    public boolean anyAvailable(TramDate when, TimeRange timeRange, EnumSet<TransportMode> requestedModes) {
         // todo optimise this
         return !getRoutes(when, timeRange, requestedModes).isEmpty();
-//        return routeAndServices.stream().
-//                filter(routeAndService -> requestedModes.contains(routeAndService.getTransportMode())).
-//                filter(routeAndService -> routeAndService.isAvailableOn(when)).
-//                anyMatch(routeAndService -> hasTimeRangerOverlap(timeRange, routeAndService));
     }
 
     private boolean hasTimeRangerOverlap(TimeRange range, RouteAndService routeAndService) {

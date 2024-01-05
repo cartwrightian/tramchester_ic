@@ -322,7 +322,7 @@ public class TransportDataFromFilesTramTest {
         Set<Service> sundayServices = transportData.getServicesOnDate(nextSunday);
 
         Set<Trip> cornbrookTrips = transportData.getTrips().stream().
-                filter(trip -> trip.callsAt(Cornbrook)).collect(Collectors.toSet());
+                filter(trip -> trip.callsAt(Cornbrook.getId())).collect(Collectors.toSet());
 
         Set<Trip> sundayTrips = cornbrookTrips.stream().
                 filter(trip -> sundayServices.contains(trip.getService())).collect(Collectors.toSet());
@@ -396,7 +396,7 @@ public class TransportDataFromFilesTramTest {
         assertFalse(atTime.isEmpty());
 
         HasId<Station> navigationRd = NavigationRoad.from(transportData);
-        Set<Trip> calls = atTime.stream().filter(trip -> trip.callsAt(navigationRd)).collect(Collectors.toSet());
+        Set<Trip> calls = atTime.stream().filter(trip -> trip.callsAt(navigationRd.getId())).collect(Collectors.toSet());
 
         assertEquals(2, calls.size(), HasId.asIds(calls));
     }
@@ -622,8 +622,8 @@ public class TransportDataFromFilesTramTest {
         assertFalse(routes.isEmpty());
 
         Set<Trip> toMediaCity = allTrips.stream().
-                filter(trip -> trip.callsAt(Cornbrook)).
-                filter(trip -> trip.callsAt(TramStations.MediaCityUK)).
+                filter(trip -> trip.callsAt(Cornbrook.getId())).
+                filter(trip -> trip.callsAt(TramStations.MediaCityUK.getId())).
                 filter(trip -> routes.contains(trip.getRoute())).
                 collect(Collectors.toSet());
 
