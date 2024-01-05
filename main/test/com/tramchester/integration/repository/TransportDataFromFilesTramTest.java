@@ -132,7 +132,7 @@ public class TransportDataFromFilesTramTest {
     void shouldGetAgenciesWithNames() {
         List<Agency> agencies = transportData.getAgencies().stream().
                 filter(agency -> agency.getTransportModes().contains(Tram)).
-                collect(Collectors.toList());
+                toList();
 
         //List<Agency> agencies = new ArrayList<>(agencySet);
         assertEquals(1, agencies.size()); // just MET for trams
@@ -153,24 +153,15 @@ public class TransportDataFromFilesTramTest {
         // cannot check for specific size as the way routes handled in tfgm gtfs feed can lead to duplicates
         //assertEquals(10, traffordBarRoutes.size());
 
-        // contains -> containsAll
-
-        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(AltrinchamPiccadilly)));
         assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(PiccadillyAltrincham)));
 
-        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(EastDidisburyManchesterShawandCromptonRochdale)));
         assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(RochdaleShawandCromptonManchesterEastDidisbury)));
 
         assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(VictoriaWythenshaweManchesterAirport)));
-        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(ManchesterAirportWythenshaweVictoria)));
 
-        // todo PiccGardens2022
-        //assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(EcclesManchesterAshtonUnderLyne)));
-        //assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(AshtonUnderLyneManchesterEccles)));
+        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(EcclesManchesterAshtonUnderLyne)));
 
-        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(AltrinchamManchesterBury)));
         assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(BuryManchesterAltrincham)));
-
     }
 
     @Test
@@ -205,8 +196,6 @@ public class TransportDataFromFilesTramTest {
                         map(Route::getName).collect(Collectors.toSet());
 
         assertTrue(routeNames.contains(VictoriaWythenshaweManchesterAirport.longName()), routeNames.toString());
-        assertTrue(routeNames.contains(ManchesterAirportWythenshaweVictoria.longName()), routeNames.toString());
-
     }
 
     @Test
@@ -231,7 +220,7 @@ public class TransportDataFromFilesTramTest {
     @Disabled("No longer a route")
     @Test
     void shouldHaveExpectedStationsForGreenFromAlty() {
-        Route green = routeHelper.getOneRoute(AltrinchamManchesterBury, when);
+        Route green = routeHelper.getOneRoute(BuryManchesterAltrincham, when);
 
         Set<Station> allStations = transportData.getStations(EnumSet.of(Tram));
 
@@ -601,8 +590,6 @@ public class TransportDataFromFilesTramTest {
                 collect(Collectors.toSet());
 
         // are not any in the data at the moment 15/11/2022
-        assertFalse(applyToCurrentServices.isEmpty());
-
         assertFalse(applyToCurrentServices.isEmpty(), "did not alter any of " + HasId.asIds(calendarsForTrams));
 
         assertEquals(1,  config.getGTFSDataSource().size(), "expected only one data source");
@@ -631,7 +618,7 @@ public class TransportDataFromFilesTramTest {
     void shouldReproIssueAtMediaCityWithBranchAtCornbrook() {
         Set<Trip> allTrips = getTripsFor(transportData.getTrips(), Cornbrook);
 
-        Set<Route> routes = transportData.findRoutesByShortName(MutableAgency.METL, AshtonUnderLyneManchesterEccles.shortName());
+        Set<Route> routes = transportData.findRoutesByShortName(MutableAgency.METL, EcclesManchesterAshtonUnderLyne.shortName());
 
         assertFalse(routes.isEmpty());
 
@@ -698,7 +685,7 @@ public class TransportDataFromFilesTramTest {
                     arrivalTime.asLocalTime().isBefore(LocalTime.of(8,16));
         });
 
-        assertTrue(stoppingAtVelopark.size()>=1); // at least 1
+        assertFalse(stoppingAtVelopark.isEmpty()); // at least 1
         assertNotEquals(filteredTrips.size(), stoppingAtVelopark.size());
     }
 

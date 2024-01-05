@@ -26,7 +26,7 @@ import java.util.stream.Stream;
 public class TransportDataSourceFactory implements Iterable<TransportDataSource> {
     private static final Logger logger = LoggerFactory.getLogger(TransportDataSourceFactory.class);
 
-    private final List<TransportDataSource> theList;
+    private final List<TransportDataSource> transportDataSources;
     private final TransportDataReaderFactory readerFactory;
     private final NaptanRepository naptanRespository;
 
@@ -35,7 +35,7 @@ public class TransportDataSourceFactory implements Iterable<TransportDataSource>
                                       @SuppressWarnings("unused") UnzipFetchedData.Ready dataIsDownloadedAndUnzipped) {
         this.readerFactory = readerFactory;
         this.naptanRespository = naptanRepository;
-        theList = new ArrayList<>();
+        transportDataSources = new ArrayList<>();
     }
 
 
@@ -79,7 +79,7 @@ public class TransportDataSourceFactory implements Iterable<TransportDataSource>
                             agencyData, stopData, routeData, tripData,
                             stopTimeData, calendarData, feedInfoData, calendarsDates, sourceConfig, entityFactory);
 
-            theList.add(transportDataSource);
+            transportDataSources.add(transportDataSource);
         });
 
         logger.info("started");
@@ -88,8 +88,8 @@ public class TransportDataSourceFactory implements Iterable<TransportDataSource>
     @PreDestroy
     public void stop() {
         logger.info("Stopping");
-        theList.forEach(TransportDataSource::closeAll);
-        theList.clear();
+        transportDataSources.forEach(TransportDataSource::closeAll);
+        transportDataSources.clear();
         logger.info("Stopped");
     }
 
@@ -105,7 +105,7 @@ public class TransportDataSourceFactory implements Iterable<TransportDataSource>
     @NotNull
     @Override
     public Iterator<TransportDataSource> iterator() {
-        return theList.iterator();
+        return transportDataSources.iterator();
     }
 
 }

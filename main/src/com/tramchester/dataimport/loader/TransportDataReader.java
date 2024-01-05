@@ -80,7 +80,6 @@ public class TransportDataReader {
         return dataSourceInfo;
     }
 
-
     @Override
     public String toString() {
         return "TransportDataReader{" +
@@ -88,14 +87,5 @@ public class TransportDataReader {
                 '}';
     }
 
-//    @NotNull
-//    private DataSourceInfo createSourceInfo() {
-//        DataSourceID dataSourceId = config.getDataSourceId();
-//        String version = modTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-//        DataSourceInfo dataSourceInfo = new DataSourceInfo(dataSourceId, version, modTime,
-//                GTFSTransportationType.toTransportMode(config.getTransportGTFSModes()));
-//        logger.info("Create datasource info for " + config + " " + dataSourceInfo);
-//        return dataSourceInfo;
-//    }
 
 }

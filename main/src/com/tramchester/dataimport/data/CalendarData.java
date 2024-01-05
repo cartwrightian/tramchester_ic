@@ -1,6 +1,7 @@
 package com.tramchester.dataimport.data;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.dates.DateRange;
@@ -8,9 +9,8 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 
-import java.time.LocalDate;
-
 @SuppressWarnings("unused")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CalendarData extends ParsesDate {
 
     @JsonProperty("service_id")

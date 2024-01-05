@@ -39,10 +39,10 @@ public class GTFSStopTimeLoader {
     }
 
     public IdMap<Service> load(Stream<StopTimeData> stopTimes, PreloadedStationsAndPlatforms preloadStations, TripAndServices tripAndServices) {
-        String sourceName = dataSourceConfig.getName();
+        final String sourceName = dataSourceConfig.getName();
         AtomicInteger invalidTimeCount = new AtomicInteger(0);
 
-        StopTimeDataLoader stopTimeDataLoader = new StopTimeDataLoader(buildable, preloadStations, factory, dataSourceConfig, tripAndServices);
+        final StopTimeDataLoader stopTimeDataLoader = new StopTimeDataLoader(buildable, preloadStations, factory, dataSourceConfig, tripAndServices);
 
         logger.info("Loading stop times for " + sourceName);
         stopTimes.

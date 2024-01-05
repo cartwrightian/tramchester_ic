@@ -2,25 +2,22 @@ package com.tramchester.integration.dataimport;
 
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
-import com.tramchester.config.GTFSSourceConfig;
-import com.tramchester.dataimport.loader.*;
-import com.tramchester.domain.Agency;
-import com.tramchester.domain.DataSourceInfo;
-import com.tramchester.domain.MutableAgency;
-import com.tramchester.domain.factory.TransportEntityFactory;
-import com.tramchester.domain.id.CompositeIdMap;
+import com.tramchester.dataimport.UnzipFetchedData;
+import com.tramchester.dataimport.loader.DirectDataSourceFactory;
+import com.tramchester.dataimport.loader.PopulateTransportDataFromSources;
+import com.tramchester.dataimport.loader.TransportDataReaderFactory;
+import com.tramchester.dataimport.loader.TransportDataSourceFactory;
+import com.tramchester.dataimport.rail.RailTransportDataFromFiles;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
-import com.tramchester.repository.StationAvailabilityRepository;
-import com.tramchester.repository.TransportDataContainer;
-import com.tramchester.repository.WriteableTransportData;
+import com.tramchester.repository.naptan.NaptanRepository;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-@Disabled("Peformance testing only")
+@Disabled("Performance testing only")
 public class GTFSStopTimeLoaderTest {
 
     private static IntegrationTramTestConfig config;
@@ -38,57 +35,29 @@ public class GTFSStopTimeLoaderTest {
         componentContainer.close();
     }
 
+
     @Test
     public void shouldDoMultipleLoadsForPerformanceTestingOnly() {
-        ProvidesNow providesNow = componentContainer.get(ProvidesNow.class);
 
-        WriteableTransportData container = new TransportDataContainer(providesNow, "tfgm");
+        NaptanRepository naptanRepository = componentContainer.get(NaptanRepository.class);
+        UnzipFetchedData.Ready dataReady = componentContainer.get(UnzipFetchedData.class).getReady();
+        ProvidesNow providesNow= componentContainer.get(ProvidesNow.class);
+        TransportDataReaderFactory readerFactory = componentContainer.get(TransportDataReaderFactory.class);
 
-        TransportDataSourceFactory dataSourceFactory = componentContainer.get(TransportDataSourceFactory.class);
-        TransportDataReaderFactory transportDataReaderFactory = componentContainer.get(TransportDataReaderFactory.class);
-        StationAvailabilityRepository availabilityRepository = componentContainer.get(StationAvailabilityRepository.class);
+        RailTransportDataFromFiles loadsRail = componentContainer.get(RailTransportDataFromFiles.class); // disabled for tram
+        DirectDataSourceFactory directDataSourceFactory = new DirectDataSourceFactory(loadsRail);
 
-        for (int i = 0; i < 100; i++) {
-            TransportDataSource dataSource = dataSourceFactory.iterator().next();
-            load(dataSource, container, availabilityRepository);
-            dataSourceFactory.stop();
-            transportDataReaderFactory.stop();
-            transportDataReaderFactory.start();
-            dataSourceFactory.start();
+        TransportDataSourceFactory transportDataSourceFactory = new TransportDataSourceFactory(readerFactory, naptanRepository, dataReady);
+
+        for (int i = 0; i < 20; i++) {
+            PopulateTransportDataFromSources populateTransportDataFromSources =
+                    new PopulateTransportDataFromSources(transportDataSourceFactory, directDataSourceFactory, config, providesNow);
+            transportDataSourceFactory.start();
+            populateTransportDataFromSources.start();
+            populateTransportDataFromSources.getData(); // load the data
+            populateTransportDataFromSources.stop();
+            transportDataSourceFactory.stop();
         }
-
-        dataSourceFactory.stop();
     }
 
-    private void load(TransportDataSource dataSource, WriteableTransportData writeableTransportData, StationAvailabilityRepository availabilityRepository) {
-
-        DataSourceInfo dataSourceInfo = dataSource.getDataSourceInfo();
-        GTFSSourceConfig sourceConfig = dataSource.getConfig();
-
-        TransportEntityFactory entityFactory = dataSource.getEntityFactory();
-
-        // create loaders
-        StopDataLoader stopDataLoader = new StopDataLoader(entityFactory, config);
-        AgencyDataLoader agencyDataLoader = new AgencyDataLoader(dataSourceInfo, entityFactory);
-        RouteDataLoader routeDataLoader = new RouteDataLoader(writeableTransportData, sourceConfig, entityFactory);
-        TripLoader tripLoader = new TripLoader(writeableTransportData, entityFactory);
-        GTFSStopTimeLoader stopTimeLoader = new GTFSStopTimeLoader(writeableTransportData, entityFactory, sourceConfig);
-
-        PreloadedStationsAndPlatforms interimStations = stopDataLoader.load(dataSource.getStops());
-        CompositeIdMap<Agency, MutableAgency> interimAgencies = agencyDataLoader.load(dataSource.getAgencies());
-        RouteDataLoader.ExcludedRoutes excludedRoutes = routeDataLoader.load(dataSource.getRoutes(), interimAgencies);
-
-        interimAgencies.clear();
-
-        TripAndServices interimTripsAndServices = tripLoader.load(dataSource.getTrips(), excludedRoutes);
-        stopTimeLoader.load(dataSource.getStopTimes(), interimStations, interimTripsAndServices);
-
-        excludedRoutes.clear();
-        interimStations.clear();
-
-        interimTripsAndServices.clear();
-
-        dataSource.closeAll();
-
-    }
 }

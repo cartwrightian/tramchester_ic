@@ -37,7 +37,7 @@ public class TransportDataFromCSVFile<T,R extends T> implements TransportDataFro
 
         this.filePath = filePath.toAbsolutePath();
 
-        CsvSchema schema;
+        final CsvSchema schema;
         if (columns.isEmpty()) {
             schema = CsvSchema.emptySchema().withHeader();
         } else {
@@ -55,7 +55,7 @@ public class TransportDataFromCSVFile<T,R extends T> implements TransportDataFro
     @Override
     public Stream<T> load() {
         try {
-            Reader reader = new FileReader(filePath.toString());
+            final Reader reader = new FileReader(filePath.toString());
             return load(reader);
         } catch (FileNotFoundException e) {
             String msg = "Unable to load from file " + filePath;
@@ -66,15 +66,15 @@ public class TransportDataFromCSVFile<T,R extends T> implements TransportDataFro
 
     // public, test support inject of reader
     @Override
-    public Stream<T> load(Reader in) {
+    public Stream<T> load(final Reader in) {
 
         try {
-            // TODO buffered reader or not? Performance test....
-            BufferedReader bufferedReader = new BufferedReader(in);
+            // ObjectReader has own buffer, using a BufferedReader is marginally slower...
+            // final BufferedReader bufferedReader = new BufferedReader(in);
 
-            MappingIterator<T> readerIter = reader.readValues(bufferedReader);
+            final MappingIterator<T> readerIter = reader.readValues(in);
 
-            Iterable<T> iterable = () -> readerIter;
+            final Iterable<T> iterable = () -> readerIter;
             return StreamSupport.stream(iterable.spliterator(), false);
 
         } catch (FileNotFoundException e) {

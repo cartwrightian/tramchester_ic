@@ -1,13 +1,15 @@
 package com.tramchester.dataimport.data;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.tramchester.domain.Platform;
-import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.time.TramTime;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class StopTimeData {
+
+    // ignoreUnknown significant for performance, jackson buffers unknown fields otherwise
 
     // trip_id,arrival_time,departure_time,stop_id,stop_sequence,pickup_type,drop_off_type
 
@@ -52,7 +54,6 @@ public class StopTimeData {
             return "0"+text;
         }
         return text;
-        //throw new RuntimeException("Bad time format encountered in stoptimedata  '" + arrivalTime + "'");
     }
 
     @Override
@@ -106,6 +107,13 @@ public class StopTimeData {
     }
 
     public boolean isValid() {
+        // avoid parse code, performance
+        if (arrivalTime==null || departureTime==null) {
+            return false;
+        }
+        if (arrivalTime.isEmpty() || departureTime.isEmpty()) {
+            return false;
+        }
         return getArrivalTime().isValid() && getDepartureTime().isValid();
     }
 }

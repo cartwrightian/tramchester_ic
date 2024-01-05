@@ -1,15 +1,15 @@
 package com.tramchester.dataimport.data;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.Agency;
-import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.GTFSTransportationType;
-import com.tramchester.domain.id.StringIdFor;
 
 import java.util.Objects;
 
 @SuppressWarnings("unused")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class RouteData {
 
     @JsonProperty("route_id")
