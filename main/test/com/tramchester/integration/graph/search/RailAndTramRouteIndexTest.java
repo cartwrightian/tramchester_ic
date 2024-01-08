@@ -2,9 +2,7 @@ package com.tramchester.integration.graph.search;
 
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
-import com.tramchester.caching.CachableData;
 import com.tramchester.caching.DataCache;
-import com.tramchester.caching.FileDataCache;
 import com.tramchester.caching.LoaderSaverFactory;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.data.RouteIndexData;
@@ -25,6 +23,7 @@ import com.tramchester.graph.search.routes.RouteIndex;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
 import com.tramchester.integration.testSupport.RailAndTramGreaterManchesterConfig;
 import com.tramchester.repository.RouteRepository;
+import com.tramchester.testSupport.FakeDataCache;
 import com.tramchester.testSupport.InMemoryDataCache;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.GMTest;
@@ -230,28 +229,7 @@ public class RailAndTramRouteIndexTest extends EasyMockSupport {
         assertTrue(differences.isEmpty(), "count " + differences.size() + " " + differences);
     }
 
-    private static class FakeDataCache implements DataCache {
 
-        @Override
-        public <CACHETYPE extends CachableData, T extends FileDataCache.CachesData<CACHETYPE>> boolean has(T cachesData) {
-            return false;
-        }
-
-        @Override
-        public <CACHETYPE extends CachableData, T extends FileDataCache.CachesData<CACHETYPE>> void save(T data, Class<CACHETYPE> theClass) {
-            // noop
-        }
-
-        @Override
-        public <CACHETYPE extends CachableData, T extends FileDataCache.CachesData<CACHETYPE>> void loadInto(T cachesData, Class<CACHETYPE> theClass) {
-            // no op
-        }
-
-        @Override
-        public <CACHETYPE extends CachableData, T extends FileDataCache.CachesData<CACHETYPE>> Path getPathFor(T data) {
-            throw new RuntimeException("not implemented");
-        }
-    }
 
 
 }

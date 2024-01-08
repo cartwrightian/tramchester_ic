@@ -39,7 +39,7 @@ public class BitmapAsRoaringBitmap implements SimpleBitmap {
         bitmap.clear();
     }
 
-    public BitmapAsRoaringBitmap copyRowAndColumn(int row, int column, int totalRows, int totalColumns) {
+    public BitmapAsRoaringBitmap copyRowAndColumn(final int row, final int column, final int totalRows, final int totalColumns) {
         final RoaringBitmap result = new RoaringBitmap();
         extractRow(result, row, totalColumns);
         extractColumn(result, column, totalRows, totalColumns);
@@ -119,17 +119,17 @@ public class BitmapAsRoaringBitmap implements SimpleBitmap {
     }
 
     @Override
-    public void set(int position) {
+    public void set(final int position) {
         bitmap.add(position);
     }
 
     @Override
-    public void set(int[] positionsToSet) {
+    public void set(final int[] positionsToSet) {
         bitmap.add(positionsToSet);
     }
 
     @Override
-    public void set(int position, boolean value) {
+    public void set(final int position, final boolean value) {
         if (value) {
             bitmap.add(position);
         } else {
@@ -138,12 +138,12 @@ public class BitmapAsRoaringBitmap implements SimpleBitmap {
     }
 
     @Override
-    public void setAll(int start, int end) {
+    public void setAll(final int start, final int end) {
         bitmap.add(start, end);
     }
 
     @Override
-    public void setAll(int start, int end, boolean value) {
+    public void setAll(final int start, final int end, final boolean value) {
         if (value) {
             setAll(start, end);
         } else {
@@ -152,33 +152,33 @@ public class BitmapAsRoaringBitmap implements SimpleBitmap {
     }
 
     @Override
-    public boolean get(int position) {
+    public boolean get(final int position) {
         return bitmap.contains(position);
     }
 
     @Override
-    public void or(SimpleImmutableBitmap other) {
-        BitmapAsRoaringBitmap otherBitmap = (BitmapAsRoaringBitmap) other;
+    public void or(final SimpleImmutableBitmap other) {
+        final BitmapAsRoaringBitmap otherBitmap = (BitmapAsRoaringBitmap) other;
         bitmap.or(otherBitmap.bitmap);
     }
 
     @Override
-    public void and(SimpleImmutableBitmap other) {
-        BitmapAsRoaringBitmap otherBitmap = (BitmapAsRoaringBitmap) other;
+    public void and(final SimpleImmutableBitmap other) {
+        final BitmapAsRoaringBitmap otherBitmap = (BitmapAsRoaringBitmap) other;
         bitmap.and(otherBitmap.bitmap);
     }
 
-    public static BitmapAsRoaringBitmap and(BitmapAsRoaringBitmap bitmapA, BitmapAsRoaringBitmap bitmapB) {
+    public static BitmapAsRoaringBitmap and(final BitmapAsRoaringBitmap bitmapA, final BitmapAsRoaringBitmap bitmapB) {
         if (bitmapA.size!=bitmapB.size) {
             throw new RuntimeException("Size mismatch, got " + bitmapA.size + " and " + bitmapB.size);
         }
-        RoaringBitmap result = RoaringBitmap.and(bitmapA.bitmap, bitmapB.bitmap);
+        final RoaringBitmap result = RoaringBitmap.and(bitmapA.bitmap, bitmapB.bitmap);
         return new BitmapAsRoaringBitmap(result, bitmapA.size);
     }
 
     @Override
-    public void andNot(SimpleImmutableBitmap other) {
-        BitmapAsRoaringBitmap otherBitmap = (BitmapAsRoaringBitmap) other;
+    public void andNot(final SimpleImmutableBitmap other) {
+        final BitmapAsRoaringBitmap otherBitmap = (BitmapAsRoaringBitmap) other;
         bitmap.andNot(otherBitmap.bitmap);
     }
 

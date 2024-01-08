@@ -40,15 +40,11 @@ public enum KnownTramRoute {
     @Deprecated
     public static final KnownTramRoute AltrinchamManchesterBury = KnownTramRoute.BuryManchesterAltrincham;
     @Deprecated
-    public static final KnownTramRoute AshtonUnderLyneManchesterEccles = KnownTramRoute.EcclesManchesterAshtonUnderLyne;
-    @Deprecated
     public static final KnownTramRoute BuryPiccadilly = KnownTramRoute.PiccadillyBury;
     @Deprecated
     public static final KnownTramRoute EastDidisburyManchesterShawandCromptonRochdale = KnownTramRoute.RochdaleShawandCromptonManchesterEastDidisbury;
     @Deprecated
     public static final KnownTramRoute ManchesterAirportWythenshaweVictoria = KnownTramRoute.VictoriaWythenshaweManchesterAirport;
-    @Deprecated
-    public static final KnownTramRoute TheTraffordCentreCornbrook = KnownTramRoute.CornbrookTheTraffordCentre;
 
     public static Set<KnownTramRoute> getFor(TramDate date) {
         EnumSet<KnownTramRoute> routes = EnumSet.noneOf(KnownTramRoute.class);

@@ -120,8 +120,8 @@ public class IndexedBitSet implements ImmutableIndexedBitSet {
         }
     }
 
-    public void or(SimpleImmutableBitmap immutableBitmap) {
-        SimpleBitmap simpleBitmap = (SimpleBitmap) immutableBitmap;
+    public void or(final SimpleImmutableBitmap immutableBitmap) {
+        final SimpleBitmap simpleBitmap = (SimpleBitmap) immutableBitmap;
         bitmap.or(simpleBitmap);
     }
 
@@ -169,9 +169,9 @@ public class IndexedBitSet implements ImmutableIndexedBitSet {
         return new IndexedBitSet(rows, columns, result);
     }
 
-    public static IndexedBitSet and(ImmutableIndexedBitSet immutableA, ImmutableIndexedBitSet immutableB) {
-        IndexedBitSet bitSetA = (IndexedBitSet) immutableA;
-        IndexedBitSet bitSetB = (IndexedBitSet) immutableB;
+    public static IndexedBitSet and(final ImmutableIndexedBitSet immutableA, final ImmutableIndexedBitSet immutableB) {
+        final IndexedBitSet bitSetA = (IndexedBitSet) immutableA;
+        final IndexedBitSet bitSetB = (IndexedBitSet) immutableB;
         if (bitSetA.rows != bitSetB.rows) {
             throw new RuntimeException(format("Mismatch on matrix row size this %s other %s", bitSetA.rows, bitSetB.rows));
         }

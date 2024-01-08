@@ -129,6 +129,7 @@ public class FileDataCache implements DataCache {
         return Files.list(cacheFolder).filter(Files::isRegularFile).collect(Collectors.toList());
     }
 
+    @Override
     public <CACHETYPE extends CachableData, T extends CachesData<CACHETYPE>> void save(T data, Class<CACHETYPE> theClass) {
         if (cachingDisabled || graphFilterActive) {
             logger.error("NOT saving cache data for " + theClass.getSimpleName() + " as caching is disabled");
@@ -146,6 +147,7 @@ public class FileDataCache implements DataCache {
         }
     }
 
+    @Override
     public <CACHETYPE extends CachableData, T extends CachesData<CACHETYPE>> boolean has(T cachesData) {
         if (cachingDisabled || graphFilterActive) {
             return false;
@@ -153,6 +155,7 @@ public class FileDataCache implements DataCache {
         return Files.exists(getPathFor(cachesData));
     }
 
+    @Override
     @NotNull
     public <CACHETYPE extends CachableData, T extends CachesData<CACHETYPE>> Path getPathFor(T data) {
         guardCorrectState();
@@ -187,6 +190,7 @@ public class FileDataCache implements DataCache {
         }
     }
 
+    @Override
     public <CACHETYPE extends CachableData, T extends CachesData<CACHETYPE>> void loadInto(T cachesData, Class<CACHETYPE> theClass)  {
         guardCorrectState();
 

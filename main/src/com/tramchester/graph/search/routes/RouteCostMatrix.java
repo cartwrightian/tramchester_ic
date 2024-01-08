@@ -2,6 +2,7 @@ package com.tramchester.graph.search.routes;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.caching.ComponentThatCaches;
+import com.tramchester.caching.DataCache;
 import com.tramchester.caching.FileDataCache;
 import com.tramchester.dataexport.HasDataSaver;
 import com.tramchester.dataimport.data.CostsPerDegreeData;
@@ -45,15 +46,14 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
 
     private final InterchangeRepository interchangeRepository;
     private final GraphFilterActive graphFilter;
-
-    private final CostsPerDegree costsForDegree;
     private final RouteIndex routeIndex;
-    private final int numRoutes;
 
+    private final int numRoutes;
+    private final CostsPerDegree costsForDegree;
     private final ConnectingLinks connectingLinks;
 
     @Inject
-    public RouteCostMatrix(NumberOfRoutes numberOfRoutes, InterchangeRepository interchangeRepository, FileDataCache dataCache,
+    public RouteCostMatrix(NumberOfRoutes numberOfRoutes, InterchangeRepository interchangeRepository, DataCache dataCache,
                     GraphFilterActive graphFilter, RouteIndexPairFactory pairFactory, RouteIndex routeIndex) {
         super(dataCache, CostsPerDegreeData.class);
         this.interchangeRepository = interchangeRepository;
@@ -63,14 +63,13 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
 
         costsForDegree = new CostsPerDegree();
         connectingLinks = new ConnectingLinks(pairFactory,numRoutes, routeIndex, interchangeRepository, this);
-
     }
 
     @PostConstruct
     public void start() {
         logger.info("start");
 
-        RouteDateAndDayOverlap routeDateAndDayOverlap = new RouteDateAndDayOverlap(routeIndex, numRoutes);
+        final RouteDateAndDayOverlap routeDateAndDayOverlap = new RouteDateAndDayOverlap(routeIndex, numRoutes);
         routeDateAndDayOverlap.populateFor();
 
         connectingLinks.start();
@@ -93,6 +92,7 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
         logger.info("stop");
         super.saveCacheIfNeeded(costsForDegree);
         costsForDegree.clear();
+        connectingLinks.clear();
         logger.info("stopped");
     }
 
@@ -102,7 +102,7 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
         populateCosts(routeDateAndDayOverlap);
     }
 
-    private void addInitialConnectionsFromInterchanges(RouteDateAndDayOverlap routeDateAndDayOverlap, IndexedBitSet forDegreeOne) {
+    private void addInitialConnectionsFromInterchanges(final RouteDateAndDayOverlap routeDateAndDayOverlap, final IndexedBitSet forDegreeOne) {
         final Set<InterchangeStation> interchanges = interchangeRepository.getAllInterchanges();
         logger.info("Pre-populate route to route costs from " + interchanges.size() + " interchanges ");
 
@@ -118,7 +118,7 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
     }
 
 
-    private void createBacktracking(RouteDateAndDayOverlap routeDateAndDayOverlap) {
+    private void createBacktracking(final RouteDateAndDayOverlap routeDateAndDayOverlap) {
         // degree 1 = depth 0 = interchanges directly
         for (int currentDegree = 1; currentDegree <= MAX_DEPTH; currentDegree++) {
             createBacktracking(routeDateAndDayOverlap, currentDegree);
@@ -161,7 +161,7 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
 
             final long took = Duration.between(startTime, Instant.now()).toMillis();
             final int added = routeConnectingLinks.numberOfLinks();
-            double percentage = ((double)added)/((double)totalSize) * 100D;
+            final double percentage = ((double)added)/((double)totalSize) * 100D;
             logger.info(String.format("Added backtrack pairs %s (%s %%) Degree %s in %s ms",
                     added, percentage, currentDegree, took));
 
@@ -171,7 +171,7 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
     }
 
 
-    public int getNumberBacktrackFor(int depth) {
+    public int getNumberBacktrackFor(final int depth) {
         return connectingLinks.forDegree(depth).numberOfLinks();
     }
 
@@ -554,12 +554,13 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
     private static class ConnectingLinks {
         private static final Logger logger = LoggerFactory.getLogger(ConnectingLinks.class);
 
-        private final List<RouteConnectingLinks> links;
         private final RouteIndex routeIndex;
         private final RouteIndexPairFactory pairFactory;
         private final int numRoutes;
         private final InterchangeRepository pairToInterchange;
         private final RouteCostMatrix parent;
+
+        private final List<RouteConnectingLinks> links;
 
         public ConnectingLinks(RouteIndexPairFactory pairFactory, int numRoutes, RouteIndex routeIndex, InterchangeRepository pairToInterchange,
                                RouteCostMatrix parent) {
@@ -618,6 +619,10 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
 
         public Stream<Pair<RouteIndexPair, RouteIndexPair>> forDegree(int degree, RouteIndexPair indexPair) {
             return forDepth(degree-1, indexPair);
+        }
+
+        public void clear() {
+            links.clear();
         }
     }
 
