@@ -26,7 +26,7 @@
     "leaflet-polylineoffset": "^1.1.1",
     "oboe": "^2.1.5",
     "serialize-javascript": "^6.0.0",
-    "vue": "^2.7.10",
+    "vue": "^3.4.6",
     "vue-cookies": "^1.8.3",
     "vuetify": "^2.7.1"
   },
