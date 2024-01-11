@@ -24,10 +24,12 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -50,7 +52,7 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
 
     private final int numRoutes;
     private final CostsPerDegree costsForDegree;
-    private final ConnectingLinks connectingLinks;
+    private final RouteInterconnectRepository routeInterconnectRepository;
 
     @Inject
     public RouteCostMatrix(NumberOfRoutes numberOfRoutes, InterchangeRepository interchangeRepository, DataCache dataCache,
@@ -62,7 +64,7 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
         this.numRoutes = numberOfRoutes.numberOfRoutes();
 
         costsForDegree = new CostsPerDegree();
-        connectingLinks = new ConnectingLinks(pairFactory,numRoutes, routeIndex, interchangeRepository, this);
+        routeInterconnectRepository = new RouteInterconnectRepository(pairFactory, numRoutes, routeIndex, interchangeRepository, this);
     }
 
     @PostConstruct
@@ -72,7 +74,7 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
         final RouteDateAndDayOverlap routeDateAndDayOverlap = new RouteDateAndDayOverlap(routeIndex, numRoutes);
         routeDateAndDayOverlap.populateFor();
 
-        connectingLinks.start();
+        routeInterconnectRepository.start();
 
         if (graphFilter.isActive()) {
             logger.warn("Filtering is enabled, skipping all caching");
@@ -92,7 +94,7 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
         logger.info("stop");
         super.saveCacheIfNeeded(costsForDegree);
         costsForDegree.clear();
-        connectingLinks.clear();
+        routeInterconnectRepository.clear();
         logger.info("stopped");
     }
 
@@ -138,29 +140,29 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
 
         if (matrixForDegree.numberOfBitsSet()>0) {
             // zero indexed
-            final RouteConnectingLinks routeConnectingLinks = connectingLinks.forDegree(currentDegree);
+            final RouteInterconnectRepository.RouteInterconnects routeInterconnects = routeInterconnectRepository.forDegree(currentDegree);
 
             final Instant startTime = Instant.now();
 
             for (short currentRoute = 0; currentRoute < numRoutes; currentRoute++) {
                 final short currentRouteIndex = currentRoute;
 
-                final SimpleImmutableBitmap dateOverlapsForRoute = routeDateAndDayOverlap.overlapsFor(currentRouteIndex);
+                final RouteOverlaps dateOverlapsForRoute = routeDateAndDayOverlap.overlapsFor(currentRouteIndex);
 
                 final SimpleImmutableBitmap currentConnections = matrixForDegree.getBitSetForRow(currentRouteIndex);
 
                 currentConnections.getBitIndexes().
                         filter(dateOverlapsForRoute::get). // true if route runs on date
                         forEach(connectedRoute -> {
-                            final SimpleImmutableBitmap dateOverlapsForConnectedRoute = routeDateAndDayOverlap.overlapsFor(connectedRoute);
+                            final RouteOverlaps dateOverlapsForConnectedRoute = routeDateAndDayOverlap.overlapsFor(connectedRoute);
                             final SimpleImmutableBitmap intermediates = matrixForDegree.getBitSetForRow(connectedRoute);
-                            routeConnectingLinks.addLinksBetween(currentRouteIndex, connectedRoute, intermediates,
+                            routeInterconnects.addLinksBetween(currentRouteIndex, connectedRoute, intermediates,
                                     dateOverlapsForRoute, dateOverlapsForConnectedRoute);
                 });
             }
 
             final long took = Duration.between(startTime, Instant.now()).toMillis();
-            final int added = routeConnectingLinks.numberOfLinks();
+            final int added = routeInterconnects.numberOfLinks();
             final double percentage = ((double)added)/((double)totalSize) * 100D;
             logger.info(String.format("Added backtrack pairs %s (%s %%) Degree %s in %s ms",
                     added, percentage, currentDegree, took));
@@ -170,15 +172,14 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
         }
     }
 
-
     public int getNumberBacktrackFor(final int depth) {
-        return connectingLinks.forDegree(depth).numberOfLinks();
+        return routeInterconnectRepository.forDegree(depth).numberOfLinks();
     }
 
     private void addOverlapsForRoutes(final IndexedBitSet forDegreeOne, final RouteDateAndDayOverlap routeDateAndDayOverlap,
                                       final Set<Route> dropOffAtInterchange, final Set<Route> pickupAtInterchange) {
         for (final Route dropOff : dropOffAtInterchange) {
-            final int dropOffIndex = routeIndex.indexFor(dropOff.getId());
+            final short dropOffIndex = routeIndex.indexFor(dropOff.getId());
             // todo, could use bitset Or and And with DateOverlapMask here
             for (final Route pickup : pickupAtInterchange) {
                 if ((!dropOff.equals(pickup)) && pickup.isDateOverlap(dropOff)) {
@@ -187,7 +188,7 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
                 }
             }
             // apply dates and days
-            forDegreeOne.applyAndToRow(dropOffIndex, routeDateAndDayOverlap.overlapsFor(dropOffIndex));
+            forDegreeOne.applyAndToRow(dropOffIndex, routeDateAndDayOverlap.overlapsFor(dropOffIndex).getBitSet());
         }
     }
 
@@ -224,7 +225,7 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
         return costsForDegree.numberOfBitsSet();
     }
 
-    private byte getDegree(final RouteIndexPair routePair) {
+    byte getDegree(final RouteIndexPair routePair) {
         if (routePair.isSame()) {
             return 0;
         }
@@ -300,7 +301,7 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
         final ImmutableIndexedBitSet currentMatrix = costsForDegree.getDegree(currentDegree);
         final IndexedBitSet newMatrix = costsForDegree.getDegreeMutable(nextDegree);
 
-        for (int route = 0; route < numRoutes; route++) {
+        for (short route = 0; route < numRoutes; route++) {
             final SimpleBitmap resultForForRoute = SimpleBitmap.create(numRoutes);
             final SimpleImmutableBitmap currentConnectionsForRoute = currentMatrix.getBitSetForRow(route);
 
@@ -311,8 +312,8 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
                 resultForForRoute.or(otherRoutesConnections);
             });
 
-            final SimpleImmutableBitmap dateOverlapMask = routeDateAndDayOverlap.overlapsFor(route);  // only those routes whose dates overlap
-            resultForForRoute.and(dateOverlapMask);
+            final RouteOverlaps dateOverlapMask = routeDateAndDayOverlap.overlapsFor(route);  // only those routes whose dates overlap
+            resultForForRoute.and(dateOverlapMask.getBitSet());
 
             final SimpleImmutableBitmap allExistingConnectionsForRoute = getExistingBitSetsForRoute(route, currentDegree);
 
@@ -403,7 +404,7 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
             final int lowerDegree = currentDegree-1;
             //final int depth = degree - 1;
 
-            final Stream<Pair<RouteIndexPair, RouteIndexPair>> underlying = connectingLinks.forDegree(lowerDegree, indexPair);
+            final Stream<Pair<RouteIndexPair, RouteIndexPair>> underlying = routeInterconnectRepository.forDegree(lowerDegree, indexPair);
             // TODO parallel? not required?
             final Set<QueryPathsWithDepth.BothOf> combined = underlying. //.parallel().
                     map(pair -> expandPathFor(pair, lowerDegree, interchangeFilter)).
@@ -424,7 +425,7 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
 
     // test support
     public Set<Pair<RoutePair, RoutePair>> getBackTracksFor(int degree, RouteIndexPair indexPair) {
-        return connectingLinks.forDegree(degree, indexPair).
+        return routeInterconnectRepository.forDegree(degree, indexPair).
                 map(pair -> Pair.of(routeIndex.getPairFor(pair.getLeft()), routeIndex.getPairFor(pair.getRight()))).
                 collect(Collectors.toSet());
     }
@@ -436,8 +437,7 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
 
     public static class RouteDateAndDayOverlap {
         // Create a bitmask corresponding to the dates and days routes overlap
-        // NOTE: this is for route overlaps only, it does cover whether specific stations
-        // are served by the routes on a specific date
+        // NOTE: this is for route overlaps only
 
         private final SimpleBitmap[] overlapMasks;
         private final int numberOfRoutes;
@@ -446,8 +446,8 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
 
         public RouteDateAndDayOverlap(RouteIndex index, int numberOfRoutes) {
             this.index = index;
-            overlapMasks = new SimpleBitmap[numberOfRoutes];
             this.numberOfRoutes = numberOfRoutes;
+            overlapMasks = new SimpleBitmap[numberOfRoutes];
         }
 
         public void populateFor() {
@@ -470,11 +470,11 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
             logger.info("Finished matrix for route date/day overlap, added " + numberSet + " overlaps");
         }
 
-        public SimpleImmutableBitmap overlapsFor(int routeIndex) {
+        public RouteOverlaps overlapsFor(final short routeIndex) {
             if (numberSet<0) {
                 throw new RuntimeException("populate first");
             }
-            return overlapMasks[routeIndex];
+            return new RouteOverlaps(routeIndex, overlapMasks[routeIndex]);
         }
 
         public int numberBitsSet() {
@@ -482,154 +482,24 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
         }
     }
 
-    private static class RouteConnectingLinks {
-        private final RouteIndexPairFactory pairFactory;
+    public static class RouteOverlaps {
+        final short routeIndex;
+        final SimpleImmutableBitmap overlaps;
 
-        // (A, C) -> (A, B) (B ,C)
-        // reduces to => (A,C) -> B
-
-        // pair to connecting route index (A,B) -> [C]
-        private final Map<Integer, BitSet> bitSetForIndex;
-        private final int numRoutes;
-
-        private final boolean[][] seen; // performance
-
-        private RouteConnectingLinks(RouteIndexPairFactory pairFactory, int numRoutes) {
-            this.pairFactory = pairFactory;
-            this.numRoutes = numRoutes;
-            bitSetForIndex = new HashMap<>();
-            seen = new boolean[numRoutes][numRoutes];
-        }
-
-        public int numberOfLinks() {
-            return bitSetForIndex.size();
-        }
-
-        public void addLinksBetween(final short routeIndexA, final short routeIndexB, final SimpleImmutableBitmap links,
-                                    final SimpleImmutableBitmap dateOverlapsForRoute,
-                                    final SimpleImmutableBitmap dateOverlapsForConnectedRoute) {
-            links.getBitIndexes().
-                    filter(linkIndex -> overlapBetween(dateOverlapsForRoute, dateOverlapsForConnectedRoute, linkIndex)).
-                    map(linkIndex -> getBitSetForPair(routeIndexA, linkIndex)).
-                    forEach(bitSet -> bitSet.set(routeIndexB));
-        }
-
-        private static boolean overlapBetween(final SimpleImmutableBitmap dateOverlapsForRoute, final SimpleImmutableBitmap dateOverlapsForConnectedRoute,
-                                              final Short linkIndex) {
-            return dateOverlapsForRoute.get(linkIndex) && dateOverlapsForConnectedRoute.get(linkIndex);
-        }
-
-        private BitSet getBitSetForPair(short routeIndexA, short linkIndex) {
-            int position = getPosition(routeIndexA, linkIndex);
-            if (seen[routeIndexA][linkIndex]) {
-                return bitSetForIndex.get(position);
-            }
-
-            final BitSet bitSet = new BitSet();
-            bitSetForIndex.put(position, bitSet);
-            seen[routeIndexA][linkIndex] = true;
-            return bitSet;
-
-        }
-
-        private int getPositionFor(RouteIndexPair routeIndexPair) {
-            return getPosition(routeIndexPair.first(), routeIndexPair.second());
-        }
-
-        private int getPosition(short indexA, short indexB) {
-            return (indexA * numRoutes) + indexB;
-        }
-
-        // re-expand from (A,C) -> B into: (A,B) (B,C)
-        public Stream<Pair<RouteIndexPair, RouteIndexPair>> getLinksFor(RouteIndexPair indexPair) {
-            final int position = getPositionFor(indexPair);
-
-            final BitSet connectingRoutes = bitSetForIndex.get(position);
-            return connectingRoutes.stream().
-                    mapToObj(link -> (short) link).
-                    map(link -> Pair.of(pairFactory.get(indexPair.first(), link), pairFactory.get(link, indexPair.second())));
-        }
-
-        public boolean hasLinksFor(RouteIndexPair indexPair) {
-            return seen[indexPair.first()][indexPair.second()];
-        }
-
-    }
-
-    private static class ConnectingLinks {
-        private static final Logger logger = LoggerFactory.getLogger(ConnectingLinks.class);
-
-        private final RouteIndex routeIndex;
-        private final RouteIndexPairFactory pairFactory;
-        private final int numRoutes;
-        private final InterchangeRepository pairToInterchange;
-        private final RouteCostMatrix parent;
-
-        private final List<RouteConnectingLinks> links;
-
-        public ConnectingLinks(RouteIndexPairFactory pairFactory, int numRoutes, RouteIndex routeIndex, InterchangeRepository pairToInterchange,
-                               RouteCostMatrix parent) {
-            this.pairFactory = pairFactory;
-            this.numRoutes = numRoutes;
-            this.pairToInterchange = pairToInterchange;
-            this.parent = parent;
+        private RouteOverlaps(short routeIndex, SimpleImmutableBitmap overlaps) {
             this.routeIndex = routeIndex;
-            links = new ArrayList<>(MAX_DEPTH);
+            this.overlaps = overlaps;
         }
 
-        public void start() {
-            // init only here
-            for (int depth = 0; depth < MAX_DEPTH; depth++) {
-                RouteConnectingLinks routeConnectingLinks = new RouteConnectingLinks(pairFactory, numRoutes);
-                links.add(routeConnectingLinks);
-            }
+        public boolean get(final short otherRouteIndex) {
+            return overlaps.get(otherRouteIndex);
         }
 
-        private RouteConnectingLinks forDepth(int depth) {
-            guardDepth(depth);
-            return links.get(depth);
-        }
-
-        private void guardDepth(int depth) {
-            if (depth<0 || depth>MAX_DEPTH) {
-                String message = "Depth:" + depth + " is out of range";
-                logger.error(message);
-                throw new RuntimeException(message);
-            }
-        }
-
-        private Stream<Pair<RouteIndexPair, RouteIndexPair>> forDepth(int depth, RouteIndexPair indexPair) {
-            guardDepth(depth);
-            if (links.get(depth).hasLinksFor(indexPair)) {
-                return links.get(depth).getLinksFor(indexPair);
-            }
-
-            int degree = parent.getDegree(indexPair);
-            final RoutePair missing = routeIndex.getPairFor(indexPair);
-            final String message = MessageFormat.format("Missing indexPair {0} ({1}) at depth {2} actual degree for pair {3}",
-                    indexPair, missing, depth, degree);
-            logger.error(message);
-            if (!missing.isDateOverlap()) {
-                logger.warn("Also no date overlap between " + missing);
-            }
-            if (!pairToInterchange.hasInterchangeFor(indexPair)) {
-                logger.warn("Also no interchange for " +  missing);
-            }
-            throw new RuntimeException(message);
-        }
-
-        public RouteConnectingLinks forDegree(int currentDegree) {
-            return forDepth(currentDegree-1);
-        }
-
-        public Stream<Pair<RouteIndexPair, RouteIndexPair>> forDegree(int degree, RouteIndexPair indexPair) {
-            return forDepth(degree-1, indexPair);
-        }
-
-        public void clear() {
-            links.clear();
+        public SimpleImmutableBitmap getBitSet() {
+            return overlaps;
         }
     }
+
 
     /***
      * encapsulate cost per degree to facilitate caching
