@@ -76,7 +76,6 @@ public class RouteInterconnectRepository {
             throw new RuntimeException("Only call for >1 , got " + currentDegree);
         }
 
-        //final int nextDegree = currentDegree + 1;
         final ImmutableIndexedBitSet matrixForDegree = routeCostMatrix.getDegree(currentDegree);
 
         logger.info("Create backtrack pair map for degree " + currentDegree + " matrixForDegree bits set " + matrixForDegree.numberOfBitsSet());
@@ -115,11 +114,6 @@ public class RouteInterconnectRepository {
         }
     }
 
-    private RouteInterconnects forDepth(final int depth) {
-        guardDepth(depth);
-        return links.get(depth);
-    }
-
     private void guardDepth(final int depth) {
         if (depth < 0 || depth > RouteCostMatrix.MAX_DEPTH) {
             String message = "Depth:" + depth + " is out of range";
@@ -152,7 +146,12 @@ public class RouteInterconnectRepository {
         return forDepth(currentDegree - 1);
     }
 
-    public Stream<Pair<RouteIndexPair, RouteIndexPair>> forDegree(final int degree, final RouteIndexPair indexPair) {
+    private RouteInterconnects forDepth(final int depth) {
+        guardDepth(depth);
+        return links.get(depth);
+    }
+
+    private Stream<Pair<RouteIndexPair, RouteIndexPair>> forDegree(final int degree, final RouteIndexPair indexPair) {
         return forDepth(degree - 1, indexPair);
     }
 
@@ -163,11 +162,19 @@ public class RouteInterconnectRepository {
                 collect(Collectors.toSet());
     }
 
+    // test support
     public int getNumberBacktrackFor(final int depth) {
         return forDegree(depth).numberOfLinks();
     }
 
-
+    /***
+     * Finds the paths (between the routes, via interchanges) between the routes given in the indexPair, for the given
+     * date overlaps between the 2, filtering the interchanges using the profided filter.
+     * @param indexPair the routes to find path between
+     * @param dateOverlaps representation of the dates the two routes overlap (aka run) on
+     * @param interchangeFilter an (inclusive) filter for the interchanges to use when finding the path
+     * @return paths between the 2 routes from the indexPair
+     */
     public PathResults getInterchangesFor(final RouteIndexPair indexPair, final ImmutableIndexedBitSet dateOverlaps,
                                           final Function<InterchangeStation, Boolean> interchangeFilter) {
         final int degree = routeCostMatrix.getDegree(indexPair);
