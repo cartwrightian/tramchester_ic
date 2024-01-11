@@ -456,10 +456,10 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
 
             for (short i = 0; i < numberOfRoutes; i++) {
                 final Route from = index.getRouteFor(i);
-                SimpleBitmap resultsForRoute = SimpleBitmap.create(numberOfRoutes);
+                final SimpleBitmap resultsForRoute = SimpleBitmap.create(numberOfRoutes);
                 final int fromIndex = i;
                 // thread safety: split into list and then application of list to bitset
-                List<Integer> toSet = IntStream.range(0, numberOfRoutes).
+                final List<Integer> toSet = IntStream.range(0, numberOfRoutes).
                         //parallel().
                         filter(toIndex -> (fromIndex == toIndex) || from.isDateOverlap(index.getRouteFor((short)toIndex))).
                         boxed().toList();
@@ -509,9 +509,14 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
                                     final SimpleImmutableBitmap dateOverlapsForRoute,
                                     final SimpleImmutableBitmap dateOverlapsForConnectedRoute) {
             links.getBitIndexes().
-                    filter(linkIndex -> dateOverlapsForRoute.get(linkIndex) && dateOverlapsForConnectedRoute.get(linkIndex)).
+                    filter(linkIndex -> overlapBetween(dateOverlapsForRoute, dateOverlapsForConnectedRoute, linkIndex)).
                     map(linkIndex -> getBitSetForPair(routeIndexA, linkIndex)).
                     forEach(bitSet -> bitSet.set(routeIndexB));
+        }
+
+        private static boolean overlapBetween(final SimpleImmutableBitmap dateOverlapsForRoute, final SimpleImmutableBitmap dateOverlapsForConnectedRoute,
+                                              final Short linkIndex) {
+            return dateOverlapsForRoute.get(linkIndex) && dateOverlapsForConnectedRoute.get(linkIndex);
         }
 
         private BitSet getBitSetForPair(short routeIndexA, short linkIndex) {
