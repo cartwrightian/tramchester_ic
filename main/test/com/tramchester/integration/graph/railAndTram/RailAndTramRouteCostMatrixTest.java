@@ -7,7 +7,6 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.collections.ImmutableIndexedBitSet;
-import com.tramchester.domain.collections.RouteIndexPairFactory;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.filters.GraphFilterActive;
@@ -193,7 +192,6 @@ public class RailAndTramRouteCostMatrixTest {
         InterchangeRepository interchangeRepository = componentContainer.get(InterchangeRepository.class);
         FileDataCache dataCache = componentContainer.get(FileDataCache.class);
         GraphFilterActive graphFilter = componentContainer.get(GraphFilterActive.class);
-        RouteIndexPairFactory pairFactory = componentContainer.get(RouteIndexPairFactory.class);
         RouteDateAndDayOverlap routeDayAndDateOverlap = componentContainer.get(RouteDateAndDayOverlap.class);
 
         RouteCostMatrix secondMatrix = new RouteCostMatrix(numberOfRoutes, interchangeRepository, dataCache, graphFilter,

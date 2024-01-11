@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import java.io.IOException;
 import java.time.LocalTime;
 
+// todo use tramtime?
+@Deprecated
 public class LocalTimeJsonSerializer extends JsonSerializer<LocalTime> {
 
     @Override

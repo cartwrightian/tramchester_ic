@@ -2,7 +2,10 @@ package com.tramchester.integration.graph;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.caching.DataCache;
+import com.tramchester.caching.FileDataCache;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.dataimport.data.RoutePairInterconnectsData;
 import com.tramchester.domain.IdPair;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.RoutePair;
@@ -13,15 +16,19 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.graph.search.routes.*;
 import com.tramchester.integration.testSupport.ConfigParameterResolver;
 import com.tramchester.repository.InterchangeRepository;
+import com.tramchester.repository.NumberOfRoutes;
 import com.tramchester.repository.RouteRepository;
+import com.tramchester.testSupport.InMemoryDataCache;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,6 +36,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -310,6 +318,59 @@ public class RouteInterconnectRepositoryTest {
             }
         }
 
+    }
+
+    @Test
+    void shouldCacheValuesInMemory() {
+        InMemoryDataCache dataCache = new InMemoryDataCache();
+
+        RouteInterconnectRepository repository = createRepositoryForTestingWith(dataCache);
+
+        repository.start();
+        int count = repository.getNumberBacktrackFor(1);
+        repository.stop();
+
+        assertTrue(dataCache.hasData(RouteInterconnectRepository.RouteInterconnects.class));
+
+        List<RoutePairInterconnectsData> fromCache = dataCache.getDataFor(RouteInterconnectRepository.RouteInterconnects.class).toList();
+
+        assertFalse(fromCache.isEmpty());
+
+        long computed = fromCache.stream().filter(item -> item.getDepth() == 0).count();
+        assertEquals(count, Math.toIntExact(computed));
+
+        repository.start();
+        int countAfterCache = repository.getNumberBacktrackFor(1);
+        repository.stop();
+
+        assertEquals(count, countAfterCache);
+    }
+
+    @Test
+    void shouldCacheValuesFile() {
+        FileDataCache dataCache = componentContainer.get(FileDataCache.class);
+
+        RouteInterconnectRepository repository = createRepositoryForTestingWith(dataCache);
+
+        repository.start();
+        int count = repository.getNumberBacktrackFor(1);
+        repository.stop();
+
+        repository.start();
+        int countAfterCache = repository.getNumberBacktrackFor(1);
+        repository.stop();
+
+        assertEquals(count, countAfterCache);
+    }
+
+    @NotNull
+    private RouteInterconnectRepository createRepositoryForTestingWith(DataCache dataCache) {
+        RouteIndexPairFactory pairFactory = componentContainer.get(RouteIndexPairFactory.class);
+        NumberOfRoutes numberOfRoutes = componentContainer.get(NumberOfRoutes.class);
+        RouteDateAndDayOverlap routeDateAndDayOverlap = componentContainer.get(RouteDateAndDayOverlap.class);
+
+        return new RouteInterconnectRepository(pairFactory, numberOfRoutes, routeIndex, interchangeRepository,
+                routeMatrix, routeDateAndDayOverlap, dataCache, new GraphFilterActive(false));
     }
 
 

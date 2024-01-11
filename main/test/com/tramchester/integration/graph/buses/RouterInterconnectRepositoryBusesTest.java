@@ -3,6 +3,7 @@ package com.tramchester.integration.graph.buses;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.caching.DataCache;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.RoutePair;
@@ -10,11 +11,13 @@ import com.tramchester.domain.collections.IndexedBitSet;
 import com.tramchester.domain.collections.RouteIndexPair;
 import com.tramchester.domain.collections.RouteIndexPairFactory;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.graph.search.routes.*;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.NumberOfRoutes;
 import com.tramchester.repository.RouteRepository;
+import com.tramchester.testSupport.FakeDataCache;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.testTags.BusTest;
@@ -49,12 +52,12 @@ public class RouterInterconnectRepositoryBusesTest {
 
         ///// NOTE Clears the Cache
 
-        TestEnv.clearDataCache(componentContainer);
+        //TestEnv.clearDataCache(componentContainer);
     }
 
     @AfterAll
     static void OnceAfterAllTestsAreFinished() {
-        TestEnv.clearDataCache(componentContainer);
+        //TestEnv.clearDataCache(componentContainer);
         componentContainer.close();
     }
 
@@ -95,14 +98,14 @@ public class RouterInterconnectRepositoryBusesTest {
         RouteIndexPairFactory pairFactory = componentContainer.get(RouteIndexPairFactory.class);
         RouteDateAndDayOverlap routeDayAndDateOverlap = componentContainer.get(RouteDateAndDayOverlap.class);
 
-//        DataCache dataCache = new FakeDataCache();
+        DataCache dataCache = new FakeDataCache();
 
         RouteInterconnectRepository anotherRepository = new RouteInterconnectRepository(pairFactory, numberOfRoutes, routeIndex,
-                interchangeRepository, routeMatrix, routeDayAndDateOverlap);
+                interchangeRepository, routeMatrix, routeDayAndDateOverlap, dataCache, new GraphFilterActive(false));
 
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 20; i++) {
             anotherRepository.start();
-            anotherRepository.clear();
+            anotherRepository.stop();
         }
     }
 }

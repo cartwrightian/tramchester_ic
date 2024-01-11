@@ -21,7 +21,7 @@ public class PostCodeDatasourceConfig extends RemoteDataSourceConfig {
 
     @Override
     public String getDataCheckUrl() {
-        return POSTCODE_URL;
+        return "";
     }
 
     @Override
@@ -31,7 +31,7 @@ public class PostCodeDatasourceConfig extends RemoteDataSourceConfig {
 
     @Override
     public Duration getDefaultExpiry() {
-        return Duration.ofDays(31);
+        return Duration.ofDays(180);
     }
 
     @Override

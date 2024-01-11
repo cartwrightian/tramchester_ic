@@ -78,8 +78,6 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
         }
         logger.info("CostsPerDegree bits set: " + costsPerDegree.numberOfBitsSet());
 
-//        routeInterconnectRepository.start();
-
         logger.info("started");
     }
 
@@ -88,7 +86,6 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
         logger.info("stop");
         super.saveCacheIfNeeded(costsPerDegree);
         costsPerDegree.clear();
-//        routeInterconnectRepository.clear();
         logger.info("stopped");
     }
 

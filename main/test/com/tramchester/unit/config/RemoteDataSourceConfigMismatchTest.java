@@ -5,6 +5,7 @@ import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.integration.testSupport.naptan.NaptanRemoteDataSourceTestConfig;
 import com.tramchester.integration.testSupport.nptg.NPTGDataSourceTestConfig;
+import com.tramchester.integration.testSupport.postcodes.PostCodeDatasourceConfig;
 import com.tramchester.testSupport.TestEnv;
 import io.dropwizard.configuration.ConfigurationException;
 import org.junit.jupiter.api.Test;
@@ -129,6 +130,14 @@ public class RemoteDataSourceConfigMismatchTest {
         RemoteDataSourceConfig frequency = getRemoteDataSourceConfig("frequency.yml", DataSourceID.tfgm);
 
         validateConfig(gm, frequency);
+    }
+
+    @Test
+    void shouldHaveMatchingPostcodeSectionTestAndBus() throws ConfigurationException, IOException {
+        RemoteDataSourceConfig testConfig = new PostCodeDatasourceConfig();
+        RemoteDataSourceConfig buses = getRemoteDataSourceConfig("buses.yml", DataSourceID.postcode);
+
+        validateConfig(testConfig, buses);
     }
 
 

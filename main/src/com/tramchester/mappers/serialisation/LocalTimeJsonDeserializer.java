@@ -14,6 +14,8 @@ import java.time.format.DateTimeFormatterBuilder;
 import static java.time.temporal.ChronoField.HOUR_OF_DAY;
 import static java.time.temporal.ChronoField.MINUTE_OF_HOUR;
 
+// todo use tramtime?
+@Deprecated
 public class LocalTimeJsonDeserializer extends JsonDeserializer<LocalTime> {
 
     public static final DateTimeFormatter LOCAL_TIME = new DateTimeFormatterBuilder()

@@ -2,6 +2,7 @@ package com.tramchester.integration.graph.railAndTram;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.caching.DataCache;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
 import com.tramchester.domain.Route;
@@ -10,11 +11,13 @@ import com.tramchester.domain.collections.IndexedBitSet;
 import com.tramchester.domain.collections.RouteIndexPair;
 import com.tramchester.domain.collections.RouteIndexPairFactory;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.graph.search.routes.*;
 import com.tramchester.integration.testSupport.RailAndTramGreaterManchesterConfig;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.NumberOfRoutes;
 import com.tramchester.repository.RouteRepository;
+import com.tramchester.testSupport.FakeDataCache;
 import com.tramchester.testSupport.RailRouteHelper;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.GMTest;
@@ -114,8 +117,10 @@ public class RailAndTramRouteInterconnectRepositoryTest {
         RouteDateAndDayOverlap routeDayAndDateOverlap = componentContainer.get(RouteDateAndDayOverlap.class);
         RouteCostMatrix routeCostMatrix = componentContainer.get(RouteCostMatrix.class);
 
+        DataCache dataCache = new FakeDataCache();
+
         RouteInterconnectRepository anotherRepository = new RouteInterconnectRepository(pairFactory, numberOfRoutes, routeIndex,
-                interchangeRepository, routeCostMatrix, routeDayAndDateOverlap);
+                interchangeRepository, routeCostMatrix, routeDayAndDateOverlap, dataCache, new GraphFilterActive(false));
 
         anotherRepository.start();
         return anotherRepository;
