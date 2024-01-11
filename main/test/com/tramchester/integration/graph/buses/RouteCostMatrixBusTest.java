@@ -12,7 +12,6 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.graph.search.routes.RouteCostMatrix;
 import com.tramchester.graph.search.routes.RouteIndex;
-import com.tramchester.integration.testSupport.ConfigParameterResolver;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.NumberOfRoutes;
@@ -20,10 +19,8 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.FakeDataCache;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.testTags.DataUpdateTest;
-import com.tramchester.testSupport.testTags.DualTest;
+import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.List;
 import java.util.Set;
@@ -32,9 +29,7 @@ import static com.tramchester.testSupport.reference.KnownBusRoute.AltrinchamMacc
 import static com.tramchester.testSupport.reference.KnownBusRoute.MacclesfieldAirport;
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(ConfigParameterResolver.class)
-@DualTest
-@DataUpdateTest
+@BusTest
 public class RouteCostMatrixBusTest {
     private static ComponentContainer componentContainer;
 
