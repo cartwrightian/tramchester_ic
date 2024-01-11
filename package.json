@@ -30,7 +30,7 @@
     "vuetify": "^2.7.1"
   },
   "devDependencies": {
-    "@mdi/font": "^7.3.67",
+    "@mdi/font": "^7.4.47",
     "css-loader": "^6.9.0",
     "deepmerge": "^4.3.1",
     "file-loader": "^6.2.0",
