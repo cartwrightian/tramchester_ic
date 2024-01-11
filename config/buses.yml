@@ -60,6 +60,7 @@ remoteSources:
     dataCheckURL: ""
     dataPath: data/postcodes
     filename: codepo_gb.zip
+    defaultExpiryDays: 180
 cacheFolder: data/cacheBuses
 calcTimeoutMillis: 3500
 bounds:
