@@ -43,7 +43,7 @@ s3 {
 version = buildNumber
 
 ext {
-    dropwizardVersion = '4.0.4'
+    dropwizardVersion = '4.0.5'
     jacksonVersion = '2.16.1'
     awsSdkVersion = '2.23.0'
 }
@@ -88,7 +88,7 @@ dependencies {
             "com.fasterxml.jackson.module:jackson-module-blackbird:$jacksonVersion",
             "com.fasterxml.jackson.dataformat:jackson-dataformat-csv:$jacksonVersion",
             "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jacksonVersion"
-    implementation('com.smoketurner:dropwizard-swagger:4.0.0-1') {
+    implementation('com.smoketurner:dropwizard-swagger:4.0.5-1') {
         exclude group: 'org.glassfish.jersey.containers', module: 'jersey-container-servlet-core'
         exclude group: 'org.glassfish.jersey.core', module: 'jersey-server'
         exclude group: 'org.glassfish.jersey.core', module: 'jersey-common'
