@@ -11,6 +11,7 @@ import com.tramchester.domain.collections.RouteIndexPairFactory;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.graph.search.routes.RouteCostMatrix;
+import com.tramchester.graph.search.routes.RouteDateAndDayOverlap;
 import com.tramchester.graph.search.routes.RouteIndex;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.InterchangeRepository;
@@ -103,9 +104,12 @@ public class RouteCostMatrixBusTest {
         InterchangeRepository interchangeRepository = componentContainer.get(InterchangeRepository.class);
         GraphFilterActive graphFilter = componentContainer.get(GraphFilterActive.class);
         RouteIndexPairFactory pairFactory = componentContainer.get(RouteIndexPairFactory.class);
+        RouteDateAndDayOverlap dayAndDateRouteOverlap = componentContainer.get(RouteDateAndDayOverlap.class);
+
         DataCache dataCache = new FakeDataCache();
 
-        RouteCostMatrix matrix = new RouteCostMatrix(numberOfRoutes, interchangeRepository, dataCache, graphFilter, pairFactory, routeIndex);
+        RouteCostMatrix matrix = new RouteCostMatrix(numberOfRoutes, interchangeRepository, dataCache, graphFilter,
+                pairFactory, routeIndex, dayAndDateRouteOverlap);
 
         for (int i = 0; i < 20; i++) {
             matrix.start();

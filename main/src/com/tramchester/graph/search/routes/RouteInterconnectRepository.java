@@ -1,6 +1,7 @@
 package com.tramchester.graph.search.routes;
 
 import com.tramchester.domain.RoutePair;
+import com.tramchester.domain.collections.ImmutableIndexedBitSet;
 import com.tramchester.domain.collections.RouteIndexPair;
 import com.tramchester.domain.collections.RouteIndexPairFactory;
 import com.tramchester.domain.collections.SimpleImmutableBitmap;
@@ -10,6 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.MessageFormat;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -17,6 +20,7 @@ class RouteInterconnectRepository {
     private static final Logger logger = LoggerFactory.getLogger(RouteInterconnectRepository.class);
 
     private final RouteIndex routeIndex;
+    private final RouteDateAndDayOverlap routeDateAndDayOverlap;
     private final RouteIndexPairFactory pairFactory;
     private final int numRoutes;
     private final InterchangeRepository pairToInterchange;
@@ -25,20 +29,74 @@ class RouteInterconnectRepository {
     private final List<RouteInterconnects> links;
 
     public RouteInterconnectRepository(RouteIndexPairFactory pairFactory, int numRoutes, RouteIndex routeIndex,
-                                       InterchangeRepository pairToInterchange, RouteCostMatrix.CostsPerDegree costsPerDegree) {
+                                       InterchangeRepository pairToInterchange, RouteCostMatrix.CostsPerDegree costsPerDegree,
+                                       RouteDateAndDayOverlap routeDateAndDayOverlap) {
         this.pairFactory = pairFactory;
         this.numRoutes = numRoutes;
         this.pairToInterchange = pairToInterchange;
         this.costsPerDegree = costsPerDegree;
         this.routeIndex = routeIndex;
+        this.routeDateAndDayOverlap = routeDateAndDayOverlap;
         links = new ArrayList<>(RouteCostMatrix.MAX_DEPTH);
     }
 
     public void start() {
-        // init only here
         for (int depth = 0; depth < RouteCostMatrix.MAX_DEPTH; depth++) {
             RouteInterconnects routeInterconnects = new RouteInterconnects(pairFactory, numRoutes);
             links.add(routeInterconnects);
+        }
+        createBacktracking(routeDateAndDayOverlap);
+    }
+
+    private void createBacktracking(final RouteDateAndDayOverlap routeDateAndDayOverlap) {
+        // degree 1 = depth 0 = interchanges directly
+        for (int currentDegree = 1; currentDegree <= RouteCostMatrix.MAX_DEPTH; currentDegree++) {
+            createBacktracking(routeDateAndDayOverlap, currentDegree);
+        }
+    }
+
+    private void createBacktracking(final RouteDateAndDayOverlap routeDateAndDayOverlap, final int currentDegree) {
+        final int totalSize = numRoutes * numRoutes;
+        if (currentDegree<1) {
+            throw new RuntimeException("Only call for >1 , got " + currentDegree);
+        }
+
+        //final int nextDegree = currentDegree + 1;
+        final ImmutableIndexedBitSet matrixForDegree = costsPerDegree.getDegree(currentDegree);
+
+        logger.info("Create backtrack pair map for degree " + currentDegree + " matrixForDegree bits set " + matrixForDegree.numberOfBitsSet());
+
+        if (matrixForDegree.numberOfBitsSet()>0) {
+            // zero indexed
+            final RouteInterconnects routeInterconnects = forDegree(currentDegree);
+
+            final Instant startTime = Instant.now();
+
+            for (short currentRoute = 0; currentRoute < numRoutes; currentRoute++) {
+                final short currentRouteIndex = currentRoute;
+
+                final RouteDateAndDayOverlap.RouteOverlaps dateOverlapsForRoute = routeDateAndDayOverlap.overlapsFor(currentRouteIndex);
+
+                final SimpleImmutableBitmap currentConnections = matrixForDegree.getBitSetForRow(currentRouteIndex);
+
+                currentConnections.getBitIndexes().
+                        filter(dateOverlapsForRoute::get). // true if route runs on date
+                        forEach(connectedRoute -> {
+                    final RouteDateAndDayOverlap.RouteOverlaps dateOverlapsForConnectedRoute = routeDateAndDayOverlap.overlapsFor(connectedRoute);
+                    final SimpleImmutableBitmap intermediates = matrixForDegree.getBitSetForRow(connectedRoute);
+                    routeInterconnects.addLinksBetween(currentRouteIndex, connectedRoute, intermediates,
+                            dateOverlapsForRoute, dateOverlapsForConnectedRoute);
+                });
+            }
+
+            final long took = Duration.between(startTime, Instant.now()).toMillis();
+            final int added = routeInterconnects.numberOfLinks();
+            final double percentage = ((double)added)/((double)totalSize) * 100D;
+            logger.info(String.format("Added backtrack pairs %s (%s %%) Degree %s in %s ms",
+                    added, percentage, currentDegree, took));
+
+        } else {
+            logger.info("No bits set for degree " + currentDegree);
         }
     }
 
@@ -112,16 +170,16 @@ class RouteInterconnectRepository {
         }
 
         public void addLinksBetween(final short routeIndexA, final short routeIndexB, final SimpleImmutableBitmap links,
-                                    final RouteCostMatrix.RouteOverlaps dateOverlapsForRoute,
-                                    final RouteCostMatrix.RouteOverlaps dateOverlapsForConnectedRoute) {
+                                    final RouteDateAndDayOverlap.RouteOverlaps dateOverlapsForRoute,
+                                    final RouteDateAndDayOverlap.RouteOverlaps dateOverlapsForConnectedRoute) {
             links.getBitIndexes().
                     filter(linkIndex -> overlapBetween(dateOverlapsForRoute, dateOverlapsForConnectedRoute, linkIndex)).
                     map(linkIndex -> getBitSetForPair(routeIndexA, linkIndex)).
                     forEach(bitSet -> bitSet.set(routeIndexB));
         }
 
-        private boolean overlapBetween(final RouteCostMatrix.RouteOverlaps dateOverlapsForRoute,
-                                       final RouteCostMatrix.RouteOverlaps dateOverlapsForConnectedRoute,
+        private boolean overlapBetween(final RouteDateAndDayOverlap.RouteOverlaps dateOverlapsForRoute,
+                                       final RouteDateAndDayOverlap.RouteOverlaps dateOverlapsForConnectedRoute,
                                        final Short linkIndex) {
             return dateOverlapsForRoute.get(linkIndex) && dateOverlapsForConnectedRoute.get(linkIndex);
         }

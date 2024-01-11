@@ -13,6 +13,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.graph.search.routes.PathResults;
 import com.tramchester.graph.search.routes.RouteCostMatrix;
+import com.tramchester.graph.search.routes.RouteDateAndDayOverlap;
 import com.tramchester.graph.search.routes.RouteIndex;
 import com.tramchester.integration.testSupport.RailAndTramGreaterManchesterConfig;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
@@ -114,17 +115,18 @@ public class RailAndTramRouteCostMatrixTest {
     void shouldHaveDateOverlapsConsistently() {
 
         // seeing each run produce consistent results, but across multiples runs see different numbers, which is incorrect
+        NumberOfRoutes hasNumberRoutes = () -> numberOfRoutes;
 
-        assertEquals(505, numberOfRoutes);
+        assertEquals(505, hasNumberRoutes.numberOfRoutes());
 
-        RouteCostMatrix.RouteDateAndDayOverlap overlapsA = new RouteCostMatrix.RouteDateAndDayOverlap(routeIndex, numberOfRoutes);
+        RouteDateAndDayOverlap overlapsA = new RouteDateAndDayOverlap(routeIndex, hasNumberRoutes);
 
-        overlapsA.populateFor();
+        overlapsA.start();
         final int previous = overlapsA.numberBitsSet();
 
         for (int i = 0; i < 100000; i++) {
-            RouteCostMatrix.RouteDateAndDayOverlap overlapsB = new RouteCostMatrix.RouteDateAndDayOverlap(routeIndex, numberOfRoutes);
-            overlapsB.populateFor();
+            RouteDateAndDayOverlap overlapsB = new RouteDateAndDayOverlap(routeIndex, hasNumberRoutes);
+            overlapsB.start();
             assertEquals(previous, overlapsB.numberBitsSet());
         }
 
@@ -239,8 +241,10 @@ public class RailAndTramRouteCostMatrixTest {
         FileDataCache dataCache = componentContainer.get(FileDataCache.class);
         GraphFilterActive graphFilter = componentContainer.get(GraphFilterActive.class);
         RouteIndexPairFactory pairFactory = componentContainer.get(RouteIndexPairFactory.class);
+        RouteDateAndDayOverlap routeDayAndDateOverlap = componentContainer.get(RouteDateAndDayOverlap.class);
 
-        RouteCostMatrix secondMatrix = new RouteCostMatrix(numberOfRoutes, interchangeRepository, dataCache, graphFilter, pairFactory, routeIndex);
+        RouteCostMatrix secondMatrix = new RouteCostMatrix(numberOfRoutes, interchangeRepository, dataCache, graphFilter,
+                pairFactory, routeIndex, routeDayAndDateOverlap);
 
         secondMatrix.start();
         return secondMatrix;

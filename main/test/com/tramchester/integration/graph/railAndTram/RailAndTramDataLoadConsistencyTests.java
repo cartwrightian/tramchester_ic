@@ -11,7 +11,7 @@ import com.tramchester.domain.id.RailRouteId;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.search.routes.RouteCostMatrix;
+import com.tramchester.graph.search.routes.RouteDateAndDayOverlap;
 import com.tramchester.graph.search.routes.RouteIndex;
 import com.tramchester.integration.testSupport.RailAndTramGreaterManchesterConfig;
 import com.tramchester.repository.NumberOfRoutes;
@@ -76,8 +76,8 @@ public class RailAndTramDataLoadConsistencyTests {
 
         //TestEnv.clearDataCache(componentContainer);
 
-        RouteCostMatrix.RouteDateAndDayOverlap overlapsA = getOverlapsFor(componentContainer);
-        overlapsA.populateFor();
+        RouteDateAndDayOverlap overlapsA = getOverlapsFor(componentContainer);
+        overlapsA.start();
         final int previousOverlaps = overlapsA.numberBitsSet();
         final TransportDataContainer transportDataContainer = (TransportDataContainer) componentContainer.get(TransportData.class);
         final TransportData previousTransportData = TransportDataContainer.createUnmanagedCopy(transportDataContainer);
@@ -109,8 +109,8 @@ public class RailAndTramDataLoadConsistencyTests {
 
             assertSetEquals(previousRouteStations, routeStations);
 
-            RouteCostMatrix.RouteDateAndDayOverlap overlapsB = getOverlapsFor(componentContainer);
-            overlapsB.populateFor();
+            RouteDateAndDayOverlap overlapsB = getOverlapsFor(componentContainer);
+            overlapsB.start();
             final int result = overlapsB.numberBitsSet();
 
             assertEquals(previousOverlaps, result);
@@ -146,7 +146,7 @@ public class RailAndTramDataLoadConsistencyTests {
             RailRouteId idA = railRouteIdRepository.getRouteIdFor(agencyId, getStatonsFor(idsA, stationRepository));
 
             assertNotEquals(idA, idB);
-            assertEquals(Route.createId("MNCRIAP:SBRN=>TP:2"), idA);
+            assertEquals(Route.createId("MNCRIAP:SBRN=>TP:3"), idA);
             assertEquals(Route.createId("MNCRIAP:SBRN=>TP:1"), idB);
         }
     }
@@ -162,10 +162,10 @@ public class RailAndTramDataLoadConsistencyTests {
     }
 
     @NotNull
-    private RouteCostMatrix.RouteDateAndDayOverlap getOverlapsFor(GuiceContainerDependencies componentContainer) {
+    private RouteDateAndDayOverlap getOverlapsFor(GuiceContainerDependencies componentContainer) {
         RouteIndex routeIndex = componentContainer.get(RouteIndex.class);
         NumberOfRoutes numberOfRoutes = componentContainer.get(NumberOfRoutes.class);
-        return new RouteCostMatrix.RouteDateAndDayOverlap(routeIndex, numberOfRoutes.numberOfRoutes());
+        return new RouteDateAndDayOverlap(routeIndex, numberOfRoutes);
     }
 
 }
