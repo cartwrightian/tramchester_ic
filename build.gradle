@@ -45,7 +45,7 @@ version = buildNumber
 ext {
     dropwizardVersion = '4.0.4'
     jacksonVersion = '2.16.0'
-    awsSdkVersion = '2.21.29'
+    awsSdkVersion = '2.23.0'
 }
 
 repositories {
@@ -108,7 +108,7 @@ dependencies {
 
     implementation('org.geotools:gt-main:29.3')
     implementation('org.geotools:gt-epsg-hsql:29.3')
-    implementation('org.roaringbitmap:RoaringBitmap:1.0.0')
+    implementation('org.roaringbitmap:RoaringBitmap:1.0.1')
 
     testImplementation("io.dropwizard:dropwizard-testing:$dropwizardVersion")
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1',
@@ -289,7 +289,7 @@ clean {
 
 run {
     // see deploy/setupTramWebServerAWSLinux.sh
-    maxHeapSize = '800m'
+    //maxHeapSize = '900m'
     dependsOn 'webpack'
     args 'server', prodConfig
 }
