@@ -20,16 +20,16 @@ class RouteInterconnectRepository {
     private final RouteIndexPairFactory pairFactory;
     private final int numRoutes;
     private final InterchangeRepository pairToInterchange;
-    private final RouteCostMatrix parent;
+    private final RouteCostMatrix.CostsPerDegree costsPerDegree;
 
     private final List<RouteInterconnects> links;
 
-    public RouteInterconnectRepository(RouteIndexPairFactory pairFactory, int numRoutes, RouteIndex routeIndex, InterchangeRepository pairToInterchange,
-                                       RouteCostMatrix parent) {
+    public RouteInterconnectRepository(RouteIndexPairFactory pairFactory, int numRoutes, RouteIndex routeIndex,
+                                       InterchangeRepository pairToInterchange, RouteCostMatrix.CostsPerDegree costsPerDegree) {
         this.pairFactory = pairFactory;
         this.numRoutes = numRoutes;
         this.pairToInterchange = pairToInterchange;
-        this.parent = parent;
+        this.costsPerDegree = costsPerDegree;
         this.routeIndex = routeIndex;
         links = new ArrayList<>(RouteCostMatrix.MAX_DEPTH);
     }
@@ -61,7 +61,7 @@ class RouteInterconnectRepository {
             return links.get(depth).getLinksFor(indexPair);
         }
 
-        final short degree = parent.getDegree(indexPair);
+        final short degree = costsPerDegree.getDegree(indexPair);
         final RoutePair missing = routeIndex.getPairFor(indexPair);
         final String message = MessageFormat.format("Missing indexPair {0} ({1}) at depth {2} actual degree for pair {3}",
                 indexPair, missing, depth, degree);

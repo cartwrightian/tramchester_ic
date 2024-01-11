@@ -51,20 +51,21 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
     private final RouteIndex routeIndex;
 
     private final int numRoutes;
-    private final CostsPerDegree costsForDegree;
+    private final CostsPerDegree costsPerDegree;
     private final RouteInterconnectRepository routeInterconnectRepository;
 
     @Inject
     public RouteCostMatrix(NumberOfRoutes numberOfRoutes, InterchangeRepository interchangeRepository, DataCache dataCache,
                     GraphFilterActive graphFilter, RouteIndexPairFactory pairFactory, RouteIndex routeIndex) {
-        super(dataCache, CostsPerDegreeData.class);
+        super(dataCache, CostsPerDegreeData.class); //caching setup
         this.interchangeRepository = interchangeRepository;
         this.graphFilter = graphFilter;
         this.routeIndex = routeIndex;
         this.numRoutes = numberOfRoutes.numberOfRoutes();
 
-        costsForDegree = new CostsPerDegree();
-        routeInterconnectRepository = new RouteInterconnectRepository(pairFactory, numRoutes, routeIndex, interchangeRepository, this);
+        costsPerDegree = new CostsPerDegree();
+        routeInterconnectRepository = new RouteInterconnectRepository(pairFactory, numRoutes, routeIndex,
+                interchangeRepository, costsPerDegree);
     }
 
     @PostConstruct
@@ -74,17 +75,18 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
         final RouteDateAndDayOverlap routeDateAndDayOverlap = new RouteDateAndDayOverlap(routeIndex, numRoutes);
         routeDateAndDayOverlap.populateFor();
 
-        routeInterconnectRepository.start();
-
         if (graphFilter.isActive()) {
             logger.warn("Filtering is enabled, skipping all caching");
             createCostMatrix(routeDateAndDayOverlap);
         } else {
-            if (!super.loadFromCache(costsForDegree)) {
+            if (!super.loadFromCache(costsPerDegree)) {
                 createCostMatrix(routeDateAndDayOverlap);
             }
         }
-        logger.info("CostsPerDegree bits set: " + costsForDegree.numberOfBitsSet());
+        logger.info("CostsPerDegree bits set: " + costsPerDegree.numberOfBitsSet());
+
+        routeInterconnectRepository.start();
+
         createBacktracking(routeDateAndDayOverlap);
         logger.info("started");
     }
@@ -92,14 +94,14 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
     @PreDestroy
     public  void stop() {
         logger.info("stop");
-        super.saveCacheIfNeeded(costsForDegree);
-        costsForDegree.clear();
+        super.saveCacheIfNeeded(costsPerDegree);
+        costsPerDegree.clear();
         routeInterconnectRepository.clear();
         logger.info("stopped");
     }
 
     private void createCostMatrix(final RouteDateAndDayOverlap routeDateAndDayOverlap) {
-        final IndexedBitSet forDegreeOne = costsForDegree.getDegreeMutable(1);
+        final IndexedBitSet forDegreeOne = costsPerDegree.getDegreeMutable(1);
         addInitialConnectionsFromInterchanges(routeDateAndDayOverlap, forDegreeOne);
         populateCosts(routeDateAndDayOverlap);
     }
@@ -134,7 +136,7 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
         }
 
         //final int nextDegree = currentDegree + 1;
-        final ImmutableIndexedBitSet matrixForDegree = costsForDegree.getDegree(currentDegree);
+        final ImmutableIndexedBitSet matrixForDegree = costsPerDegree.getDegree(currentDegree);
 
         logger.info("Create backtrack pair map for degree " + currentDegree + " matrixForDegree bits set " + matrixForDegree.numberOfBitsSet());
 
@@ -222,19 +224,11 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
     }
 
     public long numberOfBitsSet() {
-        return costsForDegree.numberOfBitsSet();
+        return costsPerDegree.numberOfBitsSet();
     }
 
     byte getDegree(final RouteIndexPair routePair) {
-        if (routePair.isSame()) {
-            return 0;
-        }
-        for (int degree = 1; degree <= MAX_DEPTH; degree++) {
-            if (costsForDegree.isSet(degree, routePair)) {
-                return (byte) degree;
-            }
-        }
-        return MAX_VALUE;
+        return costsPerDegree.getDegree(routePair);
     }
 
     /***
@@ -248,7 +242,7 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
         }
         final List<Integer> results = new ArrayList<>();
         for (int degree = 1; degree <= MAX_DEPTH; degree++) {
-            if (costsForDegree.isSet(degree, routeIndexPair)) {
+            if (costsPerDegree.isSet(degree, routeIndexPair)) {
                 results.add(degree);
             }
         }
@@ -298,8 +292,8 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
         final Instant startTime = Instant.now();
         final int nextDegree = currentDegree + 1;
 
-        final ImmutableIndexedBitSet currentMatrix = costsForDegree.getDegree(currentDegree);
-        final IndexedBitSet newMatrix = costsForDegree.getDegreeMutable(nextDegree);
+        final ImmutableIndexedBitSet currentMatrix = costsPerDegree.getDegree(currentDegree);
+        final IndexedBitSet newMatrix = costsPerDegree.getDegreeMutable(nextDegree);
 
         for (short route = 0; route < numRoutes; route++) {
             final SimpleBitmap resultForForRoute = SimpleBitmap.create(numRoutes);
@@ -331,7 +325,7 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
         final SimpleBitmap result = SimpleBitmap.create(numRoutes);
 
         for (int degree = startingDegree; degree > 0; degree--) {
-            final ImmutableIndexedBitSet allConnectionsAtDegree = costsForDegree.getDegree(degree);
+            final ImmutableIndexedBitSet allConnectionsAtDegree = costsPerDegree.getDegree(degree);
             final SimpleImmutableBitmap existingConnectionsAtDepth = allConnectionsAtDegree.getBitSetForRow(routeIndex);
             result.or(existingConnectionsAtDepth);
         }
@@ -357,7 +351,7 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
             logger.debug(String.format("Get interchanges for %s with initial degree %s", HasId.asIds(routeIndex.getPairFor(indexPair)), degree));
         }
 
-        final ImmutableIndexedBitSet changesForDegree = costsForDegree.getDegree(degree).getCopyOfRowAndColumn(indexPair.first(), indexPair.second());
+        final ImmutableIndexedBitSet changesForDegree = costsPerDegree.getDegree(degree).getCopyOfRowAndColumn(indexPair.first(), indexPair.second());
         // apply mask to filter out unavailable dates/modes quickly
         final IndexedBitSet withDateApplied = IndexedBitSet.and(changesForDegree, dateOverlaps);
 
@@ -431,7 +425,7 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
     }
 
     public ImmutableIndexedBitSet getCostsPerDegree(int degree) {
-        return costsForDegree.getDegree(degree);
+        return costsPerDegree.getDegree(degree);
     }
 
 
@@ -583,6 +577,17 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
         }
 
 
+        public byte getDegree(RouteIndexPair routePair) {
+            if (routePair.isSame()) {
+                return 0;
+            }
+            for (int degree = 1; degree <= MAX_DEPTH; degree++) {
+                if (costsPerDegree.isSet(degree, routePair)) {
+                    return (byte) degree;
+                }
+            }
+            return MAX_VALUE;
+        }
     }
 
 
