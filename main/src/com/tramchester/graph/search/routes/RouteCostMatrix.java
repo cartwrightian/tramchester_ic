@@ -10,14 +10,11 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.RoutePair;
 import com.tramchester.domain.collections.*;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.NumberOfRoutes;
-import org.apache.commons.lang3.tuple.Pair;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +28,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -52,11 +48,10 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
     private final int numRoutes;
     private final RouteDateAndDayOverlap routeDateAndDayOverlap;
     private final CostsPerDegree costsPerDegree;
-    private final RouteInterconnectRepository routeInterconnectRepository;
 
     @Inject
     public RouteCostMatrix(NumberOfRoutes numberOfRoutes, InterchangeRepository interchangeRepository, DataCache dataCache,
-                    GraphFilterActive graphFilter, RouteIndexPairFactory pairFactory, RouteIndex routeIndex,
+                           GraphFilterActive graphFilter, RouteIndex routeIndex,
                            RouteDateAndDayOverlap routeDateAndDayOverlap) {
         super(dataCache, CostsPerDegreeData.class); //caching setup
         this.interchangeRepository = interchangeRepository;
@@ -67,9 +62,6 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
 
         costsPerDegree = new CostsPerDegree();
 
-        // todo move out
-        routeInterconnectRepository = new RouteInterconnectRepository(pairFactory, numRoutes, routeIndex,
-                interchangeRepository, costsPerDegree, routeDateAndDayOverlap);
     }
 
     @PostConstruct
@@ -86,9 +78,8 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
         }
         logger.info("CostsPerDegree bits set: " + costsPerDegree.numberOfBitsSet());
 
-        routeInterconnectRepository.start();
+//        routeInterconnectRepository.start();
 
-        //createBacktracking(routeDateAndDayOverlap);
         logger.info("started");
     }
 
@@ -97,7 +88,7 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
         logger.info("stop");
         super.saveCacheIfNeeded(costsPerDegree);
         costsPerDegree.clear();
-        routeInterconnectRepository.clear();
+//        routeInterconnectRepository.clear();
         logger.info("stopped");
     }
 
@@ -120,13 +111,6 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
             addOverlapsForRoutes(forDegreeOne, routeDateAndDayOverlap, dropOffAtInterchange, pickupAtInterchange);
         });
         logger.info("Add " + numberOfBitsSet() + " bits/connections for interchanges");
-    }
-
-
-
-
-    public int getNumberBacktrackFor(final int depth) {
-        return routeInterconnectRepository.forDegree(depth).numberOfLinks();
     }
 
     private void addOverlapsForRoutes(final IndexedBitSet forDegreeOne, final RouteDateAndDayOverlap routeDateAndDayOverlap,
@@ -289,96 +273,13 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
         return getDegree(routePair);
     }
 
-    public PathResults getInterchangesFor(final RouteIndexPair indexPair, final ImmutableIndexedBitSet dateOverlaps,
-                                          final Function<InterchangeStation, Boolean> interchangeFilter) {
-        final int degree = getDegree(indexPair);
-
-        if (degree==Byte.MAX_VALUE) {
-            logger.warn("No degree found for " + routeIndex.getPairFor(indexPair));
-            return new PathResults.NoPathResults();
-        }
-
-        if (logger.isDebugEnabled()) {
-            logger.debug(String.format("Get interchanges for %s with initial degree %s", HasId.asIds(routeIndex.getPairFor(indexPair)), degree));
-        }
-
-        final ImmutableIndexedBitSet changesForDegree = costsPerDegree.getDegree(degree).getCopyOfRowAndColumn(indexPair.first(), indexPair.second());
-        // apply mask to filter out unavailable dates/modes quickly
-        final IndexedBitSet withDateApplied = IndexedBitSet.and(changesForDegree, dateOverlaps);
-
-        if (withDateApplied.isSet(indexPair)) {
-
-            QueryPathsWithDepth.QueryPath pathFor = getPathFor(indexPair, degree, interchangeFilter);
-            if (pathFor.hasAny()) {
-                return new PathResults.HasPathResults(pathFor);
-            } else {
-                return new PathResults.NoPathResults();
-            }
-
-        } else {
-            return new PathResults.NoPathResults();
-        }
-    }
-
-    private QueryPathsWithDepth.QueryPath getPathFor(final RouteIndexPair indexPair, final int currentDegree,
-                                                     final Function<InterchangeStation, Boolean> interchangeFilter) {
-
-        if (currentDegree==1) {
-            if (!interchangeRepository.hasInterchangeFor(indexPair)) {
-                final RoutePair routePair = routeIndex.getPairFor(indexPair);
-                final String msg = "Unable to find interchange for " + HasId.asIds(routePair);
-                logger.error(msg);
-                logger.warn("Full pair first:" + routePair.first() + " second: " + routePair.second());
-                if (!routePair.isDateOverlap()) {
-                    logger.error("Further: No date overlap between " + HasId.asIds(routePair));
-                }
-                throw new RuntimeException(msg);
-            }
-
-            // can be multiple interchanges points between a pair of routes
-            final Set<InterchangeStation> changes = interchangeRepository.getInterchangesFor(indexPair).
-                    filter(interchangeFilter::apply).
-                    collect(Collectors.toSet());
-
-            if (changes.isEmpty()) {
-                return QueryPathsWithDepth.ZeroPaths.get();
-            } else {
-                return QueryPathsWithDepth.AnyOfInterchanges.Of(changes);
-            }
-        } else {
-            final int lowerDegree = currentDegree-1;
-            //final int depth = degree - 1;
-
-            final Stream<Pair<RouteIndexPair, RouteIndexPair>> underlying = routeInterconnectRepository.forDegree(lowerDegree, indexPair);
-            // TODO parallel? not required?
-            final Set<QueryPathsWithDepth.BothOf> combined = underlying. //.parallel().
-                    map(pair -> expandPathFor(pair, lowerDegree, interchangeFilter)).
-                    filter(QueryPathsWithDepth.BothOf::hasAny).
-                    collect(Collectors.toSet());
-
-            return new QueryPathsWithDepth.AnyOf(combined);
-        }
-    }
-
-    @NotNull
-    private QueryPathsWithDepth.BothOf expandPathFor(final Pair<RouteIndexPair, RouteIndexPair> pair, final int degree,
-                                                     final Function<InterchangeStation, Boolean> interchangeFilter) {
-        final QueryPathsWithDepth.QueryPath pathA = getPathFor(pair.getLeft(), degree, interchangeFilter);
-        final QueryPathsWithDepth.QueryPath pathB = getPathFor(pair.getRight(), degree, interchangeFilter);
-        return new QueryPathsWithDepth.BothOf(pathA, pathB);
-    }
-
-    // test support
-    public Set<Pair<RoutePair, RoutePair>> getBackTracksFor(int degree, RouteIndexPair indexPair) {
-        return routeInterconnectRepository.forDegree(degree, indexPair).
-                map(pair -> Pair.of(routeIndex.getPairFor(pair.getLeft()), routeIndex.getPairFor(pair.getRight()))).
-                collect(Collectors.toSet());
-    }
-
     public ImmutableIndexedBitSet getCostsPerDegree(int degree) {
         return costsPerDegree.getDegree(degree);
     }
 
+    public ImmutableIndexedBitSet getDegree(int currentDegree) {
+        return costsPerDegree.getDegree(currentDegree);
+    }
 
     /***
      * encapsulate cost per degree to facilitate caching

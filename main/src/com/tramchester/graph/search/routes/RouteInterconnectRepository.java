@@ -1,51 +1,66 @@
 package com.tramchester.graph.search.routes;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.RoutePair;
-import com.tramchester.domain.collections.ImmutableIndexedBitSet;
-import com.tramchester.domain.collections.RouteIndexPair;
-import com.tramchester.domain.collections.RouteIndexPairFactory;
-import com.tramchester.domain.collections.SimpleImmutableBitmap;
+import com.tramchester.domain.collections.*;
+import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.repository.InterchangeRepository;
+import com.tramchester.repository.NumberOfRoutes;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-class RouteInterconnectRepository {
+@LazySingleton
+public class RouteInterconnectRepository {
     private static final Logger logger = LoggerFactory.getLogger(RouteInterconnectRepository.class);
 
     private final RouteIndex routeIndex;
     private final RouteDateAndDayOverlap routeDateAndDayOverlap;
     private final RouteIndexPairFactory pairFactory;
     private final int numRoutes;
-    private final InterchangeRepository pairToInterchange;
-    private final RouteCostMatrix.CostsPerDegree costsPerDegree;
+    private final InterchangeRepository interchangeRepository;
+    private final RouteCostMatrix routeCostMatrix;
 
     private final List<RouteInterconnects> links;
 
-    public RouteInterconnectRepository(RouteIndexPairFactory pairFactory, int numRoutes, RouteIndex routeIndex,
-                                       InterchangeRepository pairToInterchange, RouteCostMatrix.CostsPerDegree costsPerDegree,
+    @Inject
+    public RouteInterconnectRepository(RouteIndexPairFactory pairFactory, NumberOfRoutes numberOfRoutes, RouteIndex routeIndex,
+                                       InterchangeRepository interchangeRepository, RouteCostMatrix routeCostMatrix,
                                        RouteDateAndDayOverlap routeDateAndDayOverlap) {
         this.pairFactory = pairFactory;
-        this.numRoutes = numRoutes;
-        this.pairToInterchange = pairToInterchange;
-        this.costsPerDegree = costsPerDegree;
+        this.numRoutes = numberOfRoutes.numberOfRoutes();
+        this.interchangeRepository = interchangeRepository;
+        this.routeCostMatrix = routeCostMatrix;
         this.routeIndex = routeIndex;
         this.routeDateAndDayOverlap = routeDateAndDayOverlap;
         links = new ArrayList<>(RouteCostMatrix.MAX_DEPTH);
     }
 
+    @PostConstruct
     public void start() {
         for (int depth = 0; depth < RouteCostMatrix.MAX_DEPTH; depth++) {
             RouteInterconnects routeInterconnects = new RouteInterconnects(pairFactory, numRoutes);
             links.add(routeInterconnects);
         }
         createBacktracking(routeDateAndDayOverlap);
+    }
+
+    @PreDestroy
+    public void clear() {
+        links.clear();
     }
 
     private void createBacktracking(final RouteDateAndDayOverlap routeDateAndDayOverlap) {
@@ -62,7 +77,7 @@ class RouteInterconnectRepository {
         }
 
         //final int nextDegree = currentDegree + 1;
-        final ImmutableIndexedBitSet matrixForDegree = costsPerDegree.getDegree(currentDegree);
+        final ImmutableIndexedBitSet matrixForDegree = routeCostMatrix.getDegree(currentDegree);
 
         logger.info("Create backtrack pair map for degree " + currentDegree + " matrixForDegree bits set " + matrixForDegree.numberOfBitsSet());
 
@@ -119,7 +134,7 @@ class RouteInterconnectRepository {
             return links.get(depth).getLinksFor(indexPair);
         }
 
-        final short degree = costsPerDegree.getDegree(indexPair);
+        final short degree = routeCostMatrix.getDegree(indexPair);
         final RoutePair missing = routeIndex.getPairFor(indexPair);
         final String message = MessageFormat.format("Missing indexPair {0} ({1}) at depth {2} actual degree for pair {3}",
                 indexPair, missing, depth, degree);
@@ -127,13 +142,13 @@ class RouteInterconnectRepository {
         if (!missing.isDateOverlap()) {
             logger.warn("Also no date overlap between " + missing);
         }
-        if (!pairToInterchange.hasInterchangeFor(indexPair)) {
+        if (!interchangeRepository.hasInterchangeFor(indexPair)) {
             logger.warn("Also no interchange for " + missing);
         }
         throw new RuntimeException(message);
     }
 
-    public RouteInterconnects forDegree(final int currentDegree) {
+    private RouteInterconnects forDegree(final int currentDegree) {
         return forDepth(currentDegree - 1);
     }
 
@@ -141,12 +156,99 @@ class RouteInterconnectRepository {
         return forDepth(degree - 1, indexPair);
     }
 
-    public void clear() {
-        links.clear();
+    // test support
+    public Set<Pair<RoutePair, RoutePair>> getBackTracksFor(int degree, RouteIndexPair indexPair) {
+        return forDegree(degree, indexPair).
+                map(pair -> Pair.of(routeIndex.getPairFor(pair.getLeft()), routeIndex.getPairFor(pair.getRight()))).
+                collect(Collectors.toSet());
+    }
+
+    public int getNumberBacktrackFor(final int depth) {
+        return forDegree(depth).numberOfLinks();
     }
 
 
-    public static class RouteInterconnects {
+    public PathResults getInterchangesFor(final RouteIndexPair indexPair, final ImmutableIndexedBitSet dateOverlaps,
+                                          final Function<InterchangeStation, Boolean> interchangeFilter) {
+        final int degree = routeCostMatrix.getDegree(indexPair);
+
+        if (degree==Byte.MAX_VALUE) {
+            logger.warn("No degree found for " + routeIndex.getPairFor(indexPair));
+            return new PathResults.NoPathResults();
+        }
+
+        if (logger.isDebugEnabled()) {
+            logger.debug(String.format("Get interchanges for %s with initial degree %s", HasId.asIds(routeIndex.getPairFor(indexPair)), degree));
+        }
+
+        final ImmutableIndexedBitSet changesForDegree = routeCostMatrix.getDegree(degree).getCopyOfRowAndColumn(indexPair.first(), indexPair.second());
+        // apply mask to filter out unavailable dates/modes quickly
+        final IndexedBitSet withDateApplied = IndexedBitSet.and(changesForDegree, dateOverlaps);
+
+        if (withDateApplied.isSet(indexPair)) {
+
+            QueryPathsWithDepth.QueryPath pathFor = getPathFor(indexPair, degree, interchangeFilter);
+            if (pathFor.hasAny()) {
+                return new PathResults.HasPathResults(pathFor);
+            } else {
+                return new PathResults.NoPathResults();
+            }
+
+        } else {
+            return new PathResults.NoPathResults();
+        }
+    }
+
+    private QueryPathsWithDepth.QueryPath getPathFor(final RouteIndexPair indexPair, final int currentDegree,
+                                                     final Function<InterchangeStation, Boolean> interchangeFilter) {
+
+        if (currentDegree==1) {
+            if (!interchangeRepository.hasInterchangeFor(indexPair)) {
+                final RoutePair routePair = routeIndex.getPairFor(indexPair);
+                final String msg = "Unable to find interchange for " + HasId.asIds(routePair);
+                logger.error(msg);
+                logger.warn("Full pair first:" + routePair.first() + " second: " + routePair.second());
+                if (!routePair.isDateOverlap()) {
+                    logger.error("Further: No date overlap between " + HasId.asIds(routePair));
+                }
+                throw new RuntimeException(msg);
+            }
+
+            // can be multiple interchanges points between a pair of routes
+            final Set<InterchangeStation> changes = interchangeRepository.getInterchangesFor(indexPair).
+                    filter(interchangeFilter::apply).
+                    collect(Collectors.toSet());
+
+            if (changes.isEmpty()) {
+                return QueryPathsWithDepth.ZeroPaths.get();
+            } else {
+                return QueryPathsWithDepth.AnyOfInterchanges.Of(changes);
+            }
+        } else {
+            final int lowerDegree = currentDegree-1;
+            //final int depth = degree - 1;
+
+            final Stream<Pair<RouteIndexPair, RouteIndexPair>> underlying = forDegree(lowerDegree, indexPair);
+            // TODO parallel? not required?
+            final Set<QueryPathsWithDepth.BothOf> combined = underlying. //.parallel().
+                    map(pair -> expandPathFor(pair, lowerDegree, interchangeFilter)).
+                    filter(QueryPathsWithDepth.BothOf::hasAny).
+                    collect(Collectors.toSet());
+
+            return new QueryPathsWithDepth.AnyOf(combined);
+        }
+    }
+
+    @NotNull
+    private QueryPathsWithDepth.BothOf expandPathFor(final Pair<RouteIndexPair, RouteIndexPair> pair, final int degree,
+                                                     final Function<InterchangeStation, Boolean> interchangeFilter) {
+        final QueryPathsWithDepth.QueryPath pathA = getPathFor(pair.getLeft(), degree, interchangeFilter);
+        final QueryPathsWithDepth.QueryPath pathB = getPathFor(pair.getRight(), degree, interchangeFilter);
+        return new QueryPathsWithDepth.BothOf(pathA, pathB);
+    }
+
+
+    private static class RouteInterconnects {
         private final RouteIndexPairFactory pairFactory;
 
         // (A, C) -> (A, B) (B ,C)
@@ -165,11 +267,11 @@ class RouteInterconnectRepository {
             seen = new boolean[numRoutes][numRoutes];
         }
 
-        public int numberOfLinks() {
+        int numberOfLinks() {
             return bitSetForIndex.size();
         }
 
-        public void addLinksBetween(final short routeIndexA, final short routeIndexB, final SimpleImmutableBitmap links,
+         void addLinksBetween(final short routeIndexA, final short routeIndexB, final SimpleImmutableBitmap links,
                                     final RouteDateAndDayOverlap.RouteOverlaps dateOverlapsForRoute,
                                     final RouteDateAndDayOverlap.RouteOverlaps dateOverlapsForConnectedRoute) {
             links.getBitIndexes().
@@ -178,7 +280,7 @@ class RouteInterconnectRepository {
                     forEach(bitSet -> bitSet.set(routeIndexB));
         }
 
-        private boolean overlapBetween(final RouteDateAndDayOverlap.RouteOverlaps dateOverlapsForRoute,
+        boolean overlapBetween(final RouteDateAndDayOverlap.RouteOverlaps dateOverlapsForRoute,
                                        final RouteDateAndDayOverlap.RouteOverlaps dateOverlapsForConnectedRoute,
                                        final Short linkIndex) {
             return dateOverlapsForRoute.get(linkIndex) && dateOverlapsForConnectedRoute.get(linkIndex);

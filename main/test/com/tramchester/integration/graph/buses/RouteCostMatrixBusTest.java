@@ -109,7 +109,7 @@ public class RouteCostMatrixBusTest {
         DataCache dataCache = new FakeDataCache();
 
         RouteCostMatrix matrix = new RouteCostMatrix(numberOfRoutes, interchangeRepository, dataCache, graphFilter,
-                pairFactory, routeIndex, dayAndDateRouteOverlap);
+                routeIndex, dayAndDateRouteOverlap);
 
         for (int i = 0; i < 20; i++) {
             matrix.start();

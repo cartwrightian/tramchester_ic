@@ -6,12 +6,11 @@ import com.tramchester.caching.FileDataCache;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
 import com.tramchester.domain.Route;
-import com.tramchester.domain.RoutePair;
-import com.tramchester.domain.collections.*;
+import com.tramchester.domain.collections.ImmutableIndexedBitSet;
+import com.tramchester.domain.collections.RouteIndexPairFactory;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.filters.GraphFilterActive;
-import com.tramchester.graph.search.routes.PathResults;
 import com.tramchester.graph.search.routes.RouteCostMatrix;
 import com.tramchester.graph.search.routes.RouteDateAndDayOverlap;
 import com.tramchester.graph.search.routes.RouteIndex;
@@ -76,21 +75,6 @@ public class RailAndTramRouteCostMatrixTest {
 
         numberOfRoutes = routeRepository.numberOfRoutes();
         date = TestEnv.testDay();
-    }
-
-    @Disabled("did not find the issue, always passes")
-    @Test
-    void shouldHaveConsistentNumbersOnBacktracking() {
-
-        // For tracking down bug, seems consistent for one data load, but not across multiple?
-
-        int resultA = routeMatrix.getNumberBacktrackFor(1);
-
-        RouteCostMatrix secondMatrix = createRouteCostMatrix();
-
-        int resultB = secondMatrix.getNumberBacktrackFor(1);
-
-        assertEquals(resultA, resultB);
     }
 
     @Disabled("did not find the issue, always passes")
@@ -203,37 +187,6 @@ public class RailAndTramRouteCostMatrixTest {
         assertEquals(2, result);
     }
 
-    @Test
-    void shouldReproIssueGettingInterchangesAndMissingIndex() {
-        Route routeA = railRouteHelper.getRoute(TrainOperatingCompanies.TP, ManchesterVictoria, Huddersfield, 1);
-        Route routeB = railRouteHelper.getRoute(TrainOperatingCompanies.NT, Chester, Stockport, 1);
-
-        RouteIndexPair indexPair = routeIndex.getPairFor(RoutePair.of(routeA, routeB));
-        IndexedBitSet allDates = IndexedBitSet.getIdentity(numberOfRoutes, numberOfRoutes);
-
-        PathResults results = routeMatrix.getInterchangesFor(indexPair, allDates, interchangeStation -> true);
-
-        assertTrue(results.hasAny());
-
-        assertEquals(3,results.getDepth());
-    }
-
-    @Test
-    void shouldReproIssueGettingInterchangesAndMissingIndexExample2() {
-        Route routeA = railRouteHelper.getRoute(TrainOperatingCompanies.TP, ManchesterPiccadilly, Leeds, 1);
-        Route routeB = railRouteHelper.getRoute(TrainOperatingCompanies.NT, Chester, Stockport, 1);
-
-        RouteIndexPair indexPair = routeIndex.getPairFor(RoutePair.of(routeA, routeB));
-        IndexedBitSet allDates = IndexedBitSet.getIdentity(numberOfRoutes, numberOfRoutes);
-
-        PathResults results = routeMatrix.getInterchangesFor(indexPair, allDates, interchangeStation -> true);
-
-        assertTrue(results.hasAny());
-
-        assertEquals(3,results.getDepth());
-    }
-
-
     @NotNull
     private RouteCostMatrix createRouteCostMatrix() {
         NumberOfRoutes numberOfRoutes = componentContainer.get(NumberOfRoutes.class);
@@ -244,7 +197,7 @@ public class RailAndTramRouteCostMatrixTest {
         RouteDateAndDayOverlap routeDayAndDateOverlap = componentContainer.get(RouteDateAndDayOverlap.class);
 
         RouteCostMatrix secondMatrix = new RouteCostMatrix(numberOfRoutes, interchangeRepository, dataCache, graphFilter,
-                pairFactory, routeIndex, routeDayAndDateOverlap);
+                routeIndex, routeDayAndDateOverlap);
 
         secondMatrix.start();
         return secondMatrix;

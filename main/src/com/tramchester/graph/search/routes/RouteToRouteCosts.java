@@ -51,18 +51,20 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     private final ClosedStationsRepository closedStationsRepository;
     private final RouteIndex index;
     private final RouteCostMatrix costs;
+    private final RouteInterconnectRepository routeInterconnectRepository;
     private final RouteIndexPairFactory pairFactory;
 
     @Inject
     public RouteToRouteCosts(NeighboursRepository neighboursRepository,
                              StationAvailabilityRepository availabilityRepository,
                              ClosedStationsRepository closedStationsRepository,
-                             RouteIndex index, RouteCostMatrix costs, RouteIndexPairFactory pairFactory) {
+                             RouteIndex index, RouteCostMatrix costs, RouteInterconnectRepository routeInterconnectRepository, RouteIndexPairFactory pairFactory) {
         this.neighboursRepository = neighboursRepository;
         this.availabilityRepository = availabilityRepository;
         this.closedStationsRepository = closedStationsRepository;
         this.index = index;
         this.costs = costs;
+        this.routeInterconnectRepository = routeInterconnectRepository;
 
         this.pairFactory = pairFactory;
     }
@@ -108,7 +110,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         // need to account for route availability and modes when getting the depth
 
-        final PathResults results = costs.getInterchangesFor(routePair, dateAndModeOverlaps, changeStationOperating::isOperating);
+        final PathResults results = routeInterconnectRepository.getInterchangesFor(routePair, dateAndModeOverlaps, changeStationOperating::isOperating);
 
         if (results.hasAny()) {
             return results.getDepth();
