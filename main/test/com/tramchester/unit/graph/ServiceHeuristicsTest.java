@@ -11,10 +11,10 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.caches.CachedNodeOperations;
 import com.tramchester.graph.caches.NodeContentsRepository;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.search.JourneyConstraints;
 import com.tramchester.graph.search.LowestCostsForDestRoutes;
 import com.tramchester.graph.search.ServiceHeuristics;
@@ -23,7 +23,6 @@ import com.tramchester.graph.search.diagnostics.HowIGotHere;
 import com.tramchester.graph.search.diagnostics.ReasonCode;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
-import com.tramchester.repository.RouteInterchangeRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
@@ -74,7 +73,6 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         howIGotHere = createMock(HowIGotHere.class);
         stationRepository = createMock(StationRepository.class);
         fewestHopsForRoutes = createMock(LowestCostsForDestRoutes.class);
-        RouteInterchangeRepository routeInterchanges = createMock(RouteInterchangeRepository.class);
 
         int maxPathLength = 400;
         journeyConstraints = createMock(JourneyConstraints.class);

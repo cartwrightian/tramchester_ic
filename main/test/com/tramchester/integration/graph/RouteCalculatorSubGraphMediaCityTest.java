@@ -169,24 +169,6 @@ class RouteCalculatorSubGraphMediaCityTest {
         assertFalse(results.isEmpty());
     }
 
-    @Disabled("router interchange repos is going away")
-    @Test
-    void shouldHavePathsToInterchanges() {
-        RouteInterchangeRepository routeInterchangeRepository = componentContainer.get(RouteInterchangeRepository.class);
-
-        Station salfordQuay = SalfordQuay.from(stationRepository);
-
-        Set<Route> pickups = salfordQuay.getPickupRoutes();
-
-        long routesWithInterchanges = pickups.stream().map(route -> stationRepository.getRouteStation(salfordQuay, route)).
-                filter(routeInterchangeRepository::hasPathToInterchange).
-//                map(routeInterchangeRepository::hasPathToInterchange).
-//                filter(duration -> !duration.isNegative()).
-                count();
-
-        assertNotEquals(0, routesWithInterchanges);
-    }
-
     @Test
     void shouldHaveExpectedRouteOverlaps() {
         Station salfordQuay = SalfordQuay.from(stationRepository);
