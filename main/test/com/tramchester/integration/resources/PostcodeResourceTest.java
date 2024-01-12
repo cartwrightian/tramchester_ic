@@ -1,20 +1,25 @@
 package com.tramchester.integration.resources;
 
 import com.tramchester.App;
-import com.tramchester.config.TfgmTramLiveDataConfig;
-import com.tramchester.domain.presentation.DTO.PostcodeDTO;
+import com.tramchester.GuiceContainerDependencies;
+import com.tramchester.domain.id.IdForDTO;
+import com.tramchester.domain.id.PostcodeLocationId;
+import com.tramchester.domain.places.LocationType;
+import com.tramchester.domain.places.PostcodeLocation;
+import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.tram.TramWithPostcodesEnabled;
+import com.tramchester.repository.postcodes.PostcodeRepository;
 import com.tramchester.testSupport.reference.TestPostcodes;
 import com.tramchester.testSupport.testTags.PostcodeTestCategory;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import jakarta.ws.rs.core.GenericType;
+import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import jakarta.ws.rs.core.GenericType;
-import jakarta.ws.rs.core.Response;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -33,20 +38,27 @@ class PostcodeResourceTest {
 
     @Test
     void shouldGetLoadedPostcodes() {
-        Response response = APIClient.getApiResponse(appExtension, endPoint);
-        assertEquals(200, response.getStatus());
+        App app = appExtension.getApplication();
+        GuiceContainerDependencies dependencies = app.getDependencies();
+        PostcodeRepository postcodeRepository = dependencies.get(PostcodeRepository.class);
 
-        List<PostcodeDTO> results = response.readEntity(new GenericType<>(){});
+        PostcodeLocation expectedPostcode = postcodeRepository.getPostcode(PostcodeLocationId.create(TestPostcodes.postcodeForWythenshaweHosp()));
+
+        Response response = APIClient.getApiResponse(appExtension, endPoint);
+        assertEquals(200, response.getStatus(), response.toString());
+
+        List<LocationDTO> results = response.readEntity(new GenericType<>(){});
 
         assertFalse(results.isEmpty());
 
-        Optional<PostcodeDTO> found = results.stream().
-                filter(postcodeDTO -> postcodeDTO.getId().equals(TestPostcodes.postcodeForWythenshaweHosp())).findFirst();
+        IdForDTO expectedId = IdForDTO.createFor(expectedPostcode);
+        Optional<LocationDTO> found = results.stream().
+                filter(postcodeDTO -> postcodeDTO.getId().equals(expectedId)).findFirst();
         assertTrue(found.isPresent());
 
-        PostcodeDTO result = found.get();
+        LocationDTO result = found.get();
 
-        //assertEquals("m", result.getArea());
+        assertEquals(LocationType.Postcode, result.getLocationType());
         assertEquals(TestPostcodes.postcodeForWythenshaweHosp(), result.getName());
 
         LatLong expected = nearWythenshaweHosp.latLong();
@@ -68,14 +80,15 @@ class PostcodeResourceTest {
 
     private static class PostcodesOnlyEnabledResourceConfig extends TramWithPostcodesEnabled {
 
+        public PostcodesOnlyEnabledResourceConfig() {
+            super(LiveData.Disabled, Caching.Disabled);
+        }
+
         @Override
         public boolean getPlanningEnabled() {
             return false;
         }
 
-        @Override
-        public TfgmTramLiveDataConfig getLiveDataConfig() {
-            return null;
-        }
+
     }
 }

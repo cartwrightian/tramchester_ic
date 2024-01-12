@@ -10,12 +10,9 @@ import com.tramchester.domain.BoundingBoxWithCost;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.PostcodeLocationId;
 import com.tramchester.domain.places.MyLocation;
-import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.BoxWithCostDTO;
-import com.tramchester.domain.presentation.DTO.PostcodeDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
@@ -31,10 +28,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.ws.rs.core.Response;
 import java.time.Duration;
 import java.util.EnumSet;
 import java.util.stream.Stream;
@@ -124,11 +121,13 @@ public class JourneysForGridResource implements APIResource, GraphDatabaseDepend
         if (MyLocation.isUserLocation(idText)) {
             LatLong latLong = decodeLatLong(lat, lon);
             destination = CoordinateTransforms.getGridPosition(latLong);
-        } else if (PostcodeDTO.isPostcodeId(idText)) {
-            PostcodeLocationId postcodeId = PostcodeDTO.decodePostcodeId(idText);
-            PostcodeLocation postcode = postcodeRepository.getPostcode(postcodeId);
-            destination = postcode.getGridPosition();
-        } else {
+        }
+//        else if (PostcodeDTO.isPostcodeId(idText)) {
+//            PostcodeLocationId postcodeId = PostcodeDTO.decodePostcodeId(idText);
+//            PostcodeLocation postcode = postcodeRepository.getPostcode(postcodeId);
+//            destination = postcode.getGridPosition();
+//        }
+        else {
             IdFor<Station> stationId = Station.createId(idText);
             Station station = repository.getStationById(stationId);
             destination = station.getGridPosition();

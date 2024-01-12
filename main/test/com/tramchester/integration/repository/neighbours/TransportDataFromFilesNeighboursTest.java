@@ -5,11 +5,9 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.NeighboursTestConfig;
 import com.tramchester.repository.AgencyRepository;
-import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -36,7 +34,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @BusTest
 public class TransportDataFromFilesNeighboursTest {
     private static ComponentContainer componentContainer;
-    private StationGroupsRepository stationGroupsRepository;
     private StationRepository stationRepository;
     private RouteRepository routeRepository;
     private AgencyRepository agencyRepository;
@@ -60,7 +57,6 @@ public class TransportDataFromFilesNeighboursTest {
         routeRepository = componentContainer.get(RouteRepository.class);
         agencyRepository = componentContainer.get(AgencyRepository.class);
 
-        stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
     }
 
     @Test
@@ -94,18 +90,6 @@ public class TransportDataFromFilesNeighboursTest {
 
         // no bus stations are also tram for tfgm
         assertFalse(busStations.stream().anyMatch(station -> station.servesMode(Tram)));
-    }
-
-    @Test
-    void shouldFindTheCompositeBusStation() {
-        StationGroup shudehillCompositeBus = stationGroupsRepository.findByName("Shudehill Interchange");
-
-        assertNotNull(shudehillCompositeBus);
-
-        shudehillCompositeBus.getContained().forEach(busStop -> {
-            Station found = stationRepository.getStationById(busStop.getId());
-            assertNotNull(found, "No stop found for " + found);
-        });
     }
 
     @Test

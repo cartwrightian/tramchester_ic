@@ -63,9 +63,10 @@ public class VehicleStageDTO extends SimpleStageDTO {
 
     @Override
     public String toString() {
+        String platformText = hasPlatform ? platform.getId().getActualId() : "[no platform]";
         return "VehicleStageDTO{" +
                 "hasPlatform=" + hasPlatform +
-                ", platform=" + platform.getId() +
+                ", platform=" + platformText +
                 ", tripId=" + tripId +
                 "} " + super.toString();
     }

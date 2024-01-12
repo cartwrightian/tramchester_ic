@@ -5,16 +5,16 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
-import com.tramchester.graph.*;
+import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.facade.MutableGraphTransaction;
-import com.tramchester.graph.graphbuild.StationGroupsGraphBuilder;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
+import com.tramchester.graph.graphbuild.StationGroupsGraphBuilder;
 import com.tramchester.integration.testSupport.NeighboursTestConfig;
-import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.*;
@@ -33,7 +33,7 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 class AddNeighboursGraphBuilderTest {
 
     private static GraphDatabase graphDatabase;
-    private StationGroup shudehillCompositeBus;
+    private StationGroup shudehillCentralBus;
     private Station shudehillTram;
 
     private static ComponentContainer componentContainer;
@@ -64,9 +64,10 @@ class AddNeighboursGraphBuilderTest {
     void onceBeforeEachTest() {
 
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
-        StationGroupsRepository stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
 
-        shudehillCompositeBus = stationGroupsRepository.findByName("Shudehill Interchange");
+        BusStations.CentralStops centralStops = new BusStations.CentralStops(componentContainer);
+
+        shudehillCentralBus = centralStops.Shudehill();
         shudehillTram = stationRepository.getStationById(Shudehill.getId());
 
         // force init of main DB and hence save of VERSION node, so avoid multiple rebuilds of the DB
@@ -82,11 +83,11 @@ class AddNeighboursGraphBuilderTest {
 
     @Test
     void shouldFindTheCompositeBusStation() {
-        assertNotNull(shudehillCompositeBus);
+        assertNotNull(shudehillCentralBus);
 
-        GraphNode compNode = txn.findNode(shudehillCompositeBus);
+        GraphNode compNode = txn.findNode(shudehillCentralBus);
         assertNotNull(compNode, "No node found for " + compNode);
-        shudehillCompositeBus.getContained().forEach(busStop -> {
+        shudehillCentralBus.getContained().forEach(busStop -> {
             GraphNode busNode = txn.findNode(busStop);
             assertNotNull(busNode, "No node found for " + busStop);
         });
@@ -106,7 +107,7 @@ class AddNeighboursGraphBuilderTest {
         assertFalse(seenNode(txn, shudehillTram, outFromTram, this::getEndNode));
         assertFalse(seenNode(txn, victoria, towardsTram, this::getStartNode));
 
-        shudehillCompositeBus.getContained().forEach(busStop -> {
+        shudehillCentralBus.getContained().forEach(busStop -> {
             assertTrue(seenNode(txn, busStop, outFromTram, this::getEndNode));
             assertTrue(seenNode(txn, busStop, towardsTram, this::getStartNode));
         });
@@ -124,7 +125,7 @@ class AddNeighboursGraphBuilderTest {
     @Test
     void shouldHaveExpectedNeighbourRelationshipsToFromBus() {
 
-        shudehillCompositeBus.getContained().forEach(busStop -> {
+        shudehillCentralBus.getContained().forEach(busStop -> {
             GraphNode busNode = txn.findNode(busStop);
             assertNotNull(busNode, "No node found for " + busStop);
 

@@ -4,7 +4,9 @@ import com.codahale.metrics.annotation.Timed;
 import com.google.inject.Inject;
 import com.tramchester.dataimport.postcodes.PostcodeDataImporter;
 import com.tramchester.domain.places.PostcodeLocation;
-import com.tramchester.domain.presentation.DTO.PostcodeDTO;
+import com.tramchester.domain.presentation.DTO.LocationDTO;
+import com.tramchester.domain.presentation.DTO.PlatformDTO;
+import com.tramchester.domain.presentation.DTO.RouteRefDTO;
 import com.tramchester.repository.postcodes.PostcodeRepository;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -18,13 +20,14 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Request;
+import jakarta.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.ws.rs.core.Response;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -48,31 +51,38 @@ public class PostcodeResource implements APIResource {
     @GET
     @Timed
     @Operation(description = "Return all loaded (local) postcodes")
-    @ApiResponse(content = @Content(array = @ArraySchema(uniqueItems = true, schema = @Schema(implementation = PostcodeDTO.class))))
+    @ApiResponse(content = @Content(array = @ArraySchema(uniqueItems = true, schema = @Schema(implementation = LocationDTO.class))))
     @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.DAYS, isPrivate = false)
-    public Response getAll(@Context Request request) {
+    public Response get(@Context Request request) {
         logger.info("Get all postcodes");
 
-        // TODO this could potentially be very big.....
-        Collection<PostcodeLocation> allPostcodes = postcodeRepository.getPostcodes();
+        try {
+            LocalDateTime modTimeFromPostcodeImporter = importer.getTargetFolderModTime();
+            Date modtime = Date.from(modTimeFromPostcodeImporter.toInstant(ZoneOffset.UTC));
 
-        LocalDateTime modTime = importer.getTargetFolderModTime();
-        Date date = Date.from(modTime.toInstant(ZoneOffset.UTC));
+            Response.ResponseBuilder builder = request.evaluatePreconditions(modtime);
 
-        Response.ResponseBuilder builder = request.evaluatePreconditions(date);
-
-        if (builder==null) {
-            logger.debug("modified");
-            List<PostcodeDTO> postcodeDTOs = mapToDTO(allPostcodes);
-            return Response.ok(postcodeDTOs).lastModified(date).build();
-        } else {
-            logger.debug("Not modified");
-            return builder.build();
+            if (builder == null) {
+                logger.debug("modified");
+                Collection<PostcodeLocation> allPostcodes = postcodeRepository.getPostcodes();
+                List<LocationDTO> postcodeDTOs = mapToDTO(allPostcodes);
+                return Response.ok(postcodeDTOs).lastModified(modtime).build();
+            } else {
+                logger.debug("Not modified");
+                return builder.build();
+            }
         }
-        
+        catch (Exception exception) {
+            logger.error("Caught exception", exception);
+            return  Response.serverError().build();
+        }
     }
 
-    private List<PostcodeDTO> mapToDTO(Collection<PostcodeLocation> allPostcodes) {
-        return allPostcodes.stream().map(PostcodeDTO::new).collect(Collectors.toList());
+    private List<LocationDTO> mapToDTO(final Collection<PostcodeLocation> allPostcodes) {
+        final List<PlatformDTO> platform = Collections.emptyList();
+        final List<RouteRefDTO> routes = Collections.emptyList();
+        return allPostcodes.stream().
+                map(postcodeLocation -> new LocationDTO(postcodeLocation, platform, routes)).
+                collect(Collectors.toList());
     }
 }

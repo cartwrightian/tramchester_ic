@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.serialization.IdForDTOSerialization;
+import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.presentation.LatLong;
 
 import java.util.Objects;
@@ -17,16 +18,16 @@ public class IdForDTO {
             throw new RuntimeException("Invalid source id " + sourceId);
         }
 
-        if (sourceId instanceof StringIdFor) {
-            StringIdFor<?> stringId = (StringIdFor<?>) sourceId;
+        if (sourceId instanceof StringIdFor<?> stringId) {
             actualId = stringId.getContainedId();
-        } else if (sourceId instanceof PlatformId) {
-            PlatformId platformId = (PlatformId) sourceId;
+        } else if (sourceId instanceof PlatformId platformId) {
             StringIdFor<Platform> internalId = platformId.getContainedId();
             actualId = internalId.getContainedId();
-        } else if (sourceId instanceof RailRouteId) {
-            RailRouteId railRouteId = (RailRouteId) sourceId;
+        } else if (sourceId instanceof RailRouteId railRouteId) {
             StringIdFor<Route> internalId = railRouteId.getContainedId();
+            actualId = internalId.getContainedId();
+        } else if (sourceId instanceof PostcodeLocationId postcodeLocationId) {
+            StringIdFor<PostcodeLocation> internalId = postcodeLocationId.getContainedId();
             actualId = internalId.getContainedId();
         } else {
             throw new RuntimeException("Not defined for " + sourceId);

@@ -48,6 +48,8 @@ class PostcodeBusRouteCalculatorTest {
     private LocationJourneyPlannerTestFacade planner;
     private Duration maxJourneyDuration;
 
+    /// TODO In effect these are just location to location searchs, perhaps map postcode to locality???
+
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         testConfig = new IntegrationBusTestConfig();

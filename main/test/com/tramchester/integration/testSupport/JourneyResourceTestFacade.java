@@ -43,6 +43,11 @@ public class JourneyResourceTestFacade {
     }
 
     @NotNull
+    public JourneyQueryDTO getQueryDTO(TramDate date, TramTime time, Location<?> start,  Location<?> dest, boolean arriveBy, int maxChanges) {
+        return JourneyQueryDTO.create(date, time, start, dest, arriveBy, maxChanges);
+    }
+
+    @NotNull
     public JourneyQueryDTO getQueryDTO(TramDate date, TramTime time, FakeStation start, Location<?> dest, boolean arriveBy, int maxChanges) {
         return JourneyQueryDTO.create(date, time, start.from(stationRepository), dest, arriveBy, maxChanges);
     }

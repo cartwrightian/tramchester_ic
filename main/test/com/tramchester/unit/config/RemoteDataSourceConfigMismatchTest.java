@@ -8,6 +8,7 @@ import com.tramchester.integration.testSupport.nptg.NPTGDataSourceTestConfig;
 import com.tramchester.integration.testSupport.postcodes.PostCodeDatasourceConfig;
 import com.tramchester.testSupport.TestEnv;
 import io.dropwizard.configuration.ConfigurationException;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -132,6 +133,7 @@ public class RemoteDataSourceConfigMismatchTest {
         validateConfig(gm, frequency);
     }
 
+    @Disabled("postcode no longer enabled for bus")
     @Test
     void shouldHaveMatchingPostcodeSectionTestAndBus() throws ConfigurationException, IOException {
         RemoteDataSourceConfig testConfig = new PostCodeDatasourceConfig();

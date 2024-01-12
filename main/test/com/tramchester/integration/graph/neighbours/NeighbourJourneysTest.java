@@ -21,11 +21,11 @@ import com.tramchester.graph.search.routes.RouteToRouteCosts;
 import com.tramchester.integration.testSupport.NeighboursTestConfig;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.repository.InterchangeRepository;
-import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.*;
 
@@ -56,7 +56,7 @@ public class NeighbourJourneysTest {
     private Duration maxJourneyDuration;
     private TramDate date;
     private TimeRange timeRange;
-    private EnumSet<TransportMode> modes;
+    private final EnumSet<TransportMode> modes = EnumSet.of(Bus, Tram);;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -76,11 +76,13 @@ public class NeighbourJourneysTest {
         GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
         stationRepository = componentContainer.get(StationRepository.class);
 
-        StationGroupsRepository stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
-        StationGroup shudehillCompositeBus = stationGroupsRepository.findByName("Shudehill Interchange");
 
-        Optional<Station> maybeStop = shudehillCompositeBus.getContained().stream().findAny();
+        BusStations.CentralStops centralStops = new BusStations.CentralStops(componentContainer);
+
+        StationGroup shudehillCentralBus = centralStops.Shudehill();
+
+        Optional<Station> maybeStop = shudehillCentralBus.getContained().stream().findAny();
         maybeStop.ifPresent(stop -> shudehillBusStop = stop);
 
         shudehillTram = stationRepository.getStationById(Shudehill.getId());
@@ -96,8 +98,6 @@ public class NeighbourJourneysTest {
         date = TestEnv.testDay();
 
         timeRange = TimeRange.of(TramTime.of(8,15), TramTime.of(22,35));
-
-        modes = EnumSet.of(Bus, Tram);
 
     }
 
@@ -137,7 +137,7 @@ public class NeighbourJourneysTest {
         assertEquals(2, busToTramHops.getMax());
 
         NumberOfChanges tramToBusHops = routeToRouteCosts.getNumberOfChanges(trams, buses, date, timeRange, modes);
-        assertEquals(2, tramToBusHops.getMin());
+        assertEquals(1, tramToBusHops.getMin());
         assertEquals(2, tramToBusHops.getMax());
 
         // now add neighbouring stops
@@ -145,12 +145,12 @@ public class NeighbourJourneysTest {
         buses.add(shudehillBusStop);
 
         busToTramHops = routeToRouteCosts.getNumberOfChanges(buses, trams, date, timeRange, modes);
-        assertEquals(0, busToTramHops.getMin());
-        assertEquals(2, busToTramHops.getMax());
+        assertEquals(1, busToTramHops.getMin());
+        assertEquals(1, busToTramHops.getMax());
 
         tramToBusHops = routeToRouteCosts.getNumberOfChanges(trams, buses, date, timeRange, modes);
-        assertEquals(0, tramToBusHops.getMin());
-        assertEquals(2, tramToBusHops.getMax());
+        assertEquals(1, tramToBusHops.getMin());
+        assertEquals(1, tramToBusHops.getMax());
     }
 
     @Test
@@ -198,7 +198,7 @@ public class NeighbourJourneysTest {
         LocationJourneyPlannerTestFacade facade = new LocationJourneyPlannerTestFacade(planner, stationRepository, txn);
 
         JourneyRequest request = new JourneyRequest(TestEnv.testDay(),
-                TramTime.of(11,53), false, 0, maxJourneyDuration, 1, modes);
+                TramTime.of(11,53), false, 1, maxJourneyDuration, 5, modes);
 
         Set<Journey> allJourneys = facade.quickestRouteForLocation(Altrincham.from(stationRepository), nearStPetersSquare, request, 4);
         assertFalse(allJourneys.isEmpty(), "No journeys");

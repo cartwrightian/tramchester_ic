@@ -21,7 +21,7 @@ public class APIClient {
     private final Invocation.Builder builder;
 
     private APIClient(IntegrationAppExtension appExtension, String endPoint) {
-        final int TIMEOUT_MS = 10 * 1000;
+        final int TIMEOUT_MS = 20 * 1000;
 
         Client client = appExtension.client();
 

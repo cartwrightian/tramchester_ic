@@ -63,8 +63,8 @@ public class VersionResource implements APIResource {
 
         logger.info("Returning modes " + modes);
 
-        ConfigDTO configDTO = new ConfigDTO(modes, config.hasRemoteDataSourceConfig(DataSourceID.postcode),
-                config.getMaxNumResults());
+        final boolean postcodesEnabled = config.hasRemoteDataSourceConfig(DataSourceID.postcode);
+        ConfigDTO configDTO = new ConfigDTO(modes, postcodesEnabled, config.getMaxNumResults());
 
         return Response.ok(configDTO).build();
     }

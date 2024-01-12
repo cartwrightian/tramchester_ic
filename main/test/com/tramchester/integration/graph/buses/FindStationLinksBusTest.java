@@ -4,25 +4,32 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.StationLink;
+import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.StationGroup;
 import com.tramchester.graph.search.FindStationLinks;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
-import com.tramchester.testSupport.testTags.BusTest;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.BusStations;
+import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TransportMode.Bus;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @BusTest
 class FindStationLinksBusTest {
 
     private static ComponentContainer componentContainer;
     private FindStationLinks findStationLinks;
+    private StationGroup shudehillCentralBusStops;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -39,13 +46,10 @@ class FindStationLinksBusTest {
     @BeforeEach
     void beforeEachOfTheTestsRun() {
         findStationLinks = componentContainer.get(FindStationLinks.class);
-    }
+        BusStations.CentralStops centralStops = new BusStations.CentralStops(componentContainer);
 
-    // TODO
-//    @Test
-//    void shouldFindExpectedLinksBetweenStations() {
-//
-//    }
+        shudehillCentralBusStops = centralStops.Shudehill();
+    }
 
     @Test
     void shouldHaveCorrectTransportMode() {
@@ -55,6 +59,22 @@ class FindStationLinksBusTest {
 
         long isBus = forBus.stream().filter(link -> link.getLinkingModes().contains(Bus)).count();
         assertEquals(forBus.size(), isBus);
+    }
+
+    @Test
+    void shouldGetStationNeighboursFromTram() {
+        IdSet<Station> busStopIds = shudehillCentralBusStops.getContained().stream().collect(IdSet.collector());
+
+        Set<StationLink> links = findStationLinks.findLinkedFor(Bus);
+
+        assertFalse(links.isEmpty());
+
+        Set<StationLink> beginAtShudehill = links.stream().
+                filter(link ->  busStopIds.contains(link.getBegin().getId())).
+                collect(Collectors.toSet());
+
+        assertFalse(beginAtShudehill.isEmpty());
+
     }
 
 }

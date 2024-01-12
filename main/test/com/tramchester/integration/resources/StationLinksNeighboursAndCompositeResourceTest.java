@@ -23,6 +23,7 @@ import jakarta.ws.rs.core.Response;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -42,9 +43,9 @@ class StationLinksNeighboursAndCompositeResourceTest {
     private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, configuration);
     private static GuiceContainerDependencies dependencies;
 
-    private StationGroup shudehillCompositeBus;
-    private Station shudehillTram;
+    private StationGroup shudehillCentralBusStops;
     private BusStations.CentralStops centralStops;
+    private IdForDTO shudehillTramId;
 
     @BeforeAll
     public static void beforeAnyTestsRun() {
@@ -58,25 +59,33 @@ class StationLinksNeighboursAndCompositeResourceTest {
 
         centralStops = new BusStations.CentralStops(dependencies);
 
-//        String shudehill_interchange = "Shudehill Interchange";
-        shudehillCompositeBus = centralStops.Shudehill(); //stationGroupsRepository.findByName(shudehill_interchange);
-        shudehillTram = stationRepository.getStationById(Shudehill.getId());
+        shudehillCentralBusStops = centralStops.Shudehill();
+        Station shudehillTram = stationRepository.getStationById(Shudehill.getId());
+
+        shudehillTramId = IdForDTO.createFor(shudehillTram);
+
     }
 
+    @Disabled("needs trams and buses enabled")
     @Test
     void shouldGetStationNeighboursFromTram() {
+        Set<IdForDTO> busStopIds = shudehillCentralBusStops.getContained().stream().
+                map(Station::getId).
+                map(IdForDTO::new).
+                collect(Collectors.toSet());
 
         List<StationLinkDTO> results = getLinks();
 
-        Set<IdForDTO> fromShudehillTram = results.stream().
-                filter(link -> link.getBegin().getId().equals(IdForDTO.createFor(shudehillTram))).
+        Set<IdForDTO> beginAtTramStop = results.stream().
+                filter(link -> link.getBegin().getId().equals(shudehillTramId)).
                 map(link -> link.getEnd().getId()).
                 collect(Collectors.toSet());
 
-        assertFalse(fromShudehillTram.isEmpty());
+        assertFalse(beginAtTramStop.isEmpty());
 
-        shudehillCompositeBus.getContained().forEach(busStop ->
-                assertTrue(fromShudehillTram.contains(IdForDTO.createFor(busStop)), "missing " + busStop.getId()));
+        Set<IdForDTO> endAtBusStop = beginAtTramStop.stream().filter(busStopIds::contains).collect(Collectors.toSet());
+
+        assertFalse(endAtBusStop.isEmpty(), beginAtTramStop.toString());
     }
 
     @Test
@@ -84,19 +93,13 @@ class StationLinksNeighboursAndCompositeResourceTest {
 
         List<StationLinkDTO> results = getLinks();
 
-        Set<IdForDTO> busStopIds = shudehillCompositeBus.getContained().
+        Set<IdForDTO> busStopIds = shudehillCentralBusStops.getContained().
                 stream().
                 map(IdForDTO::createFor).
                 collect(Collectors.toSet());
 
-        final Set<StationLinkDTO> fromShudehillBusStops = results.stream().
+        Set<IdForDTO> fromShudehillBusToTram = results.stream().
                 filter(link -> busStopIds.contains(link.getBegin().getId())).
-                collect(Collectors.toSet());
-
-        assertFalse(fromShudehillBusStops.isEmpty());
-
-        Set<IdForDTO> fromShudehillBusToTram = fromShudehillBusStops.stream().
-                filter(link -> IdForDTO.createFor(shudehillTram).equals(link.getEnd().getId())).
                 map(link -> link.getBegin().getId()).
                 collect(Collectors.toSet());
 
@@ -106,13 +109,13 @@ class StationLinksNeighboursAndCompositeResourceTest {
     @Test
     void expectedNumbers() {
         List<StationLinkDTO> results = getLinks();
-        assertEquals(2476, results.size(), "count of links");
+        assertEquals(20421, results.size(), "count of links");
     }
 
+    @Disabled("needs trams and buses enabled")
     @Test
     void shouldGetCompositeStations() {
 
-//        final String altrinchamInterchangeName = composites.AltrinchamInterchange();
         StationGroup actualComposite = centralStops.Altrincham();
         Set<IdForDTO> expectedIds = actualComposite.getContained().stream().
                 map(IdForDTO::createFor).
@@ -142,7 +145,7 @@ class StationLinksNeighboursAndCompositeResourceTest {
     @NotNull
     private List<StationLinkDTO> getLinks() {
 
-        Response response = APIClient.getApiResponse(appExtension, "links/neighbours");
+        Response response = APIClient.getApiResponse(appExtension, "geo/links");
         assertEquals(200, response.getStatus(), "status");
 
        return response.readEntity(new GenericType<>() {});

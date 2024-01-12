@@ -7,6 +7,15 @@ import java.util.Arrays;
 import java.util.List;
 
 public class TramWithPostcodesEnabled extends IntegrationTramTestConfig {
+
+    public TramWithPostcodesEnabled(IntegrationTramTestConfig.LiveData liveData, IntegrationTramTestConfig.Caching caching) {
+        super(liveData, caching);
+    }
+
+    public TramWithPostcodesEnabled() {
+        super(LiveData.Disabled, Caching.Enabled);
+    }
+
     @Override
     public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
         return Arrays.asList(remoteTFGMConfig, postCodeDatasourceConfig);

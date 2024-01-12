@@ -28,9 +28,10 @@ public class NeighboursTestConfig extends IntegrationBusTestConfig {
     protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
         final Set<TransportMode> modesWithPlatforms = Collections.singleton(Tram);
         final Set<TransportMode> compositeStationModes = Collections.singleton(Bus);
-        return Collections.singletonList(
-                new TFGMGTFSSourceTestConfig(Path.of("data/bus"), TestEnv.tramAndBus,
-                        modesWithPlatforms, AdditionalTramInterchanges.stations(), compositeStationModes, Collections.emptyList(), Duration.ofMinutes(13)));
+        TFGMGTFSSourceTestConfig sourceTestConfig = new TFGMGTFSSourceTestConfig(Path.of("data/bus"), TestEnv.tramAndBus,
+                modesWithPlatforms, AdditionalTramInterchanges.stations(), compositeStationModes, Collections.emptyList(), Duration.ofMinutes(13));
+
+        return Collections.singletonList(sourceTestConfig);
     }
 
     @Override
@@ -45,8 +46,7 @@ public class NeighboursTestConfig extends IntegrationBusTestConfig {
 
     @Override
     public NeighbourConfig getNeighbourConfig() {
-        NeighbourTestConfig neighbourTestConfig = new NeighbourTestConfig(0.4D, 2);
-        return neighbourTestConfig;
+        return new NeighbourTestConfig(0.4D, 2);
     }
 
 }

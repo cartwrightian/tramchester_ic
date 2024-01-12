@@ -8,6 +8,7 @@ import com.tramchester.domain.presentation.DTO.JourneyQueryDTO;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.JourneyResourceTestFacade;
+import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.integration.testSupport.tram.TramWithPostcodesEnabled;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TestPostcodes;
@@ -17,10 +18,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.time.LocalDate;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -30,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 class JourneyPlannerPostcodeTramResourceTest {
 
     private static final IntegrationAppExtension appExtension =
-            new IntegrationAppExtension(App.class, new TramWithPostcodesEnabled());
+            new IntegrationAppExtension(App.class, new TramWithPostcodesEnabled(IntegrationTramTestConfig.LiveData.Disabled, IntegrationTramTestConfig.Caching.Enabled));
 
     private TramDate day;
     private TramTime time;

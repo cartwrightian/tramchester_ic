@@ -77,20 +77,22 @@ public class PostcodeRepository {
     }
 
 
-    private void load(PostcodeDataImporter.PostcodeDataStream source) {
+    private void load(final PostcodeDataImporter.PostcodeDataStream source) {
         if (!source.wasLoaded()) {
             logger.warn("Data was not loaded for " + source.getCode());
         }
-        String postcodeArea = source.getCode();
-        Stream<PostcodeData> stream = source.getDataStream();
+        final String postcodeArea = source.getCode();
+        final Stream<PostcodeData> stream = source.getDataStream();
 
         final IdMap<PostcodeLocation> postcodesFromFile = stream.
                 map(this::createPostcodeFor).
                 collect(IdMap.collector());
         stream.close();
-        this.postcodesByArea.put(postcodeArea, postcodesFromFile);
+        postcodesByArea.put(postcodeArea, postcodesFromFile);
 
-        logger.info("Added " + postcodesFromFile.size() + " postcodes for " + source.getCode());
+        if (!postcodesFromFile.isEmpty()) {
+            logger.info("Added " + postcodesFromFile.size() + " postcodes for " + source.getCode());
+        }
     }
 
     @NotNull

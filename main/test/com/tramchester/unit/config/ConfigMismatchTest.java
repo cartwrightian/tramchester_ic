@@ -25,6 +25,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ConfigMismatchTest {
 
+    //   - name: postcode
+    //    dataURL: https://api.os.uk/downloads/v1/products/CodePointOpen/downloads?area=GB&format=CSV&redirect
+    //    dataCheckURL: ""
+    //    dataPath: data/postcodes
+    //    filename: codepo_gb.zip
+    //    defaultExpiryDays: 180
+
     enum Category {
         Closures,
         Modes,
