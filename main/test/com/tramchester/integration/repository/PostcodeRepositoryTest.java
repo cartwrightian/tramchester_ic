@@ -10,7 +10,7 @@ import com.tramchester.integration.testSupport.tram.TramWithPostcodesEnabled;
 import com.tramchester.repository.postcodes.PostcodeRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TestPostcodes;
-import com.tramchester.testSupport.testTags.PostcodeTestCategory;
+import com.tramchester.testSupport.testTags.PostcodeTest;
 import org.junit.jupiter.api.*;
 
 import java.util.Set;
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 import static com.tramchester.testSupport.reference.KnownLocations.nearPiccGardens;
 import static org.junit.jupiter.api.Assertions.*;
 
-@PostcodeTestCategory
+@PostcodeTest
 class PostcodeRepositoryTest {
 
     private static ComponentContainer componentContainer;

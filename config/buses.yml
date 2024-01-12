@@ -55,12 +55,6 @@ remoteSources:
     downloadPath: data/nptg
     filename: ${NPTG_FILE:- Localities.csv.zip}
     defaultExpiryDays: 14
-  - name: postcode
-    dataURL: https://api.os.uk/downloads/v1/products/CodePointOpen/downloads?area=GB&format=CSV&redirect
-    dataCheckURL: ""
-    dataPath: data/postcodes
-    filename: codepo_gb.zip
-    defaultExpiryDays: 180
 cacheFolder: data/cacheBuses
 calcTimeoutMillis: 3500
 bounds:

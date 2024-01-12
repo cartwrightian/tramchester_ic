@@ -13,7 +13,7 @@ import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.tram.TramWithPostcodesEnabled;
 import com.tramchester.repository.postcodes.PostcodeRepository;
 import com.tramchester.testSupport.reference.TestPostcodes;
-import com.tramchester.testSupport.testTags.PostcodeTestCategory;
+import com.tramchester.testSupport.testTags.PostcodeTest;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.Response;
@@ -27,7 +27,7 @@ import java.util.Optional;
 import static com.tramchester.testSupport.reference.KnownLocations.nearWythenshaweHosp;
 import static org.junit.jupiter.api.Assertions.*;
 
-@PostcodeTestCategory
+@PostcodeTest
 @ExtendWith(DropwizardExtensionsSupport.class)
 class PostcodeResourceTest {
 

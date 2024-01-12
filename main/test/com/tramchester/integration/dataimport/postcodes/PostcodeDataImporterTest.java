@@ -11,7 +11,7 @@ import com.tramchester.geo.StationLocations;
 import com.tramchester.integration.testSupport.tram.TramWithPostcodesEnabled;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TestPostcodes;
-import com.tramchester.testSupport.testTags.PostcodeTestCategory;
+import com.tramchester.testSupport.testTags.PostcodeTest;
 import org.junit.jupiter.api.*;
 
 import java.util.HashSet;
@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-@PostcodeTestCategory
+@PostcodeTest
 class PostcodeDataImporterTest {
 
     private static ComponentContainer componentContainer;

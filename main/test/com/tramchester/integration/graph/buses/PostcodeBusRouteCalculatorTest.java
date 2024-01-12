@@ -19,7 +19,7 @@ import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.reference.TestPostcodes;
-import com.tramchester.testSupport.testTags.BusTest;
+import com.tramchester.testSupport.testTags.PostcodeTest;
 import org.junit.jupiter.api.*;
 
 import java.time.Duration;
@@ -33,7 +33,7 @@ import static com.tramchester.testSupport.TestEnv.Modes.BusesOnly;
 import static com.tramchester.testSupport.reference.BusStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-@BusTest
+@PostcodeTest
 class PostcodeBusRouteCalculatorTest {
 
     private static final int TXN_TIMEOUT = 5*60;

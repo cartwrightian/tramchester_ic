@@ -19,7 +19,7 @@ import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TestPostcodes;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.PostcodeTestCategory;
+import com.tramchester.testSupport.testTags.PostcodeTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -92,7 +92,7 @@ class PostcodeTramJourneyPlannerTest {
                 new JourneyRequest(when, planningTime, true, maxChanges, maxJourneyDuration, maxNumberOfJourneys, modes));
     }
 
-    @PostcodeTestCategory
+    @PostcodeTest
     @ParameterizedTest
     @MethodSource("getRequest")
     void shouldHaveJourneyFromCentralPostcodeToBury(JourneyRequest request) {
@@ -103,7 +103,7 @@ class PostcodeTramJourneyPlannerTest {
         checkDepartBefore(journeySet, request.getArriveBy());
     }
 
-    @PostcodeTestCategory
+    @PostcodeTest
     @ParameterizedTest
     @MethodSource("getRequest")
     void shouldHaveJourneyFromBuryToCentralPostcode(JourneyRequest request) {
@@ -115,7 +115,7 @@ class PostcodeTramJourneyPlannerTest {
 
     }
 
-    @PostcodeTestCategory
+    @PostcodeTest
     @ParameterizedTest
     @MethodSource("getRequest")
     void shouldHavePostcodeToPostcodeJourney(JourneyRequest request) {

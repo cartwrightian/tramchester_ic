@@ -8,7 +8,7 @@ import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.postcodes.PostcodeRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TestPostcodes;
-import com.tramchester.testSupport.testTags.PostcodeTestCategory;
+import com.tramchester.testSupport.testTags.PostcodeTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@PostcodeTestCategory
+@PostcodeTest
 class PostcodeRepositoryBusTest {
 
     private static ComponentContainer componentContainer;
