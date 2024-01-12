@@ -9,12 +9,9 @@ import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.time.TimeRange;
-import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.GridPosition;
 
 import java.time.Duration;
-import java.time.LocalDate;
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -73,5 +70,9 @@ public interface Station extends Location<Station> {
 
     static IdFor<Station> createId(IdForDTO idForDTO) {
         return StringIdFor.createId(idForDTO, Station.class);
+    }
+
+    static IdFor<Station> createId(IdFor<NaptanRecord> naptanId) {
+        return StringIdFor.convert(naptanId, Station.class);
     }
 }

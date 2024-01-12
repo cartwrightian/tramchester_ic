@@ -247,7 +247,6 @@ public class NaptanRepositoryContainer implements NaptanRepository {
     @Override
     public boolean containsArea(IdFor<NPTGLocality> id) {
         return localities.containsKey(id);
-//        return stops.getValuesStream().anyMatch(stop -> stop.getLocalityId().equals(id));
     }
 
     /***

@@ -137,7 +137,7 @@ class TransportDataFromFilesBusTest {
 
         //assertTrue(noSvcs.isEmpty(), HasId.asIds(noSvcs));
         // see next test
-        assertEquals(2, noSvcs.size(),  HasId.asIds(noSvcs));
+        assertEquals(0, noSvcs.size(),  HasId.asIds(noSvcs));
 
     }
 
@@ -153,7 +153,7 @@ class TransportDataFromFilesBusTest {
 //        assertEquals(Collections.emptySet(), emptyRoutes);
 
         // should be zero? but seem to have 2 at the moment, see also above
-        assertEquals(2, emptyRoutes.size());
+        assertEquals(0, emptyRoutes.size());
 
     }
 

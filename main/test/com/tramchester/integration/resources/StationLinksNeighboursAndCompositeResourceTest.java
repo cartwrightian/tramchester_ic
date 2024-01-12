@@ -14,7 +14,6 @@ import com.tramchester.domain.presentation.DTO.StationLinkDTO;
 import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.NeighboursTestConfig;
-import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.testTags.BusTest;
@@ -45,7 +44,7 @@ class StationLinksNeighboursAndCompositeResourceTest {
 
     private StationGroup shudehillCompositeBus;
     private Station shudehillTram;
-    private StationGroupsRepository stationGroupsRepository;
+    private BusStations.CentralStops centralStops;
 
     @BeforeAll
     public static void beforeAnyTestsRun() {
@@ -55,11 +54,12 @@ class StationLinksNeighboursAndCompositeResourceTest {
 
     @BeforeEach
     public void onceBeforeEachTest() {
-        stationGroupsRepository = dependencies.get(StationGroupsRepository.class);
         StationRepository stationRepository = dependencies.get(StationRepository.class);
 
-        String shudehill_interchange = "Shudehill Interchange";
-        shudehillCompositeBus = stationGroupsRepository.findByName(shudehill_interchange);
+        centralStops = new BusStations.CentralStops(dependencies);
+
+//        String shudehill_interchange = "Shudehill Interchange";
+        shudehillCompositeBus = centralStops.Shudehill(); //stationGroupsRepository.findByName(shudehill_interchange);
         shudehillTram = stationRepository.getStationById(Shudehill.getId());
     }
 
@@ -111,8 +111,9 @@ class StationLinksNeighboursAndCompositeResourceTest {
 
     @Test
     void shouldGetCompositeStations() {
-        final String altrinchamInterchangeName = BusStations.Composites.AltrinchamInterchange.getName();
-        StationGroup actualComposite = stationGroupsRepository.findByName(altrinchamInterchangeName);
+
+//        final String altrinchamInterchangeName = composites.AltrinchamInterchange();
+        StationGroup actualComposite = centralStops.Altrincham();
         Set<IdForDTO> expectedIds = actualComposite.getContained().stream().
                 map(IdForDTO::createFor).
                 collect(Collectors.toSet());

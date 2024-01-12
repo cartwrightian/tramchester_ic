@@ -12,7 +12,6 @@ import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.JourneyResourceTestFacade;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
-import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.BusTest;
@@ -49,12 +48,16 @@ class JourneyPlannerBusTest {
     void beforeEachTestRuns() {
         when = TestEnv.testDay();
         journeyResourceTestFacade = new JourneyResourceTestFacade(appExt);
-        App app = appExt.getApplication();
+
+        App app = appExt.getTestSupport().getApplication();
+//        App app = appExt.getApplication();
 
         stationRepository = app.getDependencies().get(StationRepository.class);
 
-        StationGroupsRepository stationGroupsRepository = app.getDependencies().get(StationGroupsRepository.class);
-        stockportBusStation = stationGroupsRepository.findByName(Composites.StockportTempBusStation.getName());
+        CentralStops centralStops = new CentralStops(app.getDependencies());
+
+//        StationGroupsRepository stationGroupsRepository = app.getDependencies().get(StationGroupsRepository.class);
+        stockportBusStation = centralStops.Stockport(); // stationGroupsRepository.findByName(Composites.StockportTempBusStation.getName());
     }
 
     @Test

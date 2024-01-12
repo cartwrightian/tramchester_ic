@@ -12,12 +12,11 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
-import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.BusStations.Composites;
+import com.tramchester.testSupport.reference.BusStations.CentralStops;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.*;
 
@@ -38,12 +37,12 @@ class LocationJourneyPlannerBusTest {
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;
     private static TramchesterConfig testConfig;
+    private static CentralStops centralStops;
     private Duration maxDuration;
 
     private final TramDate nextMonday = TestEnv.nextMonday();
     private MutableGraphTransaction txn;
     private LocationJourneyPlannerTestFacade planner;
-    private StationGroupsRepository stationGroupsRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -51,6 +50,7 @@ class LocationJourneyPlannerBusTest {
         componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
         database = componentContainer.get(GraphDatabase.class);
+        centralStops = new CentralStops(componentContainer);
     }
 
     @AfterAll
@@ -62,7 +62,6 @@ class LocationJourneyPlannerBusTest {
     void beforeEachTestRuns() {
         txn = database.beginTxMutable(TXN_TIMEOUT, TimeUnit.SECONDS);
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
-        stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
         planner = new LocationJourneyPlannerTestFacade(componentContainer.get(LocationJourneyPlanner.class), stationRepository, txn);
         maxDuration = Duration.ofMinutes(testConfig.getMaxJourneyDuration());
     }
@@ -79,7 +78,7 @@ class LocationJourneyPlannerBusTest {
         JourneyRequest journeyRequest = new JourneyRequest(nextMonday, travelTime, false, 3,
                 maxDuration, 1, getRequestedModes());
 
-        StationGroup end = stationGroupsRepository.findByName(Composites.StockportTempBusStation.getName());
+        StationGroup end = centralStops.Stockport();
 
         Set<Journey> results = planner.quickestRouteForLocation(nearAltrinchamInterchange, end, journeyRequest, 5);
 
@@ -93,7 +92,7 @@ class LocationJourneyPlannerBusTest {
     @Test
     void shouldHaveSimpleBusAndWalk() {
 
-        StationGroup stockportBusStation = stationGroupsRepository.findByName(Composites.StockportTempBusStation.getName());
+        StationGroup stockportBusStation = centralStops.Stockport();
 
         TramTime travelTime = TramTime.of(8, 0);
 
@@ -109,7 +108,7 @@ class LocationJourneyPlannerBusTest {
     @Test
     void shouldFindAltyToKnutford() {
 
-        StationGroup alty = stationGroupsRepository.findByName(Composites.AltrinchamInterchange.getName());
+        StationGroup alty = centralStops.Altrincham();
 
         TramTime travelTime = TramTime.of(10, 30);
 

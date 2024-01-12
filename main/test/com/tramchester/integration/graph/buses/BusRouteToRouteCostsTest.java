@@ -9,9 +9,8 @@ import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
-import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
@@ -22,7 +21,7 @@ import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
-import com.tramchester.testSupport.reference.BusStations.Composites;
+import com.tramchester.testSupport.reference.BusStations.CentralStops;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.*;
 
@@ -45,6 +44,7 @@ public class BusRouteToRouteCostsTest {
     private TramDate date;
     private TimeRange timeRange;
     private EnumSet<TransportMode> modes;
+    private CentralStops centralStops;
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
@@ -66,8 +66,11 @@ public class BusRouteToRouteCostsTest {
         stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
         stationRepository = componentContainer.get(StationRepository.class);
 
+        centralStops = new CentralStops(componentContainer);
+
+
         date = TestEnv.testDay();
-        timeRange = TimeRange.of(TramTime.of(04,45), TramTime.of(23,55));
+        timeRange = TimeRange.of(TramTime.of(4,45), TramTime.of(23,55));
         modes = BusesOnly;
 ;    }
 
@@ -80,8 +83,8 @@ public class BusRouteToRouteCostsTest {
 
     @Test
     void shouldGetNumberOfRouteHopsBetweenAltrinchamStockport() {
-        StationGroup start = stationGroupsRepository.findByName(Composites.AltrinchamInterchange.getName());
-        StationGroup end = stationGroupsRepository.findByName(Composites.StockportTempBusStation.getName());
+        StationGroup start = centralStops.Altrincham();
+        StationGroup end = centralStops.Stockport();
 
         // one for the temp stockport bus station, was zero, seems direct alty buses terminating somewhere else
         assertEquals(1, routeToRouteCosts.getNumberOfChanges(start, end, date, timeRange, modes).getMin());
@@ -89,7 +92,7 @@ public class BusRouteToRouteCostsTest {
 
     @Test
     void shouldGetNumberOfRouteHopsBetweenAltrinchamShudehill() {
-        StationGroup start = stationGroupsRepository.findByName(Composites.AltrinchamInterchange.getName());
+        StationGroup start = centralStops.Altrincham();
         StationGroup end = stationGroupsRepository.findByName("Shudehill Interchange");
 
         NumberOfChanges numberOfChanges = routeToRouteCosts.getNumberOfChanges(start, end, date, timeRange, modes);

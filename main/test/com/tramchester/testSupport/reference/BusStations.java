@@ -1,15 +1,22 @@
 package com.tramchester.testSupport.reference;
 
+import com.tramchester.ComponentContainer;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
+import com.tramchester.repository.naptan.NaptanStopType;
+import com.tramchester.testSupport.StationGroupTestSupport;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.EnumSet;
+
+import static com.tramchester.domain.reference.TransportMode.Bus;
 
 public enum BusStations implements FakeStation {
 
@@ -44,6 +51,7 @@ public enum BusStations implements FakeStation {
 //    MacclefieldBusStationBay1("0600MA6154", "Macclesfield", "Macclesfield, Bus Station (Bay 1)",
 //            new LatLong(53.25831, -2.12502)),
 
+    public static final EnumSet<NaptanStopType> NAPTAN_BUS = NaptanStopType.getTypesFor(EnumSet.of(Bus));
     private final String id;
     private final String name;
     private final LatLong latlong;
@@ -92,26 +100,33 @@ public enum BusStations implements FakeStation {
         GridPosition grid = CoordinateTransforms.getGridPosition(latlong);
         MutableStation mutableStation = new MutableStation(getId(), NPTGLocality.InvalidId(), name, latlong, grid,
                 DataSourceID.tfgm, getRawId());
-        mutableStation.addMode(TransportMode.Bus);
+        mutableStation.addMode(Bus);
         return mutableStation;
     }
 
-    public enum Composites {
-        // closed for rebuilding....
-        //StockportBusStation("Stockport Bus Station"),
-        StockportTempBusStation("Stockport Heaton Lane Bus Station"),
-        ShudehillInterchange("Shudehill Interchange"),
-        AltrinchamInterchange("Altrincham Interchange");
+    public static class CentralStops {
+        private final StationGroupTestSupport factory;
 
-        private final String compositeName;
-
-        Composites(String compositeName) {
-            this.compositeName = compositeName;
+        public CentralStops(ComponentContainer componentContainer) {
+            factory = new StationGroupTestSupport(componentContainer);
         }
 
-        public String getName() {
-            return compositeName;
+        public StationGroup Shudehill() {
+            return getFor(KnowLocality.Shudehill);
         }
+
+        public StationGroup Stockport() {
+            return getFor(KnowLocality.Stockport);
+        }
+
+        public StationGroup Altrincham() {
+            return getFor(KnowLocality.Altrincham);
+        }
+
+        public StationGroup getFor(KnowLocality locality) {
+            return factory.getGroupFor(locality, true, NAPTAN_BUS);
+        }
+
     }
 
 }

@@ -17,9 +17,9 @@ import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.repository.naptan.NaptanStopType;
-import com.tramchester.testSupport.StationGroupFactoryForTests;
+import com.tramchester.testSupport.StationGroupTestSupport;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.reference.KnowLocality;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.jetbrains.annotations.NotNull;
@@ -48,15 +48,16 @@ class BusRouteCalculatorTest {
 
     private RouteCalculatorTestFacade calculator;
     private StationGroupsRepository stationGroupsRepository;
-    private StationRepository stationRepository;
 
     private final TramDate when = TestEnv.testDay();
     private MutableGraphTransaction txn;
     private Duration maxJourneyDuration;
-    private StationGroup stockportBusStation;
-    private StationGroup altrinchamInterchange;
+    private StationGroup stockportCentral;
+    private StationGroup altrinchamCentral;
     private StationGroup knutsfordLocality;
     private StationGroup shudehillLocality;
+    private BusStations.CentralStops centralStops;
+    private StationGroupTestSupport groupTestSupport;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -74,21 +75,21 @@ class BusRouteCalculatorTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
+        StationRepository stationRepository = componentContainer.get(StationRepository.class);
+        centralStops = new BusStations.CentralStops(componentContainer);
+        groupTestSupport = new StationGroupTestSupport(componentContainer);
+
         maxJourneyDuration = Duration.ofMinutes(testConfig.getMaxJourneyDuration());
-        txn = database.beginTxMutable(TXN_TIMEOUT, TimeUnit.SECONDS);
-        stationRepository = componentContainer.get(StationRepository.class);
         stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
-        calculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
 
-        StationGroupFactoryForTests factoryForTests = new StationGroupFactoryForTests(componentContainer);
-
-        EnumSet<NaptanStopType> busStationStops = EnumSet.of(NaptanStopType.busCoachTrolleyStationBay, NaptanStopType.busCoachTrolleyStationVariableBay);
-
-        stockportBusStation = factoryForTests.getGroupFor(KnowLocality.Stockport.getId(), true, busStationStops);
-        altrinchamInterchange = factoryForTests.getGroupFor(KnowLocality.Altrincham.getId(), true, busStationStops);
+        stockportCentral = centralStops.Stockport();
+        altrinchamCentral = centralStops.Altrincham();
 
         knutsfordLocality = stationGroupsRepository.getStationGroup(KnowLocality.Knutsford.getId());
         shudehillLocality = stationGroupsRepository.getStationGroup(KnowLocality.Shudehill.getId());
+
+        txn = database.beginTxMutable(TXN_TIMEOUT, TimeUnit.SECONDS);
+        calculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
     }
 
     @AfterEach
@@ -98,8 +99,8 @@ class BusRouteCalculatorTest {
 
     @Test
     void shouldHaveValidStations() {
-        assertNotNull(stockportBusStation);
-        assertNotNull(altrinchamInterchange);
+        assertNotNull(stockportCentral);
+        assertNotNull(altrinchamCentral);
         assertNotNull(knutsfordLocality);
         assertNotNull(shudehillLocality);
     }
@@ -112,12 +113,12 @@ class BusRouteCalculatorTest {
 
         JourneyRequest requestA = new JourneyRequest(nextMonday, travelTime, false, 1,
                 maxJourneyDuration, 1, getRequestedModes());
-        Set<Journey> journeysA = calculator.calculateRouteAsSet(stockportBusStation, altrinchamInterchange, requestA);
+        Set<Journey> journeysA = calculator.calculateRouteAsSet(stockportCentral, altrinchamCentral, requestA);
         assertFalse(journeysA.isEmpty());
 
         JourneyRequest requestB = new JourneyRequest(nextMonday, travelTime, false, 1,
                 maxJourneyDuration, 1, getRequestedModes());
-        Set<Journey> journeysB = calculator.calculateRouteAsSet(altrinchamInterchange, stockportBusStation, requestB);
+        Set<Journey> journeysB = calculator.calculateRouteAsSet(altrinchamCentral, stockportCentral, requestB);
         assertFalse(journeysB.isEmpty());
     }
 
@@ -133,7 +134,7 @@ class BusRouteCalculatorTest {
 
         JourneyRequest requestA = new JourneyRequest(nextMonday, travelTime, false, 1,
                 maxJourneyDuration, 3, getRequestedModes());
-        Set<Journey> journeys = calculator.calculateRouteAsSet(stockportBusStation, altrinchamInterchange, requestA);
+        Set<Journey> journeys = calculator.calculateRouteAsSet(stockportCentral, altrinchamCentral, requestA);
         assertFalse(journeys.isEmpty());
     }
 
@@ -143,7 +144,7 @@ class BusRouteCalculatorTest {
         JourneyRequest journeyRequest = new JourneyRequest(TestEnv.nextMonday(),
                 TramTime.of(9, 0), false, 1, maxJourneyDuration, 3, getRequestedModes());
 
-        Set<Journey> journeysMaxChanges = calculator.calculateRouteAsSet(altrinchamInterchange, stockportBusStation, journeyRequest);
+        Set<Journey> journeysMaxChanges = calculator.calculateRouteAsSet(altrinchamCentral, stockportCentral, journeyRequest);
 
         // algo seems to return very large number of changes even when 2 is possible??
         List<Journey> journeys2Stages = journeysMaxChanges.stream().
@@ -160,15 +161,13 @@ class BusRouteCalculatorTest {
     @Test
     void shouldFindJourneyInFutureCorrectly() {
         // attempt to repro seen in ui where zero journeys
-        StationGroup start = stationGroupsRepository.findByName("Taylor Road, Oldfield Brow, Altrincham");
-
-        assertNotNull(start);
+        StationGroup start = groupTestSupport.getGroupFor(KnowLocality.OldfieldBrow, "Taylor Road");
 
         final TramDate futureDate = TestEnv.testDay().plusDays(14);
         JourneyRequest journeyRequest = new JourneyRequest(futureDate,
-                TramTime.of(8,19), false, 3, maxJourneyDuration, 1,  EnumSet.noneOf(TransportMode.class));
+                TramTime.of(8,19), false, 3, maxJourneyDuration, 1,  getRequestedModes());
 
-        @NotNull Set<Journey> results = calculator.calculateRouteAsSet(start, altrinchamInterchange, journeyRequest);
+        @NotNull Set<Journey> results = calculator.calculateRouteAsSet(start, altrinchamCentral, journeyRequest);
         assertFalse(results.isEmpty(), "no journeys");
 
     }
@@ -179,8 +178,8 @@ class BusRouteCalculatorTest {
 
         TramTime time = TramTime.of(10, 40);
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 1,
-                Duration.ofMinutes(120), 1, EnumSet.allOf(TransportMode.class));
-        Set<Journey> results = calculator.calculateRouteAsSet(altrinchamInterchange, end, journeyRequest);
+                Duration.ofMinutes(120), 1, getRequestedModes());
+        Set<Journey> results = calculator.calculateRouteAsSet(altrinchamCentral, end, journeyRequest);
 
         assertFalse(results.isEmpty());
     }
@@ -209,9 +208,9 @@ class BusRouteCalculatorTest {
 
         TramTime time = TramTime.of(11, 20);
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false,
-                3, Duration.ofMinutes(120), 1,  EnumSet.allOf(TransportMode.class));
+                3, Duration.ofMinutes(120), 1,  getRequestedModes());
 
-        Set<Journey> results = calculator.calculateRouteAsSet(knutsfordLocality, altrinchamInterchange, journeyRequest);
+        Set<Journey> results = calculator.calculateRouteAsSet(knutsfordLocality, altrinchamCentral, journeyRequest);
 
         assertFalse(results.isEmpty());
     }
@@ -223,7 +222,7 @@ class BusRouteCalculatorTest {
 
         JourneyRequest request = new JourneyRequest(when, travelTime, false, 2,
                 maxJourneyDuration, 1, getRequestedModes());
-        Set<Journey> journeys = calculator.calculateRouteAsSet(altrinchamInterchange, knutsfordLocality, request);
+        Set<Journey> journeys = calculator.calculateRouteAsSet(altrinchamCentral, knutsfordLocality, request);
 
         assertFalse(journeys.isEmpty(), "no journeys");
 
@@ -242,7 +241,7 @@ class BusRouteCalculatorTest {
         int maxChanges = 2;
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8, 0),
                 false, maxChanges, maxJourneyDuration, 3, getRequestedModes());
-        Set<Journey> journeys = calculator.calculateRouteAsSet(PiccadilyStationStopA, stockportBusStation, journeyRequest);
+        Set<Journey> journeys = calculator.calculateRouteAsSet(PiccadilyStationStopA, stockportCentral, journeyRequest);
         assertFalse(journeys.isEmpty());
         List<Journey> threeStagesOrLess = journeys.stream().filter(
                 journey -> journey.getStages().size() <= (maxChanges + 1)).toList();
@@ -256,10 +255,9 @@ class BusRouteCalculatorTest {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(9,40),
                 false, maxChanges, maxJourneyDuration, 3, getRequestedModes());
 
-        Station asdaBroadhealth = stationRepository.getStationById(Station.createId("1800SJ18511"));
-        assertNotNull(asdaBroadhealth);
+        StationGroup nearAsdaStops = groupTestSupport.getGroupFor(KnowLocality.Broadheath, "George Richards Way");
 
-        Set<Journey> journeys = calculator.calculateRouteAsSet(shudehillLocality, asdaBroadhealth, journeyRequest);
+        Set<Journey> journeys = calculator.calculateRouteAsSet(shudehillLocality, nearAsdaStops, journeyRequest);
         assertFalse(journeys.isEmpty());
     }
 
@@ -267,11 +265,11 @@ class BusRouteCalculatorTest {
     void shouldHaveAltyToShudehill() {
         int maxChanges = 3;
 
-        TramDate date = TramDate.of(2022,1,9);
-        JourneyRequest journeyRequest = new JourneyRequest(date, TramTime.of(9,52),
+        //TramDate date = TramDate.of(2022,1,9);
+        JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(9,52),
                 false, maxChanges, maxJourneyDuration, 3, getRequestedModes());
 
-        Set<Journey> journeys = calculator.calculateRouteAsSet(altrinchamInterchange, shudehillLocality, journeyRequest);
+        Set<Journey> journeys = calculator.calculateRouteAsSet(altrinchamCentral, shudehillLocality, journeyRequest);
         assertFalse(journeys.isEmpty());
     }
 
@@ -281,7 +279,7 @@ class BusRouteCalculatorTest {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,45),
                 false, 3, maxJourneyDuration, 3, getRequestedModes());
 
-        Set<Journey> results = calculator.calculateRouteAsSet(stockportBusStation, shudehillLocality, journeyRequest);
+        Set<Journey> results = calculator.calculateRouteAsSet(stockportCentral, shudehillLocality, journeyRequest);
         assertFalse(results.isEmpty());
     }
 
@@ -292,19 +290,18 @@ class BusRouteCalculatorTest {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,45),
                 false, 3, maxJourneyDuration, 3, getRequestedModes());
 
-        Set<Journey> results = calculator.calculateRouteAsSet(StopAtAltrinchamInterchange, stockportBusStation, journeyRequest);
+        Set<Journey> results = calculator.calculateRouteAsSet(StopAtAltrinchamInterchange, stockportCentral, journeyRequest);
         assertFalse(results.isEmpty());
     }
 
     @Test
     void shouldReproPerfIssueAltyToAirport() {
-        StationGroup airport = stationGroupsRepository.findByName("Manchester Airport The Station");
+        StationGroup airport = centralStops.getFor(KnowLocality.ManchesterAirport);
 
-        //LocalDate date =  LocalDate.of(2021, 6, 30);
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(11,11),
                 false, 3, maxJourneyDuration, 3, getRequestedModes());
 
-        Set<Journey> results = calculator.calculateRouteAsSet(altrinchamInterchange, airport, journeyRequest);
+        Set<Journey> results = calculator.calculateRouteAsSet(altrinchamCentral, airport, journeyRequest);
         assertFalse(results.isEmpty());
     }
 

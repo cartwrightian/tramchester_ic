@@ -4,10 +4,9 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.StationGroup;
 import com.tramchester.integration.testSupport.NeighboursTestConfig;
-import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.NeighboursRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -31,7 +30,7 @@ public class NeighboursRepositoryBusTest {
     private Station shudehillTram;
 
     private static ComponentContainer componentContainer;
-    private StationGroupsRepository stationGroupsRepository;
+    private BusStations.CentralStops centralStops;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -49,17 +48,18 @@ public class NeighboursRepositoryBusTest {
     @BeforeEach
     void onceBeforeEachTest() {
         neighboursRepository = componentContainer.get(NeighboursRepository.class);
-        stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
 
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
 
-        shudehillCompositeBus = stationGroupsRepository.findByName("Shudehill Interchange");
+        centralStops = new BusStations.CentralStops(componentContainer);
+
+        shudehillCompositeBus = centralStops.Shudehill(); // stationGroupsRepository.findByName("Shudehill Interchange");
         shudehillTram = stationRepository.getStationById(Shudehill.getId());
     }
 
     @Test
     void shouldHaveCorrectNeighboursForAltrinchamTram() {
-        StationGroup altrinchamComposite = stationGroupsRepository.findByName(BusStations.Composites.AltrinchamInterchange.getName());
+        StationGroup altrinchamComposite = centralStops.Altrincham();
 
         IdSet<Station> neighbours = neighboursRepository.getNeighboursFor(TramStations.Altrincham.getId())
                 .stream().collect(IdSet.collector());

@@ -17,7 +17,6 @@ import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.AllModesTestConfig;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
-import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
@@ -44,9 +43,9 @@ public class AllModesJourneysTest {
     private static ComponentContainer componentContainer;
     private MutableGraphTransaction txn;
     private StationRepository stationRepository;
-    private StationGroupsRepository stationGroupsRepository;
     private Duration maxJourneyDuration;
     private TramDate when;
+    private BusStations.CentralStops centralStops;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -63,6 +62,7 @@ public class AllModesJourneysTest {
 
     @BeforeEach
     void onceBeforeEachTest() {
+        centralStops = new BusStations.CentralStops(componentContainer);
         maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
         when = TestEnv.testDay();
 
@@ -81,14 +81,14 @@ public class AllModesJourneysTest {
 
     @Test
     void shouldHaveBusToTram() {
-        StationGroup stockport = stationGroupsRepository.findByName(BusStations.Composites.StockportTempBusStation.getName());
-        Station alty = stationRepository.getStationById(TramStations.Altrincham.getId());
+        StationGroup stockport = centralStops.Stockport();
+        Station altyTram = stationRepository.getStationById(TramStations.Altrincham.getId());
 
         TramTime travelTime = TramTime.of(9, 0);
 
         JourneyRequest requestA = new JourneyRequest(when, travelTime, false, 2,
                 maxJourneyDuration, 3, getRequestedModes());
-        Set<Journey> journeys = routeCalculator.calculateRouteAsSet(stockport, alty, requestA);
+        Set<Journey> journeys = routeCalculator.calculateRouteAsSet(stockport, altyTram, requestA);
         assertFalse(journeys.isEmpty());
     }
 
@@ -115,8 +115,8 @@ public class AllModesJourneysTest {
     @Test
     void shouldHaveStockToAltyBusJourney() {
 
-        StationGroup stockport = stationGroupsRepository.findByName(BusStations.Composites.StockportTempBusStation.getName());
-        StationGroup alty = stationGroupsRepository.findByName(BusStations.Composites.AltrinchamInterchange.getName());
+        StationGroup stockport = centralStops.Stockport();
+        StationGroup alty = centralStops.Altrincham();
 
         TramTime travelTime = TramTime.of(9, 0);
 
