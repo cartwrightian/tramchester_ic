@@ -13,12 +13,12 @@ import com.tramchester.repository.TransportData;
 
 public class GraphFilterModule extends AbstractModule {
 
-    private final ComponentsBuilder.SetupGraphFilter overrideDefaultIncludeAllFilter;
+    private final ComponentsBuilder.DeferredSetupGraphFilter overrideDefaultIncludeAllFilter;
     private final boolean filteredSupplied;
 
-    public GraphFilterModule(ComponentsBuilder.SetupGraphFilter overrideDefaultIncludeAllFilter) {
-        this.overrideDefaultIncludeAllFilter = overrideDefaultIncludeAllFilter;
+    public GraphFilterModule(ComponentsBuilder.DeferredSetupGraphFilter overrideDefaultIncludeAllFilter) {
         this.filteredSupplied = overrideDefaultIncludeAllFilter!=null;
+        this.overrideDefaultIncludeAllFilter = overrideDefaultIncludeAllFilter;
     }
 
     @LazySingleton

@@ -14,11 +14,11 @@ import java.util.List;
 
 public class ComponentsBuilder {
     private Class<? extends TransportDataFactory> transportDataFactoryType;
-    private SetupGraphFilter setupGraphFilter;
+    private DeferredSetupGraphFilter deferredGraphFilterSetup;
 
     public ComponentsBuilder() {
         this.transportDataFactoryType = PopulateTransportDataFromSources.class;
-        setupGraphFilter = null;
+        deferredGraphFilterSetup = null;
     }
 
     public GuiceContainerDependencies create(TramchesterConfig config, CacheMetrics.RegistersCacheMetrics registerCacheMetrics) {
@@ -27,7 +27,7 @@ public class ComponentsBuilder {
                 new MappersAndConfigurationModule(config, registerCacheMetrics),
                 new GetReadyModule(),
                 new TransportDataFactoryModule<>(transportDataFactoryType),
-                new GraphFilterModule(setupGraphFilter),
+                new GraphFilterModule(deferredGraphFilterSetup),
                 new LiveDataModule(config));
 
         return new GuiceContainerDependencies(modules);
@@ -38,12 +38,12 @@ public class ComponentsBuilder {
         return this;
     }
 
-    public ComponentsBuilder configureGraphFilter(SetupGraphFilter setupGraphFilter) {
-        this.setupGraphFilter = setupGraphFilter;
+    public ComponentsBuilder configureGraphFilter(DeferredSetupGraphFilter deferredSetupGraphFilter) {
+        this.deferredGraphFilterSetup = deferredSetupGraphFilter;
         return this;
     }
 
-    public interface SetupGraphFilter {
+    public interface DeferredSetupGraphFilter {
         void configure(ConfigurableGraphFilter filterToConfigure, TransportData transportData);
     }
 }
