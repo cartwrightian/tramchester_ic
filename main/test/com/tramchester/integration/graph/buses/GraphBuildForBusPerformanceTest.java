@@ -24,7 +24,7 @@ class GraphBuildForBusPerformanceTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
-        testConfig = new IntegrationBusTestConfig("GraphBuildForBusPerformanceTest.db");
+        testConfig = new IntegrationBusTestConfig();
         TestEnv.deleteDBIfPresent(testConfig);
 
         componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());

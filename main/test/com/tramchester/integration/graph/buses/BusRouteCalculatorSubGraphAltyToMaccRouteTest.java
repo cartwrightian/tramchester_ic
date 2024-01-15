@@ -63,7 +63,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRouteTest {
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
 
-        config = new IntegrationBusTestConfig("altyMacRoute.db");
+        config = new IntegrationBusTestConfig();
         deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder().

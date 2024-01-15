@@ -3,23 +3,19 @@ package com.tramchester.integration.graph.buses;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
-import com.tramchester.domain.JourneyRequest;
 import com.tramchester.integration.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.TransportData;
-import com.tramchester.testSupport.testTags.BusTest;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.time.LocalDate;
-import java.util.Collections;
 
 import static com.tramchester.domain.reference.TransportMode.Bus;
 import static com.tramchester.testSupport.TestEnv.Modes.BusesOnly;
@@ -38,7 +34,7 @@ class RouteCalculatorKeyRoutesBusTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
-        testConfig = new IntegrationBusTestConfig("warringtonsOwnBuses.db");
+        testConfig = new SubGraphConfig();
         TestEnv.deleteDBIfPresent(testConfig);
         componentContainer = new ComponentsBuilder().
                 configureGraphFilter(RouteCalculatorKeyRoutesBusTest::configureFilter).
@@ -83,5 +79,12 @@ class RouteCalculatorKeyRoutesBusTest {
     @Test
     void shouldFindInterchangesToInterchanges() {
         combinations.validateAllHaveAtLeastOneJourney(combinations.InterchangeToInterchange(Bus), journeyRequest);
+    }
+
+    private static class SubGraphConfig extends IntegrationBusTestConfig {
+        @Override
+        public boolean isGraphFiltered() {
+            return true;
+        }
     }
 }

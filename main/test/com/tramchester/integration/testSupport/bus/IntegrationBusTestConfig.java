@@ -24,16 +24,7 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
     private final RemoteDataSourceConfig remoteDataSourceConfig;
 
     public IntegrationBusTestConfig() {
-        this("int_test_bus.db");
-    }
-
-    public IntegrationBusTestConfig(String dbName) {
-        this("integrationBusTest", dbName);
-    }
-
-    protected IntegrationBusTestConfig(String folder, String dbName) {
         super(TestGroupType.integration);
-        //super(new GraphDBIntegrationBusTestConfig(folder, dbName));
 
         final Set<TransportMode> modesWithPlatforms = Collections.emptySet();
         final IdSet<Station> additionalInterchanges = IdSet.emptySet();
@@ -86,7 +77,7 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
 
     @Override
     public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
-        // remove postCodeDatasourceConfig for node
+        // remove postCodeDatasourceConfig for now
         return Arrays.asList(remoteDataSourceConfig, remoteNaptanXMLConfig, remoteNPTGconfig);
     }
 

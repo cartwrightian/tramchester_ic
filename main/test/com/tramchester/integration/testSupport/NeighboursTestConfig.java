@@ -21,7 +21,7 @@ import static com.tramchester.domain.reference.TransportMode.Tram;
 public class NeighboursTestConfig extends IntegrationBusTestConfig {
 
     public NeighboursTestConfig() {
-        super("neighboursTest", "createNeighboursTest.db");
+        super();
     }
 
     @Override
