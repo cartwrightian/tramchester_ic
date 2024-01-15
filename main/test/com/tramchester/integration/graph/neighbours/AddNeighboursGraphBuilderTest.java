@@ -3,12 +3,16 @@ package com.tramchester.integration.graph.neighbours;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphRelationship;
+import com.tramchester.graph.facade.ImmutableGraphNode;
 import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.graphbuild.StationGroupsGraphBuilder;
 import com.tramchester.integration.testSupport.NeighboursTestConfig;
@@ -22,8 +26,12 @@ import org.neo4j.graphdb.Direction;
 
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.graph.TransportRelationshipTypes.NEIGHBOUR;
+import static com.tramchester.graph.graphbuild.GraphLabel.STATION;
+import static com.tramchester.integration.repository.TransportDataFromFilesTramTest.NUM_TFGM_TRAM_STATIONS;
 import static com.tramchester.testSupport.reference.TramStations.Shudehill;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.neo4j.graphdb.Direction.INCOMING;
@@ -33,6 +41,7 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 class AddNeighboursGraphBuilderTest {
 
     private static GraphDatabase graphDatabase;
+    private static StationRepository stationRepository;
     private StationGroup shudehillCentralBus;
     private Station shudehillTram;
 
@@ -50,6 +59,8 @@ class AddNeighboursGraphBuilderTest {
         // make sure composites added to the DB
         StationGroupsGraphBuilder builder = componentContainer.get(StationGroupsGraphBuilder.class);
         builder.getReady();
+
+        stationRepository = componentContainer.get(StationRepository.class);
 
         // force init of main DB and hence save of VERSION node, so avoid multiple rebuilds of the DB
         componentContainer.get(StagedTransportGraphBuilder.Ready.class);
@@ -114,14 +125,6 @@ class AddNeighboursGraphBuilderTest {
 
     }
 
-    private GraphNode getStartNode(GraphRelationship graphRelationship) {
-        return graphRelationship.getStartNode(txn);
-    }
-
-    private GraphNode getEndNode(GraphRelationship graphRelationship) {
-        return graphRelationship.getEndNode(txn);
-    }
-
     @Test
     void shouldHaveExpectedNeighbourRelationshipsToFromBus() {
 
@@ -136,6 +139,42 @@ class AddNeighboursGraphBuilderTest {
             assertTrue(seenNode(txn, shudehillTram, towards, this::getStartNode));
         });
 
+    }
+
+    @Test
+    void shouldHaveExpectedNumberForTramStations() {
+        assertEquals(NUM_TFGM_TRAM_STATIONS, countStationNodes(GraphLabel.TRAM));
+    }
+
+    @Test
+    void shouldHaveNodesForAllStations() {
+        final Set<Station> stations = stationRepository.getStationsServing(Tram);
+        long tram = stations.size();
+        assertEquals(NUM_TFGM_TRAM_STATIONS, tram);
+
+        stations.forEach(station ->
+                assertNotNull(txn.findNode(station), station.getId() + " is missing from DB"));
+    }
+
+    @Test
+    void shouldHaveExpectedNumbersForBusStations() {
+
+        long busStations = stationRepository.getNumberOfStations(DataSourceID.tfgm, TransportMode.Bus);
+
+        assertEquals(busStations, countStationNodes(GraphLabel.BUS));
+    }
+
+    private long countStationNodes(GraphLabel graphLabel) {
+        Stream<ImmutableGraphNode> stationNodes = txn.findNodes(STATION); // graphDatabase.findNodes(txn, STATION);
+        return stationNodes.filter(node -> node.hasLabel(graphLabel)).count();
+    }
+
+    private GraphNode getStartNode(GraphRelationship graphRelationship) {
+        return graphRelationship.getStartNode(txn);
+    }
+
+    private GraphNode getEndNode(GraphRelationship graphRelationship) {
+        return graphRelationship.getEndNode(txn);
     }
 
     private Set<GraphRelationship> getRelationships(GraphNode node, Direction direction) {

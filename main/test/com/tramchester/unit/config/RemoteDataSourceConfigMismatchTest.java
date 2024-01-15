@@ -38,100 +38,75 @@ public class RemoteDataSourceConfigMismatchTest {
     }
 
     @Test
-    void shouldHaveMatchingNPTGSectionGMandBuses() throws ConfigurationException, IOException {
-        RemoteDataSourceConfig buses = getRemoteDataSourceConfig("buses.yml", DataSourceID.nptg);
-        RemoteDataSourceConfig gm = getRemoteDataSourceConfig("gm.yml", DataSourceID.nptg);
+    void shouldHaveMatchingTFGMForBusAndDefault() throws ConfigurationException, IOException {
+        validateConfig("buses.yml", "local.yml", DataSourceID.tfgm);
+    }
 
-        validateConfig(gm, buses);
+    @Test
+    void shouldHaveMatchingTFGMForGMAndDefault() throws ConfigurationException, IOException {
+        validateConfig("gm.yml", "local.yml", DataSourceID.tfgm);
+    }
+
+    @Test
+    void shouldHaveMatchingNPTGSectionGMandBuses() throws ConfigurationException, IOException {
+        validateConfig("buses.yml", "gm.yml", DataSourceID.nptg);
     }
 
     @Test
     void shouldHaveMatchingNaptanSectionGMandBuses() throws ConfigurationException, IOException {
-        RemoteDataSourceConfig buses = getRemoteDataSourceConfig("buses.yml", DataSourceID.naptanxml);
-        RemoteDataSourceConfig gm = getRemoteDataSourceConfig("gm.yml", DataSourceID.naptanxml);
-
-        validateConfig(gm, buses);
+        validateConfig("buses.yml", "gm.yml", DataSourceID.naptanxml);
     }
 
     @Test
     void shouldHaveMatchingNPTGSectionGMandRail() throws ConfigurationException, IOException {
-        RemoteDataSourceConfig rail = getRemoteDataSourceConfig("rail.yml", DataSourceID.nptg);
-        RemoteDataSourceConfig gm = getRemoteDataSourceConfig("gm.yml", DataSourceID.nptg);
-
-        validateConfig(gm, rail);
+        validateConfig("rail.yml", "gm.yml", DataSourceID.nptg);
     }
 
     @Test
     void shouldHaveMatchingNaptanSectionGMandRail() throws ConfigurationException, IOException {
-        RemoteDataSourceConfig rail = getRemoteDataSourceConfig("rail.yml", DataSourceID.naptanxml);
-        RemoteDataSourceConfig gm = getRemoteDataSourceConfig("gm.yml", DataSourceID.naptanxml);
-
-        validateConfig(gm, rail);
+        validateConfig("rail.yml", "gm.yml", DataSourceID.naptanxml);
     }
 
     @Test
     void shouldHaveMatchingNaptanSectionGMAcceptance() throws ConfigurationException, IOException {
-        RemoteDataSourceConfig buses = getRemoteDataSourceConfig("gm.yml", DataSourceID.naptanxml);
-        RemoteDataSourceConfig gm = getRemoteDataSourceConfig("localAcceptanceGM.yml", DataSourceID.naptanxml);
-
-        validateConfig(gm, buses);
+        validateConfig("gm.yml", "localAcceptanceGM.yml", DataSourceID.naptanxml);
     }
 
     @Test
     void shouldHaveMatchingNptgSectionGMAcceptance() throws ConfigurationException, IOException {
-        RemoteDataSourceConfig gm = getRemoteDataSourceConfig("gm.yml", DataSourceID.nptg);
-        RemoteDataSourceConfig gmAcceptance = getRemoteDataSourceConfig("localAcceptanceGM.yml", DataSourceID.nptg);
-
-        validateConfig(gm, gmAcceptance);
+        validateConfig("gm.yml", "localAcceptanceGM.yml", DataSourceID.nptg);
     }
 
     @Test
     void shouldHaveMatchingNaptanSectionGMandAll() throws ConfigurationException, IOException {
-        RemoteDataSourceConfig gm = getRemoteDataSourceConfig("gm.yml", DataSourceID.naptanxml);
-        RemoteDataSourceConfig all = getRemoteDataSourceConfig("all.yml", DataSourceID.naptanxml);
-
-        validateConfig(gm, all);
+        validateConfig("gm.yml", "all.yml", DataSourceID.naptanxml);
     }
 
     @Test
     void shouldHaveMatchingNptgSectionGMandAll() throws ConfigurationException, IOException {
-        RemoteDataSourceConfig gm = getRemoteDataSourceConfig("gm.yml", DataSourceID.nptg);
-        RemoteDataSourceConfig all = getRemoteDataSourceConfig("all.yml", DataSourceID.nptg);
-
-        validateConfig(gm, all);
+        validateConfig("gm.yml", "all.yml", DataSourceID.nptg);
     }
 
     @Test
     void shouldHaveMatchingNaptanSectionGMandFrequency() throws ConfigurationException, IOException {
-        RemoteDataSourceConfig gm = getRemoteDataSourceConfig("gm.yml", DataSourceID.naptanxml);
-        RemoteDataSourceConfig frequency = getRemoteDataSourceConfig("frequency.yml", DataSourceID.naptanxml);
-
-        validateConfig(gm, frequency);
+        validateConfig("gm.yml", "frequency.yml", DataSourceID.naptanxml);
     }
 
     @Test
     void shouldHaveMatchingNptgSectionGMandFrequency() throws ConfigurationException, IOException {
-        RemoteDataSourceConfig gm = getRemoteDataSourceConfig("gm.yml", DataSourceID.nptg);
-        RemoteDataSourceConfig frequency = getRemoteDataSourceConfig("frequency.yml", DataSourceID.nptg);
-
-        validateConfig(gm, frequency);
+        validateConfig("gm.yml", "frequency.yml", DataSourceID.nptg);
     }
 
     @Test
     void shouldHaveMatchingRailSectionGMandFrequency() throws ConfigurationException, IOException {
-        RemoteDataSourceConfig gm = getRemoteDataSourceConfig("gm.yml", DataSourceID.rail);
-        RemoteDataSourceConfig frequency = getRemoteDataSourceConfig("frequency.yml", DataSourceID.rail);
-
-        validateConfig(gm, frequency);
+        validateConfig("gm.yml", "frequency.yml", DataSourceID.rail);
     }
 
     @Test
     void shouldHaveMatchingTFGMSectionGMandFrequency() throws ConfigurationException, IOException {
-        RemoteDataSourceConfig gm = getRemoteDataSourceConfig("gm.yml", DataSourceID.tfgm);
-        RemoteDataSourceConfig frequency = getRemoteDataSourceConfig("frequency.yml", DataSourceID.tfgm);
-
-        validateConfig(gm, frequency);
+        validateConfig("gm.yml", "frequency.yml", DataSourceID.tfgm);
     }
+
 
     @Disabled("postcode no longer enabled for bus")
     @Test
@@ -146,6 +121,12 @@ public class RemoteDataSourceConfigMismatchTest {
     private RemoteDataSourceConfig getRemoteDataSourceConfig(String configFileName, DataSourceID dataSourceID) throws IOException, ConfigurationException {
         AppConfiguration busConfig = getConfigFile(configFileName);
         return busConfig.getDataRemoteSourceConfig(dataSourceID);
+    }
+
+    void validateConfig(String filenameA, String filenameB, DataSourceID dataSourceID) throws ConfigurationException, IOException {
+        RemoteDataSourceConfig remoteDataSourceConfigA = getRemoteDataSourceConfig(filenameA, dataSourceID);
+        RemoteDataSourceConfig remoteDataSourceConfigB = getRemoteDataSourceConfig(filenameB, dataSourceID);
+        validateConfig(remoteDataSourceConfigA, remoteDataSourceConfigB);
     }
 
     private void validateConfig(RemoteDataSourceConfig sourceA, RemoteDataSourceConfig sourceB) {

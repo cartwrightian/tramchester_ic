@@ -3,6 +3,7 @@ package com.tramchester.integration.repository.naptan;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.NaptanRecord;
 import com.tramchester.domain.places.Station;
@@ -26,6 +27,7 @@ import java.util.EnumSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.tramchester.integration.repository.buses.StationRepositoryBusTest.agecroftRoadStops;
 import static org.junit.jupiter.api.Assertions.*;
 
 class NaptanRepositoryTest {
@@ -89,7 +91,7 @@ class NaptanRepositoryTest {
         assertTrue(respository.containsTiploc(tiploc));
 
         NaptanRecord record = respository.getForTiploc(tiploc);
-        assertEquals(record.getName(), "Macclesfield Rail Station");
+        assertEquals(record.getCommonName(), "Macclesfield Rail Station");
         assertEquals(record.getTown(), "Macclesfield");
         assertTrue(record.getSuburb().isEmpty());
         assertEquals(record.getId(), NaptanRecord.createId("9100MACLSFD"));
@@ -106,7 +108,7 @@ class NaptanRepositoryTest {
         assertTrue(respository.containsTiploc(altyTrainId));
         NaptanRecord record = respository.getForTiploc(altyTrainId);
 
-        assertEquals("Altrincham Rail Station", record.getName());
+        assertEquals("Altrincham Rail Station", record.getCommonName());
         assertEquals("Altrincham", record.getTown());
         assertTrue(record.getSuburb().isEmpty());
         assertEquals(NaptanRecord.createId("9100ALTRNHM"), record.getId());
@@ -135,13 +137,33 @@ class NaptanRepositoryTest {
         assertFalse(respository.containsArea(KnowLocality.LondonWestminster.getId()));
     }
 
+    // need to use <Street xml:lang="en">Bolton Road</Street><Indicator xml:lang="en">opp</Indicator> from naptan to
+    // create unique via getDisplayName
+    @Test
+    void shouldHaveNamesFromNaptanData() {
+        NaptanRepository naptanRepository = componentContainer.get(NaptanRepository.class);
+
+        IdSet<Station> stopIds = agecroftRoadStops.stream().map(Station::createId).collect(IdSet.idCollector());
+
+        IdSet<Station> missing = stopIds.stream().filter(id -> !naptanRepository.containsActo(id)).collect(IdSet.idCollector());
+
+        assertTrue(missing.isEmpty(), "missing " + missing);
+
+        Set<String> uniqueNames = stopIds.stream().
+                map(naptanRepository::getForActo).
+                map(NaptanRecord::getDisplayName).collect(Collectors.toSet());
+
+        assertEquals(4, uniqueNames.size(), "wrong number unique names " + uniqueNames);
+
+    }
+
     @Test
     void shouldFindAllTestBusStations() {
         for(BusStations station :BusStations.values()) {
             IdFor<Station> actoCode = station.getId();
             assertTrue(respository.containsActo(actoCode), "missing for " + station);
             NaptanRecord fromNaptan = respository.getForActo(actoCode);
-            assertEquals(station.getName(), fromNaptan.getName());
+            assertEquals(station.getName(), fromNaptan.getDisplayName(), fromNaptan.toString());
         }
     }
 
@@ -169,10 +191,15 @@ class NaptanRepositoryTest {
 
         assertEquals(3, busStationStops.size());
 
-        busStationStops.forEach(naptanRecord -> {
-            assertEquals("Bus Station", naptanRecord.getName(), "wrong name for " + naptanRecord);
-            assertEquals("Knutsford", naptanRecord.getTown(), "wrong town for " + naptanRecord);
-            assertEquals("", naptanRecord.getSuburb(), "wrong suburb for " + naptanRecord);
+        busStationStops.forEach(busStationRecord -> {
+            assertEquals("Bus Station", busStationRecord.getCommonName(), "wrong name for " + busStationRecord);
+            assertEquals("Knutsford", busStationRecord.getTown(), "wrong town for " + busStationRecord);
+            assertEquals("", busStationRecord.getSuburb(), "wrong suburb for " + busStationRecord);
+
+            assertTrue(busStationRecord.getIndicator().startsWith("Stand"));
+
+//            assertEquals("Bus Station", naptanRecord.getDisplayName(), "wrong name for " + naptanRecord);
+
         });
     }
 

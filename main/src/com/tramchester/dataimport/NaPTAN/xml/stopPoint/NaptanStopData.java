@@ -65,6 +65,10 @@ public class NaptanStopData implements NaptanXMLData {
         return descriptor.getIndicator();
     }
 
+    public String getStreet() {
+        return descriptor.getStreet();
+    }
+
     public boolean hasRailInfo() {
         return stopClassification.hasRailInfo();
     }
@@ -128,4 +132,5 @@ public class NaptanStopData implements NaptanXMLData {
     public String getStatus() {
         return status;
     }
+
 }

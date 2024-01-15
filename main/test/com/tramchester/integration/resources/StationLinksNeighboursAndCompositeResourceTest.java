@@ -40,6 +40,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class StationLinksNeighboursAndCompositeResourceTest {
 
     private static final AppConfiguration configuration = new NeighboursTestConfig();
+
     private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, configuration);
     private static GuiceContainerDependencies dependencies;
 
@@ -109,7 +110,7 @@ class StationLinksNeighboursAndCompositeResourceTest {
     @Test
     void expectedNumbers() {
         List<StationLinkDTO> results = getLinks();
-        assertEquals(20421, results.size(), "count of links");
+        assertEquals(20401, results.size(), "count of links");
     }
 
     @Disabled("needs trams and buses enabled")

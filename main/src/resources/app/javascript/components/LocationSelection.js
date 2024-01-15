@@ -1,7 +1,5 @@
 
 
-
-
 function sort(stopMap, alreadyDisplayed, requestedModes) {
 
     if (stopMap==null) {
@@ -33,7 +31,7 @@ function getStop(stopId, app) {
 
 export default {
     components: {
-        //VueTypeaheadBootstrap
+       
     },
     /// NOTE: don't camel case these, browser will treat them as all lowercase....
     // TODO Add whether selection is for a dropoff or a pickup
@@ -67,9 +65,7 @@ export default {
             }
         },
         changedValue(event) {
-            // const stopId = event.target.value;
-            // this.currentId = stopId;
-            // this.value = stopId;
+            // no-op
         },
         serialize: function(station) {
             if (station==null) {
@@ -86,9 +82,6 @@ export default {
             return sort(this.stops.allStops, this.alreadyDisplayed, this.modes);
         },
         alreadyDisplayed: function () {
-            if (this.bus) {
-                return results; // recent, nearby, etc not used for bus UI
-            }
 
             var results = [];
 
@@ -110,14 +103,12 @@ export default {
         },
         recentStops: function() {
             return this.stops.recentStops;
-            //return filterStops(this.stops.recentStops, this.modes, []);
         },
         currentLocationStops: function () {
             return this.stops.currentLocation;
         },
         nearestStops: function() {
             return this.stops.nearestStops;
-            //return filterStops(this.stops.nearestStops, this.modes, []);
         },
         myLocation: function() {
             return this.stops.currentLocation;
@@ -132,8 +123,7 @@ export default {
                 v-on:input="updateValue($event)"
                 v-on:change="changedValue($event)"
                 v-model="currentId"
-                required 
-                v-if="!bus">
+                required >
             <option :value="null" selected>Please select {{name}}</option>
             <optgroup label="Nearby" name="Nearby" :id="name+'GroupNearby'" v-if="geo">
                 <option class="MyLocation" v-for="stop in myLocation" :value="stop.id" :key="stop.id"
@@ -152,20 +142,6 @@ export default {
                     :disabled="stop.id == otherId">{{stop.name}}</option>
             </optgroup>
         </select>
-    <!-- Typeahead selection mode not in used
-        <vue-typeahead-bootstrap
-            :disabled="disabled"
-            class="mb-4"
-            :data="allstops"
-            :value="serialize(value)"
-            maxMatches=20
-            minMatchingChars=3
-            :serializer="item => serialize(item)"
-            @hit="updateValue($event)"
-            placeholder="Select a location"
-            v-if="bus"
-        />
-    -->
     </div>
     `
 }

@@ -37,6 +37,7 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
     private static final Logger logger = LoggerFactory.getLogger(TransportEntityFactoryForTFGM.class);
 
     private final NaptanRepository naptanRepository;
+    private final boolean naptanEnabled;
 
     private final Duration minChangeDuration = Duration.ofMinutes(MutableStation.DEFAULT_MIN_CHANGE_TIME);
 
@@ -46,6 +47,7 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
     public TransportEntityFactoryForTFGM(NaptanRepository naptanRepository) {
         super();
         this.naptanRepository = naptanRepository;
+        this.naptanEnabled = naptanRepository.isEnabled();
         this.stopIdToStationId = new HashMap<>();
         this.originalCodeForStop = new HashMap<>();
     }
@@ -71,34 +73,57 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
     }
 
     @Override
-    public MutableStation createStation(IdFor<Station> stationId, StopData stopData) {
+    public MutableStation createStation(final IdFor<Station> stationId, final StopData stopData) {
 
-        boolean isInterchange = false;
-        IdFor<NPTGLocality> areaId = NPTGLocality.InvalidId();
-        LatLong latLong = stopData.getLatLong();
-        GridPosition position = CoordinateTransforms.getGridPosition(latLong);
-        String stationCode = stopData.getCode();
+        final boolean isMetrolink = isMetrolinkTram(stopData);
+        final String stationCode = stopData.getCode();
+        final boolean hasNaptan = hasNaptan(stationCode);
+        final NaptanRecord naptanRecord = hasNaptan ? naptanRepository.getForActo(stationId) : null;
 
-        if (naptanRepository.isEnabled()) {
-            // enrich details from naptan where possible
-            if (naptanRepository.containsActo(Station.createId(stationCode))) {
-                NaptanRecord naptanData = naptanRepository.getForActo(stationId);
+        final boolean isInterchange;
+        final IdFor<NPTGLocality> areaId;
+        final LatLong latLong;
+        final GridPosition gridPosition;
+        if (hasNaptan) {
+                isInterchange = NaptanStopType.isInterchange(naptanRecord.getStopType());
+                areaId = naptanRecord.getLocalityId();
+                gridPosition = naptanRecord.getGridPosition();
+                latLong = naptanRecord.getLatLong();
+        } else {
+            isInterchange = false;
+            areaId = NPTGLocality.InvalidId();
+            latLong = stopData.getLatLong();
+            gridPosition = CoordinateTransforms.getGridPosition(latLong);
+        }
 
-                isInterchange = NaptanStopType.isInterchange(naptanData.getStopType());
-                areaId = naptanData.getLocalityId();
-                position = naptanData.getGridPosition();
-                latLong = naptanData.getLatLong();
+        final String cleanedName = cleanStationName(stopData); // remove embedded quotes
+
+        final String stationName;
+        if (isMetrolink) {
+            stationName = removeMetrolinkPostfix(cleanedName);
+        } else {
+            if (hasNaptan) {
+                stationName = naptanRecord.getDisplayName();
+            } else {
+                stationName = cleanedName;
             }
         }
 
-        final String stationName = cleanStationName(stopData);
-
-        return new MutableStation(stationId, areaId, workAroundName(stationName), latLong, position,
+        return new MutableStation(stationId, areaId, workAroundName(stationName), latLong, gridPosition,
                 getDataSourceId(), isInterchange, minChangeDuration, stationCode);
+    }
+
+    boolean hasNaptan(String stationCode) {
+        if (naptanEnabled) {
+            return naptanRepository.containsActo(Station.createId(stationCode));
+        }
+        return false;
     }
 
     @Override
     public Optional<MutablePlatform> maybeCreatePlatform(StopData stopData, Station station) {
+
+        // TODO better way to do this
         if (!isMetrolinkTram(stopData)) {
             return Optional.empty();
         }
@@ -114,7 +139,7 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
         LatLong latLong = stopData.getLatLong();
         GridPosition gridPosition = CoordinateTransforms.getGridPosition(latLong);
 
-        if (naptanRepository.isEnabled()) {
+        if (naptanEnabled) {
             if (naptanRepository.containsActo(platformId)) {
                 NaptanRecord naptanData = naptanRepository.getForActo(platformId);
 
@@ -126,7 +151,9 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
             // TODO Add logging if there is a significant diff in position data?
         }
 
-        final MutablePlatform platform = new MutablePlatform(platformId, station, cleanStationName(stopData),
+        String platformName = removeMetrolinkPostfix(cleanStationName(stopData));
+
+        final MutablePlatform platform = new MutablePlatform(platformId, station, platformName,
                 getDataSourceId(), platformNumber, areaId, latLong, gridPosition, station.isMarkedInterchange());
         return Optional.of(platform);
 
@@ -156,15 +183,14 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
         return PlatformId.createId(stationId, remaining);
     }
 
-    private String cleanStationName(StopData stopData) {
+    private String cleanStationName(final StopData stopData) {
         String text = stopData.getName();
         text = text.replace("\"", "").trim();
-
-        return removeMetrolinkPostfix(text);
+        return text;
     }
 
     @NotNull
-    private static String removeMetrolinkPostfix(String text) {
+    private static String removeMetrolinkPostfix(final String text) {
         if (text.endsWith(METROLINK_NAME_POSTFIX)) {
             return text.replace(METROLINK_NAME_POSTFIX, "").trim();
         } else {

@@ -20,27 +20,27 @@ import static com.tramchester.domain.reference.TransportMode.Bus;
 
 public enum BusStations implements FakeStation {
 
-    StopAtAltrinchamInterchange("1800AMIC0C1", "Altrincham Interchange",
+    StopAtAltrinchamInterchange("1800AMIC0C1", "Altrincham Interchange (Stand C), Altrincham",
             new LatLong(53.38745, -2.34771)),
-    StopAtHeatonLaneStockportBusStation("1800STIC011", "Stockport Heaton Lane Bus Station",
+    StopAtHeatonLaneStockportBusStation("1800STIC011", "Stockport Heaton Lane Bus Station (Stand H1), Stockport",
             new LatLong(53.41036253703,-2.16501729098)),
-    StopAtShudehillInterchange("1800SHIC0C1", "Shudehill Interchange",
+    StopAtShudehillInterchange("1800SHIC0C1", "Shudehill Interchange (Stand C), Shudehill, Manchester City Centre",
             new LatLong(53.48557, -2.23827)),
-    ManchesterAirportStation("1800MABS0E1", "Manchester Airport The Station",
+    ManchesterAirportStation("1800MABS0E1", "Manchester Airport The Station (Stand E), Manchester Airport, Manchester",
             new LatLong(53.3656, -2.27242)),
-    KnutsfordStationStand3("0600MA6022", "Bus Station",
+    KnutsfordStationStand3("0600MA6022", "Bus Station (Stand 3), Knutsford",
             new LatLong(53.30245, -2.37551)),
-    BuryInterchange("1800BYIC0C1", "Bury Interchange",
+    BuryInterchange("1800BYIC0C1", "Bury Interchange (Stand C), Bury",
             new LatLong(53.59134, -2.29706)),
-    PiccadilyStationStopA("1800EB01201", "Manchester Piccadilly Rail Station",
+    PiccadilyStationStopA("1800EB01201", "Manchester Piccadilly Rail Station (Stop A London Road), Manchester City Centre, Manchester",
             new LatLong(53.47683, -2.23146)),
-    PiccadillyGardensStopH("1800SB05001", "Piccadilly Gardens",
+    PiccadillyGardensStopH("1800SB05001", "Piccadilly Gardens (Stop H Parker Street), Piccadilly Gardens, Manchester City Centre",
             new LatLong(53.48063,-2.23825)),
-    PiccadillyGardensStopN("1800SB04721", "Piccadilly Gardens",
+    PiccadillyGardensStopN("1800SB04721", "Piccadilly Gardens (Stop N Parker Street), Piccadilly Gardens, Manchester City Centre",
             new LatLong(53.48017, -2.23723)),
-    StockportAtAldi("1800SG15721", "Aldi",
+    StockportAtAldi("1800SG15721", "Aldi (at Newbridge Lane), Stockport",
             new LatLong(53.41115, -2.15221)),
-    StockportNewbridgeLane("1800SG15561", "Newbridge Lane",
+    StockportNewbridgeLane("1800SG15561", "Newbridge Lane (Millgate), Stockport",
             new LatLong(53.41149, -2.15438));
 
     // stockport bus stations is no more, at least for now

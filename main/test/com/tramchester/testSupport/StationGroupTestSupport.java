@@ -57,7 +57,7 @@ public class StationGroupTestSupport {
         }
 
         Set<NaptanRecord> stops = naptanRepository.getRecordsForLocality(knowLocalityId).stream().
-                filter(naptanRecord -> commonName.equalsIgnoreCase(naptanRecord.getName())).
+                filter(naptanRecord -> commonName.equalsIgnoreCase(naptanRecord.getCommonName())).
                 collect(Collectors.toSet());
 
         if (stops.isEmpty()) {

@@ -11,25 +11,29 @@ import com.tramchester.repository.naptan.NaptanStopType;
 public class NaptanRecord implements HasId<NaptanRecord>, CoreDomain {
     private final IdFor<NaptanRecord> id; // actoCode
     private final IdFor<NPTGLocality> localityId;
-    private final String name;
+    private final String commonName;
     private final GridPosition gridPosition;
     private final String suburb;
     private final String town;
+    private final String street;
+    private final String indicator;
     private final NaptanStopType stopType;
     private final boolean localityCenter;
     private final LatLong latlong;
 
-    public NaptanRecord(IdFor<NaptanRecord> id, IdFor<NPTGLocality> localityId, String name, GridPosition gridPosition,
+    public NaptanRecord(IdFor<NaptanRecord> id, IdFor<NPTGLocality> localityId, String commonName, GridPosition gridPosition,
                         LatLong latlong, String suburb, String town,
-                        NaptanStopType stopType, boolean localityCenter) {
+                        NaptanStopType stopType, String street, String indicator, boolean localityCenter) {
         this.id = id;
         this.localityId = localityId;
-        this.name = name;
+        this.commonName = commonName;
         this.gridPosition = gridPosition;
         this.latlong = latlong;
         this.suburb = suburb;
         this.town = town;
         this.stopType = stopType;
+        this.street = street;
+        this.indicator = indicator;
         this.localityCenter = localityCenter;
     }
 
@@ -46,8 +50,8 @@ public class NaptanRecord implements HasId<NaptanRecord>, CoreDomain {
         return suburb;
     }
 
-    public String getName() {
-        return name;
+    public String getCommonName() {
+        return commonName;
     }
 
     public String getTown() { return town; }
@@ -68,12 +72,40 @@ public class NaptanRecord implements HasId<NaptanRecord>, CoreDomain {
         return localityCenter;
     }
 
+    public String getDisplayName() {
+        String result = commonName;
+        if (stopType==NaptanStopType.busCoachTrolleyStationBay) {
+            if (!indicator.isEmpty()) {
+                result = result + " (" + indicator + ")";
+            }
+        } else {
+            // TODO landmark
+
+            if (!street.isEmpty()) {
+                result = result + " (";
+                if (!indicator.isEmpty()) {
+                    result = result + indicator + " ";
+                }
+                result = result + street + ")";
+            }
+        }
+
+        // add suburb and town if present
+        if (!suburb.isEmpty()) {
+            result = result + ", " + suburb;
+        }
+        if (!town.isEmpty()) {
+            result = result + ", " +town;
+        }
+        return result;
+    }
+
     @Override
     public String toString() {
         return "NaptanRecord{" +
                 "id=" + id +
                 ", localityId=" + localityId +
-                ", name='" + name + '\'' +
+                ", commonName='" + commonName + '\'' +
                 ", gridPosition=" + gridPosition +
                 ", suburb='" + suburb + '\'' +
                 ", town='" + town + '\'' +
@@ -87,5 +119,11 @@ public class NaptanRecord implements HasId<NaptanRecord>, CoreDomain {
         return localityId;
     }
 
+    public String getStreet() {
+        return street;
+    }
 
+    public String getIndicator() {
+        return indicator;
+    }
 }

@@ -101,13 +101,13 @@ class BusRouteCostCalculatorTest {
     @Test
     void shouldFindCostsCorrectlyForShudehillAltyComp() {
         assertMinutesEquals(55, getCostBetween(average(), altrincham, shudehill));
-        assertMinutesEquals(54, getCostBetween(average(), shudehill, altrincham));
+        assertMinutesEquals(58, getCostBetween(average(), shudehill, altrincham));
     }
 
     @Test
     void shouldFindCostsCorrectlyForShudehillAlty() {
         assertMinutesEquals(56, getCost(average(), StopAtAltrinchamInterchange, StopAtShudehillInterchange));
-        assertMinutesEquals(56, getCost(average(), StopAtShudehillInterchange, StopAtAltrinchamInterchange));
+        assertMinutesEquals(58, getCost(average(), StopAtShudehillInterchange, StopAtAltrinchamInterchange));
     }
 
     @Test

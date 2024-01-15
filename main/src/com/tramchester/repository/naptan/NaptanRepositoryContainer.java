@@ -163,7 +163,7 @@ public class NaptanRepositoryContainer implements NaptanRepository {
         }
 
         return new NaptanRecord(atcoCode, localityCode, original.getCommonName(), original.getGridPosition(), original.getLatLong(),
-                suburb, town, stopType, original.isLocalityCentre());
+                suburb, town, stopType, original.getStreet(), original.getIndicator(), original.isLocalityCentre());
     }
 
     private String getSuburb(NPTGLocality locality) {

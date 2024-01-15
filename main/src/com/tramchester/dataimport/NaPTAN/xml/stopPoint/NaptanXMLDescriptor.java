@@ -11,15 +11,21 @@ public class NaptanXMLDescriptor {
 
     private final String indicator;
     private final String commonName;
+    private final String street;
 
     @JsonCreator
     public NaptanXMLDescriptor(@JsonProperty("Indicator") String indicator,
-                               @JsonProperty("CommonName") String commonName) {
+                               @JsonProperty("CommonName") String commonName,
+                               @JsonProperty("Street") String street) {
         this.indicator = indicator;
         this.commonName = commonName;
+        this.street = street;
     }
 
     public String getIndicator() {
+        if (indicator==null) {
+            return "";
+        }
         return indicator;
     }
 
@@ -27,11 +33,20 @@ public class NaptanXMLDescriptor {
         return commonName;
     }
 
+    public String getStreet() {
+        if (street==null) {
+            return "";
+        }
+        return street;
+    }
+
     @Override
     public String toString() {
         return "NaptanXMLDescriptor{" +
                 "indicator='" + indicator + '\'' +
                 ", commonName='" + commonName + '\'' +
+                ", street='" + street + '\'' +
                 '}';
     }
+
 }

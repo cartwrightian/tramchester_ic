@@ -44,7 +44,7 @@ public
 class TransportDataFromFilesBusTest {
 
     public static final int TGFM_BUS_AGENCIES = 33;
-    public static final int TGFM_BUS_ROUTES = 686;
+    public static final int TGFM_BUS_ROUTES = 685;
     public static final int NUM_TFGM_BUS_STATIONS = 15697;
     private static ComponentContainer componentContainer;
     private static TramchesterConfig config;
@@ -166,12 +166,12 @@ class TransportDataFromFilesBusTest {
         outbounds.forEach(outbound -> assertEquals("464", outbound.getShortName()));
 
         Station firstStation = transportData.getStationById(Station.createId("2500ACC0009"));
-        assertEquals("Bus Station", firstStation.getName());
+        assertEquals("Bus Station (Stand 9), Accrington, Accrington", firstStation.getName());
         outbounds.forEach(outbound -> assertFalse(firstStation.servesRouteDropOff(outbound)));
         outbounds.forEach(outbound -> assertTrue(firstStation.servesRoutePickup(outbound)));
 
         Station secondStation = transportData.getStationById(Station.createId("2500LAA15791"));
-        assertEquals("Infant Street", secondStation.getName());
+        assertEquals("Infant Street (opp Abbey St), Accrington, Hyndburn", secondStation.getName());
         outbounds.forEach(outbound -> assertTrue(secondStation.servesRoutePickup(outbound)));
         outbounds.forEach(outbound -> assertTrue(secondStation.servesRouteDropOff(outbound)));
     }
