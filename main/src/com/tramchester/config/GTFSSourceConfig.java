@@ -50,7 +50,9 @@ public interface GTFSSourceConfig extends TransportDataSourceConfig {
                 collect(Collectors.toSet());
     }
 
-    Set<TransportMode> compositeStationModes();
+    // transport modes where StationGroups will be created i.e. stations in same NPTG locality group as created
+    // as groups and hence linked together
+    Set<TransportMode> groupedStationModes();
 
     List<StationClosures> getStationClosures();
 

@@ -219,6 +219,12 @@ public class AppConfiguration extends TramchesterConfig {
     }
 
     @Override
+    public boolean isGraphFiltered() {
+        // support for test cases
+        return false;
+    }
+
+    @Override
     public Double getNearestStopRangeKM() {
         return nearestStopRangeKM;
     }

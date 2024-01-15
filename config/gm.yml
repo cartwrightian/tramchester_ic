@@ -32,7 +32,7 @@ gtfsSourceConfig:
     noServices: []
     markedInterchangesOnly: false
     additionalInterchanges: [9400ZZMAGMX,9400ZZMAPIC]
-    compositeStationModes: []
+    groupedStationModes: []
     addWalksForClosed: true
     stationClosures:
       - stations: [ "9400ZZMAECC", "9400ZZMALDY" ]

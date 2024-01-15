@@ -119,12 +119,17 @@ public class RailAndTramRouteCalculatorSubGraphRoutesTest {
 
     private static class Config extends RailAndTramGreaterManchesterConfig {
         public Config() {
-            super("RailAndTramRouteCalculatorSubGraphRoutesTest.bd");
+            super();
         }
 
         @Override
         public Path getCacheFolder() {
             return TestEnv.CACHE_DIR.resolve("RailAndTramRouteCalculatorSubGraphRoutesTest");
+        }
+
+        @Override
+        public boolean isGraphFiltered() {
+            return true;
         }
     }
 

@@ -74,6 +74,8 @@ class RouteCalculatorSubGraphMediaCityTest {
     static void onceBeforeAnyTestsRun() throws IOException {
         config = new SubgraphConfig();
 
+        TestEnv.deleteDBIfPresent(config);
+
         componentContainer = new ComponentsBuilder().
                 configureGraphFilter(RouteCalculatorSubGraphMediaCityTest::configureFilter).
                 create(config, TestEnv.NoopRegisterMetrics());
@@ -90,7 +92,7 @@ class RouteCalculatorSubGraphMediaCityTest {
     @AfterAll
     static void OnceAfterAllTestsAreFinished() throws IOException {
         componentContainer.close();
-//        TestEnv.deleteDBIfPresent(config);
+        TestEnv.deleteDBIfPresent(config);
     }
 
     @BeforeEach
@@ -281,7 +283,12 @@ class RouteCalculatorSubGraphMediaCityTest {
 
     private static class SubgraphConfig extends IntegrationTramTestConfig {
         public SubgraphConfig() {
-            super("sub_mediacity_tramchester.db", IntegrationTramTestConfig.CurrentClosures);
+            super(IntegrationTramTestConfig.CurrentClosures);
+        }
+
+        @Override
+        public boolean isGraphFiltered() {
+            return true;
         }
 
         @Override
@@ -296,7 +303,7 @@ class RouteCalculatorSubGraphMediaCityTest {
 
             List<StationClosures> currentClosures = IntegrationTramTestConfig.CurrentClosures;
 
-            TFGMGTFSSourceTestConfig gtfsSourceConfig = new TFGMGTFSSourceTestConfig(Path.of("data/tram"), GTFSTransportationType.tram,
+            TFGMGTFSSourceTestConfig gtfsSourceConfig = new TFGMGTFSSourceTestConfig(GTFSTransportationType.tram,
                     Tram, additionalInterchanges, groupStationModes, currentClosures,
                     Duration.ofMinutes(45));
 

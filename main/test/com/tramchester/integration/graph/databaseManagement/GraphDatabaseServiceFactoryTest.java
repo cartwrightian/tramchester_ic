@@ -15,7 +15,6 @@ import org.neo4j.graphdb.Transaction;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -29,9 +28,9 @@ public class GraphDatabaseServiceFactoryTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
-        String dbName = "graphDbTest.db";
+//        String dbName = "graphDbTest.db";
 
-        config = new IntegrationTramTestConfig(dbName, Collections.emptyList());
+        config = new IntegrationTramTestConfig();
         TestEnv.deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());

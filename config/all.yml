@@ -31,7 +31,7 @@ gtfsSourceConfig:
     transportModesWithPlatforms: [ Tram ]
     noServices: []
     additionalInterchanges: [9400ZZMAGMX, 9400ZZMAPIC]
-    compositeStationModes: [ Bus ]
+    groupedStationModes: [ Bus ]
 rail:
   dataPath: data/rail
   version: 285

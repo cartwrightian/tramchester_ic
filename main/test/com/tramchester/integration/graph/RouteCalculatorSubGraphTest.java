@@ -55,6 +55,8 @@ class RouteCalculatorSubGraphTest {
     static void onceBeforeAnyTestsRun() throws IOException {
         config = new SubgraphConfig();
 
+        TestEnv.deleteDBIfPresent(config);
+
         componentContainer = new ComponentsBuilder().
                 configureGraphFilter(RouteCalculatorSubGraphTest::configureFilter).
                 create(config, TestEnv.NoopRegisterMetrics());
@@ -70,7 +72,7 @@ class RouteCalculatorSubGraphTest {
     @AfterAll
     static void OnceAfterAllTestsAreFinished() throws IOException {
         componentContainer.close();
-        //TestEnv.deleteDBIfPresent(config);
+        TestEnv.deleteDBIfPresent(config);
     }
 
     @BeforeEach
@@ -151,7 +153,7 @@ class RouteCalculatorSubGraphTest {
     @Test
     void shouldHaveSimpleOneStopJourney() {
         Set<Journey> results = getJourneys(Cornbrook, Pomona, when, 1);
-        Assertions.assertTrue(results.size()>0);
+        assertFalse(results.isEmpty());
     }
 
     @Test
@@ -161,25 +163,25 @@ class RouteCalculatorSubGraphTest {
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 3,
                 maxJourneyDuration, 1, modes);
         Set<Journey> results = calculator.calculateRouteAsSet(Cornbrook, Pomona, journeyRequest);
-        Assertions.assertTrue(results.size()>0);
+        assertFalse(results.isEmpty());
     }
 
     @Test
     void shouldHaveSimpleOneStopJourneyAtWeekend() {
         Set<Journey> results = getJourneys(Cornbrook, Pomona, TestEnv.nextSaturday(), 1);
-        Assertions.assertTrue(results.size()>0);
+        assertFalse(results.isEmpty());
     }
 
     @Test
     void shouldHaveSimpleOneStopJourneyBetweenInterchanges() {
         Set<Journey> results = getJourneys(StPetersSquare, TramStations.Deansgate, when, 1);
-        Assertions.assertTrue(results.size()>0);
+        assertFalse(results.isEmpty());
     }
 
     @Test
     void shouldHaveSimpleJourney() {
         Set<Journey> results = getJourneys(StPetersSquare, Cornbrook, when, 1);
-        Assertions.assertTrue(results.size()>0);
+        assertFalse(results.isEmpty());
     }
 
     @Test
@@ -191,7 +193,12 @@ class RouteCalculatorSubGraphTest {
 
     private static class SubgraphConfig extends IntegrationTramTestConfig {
         public SubgraphConfig() {
-            super("subgraph_tramchester.db", Collections.emptyList(), Caching.Disabled);
+            super(Collections.emptyList(), Caching.Disabled);
+        }
+
+        @Override
+        public boolean isGraphFiltered() {
+            return true;
         }
     }
 

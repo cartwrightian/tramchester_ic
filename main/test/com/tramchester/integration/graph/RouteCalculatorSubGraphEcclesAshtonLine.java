@@ -121,7 +121,12 @@ class RouteCalculatorSubGraphEcclesAshtonLine {
 
     private static class SubgraphConfig extends IntegrationTramTestConfig {
         public SubgraphConfig() {
-            super("subgraph_eccles_ashton_tramchester.db", Collections.emptyList());
+            super(Collections.emptyList());
+        }
+
+        @Override
+        public boolean isGraphFiltered() {
+            return super.isGraphFiltered();
         }
     }
 

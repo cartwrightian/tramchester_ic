@@ -7,8 +7,8 @@ import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
-import com.tramchester.unit.graph.calculation.SimpleCompositeGraphConfig;
-import com.tramchester.unit.graph.calculation.SimpleGraphConfig;
+import com.tramchester.unit.graph.calculation.SimpleGroupedGraphConfig;
+import com.tramchester.testSupport.UnitTestOfGraphConfig;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,13 +20,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class NumberOfNodesAndRelationshipsRepositoryTest {
 
-    private static SimpleGraphConfig config;
+    private static UnitTestOfGraphConfig config;
     private static GuiceContainerDependencies componentContainer;
     private NumberOfNodesAndRelationshipsRepository repository;
 
     @BeforeAll
     static void onceBeforeAllTestRuns() throws IOException {
-        config = new SimpleCompositeGraphConfig("ServiceNodeCacheTest.db");
+        config = new SimpleGroupedGraphConfig();
         TestEnv.deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder().

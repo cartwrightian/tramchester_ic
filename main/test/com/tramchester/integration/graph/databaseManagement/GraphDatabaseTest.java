@@ -5,7 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
-import com.tramchester.unit.graph.calculation.SimpleGraphConfig;
+import com.tramchester.testSupport.UnitTestOfGraphConfig;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
@@ -14,12 +14,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class GraphDatabaseTest {
 
-    private static SimpleGraphConfig config;
+    private static UnitTestOfGraphConfig config;
     private static ComponentContainer componentContainer;
 
     @BeforeAll
     static void beforeEachTest() throws IOException {
-        config = new SimpleGraphConfig("GraphDatabaseTest");
+        config = new UnitTestOfGraphConfig();
         TestEnv.deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder().

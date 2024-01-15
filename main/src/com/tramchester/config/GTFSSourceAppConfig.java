@@ -55,8 +55,8 @@ public class GTFSSourceAppConfig extends Configuration implements GTFSSourceConf
     private Set<String> additionalInterchanges;
 
     @NotNull
-    @JsonProperty("compositeStationModes")
-    private Set<TransportMode> compositeStationModes;
+    @JsonProperty("groupedStationModes")
+    private Set<TransportMode> groupedStationModes;
 
     @NotNull
     @JsonProperty("stationClosures")
@@ -106,8 +106,8 @@ public class GTFSSourceAppConfig extends Configuration implements GTFSSourceConf
     }
 
     @Override
-    public Set<TransportMode> compositeStationModes() {
-        return compositeStationModes;
+    public Set<TransportMode> groupedStationModes() {
+        return groupedStationModes;
     }
 
     @Override

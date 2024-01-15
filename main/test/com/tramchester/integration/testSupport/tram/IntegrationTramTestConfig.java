@@ -7,8 +7,8 @@ import com.tramchester.domain.StationClosures;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.DatabaseRemoteDataSourceConfig;
-import com.tramchester.integration.testSupport.GraphDBTestConfig;
 import com.tramchester.integration.testSupport.IntegrationTestConfig;
+import com.tramchester.integration.testSupport.TestGroupType;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.TestEnv;
@@ -33,7 +33,7 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
         Enabled, Disabled
     }
 
-    private static final String DB_NAME = "int_test_tram.db";
+//    private static final String DB_NAME = "int_test_tram.db";
     public static final Path TRAM_INTEGRATION_CACHE_PATH = TestEnv.CACHE_DIR.resolve("tramIntegration");
 
     private final GTFSSourceConfig gtfsSourceConfig;
@@ -43,37 +43,35 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
     private final Caching caching;
 
     public IntegrationTramTestConfig() {
-       this(DB_NAME, LiveData.Disabled, IntegrationTestConfig.CurrentClosures, Caching.Enabled);
+       this(LiveData.Disabled, IntegrationTestConfig.CurrentClosures, Caching.Enabled);
     }
 
     public IntegrationTramTestConfig(LiveData liveData) {
-        this(DB_NAME, liveData, IntegrationTestConfig.CurrentClosures, Caching.Enabled);
+        this(liveData, IntegrationTestConfig.CurrentClosures, Caching.Enabled);
     }
 
     public IntegrationTramTestConfig(LiveData liveData, Caching caching) {
-        this(DB_NAME, liveData, IntegrationTestConfig.CurrentClosures, caching);
+        this(liveData, IntegrationTestConfig.CurrentClosures, caching);
     }
 
-    public IntegrationTramTestConfig(String dbName, List<StationClosures> closedStations) {
-        this(dbName, LiveData.Disabled, closedStations, Caching.Enabled);
+    public IntegrationTramTestConfig(List<StationClosures> closedStations) {
+        this(LiveData.Disabled, closedStations, Caching.Enabled);
     }
 
-    public IntegrationTramTestConfig(String dbName, List<StationClosures> closedStations, Caching caching) {
-        this(dbName, LiveData.Disabled, closedStations, caching);
+    public IntegrationTramTestConfig(List<StationClosures> closedStations, Caching caching) {
+        this(LiveData.Disabled, closedStations, caching);
+        if (isGraphFiltered() && this.caching!=Caching.Disabled) {
+            throw new RuntimeException("Misconfiguration, caching must be disabled if graph filtering is enabled");
+        }
     }
 
-    private IntegrationTramTestConfig(String dbName, LiveData liveData, List<StationClosures> closedStations, Caching caching) {
-        this(new GraphDBIntegrationTramTestConfig("integrationTramTest", dbName), liveData, closedStations, caching);
-    }
-
-    protected IntegrationTramTestConfig(GraphDBTestConfig dbTestConfig, LiveData liveData, List<StationClosures> closedStations,
-                                        Caching caching) {
-        super(dbTestConfig);
+    protected IntegrationTramTestConfig(LiveData liveData, List<StationClosures> closedStations, Caching caching) {
+        super(TestGroupType.integration);
         this.liveData = liveData;
         this.caching = caching;
 
         Path downloadFolder = Path.of("data/tram");
-        gtfsSourceConfig = new TFGMGTFSSourceTestConfig(downloadFolder, GTFSTransportationType.tram,
+        gtfsSourceConfig = new TFGMGTFSSourceTestConfig(GTFSTransportationType.tram,
                 TransportMode.Tram, AdditionalTramInterchanges.stations(), Collections.emptySet(), closedStations,
                 Duration.ofMinutes(13));
         remoteTFGMConfig = TFGMRemoteDataSourceConfig.createFor(downloadFolder);
@@ -100,7 +98,11 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
 
     @Override
     public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
-        return Arrays.asList(remoteTFGMConfig, remoteDBSourceConfig); // naptan disabled for trams
+        if (isGraphFiltered()) {
+            return Collections.singletonList(remoteTFGMConfig);
+        } else {
+            return Arrays.asList(remoteTFGMConfig, remoteDBSourceConfig);
+        }
     }
 
     @Override
@@ -124,12 +126,6 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
                 return new TestTramLiveDataConfig(TestEnv.TEST_SNS_TOPIC_PREFIX);
             }
             default -> throw new RuntimeException("Unknown live data config " + liveData);
-        }
-    }
-
-    private static class GraphDBIntegrationTramTestConfig extends GraphDBTestConfig {
-        public GraphDBIntegrationTramTestConfig(String folder, String dbFilename) {
-            super(folder, dbFilename);
         }
     }
 

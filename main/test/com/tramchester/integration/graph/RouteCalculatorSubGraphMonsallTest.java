@@ -56,7 +56,7 @@ class RouteCalculatorSubGraphMonsallTest {
     }
 
     private static void configureFilter(ConfigurableGraphFilter graphFilter, TransportData transportData) {
-        graphFilter.addRoutes(tramRouteHelper.getId(KnownTramRoute.EastDidisburyManchesterShawandCromptonRochdale));
+        graphFilter.addRoutes(tramRouteHelper.getId(KnownTramRoute.RochdaleShawandCromptonManchesterEastDidisbury));
     }
 
     @AfterAll
@@ -106,14 +106,6 @@ class RouteCalculatorSubGraphMonsallTest {
         validateNumberOfStages(TramStations.RochdaleRail, TramStations.Rochdale, TramTime.of(8,0), when, 1);
     }
 
-    private static class SubgraphConfig extends IntegrationTramTestConfig {
-
-        public SubgraphConfig() {
-            super("sub_monsall_tramchester.db", Collections.emptyList(), Caching.Disabled);
-        }
-
-    }
-
     private void validateNumberOfStages(TramStations start, TramStations destination, TramTime time, TramDate date, int numStages) {
         long maxNumberOfJourneys = 1;
         JourneyRequest journeyRequest = new JourneyRequest(date, time,
@@ -122,5 +114,18 @@ class RouteCalculatorSubGraphMonsallTest {
 
         Assertions.assertFalse(journeys.isEmpty(), format("No Journeys from %s to %s found at %s on %s", start, destination, time.toString(), date));
         journeys.forEach(journey -> Assertions.assertEquals(numStages, journey.getStages().size()));
+    }
+
+
+    private static class SubgraphConfig extends IntegrationTramTestConfig {
+
+        public SubgraphConfig() {
+            super(Collections.emptyList(), Caching.Disabled);
+        }
+
+        @Override
+        public boolean isGraphFiltered() {
+            return true;
+        }
     }
 }

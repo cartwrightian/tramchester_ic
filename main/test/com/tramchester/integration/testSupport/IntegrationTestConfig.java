@@ -24,13 +24,7 @@ public abstract class IntegrationTestConfig extends TestConfig {
     protected final PostCodeDatasourceConfig postCodeDatasourceConfig;
     protected final RemoteDataSourceConfig remoteNPTGconfig;
 
-    private final GraphDBTestConfig dbConfig;
     protected final RailRemoteDataSourceConfig railRemoteDataSource;
-
-//    public static final StationClosures piccGardensClosed = new StationClosuresConfig(
-//            Collections.singleton(PiccadillyGardens.getId()),
-//            LocalDate.of(2022,10,23),
-//            LocalDate.of(2022,11,29), false);
 
     public static final StationClosures ecclesToWeasteClosed;
 
@@ -42,20 +36,21 @@ public abstract class IntegrationTestConfig extends TestConfig {
     }
 
     public static final List<StationClosures> CurrentClosures = Collections.singletonList(ecclesToWeasteClosed);
+    private final TestGroupType testGroupType;
 
-    protected IntegrationTestConfig(GraphDBTestConfig dbConfig) {
+    protected IntegrationTestConfig(TestGroupType testGroupType) {
+        this.testGroupType = testGroupType;
         final Path naptanLocalDataPath = Path.of("data/naptan");
         remoteNaptanXMLConfig = new NaptanRemoteDataSourceTestConfig(naptanLocalDataPath);
         remoteNPTGconfig = new NPTGDataSourceTestConfig();
         postCodeDatasourceConfig = new PostCodeDatasourceConfig();
         railRemoteDataSource = new RailRemoteDataSourceConfig("data/rail");
 
-        this.dbConfig = dbConfig;
     }
 
     @Override
     public GraphDBConfig getGraphDBConfig() {
-        return dbConfig;
+        return new GraphDBTestConfig(testGroupType, this);
     }
 
     @Override

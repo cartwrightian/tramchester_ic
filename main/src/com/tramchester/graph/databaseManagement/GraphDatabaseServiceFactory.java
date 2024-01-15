@@ -3,6 +3,7 @@ package com.tramchester.graph.databaseManagement;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.metrics.Timing;
 import org.neo4j.configuration.GraphDatabaseSettings;
 import org.neo4j.configuration.connectors.BoltConnector;
@@ -20,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.neo4j.configuration.GraphDatabaseSettings.DEFAULT_DATABASE_NAME;
@@ -30,13 +32,15 @@ public class GraphDatabaseServiceFactory implements DatabaseEventListener {
 
     private static final int STARTUP_TIMEOUT = 1000;
     private final GraphDBConfig dbConfig;
+    private final GraphFilterActive graphFilterActive;
     private final String dbName;
     private final Path graphFile;
     private DatabaseManagementService managementServiceImpl;
 
     @Inject
-    public GraphDatabaseServiceFactory(TramchesterConfig config) {
+    public GraphDatabaseServiceFactory(TramchesterConfig config, GraphFilterActive graphFilterActive) {
         dbConfig = config.getGraphDBConfig();
+        this.graphFilterActive = graphFilterActive;
         dbName = DEFAULT_DATABASE_NAME; // must be this for neo4j community edition default DB
         graphFile = dbConfig.getDbPath().toAbsolutePath();
     }
@@ -44,6 +48,11 @@ public class GraphDatabaseServiceFactory implements DatabaseEventListener {
     @PostConstruct
     private void start() {
         logger.info("start");
+        if (graphFilterActive.isActive() && Files.exists(graphFile)) {
+            String msg = "Filtering is active but graph db already present at " + graphFile.toAbsolutePath();
+            logger.error(msg);
+            throw new RuntimeException(msg);
+        }
         logger.info("DBName : '"+ dbName + "' Path:'" + graphFile.toString() +"'");
         //createManagementService(); - slow, only do when needed
         logger.info("started");

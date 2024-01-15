@@ -116,7 +116,7 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
             modes.add(RailReplacementBus);
         }
 
-        return EnumSet.copyOf(modes);
+        return modes.isEmpty() ? EnumSet.noneOf(TransportMode.class) : EnumSet.copyOf(modes);
     }
 
     public RemoteDataSourceConfig getDataRemoteSourceConfig(DataSourceID dataSourceID) {
@@ -208,4 +208,5 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
         return "";
     }
 
+    public abstract boolean isGraphFiltered();
 }

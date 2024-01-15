@@ -26,7 +26,7 @@ public class AllModesTestConfig extends IntegrationTestConfig {
     private RailRemoteDataSourceConfig remoteDataRailConfig;
 
     public AllModesTestConfig() {
-        super(new DBConfig("allModesTest", "allModesTest.db"));
+        super(TestGroupType.integration);
     }
 
     @Override
@@ -35,7 +35,7 @@ public class AllModesTestConfig extends IntegrationTestConfig {
         final Set<TransportMode> compositeStationModes = Collections.singleton(Bus);
 
         Path dowloadFolder = Path.of("data/bus");
-        final TFGMGTFSSourceTestConfig tfgmDataSource = new TFGMGTFSSourceTestConfig(dowloadFolder, TestEnv.tramAndBus,
+        final TFGMGTFSSourceTestConfig tfgmDataSource = new TFGMGTFSSourceTestConfig(TestEnv.tramAndBus,
                 modesWithPlatforms, AdditionalTramInterchanges.stations(), compositeStationModes, Collections.emptyList(),
                 Duration.ofMinutes(13));
 
@@ -62,35 +62,13 @@ public class AllModesTestConfig extends IntegrationTestConfig {
     }
 
     @Override
-    public boolean getChangeAtInterchangeOnly() {
-        return true;
-    }
-
-    @Override
     public boolean hasNeighbourConfig() {
         return true;
     }
-
-//    @Override
-//    public boolean getCreateNeighbours() {
-//        return true;
-//    }
 
     @Override
     public Path getCacheFolder() {
         return TestEnv.CACHE_DIR.resolve("allModes");
     }
 
-    private static class DBConfig extends GraphDBTestConfig {
-
-        public DBConfig(String folder, String dbName) {
-            super(folder, dbName);
-        }
-
-        @Override
-        public String getNeo4jPagecacheMemory() {
-            return "300m";
-        }
-
-    }
 }

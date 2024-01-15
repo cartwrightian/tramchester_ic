@@ -6,11 +6,11 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.integration.testSupport.GraphDBTestConfig;
 import com.tramchester.integration.testSupport.IntegrationTestConfig;
+import com.tramchester.integration.testSupport.TestGroupType;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
-import com.tramchester.testSupport.tfgm.TFGMRemoteDataSourceConfig;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.tfgm.TFGMRemoteDataSourceConfig;
 
 import java.nio.file.Path;
 import java.time.Duration;
@@ -32,14 +32,15 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
     }
 
     protected IntegrationBusTestConfig(String folder, String dbName) {
-        super(new GraphDBIntegrationBusTestConfig(folder, dbName));
+        super(TestGroupType.integration);
+        //super(new GraphDBIntegrationBusTestConfig(folder, dbName));
 
         final Set<TransportMode> modesWithPlatforms = Collections.emptySet();
         final IdSet<Station> additionalInterchanges = IdSet.emptySet();
         final Set<TransportMode> compositeStationModes = Collections.singleton(TransportMode.Bus);
 
         Path dowloadFolder = Path.of("data/bus");
-        gtfsSourceConfig = new TFGMGTFSSourceTestConfig(dowloadFolder,
+        gtfsSourceConfig = new TFGMGTFSSourceTestConfig(
                 Collections.singleton(GTFSTransportationType.bus),
                 modesWithPlatforms, additionalInterchanges, compositeStationModes, Collections.emptyList(), Duration.ofMinutes(45));
         remoteDataSourceConfig = TFGMRemoteDataSourceConfig.createFor(dowloadFolder);
@@ -51,21 +52,11 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
     }
 
     @Override
-    public boolean getChangeAtInterchangeOnly() {
-        return true;
-    }
-
-    @Override
     public int getNumberQueries() { return 1; }
 
     @Override
     public int getQueryInterval() {
         return 15;
-    }
-
-    @Override
-    public boolean hasNeighbourConfig() {
-        return false;
     }
 
     @Override
@@ -104,20 +95,4 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
         return TestEnv.CACHE_DIR.resolve("busIntegration");
     }
 
-    private static class GraphDBIntegrationBusTestConfig extends GraphDBTestConfig {
-
-        public GraphDBIntegrationBusTestConfig(String folder, String dbName) {
-            super(folder, dbName);
-        }
-
-        @Override
-        public String getNeo4jPagecacheMemory() {
-            return "300m";
-        }
-
-        @Override
-        public String getMemoryTransactionGlobalMaxSize() {
-            return "700m";
-        }
-    }
 }

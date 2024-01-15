@@ -76,7 +76,7 @@ public class RouteCalculatorSupport {
     protected GraphNode getLocationNodeSafe(GraphTransaction txn, Location<?> location) {
         GraphNode stationNode = txn.findNode(location);
         if (stationNode == null) {
-            String msg = "Unable to find node for " + location;
+            String msg = "Unable to find node for " + location.getId();
             logger.error(msg);
             throw new RuntimeException(msg);
         }

@@ -305,7 +305,7 @@ class RouteCalculatorLocalStationsSubGraphTest {
 
     private static class SubgraphConfig extends RailAndTramGreaterManchesterConfig {
         public SubgraphConfig() {
-            super("subgraph_trainTramLocal_tramchester.db");
+            super();
         }
 
         @Override

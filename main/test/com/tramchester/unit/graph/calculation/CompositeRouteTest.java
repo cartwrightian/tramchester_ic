@@ -25,6 +25,7 @@ import com.tramchester.repository.TransportData;
 import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.UnitTestOfGraphConfig;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
@@ -45,7 +46,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class CompositeRouteTest {
 
     private static ComponentContainer componentContainer;
-    private static SimpleGraphConfig config;
+    private static UnitTestOfGraphConfig config;
 
     private TramTransportDataForTestFactory.TramTransportDataForTest transportData;
 
@@ -59,7 +60,7 @@ class CompositeRouteTest {
 
     @BeforeAll
     static void onceBeforeAllTestRuns() throws IOException {
-        config = new SimpleCompositeGraphConfig("CompositeRouteTest.db");
+        config = new SimpleGroupedGraphConfig();
         TestEnv.deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder().

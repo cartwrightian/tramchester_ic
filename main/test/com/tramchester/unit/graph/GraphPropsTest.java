@@ -23,7 +23,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
-import com.tramchester.unit.graph.calculation.SimpleGraphConfig;
+import com.tramchester.testSupport.UnitTestOfGraphConfig;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
@@ -41,13 +41,13 @@ public class GraphPropsTest {
     // TODO Split into GraphNodeTest and GraphRelationshipTest
 
     private static ComponentContainer componentContainer;
-    private static SimpleGraphConfig config;
+    private static UnitTestOfGraphConfig config;
     private MutableGraphTransaction txn;
     private MutableGraphNode node;
 
     @BeforeAll
     static void onceBeforeAllTestRuns() throws IOException {
-        config = new SimpleGraphConfig("graphquerytests.db");
+        config = new UnitTestOfGraphConfig();
         TestEnv.deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder().

@@ -16,7 +16,6 @@ import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.*;
 
-import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -83,7 +82,7 @@ class StationGroupRepositoryTest {
             List<StationClosures> closedStations = Collections.emptyList();
             final Set<TransportMode> groupStationModes = Collections.singleton(TransportMode.Tram);
 
-            gtfsSourceConfig = new TFGMGTFSSourceTestConfig(Path.of("data/tram"), GTFSTransportationType.tram,
+            gtfsSourceConfig = new TFGMGTFSSourceTestConfig(GTFSTransportationType.tram,
                     TransportMode.Tram, AdditionalTramInterchanges.stations(), groupStationModes, closedStations,
                     Duration.ofMinutes(13));
         }

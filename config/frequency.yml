@@ -29,7 +29,7 @@ gtfsSourceConfig:
     transportModesWithPlatforms: []
     noServices: []
     additionalInterchanges: []
-    compositeStationModes: [ Bus ]
+    groupedStationModes: [ Bus ]
     stationClosures: []
 rail:
   dataPath: data/rail

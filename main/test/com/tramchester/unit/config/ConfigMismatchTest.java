@@ -118,6 +118,11 @@ class ConfigMismatchTest {
     }
 
     @Test
+    void checkBounds() {
+        fail("todo");
+    }
+
+    @Test
     void shouldHaveKeyParametersSameForRailIntegrationTests() throws IOException, ConfigurationException {
 
         AppConfiguration appConfig = loadConfigFromFile("rail.yml");

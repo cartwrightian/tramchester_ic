@@ -12,6 +12,7 @@ import com.tramchester.graph.search.FindStationLinks;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.UnitTestOfGraphConfig;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
@@ -35,13 +36,13 @@ import static org.junit.jupiter.api.Assertions.*;
 class GraphQueriesTests {
 
     private static ComponentContainer componentContainer;
-    private static SimpleGraphConfig config;
+    private static UnitTestOfGraphConfig config;
     private TramTransportDataForTestFactory.TramTransportDataForTest transportData;
     private StationRepository stationRepository;
 
     @BeforeAll
     static void onceBeforeAllTestRuns() throws IOException {
-        config = new SimpleGraphConfig("graphquerytests.db");
+        config = new UnitTestOfGraphConfig();
         TestEnv.deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder().

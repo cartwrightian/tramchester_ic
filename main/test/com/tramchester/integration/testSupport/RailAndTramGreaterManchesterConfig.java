@@ -20,14 +20,14 @@ import java.util.*;
 // NOTE: if rename this take care of names in build.gradle, for example on integrationGM target
 public class RailAndTramGreaterManchesterConfig extends IntegrationTramTestConfig {
 
-    private static final String DB_NAME = "int_test_gm_tram_train.db";
+//    private static final String DB_NAME = "int_test_gm_tram_train.db";
+
+//    public RailAndTramGreaterManchesterConfig() {
+//        this(DB_NAME);
+//    }
 
     public RailAndTramGreaterManchesterConfig() {
-        this(DB_NAME);
-    }
-
-    public RailAndTramGreaterManchesterConfig(String databaseName) {
-        super(new TramAndTrainDBTestConfig(databaseName), LiveData.Enabled, IntegrationTestConfig.CurrentClosures, Caching.Enabled);
+        super(LiveData.Enabled, IntegrationTestConfig.CurrentClosures, Caching.Enabled);
     }
 
     @Override
@@ -84,14 +84,4 @@ public class RailAndTramGreaterManchesterConfig extends IntegrationTramTestConfi
         return new TestOpenLdbConfig();
     }
 
-    private static class TramAndTrainDBTestConfig extends GraphDBTestConfig {
-        public TramAndTrainDBTestConfig(String databaseName) {
-            super("integrationTramTrainGMTest", databaseName);
-        }
-
-        @Override
-        public String getNeo4jPagecacheMemory() {
-            return "1000m";
-        }
-    }
 }

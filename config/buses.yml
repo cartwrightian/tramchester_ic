@@ -33,7 +33,7 @@ gtfsSourceConfig:
     noServices: []
     markedInterchangesOnly: false
     additionalInterchanges: []
-    compositeStationModes: [ Bus ]
+    groupedStationModes: [ Bus ]
     stationClosures: []
     addWalksForClosed: true
 remoteSources:

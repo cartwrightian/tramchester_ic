@@ -12,7 +12,6 @@ import com.tramchester.testSupport.TestConfig;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
-import java.nio.file.Path;
 import java.time.Duration;
 import java.util.*;
 
@@ -61,14 +60,14 @@ class TransportModeRepositoryTest {
         configModesSourceA.add(GTFSTransportationType.train);
 
         List<GTFSSourceConfig> dataSources = new LinkedList<>();
-        GTFSSourceConfig sourceA = new TFGMGTFSSourceTestConfig(Path.of("folder/some/pathA"), configModesSourceA, modesWithPlatforms,
+        GTFSSourceConfig sourceA = new TFGMGTFSSourceTestConfig(configModesSourceA, modesWithPlatforms,
                 additionalInterchanges, Collections.emptySet(), Collections.emptyList(), Duration.ofMinutes(13));
         dataSources.add(sourceA);
 
         Set<GTFSTransportationType> configModesSourceB = new HashSet<>();
         configModesSourceB.add(GTFSTransportationType.bus);
         configModesSourceB.add(GTFSTransportationType.train);
-        GTFSSourceConfig sourceB = new TFGMGTFSSourceTestConfig(Path.of("folder/some/pathB"), configModesSourceB, modesWithPlatforms,
+        GTFSSourceConfig sourceB = new TFGMGTFSSourceTestConfig(configModesSourceB, modesWithPlatforms,
                 additionalInterchanges, Collections.emptySet(), Collections.emptyList(), Duration.ofMinutes(13));
         dataSources.add(sourceB);
 
@@ -86,7 +85,7 @@ class TransportModeRepositoryTest {
     @NotNull
     private TramchesterConfig createConfig(Set<GTFSTransportationType> configModes) {
         List<GTFSSourceConfig> dataSources = new LinkedList<>();
-        GTFSSourceConfig tramConfig = new TFGMGTFSSourceTestConfig(Path.of("folder/some/path"), configModes, modesWithPlatforms,
+        GTFSSourceConfig tramConfig = new TFGMGTFSSourceTestConfig(configModes, modesWithPlatforms,
                 additionalInterchanges, Collections.emptySet(), Collections.emptyList(), Duration.ofMinutes(13));
         dataSources.add(tramConfig);
         return new ModeConfig(dataSources);

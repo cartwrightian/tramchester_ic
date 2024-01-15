@@ -78,9 +78,9 @@ public class StationGroupsRepository {
         logger.info("starting");
         List<GTFSSourceConfig> dataSources = config.getGTFSDataSource();
         dataSources.forEach(dataSource -> {
-            final Set<TransportMode> compositeStationModes = dataSource.compositeStationModes();
-            if (!compositeStationModes.isEmpty()) {
-                populateFor(dataSource, compositeStationModes);
+            final Set<TransportMode> modesToGroupStations = dataSource.groupedStationModes();
+            if (!modesToGroupStations.isEmpty()) {
+                populateFor(dataSource, modesToGroupStations);
             } else {
                 logger.warn("Not adding " + dataSource.getName() + " since no composite station modes");
             }
@@ -94,21 +94,22 @@ public class StationGroupsRepository {
         logger.info("started");
     }
 
-    private void populateFor(GTFSSourceConfig dataSource, Set<TransportMode> modes) {
+    private void populateFor(GTFSSourceConfig dataSource, Set<TransportMode> enabledModes) {
         if (graphFilter.isFiltered()) {
             logger.warn("Filtering is enabled");
         }
 
-        if (dataSource.getDataSourceId()==DataSourceID.tfgm && modes.contains(Bus)) {
+        // guard for mis-config
+        if (dataSource.getDataSourceId()==DataSourceID.tfgm && enabledModes.contains(Bus)) {
             if (!naptanRepository.isEnabled()) {
-                String msg = "Naptan config not present in remoteSources, it is required when Bus is enabled for TFGM " + dataSource;
+                String msg = "Naptan config not present in remoteSources, it is required when Bus is enabled for " + dataSource;
                 logger.error(msg);
                 throw new RuntimeException(msg);
             }
         }
 
-        logger.info("Populating for source:" + dataSource.getDataSourceId() + " modes:" + modes);
-        modes.forEach(mode -> capture(dataSource.getDataSourceId(), mode) );
+        logger.info("Populating for source:" + dataSource.getDataSourceId() + " modes:" + enabledModes);
+        enabledModes.forEach(mode -> capture(dataSource.getDataSourceId(), mode) );
     }
 
     private void capture(final DataSourceID dataSourceID, final TransportMode mode) {

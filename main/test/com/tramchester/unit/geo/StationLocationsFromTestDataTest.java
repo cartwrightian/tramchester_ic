@@ -10,8 +10,8 @@ import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
-import com.tramchester.unit.graph.calculation.SimpleCompositeGraphConfig;
-import com.tramchester.unit.graph.calculation.SimpleGraphConfig;
+import com.tramchester.unit.graph.calculation.SimpleGroupedGraphConfig;
+import com.tramchester.testSupport.UnitTestOfGraphConfig;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class StationLocationsFromTestDataTest {
 
     private static ComponentContainer componentContainer;
-    private static SimpleGraphConfig config;
+    private static UnitTestOfGraphConfig config;
     private static EnumSet<TransportMode> modes;
     private TramTransportDataForTestFactory.TramTransportDataForTest transportData;
     private StationLocations stationLocations;
@@ -33,7 +33,7 @@ public class StationLocationsFromTestDataTest {
 
     @BeforeAll
     static void onceBeforeAllTestRuns() throws IOException {
-        config = new SimpleCompositeGraphConfig("tramroutetest.db");
+        config = new SimpleGroupedGraphConfig();
         TestEnv.deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder().

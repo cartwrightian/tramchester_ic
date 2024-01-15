@@ -77,7 +77,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
-        config = new IntegrationTramClosedStationsTestConfig(closedStations, true);
+        config = new SubgraphConfig(closedStations);
         TestEnv.deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder().
@@ -299,4 +299,14 @@ class SubgraphSmallClosedStationsDiversionsTest {
         creator.create(Path.of("subgraph_central_with_closure_trams.dot"), StPetersSquare.fake(), 100, true);
     }
 
+    private static class SubgraphConfig extends IntegrationTramClosedStationsTestConfig {
+        public SubgraphConfig(List<StationClosures> closures) {
+            super(closures, true);
+        }
+
+        @Override
+        public boolean isGraphFiltered() {
+            return true;
+        }
+    }
 }

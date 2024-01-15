@@ -185,7 +185,8 @@ class SubGraphAroundKnutsfordRailTest {
 
     private static class SubgraphConfig extends IntegrationRailTestConfig {
         public SubgraphConfig() {
-            super("subgraph_hale_trains_tramchester.db");
+            super();
+            //super("subgraph_hale_trains_tramchester.db");
         }
 
 //        @Override
