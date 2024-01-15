@@ -6,7 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
-import com.tramchester.integration.testSupport.NeighboursTestConfig;
+import com.tramchester.integration.testSupport.IntegrationTramBusTestConfig;
 import com.tramchester.repository.NeighboursRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -34,7 +34,7 @@ public class NeighboursRepositoryBusTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        TramchesterConfig config = new NeighboursTestConfig();
+        TramchesterConfig config = new IntegrationTramBusTestConfig(true);
 
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();

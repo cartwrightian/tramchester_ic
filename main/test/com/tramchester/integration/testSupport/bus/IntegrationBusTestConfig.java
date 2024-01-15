@@ -24,7 +24,11 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
     private final RemoteDataSourceConfig remoteDataSourceConfig;
 
     public IntegrationBusTestConfig() {
-        super(TestGroupType.integration);
+        this(TestGroupType.integration);
+    }
+
+    public IntegrationBusTestConfig(TestGroupType testGroupType) {
+        super(testGroupType);
 
         final Set<TransportMode> modesWithPlatforms = Collections.emptySet();
         final IdSet<Station> additionalInterchanges = IdSet.emptySet();

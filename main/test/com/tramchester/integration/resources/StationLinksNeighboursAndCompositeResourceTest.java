@@ -13,7 +13,7 @@ import com.tramchester.domain.presentation.DTO.StationGroupDTO;
 import com.tramchester.domain.presentation.DTO.StationLinkDTO;
 import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
-import com.tramchester.integration.testSupport.NeighboursTestConfig;
+import com.tramchester.integration.testSupport.IntegrationTramBusTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.testTags.BusTest;
@@ -39,7 +39,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(DropwizardExtensionsSupport.class)
 class StationLinksNeighboursAndCompositeResourceTest {
 
-    private static final AppConfiguration configuration = new NeighboursTestConfig();
+    private static final AppConfiguration configuration = new IntegrationTramBusTestConfig(true);
 
     private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, configuration);
     private static GuiceContainerDependencies dependencies;

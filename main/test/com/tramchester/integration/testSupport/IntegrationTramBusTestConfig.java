@@ -18,10 +18,12 @@ import java.util.Set;
 import static com.tramchester.domain.reference.TransportMode.Bus;
 import static com.tramchester.domain.reference.TransportMode.Tram;
 
-public class NeighboursTestConfig extends IntegrationBusTestConfig {
+public class IntegrationTramBusTestConfig extends IntegrationBusTestConfig {
+    private final boolean addNeighbours;
 
-    public NeighboursTestConfig() {
+    public IntegrationTramBusTestConfig(boolean addNeighbours) {
         super();
+        this.addNeighbours = addNeighbours;
     }
 
     @Override
@@ -37,13 +39,14 @@ public class NeighboursTestConfig extends IntegrationBusTestConfig {
 
     @Override
     public boolean hasNeighbourConfig() {
-        return true;
+        return addNeighbours;
     }
 
     @Override
     public Path getCacheFolder() {
         return TestEnv.CACHE_DIR.resolve("neighboursIntegration");
     }
+
 
     @Override
     public NeighbourConfig getNeighbourConfig() {

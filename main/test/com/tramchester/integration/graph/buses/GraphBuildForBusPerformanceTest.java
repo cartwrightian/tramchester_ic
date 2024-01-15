@@ -5,6 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.graphbuild.StationGroupsGraphBuilder;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
+import com.tramchester.integration.testSupport.TestGroupType;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.BusTest;
@@ -24,7 +25,7 @@ class GraphBuildForBusPerformanceTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
-        testConfig = new IntegrationBusTestConfig();
+        testConfig = new IntegrationBusTestConfig(TestGroupType.performance);
         TestEnv.deleteDBIfPresent(testConfig);
 
         componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
@@ -51,6 +52,7 @@ class GraphBuildForBusPerformanceTest {
     void shouldTriggerLinksBuild() {
         componentContainer.get(StationsAndLinksGraphBuilder.Ready.class);
     }
+
 }
 
 

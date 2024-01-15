@@ -6,7 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
-import com.tramchester.integration.testSupport.NeighboursTestConfig;
+import com.tramchester.integration.testSupport.IntegrationTramBusTestConfig;
 import com.tramchester.repository.AgencyRepository;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
@@ -40,7 +40,7 @@ public class TransportDataFromFilesNeighboursTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        TramchesterConfig config = new NeighboursTestConfig();
+        TramchesterConfig config = new IntegrationTramBusTestConfig(true);
 
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();

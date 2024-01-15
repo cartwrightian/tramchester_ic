@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.config.*;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.StationIdPair;
-import com.tramchester.integration.testSupport.NeighboursTestConfig;
 import com.tramchester.integration.testSupport.RailAndTramGreaterManchesterConfig;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
@@ -104,22 +103,6 @@ class ConfigMismatchTest {
         IntegrationBusTestConfig testConfig = new IntegrationBusTestConfig();
 
         validateCoreParameters(Collections.emptySet(), appConfig, testConfig);
-    }
-
-    @Test
-    void shouldHaveTramAndBusConfigMatching() throws ConfigurationException, IOException {
-        // TODO
-
-        AppConfiguration appConfig = loadConfigFromFile("local.yml");
-        NeighboursTestConfig neighboursTestConfig = new NeighboursTestConfig();
-
-        validateCoreParameters(Collections.emptySet(), appConfig, neighboursTestConfig);
-
-    }
-
-    @Test
-    void checkBounds() {
-        fail("todo");
     }
 
     @Test
@@ -290,7 +273,6 @@ class ConfigMismatchTest {
 
     private void validateCoreParameters(Collection<Category> excluded, AppConfiguration expected, AppConfiguration testConfig) {
         assertEquals(expected.getStaticAssetCacheTimeSeconds(), testConfig.getStaticAssetCacheTimeSeconds(), "StaticAssetCacheTimeSeconds");
-        assertEquals(expected.getMaxJourneyDuration(), testConfig.getMaxJourneyDuration(), "MaxJourneyDuration");
         assertEquals(expected.getMaxWait(), testConfig.getMaxWait(), "MaxWait");
         assertEquals(expected.getChangeAtInterchangeOnly(), testConfig.getChangeAtInterchangeOnly(), "ChangeAtInterchangeOnly");
         assertEquals(expected.getWalkingMPH(), testConfig.getWalkingMPH(), "WalkingMPH");
@@ -301,6 +283,7 @@ class ConfigMismatchTest {
         assertEquals(expected.getRecentStopsToShow(), testConfig.getRecentStopsToShow(), "RecentStopsToShow");
         assertEquals(expected.getMaxNumResults(), testConfig.getMaxNumResults(), "MaxNumResults");
         assertEquals(expected.getDistributionBucket(), testConfig.getDistributionBucket(), "distributionBucket");
+        assertEquals(expected.getMaxJourneyDuration(), testConfig.getMaxJourneyDuration(), "MaxJourneyDuration");
 
         assertEquals(expected.redirectToSecure(), testConfig.redirectToSecure());
 

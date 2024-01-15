@@ -15,7 +15,7 @@ import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.graphbuild.StationGroupsGraphBuilder;
-import com.tramchester.integration.testSupport.NeighboursTestConfig;
+import com.tramchester.integration.testSupport.IntegrationTramBusTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
@@ -50,7 +50,7 @@ class AddNeighboursGraphBuilderTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        TramchesterConfig config = new NeighboursTestConfig();
+        TramchesterConfig config = new IntegrationTramBusTestConfig(true);
 
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
