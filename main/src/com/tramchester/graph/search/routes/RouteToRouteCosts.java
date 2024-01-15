@@ -436,7 +436,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         @Override
         public List<Pair<String, CacheStats>> stats() {
-            Pair<String, CacheStats> stats = Pair.of("StationAvailabilityFacade", cache.stats());
+            final Pair<String, CacheStats> stats = Pair.of("StationAvailabilityFacade", cache.stats());
             return Collections.singletonList(stats);
         }
 

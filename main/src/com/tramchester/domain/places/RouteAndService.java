@@ -12,11 +12,12 @@ class RouteAndService {
 
     private final Route route;
     private final Service service;
+    private final int hashCode;
 
-    public RouteAndService(Route route, Service service) {
-
+    public RouteAndService(final Route route, final Service service) {
         this.route = route;
         this.service = service;
+        hashCode = Objects.hash(route, service);
     }
 
     public static boolean contains(Set<RouteAndService> routeAndServices, Route route) {
@@ -49,7 +50,7 @@ class RouteAndService {
 
     @Override
     public int hashCode() {
-        return Objects.hash(route, service);
+        return hashCode;
     }
 
     @Override

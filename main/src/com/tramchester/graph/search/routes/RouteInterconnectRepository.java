@@ -215,14 +215,12 @@ public class RouteInterconnectRepository extends ComponentThatCaches<RoutePairIn
         final IndexedBitSet withDateApplied = IndexedBitSet.and(changesForDegree, dateOverlaps);
 
         if (withDateApplied.isSet(indexPair)) {
-
-            QueryPathsWithDepth.QueryPath pathFor = getPathFor(indexPair, degree, interchangeFilter);
+            final QueryPathsWithDepth.QueryPath pathFor = getPathFor(indexPair, degree, interchangeFilter);
             if (pathFor.hasAny()) {
                 return new PathResults.HasPathResults(pathFor);
             } else {
                 return new PathResults.NoPathResults();
             }
-
         } else {
             return new PathResults.NoPathResults();
         }

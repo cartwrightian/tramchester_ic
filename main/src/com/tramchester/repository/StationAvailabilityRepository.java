@@ -141,7 +141,7 @@ public class StationAvailabilityRepository {
     public boolean isAvailable(final Location<?> location, final TramDate date, final TimeRange timeRange,
                                final EnumSet<TransportMode> requestedModes) {
 
-        if (location.getLocationType().equals(LocationType.StationGroup)) {
+        if (location.getLocationType()==LocationType.StationGroup) {
             final StationGroup stationGroup = (StationGroup) location;
             return isGroupAvailable(stationGroup, date, timeRange, requestedModes);
         }
@@ -163,7 +163,7 @@ public class StationAvailabilityRepository {
         }
 
         // TODO is this worth it?
-        boolean onDate = services.stream().anyMatch(service -> service.getCalendar().operatesOn(date));
+        final boolean onDate = services.stream().anyMatch(service -> service.getCalendar().operatesOn(date));
         if (!onDate) {
             return false;
         }

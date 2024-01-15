@@ -27,15 +27,9 @@ class GraphBuildForBusPerformanceTest {
         testConfig = new IntegrationBusTestConfig("GraphBuildForBusPerformanceTest.db");
         TestEnv.deleteDBIfPresent(testConfig);
 
-        componentContainer = new ComponentsBuilder().
-//                configureGraphFilter(GraphBuildForBusPerformanceTest::configureFilter).
-                create(testConfig, TestEnv.NoopRegisterMetrics());
+        componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
-
-//    private static void configureFilter(ConfigurableGraphFilter graphFilter, TransportData transportData) {
-//        graphFilter.addAgency(TestEnv.StagecoachManchester.getId());
-//    }
 
     @AfterAll
     static void OnceAfterAllTestsAreFinished() throws IOException {

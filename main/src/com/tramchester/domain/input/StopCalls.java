@@ -75,7 +75,7 @@ public class StopCalls {
         return stationIndex.containsKey(stationId);
     }
 
-    public StopCall getStopFor(IdFor<Station> stationId) {
+    public StopCall getStopFor(final IdFor<Station> stationId) {
         final int index = stationIndex.get(stationId);
         return orderedStopCalls.get(index);
     }
