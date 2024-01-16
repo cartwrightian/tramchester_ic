@@ -63,7 +63,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRouteTest {
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
 
-        config = new IntegrationBusTestConfig();
+        config = new SubgraphConfig();
         deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder().
@@ -224,4 +224,10 @@ class BusRouteCalculatorSubGraphAltyToMaccRouteTest {
         creator.create(Path.of("AltrichamKnutsfordBuses.dot"), stations, 1, true);
     }
 
+    private static class SubgraphConfig extends IntegrationBusTestConfig {
+        @Override
+        public boolean isGraphFiltered() {
+            return true;
+        }
+    }
 }

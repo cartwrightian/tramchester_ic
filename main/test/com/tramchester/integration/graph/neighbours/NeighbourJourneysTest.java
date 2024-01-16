@@ -206,6 +206,7 @@ public class NeighbourJourneysTest {
         Set<Journey> maybeTram = allJourneys.stream().
                 filter(journey -> journey.getTransportModes().contains(Tram)).
                 collect(Collectors.toSet());
+
         assertFalse(maybeTram.isEmpty(), "No tram " + allJourneys);
 
         maybeTram.forEach(journey -> {

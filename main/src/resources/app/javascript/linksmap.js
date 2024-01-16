@@ -52,7 +52,7 @@ function addStationToMap(station, stationLayerGroup, isInterchange) {
     }
     marker.bindTooltip(stationText);
 
-    station.platforms.forEach(platform => addPlatformsToMap(platform, stationLayerGroup));
+    //station.platforms.forEach(platform => addPlatformsToMap(platform, stationLayerGroup));
 
     stationLayerGroup.addLayer(marker);
 }
@@ -111,7 +111,7 @@ var mapApp = new Vue({
             areas.forEach(area => {
                 var polygon = createPolyForArea(area, "purple");
                 const areaId = area.areaId;
-                polygon.bindTooltip("area " + areaId + "<br> " + area.areaName + "<br>" + area.type);
+                polygon.bindTooltip("area " + areaId + "<br> " + area.areaName); // + "<br>" + area.type);
                 areaLayerGroup.addLayer(polygon);
             })
 
