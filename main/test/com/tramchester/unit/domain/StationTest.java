@@ -40,7 +40,7 @@ class StationTest {
         assertEquals(2.3, tramStation.getLatLong().getLon(),0);
         assertEquals(areaId, tramStation.getLocalityId());
         assertEquals(DataSourceID.tfgm, tramStation.getDataSourceID());
-        assertEquals("stationCode", tramStation.getCode());
+//        assertEquals("stationCode", tramStation.getCode());
     }
 
     @Test
@@ -68,7 +68,7 @@ class StationTest {
                 TestEnv.MetAgency(), Tram);
         station.addRouteDropOff(route);
         assertTrue(station.servesMode(Tram));
-        assertEquals("stationCode", station.getCode());
+//        assertEquals("stationCode", station.getCode());
 
         station.addRouteDropOff(MutableRoute.getRoute(Route.createId("routeIdB"), "trainShort", "train",
                 Walking, Train));
@@ -98,11 +98,6 @@ class StationTest {
 
         assertTrue(station.servesMode(Tram));
         assertTrue(station.servesMode(Bus));
-
-        Set<Agency> agencies = station.getAgencies();
-        assertEquals(2, agencies.size());
-        assertTrue(agencies.contains(TestEnv.MetAgency()));
-        assertTrue(agencies.contains(TestEnv.StagecoachManchester));
 
         Set<Route> dropOffRoutes = station.getDropoffRoutes();
         assertEquals(1, dropOffRoutes.size());

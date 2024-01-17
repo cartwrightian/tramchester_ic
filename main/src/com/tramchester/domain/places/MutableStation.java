@@ -25,14 +25,12 @@ public class MutableStation implements Station {
     private final IdFor<NPTGLocality> localityId;
     private final IdFor<Station> id;
     private final String name;
-    private final String code;
     private final LatLong latLong;
     private final GridPosition gridPosition;
     private final Set<Platform> platforms;
     private final Set<Route> servesRoutesPickup;
     private final Set<Route> servesRoutesDropoff;
     private final Set<Route> passedByRoute; // i.e. a station being passed by a train, but the train does not stop
-    private final Set<Agency> servesAgencies;
     private final DataSourceID dataSourceID;
     private final boolean isMarkedInterchange;
     private final EnumSet<TransportMode> modes;
@@ -42,23 +40,20 @@ public class MutableStation implements Station {
                           DataSourceID dataSourceID, String code) {
         // todo default change duration from config for the data source?
         this(id, localityId, stationName, latLong, gridPosition, dataSourceID, false,
-                Duration.ofMinutes(DEFAULT_MIN_CHANGE_TIME), code);
+                Duration.ofMinutes(DEFAULT_MIN_CHANGE_TIME));
     }
 
     // for some data sources we know if station is an interchange
     public MutableStation(IdFor<Station> id, IdFor<NPTGLocality> localityId, String stationName, LatLong latLong, GridPosition gridPosition,
-                          DataSourceID dataSourceID, boolean isMarkedInterchange, Duration changeTimeNeeded,
-                          String code) {
+                          DataSourceID dataSourceID, boolean isMarkedInterchange, Duration changeTimeNeeded) {
         this.localityId = localityId;
         this.gridPosition = gridPosition;
         this.dataSourceID = dataSourceID;
         this.isMarkedInterchange = isMarkedInterchange;
         this.changeTimeNeeded = changeTimeNeeded;
-        this.code = code;
         platforms = new HashSet<>();
         servesRoutesPickup = new HashSet<>();
         servesRoutesDropoff = new HashSet<>();
-        servesAgencies = new HashSet<>();
         passedByRoute = new HashSet<>();
 
         this.id = id;
@@ -69,7 +64,7 @@ public class MutableStation implements Station {
 
     public static Station Unknown(DataSourceID dataSourceID) {
         return new MutableStation(StringIdFor.createId("unknown", Station.class), NPTGLocality.InvalidId(), "Unknown",
-                LatLong.Invalid, GridPosition.Invalid, dataSourceID, false, Duration.ZERO, "unknown");
+                LatLong.Invalid, GridPosition.Invalid, dataSourceID, false, Duration.ZERO);
     }
 
     @Override
@@ -100,11 +95,6 @@ public class MutableStation implements Station {
     @Override
     public EnumSet<TransportMode> getTransportModes() {
         return modes;
-    }
-
-    @Override
-    public String getCode() {
-        return code;
     }
 
     @Override
@@ -161,11 +151,6 @@ public class MutableStation implements Station {
     @Override
     public Set<Route> getPickupRoutes() {
         return servesRoutesPickup;
-    }
-
-    @Override
-    public Set<Agency> getAgencies() {
-        return Collections.unmodifiableSet(servesAgencies);
     }
 
     @Override
@@ -232,7 +217,6 @@ public class MutableStation implements Station {
                 "areaId='" + localityId + '\'' +
                 ", id='" + id + '\'' +
                 ", name='" + name + '\'' +
-                ", stationCode='" + code + '\'' +
                 ", latLong=" + latLong +
                 ", mode=" + getTransportModes() +
                 ", platforms=" + HasId.asIds(platforms) +
@@ -250,13 +234,11 @@ public class MutableStation implements Station {
 
     public void addRouteDropOff(final Route dropoffFromRoute) {
         modes.add(dropoffFromRoute.getTransportMode());
-        servesAgencies.add(dropoffFromRoute.getAgency());
         servesRoutesDropoff.add(dropoffFromRoute);
     }
 
     public void addRoutePickUp(final Route pickupFromRoute) {
         modes.add(pickupFromRoute.getTransportMode());
-        servesAgencies.add(pickupFromRoute.getAgency());
         servesRoutesPickup.add(pickupFromRoute);
     }
 

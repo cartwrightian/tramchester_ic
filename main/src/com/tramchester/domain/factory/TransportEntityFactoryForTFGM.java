@@ -110,7 +110,7 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
         }
 
         return new MutableStation(stationId, areaId, workAroundName(stationName), latLong, gridPosition,
-                getDataSourceId(), isInterchange, minChangeDuration, stationCode);
+                getDataSourceId(), isInterchange, minChangeDuration);
     }
 
     boolean hasNaptan(String stationCode) {

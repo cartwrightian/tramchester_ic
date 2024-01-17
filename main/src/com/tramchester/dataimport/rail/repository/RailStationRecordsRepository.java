@@ -17,7 +17,6 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.repository.naptan.NaptanRepository;
-import com.tramchester.repository.nptg.NPTGRepository;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,16 +45,14 @@ public class RailStationRecordsRepository {
     private final ProvidesRailStationRecords providesRailStationRecords;
     private final RailStationCRSRepository crsRepository;
     private final NaptanRepository naptanRepository;
-    private final NPTGRepository nptgRepository;
     private final boolean enabled;
 
     @Inject
     public RailStationRecordsRepository(ProvidesRailStationRecords providesRailStationRecords, RailStationCRSRepository crsRepository,
-                                        NaptanRepository naptanRepository, NPTGRepository nptgRepository, TramchesterConfig config) {
+                                        NaptanRepository naptanRepository, TramchesterConfig config) {
         this.providesRailStationRecords = providesRailStationRecords;
         this.crsRepository = crsRepository;
         this.naptanRepository = naptanRepository;
-        this.nptgRepository = nptgRepository;
         inUseStations = new IdSet<>();
         tiplocMap = new HashMap<>();
         missing = new HashSet<>();
@@ -149,8 +146,7 @@ public class RailStationRecordsRepository {
 
         final boolean isInterchange = (record.getRailInterchangeType()!= RailInterchangeType.None);
 
-        return new MutableStation(stationId, areaId, name, latLong, grid, DataSourceID.rail, isInterchange, minChangeTime,
-                record.getCRS());
+        return new MutableStation(stationId, areaId, name, latLong, grid, DataSourceID.rail, isInterchange, minChangeTime);
     }
 
     private GridPosition convertToOsGrid(int easting, int northing) {
