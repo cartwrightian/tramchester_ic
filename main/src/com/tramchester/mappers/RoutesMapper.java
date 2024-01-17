@@ -3,7 +3,6 @@ package com.tramchester.mappers;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.StopCalls;
@@ -11,7 +10,6 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
-import com.tramchester.domain.presentation.DTO.RouteRefDTO;
 import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
 import com.tramchester.repository.RouteRepository;
 import org.jetbrains.annotations.NotNull;
@@ -25,7 +23,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.id.HasId.asIds;
-import static java.lang.String.format;
 
 @LazySingleton
 public class RoutesMapper {
@@ -53,38 +50,27 @@ public class RoutesMapper {
 
     }
 
-    public List<RouteDTO> getRouteDTOs(TramDate date) {
-        Set<Route> routesOnDate = routeRepository.getRoutesRunningOn(date);
+    public List<RouteDTO> getRouteDTOs(final TramDate date) {
+        final Set<Route> routesOnDate = routeRepository.getRoutesRunningOn(date);
         logger.info("Get routeDTOs for " + date + " from " + asIds(routesOnDate));
 
-        List<RouteDTO> results = new ArrayList<>();
-
-        routesOnDate.forEach(route -> {
-            List<RouteDTO> dtosForRoute = getLocationsAlong(route, true);
-            results.addAll(dtosForRoute);
-        });
-
-
-        return results;
+        return routesOnDate.stream().map(route -> getLocationsAlong(route, true)).toList();
     }
 
     @NotNull
-    private List<RouteDTO> getLocationsAlong(Route route, boolean includeNotStopping) {
-        IdSet<Station> startStations = route.getStartStations();
+    private RouteDTO getLocationsAlong(final Route route, final boolean includeNotStopping) {
+        final IdSet<Station> startStations = route.getStartStations();
 
-        List<RouteDTO> results = new ArrayList<>();
+        // Note: assumption is that longest sequence of stations found for a route is correct......
+        Optional<List<Station>> longestSequence = startStations.stream().
+                map(startId -> getStationsOn(route, includeNotStopping, startId)).
+                max(Comparator.comparingLong(List::size));
 
-        startStations.forEach(stationId -> {
-            List<LocationRefWithPosition> onRouteStartingFrom = getStationsOn(route, includeNotStopping, stationId).stream().
-                    map(DTOFactory::createLocationRefWithPosition).
-                    toList();
-            RouteDTO routeDTO = new RouteDTO(route, onRouteStartingFrom);
-            results.add(routeDTO);
-        });
+        List<Station> stationsForRoute = longestSequence.orElse(Collections.emptyList());
 
-        logger.info("Found " + results.size() + " routeDTOS for route " + route.getId() + " and start stations " + startStations);
+        List<LocationRefWithPosition> stationDTOs = stationsForRoute.stream().map(DTOFactory::createLocationRefWithPosition).toList();
 
-        return results;
+        return new RouteDTO(route, stationDTOs);
     }
 
     // use for visualisation in the front-end routes map

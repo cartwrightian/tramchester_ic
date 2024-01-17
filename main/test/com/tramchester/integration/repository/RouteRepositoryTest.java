@@ -91,7 +91,6 @@ public class RouteRepositoryTest {
     @Test
     void extraRouteAtShudehillTowardsEcclesFromVictoria() {
         Route towardsEcclesRoute = routeHelper.getOneRoute(EcclesManchesterAshtonUnderLyne, when);
-                //routeRepository.getRouteById(Route.createId("METLBLUE:I:CURRENT"));
 
         List<Trip> ecclesTripsViaShudehill = towardsEcclesRoute.getTrips().stream().
                 filter(trip -> trip.getStopCalls().getFirstStop().getStationId().equals(Ashton.getId())).
@@ -109,7 +108,6 @@ public class RouteRepositoryTest {
     @Test
     void extraRouteAtShudehillFromEcclesToVictoria() {
         Route ecclesRoute = routeHelper.getOneRoute(EcclesManchesterAshtonUnderLyne, when);
-                //routeRepository.getRouteById(Route.createId("METLBLUE:O:CURRENT"));
 
         List<Trip> ecclesTripsViaShudehill = ecclesRoute.getTrips().stream().
                 filter(trip -> trip.getStopCalls().getFirstStop().getStationId().equals(Ashton.getId())).
@@ -133,11 +131,6 @@ public class RouteRepositoryTest {
         Route fromBuryToAltrincham = routeHelper.getOneRoute(BuryManchesterAltrincham, when);
 
         Station endOfLine = stationRepository.getStationById(Altrincham.getId());
-
-        // As routes no longer directional this doesn't work at the route level anymore
-
-        //assertFalse(endOfLine.servesRouteDropOff(fromAltrincamToBury));
-        //assertTrue(endOfLine.servesRoutePickup(fromAltrincamToBury));
 
         assertTrue(endOfLine.servesRouteDropOff(fromBuryToAltrincham));
 

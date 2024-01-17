@@ -112,7 +112,7 @@ class RouteResourceTest {
     void shouldGetRoutesFilteredByDate() {
         TramDate date = TestEnv.testDay();
 
-        Set<Route> expected = routeRepository.getRoutesRunningOn(date);
+        Set<Route> expected = routeRepository.getRoutesRunningOn(date); // see also known tram route test that checks this number makes known number of routes
 
         String queryString = String.format("routes/filtered?date=%s", date.format(dateFormatDashes));
 
@@ -123,9 +123,11 @@ class RouteResourceTest {
 
         assertFalse(results.isEmpty());
 
-        Set<IdForDTO> uniqueRouteIds = results.stream().map(dto -> dto.getRouteID()).collect(Collectors.toSet());
+        Set<IdForDTO> uniqueRouteIds = results.stream().map(RouteRefDTO::getRouteID).collect(Collectors.toSet());
 
         assertEquals(expected.size(), uniqueRouteIds.size());
+
+        assertEquals(expected.size(), results.size());
 
 
     }

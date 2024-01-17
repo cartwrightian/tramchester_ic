@@ -83,6 +83,13 @@ class KnownTramRouteTest {
         });
     }
 
+    @Test
+    void shouldHaveExpectedNumberOfTramRoutes() {
+        Set<Route> loaded = routeRepository.getRoutesRunningOn(when);
+
+        assertEquals(loaded.size(), KnownTramRoute.values().length);
+    }
+
     /// Note: START HERE when diagnosing
     @Test
     void shouldHaveCorrectLongNamesForKnownRoutesForDates() {

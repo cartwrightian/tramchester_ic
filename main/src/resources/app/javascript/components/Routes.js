@@ -62,43 +62,47 @@ export default {
     },
     
     addRoutes: function(map, routes) {
+
         var routeLayerGroup = L.layerGroup();
 
-        let stationSeen = new Map();
+        let stationSeen = new Map(); // stationId -> number of times seen
 
-        const baseOffsetPixels = 2;
+        // an attempt to avoid overlaps lines at stations on multiple routes
+        const baseOffsetPixels = 0;
     
         routes.forEach(route => {
-            var steps = [];
-            const inbound = route.routeID.includes(":I:");
-            // since we plot the routes in specific directions (inbound vs outbound) don't need this
-            // const offsetPixels = inbound ? 5 : 5;
+            var stepsOnLine = [];
+
             var mostSeen = 0;
 
-            const direction = inbound ? "inbound" : "outbound";
+            //const direction = inbound ? "inbound" : "outbound";
 
             route.stations.forEach(station => {
+                const stationId = station.id; 
+
                 if (station.latLong.valid) {
-                    steps.push([station.latLong.lat, station.latLong.lon]);
+                    stepsOnLine.push([station.latLong.lat, station.latLong.lon]);
                 }
-                const stationId = station.id + "_" + direction;
-                var newCount = 1;
+                
+                var newCount = 0;
                 if (stationSeen.has(stationId)) {
                     newCount = stationSeen.get(stationId) + 1;
                 }
                 stationSeen.set(stationId, newCount);
+
                 if (newCount > mostSeen) {
                     mostSeen = newCount;
                 }
             })
+            // TODO this doesn't work well, forces whole line to be offset
             const offsetPixels = baseOffsetPixels + mostSeen;
 
-            var line = L.polyline(steps, {className: this.classForRoute(route), weight: 3, opacity: 0.8}); 
+            var line = L.polyline(stepsOnLine, {className: this.classForRoute(route), weight: 3, opacity: 0.8}); 
             line.bindTooltip(route.routeName + "<br>"  + "'" +
                 route.shortName + "' (" + 
                 route.transportMode+")" + " [" + route.routeID + "]"
                 );
-            line.setOffset(offsetPixels);
+            //line.setOffset(offsetPixels);
             line.on({
                 mouseover: this.highlightRoute,
                 mouseout: this.unhighlightRoute
