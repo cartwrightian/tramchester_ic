@@ -17,7 +17,7 @@ import com.tramchester.repository.naptan.NaptanRepositoryContainer;
 import com.tramchester.repository.naptan.NaptanStopType;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
-import com.tramchester.testSupport.reference.KnowLocality;
+import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -78,7 +78,7 @@ class NaptanRepositoryTest {
         assertEquals("Manchester Airport", record.getSuburb());
 
         final IdFor<NPTGLocality> areaCode = record.getLocalityId();
-        assertEquals(KnowLocality.ManchesterAirport.getId(), areaCode);
+        assertEquals(KnownLocality.ManchesterAirport.getId(), areaCode);
     }
 
     @Test
@@ -100,7 +100,7 @@ class NaptanRepositoryTest {
 
         final IdFor<NPTGLocality> areaCode = record.getLocalityId();
 
-        assertEquals(KnowLocality.Macclesfield.getId(), areaCode);
+        assertEquals(KnownLocality.Macclesfield.getId(), areaCode);
     }
 
     @Test
@@ -116,12 +116,12 @@ class NaptanRepositoryTest {
         assertEquals(NaptanRecord.createId("9100ALTRNHM"), record.getId());
 
         IdFor<NPTGLocality> areaCode = record.getLocalityId();
-        assertEquals(KnowLocality.Altrincham.getId(), areaCode);
+        assertEquals(KnownLocality.Altrincham.getId(), areaCode);
     }
 
     @Test
     void shouldHaveNaptanAreaForAltrinchamStation() {
-        final IdFor<NPTGLocality> altyRailStationArea = KnowLocality.Altrincham.getId();
+        final IdFor<NPTGLocality> altyRailStationArea = KnownLocality.Altrincham.getId();
         assertTrue(respository.containsArea(altyRailStationArea));
         Set<NaptanRecord> inLocation = respository.getRecordsForLocality(altyRailStationArea);
 
@@ -136,7 +136,7 @@ class NaptanRepositoryTest {
 
     @Test
     void shouldNotContainAreaOutOfBounds() {
-        assertFalse(respository.containsArea(KnowLocality.LondonWestminster.getId()));
+        assertFalse(respository.containsArea(KnownLocality.LondonWestminster.getId()));
     }
 
     // need to use <Street xml:lang="en">Bolton Road</Street><Indicator xml:lang="en">opp</Indicator> from naptan to
@@ -173,7 +173,7 @@ class NaptanRepositoryTest {
     @Test
     void shouldGetBoundary() {
 
-        List<LatLong> points = respository.getBoundaryFor(KnowLocality.Shudehill.getId());
+        List<LatLong> points = respository.getBoundaryFor(KnownLocality.Shudehill.getId());
 
         assertEquals(8, points.size());
     }
@@ -186,7 +186,7 @@ class NaptanRepositoryTest {
         assertNotNull(fromNaptan);
 
         IdFor<NPTGLocality> locality = fromNaptan.getLocalityId();
-        assertEquals(KnowLocality.Knutsford.getId(), locality);
+        assertEquals(KnownLocality.Knutsford.getId(), locality);
 
         Set<NaptanRecord> allRecordsForArea = respository.getRecordsForLocality(locality);
 

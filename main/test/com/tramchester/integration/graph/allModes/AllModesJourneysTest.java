@@ -17,9 +17,10 @@ import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.AllModesTestConfig;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
+import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.BusStations;
+import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
 
@@ -45,7 +46,7 @@ public class AllModesJourneysTest {
     private StationRepository stationRepository;
     private Duration maxJourneyDuration;
     private TramDate when;
-    private BusStations.CentralStops centralStops;
+    private StationGroupsRepository stationGroupsRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -62,12 +63,13 @@ public class AllModesJourneysTest {
 
     @BeforeEach
     void onceBeforeEachTest() {
-        centralStops = new BusStations.CentralStops(componentContainer);
         maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
         when = TestEnv.testDay();
 
         GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
+
+        stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
 
         txn = graphDatabase.beginTxMutable();
         routeCalculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
@@ -81,7 +83,7 @@ public class AllModesJourneysTest {
 
     @Test
     void shouldHaveBusToTram() {
-        StationGroup stockport = centralStops.Stockport();
+        StationGroup stockport = KnownLocality.Stockport.from(stationGroupsRepository);
         Station altyTram = stationRepository.getStationById(TramStations.Altrincham.getId());
 
         TramTime travelTime = TramTime.of(9, 0);
@@ -115,8 +117,8 @@ public class AllModesJourneysTest {
     @Test
     void shouldHaveStockToAltyBusJourney() {
 
-        StationGroup stockport = centralStops.Stockport();
-        StationGroup alty = centralStops.Altrincham();
+        StationGroup stockport = KnownLocality.Stockport.from(stationGroupsRepository);
+        StationGroup alty = KnownLocality.Altrincham.from(stationGroupsRepository);
 
         TramTime travelTime = TramTime.of(9, 0);
 

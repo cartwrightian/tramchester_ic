@@ -1,17 +1,14 @@
 package com.tramchester.testSupport.reference;
 
-import com.tramchester.ComponentContainer;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.repository.naptan.NaptanStopType;
-import com.tramchester.testSupport.StationGroupTestSupport;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.EnumSet;
@@ -104,29 +101,29 @@ public enum BusStations implements FakeStation {
         return mutableStation;
     }
 
-    public static class CentralStops {
-        private final StationGroupTestSupport factory;
-
-        public CentralStops(ComponentContainer componentContainer) {
-            factory = new StationGroupTestSupport(componentContainer);
-        }
-
-        public StationGroup Shudehill() {
-            return getFor(KnowLocality.Shudehill);
-        }
-
-        public StationGroup Stockport() {
-            return getFor(KnowLocality.Stockport);
-        }
-
-        public StationGroup Altrincham() {
-            return getFor(KnowLocality.Altrincham);
-        }
-
-        public StationGroup getFor(KnowLocality locality) {
-            return factory.getGroupFor(locality, true, NAPTAN_BUS);
-        }
-
-    }
+//    public static class CentralStops {
+//        private final StationGroupTestSupport factory;
+//
+//        public CentralStops(ComponentContainer componentContainer) {
+//            factory = new StationGroupTestSupport(componentContainer);
+//        }
+//
+//        public StationGroup Shudehill() {
+//            return getFor(KnowLocality.Shudehill);
+//        }
+//
+//        public StationGroup Stockport() {
+//            return getFor(KnowLocality.Stockport);
+//        }
+//
+//        public StationGroup Altrincham() {
+//            return getFor(KnowLocality.Altrincham);
+//        }
+//
+//        public StationGroup getFor(KnowLocality locality) {
+//            return factory.getGroupFor(locality, true, NAPTAN_BUS);
+//        }
+//
+//    }
 
 }

@@ -14,8 +14,9 @@ import com.tramchester.domain.presentation.DTO.StationToStationConnectionDTO;
 import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.IntegrationTramBusTestConfig;
+import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.testSupport.reference.BusStations;
+import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.testTags.BusTest;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import jakarta.ws.rs.core.GenericType;
@@ -45,8 +46,8 @@ class StationLinksNeighboursAndCompositeResourceTest {
     private static GuiceContainerDependencies dependencies;
 
     private StationGroup shudehillCentralBusStops;
-    private BusStations.CentralStops centralStops;
     private IdForDTO shudehillTramId;
+    private StationGroupsRepository stationGroupsRepository;
 
     @BeforeAll
     public static void beforeAnyTestsRun() {
@@ -57,10 +58,9 @@ class StationLinksNeighboursAndCompositeResourceTest {
     @BeforeEach
     public void onceBeforeEachTest() {
         StationRepository stationRepository = dependencies.get(StationRepository.class);
+        stationGroupsRepository = dependencies.get(StationGroupsRepository.class);
 
-        centralStops = new BusStations.CentralStops(dependencies);
-
-        shudehillCentralBusStops = centralStops.Shudehill();
+        shudehillCentralBusStops = KnownLocality.Shudehill.from(stationGroupsRepository);
         Station shudehillTram = stationRepository.getStationById(Shudehill.getId());
 
         shudehillTramId = IdForDTO.createFor(shudehillTram);
@@ -117,7 +117,7 @@ class StationLinksNeighboursAndCompositeResourceTest {
     @Test
     void shouldGetCompositeStations() {
 
-        StationGroup actualComposite = centralStops.Altrincham();
+        StationGroup actualComposite = KnownLocality.Altrincham.from(stationGroupsRepository);
         Set<IdForDTO> expectedIds = actualComposite.getContained().stream().
                 map(IdForDTO::createFor).
                 collect(Collectors.toSet());

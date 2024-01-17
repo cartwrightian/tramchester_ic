@@ -27,7 +27,6 @@ import static java.lang.String.format;
 
 /***
  * Wrap stations with same area id inside a group so at API/UI level see unique list of station names
- * TODO area ref id is missing for some stations, need to find an alternative or different way to do this?
  */
 @LazySingleton
 public class StationGroupsRepository {

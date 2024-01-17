@@ -12,7 +12,7 @@ import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
-import com.tramchester.testSupport.reference.KnowLocality;
+import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -57,7 +57,7 @@ class StationGroupRepositoryTest {
         assertEquals(26, contained.size(), groupedStations.toString());
 
         assertEquals(LocationType.StationGroup, groupedStations.getLocationType());
-        assertEquals(KnowLocality.Altrincham.getId(), groupedStations.getLocalityId());
+        assertEquals(KnownLocality.Altrincham.getId(), groupedStations.getLocalityId());
 
         IdSet<Station> ids = contained.stream().collect(IdSet.collector());
         assertTrue(ids.contains(BusStations.StopAtAltrinchamInterchange.getId()));

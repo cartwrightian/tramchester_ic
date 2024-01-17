@@ -16,9 +16,10 @@ import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.graphbuild.StationGroupsGraphBuilder;
 import com.tramchester.integration.testSupport.IntegrationTramBusTestConfig;
+import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.BusStations;
+import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.*;
@@ -42,6 +43,7 @@ class AddNeighboursGraphBuilderTest {
 
     private static GraphDatabase graphDatabase;
     private static StationRepository stationRepository;
+    private static StationGroupsRepository stationGroupRepository;
     private StationGroup shudehillCentralBus;
     private Station shudehillTram;
 
@@ -61,6 +63,7 @@ class AddNeighboursGraphBuilderTest {
         builder.getReady();
 
         stationRepository = componentContainer.get(StationRepository.class);
+        stationGroupRepository = componentContainer.get(StationGroupsRepository.class);
 
         // force init of main DB and hence save of VERSION node, so avoid multiple rebuilds of the DB
         componentContainer.get(StagedTransportGraphBuilder.Ready.class);
@@ -76,9 +79,7 @@ class AddNeighboursGraphBuilderTest {
 
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
 
-        BusStations.CentralStops centralStops = new BusStations.CentralStops(componentContainer);
-
-        shudehillCentralBus = centralStops.Shudehill();
+        shudehillCentralBus = KnownLocality.Shudehill.from(stationGroupRepository);
         shudehillTram = stationRepository.getStationById(Shudehill.getId());
 
         // force init of main DB and hence save of VERSION node, so avoid multiple rebuilds of the DB

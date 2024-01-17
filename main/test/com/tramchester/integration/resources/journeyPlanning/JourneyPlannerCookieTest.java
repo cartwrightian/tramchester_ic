@@ -18,7 +18,7 @@ import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.JourneyPlannerResource;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.KnowLocality;
+import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import jakarta.ws.rs.core.Cookie;
@@ -115,7 +115,7 @@ public class JourneyPlannerCookieTest {
 
         // cookie with ashton as
         RecentJourneys recentJourneys = new RecentJourneys();
-        IdFor<StationGroup> idForStockportLocality = StringIdFor.convert(KnowLocality.Stockport.getId(), StationGroup.class);
+        IdFor<StationGroup> idForStockportLocality = StringIdFor.convert(KnownLocality.Stockport.getId(), StationGroup.class);
         Timestamped stockportLocalityCookie = new Timestamped(idForStockportLocality, now, LocationType.StationGroup);
         recentJourneys.setTimeStamps(Sets.newHashSet(stockportLocalityCookie));
         Cookie cookie = new Cookie("tramchesterRecent", RecentJourneys.encodeCookie(mapper,recentJourneys));

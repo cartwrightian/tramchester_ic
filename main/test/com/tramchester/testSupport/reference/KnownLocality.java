@@ -7,7 +7,7 @@ import com.tramchester.repository.StationGroupsRepository;
 
 import java.util.EnumSet;
 
-public enum KnowLocality {
+public enum KnownLocality {
     Altrincham("E0028261"),
     Macclesfield("N0076467"),
     Shudehill("N0077806"),
@@ -24,9 +24,9 @@ public enum KnowLocality {
 
     private final String localityId;
 
-    public static final EnumSet<KnowLocality> GreaterManchester = EnumSet.range(KnowLocality.Altrincham, Knutsford);
+    public static final EnumSet<KnownLocality> GreaterManchester = EnumSet.range(KnownLocality.Altrincham, Knutsford);
 
-    KnowLocality(String localityId) {
+    KnownLocality(String localityId) {
         this.localityId = localityId;
     }
 

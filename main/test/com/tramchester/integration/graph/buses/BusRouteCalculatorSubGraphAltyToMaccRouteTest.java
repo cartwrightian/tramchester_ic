@@ -26,7 +26,7 @@ import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.*;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.BusStations;
+import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.*;
@@ -103,9 +103,8 @@ class BusRouteCalculatorSubGraphAltyToMaccRouteTest {
 
         when = TestEnv.testDay();
 
-        BusStations.CentralStops centralStops = new BusStations.CentralStops(componentContainer);
 
-        altrinchamInterchange =  centralStops.Altrincham(); // stationGroupsRepository.findByName("Altrincham Interchange");
+        altrinchamInterchange =  KnownLocality.Altrincham.from(stationGroupsRepository);
 
         StationLocations stationLocations = componentContainer.get(StationLocations.class);
 

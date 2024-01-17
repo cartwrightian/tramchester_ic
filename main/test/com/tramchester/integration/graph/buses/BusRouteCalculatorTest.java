@@ -17,10 +17,8 @@ import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.testSupport.StationGroupTestSupport;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.BusStations;
-import com.tramchester.testSupport.reference.KnowLocality;
+import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
@@ -56,8 +54,6 @@ class BusRouteCalculatorTest {
     private StationGroup altrinchamCentral;
     private StationGroup knutsfordLocality;
     private StationGroup shudehillLocality;
-    private BusStations.CentralStops centralStops;
-    private StationGroupTestSupport groupTestSupport;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -76,17 +72,15 @@ class BusRouteCalculatorTest {
     @BeforeEach
     void beforeEachTestRuns() {
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
-        centralStops = new BusStations.CentralStops(componentContainer);
-        groupTestSupport = new StationGroupTestSupport(componentContainer);
 
         maxJourneyDuration = Duration.ofMinutes(testConfig.getMaxJourneyDuration());
         stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
 
-        stockportCentral = centralStops.Stockport();
-        altrinchamCentral = centralStops.Altrincham();
+        stockportCentral = KnownLocality.Stockport.from(stationGroupsRepository);
+        altrinchamCentral = KnownLocality.Altrincham.from(stationGroupsRepository);
 
-        knutsfordLocality = stationGroupsRepository.getStationGroup(KnowLocality.Knutsford.getId());
-        shudehillLocality = stationGroupsRepository.getStationGroup(KnowLocality.Shudehill.getId());
+        knutsfordLocality =  KnownLocality.Knutsford.from(stationGroupsRepository);
+        shudehillLocality = KnownLocality.Shudehill.from(stationGroupsRepository);
 
         txn = database.beginTxMutable(TXN_TIMEOUT, TimeUnit.SECONDS);
         calculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
@@ -119,6 +113,26 @@ class BusRouteCalculatorTest {
         JourneyRequest requestB = new JourneyRequest(nextMonday, travelTime, false, 1,
                 maxJourneyDuration, 1, getRequestedModes());
         Set<Journey> journeysB = calculator.calculateRouteAsSet(altrinchamCentral, stockportCentral, requestB);
+        assertFalse(journeysB.isEmpty());
+    }
+
+    @Test
+    void shouldHaveStockToAltyJourneyAndBackAgainOneChangesLocalityBased() {
+        StationGroup altrincham = KnownLocality.Altrincham.from(stationGroupsRepository);
+        StationGroup stockport = KnownLocality.Stockport.from(stationGroupsRepository);
+
+        TramTime travelTime = TramTime.of(9,0);
+        TramDate nextMonday = TestEnv.nextMonday();
+
+        JourneyRequest requestA = new JourneyRequest(nextMonday, travelTime, false, 1,
+                maxJourneyDuration, 1, getRequestedModes());
+
+        Set<Journey> journeysA = calculator.calculateRouteAsSet(stockport, altrincham, requestA);
+        assertFalse(journeysA.isEmpty());
+
+        JourneyRequest requestB = new JourneyRequest(nextMonday, travelTime, false, 1,
+                maxJourneyDuration, 1, getRequestedModes());
+        Set<Journey> journeysB = calculator.calculateRouteAsSet(altrincham, stockport, requestB);
         assertFalse(journeysB.isEmpty());
     }
 
@@ -161,7 +175,7 @@ class BusRouteCalculatorTest {
     @Test
     void shouldFindJourneyInFutureCorrectly() {
         // attempt to repro seen in ui where zero journeys
-        StationGroup start = groupTestSupport.getGroupFor(KnowLocality.OldfieldBrow, "Taylor Road");
+        StationGroup start = KnownLocality.OldfieldBrow.from(stationGroupsRepository);
 
         final TramDate futureDate = TestEnv.testDay().plusDays(14);
         JourneyRequest journeyRequest = new JourneyRequest(futureDate,
@@ -255,7 +269,7 @@ class BusRouteCalculatorTest {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(9,40),
                 false, maxChanges, maxJourneyDuration, 3, getRequestedModes());
 
-        StationGroup nearAsdaStops = groupTestSupport.getGroupFor(KnowLocality.Broadheath, "George Richards Way");
+        StationGroup nearAsdaStops = KnownLocality.Broadheath.from(stationGroupsRepository);
 
         Set<Journey> journeys = calculator.calculateRouteAsSet(shudehillLocality, nearAsdaStops, journeyRequest);
         assertFalse(journeys.isEmpty());
@@ -296,7 +310,7 @@ class BusRouteCalculatorTest {
 
     @Test
     void shouldReproPerfIssueAltyToAirport() {
-        StationGroup airport = centralStops.getFor(KnowLocality.ManchesterAirport);
+        StationGroup airport = KnownLocality.ManchesterAirport.from(stationGroupsRepository);
 
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(11,11),
                 false, 3, maxJourneyDuration, 3, getRequestedModes());

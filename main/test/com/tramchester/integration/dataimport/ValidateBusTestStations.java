@@ -5,6 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
+import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
@@ -17,7 +18,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.tramchester.testSupport.reference.KnowLocality.GreaterManchester;
+import static com.tramchester.testSupport.reference.KnownLocality.GreaterManchester;
 import static org.junit.jupiter.api.Assertions.*;
 
 @BusTest
@@ -70,10 +71,10 @@ class ValidateBusTestStations {
     @Test
     void shouldHaveCorrectTestCompositeStations() {
 
-        BusStations.CentralStops centralStops = new BusStations.CentralStops(componentContainer);
+        StationGroupsRepository stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
 
         GreaterManchester.forEach(knowLocality -> {
-            StationGroup group = centralStops.getFor(knowLocality);
+            StationGroup group = knowLocality.from(stationGroupsRepository);
             assertNotNull(group, "no central stations found for " + group);
             assertTrue(group.getContained().size()>1, "not enough stations for " + group);
         });

@@ -17,7 +17,7 @@ import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.*;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
-import com.tramchester.testSupport.reference.KnowLocality;
+import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.testTags.BusTest;
 import com.tramchester.testSupport.testTags.DataExpiryCategory;
 import org.junit.jupiter.api.*;
@@ -94,7 +94,7 @@ public class StationAvailabilityRepositoryForBusesTest {
 
     @Test
     void shouldCheckStationGroupsAsExpected() {
-        StationGroup stationGroup = stationGroupsRepository.getStationGroup(KnowLocality.Altrincham.getId()); //.findByName(BusStations.Composites.AltrinchamInterchange.getName());
+        StationGroup stationGroup = stationGroupsRepository.getStationGroup(KnownLocality.Altrincham.getId()); //.findByName(BusStations.Composites.AltrinchamInterchange.getName());
         assertNotNull(stationGroup);
 
         boolean duringTheDay = availabilityRepository.isAvailable(stationGroup, when, TimeRange.of(of(8,45), of(10,45)), modes);
@@ -106,7 +106,7 @@ public class StationAvailabilityRepositoryForBusesTest {
     @DataExpiryCategory
     @Test
     void shouldHaveExpectedRoutesAvailableForDatesAndTimeRangesOverMidnight() {
-        StationGroup shudeHillInterchange = stationGroupsRepository.getStationGroup(KnowLocality.Shudehill.getId());
+        StationGroup shudeHillInterchange = stationGroupsRepository.getStationGroup(KnownLocality.Shudehill.getId());
 
         long maxDuration = config.getMaxJourneyDuration();
 
@@ -130,7 +130,7 @@ public class StationAvailabilityRepositoryForBusesTest {
     @DataExpiryCategory
     @Test
     void shouldHaveExpectedRoutesAvailableForDatesAndTimeRangesAfterMidnight() {
-        StationGroup shudeHillInterchange = stationGroupsRepository.getStationGroup(KnowLocality.Shudehill.getId());
+        StationGroup shudeHillInterchange = stationGroupsRepository.getStationGroup(KnownLocality.Shudehill.getId());
 
         long maxDuration = config.getMaxJourneyDuration();
 

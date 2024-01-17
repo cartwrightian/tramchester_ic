@@ -21,11 +21,12 @@ import com.tramchester.graph.search.routes.RouteToRouteCosts;
 import com.tramchester.integration.testSupport.IntegrationTramBusTestConfig;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.repository.InterchangeRepository;
+import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.BusStations;
+import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.*;
 
@@ -77,10 +78,9 @@ public class NeighbourJourneysTest {
         stationRepository = componentContainer.get(StationRepository.class);
 
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
+        StationGroupsRepository stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
 
-        BusStations.CentralStops centralStops = new BusStations.CentralStops(componentContainer);
-
-        StationGroup shudehillCentralBus = centralStops.Shudehill();
+        StationGroup shudehillCentralBus = KnownLocality.Shudehill.from(stationGroupsRepository);
 
         Optional<Station> maybeStop = shudehillCentralBus.getContained().stream().findAny();
         maybeStop.ifPresent(stop -> shudehillBusStop = stop);

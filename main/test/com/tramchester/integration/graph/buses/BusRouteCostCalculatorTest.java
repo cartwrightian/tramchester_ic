@@ -12,9 +12,11 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
+import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
+import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.*;
 
@@ -57,15 +59,15 @@ class BusRouteCostCalculatorTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        CentralStops centralStops = new CentralStops(componentContainer);
 
         stationRepository = componentContainer.get(StationRepository.class);
+        StationGroupsRepository stationGroupRepository = componentContainer.get(StationGroupsRepository.class);
 
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
 
-        altrincham = centralStops.Altrincham();
-        stockport = centralStops.Stockport();
-        shudehill = centralStops.Shudehill();
+        altrincham = KnownLocality.Altrincham.from(stationGroupRepository);
+        stockport = KnownLocality.Stockport.from(stationGroupRepository);
+        shudehill = KnownLocality.Shudehill.from(stationGroupRepository);
 
         modes = EnumSet.of(Bus);
 

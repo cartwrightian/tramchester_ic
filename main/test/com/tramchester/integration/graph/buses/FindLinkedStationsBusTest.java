@@ -9,8 +9,9 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.graph.search.FindLinkedStations;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
+import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.BusStations;
+import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -46,9 +47,10 @@ class FindLinkedStationsBusTest {
     @BeforeEach
     void beforeEachOfTheTestsRun() {
         findStationLinks = componentContainer.get(FindLinkedStations.class);
-        BusStations.CentralStops centralStops = new BusStations.CentralStops(componentContainer);
 
-        shudehillCentralBusStops = centralStops.Shudehill();
+        StationGroupsRepository stationGroupRepository = componentContainer.get(StationGroupsRepository.class);
+
+        shudehillCentralBusStops = KnownLocality.Shudehill.from(stationGroupRepository);
     }
 
     @Test

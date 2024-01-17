@@ -8,9 +8,10 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.integration.testSupport.IntegrationTramBusTestConfig;
 import com.tramchester.repository.NeighboursRepository;
+import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.BusStations;
+import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.AfterAll;
@@ -25,12 +26,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class NeighboursRepositoryBusTest {
 
     private NeighboursRepository neighboursRepository;
+    private StationGroupsRepository stationGroupsRepository;
 
-    private StationGroup shudehillCompositeBus;
+    private StationGroup shudehillGroup;
     private Station shudehillTram;
 
     private static ComponentContainer componentContainer;
-    private BusStations.CentralStops centralStops;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -47,19 +48,18 @@ public class NeighboursRepositoryBusTest {
 
     @BeforeEach
     void onceBeforeEachTest() {
+        stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
         neighboursRepository = componentContainer.get(NeighboursRepository.class);
 
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
 
-        centralStops = new BusStations.CentralStops(componentContainer);
-
-        shudehillCompositeBus = centralStops.Shudehill(); // stationGroupsRepository.findByName("Shudehill Interchange");
+        shudehillGroup = KnownLocality.Shudehill.from(stationGroupsRepository);
         shudehillTram = stationRepository.getStationById(Shudehill.getId());
     }
 
     @Test
     void shouldHaveCorrectNeighboursForAltrinchamTram() {
-        StationGroup altrinchamComposite = centralStops.Altrincham();
+        StationGroup altrinchamComposite = KnownLocality.Altrincham.from(stationGroupsRepository);
 
         IdSet<Station> neighbours = neighboursRepository.getNeighboursFor(TramStations.Altrincham.getId())
                 .stream().collect(IdSet.collector());
@@ -71,13 +71,13 @@ public class NeighboursRepositoryBusTest {
     @Test
     void shouldHaveCorrectNeighboursForTramAtShudehill() {
         IdSet<Station> neighbours = neighboursRepository.getNeighboursFor(Shudehill.getId()).stream().collect(IdSet.collector());
-        IdSet<Station> busStops = shudehillCompositeBus.getContained().stream().collect(IdSet.collector());
+        IdSet<Station> busStops = shudehillGroup.getContained().stream().collect(IdSet.collector());
         assertTrue(neighbours.containsAll(busStops));
     }
 
     @Test
     void shouldHaveCorrectNeighboursForBusAtShudehill() {
-        shudehillCompositeBus.getContained().forEach(station -> {
+        shudehillGroup.getContained().forEach(station -> {
             IdSet<Station> neighbours = neighboursRepository.getNeighboursFor(station.getId()).stream().collect(IdSet.collector());
             assertTrue(neighbours.contains(shudehillTram.getId()));
         });

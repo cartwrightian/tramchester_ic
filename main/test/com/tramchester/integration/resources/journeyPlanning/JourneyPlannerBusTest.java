@@ -22,7 +22,7 @@ import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
-import com.tramchester.testSupport.reference.KnowLocality;
+import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.testTags.BusTest;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import jakarta.ws.rs.core.GenericType;
@@ -65,10 +65,8 @@ class JourneyPlannerBusTest {
         App app = appExt.getTestSupport().getApplication();
         GuiceContainerDependencies dependencies = app.getDependencies();
 
-        CentralStops centralStops = new CentralStops(dependencies);
-
-        stockportCentralStops = centralStops.Stockport();
-        nearShudehillCentralStops = centralStops.Shudehill();
+        stockportCentralStops = KnownLocality.Stockport.from(stationGroupRepository);
+        nearShudehillCentralStops = KnownLocality.Shudehill.from(stationGroupRepository);
 
         mapper = new ObjectMapper();
 
@@ -200,8 +198,8 @@ class JourneyPlannerBusTest {
 
         TramTime queryTime = TramTime.of(8,56);
 
-        StationGroup start = KnowLocality.Altrincham.from(stationGroupRepository);
-        StationGroup end = KnowLocality.ManchesterAirport.from(stationGroupRepository);
+        StationGroup start = KnownLocality.Altrincham.from(stationGroupRepository);
+        StationGroup end = KnownLocality.ManchesterAirport.from(stationGroupRepository);
 
         Timestamped expectedStart = new Timestamped(start, timeStamp);
         Timestamped expectedEnd = new Timestamped(end, timeStamp);
