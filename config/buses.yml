@@ -17,7 +17,7 @@ secureHost: tramchester.com
 redirectToSecure: true
 staticAssetCacheTimeSeconds: 300
 graphDBConfig:
-  graphName: buses.db
+  graphName: databases/buses.db
   neo4jPagecacheMemory: 300m
   memoryTransactionGlobalMaxSize: 650m
 distributionBucket: tramchesternewdist
