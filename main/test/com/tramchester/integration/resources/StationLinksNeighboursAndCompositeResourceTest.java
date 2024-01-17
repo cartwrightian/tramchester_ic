@@ -10,7 +10,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.domain.presentation.DTO.StationGroupDTO;
-import com.tramchester.domain.presentation.DTO.StationLinkDTO;
+import com.tramchester.domain.presentation.DTO.StationToStationConnectionDTO;
 import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.IntegrationTramBusTestConfig;
@@ -75,7 +75,7 @@ class StationLinksNeighboursAndCompositeResourceTest {
                 map(IdForDTO::new).
                 collect(Collectors.toSet());
 
-        List<StationLinkDTO> results = getLinks();
+        List<StationToStationConnectionDTO> results = getLinks();
 
         Set<IdForDTO> beginAtTramStop = results.stream().
                 filter(link -> link.getBegin().getId().equals(shudehillTramId)).
@@ -92,7 +92,7 @@ class StationLinksNeighboursAndCompositeResourceTest {
     @Test
     void shouldGetStationNeighboursFromBus() {
 
-        List<StationLinkDTO> results = getLinks();
+        List<StationToStationConnectionDTO> results = getLinks();
 
         Set<IdForDTO> busStopIds = shudehillCentralBusStops.getContained().
                 stream().
@@ -109,7 +109,7 @@ class StationLinksNeighboursAndCompositeResourceTest {
 
     @Test
     void expectedNumbers() {
-        List<StationLinkDTO> results = getLinks();
+        List<StationToStationConnectionDTO> results = getLinks();
         assertEquals(20401, results.size(), "count of links");
     }
 
@@ -144,7 +144,7 @@ class StationLinksNeighboursAndCompositeResourceTest {
     }
 
     @NotNull
-    private List<StationLinkDTO> getLinks() {
+    private List<StationToStationConnectionDTO> getLinks() {
 
         Response response = APIClient.getApiResponse(appExtension, "geo/links");
         assertEquals(200, response.getStatus(), "status");

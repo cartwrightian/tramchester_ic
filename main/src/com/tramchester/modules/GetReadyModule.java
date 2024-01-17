@@ -5,7 +5,7 @@ import com.google.inject.Provides;
 import com.tramchester.dataimport.FetchDataFromUrl;
 import com.tramchester.dataimport.UnzipFetchedData;
 import com.tramchester.graph.AddNeighboursGraphBuilder;
-import com.tramchester.graph.AddWalksForClosedGraphBuilder;
+import com.tramchester.graph.AddDiversionsForClosedGraphBuilder;
 import com.tramchester.graph.graphbuild.StationGroupsGraphBuilder;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
@@ -50,7 +50,7 @@ public class GetReadyModule extends AbstractModule {
     }
 
     @Provides
-    AddWalksForClosedGraphBuilder.Ready providesReadyToken(AddWalksForClosedGraphBuilder addWalksForClosedGraphBuilder) {
+    AddDiversionsForClosedGraphBuilder.Ready providesReadyToken(AddDiversionsForClosedGraphBuilder addWalksForClosedGraphBuilder) {
         return addWalksForClosedGraphBuilder.getReady();
     }
 

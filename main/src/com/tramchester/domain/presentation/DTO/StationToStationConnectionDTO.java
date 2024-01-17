@@ -4,21 +4,21 @@ import com.tramchester.domain.reference.TransportMode;
 
 import java.util.Set;
 
-public class StationLinkDTO {
+public class StationToStationConnectionDTO {
     private LocationRefWithPosition begin;
     private LocationRefWithPosition end;
     private Set<TransportMode> transportModes;
     private Double distanceInMeters;
 
-    public StationLinkDTO(LocationRefWithPosition begin, LocationRefWithPosition end, Set<TransportMode> transportModes,
-                          Double distanceInMeters) {
+    public StationToStationConnectionDTO(LocationRefWithPosition begin, LocationRefWithPosition end, Set<TransportMode> transportModes,
+                                         Double distanceInMeters) {
         this.begin = begin;
         this.end = end;
         this.transportModes = transportModes;
         this.distanceInMeters = distanceInMeters;
     }
 
-    public StationLinkDTO() {
+    public StationToStationConnectionDTO() {
         // deserialisation
     }
 
@@ -43,7 +43,7 @@ public class StationLinkDTO {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        StationLinkDTO that = (StationLinkDTO) o;
+        StationToStationConnectionDTO that = (StationToStationConnectionDTO) o;
 
         if (!begin.equals(that.begin)) return false;
         return end.equals(that.end);

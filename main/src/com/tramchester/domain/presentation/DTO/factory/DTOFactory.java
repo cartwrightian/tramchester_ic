@@ -7,7 +7,7 @@ import com.tramchester.domain.places.*;
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
 import com.tramchester.domain.presentation.DTO.StationGroupDTO;
-import com.tramchester.domain.presentation.DTO.StationLinkDTO;
+import com.tramchester.domain.presentation.DTO.StationToStationConnectionDTO;
 import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.presentation.StationNote;
 import tech.units.indriya.unit.Units;
@@ -42,11 +42,11 @@ public class DTOFactory {
         return new StationGroupDTO(areaId, contained);
     }
 
-    public StationLinkDTO createStationLinkDTO(StationToStationConnection stationLink) {
+    public StationToStationConnectionDTO createStationLinkDTO(StationToStationConnection stationLink) {
         LocationRefWithPosition begin = createLocationRefWithPosition(stationLink.getBegin());
         LocationRefWithPosition end = createLocationRefWithPosition(stationLink.getEnd());
         Double distanceInMeters = stationLink.getDistanceInMeters().to(Units.METRE).getValue().doubleValue();
-        return new StationLinkDTO(begin, end, stationLink.getLinkingModes(), distanceInMeters);
+        return new StationToStationConnectionDTO(begin, end, stationLink.getLinkingModes(), distanceInMeters);
     }
 
     public StationNote createStationNote(Note.NoteType noteType, String text, Set<Station> seenAt) {

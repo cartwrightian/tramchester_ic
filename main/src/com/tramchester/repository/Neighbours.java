@@ -77,6 +77,33 @@ public class Neighbours implements NeighboursRepository {
         logger.info("Started");
     }
 
+    private void createNeighbours() {
+        final MarginInMeters marginInMeters = MarginInMeters.of(config.getDistanceToNeighboursKM());
+
+        logger.info(format("Adding neighbouring stations for range %s and diff modes only %s",
+                marginInMeters, DIFF_MODES_ONLY));
+
+        final EnumSet<TransportMode> walk = EnumSet.of(Walk);
+
+        stationRepository.getActiveStationStream().
+                filter(station -> station.getGridPosition().isValid()).
+                forEach(begin -> {
+                    final EnumSet<TransportMode> beginModes = begin.getTransportModes();
+                    // nearby could be any transport mode
+                    Set<StationToStationConnection> links = stationLocations.nearestStationsUnsorted(begin, marginInMeters).
+                            filter(nearby -> !nearby.equals(begin)).
+                            filter(nearby -> DIFF_MODES_ONLY && noOverlapModes(beginModes, nearby.getTransportModes())).
+                            map(nearby -> StationToStationConnection.createForWalk(begin, nearby, walk, geography)).
+                            collect(Collectors.toSet());
+                    if (!links.isEmpty()) {
+                        neighbours.put(begin.getId(), links);
+                    }
+                });
+
+        logger.info("Added " + neighbours.size() + " station with neighbours");
+
+    }
+
     private void addFromConfig() {
         List<StationIdPair> additional = config.getAdditional();
         if (additional.isEmpty()) {
@@ -175,8 +202,6 @@ public class Neighbours implements NeighboursRepository {
                 return false;
             }
             return getNeighboursFor(startId).stream().anyMatch(neighbourId -> destinationId.equals(neighbourId.getId()));
-//            final IdSet<Station> neighbours = getNeighboursFor(startId).stream().collect(IdSet.collector());
-//            return neighbours.contains(destinationId);
         }
         return false;
     }
@@ -195,32 +220,7 @@ public class Neighbours implements NeighboursRepository {
         return DIFF_MODES_ONLY;
     }
 
-    private void createNeighbours() {
-        final MarginInMeters marginInMeters = MarginInMeters.of(config.getDistanceToNeighboursKM());
 
-        logger.info(format("Adding neighbouring stations for range %s and diff modes only %s",
-                marginInMeters, DIFF_MODES_ONLY));
-
-        final EnumSet<TransportMode> walk = EnumSet.of(Walk);
-
-        stationRepository.getActiveStationStream().
-            filter(station -> station.getGridPosition().isValid()).
-            forEach(begin -> {
-                final EnumSet<TransportMode> beginModes = begin.getTransportModes();
-                // nearby could be any transport mode
-                Set<StationToStationConnection> links = stationLocations.nearestStationsUnsorted(begin, marginInMeters).
-                    filter(nearby -> !nearby.equals(begin)).
-                    filter(nearby -> DIFF_MODES_ONLY && noOverlapModes(beginModes, nearby.getTransportModes())).
-                    map(nearby -> StationToStationConnection.createForWalk(begin, nearby, walk, geography)).
-                    collect(Collectors.toSet());
-                if (!links.isEmpty()) {
-                    neighbours.put(begin.getId(), links);
-                }
-            });
-
-        logger.info("Added " + neighbours.size() + " station with neighbours");
-
-    }
 
     private boolean noOverlapModes(EnumSet<TransportMode> modesA, EnumSet<TransportMode> modesB) {
         return !TransportMode.intersects(modesA, modesB);

@@ -64,7 +64,7 @@ public class StationGeographyResource implements APIResource, GraphDatabaseDepen
     @Timed
     @Path("/links")
     @Operation(description = "Get pairs of station links for given transport mode")
-    @ApiResponse(content = @Content(array = @ArraySchema(uniqueItems = true, schema = @Schema(implementation = StationLinkDTO.class))))
+    @ApiResponse(content = @Content(array = @ArraySchema(uniqueItems = true, schema = @Schema(implementation = StationToStationConnectionDTO.class))))
     @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.DAYS)
     public Response getAll() {
         logger.info("Get station links");
@@ -76,7 +76,7 @@ public class StationGeographyResource implements APIResource, GraphDatabaseDepen
             allLinks.addAll(links);
         });
 
-        List<StationLinkDTO> results = allLinks.stream().
+        List<StationToStationConnectionDTO> results = allLinks.stream().
                 filter(StationToStationConnection::hasValidLatlongs).
                 map(dtoFactory::createStationLinkDTO).
                 collect(Collectors.toList());
@@ -88,19 +88,19 @@ public class StationGeographyResource implements APIResource, GraphDatabaseDepen
     @Timed
     @Path("/neighbours")
     @Operation(description = "Get all pairs of neighbours")
-    @ApiResponse(content = @Content(array = @ArraySchema(uniqueItems = true, schema = @Schema(implementation = StationLinkDTO.class))))
+    @ApiResponse(content = @Content(array = @ArraySchema(uniqueItems = true, schema = @Schema(implementation = StationToStationConnectionDTO.class))))
     @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.DAYS)
     public Response getNeighbours() {
         logger.info("Get station neighbours");
 
         if (!config.hasNeighbourConfig()) {
             logger.warn("Neighbours disabled");
-            return Response.ok(Collections.<StationLinkDTO>emptyList()).build();
+            return Response.ok(Collections.<StationToStationConnectionDTO>emptyList()).build();
         }
 
         Set<StationToStationConnection> allLinks = neighboursRepository.getAll();
 
-        List<StationLinkDTO> results = allLinks.stream().
+        List<StationToStationConnectionDTO> results = allLinks.stream().
                 filter(StationToStationConnection::hasValidLatlongs).
                 map(dtoFactory::createStationLinkDTO).collect(Collectors.toList());
 

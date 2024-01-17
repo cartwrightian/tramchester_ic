@@ -8,9 +8,9 @@ import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.geo.MarginInMeters;
-import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.facade.MutableGraphNode;
 import com.tramchester.graph.facade.MutableGraphRelationship;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.CreateNodesAndRelationships;
 import com.tramchester.graph.graphbuild.GraphLabel;
@@ -28,7 +28,6 @@ import javax.inject.Inject;
 import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.tramchester.domain.id.HasId.asIds;
 import static com.tramchester.graph.GraphPropertyKey.SOURCE_NAME_PROP;
@@ -36,8 +35,8 @@ import static com.tramchester.graph.TransportRelationshipTypes.DIVERSION;
 import static java.lang.String.format;
 
 @LazySingleton
-public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships implements StationsWithDiversionRepository {
-    private static final Logger logger = LoggerFactory.getLogger(AddWalksForClosedGraphBuilder.class);
+public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationships implements StationsWithDiversionRepository {
+    private static final Logger logger = LoggerFactory.getLogger(AddDiversionsForClosedGraphBuilder.class);
 
     private final GraphDatabase database;
     private final ClosedStationsRepository closedStationsRepository;
@@ -47,11 +46,11 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships i
     private final StationsWithDiversions stationsWithDiversions;
 
     @Inject
-    public AddWalksForClosedGraphBuilder(GraphDatabase database, GraphFilter filter,
-                                         ClosedStationsRepository closedStationsRepository,
-                                         TramchesterConfig config,
-                                         @SuppressWarnings("unused") StationsAndLinksGraphBuilder.Ready ready,
-                                         Geography geography) {
+    public AddDiversionsForClosedGraphBuilder(GraphDatabase database, GraphFilter filter,
+                                              ClosedStationsRepository closedStationsRepository,
+                                              TramchesterConfig config,
+                                              @SuppressWarnings("unused") StationsAndLinksGraphBuilder.Ready ready,
+                                              Geography geography) {
         super(database);
         this.database = database;
         this.filter = filter;
@@ -69,7 +68,7 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships i
         logger.info("starting");
 
         config.getGTFSDataSource().forEach(source -> {
-            boolean hasDBFlag = hasDBFlag(source);
+            final boolean hasDBFlag = hasDBFlag(source);
 
             final String sourceName = source.getName();
             if (!source.getAddWalksForClosed()) {
@@ -156,7 +155,7 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships i
 
     private boolean hasDBFlag(GTFSSourceConfig sourceConfig) {
         logger.info("Checking DB if walks added for " + sourceConfig.getName() +  " closed stations");
-        boolean flag;
+        final boolean flag;
         try (MutableGraphTransaction txn = graphDatabase.beginTxMutable()) {
             String value = sourceConfig.getName();
 
@@ -167,8 +166,7 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships i
 
     private void addDBFlag(GTFSSourceConfig sourceConfig) {
         try (MutableGraphTransaction txn = graphDatabase.beginTxMutable()) {
-            Stream<MutableGraphNode> query = txn.findNodesMutable(GraphLabel.WALK_FOR_CLOSED_ENABLED);
-            List<MutableGraphNode> nodes = query.toList();
+            List<MutableGraphNode> nodes = txn.findNodesMutable(GraphLabel.WALK_FOR_CLOSED_ENABLED).toList();
 
             MutableGraphNode node;
             if (nodes.isEmpty()) {
@@ -189,10 +187,10 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships i
         }
     }
 
-    private void addDiversionsToAndFromClosed(MutableGraphTransaction txn, Set<Station> others, ClosedStation closure) {
-        Station closedStation = closure.getStation();
+    private void addDiversionsToAndFromClosed(MutableGraphTransaction txn, final Set<Station> others, ClosedStation closure) {
+        final Station closedStation = closure.getStation();
 
-        MutableGraphNode closedNode = txn.findNodeMutable(closedStation);
+        final MutableGraphNode closedNode = txn.findNodeMutable(closedStation);
         if (closedNode==null) {
             String msg = "Could not find database node for from: " + closedStation.getId();
             logger.error(msg);
@@ -203,19 +201,19 @@ public class AddWalksForClosedGraphBuilder extends CreateNodesAndRelationships i
 
         others.stream().filter(filter::shouldInclude).forEach(otherStation -> {
 
-            Duration cost = geography.getWalkingDuration(closedStation, otherStation);
+            final Duration cost = geography.getWalkingDuration(closedStation, otherStation);
 
             logger.info(format("Create diversion to/from %s and %s cost %s", closedStation.getId(), otherStation.getId(), cost));
 
-            MutableGraphNode otherNode = txn.findNodeMutable(otherStation);
+            final MutableGraphNode otherNode = txn.findNodeMutable(otherStation);
             if (otherNode==null) {
                 String msg = "Could not find database node for to: " + otherStation.getId();
                 logger.error(msg);
                 throw new RuntimeException(msg);
             }
 
-            MutableGraphRelationship fromClosed = createRelationship(txn, closedNode, otherNode, DIVERSION);
-            MutableGraphRelationship fromOther = createRelationship(txn, otherNode, closedNode, DIVERSION);
+            final MutableGraphRelationship fromClosed = createRelationship(txn, closedNode, otherNode, DIVERSION);
+            final MutableGraphRelationship fromOther = createRelationship(txn, otherNode, closedNode, DIVERSION);
 
             setCommonProperties(fromClosed, cost, closure);
             setCommonProperties(fromOther, cost, closure);

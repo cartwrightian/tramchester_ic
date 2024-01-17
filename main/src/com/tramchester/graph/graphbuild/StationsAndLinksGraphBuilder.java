@@ -183,21 +183,20 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
 
     // NOTE: for services that skip some stations, but same stations not skipped by other services
     // this will create multiple links
-    private void createLinkRelationships(MutableGraphTransaction tx, Route route, StationAndPlatformNodeCache stationAndPlatformNodeCache) {
+    private void createLinkRelationships(MutableGraphTransaction tx, final Route route, final StationAndPlatformNodeCache stationAndPlatformNodeCache) {
 
         // TODO this uses the first cost we encounter for the link, while this is accurate for tfgm trams it does
         //  not give the correct results for buses and trains where time between station can vary depending upon the
         //  service
         Map<StationIdPair, Duration> pairs = new HashMap<>(); // (start, dest) -> cost
         route.getTrips().forEach(trip -> {
-                StopCalls stops = trip.getStopCalls();
+                final StopCalls stops = trip.getStopCalls();
                 stops.getLegs(graphFilter.isFiltered()).forEach(leg -> {
                     if (includeBothStops(graphFilter, leg)) {
-                        GTFSPickupDropoffType pickup = leg.getFirst().getPickupType();
-                        GTFSPickupDropoffType dropOff = leg.getSecond().getDropoffType();
-                        StationIdPair legStations = leg.getStations();
-                        if (pickup==Regular && dropOff==Regular &&
-                                !pairs.containsKey(legStations)) {
+                        final GTFSPickupDropoffType pickup = leg.getFirst().getPickupType();
+                        final GTFSPickupDropoffType dropOff = leg.getSecond().getDropoffType();
+                        final StationIdPair legStations = leg.getStations();
+                        if (pickup==Regular && dropOff==Regular && !pairs.containsKey(legStations)) {
                             Duration cost = leg.getCost();
                             pairs.put(legStations, cost);
                         }
@@ -206,8 +205,8 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
             });
 
         pairs.keySet().forEach(pair -> {
-            MutableGraphNode startNode = stationAndPlatformNodeCache.getStation(tx, pair.getBeginId());
-            MutableGraphNode endNode = stationAndPlatformNodeCache.getStation(tx, pair.getEndId());
+            final MutableGraphNode startNode = stationAndPlatformNodeCache.getStation(tx, pair.getBeginId());
+            final MutableGraphNode endNode = stationAndPlatformNodeCache.getStation(tx, pair.getEndId());
             createLinkRelationship(startNode, endNode, route.getTransportMode(), tx);
         });
 
@@ -220,17 +219,19 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
     private void createLinkRelationship(MutableGraphNode from, MutableGraphNode to, TransportMode mode, MutableGraphTransaction txn) {
         if (from.hasRelationship(OUTGOING, LINKED)) {
 
-            GraphNodeId toNodeId = to.getId();
-            Stream<MutableGraphRelationship> alreadyPresent = from.getRelationshipsMutable(txn, OUTGOING, LINKED);
+            // update existing relationships if not already present
+
+            final GraphNodeId toNodeId = to.getId();
+            final Stream<MutableGraphRelationship> alreadyPresent = from.getRelationshipsMutable(txn, OUTGOING, LINKED);
 
             // if there is an existing link between stations then update iff the transport mode not already present
             Optional<MutableGraphRelationship> find = alreadyPresent.
                     filter(relation -> relation.getEndNodeId(txn).equals(toNodeId)).findFirst();
 
-            find.ifPresent(found -> {
-                EnumSet<TransportMode> currentModes = found.getTransportModes();
+            find.ifPresent(existingRelationship -> {
+                final EnumSet<TransportMode> currentModes = existingRelationship.getTransportModes();
                 if (!currentModes.contains(mode)) {
-                    found.addTransportMode(mode);
+                    existingRelationship.addTransportMode(mode);
                 }
             });
 
@@ -238,6 +239,8 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
                 return;
             }
         }
+
+        // else create new
 
         MutableGraphRelationship stationsLinked = createRelationship(txn, from, to, LINKED);
         stationsLinked.addTransportMode(mode);

@@ -9,7 +9,7 @@ import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.AreaBoundaryDTO;
 import com.tramchester.domain.presentation.DTO.BoxDTO;
-import com.tramchester.domain.presentation.DTO.StationLinkDTO;
+import com.tramchester.domain.presentation.DTO.StationToStationConnectionDTO;
 import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.CoordinateTransforms;
@@ -66,7 +66,7 @@ class StationGeographyResourceTest {
         Response response = APIClient.getApiResponse(appExtension, endPoint);
         assertEquals(200, response.getStatus(), "status");
 
-        List<StationLinkDTO> results = response.readEntity(new GenericType<>() {});
+        List<StationToStationConnectionDTO> results = response.readEntity(new GenericType<>() {});
         assertEquals(202, results.size(), "count");
 
         assertTrue(results.contains(createLink(StPetersSquare, PiccadillyGardens)));
@@ -137,9 +137,9 @@ class StationGeographyResourceTest {
         assertTrue(found, buryLocalityId + " not found in " + areaIds);
     }
 
-    private StationLinkDTO createLink(TramStations begin, TramStations end) {
+    private StationToStationConnectionDTO createLink(TramStations begin, TramStations end) {
         Double distance = 42D; // not used in the equality for the DTO
-        return new StationLinkDTO(DTOFactory.createLocationRefWithPosition(begin.fake()),
+        return new StationToStationConnectionDTO(DTOFactory.createLocationRefWithPosition(begin.fake()),
                 DTOFactory.createLocationRefWithPosition(end.fake()),
                 Collections.singleton(Tram), distance);
     }

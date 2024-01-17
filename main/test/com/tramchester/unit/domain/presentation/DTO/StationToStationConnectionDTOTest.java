@@ -3,7 +3,7 @@ package com.tramchester.unit.domain.presentation.DTO;
 import com.tramchester.domain.StationToStationConnection;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.DTO.StationLinkDTO;
+import com.tramchester.domain.presentation.DTO.StationToStationConnectionDTO;
 import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
 import com.tramchester.domain.reference.TransportMode;
 import org.easymock.EasyMockSupport;
@@ -22,7 +22,7 @@ import static com.tramchester.testSupport.reference.TramStations.StPetersSquare;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class StationLinkDTOTest extends EasyMockSupport {
+class StationToStationConnectionDTOTest extends EasyMockSupport {
 
     private DTOFactory stationDTOFactory;
 
@@ -42,7 +42,7 @@ class StationLinkDTOTest extends EasyMockSupport {
         StationToStationConnection stationLink = new StationToStationConnection(altrincham, stPeters, modes, distance, Duration.ofSeconds(124));
 
         replayAll();
-        StationLinkDTO dto = stationDTOFactory.createStationLinkDTO(stationLink);
+        StationToStationConnectionDTO dto = stationDTOFactory.createStationLinkDTO(stationLink);
         verifyAll();
 
         assertEquals(IdForDTO.createFor(altrincham), dto.getBegin().getId());
