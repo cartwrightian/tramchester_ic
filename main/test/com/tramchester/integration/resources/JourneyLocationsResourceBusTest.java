@@ -6,17 +6,18 @@ import com.tramchester.App;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.places.*;
+import com.tramchester.domain.places.LocationType;
+import com.tramchester.domain.places.NPTGLocality;
+import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.domain.presentation.RecentJourneys;
-import com.tramchester.domain.presentation.Timestamped;
 import com.tramchester.integration.testSupport.APIClient;
+import com.tramchester.integration.testSupport.CookieSupport;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.bus.ResourceBusTestConfig;
 import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.resources.JourneyLocationsResource;
-import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnowLocality;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.BusTest;
@@ -24,7 +25,6 @@ import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import jakarta.ws.rs.core.Cookie;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.Response;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -139,12 +139,12 @@ class JourneyLocationsResourceBusTest {
 
     @Test
     void shouldSurfaceCorrectRecentStationsWhenHaveMixInCookie() throws JsonProcessingException {
-        Stream<StationGroup> groups = getGroups(KnowLocality.Altrincham, KnowLocality.Shudehill, KnowLocality.Stockport);
+        Stream<StationGroup> groups = Stream.of(KnowLocality.Altrincham, KnowLocality.Shudehill, KnowLocality.Stockport).map(locality -> locality.from(stationGroupsRepository));
 
         // fake as tram stations not loaded into repository
         Stream<Station> stations = Stream.of(TramStations.Bury.fake(), TramStations.Victoria.fake());
 
-        Cookie cookie = createCookieFor(Stream.concat(groups, stations));
+        Cookie cookie = CookieSupport.createCookieFor(Stream.concat(groups, stations), mapper);
 
         Response result = APIClient.getApiResponse(appExtension, "locations/recent?modes=Bus", List.of(cookie));
         assertEquals(200, result.getStatus());
@@ -168,7 +168,8 @@ class JourneyLocationsResourceBusTest {
     @Test
     void shouldGetRecentStationsWithModes() throws JsonProcessingException {
         // TODO add mix of modes
-        Cookie cookie = createRecentsCookieFor(KnowLocality.Altrincham, KnowLocality.Shudehill, KnowLocality.Stockport);
+        Stream<StationGroup> groupStream = Stream.of(KnowLocality.Altrincham, KnowLocality.Shudehill, KnowLocality.Stockport).map(locality -> locality.from(stationGroupsRepository));
+        Cookie cookie = CookieSupport.createCookieFor(groupStream, mapper);
 
         // same mode, but tests list parsing
         Response result = APIClient.getApiResponse(appExtension, "locations/recent?modes=Bus", List.of(cookie));
@@ -189,24 +190,8 @@ class JourneyLocationsResourceBusTest {
         assertTrue(ids.contains(KnowLocality.Stockport.getId()));
     }
 
-    private <T extends Location<?>> Cookie createCookieFor(Stream<T> locations) throws JsonProcessingException {
-        Set<Timestamped> recent = locations.map(location -> new Timestamped(location, TestEnv.LocalNow())).collect(Collectors.toSet());
-
-        RecentJourneys recentJourneys = new RecentJourneys();
-
-        recentJourneys.setTimestamps(recent);
-
-        String recentAsString = RecentJourneys.encodeCookie(mapper,recentJourneys);
-        return new Cookie("tramchesterRecent", recentAsString);
-    }
-
     Stream<StationGroup> getGroups(KnowLocality... localities) {
-        return Arrays.stream(localities).map(locality -> stationGroupsRepository.getStationGroup(locality.getId()));
-    }
-
-    @NotNull
-    private Cookie createRecentsCookieFor(KnowLocality... localities) throws JsonProcessingException {
-        return createCookieFor(getGroups(localities));
+        return Arrays.stream(localities).map(locality -> locality.from(stationGroupsRepository));
     }
 
 }

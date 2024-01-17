@@ -25,6 +25,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -151,6 +153,34 @@ class JourneyLocationsResourceTramTest {
         assertTrue(ids.contains(TramStations.Altrincham.getRawId()));
         assertTrue(ids.contains(TramStations.Bury.getRawId()));
         assertTrue(ids.contains(TramStations.ManAirport.getRawId()));
+    }
+
+    @Test
+    void shouldGetRecentWithMixedLocationTypesCookie() {
+        String exampleOfIssue = "{\"records\":[" +
+                "{\"when\":1704982658951,\"id\":\"9400ZZMAANC\",\"locationType\":\"Station\"}," +
+                "{\"when\":1705525137982,\"id\":\"E0057819\",\"locationType\":\"StationGroup\"}," +
+                "{\"when\":1704982658951,\"id\":\"9400ZZMAMKT\",\"locationType\":\"Station\"}," +
+                "{\"when\":1705525176399,\"id\":\"E0028261\",\"locationType\":\"StationGroup\"}," +
+                "{\"when\":1705525176399,\"id\":\"N0075057\",\"locationType\":\"StationGroup\"}]}";
+
+        String encoded = URLEncoder.encode(exampleOfIssue, StandardCharsets.UTF_8);
+        Cookie cookie = new Cookie("tramchesterRecent", encoded);
+
+        Response result = APIClient.getApiResponse(appExtension, "locations/recent?modes=Tram,Tram", List.of(cookie));
+        assertEquals(200, result.getStatus());
+
+        List<LocationRefDTO> stationDtos = result.readEntity(new GenericType<>() {});
+
+        assertEquals(2, stationDtos.size());
+
+        Set<IdForDTO> ids = stationDtos.stream().
+                map(LocationRefDTO::getId).
+                collect(Collectors.toSet());
+
+        assertTrue(ids.contains(TramStations.MarketStreet.getIdForDTO()));
+        assertTrue(ids.contains(TramStations.Anchorage.getIdForDTO()));
+
     }
 
     @NotNull

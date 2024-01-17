@@ -179,8 +179,13 @@ public class StationGroupsRepository {
     }
 
     public boolean hasGroup(IdFor<NPTGLocality> id) {
-        guardIsEnabled();
-        return stationGroups.containsKey(id);
+        // no guard here as need to handle situation where Group is set in cookie but groups no longer enabled
+        if (isEnabled()) {
+            return stationGroups.containsKey(id);
+        } else {
+            logger.info("Returning false for hasGroup when disabled for " + id);
+            return false;
+        }
     }
 
     public boolean isEnabled() {
