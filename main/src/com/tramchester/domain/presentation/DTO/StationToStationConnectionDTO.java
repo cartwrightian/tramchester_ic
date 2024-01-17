@@ -1,5 +1,6 @@
 package com.tramchester.domain.presentation.DTO;
 
+import com.tramchester.domain.StationToStationConnection;
 import com.tramchester.domain.reference.TransportMode;
 
 import java.util.Set;
@@ -9,13 +10,15 @@ public class StationToStationConnectionDTO {
     private LocationRefWithPosition end;
     private Set<TransportMode> transportModes;
     private Double distanceInMeters;
+    private StationToStationConnection.LinkType linkType;
 
     public StationToStationConnectionDTO(LocationRefWithPosition begin, LocationRefWithPosition end, Set<TransportMode> transportModes,
-                                         Double distanceInMeters) {
+                                         Double distanceInMeters, StationToStationConnection.LinkType linkType) {
         this.begin = begin;
         this.end = end;
         this.transportModes = transportModes;
         this.distanceInMeters = distanceInMeters;
+        this.linkType = linkType;
     }
 
     public StationToStationConnectionDTO() {
@@ -56,4 +59,7 @@ public class StationToStationConnectionDTO {
         return result;
     }
 
+    public StationToStationConnection.LinkType getLinkTYpe() {
+        return linkType;
+    }
 }

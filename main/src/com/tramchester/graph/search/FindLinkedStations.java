@@ -81,7 +81,7 @@ public class FindLinkedStations {
 
         EnumSet<TransportMode> modes = relationship.getTransportModes();
 
-        return StationToStationConnection.createForWalk(start, end, modes, geography);
+        return StationToStationConnection.createForWalk(start, end, modes, StationToStationConnection.LinkType.Linked, geography);
     }
 
 }

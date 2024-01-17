@@ -9,26 +9,37 @@ import javax.measure.quantity.Length;
 import java.time.Duration;
 import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 public class StationToStationConnection {
+
+    public enum LinkType {
+        Diversion,
+        Linked,
+        Neighbour
+    }
+
     private final StationPair pair;
     private final EnumSet<TransportMode> linkingModes;
+    private final LinkType linkType;
     private final Quantity<Length> distanceBetweenInMeters;
     private final Duration connectionTime;
 
-    public StationToStationConnection(Station begin, Station end, EnumSet<TransportMode> linkingModes, Quantity<Length> distanceBetweenInMeters,
-                                      Duration connectionTime) {
+    public StationToStationConnection(Station begin, Station end, EnumSet<TransportMode> linkingModes, LinkType linkType,
+                                      Quantity<Length> distanceBetweenInMeters, Duration connectionTime) {
+        this.linkType = linkType;
         this.distanceBetweenInMeters = distanceBetweenInMeters;
         this.connectionTime = connectionTime;
         this.pair = StationPair.of(begin, end);
         this.linkingModes = linkingModes;
     }
 
-    public static StationToStationConnection createForWalk(Station begin, Station end, EnumSet<TransportMode> linkingModes, Geography geography) {
+    public static StationToStationConnection createForWalk(Station begin, Station end, EnumSet<TransportMode> linkingModes,
+                                                           LinkType linkType, Geography geography) {
         final Quantity<Length> distance = geography.getDistanceBetweenInMeters(begin, end);
         final Duration walkingDuration = geography.getWalkingDuration(begin, end);
-        return new StationToStationConnection(begin, end, linkingModes, distance, walkingDuration);
+        return new StationToStationConnection(begin, end, linkingModes, linkType, distance, walkingDuration);
     }
 
     public Station getBegin() {
@@ -44,7 +55,9 @@ public class StationToStationConnection {
         return "StationToStationConnection{" +
                 "pair=" + pair +
                 ", linkingModes=" + linkingModes +
+                ", linkType=" + linkType +
                 ", distanceBetweenInMeters=" + distanceBetweenInMeters +
+                ", connectionTime=" + connectionTime +
                 '}';
     }
 
@@ -52,18 +65,13 @@ public class StationToStationConnection {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         StationToStationConnection that = (StationToStationConnection) o;
-
-        if (!pair.equals(that.pair)) return false;
-        return linkingModes.equals(that.linkingModes);
+        return Objects.equals(pair, that.pair) && Objects.equals(linkingModes, that.linkingModes) && linkType == that.linkType && Objects.equals(distanceBetweenInMeters, that.distanceBetweenInMeters);
     }
 
     @Override
     public int hashCode() {
-        int result = pair.hashCode();
-        result = 31 * result + linkingModes.hashCode();
-        return result;
+        return Objects.hash(pair, linkingModes, linkType, distanceBetweenInMeters);
     }
 
     /***
@@ -95,5 +103,9 @@ public class StationToStationConnection {
         Set<TransportMode> modes = new HashSet<>(pair.getBegin().getTransportModes());
         modes.addAll(pair.getEnd().getTransportModes());
         return EnumSet.copyOf(modes);
+    }
+
+    public LinkType getLinkType() {
+        return linkType;
     }
 }

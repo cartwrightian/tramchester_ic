@@ -66,8 +66,9 @@ public class LinkedInterchangeStationTest {
         Quantity<Length> distance = Quantities.getQuantity(200, Units.METRE);
         Duration walkingTime = Duration.ofMinutes(4);
 
-        StationToStationConnection tramToTrain = new StationToStationConnection(tramStation, trainStation, modes, distance, walkingTime);
-        StationToStationConnection trainToTram = new StationToStationConnection(trainStation, tramStation, modes, distance, walkingTime);
+        StationToStationConnection.LinkType linkType = StationToStationConnection.LinkType.Linked;
+        StationToStationConnection tramToTrain = new StationToStationConnection(tramStation, trainStation, modes, linkType, distance, walkingTime);
+        StationToStationConnection trainToTram = new StationToStationConnection(trainStation, tramStation, modes, linkType, distance, walkingTime);
 
         InterchangeStation tramInterchange = new LinkedInterchangeStation(tramToTrain);
 
@@ -117,8 +118,9 @@ public class LinkedInterchangeStationTest {
         tramStationB.addRoutePickUp(tramPickupB);
         tramStationB.addRouteDropOff(tramDropoffB);
 
-        StationToStationConnection trainToTramA = new StationToStationConnection(trainStation, tramStation, modes, distance, walkingTime);
-        StationToStationConnection trainToTramB = new StationToStationConnection(trainStation, tramStationB, modes, distance, walkingTime);
+        StationToStationConnection.LinkType linkType = StationToStationConnection.LinkType.Linked;
+        StationToStationConnection trainToTramA = new StationToStationConnection(trainStation, tramStation, modes, linkType, distance, walkingTime);
+        StationToStationConnection trainToTramB = new StationToStationConnection(trainStation, tramStationB, modes, linkType, distance, walkingTime);
 
         LinkedInterchangeStation trainInterchange = new LinkedInterchangeStation(trainToTramA);
         trainInterchange.addLink(trainToTramB);

@@ -14,18 +14,12 @@ import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UnitTestOfGraphConfig;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import tech.units.indriya.quantity.Quantities;
-import tech.units.indriya.unit.Units;
 
-import javax.measure.Quantity;
-import javax.measure.quantity.Length;
 import java.io.IOException;
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Set;
@@ -73,21 +67,21 @@ class GraphQueriesTests {
         assertEquals(6, links.size());
 
         EnumSet<TransportMode> modes = EnumSet.of(Tram);
-        assertTrue(links.contains(createStationLink(modes, transportData.getFirst(), transportData.getSecond())));
-        assertTrue(links.contains(createStationLink(modes, transportData.getSecond(), transportData.getInterchange())));
-        assertTrue(links.contains(createStationLink(modes, transportData.getInterchange(), transportData.getFourthStation())));
-        assertTrue(links.contains(createStationLink(modes, transportData.getInterchange(), transportData.getFifthStation())));
-        assertTrue(links.contains(createStationLink(modes, transportData.getInterchange(), transportData.getLast())));
-        assertTrue(links.contains(createStationLink(modes, transportData.getFirstDupName(), transportData.getFirstDup2Name())));
+        assertTrue(matches(links, modes, transportData.getFirst(), transportData.getSecond()));
+        assertTrue(matches(links, modes, transportData.getSecond(), transportData.getInterchange()));
+        assertTrue(matches(links, modes, transportData.getInterchange(), transportData.getFourthStation()));
+        assertTrue(matches(links, modes, transportData.getInterchange(), transportData.getFifthStation()));
+        assertTrue(matches(links, modes, transportData.getInterchange(), transportData.getLast()));
+        assertTrue(matches(links, modes, transportData.getFirstDupName(), transportData.getFirstDup2Name()));
 
     }
 
-    @NotNull
-    private StationToStationConnection createStationLink(EnumSet<TransportMode> modes, Station first, Station second) {
-        // distance and time not used in equality
-        Quantity<Length> distance = Quantities.getQuantity(11.1111D, Units.METRE);
-        Duration walkingTimeMins = Duration.ofSeconds(42);
-        return new StationToStationConnection(first, second, modes, distance, walkingTimeMins);
+    private boolean matches(Set<StationToStationConnection> links, EnumSet<TransportMode> modes, Station begin, Station end) {
+        return links.stream().
+                filter(link -> link.getLinkType()== StationToStationConnection.LinkType.Linked).
+                filter(link -> link.getLinkingModes().equals(modes)).
+                filter(link -> link.getBegin().equals(begin)).
+                anyMatch(link -> link.getEnd().equals(end));
     }
 
     @Test

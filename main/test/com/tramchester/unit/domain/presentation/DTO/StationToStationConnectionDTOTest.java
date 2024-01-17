@@ -39,7 +39,8 @@ class StationToStationConnectionDTOTest extends EasyMockSupport {
         EnumSet<TransportMode> modes = EnumSet.of(TransportMode.Bus, TransportMode.Tram);
 
         Quantity<Length> distance = Quantities.getQuantity(42.5768D, Units.METRE);
-        StationToStationConnection stationLink = new StationToStationConnection(altrincham, stPeters, modes, distance, Duration.ofSeconds(124));
+        StationToStationConnection stationLink = new StationToStationConnection(altrincham, stPeters, modes,
+                StationToStationConnection.LinkType.Diversion, distance, Duration.ofSeconds(124));
 
         replayAll();
         StationToStationConnectionDTO dto = stationDTOFactory.createStationLinkDTO(stationLink);
@@ -54,6 +55,8 @@ class StationToStationConnectionDTOTest extends EasyMockSupport {
         assertTrue( dto.getTransportModes().contains(TransportMode.Tram));
 
         assertEquals(distance.getValue().doubleValue(), dto.getDistanceInMeters());
+
+        assertEquals(StationToStationConnection.LinkType.Diversion, dto.getLinkTYpe());
 
     }
 }

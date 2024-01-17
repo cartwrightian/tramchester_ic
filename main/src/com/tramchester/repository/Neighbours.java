@@ -84,6 +84,7 @@ public class Neighbours implements NeighboursRepository {
                 marginInMeters, DIFF_MODES_ONLY));
 
         final EnumSet<TransportMode> walk = EnumSet.of(Walk);
+        final StationToStationConnection.LinkType linkType = StationToStationConnection.LinkType.Neighbour;
 
         stationRepository.getActiveStationStream().
                 filter(station -> station.getGridPosition().isValid()).
@@ -93,7 +94,7 @@ public class Neighbours implements NeighboursRepository {
                     Set<StationToStationConnection> links = stationLocations.nearestStationsUnsorted(begin, marginInMeters).
                             filter(nearby -> !nearby.equals(begin)).
                             filter(nearby -> DIFF_MODES_ONLY && noOverlapModes(beginModes, nearby.getTransportModes())).
-                            map(nearby -> StationToStationConnection.createForWalk(begin, nearby, walk, geography)).
+                            map(nearby -> StationToStationConnection.createForWalk(begin, nearby, walk, linkType, geography)).
                             collect(Collectors.toSet());
                     if (!links.isEmpty()) {
                         neighbours.put(begin.getId(), links);
@@ -121,11 +122,13 @@ public class Neighbours implements NeighboursRepository {
             logger.warn("Not adding all of the requested additional neighbours, some were invalid, check the logs above");
         }
 
-        toAdd.forEach(this::addAsWalkingNeighbours);
+        toAdd.forEach(this::addFromConfig);
     }
 
-    private void addAsWalkingNeighbours(final StationPair pair) {
+    private void addFromConfig(final StationPair pair) {
         final EnumSet<TransportMode> walk = EnumSet.of(Walk);
+        final StationToStationConnection.LinkType linkType = StationToStationConnection.LinkType.Neighbour;
+
         final Station begin = pair.getBegin();
         final Station end = pair.getEnd();
 
@@ -139,8 +142,8 @@ public class Neighbours implements NeighboursRepository {
         final Quantity<Length> distance = geography.getDistanceBetweenInMeters(begin, end);
         final Duration walkingDuration = geography.getWalkingDuration(begin, end);
 
-        addNeighbour(begin, new StationToStationConnection(begin, end, walk, distance, walkingDuration));
-        addNeighbour(end, new StationToStationConnection(end, begin, walk, distance, walkingDuration));
+        addNeighbour(begin, new StationToStationConnection(begin, end, walk, linkType, distance, walkingDuration));
+        addNeighbour(end, new StationToStationConnection(end, begin, walk, linkType, distance, walkingDuration));
     }
 
     void addNeighbour(final Station startStation, final StationToStationConnection link) {

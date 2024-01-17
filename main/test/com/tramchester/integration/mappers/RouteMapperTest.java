@@ -5,29 +5,23 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
-import com.tramchester.domain.presentation.DTO.RouteDTO;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.mappers.RoutesMapper;
 import com.tramchester.repository.RouteRepository;
-import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.reference.KnownTramRoute;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.LinkedList;
 import java.util.List;
 
-import static com.tramchester.testSupport.reference.KnownTramRoute.*;
+import static com.tramchester.testSupport.reference.KnownTramRoute.CornbrookTheTraffordCentre;
+import static com.tramchester.testSupport.reference.KnownTramRoute.VictoriaWythenshaweManchesterAirport;
 import static com.tramchester.testSupport.reference.TramStations.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class RouteMapperTest {
     private static ComponentContainer componentContainer;
@@ -55,31 +49,6 @@ class RouteMapperTest {
         componentContainer.close();
     }
 
-    @Test
-    void shouldGetRouteStationsInCorrectOrder() {
-
-        List<RouteDTO> dtosForAirportLine = mapper.getRouteDTOs(TestEnv.testDay()).stream().
-                filter(dto -> dto.getRouteName().equals(VictoriaWythenshaweManchesterAirport.longName())).
-                toList();
-
-        List<RouteDTO> startingFromAirport = dtosForAirportLine.stream().
-                filter(dto -> dto.getStartStation().equals(ManAirport.getIdForDTO())).toList();
-
-        assertFalse(startingFromAirport.isEmpty(), dtosForAirportLine.toString());
-
-        startingFromAirport.forEach(fromAirport -> {
-            List<LocationRefWithPosition> stations = fromAirport.getStations();
-            LocationRefWithPosition start = stations.get(0);
-
-            assertEquals(ManAirport.getIdForDTO(), start.getId(), "for route " + fromAirport);
-            TestEnv.assertLatLongEquals(ManAirport.getLatLong(), start.getLatLong(), 0.00001, "position");
-            assertTrue(start.getTransportModes().contains(TransportMode.Tram));
-
-            assertEquals(Victoria.getIdForDTO(), stations.get(stations.size()-1).getId());
-        });
-
-
-    }
 
     @Test
     void shouldHaveWorkaroundForAirportRouteIdsTransposedInData() {

@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Path("/geo")
 @Produces(MediaType.APPLICATION_JSON)
@@ -63,23 +64,19 @@ public class StationGeographyResource implements APIResource, GraphDatabaseDepen
     @GET
     @Timed
     @Path("/links")
-    @Operation(description = "Get pairs of station links for given transport mode")
+    @Operation(description = "Get pairs of station links")
     @ApiResponse(content = @Content(array = @ArraySchema(uniqueItems = true, schema = @Schema(implementation = StationToStationConnectionDTO.class))))
     @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.DAYS)
     public Response getAll() {
         logger.info("Get station links");
 
-        ArrayList<StationToStationConnection> allLinks = new ArrayList<>();
+        Stream<StationToStationConnection> allLinks = config.getTransportModes().
+                stream().flatMap(mode -> findStationLinks.findLinkedFor(mode).stream());
 
-        config.getTransportModes().forEach(transportMode -> {
-            Set<StationToStationConnection> links = findStationLinks.findLinkedFor(transportMode);
-            allLinks.addAll(links);
-        });
-
-        List<StationToStationConnectionDTO> results = allLinks.stream().
+        List<StationToStationConnectionDTO> results = allLinks.
                 filter(StationToStationConnection::hasValidLatlongs).
                 map(dtoFactory::createStationLinkDTO).
-                collect(Collectors.toList());
+                toList();
 
         return Response.ok(results).build();
     }
@@ -98,9 +95,9 @@ public class StationGeographyResource implements APIResource, GraphDatabaseDepen
             return Response.ok(Collections.<StationToStationConnectionDTO>emptyList()).build();
         }
 
-        Set<StationToStationConnection> allLinks = neighboursRepository.getAll();
+        Set<StationToStationConnection> neighbours = neighboursRepository.getAll();
 
-        List<StationToStationConnectionDTO> results = allLinks.stream().
+        List<StationToStationConnectionDTO> results = neighbours.stream().
                 filter(StationToStationConnection::hasValidLatlongs).
                 map(dtoFactory::createStationLinkDTO).collect(Collectors.toList());
 

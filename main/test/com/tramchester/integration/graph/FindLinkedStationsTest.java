@@ -80,7 +80,7 @@ class FindLinkedStationsTest {
     private StationToStationConnection createLink(TramStations stationA, TramStations stationB) {
         final EnumSet<TransportMode> tram = EnumSet.of(Tram);
         return StationToStationConnection.createForWalk(stationA.from(stationRepository), stationB.from(stationRepository),
-                tram, geography);
+                tram, StationToStationConnection.LinkType.Linked, geography);
     }
 
 }

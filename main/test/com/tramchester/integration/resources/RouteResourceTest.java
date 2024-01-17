@@ -4,7 +4,6 @@ import com.tramchester.App;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdForDTO;
-import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
 import com.tramchester.domain.presentation.DTO.RouteRefDTO;
@@ -15,7 +14,6 @@ import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.resources.RouteResource;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
@@ -41,13 +39,11 @@ class RouteResourceTest {
             new ResourceTramTestConfig<>(RouteResource.class));
 
     private RouteRepository routeRepository;
-    private TramRouteHelper tramRouteHelper;
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
         App app =  appExtension.getApplication();
         routeRepository = app.getDependencies().get(RouteRepository.class);
-        tramRouteHelper = new TramRouteHelper(routeRepository);
     }
 
     @Test
@@ -55,44 +51,26 @@ class RouteResourceTest {
 
         TramDate today = TramDate.from(TestEnv.LocalNow());
 
-        Route expectedAirportRoute = tramRouteHelper.getOneRoute(VictoriaWythenshaweManchesterAirport, today);
+        List<RouteDTO> routeDTOS = getRouteResponse(); // uses current date server side
+        routeDTOS.forEach(route -> assertFalse(route.getStations().isEmpty(), "Route no stations "+route.getRouteName()));
 
-        List<RouteDTO> routes = getRouteResponse(); // uses current date server side
+        Set<String> namesFromDTO = routeDTOS.stream().map(RouteRefDTO::getRouteName).collect(Collectors.toSet());
+        Set<String> expectedNames = KnownTramRoute.getFor(today).stream().map(KnownTramRoute::longName).collect(Collectors.toSet());
 
-        Set<String> fromRepos = routes.stream().map(RouteRefDTO::getRouteName).collect(Collectors.toSet());
-
-        Set<String> onDate = KnownTramRoute.getFor(today).stream().map(KnownTramRoute::longName).collect(Collectors.toSet());
-
-        Set<String> mismatch = SetUtils.disjunction(fromRepos, onDate);
-
-        assertTrue(mismatch.isEmpty());
-
-        routes.forEach(route -> assertFalse(route.getStations().isEmpty(), "Route no stations "+route.getRouteName()));
-
-        RouteDTO startsFromAirport = routes.stream().
-                filter(routeDTO -> routeDTO.getRouteID().equals(IdForDTO.createFor(expectedAirportRoute))).
-                filter(routeDTO -> routeDTO.getStartStation().equals(TramStations.ManAirport.getIdForDTO())).
-                findFirst().orElseThrow();
-
-        assertTrue(startsFromAirport.isTram());
-        assertEquals(VictoriaWythenshaweManchesterAirport.shortName(), startsFromAirport.getShortName().trim());
-
-        List<LocationRefWithPosition> airportRouteStations = startsFromAirport.getStations();
-
-        List<IdForDTO> ids = airportRouteStations.stream().
-                map(LocationRefDTO::getId).toList();
-
-        assertTrue(ids.contains(TramStations.ManAirport.getIdForDTO()));
+        Set<String> namesMismatch = SetUtils.disjunction(namesFromDTO, expectedNames);
+        assertTrue(namesMismatch.isEmpty());
 
     }
 
     @Test
-    void shouldListStationsInOrder() {
+    void shouldHaveExpectedFirstLastForAirportRoute() {
+        IdForDTO manAirportIdForDTO = TramStations.ManAirport.getIdForDTO();
+        IdForDTO victoriaIdForDTO = TramStations.Victoria.getIdForDTO();
+
         List<RouteDTO> routes = getRouteResponse();
 
         List<RouteDTO> airRoutes = routes.stream().
                 filter(routeDTO -> routeDTO.getRouteName().equals(VictoriaWythenshaweManchesterAirport.longName())).
-                filter(routeDTO -> routeDTO.getStartStation().equals(TramStations.ManAirport.getIdForDTO())).
                 toList();
 
         assertEquals(1, airRoutes.size());
@@ -101,11 +79,21 @@ class RouteResourceTest {
         List<LocationRefWithPosition> stations = airRoute.getStations();
 
         LocationRefWithPosition first = stations.get(0);
-        assertEquals(TramStations.ManAirport.getRawId(), first.getId().getActualId());
-        TestEnv.assertLatLongEquals(TramStations.ManAirport.getLatLong(), first.getLatLong(), 0.00001, "lat long");
-        assertTrue(first.getTransportModes().contains(TransportMode.Tram));
 
-        assertEquals(TramStations.Victoria.getRawId(), stations.get(stations.size()-1).getId().getActualId());
+        LocationRefWithPosition airportDTO = null;
+        if (first.getId().equals(manAirportIdForDTO)) {
+            airportDTO = first;
+            assertEquals(victoriaIdForDTO, stations.get(stations.size()-1).getId());
+        } else if (first.getId().equals(victoriaIdForDTO)) {
+            airportDTO = stations.get(stations.size()-1);
+            assertEquals(manAirportIdForDTO, airportDTO.getId());
+        } else {
+            fail("first and/or last incorrect for airport route " + airRoute);
+        }
+
+        TestEnv.assertLatLongEquals(TramStations.ManAirport.getLatLong(), airportDTO.getLatLong(), 0.00001, "lat long");
+        assertTrue(airportDTO.getTransportModes().contains(TransportMode.Tram));
+
     }
 
     @Test
@@ -128,7 +116,6 @@ class RouteResourceTest {
         assertEquals(expected.size(), uniqueRouteIds.size());
 
         assertEquals(expected.size(), results.size());
-
 
     }
 

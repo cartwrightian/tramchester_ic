@@ -42,11 +42,12 @@ public class DTOFactory {
         return new StationGroupDTO(areaId, contained);
     }
 
-    public StationToStationConnectionDTO createStationLinkDTO(StationToStationConnection stationLink) {
-        LocationRefWithPosition begin = createLocationRefWithPosition(stationLink.getBegin());
-        LocationRefWithPosition end = createLocationRefWithPosition(stationLink.getEnd());
-        Double distanceInMeters = stationLink.getDistanceInMeters().to(Units.METRE).getValue().doubleValue();
-        return new StationToStationConnectionDTO(begin, end, stationLink.getLinkingModes(), distanceInMeters);
+    public StationToStationConnectionDTO createStationLinkDTO(final StationToStationConnection stationLink) {
+        final LocationRefWithPosition begin = createLocationRefWithPosition(stationLink.getBegin());
+        final LocationRefWithPosition end = createLocationRefWithPosition(stationLink.getEnd());
+        final Double distanceInMeters = stationLink.getDistanceInMeters().to(Units.METRE).getValue().doubleValue();
+        return new StationToStationConnectionDTO(begin, end, stationLink.getLinkingModes(), distanceInMeters,
+                stationLink.getLinkType());
     }
 
     public StationNote createStationNote(Note.NoteType noteType, String text, Set<Station> seenAt) {

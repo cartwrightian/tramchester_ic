@@ -3,6 +3,7 @@ package com.tramchester.integration.resources;
 import com.tramchester.App;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.StationToStationConnection;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.NPTGLocality;
@@ -59,6 +60,8 @@ class StationGeographyResourceTest {
         nptgRepository = dependencies.get(NPTGRepository.class);
     }
 
+    // todo neighbours
+
     @Test
     void shouldGetStationLinks() {
         String endPoint = "geo/links";
@@ -69,13 +72,15 @@ class StationGeographyResourceTest {
         List<StationToStationConnectionDTO> results = response.readEntity(new GenericType<>() {});
         assertEquals(202, results.size(), "count");
 
-        assertTrue(results.contains(createLink(StPetersSquare, PiccadillyGardens)));
-        assertTrue(results.contains(createLink(StPetersSquare, MarketStreet)));
-        assertTrue(results.contains(createLink(StPetersSquare, Deansgate)));
+        StationToStationConnection.LinkType linkType = StationToStationConnection.LinkType.Linked;
 
-        assertTrue(results.contains(createLink(PiccadillyGardens, StPetersSquare)));
-        assertTrue(results.contains(createLink(MarketStreet, StPetersSquare)));
-        assertTrue(results.contains(createLink(Deansgate, StPetersSquare)));
+        assertTrue(results.contains(createLink(StPetersSquare, PiccadillyGardens, linkType)));
+        assertTrue(results.contains(createLink(StPetersSquare, MarketStreet, linkType)));
+        assertTrue(results.contains(createLink(StPetersSquare, Deansgate, linkType)));
+
+        assertTrue(results.contains(createLink(PiccadillyGardens, StPetersSquare, linkType)));
+        assertTrue(results.contains(createLink(MarketStreet, StPetersSquare, linkType)));
+        assertTrue(results.contains(createLink(Deansgate, StPetersSquare, linkType)));
     }
 
     @Test
@@ -137,10 +142,10 @@ class StationGeographyResourceTest {
         assertTrue(found, buryLocalityId + " not found in " + areaIds);
     }
 
-    private StationToStationConnectionDTO createLink(TramStations begin, TramStations end) {
+    private StationToStationConnectionDTO createLink(TramStations begin, TramStations end, StationToStationConnection.LinkType linkType) {
         Double distance = 42D; // not used in the equality for the DTO
         return new StationToStationConnectionDTO(DTOFactory.createLocationRefWithPosition(begin.fake()),
                 DTOFactory.createLocationRefWithPosition(end.fake()),
-                Collections.singleton(Tram), distance);
+                Collections.singleton(Tram), distance, linkType);
     }
 }
