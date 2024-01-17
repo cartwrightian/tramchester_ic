@@ -24,7 +24,9 @@ public class UsesRecentCookie extends TransportResource {
     private static final Logger logger = LoggerFactory.getLogger(UsesRecentCookie.class);
 
     public static final String TRAMCHESTER_RECENT = "tramchesterRecent";
+
     private static final int VERSION = 1;
+    private static final int ONE_HUNDRED_DAYS_AS_SECS = 60 * 60 * 24 * 100;
 
     private final UpdateRecentJourneys updateRecentJourneys;
     protected final ObjectMapper mapper;
@@ -50,23 +52,27 @@ public class UsesRecentCookie extends TransportResource {
         }
     }
 
-    protected NewCookie createRecentCookie(Cookie cookie, Location<?> start, Location<?> dest, boolean secure, URI baseURI) throws JsonProcessingException {
-        logger.info(format("Updating recent stations cookie with %s and %s ",start.getId(), dest.getId()));
-        RecentJourneys recentJourneys = recentFromCookie(cookie);
+    protected NewCookie createRecentCookie(final Cookie current, Location<?> start, Location<?> dest,
+                                           boolean secure, URI baseURI) throws JsonProcessingException {
+        logger.info(format("Updating recent stations cookie with %s and %s ", start.getId(), dest.getId()));
 
-        if (start.getLocationType() == LocationType.Station) {
+        RecentJourneys recentJourneys = recentFromCookie(current);
+
+        if (shouldAddToCookie(start)) {
             recentJourneys = updateRecentJourneys.createNewJourneys(recentJourneys, providesNow, start);
         }
-        if (dest.getLocationType() == LocationType.Station) {
+        if (shouldAddToCookie(dest)) {
             recentJourneys = updateRecentJourneys.createNewJourneys(recentJourneys, providesNow, dest);
         }
 
-        int maxAgeSecs = 60 * 60 * 24 * 100;
-
         // NOTE: SameSite is set via ResponseCookieFilter as NewCookie can't set SameSite (yet, TODO)
-        return new NewCookie(TRAMCHESTER_RECENT, RecentJourneys.encodeCookie(mapper, recentJourneys)
-                , "/api", baseURI.getHost(), VERSION,
-                "tramchester recent journeys", maxAgeSecs, secure);
+        String encoded = RecentJourneys.encodeCookie(mapper, recentJourneys);
+        return new NewCookie(TRAMCHESTER_RECENT, encoded, "/api", baseURI.getHost(), VERSION,
+                "tramchester recent journeys", ONE_HUNDRED_DAYS_AS_SECS, secure);
+    }
+
+    private static boolean shouldAddToCookie(Location<?> start) {
+        return start.getLocationType() == LocationType.Station || start.getLocationType() == LocationType.StationGroup;
     }
 
 }

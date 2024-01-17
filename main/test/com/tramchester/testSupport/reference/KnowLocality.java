@@ -2,6 +2,8 @@ package com.tramchester.testSupport.reference;
 
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.NPTGLocality;
+import com.tramchester.domain.places.StationGroup;
+import com.tramchester.repository.StationGroupsRepository;
 
 import java.util.EnumSet;
 
@@ -30,5 +32,9 @@ public enum KnowLocality {
 
     public IdFor<NPTGLocality> getId() {
         return NPTGLocality.createId(localityId);
+    }
+
+    public StationGroup from(StationGroupsRepository stationGroupRepository) {
+        return stationGroupRepository.getStationGroup(getId());
     }
 }

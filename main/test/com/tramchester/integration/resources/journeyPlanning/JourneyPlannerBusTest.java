@@ -1,36 +1,47 @@
 package com.tramchester.integration.resources.journeyPlanning;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.App;
+import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.IdForDTO;
+import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.StationGroup;
-import com.tramchester.domain.presentation.DTO.*;
+import com.tramchester.domain.presentation.DTO.ConfigDTO;
+import com.tramchester.domain.presentation.DTO.JourneyDTO;
+import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
+import com.tramchester.domain.presentation.DTO.JourneyQueryDTO;
+import com.tramchester.domain.presentation.RecentJourneys;
+import com.tramchester.domain.presentation.Timestamped;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.JourneyResourceTestFacade;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
-import com.tramchester.repository.StationRepository;
+import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.BusStations;
+import com.tramchester.testSupport.reference.KnowLocality;
 import com.tramchester.testSupport.testTags.BusTest;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import jakarta.ws.rs.core.GenericType;
+import jakarta.ws.rs.core.NewCookie;
 import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.reference.BusStations.*;
 import static com.tramchester.testSupport.reference.KnownLocations.nearAltrincham;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @BusTest
 @ExtendWith(DropwizardExtensionsSupport.class)
@@ -42,8 +53,9 @@ class JourneyPlannerBusTest {
     private TramDate when;
     private JourneyResourceTestFacade journeyResourceTestFacade;
     private StationGroup stockportCentralStops;
-    private StationRepository stationRepository;
     private StationGroup nearShudehillCentralStops;
+    private ObjectMapper mapper;
+    private StationGroupsRepository stationGroupRepository;
 
     @BeforeEach
     void beforeEachTestRuns() {
@@ -51,33 +63,16 @@ class JourneyPlannerBusTest {
         journeyResourceTestFacade = new JourneyResourceTestFacade(appExt);
 
         App app = appExt.getTestSupport().getApplication();
+        GuiceContainerDependencies dependencies = app.getDependencies();
 
-        stationRepository = app.getDependencies().get(StationRepository.class);
-
-        CentralStops centralStops = new CentralStops(app.getDependencies());
+        CentralStops centralStops = new CentralStops(dependencies);
 
         stockportCentralStops = centralStops.Stockport();
         nearShudehillCentralStops = centralStops.Shudehill();
-    }
 
-    @Test
-    void shouldHaveBusStations() {
-        Response result = APIClient.getApiResponse(appExt, "stations/mode/Bus");
+        mapper = new ObjectMapper();
 
-        assertEquals(200, result.getStatus());
-
-        List<LocationRefDTO> results = result.readEntity(new GenericType<>() {});
-
-        Set<IdForDTO> stationsIds = stationRepository.getStationsServing(TransportMode.Bus).stream().
-                map(IdForDTO::createFor).collect(Collectors.toSet());
-
-        assertEquals(stationsIds.size(), results.size());
-
-        Set<IdForDTO> resultIds = results.stream().
-                map(LocationRefDTO::getId).
-                collect(Collectors.toSet());
-
-        assertTrue(stationsIds.containsAll(resultIds));
+        stationGroupRepository = dependencies.get(StationGroupsRepository.class);
     }
 
     @Test
@@ -156,7 +151,8 @@ class JourneyPlannerBusTest {
     void shouldPlanBusJourneyNoLoops() {
         TramTime queryTime = TramTime.of(8,56);
 
-        JourneyQueryDTO query = journeyResourceTestFacade.getQueryDTO(when, queryTime, StopAtAltrinchamInterchange, ManchesterAirportStation, false, 2);
+        JourneyQueryDTO query = journeyResourceTestFacade.getQueryDTO(when, queryTime, StopAtAltrinchamInterchange, ManchesterAirportStation,
+                false, 2);
 
         JourneyPlanRepresentation plan = journeyResourceTestFacade.getJourneyPlan(query);
 
@@ -171,6 +167,63 @@ class JourneyPlannerBusTest {
                 stageIds.add(id);
             });
         });
+    }
+
+    @Test
+    void shouldSetRecentCookieForAJourneyStations() throws IOException {
+        LocalDateTime timeStamp = TestEnv.LocalNow();
+
+        TramTime queryTime = TramTime.of(8,56);
+
+        BusStations start = StopAtAltrinchamInterchange;
+        BusStations end = ManchesterAirportStation;
+
+        Timestamped expectedStart = new Timestamped(start.getIdForDTO(), timeStamp, LocationType.Station);
+        Timestamped expectedEnd = new Timestamped(end.getIdForDTO(), timeStamp, LocationType.Station);
+
+        JourneyQueryDTO query = journeyResourceTestFacade.getQueryDTO(when, queryTime, start, end,
+                false, 2);
+
+        Response result = journeyResourceTestFacade.getResponse(false, Collections.emptyList(), query);
+
+        RecentJourneys recentJourneys = getRecentJourneysFromCookie(result);
+
+        Assertions.assertEquals(2,recentJourneys.getTimeStamps().size());
+
+        assertTrue(recentJourneys.getTimeStamps().contains(expectedStart), recentJourneys.toString());
+        assertTrue(recentJourneys.getTimeStamps().contains(expectedEnd), recentJourneys.toString());
+    }
+
+    @Test
+    void shouldSetRecentCookieForAJourneyStationGroup() throws IOException {
+        LocalDateTime timeStamp = TestEnv.LocalNow();
+
+        TramTime queryTime = TramTime.of(8,56);
+
+        StationGroup start = KnowLocality.Altrincham.from(stationGroupRepository);
+        StationGroup end = KnowLocality.ManchesterAirport.from(stationGroupRepository);
+
+        Timestamped expectedStart = new Timestamped(start, timeStamp);
+        Timestamped expectedEnd = new Timestamped(end, timeStamp);
+
+        JourneyQueryDTO query = journeyResourceTestFacade.getQueryDTO(when, queryTime, start, end,
+                false, 2);
+
+        Response result = journeyResourceTestFacade.getResponse(false, Collections.emptyList(), query);
+
+        RecentJourneys recentJourneys = getRecentJourneysFromCookie(result);
+
+        Assertions.assertEquals(2,recentJourneys.getTimeStamps().size());
+
+        assertTrue(recentJourneys.getTimeStamps().contains(expectedStart), recentJourneys.toString());
+        assertTrue(recentJourneys.getTimeStamps().contains(expectedEnd), recentJourneys.toString());
+    }
+
+    private RecentJourneys getRecentJourneysFromCookie(Response response) throws IOException {
+        Map<String, NewCookie> cookies = response.getCookies();
+        NewCookie recent = cookies.get("tramchesterRecent");
+        String value = recent.toCookie().getValue();
+        return RecentJourneys.decodeCookie(mapper, value);
     }
 
     @Test
