@@ -90,6 +90,7 @@ var mapApp = new Vue({
             stations: [],
             interchanges: [], // list of station id's
             stationsBoundary: [],
+            links: [],
             bounds: null
         }
     },
@@ -157,16 +158,21 @@ var mapApp = new Vue({
             boundsLayer.addLayer(box);
             boundsLayer.addTo(map);
         },
-        addLinks: function(map, links) {
+        addLinks: function(map, linksToDisplay) {
             var linkLayerGroup = L.layerGroup();
             
-            links.forEach(link => {
+            linksToDisplay.forEach(link => {
                 var steps = [];
                 steps.push([link.begin.latLong.lat, link.begin.latLong.lon]);
                 steps.push([link.end.latLong.lat, link.end.latLong.lon]);
                 var line = L.polyline(steps); // hurts performance .arrowheads({ size: '5px', frequency: 'endonly' });
-                line.bindTooltip("Link between " + link.begin.name + " and " + link.end.name + "<br> " + link.distanceInMeters + "m");
-                line.setStyle({color: "yellow", opacity: 0.6});
+                if (link.linkType==="Linked") {
+                    line.bindTooltip("Link " + link.begin.id + " and " + link.end.id + "<br> " + link.transportModes);
+                    line.setStyle({color: "blue", opacity: 0.3});
+                } else if (link.linkType==="Neighbours") {
+                    line.bindTooltip("Neighbours " + link.begin.id + " and " + link.end.id + "<br> " + link.transportModes);
+                    line.setStyle({color: "yellow", opacity: 0.6});
+                }
                 linkLayerGroup.addLayer(line);
             });
 
@@ -194,6 +200,7 @@ var mapApp = new Vue({
             mapApp.addQuadrants(map, mapApp.quadrants);
             mapApp.addAreas(map, mapApp.areas);
             mapApp.addLinks(map, mapApp.neighbours);
+            mapApp.addLinks(map, mapApp.links);
             mapApp.addStations(map, mapApp.stations, mapApp.interchanges);
         }
     },
@@ -216,8 +223,10 @@ var mapApp = new Vue({
             axios.get("/api/geo/areas"),
             axios.get("/api/stations/all"),
             axios.get("/api/interchanges/all"),
-            axios.get("/api/geo/stationsboundary")
-        ]).then(axios.spread((neighboursResp, quadResp, boundsResp, areasResp, stationsResp, interchangeResp, stationBounadryResp) => {
+            axios.get("/api/geo/stationsboundary"),
+            axios.get("/api/geo/links")
+        ]).then(axios.spread((neighboursResp, quadResp, boundsResp, areasResp, stationsResp, interchangeResp, 
+            stationBounadryResp, linksResp) => {
                 mapApp.networkError = false;
                 mapApp.neighbours = neighboursResp.data;
                 mapApp.quadrants = quadResp.data;
@@ -226,6 +235,7 @@ var mapApp = new Vue({
                 mapApp.stations = stationsResp.data;
                 mapApp.interchanges = interchangeResp.data;
                 mapApp.stationsBoundary = stationBounadryResp.data;
+                mapApp.links = linksResp.data;
                 mapApp.draw();
             })).catch(error => {
                 mapApp.networkError = true;

@@ -56,7 +56,7 @@ class StationToStationConnectionDTOTest extends EasyMockSupport {
 
         assertEquals(distance.getValue().doubleValue(), dto.getDistanceInMeters());
 
-        assertEquals(StationToStationConnection.LinkType.Diversion, dto.getLinkTYpe());
+        assertEquals(StationToStationConnection.LinkType.Diversion, dto.getLinkType());
 
     }
 }

@@ -59,7 +59,7 @@ public class StationToStationConnectionDTO {
         return result;
     }
 
-    public StationToStationConnection.LinkType getLinkTYpe() {
+    public StationToStationConnection.LinkType getLinkType() {
         return linkType;
     }
 }

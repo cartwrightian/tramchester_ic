@@ -141,22 +141,6 @@ public class StationLocations implements StationLocationsRepository {
         return locationsWithinLocality.get(areaId);
     }
 
-    /***
-     * Uses Latitude/Longitude and EPSG
-     * @param areaId the area id
-     * @return A list of points on convex hull containing the points within the given area
-     */
-    @Override
-    public List<LatLong> getBoundaryFor(IdFor<NPTGLocality> areaId) {
-
-        Set<NaptanRecord> records = naptanRespository.getRecordsForLocality(areaId);
-
-        Stream<LatLong> points = records.stream().
-                map(NaptanRecord::getGridPosition).
-                map(CoordinateTransforms::getLatLong);
-
-        return geography.createBoundaryFor(points);
-    }
 
     /***
      * Uses Latitude/Longitude and EPSG

@@ -12,9 +12,11 @@ import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.NaptanRecord;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.MarginInMeters;
+import com.tramchester.mappers.Geography;
 import com.tramchester.repository.nptg.NPTGRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +40,7 @@ public class NaptanRepositoryContainer implements NaptanRepository {
 
     private final NaptanDataCallbackImporter naptanDataImporter;
     private final NPTGRepository nptgRepository;
+    private final Geography geography;
     private final TramchesterConfig config;
 
     private final IdMap<NaptanRecord> stops;
@@ -48,9 +51,11 @@ public class NaptanRepositoryContainer implements NaptanRepository {
     private Map<IdFor<NPTGLocality>, IdSet<NaptanRecord>> localities;
 
     @Inject
-    public NaptanRepositoryContainer(NaptanDataCallbackImporter naptanDataImporter, NPTGRepository nptgRepository, TramchesterConfig config) {
+    public NaptanRepositoryContainer(NaptanDataCallbackImporter naptanDataImporter, NPTGRepository nptgRepository,
+                                     Geography geography, TramchesterConfig config) {
         this.naptanDataImporter = naptanDataImporter;
         this.nptgRepository = nptgRepository;
+        this.geography = geography;
         this.config = config;
         stops = new IdMap<>();
         tiplocToAtco = new HashMap<>();
@@ -258,6 +263,21 @@ public class NaptanRepositoryContainer implements NaptanRepository {
     @Override
     public Set<NaptanRecord> getRecordsForLocality(IdFor<NPTGLocality> localityId) {
         return localities.get(localityId).stream().map(stops::get).collect(toSet());
+    }
+
+    /***
+     * Uses Latitude/Longitude and EPSG
+     * @param areaId the area id
+     * @return A list of points on convex hull containing the points within the given area
+     */
+    @Override
+    public List<LatLong> getBoundaryFor(IdFor<NPTGLocality> areaId) {
+
+        final Set<NaptanRecord> records = getRecordsForLocality(areaId);
+
+        Stream<LatLong> points = records.stream().map(NaptanRecord::getLatLong);
+
+        return geography.createBoundaryFor(points);
     }
 
     private class Consumer implements NaptanFromXMLFile.NaptanXmlConsumer {

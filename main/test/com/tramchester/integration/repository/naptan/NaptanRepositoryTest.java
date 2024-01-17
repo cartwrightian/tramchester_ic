@@ -7,6 +7,7 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.NaptanRecord;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -24,6 +25,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -165,6 +167,15 @@ class NaptanRepositoryTest {
             NaptanRecord fromNaptan = respository.getForActo(actoCode);
             assertEquals(station.getName(), fromNaptan.getDisplayName(), fromNaptan.toString());
         }
+    }
+
+
+    @Test
+    void shouldGetBoundary() {
+
+        List<LatLong> points = respository.getBoundaryFor(KnowLocality.Shudehill.getId());
+
+        assertEquals(8, points.size());
     }
 
     @Test

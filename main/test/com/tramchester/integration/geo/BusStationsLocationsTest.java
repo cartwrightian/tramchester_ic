@@ -3,7 +3,6 @@ package com.tramchester.integration.geo;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
@@ -11,7 +10,6 @@ import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
-import com.tramchester.testSupport.reference.KnowLocality;
 import com.tramchester.testSupport.reference.TestPostcodes;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.AfterAll;
@@ -79,11 +77,4 @@ class BusStationsLocationsTest {
         assertEquals(18, result.size());
     }
 
-    @Test
-    void shouldGetBoundary() {
-
-        List<LatLong> points = stationLocations.getBoundaryFor(KnowLocality.Shudehill.getId());
-
-        assertEquals(8, points.size());
-    }
 }

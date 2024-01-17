@@ -116,23 +116,21 @@ public class RailStationRecordsRepository {
         return true;
     }
 
-    private MutableStation createStationFor(PhysicalStationRecord record) {
-        IdFor<Station> id = Station.createId(record.getTiplocCode());
+    private MutableStation createStationFor(final PhysicalStationRecord record) {
+        final IdFor<Station> stationId = Station.createId(record.getTiplocCode());
 
-        String name = record.getName();
         GridPosition grid = GridPosition.Invalid;
-        IdFor<NPTGLocality> areaId = NPTGLocality.InvalidId();
-        boolean isInterchange = (record.getRailInterchangeType()!= RailInterchangeType.None);
+        LatLong latLong = LatLong.Invalid;
 
-        if (naptanRepository.containsTiploc(id)) {
-            // prefer nptg data if available, first try to find atloc code for the station, then if found use to get
-            // the locality id for the station
-            NaptanRecord naptanRecord = naptanRepository.getForTiploc(id);
-            if (naptanRecord!=null) {
-                areaId = naptanRecord.getLocalityId();
-                grid = naptanRecord.getGridPosition();
-//                areaId = TransportEntityFactory.chooseArea(naptanRepository, naptanRecord.getAreaCodes());
-            }
+        final IdFor<NPTGLocality> areaId;
+        if (naptanRepository.containsTiploc(stationId)) {
+            // prefer naptan data if available
+            final NaptanRecord naptanRecord = naptanRepository.getForTiploc(stationId);
+            areaId = naptanRecord.getLocalityId();
+            grid = naptanRecord.getGridPosition();
+            latLong = naptanRecord.getLatLong();
+        } else {
+            areaId = NPTGLocality.InvalidId();
         }
 
         if (!grid.isValid()) {
@@ -141,14 +139,17 @@ public class RailStationRecordsRepository {
                 grid = GridPosition.Invalid;
             } else {
                 grid = convertToOsGrid(record.getEasting(), record.getNorthing());
+                latLong = CoordinateTransforms.getLatLong(grid); // re-calc from rail grid
             }
         }
 
-        LatLong latLong = grid.isValid() ?  CoordinateTransforms.getLatLong(grid) : LatLong.Invalid;
+        final Duration minChangeTime = Duration.ofMinutes(record.getMinChangeTime());
 
-        Duration minChangeTime = Duration.ofMinutes(record.getMinChangeTime());
+        final String name = record.getName();
 
-        return new MutableStation(id, areaId, name, latLong, grid, DataSourceID.rail, isInterchange, minChangeTime,
+        final boolean isInterchange = (record.getRailInterchangeType()!= RailInterchangeType.None);
+
+        return new MutableStation(stationId, areaId, name, latLong, grid, DataSourceID.rail, isInterchange, minChangeTime,
                 record.getCRS());
     }
 

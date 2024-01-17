@@ -83,13 +83,13 @@ public class Geography {
     }
 
     public List<LatLong> createBoundaryFor(Stream<LatLong> locations) {
-        Coordinate[] coords = locations.
+        final Coordinate[] coords = locations.
                 map(latLong -> new Coordinate(latLong.getLat(), latLong.getLon())).
                 collect(Streams.toArray(Coordinate.class));
 
         MultiPoint multiPoint = geometryFactoryLatLong.createMultiPointFromCoords(coords);
 
-        Geometry boundary = multiPoint.convexHull().getBoundary();
+        final Geometry boundary = multiPoint.convexHull().getBoundary();
 
         if (boundary.getNumPoints()==0) {
             logger.warn("Created a boundary with zero points");

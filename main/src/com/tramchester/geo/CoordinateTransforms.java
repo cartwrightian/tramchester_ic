@@ -44,12 +44,12 @@ public class CoordinateTransforms {
         }
     }
 
-    private CoordinateTransforms() {
-
-    }
+//    private CoordinateTransforms() {
+//
+//    }
 
     @NotNull
-    public static GridPosition getGridPosition(LatLong position) {
+    public static GridPosition getGridPosition(final LatLong position) {
         if (!position.isValid()) {
             logger.warn("Position invalid " + position);
             return GridPosition.Invalid;
@@ -57,11 +57,11 @@ public class CoordinateTransforms {
 
         try {
             // note the lat(y) lon(x) ordering here
-            DirectPosition directPositionLatLong = new GeneralDirectPosition(position.getLat(), position.getLon());
-            DirectPosition directPositionGrid = latLongToGrid.getMathTransform().transform(directPositionLatLong, null);
+            final DirectPosition directPositionLatLong = new GeneralDirectPosition(position.getLat(), position.getLon());
+            final DirectPosition directPositionGrid = latLongToGrid.getMathTransform().transform(directPositionLatLong, null);
 
-            long easting = Math.round(directPositionGrid.getOrdinate(0));
-            long northing = Math.round(directPositionGrid.getOrdinate(1));
+            final long easting = Math.round(directPositionGrid.getOrdinate(0));
+            final long northing = Math.round(directPositionGrid.getOrdinate(1));
 
             return new GridPosition(easting, northing);
         }
@@ -71,17 +71,17 @@ public class CoordinateTransforms {
         }
     }
 
-    public static LatLong getLatLong(GridPosition gridPosition) {
+    public static LatLong getLatLong(final GridPosition gridPosition) {
         if (!gridPosition.isValid()) {
             logger.warn("Position invalid " + gridPosition);
             return LatLong.Invalid;
         }
 
         try {
-            DirectPosition directPositionGrid = new GeneralDirectPosition(gridPosition.getEastings(), gridPosition.getNorthings());
-            DirectPosition directPositionLatLong = gridToLatLong.getMathTransform().transform(directPositionGrid, null);
-            double lat = directPositionLatLong.getOrdinate(0);
-            double lon = directPositionLatLong.getOrdinate(1);
+            final DirectPosition directPositionGrid = new GeneralDirectPosition(gridPosition.getEastings(), gridPosition.getNorthings());
+            final DirectPosition directPositionLatLong = gridToLatLong.getMathTransform().transform(directPositionGrid, null);
+            final double lat = directPositionLatLong.getOrdinate(0);
+            final double lon = directPositionLatLong.getOrdinate(1);
             return new LatLong(lat, lon);
         }
         catch (TransformException transformException) {

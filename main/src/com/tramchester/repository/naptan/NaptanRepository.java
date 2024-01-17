@@ -6,7 +6,9 @@ import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.NaptanRecord;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.presentation.LatLong;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -25,6 +27,8 @@ public interface NaptanRepository {
     boolean containsArea(IdFor<NPTGLocality> localityId);
 
     Set<NaptanRecord> getRecordsForLocality(IdFor<NPTGLocality> localityId);
+
+    List<LatLong> getBoundaryFor(IdFor<NPTGLocality> areaId);
 
     boolean isEnabled();
 

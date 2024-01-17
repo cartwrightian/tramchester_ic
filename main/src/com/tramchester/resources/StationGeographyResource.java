@@ -12,6 +12,7 @@ import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.search.FindLinkedStations;
 import com.tramchester.repository.NeighboursRepository;
 import com.tramchester.repository.StationGroupsRepository;
+import com.tramchester.repository.naptan.NaptanRepository;
 import com.tramchester.repository.nptg.NPTGRepository;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -45,13 +46,15 @@ public class StationGeographyResource implements APIResource, GraphDatabaseDepen
     private final StationGroupsRepository stationGroupsRepository;
     private final TramchesterConfig config;
     private final StationLocations stationLocations;
+    private final NaptanRepository naptanRepository;
     private final NPTGRepository nptgRepository;
     private final DTOFactory dtoFactory;
 
     @Inject
     public StationGeographyResource(FindLinkedStations findStationLinks, NeighboursRepository neighboursRepository,
                                     StationGroupsRepository stationGroupsRepository, TramchesterConfig config,
-                                    StationLocations stationLocations, NPTGRepository nptgRepository, DTOFactory dtoFactory) {
+                                    StationLocations stationLocations, NaptanRepository naptanRepository, NPTGRepository nptgRepository, DTOFactory dtoFactory) {
+        this.naptanRepository = naptanRepository;
         this.nptgRepository = nptgRepository;
         this.dtoFactory = dtoFactory;
         this.findStationLinks = findStationLinks;
@@ -119,8 +122,7 @@ public class StationGeographyResource implements APIResource, GraphDatabaseDepen
 
         List<AreaBoundaryDTO> allBoundaries = areas.stream().
                 filter(area -> stationLocations.hasStationsOrPlatformsIn(area.getId())).
-//                filter(area -> naptanRespository.hasAreaRecordsFor(area.getId())).
-                map(area -> new AreaBoundaryDTO(stationLocations.getBoundaryFor(area.getId()), area))
+                map(area -> new AreaBoundaryDTO(naptanRepository.getBoundaryFor(area.getId()), area))
                 .collect(Collectors.toList());
 
         logger.info("Found " + allBoundaries.size() + " areas with boundaries");
