@@ -4,14 +4,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Sets;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.id.IdForDTO;
+import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.presentation.Timestamped;
 import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.testSupport.TestEnv;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -35,19 +37,19 @@ class RecentJourneysTest {
     @Test
     void shouldGetAndSetValues() {
         RecentJourneys recentJourneys = new RecentJourneys();
-        Timestamped timestamped = new Timestamped(id, TestEnv.LocalNow());
+        Timestamped timestamped = new Timestamped(id, TestEnv.LocalNow(), LocationType.Station);
         HashSet<Timestamped> set = Sets.newHashSet(timestamped);
-        recentJourneys.setRecentIds(set);
+        recentJourneys.setTimeStamps(set);
 
-        assertEquals(set, recentJourneys.getRecentIds());
+        assertEquals(set, recentJourneys.getTimeStamps());
     }
 
     @Test
     void shouldRoundTripCookieString() throws IOException {
         RecentJourneys recentJourneys = new RecentJourneys();
-        Timestamped timestamped = new Timestamped(id, TestEnv.LocalNow());
+        Timestamped timestamped = new Timestamped(id, TestEnv.LocalNow(), LocationType.Station);
         HashSet<Timestamped> set = Sets.newHashSet(timestamped);
-        recentJourneys.setRecentIds(set);
+        recentJourneys.setTimeStamps(set);
 
         String cookieText = RecentJourneys.encodeCookie(mapper,recentJourneys);
 
@@ -63,21 +65,22 @@ class RecentJourneysTest {
         long longValue = 1541456199236L;
         LocalDateTime expected = Instant.ofEpochMilli(longValue).atZone(TramchesterConfig.TimeZoneId).toLocalDateTime();
 
-        Set<Timestamped> recentIds = result.getRecentIds();
+        Set<Timestamped> recentIds = result.getTimeStamps();
         assertEquals(1, recentIds.size());
-        assertTrue(recentIds.contains(new Timestamped(id,expected)));
+        assertTrue(recentIds.contains(new Timestamped(id,expected, LocationType.Station)));
     }
 
     @Test
     void shouldEncodeExistingCookieFormat() throws IOException {
         RecentJourneys recents = new RecentJourneys();
 
-        String exepected = "%7B%22recentIds%22%3A%5B%7B%22when%22%3A1541456199236%2C%22id%22%3A%22id%22%7D%5D%7D";
+        //String exepected = "%7B%22recentIds%22%3A%5B%7B%22when%22%3A1541456199236%2C%22id%22%3A%22id%22%7D%5D%7D";
+        String exepected = "%7B%22records%22%3A%5B%7B%22when%22%3A1541456199236%2C%22id%22%3A%22id%22%2C%22locationType%22%3A%22Station%22%7D%5D%7D";
 
         LocalDateTime dateTime = LocalDateTime.parse("2018-11-05T22:16:39.236");
-        recents.setTimestamps(Sets.newHashSet(Collections.singletonList(new Timestamped(id, dateTime))));
+        recents.setTimestamps(Sets.newHashSet(Collections.singletonList(new Timestamped(id, dateTime, LocationType.Station))));
 
         String result = RecentJourneys.encodeCookie(mapper, recents);
-        assertEquals(exepected,result);
+        assertEquals(exepected, result, URLDecoder.decode(result, StandardCharsets.UTF_8));
     }
 }

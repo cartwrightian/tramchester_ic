@@ -13,6 +13,8 @@ public enum KnowLocality {
     Stockport("E0057819"),
     Knutsford("E0044368"),
     Broadheath("E0028613"),
+    ManchesterCityCentre("E0057786"),
+    PiccadillyGardens("N0075071"),
     OldfieldBrow("E0029171"),
 
     // out of bounds

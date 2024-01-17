@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.App;
 import com.tramchester.domain.id.IdForDTO;
+import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.RecentJourneys;
@@ -28,11 +29,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.reference.KnownLocations.nearPiccGardens;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
-class JourneyLocationsResourceTest {
+class JourneyLocationsResourceTramTest {
 
     private static final IntegrationAppExtension appExtension =
             new IntegrationAppExtension(App.class, new ResourceTramTestConfig<>(JourneyLocationsResource.class));
@@ -53,6 +53,12 @@ class JourneyLocationsResourceTest {
         assertEquals(200, result.getStatus());
 
         List<LocationRefDTO> results = result.readEntity(new GenericType<>() {});
+
+        assertFalse(results.isEmpty());
+
+        long typeCount = results.stream().filter(locationRefDTO -> locationRefDTO.getLocationType() == LocationType.Station).count();
+
+        assertEquals(results.size(), typeCount);
 
         Set<IdForDTO> expectedIds = stationRepository.getStations().stream().
                 map(IdForDTO::createFor).
@@ -84,7 +90,6 @@ class JourneyLocationsResourceTest {
         Response resultB = APIClient.getApiResponse(appExtension, "locations/mode/Tram", lastMod);
         assertEquals(304, resultB.getStatus());
     }
-
 
     @Test
     void shouldGetBusStations() {
@@ -154,7 +159,7 @@ class JourneyLocationsResourceTest {
 
         Set<Timestamped> recents = new HashSet<>();
         for (TramStations station : stations) {
-            Timestamped timestamped = new Timestamped(station.getId(), TestEnv.LocalNow());
+            Timestamped timestamped = new Timestamped(station.getId(), TestEnv.LocalNow(), LocationType.Station);
             recents.add(timestamped);
         }
         recentJourneys.setTimestamps(recents);

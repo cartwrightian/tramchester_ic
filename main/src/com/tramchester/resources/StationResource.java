@@ -20,7 +20,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
-import com.tramchester.mappers.RecentJourneysToStations;
+import com.tramchester.mappers.RecentJourneysToLocations;
 import com.tramchester.repository.DataSourceRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StationRepositoryPublic;
@@ -59,7 +59,7 @@ public class StationResource extends UsesRecentCookie implements APIResource {
     private final LocationDTOFactory locationDTOFactory;
     private final TramchesterConfig config;
     private final TransportModeRepository transportModeRepository;
-    private final RecentJourneysToStations recentJourneysToStations;
+    private final RecentJourneysToLocations recentJourneysToStations;
 
     // TODO Remove unused methods
 
@@ -69,7 +69,7 @@ public class StationResource extends UsesRecentCookie implements APIResource {
                            ProvidesNow providesNow,
                            DataSourceRepository dataSourceRepository, StationLocations stationLocations,
                            DTOFactory DTOFactory,
-                           LocationDTOFactory locationDTOFactory, TramchesterConfig config, TransportModeRepository transportModeRepository, RecentJourneysToStations recentJourneysToStations) {
+                           LocationDTOFactory locationDTOFactory, TramchesterConfig config, TransportModeRepository transportModeRepository, RecentJourneysToLocations recentJourneysToStations) {
         super(updateRecentJourneys, providesNow);
         this.DTOFactory = DTOFactory;
         this.locationDTOFactory = locationDTOFactory;

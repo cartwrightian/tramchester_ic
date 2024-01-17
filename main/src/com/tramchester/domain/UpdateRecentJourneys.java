@@ -13,7 +13,6 @@ import javax.inject.Inject;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @LazySingleton
 public class UpdateRecentJourneys {
@@ -31,7 +30,7 @@ public class UpdateRecentJourneys {
 
     public RecentJourneys createNewJourneys(RecentJourneys recentJourneys, ProvidesNow providesNow, Location<?> location) {
         Timestamped timestamped = new Timestamped(location, providesNow.getDateTime());
-        Set<Timestamped> from = new HashSet<>(recentJourneys.getRecentIds());
+        Set<Timestamped> from = new HashSet<>(recentJourneys.getTimeStamps());
         if (from.contains(timestamped)) {
             from.remove(timestamped);
         } else if (from.size()>=limit) {
@@ -43,7 +42,7 @@ public class UpdateRecentJourneys {
     }
 
     private Timestamped findOldest(Set<Timestamped> from) {
-        List<Timestamped> ordered = from.stream().sorted(Timestamped::compare).collect(Collectors.toList());
+        List<Timestamped> ordered = from.stream().sorted(Timestamped::compare).toList();
         return ordered.get(0);
     }
 

@@ -3,7 +3,11 @@ package com.tramchester.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.UpdateRecentJourneys;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.MyLocation;
+import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
@@ -14,11 +18,8 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
-import com.tramchester.mappers.RecentJourneysToStations;
-import com.tramchester.repository.DataSourceRepository;
-import com.tramchester.repository.StationRepository;
-import com.tramchester.repository.StationRepositoryPublic;
-import com.tramchester.repository.TransportModeRepository;
+import com.tramchester.mappers.RecentJourneysToLocations;
+import com.tramchester.repository.*;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -47,24 +48,25 @@ public class JourneyLocationsResource extends UsesRecentCookie implements APIRes
     private static final Logger logger = LoggerFactory.getLogger(JourneyLocationsResource.class);
 
     private final StationRepositoryPublic stationRepository;
+    private final StationGroupsRepository stationGroupsRepository;
     private final DataSourceRepository dataSourceRepository;
     private final StationLocations stationLocations;
     private final DTOFactory DTOFactory;
-    private final LocationDTOFactory locationDTOFactory;
     private final TramchesterConfig config;
     private final TransportModeRepository transportModeRepository;
-    private final RecentJourneysToStations recentJourneysToStations;
+    private final RecentJourneysToLocations recentJourneysToStations;
 
     @Inject
     public JourneyLocationsResource(StationRepository stationRepository,
                                     UpdateRecentJourneys updateRecentJourneys,
                                     ProvidesNow providesNow,
-                                    DataSourceRepository dataSourceRepository, StationLocations stationLocations,
-                                    DTOFactory DTOFactory,
-                                    LocationDTOFactory locationDTOFactory, TramchesterConfig config, TransportModeRepository transportModeRepository, RecentJourneysToStations recentJourneysToStations) {
+                                    StationGroupsRepository stationGroupsRepository, DataSourceRepository dataSourceRepository,
+                                    StationLocations stationLocations, DTOFactory DTOFactory, LocationDTOFactory locationDTOFactory,
+                                    TramchesterConfig config, TransportModeRepository transportModeRepository,
+                                    RecentJourneysToLocations recentJourneysToStations) {
         super(updateRecentJourneys, providesNow);
+        this.stationGroupsRepository = stationGroupsRepository;
         this.DTOFactory = DTOFactory;
-        this.locationDTOFactory = locationDTOFactory;
         this.transportModeRepository = transportModeRepository;
         this.recentJourneysToStations = recentJourneysToStations;
         logger.info("created");
@@ -81,7 +83,7 @@ public class JourneyLocationsResource extends UsesRecentCookie implements APIRes
     @ApiResponse(content = @Content(array = @ArraySchema(uniqueItems = true, schema = @Schema(implementation = LocationRefDTO.class))))
     @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.HOURS, isPrivate = false)
     public Response getByMode(@PathParam("mode") String rawMode, @Context Request request) {
-        logger.info("Get stations for transport mode: " + rawMode);
+        logger.info("Get locations for transport mode: " + rawMode);
 
         try {
             final TransportMode mode = TransportMode.valueOf(rawMode);
@@ -92,13 +94,7 @@ public class JourneyLocationsResource extends UsesRecentCookie implements APIRes
             Response.ResponseBuilder builder = request.evaluatePreconditions(date);
 
             if (builder==null) {
-                final Set<Station> matching = stationRepository.getStationsServing(mode);
-                final List<LocationRefDTO> results = toStationRefDTOList(matching);
-                if (results.isEmpty()) {
-                    logger.warn("No stations found for " + mode.name());
-                } else {
-                    logger.info("Returning " + results.size() + " stations for mode " + mode);
-                }
+                final List<LocationRefDTO> results = getLocationsFor(mode);
                 return Response.ok(results).lastModified(date).build();
             } else {
                 logger.info("Returning Not Modified for stations mode " + mode);
@@ -111,6 +107,30 @@ public class JourneyLocationsResource extends UsesRecentCookie implements APIRes
         }
     }
 
+    @NotNull
+    private List<LocationRefDTO> getLocationsFor(TransportMode mode) {
+        final Set<? extends Location<?>> matching;
+        if (mode==TransportMode.Bus) {
+            if (!stationGroupsRepository.isEnabled()) {
+                return Collections.emptyList();
+            }
+            logger.info("Get list of station groups for " + mode);
+            matching = stationGroupsRepository.getStationGroupsFor(mode);
+        } else {
+            logger.info("Get list of stations for " + mode);
+            matching = stationRepository.getStationsServing(mode);
+        }
+
+        final List<LocationRefDTO> results = toStationRefDTOList(matching);
+        if (results.isEmpty()) {
+            logger.warn("No stations found for " + mode.name());
+        } else {
+            logger.info("Returning " + results.size() + " stations for mode " + mode);
+        }
+        return results;
+
+    }
+
     @GET
     @Timed
     @Path("/near/{mode}")
@@ -119,32 +139,46 @@ public class JourneyLocationsResource extends UsesRecentCookie implements APIRes
     @CacheControl(noCache = true)
     public Response getNearWithMode(@PathParam("mode") String rawMode, @QueryParam("lat") double lat, @QueryParam("lon") double lon) {
         MarginInMeters margin = MarginInMeters.of(config.getNearestStopRangeKM());
-        logger.info(format("Get stations with %s of %s,%s and mode %s", margin, lat, lon, rawMode));
+        logger.info(format("Get locations within %s of %s,%s and mode %s", margin, lat, lon, rawMode));
 
         TransportMode mode = TransportMode.valueOf(rawMode);
-
-        EnumSet<TransportMode> modes = EnumSet.of(mode);
 
         LatLong latLong = new LatLong(lat,lon);
 
         MyLocation location = new MyLocation(latLong);
 
-        List<Station> nearestStations = stationLocations.nearestStationsSorted(location,
-                config.getNumOfNearestStopsToOffer(), margin, modes);
+        List<? extends Location<?>> nearestLocations = getNearestLocations(location, margin, mode);
 
-        List<LocationRefDTO> results = toStationRefDTOList(nearestStations);
+        List<LocationRefDTO> results = toStationRefDTOList(nearestLocations);
 
         return Response.ok(results).build();
+    }
+
+    private List<? extends Location<?>> getNearestLocations(MyLocation origin, MarginInMeters margin, TransportMode mode) {
+        EnumSet<TransportMode> modes = EnumSet.of(mode);
+
+        List<Station> stations = stationLocations.nearestStationsSorted(origin, config.getNumOfNearestStopsToOffer(), margin, modes);
+
+        if (mode==TransportMode.Bus) {
+            // convert to localities
+            IdSet<NPTGLocality> localityIds = stations.stream().
+                    map(Location::getLocalityId).
+                    filter(IdFor::isValid).collect(IdSet.idCollector());
+            logger.info("Convert nearest stations to localities for " + mode);
+            return localityIds.stream().map(stationGroupsRepository::getStationGroup).toList();
+        } else {
+            return stations;
+        }
     }
 
     @GET
     @Timed
     @Path("/recent")
-    @Operation(description = "Get recent stations based on supplied cookie")
+    @Operation(description = "Get recent locations based on supplied cookie")
     @ApiResponse(content = @Content(array = @ArraySchema(uniqueItems = true, schema = @Schema(implementation = LocationRefDTO.class))))
     @CacheControl(noCache = true)
     public Response getRecent(@CookieParam(TRAMCHESTER_RECENT) Cookie cookie, @QueryParam("modes") String rawModes) {
-        logger.info(format("Get recent stations for cookie %s", cookie));
+        logger.info(format("Get recent locations for cookie %s", cookie));
 
         final EnumSet<TransportMode> modes;
         if (rawModes!=null) {
@@ -163,7 +197,7 @@ public class JourneyLocationsResource extends UsesRecentCookie implements APIRes
     }
 
     @NotNull
-    private List<LocationRefDTO> toStationRefDTOList(Collection<Station> stations) {
+    private List<LocationRefDTO> toStationRefDTOList(Collection<? extends Location<?>> stations) {
         return stations.stream().
                 map(DTOFactory::createLocationRefDTO).
                 // sort server side is here as an optimisation for front end sorting time

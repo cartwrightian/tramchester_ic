@@ -169,9 +169,9 @@ public class StationLocations implements StationLocationsRepository {
     }
 
     @Override
-    public List<Station> nearestStationsSorted(Location<?> location, int maxToFind, MarginInMeters rangeInMeters,
+    public List<Station> nearestStationsSorted(Location<?> origin, int maxToFind, MarginInMeters rangeInMeters,
                                                EnumSet<TransportMode> modes) {
-        return nearestStationsSorted(location.getGridPosition(), maxToFind, rangeInMeters, modes);
+        return nearestStationsSorted(origin.getGridPosition(), maxToFind, rangeInMeters, modes);
     }
 
     // TODO Use quadrants for this search?
@@ -264,14 +264,6 @@ public class StationLocations implements StationLocationsRepository {
         long maxNorthings = bounds.getMaxNorthings();
         return LongStream.iterate(minNorthings, current -> current <= maxNorthings, current -> current + gridSize).boxed();
     }
-
-//    private boolean containsAnyStations(BoundingBox parent, BoundingBox quadrant) {
-//        return stationRepository.getActiveStationStream().
-//                map(Station::getGridPosition).
-//                filter(GridPosition::isValid).
-//                filter(parent::contained).
-//                anyMatch(quadrant::contained);
-//    }
 
     private static class CreateBoundingBox {
         private long minEastings = Long.MAX_VALUE;

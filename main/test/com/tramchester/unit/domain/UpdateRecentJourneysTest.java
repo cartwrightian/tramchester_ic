@@ -3,6 +3,7 @@ package com.tramchester.unit.domain;
 import com.google.common.collect.Sets;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.presentation.Timestamped;
 import com.tramchester.domain.UpdateRecentJourneys;
 import com.tramchester.domain.presentation.RecentJourneys;
@@ -30,7 +31,7 @@ class UpdateRecentJourneysTest {
 
         RecentJourneys updated = updater.createNewJourneys(recentJourneys, providesNow, Altrincham.fake());
 
-        Set<Timestamped> from = updated.getRecentIds();
+        Set<Timestamped> from = updated.getTimeStamps();
         Assertions.assertEquals(3, from.size());
         Assertions.assertTrue(from.containsAll(createTimestamps("id1","id2", Altrincham.getRawId())));
     }
@@ -41,7 +42,7 @@ class UpdateRecentJourneysTest {
         recentJourneys.setTimestamps(createTimestamps("id1", Altrincham.getRawId(),"id3"));
 
         RecentJourneys updated = updater.createNewJourneys(recentJourneys, providesNow, Altrincham.fake());
-        Set<Timestamped> from = updated.getRecentIds();
+        Set<Timestamped> from = updated.getTimeStamps();
         Assertions.assertEquals(3, from.size());
         Assertions.assertTrue(from.containsAll(createTimestamps("id1", Altrincham.getRawId(),"id3")));
     }
@@ -56,13 +57,13 @@ class UpdateRecentJourneysTest {
         updated = updateWithPause(updated, TraffordBar.fake());
         updated = updateWithPause(updated, StPetersSquare.fake());
 
-        Set<Timestamped> from = updated.getRecentIds();
+        Set<Timestamped> from = updated.getTimeStamps();
         Assertions.assertEquals(4, from.size());
         Set<Timestamped> initialExpected = createTimestamps(NavigationRoad.getRawId(), TraffordBar.getRawId(), NavigationRoad.getRawId());
         Assertions.assertTrue(from.containsAll(initialExpected));
 
         updated = updateWithPause(updated, Piccadilly.fake());
-        from = updated.getRecentIds();
+        from = updated.getTimeStamps();
         Assertions.assertEquals(5, from.size());
         Assertions.assertTrue(from.containsAll(createTimestamps(StPetersSquare.getRawId(), TraffordBar.getRawId(), Piccadilly.getRawId())));
     }
@@ -78,7 +79,7 @@ class UpdateRecentJourneysTest {
         int count = 0;
         for (String id : ids) {
             IdForDTO idForDTO = new IdForDTO(id);
-            set.add(new Timestamped(idForDTO, providesNow.getDateTime().plusSeconds(count++)));
+            set.add(new Timestamped(idForDTO, providesNow.getDateTime().plusSeconds(count++), LocationType.Station));
         }
         return set;
     }

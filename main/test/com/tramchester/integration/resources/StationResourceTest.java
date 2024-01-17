@@ -262,7 +262,7 @@ class StationResourceTest {
 
         Set<Timestamped> recents = new HashSet<>();
         for (TramStations station : stations) {
-            Timestamped timestamped = new Timestamped(station.getId(), TestEnv.LocalNow());
+            Timestamped timestamped = new Timestamped(station.getId(), TestEnv.LocalNow(), LocationType.Station);
             recents.add(timestamped);
         }
         recentJourneys.setTimestamps(recents);

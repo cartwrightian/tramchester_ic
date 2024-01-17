@@ -1,6 +1,8 @@
 package com.tramchester.domain.presentation;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -13,38 +15,21 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 
+
+// encoded into cooke for front-end
+
 public class RecentJourneys  {
+
     private Set<Timestamped> timestamps;
 
     public RecentJourneys() {
         // deserialisation
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        RecentJourneys that = (RecentJourneys) o;
-        return timestamps.equals(that.timestamps);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(timestamps);
-    }
-
     @JsonIgnore
     public RecentJourneys setTimestamps(Set<Timestamped> timestamps) {
-        setRecentIds(timestamps);
+        setTimeStamps(timestamps);
         return this;
-    }
-
-    public void setRecentIds(Set<Timestamped> timestamps) {
-        this.timestamps = timestamps;
-    }
-
-    public Set<Timestamped> getRecentIds() {
-        return timestamps;
     }
 
     public static RecentJourneys empty() {
@@ -63,5 +48,29 @@ public class RecentJourneys  {
 
     public Stream<Timestamped> stream() {
         return timestamps.stream();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RecentJourneys that = (RecentJourneys) o;
+        return timestamps.equals(that.timestamps);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(timestamps);
+    }
+
+    // recentIds was old name
+    @JsonAlias({"recentIds", "records"})
+    public void setTimeStamps(Set<Timestamped> timestamps) {
+        this.timestamps = timestamps;
+    }
+
+    @JsonProperty(value = "records")
+    public Set<Timestamped> getTimeStamps() {
+        return timestamps;
     }
 }

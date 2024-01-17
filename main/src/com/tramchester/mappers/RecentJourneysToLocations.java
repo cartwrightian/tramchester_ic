@@ -13,11 +13,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @LazySingleton
-public class RecentJourneysToStations {
+public class RecentJourneysToLocations {
     private final StationRepository stationRepository;
 
     @Inject
-    public RecentJourneysToStations(StationRepository stationRepository) {
+    public RecentJourneysToLocations(StationRepository stationRepository) {
         this.stationRepository = stationRepository;
     }
 

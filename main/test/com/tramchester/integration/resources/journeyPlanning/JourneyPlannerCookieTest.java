@@ -3,19 +3,22 @@ package com.tramchester.integration.resources.journeyPlanning;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Sets;
 import com.tramchester.App;
-import com.tramchester.domain.presentation.Timestamped;
-import com.tramchester.domain.places.Location;
-import com.tramchester.domain.places.MyLocation;
-import com.tramchester.domain.places.Station;
+import com.tramchester.GuiceContainerDependencies;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.places.*;
 import com.tramchester.domain.presentation.DTO.JourneyQueryDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.RecentJourneys;
+import com.tramchester.domain.presentation.Timestamped;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.JourneyResourceTestFacade;
 import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.JourneyPlannerResource;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.KnowLocality;
 import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import jakarta.ws.rs.core.Cookie;
@@ -45,17 +48,22 @@ public class JourneyPlannerCookieTest {
     private final ObjectMapper mapper = new ObjectMapper();
     private LocalDateTime now;
     private JourneyResourceTestFacade journeyPlanner;
+    private StationRepository stationRepository;
 
     @BeforeEach
     void beforeEachTestRuns() {
+        App app =  appExtension.getApplication();
+        GuiceContainerDependencies dependencies = app.getDependencies();
+
         journeyPlanner = new JourneyResourceTestFacade(appExtension);
+        stationRepository = dependencies.get(StationRepository.class);
         now = TestEnv.LocalNow();
     }
 
     @Test
     void shouldSetCookieForRecentJourney() throws IOException {
-        Station start = TramStations.Bury.fake();
-        Station end = TramStations.ManAirport.fake();
+        Station start = TramStations.Bury.from(stationRepository);
+        Station end = TramStations.ManAirport.from(stationRepository);
 
         TramTime time = TramTime.ofHourMins(now.toLocalTime());
 
@@ -65,22 +73,22 @@ public class JourneyPlannerCookieTest {
 
         RecentJourneys recentJourneys = getRecentJourneysFromCookie(result);
 
-        Assertions.assertEquals(2,recentJourneys.getRecentIds().size());
-        assertTrue(recentJourneys.getRecentIds().contains(new Timestamped(start.getId(), now)));
-        assertTrue(recentJourneys.getRecentIds().contains(new Timestamped(end.getId(), now)));
+        Assertions.assertEquals(2,recentJourneys.getTimeStamps().size());
+        assertTrue(recentJourneys.getTimeStamps().contains(new Timestamped(start, now)));
+        assertTrue(recentJourneys.getTimeStamps().contains(new Timestamped(end, now)));
     }
 
     @Test
-    void shouldUdateCookieForRecentJourney() throws IOException {
-        Station start = TramStations.Bury.fake();
-        Station end = TramStations.ManAirport.fake();
+    void shouldUpdateCookieForRecentJourney() throws IOException {
+        Station start = TramStations.Bury.from(stationRepository);
+        Station end = TramStations.ManAirport.from(stationRepository);
 
         TramTime time = TramTime.ofHourMins(now.toLocalTime());
 
         // cookie with ashton
         RecentJourneys recentJourneys = new RecentJourneys();
-        Timestamped ashton = new Timestamped(TramStations.Ashton.getId(), now);
-        recentJourneys.setRecentIds(Sets.newHashSet(ashton));
+        Timestamped ashtonCookieEntry = new Timestamped(TramStations.Ashton.getId(), now, LocationType.Station);
+        recentJourneys.setTimeStamps(Sets.newHashSet(ashtonCookieEntry));
         Cookie cookie = new Cookie("tramchesterRecent", RecentJourneys.encodeCookie(mapper,recentJourneys));
 
         // journey to bury
@@ -91,18 +99,47 @@ public class JourneyPlannerCookieTest {
         RecentJourneys result = getRecentJourneysFromCookie(response);
 
         // ashton, bury and man airport now in cookie
-        Set<Timestamped> recents = result.getRecentIds();
+        Set<Timestamped> recents = result.getTimeStamps();
         Assertions.assertEquals(3, recents.size());
-        assertTrue(recents.contains(new Timestamped(start.getId(), now)));
-        assertTrue(recents.contains(ashton));
-        assertTrue(recents.contains(new Timestamped(end.getId(), now)));
+        assertTrue(recents.contains(new Timestamped(start, now)));
+        assertTrue(recents.contains(ashtonCookieEntry));
+        assertTrue(recents.contains(new Timestamped(end, now)));
+    }
+
+    @Test
+    void shouldPreseverCookieForRecentJourneyIfDifferentLocationType() throws IOException {
+        Station start = TramStations.Bury.from(stationRepository);
+        Station end = TramStations.ManAirport.from(stationRepository);
+
+        TramTime time = TramTime.ofHourMins(now.toLocalTime());
+
+        // cookie with ashton as
+        RecentJourneys recentJourneys = new RecentJourneys();
+        IdFor<StationGroup> idForStockportLocality = StringIdFor.convert(KnowLocality.Stockport.getId(), StationGroup.class);
+        Timestamped stockportLocalityCookie = new Timestamped(idForStockportLocality, now, LocationType.StationGroup);
+        recentJourneys.setTimeStamps(Sets.newHashSet(stockportLocalityCookie));
+        Cookie cookie = new Cookie("tramchesterRecent", RecentJourneys.encodeCookie(mapper,recentJourneys));
+
+        // journey to bury
+        Response response = getResponseForJourney(start, end, time, now.toLocalDate(), List.of(cookie));
+
+        Assertions.assertEquals(200, response.getStatus());
+
+        RecentJourneys result = getRecentJourneysFromCookie(response);
+
+        // ashton, bury and man airport now in cookie
+        Set<Timestamped> recents = result.getTimeStamps();
+        Assertions.assertEquals(3, recents.size());
+        assertTrue(recents.contains(new Timestamped(start, now)));
+        assertTrue(recents.contains(stockportLocalityCookie));
+        assertTrue(recents.contains(new Timestamped(end, now)));
     }
 
     @Test
     void shouldOnlyCookiesForDestinationIfLocationSent() throws IOException {
         LatLong latlong = new LatLong(53.3949553,-2.3580997999999997 );
         MyLocation start = new MyLocation(latlong);
-        Station end = TramStations.ManAirport.fake();
+        Station end = TramStations.ManAirport.from(stationRepository);
 
         TramTime time = TramTime.ofHourMins(now.toLocalTime());
 
@@ -110,10 +147,10 @@ public class JourneyPlannerCookieTest {
         Assertions.assertEquals(200, response.getStatus());
 
         RecentJourneys result = getRecentJourneysFromCookie(response);
-        Set<Timestamped> recents = result.getRecentIds();
+        Set<Timestamped> recents = result.getTimeStamps();
         Assertions.assertEquals(1, recents.size());
         // checks ID only
-        assertTrue(recents.contains(new Timestamped(end.getId(), now)));
+        assertTrue(recents.contains(new Timestamped(end, now)));
     }
 
     private RecentJourneys getRecentJourneysFromCookie(Response response) throws IOException {

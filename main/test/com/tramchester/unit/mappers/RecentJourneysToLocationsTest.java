@@ -4,6 +4,7 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.MutableRoute;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
@@ -12,7 +13,7 @@ import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.presentation.Timestamped;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.GridPosition;
-import com.tramchester.mappers.RecentJourneysToStations;
+import com.tramchester.mappers.RecentJourneysToLocations;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
@@ -32,9 +33,9 @@ import static com.tramchester.testSupport.reference.TramStations.Bury;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class RecentJourneysToStationsTest extends EasyMockSupport {
+public class RecentJourneysToLocationsTest extends EasyMockSupport {
 
-    private RecentJourneysToStations mapper;
+    private RecentJourneysToLocations mapper;
     private StationRepository stationRepository;
     private MutableStation stockportRail;
 
@@ -42,7 +43,7 @@ public class RecentJourneysToStationsTest extends EasyMockSupport {
     void onceBeforeEachTestRuns() {
 
         stationRepository = createMock(StationRepository.class);
-        mapper = new RecentJourneysToStations(stationRepository);
+        mapper = new RecentJourneysToLocations(stationRepository);
 
         stockportRail = new MutableStation(Stockport.getId(), NPTGLocality.InvalidId(), "Stockport Train",
                 LatLong.Invalid, GridPosition.Invalid, DataSourceID.tfgm, "XXX64");
@@ -58,8 +59,8 @@ public class RecentJourneysToStationsTest extends EasyMockSupport {
 
         List<IdFor<Station>> stationIds = List.of(Altrincham.getId(), Bury.getId());
 
-        Set<Timestamped> timestampedIds = stationIds.stream().map(id -> new Timestamped(id, timeStamp)).collect(Collectors.toSet());
-        recentJourneys.setRecentIds(timestampedIds);
+        Set<Timestamped> timestampedIds = stationIds.stream().map(id -> new Timestamped(id, timeStamp, LocationType.Station)).collect(Collectors.toSet());
+        recentJourneys.setTimeStamps(timestampedIds);
 
         EasyMock.expect(stationRepository.hasStationId(Altrincham.getId())).andReturn(true);
         EasyMock.expect(stationRepository.getStationById(Altrincham.getId())).andReturn(Altrincham.fake());
@@ -80,8 +81,8 @@ public class RecentJourneysToStationsTest extends EasyMockSupport {
 
         List<IdFor<Station>> stationIds = List.of(Altrincham.getId(), Bury.getId());
 
-        Set<Timestamped> timestampedIds = stationIds.stream().map(id -> new Timestamped(id, timeStamp)).collect(Collectors.toSet());
-        recentJourneys.setRecentIds(timestampedIds);
+        Set<Timestamped> timestampedIds = stationIds.stream().map(id -> new Timestamped(id, timeStamp, LocationType.Station)).collect(Collectors.toSet());
+        recentJourneys.setTimeStamps(timestampedIds);
 
         EasyMock.expect(stationRepository.hasStationId(Altrincham.getId())).andReturn(true);
         EasyMock.expect(stationRepository.getStationById(Altrincham.getId())).andReturn(Altrincham.fake());
@@ -102,8 +103,8 @@ public class RecentJourneysToStationsTest extends EasyMockSupport {
 
         List<IdFor<Station>> stationIds = List.of(Altrincham.getId(), Stockport.getId());
 
-        Set<Timestamped> timestampedIds = stationIds.stream().map(id -> new Timestamped(id, timeStamp)).collect(Collectors.toSet());
-        recentJourneys.setRecentIds(timestampedIds);
+        Set<Timestamped> timestampedIds = stationIds.stream().map(id -> new Timestamped(id, timeStamp, LocationType.Station)).collect(Collectors.toSet());
+        recentJourneys.setTimeStamps(timestampedIds);
 
         EasyMock.expect(stationRepository.hasStationId(Altrincham.getId())).andReturn(true);
         EasyMock.expect(stationRepository.getStationById(Altrincham.getId())).andReturn(Altrincham.fake());
@@ -126,8 +127,8 @@ public class RecentJourneysToStationsTest extends EasyMockSupport {
 
         List<IdFor<Station>> stationIds = List.of(Altrincham.getId(), Bury.getId(), Stockport.getId());
 
-        Set<Timestamped> timestampedIds = stationIds.stream().map(id -> new Timestamped(id, timeStamp)).collect(Collectors.toSet());
-        recentJourneys.setRecentIds(timestampedIds);
+        Set<Timestamped> timestampedIds = stationIds.stream().map(id -> new Timestamped(id, timeStamp, LocationType.Station)).collect(Collectors.toSet());
+        recentJourneys.setTimeStamps(timestampedIds);
 
         EasyMock.expect(stationRepository.hasStationId(Altrincham.getId())).andStubReturn(true);
         EasyMock.expect(stationRepository.getStationById(Altrincham.getId())).andStubReturn(Altrincham.fake());
