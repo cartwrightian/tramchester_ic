@@ -4,7 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
-import com.tramchester.domain.StationLink;
+import com.tramchester.domain.StationToStationConnection;
 import com.tramchester.domain.collections.RouteIndexPair;
 import com.tramchester.domain.collections.RouteIndexPairFactory;
 import com.tramchester.domain.id.HasId;
@@ -97,7 +97,7 @@ public class Interchanges implements InterchangeRepository {
             // TODO
             throw new RuntimeException("TODO - not defined yet when neighbours can be same transport mode");
         }
-        Set<StationLink> neighbours = neighboursRepository.getAll();
+        Set<StationToStationConnection> neighbours = neighboursRepository.getAll();
         int before = interchanges.size();
 
         neighbours.forEach(stationLink -> {

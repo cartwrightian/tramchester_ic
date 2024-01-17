@@ -1,6 +1,6 @@
 package com.tramchester.unit.domain.presentation.DTO;
 
-import com.tramchester.domain.StationLink;
+import com.tramchester.domain.StationToStationConnection;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.StationLinkDTO;
@@ -15,9 +15,7 @@ import tech.units.indriya.unit.Units;
 import javax.measure.Quantity;
 import javax.measure.quantity.Length;
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.EnumSet;
 
 import static com.tramchester.testSupport.reference.TramStations.Altrincham;
 import static com.tramchester.testSupport.reference.TramStations.StPetersSquare;
@@ -38,10 +36,10 @@ class StationLinkDTOTest extends EasyMockSupport {
         final Station altrincham = Altrincham.fake();
         final Station stPeters = StPetersSquare.fake();
 
-        Set<TransportMode> modes = new HashSet<>(Arrays.asList(TransportMode.Bus, TransportMode.Tram));
+        EnumSet<TransportMode> modes = EnumSet.of(TransportMode.Bus, TransportMode.Tram);
 
         Quantity<Length> distance = Quantities.getQuantity(42.5768D, Units.METRE);
-        StationLink stationLink = new StationLink(altrincham, stPeters, modes, distance, Duration.ofSeconds(124));
+        StationToStationConnection stationLink = new StationToStationConnection(altrincham, stPeters, modes, distance, Duration.ofSeconds(124));
 
         replayAll();
         StationLinkDTO dto = stationDTOFactory.createStationLinkDTO(stationLink);

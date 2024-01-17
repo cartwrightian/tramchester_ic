@@ -1,7 +1,7 @@
 package com.tramchester.domain.places;
 
 import com.tramchester.domain.Route;
-import com.tramchester.domain.StationLink;
+import com.tramchester.domain.StationToStationConnection;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.TransportMode;
 
@@ -14,11 +14,11 @@ import java.util.stream.Collectors;
 import static java.lang.String.format;
 
 public class LinkedInterchangeStation implements InterchangeStation {
-    private final Set<StationLink> links;
+    private final Set<StationToStationConnection> links;
     private final Station origin;
     private final EnumSet<TransportMode> allModes;
 
-    public LinkedInterchangeStation(StationLink stationLink) {
+    public LinkedInterchangeStation(StationToStationConnection stationLink) {
         links = new HashSet<>();
         links.add(stationLink);
         origin = stationLink.getBegin();
@@ -39,7 +39,7 @@ public class LinkedInterchangeStation implements InterchangeStation {
     @Override
     public Set<Route> getPickupRoutes() {
         Set<Route> pickUps = new HashSet<>(origin.getPickupRoutes());
-        Set<Route> otherEnd = links.stream().map(StationLink::getEnd).
+        Set<Route> otherEnd = links.stream().map(StationToStationConnection::getEnd).
                 flatMap(station -> station.getPickupRoutes().stream()).collect(Collectors.toSet());
         pickUps.addAll(otherEnd);
         return pickUps;
@@ -65,7 +65,7 @@ public class LinkedInterchangeStation implements InterchangeStation {
         return allModes;
     }
 
-    public void addLink(StationLink stationLink) {
+    public void addLink(StationToStationConnection stationLink) {
         if (!stationLink.getBegin().equals(origin)) {
             throw new RuntimeException(format("Attempt to add a stationlink (%s) that does not match origin %s", stationLink, origin));
         }
@@ -97,7 +97,7 @@ public class LinkedInterchangeStation implements InterchangeStation {
     }
 
     public Set<Station> getLinked() {
-        return links.stream().map(StationLink::getEnd).collect(Collectors.toSet());
+        return links.stream().map(StationToStationConnection::getEnd).collect(Collectors.toSet());
     }
 
     @Override

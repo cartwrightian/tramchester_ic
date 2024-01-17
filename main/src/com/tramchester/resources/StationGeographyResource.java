@@ -4,12 +4,12 @@ package com.tramchester.resources;
 import com.codahale.metrics.annotation.Timed;
 import com.google.inject.Inject;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.StationLink;
+import com.tramchester.domain.StationToStationConnection;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
 import com.tramchester.geo.StationLocations;
-import com.tramchester.graph.search.FindStationLinks;
+import com.tramchester.graph.search.FindLinkedStations;
 import com.tramchester.repository.NeighboursRepository;
 import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.nptg.NPTGRepository;
@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
 public class StationGeographyResource implements APIResource, GraphDatabaseDependencyMarker {
     private static final Logger logger = LoggerFactory.getLogger(StationGeographyResource.class);
 
-    private final FindStationLinks findStationLinks;
+    private final FindLinkedStations findStationLinks;
     private final NeighboursRepository neighboursRepository;
     private final StationGroupsRepository stationGroupsRepository;
     private final TramchesterConfig config;
@@ -48,7 +48,7 @@ public class StationGeographyResource implements APIResource, GraphDatabaseDepen
     private final DTOFactory dtoFactory;
 
     @Inject
-    public StationGeographyResource(FindStationLinks findStationLinks, NeighboursRepository neighboursRepository,
+    public StationGeographyResource(FindLinkedStations findStationLinks, NeighboursRepository neighboursRepository,
                                     StationGroupsRepository stationGroupsRepository, TramchesterConfig config,
                                     StationLocations stationLocations, NPTGRepository nptgRepository, DTOFactory dtoFactory) {
         this.nptgRepository = nptgRepository;
@@ -69,15 +69,15 @@ public class StationGeographyResource implements APIResource, GraphDatabaseDepen
     public Response getAll() {
         logger.info("Get station links");
 
-        ArrayList<StationLink> allLinks = new ArrayList<>();
+        ArrayList<StationToStationConnection> allLinks = new ArrayList<>();
 
         config.getTransportModes().forEach(transportMode -> {
-            Set<StationLink> links = findStationLinks.findLinkedFor(transportMode);
+            Set<StationToStationConnection> links = findStationLinks.findLinkedFor(transportMode);
             allLinks.addAll(links);
         });
 
         List<StationLinkDTO> results = allLinks.stream().
-                filter(StationLink::hasValidLatlongs).
+                filter(StationToStationConnection::hasValidLatlongs).
                 map(dtoFactory::createStationLinkDTO).
                 collect(Collectors.toList());
 
@@ -98,10 +98,10 @@ public class StationGeographyResource implements APIResource, GraphDatabaseDepen
             return Response.ok(Collections.<StationLinkDTO>emptyList()).build();
         }
 
-        Set<StationLink> allLinks = neighboursRepository.getAll();
+        Set<StationToStationConnection> allLinks = neighboursRepository.getAll();
 
         List<StationLinkDTO> results = allLinks.stream().
-                filter(StationLink::hasValidLatlongs).
+                filter(StationToStationConnection::hasValidLatlongs).
                 map(dtoFactory::createStationLinkDTO).collect(Collectors.toList());
 
         return Response.ok(results).build();

@@ -5,10 +5,9 @@ import com.tramchester.config.NeighbourConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.StationIdPair;
-import com.tramchester.domain.StationLink;
+import com.tramchester.domain.StationToStationConnection;
 import com.tramchester.domain.StationPair;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.LocationType;
@@ -45,12 +44,13 @@ public class Neighbours implements NeighboursRepository {
     private final StationLocationsRepository stationLocations;
     private final Geography geography;
 
-    private final Map<IdFor<Station>, Set<StationLink>> neighbours;
+    private final Map<IdFor<Station>, Set<StationToStationConnection>> neighbours;
     private final boolean enabled;
     private final NeighbourConfig config;
 
     @Inject
-    public Neighbours(StationRepository stationRepository, StationLocationsRepository stationLocations, TramchesterConfig config, Geography geography) {
+    public Neighbours(StationRepository stationRepository, StationLocationsRepository stationLocations,
+                      TramchesterConfig config, Geography geography) {
         this.stationRepository = stationRepository;
         this.stationLocations = stationLocations;
         this.geography = geography;
@@ -88,18 +88,19 @@ public class Neighbours implements NeighboursRepository {
         List<StationPair> toAdd = additional.stream().
                 filter(this::bothValid).
                 map(stationRepository::getStationPair).
-                collect(Collectors.toList());
+                toList();
 
         if (additional.size() != toAdd.size()) {
             logger.warn("Not adding all of the requested additional neighbours, some were invalid, check the logs above");
         }
 
-        toAdd.forEach(this::addAsNeighbours);
+        toAdd.forEach(this::addAsWalkingNeighbours);
     }
 
-    private void addAsNeighbours(StationPair pair) {
-        Station begin = pair.getBegin();
-        Station end = pair.getEnd();
+    private void addAsWalkingNeighbours(final StationPair pair) {
+        final EnumSet<TransportMode> walk = EnumSet.of(Walk);
+        final Station begin = pair.getBegin();
+        final Station end = pair.getEnd();
 
         if (areNeighbours(begin, end)) {
             logger.warn("Config contains pair that were already present as neighbours, skipping " + pair);
@@ -108,25 +109,25 @@ public class Neighbours implements NeighboursRepository {
 
         logger.info("Adding " + pair + " as neighbours");
 
-        Quantity<Length> distance = geography.getDistanceBetweenInMeters(begin, end);
+        final Quantity<Length> distance = geography.getDistanceBetweenInMeters(begin, end);
         final Duration walkingDuration = geography.getWalkingDuration(begin, end);
 
-        addNeighbour(begin, new StationLink(begin, end, Collections.singleton(Walk), distance, walkingDuration));
-        addNeighbour(end, new StationLink(end, begin, Collections.singleton(Walk), distance, walkingDuration));
+        addNeighbour(begin, new StationToStationConnection(begin, end, walk, distance, walkingDuration));
+        addNeighbour(end, new StationToStationConnection(end, begin, walk, distance, walkingDuration));
     }
 
-    void addNeighbour(Station station, StationLink link) {
-        IdFor<Station> id = station.getId();
-        if (neighbours.containsKey(id)) {
-            neighbours.get(id).add(link);
+    void addNeighbour(final Station startStation, final StationToStationConnection link) {
+        final IdFor<Station> startStationId = startStation.getId();
+        if (neighbours.containsKey(startStationId)) {
+            neighbours.get(startStationId).add(link);
         } else {
-            HashSet<StationLink> links = new HashSet<>();
+            Set<StationToStationConnection> links = new HashSet<>();
             links.add(link);
-            neighbours.put(id, links);
+            neighbours.put(startStationId, links);
         }
     }
 
-    private boolean bothValid(StationIdPair stationIdPair) {
+    private boolean bothValid(final StationIdPair stationIdPair) {
         if (!stationRepository.hasStationId(stationIdPair.getBeginId())) {
             logger.warn(format("begin station id for pair %s is invalid", stationIdPair));
             return false;
@@ -146,41 +147,42 @@ public class Neighbours implements NeighboursRepository {
     }
 
     @Override
-    public Set<StationLink> getAll() {
+    public Set<StationToStationConnection> getAll() {
         return neighbours.values().stream().flatMap(Collection::stream).collect(Collectors.toUnmodifiableSet());
     }
 
     @Override
-    public Set<Station> getNeighboursFor(IdFor<Station> id) {
-        return neighbours.get(id).stream().map(StationLink::getEnd).collect(Collectors.toUnmodifiableSet());
+    public Set<Station> getNeighboursFor(final IdFor<Station> id) {
+        return neighbours.get(id).stream().map(StationToStationConnection::getEnd).collect(Collectors.toUnmodifiableSet());
     }
 
     @Override
-    public Set<StationLink> getNeighbourLinksFor(IdFor<Station> id) {
+    public Set<StationToStationConnection> getNeighbourLinksFor(final IdFor<Station> id) {
         return neighbours.get(id);
     }
 
     @Override
-    public boolean hasNeighbours(IdFor<Station> id) {
+    public boolean hasNeighbours(final IdFor<Station> id) {
         return neighbours.containsKey(id);
     }
 
     @Override
-    public boolean areNeighbours(Location<?> start, Location<?> destination) {
-        if (start.getLocationType() == LocationType.Station && destination.getLocationType()==LocationType.Station) {
-            IdFor<Station> stationId = StringIdFor.convert(start.getId(), Station.class);
-            IdFor<Station> destinationId = StringIdFor.convert(destination.getId(), Station.class);
-            if (!hasNeighbours(stationId)) {
+    public boolean areNeighbours(final Location<?> start, final Location<?> destination) {
+        if (start.getLocationType()==LocationType.Station && destination.getLocationType()==LocationType.Station) {
+            final IdFor<Station> startId = StringIdFor.convert(start.getId(), Station.class);
+            final IdFor<Station> destinationId = StringIdFor.convert(destination.getId(), Station.class);
+            if (!hasNeighbours(startId)) {
                 return false;
             }
-            IdSet<Station> neighbours = getNeighboursFor(stationId).stream().collect(IdSet.collector());
-            return neighbours.contains(destinationId);
+            return getNeighboursFor(startId).stream().anyMatch(neighbourId -> destinationId.equals(neighbourId.getId()));
+//            final IdSet<Station> neighbours = getNeighboursFor(startId).stream().collect(IdSet.collector());
+//            return neighbours.contains(destinationId);
         }
         return false;
     }
 
     @Override
-    public boolean areNeighbours(LocationSet starts, LocationSet destinations) {
+    public boolean areNeighbours(final LocationSet starts, final LocationSet destinations) {
         return starts.stationsOnlyStream().
                 map(Location::getId).
                 filter(this::hasNeighbours).
@@ -194,22 +196,22 @@ public class Neighbours implements NeighboursRepository {
     }
 
     private void createNeighbours() {
-        MarginInMeters marginInMeters = MarginInMeters.of(config.getDistanceToNeighboursKM());
+        final MarginInMeters marginInMeters = MarginInMeters.of(config.getDistanceToNeighboursKM());
 
         logger.info(format("Adding neighbouring stations for range %s and diff modes only %s",
                 marginInMeters, DIFF_MODES_ONLY));
 
-        final Set<TransportMode> walk = Collections.singleton(Walk);
+        final EnumSet<TransportMode> walk = EnumSet.of(Walk);
 
         stationRepository.getActiveStationStream().
             filter(station -> station.getGridPosition().isValid()).
             forEach(begin -> {
-                Set<TransportMode> beginModes = begin.getTransportModes();
+                final EnumSet<TransportMode> beginModes = begin.getTransportModes();
                 // nearby could be any transport mode
-                Set<StationLink> links = stationLocations.nearestStationsUnsorted(begin, marginInMeters).
+                Set<StationToStationConnection> links = stationLocations.nearestStationsUnsorted(begin, marginInMeters).
                     filter(nearby -> !nearby.equals(begin)).
                     filter(nearby -> DIFF_MODES_ONLY && noOverlapModes(beginModes, nearby.getTransportModes())).
-                    map(nearby -> StationLink.create(begin, nearby, walk, geography)).
+                    map(nearby -> StationToStationConnection.createForWalk(begin, nearby, walk, geography)).
                     collect(Collectors.toSet());
                 if (!links.isEmpty()) {
                     neighbours.put(begin.getId(), links);
@@ -220,9 +222,10 @@ public class Neighbours implements NeighboursRepository {
 
     }
 
-    private boolean noOverlapModes(Set<TransportMode> modesA, Set<TransportMode> modesB) {
-        boolean aNotInB = modesA.stream().noneMatch(modesB::contains);
-        boolean bNotInA = modesB.stream().noneMatch(modesA::contains);
-        return aNotInB && bNotInA;
+    private boolean noOverlapModes(EnumSet<TransportMode> modesA, EnumSet<TransportMode> modesB) {
+        return !TransportMode.intersects(modesA, modesB);
+//        boolean aNotInB = modesA.stream().noneMatch(modesB::contains);
+//        boolean bNotInA = modesB.stream().noneMatch(modesA::contains);
+//        return aNotInB && bNotInA;
     }
 }

@@ -1,7 +1,7 @@
 package com.tramchester.domain.presentation.DTO.factory;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.domain.StationLink;
+import com.tramchester.domain.StationToStationConnection;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.*;
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
@@ -42,7 +42,7 @@ public class DTOFactory {
         return new StationGroupDTO(areaId, contained);
     }
 
-    public StationLinkDTO createStationLinkDTO(StationLink stationLink) {
+    public StationLinkDTO createStationLinkDTO(StationToStationConnection stationLink) {
         LocationRefWithPosition begin = createLocationRefWithPosition(stationLink.getBegin());
         LocationRefWithPosition end = createLocationRefWithPosition(stationLink.getEnd());
         Double distanceInMeters = stationLink.getDistanceInMeters().to(Units.METRE).getValue().doubleValue();

@@ -2,13 +2,13 @@ package com.tramchester.unit.graph.calculation;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.domain.StationLink;
+import com.tramchester.domain.StationToStationConnection;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.FindRouteEndPoints;
-import com.tramchester.graph.search.FindStationLinks;
+import com.tramchester.graph.search.FindLinkedStations;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
@@ -27,7 +27,7 @@ import javax.measure.quantity.Length;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Set;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
@@ -66,13 +66,13 @@ class GraphQueriesTests {
 
     @Test
     void shouldHaveCorrectLinksBetweenStations() {
-        FindStationLinks findStationLinks = componentContainer.get(FindStationLinks.class);
+        FindLinkedStations findStationLinks = componentContainer.get(FindLinkedStations.class);
 
-        Set<StationLink> links = findStationLinks.findLinkedFor(Tram);
+        Set<StationToStationConnection> links = findStationLinks.findLinkedFor(Tram);
 
         assertEquals(6, links.size());
 
-        Set<TransportMode> modes = Collections.singleton(Tram);
+        EnumSet<TransportMode> modes = EnumSet.of(Tram);
         assertTrue(links.contains(createStationLink(modes, transportData.getFirst(), transportData.getSecond())));
         assertTrue(links.contains(createStationLink(modes, transportData.getSecond(), transportData.getInterchange())));
         assertTrue(links.contains(createStationLink(modes, transportData.getInterchange(), transportData.getFourthStation())));
@@ -83,11 +83,11 @@ class GraphQueriesTests {
     }
 
     @NotNull
-    private StationLink createStationLink(Set<TransportMode> modes, Station first, Station second) {
+    private StationToStationConnection createStationLink(EnumSet<TransportMode> modes, Station first, Station second) {
         // distance and time not used in equality
         Quantity<Length> distance = Quantities.getQuantity(11.1111D, Units.METRE);
         Duration walkingTimeMins = Duration.ofSeconds(42);
-        return new StationLink(first, second, modes, distance, walkingTimeMins);
+        return new StationToStationConnection(first, second, modes, distance, walkingTimeMins);
     }
 
     @Test

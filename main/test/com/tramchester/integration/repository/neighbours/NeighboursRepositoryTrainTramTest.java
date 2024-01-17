@@ -3,7 +3,7 @@ package com.tramchester.integration.repository.neighbours;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.StationLink;
+import com.tramchester.domain.StationToStationConnection;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.RailAndTramGreaterManchesterConfig;
@@ -89,10 +89,10 @@ public class NeighboursRepositoryTrainTramTest {
 
     @Test
     void shouldHaveLinksForTrainStation() {
-        List<StationLink> linksForTrain = new ArrayList<>(neighboursRepository.getNeighbourLinksFor(altrinchamTrain.getId()));
+        List<StationToStationConnection> linksForTrain = new ArrayList<>(neighboursRepository.getNeighbourLinksFor(altrinchamTrain.getId()));
         assertEquals(1, linksForTrain.size());
 
-        StationLink foundLink = linksForTrain.get(0);
+        StationToStationConnection foundLink = linksForTrain.get(0);
 
         assertEquals(altrinchamTrain, foundLink.getBegin());
         assertEquals(altrinchamTram, foundLink.getEnd());
@@ -100,10 +100,10 @@ public class NeighboursRepositoryTrainTramTest {
 
     @Test
     void shouldHaveLinksForTramStation() {
-        List<StationLink> linksForTram = new ArrayList<>(neighboursRepository.getNeighbourLinksFor(altrinchamTram.getId()));
+        List<StationToStationConnection> linksForTram = new ArrayList<>(neighboursRepository.getNeighbourLinksFor(altrinchamTram.getId()));
         assertEquals(1, linksForTram.size());
 
-        StationLink foundLink = linksForTram.get(0);
+        StationToStationConnection foundLink = linksForTram.get(0);
 
         assertEquals(altrinchamTram, foundLink.getBegin());
         assertEquals(altrinchamTrain, foundLink.getEnd());
@@ -111,13 +111,13 @@ public class NeighboursRepositoryTrainTramTest {
 
     @Test
     void shouldGetAllLinksAsExpected() {
-        Set<StationLink> allLinks = neighboursRepository.getAll();
+        Set<StationToStationConnection> allLinks = neighboursRepository.getAll();
 
-        List<StationLink> fromTram = allLinks.stream().filter(link -> link.getBegin().equals(altrinchamTram)).collect(Collectors.toList());
+        List<StationToStationConnection> fromTram = allLinks.stream().filter(link -> link.getBegin().equals(altrinchamTram)).collect(Collectors.toList());
         assertEquals(1, fromTram.size());
         assertEquals(altrinchamTrain, fromTram.get(0).getEnd());
 
-        List<StationLink> fromTrain = allLinks.stream().filter(link -> link.getBegin().equals(altrinchamTrain)).collect(Collectors.toList());
+        List<StationToStationConnection> fromTrain = allLinks.stream().filter(link -> link.getBegin().equals(altrinchamTrain)).collect(Collectors.toList());
         assertEquals(1, fromTrain.size());
         assertEquals(altrinchamTram, fromTrain.get(0).getEnd());
     }

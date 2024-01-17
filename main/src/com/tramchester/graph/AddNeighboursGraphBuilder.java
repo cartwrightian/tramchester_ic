@@ -3,7 +3,7 @@ package com.tramchester.graph;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.NeighbourConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.StationLink;
+import com.tramchester.domain.StationToStationConnection;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
 import com.tramchester.graph.facade.MutableGraphTransaction;
@@ -97,7 +97,7 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
                     filter(filter::shouldInclude).
                     filter(station -> neighboursRepository.hasNeighbours(station.getId())).
                     forEach(station -> {
-                        Set<StationLink> links = neighboursRepository.getNeighbourLinksFor(station.getId());
+                        final Set<StationToStationConnection> links = neighboursRepository.getNeighbourLinksFor(station.getId());
                         addNeighbourRelationships(txn, filter, station, links);
                 });
             timedTransaction.commit();
@@ -119,8 +119,8 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
         }
     }
 
-    private void addNeighbourRelationships(MutableGraphTransaction txn, GraphFilter filter, Station from, Set<StationLink> links) {
-        MutableGraphNode fromNode = txn.findNodeMutable(from);
+    private void addNeighbourRelationships(MutableGraphTransaction txn, GraphFilter graphFilter, Station from, Set<StationToStationConnection> links) {
+        final MutableGraphNode fromNode = txn.findNodeMutable(from);
         if (fromNode==null) {
             String msg = "Could not find database node for from: " + from.getId();
             logger.error(msg);
@@ -130,21 +130,20 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
         logger.debug("Adding neighbour relations from " + from.getId());
 
         links.stream().
-                filter(link -> filter.shouldInclude(link.getEnd())).
+                filter(link -> graphFilter.shouldInclude(link.getEnd())).
                 forEach(link -> {
-                    Station station = link.getEnd();
-                    MutableGraphNode toNode = txn.findNodeMutable(station);
-                if (toNode==null) {
-                    String msg = "Could not find database node for to: " + link.getEnd().getId();
-                    logger.error(msg);
-                    throw new RuntimeException(msg);
-                }
-
-                Duration walkingCost = link.getWalkingTime();
-                if (!addNeighbourRelationship(txn, fromNode, toNode, walkingCost)) {
-                    logger.warn(format("Already neighbour link between %s", link));
-                }
-            });
+                    final Station station = link.getEnd();
+                    final MutableGraphNode toNode = txn.findNodeMutable(station);
+                    if (toNode==null) {
+                        String msg = "Could not find database node for to: " + link.getEnd().getId();
+                        logger.error(msg);
+                        throw new RuntimeException(msg);
+                    }
+                    final Duration walkingCost = link.getConnectionTime();
+                    if (!addNeighbourRelationship(txn, fromNode, toNode, walkingCost)) {
+                        logger.warn(format("Already neighbour link between %s", link));
+                    }
+                });
     }
 
     public static class Ready {

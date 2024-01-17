@@ -2,7 +2,7 @@ package com.tramchester.unit.domain.places;
 
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Route;
-import com.tramchester.domain.StationLink;
+import com.tramchester.domain.StationToStationConnection;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.*;
 import com.tramchester.domain.reference.TransportMode;
@@ -15,14 +15,15 @@ import tech.units.indriya.unit.Units;
 import javax.measure.Quantity;
 import javax.measure.quantity.Length;
 import java.time.Duration;
-import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Set;
 
 import static com.tramchester.domain.reference.TransportMode.Walk;
 import static com.tramchester.testSupport.TestEnv.getTrainTestRoute;
 import static com.tramchester.testSupport.reference.KnownLocations.nearPiccGardens;
 import static com.tramchester.testSupport.reference.KnownLocations.nearStPetersSquare;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class LinkedInterchangeStationTest {
 
@@ -61,12 +62,12 @@ public class LinkedInterchangeStationTest {
     @Test
     void shouldHaveCreateLinkedInterchange() {
 
-        Set<TransportMode> modes = Collections.singleton(Walk);
+        EnumSet<TransportMode> modes = EnumSet.of(Walk);
         Quantity<Length> distance = Quantities.getQuantity(200, Units.METRE);
         Duration walkingTime = Duration.ofMinutes(4);
 
-        StationLink tramToTrain = new StationLink(tramStation, trainStation, modes, distance, walkingTime);
-        StationLink trainToTram = new StationLink(trainStation, tramStation, modes, distance, walkingTime);
+        StationToStationConnection tramToTrain = new StationToStationConnection(tramStation, trainStation, modes, distance, walkingTime);
+        StationToStationConnection trainToTram = new StationToStationConnection(trainStation, tramStation, modes, distance, walkingTime);
 
         InterchangeStation tramInterchange = new LinkedInterchangeStation(tramToTrain);
 
@@ -101,8 +102,8 @@ public class LinkedInterchangeStationTest {
 
     @Test
     void shouldHaveCreateLinkedInterchangeMultipleLinks() {
+        EnumSet<TransportMode> modes = EnumSet.of(Walk);
 
-        Set<TransportMode> modes = Collections.singleton(Walk);
         Quantity<Length> distance = Quantities.getQuantity(200, Units.METRE);
         Duration walkingTime = Duration.ofMinutes(4);
 
@@ -116,8 +117,8 @@ public class LinkedInterchangeStationTest {
         tramStationB.addRoutePickUp(tramPickupB);
         tramStationB.addRouteDropOff(tramDropoffB);
 
-        StationLink trainToTramA = new StationLink(trainStation, tramStation, modes, distance, walkingTime);
-        StationLink trainToTramB = new StationLink(trainStation, tramStationB, modes, distance, walkingTime);
+        StationToStationConnection trainToTramA = new StationToStationConnection(trainStation, tramStation, modes, distance, walkingTime);
+        StationToStationConnection trainToTramB = new StationToStationConnection(trainStation, tramStationB, modes, distance, walkingTime);
 
         LinkedInterchangeStation trainInterchange = new LinkedInterchangeStation(trainToTramA);
         trainInterchange.addLink(trainToTramB);

@@ -2,9 +2,9 @@ package com.tramchester.integration.graph;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.domain.StationLink;
+import com.tramchester.domain.StationToStationConnection;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.search.FindStationLinks;
+import com.tramchester.graph.search.FindLinkedStations;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.mappers.Geography;
 import com.tramchester.repository.StationRepository;
@@ -15,17 +15,17 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Set;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-class FindStationLinksTest {
+class FindLinkedStationsTest {
 
     private static ComponentContainer componentContainer;
-    private FindStationLinks findStationLinks;
+    private FindLinkedStations findStationLinks;
     private StationRepository stationRepository;
     private Geography geography;
 
@@ -44,13 +44,13 @@ class FindStationLinksTest {
     @BeforeEach
     void beforeEachOfTheTestsRun() {
         stationRepository = componentContainer.get(StationRepository.class);
-        findStationLinks = componentContainer.get(FindStationLinks.class);
+        findStationLinks = componentContainer.get(FindLinkedStations.class);
         geography = componentContainer.get(Geography.class);
     }
 
     @Test
     void shouldFindExpectedLinksBetweenStations() {
-        Set<StationLink> results = findStationLinks.findLinkedFor(Tram);
+        Set<StationToStationConnection> results = findStationLinks.findLinkedFor(Tram);
         assertEquals(202, results.size());
 
         assertTrue(results.contains(createLink(StPetersSquare, PiccadillyGardens)));
@@ -72,15 +72,15 @@ class FindStationLinksTest {
 
     @Test
     void shouldHaveCorrectTransportMode() {
-        Set<StationLink> forTrams = findStationLinks.findLinkedFor(Tram);
+        Set<StationToStationConnection> forTrams = findStationLinks.findLinkedFor(Tram);
         long notTram = forTrams.stream().filter(link -> !link.getLinkingModes().contains(Tram)).count();
         assertEquals(0, notTram);
     }
 
-    private StationLink createLink(TramStations stationA, TramStations stationB) {
-        final Set<TransportMode> singleton = Collections.singleton(Tram);
-        return StationLink.create(stationA.from(stationRepository), stationB.from(stationRepository),
-                singleton, geography);
+    private StationToStationConnection createLink(TramStations stationA, TramStations stationB) {
+        final EnumSet<TransportMode> tram = EnumSet.of(Tram);
+        return StationToStationConnection.createForWalk(stationA.from(stationRepository), stationB.from(stationRepository),
+                tram, geography);
     }
 
 }
