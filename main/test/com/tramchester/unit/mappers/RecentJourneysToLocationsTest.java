@@ -4,17 +4,15 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.MutableRoute;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.places.LocationType;
-import com.tramchester.domain.places.MutableStation;
-import com.tramchester.domain.places.NPTGLocality;
-import com.tramchester.domain.places.Station;
+import com.tramchester.domain.id.IdForDTO;
+import com.tramchester.domain.places.*;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.presentation.Timestamped;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.mappers.RecentJourneysToLocations;
-import com.tramchester.repository.StationRepository;
+import com.tramchester.repository.LocationRepository;
 import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
@@ -35,15 +33,22 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class RecentJourneysToLocationsTest extends EasyMockSupport {
 
+    private final IdForDTO altrinchamIdForDTO = Altrincham.getIdForDTO();
+    private final IdForDTO buryIdForDTO = Bury.getIdForDTO();
+    private final IdForDTO stockportIdDTO = Stockport.getIdDTO();
+
     private RecentJourneysToLocations mapper;
-    private StationRepository stationRepository;
+    private LocationRepository locationRepository;
     private MutableStation stockportRail;
+
+
+    // NOTE: expectLastCall here due to Capture of Location<?>
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
 
-        stationRepository = createMock(StationRepository.class);
-        mapper = new RecentJourneysToLocations(stationRepository);
+        locationRepository = createMock(LocationRepository.class);
+        mapper = new RecentJourneysToLocations(locationRepository);
 
         stockportRail = new MutableStation(Stockport.getId(), NPTGLocality.InvalidId(), "Stockport Train",
                 LatLong.Invalid, GridPosition.Invalid, DataSourceID.tfgm, "XXX64");
@@ -62,16 +67,19 @@ public class RecentJourneysToLocationsTest extends EasyMockSupport {
         Set<Timestamped> timestampedIds = stationIds.stream().map(id -> new Timestamped(id, timeStamp, LocationType.Station)).collect(Collectors.toSet());
         recentJourneys.setTimeStamps(timestampedIds);
 
-        EasyMock.expect(stationRepository.hasStationId(Altrincham.getId())).andReturn(true);
-        EasyMock.expect(stationRepository.getStationById(Altrincham.getId())).andReturn(Altrincham.fake());
-        EasyMock.expect(stationRepository.hasStationId(Bury.getId())).andReturn(true);
-        EasyMock.expect(stationRepository.getStationById(Bury.getId())).andReturn(Bury.fake());
+        EasyMock.expect(locationRepository.hasLocation(LocationType.Station, altrinchamIdForDTO)).andReturn(true);
+
+        EasyMock.expect(locationRepository.getLocation(LocationType.Station, altrinchamIdForDTO));
+        EasyMock.expectLastCall().andReturn(Altrincham.fake());
+        EasyMock.expect(locationRepository.hasLocation(LocationType.Station, buryIdForDTO)).andReturn(true);
+        EasyMock.expect(locationRepository.getLocation(LocationType.Station, buryIdForDTO));
+        EasyMock.expectLastCall().andReturn(Bury.fake());
 
         replayAll();
-        Set<Station> stations = mapper.from(recentJourneys, EnumSet.allOf(TransportMode.class));
+        Set<Location<?>> locations = mapper.from(recentJourneys, EnumSet.allOf(TransportMode.class));
         verifyAll();
 
-        assertEquals(timestampedIds.size(), stations.size());
+        assertEquals(timestampedIds.size(), locations.size());
     }
 
     @Test
@@ -84,16 +92,17 @@ public class RecentJourneysToLocationsTest extends EasyMockSupport {
         Set<Timestamped> timestampedIds = stationIds.stream().map(id -> new Timestamped(id, timeStamp, LocationType.Station)).collect(Collectors.toSet());
         recentJourneys.setTimeStamps(timestampedIds);
 
-        EasyMock.expect(stationRepository.hasStationId(Altrincham.getId())).andReturn(true);
-        EasyMock.expect(stationRepository.getStationById(Altrincham.getId())).andReturn(Altrincham.fake());
-        EasyMock.expect(stationRepository.hasStationId(Bury.getId())).andReturn(false);
+        EasyMock.expect(locationRepository.hasLocation(LocationType.Station, altrinchamIdForDTO)).andReturn(true);
+        EasyMock.expect(locationRepository.getLocation(LocationType.Station, altrinchamIdForDTO));
+        EasyMock.expectLastCall().andReturn(Altrincham.fake());
+        EasyMock.expect(locationRepository.hasLocation(LocationType.Station, buryIdForDTO)).andReturn(false);
 
         replayAll();
-        Set<Station> stations = mapper.from(recentJourneys, EnumSet.allOf(TransportMode.class));
+        Set<Location<?>> locations = mapper.from(recentJourneys, EnumSet.allOf(TransportMode.class));
         verifyAll();
 
-        assertEquals(1, stations.size());
-        assertTrue(stations.contains(Altrincham.fake()));
+        assertEquals(1, locations.size());
+        assertTrue(locations.contains(Altrincham.fake()));
     }
 
     @Test
@@ -106,13 +115,15 @@ public class RecentJourneysToLocationsTest extends EasyMockSupport {
         Set<Timestamped> timestampedIds = stationIds.stream().map(id -> new Timestamped(id, timeStamp, LocationType.Station)).collect(Collectors.toSet());
         recentJourneys.setTimeStamps(timestampedIds);
 
-        EasyMock.expect(stationRepository.hasStationId(Altrincham.getId())).andReturn(true);
-        EasyMock.expect(stationRepository.getStationById(Altrincham.getId())).andReturn(Altrincham.fake());
-        EasyMock.expect(stationRepository.hasStationId(Stockport.getId())).andReturn(true);
-        EasyMock.expect(stationRepository.getStationById(Stockport.getId())).andReturn(stockportRail);
+        EasyMock.expect(locationRepository.hasLocation(LocationType.Station, altrinchamIdForDTO)).andReturn(true);
+        EasyMock.expect(locationRepository.getLocation(LocationType.Station, altrinchamIdForDTO));
+        EasyMock.expectLastCall().andReturn(Altrincham.fake());
+        EasyMock.expect(locationRepository.hasLocation(LocationType.Station, stockportIdDTO)).andReturn(true);
+        EasyMock.expect(locationRepository.getLocation(LocationType.Station, stockportIdDTO));
+        EasyMock.expectLastCall().andReturn(stockportRail);
 
         replayAll();
-        Set<Station> all = mapper.from(recentJourneys, EnumSet.allOf(TransportMode.class));
+        Set<Location<?>> all = mapper.from(recentJourneys, EnumSet.allOf(TransportMode.class));
         verifyAll();
 
         assertEquals(2, all.size());
@@ -130,16 +141,19 @@ public class RecentJourneysToLocationsTest extends EasyMockSupport {
         Set<Timestamped> timestampedIds = stationIds.stream().map(id -> new Timestamped(id, timeStamp, LocationType.Station)).collect(Collectors.toSet());
         recentJourneys.setTimeStamps(timestampedIds);
 
-        EasyMock.expect(stationRepository.hasStationId(Altrincham.getId())).andStubReturn(true);
-        EasyMock.expect(stationRepository.getStationById(Altrincham.getId())).andStubReturn(Altrincham.fake());
-        EasyMock.expect(stationRepository.hasStationId(Bury.getId())).andStubReturn(true);
-        EasyMock.expect(stationRepository.getStationById(Bury.getId())).andStubReturn(Bury.fake());
-        EasyMock.expect(stationRepository.hasStationId(Stockport.getId())).andStubReturn(true);
-        EasyMock.expect(stationRepository.getStationById(Stockport.getId())).andStubReturn(stockportRail);
+        EasyMock.expect(locationRepository.hasLocation(LocationType.Station, altrinchamIdForDTO)).andStubReturn(true);
+        EasyMock.expect(locationRepository.getLocation(LocationType.Station, altrinchamIdForDTO));
+        EasyMock.expectLastCall().andStubReturn(Altrincham.fake());
+        EasyMock.expect(locationRepository.hasLocation(LocationType.Station, buryIdForDTO)).andStubReturn(true);
+        EasyMock.expect(locationRepository.getLocation(LocationType.Station, buryIdForDTO));
+        EasyMock.expectLastCall().andStubReturn(Bury.fake());
+        EasyMock.expect(locationRepository.hasLocation(LocationType.Station, stockportIdDTO)).andStubReturn(true);
+        EasyMock.expect(locationRepository.getLocation(LocationType.Station, stockportIdDTO));
+        EasyMock.expectLastCall().andStubReturn(stockportRail);
 
         replayAll();
-        Set<Station> tramStations = mapper.from(recentJourneys, EnumSet.of(TransportMode.Tram));
-        Set<Station> trainStations = mapper.from(recentJourneys, EnumSet.of(TransportMode.Train));
+        Set<Location<?>> tramStations = mapper.from(recentJourneys, EnumSet.of(TransportMode.Tram));
+        Set<Location<?>> trainStations = mapper.from(recentJourneys, EnumSet.of(TransportMode.Train));
         verifyAll();
 
         assertEquals(2, tramStations.size());

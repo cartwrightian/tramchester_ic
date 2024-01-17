@@ -54,7 +54,7 @@ public class JourneyLocationsResource extends UsesRecentCookie implements APIRes
     private final DTOFactory DTOFactory;
     private final TramchesterConfig config;
     private final TransportModeRepository transportModeRepository;
-    private final RecentJourneysToLocations recentJourneysToStations;
+    private final RecentJourneysToLocations recentJourneysToLocations;
 
     @Inject
     public JourneyLocationsResource(StationRepository stationRepository,
@@ -63,12 +63,12 @@ public class JourneyLocationsResource extends UsesRecentCookie implements APIRes
                                     StationGroupsRepository stationGroupsRepository, DataSourceRepository dataSourceRepository,
                                     StationLocations stationLocations, DTOFactory DTOFactory, LocationDTOFactory locationDTOFactory,
                                     TramchesterConfig config, TransportModeRepository transportModeRepository,
-                                    RecentJourneysToLocations recentJourneysToStations) {
+                                    RecentJourneysToLocations recentJourneysToLocations) {
         super(updateRecentJourneys, providesNow);
         this.stationGroupsRepository = stationGroupsRepository;
         this.DTOFactory = DTOFactory;
         this.transportModeRepository = transportModeRepository;
-        this.recentJourneysToStations = recentJourneysToStations;
+        this.recentJourneysToLocations = recentJourneysToLocations;
         logger.info("created");
         this.stationRepository = stationRepository;
         this.dataSourceRepository = dataSourceRepository;
@@ -178,7 +178,7 @@ public class JourneyLocationsResource extends UsesRecentCookie implements APIRes
     @ApiResponse(content = @Content(array = @ArraySchema(uniqueItems = true, schema = @Schema(implementation = LocationRefDTO.class))))
     @CacheControl(noCache = true)
     public Response getRecent(@CookieParam(TRAMCHESTER_RECENT) Cookie cookie, @QueryParam("modes") String rawModes) {
-        logger.info(format("Get recent locations for cookie %s", cookie));
+        logger.info(format("Get recent locations for cookie %s and modes", cookie, rawModes));
 
         final EnumSet<TransportMode> modes;
         if (rawModes!=null) {
@@ -189,7 +189,9 @@ public class JourneyLocationsResource extends UsesRecentCookie implements APIRes
 
         RecentJourneys recentJourneys = recentFromCookie(cookie);
 
-        Set<Station> recent = recentJourneysToStations.from(recentJourneys, modes);
+        logger.info("Recent Journeys are " + recentJourneys);
+
+        Set<Location<?>> recent = recentJourneysToLocations.from(recentJourneys, modes);
 
         List<LocationRefDTO> results = toStationRefDTOList(recent);
 

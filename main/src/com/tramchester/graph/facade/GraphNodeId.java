@@ -35,7 +35,7 @@ public class GraphNodeId {
     @Override
     public String toString() {
         return "GraphNodeId{" +
-                "legacyId=" + internalId +
+                "internalId=" + internalId +
                 '}';
     }
 

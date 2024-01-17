@@ -7,6 +7,7 @@ import com.tramchester.domain.UpdateRecentJourneys;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
@@ -117,7 +118,7 @@ public class StationResource extends UsesRecentCookie implements APIResource {
 
             if (builder==null) {
                 final Set<Station> matching = stationRepository.getStationsServing(mode);
-                final List<LocationRefDTO> results = toStationRefDTOList(matching);
+                final List<LocationRefDTO> results = toLocationDTOs(matching);
                 if (results.isEmpty()) {
                     logger.warn("No stations found for " + mode.name());
                 } else {
@@ -169,7 +170,7 @@ public class StationResource extends UsesRecentCookie implements APIResource {
         List<Station> nearestStations = stationLocations.nearestStationsSorted(location,
                 config.getNumOfNearestStopsToOffer(), margin, modes);
 
-        List<LocationRefDTO> results = toStationRefDTOList(nearestStations);
+        List<LocationRefDTO> results = toLocationDTOs(nearestStations);
 
         return Response.ok(results).build();
     }
@@ -195,7 +196,7 @@ public class StationResource extends UsesRecentCookie implements APIResource {
         List<Station> nearestStations = stationLocations.nearestStationsSorted(location,
                 config.getNumOfNearestStopsToOffer(), margin, modes);
 
-        List<LocationRefDTO> results = toStationRefDTOList(nearestStations);
+        List<LocationRefDTO> results = toLocationDTOs(nearestStations);
 
         return Response.ok(results).build();
     }
@@ -218,16 +219,16 @@ public class StationResource extends UsesRecentCookie implements APIResource {
 
         RecentJourneys recentJourneys = recentFromCookie(cookie);
 
-        Set<Station> recent = recentJourneysToStations.from(recentJourneys, modes);
+        Set<Location<?>> recent = recentJourneysToStations.from(recentJourneys, modes);
 
-        List<LocationRefDTO> results = toStationRefDTOList(recent);
+        List<LocationRefDTO> results = toLocationDTOs(recent);
 
         return Response.ok(results).build();
     }
 
     @NotNull
-    private List<LocationRefDTO> toStationRefDTOList(Collection<Station> stations) {
-        return stations.stream().
+    private List<LocationRefDTO> toLocationDTOs(Collection<? extends Location<?>> locations) {
+        return locations.stream().
                 map(DTOFactory::createLocationRefDTO).
                 // sort server side is here as an optimisation for front end sorting time
                 sorted(Comparator.comparing(dto -> dto.getName().toLowerCase())).

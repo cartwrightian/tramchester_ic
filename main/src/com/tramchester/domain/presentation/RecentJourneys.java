@@ -73,4 +73,11 @@ public class RecentJourneys  {
     public Set<Timestamped> getTimeStamps() {
         return timestamps;
     }
+
+    @Override
+    public String toString() {
+        return "RecentJourneys{" +
+                "timestamps=" + timestamps +
+                '}';
+    }
 }

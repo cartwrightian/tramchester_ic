@@ -23,14 +23,13 @@ public class LocationRepository {
         this.postcodeRepository = postcodeRepository;
     }
 
-    @Deprecated
-    public Location<?> getLocation(LocationType type, String rawId) {
+    public boolean hasLocation(LocationType type, IdForDTO idForDTO) {
+        String rawId = idForDTO.getActualId();
         return switch (type) {
-            case Station -> stationRepository.getStationById(Station.createId(rawId));
-            case Platform -> throw new RuntimeException("Not supported yet");
-            case StationGroup -> stationGroupsRepository.getStationGroup(NPTGLocality.createId(rawId));
-            case Postcode -> postcodeRepository.getPostcode(PostcodeLocation.createId(rawId));
-            case MyLocation -> MyLocation.parseFromId(rawId);
+            case Station -> stationRepository.hasStationId(Station.createId(rawId));
+            case Platform, MyLocation -> false;
+            case StationGroup -> stationGroupsRepository.hasGroup(NPTGLocality.createId(rawId));
+            case Postcode -> postcodeRepository.hasPostcode(PostcodeLocation.createId(rawId));
         };
     }
 

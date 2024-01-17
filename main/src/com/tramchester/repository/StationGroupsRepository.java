@@ -178,7 +178,14 @@ public class StationGroupsRepository {
         return stationGroups.get(areaId);
     }
 
+    public boolean hasGroup(IdFor<NPTGLocality> id) {
+        guardIsEnabled();
+        return stationGroups.containsKey(id);
+    }
+
     public boolean isEnabled() {
         return enabled;
     }
+
+
 }

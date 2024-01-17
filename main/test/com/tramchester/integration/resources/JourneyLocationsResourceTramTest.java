@@ -164,7 +164,7 @@ class JourneyLocationsResourceTramTest {
         }
         recentJourneys.setTimestamps(recents);
 
-        String recentAsString = RecentJourneys.encodeCookie(mapper,recentJourneys);
+        String recentAsString = RecentJourneys.encodeCookie(mapper, recentJourneys);
         return new Cookie("tramchesterRecent", recentAsString);
     }
 

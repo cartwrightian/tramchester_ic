@@ -34,9 +34,6 @@ public class Timestamped  {
 
     public Timestamped(Location<?> location, LocalDateTime when) {
         this(IdForDTO.createFor(location), when, location.getLocationType());
-        if (location.getLocationType()!= LocationType.Station) {
-            throw new RuntimeException("Only recent stations support in cookies currently");
-        }
     }
 
     public Timestamped(IdForDTO id, LocalDateTime when, LocationType locationType) {
@@ -80,5 +77,14 @@ public class Timestamped  {
     // not using comparable as that causes equality issues, we just want ordering by time and NOT equality by time
     public static int compare(Timestamped first, Timestamped second) {
         return first.when.compareTo(second.when);
+    }
+
+    @Override
+    public String toString() {
+        return "Timestamped{" +
+                "when=" + when +
+                ", id=" + id +
+                ", locationType=" + locationType +
+                '}';
     }
 }
