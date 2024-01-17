@@ -7,7 +7,9 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.reference.TransportMode;
 
 import java.nio.file.Path;
+import java.util.Comparator;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -84,9 +86,13 @@ public class GraphDBTestConfig implements GraphDBConfig {
         return containingFolder.resolve(dbName + ".db");
     }
 
+    // need consistent ordering here to prevent duplication
     private <E extends Enum<E>> String asText(Set<E> enums) {
+
+        List<E> ordered = enums.stream().sorted(Comparator.comparing(Enum::name)).toList();
+
         StringBuilder builder = new StringBuilder();
-        for (E value : enums) {
+        for (E value : ordered) {
             if (!builder.isEmpty()) {
                 builder.append("_");
             }
