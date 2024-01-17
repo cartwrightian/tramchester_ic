@@ -1,0 +1,166 @@
+package com.tramchester.integration.resources;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tramchester.App;
+import com.tramchester.domain.id.IdForDTO;
+import com.tramchester.domain.presentation.DTO.LocationRefDTO;
+import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.presentation.RecentJourneys;
+import com.tramchester.domain.presentation.Timestamped;
+import com.tramchester.integration.testSupport.APIClient;
+import com.tramchester.integration.testSupport.IntegrationAppExtension;
+import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
+import com.tramchester.repository.StationRepository;
+import com.tramchester.resources.JourneyLocationsResource;
+import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.TramStations;
+import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import jakarta.ws.rs.core.Cookie;
+import jakarta.ws.rs.core.GenericType;
+import jakarta.ws.rs.core.Response;
+import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static com.tramchester.testSupport.reference.KnownLocations.nearPiccGardens;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+@ExtendWith(DropwizardExtensionsSupport.class)
+class JourneyLocationsResourceTest {
+
+    private static final IntegrationAppExtension appExtension =
+            new IntegrationAppExtension(App.class, new ResourceTramTestConfig<>(JourneyLocationsResource.class));
+
+    private final ObjectMapper mapper = new ObjectMapper();
+    private StationRepository stationRepository;
+
+    @BeforeEach
+    void beforeEachTestRuns() {
+        App app =  appExtension.getApplication();
+        stationRepository = app.getDependencies().get(StationRepository.class);
+    }
+
+    @Test
+    void shouldGetTramStations() {
+        Response result = APIClient.getApiResponse(appExtension, "locations/mode/Tram");
+
+        assertEquals(200, result.getStatus());
+
+        List<LocationRefDTO> results = result.readEntity(new GenericType<>() {});
+
+        Set<IdForDTO> expectedIds = stationRepository.getStations().stream().
+                map(IdForDTO::createFor).
+                collect(Collectors.toSet());
+
+        assertEquals(expectedIds.size(), results.size());
+
+        List<IdForDTO> resultIds = results.stream().
+                map(LocationRefDTO::getId).
+                toList();
+        assertTrue(expectedIds.containsAll(resultIds));
+
+        ArrayList<LocationRefDTO> sortedResults = new ArrayList<>(results);
+        sortedResults.sort(Comparator.comparing(item -> item.getName().toLowerCase()));
+
+        for (int i = 0; i < sortedResults.size(); i++) {
+            assertEquals(results.get(i), sortedResults.get(i), "not sorted");
+        }
+
+    }
+
+    @Test
+    void shouldGetTramStation304response() {
+        Response resultA = APIClient.getApiResponse(appExtension, "locations/mode/Tram");
+        assertEquals(200, resultA.getStatus());
+
+        Date lastMod = resultA.getLastModified();
+
+        Response resultB = APIClient.getApiResponse(appExtension, "locations/mode/Tram", lastMod);
+        assertEquals(304, resultB.getStatus());
+    }
+
+
+    @Test
+    void shouldGetBusStations() {
+        Response result = APIClient.getApiResponse(appExtension, "locations/mode/Bus");
+
+        assertEquals(200, result.getStatus());
+
+        // buses disabled, but should still get a list back, albeit empty
+        List<LocationRefDTO> results = result.readEntity(new GenericType<>() {});
+        assertEquals(0, results.size());
+    }
+
+    @Test
+    void should404ForUnknownMode() {
+        Response result = APIClient.getApiResponse(appExtension, "locations/mode/Jumping");
+        assertEquals(404, result.getStatus());
+    }
+
+    @Test
+    void shouldGetNearestStationsWithModeGiven() {
+
+        LatLong place = nearPiccGardens.latLong();
+        Response result = APIClient.getApiResponse(appExtension, String.format("locations/near/Tram?lat=%s&lon=%s",
+                place.getLat(), place.getLon()));
+        assertEquals(200, result.getStatus());
+
+        List<LocationRefDTO> stationList = result.readEntity(new GenericType<>() {});
+
+        assertEquals(5,stationList.size());
+        Set<String> ids = stationList.stream().
+                map(LocationRefDTO::getId).
+                map(IdForDTO::getActualId).
+                collect(Collectors.toSet());
+
+        assertTrue(ids.contains(TramStations.PiccadillyGardens.getRawId()));
+        assertTrue(ids.contains(TramStations.StPetersSquare.getRawId()));
+        assertTrue(ids.contains(TramStations.MarketStreet.getRawId()));
+        assertTrue(ids.contains(TramStations.ExchangeSquare.getRawId()));
+        assertTrue(ids.contains(TramStations.Shudehill.getRawId()));
+    }
+
+    @Test
+    void shouldGetRecentStationsWithModes() throws JsonProcessingException {
+        Cookie cookie = createRecentsCookieFor(TramStations.Altrincham, TramStations.Bury, TramStations.ManAirport);
+
+        // same mode, but tests list parsing
+        Response result = APIClient.getApiResponse(appExtension, "locations/recent?modes=Tram,Tram", List.of(cookie));
+        assertEquals(200, result.getStatus());
+
+        List<LocationRefDTO> stationDtos = result.readEntity(new GenericType<>() {});
+
+        assertEquals(3, stationDtos.size());
+
+        Set<String> ids = stationDtos.stream().
+                map(LocationRefDTO::getId).
+                map(IdForDTO::getActualId).
+                collect(Collectors.toSet());
+
+        assertTrue(ids.contains(TramStations.Altrincham.getRawId()));
+        assertTrue(ids.contains(TramStations.Bury.getRawId()));
+        assertTrue(ids.contains(TramStations.ManAirport.getRawId()));
+    }
+
+    @NotNull
+    private Cookie createRecentsCookieFor(TramStations... stations) throws JsonProcessingException {
+        RecentJourneys recentJourneys = new RecentJourneys();
+
+        Set<Timestamped> recents = new HashSet<>();
+        for (TramStations station : stations) {
+            Timestamped timestamped = new Timestamped(station.getId(), TestEnv.LocalNow());
+            recents.add(timestamped);
+        }
+        recentJourneys.setTimestamps(recents);
+
+        String recentAsString = RecentJourneys.encodeCookie(mapper,recentJourneys);
+        return new Cookie("tramchesterRecent", recentAsString);
+    }
+
+}

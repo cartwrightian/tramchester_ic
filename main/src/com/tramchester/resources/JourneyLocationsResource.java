@@ -2,16 +2,10 @@ package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.StationClosures;
 import com.tramchester.domain.UpdateRecentJourneys;
-import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
-import com.tramchester.domain.presentation.DTO.StationClosureDTO;
 import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
 import com.tramchester.domain.presentation.DTO.factory.LocationDTOFactory;
 import com.tramchester.domain.presentation.LatLong;
@@ -47,10 +41,10 @@ import java.util.stream.Collectors;
 import static java.lang.String.format;
 
 @SuppressWarnings("unused")
-@Path("/stations")
+@Path("/locations")
 @Produces(MediaType.APPLICATION_JSON)
-public class StationResource extends UsesRecentCookie implements APIResource {
-    private static final Logger logger = LoggerFactory.getLogger(StationResource.class);
+public class JourneyLocationsResource extends UsesRecentCookie implements APIResource {
+    private static final Logger logger = LoggerFactory.getLogger(JourneyLocationsResource.class);
 
     private final StationRepositoryPublic stationRepository;
     private final DataSourceRepository dataSourceRepository;
@@ -61,15 +55,13 @@ public class StationResource extends UsesRecentCookie implements APIResource {
     private final TransportModeRepository transportModeRepository;
     private final RecentJourneysToStations recentJourneysToStations;
 
-    // TODO Remove unused methods
-
     @Inject
-    public StationResource(StationRepository stationRepository,
-                           UpdateRecentJourneys updateRecentJourneys,
-                           ProvidesNow providesNow,
-                           DataSourceRepository dataSourceRepository, StationLocations stationLocations,
-                           DTOFactory DTOFactory,
-                           LocationDTOFactory locationDTOFactory, TramchesterConfig config, TransportModeRepository transportModeRepository, RecentJourneysToStations recentJourneysToStations) {
+    public JourneyLocationsResource(StationRepository stationRepository,
+                                    UpdateRecentJourneys updateRecentJourneys,
+                                    ProvidesNow providesNow,
+                                    DataSourceRepository dataSourceRepository, StationLocations stationLocations,
+                                    DTOFactory DTOFactory,
+                                    LocationDTOFactory locationDTOFactory, TramchesterConfig config, TransportModeRepository transportModeRepository, RecentJourneysToStations recentJourneysToStations) {
         super(updateRecentJourneys, providesNow);
         this.DTOFactory = DTOFactory;
         this.locationDTOFactory = locationDTOFactory;
@@ -84,24 +76,8 @@ public class StationResource extends UsesRecentCookie implements APIResource {
 
     @GET
     @Timed
-    @Path("/{id}")
-    @Operation(description = "Get station by id")
-    @ApiResponse(content = @Content(schema = @Schema(implementation = LocationDTO.class)))
-    @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.DAYS)
-    public Response get(@PathParam("id") String text) {
-        logger.info("Get station by id: " + text);
-        
-        IdFor<Station> id = Station.createId(text);
-        guardForStationNotExisting(stationRepository, id);
-
-        final LocationDTO locationDTO = locationDTOFactory.createLocationDTO(stationRepository.getStationById(id));
-        return Response.ok(locationDTO).build();
-    }
-
-    @GET
-    @Timed
     @Path("/mode/{mode}")
-    @Operation(description = "Get all stations for transport mode")
+    @Operation(description = "Get all locations for transport mode")
     @ApiResponse(content = @Content(array = @ArraySchema(uniqueItems = true, schema = @Schema(implementation = LocationRefDTO.class))))
     @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.HOURS, isPrivate = false)
     public Response getByMode(@PathParam("mode") String rawMode, @Context Request request) {
@@ -137,47 +113,8 @@ public class StationResource extends UsesRecentCookie implements APIResource {
 
     @GET
     @Timed
-    @Path("/all")
-    @Operation(description = "Get all stations")
-    @ApiResponse(content = @Content(array = @ArraySchema(uniqueItems = true, schema = @Schema(implementation = LocationRefDTO.class))))
-    @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.HOURS, isPrivate = false)
-    public Response getByMode(@Context Request request) {
-        logger.info("Get all stations");
-
-        List<LocationDTO> results = stationRepository.getActiveStationStream().
-                map(locationDTOFactory::createLocationDTO).
-                collect(Collectors.toList());
-        return Response.ok(results).build();
-    }
-
-    @GET
-    @Timed
-    @Path("/near")
-    @Operation(description = "Get stations close to a given lat/lon")
-    @ApiResponse(content = @Content(array = @ArraySchema(uniqueItems = true, schema = @Schema(implementation = LocationRefDTO.class))))
-    @CacheControl(noCache = true)
-    public Response getNear(@QueryParam("lat") double lat, @QueryParam("lon") double lon) {
-        MarginInMeters margin = MarginInMeters.of(config.getNearestStopRangeKM());
-        logger.info(format("Get stations with %s of %s,%s", margin, lat, lon));
-
-        EnumSet<TransportMode> modes = transportModeRepository.getModes();
-
-        LatLong latLong = new LatLong(lat,lon);
-
-        MyLocation location = new MyLocation(latLong);
-
-        List<Station> nearestStations = stationLocations.nearestStationsSorted(location,
-                config.getNumOfNearestStopsToOffer(), margin, modes);
-
-        List<LocationRefDTO> results = toStationRefDTOList(nearestStations);
-
-        return Response.ok(results).build();
-    }
-
-    @GET
-    @Timed
     @Path("/near/{mode}")
-    @Operation(description = "Get stations close to a given lat/lon")
+    @Operation(description = "Get locations close to a given lat/lon")
     @ApiResponse(content = @Content(array = @ArraySchema(uniqueItems = true, schema = @Schema(implementation = LocationRefDTO.class))))
     @CacheControl(noCache = true)
     public Response getNearWithMode(@PathParam("mode") String rawMode, @QueryParam("lat") double lat, @QueryParam("lon") double lon) {
@@ -234,38 +171,5 @@ public class StationResource extends UsesRecentCookie implements APIResource {
                 collect(Collectors.toList());
     }
 
-    @GET
-    @Timed
-    @Path("/closures")
-    @Operation(description = "Get closed stations")
-    @ApiResponse(content = @Content(array = @ArraySchema(uniqueItems = true, schema = @Schema(implementation = StationClosureDTO.class))))
-    @CacheControl(maxAge = 5, maxAgeUnit = TimeUnit.MINUTES)
-    public Response getClosures() {
-        Set<StationClosures> closed = getUpcomingClosuresFor(providesNow.getTramDate());
-
-        logger.info("Get closed stations " + closed);
-
-        List<StationClosureDTO> dtos = closed.stream().
-                map(closure -> new StationClosureDTO(closure.getDateRange(), toRefs(closure.getStations()), closure.isFullyClosed())).
-                collect(Collectors.toList());
-
-        return Response.ok(dtos).build();
-
-    }
-
-    private Set<StationClosures> getUpcomingClosuresFor(TramDate date) {
-        return config.getGTFSDataSource().stream().
-                flatMap(dataSourceRepository -> dataSourceRepository.getStationClosures().stream()).
-                filter(closure -> date.isBefore(closure.getDateRange().getEndDate()) || date.equals(closure.getDateRange().getEndDate())).
-                collect(Collectors.toSet());
-    }
-
-
-    private List<LocationRefDTO> toRefs(IdSet<Station> closedStations) {
-        return closedStations.stream().
-                map(stationRepository::getStationById).
-                map(DTOFactory::createLocationRefDTO).
-                collect(Collectors.toList());
-    }
 
 }

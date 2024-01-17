@@ -32,12 +32,12 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
 
         final Set<TransportMode> modesWithPlatforms = Collections.emptySet();
         final IdSet<Station> additionalInterchanges = IdSet.emptySet();
-        final Set<TransportMode> compositeStationModes = Collections.singleton(TransportMode.Bus);
+        final Set<TransportMode> groupedStationModes = Collections.singleton(TransportMode.Bus);
 
         Path dowloadFolder = Path.of("data/bus");
         gtfsSourceConfig = new TFGMGTFSSourceTestConfig(
                 Collections.singleton(GTFSTransportationType.bus),
-                modesWithPlatforms, additionalInterchanges, compositeStationModes, Collections.emptyList(), Duration.ofMinutes(45));
+                modesWithPlatforms, additionalInterchanges, groupedStationModes, Collections.emptyList(), Duration.ofMinutes(45));
         remoteDataSourceConfig = TFGMRemoteDataSourceConfig.createFor(dowloadFolder);
     }
 

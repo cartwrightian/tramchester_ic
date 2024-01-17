@@ -153,11 +153,11 @@ function getStations(app) {
 async function getStationsFromServer(app) {
 
     var gets = [];
-    if (app.postcodesEnabled) {
-        gets.push(axios.get("/api/postcodes", { timeout: 30000}));
-    }
+    // if (app.postcodesEnabled) {
+    //     gets.push(axios.get("/api/postcodes", { timeout: 30000}));
+    // }
     app.modes.forEach(mode => {
-        gets.push(axios.get('/api/stations/mode/'+mode));
+        gets.push(axios.get('/api/locations/mode/'+mode));
     });
 
     if (gets.length==0) {
@@ -184,7 +184,7 @@ async function getStationsFromServer(app) {
     var gets = [];
     
     app.modes.forEach(mode => {
-        const url = '/api/stations/near/'+mode+'?lat=' + place.coords.latitude + '&lon=' + place.coords.longitude;
+        const url = '/api/locations/near/'+mode+'?lat=' + place.coords.latitude + '&lon=' + place.coords.longitude;
         gets.push(axios.get(url));
     });
 
@@ -205,7 +205,7 @@ async function getStationsFromServer(app) {
 
 async function getRecentAndNearest(app) {
     await axios
-        .get('/api/stations/recent?modes='+app.modes)
+        .get('/api/locations/recent?modes='+app.modes)
         .then(function (response) {
             app.networkError = false;
             app.stops.recentStops = response.data;
