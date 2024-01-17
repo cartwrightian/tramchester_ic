@@ -10,6 +10,7 @@ import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -59,19 +60,29 @@ class UpdateRecentJourneysTest {
 
         Set<Timestamped> from = updated.getTimeStamps();
         Assertions.assertEquals(4, from.size());
-        Set<Timestamped> initialExpected = createTimestamps(NavigationRoad.getRawId(), TraffordBar.getRawId(), NavigationRoad.getRawId());
+        Set<Timestamped> initialExpected = createTimestamps(NavigationRoad, TraffordBar, NavigationRoad);
         Assertions.assertTrue(from.containsAll(initialExpected));
 
         updated = updateWithPause(updated, Piccadilly.fake());
         from = updated.getTimeStamps();
         Assertions.assertEquals(5, from.size());
-        Assertions.assertTrue(from.containsAll(createTimestamps(StPetersSquare.getRawId(), TraffordBar.getRawId(), Piccadilly.getRawId())));
+        Assertions.assertTrue(from.containsAll(createTimestamps(StPetersSquare, TraffordBar, Piccadilly)));
     }
 
     private RecentJourneys updateWithPause(RecentJourneys updated, Location<?> location) throws InterruptedException {
         updated = updater.createNewJourneys(updated, providesNow, location);
         Thread.sleep(2);
         return updated;
+    }
+
+    private Set<Timestamped> createTimestamps(TramStations... tramStations) {
+        Set<Timestamped> set = new HashSet<>();
+        int count = 0;
+        for (TramStations station : tramStations) {
+            IdForDTO idForDTO = station.getIdForDTO();
+            set.add(new Timestamped(idForDTO, providesNow.getDateTime().plusSeconds(count++), LocationType.Station));
+        }
+        return set;
     }
 
     private Set<Timestamped> createTimestamps(String... ids) {

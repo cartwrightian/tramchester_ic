@@ -121,16 +121,15 @@ class JourneyLocationsResourceTramTest {
         List<LocationRefDTO> stationList = result.readEntity(new GenericType<>() {});
 
         assertEquals(5,stationList.size());
-        Set<String> ids = stationList.stream().
+        Set<IdForDTO> ids = stationList.stream().
                 map(LocationRefDTO::getId).
-                map(IdForDTO::getActualId).
                 collect(Collectors.toSet());
 
-        assertTrue(ids.contains(TramStations.PiccadillyGardens.getRawId()));
-        assertTrue(ids.contains(TramStations.StPetersSquare.getRawId()));
-        assertTrue(ids.contains(TramStations.MarketStreet.getRawId()));
-        assertTrue(ids.contains(TramStations.ExchangeSquare.getRawId()));
-        assertTrue(ids.contains(TramStations.Shudehill.getRawId()));
+        assertTrue(ids.contains(TramStations.PiccadillyGardens.getIdForDTO()));
+        assertTrue(ids.contains(TramStations.StPetersSquare.getIdForDTO()));
+        assertTrue(ids.contains(TramStations.MarketStreet.getIdForDTO()));
+        assertTrue(ids.contains(TramStations.ExchangeSquare.getIdForDTO()));
+        assertTrue(ids.contains(TramStations.Shudehill.getIdForDTO()));
     }
 
     @Test
@@ -145,14 +144,13 @@ class JourneyLocationsResourceTramTest {
 
         assertEquals(3, stationDtos.size());
 
-        Set<String> ids = stationDtos.stream().
+        Set<IdForDTO> ids = stationDtos.stream().
                 map(LocationRefDTO::getId).
-                map(IdForDTO::getActualId).
                 collect(Collectors.toSet());
 
-        assertTrue(ids.contains(TramStations.Altrincham.getRawId()));
-        assertTrue(ids.contains(TramStations.Bury.getRawId()));
-        assertTrue(ids.contains(TramStations.ManAirport.getRawId()));
+        assertTrue(ids.contains(TramStations.Altrincham.getIdForDTO()));
+        assertTrue(ids.contains(TramStations.Bury.getIdForDTO()));
+        assertTrue(ids.contains(TramStations.ManAirport.getIdForDTO()));
     }
 
     @Test

@@ -53,13 +53,15 @@ class StationResourceTest {
 
     @Test
     void shouldGetSingleStationWithPlatforms() {
-        String stationId = TramStations.StPetersSquare.getRawId();
+        TramStations stPetersSquare = TramStations.StPetersSquare;
+
+        String stationId = stPetersSquare.getRawId();
         String endPoint = "stations/" + stationId;
         Response response = APIClient.getApiResponse(appExtension, endPoint);
         Assertions.assertEquals(200,response.getStatus());
         LocationDTO result = response.readEntity(LocationDTO.class);
 
-        Assertions.assertEquals(stationId, result.getId().getActualId());
+        Assertions.assertEquals(stPetersSquare.getIdForDTO(), result.getId());
 
         List<PlatformDTO> platforms = result.getPlatforms();
         Assertions.assertEquals(4, platforms.size());
@@ -77,7 +79,7 @@ class StationResourceTest {
 
         assertFalse(routeRefDTOS.isEmpty());
 
-        Station station = stationRepository.getStationById(TramStations.StPetersSquare.getId());
+        Station station = stationRepository.getStationById(stPetersSquare.getId());
         int stationRoutesNumber = station.getPickupRoutes().size() + station.getDropoffRoutes().size();
 
         assertEquals(routeRefDTOS.size(),stationRoutesNumber);
@@ -177,16 +179,15 @@ class StationResourceTest {
         List<LocationRefDTO> stationList = result.readEntity(new GenericType<>() {});
 
         assertEquals(5,stationList.size());
-        Set<String> ids = stationList.stream().
+        Set<IdForDTO> ids = stationList.stream().
                 map(LocationRefDTO::getId).
-                map(IdForDTO::getActualId).
                 collect(Collectors.toSet());
 
-        assertTrue(ids.contains(TramStations.PiccadillyGardens.getRawId()));
-        assertTrue(ids.contains(TramStations.StPetersSquare.getRawId()));
-        assertTrue(ids.contains(TramStations.MarketStreet.getRawId()));
-        assertTrue(ids.contains(TramStations.ExchangeSquare.getRawId()));
-        assertTrue(ids.contains(TramStations.Shudehill.getRawId()));
+        assertTrue(ids.contains(TramStations.PiccadillyGardens.getIdForDTO()));
+        assertTrue(ids.contains(TramStations.StPetersSquare.getIdForDTO()));
+        assertTrue(ids.contains(TramStations.MarketStreet.getIdForDTO()));
+        assertTrue(ids.contains(TramStations.ExchangeSquare.getIdForDTO()));
+        assertTrue(ids.contains(TramStations.Shudehill.getIdForDTO()));
     }
 
     @Test
@@ -200,16 +201,15 @@ class StationResourceTest {
         List<LocationRefDTO> stationList = result.readEntity(new GenericType<>() {});
 
         assertEquals(5,stationList.size());
-        Set<String> ids = stationList.stream().
+        Set<IdForDTO> ids = stationList.stream().
                 map(LocationRefDTO::getId).
-                map(IdForDTO::getActualId).
                 collect(Collectors.toSet());
 
-        assertTrue(ids.contains(TramStations.PiccadillyGardens.getRawId()));
-        assertTrue(ids.contains(TramStations.StPetersSquare.getRawId()));
-        assertTrue(ids.contains(TramStations.MarketStreet.getRawId()));
-        assertTrue(ids.contains(TramStations.ExchangeSquare.getRawId()));
-        assertTrue(ids.contains(TramStations.Shudehill.getRawId()));
+        assertTrue(ids.contains(TramStations.PiccadillyGardens.getIdForDTO()));
+        assertTrue(ids.contains(TramStations.StPetersSquare.getIdForDTO()));
+        assertTrue(ids.contains(TramStations.MarketStreet.getIdForDTO()));
+        assertTrue(ids.contains(TramStations.ExchangeSquare.getIdForDTO()));
+        assertTrue(ids.contains(TramStations.Shudehill.getIdForDTO()));
     }
 
     @Test
@@ -224,14 +224,13 @@ class StationResourceTest {
 
         assertEquals(3, stationDtos.size());
 
-        Set<String> ids = stationDtos.stream().
+        Set<IdForDTO> ids = stationDtos.stream().
                 map(LocationRefDTO::getId).
-                map(IdForDTO::getActualId).
                 collect(Collectors.toSet());
 
-        assertTrue(ids.contains(TramStations.Altrincham.getRawId()));
-        assertTrue(ids.contains(TramStations.Bury.getRawId()));
-        assertTrue(ids.contains(TramStations.ManAirport.getRawId()));
+        assertTrue(ids.contains(TramStations.Altrincham.getIdForDTO()));
+        assertTrue(ids.contains(TramStations.Bury.getIdForDTO()));
+        assertTrue(ids.contains(TramStations.ManAirport.getIdForDTO()));
     }
 
     @Test
@@ -246,14 +245,13 @@ class StationResourceTest {
 
         assertEquals(3, stationDtos.size());
 
-        Set<String> ids = stationDtos.stream().
+        Set<IdForDTO> ids = stationDtos.stream().
                 map(LocationRefDTO::getId).
-                map(IdForDTO::getActualId).
                 collect(Collectors.toSet());
 
-        assertTrue(ids.contains(TramStations.Altrincham.getRawId()));
-        assertTrue(ids.contains(TramStations.Bury.getRawId()));
-        assertTrue(ids.contains(TramStations.ManAirport.getRawId()));
+        assertTrue(ids.contains(TramStations.Altrincham.getIdForDTO()));
+        assertTrue(ids.contains(TramStations.Bury.getIdForDTO()));
+        assertTrue(ids.contains(TramStations.ManAirport.getIdForDTO()));
     }
 
     @NotNull

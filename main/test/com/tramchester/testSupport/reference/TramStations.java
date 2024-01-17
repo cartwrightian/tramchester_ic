@@ -117,7 +117,6 @@ public enum TramStations implements FakeStation, HasId<Station> {
 
     public IdFor<Platform> createIdFor(String platformNumber) {
         return PlatformId.createId(getId(), platformNumber);
-        //return Platform.createId(getRawId()+platform);
     }
 
     @Override
