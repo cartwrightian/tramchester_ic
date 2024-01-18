@@ -35,7 +35,7 @@ public class TramDate implements Comparable<TramDate> {
         return of(localDateTime.toLocalDate());
     }
 
-    public static TramDate min(TramDate dateA, TramDate dateB) {
+    public static TramDate min(final TramDate dateA, final TramDate dateB) {
         if (dateA.isBefore(dateB)) {
             return dateA;
         } else {
@@ -65,9 +65,9 @@ public class TramDate implements Comparable<TramDate> {
         return epochDays == tramDate.epochDays;
     }
 
-    public boolean isEquals(TramDate other) {
-        return other.epochDays == epochDays;
-    }
+//    public boolean isEquals(TramDate other) {
+//        return other.epochDays == epochDays;
+//    }
 
     @Override
     public int hashCode() {
@@ -191,13 +191,13 @@ public class TramDate implements Comparable<TramDate> {
         return toLocalDate().datesUntil(endDate.toLocalDate()).map(date -> new TramDate(date.toEpochDay()));
     }
 
-    public Month getMonth() {
-        return toLocalDate().getMonth();
-    }
-
-    public int getDayOfMonth() {
-        return toLocalDate().getDayOfMonth();
-    }
+//    public Month getMonth() {
+//        return toLocalDate().getMonth();
+//    }
+//
+//    public int getDayOfMonth() {
+//        return toLocalDate().getDayOfMonth();
+//    }
 
     public boolean isEqual(TramDate other) {
         return this.epochDays == other.epochDays;
