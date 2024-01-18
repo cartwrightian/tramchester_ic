@@ -21,7 +21,6 @@ public class TramDate implements Comparable<TramDate> {
         return new TramDate(epochDay);
     }
 
-    @Deprecated
     public static TramDate of(LocalDate date) {
         return new TramDate(date.toEpochDay());
     }

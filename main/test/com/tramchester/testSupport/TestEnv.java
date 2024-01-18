@@ -358,7 +358,7 @@ public class TestEnv {
         return text;
     }
 
-    public static AppConfiguration LoadConfigFromFile(Path fullPathToConfig) throws IOException, ConfigurationException {
+    public static AppConfiguration LoadConfigFromFile(final Path fullPathToConfig) throws IOException, ConfigurationException {
         YamlConfigurationFactory<AppConfiguration> factory = getValidatingFactory();
 
         FileConfigurationSourceProvider fileProvider = new FileConfigurationSourceProvider();
@@ -371,11 +371,11 @@ public class TestEnv {
 
     @NotNull
     private static YamlConfigurationFactory<AppConfiguration> getValidatingFactory() {
-        Class<AppConfiguration> klass = AppConfiguration.class;
+        final Class<AppConfiguration> klass = AppConfiguration.class;
         Validator validator = null;
-        ObjectMapper objectMapper = Jackson.newObjectMapper();
+        final ObjectMapper objectMapper = Jackson.newObjectMapper();
 
-        String properyPrefix = "dw";
+        final String properyPrefix = "dw";
         return new YamlConfigurationFactory<>(klass, validator, objectMapper, properyPrefix);
     }
 

@@ -10,17 +10,17 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.mappers.serialisation.LocalDateTimeJsonDeserializer;
 import com.tramchester.mappers.serialisation.LocalDateTimeJsonSerializer;
-import com.tramchester.mappers.serialisation.LocalTimeJsonSerializer;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
 @SuppressWarnings("unused")
 @JsonPropertyOrder(alphabetic = true)
 public class DepartureDTO implements Comparable<DepartureDTO> {
+
+    // NOTE: was used for live data archive but those S3 buckets were, erm lost, when IC moved jobs
 
     // TODO Make from and destintaion StationRefDTO?
     private TransportMode transportMode;
@@ -60,12 +60,12 @@ public class DepartureDTO implements Comparable<DepartureDTO> {
         return dueTime;
     }
 
-    @JsonProperty(value = "when", access = JsonProperty.Access.READ_ONLY)
-    @JsonSerialize(using = LocalTimeJsonSerializer.class)
-    public LocalTime getWhenForLiveUpload() {
-        // for keeping upload of live data consistent, not ideal but lots of historical data in S3
-        return dueTime.toLocalTime();
-    }
+//    @JsonProperty(value = "when", access = JsonProperty.Access.READ_ONLY)
+//    @JsonSerialize(using = LocalTimeJsonSerializer.class)
+//    public LocalTime getWhenForLiveUpload() {
+//        // for keeping upload of live data consistent, not ideal but lots of historical data in S3
+//        return dueTime.toLocalTime();
+//    }
 
     public String getFrom() {
         return from;

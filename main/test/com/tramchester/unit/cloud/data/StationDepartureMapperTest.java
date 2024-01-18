@@ -30,7 +30,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class StationDepartureMapperTest {
 
-
     private StationDepartureMapper mapper;
     private List<StationDepartureInfoDTO> departures;
     private LocalDateTime lastUpdate;
@@ -64,7 +63,7 @@ class StationDepartureMapperTest {
     void shoudCreateJson() throws JsonProcessingException {
         String json = "[{\"lineName\":\"lineName\",\"stationPlatform\":\"9400ZZMASTPplatformId\",\"message\":\"messageTxt\"," +
                 "\"dueTrams\":[{\"carriages\":\"Single\",\"destination\":\"Bury\",\"dueTime\":\"2018-11-15T15:48:00\"," +
-                "\"from\":\"Navigation Road\",\"status\":\"Due\",\"transportMode\":\"Tram\",\"wait\":42,\"when\":\"15:48\"}]," +
+                "\"from\":\"Navigation Road\",\"status\":\"Due\",\"transportMode\":\"Tram\",\"wait\":42}]," +
                 "\"lastUpdate\":\"2018-11-15T15:06:32\",\"displayId\":\"displayId\",\"location\":\"Navigation Road\"}]";
 
         String result = mapper.map(departures);
