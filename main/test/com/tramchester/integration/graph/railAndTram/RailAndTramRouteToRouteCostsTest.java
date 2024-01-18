@@ -19,6 +19,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.RailRouteHelper;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.GMTest;
 import org.junit.jupiter.api.*;
@@ -28,8 +29,6 @@ import java.util.EnumSet;
 import static com.tramchester.domain.reference.TransportMode.*;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
-import static com.tramchester.testSupport.reference.KnownTramRoute.BuryPiccadilly;
-import static com.tramchester.testSupport.reference.KnownTramRoute.EastDidisburyManchesterShawandCromptonRochdale;
 import static com.tramchester.testSupport.reference.TramStations.Altrincham;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -200,8 +199,8 @@ public class RailAndTramRouteToRouteCostsTest {
         RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
         TramRouteHelper tramRouteHelper = new TramRouteHelper(routeRepository);
 
-        Route yellowInbound = tramRouteHelper.getOneRoute(BuryPiccadilly, date);
-        Route pinkOutbound = tramRouteHelper.getOneRoute(EastDidisburyManchesterShawandCromptonRochdale, date);
+        Route yellowInbound = tramRouteHelper.getOneRoute(KnownTramRoute.PiccadillyBury, date);
+        Route pinkOutbound = tramRouteHelper.getOneRoute(KnownTramRoute.RochdaleShawandCromptonManchesterEastDidisbury, date);
 
         NumberOfChanges routeToRouteResult = routeToRouteCosts.getNumberOfChanges(yellowInbound, pinkOutbound, date, timeRange, TramsOnly);
 

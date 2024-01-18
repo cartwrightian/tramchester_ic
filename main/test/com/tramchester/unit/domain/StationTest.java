@@ -32,7 +32,7 @@ class StationTest {
     @Test
     void testShouldCreateCorrecly() {
         Station tramStation = StationHelper.forTest("id", "area", "stopName",
-                new LatLong(-2.0, 2.3), DataSourceID.tfgm, "stationCode");
+                new LatLong(-2.0, 2.3), DataSourceID.tfgm);
 
         assertEquals("stopName", tramStation.getName());
         assertEquals(Station.createId("id"), tramStation.getId());
@@ -46,7 +46,7 @@ class StationTest {
     @Test
     void testShouldSetBusNameCorrecly() {
         Station busStation = StationHelper.forTest("id", "area", "stopName",
-                new LatLong(-2.0, 2.3), DataSourceID.tfgm, "stationCode");
+                new LatLong(-2.0, 2.3), DataSourceID.tfgm);
 
         assertEquals("stopName", busStation.getName());
         assertEquals(Station.createId("id"), busStation.getId());
@@ -60,7 +60,7 @@ class StationTest {
     void shouldHaveCorrectTransportModes() {
 
         MutableStation station = new MutableStation(Station.createId("stationId"), areaId, "name", nearPiccGardens.latLong(),
-                nearPiccGardens.grid(), DataSourceID.tfgm, "stationCode");
+                nearPiccGardens.grid(), DataSourceID.tfgm, false);
 
         assertTrue(station.getTransportModes().isEmpty());
 
@@ -80,7 +80,7 @@ class StationTest {
     @Test
     void shouldHavePickupAndDropoffRoutes() {
         MutableStation station = new MutableStation(Station.createId("stationId"), areaId, "name", nearPiccGardens.latLong(),
-                nearPiccGardens.grid(), DataSourceID.tfgm, "stationCode");
+                nearPiccGardens.grid(), DataSourceID.tfgm, false);
 
         final Route routeA = MutableRoute.getRoute(Route.createId("routeIdA"), "shortNameA", "nameA",
                 TestEnv.MetAgency(), Tram);
@@ -121,7 +121,7 @@ class StationTest {
         EnumSet<DayOfWeek> days = EnumSet.of(MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY);
 
         MutableStation station = new MutableStation(Station.createId("stationId"), areaId, "name", nearPiccGardens.latLong(),
-                nearPiccGardens.grid(), DataSourceID.tfgm, "stationCode");
+                nearPiccGardens.grid(), DataSourceID.tfgm, true);
 
         final MutableRoute routeA = new MutableRoute(Route.createId("routeIdA"), "shortNameA", "nameA", TestEnv.MetAgency(), Tram);
 
@@ -140,10 +140,11 @@ class StationTest {
 
         station.addRoutePickUp(routeA);
 
-
         assertTrue(station.hasPickup());
 
         assertTrue(station.servesRoutePickup(routeA));
+
+        assertTrue(station.isCentral());
     }
 
     @NotNull

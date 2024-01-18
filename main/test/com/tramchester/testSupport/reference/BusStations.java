@@ -96,34 +96,10 @@ public enum BusStations implements FakeStation {
     private MutableStation createMutable() {
         GridPosition grid = CoordinateTransforms.getGridPosition(latlong);
         MutableStation mutableStation = new MutableStation(getId(), NPTGLocality.InvalidId(), name, latlong, grid,
-                DataSourceID.tfgm, getRawId());
+                DataSourceID.tfgm, false);
         mutableStation.addMode(Bus);
         return mutableStation;
     }
 
-//    public static class CentralStops {
-//        private final StationGroupTestSupport factory;
-//
-//        public CentralStops(ComponentContainer componentContainer) {
-//            factory = new StationGroupTestSupport(componentContainer);
-//        }
-//
-//        public StationGroup Shudehill() {
-//            return getFor(KnowLocality.Shudehill);
-//        }
-//
-//        public StationGroup Stockport() {
-//            return getFor(KnowLocality.Stockport);
-//        }
-//
-//        public StationGroup Altrincham() {
-//            return getFor(KnowLocality.Altrincham);
-//        }
-//
-//        public StationGroup getFor(KnowLocality locality) {
-//            return factory.getGroupFor(locality, true, NAPTAN_BUS);
-//        }
-//
-//    }
 
 }

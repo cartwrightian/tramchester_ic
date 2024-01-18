@@ -91,7 +91,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         MutableStation forTest = new MutableStation(Station.createId("destinationStationId"),
                 NPTGLocality.createId("area"), "name",
                 new LatLong(1, 1), new GridPosition(1000,1000), DataSourceID.tfgm,
-                "stationCode");
+                false);
 
         destinationStations = LocationSet.singleton(forTest);
 

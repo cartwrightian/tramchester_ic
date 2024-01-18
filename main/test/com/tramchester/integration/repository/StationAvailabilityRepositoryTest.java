@@ -18,6 +18,7 @@ import com.tramchester.repository.StationAvailabilityRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.testTags.DataExpiryCategory;
 import com.tramchester.testSupport.testTags.DualTest;
 import com.tramchester.testSupport.testTags.GMTest;
@@ -219,7 +220,7 @@ public class StationAvailabilityRepositoryTest {
         Station victoria = Victoria.from(stationRepository);
         Set<Route> dropOffs = availabilityRepository.getDropoffRoutesFor(victoria, date, timeRange, TramsOnly);
 
-        Route yellowInbound = tramRouteHelper.getOneRoute(BuryPiccadilly, date);
+        Route yellowInbound = tramRouteHelper.getOneRoute(KnownTramRoute.PiccadillyBury, date);
         Route blueInbound = tramRouteHelper.getOneRoute(RochdaleShawandCromptonManchesterEastDidisbury, date);
         Route greenOutbound = tramRouteHelper.getOneRoute(BuryManchesterAltrincham, date);
 

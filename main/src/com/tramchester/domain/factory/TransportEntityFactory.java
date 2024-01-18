@@ -57,7 +57,7 @@ public abstract class TransportEntityFactory {
         // default is not to enrich from naptan and nptg
         IdFor<NPTGLocality> areaId = NPTGLocality.InvalidId();
         GridPosition position = CoordinateTransforms.getGridPosition(stopData.getLatLong());
-        return new MutableStation(stationId, areaId, stopData.getName(), stopData.getLatLong(), position, getDataSourceId(), stopData.getCode());
+        return new MutableStation(stationId, areaId, stopData.getName(), stopData.getLatLong(), position, getDataSourceId(), false);
     }
 
     public RouteStation createRouteStation(Station station, Route route) {

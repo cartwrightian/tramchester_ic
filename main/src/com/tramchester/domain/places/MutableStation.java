@@ -35,17 +35,18 @@ public class MutableStation implements Station {
     private final boolean isMarkedInterchange;
     private final EnumSet<TransportMode> modes;
     private final Duration changeTimeNeeded;
+    private final boolean isCentral;
 
     public MutableStation(IdFor<Station> id, IdFor<NPTGLocality> localityId, String stationName, LatLong latLong, GridPosition gridPosition,
-                          DataSourceID dataSourceID, String code) {
+                          DataSourceID dataSourceID, boolean isCentral) {
         // todo default change duration from config for the data source?
         this(id, localityId, stationName, latLong, gridPosition, dataSourceID, false,
-                Duration.ofMinutes(DEFAULT_MIN_CHANGE_TIME));
+                Duration.ofMinutes(DEFAULT_MIN_CHANGE_TIME), isCentral);
     }
 
     // for some data sources we know if station is an interchange
     public MutableStation(IdFor<Station> id, IdFor<NPTGLocality> localityId, String stationName, LatLong latLong, GridPosition gridPosition,
-                          DataSourceID dataSourceID, boolean isMarkedInterchange, Duration changeTimeNeeded) {
+                          DataSourceID dataSourceID, boolean isMarkedInterchange, Duration changeTimeNeeded, boolean isCentral) {
         this.localityId = localityId;
         this.gridPosition = gridPosition;
         this.dataSourceID = dataSourceID;
@@ -59,12 +60,13 @@ public class MutableStation implements Station {
         this.id = id;
         this.name = stationName;
         this.latLong = latLong;
+        this.isCentral = isCentral;
         modes = EnumSet.noneOf(TransportMode.class);
     }
 
     public static Station Unknown(DataSourceID dataSourceID) {
         return new MutableStation(StringIdFor.createId("unknown", Station.class), NPTGLocality.InvalidId(), "Unknown",
-                LatLong.Invalid, GridPosition.Invalid, dataSourceID, false, Duration.ZERO);
+                LatLong.Invalid, GridPosition.Invalid, dataSourceID, false, Duration.ZERO, false);
     }
 
     @Override
@@ -141,6 +143,11 @@ public class MutableStation implements Station {
     @Override
     public boolean hasPlatform(IdFor<Platform> platformId) {
         return platforms.stream().map(Platform::getId).anyMatch(id -> id.equals(platformId));
+    }
+
+    @Override
+    public boolean isCentral() {
+        return isCentral;
     }
 
     @Override
@@ -223,6 +230,7 @@ public class MutableStation implements Station {
                 ", servesRoutesPickup=" + servesRoutesPickup +
                 ", servesRoutesDropoff=" + servesRoutesDropoff +
                 ", passedByRoute=" + HasId.asIds(passedByRoute) +
+                ", isCentral=" + isCentral +
                 ", isMarkedInterchange=" + isMarkedInterchange +
                 '}';
     }

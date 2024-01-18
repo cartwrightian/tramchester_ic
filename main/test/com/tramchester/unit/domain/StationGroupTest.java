@@ -27,7 +27,7 @@ class StationGroupTest {
     void shouldHaveCorrectValuesForOneStation() {
         LatLong latLong = new LatLong(-2.0, 2.3);
         MutableStation stationA = StationHelper.forTestMutable("id", "area", "stopName",
-                latLong, dataSourceID, "stationCode");
+                latLong, dataSourceID);
 
         Route route = TestEnv.getTramTestRoute();
         stationA.addRoutePickUp(route);
@@ -49,7 +49,6 @@ class StationGroupTest {
         assertEquals(areaId, groupedStations.getLocalityId());
         assertEquals(StationGroup.createId("areaId"), groupedStations.getId());
         assertEquals("areaId", groupedStations.getId().getGraphId());
-        //assertEquals("areaId", groupedStations.getId().forDTO());
 
         assertTrue(groupedStations.hasPlatforms());
         assertEquals(Collections.singleton(platform), groupedStations.getPlatforms());
@@ -64,11 +63,16 @@ class StationGroupTest {
         assertTrue(containted.contains(stationA));
     }
 
+//    @Test
+//    void shouldReturnCentralContainedOnly() {
+//        fail("todo");
+//    }
+
     @Test
     void shouldHaveCorrectValuesForTwoStation() {
 
         MutableStation stationA = StationHelper.forTestMutable("idA", "areaA", "stopNameA",
-                new LatLong(2, 4), dataSourceID, "stationCodeA");
+                new LatLong(2, 4), dataSourceID);
         Route routeA = TestEnv.getTramTestRoute(Route.createId("routeA"), "routeName");
 
         stationA.addRouteDropOff(routeA);
@@ -77,7 +81,7 @@ class StationGroupTest {
         stationA.addPlatform(platformA);
 
         MutableStation stationB = StationHelper.forTestMutable("idB", "areaB", "stopNameB",
-                new LatLong(4, 8), dataSourceID, "stationCodeB");
+                new LatLong(4, 8), dataSourceID);
         Route routeB = MutableRoute.getRoute(Route.createId("routeB"), "routeCodeB", "routeNameB", TestEnv.StagecoachManchester, Bus);
         stationB.addRouteDropOff(routeB);
         stationB.addRoutePickUp(routeA);
@@ -124,11 +128,11 @@ class StationGroupTest {
         // Service service = MutableService.build(Service.createId("serviceId"));
 
         MutableStation stationA = StationHelper.forTestMutable("idA", "areaA", "stopNameA",
-                new LatLong(2, 4), dataSourceID, "stationCodeA");
+                new LatLong(2, 4), dataSourceID);
         Route routeA = TestEnv.getTramTestRoute(Route.createId("routeA"), "routeName");
 
         MutableStation stationB = StationHelper.forTestMutable("idB", "areaB", "stopNameB",
-                new LatLong(4, 8), dataSourceID, "stationCodeB");
+                new LatLong(4, 8), dataSourceID);
         Route routeB = MutableRoute.getRoute(Route.createId("routeB"), "routeCodeB",
                 "routeNameB", TestEnv.StagecoachManchester, Bus);
 

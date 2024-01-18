@@ -120,14 +120,17 @@ public class RailStationRecordsRepository {
         LatLong latLong = LatLong.Invalid;
 
         final IdFor<NPTGLocality> areaId;
+        final boolean isCentral;
         if (naptanRepository.containsTiploc(stationId)) {
             // prefer naptan data if available
             final NaptanRecord naptanRecord = naptanRepository.getForTiploc(stationId);
             areaId = naptanRecord.getLocalityId();
             grid = naptanRecord.getGridPosition();
             latLong = naptanRecord.getLatLong();
+            isCentral = naptanRecord.isLocalityCenter();
         } else {
             areaId = NPTGLocality.InvalidId();
+            isCentral = false;
         }
 
         if (!grid.isValid()) {
@@ -146,7 +149,8 @@ public class RailStationRecordsRepository {
 
         final boolean isInterchange = (record.getRailInterchangeType()!= RailInterchangeType.None);
 
-        return new MutableStation(stationId, areaId, name, latLong, grid, DataSourceID.rail, isInterchange, minChangeTime);
+        return new MutableStation(stationId, areaId, name, latLong, grid, DataSourceID.rail, isInterchange,
+                minChangeTime, isCentral);
     }
 
     private GridPosition convertToOsGrid(int easting, int northing) {

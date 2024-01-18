@@ -109,7 +109,7 @@ class FastestRoutesForBoxesTest {
         IdFor<NPTGLocality> areaId = NPTGLocality.InvalidId();
         Station destination = new MutableStation(testStationWithInvalidPosition.getId(), areaId,
                 testStationWithInvalidPosition.getName(), latLong, grid, DataSourceID.tfgm,
-                testStationWithInvalidPosition.getCode());
+                false);
 
         TramTime time = TramTime.of(9,15);
         JourneyRequest journeyRequest = new JourneyRequest(

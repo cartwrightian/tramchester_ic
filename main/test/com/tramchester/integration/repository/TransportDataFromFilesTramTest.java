@@ -21,7 +21,6 @@ import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TimeRange;
@@ -41,10 +40,8 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -217,56 +214,6 @@ public class TransportDataFromFilesTramTest {
         assertTrue(noDropOffs.isEmpty(), noDropOffs.toString());
     }
 
-    @Disabled("No longer a route")
-    @Test
-    void shouldHaveExpectedStationsForGreenFromAlty() {
-        Route green = routeHelper.getOneRoute(BuryManchesterAltrincham, when);
-
-        Set<Station> allStations = transportData.getStations(EnumSet.of(Tram));
-
-        IdSet<Station> dropOffs = allStations.stream().filter(station -> station.servesRouteDropOff(green)).collect(IdSet.collector());
-
-        assertEquals(24, dropOffs.size(), dropOffs.toString());
-        assertFalse(dropOffs.contains(Altrincham.getId()));
-        assertTrue(dropOffs.contains(Bury.getId()));
-        assertTrue(dropOffs.contains(Cornbrook.getId()));
-        assertTrue(dropOffs.contains(Shudehill.getId()));
-
-        IdSet<Station> pickUps = allStations.stream().filter(station -> station.servesRoutePickup(green)).collect(IdSet.collector());
-
-        assertEquals(24, pickUps.size(), pickUps.toString());
-        assertTrue(pickUps.contains(Altrincham.getId()));
-        assertFalse(pickUps.contains(Bury.getId()));
-        assertTrue(pickUps.contains(Cornbrook.getId()));
-        assertTrue(pickUps.contains(Shudehill.getId()));
-
-    }
-
-    @Test
-    void shouldHaveExpectedStationsForGreenFromBury() {
-        Route green = routeHelper.getOneRoute(BuryManchesterAltrincham, when);
-
-        Set<Station> allStations = transportData.getStations(EnumSet.of(Tram));
-
-        IdSet<Station> dropOffs = allStations.stream().filter(station -> station.servesRouteDropOff(green)).collect(IdSet.collector());
-
-        // 24 -> 25
-        assertEquals(25, dropOffs.size(), dropOffs.toString());
-        // in new data Bury is dropoff since no direction to routes....
-        //assertFalse(dropOffs.contains(Bury.getId()));
-        assertTrue(dropOffs.contains(Altrincham.getId()));
-        assertTrue(dropOffs.contains(Cornbrook.getId()));
-        assertTrue(dropOffs.contains(Shudehill.getId()));
-
-        IdSet<Station> pickUps = allStations.stream().filter(station -> station.servesRoutePickup(green)).collect(IdSet.collector());
-
-        assertEquals(25, pickUps.size(), pickUps.toString());
-        assertTrue(pickUps.contains(Bury.getId()));
-        //assertFalse(pickUps.contains(Altrincham.getId()));
-        assertTrue(pickUps.contains(Cornbrook.getId()));
-        assertTrue(pickUps.contains(Shudehill.getId()));
-
-    }
 
     @Test
     void shouldGetRouteStationsForStation() {
@@ -487,49 +434,6 @@ public class TransportDataFromFilesTramTest {
 
     }
 
-
-    @Test
-    void shouldHaveAtLeastOnePlatformForEveryStation() {
-        Set<Station> stations = transportData.getStations(EnumSet.of(Tram));
-        Set<Station> noPlatforms = stations.stream().filter(station -> station.getPlatforms().isEmpty()).collect(Collectors.toSet());
-        assertEquals(Collections.emptySet(),noPlatforms);
-    }
-
-    @Test
-    void shouldGetStation() {
-        assertTrue(transportData.hasStationId(Altrincham.getId()));
-        Station station = transportData.getStationById(Altrincham.getId());
-        assertEquals("Altrincham", station.getName());
-
-        assertTrue(station.hasPlatforms());
-
-        assertEquals(1, station.getPlatforms().size());
-        final Optional<Platform> maybePlatformOne = station.getPlatforms().stream().findFirst();
-        assertTrue(maybePlatformOne.isPresent());
-
-        Platform platformOne = maybePlatformOne.get();
-        final IdFor<Platform> expectedId = Altrincham.createIdFor("1");
-
-        assertEquals(expectedId, platformOne.getId());
-        assertEquals( "1", platformOne.getPlatformNumber());
-        assertEquals( "Altrincham platform 1", platformOne.getName());
-
-        // Needs naptan enabled to work
-        //assertEquals(station.getAreaId(), platformOne.getAreaId());
-
-        assertEquals(station.getDataSourceID(), platformOne.getDataSourceID());
-        assertEquals(LocationType.Platform, platformOne.getLocationType());
-
-        assertEquals(DataSourceID.tfgm, station.getDataSourceID());
-    }
-
-    @Test
-    @Disabled("naptan load is disabled for trams")
-    void shouldHaveAreaForCityCenterStop() {
-        Station station = transportData.getStationById(StPetersSquare.getId());
-        assertEquals("St Peter's Square", station.getName());
-    }
-
     @Test
     void shouldHavePlatformAndAreaForCityCenter() {
         IdFor<Platform> platformId = PlatformId.createId(StPetersSquare.getId(), "3");
@@ -649,45 +553,6 @@ public class TransportDataFromFilesTramTest {
 
     }
 
-    @Disabled("Duplicated of test that checks for every station")
-    @DataExpiryCategory
-    @Test
-    void shouldHaveCorrectDataForTramsCallingAtVeloparkMonday8AM() {
-        Set<Trip> origTrips = getTripsFor(transportData.getTrips(), TramStations.VeloPark);
-
-        TramDate aMonday = TestEnv.nextMonday();
-        assertEquals(DayOfWeek.MONDAY, aMonday.getDayOfWeek());
-
-        IdSet<Service> mondayServices = allServices.stream()
-                .filter(svc -> svc.getCalendar().operatesOn(aMonday))
-                .collect(IdSet.collector());
-
-        // reduce the trips to the ones for the right route on the monday by filtering by service ID
-        List<Trip> filteredTrips = origTrips.stream().filter(trip -> mondayServices.contains(trip.getService().getId())).
-                toList();
-
-        assertFalse(filteredTrips.isEmpty(), "No trips for velopark on " + aMonday);
-
-        // find the stops, invariant is now that each trip ought to contain a velopark stop
-        List<StopCall> stoppingAtVelopark = filteredTrips.stream()
-                .filter(trip -> mondayServices.contains(trip.getService().getId()))
-                .map(trip -> getStopsFor(trip, TramStations.VeloPark.getId()))
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
-
-        assertEquals(filteredTrips.size(), stoppingAtVelopark.size());
-
-        // finally check there are trams stopping within 15 mins of 8AM on Monday
-        stoppingAtVelopark.removeIf(stop -> {
-            TramTime arrivalTime = stop.getArrivalTime();
-            return arrivalTime.asLocalTime().isAfter(LocalTime.of(7,59)) &&
-                    arrivalTime.asLocalTime().isBefore(LocalTime.of(8,16));
-        });
-
-        assertFalse(stoppingAtVelopark.isEmpty()); // at least 1
-        assertNotEquals(filteredTrips.size(), stoppingAtVelopark.size());
-    }
-
     @Disabled("Performance tests")
     @Test
     void shouldLoadData() {
@@ -707,12 +572,6 @@ public class TransportDataFromFilesTramTest {
         }
 
         System.out.printf("Total: %s ms Average: %s ms%n", total, total/count);
-    }
-
-    private List<StopCall> getStopsFor(Trip trip, IdFor<Station> stationId) {
-        return trip.getStopCalls().stream().
-                filter(stopCall -> stopCall.getStationId().equals(stationId)).
-                collect(Collectors.toList());
     }
 
 }

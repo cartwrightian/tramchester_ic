@@ -6,7 +6,6 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.geo.GridPosition;
 
 import java.time.Duration;
 import java.util.Set;
@@ -16,6 +15,9 @@ public interface Station extends Location<Station> {
     Set<Platform> getPlatformsForRoute(Route route);
 
     boolean hasPlatform(IdFor<Platform> platformId);
+
+    // is marked as a central location in the naptan data
+    boolean isCentral();
 
     /***
      * @param route route to check
@@ -28,8 +30,6 @@ public interface Station extends Location<Station> {
      * @return true if station serves given route, use with care ignores the date
      */
     boolean servesRouteDropOff(Route route);
-
-    GridPosition getGridPosition();
 
     boolean servesMode(TransportMode mode);
 

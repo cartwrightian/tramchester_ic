@@ -12,7 +12,6 @@ import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.graphbuild.GraphLabel;
-import org.apache.commons.collections4.SetUtils;
 
 import java.util.Collections;
 import java.util.EnumSet;
@@ -113,11 +112,6 @@ public class MutablePlatform implements Platform {
     @Override
     public int hashCode() {
         return id.hashCode();
-    }
-
-    @Deprecated
-    public Set<Route> getRoutes() {
-        return SetUtils.union(getDropoffRoutes(), getPickupRoutes());
     }
 
     @Override

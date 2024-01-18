@@ -102,26 +102,15 @@ public class RouteToRouteCostsTest {
 
     @Test
     void shouldComputeCostsSameRoute() {
-        Route routeA = routeHelper.getOneRoute(ManchesterAirportWythenshaweVictoria, date);
+        Route routeA = routeHelper.getOneRoute(VictoriaWythenshaweManchesterAirport, date);
 
         assertEquals(0, getMinCost(routesCostRepository.getNumberOfChanges(routeA, routeA, date, timeRange, modes)));
-    }
-
-    @Disabled("no longer such a concept")
-    @Test
-    void shouldComputeCostsRouteOtherDirection() {
-        Route routeA = routeHelper.getOneRoute(ManchesterAirportWythenshaweVictoria, date);
-        Route routeB = routeHelper.getOneRoute(VictoriaWythenshaweManchesterAirport, date);
-
-        assertEquals(1, getMinCost(routesCostRepository.getNumberOfChanges(routeA, routeB, date, timeRange, modes)), "wrong for " + routeA.getId() + " " + routeB.getId());
-        assertEquals(1, getMinCost(routesCostRepository.getNumberOfChanges(routeB, routeA, date, timeRange, modes)), "wrong for " + routeB.getId() + " " + routeA.getId());
-
     }
 
     @Test
     void shouldComputeCostsDifferentRoutesTwoChange() {
         Route routeA = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
-        Route routeB = routeHelper.getOneRoute(BuryPiccadilly, date);
+        Route routeB = routeHelper.getOneRoute(PiccadillyBury, date);
 
         assertEquals(2, getMinCost(routesCostRepository.getNumberOfChanges(routeA, routeB, date, timeRange, modes)),
                 "wrong for " + routeA.getId() + " " + routeB.getId());
@@ -132,7 +121,7 @@ public class RouteToRouteCostsTest {
     @Test
     void shouldFailIfOurOfTimeRangeDifferentRoutesTwoChange() {
         Route routeA = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
-        Route routeB = routeHelper.getOneRoute(BuryPiccadilly, date);
+        Route routeB = routeHelper.getOneRoute(PiccadillyBury, date);
 
         assertEquals(2, getMinCost(routesCostRepository.getNumberOfChanges(routeA, routeB, date, timeRange, modes)),
                 "wrong for " + routeA.getId() + " " + routeB.getId());
@@ -144,7 +133,7 @@ public class RouteToRouteCostsTest {
 
     @Test
     void shouldComputeCostsDifferentRoutesOneChanges() {
-        Route routeA = routeHelper.getOneRoute(AltrinchamManchesterBury, date);
+        Route routeA = routeHelper.getOneRoute(BuryManchesterAltrincham, date);
         Route routeB = routeHelper.getOneRoute(VictoriaWythenshaweManchesterAirport, date);
 
         assertEquals(1, getMinCost(routesCostRepository.getNumberOfChanges(routeA, routeB, date, timeRange, modes)),
@@ -217,7 +206,7 @@ public class RouteToRouteCostsTest {
 
         Route routeA = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
         Route routeB = routeHelper.getOneRoute(VictoriaWythenshaweManchesterAirport, date);
-        Route routeC = routeHelper.getOneRoute(BuryPiccadilly, date);
+        Route routeC = routeHelper.getOneRoute(PiccadillyBury, date);
 
         Station destination = TramStations.TraffordCentre.from(stationRepository);
         LowestCostsForDestRoutes sorts = routesCostRepository.getLowestCostCalcutatorFor(LocationSet.singleton(destination), date, timeRange, modes);

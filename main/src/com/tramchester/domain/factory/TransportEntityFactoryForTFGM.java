@@ -77,23 +77,30 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
 
         final boolean isMetrolink = isMetrolinkTram(stopData);
         final String stationCode = stopData.getCode();
-        final boolean hasNaptan = hasNaptan(stationCode);
-        final NaptanRecord naptanRecord = hasNaptan ? naptanRepository.getForActo(stationId) : null;
+
+        final boolean hasNaptanRecord = hasNaptan(stationCode);
+        final NaptanRecord naptanRecord = hasNaptanRecord ? naptanRepository.getForActo(stationId) : null;
 
         final boolean isInterchange;
         final IdFor<NPTGLocality> areaId;
         final LatLong latLong;
         final GridPosition gridPosition;
-        if (hasNaptan) {
+        final boolean isCentral;
+        if (hasNaptanRecord) {
                 isInterchange = NaptanStopType.isInterchange(naptanRecord.getStopType());
                 areaId = naptanRecord.getLocalityId();
                 gridPosition = naptanRecord.getGridPosition();
                 latLong = naptanRecord.getLatLong();
+                isCentral = naptanRecord.isLocalityCenter();
         } else {
+            if (naptanEnabled) {
+                logger.warn("No naptan record found for " + stationId);
+            }
             isInterchange = false;
             areaId = NPTGLocality.InvalidId();
             latLong = stopData.getLatLong();
             gridPosition = CoordinateTransforms.getGridPosition(latLong);
+            isCentral = false;
         }
 
         final String cleanedName = cleanStationName(stopData); // remove embedded quotes
@@ -102,7 +109,7 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
         if (isMetrolink) {
             stationName = removeMetrolinkPostfix(cleanedName);
         } else {
-            if (hasNaptan) {
+            if (hasNaptanRecord) {
                 stationName = naptanRecord.getDisplayName();
             } else {
                 stationName = cleanedName;
@@ -110,7 +117,7 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
         }
 
         return new MutableStation(stationId, areaId, workAroundName(stationName), latLong, gridPosition,
-                getDataSourceId(), isInterchange, minChangeDuration);
+                getDataSourceId(), isInterchange, minChangeDuration, isCentral);
     }
 
     boolean hasNaptan(String stationCode) {

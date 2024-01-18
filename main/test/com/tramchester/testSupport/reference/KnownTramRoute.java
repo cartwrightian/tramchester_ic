@@ -34,18 +34,6 @@ public enum KnownTramRoute {
     private final String longName;
     private final IdFor<Route> id;
 
-    // tram route merge workaround, TODO inline these at some point
-    @Deprecated
-    public static final KnownTramRoute AltrinchamPiccadilly = KnownTramRoute.PiccadillyAltrincham;
-    @Deprecated
-    public static final KnownTramRoute AltrinchamManchesterBury = KnownTramRoute.BuryManchesterAltrincham;
-    @Deprecated
-    public static final KnownTramRoute BuryPiccadilly = KnownTramRoute.PiccadillyBury;
-    @Deprecated
-    public static final KnownTramRoute EastDidisburyManchesterShawandCromptonRochdale = KnownTramRoute.RochdaleShawandCromptonManchesterEastDidisbury;
-    @Deprecated
-    public static final KnownTramRoute ManchesterAirportWythenshaweVictoria = KnownTramRoute.VictoriaWythenshaweManchesterAirport;
-
     public static Set<KnownTramRoute> getFor(TramDate date) {
         EnumSet<KnownTramRoute> routes = EnumSet.noneOf(KnownTramRoute.class);
 

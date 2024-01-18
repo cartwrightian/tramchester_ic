@@ -81,6 +81,7 @@ public class JourneysForGridResource implements APIResource, GraphDatabaseDepend
         logger.info(format("Query for quicktimes to %s for grid of size %s at %s %s maxchanges %s max duration %s",
                 destinationIdText, gridSize, departureTimeRaw, departureDateRaw, maxChanges, maxDurationMinutes));
 
+        // todo once changed to post can change this method to use LocationType
         GridPosition destination = getGridPosition(destinationIdText, lat, lon);
 
         TramTime departureTime = TramTime.parse(departureTimeRaw);

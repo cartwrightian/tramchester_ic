@@ -129,14 +129,10 @@ public enum TramStations implements FakeStation, HasId<Station> {
         return new IdForDTO(id);
     }
 
-    public String getCode() {
-        return getRawId();
-    }
-
     @NotNull
     private MutableStation createMutable() {
         GridPosition grid = CoordinateTransforms.getGridPosition(latlong);
-        MutableStation mutableStation = new MutableStation(getId(), NPTGLocality.InvalidId(), name, latlong, grid, DataSourceID.tfgm, getCode());
+        MutableStation mutableStation = new MutableStation(getId(), NPTGLocality.InvalidId(), name, latlong, grid, DataSourceID.tfgm, true);
         mutableStation.addMode(TransportMode.Tram);
         return mutableStation;
     }
