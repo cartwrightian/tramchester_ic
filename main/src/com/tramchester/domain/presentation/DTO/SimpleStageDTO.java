@@ -1,13 +1,13 @@
 package com.tramchester.domain.presentation.DTO;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.presentation.TravelAction;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.mappers.serialisation.LocalDateJsonDeserializer;
-import com.tramchester.mappers.serialisation.LocalDateJsonSerializer;
 import com.tramchester.mappers.serialisation.LocalDateTimeJsonDeserializer;
 import com.tramchester.mappers.serialisation.LocalDateTimeJsonSerializer;
 
@@ -87,8 +87,9 @@ public class SimpleStageDTO {
         return expectedArrivalTime;
     }
 
-    @JsonSerialize(using = LocalDateJsonSerializer.class)
-    @JsonDeserialize(using = LocalDateJsonDeserializer.class)
+//    @JsonSerialize(using = LocalDateJsonSerializer.class)
+//    @JsonDeserialize(using = LocalDateJsonDeserializer.class)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TramchesterConfig.DateFormatForJson)
     public LocalDate getQueryDate() {
         return queryDate;
     }

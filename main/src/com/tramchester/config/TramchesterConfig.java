@@ -20,6 +20,8 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
 
     public static final ZoneId TimeZoneId = ZoneId.of("Europe/London");
 
+    public static final String DateFormatForJson = "yyyy-MM-dd";
+
     private final Map<DataSourceID, TransportDataSourceConfig> dataSources;
 
     protected TramchesterConfig() {

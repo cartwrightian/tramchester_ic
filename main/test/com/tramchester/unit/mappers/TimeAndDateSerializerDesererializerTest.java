@@ -1,11 +1,14 @@
 package com.tramchester.unit.mappers;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.mappers.serialisation.*;
 import org.easymock.EasyMockSupport;
@@ -38,7 +41,9 @@ class TimeAndDateSerializerDesererializerTest extends EasyMockSupport {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        mapper = JsonMapper.builder().addModule(new AfterburnerModule()).build();
+        mapper = JsonMapper.builder().addModule(new AfterburnerModule()).
+                addModule(new JavaTimeModule()).
+                build();
     }
 
     @Test
@@ -119,8 +124,7 @@ class TimeAndDateSerializerDesererializerTest extends EasyMockSupport {
     }
 
     public static class ExampleForLocalDate {
-        @JsonDeserialize(using=LocalDateJsonDeserializer.class)
-        @JsonSerialize(using=LocalDateJsonSerializer.class)
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TramchesterConfig.DateFormatForJson)
         public LocalDate value;
 
         public ExampleForLocalDate() {

@@ -1,11 +1,9 @@
 package com.tramchester.domain.presentation.DTO;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.mappers.serialisation.LocalDateJsonDeserializer;
-import com.tramchester.mappers.serialisation.LocalDateJsonSerializer;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -36,14 +34,12 @@ public class StationClosureDTO {
         return stations;
     }
 
-    @JsonSerialize(using = LocalDateJsonSerializer.class)
-    @JsonDeserialize(using = LocalDateJsonDeserializer.class)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TramchesterConfig.DateFormatForJson)
     public LocalDate getBegin() {
         return begin;
     }
 
-    @JsonSerialize(using = LocalDateJsonSerializer.class)
-    @JsonDeserialize(using = LocalDateJsonDeserializer.class)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TramchesterConfig.DateFormatForJson)
     public LocalDate getEnd() {
         return end;
     }

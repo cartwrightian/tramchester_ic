@@ -1,10 +1,8 @@
 package com.tramchester.domain.presentation.DTO;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DateRangeAndVersion;
-import com.tramchester.mappers.serialisation.LocalDateJsonDeserializer;
-import com.tramchester.mappers.serialisation.LocalDateJsonSerializer;
 
 import java.time.LocalDate;
 
@@ -28,14 +26,13 @@ public class DataVersionDTO {
         return version;
     }
 
-    @JsonSerialize(using = LocalDateJsonSerializer.class)
-    @JsonDeserialize(using = LocalDateJsonDeserializer.class)
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TramchesterConfig.DateFormatForJson)
     public LocalDate validFrom() {
         return validFrom;
     }
 
-    @JsonSerialize(using = LocalDateJsonSerializer.class)
-    @JsonDeserialize(using = LocalDateJsonDeserializer.class)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TramchesterConfig.DateFormatForJson)
     public LocalDate validUntil() {
         return validUntil;
     }
