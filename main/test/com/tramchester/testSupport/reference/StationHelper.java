@@ -10,22 +10,24 @@ import com.tramchester.geo.CoordinateTransforms;
 
 public class StationHelper {
 
-    public static Station forTest(String id, String area, String stationName, LatLong latLong, DataSourceID dataSourceID) {
+    public static Station forTest(String id, String area, String stationName, LatLong latLong, DataSourceID dataSourceID, boolean isCentral) {
         IdFor<NPTGLocality> areaId = NPTGLocality.createId(area);
         return new MutableStation(Station.createId(id), areaId, stationName, latLong, CoordinateTransforms.getGridPosition(latLong),
-                dataSourceID, false);
+                dataSourceID, isCentral);
     }
 
-    public static MutableStation forTestMutable(String id, String area, String stationName, LatLong latLong, DataSourceID dataSourceID) {
+    public static MutableStation forTestMutable(String id, String area, String stationName, LatLong latLong,
+                                                DataSourceID dataSourceID, boolean isCentral) {
         IdFor<NPTGLocality> areaId = NPTGLocality.createId(area);
         return new MutableStation(Station.createId(id), areaId, stationName, latLong, CoordinateTransforms.getGridPosition(latLong),
-                dataSourceID, false);
+                dataSourceID, isCentral);
     }
 
-    public static MutableStation forTestMutable(String id, String area, String stationName, KnownLocations knowLocation, DataSourceID dataSourceID) {
+    public static MutableStation forTestMutable(String id, String area, String stationName, KnownLocations knowLocation,
+                                                DataSourceID dataSourceID, boolean isCentral) {
         IdFor<NPTGLocality> areaId = NPTGLocality.createId(area);
         return new MutableStation(Station.createId(id), areaId, stationName, knowLocation.latLong(), knowLocation.grid(),
-                dataSourceID, false);
+                dataSourceID, isCentral);
     }
 
 }

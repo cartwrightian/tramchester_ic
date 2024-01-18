@@ -96,7 +96,7 @@ public class BusRouteToRouteCostsTest {
         StationGroup end = Shudehill.from(stationGroupsRepository);
 
         NumberOfChanges numberOfChanges = routeToRouteCosts.getNumberOfChanges(LocationSet.singleton(start),
-                LocationSet.of(end.getContained()), date, timeRange, modes);
+                LocationSet.of(end.getAllContained()), date, timeRange, modes);
 
         assertEquals(2, numberOfChanges.getMin());
         assertEquals(3, numberOfChanges.getMax());

@@ -37,7 +37,7 @@ public class DTOFactory {
 
     public StationGroupDTO createStationGroupDTO(StationGroup stationGroup) {
         IdFor<NPTGLocality> areaId = stationGroup.getLocalityId();
-        List<LocationRefWithPosition> contained = stationGroup.getContained().stream().
+        List<LocationRefWithPosition> contained = stationGroup.getAllContained().stream().
                 map(this::createLocationRefWithPosition).collect(Collectors.toList());
         return new StationGroupDTO(areaId, contained);
     }

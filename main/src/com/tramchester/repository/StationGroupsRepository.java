@@ -126,23 +126,24 @@ public class StationGroupsRepository {
         logger.info("Created " + stationGroups.size() + " composite stations from " + groupedByAreaId.size());
     }
 
-    private void groupByAreaAndAdd(IdFor<NPTGLocality> areaId, Set<Station> stationsInArea) {
-        stationsInArea.forEach(station ->  addComposite(areaId, stationsInArea));
+    private void groupByAreaAndAdd(IdFor<NPTGLocality> localityId, Set<Station> stationsInArea) {
+        stationsInArea.forEach(station ->  addStationGroup(localityId, stationsInArea));
     }
 
-    private void addComposite(IdFor<NPTGLocality> areaId, Set<Station> stationsToGroup) {
+    private void addStationGroup(final IdFor<NPTGLocality> localityId, final Set<Station> stationsToGroup) {
 
-        String areaName  = areaId.toString();
-        if (nptgRepository.hasLocaility(areaId)) {
-            NPTGLocality locality = nptgRepository.get(areaId);
+        final String areaName;
+        if (nptgRepository.hasLocaility(localityId)) {
+            NPTGLocality locality = nptgRepository.get(localityId);
             areaName = locality.getLocalityName();
         } else {
-            logger.error(format("Using %s as name, missing area code %s for station group %s", areaName, areaId, HasId.asIds(stationsToGroup)));
+            areaName  = localityId.toString();
+            logger.error(format("Using %s as name, missing area code %s for station group %s", areaName, localityId, HasId.asIds(stationsToGroup)));
         }
 
-        StationGroup stationGroup = new StationGroup(stationsToGroup, areaId, areaName);
+        StationGroup stationGroup = new StationGroup(stationsToGroup, localityId, areaName);
 
-        stationGroups.put(areaId, stationGroup);
+        stationGroups.put(localityId, stationGroup);
         stationGroupsByName.put(areaName, stationGroup);
     }
 

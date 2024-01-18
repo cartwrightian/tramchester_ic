@@ -65,7 +65,7 @@ class FindLinkedStationsBusTest {
 
     @Test
     void shouldGetStationNeighboursFromTram() {
-        IdSet<Station> busStopIds = shudehillCentralBusStops.getContained().stream().collect(IdSet.collector());
+        IdSet<Station> busStopIds = shudehillCentralBusStops.getAllContained().stream().collect(IdSet.collector());
 
         Set<StationToStationConnection> links = findStationLinks.findLinkedFor(Bus);
 

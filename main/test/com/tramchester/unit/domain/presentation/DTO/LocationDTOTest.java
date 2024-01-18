@@ -40,7 +40,7 @@ class LocationDTOTest {
     void shouldCreateDTOAsExpected() {
 
         MutableStation testStation = StationHelper.forTestMutable("9400ZZMAALT", "Altrincham area", "Altrincham",
-                nearAltrincham, DataSourceID.tfgm);
+                nearAltrincham, DataSourceID.tfgm, false);
 
         testStation.addRouteDropOff(TestEnv.getTramTestRoute(Route.createId("routeIdA"), "routeNameA"));
         testStation.addRoutePickUp(TestEnv.getTramTestRoute(Route.createId("routeIdB"), "routeNameB"));

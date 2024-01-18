@@ -173,7 +173,7 @@ public class StationAvailabilityRepository {
     }
 
     private boolean isGroupAvailable(StationGroup stationGroup, TramDate date, TimeRange timeRange, EnumSet<TransportMode> requestedModes) {
-        return stationGroup.getContained().stream().anyMatch(station -> isAvailable(station, date, timeRange, requestedModes));
+        return stationGroup.getAllContained().stream().anyMatch(station -> isAvailable(station, date, timeRange, requestedModes));
     }
 
     public Set<Route> getPickupRoutesFor(Location<?> location, TramDate date, TimeRange timeRange, EnumSet<TransportMode> modes) {
@@ -192,7 +192,7 @@ public class StationAvailabilityRepository {
     }
 
     private Set<Route> getPickupRoutesForGroup(StationGroup stationGroup, TramDate date, TimeRange timeRange, EnumSet<TransportMode> modes) {
-        return stationGroup.getContained().stream().
+        return stationGroup.getAllContained().stream().
                 flatMap(station -> getPickupRoutesFor(station, date, timeRange, modes).stream()).
                 collect(Collectors.toSet());
     }
@@ -213,7 +213,7 @@ public class StationAvailabilityRepository {
     }
 
     private Set<Route> getDropoffRoutesForGroup(StationGroup stationGroup, TramDate date, TimeRange timeRange, EnumSet<TransportMode> modes) {
-        return stationGroup.getContained().stream().
+        return stationGroup.getAllContained().stream().
                 flatMap(station -> getDropoffRoutesFor(station, date, timeRange, modes).stream()).
                 collect(Collectors.toSet());
     }

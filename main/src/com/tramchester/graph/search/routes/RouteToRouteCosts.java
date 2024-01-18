@@ -129,7 +129,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     @Override
     public NumberOfChanges getNumberOfChanges(StationGroup start, StationGroup end, TramDate date, TimeRange time, EnumSet<TransportMode> modes) {
-        return getNumberOfChanges(LocationSet.of(start.getContained()), LocationSet.of(end.getContained()), date, time, modes);
+        return getNumberOfChanges(LocationSet.of(start.getAllContained()), LocationSet.of(end.getAllContained()), date, time, modes);
     }
 
     @Override

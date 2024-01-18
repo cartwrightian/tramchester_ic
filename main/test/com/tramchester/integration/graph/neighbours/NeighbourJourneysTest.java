@@ -82,7 +82,7 @@ public class NeighbourJourneysTest {
 
         StationGroup shudehillCentralBus = KnownLocality.Shudehill.from(stationGroupsRepository);
 
-        Optional<Station> maybeStop = shudehillCentralBus.getContained().stream().findAny();
+        Optional<Station> maybeStop = shudehillCentralBus.getAllContained().stream().findAny();
         maybeStop.ifPresent(stop -> shudehillBusStop = stop);
 
         shudehillTram = stationRepository.getStationById(Shudehill.getId());

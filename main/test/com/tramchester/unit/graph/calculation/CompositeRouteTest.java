@@ -125,7 +125,7 @@ class CompositeRouteTest {
     @Test
     void shouldHaveFirstCompositeStation() {
         assertNotNull(startGroup);
-        Set<Station> grouped = startGroup.getContained();
+        Set<Station> grouped = startGroup.getAllContained();
         assertEquals(3, grouped.size());
         assertTrue(grouped.contains(transportData.getFirst()));
         assertTrue(grouped.contains(transportData.getFirstDupName()));
@@ -135,7 +135,7 @@ class CompositeRouteTest {
     @Test
     void shouldHaveFourthCompositeStation() {
         assertNotNull(fourthStationComposite);
-        Set<Station> grouped = fourthStationComposite.getContained();
+        Set<Station> grouped = fourthStationComposite.getAllContained();
         assertEquals(2, grouped.size());
         assertTrue(grouped.contains(transportData.getFourthStation()));
         assertTrue(grouped.contains(transportData.getFourthStationDupName()));

@@ -65,7 +65,7 @@ class StationLocationsTest extends EasyMockSupport {
 
     @NotNull
     private Station createTestStation(String id, String name, KnownLocations location) {
-        return StationHelper.forTest(id, "area", name, location.latLong(), DataSourceID.tfgm);
+        return StationHelper.forTest(id, "area", name, location.latLong(), DataSourceID.tfgm, false);
     }
 
     @Test

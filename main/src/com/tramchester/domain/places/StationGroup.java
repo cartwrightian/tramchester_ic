@@ -51,7 +51,7 @@ public class StationGroup implements Location<StationGroup> {
         return StringIdFor.createId(text, StationGroup.class);
     }
 
-    public Set<Station> getContained() {
+    public Set<Station> getAllContained() {
         return groupedStations;
     }
 
@@ -184,4 +184,5 @@ public class StationGroup implements Location<StationGroup> {
                 ", dataSourceId=" + dataSourceId +
                 '}';
     }
+
 }

@@ -99,7 +99,7 @@ class AddNeighboursGraphBuilderTest {
 
         GraphNode compNode = txn.findNode(shudehillCentralBus);
         assertNotNull(compNode, "No node found for " + compNode);
-        shudehillCentralBus.getContained().forEach(busStop -> {
+        shudehillCentralBus.getAllContained().forEach(busStop -> {
             GraphNode busNode = txn.findNode(busStop);
             assertNotNull(busNode, "No node found for " + busStop);
         });
@@ -119,7 +119,7 @@ class AddNeighboursGraphBuilderTest {
         assertFalse(seenNode(txn, shudehillTram, outFromTram, this::getEndNode));
         assertFalse(seenNode(txn, victoria, towardsTram, this::getStartNode));
 
-        shudehillCentralBus.getContained().forEach(busStop -> {
+        shudehillCentralBus.getAllContained().forEach(busStop -> {
             assertTrue(seenNode(txn, busStop, outFromTram, this::getEndNode));
             assertTrue(seenNode(txn, busStop, towardsTram, this::getStartNode));
         });
@@ -129,7 +129,7 @@ class AddNeighboursGraphBuilderTest {
     @Test
     void shouldHaveExpectedNeighbourRelationshipsToFromBus() {
 
-        shudehillCentralBus.getContained().forEach(busStop -> {
+        shudehillCentralBus.getAllContained().forEach(busStop -> {
             GraphNode busNode = txn.findNode(busStop);
             assertNotNull(busNode, "No node found for " + busStop);
 

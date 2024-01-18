@@ -32,7 +32,7 @@ class StationTest {
     @Test
     void testShouldCreateCorrecly() {
         Station tramStation = StationHelper.forTest("id", "area", "stopName",
-                new LatLong(-2.0, 2.3), DataSourceID.tfgm);
+                new LatLong(-2.0, 2.3), DataSourceID.tfgm, false);
 
         assertEquals("stopName", tramStation.getName());
         assertEquals(Station.createId("id"), tramStation.getId());
@@ -46,7 +46,7 @@ class StationTest {
     @Test
     void testShouldSetBusNameCorrecly() {
         Station busStation = StationHelper.forTest("id", "area", "stopName",
-                new LatLong(-2.0, 2.3), DataSourceID.tfgm);
+                new LatLong(-2.0, 2.3), DataSourceID.tfgm, false);
 
         assertEquals("stopName", busStation.getName());
         assertEquals(Station.createId("id"), busStation.getId());

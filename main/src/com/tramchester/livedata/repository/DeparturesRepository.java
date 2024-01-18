@@ -92,7 +92,7 @@ public class DeparturesRepository {
     }
 
     private List<UpcomingDeparture> getStationGroupDepartures(StationGroup stationGroup,  EnumSet<TransportMode> modes) {
-        return stationGroup.getContained().stream().
+        return stationGroup.getAllContained().stream().
                 filter(station -> TransportMode.intersects(station.getTransportModes(), modes)).
                 flatMap(station -> getStationDepartures(station, modes).stream()).
                 distinct().collect(Collectors.toList());

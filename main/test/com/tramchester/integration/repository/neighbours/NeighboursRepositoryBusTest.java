@@ -63,7 +63,7 @@ public class NeighboursRepositoryBusTest {
 
         IdSet<Station> neighbours = neighboursRepository.getNeighboursFor(TramStations.Altrincham.getId())
                 .stream().collect(IdSet.collector());
-        IdSet<Station> ids = altrinchamComposite.getContained().stream().collect(IdSet.collector());
+        IdSet<Station> ids = altrinchamComposite.getAllContained().stream().collect(IdSet.collector());
 
         assertTrue(neighbours.containsAll(ids));
     }
@@ -71,13 +71,13 @@ public class NeighboursRepositoryBusTest {
     @Test
     void shouldHaveCorrectNeighboursForTramAtShudehill() {
         IdSet<Station> neighbours = neighboursRepository.getNeighboursFor(Shudehill.getId()).stream().collect(IdSet.collector());
-        IdSet<Station> busStops = shudehillGroup.getContained().stream().collect(IdSet.collector());
+        IdSet<Station> busStops = shudehillGroup.getAllContained().stream().collect(IdSet.collector());
         assertTrue(neighbours.containsAll(busStops));
     }
 
     @Test
     void shouldHaveCorrectNeighboursForBusAtShudehill() {
-        shudehillGroup.getContained().forEach(station -> {
+        shudehillGroup.getAllContained().forEach(station -> {
             IdSet<Station> neighbours = neighboursRepository.getNeighboursFor(station.getId()).stream().collect(IdSet.collector());
             assertTrue(neighbours.contains(shudehillTram.getId()));
         });

@@ -70,7 +70,7 @@ class StationLinksNeighboursAndCompositeResourceTest {
     @Disabled("needs trams and buses enabled")
     @Test
     void shouldGetStationNeighboursFromTram() {
-        Set<IdForDTO> busStopIds = shudehillCentralBusStops.getContained().stream().
+        Set<IdForDTO> busStopIds = shudehillCentralBusStops.getAllContained().stream().
                 map(Station::getId).
                 map(IdForDTO::new).
                 collect(Collectors.toSet());
@@ -94,7 +94,7 @@ class StationLinksNeighboursAndCompositeResourceTest {
 
         List<StationToStationConnectionDTO> results = getLinks();
 
-        Set<IdForDTO> busStopIds = shudehillCentralBusStops.getContained().
+        Set<IdForDTO> busStopIds = shudehillCentralBusStops.getAllContained().
                 stream().
                 map(IdForDTO::createFor).
                 collect(Collectors.toSet());
@@ -118,7 +118,7 @@ class StationLinksNeighboursAndCompositeResourceTest {
     void shouldGetCompositeStations() {
 
         StationGroup actualComposite = KnownLocality.Altrincham.from(stationGroupsRepository);
-        Set<IdForDTO> expectedIds = actualComposite.getContained().stream().
+        Set<IdForDTO> expectedIds = actualComposite.getAllContained().stream().
                 map(IdForDTO::createFor).
                 collect(Collectors.toSet());
 

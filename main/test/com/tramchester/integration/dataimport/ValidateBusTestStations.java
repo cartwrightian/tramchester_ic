@@ -76,7 +76,7 @@ class ValidateBusTestStations {
         GreaterManchester.forEach(knowLocality -> {
             StationGroup group = knowLocality.from(stationGroupsRepository);
             assertNotNull(group, "no central stations found for " + group);
-            assertTrue(group.getContained().size()>1, "not enough stations for " + group);
+            assertTrue(group.getAllContained().size()>1, "not enough stations for " + group);
         });
 
     }

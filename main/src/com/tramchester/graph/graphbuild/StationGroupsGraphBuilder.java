@@ -121,7 +121,7 @@ public class StationGroupsGraphBuilder extends CreateNodesAndRelationships {
     }
 
     private void linkStations(MutableGraphTransaction txn, MutableGraphNode parentNode, StationGroup stationGroup) {
-        Set<Station> contained = stationGroup.getContained();
+        Set<Station> contained = stationGroup.getAllContained();
 
         contained.stream().
                 filter(graphFilter::shouldInclude).

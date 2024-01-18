@@ -73,7 +73,7 @@ public class ActiveGraphFilter implements GraphFilter, ConfigurableGraphFilter {
     }
 
     public boolean shouldInclude(StationGroup stationGroup) {
-        return stationGroup.getContained().stream().anyMatch(this::shouldInclude);
+        return stationGroup.getAllContained().stream().anyMatch(this::shouldInclude);
     }
 
     /**

@@ -49,11 +49,11 @@ class StationGroupRepositoryTest {
     }
 
     @Test
-    void shouldFindExpectedCompositeStations() {
+    void shouldFindExpectedGroupStations() {
         final StationGroup groupedStations = stationGroupsRepository.findByName("Altrincham");
         assertNotNull(groupedStations);
 
-        Set<Station> contained = groupedStations.getContained();
+        Set<Station> contained = groupedStations.getAllContained();
         assertEquals(26, contained.size(), groupedStations.toString());
 
         assertEquals(LocationType.StationGroup, groupedStations.getLocationType());
@@ -81,7 +81,7 @@ class StationGroupRepositoryTest {
 
         compositesFor.forEach(group -> {
 
-            group.getContained().forEach(station -> {
+            group.getAllContained().forEach(station -> {
                 IdFor<Station> id = station.getId();
                 assertTrue(stationRepository.hasStationId(id), "could not find " + id + " for group " + group.getId());
             });
