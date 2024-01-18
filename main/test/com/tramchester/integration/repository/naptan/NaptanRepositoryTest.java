@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class NaptanRepositoryTest {
     private static GuiceContainerDependencies componentContainer;
-    private NaptanRepository respository;
+    private NaptanRepository repository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -51,30 +51,44 @@ class NaptanRepositoryTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        respository = componentContainer.get(NaptanRepositoryContainer.class);
+        repository = componentContainer.get(NaptanRepositoryContainer.class);
     }
 
     @Test
     void shouldContainExpectedStopsWithinLocality() {
         IdFor<Station> actoCode = TramStations.Shudehill.getId();
-        assertTrue(respository.containsActo(actoCode));
+        assertTrue(repository.containsActo(actoCode));
 
-        NaptanRecord data = respository.getForActo(actoCode);
-        assertEquals("Manchester City Centre", data.getSuburb());
+        NaptanRecord naptanRecord = repository.getForActo(actoCode);
+        assertEquals("Manchester City Centre", naptanRecord.getSuburb());
+        assertTrue(naptanRecord.isLocalityCenter());
 
-        IdFor<NPTGLocality> localityId = data.getLocalityId();
+        IdFor<NPTGLocality> localityId = naptanRecord.getLocalityId();
 
-        Set<NaptanRecord> withinLocality = respository.getRecordsForLocality(localityId);
+        // NOTE: not Shudehill locality, meaning cannot use LocalityCode to safely associate Tram and Bus stops
+        // since Shudehill bus tops are within Shudehill Locality
+        assertEquals(KnownLocality.ManchesterCityCentre.getId(), localityId);
+
+        Set<NaptanRecord> withinLocality = repository.getRecordsForLocality(localityId);
 
         assertEquals(168, withinLocality.size(), withinLocality.toString());
     }
 
     @Test
+    void shouldHaveTramStopNotFlaggedAsCentral() {
+        IdFor<Station> actoCode = TramStations.Weaste.getId();
+        assertTrue(repository.containsActo(actoCode));
+
+        NaptanRecord naptanRecord = repository.getForActo(actoCode);
+        assertFalse(naptanRecord.isLocalityCenter());
+    }
+
+    @Test
     void shouldContainBusStopWithinArea() {
         IdFor<Station> actoCode = BusStations.ManchesterAirportStation.getId();
-        assertTrue(respository.containsActo(actoCode));
+        assertTrue(repository.containsActo(actoCode));
 
-        NaptanRecord record = respository.getForActo(actoCode);
+        NaptanRecord record = repository.getForActo(actoCode);
         assertEquals("Manchester Airport", record.getSuburb());
 
         final IdFor<NPTGLocality> areaCode = record.getLocalityId();
@@ -83,16 +97,16 @@ class NaptanRepositoryTest {
 
     @Test
     void shouldNotContainTrainOutOfBounds() {
-        assertFalse(respository.containsTiploc(RailStationIds.LondonEuston.getId()));
+        assertFalse(repository.containsTiploc(RailStationIds.LondonEuston.getId()));
     }
 
     @Test
     void shouldHaveDataForTrainStation() {
         IdFor<Station> tiploc = RailStationIds.Macclesfield.getId();
 
-        assertTrue(respository.containsTiploc(tiploc));
+        assertTrue(repository.containsTiploc(tiploc));
 
-        NaptanRecord record = respository.getForTiploc(tiploc);
+        NaptanRecord record = repository.getForTiploc(tiploc);
         assertEquals(record.getCommonName(), "Macclesfield Rail Station");
         assertEquals(record.getTown(), "Macclesfield");
         assertTrue(record.getSuburb().isEmpty());
@@ -107,8 +121,8 @@ class NaptanRepositoryTest {
     void shouldHaveAltyTrainStation() {
         IdFor<Station> altyTrainId = RailStationIds.Altrincham.getId();
 
-        assertTrue(respository.containsTiploc(altyTrainId));
-        NaptanRecord record = respository.getForTiploc(altyTrainId);
+        assertTrue(repository.containsTiploc(altyTrainId));
+        NaptanRecord record = repository.getForTiploc(altyTrainId);
 
         assertEquals("Altrincham Rail Station", record.getCommonName());
         assertEquals("Altrincham", record.getTown());
@@ -122,8 +136,8 @@ class NaptanRepositoryTest {
     @Test
     void shouldHaveNaptanAreaForAltrinchamStation() {
         final IdFor<NPTGLocality> altyRailStationArea = KnownLocality.Altrincham.getId();
-        assertTrue(respository.containsArea(altyRailStationArea));
-        Set<NaptanRecord> inLocation = respository.getRecordsForLocality(altyRailStationArea);
+        assertTrue(repository.containsLocality(altyRailStationArea));
+        Set<NaptanRecord> inLocation = repository.getRecordsForLocality(altyRailStationArea);
 
         assertFalse(inLocation.isEmpty());
 
@@ -136,7 +150,7 @@ class NaptanRepositoryTest {
 
     @Test
     void shouldNotContainAreaOutOfBounds() {
-        assertFalse(respository.containsArea(KnownLocality.LondonWestminster.getId()));
+        assertFalse(repository.containsLocality(KnownLocality.LondonWestminster.getId()));
     }
 
     // need to use <Street xml:lang="en">Bolton Road</Street><Indicator xml:lang="en">opp</Indicator> from naptan to
@@ -163,8 +177,8 @@ class NaptanRepositoryTest {
     void shouldFindAllTestBusStations() {
         for(BusStations station :BusStations.values()) {
             IdFor<Station> actoCode = station.getId();
-            assertTrue(respository.containsActo(actoCode), "missing for " + station);
-            NaptanRecord fromNaptan = respository.getForActo(actoCode);
+            assertTrue(repository.containsActo(actoCode), "missing for " + station);
+            NaptanRecord fromNaptan = repository.getForActo(actoCode);
             assertEquals(station.getName(), fromNaptan.getDisplayName(), fromNaptan.toString());
         }
     }
@@ -173,7 +187,7 @@ class NaptanRepositoryTest {
     @Test
     void shouldGetBoundary() {
 
-        List<LatLong> points = respository.getBoundaryFor(KnownLocality.Shudehill.getId());
+        List<LatLong> points = repository.getBoundaryFor(KnownLocality.Shudehill.getId());
 
         assertEquals(8, points.size());
     }
@@ -182,13 +196,13 @@ class NaptanRepositoryTest {
     void shouldFindKnutsfordLocalityStations() {
 
         final IdFor<Station> stopId = BusStations.KnutsfordStationStand3.getId();
-        NaptanRecord fromNaptan = respository.getForActo(stopId);
+        NaptanRecord fromNaptan = repository.getForActo(stopId);
         assertNotNull(fromNaptan);
 
         IdFor<NPTGLocality> locality = fromNaptan.getLocalityId();
         assertEquals(KnownLocality.Knutsford.getId(), locality);
 
-        Set<NaptanRecord> allRecordsForArea = respository.getRecordsForLocality(locality);
+        Set<NaptanRecord> allRecordsForArea = repository.getRecordsForLocality(locality);
 
         assertEquals(46, allRecordsForArea.size(), allRecordsForArea.toString());
 

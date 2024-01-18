@@ -14,7 +14,6 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.factory.TransportEntityFactoryForTFGM;
-import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.input.PlatformStopCall;
@@ -50,7 +49,6 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.*;
@@ -329,11 +327,6 @@ public class TestEnv {
         String message = "Different A:" + itemsA.size() + " B:" + itemsB.size() + " " + difference +  " in A but not B " +
                 inAnotB + " in B but not A " + inBnotA;
         assertTrue(difference.isEmpty(), message);
-    }
-
-    @SafeVarargs
-    public static <T extends CoreDomain> List<IdFor<T>> asList(HasId<T>... items) {
-        return Arrays.stream(items).map(HasId::getId).collect(Collectors.toList());
     }
 
     public static String getBucketUrl() {

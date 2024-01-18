@@ -5,8 +5,6 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.module.blackbird.BlackbirdModule;
 import com.tramchester.dataimport.NaPTAN.NaptanXMLData;
 import com.tramchester.dataimport.NaPTAN.xml.NaptanFromXMLFile;
-import com.tramchester.dataimport.NaPTAN.xml.stopArea.NaptanStopAreaData;
-import com.tramchester.dataimport.NaPTAN.xml.stopPoint.NaptanStopData;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
@@ -16,7 +14,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ParserTestXMLHelper<T extends NaptanXMLData> {
+public class ParserTestXMLHelper {
 
     private final XmlMapper mapper;
     private NaptanFromXMLFile loader;
@@ -30,17 +28,7 @@ public class ParserTestXMLHelper<T extends NaptanXMLData> {
 
     protected void before(Charset charset) {
         received = new ArrayList<>();
-        loader = new NaptanFromXMLFile(Paths.get("unused"), charset, mapper, new NaptanFromXMLFile.NaptanXmlConsumer() {
-            @Override
-            public void process(NaptanStopAreaData naptanStopAreaData) {
-                received.add(naptanStopAreaData);
-            }
-
-            @Override
-            public void process(NaptanStopData naptanStopData) {
-                received.add(naptanStopData);
-            }
-        });
+        loader = new NaptanFromXMLFile(Paths.get("unused"), charset, mapper, naptanStopData -> received.add(naptanStopData));
     }
 
     protected NaptanXMLData parseFirstOnly(String text) throws XMLStreamException, IOException {

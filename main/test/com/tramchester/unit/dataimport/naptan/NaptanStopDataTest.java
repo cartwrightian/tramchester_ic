@@ -23,7 +23,7 @@ import static com.tramchester.repository.naptan.NaptanStopType.busCoachTrolleySt
 import static com.tramchester.repository.naptan.NaptanStopType.tramMetroUndergroundPlatform;
 import static org.junit.jupiter.api.Assertions.*;
 
-class NaptanStopDataTest extends ParserTestXMLHelper<NaptanStopData> {
+class NaptanStopDataTest extends ParserTestXMLHelper {
 
     /***
      * xml into split lines, useful for diagnosis etc

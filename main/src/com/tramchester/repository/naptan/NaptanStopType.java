@@ -33,9 +33,11 @@ public enum NaptanStopType {
 
     busCoachStationEntrance("BCE", Constants.NotApplicable),
     busCoachStationAccess("BST", Constants.NotApplicable),
+
     busCoachTrolleyStationBay("BCS", Constants.Buses),
     busCoachTrolleyStationVariableBay("BCQ", Constants.Buses),
     busCoachTrolleyStopOnStreet("BCT", Constants.Buses),
+
     busCoachPrivate("BCP", Constants.NotApplicable),
     unknown("UNKNOWN",  Constants.NotApplicable);
 

@@ -15,14 +15,16 @@ import com.tramchester.testSupport.testTags.S3Test;
 import org.junit.jupiter.api.*;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.*;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
+import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
+import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
 import software.amazon.awssdk.services.s3.waiters.S3Waiter;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -166,10 +168,6 @@ class UploadRemoteSourceDataToS3Test {
         return zonedDateTime.toInstant().toEpochMilli();
     }
 
-    private LocalDateTime toLocal(Instant instant) {
-        return LocalDateTime.ofInstant(instant, TramchesterConfig.TimeZoneId);
-    }
-
     public static class DataSource extends RemoteDataSourceConfig {
 
         @Override
@@ -205,11 +203,6 @@ class UploadRemoteSourceDataToS3Test {
         @Override
         public String getName() {
             return "tfgm";
-        }
-
-        @Override
-        public boolean getIsS3() {
-            return false;
         }
 
         @Override

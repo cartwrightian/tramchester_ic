@@ -358,6 +358,17 @@ class FetchDataFromUrlTest extends EasyMockSupport {
 
     }
 
+    @Test
+    void shouldValidateAssumptionAboutSchemeFromURI() {
+
+        URI s3URI = URI.create("s3://bucket/location");
+        assertEquals("s3", s3URI.getScheme());
+
+        URI otherUri = URI.create("https://bucket/location");
+        assertEquals("https", otherUri.getScheme());
+
+    }
+
 
     private static class LocalTestConfig extends TestConfig {
         private final Path downloadPath;

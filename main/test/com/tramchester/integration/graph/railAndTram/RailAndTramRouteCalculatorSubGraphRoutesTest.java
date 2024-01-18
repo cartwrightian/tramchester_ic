@@ -8,6 +8,7 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.MutableAgency;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
@@ -29,6 +30,7 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static com.tramchester.testSupport.TestEnv.Modes.RailOnly;
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
@@ -46,11 +48,11 @@ public class RailAndTramRouteCalculatorSubGraphRoutesTest {
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;
 
-    private static final List<IdFor<Station>> stations = TestEnv.asList(Victoria, ExchangeSquare, StPetersSquare,
+    private static final List<IdFor<Station>> stations = Stream.of(Victoria, ExchangeSquare, StPetersSquare,
             Deansgate, Cornbrook, Pomona, ExchangeQuay, SalfordQuay, Anchorage, HarbourCity,
             MediaCityUK, Broadway, Langworthy, Weaste, Ladywell, Eccles,
             RailStationIds.ManchesterVictoria,
-            RailStationIds.ManchesterOxfordRoad);
+            RailStationIds.ManchesterOxfordRoad).map(HasId::getId).toList();
 
     private MutableGraphTransaction txn;
     private RouteCalculatorTestFacade testFacade;

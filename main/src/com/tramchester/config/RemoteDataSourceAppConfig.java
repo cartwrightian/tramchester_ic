@@ -85,10 +85,10 @@ public class RemoteDataSourceAppConfig extends RemoteDataSourceConfig {
         return name;
     }
 
-    @Override
-    public boolean getIsS3() {
-        return dataURL.startsWith("s3://");
-    }
+//    @Override
+//    public boolean getIsS3() {
+//        return dataURL.startsWith("s3://");
+//    }
 
     @Override
     public String getModTimeCheckFilename() {

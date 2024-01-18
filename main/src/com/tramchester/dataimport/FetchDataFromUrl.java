@@ -127,11 +127,12 @@ public class FetchDataFromUrl {
     private RefreshStatus refreshDataIfNewerAvailableNoFile(DownloadedConfig sourceConfig, DestAndStatusCheckFile destAndStatusCheckFile) throws IOException, InterruptedException {
         DataSourceID dataSourceId = sourceConfig.getDataSourceId();
         URI originalURL = URI.create(sourceConfig.getDataUrl());
-        boolean isS3 = sourceConfig.getIsS3();
+
 
         LocalDateTime localModTime = LocalDateTime.MIN;
 
         // download
+        boolean isS3 = isS3(originalURL);
         URLStatus status = getUrlStatus(originalURL, isS3, localModTime, sourceConfig);
         if (status == null) {
             logger.warn(format("No local file %s and unable to check url status", destAndStatusCheckFile));
@@ -151,10 +152,13 @@ public class FetchDataFromUrl {
 
     }
 
+    private static boolean isS3(URI originalURL) {
+        return originalURL.getScheme().equalsIgnoreCase("s3");
+    }
+
     private RefreshStatus refreshDataIfNewerAvailableHasFile(DownloadedConfig sourceConfig, DestAndStatusCheckFile destAndStatusCheckFile) throws IOException, InterruptedException {
         // already has the source file locally
         DataSourceID dataSourceId = sourceConfig.getDataSourceId();
-        boolean isS3 = sourceConfig.getIsS3();
 
         LocalDateTime localMod = getFileModLocalTime(destAndStatusCheckFile.statusCheckFile);
         LocalDateTime localNow = providesLocalNow.getDateTime();
@@ -170,6 +174,7 @@ public class FetchDataFromUrl {
 
         logger.info("Check remote status for originalURL:'"+sourceConfig.getDataUrl()+"'");
         URI originalURL = URI.create(sourceConfig.getDataUrl());
+        boolean isS3 = isS3(originalURL);
         URLStatus status = getUrlStatus(originalURL, isS3, localMod, sourceConfig);
         if (status == null) {
             return RefreshStatus.UnableToCheck;

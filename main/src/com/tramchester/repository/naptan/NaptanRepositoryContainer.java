@@ -5,7 +5,6 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.NaPTAN.NaptanXMLData;
 import com.tramchester.dataimport.NaPTAN.xml.NaptanDataCallbackImporter;
 import com.tramchester.dataimport.NaPTAN.xml.NaptanFromXMLFile;
-import com.tramchester.dataimport.NaPTAN.xml.stopArea.NaptanStopAreaData;
 import com.tramchester.dataimport.NaPTAN.xml.stopPoint.NaptanStopData;
 import com.tramchester.domain.id.*;
 import com.tramchester.domain.places.Location;
@@ -250,7 +249,7 @@ public class NaptanRepositoryContainer implements NaptanRepository {
     }
 
     @Override
-    public boolean containsArea(IdFor<NPTGLocality> id) {
+    public boolean containsLocality(IdFor<NPTGLocality> id) {
         return localities.containsKey(id);
     }
 
@@ -267,13 +266,13 @@ public class NaptanRepositoryContainer implements NaptanRepository {
 
     /***
      * Uses Latitude/Longitude and EPSG
-     * @param areaId the area id
+     * @param localityId the area id
      * @return A list of points on convex hull containing the points within the given area
      */
     @Override
-    public List<LatLong> getBoundaryFor(IdFor<NPTGLocality> areaId) {
+    public List<LatLong> getBoundaryFor(IdFor<NPTGLocality> localityId) {
 
-        final Set<NaptanRecord> records = getRecordsForLocality(areaId);
+        final Set<NaptanRecord> records = getRecordsForLocality(localityId);
 
         Stream<LatLong> points = records.stream().map(NaptanRecord::getLatLong);
 
@@ -284,19 +283,12 @@ public class NaptanRepositoryContainer implements NaptanRepository {
 
         private final BoundingBox bounds;
         private final MarginInMeters margin;
-        int skippedStopArea;
         int skippedStop;
 
         private Consumer(BoundingBox bounds, MarginInMeters margin) {
             this.bounds = bounds;
             this.margin = margin;
             skippedStop = 0;
-            skippedStopArea = 0;
-        }
-
-        @Override
-        public void process(NaptanStopAreaData element) {
-            // no-op
         }
 
         @Override
@@ -309,9 +301,6 @@ public class NaptanRepositoryContainer implements NaptanRepository {
         public void logSkipped(Logger logger) {
             if (skippedStop>0) {
                 logger.info("Skipped " + skippedStop + " stops");
-            }
-            if (skippedStopArea>0) {
-                logger.warn("Skipped " + skippedStopArea + " stop areas");
             }
         }
     }

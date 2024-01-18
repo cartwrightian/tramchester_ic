@@ -33,15 +33,6 @@ public abstract class RemoteDataSourceConfig extends Configuration implements Ha
         return DataSourceID.findOrUnknown(getName());
     }
 
-    /***
-     * Data source is S3 or not, but can have mixed source, one for expiry check and another for download
-     * so don't use this
-     * @return true if data source is S3
-     */
-    @Deprecated
-    @JsonIgnore
-    public abstract boolean getIsS3();
-
     @Override
     public String toString() {
         return "RemoteDataSourceConfig {"+
@@ -50,7 +41,6 @@ public abstract class RemoteDataSourceConfig extends Configuration implements Ha
                 "downloadFilename: '"+getDownloadFilename()+"' " +
                 "name: '"+getName()+"' " +
                 "dataSourceId: '"+getDataSourceId()+"' " +
-                "isS3: '"+getIsS3()+"' " +
                 "dataPath: '"+getDataPath()+"' " +
                 "downloadPath: '"+getDownloadPath()+"' " +
                 "defaultExpiry: '" + getDefaultExpiry() +"' " +

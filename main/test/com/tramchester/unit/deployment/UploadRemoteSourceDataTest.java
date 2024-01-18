@@ -183,11 +183,6 @@ class UploadRemoteSourceDataTest extends EasyMockSupport {
         }
 
         @Override
-        public boolean getIsS3() {
-            return false;
-        }
-
-        @Override
         public String getModTimeCheckFilename() {
             return modCheckFilename;
         }

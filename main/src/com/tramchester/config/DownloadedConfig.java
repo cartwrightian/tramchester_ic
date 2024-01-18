@@ -13,7 +13,7 @@ public interface DownloadedConfig {
     String getDownloadFilename();
     String getModTimeCheckFilename();
     boolean hasModCheckFilename();
-    boolean getIsS3();
+    //boolean getIsS3();
 
     // url to check mod time against to see if newer data available
     String getDataCheckUrl();

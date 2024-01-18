@@ -59,11 +59,6 @@ public class TFGMRemoteDataSourceConfig extends RemoteDataSourceConfig {
     }
 
     @Override
-    public boolean getIsS3() {
-        return false;
-    }
-
-    @Override
     public String getModTimeCheckFilename() {
         return "";
     }

@@ -3,8 +3,6 @@ package com.tramchester.integration.dataimport.NaPTAN;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.dataimport.NaPTAN.xml.NaptanDataCallbackImporter;
-import com.tramchester.dataimport.NaPTAN.xml.NaptanFromXMLFile;
-import com.tramchester.dataimport.NaPTAN.xml.stopArea.NaptanStopAreaData;
 import com.tramchester.dataimport.NaPTAN.xml.stopPoint.NaptanStopData;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
@@ -31,7 +29,6 @@ class NaptanDataImporterTest {
 
     private static GuiceContainerDependencies componentContainer;
     private static List<NaptanStopData> loadedStops;
-    private static List<NaptanStopAreaData> loadedAreas;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -44,24 +41,12 @@ class NaptanDataImporterTest {
         NaptanDataCallbackImporter dataImporter = componentContainer.get(NaptanDataCallbackImporter.class);
 
         loadedStops = new ArrayList<>();
-        loadedAreas = new ArrayList<>();
-        dataImporter.loadData(new NaptanFromXMLFile.NaptanXmlConsumer() {
-            @Override
-            public void process(NaptanStopAreaData element) {
-                loadedAreas.add(element);
-            }
-
-            @Override
-            public void process(NaptanStopData element) {
-                loadedStops.add(element);
-            }
-        });
+        dataImporter.loadData(element -> loadedStops.add(element));
     }
 
     @AfterAll
     static void onceAfterAllTestsHaveRun() {
         loadedStops.clear();
-        loadedAreas.clear();
         componentContainer.close();
     }
 
@@ -113,15 +98,4 @@ class NaptanDataImporterTest {
         assertEquals(NaptanStopType.busCoachTrolleyStopOnStreet, known.getStopType());
     }
 
-    @Test
-    void shouldContainExpectedArea() {
-        Optional<NaptanStopAreaData> foundKnown = loadedAreas.stream().
-                filter(area -> area.getStopAreaCode()!=null).
-                filter(area -> area.getStopAreaCode().equals("940GZZMAALT")).
-                findFirst();
-
-        assertFalse(foundKnown.isEmpty());
-        NaptanStopAreaData known = foundKnown.get();
-        assertEquals("Altrincham (Manchester Metrolink)", known.getName());
-    }
 }

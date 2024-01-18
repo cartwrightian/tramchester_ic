@@ -50,11 +50,6 @@ public class DatabaseRemoteDataSourceConfig extends RemoteDataSourceConfig {
     }
 
     @Override
-    public boolean getIsS3() {
-        return true;
-    }
-
-    @Override
     public String getModTimeCheckFilename() {
         return "tramchester.db";
     }

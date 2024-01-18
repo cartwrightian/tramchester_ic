@@ -39,17 +39,11 @@ public class NPTGDataSourceTestConfig extends RemoteDataSourceConfig {
     @Override
     public String getDownloadFilename() {
         return NPTGDataLoader.LOCALITIES_CSV;
-        //return "nptgcsv.zip";
     }
 
     @Override
     public String getName() {
         return "nptg";
-    }
-
-    @Override
-    public boolean getIsS3() {
-        return false;
     }
 
     @Override

@@ -77,8 +77,6 @@ public class NaptanFromXMLFile {
                 final String localName = streamReader.getLocalName();
                 if (stopElementName.equals(localName)) {
                     consumeStopElement(streamReader);
-                } else if (areaElementName.equals(localName)) {
-                    consumeAreaElement(streamReader);
                 } else {
                     streamReader.next();
                 }
@@ -92,18 +90,12 @@ public class NaptanFromXMLFile {
 
     }
 
-    private void consumeAreaElement(final XMLStreamReader in) throws IOException {
-        final NaptanStopAreaData element = mapper.readValue(in, stopAreaJavaType);
-        naptanXmlConsumer.process(element);
-    }
-
     private void consumeStopElement(final XMLStreamReader in) throws IOException {
         final NaptanStopData element = mapper.readValue(in, stopDataJavaType);
         naptanXmlConsumer.process(element);
     }
 
     public interface NaptanXmlConsumer {
-        void process(final NaptanStopAreaData element);
         void process(final NaptanStopData element);
     }
 

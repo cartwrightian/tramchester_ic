@@ -24,11 +24,11 @@ public interface NaptanRepository {
 
     boolean containsTiploc(IdFor<Station> tiploc);
 
-    boolean containsArea(IdFor<NPTGLocality> localityId);
+    boolean containsLocality(IdFor<NPTGLocality> localityId);
 
     Set<NaptanRecord> getRecordsForLocality(IdFor<NPTGLocality> localityId);
 
-    List<LatLong> getBoundaryFor(IdFor<NPTGLocality> areaId);
+    List<LatLong> getBoundaryFor(IdFor<NPTGLocality> localityId);
 
     boolean isEnabled();
 

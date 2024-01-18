@@ -8,6 +8,7 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.RailRouteId;
 import com.tramchester.domain.id.RouteStationId;
@@ -38,6 +39,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.*;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
@@ -51,13 +53,13 @@ class RouteCalculatorLocalStationsSubGraphTest {
 
     private TramDate when;
 
-    private static final List<IdFor<Station>> stationIds = TestEnv.asList(
+    private static final List<IdFor<Station>> stationIds = Stream.of(
             TramStations.Altrincham,
             TramStations.NavigationRoad,
             TramStations.Timperley,
             RailStationIds.Altrincham,
             NavigationRaod,
-            Stockport);
+            Stockport).map(HasId::getId).toList();
 
     private MutableGraphTransaction txn;
     private StationRepository stationRepository;

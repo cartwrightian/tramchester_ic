@@ -63,11 +63,6 @@ public class RailRemoteDataSourceConfig extends RemoteDataSourceConfig {
         return DataSourceID.rail;
     }
 
-    @Override
-    public boolean getIsS3() {
-        return true;
-    }
-
     public String getFilePrefix() {
         return CURRENT_PREFIX.replace("ttis", "ttisf");
     }

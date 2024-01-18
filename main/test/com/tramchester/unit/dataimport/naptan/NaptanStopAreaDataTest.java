@@ -6,6 +6,7 @@ import com.tramchester.geo.GridPosition;
 import com.tramchester.repository.naptan.NaptanStopAreaType;
 import com.tramchester.unit.dataimport.ParserTestXMLHelper;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import javax.xml.stream.XMLStreamException;
@@ -16,7 +17,8 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class NaptanStopAreaDataTest extends ParserTestXMLHelper<NaptanStopAreaData> {
+@Disabled("No longer load area data")
+public class NaptanStopAreaDataTest extends ParserTestXMLHelper {
 
     @BeforeEach
     void beforeEach() {
