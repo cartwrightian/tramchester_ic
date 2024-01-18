@@ -4,7 +4,6 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.graph.search.stateMachine.RegistersStates;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
-import com.tramchester.graph.search.stateMachine.states.TraversalStateType;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.AfterAll;
@@ -14,10 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.*;
 import java.nio.file.Path;
-import java.util.EnumSet;
 import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.fail;
 
 class RegistersStatesTest {
     private static ComponentContainer componentContainer;

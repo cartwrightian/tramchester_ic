@@ -28,7 +28,6 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
@@ -42,7 +41,7 @@ class RouteCalculatorSubGraphEcclesAshtonLine {
     private static TramRouteHelper tramRouteHelper;
 
     private RouteCalculatorTestFacade calculator;
-    private final TramDate when = TestEnv.testDay();
+    private final static TramDate when = TestEnv.testDay();
 
     private MutableGraphTransaction txn;
     private Duration maxJourneyDuration;
@@ -64,8 +63,8 @@ class RouteCalculatorSubGraphEcclesAshtonLine {
     }
 
     private static void configureFilter(ConfigurableGraphFilter graphFilter, TransportData transportData) {
-        Set<Route> routes = tramRouteHelper.get(KnownTramRoute.EcclesManchesterAshtonUnderLyne);
-        routes.forEach(route -> graphFilter.addRoute(route.getId()));
+        Route route = tramRouteHelper.getOneRoute(KnownTramRoute.EcclesManchesterAshtonUnderLyne, when);
+        graphFilter.addRoute(route.getId());
     }
 
     @AfterAll
@@ -122,11 +121,6 @@ class RouteCalculatorSubGraphEcclesAshtonLine {
     private static class SubgraphConfig extends IntegrationTramTestConfig {
         public SubgraphConfig() {
             super(Collections.emptyList());
-        }
-
-        @Override
-        public boolean isGraphFiltered() {
-            return super.isGraphFiltered();
         }
     }
 

@@ -4,7 +4,6 @@ import com.ctc.wstx.stax.WstxInputFactory;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.tramchester.dataimport.NaPTAN.xml.stopArea.NaptanStopAreaData;
 import com.tramchester.dataimport.NaPTAN.xml.stopPoint.NaptanStopData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,10 +26,8 @@ public class NaptanFromXMLFile {
     private final NaptanXmlConsumer naptanXmlConsumer;
     private final WstxInputFactory factory;
     private final String stopElementName;
-    private final String areaElementName;
 
     private final JavaType stopDataJavaType;
-    private final JavaType stopAreaJavaType;
 
     public NaptanFromXMLFile(Path filePath, Charset charset, XmlMapper mapper, NaptanXmlConsumer naptanXmlConsumer) {
         this.filePath = filePath.toAbsolutePath();
@@ -41,10 +38,7 @@ public class NaptanFromXMLFile {
         factory = new WstxInputFactory();
 
         stopElementName = getElementName(NaptanStopData.class);
-        areaElementName = getElementName(NaptanStopAreaData.class);
-
         stopDataJavaType = mapper.getTypeFactory().constructType(NaptanStopData.class);
-        stopAreaJavaType = mapper.getTypeFactory().constructType(NaptanStopAreaData.class);
 
     }
 

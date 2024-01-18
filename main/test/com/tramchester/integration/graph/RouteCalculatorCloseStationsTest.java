@@ -21,7 +21,6 @@ import com.tramchester.testSupport.reference.TramStations;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -52,7 +51,7 @@ class RouteCalculatorCloseStationsTest {
             new StationClosuresForTest(PiccadillyGardens, when, when.plusWeeks(1), false));
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun() throws IOException {
+    static void onceBeforeAnyTestsRun() {
         TramchesterConfig config = new IntegrationTramClosedStationsTestConfig(closedStations, true);
 
         // if above closedStation list is changed need to enable this once

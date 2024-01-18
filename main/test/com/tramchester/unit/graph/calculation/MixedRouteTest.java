@@ -4,7 +4,6 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.DiagramCreator;
 import com.tramchester.config.GTFSSourceConfig;
-import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.dates.TramDate;
@@ -143,11 +142,6 @@ class MixedRouteTest {
                 Integer.MAX_VALUE, false));
     }
 
-    @Test
-    void createMatrixFile() {
-        
-    }
-
     private static void assertFirstAndLastForOneStage(Set<Journey> journeys, String firstStation, String secondStation,
                                                       int passedStops, TramTime queryTime) {
         Journey journey = (Journey)journeys.toArray()[0];
@@ -169,12 +163,6 @@ class MixedRouteTest {
 
         public SimpleMixedRouteGraphConfig() {
             super(TestGroupType.unit);
-//            super(new GraphDBTestConfig("unitTest", "MixedRouteTest.db"));
-        }
-
-        @Override
-        public boolean getChangeAtInterchangeOnly() {
-            return true;
         }
 
         @Override
@@ -196,12 +184,6 @@ class MixedRouteTest {
         @Override
         public int getQueryInterval() {
             return 6;
-        }
-
-        @Override
-        public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
-            return Collections.emptyList();
-            //return Collections.singletonList(new NaptanRemoteDataSourceConfig("data/naptan"));
         }
 
         @Override

@@ -182,7 +182,7 @@ class CompositeRouteTest {
 
         Set<Journey> journeys = calculator.calculateRouteAsSet(transportData.getFirst(), fourthStationComposite, journeyRequest);
 
-        assertTrue(journeys.size()>=1);
+        assertFalse(journeys.isEmpty());
         journeys.forEach(journey-> assertEquals(2, journey.getStages().size()));
     }
 

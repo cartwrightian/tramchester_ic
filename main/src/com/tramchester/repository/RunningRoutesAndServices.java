@@ -65,11 +65,10 @@ public class RunningRoutesAndServices {
     @NotNull
     private IdMap<Route> getRoutesFor(TramDate date) {
         Set<Route> routes = routeRepository.getRoutesRunningOn(date);
-        if (routes.size()>0) {
-            logger.info("Found " + routes.size() + " running routes for " + date);
-        } else
-        {
+        if (routes.isEmpty()) {
             logger.warn("No running routes found on " + date);
+        } else {
+            logger.info("Found " + routes.size() + " running routes for " + date);
         }
         return new IdMap<>(routes);
     }
@@ -77,11 +76,10 @@ public class RunningRoutesAndServices {
     @NotNull
     private IdMap<Service> getServicesFor(TramDate date) {
         Set<Service> services = serviceRepository.getServicesOnDate(date);
-        if (services.size()>0) {
-            logger.info("Found " + services.size() + " running services for " + date);
-        } else
-        {
+        if (services.isEmpty()) {
             logger.warn("No running services found on " + date);
+        } else {
+            logger.info("Found " + services.size() + " running services for " + date);
         }
         return new IdMap<>(services);
     }

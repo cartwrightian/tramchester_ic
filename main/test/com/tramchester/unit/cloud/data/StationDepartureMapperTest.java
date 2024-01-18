@@ -3,7 +3,6 @@ package com.tramchester.unit.cloud.data;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.tramchester.cloud.data.StationDepartureMapper;
 import com.tramchester.domain.Agency;
-import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.id.PlatformId;

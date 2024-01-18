@@ -4,7 +4,6 @@ import com.tramchester.dataimport.rail.records.IntermediateLocation;
 import com.tramchester.dataimport.rail.records.reference.LocationActivityCode;
 import com.tramchester.domain.time.TramTime;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.EnumSet;

@@ -37,7 +37,7 @@ public class CachingHealthCheck extends TramchesterHealthCheck {
     }
 
     @Override
-    protected Result check() throws Exception {
+    protected Result check()  {
         return execute();
     }
 

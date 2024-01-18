@@ -21,7 +21,6 @@ import com.tramchester.geo.GridPosition;
 import com.tramchester.graph.search.FastestRoutesForBoxes;
 import com.tramchester.mappers.JourneyToDTOMapper;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.repository.postcodes.PostcodeRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -46,19 +45,17 @@ public class JourneysForGridResource implements APIResource, GraphDatabaseDepend
     private final StationRepository repository;
     private final FastestRoutesForBoxes search;
     private final JourneyToDTOMapper dtoMapper;
-    private final PostcodeRepository postcodeRepository;
     private final TramchesterConfig config;
     private final ObjectMapper objectMapper;
 
     @Inject
     public JourneysForGridResource(StationRepository repository, FastestRoutesForBoxes search, JourneyToDTOMapper dtoMapper,
-                                   PostcodeRepository postcodeRepository, TramchesterConfig config) {
+                                   TramchesterConfig config) {
         this.config = config;
         logger.info("created");
         this.repository = repository;
         this.search = search;
         this.dtoMapper = dtoMapper;
-        this.postcodeRepository = postcodeRepository;
         this.objectMapper = JsonMapper.builder().addModule(new AfterburnerModule()).build();
     }
 

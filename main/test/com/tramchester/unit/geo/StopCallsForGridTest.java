@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.tramchester.domain.id.StringIdFor.createId;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class StopCallsForGridTest extends EasyMockSupport {

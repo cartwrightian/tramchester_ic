@@ -33,7 +33,7 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
     private MutableGraphTransaction transaction;
     private TramchesterConfig config;
     private DataSourceRepository dataSourceRepository;
-    private Duration timeout = GraphDatabase.DEFAULT_TXN_TIMEOUT;
+    private final Duration timeout = GraphDatabase.DEFAULT_TXN_TIMEOUT;
 
     @BeforeEach
     public void beforeAnyTestsRun() {

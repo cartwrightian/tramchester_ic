@@ -4,8 +4,8 @@ import com.tramchester.domain.Agency;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.livedata.domain.DTO.DepartureDTO;
+import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.livedata.mappers.DeparturesMapper;
 import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMockSupport;
@@ -14,11 +14,10 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.*;
 
-import static com.tramchester.testSupport.reference.TramStations.*;
+import static com.tramchester.testSupport.reference.TramStations.Bury;
+import static com.tramchester.testSupport.reference.TramStations.PiccadillyGardens;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class DeparturesMapperTest extends EasyMockSupport {

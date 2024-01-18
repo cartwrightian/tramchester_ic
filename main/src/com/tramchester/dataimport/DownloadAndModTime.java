@@ -8,6 +8,6 @@ import java.time.LocalDateTime;
 public interface DownloadAndModTime {
     URLStatus getStatusFor(URI uri, LocalDateTime localModTime, boolean warnIfMissing) throws IOException, InterruptedException;
 
-    URLStatus downloadTo(Path path, URI uri, LocalDateTime localModTime) throws IOException, InterruptedException;
+    URLStatus downloadTo(Path path, URI uri, LocalDateTime localModTime) throws IOException;
 
 }

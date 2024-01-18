@@ -1,7 +1,6 @@
 package com.tramchester.unit.rail;
 
 import com.tramchester.dataimport.rail.records.TerminatingLocation;
-import com.tramchester.dataimport.rail.records.reference.LocationActivityCode;
 import com.tramchester.domain.time.TramTime;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;

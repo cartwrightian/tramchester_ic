@@ -26,10 +26,8 @@ public class MarginInMeters {
     }
 
     /***
-     * Change this to use Quantity
      * @return margin in meters
      */
-    @Deprecated
     public long get() {
         return meters;
     }

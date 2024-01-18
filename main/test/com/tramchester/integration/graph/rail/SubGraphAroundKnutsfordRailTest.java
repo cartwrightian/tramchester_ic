@@ -163,7 +163,7 @@ class SubGraphAroundKnutsfordRailTest {
         JourneyRequest journeyRequest = new JourneyRequest(when, tramTime, false, 0,
                 Duration.ofMinutes(30), 1, EnumSet.noneOf(TransportMode.class));
         Set<Journey> results = testFacade.calculateRouteAsSet(Hale.getId(), Knutsford.getId(), journeyRequest);
-        Assertions.assertTrue(results.size()>0);
+        assertFalse(results.isEmpty());
     }
 
     @Test

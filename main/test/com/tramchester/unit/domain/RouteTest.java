@@ -18,9 +18,8 @@ import java.time.DayOfWeek;
 import java.util.EnumSet;
 import java.util.Set;
 
-import static com.tramchester.domain.id.StringIdFor.createId;
 import static com.tramchester.domain.reference.TransportMode.Tram;
-import static java.time.DayOfWeek.*;
+import static java.time.DayOfWeek.MONDAY;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

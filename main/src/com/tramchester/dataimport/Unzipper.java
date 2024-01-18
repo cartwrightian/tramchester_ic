@@ -25,7 +25,7 @@ import static java.lang.String.format;
 public class Unzipper {
     private static final Logger logger = LoggerFactory.getLogger(Unzipper.class);
 
-    PathMatcher zipMatcher = FileSystems.getDefault().getPathMatcher("glob:**.zip");
+    final PathMatcher zipMatcher = FileSystems.getDefault().getPathMatcher("glob:**.zip");
 
     public boolean unpackIfZipped(Path filename, Path targetDirectory) {
         File zipFile = filename.toFile();

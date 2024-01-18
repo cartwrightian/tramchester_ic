@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
@@ -16,6 +17,7 @@ import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.util.Set;
 
 import static com.tramchester.domain.reference.TransportMode.Bus;
 import static com.tramchester.testSupport.TestEnv.Modes.BusesOnly;
@@ -63,22 +65,26 @@ class RouteCalculatorKeyRoutesBusTest {
 
     @Test
     void shouldFindEndOfRoutesToInterchanges() {
-        combinations.validateAllHaveAtLeastOneJourney(combinations.EndOfRoutesToInterchanges(Bus), journeyRequest);
+        Set<StationIdPair> stationIdPairs = combinations.EndOfRoutesToInterchanges(Bus);
+        combinations.validateAllHaveAtLeastOneJourney(stationIdPairs, journeyRequest, true);
     }
 
     @Test
     void shouldFindEndOfRoutesToEndOfRoute() {
-        combinations.validateAllHaveAtLeastOneJourney(combinations.EndOfRoutesToEndOfRoutes(Bus), journeyRequest);
+        Set<StationIdPair> stationIdPairs = combinations.EndOfRoutesToEndOfRoutes(Bus);
+        combinations.validateAllHaveAtLeastOneJourney(stationIdPairs, journeyRequest, true);
     }
 
     @Test
     void shouldFindInterchangesToEndOfRoutes() {
-        combinations.validateAllHaveAtLeastOneJourney(combinations.InterchangeToEndRoutes(Bus), journeyRequest);
+        Set<StationIdPair> stationIdPairs = combinations.InterchangeToEndRoutes(Bus);
+        combinations.validateAllHaveAtLeastOneJourney(stationIdPairs, journeyRequest, true);
     }
 
     @Test
     void shouldFindInterchangesToInterchanges() {
-        combinations.validateAllHaveAtLeastOneJourney(combinations.InterchangeToInterchange(Bus), journeyRequest);
+        Set<StationIdPair> stationIdPairs = combinations.InterchangeToInterchange(Bus);
+        combinations.validateAllHaveAtLeastOneJourney(stationIdPairs, journeyRequest, true);
     }
 
     private static class SubGraphConfig extends IntegrationBusTestConfig {

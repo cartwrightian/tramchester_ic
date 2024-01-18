@@ -7,7 +7,6 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.TransportMode;
 
-import java.time.LocalDate;
 import java.util.Set;
 
 @ImplementedBy(TransportData.class)

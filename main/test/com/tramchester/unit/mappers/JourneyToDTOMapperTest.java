@@ -6,7 +6,10 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.places.*;
+import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.MyLocation;
+import com.tramchester.domain.places.NPTGLocality;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
@@ -25,7 +28,6 @@ import com.tramchester.domain.transportStages.WalkingFromStationStage;
 import com.tramchester.domain.transportStages.WalkingToStationStage;
 import com.tramchester.mappers.JourneyToDTOMapper;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
 import org.easymock.EasyMock;
@@ -150,7 +152,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         Station startStation = Altrincham.fakeWithPlatform(Altrincham.getRawId() + "1", Altrincham.getLatLong(),
                 DataSourceID.unknown, NPTGLocality.InvalidId());
 
-        ConnectingStage<Station,Station> connectingStage = new ConnectingStage<>(BusStations.of(StopAtAltrinchamInterchange),
+        ConnectingStage<Station,Station> connectingStage = new ConnectingStage<>(StopAtAltrinchamInterchange.fake(),
                 startStation, Duration.ofMinutes(1), time);
 
         VehicleStage tramStage = getRawVehicleStage(startStation, TramStations.Shudehill.fake(),

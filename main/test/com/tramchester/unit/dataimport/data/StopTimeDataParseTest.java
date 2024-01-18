@@ -1,7 +1,6 @@
 package com.tramchester.unit.dataimport.data;
 
 import com.tramchester.dataimport.data.StopTimeData;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.unit.dataimport.ParserTestCSVHelper;

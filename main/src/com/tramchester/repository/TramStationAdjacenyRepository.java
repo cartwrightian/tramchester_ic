@@ -45,7 +45,7 @@ public class TramStationAdjacenyRepository  {
         Collection<Trip> trips = transportData.getTrips();
         trips.stream().filter(TransportMode::isTram).forEach(trip -> {
             StopCalls stops = trip.getStopCalls();
-            stops.getLegs(graphFilter.isFiltered()).forEach(leg -> {
+            stops.getLegs(graphFilter.isActive()).forEach(leg -> {
                 StationPair pair = StationPair.of(leg);
                 if (!matrix.containsKey(pair)) {
                     matrix.put(pair, leg.getCost());

@@ -7,8 +7,6 @@ import com.tramchester.unit.dataimport.ParserTestCSVHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDate;
-
 import static com.tramchester.integration.testSupport.Assertions.assertIdEquals;
 import static org.assertj.core.api.Assertions.assertThat;
 

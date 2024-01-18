@@ -90,16 +90,16 @@ class RouteCalculatorForBoundingBoxTest {
         LocationSet destinations = LocationSet.singleton(TramStations.StPetersSquare.from(stationRepository));
 
         Stream<JourneysForBox> stream = calculator.calculateRoutes(destinations, journeyRequest, grouped);
-        List<JourneysForBox> groupedJourneys = stream.collect(Collectors.toList());
+        List<JourneysForBox> groupedJourneys = stream.toList();
 
         assertFalse(groupedJourneys.isEmpty());
 
-        List<JourneysForBox> missed = groupedJourneys.stream().filter(group -> group.getJourneys().isEmpty()).collect(Collectors.toList());
+        List<JourneysForBox> missed = groupedJourneys.stream().filter(group -> group.getJourneys().isEmpty()).toList();
 
         assertEquals(1, missed.size(), missed.toString()); // when start and dest match
 
         groupedJourneys.forEach(group -> group.getJourneys().forEach(journey -> {
-            assertTrue(journey.getStages().size()>0); // catch case where starting point is dest
+            assertFalse(journey.getStages().isEmpty()); // catch case where starting point is dest
         } ));
     }
 

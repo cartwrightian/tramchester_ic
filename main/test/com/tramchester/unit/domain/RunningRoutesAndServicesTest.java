@@ -4,7 +4,6 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.RunningRoutesAndServices;
@@ -15,12 +14,10 @@ import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 
-import static com.tramchester.domain.id.StringIdFor.createId;
 import static java.util.Collections.singleton;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;

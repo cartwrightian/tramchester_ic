@@ -56,7 +56,7 @@ public class RouteTripTransactionStrategy implements TransactionStrategy {
     @Override
     public void tripBegin(Trip trip) {
         if (eachTrip) {
-            transaction = graphDatabase.beginTxMutable();;
+            transaction = graphDatabase.beginTxMutable();
         }
     }
 

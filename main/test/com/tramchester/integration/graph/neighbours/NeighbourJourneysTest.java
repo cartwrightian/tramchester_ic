@@ -57,7 +57,7 @@ public class NeighbourJourneysTest {
     private Duration maxJourneyDuration;
     private TramDate date;
     private TimeRange timeRange;
-    private final EnumSet<TransportMode> modes = EnumSet.of(Bus, Tram);;
+    private final EnumSet<TransportMode> modes = EnumSet.of(Bus, Tram);
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {

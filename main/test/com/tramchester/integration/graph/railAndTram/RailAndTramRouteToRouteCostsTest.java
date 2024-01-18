@@ -51,11 +51,6 @@ public class RailAndTramRouteToRouteCostsTest {
         componentContainer.initialise();
     }
 
-    @AfterEach
-    void afterAllEachTestsHasRun() {
-
-    }
-
     @AfterAll
     static void afterAllTestsRun() {
         componentContainer.close();

@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.*;
 
 import java.time.Duration;
 import java.util.EnumSet;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static com.tramchester.domain.reference.TransportMode.Train;
@@ -67,7 +69,8 @@ class RailRouteCalculatorCombinationTests {
         JourneyRequest request = new JourneyRequest(when, travelTime, false,
                 10, Duration.ofHours(8), 1, getRequestedModes());
 
-        combinations.validateAllHaveAtLeastOneJourney(combinations.InterchangeToInterchange(Train), request);
+        Set<StationIdPair> stationIdPairs = combinations.InterchangeToInterchange(Train);
+        combinations.validateAllHaveAtLeastOneJourney(stationIdPairs, request, true);
     }
 
     private EnumSet<TransportMode> getRequestedModes() {
@@ -81,7 +84,8 @@ class RailRouteCalculatorCombinationTests {
         JourneyRequest request = new JourneyRequest(when, travelTime, false,
                 10, Duration.ofHours(8), 1, getRequestedModes());
 
-        combinations.validateAllHaveAtLeastOneJourney(combinations.EndOfRoutesToEndOfRoutes(Train), request);
+        Set<StationIdPair> stationIdPairs = combinations.EndOfRoutesToEndOfRoutes(Train);
+        combinations.validateAllHaveAtLeastOneJourney(stationIdPairs, request, true);
     }
 
 }

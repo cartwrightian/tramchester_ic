@@ -5,7 +5,6 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphTransaction;
-import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.search.stateMachine.ExistingTrip;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;

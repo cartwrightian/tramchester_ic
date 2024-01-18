@@ -4,7 +4,6 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.livedata.domain.DTO.DepartureDTO;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Set;

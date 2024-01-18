@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RemoteDataSourceConfigMismatchTest {
 
-    Path configDir = Paths.get("config").toAbsolutePath();
+    final Path configDir = Paths.get("config").toAbsolutePath();
 
     // TODO Postcode - which is currently unused?
 

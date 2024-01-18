@@ -53,18 +53,7 @@ public class RouteCalculationCombinations {
                 .limit(1).findAny();
     }
 
-//    public Map<JourneyRequest, JourneyOrNot> checkIfJourney(IdFor<Station> start, IdFor<Station> dest, List<JourneyRequest> requests) {
-//        return requests.stream().map(request ->  {
-//                try (GraphTransaction txn = database.beginTx()) {
-//                    Optional<Journey> optionalJourney = findJourneys(txn, start, dest, request);
-//                    JourneyOrNot journeyOrNot = new JourneyOrNot(start, dest, request.getDate(), request.getOriginalTime(), optionalJourney);
-//                    return Pair.of(request, journeyOrNot);
-//                }
-//            }).collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
-//        }
-
-
-    private Map<StationIdPair, JourneyOrNot> validateAllHaveAtLeastOneJourney(Set<StationIdPair> stationIdPairs,
+    public Map<StationIdPair, JourneyOrNot> validateAllHaveAtLeastOneJourney(Set<StationIdPair> stationIdPairs,
                                                                              JourneyRequest journeyRequest, boolean check) {
 
         if (stationIdPairs.isEmpty()) {
@@ -95,8 +84,7 @@ public class RouteCalculationCombinations {
     }
 
     @Deprecated
-    public Map<StationIdPair, JourneyOrNot> validateAllHaveAtLeastOneJourney(Set<StationIdPair> stationIdPairs,
-                                                                             JourneyRequest journeyRequest) {
+    public Map<StationIdPair, JourneyOrNot> validateAllHaveAtLeastOneJourney(Set<StationIdPair> stationIdPairs, JourneyRequest journeyRequest) {
         return validateAllHaveAtLeastOneJourney(stationIdPairs, journeyRequest, true);
     }
 

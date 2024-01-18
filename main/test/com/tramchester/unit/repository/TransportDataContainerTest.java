@@ -1,13 +1,12 @@
 package com.tramchester.unit.repository;
 
-import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.repository.TransportDataContainer;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.EnumSet;
 
 import static com.tramchester.domain.reference.TransportMode.Bus;

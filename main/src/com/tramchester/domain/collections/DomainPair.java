@@ -3,7 +3,6 @@ package com.tramchester.domain.collections;
 import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.IdPair;
 import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.id.IdFor;
 
 import java.util.Objects;
 

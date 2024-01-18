@@ -2,7 +2,6 @@ package com.tramchester.unit.dataimport.data;
 
 import com.tramchester.dataimport.data.AgencyData;
 import com.tramchester.domain.Agency;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.unit.dataimport.ParserTestCSVHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

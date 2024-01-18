@@ -1,9 +1,8 @@
 package com.tramchester.unit.liveData;
 
-import com.tramchester.livedata.cloud.DownloadsLiveDataFromS3;
-import com.tramchester.livedata.domain.DTO.StationDepartureInfoDTO;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.livedata.cloud.CountsUploadedLiveData;
+import com.tramchester.livedata.cloud.DownloadsLiveDataFromS3;
 import com.tramchester.livedata.domain.DTO.archived.ArchivedStationDepartureInfoDTO;
 import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
@@ -19,7 +18,7 @@ import java.util.stream.Stream;
 
 import static java.time.temporal.ChronoUnit.MINUTES;
 import static java.time.temporal.ChronoUnit.SECONDS;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class CountsUploadedLiveDataTest extends EasyMockSupport {
 

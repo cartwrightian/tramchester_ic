@@ -7,16 +7,14 @@ import com.tramchester.dataimport.rail.records.reference.TrainCategory;
 import com.tramchester.dataimport.rail.records.reference.TrainStatus;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.time.ProvidesLocalNow;
-import com.tramchester.domain.time.ProvidesNow;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BasicScheduleTest {
     private int century;

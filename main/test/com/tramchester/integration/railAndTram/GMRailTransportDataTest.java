@@ -5,7 +5,6 @@ import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.UnzipFetchedData;
 import com.tramchester.domain.Service;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
@@ -22,8 +21,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static com.tramchester.integration.testSupport.rail.RailStationIds.ManchesterAirport;
+import static com.tramchester.integration.testSupport.rail.RailStationIds.ManchesterPiccadilly;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @GMTest
 public class GMRailTransportDataTest {

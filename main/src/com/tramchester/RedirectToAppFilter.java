@@ -70,11 +70,7 @@ public class RedirectToAppFilter implements Filter {
 
     private boolean isForwardedSecure(HttpServletRequest httpServletRequest) {
         String header = httpServletRequest.getHeader(X_FORWARDED_PROTO); // https is terminated by the ELB
-        return header != null && "https".equals(header.toLowerCase());
+        return header != null && "https".equalsIgnoreCase(header);
     }
 
-    @Override
-    public void destroy() {
-
-    }
 }

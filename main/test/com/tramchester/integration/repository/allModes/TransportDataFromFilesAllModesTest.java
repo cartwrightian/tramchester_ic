@@ -12,7 +12,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import static com.tramchester.domain.reference.TransportMode.*;
 import static com.tramchester.integration.repository.TransportDataFromFilesTramTest.NUM_TFGM_TRAM_STATIONS;

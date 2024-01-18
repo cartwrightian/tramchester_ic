@@ -12,7 +12,6 @@ import com.tramchester.domain.time.TimeRange;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
 
 import java.util.EnumSet;
-import java.util.Set;
 
 @ImplementedBy(RouteToRouteCosts.class)
 public interface BetweenRoutesCostRepository {

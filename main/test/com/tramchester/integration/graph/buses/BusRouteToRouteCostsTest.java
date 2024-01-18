@@ -62,7 +62,7 @@ public class BusRouteToRouteCostsTest {
         date = TestEnv.testDay();
         timeRange = TimeRange.of(TramTime.of(4,45), TramTime.of(23,55));
         modes = BusesOnly;
-;    }
+    }
 
     // For testing, likely to vary a lot with timetable updates
     @Disabled("Changes too often to be useful")
@@ -82,7 +82,7 @@ public class BusRouteToRouteCostsTest {
 
     @Test
     void shouldGetNumberOfRouteHopsBetweenAltrinchamShudehill() {
-        StationGroup start = KnownLocality.Altrincham.from(stationGroupsRepository);;
+        StationGroup start = KnownLocality.Altrincham.from(stationGroupsRepository);
         StationGroup end = Shudehill.from(stationGroupsRepository);
 
         NumberOfChanges numberOfChanges = routeToRouteCosts.getNumberOfChanges(start, end, date, timeRange, modes);

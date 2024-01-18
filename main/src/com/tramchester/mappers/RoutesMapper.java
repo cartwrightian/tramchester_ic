@@ -17,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -42,12 +41,6 @@ public class RoutesMapper {
         logger.info("Starting");
 
         logger.info("started");
-    }
-
-
-    @PreDestroy
-    private void stop() {
-
     }
 
     public List<RouteDTO> getRouteDTOs(final TramDate date) {

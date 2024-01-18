@@ -384,6 +384,6 @@ public class TestEnv {
         public static final EnumSet<TransportMode> TramsOnly = EnumSet.of(Tram);
         public static final EnumSet<TransportMode> BusesOnly = EnumSet.of(Bus);
         public static final EnumSet<TransportMode> RailOnly = EnumSet.of(Train);
-        public static EnumSet<TransportMode> TrainAndTram = EnumSet.of(Train, Tram, RailReplacementBus);
+        public static final EnumSet<TransportMode> TrainAndTram = EnumSet.of(Train, Tram, RailReplacementBus);
     }
 }

@@ -12,14 +12,17 @@ import com.tramchester.testSupport.TestTramLiveDataConfig;
 import com.tramchester.testSupport.testTags.LiveDataS3UploadTest;
 import com.tramchester.testSupport.testTags.LiveDataTestCategory;
 import com.tramchester.testSupport.testTags.S3Test;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @LiveDataS3UploadTest
 @S3Test

@@ -272,7 +272,7 @@ class RouteCalculatorSubGraphMediaCityTest {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(12, 0), false, 3,
                 maxJourneyDuration, 1, getRequestedModes());
         Set<Journey> results = calculator.calculateRouteAsSet(TramStations.Pomona, MediaCityUK, journeyRequest);
-        assertTrue(results.size()>0);
+        assertFalse(results.isEmpty());
     }
 
     @Test
@@ -301,10 +301,8 @@ class RouteCalculatorSubGraphMediaCityTest {
 
             final Set<TransportMode> groupStationModes = Collections.emptySet(); //Collections.singleton(TransportMode.Bus);
 
-            List<StationClosures> currentClosures = IntegrationTramTestConfig.CurrentClosures;
-
             TFGMGTFSSourceTestConfig gtfsSourceConfig = new TFGMGTFSSourceTestConfig(GTFSTransportationType.tram,
-                    Tram, additionalInterchanges, groupStationModes, currentClosures,
+                    Tram, additionalInterchanges, groupStationModes, IntegrationTramTestConfig.CurrentClosures,
                     Duration.ofMinutes(45));
 
             return Collections.singletonList(gtfsSourceConfig);

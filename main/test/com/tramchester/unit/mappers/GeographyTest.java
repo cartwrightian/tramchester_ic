@@ -37,7 +37,7 @@ public class GeographyTest {
         geography = new Geography(config);
     }
 
-    public static Quantity<Length> BetweenStPeterSqAndPiccGardens = Quantities.getQuantity(463.7D, METRE);
+    public static final Quantity<Length> BetweenStPeterSqAndPiccGardens = Quantities.getQuantity(463.7D, METRE);
 
     @Test
     void shouldGetWalkingTime() {

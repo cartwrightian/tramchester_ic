@@ -6,7 +6,6 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;

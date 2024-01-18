@@ -6,10 +6,7 @@ import com.tramchester.domain.reference.TransportMode;
 
 import java.nio.file.Path;
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Set;
 
 import static com.tramchester.domain.reference.TransportMode.RailReplacementBus;
 import static com.tramchester.domain.reference.TransportMode.Train;

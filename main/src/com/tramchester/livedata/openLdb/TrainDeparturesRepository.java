@@ -11,7 +11,6 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.rail.repository.CRSRepository;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.DataSourceID;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;

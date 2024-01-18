@@ -5,7 +5,6 @@ import com.tramchester.domain.time.TramTime;
 import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.EnumSet;
-import java.util.Locale;
 
 public abstract class OriginOrTerminatingLocation {
 

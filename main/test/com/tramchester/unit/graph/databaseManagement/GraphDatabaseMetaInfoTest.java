@@ -132,10 +132,7 @@ public class GraphDatabaseMetaInfoTest extends EasyMockSupport {
         EasyMock.expect(dataSourceRepos.getDataSourceInfo()).andReturn(sourceInfo);
 
         EasyMock.expect(transaction.createNode(GraphLabel.VERSION)).andReturn(graphNode);
-//        node.setProperty("tfgm", "4.3");
-//        EasyMock.expectLastCall();
-//        node.setProperty("naptanxml", "9.6");
-//        EasyMock.expectLastCall();
+
         graphNode.set(infoA);
         graphNode.set(infoB);
 

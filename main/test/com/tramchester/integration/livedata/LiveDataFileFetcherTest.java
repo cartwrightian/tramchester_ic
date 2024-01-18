@@ -12,6 +12,6 @@ class LiveDataFileFetcherTest {
     void shouldLoadDataInFile() {
         LiveDataFileFetcher fetcher = new LiveDataFileFetcher(TestEnv.LiveDataExampleFile);
         String data = fetcher.getData();
-        Assertions.assertTrue(data.length()>0);
+        Assertions.assertFalse(data.isEmpty());
     }
 }

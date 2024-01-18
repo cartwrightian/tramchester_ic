@@ -5,7 +5,6 @@ import com.tramchester.dataimport.rail.records.*;
 import com.tramchester.domain.time.ProvidesNow;
 
 import javax.inject.Inject;
-import java.time.temporal.TemporalField;
 
 @LazySingleton
 public class RailDataRecordFactory {

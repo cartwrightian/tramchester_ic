@@ -12,14 +12,8 @@ import static java.lang.String.format;
 public abstract class ServiceReason {
 
     private static class Unreachable extends HeuristicsReason {
-
         protected Unreachable(ReasonCode code, HowIGotHere path) {
                 super(code , path);
-        }
-
-        @Override
-        public String textForGraph() {
-            return code.name();
         }
     }
 

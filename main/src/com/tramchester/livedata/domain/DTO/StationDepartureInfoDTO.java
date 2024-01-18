@@ -8,7 +8,6 @@ import com.tramchester.livedata.tfgm.TramStationDepartureInfo;
 import com.tramchester.mappers.serialisation.LocalDateTimeJsonDeserializer;
 import com.tramchester.mappers.serialisation.LocalDateTimeJsonSerializer;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;

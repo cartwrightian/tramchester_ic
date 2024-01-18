@@ -18,16 +18,15 @@ import com.tramchester.testSupport.ParseStream;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import jakarta.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.TestEnv.dateFormatDashes;
 import static org.junit.jupiter.api.Assertions.*;

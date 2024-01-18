@@ -7,8 +7,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDate;
-
 import static com.tramchester.integration.testSupport.Assertions.assertIdEquals;
 
 class CalendarDatesParserTest extends ParserTestCSVHelper<CalendarDateData> {

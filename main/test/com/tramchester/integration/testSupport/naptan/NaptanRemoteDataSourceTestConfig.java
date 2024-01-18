@@ -11,11 +11,9 @@ public class NaptanRemoteDataSourceTestConfig extends RemoteDataSourceConfig {
     public static final String NAPTAN_BASE_URL = "https://naptan.api.dft.gov.uk/v1/access-nodes"; // ?dataFormat=csv
 
     private final Path dataPath;
-    private final String format;
 
     public NaptanRemoteDataSourceTestConfig(Path dataPath) {
         this.dataPath = dataPath;
-        format = "xml";
     }
 
     @Override

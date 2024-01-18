@@ -2,7 +2,6 @@ package com.tramchester.dataimport.rail.reference;
 
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.StringIdFor;
 
 import java.util.Arrays;
 import java.util.HashMap;

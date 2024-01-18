@@ -115,8 +115,4 @@ public class RedirectToHttpsUsingELBProtoHeader implements Filter {
 
     }
 
-    @Override
-    public void destroy() {
-
-    }
 }
