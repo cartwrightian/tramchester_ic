@@ -1,54 +1,49 @@
 package com.tramchester.config;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import java.nio.file.Path;
 import java.time.Duration;
 
 @SuppressWarnings("unused")
-@Valid
 @JsonIgnoreProperties(ignoreUnknown = false)
 public class RemoteDataSourceAppConfig extends RemoteDataSourceConfig {
 
-    @NotNull
-    @JsonProperty(value = "dataCheckURL")
-    private String dataCheckURL;
+    private final String dataCheckURL;
+    private final String dataURL;
+    private final Path dataPath;
+    private final Path downloadPath;
+    private final String filename;
+    private final String name;
+    private final Integer defaultExpiryDays;
+    private final String modTimeCheckFilename;
+    private final Boolean mandatory;
+    private final Boolean skipUpload;
 
-    @NotNull
-    @JsonProperty(value = "dataURL")
-    private String dataURL;
-
-    @NotNull
-    @JsonProperty(value = "dataPath")
-    private Path dataPath;
-
-    @NotNull
-    @JsonProperty(value = "downloadPath")
-    private Path downloadPath;
-
-    @NotNull
-    @JsonProperty(value = "filename")
-    private String filename;
-
-    @NotNull
-    @JsonProperty(value = "name")
-    private String name;
-
-    @NotNull
-    @JsonProperty(value = "defaultExpiryDays")
-    private Integer defaultExpiryDays;
-
-    @JsonProperty(value = "modTimeCheckFilename")
-    private String modTimeCheckFilename;
-
-    @JsonProperty(value = "mandatory")
-    private Boolean mandatory;
-
-    @JsonProperty(value = "skipUpload")
-    private Boolean skipUpload;
+    @JsonCreator
+    public RemoteDataSourceAppConfig(@JsonProperty(value = "dataCheckURL", required = true) String dataCheckURL,
+                                     @JsonProperty(value = "dataURL", required = true) String dataURL,
+                                     @JsonProperty(value = "dataPath", required = true) Path dataPath,
+                                     @JsonProperty(value = "downloadPath", required = true) Path downloadPath,
+                                     @JsonProperty(value = "filename", required = true) String filename,
+                                     @JsonProperty(value = "name", required = true) String name,
+                                     @JsonProperty(value = "defaultExpiryDays", required = true) Integer defaultExpiryDays,
+                                     @JsonProperty(value = "modTimeCheckFilename") String modTimeCheckFilename,
+                                     @JsonProperty(value = "mandatory") Boolean mandatory,
+                                     @JsonProperty(value = "skipUpload") Boolean skipUpload) {
+        this.dataCheckURL = dataCheckURL;
+        this.dataURL = dataURL;
+        this.dataPath = dataPath;
+        this.downloadPath = downloadPath;
+        this.filename = filename;
+        this.name = name;
+        this.defaultExpiryDays = defaultExpiryDays;
+        this.modTimeCheckFilename = modTimeCheckFilename;
+        this.mandatory = mandatory;
+        this.skipUpload = skipUpload;
+    }
 
     @Override
     public String getDataCheckUrl() {
@@ -84,11 +79,6 @@ public class RemoteDataSourceAppConfig extends RemoteDataSourceConfig {
     public String getName() {
         return name;
     }
-
-//    @Override
-//    public boolean getIsS3() {
-//        return dataURL.startsWith("s3://");
-//    }
 
     @Override
     public String getModTimeCheckFilename() {

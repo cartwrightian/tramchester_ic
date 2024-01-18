@@ -24,7 +24,6 @@ instanceDataUrl: http://169.254.169.254
 environmentName: ${PLACE}
 gtfsSourceConfig:
   - name: tfgm
-    dataPath: data/tram/TfGMgtfs
     hasFeedInfo: false
     transportModes: [ tram ]
     transportModesWithPlatforms: [ Tram ]

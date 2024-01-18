@@ -25,7 +25,6 @@ instanceDataUrl: http://169.254.169.254
 gtfsSourceConfig: []
 rail:
   dataPath: data/rail
-  downloadPath: data/rail
   version: 928
   modes: [ Train, RailReplacementBus ]
   initialWaitMinutes: 60

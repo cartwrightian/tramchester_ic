@@ -25,7 +25,6 @@ environmentName: ${PLACE}
 gtfsSourceConfig:
   -
     name: tfgm
-    dataPath: data/bus
     hasFeedInfo: false
     transportModes: [ bus ]
     initialWaitMinutes: 45

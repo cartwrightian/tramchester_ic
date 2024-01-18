@@ -2,11 +2,11 @@ package com.tramchester.unit.config;
 
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.config.RemoteDataSourceConfig;
+import com.tramchester.config.StandaloneConfigLoader;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.integration.testSupport.naptan.NaptanRemoteDataSourceTestConfig;
 import com.tramchester.integration.testSupport.nptg.NPTGDataSourceTestConfig;
 import com.tramchester.integration.testSupport.postcodes.PostCodeDatasourceConfig;
-import com.tramchester.testSupport.TestEnv;
 import io.dropwizard.configuration.ConfigurationException;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -88,6 +88,11 @@ public class RemoteDataSourceConfigMismatchTest {
     }
 
     @Test
+    void shouldHaveMatchingRailSectionGMandAll() throws ConfigurationException, IOException {
+        validateConfig("gm.yml", "all.yml", DataSourceID.rail);
+    }
+
+    @Test
     void shouldHaveMatchingNaptanSectionGMandFrequency() throws ConfigurationException, IOException {
         validateConfig("gm.yml", "frequency.yml", DataSourceID.naptanxml);
     }
@@ -141,7 +146,7 @@ public class RemoteDataSourceConfigMismatchTest {
 
     private AppConfiguration getConfigFile(String configFileName) throws IOException, ConfigurationException {
         Path busConfigFile = configDir.resolve(Path.of(configFileName));
-        return TestEnv.LoadConfigFromFile(busConfigFile);
+        return StandaloneConfigLoader.LoadConfigFromFile(busConfigFile);
     }
 
 }

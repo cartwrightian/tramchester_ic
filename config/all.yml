@@ -19,19 +19,22 @@ graphDBConfig:
   graphName: databases/all.db
   neo4jPagecacheMemory: 1500m
   memoryTransactionGlobalMaxSize: 650m
-stationClosures: []
+distributionBucket: tramchesternewdist
 instanceDataUrl: http://169.254.169.254
 environmentName: ${PLACE}
 gtfsSourceConfig:
   -
     name: tfgm
-    dataPath: data/bus
     hasFeedInfo: false
     transportModes: [ tram, bus ]
     transportModesWithPlatforms: [ Tram ]
     noServices: []
     additionalInterchanges: [9400ZZMAGMX, 9400ZZMAPIC]
     groupedStationModes: [ Bus ]
+    stationClosures: []
+    addWalksForClosed: true
+    markedInterchangesOnly: false
+    initialWaitMinutes: 13
 rail:
   dataPath: data/rail
   version: 285
@@ -42,12 +45,16 @@ remoteSources:
     dataURL: ${TRAM_DATAURL:- http://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip}
     dataCheckURL: http://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip
     dataPath: data/bus
+    downloadPath: data/bus
     filename: tfgm_data.zip
+    defaultExpiryDays: 1
   - name: rail
-    dataURL: s3://tramchesternewdist/railData/ttis285.zip
+    dataURL: s3://tramchesternewdist/railData/ttis928.zip
     dataCheckURL: ""
     dataPath: data/rail
-    filename: ttis236.zip
+    downloadPath: data/rail
+    filename: rail_data.zip
+    defaultExpiryDays: 1
   - name: naptanxml
     dataURL: ${NAPTAN_DATAURL:- s3://tramchesternewdist/dist/${RELEASE_NUMBER}/NaPTAN.xml.zip}
     dataCheckURL: ""
@@ -73,7 +80,6 @@ neighbourConfig:
   distanceToNeighboursKM: 0.2
   maxNeighbourConnections: 3
 maxWait: 35
-maxInitialWait: 45
 numberQueries: 3
 queryInterval: 20
 maxWalkingConnections: 3
@@ -87,6 +93,8 @@ walkingMPH: 3.0
 recentStopsToShow: 5
 dataExpiryThreadhold: 3
 sendCloudWatchMetrics: false
+cloudWatchMetricsFrequencyMinutes: 2
+planningEnabled: true
 
 changeAtInterchangeOnly: true
 

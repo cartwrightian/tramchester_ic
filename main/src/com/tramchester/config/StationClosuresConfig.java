@@ -8,7 +8,6 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import io.dropwizard.core.Configuration;
-import jakarta.validation.Valid;
 
 import java.time.LocalDate;
 import java.util.Objects;
@@ -21,7 +20,6 @@ import java.util.Set;
 //            end: 2023-09-20
 //            fullyClosed: true
 
-@Valid
 public class StationClosuresConfig extends Configuration implements StationClosures {
 
     private final Set<String> stationsText;
@@ -29,7 +27,6 @@ public class StationClosuresConfig extends Configuration implements StationClosu
     private final LocalDate end;
     private final Boolean fullyClosed;
 
-    // TODO Might need to change to Set<String> stations cand then convert afterwards
     public StationClosuresConfig(@JsonProperty(value = "stations", required = true) Set<String> stationsText,
                                  @JsonProperty(value = "begin", required = true) LocalDate begin,
                                  @JsonProperty(value = "end", required = true) LocalDate end,

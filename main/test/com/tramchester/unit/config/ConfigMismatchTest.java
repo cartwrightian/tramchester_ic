@@ -8,7 +8,6 @@ import com.tramchester.integration.testSupport.RailAndTramGreaterManchesterConfi
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
-import com.tramchester.testSupport.TestEnv;
 import io.dropwizard.configuration.ConfigurationException;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
@@ -48,7 +47,7 @@ class ConfigMismatchTest {
         Set<Path> configFiles = getConfigFiles();
 
         for (Path config : configFiles) {
-            TestEnv.LoadConfigFromFile(config);
+            StandaloneConfigLoader.LoadConfigFromFile(config);
         }
     }
 
@@ -57,7 +56,7 @@ class ConfigMismatchTest {
         Set<Path> configFiles = getConfigFiles();
 
         for(Path config : configFiles) {
-            AppConfiguration configuration = TestEnv.LoadConfigFromFile(config);
+            AppConfiguration configuration = StandaloneConfigLoader.LoadConfigFromFile(config);
             List<RemoteDataSourceConfig> remoteSourceConfigs = configuration.getRemoteDataSourceConfig();
             for(RemoteDataSourceConfig remoteSourceConfig : remoteSourceConfigs) {
                 final DataSourceID dataSourceID = DataSourceID.findOrUnknown(remoteSourceConfig.getName());
@@ -386,7 +385,7 @@ class ConfigMismatchTest {
 
     private AppConfiguration loadConfigFromFile(String configFilename) throws IOException, ConfigurationException {
         Path mainConfig = Paths.get("config", configFilename).toAbsolutePath();
-        return TestEnv.LoadConfigFromFile(mainConfig);
+        return StandaloneConfigLoader.LoadConfigFromFile(mainConfig);
     }
 
     @NotNull

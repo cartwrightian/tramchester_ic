@@ -1,5 +1,6 @@
 package com.tramchester.config;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.StationClosures;
@@ -9,70 +10,56 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import io.dropwizard.core.Configuration;
-
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import java.nio.file.Path;
+
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
 @SuppressWarnings("unused")
-@Valid
 @JsonIgnoreProperties(ignoreUnknown = false)
+@Valid
 public class GTFSSourceAppConfig extends Configuration implements GTFSSourceConfig {
 
-    // NOTE: don't use primitive types here, blocks the null detection
+    final private String name;
+    final private Boolean hasFeedInfo;
+    final private Set<GTFSTransportationType> transportModes;
+    final private Set<TransportMode> transportModesWithPlatforms;
+    final private Set<LocalDate> noServices;   // date format: 2020-12-25
+    final private Set<String> additionalInterchanges;
+    final private Set<TransportMode> groupedStationModes;
+    final private List<StationClosures> closures;
+    final private Boolean addWalksForClosed;
+    final private Boolean markedInterchangesOnly;
+    final private Integer initialWaitMinutes;
 
-    @NotNull
-    @JsonProperty(value = "name")
-    private String name;
+    @JsonCreator
+    public GTFSSourceAppConfig(@JsonProperty(value = "name", required = true) String name,
+                               @JsonProperty(value = "hasFeedInfo", required = true) Boolean hasFeedInfo,
+                               @JsonProperty(value = "transportModes", required = true) Set<GTFSTransportationType> transportModes,
+                               @JsonProperty(value = "transportModesWithPlatforms", required = true) Set<TransportMode> transportModesWithPlatforms,
+                               @JsonProperty(value = "noServices", required = true) Set<LocalDate> noServices,
+                               @JsonProperty(value = "additionalInterchanges", required = true) Set<String> additionalInterchanges,
+                               @JsonProperty(value = "groupedStationModes", required = true) Set<TransportMode> groupedStationModes,
+                               @JsonProperty(value = "stationClosures", required = true) List<StationClosures> closures,
+                               @JsonProperty(value = "addWalksForClosed", required = true) Boolean addWalksForClosed,
+                               @JsonProperty(value = "markedInterchangesOnly", required = true) Boolean markedInterchangesOnly,
+                               @JsonProperty(value = "initialWaitMinutes", required = true)Integer initialWaitMinutes) {
+        this.name = name;
+        this.hasFeedInfo = hasFeedInfo;
+        this.transportModes = transportModes;
+        this.transportModesWithPlatforms = transportModesWithPlatforms;
+        this.noServices = noServices;
+        this.additionalInterchanges = additionalInterchanges;
+        this.groupedStationModes = groupedStationModes;
+        this.closures = closures;
+        this.addWalksForClosed = addWalksForClosed;
+        this.markedInterchangesOnly = markedInterchangesOnly;
+        this.initialWaitMinutes = initialWaitMinutes;
+    }
 
-    @NotNull
-    @JsonProperty("dataPath")
-    private Path dataPath;
-
-    @NotNull
-    @JsonProperty("hasFeedInfo")
-    private Boolean hasFeedInfo;
-
-    @NotNull
-    @JsonProperty("transportModes")
-    private Set<GTFSTransportationType> transportModes;
-
-    @NotNull
-    @JsonProperty("transportModesWithPlatforms")
-    private Set<TransportMode> transportModesWithPlatforms;
-
-    // date format: 2020-12-25
-    @NotNull
-    @JsonProperty("noServices")
-    private Set<LocalDate> noServices;
-
-    @NotNull
-    @JsonProperty("additionalInterchanges")
-    private Set<String> additionalInterchanges;
-
-    @NotNull
-    @JsonProperty("groupedStationModes")
-    private Set<TransportMode> groupedStationModes;
-
-    @NotNull
-    @JsonProperty("stationClosures")
-    private List<StationClosures> closures;
-
-    @NotNull
-    @JsonProperty("addWalksForClosed")
-    private Boolean addWalksForClosed;
-
-    @NotNull
-    @JsonProperty("markedInterchangesOnly")
-    private Boolean markedInterchangesOnly;
-
-    @NotNull
-    @JsonProperty("initialWaitMinutes")
-    private Integer initialWaitMinutes;
 
     @Override
     public String getName() {
@@ -102,7 +89,6 @@ public class GTFSSourceAppConfig extends Configuration implements GTFSSourceConf
     @Override
     public IdSet<Station> getAdditionalInterchanges() {
         return StringIdFor.createIds(additionalInterchanges, Station.class);
-        //return IdSet.wrap(additionalInterchanges);
     }
 
     @Override

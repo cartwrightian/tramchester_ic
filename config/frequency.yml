@@ -20,10 +20,10 @@ graphDBConfig:
   graphName: ''
   neo4jPagecacheMemory: 0m
   memoryTransactionGlobalMaxSize: 0m
+distributionBucket: tramchesternewdist
 gtfsSourceConfig:
   -
     name: tfgm
-    dataPath: data/bus
     hasFeedInfo: true
     transportModes: [ tram, bus ]
     transportModesWithPlatforms: []
@@ -31,9 +31,11 @@ gtfsSourceConfig:
     additionalInterchanges: []
     groupedStationModes: [ Bus ]
     stationClosures: []
+    addWalksForClosed: true
+    markedInterchangesOnly: false
+    initialWaitMinutes: 13
 rail:
   dataPath: data/rail
-  downloadPath: data/rail
   version: 285
   modes: [ Train, RailReplacementBus ]
   initialWaitMinutes: 60
@@ -76,7 +78,6 @@ bounds:
 instanceDataUrl: http://169.254.169.254
 planningEnabled: false
 maxWait: 35
-maxInitialWait: 45
 numberQueries: 3
 queryInterval: 20
 maxNumberResults: 5

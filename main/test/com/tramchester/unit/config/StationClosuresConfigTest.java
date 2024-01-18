@@ -18,6 +18,8 @@ public class StationClosuresConfigTest {
 
     private ObjectMapper mapper;
 
+    // NOTE: does not use StandaloneConfigLoader so not entirely realistic
+
     @BeforeEach
     void onceBeforeEachTestRuns() {
         mapper = new ObjectMapper(new YAMLFactory());
@@ -53,6 +55,19 @@ public class StationClosuresConfigTest {
         String yaml = "stations: [ \"9400ZZMAECC\", \"9400ZZMALDY\", \"9400ZZMAWST\" ]\n" +
                 "begin: 2023-07-15\n" +
                 "fullyClosed: true";
+
+        assertThrows(JsonProcessingException.class, () -> mapper.readValue(yaml, StationClosuresConfig.class));
+    }
+
+    @Test
+    void shouldThrowIfUnknownExtra() {
+
+        String yaml = "stations: [ \"9400ZZMAECC\", \"9400ZZMALDY\", \"9400ZZMAWST\" ]\n" +
+                "begin: 2023-07-15\n" +
+                "end: 2023-09-20\n" +
+                "UNKNOWN: 2023-09-20\n" +
+                "fullyClosed: true";
+
 
         assertThrows(JsonProcessingException.class, () -> mapper.readValue(yaml, StationClosuresConfig.class));
     }

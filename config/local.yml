@@ -25,7 +25,6 @@ environmentName: ${PLACE}
 gtfsSourceConfig:
   -
     name: tfgm
-    dataPath: data/tram
     hasFeedInfo: false
     transportModes: [ tram ]
     transportModesWithPlatforms: [ Tram ]
