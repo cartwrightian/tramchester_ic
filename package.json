@@ -31,7 +31,7 @@
   },
   "devDependencies": {
     "@mdi/font": "^7.4.47",
-    "css-loader": "^6.9.0",
+    "css-loader": "^6.9.1",
     "deepmerge": "^4.3.1",
     "file-loader": "^6.2.0",
     "sass": "^1.69.7",
