@@ -12,7 +12,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
-import com.tramchester.domain.presentation.DTO.JourneyQueryDTO;
+import com.tramchester.domain.presentation.DTO.query.JourneyQueryDTO;
 import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
@@ -82,7 +82,7 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
     @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.MINUTES)
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response quickestRoutePost(JourneyQueryDTO query,
+    public Response quickestRoutePost(final JourneyQueryDTO query,
                                       @CookieParam(StationResource.TRAMCHESTER_RECENT) Cookie cookie,
                                       @HeaderParam(RedirectToHttpsUsingELBProtoHeader.X_FORWARDED_PROTO) String forwardedHeader,
                                       @Context UriInfo uriInfo)

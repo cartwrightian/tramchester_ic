@@ -6,6 +6,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.BoxWithCostDTO;
+import com.tramchester.domain.presentation.DTO.query.GridQueryDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBoxWithStations;
@@ -28,6 +29,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -73,16 +76,17 @@ class JourneysForGridResourceTest {
 
     @Test
     void shouldHaveJourneysForWholeGrid() throws IOException {
-        LatLong destPos = KnownLocations.nearStPetersSquare.latLong(); //TestEnv.stPetersSquareLocation();
+        LatLong destPos = KnownLocations.nearStPetersSquare.latLong();
         Station destination = TramStations.StPetersSquare.from(stationRepository);
-
-        String actualId = new IdForDTO(destination.getId()).getActualId();
-        String queryString = String.format("grid?gridSize=%s&destination=%s&departureTime=%s&departureDate=%s&maxChanges=%s&maxDuration=%s",
-                gridSize, actualId, time, date, maxChanges, maxDuration);
 
         final int outOfRangeForDuration = 3;
 
-        Response response = APIClient.getApiResponse(appExtension, queryString);
+        IdForDTO destinationId = IdForDTO.createFor(destination);
+        LocalDate departureDate = when.toLocalDate();
+        LocalTime departureTime = LocalTime.of(9,15);
+        GridQueryDTO gridQueryDTO = new GridQueryDTO(destination.getLocationType(), destinationId, departureDate, departureTime, maxDuration, maxChanges, gridSize);
+
+        Response response = APIClient.postAPIRequest(appExtension, "grid/query", gridQueryDTO);
         assertEquals(200, response.getStatus());
 
         InputStream inputStream = response.readEntity(InputStream.class);

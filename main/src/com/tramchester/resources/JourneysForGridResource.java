@@ -6,23 +6,22 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.BoundingBoxWithCost;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.places.MyLocation;
-import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.DTO.BoxWithCostDTO;
-import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.domain.presentation.DTO.query.GridQueryDTO;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.geo.CoordinateTransforms;
-import com.tramchester.geo.GridPosition;
 import com.tramchester.graph.search.FastestRoutesForBoxes;
 import com.tramchester.mappers.JourneyToDTOMapper;
-import com.tramchester.repository.StationRepository;
+import com.tramchester.repository.LocationRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import jakarta.ws.rs.*;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.slf4j.Logger;
@@ -39,104 +38,63 @@ import static java.lang.String.format;
 public class JourneysForGridResource implements APIResource, GraphDatabaseDependencyMarker {
     private static final Logger logger = LoggerFactory.getLogger(JourneysForGridResource.class);
 
-    private final StationRepository repository;
     private final FastestRoutesForBoxes search;
     private final JourneyToDTOMapper dtoMapper;
     private final TramchesterConfig config;
+    private final LocationRepository locationRepository;
 
     @Inject
-    public JourneysForGridResource(StationRepository repository, FastestRoutesForBoxes search, JourneyToDTOMapper dtoMapper,
-                                   TramchesterConfig config) {
+    public JourneysForGridResource(FastestRoutesForBoxes search, JourneyToDTOMapper dtoMapper,
+                                   TramchesterConfig config, LocationRepository locationRepository) {
         this.config = config;
-        logger.info("created");
-        this.repository = repository;
+        this.locationRepository = locationRepository;
         this.search = search;
         this.dtoMapper = dtoMapper;
     }
 
     // TODO Cache lifetime could potentially be quite long here, but makes testing harder.....
-    // TODO Switch to a POST and Query DTO instead
 
-    @GET
+    @Path("/query")
+    @POST
     @Timed
-    @Operation(description = "Get cheapest travel costs for a grid of locations")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Find cheapest travel costs for a grid of locations")
     @ApiResponse(content = @Content(schema = @Schema(implementation = BoundingBoxWithCost.class)))
     //@CacheControl(maxAge = 30, maxAgeUnit = TimeUnit.SECONDS)
-    public Response gridCosts(@QueryParam("gridSize") int gridSize,
-                              @QueryParam("destination") String destinationIdText,
-                              @QueryParam("departureTime") String departureTimeRaw,
-                              @QueryParam("departureDate") String departureDateRaw,
-                              @QueryParam("maxChanges") int maxChanges,
-                              @QueryParam("maxDuration") int maxDurationMinutes,
-                              @QueryParam("lat") @DefaultValue("0") String lat,
-                              @QueryParam("lon") @DefaultValue("0") String lon) {
-        logger.info(format("Query for quicktimes to %s for grid of size %s at %s %s maxchanges %s max duration %s",
-                destinationIdText, gridSize, departureTimeRaw, departureDateRaw, maxChanges, maxDurationMinutes));
+    public Response gridCosts(GridQueryDTO gridQueryDTO) {
+        logger.info(format("Query for grid times for %s", gridQueryDTO));
 
-        // todo once changed to post can change this method to use LocationType
-        GridPosition destination = getGridPosition(destinationIdText, lat, lon);
-
-        TramTime departureTime = TramTime.parse(departureTimeRaw);
-        if (!departureTime.isValid()) {
-            logger.error("Could not parse departure time '" + departureTimeRaw + "'");
-            return Response.serverError().build();
-        }
-
-        TramDate date = TramDate.parse(departureDateRaw);
+        final TramTime departureTime = gridQueryDTO.getDepartureTramTime();
+        final TramDate date = gridQueryDTO.getTramDate();
 
         // just find the first one -- todo this won't be lowest cost route....
         long maxNumberOfJourneys = 3;
 
-        Duration maxDuration = Duration.ofMinutes(maxDurationMinutes);
+        Duration maxDuration = Duration.ofMinutes(gridQueryDTO.getMaxDuration());
 
-        //TramDate tramServiceDate = TramDate.of(date);
         EnumSet<TransportMode> allModes = config.getTransportModes();
         JourneyRequest journeyRequest = new JourneyRequest(date, departureTime,
-                false, maxChanges, maxDuration, maxNumberOfJourneys, allModes);
+                false, gridQueryDTO.getMaxChanges(), maxDuration, maxNumberOfJourneys, allModes);
         journeyRequest.setWarnIfNoResults(false);
 
-        logger.info("Create search");
-        Stream<BoxWithCostDTO> results = search.
-                findForGrid(destination, gridSize, journeyRequest).
+        Location<?> destination = locationRepository.getLocation(gridQueryDTO.getDestType(), gridQueryDTO.getDestId());
+
+        logger.info("Create search for " + destination);
+
+        Stream<BoxWithCostDTO> results = search.findForGrid(destination, gridQueryDTO.getGridSize(), journeyRequest).
                 map(box -> transformToDTO(box, date));
-        
-        logger.info("Creating stream");
+
         JsonStreamingOutput<BoxWithCostDTO> jsonStreamingOutput = new JsonStreamingOutput<>(results);
 
-        logger.info("returning stream");
+        logger.info("returning result stream");
         Response.ResponseBuilder responseBuilder = Response.ok(jsonStreamingOutput);
         return responseBuilder.build();
 
     }
 
-    private GridPosition getGridPosition(String idText, String lat, String lon) {
-        GridPosition destination;
-        if (MyLocation.isUserLocation(idText)) {
-            LatLong latLong = decodeLatLong(lat, lon);
-            destination = CoordinateTransforms.getGridPosition(latLong);
-        }
-//        else if (PostcodeDTO.isPostcodeId(idText)) {
-//            PostcodeLocationId postcodeId = PostcodeDTO.decodePostcodeId(idText);
-//            PostcodeLocation postcode = postcodeRepository.getPostcode(postcodeId);
-//            destination = postcode.getGridPosition();
-//        }
-        else {
-            IdFor<Station> stationId = Station.createId(idText);
-            Station station = repository.getStationById(stationId);
-            destination = station.getGridPosition();
-        }
-        return destination;
-    }
-
     private BoxWithCostDTO transformToDTO(BoundingBoxWithCost box, TramDate serviceDate) {
         return BoxWithCostDTO.createFrom(dtoMapper, serviceDate, box);
     }
-
-    private LatLong decodeLatLong(String lat, String lon) {
-        double latitude = Double.parseDouble(lat);
-        double longitude = Double.parseDouble(lon);
-        return new LatLong(latitude,longitude);
-    }
-
 
 }

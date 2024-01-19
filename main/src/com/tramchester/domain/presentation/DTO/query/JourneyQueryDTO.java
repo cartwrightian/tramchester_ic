@@ -1,4 +1,4 @@
-package com.tramchester.domain.presentation.DTO;
+package com.tramchester.domain.presentation.DTO.query;
 
 import com.fasterxml.jackson.annotation.*;
 import com.tramchester.domain.dates.TramDate;

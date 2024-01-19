@@ -10,7 +10,7 @@ import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.presentation.DTO.ConfigDTO;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
-import com.tramchester.domain.presentation.DTO.JourneyQueryDTO;
+import com.tramchester.domain.presentation.DTO.query.JourneyQueryDTO;
 import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.presentation.Timestamped;
 import com.tramchester.domain.reference.TransportMode;

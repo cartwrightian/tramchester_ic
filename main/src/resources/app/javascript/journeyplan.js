@@ -153,9 +153,7 @@ function getStations(app) {
 async function getStationsFromServer(app) {
 
     var gets = [];
-    // if (app.postcodesEnabled) {
-    //     gets.push(axios.get("/api/postcodes", { timeout: 30000}));
-    // }
+
     app.modes.forEach(mode => {
         gets.push(axios.get('/api/locations/mode/'+mode));
     });

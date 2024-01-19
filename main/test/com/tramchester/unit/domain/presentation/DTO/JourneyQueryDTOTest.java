@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.LocationType;
-import com.tramchester.domain.presentation.DTO.JourneyQueryDTO;
+import com.tramchester.domain.presentation.DTO.query.JourneyQueryDTO;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;

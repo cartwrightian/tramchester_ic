@@ -67,15 +67,13 @@ function getColourForCost(boxWithCost) {
     return '#00'+greenString+'00';
 }
 
-function queryForGridLatLong(gridSize, lat, lon, departureTime, departureDate, maxChanges, maxDuration) {
-    var urlParams = {
-        destination: "MyLocationPlaceholderId", gridSize: gridSize, departureTime: departureTime, departureDate: departureDate, 
-        lat: lat, lon: lon,
-        maxChanges: maxChanges, maxDuration: maxDuration};
+function queryForGrid(gridSize, stationId, departureTime, departureDate, maxChanges, maxDuration) {
+    var query = {
+            destType: "Station", destId: stationId, gridSize: gridSize, departureTime: departureTime, departureDate: departureDate, 
+            maxChanges: maxChanges, 
+            maxDuration: maxDuration}
 
-    const searchParams = new URLSearchParams(urlParams);
-
-    getGrids(searchParams);
+    queryServerForGrid(query);
 }
 
 var mapApp = new Vue({
@@ -102,8 +100,6 @@ var mapApp = new Vue({
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(mapApp.map);
-            //Routes.addRoutes(mapApp.map, mapApp.routes);
-            //addStations();
             mapApp.journeyLayer = L.featureGroup()
         }
     },
@@ -123,11 +119,8 @@ var mapApp = new Vue({
                 mapApp.networkError = false;
                 mapApp.routes = response.data;
                 mapApp.draw();
-                // 9400ZZMASTP 9400ZZMAAIR 1800MABS001 MAN
-                // make sure to use HH:MM format with leading zero
-                //queryForGrid(1000, "POSTCODE_M23AA", "08:15", getCurrentDate(), "3", "360");
-                // man picc 53.4774286,-2.2313236
-                queryForGridLatLong(1000, "53.4774286", "-2.2313236", "07:30", getCurrentDate(), "2", "60");
+                // todo choose destination
+                queryForGrid(1000, "9400ZZMASTP" , "07:30", getCurrentDate(), "2", "60");
             }).catch(function (error){
                 mapApp.networkError = true;
                 console.log(error);
@@ -140,6 +133,19 @@ var mapApp = new Vue({
     }
 });
 
+
+function queryServerForGrid(query) {
+    oboe({
+        'url': '/api/grid/query',
+        'method': 'POST',
+        'body' : query
+    }).node('BoxWithCost', function (box) {
+        addBoxWithCost(box);
+    })
+    .fail(function (errorReport) {
+        console.log("Failed to load grid '" + errorReport.toString() + "'");
+    });
+}
 
 function getGrids(searchParams) {
     oboe('/api/grid?' + searchParams.toString())
