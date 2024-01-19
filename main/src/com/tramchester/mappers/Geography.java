@@ -55,26 +55,26 @@ public class Geography {
         geometryFactoryLatLong = new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING), srid);
     }
 
-    public Quantity<Time> getWalkingTime(Quantity<Length> distance) {
+    public Quantity<Time> getWalkingTime(final Quantity<Length> distance) {
         return distance.divide(walkingSpeed).asType(Time.class);
     }
 
-    private Duration getWalkingDuration(Quantity<Length> distance) {
-        double seconds = getWalkingTime(distance).to(SECOND).getValue().doubleValue();
-        Double roundUp = Math.ceil(seconds);
+    private Duration getWalkingDuration(final Quantity<Length> distance) {
+        final double seconds = getWalkingTime(distance).to(SECOND).getValue().doubleValue();
+        final Double roundUp = Math.ceil(seconds);
         return Duration.of(roundUp.longValue(), SECONDS);
     }
 
-    public Duration getWalkingDuration(Location<?> locationA, Location<?> locationB) {
-        Quantity<Length> distance = getDistanceBetweenInMeters(locationA, locationB);
+    public Duration getWalkingDuration(final Location<?> locationA, final Location<?> locationB) {
+        final Quantity<Length> distance = getDistanceBetweenInMeters(locationA, locationB);
         return getWalkingDuration(distance);
     }
 
-    public Quantity<Length> getDistanceBetweenInMeters(Location<?> placeA, Location<?> placeB) {
-        Point pointA = geometryFactoryLatLong.createPoint(placeA.getLatLong().getCoordinate());
-        Point pointB = geometryFactoryLatLong.createPoint(placeB.getLatLong().getCoordinate());
+    public Quantity<Length> getDistanceBetweenInMeters(final Location<?> placeA, final Location<?> placeB) {
+        final Point pointA = geometryFactoryLatLong.createPoint(placeA.getLatLong().getCoordinate());
+        final Point pointB = geometryFactoryLatLong.createPoint(placeB.getLatLong().getCoordinate());
 
-        GeodeticCalculator geodeticCalculator = new GeodeticCalculator(DefaultGeographicCRS.WGS84);
+        final GeodeticCalculator geodeticCalculator = new GeodeticCalculator(DefaultGeographicCRS.WGS84);
 
         geodeticCalculator.setStartingGeographicPoint(pointA.getX(), pointA.getY());
         geodeticCalculator.setDestinationGeographicPoint(pointB.getX(), pointB.getY());
@@ -82,12 +82,12 @@ public class Geography {
         return Quantities.getQuantity(geodeticCalculator.getOrthodromicDistance(), Units.METRE);
     }
 
-    public List<LatLong> createBoundaryFor(Stream<LatLong> locations) {
+    public List<LatLong> createBoundaryFor(final Stream<LatLong> locations) {
         final Coordinate[] coords = locations.
                 map(latLong -> new Coordinate(latLong.getLat(), latLong.getLon())).
                 collect(Streams.toArray(Coordinate.class));
 
-        MultiPoint multiPoint = geometryFactoryLatLong.createMultiPointFromCoords(coords);
+        final MultiPoint multiPoint = geometryFactoryLatLong.createMultiPointFromCoords(coords);
 
         final Geometry boundary = multiPoint.convexHull().getBoundary();
 
@@ -102,30 +102,30 @@ public class Geography {
         return latLongCode;
     }
 
-    private <T extends Location<T>> Stream<T> getNearbyCrude(LocationsSource<T> locationsSource,
-                                                             GridPosition otherPosition, MarginInMeters rangeInMeters) {
+    private <T extends Location<T>> Stream<T> getNearbyCrude(final LocationsSource<T> locationsSource,
+                                                             final GridPosition gridPosition, final MarginInMeters rangeInMeters) {
 
         return locationsSource.get().
-                filter(entry -> entry.getGridPosition().isValid()).
-                filter(entry -> GridPositions.withinDistEasting(otherPosition, entry.getGridPosition(), rangeInMeters)).
-                filter(entry -> GridPositions.withinDistNorthing(otherPosition, entry.getGridPosition(), rangeInMeters));
+                filter(location -> location.getGridPosition().isValid()).
+                filter(location -> GridPositions.withinDistEasting(gridPosition, location.getGridPosition(), rangeInMeters)).
+                filter(location -> GridPositions.withinDistNorthing(gridPosition, location.getGridPosition(), rangeInMeters));
     }
 
-    public <T extends Location<T>> Stream<T> getNearToUnsorted(LocationsSource<T> locationsSource, GridPosition otherPosition,
-                                                               MarginInMeters rangeInMeters) {
-        return getNearbyCrude(locationsSource, otherPosition, rangeInMeters).
-                filter(entry -> GridPositions.withinDist(otherPosition, entry.getGridPosition(), rangeInMeters));
+    public <T extends Location<T>> Stream<T> getNearToUnsorted(final LocationsSource<T> locationsSource, final GridPosition gridPosition,
+                                                               final MarginInMeters rangeInMeters) {
+        return getNearbyCrude(locationsSource, gridPosition, rangeInMeters).
+                filter(entry -> GridPositions.withinDist(gridPosition, entry.getGridPosition(), rangeInMeters));
     }
 
-    public <T extends Location<T>> Stream<T> getNearToSorted(LocationsSource<T> locationsSource,
-                                                             GridPosition gridPosition, MarginInMeters rangeInMeters) {
+    public <T extends Location<T>> Stream<T> getNearToSorted(final LocationsSource<T> locationsSource,
+                                                             final GridPosition gridPosition, final MarginInMeters rangeInMeters) {
         return getNearToUnsorted(locationsSource, gridPosition, rangeInMeters).
                 sorted((a, b) -> chooseNearestToGrid(gridPosition, a.getGridPosition(), b.getGridPosition()));
     }
 
-    public int chooseNearestToGrid(GridPosition grid, GridPosition first, GridPosition second) {
-        long firstDist = GridPositions.distanceTo(grid, first);
-        long secondDist = GridPositions.distanceTo(grid, second);
+    public int chooseNearestToGrid(final GridPosition grid, final GridPosition first, final GridPosition second) {
+        final long firstDist = GridPositions.distanceTo(grid, first);
+        final long secondDist = GridPositions.distanceTo(grid, second);
         return Long.compare(firstDist, secondDist);
     }
 

@@ -21,9 +21,9 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -32,6 +32,10 @@ import static java.lang.String.format;
 @LazySingleton
 public class DeparturesRepository {
     private static final Logger logger = LoggerFactory.getLogger(DeparturesRepository.class);
+    public static final Duration TRAM_WINDOW = Duration.ofMinutes(20);
+    public static final Duration TRAIN_WINDOW = Duration.ofMinutes(60);
+    public static final Duration BUS_WINDOW = Duration.ofMinutes(30);
+    public static final Duration DEFAULT_WINDOW = Duration.ofMinutes(45);
 
     private final StationLocationsRepository stationLocationsRepository;
     private final TramDepartureRepository tramDepartureRepository;
@@ -47,13 +51,14 @@ public class DeparturesRepository {
         this.config = config;
     }
 
-    public List<UpcomingDeparture> dueTramsForLocation(Location<?> location, LocalDate date, TramTime time,
-                                                       EnumSet<TransportMode> modes) {
+    public List<UpcomingDeparture> getDueForLocation(final Location<?> location, final LocalDate date, final TramTime time,
+                                                     final EnumSet<TransportMode> modes) {
+        logger.info(format("Get due %s services at %s for %s %s", modes, location.getId(), date, time));
         List<UpcomingDeparture> departures = switch (location.getLocationType()) {
             case Station -> getStationDepartures((Station) location, modes);
             case StationGroup -> getStationGroupDepartures((StationGroup) location, modes);
             case MyLocation, Postcode -> getDeparturesNearTo(location, modes);
-            case Platform -> getPlatformDepartrues((Platform) location, modes);
+            case Platform -> getPlatformDepartures((Platform) location, modes);
         };
 
         return departures.stream().
@@ -62,23 +67,34 @@ public class DeparturesRepository {
                 collect(Collectors.toList());
     }
 
-    private boolean isTimely(TramTime time, UpcomingDeparture departure) {
-        TimeRange timeRange = TimeRange.of(time, Duration.ofMinutes(20), Duration.ofMinutes(20));
+    private boolean isTimely(final TramTime time, final UpcomingDeparture departure) {
+        final Duration windowSize = getLiveDeparturesWindowFor(departure.getMode());
+        final TimeRange timeRange = TimeRange.of(time, windowSize, windowSize);
         return timeRange.contains(departure.getWhen());
     }
 
-    private List<UpcomingDeparture> getPlatformDepartrues(Platform platform, EnumSet<TransportMode> modes) {
+    private Duration getLiveDeparturesWindowFor(TransportMode mode) {
+        return switch (mode) {
+            case Tram -> TRAM_WINDOW;
+            case Train -> TRAIN_WINDOW;
+            case Bus -> BUS_WINDOW;
+            default -> DEFAULT_WINDOW;
+        };
+    }
+
+    private List<UpcomingDeparture> getPlatformDepartures(final Platform platform, final EnumSet<TransportMode> modes) {
         if (!TransportMode.intersects(modes, platform.getTransportModes())) {
             logger.error(format("Platform %s does not match supplied modes %s", platform, modes));
+            return Collections.emptyList();
         }
         return tramDepartureRepository.forStation(platform.getStation()).
                 stream().
                 filter(UpcomingDeparture::hasPlatform).
                 filter(departure -> departure.getPlatform().equals(platform)).
-                collect(Collectors.toList());
+                toList();
     }
 
-    private List<UpcomingDeparture> getDeparturesNearTo(Location<?> location, EnumSet<TransportMode> modes) {
+    private List<UpcomingDeparture> getDeparturesNearTo(final Location<?> location, final EnumSet<TransportMode> modes) {
         final MarginInMeters margin = MarginInMeters.of(config.getNearestStopRangeKM());
         final int numOfNearestStopsToOffer = config.getNumOfNearestStopsToOffer();
 
@@ -91,7 +107,7 @@ public class DeparturesRepository {
                 collect(Collectors.toList());
     }
 
-    private List<UpcomingDeparture> getStationGroupDepartures(StationGroup stationGroup,  EnumSet<TransportMode> modes) {
+    private List<UpcomingDeparture> getStationGroupDepartures(final StationGroup stationGroup,  final EnumSet<TransportMode> modes) {
         return stationGroup.getAllContained().stream().
                 filter(station -> TransportMode.intersects(station.getTransportModes(), modes)).
                 flatMap(station -> getStationDepartures(station, modes).stream()).
@@ -99,8 +115,9 @@ public class DeparturesRepository {
 
     }
 
-    private List<UpcomingDeparture> getStationDepartures(Station station, Set<TransportMode> modes) {
-        SetUtils.SetView<TransportMode> toFetch = SetUtils.intersection(station.getTransportModes(), modes);
+    private List<UpcomingDeparture> getStationDepartures(final Station station, final EnumSet<TransportMode> modes) {
+        final SetUtils.SetView<TransportMode> toFetch = SetUtils.intersection(station.getTransportModes(), modes);
+
         if (toFetch.isEmpty()) {
             logger.error(format("Station modes %s and filter modes %s do not overlap", station, modes));
         }

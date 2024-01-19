@@ -12,6 +12,7 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.livedata.mappers.DeparturesMapper;
+import com.tramchester.livedata.repository.DeparturesRepository;
 import com.tramchester.livedata.repository.LiveDataObserver;
 import com.tramchester.livedata.repository.UpcomingDeparturesSource;
 import com.tramchester.metrics.CacheMetrics;
@@ -25,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Collections;
@@ -42,7 +44,7 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, LiveDa
     private static final Logger logger = LoggerFactory.getLogger(TramDepartureRepository.class);
 
     // TODO Correct limit here?
-    private static final int TIME_LIMIT_MINS = 20; // only enrich if data is within this many minutes
+    private static final Duration TIME_LIMIT_MINS = DeparturesRepository.TRAM_WINDOW; // only enrich if data is within this many minutes
     private static final long STATION_INFO_CACHE_SIZE = 250; // currently 202, see healthcheck for current numbers
 
     // platformId -> StationDepartureInfo
@@ -58,7 +60,7 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, LiveDa
         this.providesNow = providesNow;
 
         dueTramsCache = Caffeine.newBuilder().maximumSize(STATION_INFO_CACHE_SIZE).
-                expireAfterWrite(TIME_LIMIT_MINS, TimeUnit.MINUTES).recordStats().build();
+                expireAfterWrite(TIME_LIMIT_MINS.getSeconds(), TimeUnit.SECONDS).recordStats().build();
 
         registory.register(this);
     }
@@ -74,24 +76,24 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, LiveDa
     }
 
     @Override
-    public boolean seenUpdate(List<TramStationDepartureInfo> update) {
-        int count = updateRepository(update);
+    public boolean seenUpdate(final List<TramStationDepartureInfo> update) {
+        final int count = updateRepository(update);
         return count>0;
     }
 
-    private int updateRepository(List<TramStationDepartureInfo> departureInfos) {
-        int consumed = consumeDepartInfo(departureInfos);
+    private int updateRepository(final List<TramStationDepartureInfo> departureInfos) {
+        final int consumed = consumeDepartInfo(departureInfos);
         dueTramsCache.cleanUp();
         lastRefresh = providesNow.getDateTime();
         logger.info("Update cache. Up to date entries size: " + this.upToDateEntries());
         return consumed;
     }
 
-    private int consumeDepartInfo(List<TramStationDepartureInfo> departureInfos) {
+    private int consumeDepartInfo(final List<TramStationDepartureInfo> departureInfos) {
         IdSet<Platform> platformsSeen = new IdSet<>();
 
         // TODO See platforms in live data not present in the timetable data
-        for (TramStationDepartureInfo departureInfo : departureInfos) {
+        for (final TramStationDepartureInfo departureInfo : departureInfos) {
             if (departureInfo.hasStationPlatform()) {
                 updateCacheFor(departureInfo, platformsSeen);
             } else {
@@ -102,10 +104,10 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, LiveDa
         return platformsSeen.size();
     }
 
-    private void updateCacheFor(TramStationDepartureInfo newDepartureInfo, IdSet<Platform> platformsSeen) {
+    private void updateCacheFor(final TramStationDepartureInfo newDepartureInfo, final IdSet<Platform> platformsSeen) {
 
-        Platform platform = newDepartureInfo.getStationPlatform();
-        IdFor<Platform> platformId = platform.getId();
+        final Platform platform = newDepartureInfo.getStationPlatform();
+        final IdFor<Platform> platformId = platform.getId();
         if (!platformsSeen.contains(platformId)) {
             platformsSeen.add(platformId);
             dueTramsCache.put(platformId, new PlatformDueTrams(newDepartureInfo));
@@ -113,7 +115,7 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, LiveDa
         }
 
         // many platforms have more than one display, no need to warn about it
-        PlatformDueTrams existingEntry = dueTramsCache.getIfPresent(platformId);
+        final PlatformDueTrams existingEntry = dueTramsCache.getIfPresent(platformId);
         if (existingEntry!=null) {
             newDepartureInfo.getDueTrams().forEach(dueTram -> {
                 if (!existingEntry.hasDueTram(dueTram)) {
@@ -125,8 +127,8 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, LiveDa
     }
 
     @Override
-    public List<UpcomingDeparture> forStation(Station station) {
-        Set<UpcomingDeparture> allTrams = station.getPlatforms().stream().
+    public List<UpcomingDeparture> forStation(final Station station) {
+        final Set<UpcomingDeparture> allTrams = station.getPlatforms().stream().
                 flatMap(platform -> dueTramsForPlatform(platform.getId()).stream()).
                 collect(Collectors.toSet());
 
@@ -146,24 +148,24 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, LiveDa
         return dueTrams;
     }
 
-    private List<UpcomingDeparture> dueTramsForPlatform(IdFor<Platform> platform) {
+    private List<UpcomingDeparture> dueTramsForPlatform(final IdFor<Platform> platform) {
         if (lastRefresh==null) {
             logger.warn("No refresh has happened");
             return Collections.emptyList();
         }
-        Optional<PlatformDueTrams> maybe = departuresFor(platform);
+        final Optional<PlatformDueTrams> maybe = departuresFor(platform);
         if (maybe.isEmpty()) {
             logger.info("No due trams found for platform: " + platform);
             return Collections.emptyList();
         }
 
-        PlatformDueTrams departureInfo = maybe.get();
+        final PlatformDueTrams departureInfo = maybe.get();
         return departureInfo.getDueTrams();
     }
 
-    private boolean withinTime(TramTime queryTime, LocalTime updateTime) {
-        TramTime limitBefore = TramTime.ofHourMins(updateTime.minusMinutes(TIME_LIMIT_MINS));
-        TramTime limitAfter = TramTime.ofHourMins(updateTime.plusMinutes(TIME_LIMIT_MINS));
+    private boolean withinTime(final TramTime queryTime, final LocalTime updateTime) {
+        final TramTime limitBefore = TramTime.ofHourMins(updateTime.minus(TIME_LIMIT_MINS));
+        final TramTime limitAfter = TramTime.ofHourMins(updateTime.plus(TIME_LIMIT_MINS));
         return queryTime.between(limitBefore, limitAfter);
     }
 
@@ -180,8 +182,7 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, LiveDa
 
     @Override
     public List<Pair<String, CacheStats>> stats() {
-        return Collections.singletonList(
-                Pair.of("PlatformMessageRepository:messageCache", dueTramsCache.stats()));
+        return Collections.singletonList(Pair.of("PlatformMessageRepository:messageCache", dueTramsCache.stats()));
     }
 
     // for healthcheck
@@ -191,7 +192,7 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, LiveDa
     }
 
     // for healthcheck
-    public int getNumStationsWithData(LocalDateTime queryDateTime) {
+    public int getNumStationsWithData(final LocalDateTime queryDateTime) {
         if (lastRefresh==null) {
             logger.error("Never received any data");
             return 0;
@@ -200,22 +201,22 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, LiveDa
             return 0;
         }
 
-        TramTime queryTime = TramTime.ofHourMins(queryDateTime.toLocalTime());
+        final TramTime queryTime = TramTime.ofHourMins(queryDateTime.toLocalTime());
         return getEntryStream(queryTime).
                 map(PlatformDueTrams::getStation).collect(Collectors.toSet()).size();
     }
 
-    public int getNumStationsWithTrams(LocalDateTime dateTime) {
+    public int getNumStationsWithTrams(final LocalDateTime dateTime) {
         if (!dateTime.toLocalDate().equals(lastRefresh.toLocalDate())) {
             return 0;
         }
 
-        TramTime queryTime = TramTime.ofHourMins(dateTime.toLocalTime());
+        final TramTime queryTime = TramTime.ofHourMins(dateTime.toLocalTime());
         return getEntryStream(queryTime).filter(entry -> !entry.getDueTrams().isEmpty())
                 .map(PlatformDueTrams::getStation).collect(Collectors.toSet()).size();
     }
 
-    private Stream<PlatformDueTrams> getEntryStream(TramTime queryTime) {
+    private Stream<PlatformDueTrams> getEntryStream(final TramTime queryTime) {
         return dueTramsCache.asMap().values().stream().
                 filter(entry -> withinTime(queryTime, entry.getLastUpdate().toLocalTime()));
     }

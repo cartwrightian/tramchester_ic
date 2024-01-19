@@ -176,8 +176,8 @@ public class StationLocations implements StationLocationsRepository {
 
     // TODO Use quadrants for this search?
     // TODO Station Groups here?
-    public List<Station> nearestStationsSorted(GridPosition gridPosition, int maxToFind, MarginInMeters rangeInMeters,
-                                               EnumSet<TransportMode> modes) {
+    public List<Station> nearestStationsSorted(final GridPosition gridPosition, final int maxToFind, final MarginInMeters rangeInMeters,
+                                               final EnumSet<TransportMode> modes) {
 
         final Geography.LocationsSource<Station> source;
         if (modes.isEmpty()) {

@@ -102,7 +102,7 @@ public class DeparturesResource extends TransportResource implements APIResource
             modes = config.getTransportModes();
         }
 
-        final List<UpcomingDeparture> dueTrams = departuresRepository.dueTramsForLocation(location, dateTime.toLocalDate(), queryTime, modes);
+        final List<UpcomingDeparture> dueTrams = departuresRepository.getDueForLocation(location, dateTime.toLocalDate(), queryTime, modes);
         if (dueTrams.isEmpty()) {
             logger.warn("Departures list empty for " + location.getId() + " at " + queryTime);
         }

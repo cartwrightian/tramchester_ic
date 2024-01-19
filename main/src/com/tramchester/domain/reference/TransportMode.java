@@ -35,15 +35,15 @@ public enum TransportMode implements HasTransportMode {
     @JsonIgnore
     private final short graphId;
 
-    TransportMode(short graphId) {
+    TransportMode(final short graphId) {
         this.graphId = graphId;
     }
 
-    public static boolean isTram(HasTransportMode item) {
+    public static boolean isTram(final HasTransportMode item) {
         return item.getTransportMode().equals(TransportMode.Tram);
     }
 
-    public static boolean isTram(HasTransportModes hasModes) {
+    public static boolean isTram(final HasTransportModes hasModes) {
         return hasModes.getTransportModes().contains(TransportMode.Tram);
     }
 
@@ -51,16 +51,16 @@ public enum TransportMode implements HasTransportMode {
         return index.get(number);
     }
 
-    public static EnumSet<TransportMode> fromNumbers(short[] numbers) {
-        Set<TransportMode> result = new HashSet<>();
-        for (short value : numbers) {
+    public static EnumSet<TransportMode> fromNumbers(final short[] numbers) {
+        final Set<TransportMode> result = new HashSet<>();
+        for (final short value : numbers) {
             result.add(index.get(value));
         }
         return EnumSet.copyOf(result);
     }
 
-    public static boolean intersects(EnumSet<TransportMode> modesA, EnumSet<TransportMode> modesB) {
-        for (TransportMode mode:modesA) {
+    public static boolean intersects(final EnumSet<TransportMode> modesA, final EnumSet<TransportMode> modesB) {
+        for (final TransportMode mode:modesA) {
             if (modesB.contains(mode)) {
                 return true;
             }
@@ -70,8 +70,8 @@ public enum TransportMode implements HasTransportMode {
         //return !SetUtils.intersection(modesA, modesB).isEmpty();
     }
 
-    public static EnumSet<TransportMode> parseCSV(String csv) {
-        String[] divided = csv.split(",");
+    public static EnumSet<TransportMode> parseCSV(final String csv) {
+        final String[] divided = csv.split(",");
         return EnumSet.copyOf(Arrays.stream(divided).map(TransportMode::valueOf).collect(Collectors.toSet()));
     }
 
