@@ -374,6 +374,8 @@ tasks.register('liveMessages', Test) {
     dependsOn compileJava
     useJUnitPlatform {
         includeTags "liveDataMessages"
+        includeTags "liveData"
+        excludeTags "LiveDataS3UploadTest"
     }
     filter {
         includeTestsMatching "com.tramchester.integration.*"
