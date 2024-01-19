@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.places.Location;
+import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 
@@ -22,8 +23,8 @@ public class DepartureDTO implements Comparable<DepartureDTO> {
 
     // TODO Make from and destintaion StationRefDTO?
     private TransportMode transportMode;
-    private String from;
-    private String destination;
+    private LocationRefDTO from;
+    private LocationRefDTO destination;
     private String carriages;
     private String status;
     private LocalDateTime dueTime;
@@ -31,13 +32,14 @@ public class DepartureDTO implements Comparable<DepartureDTO> {
     @JsonIgnore
     private LocalDateTime lastUpdated;
 
-    public DepartureDTO(Location<?> from, UpcomingDeparture upcomingDeparture, LocalDateTime updateTime) {
-        this(upcomingDeparture.getMode(), from.getName(), upcomingDeparture.getDestination().getName(),
+    public DepartureDTO(Location<?> start, UpcomingDeparture upcomingDeparture, LocalDateTime updateTime) {
+        this(upcomingDeparture.getMode(),
+                new LocationRefDTO(start), new LocationRefDTO(upcomingDeparture.getDestination()),
                 upcomingDeparture.getCarriages(), upcomingDeparture.getStatus(),
                 upcomingDeparture.getWhen().toDate(updateTime.toLocalDate()), updateTime);
     }
 
-    private DepartureDTO(TransportMode mode, String from, String destination, String carriages, String status, LocalDateTime dueTime,
+    private DepartureDTO(TransportMode mode, LocationRefDTO from, LocationRefDTO destination, String carriages, String status, LocalDateTime dueTime,
                          LocalDateTime lastUpdated) {
         this.transportMode = mode;
         this.from = from;
@@ -57,7 +59,7 @@ public class DepartureDTO implements Comparable<DepartureDTO> {
         return dueTime;
     }
 
-    public String getFrom() {
+    public LocationRefDTO getFrom() {
         return from;
     }
 
@@ -69,7 +71,7 @@ public class DepartureDTO implements Comparable<DepartureDTO> {
         return status;
     }
 
-    public String getDestination() {
+    public LocationRefDTO getDestination() {
         return destination;
     }
 
@@ -80,8 +82,8 @@ public class DepartureDTO implements Comparable<DepartureDTO> {
     @Override
     public int compareTo(DepartureDTO other) {
         if (dueTime.equals(other.dueTime)) {
-            // if same time use string ordering
-            return destination.compareTo(other.destination);
+            // if same time use name ordering
+            return destination.getName().compareTo(other.destination.getName());
         }
         // time ordering
         return dueTime.compareTo(other.dueTime);

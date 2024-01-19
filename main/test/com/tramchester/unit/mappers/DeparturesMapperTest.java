@@ -49,9 +49,9 @@ class DeparturesMapperTest extends EasyMockSupport {
 
         assertEquals(1, list.size());
         DepartureDTO departureDTO = list.get(0);
-        assertEquals(PiccadillyGardens.getName(), departureDTO.getDestination());
+        assertEquals(PiccadillyGardens.getIdForDTO(), departureDTO.getDestination().getId());
         assertEquals("DUE", departureDTO.getStatus());
-        assertEquals(Bury.getName(), departureDTO.getFrom());
+        assertEquals(Bury.getIdForDTO(), departureDTO.getFrom().getId());
 
         assertEquals(when.asLocalTime(), departureDTO.getDueTime().toLocalTime());
         assertEquals(lastUpdated.toLocalDate(), departureDTO.getDueTime().toLocalDate());

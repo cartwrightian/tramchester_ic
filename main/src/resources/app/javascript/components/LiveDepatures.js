@@ -8,11 +8,11 @@ export default {
             page: 1,
             headers: [
                 // {value:'transportMode', text:'', sortable: true},
-                {value:'from', text:'From', sortable:true},
+                {value:'from.name', text:'From', sortable:true},
                 {value:'dueTimeAsDate', text:'Time', sortable: true, width: '1px'}, 
                 {value:'carriages', text:''},
                 {value:'status', text:'Status'},
-                {value:'destination', text:'Towards', sortable:true}
+                {value:'destination.name', text:'Towards', sortable:true}
             ],
             sortBy: [{ key: 'dueTimeAsDate', order: 'asc' }]
         }

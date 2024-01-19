@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("unused")
 @Path("/departures")
@@ -81,13 +82,14 @@ public class DeparturesResource extends TransportResource implements APIResource
 
         logger.info("Get departures for " + departuresQuery);
 
-        Location<?> location = locationRepository.getLocation(departuresQuery.getLocationType(),
+        final Location<?> location = locationRepository.getLocation(departuresQuery.getLocationType(),
                 departuresQuery.getLocationId());
 
-        LocalDateTime dateTime = providesNow.getDateTime();
-        TramDate queryDate = TramDate.from(dateTime);
+        // assume today, no live data otherwise
+        final LocalDateTime dateTime = providesNow.getDateTime();
+        final TramDate queryDate = TramDate.from(dateTime);
 
-        TramTime queryTime;
+        final TramTime queryTime;
         if (departuresQuery.hasValidTime()) {
             queryTime = TramTime.ofHourMins(departuresQuery.getTime());
         } else {
@@ -100,17 +102,15 @@ public class DeparturesResource extends TransportResource implements APIResource
             modes = config.getTransportModes();
         }
 
-        List<UpcomingDeparture> dueTrams = departuresRepository.dueTramsForLocation(location, dateTime.toLocalDate(), queryTime, modes);
+        final List<UpcomingDeparture> dueTrams = departuresRepository.dueTramsForLocation(location, dateTime.toLocalDate(), queryTime, modes);
         if (dueTrams.isEmpty()) {
             logger.warn("Departures list empty for " + location.getId() + " at " + queryTime);
         }
-        SortedSet<DepartureDTO> departs = new TreeSet<>(departuresMapper.mapToDTO(dueTrams, providesNow.getDateTime()));
+        final SortedSet<DepartureDTO> departs = new TreeSet<>(departuresMapper.mapToDTO(dueTrams, providesNow.getDateTime()));
 
         List<Note> notes = Collections.emptyList();
         if (departuresQuery.getIncludeNotes()) {
-            List<Station> nearbyStations = dueTrams.stream().
-                    map(UpcomingDeparture::getDisplayLocation).
-                    distinct().toList();
+            final Set<Station> nearbyStations = dueTrams.stream().map(UpcomingDeparture::getDisplayLocation).collect(Collectors.toSet());
             notes = providesNotes.createNotesForStations(nearbyStations, queryDate, queryTime);
             if (notes.isEmpty()) {
                 logger.warn("Notes empty for " + location.getId() + " at " + queryTime);

@@ -88,7 +88,7 @@ public class ProvidesTramNotes implements ProvidesNotes {
     }
 
     @Override
-    public List<Note> createNotesForStations(List<Station> stations, TramDate queryDate, TramTime time) {
+    public List<Note> createNotesForStations(Set<Station> stations, TramDate queryDate, TramTime time) {
         if (!platformMessageSource.isEnabled()) {
             logger.error("Attempted to get notes for departures when live data disabled");
             return Collections.emptyList();
@@ -112,7 +112,7 @@ public class ProvidesTramNotes implements ProvidesNotes {
 
     }
 
-    private List<StationNote> createLiveNotesForStations(List<Station> stations, TramDate date, TramTime time) {
+    private List<StationNote> createLiveNotesForStations(Set<Station> stations, TramDate date, TramTime time) {
 
         Set<PlatformMessage> allMessages = stations.stream().
                 flatMap(station -> platformMessageSource.messagesFor(station, date, time).stream()).

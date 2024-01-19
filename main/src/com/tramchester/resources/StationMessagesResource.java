@@ -62,7 +62,7 @@ public class StationMessagesResource extends TransportResource implements APIRes
 
         TramDate date = providesNow.getTramDate();
         TramTime time = providesNow.getNowHourMins();
-        List<Note> notes = providesNotes.createNotesForStations(Collections.singletonList(station), date, time);
+        List<Note> notes = providesNotes.createNotesForStations(Collections.singleton(station), date, time);
 
         logger.info(format("Found %s notes for %s", notes.size(), id));
 

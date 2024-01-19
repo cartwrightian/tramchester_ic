@@ -19,8 +19,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Set;
 import java.util.TreeSet;
 
-import static com.tramchester.testSupport.reference.TramStations.NavigationRoad;
-import static com.tramchester.testSupport.reference.TramStations.StPetersSquare;
+import static com.tramchester.testSupport.reference.TramStations.*;
 
 class DepartureDTOTest {
 
@@ -42,19 +41,14 @@ class DepartureDTOTest {
         UpcomingDeparture dueTram = getDueTram(updateTime, TramStations.Bury, 42);
         DepartureDTO departureDTO = new DepartureDTO(StPetersSquare.fake(), dueTram, now);
 
-        Assertions.assertEquals(StPetersSquare.getName(), departureDTO.getFrom());
-        Assertions.assertEquals("Bury", departureDTO.getDestination());
+        Assertions.assertEquals(StPetersSquare.getIdForDTO(), departureDTO.getFrom().getId());
+        Assertions.assertEquals(Bury.getIdForDTO(), departureDTO.getDestination().getId());
         Assertions.assertEquals("status", departureDTO.getStatus());
         Assertions.assertEquals("carriages", departureDTO.getCarriages());
         LocalDateTime when = departureDTO.getDueTime();
         Assertions.assertEquals(updateTime.plusMinutes(42).truncatedTo(ChronoUnit.MINUTES), when.toLocalTime());
         Assertions.assertEquals(updateDate, when.toLocalDate());
     }
-
-//    @Test
-//    void shouldUpdateThisToStationRefEtcEtc() {
-//        fail("TODO WIP");
-//    }
 
     @Test
     void shouldCompareBasedOnWhenTramDue() {
@@ -73,9 +67,9 @@ class DepartureDTOTest {
         list.add(departureDTOC);
 
         DepartureDTO[] elements = list.toArray(new DepartureDTO[3]);
-        Assertions.assertEquals("Bury", elements[0].getDestination());
-        Assertions.assertEquals("Deansgate-Castlefield", elements[1].getDestination());
-        Assertions.assertEquals("Piccadilly", elements[2].getDestination());
+        Assertions.assertEquals(Bury.getIdForDTO(), elements[0].getDestination().getId());
+        Assertions.assertEquals(Deansgate.getIdForDTO(), elements[1].getDestination().getId());
+        Assertions.assertEquals(Piccadilly.getIdForDTO(), elements[2].getDestination().getId());
     }
 
     @NotNull

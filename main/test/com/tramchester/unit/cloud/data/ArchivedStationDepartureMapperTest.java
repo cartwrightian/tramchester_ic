@@ -1,73 +1,28 @@
 package com.tramchester.unit.cloud.data;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.tramchester.cloud.data.StationDepartureMapper;
-import com.tramchester.domain.Agency;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdForDTO;
-import com.tramchester.domain.id.PlatformId;
-import com.tramchester.domain.places.Station;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.livedata.domain.DTO.DepartureDTO;
-import com.tramchester.livedata.domain.DTO.StationDepartureInfoDTO;
 import com.tramchester.livedata.domain.DTO.archived.ArchivedDepartureDTO;
 import com.tramchester.livedata.domain.DTO.archived.ArchivedStationDepartureInfoDTO;
-import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
-import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ArchivedStationDepartureMapperTest {
 
+    // TODO Likely remove these, live data is no longer archived and uses it own DTO now
+
     private StationDepartureMapper mapper;
-    private List<StationDepartureInfoDTO> departures;
     private LocalDateTime lastUpdate;
 
     @BeforeEach
     void beforeEachTestRuns() {
-
-        IdFor<Station> stationId = StPetersSquare.getId();
-
         mapper = new StationDepartureMapper();
-        departures = new ArrayList<>();
         lastUpdate = LocalDateTime.of(2018,11,15,15,6,32);
-
-        Duration wait = Duration.ofMinutes(42);
-        LocalDateTime dueTime = lastUpdate.plus(wait).truncatedTo(ChronoUnit.MINUTES);
-        Agency agency = TestEnv.MetAgency();
-
-        UpcomingDeparture dueTram = new UpcomingDeparture(lastUpdate.toLocalDate(), NavigationRoad.fake(), Bury.fake(),
-                "Due", TramTime.ofHourMins(dueTime.toLocalTime()), "Single",agency, TransportMode.Tram);
-
-        final DepartureDTO departureDTO = new DepartureDTO(NavigationRoad.fake(), dueTram, lastUpdate);
-
-        List<DepartureDTO> dueTrams = Collections.singletonList(departureDTO);
-        PlatformId platformId = PlatformId.createId(stationId, "platformId");
-        IdForDTO idForDTO = new IdForDTO(platformId);
-        departures.add(new StationDepartureInfoDTO("lineName", idForDTO,
-                "messageTxt", dueTrams, lastUpdate, "displayId",  "Navigation Road"));
-    }
-
-    @Test
-    void shoudCreateJson() throws JsonProcessingException {
-        String json = "[{\"lineName\":\"lineName\",\"stationPlatform\":\"9400ZZMASTPplatformId\",\"message\":\"messageTxt\"," +
-                "\"dueTrams\":[{\"carriages\":\"Single\",\"destination\":\"Bury\",\"dueTime\":\"2018-11-15T15:48:00\"," +
-                "\"from\":\"Navigation Road\",\"status\":\"Due\",\"transportMode\":\"Tram\",\"wait\":42}]," +
-                "\"lastUpdate\":\"2018-11-15T15:06:32\",\"displayId\":\"displayId\",\"location\":\"Navigation Road\"}]";
-
-        String result = mapper.map(departures);
-        assertEquals(json, result, result);
     }
 
     @Test

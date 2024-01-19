@@ -443,7 +443,7 @@ class ProvidesTramNotesTest extends EasyMockSupport {
         String textA = "first text";
         String textB = "second text";
 
-        List<Station> stations = Arrays.asList(pomona, velopark, cornbrook);
+        Set<Station> stations = new HashSet<>(Arrays.asList(pomona, velopark, cornbrook));
 
         TramDate localDate = TramDate.of(2016, 10, 25);
 
