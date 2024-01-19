@@ -1,9 +1,6 @@
 package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import com.google.inject.Inject;
 import com.tramchester.domain.BoxWithServiceFrequency;
 import com.tramchester.domain.dates.TramDate;
@@ -22,11 +19,10 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-import jakarta.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,7 +35,6 @@ import static java.lang.String.format;
 public class FrequencyResource extends TransportResource implements APIResource {
     private static final Logger logger = LoggerFactory.getLogger(FrequencyResource.class);
 
-    private final ObjectMapper objectMapper;
     private final DTOFactory DTOFactory;
     private final StopCallsForGrid stopCallsForGrid;
 
@@ -49,7 +44,6 @@ public class FrequencyResource extends TransportResource implements APIResource 
         super(providesNow);
         this.DTOFactory = DTOFactory;
         logger.info("created");
-        this.objectMapper = JsonMapper.builder().addModule(new AfterburnerModule()).build();
         this.stopCallsForGrid = stopCallsForGrid;
     }
 
@@ -71,7 +65,7 @@ public class FrequencyResource extends TransportResource implements APIResource 
 
         Stream<BoxWithServiceFrequency> results = stopCallsForGrid.getServiceFreqencies(gridSize, date, startTime, endTime);
         Stream<BoxWithFrequencyDTO> dtoStream = results.map(this::createDTO);
-        JsonStreamingOutput<BoxWithFrequencyDTO> jsonStreamingOutput = new JsonStreamingOutput<>(dtoStream, objectMapper);
+        JsonStreamingOutput<BoxWithFrequencyDTO> jsonStreamingOutput = new JsonStreamingOutput<>(dtoStream);
 
         Response.ResponseBuilder responseBuilder = Response.ok(jsonStreamingOutput);
         return responseBuilder.build();

@@ -1,7 +1,7 @@
 package com.tramchester.livedata.domain.DTO.archived;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.tramchester.mappers.serialisation.LocalDateTimeJsonDeserializer;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.tramchester.config.TramchesterConfig;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -48,7 +48,7 @@ public class ArchivedStationDepartureInfoDTO {
         return dueTrams;
     }
 
-    @JsonDeserialize(using = LocalDateTimeJsonDeserializer.class)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TramchesterConfig.DateTimeFormatForJson)
     public LocalDateTime getLastUpdate() {
         return lastUpdate;
     }

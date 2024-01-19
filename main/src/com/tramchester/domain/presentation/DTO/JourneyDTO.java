@@ -60,14 +60,12 @@ public class JourneyDTO {
         return stages;
     }
 
-    @JsonSerialize(using = LocalDateTimeJsonSerializer.class)
-    @JsonDeserialize(using = LocalDateTimeJsonDeserializer.class)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TramchesterConfig.DateTimeFormatForJson)
     public LocalDateTime getFirstDepartureTime() {
         return firstDepartureTime;
     }
 
-    @JsonSerialize(using = LocalDateTimeJsonSerializer.class)
-    @JsonDeserialize(using = LocalDateTimeJsonDeserializer.class)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TramchesterConfig.DateTimeFormatForJson)
     public LocalDateTime getExpectedArrivalTime() {
         return expectedArrivalTime;
     }

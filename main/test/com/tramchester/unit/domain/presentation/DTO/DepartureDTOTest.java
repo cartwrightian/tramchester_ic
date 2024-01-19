@@ -51,6 +51,11 @@ class DepartureDTOTest {
         Assertions.assertEquals(updateDate, when.toLocalDate());
     }
 
+//    @Test
+//    void shouldUpdateThisToStationRefEtcEtc() {
+//        fail("TODO WIP");
+//    }
+
     @Test
     void shouldCompareBasedOnWhenTramDue() {
 

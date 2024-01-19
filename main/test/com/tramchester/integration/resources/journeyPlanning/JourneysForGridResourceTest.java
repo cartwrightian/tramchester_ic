@@ -1,8 +1,5 @@
 package com.tramchester.integration.resources.journeyPlanning;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import com.tramchester.App;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.domain.dates.TramDate;
@@ -19,16 +16,16 @@ import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
 import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.JourneysForGridResource;
-import com.tramchester.testSupport.ParseStream;
+import com.tramchester.testSupport.ParseJSONStream;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import jakarta.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -43,8 +40,8 @@ class JourneysForGridResourceTest {
     private static final IntegrationAppExtension appExtension =
             new IntegrationAppExtension(App.class, new ResourceTramTestConfig<>(JourneysForGridResource.class));
 
-    private final ObjectMapper mapper = JsonMapper.builder().addModule(new AfterburnerModule()).build();
-    private ParseStream<BoxWithCostDTO> parseStream;
+
+    private ParseJSONStream<BoxWithCostDTO> parseStream;
     private String time;
     private String date;
     private int maxChanges;
@@ -58,7 +55,8 @@ class JourneysForGridResourceTest {
     @BeforeEach
     void beforeEachTestRuns() {
         when = TestEnv.testDay();
-        parseStream = new ParseStream<>(mapper);
+
+        parseStream = new ParseJSONStream<>(BoxWithCostDTO.class);
 
         time = TramTime.of(9,15).toPattern();
         date = when.format(dateFormatDashes);
@@ -88,10 +86,10 @@ class JourneysForGridResourceTest {
         assertEquals(200, response.getStatus());
 
         InputStream inputStream = response.readEntity(InputStream.class);
-        List<BoxWithCostDTO> results = parseStream.receive(response, inputStream, BoxWithCostDTO.class);
+        List<BoxWithCostDTO> results = parseStream.receive(response, inputStream);
         assertFalse(results.isEmpty());
 
-        List<BoxWithCostDTO> containsDest = results.stream().filter(result -> result.getMinutes() == 0).collect(Collectors.toList());
+        List<BoxWithCostDTO> containsDest = results.stream().filter(result -> result.getMinutes() == 0).toList();
         assertEquals(1, containsDest.size());
         BoxWithCostDTO boxWithDest = containsDest.get(0);
         assertTrue(boxWithDest.getBottomLeft().getLat() <= destPos.getLat());
@@ -99,10 +97,10 @@ class JourneysForGridResourceTest {
         assertTrue(boxWithDest.getTopRight().getLat() >= destPos.getLat());
         assertTrue(boxWithDest.getTopRight().getLon() >= destPos.getLon());
 
-        List<BoxWithCostDTO> notDest = results.stream().filter(result -> result.getMinutes() > 0).collect(Collectors.toList());
+        List<BoxWithCostDTO> notDest = results.stream().filter(result -> result.getMinutes() > 0).toList();
         notDest.forEach(boundingBoxWithCost -> assertTrue(boundingBoxWithCost.getMinutes()<=maxDuration));
 
-        List<BoxWithCostDTO> noResult = results.stream().filter(result -> result.getMinutes() < 0).collect(Collectors.toList());
+        List<BoxWithCostDTO> noResult = results.stream().filter(result -> result.getMinutes() < 0).toList();
         assertEquals(outOfRangeForDuration, noResult.size());
 
         Set<BoundingBoxWithStations> expectedBoxes = getExpectedBoxesInSearchGrid(destination);

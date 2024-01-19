@@ -1,15 +1,13 @@
 package com.tramchester.livedata.domain.DTO;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
-import com.tramchester.mappers.serialisation.LocalDateTimeJsonDeserializer;
-import com.tramchester.mappers.serialisation.LocalDateTimeJsonSerializer;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -54,18 +52,10 @@ public class DepartureDTO implements Comparable<DepartureDTO> {
         // for deserialisation
     }
 
-    @JsonSerialize(using = LocalDateTimeJsonSerializer.class)
-    @JsonDeserialize(using = LocalDateTimeJsonDeserializer.class)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TramchesterConfig.DateTimeFormatForJson)
     public LocalDateTime getDueTime() {
         return dueTime;
     }
-
-//    @JsonProperty(value = "when", access = JsonProperty.Access.READ_ONLY)
-//    @JsonSerialize(using = LocalTimeJsonSerializer.class)
-//    public LocalTime getWhenForLiveUpload() {
-//        // for keeping upload of live data consistent, not ideal but lots of historical data in S3
-//        return dueTime.toLocalTime();
-//    }
 
     public String getFrom() {
         return from;

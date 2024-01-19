@@ -2,17 +2,17 @@ package com.tramchester.livedata.domain.DTO.archived;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.tramchester.mappers.serialisation.LocalTimeJsonDeserializer;
+import com.tramchester.domain.time.TramTime;
+import com.tramchester.mappers.serialisation.TramTimeJsonDeserializer;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 @SuppressWarnings("unused")
 @JsonIgnoreProperties({"dueTime","transportMode"})
 public class ArchivedDepartureDTO  {
 
-    @JsonDeserialize(using = LocalTimeJsonDeserializer.class)
-    private LocalTime when;
+    @JsonDeserialize(using = TramTimeJsonDeserializer.class)
+    private TramTime when;
 
     private String from;
     private String destination;
@@ -29,7 +29,7 @@ public class ArchivedDepartureDTO  {
                                 String carriages,
                                 String status,
                                 LocalDateTime dueTime,
-                                LocalTime when,
+                                TramTime when,
                                 Integer wait) {
         this.from = from;
         this.destination = destination;
@@ -59,7 +59,7 @@ public class ArchivedDepartureDTO  {
         return wait;
     }
 
-    public LocalTime getWhen() {
+    public TramTime getWhen() {
         return when;
     }
 

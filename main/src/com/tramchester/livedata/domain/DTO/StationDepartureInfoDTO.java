@@ -1,12 +1,10 @@
 package com.tramchester.livedata.domain.DTO;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.livedata.tfgm.TramStationDepartureInfo;
-import com.tramchester.mappers.serialisation.LocalDateTimeJsonDeserializer;
-import com.tramchester.mappers.serialisation.LocalDateTimeJsonSerializer;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -72,8 +70,7 @@ public class StationDepartureInfoDTO  {
         return dueTrams;
     }
 
-    @JsonSerialize(using = LocalDateTimeJsonSerializer.class)
-    @JsonDeserialize(using = LocalDateTimeJsonDeserializer.class)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TramchesterConfig.DateTimeFormatForJson)
     public LocalDateTime getLastUpdate() {
         return lastUpdate;
     }

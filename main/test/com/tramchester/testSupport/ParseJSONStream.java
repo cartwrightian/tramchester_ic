@@ -1,9 +1,11 @@
 package com.tramchester.testSupport;
 
-import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import jakarta.ws.rs.core.Response;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,19 +16,33 @@ import java.util.List;
 
 import static com.fasterxml.jackson.core.JsonToken.*;
 
-public class ParseStream<T> {
+public class ParseJSONStream<T> {
 
-    private final JsonFactory jsonFactory;
+    private final ObjectMapper mapper;
+    private final Class<T> valueType;
 
-    public ParseStream(ObjectMapper mapper) {
-        jsonFactory = mapper.getFactory();
+    public ParseJSONStream(Class<T> valueType) {
+        this.valueType = valueType;
+        mapper = JsonMapper.builder().
+                addModule(new JavaTimeModule()).
+                addModule(new AfterburnerModule()).
+                build();
+
+//        mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     }
 
     @NotNull
-    public List<T> receive(Response response, InputStream inputStream, Class<T> valueType) throws IOException {
+    public List<T> receive(Response response, InputStream inputStream) throws IOException {
+        List<T> received = parseStream(inputStream);
+        response.close();
+        return received;
+    }
+
+    @NotNull
+    public List<T> parseStream(InputStream inputStream) throws IOException {
         List<T> received = new ArrayList<>();
 
-        try (final JsonParser jsonParser = jsonFactory.createParser(inputStream)) {
+        try (final JsonParser jsonParser = mapper.getFactory().createParser(inputStream)) {
             JsonToken nextToken = jsonParser.nextToken();
 
             while (START_ARRAY.equals(nextToken) || START_OBJECT.equals(nextToken)) {
@@ -42,15 +58,14 @@ public class ParseStream<T> {
         }
 
         inputStream.close();
-        response.close();
         return received;
     }
 
-    private void readObject(Class<T> valueType, List<T> received, JsonParser jsonParser, JsonToken current) throws IOException {
+    private void readObject(final Class<T> valueType, final List<T> received, final JsonParser jsonParser, JsonToken current) throws IOException {
         while (START_OBJECT.equals(current)) {
-            JsonToken next = jsonParser.nextToken();
+            final JsonToken next = jsonParser.nextToken();
             if (JsonToken.FIELD_NAME.equals(next)) {
-                final T item = jsonParser.readValueAs(valueType);
+                final T item = mapper.readValue(jsonParser, valueType); //jsonParser.readValueAs(valueType);
                 received.add(item);
             }
             current = jsonParser.nextToken();

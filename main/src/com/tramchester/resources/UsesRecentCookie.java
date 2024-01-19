@@ -29,7 +29,7 @@ public class UsesRecentCookie extends TransportResource {
     private static final int ONE_HUNDRED_DAYS_AS_SECS = 60 * 60 * 24 * 100;
 
     private final UpdateRecentJourneys updateRecentJourneys;
-    protected final ObjectMapper mapper;
+    private final ObjectMapper mapper;
 
     public UsesRecentCookie(UpdateRecentJourneys updateRecentJourneys, ProvidesNow providesNow) {
         super(providesNow);

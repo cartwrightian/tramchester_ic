@@ -22,6 +22,8 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
 
     public static final String DateFormatForJson = "yyyy-MM-dd";
 
+    public static final String DateTimeFormatForJson = "yyyy-MM-dd'T'HH:mm:ss";
+
     private final Map<DataSourceID, TransportDataSourceConfig> dataSources;
 
     protected TramchesterConfig() {

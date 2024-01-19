@@ -1,5 +1,6 @@
 package com.tramchester.unit.cloud.data;
 
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.cloud.DownloadsLiveDataFromS3;
 import com.tramchester.livedata.cloud.FindUniqueDueTramStatus;
 import com.tramchester.livedata.domain.DTO.archived.ArchivedDepartureDTO;
@@ -69,6 +70,6 @@ public class FindUniqueDueTramStatusTest extends EasyMockSupport  {
     @NotNull
     private ArchivedDepartureDTO createDueTram(LocalDateTime start, String tramStatusA) {
         return new ArchivedDepartureDTO("from", "destination", "carriages", tramStatusA,
-                start, start.toLocalTime(), 1);
+                start, TramTime.ofHourMins(start.toLocalTime()), 1);
     }
 }

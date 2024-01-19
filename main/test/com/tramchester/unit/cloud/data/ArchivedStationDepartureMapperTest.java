@@ -28,7 +28,7 @@ import java.util.List;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class StationDepartureMapperTest {
+class ArchivedStationDepartureMapperTest {
 
     private StationDepartureMapper mapper;
     private List<StationDepartureInfoDTO> departures;
@@ -88,6 +88,13 @@ class StationDepartureMapperTest {
 
         List<ArchivedDepartureDTO> trams = departureInfoDTO.getDueTrams();
         assertEquals(1, trams.size());
+        ArchivedDepartureDTO departureDTO = trams.get(0);
+        assertEquals("Bury", departureDTO.getDestination());
+        assertEquals(TramTime.of(15,48), departureDTO.getWhen());
+        assertEquals(42, departureDTO.getWait());
+        assertEquals("Due",departureDTO.getStatus());
+        assertEquals("Single", departureDTO.getCarriages());
+
     }
 
     @Test

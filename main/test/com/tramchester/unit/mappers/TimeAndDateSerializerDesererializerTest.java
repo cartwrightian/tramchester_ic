@@ -11,6 +11,7 @@ import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.mappers.serialisation.*;
+import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,6 +20,8 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -101,6 +104,19 @@ class TimeAndDateSerializerDesererializerTest extends EasyMockSupport {
         assertEquals(localDateTime, result.value);
     }
 
+    @Test
+    void patternStringInConfigShouldMatchExpectedISO() {
+        LocalDateTime now = TestEnv.LocalNow().truncatedTo(ChronoUnit.SECONDS);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+
+        String expected = formatter.format(now);
+
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern(TramchesterConfig.DateTimeFormatForJson);
+
+        assertEquals(expected, timeFormatter.format(now));
+    }
+
     private String getSerialised(Object example) throws IOException {
         StringWriter output = new StringWriter();
         mapper.writeValue(output, example);
@@ -137,8 +153,7 @@ class TimeAndDateSerializerDesererializerTest extends EasyMockSupport {
     }
 
     public static class ExampleForLocalDateTime {
-        @JsonDeserialize(using= LocalDateTimeJsonDeserializer.class)
-        @JsonSerialize(using=LocalDateTimeJsonSerializer.class)
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TramchesterConfig.DateTimeFormatForJson)
         public LocalDateTime value;
 
         public ExampleForLocalDateTime() {

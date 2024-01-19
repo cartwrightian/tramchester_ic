@@ -1,6 +1,5 @@
 package com.tramchester.integration.testSupport;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.App;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Location;
@@ -9,7 +8,7 @@ import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.DTO.JourneyQueryDTO;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.testSupport.ParseStream;
+import com.tramchester.testSupport.ParseJSONStream;
 import com.tramchester.testSupport.reference.FakeStation;
 import jakarta.ws.rs.core.Cookie;
 import jakarta.ws.rs.core.Response;
@@ -24,17 +23,14 @@ import java.util.List;
 public class JourneyResourceTestFacade {
 
     private final IntegrationAppExtension appExtension;
-    private final ParseStream<JourneyDTO> parseStream;
+    private final ParseJSONStream<JourneyDTO> parseStream;
     private final StationRepository stationRepository;
 
     public JourneyResourceTestFacade(IntegrationAppExtension appExtension) {
         this.appExtension = appExtension;
         App app =  appExtension.getApplication();
         stationRepository = app.getDependencies().get(StationRepository.class);
-
-        ObjectMapper mapper = new ObjectMapper();
-        parseStream = new ParseStream<>(mapper);
-
+        parseStream = new ParseJSONStream<>(JourneyDTO.class);
     }
 
     @NotNull
@@ -69,7 +65,7 @@ public class JourneyResourceTestFacade {
 
         InputStream inputStream = response.readEntity(InputStream.class);
 
-        return parseStream.receive(response, inputStream, JourneyDTO.class);
+        return parseStream.receive(response, inputStream);
     }
 
     public JourneyPlanRepresentation getJourneyPlan(JourneyQueryDTO query) {

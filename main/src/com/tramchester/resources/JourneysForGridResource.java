@@ -1,9 +1,6 @@
 package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import com.google.inject.Inject;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.BoundingBoxWithCost;
@@ -46,7 +43,6 @@ public class JourneysForGridResource implements APIResource, GraphDatabaseDepend
     private final FastestRoutesForBoxes search;
     private final JourneyToDTOMapper dtoMapper;
     private final TramchesterConfig config;
-    private final ObjectMapper objectMapper;
 
     @Inject
     public JourneysForGridResource(StationRepository repository, FastestRoutesForBoxes search, JourneyToDTOMapper dtoMapper,
@@ -56,7 +52,6 @@ public class JourneysForGridResource implements APIResource, GraphDatabaseDepend
         this.repository = repository;
         this.search = search;
         this.dtoMapper = dtoMapper;
-        this.objectMapper = JsonMapper.builder().addModule(new AfterburnerModule()).build();
     }
 
     // TODO Cache lifetime could potentially be quite long here, but makes testing harder.....
@@ -106,7 +101,7 @@ public class JourneysForGridResource implements APIResource, GraphDatabaseDepend
                 map(box -> transformToDTO(box, date));
         
         logger.info("Creating stream");
-        JsonStreamingOutput<BoxWithCostDTO> jsonStreamingOutput = new JsonStreamingOutput<>(results, objectMapper);
+        JsonStreamingOutput<BoxWithCostDTO> jsonStreamingOutput = new JsonStreamingOutput<>(results);
 
         logger.info("returning stream");
         Response.ResponseBuilder responseBuilder = Response.ok(jsonStreamingOutput);

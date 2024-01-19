@@ -177,7 +177,7 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
                     query.isArriveBy(), query.getMaxChanges(), modes).
                     map(journey -> journeyToDTOMapper.createJourneyDTO(journey, date));
 
-            JsonStreamingOutput<JourneyDTO> jsonStreamingOutput = new JsonStreamingOutput<>(tx, dtoStream, super.mapper);
+            JsonStreamingOutput<JourneyDTO> jsonStreamingOutput = new JsonStreamingOutput<>(tx, dtoStream);
 
             // stream is closed in JsonStreamingOutput
 

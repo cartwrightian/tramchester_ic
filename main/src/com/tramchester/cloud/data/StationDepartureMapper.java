@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.livedata.domain.DTO.StationDepartureInfoDTO;
@@ -27,7 +28,10 @@ public class StationDepartureMapper {
 
     @Inject
     public StationDepartureMapper() {
-        this.mapper = JsonMapper.builder().addModule(new AfterburnerModule()).build();
+        this.mapper = JsonMapper.builder().
+                addModule(new AfterburnerModule()).
+                addModule(new JavaTimeModule()).
+                build();
         this.reader = mapper.readerForListOf(ArchivedStationDepartureInfoDTO.class);
     }
 

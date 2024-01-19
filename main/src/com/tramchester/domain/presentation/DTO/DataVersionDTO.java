@@ -26,7 +26,6 @@ public class DataVersionDTO {
         return version;
     }
 
-
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TramchesterConfig.DateFormatForJson)
     public LocalDate validFrom() {
         return validFrom;

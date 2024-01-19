@@ -1,8 +1,5 @@
 package com.tramchester.integration.resources;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import com.tramchester.App;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.presentation.DTO.BoxWithFrequencyDTO;
@@ -14,7 +11,7 @@ import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
 import com.tramchester.resources.FrequencyResource;
-import com.tramchester.testSupport.ParseStream;
+import com.tramchester.testSupport.ParseJSONStream;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
@@ -34,15 +31,14 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(DropwizardExtensionsSupport.class)
 public class FrequencyResourceTest {
 
-    private final ObjectMapper mapper = JsonMapper.builder().addModule(new AfterburnerModule()).build();
-    private ParseStream<BoxWithFrequencyDTO> parseStream;
+    private ParseJSONStream<BoxWithFrequencyDTO> parseStream;
 
     private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class,
             new ResourceTramTestConfig<>(FrequencyResource.class));
 
     @BeforeEach
     public void beforeEachTest() {
-        parseStream = new ParseStream<>(mapper);
+        parseStream = new ParseJSONStream<>(BoxWithFrequencyDTO.class);
     }
 
     @Test
@@ -61,7 +57,7 @@ public class FrequencyResourceTest {
         assertEquals(200, response.getStatus());
 
         InputStream inputStream = response.readEntity(InputStream.class);
-        List<BoxWithFrequencyDTO> results = parseStream.receive(response, inputStream, BoxWithFrequencyDTO.class);
+        List<BoxWithFrequencyDTO> results = parseStream.receive(response, inputStream);
 
         assertFalse(results.isEmpty());
 
