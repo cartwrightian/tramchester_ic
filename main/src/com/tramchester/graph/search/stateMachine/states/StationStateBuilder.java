@@ -26,8 +26,9 @@ public abstract class StationStateBuilder {
 
         if (node.hasRelationship(Direction.OUTGOING, DIVERSION)) {
             final TramDate queryDate = traversalState.traversalOps.getQueryDate();
-            final Stream<ImmutableGraphRelationship> diversions = node.getRelationships(txn, Direction.OUTGOING, DIVERSION);
-            final Stream<ImmutableGraphRelationship> validOnDate = diversions.filter(relationship -> relationship.validOn(queryDate));
+            final Stream<ImmutableGraphRelationship> validOnDate = node.
+                    getRelationships(txn, Direction.OUTGOING, DIVERSION).
+                    filter(diversion -> diversion.validOn(queryDate));
             return Stream.concat(validOnDate, relationships);
         }
 

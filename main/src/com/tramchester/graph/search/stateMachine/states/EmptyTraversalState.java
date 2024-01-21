@@ -22,7 +22,7 @@ public abstract class EmptyTraversalState {
         throw new RuntimeException("No such transition at " + stateType);
     }
 
-    protected TraversalState toPlatform(PlatformState.Builder towardsPlatform, GraphNode node, Duration cost, JourneyStateUpdate journeyState) {
+    protected TraversalState toPlatform(PlatformState.Builder towardsPlatform, GraphNode node, Duration cost, boolean alreadyOnDiversion, JourneyStateUpdate journeyState) {
         throw new RuntimeException("No such transition at " + stateType);
     }
 

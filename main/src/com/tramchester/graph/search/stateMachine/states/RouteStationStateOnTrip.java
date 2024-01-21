@@ -97,15 +97,15 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
     protected TraversalState toNoPlatformStation(final NoPlatformStationState.Builder towardsNoPlatformStation, final GraphNode node, final Duration cost,
                                                  final JourneyStateUpdate journeyState, final boolean onDiversion) {
         leaveVehicle(journeyState, transportMode, "Unable to depart tram");
-        return towardsNoPlatformStation.fromRouteStation(this, node, cost, journeyState, txn);
+        return towardsNoPlatformStation.fromRouteStationOnTrip(this, node, cost, journeyState, txn);
     }
 
     @Override
     protected TraversalState toPlatform(final PlatformState.Builder towardsPlatform, final GraphNode node, final Duration cost,
-                                        final JourneyStateUpdate journeyState) {
+                                        final boolean alreadyOnDiversion, final JourneyStateUpdate journeyState) {
 
         leaveVehicle(journeyState, transportMode, "Unable to process platform");
-        return towardsPlatform.fromRouteStationOnTrip(this, node, cost, txn);
+        return towardsPlatform.fromRouteStationOnTrip(this, node, cost, journeyState, txn);
     }
 
     private void leaveVehicle(final JourneyStateUpdate journeyState, final TransportMode transportMode, final String diag) {

@@ -19,33 +19,31 @@ public abstract class TowardsRouteStation<T extends RouteStationState> implement
 
     protected OptionalResourceIterator<ImmutableGraphRelationship> getTowardsDestination(TraversalOps traversalOps,
                                                                                                        GraphNode node, TramDate date, GraphTransaction txn) {
-        Stream<ImmutableGraphRelationship> relationships = node.getRelationships(txn, OUTGOING, DEPART, INTERCHANGE_DEPART, DIVERSION_DEPART);
+        final Stream<ImmutableGraphRelationship> relationships = node.getRelationships(txn, OUTGOING, DEPART, INTERCHANGE_DEPART, DIVERSION_DEPART);
         return traversalOps.getTowardsDestination(Stream.concat(relationships, getActiveDiversions(node, date, txn)));
     }
 
     // TODO When to follow diversion departs? Should these be (also) INTERCHANGE_DEPART ?
-    protected Stream<ImmutableGraphRelationship> getOutboundsToFollow(GraphNode node, boolean isInterchange, TramDate date, GraphTransaction txn) {
-        Stream<ImmutableGraphRelationship> outboundsToFollow = Stream.empty();
+    protected Stream<ImmutableGraphRelationship> getOutboundsToFollow(final GraphNode node, final boolean isInterchange,
+                                                                      final TramDate date, final GraphTransaction txn) {
+        final Stream<ImmutableGraphRelationship> outboundsToFollow;
         if (interchangesOnly) {
             if (isInterchange) {
                 outboundsToFollow = node.getRelationships(txn, OUTGOING, INTERCHANGE_DEPART);
+            } else {
+                outboundsToFollow = Stream.empty();
             }
         } else {
             outboundsToFollow = node.getRelationships(txn, OUTGOING, DEPART, INTERCHANGE_DEPART);
         }
 
-        Stream<ImmutableGraphRelationship> diversions = getActiveDiversions(node, date, txn);
+        final Stream<ImmutableGraphRelationship> diversions = getActiveDiversions(node, date, txn);
         return Stream.concat(outboundsToFollow, diversions);
 
-//        if (diversions.isEmpty()) {
-//            return outboundsToFollow;
-//        } else {
-//            return Stream.concat(outboundsToFollow, diversions.stream());
-//        }
     }
 
-    private Stream<ImmutableGraphRelationship> getActiveDiversions(GraphNode node, TramDate date, GraphTransaction txn) {
-        Stream<ImmutableGraphRelationship> diversions = node.getRelationships(txn, OUTGOING, DIVERSION_DEPART);
+    private Stream<ImmutableGraphRelationship> getActiveDiversions(final GraphNode node, final TramDate date, final GraphTransaction txn) {
+        final Stream<ImmutableGraphRelationship> diversions = node.getRelationships(txn, OUTGOING, DIVERSION_DEPART);
         return diversions.filter(relationship -> relationship.validOn(date));
     }
 

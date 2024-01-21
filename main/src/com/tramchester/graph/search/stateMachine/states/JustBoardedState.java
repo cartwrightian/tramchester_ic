@@ -34,8 +34,7 @@ public class JustBoardedState extends RouteStationState {
         }
 
         public JustBoardedState fromPlatformState(final PlatformState platformState, final GraphNode node, final Duration cost, final GraphTransaction txn) {
-            // does this ever happen? Get on one route station only to go back to a whole different
-            // platform?
+
             final Stream<ImmutableGraphRelationship> otherPlatforms = filterExcludingEndNode(txn, node.getRelationships(txn, OUTGOING, ENTER_PLATFORM),
                     platformState);
 
@@ -57,6 +56,10 @@ public class JustBoardedState extends RouteStationState {
             final Stream<ImmutableGraphRelationship> services = orderServicesByRouteMetric(node, noPlatformStation.traversalOps, txn);
             return new JustBoardedState(noPlatformStation, Stream.concat(filteredDeparts, services), cost, this);
         }
+
+        // TODO Service is likely the wrong level of prioritisation for changed structure of source data
+        // really route is the right place to prioritize?
+        // group many
 
         /**
          * order by least number connections required to destination routes
@@ -86,7 +89,8 @@ public class JustBoardedState extends RouteStationState {
         return "RouteStationStateJustBoarded{} " + super.toString();
     }
 
-    private JustBoardedState(final TraversalState traversalState, final Stream<ImmutableGraphRelationship> outbounds, final Duration cost, final TowardsRouteStation<?> builder) {
+    private JustBoardedState(final TraversalState traversalState, final Stream<ImmutableGraphRelationship> outbounds,
+                             final Duration cost, final TowardsRouteStation<?> builder) {
         super(traversalState, outbounds, cost, builder);
     }
 

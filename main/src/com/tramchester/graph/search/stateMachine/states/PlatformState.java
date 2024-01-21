@@ -15,7 +15,7 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class PlatformState extends TraversalState implements NodeId {
 
-    public static class Builder implements Towards<PlatformState> {
+    public static class Builder implements Towards<PlatformState>, FromRouteStationStates {
 
         @Override
         public void register(RegistersFromState registers) {
@@ -36,7 +36,7 @@ public class PlatformState extends TraversalState implements NodeId {
         }
 
         public TraversalState fromRouteStationOnTrip(final RouteStationStateOnTrip routeStationStateOnTrip, final GraphNode node,
-                                                     final Duration cost, final GraphTransaction txn) {
+                                                     final Duration cost, final JourneyStateUpdate journeyState, final GraphTransaction txn) {
 
             // towards final destination, just follow this one
             final OptionalResourceIterator<ImmutableGraphRelationship> towardsDest = getTowardsDestination(routeStationStateOnTrip.traversalOps, node, txn);
@@ -52,8 +52,10 @@ public class PlatformState extends TraversalState implements NodeId {
             return new PlatformState(routeStationStateOnTrip, platformRelationships, node, cost, this);
         }
 
-        public TraversalState fromRouteStatiomEndTrip(final RouteStationStateEndTrip routeStationState, final GraphNode node,
-                                                      final Duration cost, final GraphTransaction txn) {
+        public TraversalState fromRouteStationEndTrip(final RouteStationStateEndTrip routeStationState, final GraphNode node,
+                                                      final Duration cost,
+                                                      JourneyStateUpdate journeyState, boolean alreadyOnDiversion,
+                                                      final GraphTransaction txn) {
             // towards final destination, just follow this one
             final OptionalResourceIterator<ImmutableGraphRelationship> towardsDest = getTowardsDestination(routeStationState.traversalOps, node, txn);
             if (!towardsDest.isEmpty()) {

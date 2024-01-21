@@ -59,8 +59,8 @@ public class PlatformStationState extends StationState {
         }
 
         @Override
-        public PlatformStationState fromNeighbour(final StationState stationState, final GraphNode stationNode, final Duration cost, final JourneyStateUpdate journeyState,
-                                                  final boolean onDiversion, final GraphTransaction txn) {
+        public PlatformStationState fromNeighbour(final StationState stationState, final GraphNode stationNode, final Duration cost,
+                                                  final JourneyStateUpdate journeyState, final boolean onDiversion, final GraphTransaction txn) {
             final Stream<ImmutableGraphRelationship> initial = stationNode.getRelationships(txn, OUTGOING, ENTER_PLATFORM, GROUPED_TO_PARENT);
             final Stream<ImmutableGraphRelationship> relationships = addValidDiversions(stationNode, initial, stationState, onDiversion, txn);
             return new PlatformStationState(stationState, relationships, cost, stationNode, journeyState, this);
@@ -76,7 +76,7 @@ public class PlatformStationState extends StationState {
 
     private PlatformStationState(final TraversalState parent, final Stream<ImmutableGraphRelationship> relationships, final Duration cost, final GraphNode stationNode,
                                  final JourneyStateUpdate journeyState, final TowardsStation<?> builder) {
-        super(parent, relationships, cost, stationNode, journeyState, builder);
+        super(parent, relationships, cost, stationNode, journeyState, builder.getDestination());
     }
 
 //    private PlatformStationState(TraversalState parent, ResourceIterable<Relationship> relationships, Duration cost, Node stationNode,
@@ -124,7 +124,8 @@ public class PlatformStationState extends StationState {
     }
 
     @Override
-    protected TraversalState toPlatform(final PlatformState.Builder towardsPlatform, final GraphNode node, final Duration cost, final JourneyStateUpdate journeyState) {
+    protected TraversalState toPlatform(final PlatformState.Builder towardsPlatform, final GraphNode node,
+                                        final Duration cost, boolean alreadyOnDiversion, final JourneyStateUpdate journeyState) {
         return towardsPlatform.from(this, node, cost, txn);
     }
 

@@ -123,7 +123,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
                 return toService(builders.getTowardsService(stateType), node, cost);
             }
             case PlatformState -> {
-                return toPlatform(builders.getTowardsPlatform(stateType), node, cost, journeyState);
+                return toPlatform(builders.getTowardsPlatform(stateType), node, cost, alreadyOnDiversion, journeyState);
             }
             case WalkingState -> {
                 return toWalk(builders.getTowardsWalk(stateType), node, cost, journeyState);
