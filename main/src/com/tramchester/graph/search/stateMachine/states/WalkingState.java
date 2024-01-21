@@ -34,10 +34,10 @@ public class WalkingState extends TraversalState {
             return TraversalStateType.WalkingState;
         }
 
-        public TraversalState fromStart(NotStartedState notStartedState, GraphNode firstNode, Duration cost, GraphTransaction txn) {
+        public TraversalState fromStart(final NotStartedState notStartedState, final GraphNode firstNode, final Duration cost, final GraphTransaction txn) {
             final Stream<ImmutableGraphRelationship> relationships = firstNode.getRelationships(txn, OUTGOING, WALKS_TO_STATION);
             final List<ImmutableGraphRelationship> needTwice = relationships.toList();
-            OptionalResourceIterator<ImmutableGraphRelationship> towardsDest = notStartedState.traversalOps.getTowardsDestination(needTwice.stream());
+            final OptionalResourceIterator<ImmutableGraphRelationship> towardsDest = notStartedState.traversalOps.getTowardsDestination(needTwice.stream());
 
             // prioritise a direct walk from start if one is available
             if (towardsDest.isEmpty()) {
@@ -48,14 +48,14 @@ public class WalkingState extends TraversalState {
             }
         }
 
-        public TraversalState fromStation(StationState station, GraphNode node, Duration cost, GraphTransaction txn) {
+        public TraversalState fromStation(final StationState station, final GraphNode node, final Duration cost, final GraphTransaction txn) {
             return new WalkingState(station,
                     filterExcludingEndNode(txn, node.getRelationships(txn, OUTGOING), station), cost, this);
         }
 
     }
 
-    private WalkingState(TraversalState parent, Stream<ImmutableGraphRelationship> relationships, Duration cost, Towards<WalkingState> builder) {
+    private WalkingState(final TraversalState parent, final Stream<ImmutableGraphRelationship> relationships, final Duration cost, final Towards<WalkingState> builder) {
         super(parent, relationships, cost, builder.getDestination());
     }
 
@@ -69,22 +69,22 @@ public class WalkingState extends TraversalState {
     }
 
     @Override
-    protected PlatformStationState toPlatformStation(PlatformStationState.Builder towardsStation, GraphNode node, Duration cost,
-                                                     JourneyStateUpdate journeyState, boolean onDiversion) {
+    protected PlatformStationState toPlatformStation(final PlatformStationState.Builder towardsStation, final GraphNode node, final Duration cost,
+                                                     final JourneyStateUpdate journeyState, final boolean onDiversion) {
         journeyState.endWalk(node);
         return towardsStation.fromWalking(this, node, cost, journeyState, txn);
     }
 
     @Override
-    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsStation, GraphNode node, Duration cost,
-                                                 JourneyStateUpdate journeyState, boolean onDiversion) {
+    protected TraversalState toNoPlatformStation(final NoPlatformStationState.Builder towardsStation, final GraphNode node, final Duration cost,
+                                                 final JourneyStateUpdate journeyState, final boolean onDiversion) {
         journeyState.endWalk(node);
         return towardsStation.fromWalking(this, node, cost, journeyState, txn);
     }
 
     @Override
-    protected void toDestination(DestinationState.Builder towardsDestination, GraphNode node, Duration cost,
-                                 JourneyStateUpdate journeyState) {
+    protected void toDestination(final DestinationState.Builder towardsDestination, final GraphNode node, final Duration cost,
+                                 final JourneyStateUpdate journeyState) {
         journeyState.endWalk(node);
         towardsDestination.from(this, cost);
     }

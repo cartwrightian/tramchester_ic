@@ -30,13 +30,14 @@ public class HourState extends TraversalState {
             this.nodeContents = nodeContents;
         }
 
-        public HourState fromService(ServiceState serviceState, GraphNode node, Duration cost, ExistingTrip maybeExistingTrip, GraphTransaction txn) {
-            Stream<ImmutableGraphRelationship> relationships = getMinuteRelationships(node, txn);
+        public HourState fromService(final ServiceState serviceState, final GraphNode node, final Duration cost,
+                                     final ExistingTrip maybeExistingTrip, final GraphTransaction txn) {
+            final Stream<ImmutableGraphRelationship> relationships = getMinuteRelationships(node, txn);
             return new HourState(serviceState, relationships, maybeExistingTrip, cost, this);
         }
 
         @Override
-        public void register(RegistersFromState registers) {
+        public void register(final RegistersFromState registers) {
             registers.add(TraversalStateType.ServiceState, this);
         }
 
@@ -45,11 +46,11 @@ public class HourState extends TraversalState {
             return TraversalStateType.HourState;
         }
 
-        private Stream<ImmutableGraphRelationship> getMinuteRelationships(GraphNode node, GraphTransaction txn) {
-            Stream<ImmutableGraphRelationship> relationships = getRelationships(txn, node, OUTGOING, TO_MINUTE);
+        private Stream<ImmutableGraphRelationship> getMinuteRelationships(final GraphNode node, final GraphTransaction txn) {
+            final Stream<ImmutableGraphRelationship> relationships = getRelationships(txn, node, OUTGOING, TO_MINUTE);
             if (depthFirst) {
                 return relationships.sorted(TramTime.comparing(relationship -> {
-                    GraphNode endNode = relationship.getEndNode(txn);
+                    final GraphNode endNode = relationship.getEndNode(txn);
                     return nodeContents.getTime(endNode);
                 }));
             }
@@ -59,17 +60,17 @@ public class HourState extends TraversalState {
 
     private final ExistingTrip maybeExistingTrip;
 
-    private HourState(TraversalState parent, Stream<ImmutableGraphRelationship> relationships,
-                      ExistingTrip maybeExistingTrip, Duration cost, Towards<HourState> builder) {
+    private HourState(final TraversalState parent, final Stream<ImmutableGraphRelationship> relationships,
+                      final ExistingTrip maybeExistingTrip, final Duration cost, final Towards<HourState> builder) {
         super(parent, relationships, cost, builder.getDestination());
         this.maybeExistingTrip = maybeExistingTrip;
     }
 
     @Override
-    protected TraversalState toMinute(MinuteState.Builder towardsMinute, GraphNode minuteNode, Duration cost,
-                                      JourneyStateUpdate journeyState, TransportRelationshipTypes[] currentModes) {
+    protected TraversalState toMinute(final MinuteState.Builder towardsMinute, final GraphNode minuteNode, final Duration cost,
+                                      final JourneyStateUpdate journeyState, final TransportRelationshipTypes[] currentModes) {
         try {
-            TramTime time = traversalOps.getTimeFrom(minuteNode);
+            final TramTime time = traversalOps.getTimeFrom(minuteNode);
             journeyState.recordTime(time, getTotalDuration());
         } catch (TramchesterException exception) {
             throw new RuntimeException("Unable to process time ordering", exception);

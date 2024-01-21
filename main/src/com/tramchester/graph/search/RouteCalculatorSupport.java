@@ -209,8 +209,9 @@ public class RouteCalculatorSupport {
 //        }
 //    }
 
-    public PathRequest createPathRequest(GraphNode startNode, TramDate queryDate, TramTime actualQueryTime, Set<TransportMode>
-            requestedModes, int numChanges, JourneyConstraints journeyConstraints, Duration maxInitialWait) {
+    public PathRequest createPathRequest(GraphNode startNode, TramDate queryDate, TramTime actualQueryTime,
+                                         EnumSet<TransportMode> requestedModes, int numChanges,
+                                         JourneyConstraints journeyConstraints, Duration maxInitialWait) {
         ServiceHeuristics serviceHeuristics = createHeuristics(actualQueryTime, journeyConstraints, numChanges);
         return new PathRequest(startNode, queryDate, actualQueryTime, numChanges, serviceHeuristics, requestedModes, maxInitialWait);
     }
@@ -221,11 +222,11 @@ public class RouteCalculatorSupport {
         private final int numChanges;
         private final ServiceHeuristics serviceHeuristics;
         private final TramDate queryDate;
-        private final Set<TransportMode> requestedModes;
+        private final EnumSet<TransportMode> requestedModes;
         private final Duration maxInitialWait;
 
         public PathRequest(GraphNode startNode, TramDate queryDate, TramTime queryTime, int numChanges,
-                           ServiceHeuristics serviceHeuristics, Set<TransportMode> requestedModes, Duration maxInitialWait) {
+                           ServiceHeuristics serviceHeuristics, EnumSet<TransportMode> requestedModes, Duration maxInitialWait) {
             this.startNode = startNode;
             this.queryDate = queryDate;
             this.queryTime = queryTime;
@@ -264,7 +265,7 @@ public class RouteCalculatorSupport {
             return queryDate;
         }
 
-        public Set<TransportMode> getRequestedModes() {
+        public EnumSet<TransportMode> getRequestedModes() {
             return requestedModes;
         }
 

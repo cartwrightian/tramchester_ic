@@ -6,11 +6,11 @@ import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
 
 import java.time.Duration;
-import java.util.Set;
+import java.util.EnumSet;
 
 public class NotStartedState extends TraversalState {
 
-    public NotStartedState(TraversalOps traversalOps, TraversalStateFactory traversalStateFactory, Set<TransportMode> requestedModes) {
+    public NotStartedState(final TraversalOps traversalOps, final TraversalStateFactory traversalStateFactory, final EnumSet<TransportMode> requestedModes) {
         super(traversalOps, traversalStateFactory, requestedModes, TraversalStateType.NotStartedState);
     }
 
@@ -30,25 +30,25 @@ public class NotStartedState extends TraversalState {
     }
 
     @Override
-    protected TraversalState toWalk(WalkingState.Builder towardsWalk, GraphNode node, Duration cost, JourneyStateUpdate journeyState) {
+    protected TraversalState toWalk(final WalkingState.Builder towardsWalk, final GraphNode node, final Duration cost, final JourneyStateUpdate journeyState) {
         journeyState.beginWalk(node, true, cost);
         return towardsWalk.fromStart(this, node, cost, txn);
     }
 
     @Override
-    protected TraversalState toGrouped(GroupedStationState.Builder towardsGroup, GraphNode node, Duration cost, JourneyStateUpdate journeyState) {
+    protected TraversalState toGrouped(final GroupedStationState.Builder towardsGroup, final GraphNode node, final Duration cost, final JourneyStateUpdate journeyState) {
         return towardsGroup.fromStart(this, node, cost, txn);
     }
 
     @Override
-    protected PlatformStationState toPlatformStation(PlatformStationState.Builder towardsStation, GraphNode node, Duration cost,
-                                                     JourneyStateUpdate journeyState, boolean onDiversion) {
+    protected PlatformStationState toPlatformStation(final PlatformStationState.Builder towardsStation, final GraphNode node, final Duration cost,
+                                                     final JourneyStateUpdate journeyState, final boolean onDiversion) {
         return towardsStation.fromStart(this, node, cost, journeyState, onDiversion, onDiversion, txn);
     }
 
     @Override
-    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsStation, GraphNode node, Duration cost,
-                                                 JourneyStateUpdate journeyState, boolean onDiversion) {
+    protected TraversalState toNoPlatformStation(final NoPlatformStationState.Builder towardsStation, final GraphNode node, final Duration cost,
+                                                 final JourneyStateUpdate journeyState, final boolean onDiversion) {
         return towardsStation.fromStart(this, node, cost, journeyState, onDiversion, onDiversion, txn);
     }
 }

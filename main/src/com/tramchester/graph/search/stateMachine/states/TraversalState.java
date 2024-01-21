@@ -12,7 +12,6 @@ import org.neo4j.graphdb.Direction;
 import java.time.Duration;
 import java.util.EnumSet;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Stream;
 
 public abstract class TraversalState extends EmptyTraversalState implements ImmuatableTraversalState {
@@ -32,8 +31,8 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
     private TraversalState child;
 
     // initial only
-    protected TraversalState(TraversalOps traversalOps, TraversalStateFactory traversalStateFactory,
-                             Set<TransportMode> requestedModes, TraversalStateType stateType) {
+    protected TraversalState(final TraversalOps traversalOps, final TraversalStateFactory traversalStateFactory,
+                             final EnumSet<TransportMode> requestedModes, final TraversalStateType stateType) {
         super(stateType);
         this.traversalOps = traversalOps;
         this.txn = traversalOps.getTransaction();
@@ -49,7 +48,8 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         }
     }
 
-    protected TraversalState(TraversalState parent, Stream<ImmutableGraphRelationship> outbounds, Duration costForLastEdge, TraversalStateType stateType) {
+    protected TraversalState(final TraversalState parent, final Stream<ImmutableGraphRelationship> outbounds, final Duration costForLastEdge,
+                             final TraversalStateType stateType) {
         super(stateType);
         this.traversalOps = parent.traversalOps;
         this.txn = traversalOps.getTransaction();
@@ -68,7 +68,8 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         return stateType;
     }
 
-    public static Stream<ImmutableGraphRelationship> getRelationships(GraphTransaction txn, GraphNode node, Direction direction, TransportRelationshipTypes types) {
+    public static Stream<ImmutableGraphRelationship> getRelationships(final GraphTransaction txn, final GraphNode node,
+                                                                      final Direction direction, final TransportRelationshipTypes types) {
         return node.getRelationships(txn, direction, types);
     }
 
@@ -94,14 +95,14 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
             throw new RuntimeException("Not a station, unexpected multi-label condition: " + nodeLabels);
         }
 
-        TraversalStateType nextType = getNextStateType(stateType, actualNodeType, hasPlatforms, node);
+        final TraversalStateType nextType = getNextStateType(stateType, actualNodeType, hasPlatforms, node);
 
         return getTraversalState(nextType, node, journeyState, cost, alreadyOnDiversion, isInterchange);
 
     }
 
-    private TraversalState getTraversalState(final TraversalStateType nextType, GraphNode node, JourneyStateUpdate journeyState,
-                                             Duration cost, final boolean alreadyOnDiversion, final boolean isInterchange) {
+    private TraversalState getTraversalState(final TraversalStateType nextType, final GraphNode node, final JourneyStateUpdate journeyState,
+                                             final Duration cost, final boolean alreadyOnDiversion, final boolean isInterchange) {
         switch (nextType) {
             case MinuteState -> {
                 return toMinute(builders.getTowardsMinute(stateType), node, cost, journeyState, requestedRelationshipTypes);
@@ -160,7 +161,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
             return TraversalStateType.JustBoardedState;
         }
         if (currentStateType==TraversalStateType.MinuteState) {
-            MinuteState minuteState = (MinuteState) this;
+            final MinuteState minuteState = (MinuteState) this;
             if (traversalOps.hasOutboundFor(node, minuteState.getServiceId())) {
                 return TraversalStateType.RouteStationStateOnTrip;
             } else {
@@ -171,7 +172,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         }
     }
 
-    public void toDestination(TraversalState from, GraphNode finalNode, Duration cost, JourneyStateUpdate journeyState) {
+    public void toDestination(final TraversalState from, final GraphNode finalNode, final Duration cost, final JourneyStateUpdate journeyState) {
         toDestination(builders.getTowardsDestination(from.getStateType()), finalNode, cost, journeyState);
     }
 
@@ -186,8 +187,10 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         return outbounds;
     }
 
-    protected static <R extends GraphRelationship> Stream<R> filterExcludingEndNode(GraphTransaction txn, Stream<R> relationships, NodeId hasNodeId) {
-        GraphNodeId nodeId = hasNodeId.nodeId();
+    protected static <R extends GraphRelationship> Stream<R> filterExcludingEndNode(final GraphTransaction txn,
+                                                                                    final Stream<R> relationships,
+                                                                                    final NodeId hasNodeId) {
+        final GraphNodeId nodeId = hasNodeId.nodeId();
         return relationships.filter(relationship -> !relationship.getEndNodeId(txn).equals(nodeId));
     }
 

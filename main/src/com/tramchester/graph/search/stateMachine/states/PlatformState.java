@@ -29,36 +29,38 @@ public class PlatformState extends TraversalState implements NodeId {
             return TraversalStateType.PlatformState;
         }
 
-        public PlatformState from(PlatformStationState platformStationState, GraphNode node, Duration cost, GraphTransaction txn) {
+        public PlatformState from(final PlatformStationState platformStationState, final GraphNode node, final Duration cost, final GraphTransaction txn) {
             // inc. board here since might be starting journey
             return new PlatformState(platformStationState,
                     node.getRelationships(txn, OUTGOING, INTERCHANGE_BOARD, BOARD), node, cost, this);
         }
 
-        public TraversalState fromRouteStationOnTrip(RouteStationStateOnTrip routeStationStateOnTrip, GraphNode node, Duration cost, GraphTransaction txn) {
+        public TraversalState fromRouteStationOnTrip(final RouteStationStateOnTrip routeStationStateOnTrip, final GraphNode node,
+                                                     final Duration cost, final GraphTransaction txn) {
 
             // towards final destination, just follow this one
-            OptionalResourceIterator<ImmutableGraphRelationship> towardsDest = getTowardsDestination(routeStationStateOnTrip.traversalOps, node, txn);
+            final OptionalResourceIterator<ImmutableGraphRelationship> towardsDest = getTowardsDestination(routeStationStateOnTrip.traversalOps, node, txn);
             if (!towardsDest.isEmpty()) {
                 return new PlatformState(routeStationStateOnTrip, towardsDest.stream(), node, cost, this);
             }
 
             // inc. board here since might be starting journey
-            Stream<ImmutableGraphRelationship> platformRelationships = node.getRelationships(txn, OUTGOING, BOARD, INTERCHANGE_BOARD, LEAVE_PLATFORM);
+            final Stream<ImmutableGraphRelationship> platformRelationships = node.getRelationships(txn, OUTGOING, BOARD, INTERCHANGE_BOARD, LEAVE_PLATFORM);
 
             // Cannot filter here as might be starting a new trip from this point, so need to 'go back' to the route station
             //Stream<Relationship> filterExcludingEndNode = filterExcludingEndNode(platformRelationships, routeStationStateOnTrip);
             return new PlatformState(routeStationStateOnTrip, platformRelationships, node, cost, this);
         }
 
-        public TraversalState fromRouteStatiomEndTrip(RouteStationStateEndTrip routeStationState, GraphNode node, Duration cost, GraphTransaction txn) {
+        public TraversalState fromRouteStatiomEndTrip(final RouteStationStateEndTrip routeStationState, final GraphNode node,
+                                                      final Duration cost, final GraphTransaction txn) {
             // towards final destination, just follow this one
-            OptionalResourceIterator<ImmutableGraphRelationship> towardsDest = getTowardsDestination(routeStationState.traversalOps, node, txn);
+            final OptionalResourceIterator<ImmutableGraphRelationship> towardsDest = getTowardsDestination(routeStationState.traversalOps, node, txn);
             if (!towardsDest.isEmpty()) {
                 return new PlatformState(routeStationState, towardsDest.stream(), node, cost, this);
             }
 
-            Stream<ImmutableGraphRelationship> platformRelationships = node.getRelationships(txn, OUTGOING, BOARD, INTERCHANGE_BOARD, LEAVE_PLATFORM);
+            final Stream<ImmutableGraphRelationship> platformRelationships = node.getRelationships(txn, OUTGOING, BOARD, INTERCHANGE_BOARD, LEAVE_PLATFORM);
             // end of a trip, may need to go back to this route station to catch new service
             return new PlatformState(routeStationState, platformRelationships, node, cost, this);
         }
@@ -71,7 +73,8 @@ public class PlatformState extends TraversalState implements NodeId {
 
     private final GraphNode platformNode;
 
-    private PlatformState(TraversalState parent, Stream<ImmutableGraphRelationship> relationships, GraphNode platformNode, Duration cost, Towards<PlatformState> builder) {
+    private PlatformState(final TraversalState parent, final Stream<ImmutableGraphRelationship> relationships, final GraphNode platformNode,
+                          final Duration cost, final Towards<PlatformState> builder) {
         super(parent, relationships, cost, builder.getDestination());
         this.platformNode = platformNode;
     }
@@ -84,9 +87,10 @@ public class PlatformState extends TraversalState implements NodeId {
     }
 
     @Override
-    protected JustBoardedState toJustBoarded(JustBoardedState.Builder towardsJustBoarded, GraphNode node, Duration cost, JourneyStateUpdate journeyState) {
+    protected JustBoardedState toJustBoarded(final JustBoardedState.Builder towardsJustBoarded, final GraphNode node, final Duration cost,
+                                             final JourneyStateUpdate journeyState) {
         try {
-            TransportMode actualMode = node.getTransportMode();
+            final TransportMode actualMode = node.getTransportMode();
             if (actualMode==null) {
                 throw new RuntimeException(format("Unable get transport mode at %s for %s", node.getLabels(), node.getAllProperties()));
             }
@@ -98,8 +102,8 @@ public class PlatformState extends TraversalState implements NodeId {
     }
 
     @Override
-    protected PlatformStationState toPlatformStation(PlatformStationState.Builder towardsStation, GraphNode node, Duration cost,
-                                                     JourneyStateUpdate journeyState, boolean onDiversion) {
+    protected PlatformStationState toPlatformStation(final PlatformStationState.Builder towardsStation, final GraphNode node, final Duration cost,
+                                                     final JourneyStateUpdate journeyState, final boolean onDiversion) {
         return towardsStation.fromPlatform(this, node, cost, journeyState, onDiversion, txn);
     }
 

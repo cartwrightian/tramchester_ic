@@ -26,12 +26,12 @@ public class RouteStationStateEndTrip extends RouteStationState {
 
     public static class Builder extends TowardsRouteStation<RouteStationStateEndTrip> {
 
-        public Builder(boolean interchangesOnly) {
+        public Builder(final boolean interchangesOnly) {
             super(interchangesOnly);
         }
 
         @Override
-        public void register(RegistersFromState registers) {
+        public void register(final RegistersFromState registers) {
             registers.add(TraversalStateType.MinuteState, this);
         }
 
@@ -40,20 +40,20 @@ public class RouteStationStateEndTrip extends RouteStationState {
             return TraversalStateType.RouteStationStateEndTrip;
         }
 
-        public RouteStationStateEndTrip fromMinuteState(MinuteState minuteState, GraphNode node, Duration cost,
-                                                        boolean isInterchange, Trip trip, GraphTransaction txn) {
-            TransportMode transportMode = node.getTransportMode();
+        public RouteStationStateEndTrip fromMinuteState(final MinuteState minuteState, final GraphNode node, final Duration cost,
+                                                        final boolean isInterchange, final Trip trip, final GraphTransaction txn) {
+            final TransportMode transportMode = node.getTransportMode();
 
             // TODO Crossing midnight?
-            TramDate date = minuteState.traversalOps.getQueryDate();
+            final TramDate date = minuteState.traversalOps.getQueryDate();
 
-            OptionalResourceIterator<ImmutableGraphRelationship> towardsDestination = getTowardsDestination(minuteState.traversalOps, node, date, txn);
+            final OptionalResourceIterator<ImmutableGraphRelationship> towardsDestination = getTowardsDestination(minuteState.traversalOps, node, date, txn);
             if (!towardsDestination.isEmpty()) {
                 // we've nearly arrived
                 return new RouteStationStateEndTrip(minuteState, towardsDestination.stream(), cost, transportMode, node, trip, this);
             }
 
-            Stream<ImmutableGraphRelationship> outboundsToFollow = getOutboundsToFollow(node, isInterchange, date, txn);
+            final Stream<ImmutableGraphRelationship> outboundsToFollow = getOutboundsToFollow(node, isInterchange, date, txn);
 
             return new RouteStationStateEndTrip(minuteState, outboundsToFollow, cost, transportMode, node, trip, this);
         }
@@ -64,8 +64,8 @@ public class RouteStationStateEndTrip extends RouteStationState {
     private final GraphNode routeStationNode;
     private final Trip trip;
 
-    private RouteStationStateEndTrip(MinuteState minuteState, Stream<ImmutableGraphRelationship> routeStationOutbound, Duration cost,
-                                     TransportMode mode, GraphNode routeStationNode, Trip trip, TowardsRouteStation<RouteStationStateEndTrip> builder) {
+    private RouteStationStateEndTrip(final MinuteState minuteState, final Stream<ImmutableGraphRelationship> routeStationOutbound, final Duration cost,
+                                     final TransportMode mode, final GraphNode routeStationNode, final Trip trip, final TowardsRouteStation<RouteStationStateEndTrip> builder) {
         super(minuteState, routeStationOutbound, cost, builder);
         this.mode = mode;
         this.routeStationNode = routeStationNode;
@@ -73,24 +73,24 @@ public class RouteStationStateEndTrip extends RouteStationState {
     }
 
     @Override
-    protected TraversalState toService(ServiceState.Builder towardsService, GraphNode node, Duration cost) {
+    protected TraversalState toService(final ServiceState.Builder towardsService, final GraphNode node, final Duration cost) {
         return towardsService.fromRouteStation(this, node, cost, txn);
     }
 
     @Override
-    protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsStation, GraphNode node, Duration cost,
+    protected TraversalState toNoPlatformStation(final NoPlatformStationState.Builder towardsStation, final GraphNode node, final Duration cost,
                                                  JourneyStateUpdate journeyState, boolean onDiversion) {
         leaveVehicle(journeyState);
         return towardsStation.fromRouteStation(this, node, cost, journeyState, onDiversion, txn);
     }
 
     @Override
-    protected TraversalState toPlatform(PlatformState.Builder towardsPlatform, GraphNode node, Duration cost, JourneyStateUpdate journeyState) {
+    protected TraversalState toPlatform(final PlatformState.Builder towardsPlatform, final GraphNode node, final Duration cost, final JourneyStateUpdate journeyState) {
         leaveVehicle(journeyState);
         return towardsPlatform.fromRouteStatiomEndTrip(this, node, cost, txn);
     }
 
-    private void leaveVehicle(JourneyStateUpdate journeyState) {
+    private void leaveVehicle(final JourneyStateUpdate journeyState) {
         try {
             journeyState.leave(trip.getId(), mode, getTotalDuration(), routeStationNode);
         } catch (TramchesterException e) {

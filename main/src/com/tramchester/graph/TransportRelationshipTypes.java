@@ -44,7 +44,7 @@ public enum TransportRelationshipTypes implements RelationshipType {
     private static final TransportRelationshipTypes[] forPlanning;
 
     static {
-        EnumSet<TransportRelationshipTypes> values = EnumSet.allOf(TransportRelationshipTypes.class);
+        final EnumSet<TransportRelationshipTypes> values = EnumSet.allOf(TransportRelationshipTypes.class);
         values.remove(ON_ROUTE); // not used for traversals
         forPlanning = new TransportRelationshipTypes[values.size()];
         values.toArray(forPlanning);

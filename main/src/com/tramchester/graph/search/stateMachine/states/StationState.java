@@ -13,8 +13,9 @@ public abstract class StationState extends TraversalState implements NodeId {
 
     protected final GraphNode stationNode;
 
-    protected StationState(TraversalState parent, Stream<ImmutableGraphRelationship> outbounds, Duration costForLastEdge, GraphNode stationNode,
-                           JourneyStateUpdate journeyState, TowardsStation<?> builder) {
+    protected StationState(final TraversalState parent, final Stream<ImmutableGraphRelationship> outbounds, final Duration costForLastEdge,
+                           final GraphNode stationNode,
+                           final JourneyStateUpdate journeyState, final TowardsStation<?> builder) {
         super(parent, outbounds, costForLastEdge, builder.getDestination());
         this.stationNode = stationNode;
         journeyState.seenStation(stationNode.getStationId());

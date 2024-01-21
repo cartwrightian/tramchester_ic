@@ -41,24 +41,24 @@ public class MinuteState extends TraversalState {
             return TraversalStateType.MinuteState;
         }
 
-        public TraversalState fromHour(HourState hourState, GraphNode node, Duration cost, ExistingTrip existingTrip,
-                                       JourneyStateUpdate journeyState, TransportRelationshipTypes[] currentModes, GraphTransaction txn) {
+        public TraversalState fromHour(final HourState hourState, final GraphNode node, final Duration cost, final ExistingTrip existingTrip,
+                                       final JourneyStateUpdate journeyState, final TransportRelationshipTypes[] currentModes, final GraphTransaction txn) {
 
-            Stream<ImmutableGraphRelationship> relationships = node.getRelationships(txn, OUTGOING, currentModes);
+            final Stream<ImmutableGraphRelationship> relationships = node.getRelationships(txn, OUTGOING, currentModes);
 
             if (existingTrip.isOnTrip()) {
-                IdFor<Trip> existingTripId = existingTrip.getTripId();
-                Stream<ImmutableGraphRelationship> filterBySingleTripId = filterBySingleTripId(relationships, existingTripId);
+                final IdFor<Trip> existingTripId = existingTrip.getTripId();
+                final Stream<ImmutableGraphRelationship> filterBySingleTripId = filterBySingleTripId(relationships, existingTripId);
                 return new MinuteState(hourState, filterBySingleTripId, existingTripId, cost, changeAtInterchangeOnly, this);
             } else {
                 // starting a brand-new journey, since at minute node now have specific tripid to use
-                IdFor<Trip> newTripId = getTrip(node);
+                final IdFor<Trip> newTripId = getTrip(node);
                 journeyState.beginTrip(newTripId);
                 return new MinuteState(hourState, relationships, newTripId, cost, changeAtInterchangeOnly, this);
             }
         }
 
-        private Stream<ImmutableGraphRelationship> filterBySingleTripId(Stream<ImmutableGraphRelationship> relationships, IdFor<Trip> existingTripId) {
+        private Stream<ImmutableGraphRelationship> filterBySingleTripId(final Stream<ImmutableGraphRelationship> relationships, final IdFor<Trip> existingTripId) {
             return relationships.filter(relationship -> nodeContents.getTripId(relationship).equals(existingTripId));
         }
     }
@@ -66,14 +66,14 @@ public class MinuteState extends TraversalState {
     private final boolean interchangesOnly;
     private final Trip trip;
 
-    private MinuteState(TraversalState parent, Stream<ImmutableGraphRelationship> relationships, IdFor<Trip> tripId, Duration cost,
-                        boolean interchangesOnly, Towards<MinuteState> builder) {
+    private MinuteState(final TraversalState parent, final Stream<ImmutableGraphRelationship> relationships, final IdFor<Trip> tripId, final Duration cost,
+                        final boolean interchangesOnly, final Towards<MinuteState> builder) {
         super(parent, relationships, cost, builder.getDestination());
         this.trip = traversalOps.getTrip(tripId);
         this.interchangesOnly = interchangesOnly;
     }
 
-    private static IdFor<Trip> getTrip(GraphNode endNode) {
+    private static IdFor<Trip> getTrip(final GraphNode endNode) {
         if (!endNode.hasTripId()) {
             return new InvalidId<>(Trip.class);
         }
@@ -85,16 +85,16 @@ public class MinuteState extends TraversalState {
     }
 
     @Override
-    protected RouteStationStateOnTrip toRouteStationOnTrip(RouteStationStateOnTrip.Builder towardsRouteStation,
-                                                           GraphNode routeStationNode, Duration cost, boolean isInterchange) {
+    protected RouteStationStateOnTrip toRouteStationOnTrip(final RouteStationStateOnTrip.Builder towardsRouteStation,
+                                                           final GraphNode routeStationNode, final Duration cost, final boolean isInterchange) {
 
         return towardsRouteStation.fromMinuteState(this, routeStationNode, cost, isInterchange, trip, txn);
     }
 
     @Override
-    protected RouteStationStateEndTrip toRouteStationEndTrip(RouteStationStateEndTrip.Builder towardsEndTrip,
-                                                             GraphNode routeStationNode,
-                                                             Duration cost, boolean isInterchange) {
+    protected RouteStationStateEndTrip toRouteStationEndTrip(final RouteStationStateEndTrip.Builder towardsEndTrip,
+                                                             final GraphNode routeStationNode,
+                                                             final Duration cost, final boolean isInterchange) {
 
         return towardsEndTrip.fromMinuteState(this, routeStationNode, cost, isInterchange, trip, txn);
     }
