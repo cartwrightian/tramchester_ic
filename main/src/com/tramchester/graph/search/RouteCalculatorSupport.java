@@ -133,7 +133,7 @@ public class RouteCalculatorSupport {
                                                               LowestCostSeen lowestCostSeen) {
 
         TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(
-                txn, pathRequest, sortsPosition, nodeContentsRepository,
+                txn, pathRequest, nodeContentsRepository,
                 tripRepository, traversalStateFactory, endStations, config, destinationNodeIds,
                 reasons, reasonToGraphViz, providesNow);
 

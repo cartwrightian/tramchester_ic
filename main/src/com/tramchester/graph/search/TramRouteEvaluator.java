@@ -236,8 +236,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
                 return ReasonCode.StationClosed;
             }
 
-            final HeuristicsReason serviceReason = serviceHeuristics.lowerCostIncludingInterchange(nextNode,
-                    journeyState.getTotalDurationSoFar(), bestResultSoFar, howIGotHere, reasons);
+            final HeuristicsReason serviceReason = serviceHeuristics.lowerCostIncludingInterchange(nextNode, howIGotHere, reasons);
             if (!serviceReason.isValid()) {
                 return serviceReason.getReasonCode();
             }

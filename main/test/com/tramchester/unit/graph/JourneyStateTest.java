@@ -11,12 +11,9 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.time.ProvidesLocalNow;
-import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.geo.SortsPositions;
-import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.caches.NodeContentsRepository;
+import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.LowestCostsForDestRoutes;
@@ -24,12 +21,9 @@ import com.tramchester.graph.search.stateMachine.RegistersStates;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
 import com.tramchester.graph.search.stateMachine.states.NotStartedState;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
-import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TripRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.StationHelper;
-import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,7 +44,6 @@ class JourneyStateTest extends EasyMockSupport {
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
-        LatLong latLongHint = TramStations.ManAirport.getLatLong();
         TramDate queryDate = TestEnv.testDay();
 
         node = EasyMock.createMock(GraphNode.class);
@@ -62,9 +55,6 @@ class JourneyStateTest extends EasyMockSupport {
         station.addRoutePickUp(TestEnv.getTramTestRoute());
 
         LocationSet destinations = LocationSet.singleton(station);
-        ProvidesNow providesNow = new ProvidesLocalNow();
-        StationRepository repository = new TramTransportDataForTestFactory(providesNow).getData();
-        SortsPositions sortsPositions = new SortsPositions(repository);
 
         TripRepository tripRepository = createMock(TripRepository.class);
         NodeContentsRepository nodeContentsRepository = createMock(NodeContentsRepository.class);
@@ -76,8 +66,8 @@ class JourneyStateTest extends EasyMockSupport {
         MutableGraphTransaction txn = createMock(MutableGraphTransaction.class);
 
         LowestCostsForDestRoutes lowestCostsForRoutes = createMock(LowestCostsForDestRoutes.class);
-        final TraversalOps traversalOps = new TraversalOps(txn, nodeContentsRepository, tripRepository, sortsPositions,
-                destinations, latLongHint, lowestCostsForRoutes, queryDate);
+        final TraversalOps traversalOps = new TraversalOps(txn, nodeContentsRepository, tripRepository,
+                destinations, lowestCostsForRoutes, queryDate);
 
         traversalState = new NotStartedState(traversalOps, traversalStateFactory, TramsOnly);
         queryTime = TramTime.of(9, 15);

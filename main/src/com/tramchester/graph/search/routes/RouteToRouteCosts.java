@@ -341,17 +341,16 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
 
         /***
-         * least number of "hops" between routes to reach a destination route
+         * find the least number of "hops" between routes to reach a destination route
          * @param startingRoute current position
          * @return min number of hops needed to reach one of the destination routes
          */
         @Override
-        public int getFewestChanges(Route startingRoute) {
-            short indexOfStart = routeToRouteCosts.index.indexFor(startingRoute.getId());
+        public int getFewestChanges(final Route startingRoute) {
+            final short indexOfStart = routeToRouteCosts.index.indexFor(startingRoute.getId());
             if (destinationIndexs.contains(indexOfStart)) {
                 return 0;
             }
-
 
             // note: IntStream uses int in implementation so avoids any boxing overhead, destinationIndexs are shorts
             // so should be safe
@@ -364,7 +363,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
 
         @Override
-        public <T extends HasId<Route>> Stream<T> sortByDestinations(Stream<T> startingRoutes) {
+        public <T extends HasId<Route>> Stream<T> sortByDestinations(final Stream<T> startingRoutes) {
             return startingRoutes.
                     map(this::getLowestCost).
                     sorted(Comparator.comparingInt(Pair::getLeft)).
@@ -372,14 +371,14 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
 
         @NotNull
-        private <T extends HasId<Route>> Pair<Integer, T> getLowestCost(T start) {
-            short indexOfStart = routeToRouteCosts.index.indexFor(start.getId());
+        private <T extends HasId<Route>> Pair<Integer, T> getLowestCost(final T start) {
+            final short indexOfStart = routeToRouteCosts.index.indexFor(start.getId());
             if (destinationIndexs.contains(indexOfStart)) {
                 return Pair.of(0, start); // start on route that is present at destination
             }
 
             // note: IntStream uses int in implementation so avoids any boxing overhead
-            int result = destinationIndexs.stream().mapToInt(item -> item).
+            final int result = destinationIndexs.stream().mapToInt(item -> item).
                     map(dest -> routeToRouteCosts.getDepth(pairFactory.get(indexOfStart, (short)dest), changeStationOperating, dateOverlaps)).
                     min().
                     orElse(Integer.MAX_VALUE);

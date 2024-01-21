@@ -34,11 +34,11 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
         final IdSet<Station> additionalInterchanges = IdSet.emptySet();
         final Set<TransportMode> groupedStationModes = Collections.singleton(TransportMode.Bus);
 
-        Path dowloadFolder = Path.of("data/bus");
+        final Path downloadFolder = Path.of("data/bus");
         gtfsSourceConfig = new TFGMGTFSSourceTestConfig(
                 Collections.singleton(GTFSTransportationType.bus),
                 modesWithPlatforms, additionalInterchanges, groupedStationModes, Collections.emptyList(), Duration.ofMinutes(45));
-        remoteDataSourceConfig = TFGMRemoteDataSourceConfig.createFor(dowloadFolder);
+        remoteDataSourceConfig = TFGMRemoteDataSourceConfig.createFor(downloadFolder);
     }
 
     @Override
@@ -48,6 +48,11 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
 
     @Override
     public int getNumberQueries() { return 1; }
+
+    @Override
+    public boolean getDepthFirst() {
+        return true;
+    }
 
     @Override
     public int getQueryInterval() {

@@ -29,10 +29,10 @@ public class ImmutableGraphRelationship implements GraphRelationship {
         this.underlying = underlying;
     }
 
-    public static ResourceIterable<Relationship> convertIterable(Stream<ImmutableGraphRelationship> stream) {
-        Stream<Relationship> mapped = stream.map(ImmutableGraphRelationship::getRelationship);
+    public static ResourceIterable<Relationship> convertIterable(final Stream<ImmutableGraphRelationship> stream) {
+        final Stream<Relationship> mapped = stream.map(ImmutableGraphRelationship::getRelationship);
 
-        Iterable<Relationship> iterable = new Iterable<>() {
+        final Iterable<Relationship> iterable = new Iterable<>() {
             @NotNull
             @Override
             public Iterator<Relationship> iterator() {

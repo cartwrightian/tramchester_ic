@@ -4,15 +4,13 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.geo.SortsPositions;
-import com.tramchester.graph.facade.*;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
+import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.diagnostics.ReasonsToGraphViz;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
@@ -54,7 +52,6 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     private final LocationSet destinations;
     private final TramchesterConfig config;
     private final ServiceReasons reasons;
-    private final SortsPositions sortsPosition;
     private final TraversalStateFactory traversalStateFactory;
     private final RouteCalculatorSupport.PathRequest pathRequest;
     private final ReasonsToGraphViz reasonToGraphViz;
@@ -62,12 +59,11 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     private final GraphTransaction txn;
 
     public TramNetworkTraverser(GraphTransaction txn, RouteCalculatorSupport.PathRequest pathRequest,
-                                SortsPositions sortsPosition, NodeContentsRepository nodeContentsRepository, TripRepository tripRespository,
+                                NodeContentsRepository nodeContentsRepository, TripRepository tripRespository,
                                 TraversalStateFactory traversalStateFactory, LocationSet destinations, TramchesterConfig config,
                                 Set<GraphNodeId> destinationNodeIds, ServiceReasons reasons,
                                 ReasonsToGraphViz reasonToGraphViz, ProvidesNow providesNow) {
         this.txn = txn;
-        this.sortsPosition = sortsPosition;
         this.nodeContentsRepository = nodeContentsRepository;
         this.tripRespository = tripRespository;
         this.traversalStateFactory = traversalStateFactory;
@@ -97,10 +93,8 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
                 destinationNodeIds, nodeContentsRepository, reasons, previousSuccessfulVisit, lowestCostSeen, config,
                 startNode.getId(), begin, providesNow, pathRequest.getRequestedModes(), maxInitialWait, txn);
 
-        LatLong destinationLatLon = sortsPosition.midPointFrom(destinations);
-
-        TraversalOps traversalOps = new TraversalOps(txn, nodeContentsRepository, tripRespository, sortsPosition, destinations,
-                destinationLatLon, lowestCostsForRoutes, pathRequest.getQueryDate());
+        TraversalOps traversalOps = new TraversalOps(txn, nodeContentsRepository, tripRespository, destinations,
+                lowestCostsForRoutes, pathRequest.getQueryDate());
 
         final NotStartedState traversalState = new NotStartedState(traversalOps, traversalStateFactory, pathRequest.getRequestedModes());
         final InitialBranchState<JourneyState> initialJourneyState = JourneyState.initialState(actualQueryTime, traversalState);
@@ -134,27 +128,28 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     }
 
     @Override
-    public ResourceIterable<Relationship> expand(Path path, BranchState<JourneyState> graphState) {
+    public ResourceIterable<Relationship> expand(final Path path, final BranchState<JourneyState> graphState) {
         final ImmutableJourneyState currentState = graphState.getState();
         final ImmuatableTraversalState traversalState = currentState.getTraversalState();
 
-        final GraphNode endPathNode =  txn.fromEnd(path); // path.endNode();
+        final GraphNode endPathNode =  txn.fromEnd(path);
         final JourneyState journeyStateForChildren = JourneyState.fromPrevious(currentState);
 
-        Duration cost = Duration.ZERO;
-        GraphRelationship lastRelationship = txn.lastFrom(path); // path.lastRelationship();
+        final GraphRelationship lastRelationship = txn.lastFrom(path);
+        final Duration cost;
         if (lastRelationship !=null) {
             cost = nodeContentsRepository.getCost(lastRelationship);
             if (Durations.greaterThan(cost, Duration.ZERO)) {
                 final Duration totalCost = currentState.getTotalDurationSoFar();
-                Duration total = totalCost.plus(cost);
+                final Duration total = totalCost.plus(cost);
                 journeyStateForChildren.updateTotalCost(total);
             }
             if (lastRelationship.isType(DIVERSION)) {
-                //GraphNode startOfDiversionNode = lastRelationship.getStartNode(txn);
-                IdFor<Station> stationId = lastRelationship.getStartStationId();
+                final IdFor<Station> stationId = lastRelationship.getStartStationId();
                 journeyStateForChildren.beginDiversion(stationId);
             }
+        } else {
+            cost = Duration.ZERO;
         }
 
         final EnumSet<GraphLabel> labels = nodeContentsRepository.getLabels(endPathNode);
@@ -168,7 +163,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         return convertToIter(traversalStateForChildren.getOutbounds());
     }
 
-    private ResourceIterable<Relationship> convertToIter(Stream<ImmutableGraphRelationship> resourceIterable) {
+    private ResourceIterable<Relationship> convertToIter(final Stream<ImmutableGraphRelationship> resourceIterable) {
         return ImmutableGraphRelationship.convertIterable(resourceIterable);
     }
 

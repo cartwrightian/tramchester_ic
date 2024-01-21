@@ -10,7 +10,6 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.graphbuild.GraphLabel;
@@ -37,7 +36,6 @@ public class ServiceHeuristics {
     private final NodeContentsRepository nodeOperations;
     private final int currentChangesLimit;
     private final LowestCostsForDestRoutes lowestCostsForDestRoutes;
-//    private final RouteInterchangeRepository routeInterchanges;
 
     public ServiceHeuristics(StationRepository stationRepository, NodeContentsRepository nodeOperations,
                              JourneyConstraints journeyConstraints, TramTime actualQueryTime,
@@ -166,8 +164,8 @@ public class ServiceHeuristics {
         return valid(ReasonCode.TransportModeOk, howIGotHere, reasons);
     }
 
-    public HeuristicsReason canReachDestination(GraphNode endNode, int currentNumberOfChanges, HowIGotHere howIGotHere,
-                                             ServiceReasons reasons, TramTime currentElapsed) {
+    public HeuristicsReason canReachDestination(final GraphNode endNode, final int currentNumberOfChanges, final HowIGotHere howIGotHere,
+                                                final ServiceReasons reasons, final TramTime currentElapsed) {
         reasons.incrementTotalChecked();
 
         final IdFor<RouteStation> routeStationId = nodeOperations.getRouteStationId(endNode);
@@ -198,8 +196,7 @@ public class ServiceHeuristics {
         return valid(ReasonCode.Reachable, howIGotHere, reasons);
     }
 
-    public HeuristicsReason lowerCostIncludingInterchange(GraphNode nextNode, Duration totalCostSoFar, LowestCostSeen bestSoFar,
-                                                       HowIGotHere howIGotHere, ServiceReasons reasons) {
+    public HeuristicsReason lowerCostIncludingInterchange(GraphNode nextNode, HowIGotHere howIGotHere, ServiceReasons reasons) {
         reasons.incrementTotalChecked();
 
         final IdFor<RouteStation> routeStationId = nodeOperations.getRouteStationId(nextNode);
@@ -210,14 +207,6 @@ public class ServiceHeuristics {
             return valid(ReasonCode.ReachableSameRoute, howIGotHere, reasons);
         }
         // otherwise, a change to a different route is needed
-
-        // little diff to tram performance, too costly to (pre-)compute for buses
-//        final boolean hasPathToInterchange = routeInterchanges.hasPathToInterchange(routeStation);
-//
-//        if (!hasPathToInterchange) {
-//            // change required from current route, but no interchange is available for this station/route combination
-//            return reasons.recordReason(ServiceReason.InterchangeNotReachable(howIGotHere));
-//        }
 
         return valid(ReasonCode.Reachable, howIGotHere, reasons);
     }

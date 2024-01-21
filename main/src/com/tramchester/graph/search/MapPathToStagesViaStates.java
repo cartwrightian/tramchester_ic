@@ -6,12 +6,10 @@ import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.StationGroup;
-import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.ConnectingStage;
-import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
@@ -51,20 +49,18 @@ public class MapPathToStagesViaStates implements PathToStages {
     private final StationGroupsRepository stationGroupsRepository;
     private final NodeContentsRepository nodeContentsRepository;
     private final TripRepository tripRepository;
-    private final SortsPositions sortsPosition;
 
     @Inject
     public MapPathToStagesViaStates(StationRepository stationRepository, PlatformRepository platformRepository,
                                     TraversalStateFactory stateFactory, StationGroupsRepository stationGroupsRepository,
                                     NodeContentsRepository nodeContentsRepository,
-                                    TripRepository tripRepository, SortsPositions sortsPosition) {
+                                    TripRepository tripRepository) {
         this.stationRepository = stationRepository;
         this.platformRepository = platformRepository;
         this.stateFactory = stateFactory;
         this.stationGroupsRepository = stationGroupsRepository;
         this.nodeContentsRepository = nodeContentsRepository;
         this.tripRepository = tripRepository;
-        this.sortsPosition = sortsPosition;
 
     }
 
@@ -77,10 +73,10 @@ public class MapPathToStagesViaStates implements PathToStages {
         logger.info(format("Mapping path length %s to transport stages for %s at %s with %s changes",
                 path.length(), journeyRequest, queryTime, timedPath.numChanges()));
 
-        final LatLong destinationLatLon = sortsPosition.midPointFrom(endStations);
+//        final LatLong destinationLatLon = sortsPosition.midPointFrom(endStations);
 
-        final TraversalOps traversalOps = new TraversalOps(txn, nodeContentsRepository, tripRepository, sortsPosition, endStations,
-                destinationLatLon, lowestCostForRoutes, journeyRequest.getDate());
+        final TraversalOps traversalOps = new TraversalOps(txn, nodeContentsRepository, tripRepository, endStations,
+                lowestCostForRoutes, journeyRequest.getDate());
 
         final MapStatesToStages mapStatesToStages = new MapStatesToStages(stationRepository, platformRepository, tripRepository, queryTime);
 

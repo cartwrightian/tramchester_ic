@@ -20,7 +20,7 @@ public class FindStateAfterRouteStation extends StationStateBuilder {
                                                 final boolean alreadyOnDiversion, final GraphTransaction txn) {
         // end of a trip, may need to go back to this route station to catch new service
 
-        final Stream<ImmutableGraphRelationship> boardsAndOthers = getBoardsAndOthers(node, txn, false);
+        final Stream<ImmutableGraphRelationship> boardsAndOthers = getBoardsAndOthers(node, txn, false, routeStationState.traversalOps);
 
         final Stream<ImmutableGraphRelationship> diversions = addValidDiversions(node, routeStationState, alreadyOnDiversion, txn);
 
@@ -35,7 +35,7 @@ public class FindStateAfterRouteStation extends StationStateBuilder {
             return createPlatformState(towardsState, routeStationState, node, cost, towardsDest.stream());
         }
 
-        final Stream<ImmutableGraphRelationship> platformRelationships = getBoardsAndOthers(node, txn, true);
+        final Stream<ImmutableGraphRelationship> platformRelationships = getBoardsAndOthers(node, txn, true, routeStationState.traversalOps);
 
         return createPlatformState(towardsState, routeStationState, node, cost, platformRelationships);
     }
@@ -43,26 +43,27 @@ public class FindStateAfterRouteStation extends StationStateBuilder {
     public TraversalState onTripTowardsStation(TraversalStateType destination, final RouteStationStateOnTrip onTrip, final GraphNode node,
                                                final Duration cost, final JourneyStateUpdate journeyState, final GraphTransaction txn) {
         // filter so we don't just get straight back on tram if just boarded, or if we are on an existing trip
-        final Stream<ImmutableGraphRelationship> relationships = getBoardsAndOthers(node, txn, false);
+        final Stream<ImmutableGraphRelationship> relationships = getBoardsAndOthers(node, txn, false, onTrip.traversalOps);
         final Stream<ImmutableGraphRelationship> filteredRelationships = TraversalState.filterExcludingEndNode(txn, relationships, onTrip);
         return createNoPlatformStationState(onTrip, node, cost, journeyState, filteredRelationships, destination);
     }
 
     public TraversalState onTripTowardsPlatform(TraversalStateType towardsState, RouteStationStateOnTrip routeStationStateOnTrip, GraphNode node,
                                                 Duration cost, GraphTransaction txn) {
-        final OptionalResourceIterator<ImmutableGraphRelationship> towardsDest = getTowardsDestination(routeStationStateOnTrip.traversalOps, node, txn);
+        final TraversalOps traversalOps = routeStationStateOnTrip.traversalOps;
+        final OptionalResourceIterator<ImmutableGraphRelationship> towardsDest = getTowardsDestination(traversalOps, node, txn);
         if (!towardsDest.isEmpty()) {
             return new PlatformState(routeStationStateOnTrip, towardsDest.stream(), node, cost, towardsState);
         }
 
-        final Stream<ImmutableGraphRelationship> platformRelationships = getBoardsAndOthers(node, txn, true);
+        final Stream<ImmutableGraphRelationship> platformRelationships = getBoardsAndOthers(node, txn, true, traversalOps);
 
         // Cannot filter here as might be starting a new trip from this point, so need to 'go back' to the route station
         //Stream<Relationship> filterExcludingEndNode = filterExcludingEndNode(platformRelationships, routeStationStateOnTrip);
         return new PlatformState(routeStationStateOnTrip, platformRelationships, node, cost, towardsState);
     }
 
-    Stream<ImmutableGraphRelationship> getBoardsAndOthers(final GraphNode node, final GraphTransaction txn, boolean isPlatform) {
+    Stream<ImmutableGraphRelationship> getBoardsAndOthers(final GraphNode node, final GraphTransaction txn, boolean isPlatform, TraversalOps traversalOps) {
 
         final Stream<ImmutableGraphRelationship> other;
         if (isPlatform) {
@@ -72,8 +73,10 @@ public class FindStateAfterRouteStation extends StationStateBuilder {
         }
 
         // todo need to order boarding relationships && remove service based prioritisation from JustBoarded State
-        final Stream<ImmutableGraphRelationship> boarding = node.getRelationships(txn, OUTGOING, BOARD, INTERCHANGE_BOARD);
-        // order matters here, i.e. explore walks first
+        final Stream<ImmutableGraphRelationship> unsorted = node.getRelationships(txn, OUTGOING, BOARD, INTERCHANGE_BOARD);
+
+        // order matters here, i.e. explore walks first TODO WHY?
+        final Stream<ImmutableGraphRelationship> boarding = traversalOps.orderBoardingRelationsByRouteConnections(unsorted);
         return Stream.concat(other, boarding);
     }
 

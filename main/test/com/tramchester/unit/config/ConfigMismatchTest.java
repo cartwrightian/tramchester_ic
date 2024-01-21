@@ -283,6 +283,7 @@ class ConfigMismatchTest {
         assertEquals(expected.getMaxNumResults(), testConfig.getMaxNumResults(), "MaxNumResults");
         assertEquals(expected.getDistributionBucket(), testConfig.getDistributionBucket(), "distributionBucket");
         assertEquals(expected.getMaxJourneyDuration(), testConfig.getMaxJourneyDuration(), "MaxJourneyDuration");
+        assertEquals(expected.getDepthFirst(), testConfig.getDepthFirst(), "depthFirst");
 
         assertEquals(expected.redirectToSecure(), testConfig.redirectToSecure());
 

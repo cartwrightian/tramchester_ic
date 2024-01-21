@@ -155,6 +155,10 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("environmentName")
     private String environmentName;
 
+    @NotNull
+    @JsonProperty("depthFirst")
+    private Boolean depthFirst;
+
     @Override
     public String getInstanceDataUrl() {
         return instanceDataUrl;
@@ -164,11 +168,6 @@ public class AppConfiguration extends TramchesterConfig {
     public int getMaxWait() {
         return maxWait;
     }
-
-//    @Override
-//    public int getMaxInitialWait() {
-//        return maxInitialWait;
-//    }
 
     @Override
     public int getMaxNumResults() {
@@ -321,6 +320,11 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public boolean getSendCloudWatchMetrics() {
         return sendCloudWatchMetrics;
+    }
+
+    @Override
+    public boolean getDepthFirst() {
+        return depthFirst;
     }
 
     @Override

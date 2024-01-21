@@ -63,4 +63,9 @@ public abstract class IntegrationTestConfig extends TestConfig {
 
         return text;
     }
+
+    @Override
+    public boolean getDepthFirst() {
+        return true;
+    }
 }

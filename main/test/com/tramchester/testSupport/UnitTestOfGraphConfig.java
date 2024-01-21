@@ -50,4 +50,9 @@ public class UnitTestOfGraphConfig extends TestConfig {
     public GraphDBConfig getGraphDBConfig() {
         return new GraphDBTestConfig(TestGroupType.unit, this);
     }
+
+    @Override
+    public boolean getDepthFirst() {
+        return true;
+    }
 }

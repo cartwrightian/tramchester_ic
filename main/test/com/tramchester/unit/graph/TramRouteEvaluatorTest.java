@@ -20,7 +20,6 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.GridPosition;
-import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
@@ -42,7 +41,6 @@ import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.repository.TripRepository;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.TramStations;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.jetbrains.annotations.NotNull;
@@ -73,9 +71,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     private ImmutableGraphNode node;
     private ServiceReasons reasons;
     private TramchesterConfig config;
-    private SortsPositions sortsPositions;
     private PreviousVisits previousSuccessfulVisit;
-    private LatLong latLongHint;
     private GraphNodeId destinationNodeId;
     private ImmutableGraphRelationship lastRelationship;
     private TripRepository tripRepository;
@@ -119,8 +115,6 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         maxInitialWait = config.getInitialMaxWaitFor(DataSourceID.tfgm);
 
-        latLongHint = TramStations.ManAirport.getLatLong();
-
         txn = createMock(MutableGraphTransaction.class);
 
         destinationNodeId = GraphNodeId.TestOnly(88L);
@@ -133,7 +127,6 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         reasons = new ServiceReasons(journeyRequest, TramTime.of(8,15), providesNow);
 
         serviceHeuristics = createMock(ServiceHeuristics.class);
-        sortsPositions = createMock(SortsPositions.class);
         path = createMock(Path.class);
         node = createMock(ImmutableGraphNode.class);
         lastRelationship = createMock(ImmutableGraphRelationship.class);
@@ -157,8 +150,8 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         RegistersStates registersStates = new RegistersStates();
         TraversalStateFactory traversalStateFactory = new TraversalStateFactory(registersStates, contentsRepository, config);
 
-        final TraversalOps traversalOps = new TraversalOps(txn, contentsRepository, tripRepository, sortsPositions, destinationStations,
-                latLongHint, lowestCostsForRoutes, TestEnv.testDay());
+        final TraversalOps traversalOps = new TraversalOps(txn, contentsRepository, tripRepository, destinationStations,
+                lowestCostsForRoutes, TestEnv.testDay());
         return new NotStartedState(traversalOps, traversalStateFactory, TramsOnly);
     }
 
@@ -547,7 +540,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         EasyMock.expect(serviceHeuristics.canReachDestination(node, 0, howIGotHere, reasons, time)).
                 andReturn(ServiceReason.IsValid(ReasonCode.Reachable, howIGotHere));
-        EasyMock.expect(serviceHeuristics.lowerCostIncludingInterchange(node, Duration.ZERO, lowestCostSeen, howIGotHere, reasons)).andReturn(
+        EasyMock.expect(serviceHeuristics.lowerCostIncludingInterchange(node, howIGotHere, reasons)).andReturn(
                 ServiceReason.IsValid(ReasonCode.Reachable, howIGotHere));
 
         EasyMock.expect(serviceHeuristics.checkStationOpen(node, howIGotHere, reasons)).

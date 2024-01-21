@@ -7,13 +7,11 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.caches.NodeContentsRepository;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.search.LowestCostsForDestRoutes;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
@@ -25,7 +23,6 @@ import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
 
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
-import static com.tramchester.testSupport.reference.KnownLocations.nearPiccGardens;
 import static com.tramchester.testSupport.reference.TramStations.ManAirport;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -34,7 +31,6 @@ public class TraversalOpsTest {
 
     private NodeContentsRepository nodeOperations;
     private TripRepository tripRepository;
-    private SortsPositions sortsPositions;
     private StationRepository stationRepository;
     private MutableGraphTransaction txn;
     private RouteToRouteCosts routeToRouteCosts;
@@ -55,7 +51,6 @@ public class TraversalOpsTest {
     void onceBeforEachTestRuns() {
         nodeOperations = componentContainer.get(NodeContentsRepository.class);
         tripRepository = componentContainer.get(TripRepository.class);
-        sortsPositions = componentContainer.get(SortsPositions.class);
         stationRepository = componentContainer.get(StationRepository.class);
         routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
@@ -74,7 +69,7 @@ public class TraversalOpsTest {
         LocationSet destinationStations = new LocationSet();
         final Station manchesterAirport = stationRepository.getStationById(ManAirport.getId());
         destinationStations.add(manchesterAirport);
-        LatLong destinationLatLon = nearPiccGardens.latLong();
+//        LatLong destinationLatLon = nearPiccGardens.latLong();
 
         TimeRange timeRange = TimeRange.of(TramTime.of(8, 15), TramTime.of(22, 35));
 
@@ -82,7 +77,7 @@ public class TraversalOpsTest {
                 date, timeRange, TramsOnly);
 
         TraversalOps traversalOpsForDest = new TraversalOps(txn, nodeOperations, tripRepository,
-                sortsPositions, destinationStations, destinationLatLon, lowestCostForRoutes, date);
+                destinationStations, lowestCostForRoutes, date);
 
         Station altrincham = stationRepository.getStationById(TramStations.Altrincham.getId());
 

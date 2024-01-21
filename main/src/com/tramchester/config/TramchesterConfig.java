@@ -146,9 +146,7 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
         return getOpenldbwsConfig()!=null;
     }
 
-    public final boolean getDepthFirst() {
-        return true;
-    }
+    public abstract boolean getDepthFirst();
 
     public abstract Path getCacheFolder();
 

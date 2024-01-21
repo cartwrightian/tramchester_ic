@@ -6,11 +6,11 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
 
 public class RelationshipWithRoute implements HasId<Route> {
-    private final ImmutableGraphRelationship relationship;
     private final IdFor<Route> routeId;
+    private final ImmutableGraphRelationship relationship;
 
-    public RelationshipWithRoute(ImmutableGraphRelationship relationship) {
-        routeId = relationship.getRouteId();
+    public RelationshipWithRoute(final ImmutableGraphRelationship relationship) {
+        this.routeId = relationship.getRouteId();
         this.relationship = relationship;
     }
 

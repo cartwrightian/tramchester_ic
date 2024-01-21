@@ -43,42 +43,15 @@ public class PlatformState extends TraversalState implements NodeId {
 
         public TraversalState fromRouteStationOnTrip(final RouteStationStateOnTrip routeStationStateOnTrip, final GraphNode node,
                                                      final Duration cost, final JourneyStateUpdate journeyState, final GraphTransaction txn) {
-
             return findStateAfterRouteStation.onTripTowardsPlatform(getDestination(), routeStationStateOnTrip, node, cost, txn);
-//            // towards final destination, just follow this one
-//            final OptionalResourceIterator<ImmutableGraphRelationship> towardsDest = getTowardsDestination(routeStationStateOnTrip.traversalOps, node, txn);
-//            if (!towardsDest.isEmpty()) {
-//                return new PlatformState(routeStationStateOnTrip, towardsDest.stream(), node, cost, this);
-//            }
-//
-//            // inc. board here since might be starting journey
-//            final Stream<ImmutableGraphRelationship> platformRelationships = node.getRelationships(txn, OUTGOING, BOARD, INTERCHANGE_BOARD, LEAVE_PLATFORM);
-//
-//            // Cannot filter here as might be starting a new trip from this point, so need to 'go back' to the route station
-//            //Stream<Relationship> filterExcludingEndNode = filterExcludingEndNode(platformRelationships, routeStationStateOnTrip);
-//            return new PlatformState(routeStationStateOnTrip, platformRelationships, node, cost, this);
         }
 
         public TraversalState fromRouteStationEndTrip(final RouteStationStateEndTrip routeStationState, final GraphNode node,
                                                       final Duration cost,
                                                       JourneyStateUpdate journeyState, boolean alreadyOnDiversion,
                                                       final GraphTransaction txn) {
-
             return findStateAfterRouteStation.endTripTowardsPlatform(getDestination(), routeStationState, node, cost, txn);
-            // towards final destination, just follow this one
-//            final OptionalResourceIterator<ImmutableGraphRelationship> towardsDest = getTowardsDestination(routeStationState.traversalOps, node, txn);
-//            if (!towardsDest.isEmpty()) {
-//                return new PlatformState(routeStationState, towardsDest.stream(), node, cost, this.getDestination());
-//            }
-//
-//            final Stream<ImmutableGraphRelationship> platformRelationships = node.getRelationships(txn, OUTGOING, BOARD, INTERCHANGE_BOARD, LEAVE_PLATFORM);
-//            // end of a trip, may need to go back to this route station to catch new service
-//            return new PlatformState(routeStationState, platformRelationships, node, cost, this.getDestination());
         }
-
-//        private OptionalResourceIterator<ImmutableGraphRelationship> getTowardsDestination(TraversalOps traversalOps, GraphNode node, GraphTransaction txn) {
-//            return traversalOps.getTowardsDestination(node.getRelationships(txn, OUTGOING, LEAVE_PLATFORM));
-//        }
 
     }
 
