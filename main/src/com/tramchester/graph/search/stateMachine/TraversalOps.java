@@ -56,8 +56,8 @@ public class TraversalOps {
         this.queryDate = queryDate;
     }
 
-    public <R extends GraphRelationship> OptionalResourceIterator<R> getTowardsDestination(Stream<R> outgoing) {
-        List<R> filtered = outgoing.
+    public <R extends GraphRelationship> OptionalResourceIterator<R> getTowardsDestination(final Stream<R> outgoing) {
+        final List<R> filtered = outgoing.
                 filter(depart -> destinationStationIds.contains(depart.getStationId())).
                 collect(Collectors.toList());
         return OptionalResourceIterator.from(filtered);

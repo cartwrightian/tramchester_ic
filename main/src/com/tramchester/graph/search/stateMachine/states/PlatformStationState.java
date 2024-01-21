@@ -42,7 +42,8 @@ public class PlatformStationState extends StationState {
                                                  final JourneyStateUpdate journeyState, final boolean onDiversion, final GraphTransaction txn) {
             final Stream<ImmutableGraphRelationship> initial = stationNode.getRelationships(txn, OUTGOING, WALKS_FROM_STATION, ENTER_PLATFORM,
                     NEIGHBOUR, GROUPED_TO_PARENT);
-            final Stream<ImmutableGraphRelationship> relationships = addValidDiversions(stationNode, initial, platformState, onDiversion, txn);
+            final Stream<ImmutableGraphRelationship> diversions = addValidDiversions(stationNode,  platformState, onDiversion, txn);
+            final Stream<ImmutableGraphRelationship> relationships = Stream.concat(initial, diversions);
             return new PlatformStationState(platformState, filterExcludingEndNode(txn, relationships, platformState), cost,
                     stationNode, journeyState, this);
         }
@@ -50,19 +51,23 @@ public class PlatformStationState extends StationState {
         public PlatformStationState fromStart(final NotStartedState notStartedState, final GraphNode stationNode, final Duration cost,
                                               final JourneyStateUpdate journeyState, final boolean alreadyOnDiversion,
                                               final boolean onDiversion, final GraphTransaction txn) {
-            final Stream<ImmutableGraphRelationship> neighbours = TraversalState.getRelationships(txn, stationNode, OUTGOING, NEIGHBOUR);
+            //final Stream<ImmutableGraphRelationship> neighbours = TraversalState.getRelationships(txn, stationNode, OUTGOING, NEIGHBOUR);
             final Stream<ImmutableGraphRelationship> initial = stationNode.getRelationships(txn, OUTGOING, WALKS_FROM_STATION,
-                    GROUPED_TO_PARENT, ENTER_PLATFORM);
-            final Stream<ImmutableGraphRelationship> relationships = addValidDiversions(stationNode, initial, notStartedState, onDiversion, txn);
+                    GROUPED_TO_PARENT, ENTER_PLATFORM, NEIGHBOUR);
+            final Stream<ImmutableGraphRelationship> diversions = addValidDiversions(stationNode, notStartedState, onDiversion, txn);
 
-            return new PlatformStationState(notStartedState, Stream.concat(neighbours,relationships), cost, stationNode, journeyState, this);
+            final Stream<ImmutableGraphRelationship> relationships = Stream.concat(initial, diversions);
+            return new PlatformStationState(notStartedState, relationships, cost, stationNode, journeyState, this);
         }
 
         @Override
         public PlatformStationState fromNeighbour(final StationState stationState, final GraphNode stationNode, final Duration cost,
                                                   final JourneyStateUpdate journeyState, final boolean onDiversion, final GraphTransaction txn) {
             final Stream<ImmutableGraphRelationship> initial = stationNode.getRelationships(txn, OUTGOING, ENTER_PLATFORM, GROUPED_TO_PARENT);
-            final Stream<ImmutableGraphRelationship> relationships = addValidDiversions(stationNode, initial, stationState, onDiversion, txn);
+            final Stream<ImmutableGraphRelationship> diversions = addValidDiversions(stationNode, stationState, onDiversion, txn);
+
+
+            final Stream<ImmutableGraphRelationship> relationships = Stream.concat(initial, diversions);
             return new PlatformStationState(stationState, relationships, cost, stationNode, journeyState, this);
         }
 
@@ -78,11 +83,6 @@ public class PlatformStationState extends StationState {
                                  final JourneyStateUpdate journeyState, final TowardsStation<?> builder) {
         super(parent, relationships, cost, stationNode, journeyState, builder.getDestination());
     }
-
-//    private PlatformStationState(TraversalState parent, ResourceIterable<Relationship> relationships, Duration cost, Node stationNode,
-//                                 JourneyStateUpdate journeyState, TowardsStation<?> builder) {
-//        super(parent, relationships, cost, stationNode, journeyState, builder);
-//    }
 
     @Override
     public String toString() {

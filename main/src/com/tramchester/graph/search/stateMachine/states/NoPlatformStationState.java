@@ -52,29 +52,25 @@ public class NoPlatformStationState extends StationState {
         public NoPlatformStationState fromStart(final NotStartedState notStartedState, final GraphNode node, final Duration cost,
                                                 final JourneyStateUpdate journeyState, final boolean alreadyOnDiversion,
                                                 final boolean onDiversion, final GraphTransaction txn) {
-            final Stream<ImmutableGraphRelationship> neighbours = getRelationships(txn, node, OUTGOING, NEIGHBOUR);
-            final Stream<ImmutableGraphRelationship> initial = boardRelationshipsPlus(node, txn, WALKS_FROM_STATION, GROUPED_TO_PARENT);
-            Stream<ImmutableGraphRelationship> relationships = addValidDiversions(node, initial, notStartedState, alreadyOnDiversion, txn);
+            //final Stream<ImmutableGraphRelationship> neighbours = getRelationships(txn, node, OUTGOING, NEIGHBOUR);
 
-            return new NoPlatformStationState(notStartedState, Stream.concat(neighbours, relationships), cost, node, journeyState, getDestination());
+            final Stream<ImmutableGraphRelationship> boardsAndOthers = boardRelationshipsPlus(node, txn, WALKS_FROM_STATION, GROUPED_TO_PARENT, NEIGHBOUR);
+
+            final Stream<ImmutableGraphRelationship> diversions = addValidDiversions(node, notStartedState, alreadyOnDiversion, txn);
+
+            final Stream<ImmutableGraphRelationship> relationships = Stream.concat(boardsAndOthers, diversions);
+
+            return new NoPlatformStationState(notStartedState, relationships, cost, node, journeyState, getDestination());
         }
 
         public TraversalState fromRouteStationEndTrip(final RouteStationStateEndTrip routeStationState, final GraphNode node, final Duration cost,
                                                final JourneyStateUpdate journeyState, final boolean alreadyOnDiversion, final GraphTransaction txn) {
-            // end of a trip, may need to go back to this route station to catch new service
-            return findStateAfterRouteStation.fromRouteStationEndTrip(getDestination(), routeStationState, node, cost, journeyState, alreadyOnDiversion, txn);
-//            final Stream<ImmutableGraphRelationship> initial = boardRelationshipsPlus(node, txn, WALKS_FROM_STATION, NEIGHBOUR, GROUPED_TO_PARENT);
-//            final Stream<ImmutableGraphRelationship> relationships = addValidDiversions(node, initial, routeStationState, alreadyOnDiversion, txn);
-//            return new NoPlatformStationState(routeStationState, relationships, cost, node, journeyState, this);
+            return findStateAfterRouteStation.endTripTowardsStation(getDestination(), routeStationState, node, cost, journeyState, alreadyOnDiversion, txn);
         }
 
         public TraversalState fromRouteStationOnTrip(final RouteStationStateOnTrip onTrip, final GraphNode node, final Duration cost,
                                                final JourneyStateUpdate journeyState, final GraphTransaction txn) {
-            // filter so we don't just get straight back on tram if just boarded, or if we are on an existing trip
-            return findStateAfterRouteStation.fromRouteStationOnTrip(getDestination(), onTrip, node, cost, journeyState, txn);
-//            final Stream<ImmutableGraphRelationship> relationships = boardRelationshipsPlus(node, txn, WALKS_FROM_STATION, NEIGHBOUR, GROUPED_TO_PARENT);
-//            final Stream<ImmutableGraphRelationship> stationRelationships = filterExcludingEndNode(txn, relationships, onTrip);
-//            return new NoPlatformStationState(onTrip, stationRelationships, cost, node, journeyState, this);
+            return findStateAfterRouteStation.onTripTowardsStation(getDestination(), onTrip, node, cost, journeyState, txn);
         }
 
         @Override
