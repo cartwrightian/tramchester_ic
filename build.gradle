@@ -308,7 +308,7 @@ tasks.register('buses', JavaExec) {
     dependsOn 'webpack'
     mainClass = mainClassName
     classpath = sourceSets.main.runtimeClasspath
-    maxHeapSize = "3g"
+//    maxHeapSize = "3g"
     args 'server', 'config/buses.yml'
 }
 

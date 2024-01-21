@@ -40,10 +40,6 @@ public enum BusStations implements FakeStation {
     StockportNewbridgeLane("1800SG15561", "Newbridge Lane (Millgate), Stockport",
             new LatLong(53.41149, -2.15438));
 
-    // stockport bus stations is no more, at least for now
-//    StopAtStockportBusStation("1800SGQ0021", "Stockport", "Stockport Bus Station",
-//            new LatLong(53.4091,-2.16443890806)),
-
     // No longer in the data?
 //    MacclefieldBusStationBay1("0600MA6154", "Macclesfield", "Macclesfield, Bus Station (Bay 1)",
 //            new LatLong(53.25831, -2.12502)),

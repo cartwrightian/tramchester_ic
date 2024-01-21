@@ -67,9 +67,9 @@ function getColourForCost(boxWithCost) {
     return '#00'+greenString+'00';
 }
 
-function queryForGrid(gridSize, stationId, departureTime, departureDate, maxChanges, maxDuration) {
+function queryForGrid(gridSize, destinationType, stationId, departureTime, departureDate, maxChanges, maxDuration) {
     var query = {
-            destType: "Station", destId: stationId, gridSize: gridSize, departureTime: departureTime, departureDate: departureDate, 
+            destType: destinationType, destId: stationId, gridSize: gridSize, departureTime: departureTime, departureDate: departureDate, 
             maxChanges: maxChanges, 
             maxDuration: maxDuration}
 
@@ -120,7 +120,9 @@ var mapApp = new Vue({
                 mapApp.routes = response.data;
                 mapApp.draw();
                 // todo choose destination
-                queryForGrid(1000, "9400ZZMASTP" , "07:30", getCurrentDate(), "2", "60");
+                //queryForGrid(1000, "Station", "9400ZZMASTP" , "07:30", getCurrentDate(), "2", "60");
+                // E0057786 = Manchester City Center, StationGroup
+                queryForGrid(1000, "StationGroup", "E0057786" , "07:30", getCurrentDate(), "2", "60");
             }).catch(function (error){
                 mapApp.networkError = true;
                 console.log(error);
@@ -147,13 +149,4 @@ function queryServerForGrid(query) {
     });
 }
 
-function getGrids(searchParams) {
-    oboe('/api/grid?' + searchParams.toString())
-        .node('BoxWithCost', function (box) {
-            addBoxWithCost(box);
-        })
-        .fail(function (errorReport) {
-            console.log("Failed to load grid '" + errorReport.toString() + "'");
-        });
-}
 

@@ -6,6 +6,7 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.reference.TransportMode;
@@ -141,14 +142,27 @@ class BusRouteCalculatorTest {
     }
 
     @Test
+    void shouldHaveAltyToTownCentre() {
+        TramTime time = TramTime.of(15,52);
+        TramDate date = TramDate.of(2024,1,19);
+
+        Location<?> manchesterCityCentre = KnownLocality.ManchesterCityCentre.from(stationGroupsRepository);
+
+        JourneyRequest request = new JourneyRequest(date, time, false, 3,
+                maxJourneyDuration, 3, getRequestedModes());
+        Set<Journey> journeys = calculator.calculateRouteAsSet(altrinchamCentral, manchesterCityCentre, request);
+        assertFalse(journeys.isEmpty());
+    }
+
+    @Test
     void shouldHaveStockToAltyJourney() {
 
         TramTime travelTime = TramTime.of(9, 0);
         TramDate nextMonday = TestEnv.nextMonday();
 
-        JourneyRequest requestA = new JourneyRequest(nextMonday, travelTime, false, 1,
+        JourneyRequest request = new JourneyRequest(nextMonday, travelTime, false, 1,
                 maxJourneyDuration, 3, getRequestedModes());
-        Set<Journey> journeys = calculator.calculateRouteAsSet(stockportCentral, altrinchamCentral, requestA);
+        Set<Journey> journeys = calculator.calculateRouteAsSet(stockportCentral, altrinchamCentral, request);
         assertFalse(journeys.isEmpty());
     }
 

@@ -136,8 +136,7 @@ public class DeparturesRepository {
                 return trainDeparturesRepository.forStation(station).stream();
             }
             default -> {
-                final String msg = "TODO - live data for " + mode + " is not implemented yet";
-                logger.error(msg);
+                //logger.debug("TODO - live data for " + mode + " is not implemented yet");
                 return Stream.empty(); }
         }
     }
