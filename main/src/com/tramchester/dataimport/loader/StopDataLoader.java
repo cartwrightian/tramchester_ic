@@ -30,7 +30,7 @@ public class StopDataLoader {
         logger.info("Loading stops within bounds");
         BoundingBox bounds = config.getBounds();
 
-        PreloadedStationsAndPlatforms allStations = new PreloadedStationsAndPlatforms(factory);
+        final PreloadedStationsAndPlatforms allStations = new PreloadedStationsAndPlatforms(factory);
 
         AtomicInteger excluded = new AtomicInteger(0);
         stops.forEach((stopData) -> {

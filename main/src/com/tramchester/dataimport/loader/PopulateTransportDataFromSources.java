@@ -82,7 +82,7 @@ public class PopulateTransportDataFromSources implements TransportDataFactory {
 
         updateDataSourceInfo(dataSource, writeableTransportData, dataSourceInfo, sourceConfig);
 
-        TransportEntityFactory entityFactory = dataSource.getEntityFactory();
+        final TransportEntityFactory entityFactory = dataSource.getEntityFactory();
 
         // create loaders
         StopDataLoader stopDataLoader = new StopDataLoader(entityFactory, tramchesterConfig);
@@ -119,6 +119,8 @@ public class PopulateTransportDataFromSources implements TransportDataFactory {
         reportZeroDaysServices(writeableTransportData);
 
         dataSource.closeAll();
+
+        entityFactory.logDiagnostics();
 
         logger.info("Finishing Loading data for " + dataSourceInfo);
     }

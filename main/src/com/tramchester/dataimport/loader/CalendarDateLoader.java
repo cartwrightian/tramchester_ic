@@ -48,7 +48,8 @@ public class CalendarDateLoader {
                     countCalendarDates.getAndIncrement();
                     addException(excpetionDate, service.getMutableCalendar(), serviceId, noServices);
                 } else {
-                    logger.warn("Missing calendar for service " + service.getId() + " so add exception only calendar");
+                    // this now seems common, so no warning
+                    //logger.warn("Missing calendar for service " + service.getId() + " so add exception only calendar");
                     service.setCalendar(new MutableExceptionsOnlyServiceCalendar());
                     addException(excpetionDate, service.getMutableCalendar(), serviceId, noServices);
                     missingCalendarDates.add(serviceId);

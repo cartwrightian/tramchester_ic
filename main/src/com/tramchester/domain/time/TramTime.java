@@ -62,6 +62,28 @@ public class TramTime implements Comparable<TramTime> {
         return Factory.Invalid();
     }
 
+    /***
+     * Orders hours with pivotPointHour as the earliest ranked, rolling around the 24 hours
+     * i.e. Used to sort a list 0,1,13,22,23 with a midpoint of 13 gives 13,22,23,0,1
+     * or the list 0,1,13,22,23 with a midpoint of 23 gives 23,0,1,13,22
+     * @param pivotPointHour point to use as the starting point for the comparison
+     * @param toIntFunction convert the items being sorted into integers
+     * @return sort items with pivotPointHour as the 'earliest' ranked item
+     * @param <T> type of the items to sort
+     */
+    public static <T> Comparator<T> RollingHourComparator(final int pivotPointHour, final ToHourFunction<T> toIntFunction) {
+        final int offset = 24 - pivotPointHour;
+        return (itemA, itemB) -> {
+            final int intA = toIntFunction.applyAsHour(itemA);
+            final int intB = toIntFunction.applyAsHour(itemB);
+
+            final int modA = (intA+offset) % 24;
+            final int modB = (intB+offset) % 24;
+
+            return Integer.compare(modA, modB);
+        };
+    }
+
     public boolean isValid() {
         return this != Factory.Invalid();
     }

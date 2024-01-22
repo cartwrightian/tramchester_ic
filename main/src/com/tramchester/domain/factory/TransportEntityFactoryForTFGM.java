@@ -6,6 +6,7 @@ import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.dataimport.data.TripData;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.MutableTrip;
@@ -44,12 +45,15 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
     private final Map<String, IdFor<Station>> stopIdToStationId;
     private final Map<String, String> originalCodeForStop; // stopId -> full stopCode with platform suffix
 
+    private final IdSet<Station> missingFromNaptan;
+
     public TransportEntityFactoryForTFGM(NaptanRepository naptanRepository) {
         super();
         this.naptanRepository = naptanRepository;
         this.naptanEnabled = naptanRepository.isEnabled();
         this.stopIdToStationId = new HashMap<>();
         this.originalCodeForStop = new HashMap<>();
+        missingFromNaptan = new IdSet<>();
     }
 
     @Override
@@ -94,7 +98,8 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
                 isCentral = naptanRecord.isLocalityCenter();
         } else {
             if (naptanEnabled) {
-                logger.warn("No naptan record found for " + stationId);
+                missingFromNaptan.add(stationId);
+//                logger.warn("No naptan record found for " + stationId);
             }
             isInterchange = false;
             areaId = NPTGLocality.InvalidId();
@@ -178,6 +183,14 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
     public IdFor<Platform> getPlatformId(StopTimeData stopTimeData, Station station) {
         String originalCode = originalCodeForStop.get(stopTimeData.getStopId()); // contains the platform suffix
         return createPlatformId(station.getId(), originalCode);
+    }
+
+    @Override
+    public void logDiagnostics() {
+        if (!missingFromNaptan.isEmpty()) {
+            logger.warn("The following stations ids were not found in naptan " + missingFromNaptan);
+            missingFromNaptan.clear();
+        }
     }
 
     public static PlatformId createPlatformId(IdFor<Station> stationId, final String fullCodeWithPlatformSuffix) {

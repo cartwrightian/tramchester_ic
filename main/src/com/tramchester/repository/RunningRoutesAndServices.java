@@ -142,30 +142,30 @@ public class RunningRoutesAndServices {
                     '}';
         }
 
-        public boolean isServiceRunningByTime(IdFor<Service> serviceId, TramTime time, int maxWait) {
+        public boolean isServiceRunningByTime(final IdFor<Service> serviceId, final TramTime time, final int maxWait) {
 
             if (servicesToday.hasId(serviceId)) {
-                Service todaySvc = servicesToday.get(serviceId);
+                final Service todaySvc = servicesToday.get(serviceId);
                 if (serviceOperatingWithin(todaySvc, time, maxWait)) {
                     return true;
                 }
             }
 
-            int hourOfDay = time.getHourOfDay();
-            int minuteOfHour = time.getMinuteOfHour();
+            final int hourOfDay = time.getHourOfDay();
+            final int minuteOfHour = time.getMinuteOfHour();
 
             if (time.isNextDay()) {
                 if (servicesNextDay.hasId(serviceId)) {
                     // remove next day offset to get time for the following day
-                    TramTime timeForNextDay = TramTime.of(hourOfDay, minuteOfHour);
-                    Service nextDaySvc = servicesNextDay.get(serviceId);
+                    final TramTime timeForNextDay = TramTime.of(hourOfDay, minuteOfHour);
+                    final Service nextDaySvc = servicesNextDay.get(serviceId);
                     return serviceOperatingWithin(nextDaySvc, timeForNextDay, maxWait);
                 }
             } else {
                 if (servicesPreviousDay.hasId(serviceId)) {
                     // use next day time, do any of previous days services run into today
-                    TramTime timeForPreviousDay = TramTime.nextDay(hourOfDay, minuteOfHour);
-                    Service previousDayService = servicesPreviousDay.get(serviceId);
+                    final TramTime timeForPreviousDay = TramTime.nextDay(hourOfDay, minuteOfHour);
+                    final Service previousDayService = servicesPreviousDay.get(serviceId);
                     return serviceOperatingWithin(previousDayService, timeForPreviousDay, maxWait);
                 }
             }
@@ -173,17 +173,17 @@ public class RunningRoutesAndServices {
             return false;
         }
 
-        private boolean serviceOperatingWithin(Service service, TramTime time, int maxWait) {
+        private boolean serviceOperatingWithin(final Service service, final TramTime time, final int maxWait) {
             final TramTime finishTime = service.getFinishTime();
             final TramTime startTime = service.getStartTime();
 
-            TimeRange withinService = TimeRange.of(startTime, finishTime);
+            final TimeRange withinService = TimeRange.of(startTime, finishTime);
             if (withinService.contains(time)) {
                 return true;
             }
 
             // check if within wait time
-            TimeRange range = TimeRange.of(startTime, Duration.ofMinutes(maxWait), Duration.ZERO);
+            final TimeRange range = TimeRange.of(startTime, Duration.ofMinutes(maxWait), Duration.ZERO);
             return range.contains(time);
         }
     }

@@ -38,10 +38,10 @@ public class PreloadedStationsAndPlatforms {
         return stations.get(stationId);
     }
 
-    public void createAndAdd(IdFor<Station> stationId, StopData stopData) {
-        MutableStation mutableStation = factory.createStation(stationId, stopData);
+    public void createAndAdd(final IdFor<Station> stationId, final StopData stopData) {
+        final MutableStation mutableStation = factory.createStation(stationId, stopData);
 
-        Optional<MutablePlatform> possiblePlatform = factory.maybeCreatePlatform(stopData, mutableStation);
+        final Optional<MutablePlatform> possiblePlatform = factory.maybeCreatePlatform(stopData, mutableStation);
 
         possiblePlatform.ifPresent(platform -> {
             platforms.add(platform);

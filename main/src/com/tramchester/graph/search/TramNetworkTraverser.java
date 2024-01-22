@@ -59,13 +59,13 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     private final GraphTransaction txn;
 
     public TramNetworkTraverser(GraphTransaction txn, RouteCalculatorSupport.PathRequest pathRequest,
-                                NodeContentsRepository nodeContentsRepository, TripRepository tripRespository,
+                                NodeContentsRepository nodeContentsRepository, TripRepository tripRepository,
                                 TraversalStateFactory traversalStateFactory, LocationSet destinations, TramchesterConfig config,
                                 Set<GraphNodeId> destinationNodeIds, ServiceReasons reasons,
                                 ReasonsToGraphViz reasonToGraphViz, ProvidesNow providesNow) {
         this.txn = txn;
         this.nodeContentsRepository = nodeContentsRepository;
-        this.tripRespository = tripRespository;
+        this.tripRespository = tripRepository;
         this.traversalStateFactory = traversalStateFactory;
         this.destinationNodeIds = destinationNodeIds;
         this.destinations = destinations;
@@ -160,7 +160,8 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         journeyStateForChildren.updateTraversalState(traversalStateForChildren);
         graphState.setState(journeyStateForChildren);
 
-        return convertToIter(traversalStateForChildren.getOutbounds());
+        Stream<ImmutableGraphRelationship> outbounds = traversalStateForChildren.getOutbounds(txn, pathRequest);
+        return convertToIter(outbounds);
     }
 
     private ResourceIterable<Relationship> convertToIter(final Stream<ImmutableGraphRelationship> resourceIterable) {

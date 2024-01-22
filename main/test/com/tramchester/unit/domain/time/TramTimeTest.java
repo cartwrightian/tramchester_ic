@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static com.tramchester.domain.time.TramTime.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -254,48 +255,6 @@ class TramTimeTest {
         Assertions.assertFalse(earlyMorning.between(nextDay(3,0), nextDay(11,20)));
         Assertions.assertFalse(earlyMorning.between(of(23,0), nextDay(0,15)));
     }
-
-//    @Test
-//    void shouldHaveCorrectDifferenceIncludingTimesAcrossMidnightDEPRECATEDMETHOD() {
-//        TramTime first = of(9,30);
-//        TramTime second = of(10,45);
-//
-//        int result = TramTime.diffenceAsMinutes(first, second);
-//        assertEquals(75, result);
-//
-//        result = TramTime.diffenceAsMinutes(second, first);
-//        assertEquals(75, result);
-//
-//        ////
-//        first = nextDay(0,5);
-//        second = of(23,15);
-//
-//        result = TramTime.diffenceAsMinutes(first, second);
-//        assertEquals(50, result);
-//
-//        result = TramTime.diffenceAsMinutes(second, first);
-//        assertEquals(50, result);
-//
-//        ////
-//        first = nextDay(0,5);
-//        second = of(22,59);
-//
-//        result = TramTime.diffenceAsMinutes(first, second);
-//        assertEquals(66, result);
-//
-//        result = TramTime.diffenceAsMinutes(second, first);
-//        assertEquals(66, result);
-//
-//        ////
-//        first = of(23,59);
-//        second = nextDay(1,10);
-//
-//        result = TramTime.diffenceAsMinutes(first, second);
-//        assertEquals(71, result);
-//
-//        result = TramTime.diffenceAsMinutes(second, first);
-//        assertEquals(71, result);
-//    }
 
     @Test
     void shouldHaveCorrectDifferenceIncludingTimesAcrossMidnight() {
@@ -540,6 +499,46 @@ class TramTimeTest {
         LocalDateTime result = sameDay.toDate(beginDate);
         assertEquals(sameDay.asLocalTime(), result.toLocalTime());
         assertEquals(beginDate.plusDays(1).toLocalDate(), result.toLocalDate());
+    }
+
+    @Test
+    void shouldHaveTimesOrderedFromAnHourAll24Hours() {
+        List<Integer> hours = IntStream.range(0,24).boxed().toList();
+
+        int mid = 13;
+
+        List<Integer> result = hours.stream().sorted(RollingHourComparator(mid, integer -> integer)).toList();
+
+        for (int i = 0; i < 23; i++) {
+            int expected = (i + mid) % 24;
+            assertEquals(expected, result.get(i));
+        }
+    }
+
+    @Test
+    void shouldHaveTimesOrderedFromAnHourAllSparseStartOfDay() {
+        List<Integer> hours = Arrays.asList(22,0,1,23);
+        List<Integer> expected = Arrays.asList(1,22,23,0);
+
+        int mid = 1;
+
+        List<Integer> result = hours.stream().sorted(RollingHourComparator(mid, integer -> integer)).toList();
+
+        assertEquals(expected, result);
+
+    }
+
+    @Test
+    void shouldHaveTimesOrderedFromAnHourAllSparseEndfDay() {
+        List<Integer> hours = Arrays.asList(0,1,22,23);
+        List<Integer> expected = Arrays.asList(23,0,1,22);
+
+        int mid = 23;
+
+        List<Integer> result = hours.stream().sorted(RollingHourComparator(mid, integer -> integer)).toList();
+
+        assertEquals(expected, result);
+
     }
 
     private void checkCorrectTimePresent(TramTime tramTime, int hours, int minutes, boolean nextDay) {

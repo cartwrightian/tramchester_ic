@@ -8,7 +8,10 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
-import com.tramchester.graph.facade.*;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphNodeId;
+import com.tramchester.graph.facade.GraphRelationship;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.diagnostics.*;
 import org.jetbrains.annotations.NotNull;
@@ -106,7 +109,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     }
 
     private ReasonCode doEvaluate(final Path thePath, final ImmutableJourneyState journeyState, final GraphNode nextNode,
-                                  final EnumSet<GraphLabel> nodeLabels, GraphRelationship last) {
+                                  final EnumSet<GraphLabel> nodeLabels, final GraphRelationship last) {
 
         final GraphNodeId nextNodeId = nextNode.getId();
 
@@ -127,7 +130,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
             final long durationMillis = begin.until(providesNow.getInstant(), ChronoUnit.MILLIS);
             if (durationMillis > timeout) {
-                Map<String, Object> allProps = nextNode.getAllProperties();
+                final Map<String, Object> allProps = nextNode.getAllProperties();
                 logger.warn(format("Timed out %s ms, current cost %s, changes %s, path len %s, state: %s, labels %s, best %s",
                         durationMillis, totalCostSoFar, numberChanges, thePath.length(), howIGotHere.getTraversalStateName(),
                         nodeLabels, bestResultSoFar));

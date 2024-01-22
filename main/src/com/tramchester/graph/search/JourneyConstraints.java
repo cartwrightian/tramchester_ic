@@ -116,12 +116,12 @@ public class JourneyConstraints {
     }
 
     // time and date separate for performance reasons
-    public boolean isRunningOnDate(IdFor<Service> serviceId, TramTime visitTime) {
+    public boolean isRunningOnDate(final IdFor<Service> serviceId, final TramTime visitTime) {
         return routesAndServicesFilter.isServiceRunningByDate(serviceId, visitTime.isNextDay());
     }
 
     // time and date separate for performance reasons
-    public boolean isRunningAtTime(IdFor<Service> serviceId, TramTime time, int maxWait) {
+    public boolean isRunningAtTime(final IdFor<Service> serviceId, final TramTime time, final int maxWait) {
         return routesAndServicesFilter.isServiceRunningByTime(serviceId, time, maxWait);
     }
 }

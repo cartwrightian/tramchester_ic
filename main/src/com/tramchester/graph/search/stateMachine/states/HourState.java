@@ -48,12 +48,12 @@ public class HourState extends TraversalState {
 
         private Stream<ImmutableGraphRelationship> getMinuteRelationships(final GraphNode node, final GraphTransaction txn) {
             final Stream<ImmutableGraphRelationship> relationships = getRelationships(txn, node, OUTGOING, TO_MINUTE);
-            if (depthFirst) {
-                return relationships.sorted(TramTime.comparing(relationship -> {
-                    final GraphNode endNode = relationship.getEndNode(txn);
-                    return nodeContents.getTime(endNode);
-                }));
-            }
+//            if (depthFirst) {
+//                return relationships.sorted(TramTime.comparing(relationship -> {
+//                    final GraphNode endNode = relationship.getEndNode(txn);
+//                    return nodeContents.getTime(endNode);
+//                }));
+//            }
             return relationships;
         }
     }

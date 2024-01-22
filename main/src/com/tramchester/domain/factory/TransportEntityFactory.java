@@ -96,23 +96,6 @@ public abstract class TransportEntityFactory {
 
     public abstract IdFor<Platform> getPlatformId(StopTimeData stopTimeData, Station station);
 
-//    public static IdFor<NaptanArea> chooseArea(NaptanRepository naptanRepository, IdSet<NaptanArea> areaCodes) {
-//        if (areaCodes.isEmpty()) {
-//            return NaptanArea.invalidId();
-//        }
-//
-//        IdSet<NaptanArea> active = naptanRepository.activeCodes(areaCodes);
-//        if (active.isEmpty()) {
-//            logger.info(format("None of the area codes %s were active ", areaCodes));
-//            return NaptanArea.invalidId();
-//        }
-//        if (active.size()==1) {
-//            return active.toList().get(0);
-//        }
-//
-//        final String message = "More than one active code is present in the data set " + areaCodes;
-//        logger.error(message);
-//        throw new RuntimeException(message);
-//    }
+    public abstract void logDiagnostics();
 
 }

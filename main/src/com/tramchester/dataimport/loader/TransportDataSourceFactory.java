@@ -48,7 +48,7 @@ public class TransportDataSourceFactory implements Iterable<TransportDataSource>
     public void start() {
         logger.info("start");
 
-        List<TransportDataReader> transportDataReaders = readerFactory.getReaders();
+        final List<TransportDataReader> transportDataReaders = readerFactory.getReaders();
 
         logger.info("Loading for " + transportDataReaders.size() + " readers ");
 
@@ -62,17 +62,17 @@ public class TransportDataSourceFactory implements Iterable<TransportDataSource>
                 feedInfoData = transportDataReader.getFeedInfo();
             }
 
-            Stream<StopData> stopData = transportDataReader.getStops();
-            Stream<RouteData> routeData = transportDataReader.getRoutes();
-            Stream<TripData> tripData = transportDataReader.getTrips();
-            Stream<StopTimeData> stopTimeData = transportDataReader.getStopTimes();
-            Stream<CalendarData> calendarData = transportDataReader.getCalendar();
-            Stream<CalendarDateData> calendarsDates = transportDataReader.getCalendarDates();
-            Stream<AgencyData> agencyData = transportDataReader.getAgencies();
+            final Stream<StopData> stopData = transportDataReader.getStops();
+            final Stream<RouteData> routeData = transportDataReader.getRoutes();
+            final Stream<TripData> tripData = transportDataReader.getTrips();
+            final Stream<StopTimeData> stopTimeData = transportDataReader.getStopTimes();
+            final Stream<CalendarData> calendarData = transportDataReader.getCalendar();
+            final Stream<CalendarDateData> calendarsDates = transportDataReader.getCalendarDates();
+            final Stream<AgencyData> agencyData = transportDataReader.getAgencies();
 
-            TransportEntityFactory entityFactory = getEntityFactoryFor(sourceConfig);
+            final TransportEntityFactory entityFactory = getEntityFactoryFor(sourceConfig);
 
-            DataSourceInfo dataSourceInfo = transportDataReader.getDataSourceInfo();
+            final DataSourceInfo dataSourceInfo = transportDataReader.getDataSourceInfo();
 
             TransportDataSource transportDataSource =
                     new TransportDataSource(dataSourceInfo,
@@ -80,6 +80,7 @@ public class TransportDataSourceFactory implements Iterable<TransportDataSource>
                             stopTimeData, calendarData, feedInfoData, calendarsDates, sourceConfig, entityFactory);
 
             transportDataSources.add(transportDataSource);
+
         });
 
         logger.info("started");
@@ -93,8 +94,8 @@ public class TransportDataSourceFactory implements Iterable<TransportDataSource>
         logger.info("Stopped");
     }
 
-    private TransportEntityFactory getEntityFactoryFor(GTFSSourceConfig sourceConfig) {
-        DataSourceID sourceID = DataSourceID.valueOf(sourceConfig.getName());
+    private TransportEntityFactory getEntityFactoryFor(final GTFSSourceConfig sourceConfig) {
+        final DataSourceID sourceID = DataSourceID.valueOf(sourceConfig.getName());
         if (DataSourceID.tfgm == sourceID) {
             return new TransportEntityFactoryForTFGM(naptanRespository);
         } else {

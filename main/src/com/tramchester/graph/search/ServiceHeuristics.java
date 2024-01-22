@@ -49,15 +49,14 @@ public class ServiceHeuristics {
         this.lowestCostsForDestRoutes = journeyConstraints.getFewestChangesCalculator();
     }
     
-    public HeuristicsReason checkServiceDateAndTime(GraphNode node, HowIGotHere howIGotHere, ServiceReasons reasons,
-                                                    TramTime visitTime, int maxWait) {
+    public HeuristicsReason checkServiceDateAndTime(final GraphNode node, final HowIGotHere howIGotHere, final ServiceReasons reasons,
+                                                    final TramTime visitTime, final int maxWait) {
         reasons.incrementTotalChecked();
 
         final IdFor<Service> nodeServiceId = nodeOperations.getServiceId(node);
 
         if (!journeyConstraints.isRunningOnDate(nodeServiceId, visitTime)) {
             return reasons.recordReason(ServiceReason.DoesNotRunOnQueryDate(howIGotHere, nodeServiceId));
-
         }
 
         if (!journeyConstraints.isRunningAtTime(nodeServiceId, visitTime, maxWait)) {
@@ -112,19 +111,19 @@ public class ServiceHeuristics {
         return reasons.recordReason(ServiceReason.DoesNotOperateOnTime(currentTime, howIGotHere));
     }
 
-    public HeuristicsReason interestedInHour(HowIGotHere howIGotHere, TramTime journeyClockTime,
-                                          ServiceReasons reasons, int maxWait, EnumSet<GraphLabel> labels) {
+    public HeuristicsReason interestedInHour(final HowIGotHere howIGotHere, final TramTime journeyClockTime,
+                                          final ServiceReasons reasons, final int maxWait, final EnumSet<GraphLabel> hourLabels) {
         reasons.incrementTotalChecked();
 
         final int queryTimeHour = journeyClockTime.getHourOfDay();
 
-        //noinspection SuspiciousMethodCalls
-        if (labels.contains(GraphLabel.getHourLabel(queryTimeHour))) {
-            // quick win
+        final GraphLabel queryTimeHourLabel = (GraphLabel) GraphLabel.getHourLabel(queryTimeHour);
+        if (hourLabels.contains(queryTimeHourLabel)) {
+            // quick win, same hour
             return valid(ReasonCode.HourOk, howIGotHere, reasons);
         }
 
-        final int hourAtNode = GraphLabel.getHourFrom(labels);
+        final int hourAtNode = GraphLabel.getHourFrom(hourLabels);
 
         // TODO Need better way to handle this
         final TramTime beginWindow = hourAtNode==0 ? TramTime.nextDay(0,0) : TramTime.of(hourAtNode, 0);

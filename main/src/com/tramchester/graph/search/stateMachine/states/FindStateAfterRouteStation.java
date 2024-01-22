@@ -60,6 +60,7 @@ public class FindStateAfterRouteStation extends StationStateBuilder {
 
         // Cannot filter here as might be starting a new trip from this point, so need to 'go back' to the route station
         //Stream<Relationship> filterExcludingEndNode = filterExcludingEndNode(platformRelationships, routeStationStateOnTrip);
+
         return new PlatformState(routeStationStateOnTrip, platformRelationships, node, cost, towardsState);
     }
 

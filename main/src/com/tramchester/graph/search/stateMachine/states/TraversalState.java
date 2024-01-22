@@ -5,6 +5,7 @@ import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.JourneyStateUpdate;
+import com.tramchester.graph.search.RouteCalculatorSupport;
 import com.tramchester.graph.search.stateMachine.NodeId;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
 import org.neo4j.graphdb.Direction;
@@ -61,6 +62,10 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         this.parentCost = parent.getTotalDuration();
 
         this.requestedRelationshipTypes = parent.requestedRelationshipTypes;
+    }
+
+    public Stream<ImmutableGraphRelationship> getOutbounds(GraphTransaction txn, RouteCalculatorSupport.PathRequest pathRequest) {
+        return outbounds;
     }
 
     @Override
@@ -181,10 +186,6 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
             child.dispose();
             child = null;
         }
-    }
-
-    public Stream<ImmutableGraphRelationship> getOutbounds() {
-        return outbounds;
     }
 
     protected static <R extends GraphRelationship> Stream<R> filterExcludingEndNode(final GraphTransaction txn,

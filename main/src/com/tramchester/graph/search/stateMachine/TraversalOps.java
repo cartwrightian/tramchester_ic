@@ -84,10 +84,10 @@ public class TraversalOps {
 //    }
 //
 
-    public Stream<ImmutableGraphRelationship> orderBoardingRelationsByRouteConnections(Stream<ImmutableGraphRelationship> toServices) {
-        final Stream<RelationshipWithRoute> withRouteId = toServices.map(RelationshipWithRoute::new);
-        final Stream<RelationshipWithRoute> sorted = lowestCostsForRoutes.sortByDestinations(withRouteId);
-        return sorted.map(RelationshipWithRoute::getRelationship);
+    public Stream<ImmutableGraphRelationship> orderBoardingRelationsByRouteConnections(Stream<ImmutableGraphRelationship> relationships) {
+        return lowestCostsForRoutes.
+                sortByDestinations(relationships.map(RelationshipWithRoute::new)).
+                map(RelationshipWithRoute::getRelationship);
     }
 
     public TramTime getTimeFrom(GraphNode node) {

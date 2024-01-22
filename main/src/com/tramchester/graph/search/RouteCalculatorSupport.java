@@ -274,13 +274,13 @@ public class RouteCalculatorSupport {
         }
     }
 
-    public static Duration getMaxInitialWaitFor(Location<?> location, TramchesterConfig config) {
-        DataSourceID dataSourceID = location.getDataSourceID();
+    public static Duration getMaxInitialWaitFor(final Location<?> location, final TramchesterConfig config) {
+        final DataSourceID dataSourceID = location.getDataSourceID();
         return config.getInitialMaxWaitFor(dataSourceID);
     }
 
-    public static Duration getMaxInitialWaitFor(Set<StationWalk> stationWalks, TramchesterConfig config) {
-        Optional<Duration> longestWait = stationWalks.stream().
+    public static Duration getMaxInitialWaitFor(final Set<StationWalk> stationWalks, final TramchesterConfig config) {
+        final Optional<Duration> longestWait = stationWalks.stream().
                 map(StationWalk::getStation).
                 map(station -> getMaxInitialWaitFor(station, config)).
                 max(Duration::compareTo);
