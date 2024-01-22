@@ -96,6 +96,7 @@ public class JourneyRequest {
         return diagnostics;
     }
 
+    @SuppressWarnings("unused")
     public JourneyRequest setDiag(boolean flag) {
         diagnostics = flag;
         return this;

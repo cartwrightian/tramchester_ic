@@ -216,7 +216,7 @@ public class TramTime implements Comparable<TramTime> {
     }
 
     @Override
-    public int compareTo(@NotNull TramTime other) {
+    public int compareTo(@NotNull final TramTime other) {
         if (this.offsetDays==other.offsetDays) {
             if (this.hour==other.hour) {
                 return Integer.compare(this.minute, other.minute);

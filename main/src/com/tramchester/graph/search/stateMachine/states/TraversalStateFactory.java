@@ -42,7 +42,7 @@ public class TraversalStateFactory {
         registersStates.addBuilder(new RouteStationStateOnTrip.Builder(interchangesOnly, nodeContents));
         registersStates.addBuilder(new RouteStationStateEndTrip.Builder(interchangesOnly));
         registersStates.addBuilder(new HourState.Builder(depthFirst, nodeContents));
-        registersStates.addBuilder(new JustBoardedState.Builder(depthFirst, interchangesOnly));
+        registersStates.addBuilder(new JustBoardedState.Builder(interchangesOnly));
         registersStates.addBuilder(new NoPlatformStationState.Builder(findStateAfterRouteStation));
         registersStates.addBuilder(new PlatformStationState.Builder());
         registersStates.addBuilder(new WalkingState.Builder());

@@ -73,7 +73,7 @@ public class FindStateAfterRouteStation extends StationStateBuilder {
             other = node.getRelationships(txn, OUTGOING, WALKS_FROM_STATION, NEIGHBOUR, GROUPED_TO_PARENT);
         }
 
-        // todo need to order boarding relationships && remove service based prioritisation from JustBoarded State
+        // ordering by number of hops, but this might not yield good results i.e. routes linked but at "far end"
         final Stream<ImmutableGraphRelationship> unsorted = node.getRelationships(txn, OUTGOING, BOARD, INTERCHANGE_BOARD);
 
         // order matters here, i.e. explore walks first TODO WHY?

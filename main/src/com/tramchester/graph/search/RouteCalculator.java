@@ -12,7 +12,6 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.CreateQueryTimes;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
@@ -54,12 +53,12 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
                            TramchesterConfig config, CreateQueryTimes createQueryTimes,
                            TraversalStateFactory traversalStateFactory, GraphDatabase graphDatabaseService,
                            ProvidesNow providesNow,
-                           SortsPositions sortsPosition, MapPathToLocations mapPathToLocations,
+                           MapPathToLocations mapPathToLocations,
                            BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz,
                            ClosedStationsRepository closedStationsRepository, RunningRoutesAndServices runningRoutesAndServices,
                            CacheMetrics cacheMetrics) {
         super(pathToStages, nodeOperations, graphDatabaseService,
-                traversalStateFactory, providesNow, sortsPosition, mapPathToLocations,
+                traversalStateFactory, providesNow, mapPathToLocations,
                 transportData, config, transportData, routeToRouteCosts, reasonToGraphViz);
         this.config = config;
         this.createQueryTimes = createQueryTimes;

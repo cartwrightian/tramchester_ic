@@ -102,14 +102,21 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         logger.info("Create traversal for " + actualQueryTime);
 
         final BranchOrderingPolicies selector = depthFirst ? PREORDER_DEPTH_FIRST : PREORDER_BREADTH_FIRST;
+
+//        final BranchOrderingPolicy selector = new BranchOrderingPolicy() {
+//            @Override
+//            public BranchSelector create(TraversalBranch startBranch, PathExpander expander) {
+//                return new SpikeBranchSelector(startBranch, expander);
+//            }
+//        };
+
         TraversalDescription traversalDesc =
                 new MonoDirectionalTraversalDescription().
                         // api updated, the call to expand overrides any calls to relationships
-
-                expand(this, initialJourneyState).
-                evaluator(tramRouteEvaluator).
                 uniqueness(NONE).
-                order(selector);
+                expand(this, initialJourneyState).
+                order(selector).
+                evaluator(tramRouteEvaluator);
 
         Traverser traverse = startNode.getTraverserFor(traversalDesc);
         Spliterator<Path> spliterator = traverse.spliterator();

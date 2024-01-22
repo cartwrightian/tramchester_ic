@@ -9,7 +9,6 @@ import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.geo.SortsPositions;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
@@ -42,7 +41,6 @@ public class RouteCalculatorSupport {
     private final PathToStages pathToStages;
     private final GraphDatabase graphDatabaseService;
     protected final ProvidesNow providesNow;
-    private final SortsPositions sortsPosition;
     private final MapPathToLocations mapPathToLocations;
     private final StationRepository stationRepository;
     private final TramchesterConfig config;
@@ -51,11 +49,10 @@ public class RouteCalculatorSupport {
     protected final BetweenRoutesCostRepository routeToRouteCosts;
     private final NodeContentsRepository nodeContentsRepository;
     private final ReasonsToGraphViz reasonToGraphViz;
-//    private final RouteInterchangeRepository routeInterchanges;
 
     protected RouteCalculatorSupport(PathToStages pathToStages, NodeContentsRepository nodeContentsRepository,
                                      GraphDatabase graphDatabaseService, TraversalStateFactory traversalStateFactory,
-                                     ProvidesNow providesNow, SortsPositions sortsPosition, MapPathToLocations mapPathToLocations,
+                                     ProvidesNow providesNow, MapPathToLocations mapPathToLocations,
                                      StationRepository stationRepository, TramchesterConfig config, TripRepository tripRepository,
                                      BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz) {
         this.pathToStages = pathToStages;
@@ -63,7 +60,6 @@ public class RouteCalculatorSupport {
         this.graphDatabaseService = graphDatabaseService;
         this.traversalStateFactory = traversalStateFactory;
         this.providesNow = providesNow;
-        this.sortsPosition = sortsPosition;
         this.mapPathToLocations = mapPathToLocations;
         this.stationRepository = stationRepository;
         this.config = config;
