@@ -182,7 +182,7 @@ tasks.register('npmInstall', Exec) {
 }
 
 tasks.register('webpack', Exec) {
-    dependsOn npmInstall
+    dependsOn 'npmInstall'
     inputs.file("package.json")
     inputs.file("package-lock.json")
     inputs.file("webpack.config.js")
@@ -200,7 +200,7 @@ applicationDistribution.exclude('**/app/')
 
 // TODO this does not seem  the right way to do this
 jar {
-    dependsOn webpack
+    dependsOn 'webpack'
     from('build/resources/main') {
         duplicatesStrategy duplicatesStrategy.INCLUDE
         exclude '**.yml'
@@ -224,7 +224,7 @@ distributions {
 }
 
 // WIP removed, problem with runtime classpath for the apache tool that only happened with circleci build env
-compileJava.dependsOn railLiveDataCodeGen
+compileJava.dependsOn 'railLiveDataCodeGen'
 
 tasks.register('cfnassist') {
     doLast {
@@ -242,9 +242,6 @@ tasks.withType(JavaCompile).configureEach {
     options.compilerArgs.addAll(['-Xlint'])
 }
 
-// TODO Was this still needed?
-//tasks.register('stage') { dependsOn['clean', 'installApp'] }
-
 tasks.register('cleanGraph') {
     fileTree('databases').
             include ('**/*.db').
@@ -252,9 +249,9 @@ tasks.register('cleanGraph') {
 }
 
 
-// TODO Sort this out!
+//// TODO Sort this out!
 clean {
-    dependsOn cleanGraph
+    dependsOn 'cleanGraph'
     delete fileTree('data/tram') {
         include '*.txt'
         include '*.zip'
@@ -360,7 +357,7 @@ tasks.register('busTest', Test) {
 }
 
 tasks.register('unit', Test) {
-    dependsOn compileJava
+    dependsOn 'compileJava'
     useJUnitPlatform()
     filter {
         includeTestsMatching "com.tramchester.unit.*"
@@ -371,7 +368,7 @@ tasks.register('unit', Test) {
 }
 
 tasks.register('liveMessages', Test) {
-    dependsOn compileJava
+    dependsOn 'compileJava'
     useJUnitPlatform {
         includeTags "liveDataMessages"
         includeTags "liveData"
@@ -410,18 +407,18 @@ def integrationTestConfiguration = {
 }
 
 tasks.register('integration', Test) {
-    dependsOn compileJava
+    dependsOn 'compileJava'
     configure integrationTestConfiguration
 }
 
 tasks.register('integrationProfile', Test) {
-    dependsOn compileJava
+    dependsOn 'compileJava'
     configure integrationTestConfiguration
     jvmArgs agentPath
 }
 
 tasks.register('integrationGM', Test) {
-    dependsOn compileJava
+    dependsOn 'compileJava'
     minHeapSize = "1000m"
     maxHeapSize = "2000m"
     useJUnitPlatform {
@@ -439,7 +436,7 @@ tasks.register('integrationGM', Test) {
 }
 
 tasks.register('dualTestIntegration', Test) {
-    dependsOn compileJava
+    dependsOn 'compileJava'
     minHeapSize = "1000m"
     maxHeapSize = "1750m"
     useJUnitPlatform {
@@ -464,7 +461,7 @@ tasks.register('dataUpdated', Test) {
 }
 
 tasks.register('s3Test', Test) {
-    dependsOn compileJava
+    dependsOn 'compileJava'
     useJUnitPlatform {
         includeTags "S3Test"
     }
@@ -475,7 +472,7 @@ tasks.register('s3Test', Test) {
 }
 
 tasks.register('integrationBus', Test) {
-    dependsOn compileJava
+    dependsOn 'compileJava'
     minHeapSize = "1000m"
     maxHeapSize = "3000m"
     useJUnitPlatform {
@@ -492,7 +489,7 @@ tasks.register('integrationBus', Test) {
 }
 
 def integrationRailConfig = {
-    dependsOn compileJava
+    dependsOn 'compileJava'
     minHeapSize = "1000m"
     maxHeapSize = "8000m"
     useJUnitPlatform {
@@ -518,7 +515,7 @@ tasks.register('integrationRailProfile', Test) {
 }
 
 tasks.register('graphTests', Test) {
-    dependsOn compileJava
+    dependsOn 'compileJava'
     minHeapSize = "1000m"
     maxHeapSize = "1750m"
     useJUnitPlatform()
@@ -532,7 +529,7 @@ tasks.register('graphTests', Test) {
 }
 
 tasks.register('allStationsTest', Test) {
-    dependsOn compileJava
+    dependsOn 'compileJava'
     outputs.upToDateWhen { false }
     minHeapSize = "1000m"
     maxHeapSize = "1750m"
@@ -547,7 +544,7 @@ tasks.register('allStationsTest', Test) {
 }
 
 tasks.register('buildGraphTest', Test) {
-    dependsOn compileJava
+    dependsOn 'compileJava'
     minHeapSize = "1000m"
     maxHeapSize = "1750m"
     useJUnitPlatform()
@@ -561,8 +558,8 @@ tasks.register('buildGraphTest', Test) {
 }
 
 def acceptanceTestConfiguration = {
-    dependsOn compileJava
-    dependsOn webpack
+    dependsOn 'compileJava'
+    dependsOn 'webpack'
     systemProperty("user.language", "en")
     systemProperty("user.country", "GB")
     useJUnitPlatform()
@@ -576,7 +573,7 @@ def acceptanceTestConfiguration = {
 }
 
 tasks.register('acceptance', Test) {
-//    dependsOn allowhost
+//    dependsOn 'allowhost'
     configure acceptanceTestConfiguration
 //    finalizedBy {
 //        blockhost
@@ -606,7 +603,7 @@ tasks.register('localeTest', Test) {
 }
 
 tasks.register('diagrams') {
-    dependsOn cfnassist
+    dependsOn 'cfnassist'
     doLast {
         ant.cfnassist() {
             Diagrams(target: '.')
@@ -616,14 +613,14 @@ tasks.register('diagrams') {
 
 // gm here so include both sets of data
 tasks.register('pullData', JavaExec) {
-    dependsOn classes
+    dependsOn 'classes'
     mainClass = 'com.tramchester.deployment.cli.FetchDataCLI'
     classpath = sourceSets.main.runtimeClasspath
     args prodConfig
 }
 
 tasks.register('publishLiveData', JavaExec) {
-    dependsOn classes
+    dependsOn 'classes'
     mainClass = 'com.tramchester.deployment.cli.PublishLiveDataToSNSCLI'
     classpath = sourceSets.main.runtimeClasspath
     args 'config/local.yml', '100'
@@ -631,14 +628,14 @@ tasks.register('publishLiveData', JavaExec) {
 
 // gm here so include both sets of data
 tasks.register('queryDueTramStatus', JavaExec) {
-    dependsOn classes
+    dependsOn 'classes'
     mainClass = 'com.tramchester.deployment.cli.QueryLiveDataArchiveCLI'
     classpath = sourceSets.main.runtimeClasspath
     args '2023-01-30', '3', '15', 'config/gm.yml', 'dueTramStatus.txt'
 }
 
 tasks.register('queryLiveDataArchiveStartScript', CreateStartScripts) {
-    dependsOn compileJava
+    dependsOn 'compileJava'
     classpath = startScripts.classpath
     outputDir = startScripts.outputDir
     mainClass = 'com.tramchester.deployment.cli.QueryLiveDataArchiveCLI'
@@ -656,8 +653,8 @@ tasks.register('queryLiveDataArchiveStartScript', CreateStartScripts) {
 
 // todo re-instate UAT at some stage, database zip's for different config will be needed
 tasks.register('buildDatabase', JavaExec) {
-    dependsOn classes
-    dependsOn pullData
+    dependsOn 'classes'
+    dependsOn 'pullData'
     //dependsOn buildDatabaseUAT
     mainClass = 'com.tramchester.deployment.cli.BuildGraphCLI'
     classpath = sourceSets.main.runtimeClasspath
@@ -666,24 +663,24 @@ tasks.register('buildDatabase', JavaExec) {
 
 // gm here so include both sets of data
 tasks.register('uploadDataSources', JavaExec) {
-    dependsOn pullData
-    dependsOn classes
-    dependsOn buildDatabase
+    dependsOn 'pullData'
+    dependsOn 'classes'
+    dependsOn 'buildDatabase'
     mainClass = 'com.tramchester.deployment.cli.UploadSourceDataCLI'
     classpath = sourceSets.main.runtimeClasspath
     args prodConfig, s3prefix
 }
 
 distZip {
-    dependsOn queryLiveDataArchiveStartScript
-    dependsOn webpack
+    dependsOn 'queryLiveDataArchiveStartScript'
+    dependsOn 'webpack'
 }
 
 distTar.dependsOn('webpack')
 
 tasks.register('copyIntoUploadDir', Copy) {
-    dependsOn distZip
-    dependsOn classes
+    dependsOn 'distZip'
+    dependsOn 'classes'
     from 'build/distributions/tramchester-' + buildNumber + '.zip'
     from 'deploy/setupTramWebServerAWSLinux.sh'
     from 'deploy/cloudInitAWSLinux.txt'
@@ -691,14 +688,14 @@ tasks.register('copyIntoUploadDir', Copy) {
 }
 
 tasks.register('uploadApp', S3Upload) {
-    dependsOn copyIntoUploadDir
+    dependsOn 'copyIntoUploadDir'
     keyPrefix = s3prefix
     sourceDir = 'build/distributions/uploadDir'
 }
 
 tasks.register('upload') {
-    dependsOn uploadDataSources
-    dependsOn uploadApp
+    dependsOn 'uploadDataSources'
+    dependsOn 'uploadApp'
 }
 
 
@@ -711,7 +708,7 @@ tasks.register('uploadRailToS3', S3Upload) {
 }
 
 tasks.register('infra') {
-    dependsOn cfnassist
+    dependsOn 'cfnassist'
     doLast {
         ant.cfnassist(project: 'tramchesterB', env: environment, sns: 'true', capabilityIAM: 'true') {
             Templates(target: 'deploy/infra/' + environment)
@@ -720,7 +717,7 @@ tasks.register('infra') {
 }
 
 tasks.register('deploy') {
-    dependsOn cfnassist
+    dependsOn 'cfnassist'
     doLast {
         ant.cfnassist(project: 'tramchesterB', env: environment, buildNumber: buildNumber, sns: 'true') {
             Templates(target: 'deploy/servers.json')
@@ -729,7 +726,7 @@ tasks.register('deploy') {
 }
 
 tasks.register('undeploy') {
-    dependsOn cfnassist
+    dependsOn 'cfnassist'
     doLast {
         ant.cfnassist(project: 'tramchesterB', env: environment, buildNumber: buildNumber, sns: 'true') {
             Delete(target: 'deploy/servers.json')
@@ -738,7 +735,7 @@ tasks.register('undeploy') {
 }
 
 tasks.register('updateLB') {
-    dependsOn cfnassist
+    dependsOn 'cfnassist'
     doLast {
         ant.cfnassist(project: 'tramchesterB', env: environment, buildNumber: buildNumber, sns: 'true') {
             TargetGroupUpdate(typeTag: 'web', port: '8080',)
@@ -747,7 +744,7 @@ tasks.register('updateLB') {
 }
 
 tasks.register('tidy') {
-    dependsOn cfnassist
+    dependsOn 'cfnassist'
     doLast {
         ant.cfnassist(project: 'tramchesterB', env: environment) {
             TidyStacks(target: 'deploy/servers.json', typeTag: 'web')
@@ -756,7 +753,7 @@ tasks.register('tidy') {
 }
 
 //tasks.register('allowHostDev') {
-//    dependsOn cfnassist
+//    dependsOn 'cfnassist'
 //    doLast {
 //        ant.cfnassist(project: 'tramchesterB', env: 'Dev') {
 //            WhiteList(port: '443', tag: 'web')
@@ -765,7 +762,7 @@ tasks.register('tidy') {
 //}
 //
 //tasks.register('blockHostDev') {
-//    dependsOn cfnassist
+//    dependsOn 'cfnassist'
 //    doLast {
 //        ant.cfnassist(project: 'tramchesterB', env: 'Dev') {
 //            BlackList(port: '443', tag: 'web')
@@ -774,7 +771,7 @@ tasks.register('tidy') {
 //}
 //
 //tasks.register('allowHostUAT') {
-//    dependsOn cfnassist
+//    dependsOn 'cfnassist'
 //    doLast {
 //        ant.cfnassist(project: 'tramchesterB', env: 'UAT') {
 //            WhiteList(port: '443', tag: 'web')
@@ -783,7 +780,7 @@ tasks.register('tidy') {
 //}
 //
 //tasks.register('denyHostUAT') {
-//    dependsOn cfnassist
+//    dependsOn 'cfnassist'
 //    doLast {
 //        ant.cfnassist(project: 'tramchesterB', env: 'UAT') {
 //            BlackList(port: '443', tag: 'web')
@@ -792,7 +789,7 @@ tasks.register('tidy') {
 //}
 //
 //tasks.register('allowhost') {
-//    dependsOn cfnassist
+//    dependsOn 'cfnassist'
 //    doLast {
 //        ant.cfnassist(project: 'tramchesterB', env: environment) {
 //            WhiteList(port: '443', tag: 'web')
@@ -801,7 +798,7 @@ tasks.register('tidy') {
 //}
 //
 //tasks.register('blockhost') {
-//    dependsOn cfnassist
+//    dependsOn 'cfnassist'
 //    doLast {
 //        ant.cfnassist(project: 'tramchesterB', env: environment) {
 //            BlackList(port: '443', tag: 'web')

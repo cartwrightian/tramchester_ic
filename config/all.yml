@@ -82,6 +82,7 @@ neighbourConfig:
 maxWait: 35
 numberQueries: 3
 queryInterval: 20
+depthFirst: true
 maxWalkingConnections: 3
 maxNumberResults: 5
 maxJourneyDuration: 800

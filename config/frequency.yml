@@ -78,6 +78,7 @@ bounds:
 instanceDataUrl: http://169.254.169.254
 planningEnabled: false
 maxWait: 35
+depthFirst: true
 numberQueries: 3
 queryInterval: 20
 maxNumberResults: 5

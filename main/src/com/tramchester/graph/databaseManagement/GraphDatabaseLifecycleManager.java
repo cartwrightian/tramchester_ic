@@ -56,6 +56,7 @@ public class GraphDatabaseLifecycleManager {
             serviceFactory.shutdownDatabase();
             waitForShutdown(databaseService);
             try {
+                logger.warn("Out of date, Deleting " + graphFile.toAbsolutePath());
                 FileUtils.deleteDirectory(graphFile.toFile());
             } catch (IOException e) {
                 String message = "Cannot delete out of date graph DB";

@@ -48,11 +48,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TestEnv {
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(TestEnv.class);
+
     public static final Path CACHE_DIR = Path.of("testData","cache");
     public static final String TEST_SNS_TOPIC_PREFIX = "TRAMCHESTER_TEST_TOPIC_";
     private static final String TEST_SQS_QUEUE = "TRAMCHESTER_TEST_QUEUE_";
-
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(TestEnv.class);
 
     public static final String SERVER_URL_ENV_VAR = "SERVER_URL";
     public static final String DISABLE_HEADLESS_ENV_VAR = "DISABLE_HEADLESS";
@@ -237,9 +237,10 @@ public class TestEnv {
                 DayOfWeek.FRIDAY, DayOfWeek.SATURDAY, DayOfWeek.SUNDAY);
     }
 
-    public static void deleteDBIfPresent(TramchesterConfig config) throws IOException {
-        Path dbPath = config.getGraphDBConfig().getDbPath();
+    public static void deleteDBIfPresent(final TramchesterConfig config) throws IOException {
+        final Path dbPath = config.getGraphDBConfig().getDbPath();
         if (Files.exists(dbPath)) {
+            logger.warn("deleting database file: " + dbPath.toAbsolutePath());
             FileUtils.deleteDirectory(dbPath.toFile());
         }
     }
@@ -259,6 +260,7 @@ public class TestEnv {
 
     public static void clearDataCache(ComponentContainer componentContainer) {
         FileDataCache cache = componentContainer.get(FileDataCache.class);
+        logger.warn("Clearing cache");
         cache.clearFiles();
     }
 

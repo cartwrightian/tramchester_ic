@@ -22,6 +22,8 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class RouteStationStateOnTrip extends RouteStationState implements NodeId {
 
+    // left a trip part way through
+
     private final IdFor<Trip> tripId;
     private final TransportMode transportMode;
     private final GraphNode routeStationNode;

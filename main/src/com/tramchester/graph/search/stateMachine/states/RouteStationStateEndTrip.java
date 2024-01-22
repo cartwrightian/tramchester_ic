@@ -17,6 +17,8 @@ import java.util.stream.Stream;
 
 public class RouteStationStateEndTrip extends RouteStationState {
 
+    // left a trip at the very end
+
     @Override
     public String toString() {
         return "RouteStationStateEndTrip{" +

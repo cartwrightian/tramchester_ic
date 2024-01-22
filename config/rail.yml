@@ -64,6 +64,7 @@ planningEnabled: true
 maxWait: 30
 numberQueries: 3
 queryInterval: 20
+depthFirst: true
 maxNumberResults: 5
 maxWalkingConnections: 3
 maxJourneyDuration: 820

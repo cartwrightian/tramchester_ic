@@ -78,6 +78,7 @@ instanceDataUrl: http://169.254.169.254
 planningEnabled: true
 maxWait: 25
 maxNumberResults: 5
+depthFirst: true
 maxJourneyDuration:  125
 numberQueries: 3
 queryInterval: 10

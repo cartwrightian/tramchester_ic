@@ -78,6 +78,7 @@ maxWait: 25
 numberQueries: 3
 queryInterval: 10
 maxNumberResults: 5
+depthFirst: true
 maxWalkingConnections: 3
 maxJourneyDuration: 125
 nearestStopRangeKM: 1.6
