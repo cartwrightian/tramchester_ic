@@ -133,16 +133,14 @@ class RouteCalculatorSubGraphMediaCityTest {
     @Test
     void shouldHaveJourneyFromEveryStationToEveryOtherNDaysAhead() {
 
-
-
-        List<Pair<TramDate, List<StationIdPair>>> failed = TestEnv.getUpcomingDates().
+        List<Pair<TramDate, Set<StationIdPair>>> failed = TestEnv.getUpcomingDates().
                 filter(date -> !date.isChristmasPeriod()).
                 filter(date -> !date.equals(badDate)).
                 map(date -> new JourneyRequest(date, TramTime.of(9, 0), false,
                         3, maxJourneyDuration, 1, getRequestedModes())).
                 map(journeyRequest -> Pair.of(journeyRequest.getDate(), getFailedPairedFor(journeyRequest))).
                 filter(pair -> !pair.getRight().isEmpty()).
-                collect(Collectors.toList());
+                toList();
 
         assertTrue(failed.isEmpty(), failed.toString());
     }
@@ -229,11 +227,11 @@ class RouteCalculatorSubGraphMediaCityTest {
                 Duration.ofMinutes(config.getMaxJourneyDuration()), 1, getRequestedModes());
 
         // pairs of stations to check
-        List<StationIdPair> results = getFailedPairedFor(journeyRequest);
+        Set<StationIdPair> results = getFailedPairedFor(journeyRequest);
         assertTrue(results.isEmpty(), results + " failed for " + journeyRequest);
     }
 
-    private List<StationIdPair> getFailedPairedFor(JourneyRequest journeyRequest) {
+    private Set<StationIdPair> getFailedPairedFor(JourneyRequest journeyRequest) {
         TramDate date = journeyRequest.getDate();
         Set<Station> stations = tramStations.stream().
                 map(tramStations -> tramStations.from(stationRepository)).
@@ -249,7 +247,7 @@ class RouteCalculatorSubGraphMediaCityTest {
 
         RouteCalculationCombinations.CombinationResults results = combinations.getJourneysFor(stationIdPairs, journeyRequest);
 
-        return results.getFailedPairs();
+        return results.getMissing();
 
     }
 

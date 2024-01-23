@@ -144,9 +144,10 @@ class RouteCalculatorKeyRoutesTest {
 
         validateFor(results);
 
-        List<Journey> allResults = results.getValidJourneys(); // new ArrayList<>();
+        final Optional<Duration> max = results.getValidJourneys().stream().
+                map(RouteCalculatorTest::costOfJourney).
+                max(Duration::compareTo);
 
-        final Optional<Duration> max = allResults.stream().map(RouteCalculatorTest::costOfJourney).max(Duration::compareTo);
         assertTrue(max.isPresent());
         Duration longest = max.get();
 

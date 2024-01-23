@@ -18,12 +18,13 @@ import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.RouteEndRepository;
 import com.tramchester.repository.StationRepository;
-import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDate;
-import java.util.*;
-import java.util.function.Consumer;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -54,8 +55,8 @@ public class RouteCalculationCombinations {
                 .limit(1).findAny();
     }
 
-    public CombinationResults validateAllHaveAtLeastOneJourney(Set<StationIdPair> stationIdPairs,
-                                                                             JourneyRequest journeyRequest, boolean check) {
+    public CombinationResults validateAllHaveAtLeastOneJourney(final Set<StationIdPair> stationIdPairs,
+                                                                             final JourneyRequest journeyRequest, final boolean check) {
 
         if (stationIdPairs.isEmpty()) {
             fail("no station pairs");
@@ -91,17 +92,16 @@ public class RouteCalculationCombinations {
     private CombinationResults computeJourneys(final Set<StationIdPair> combinations, final JourneyRequest request) {
         final TramDate queryDate = request.getDate();
         final TramTime queryTime = request.getOriginalTime();
-        Stream<Pair<StationIdPair, JourneyOrNot>> resultsStream = combinations.
+
+        Stream<JourneyOrNot> resultsStream = combinations.
                 parallelStream().
                 filter(stationIdPair -> bothOpen(stationIdPair, request)).
-                map(pair -> {
-                    try (MutableGraphTransaction txn = database.beginTxMutable()) {
-                        Optional<Journey> optionalJourney = findJourneys(txn, pair.getBeginId(), pair.getEndId(), request);
-                        JourneyOrNot journeyOrNot = new JourneyOrNot(pair, queryDate, queryTime, optionalJourney);
-                        return Pair.of(pair, journeyOrNot);
+                map(stationIdPair -> {
+                    try (final MutableGraphTransaction txn = database.beginTxMutable()) {
+                        final Optional<Journey> optionalJourney = findJourneys(txn, stationIdPair.getBeginId(), stationIdPair.getEndId(), request);
+                        return new JourneyOrNot(stationIdPair, queryDate, queryTime, optionalJourney);
                     }
                 });
-//                collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
         return new CombinationResults(resultsStream);
     }
 
@@ -169,45 +169,6 @@ public class RouteCalculationCombinations {
         return interchangeRepository.isInterchange(start) && interchangeRepository.isInterchange(dest);
     }
 
-    public static class CombinationResults {
-        // TODO Cannot be this map, will overwrite when more than one journey is found for the pair
-        private final Map<StationIdPair, JourneyOrNot> theResults;
-
-        public CombinationResults(Stream<Pair<StationIdPair, JourneyOrNot>> resultsStream) {
-            theResults = resultsStream.collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
-        }
-
-        public int size() {
-            return theResults.size();
-        }
-
-        public List<JourneyOrNot> getFailed() {
-            return theResults.values().stream().
-                    filter(RouteCalculationCombinations.JourneyOrNot::missing).
-                    toList();
-        }
-
-        public Set<StationIdPair> getMissing() {
-            return theResults.entrySet().stream().
-                    filter(entry -> entry.getValue().missing()).
-                    map(Map.Entry::getKey).collect(Collectors.toSet());
-        }
-
-        public List<Journey> getValidJourneys() {
-            return theResults.values().stream().
-                    filter(journeyOrNot -> !journeyOrNot.missing()).
-                    map(JourneyOrNot::getJourney).
-                    collect(Collectors.toList());
-        }
-
-        public List<StationIdPair> getFailedPairs() {
-            return theResults.entrySet().stream().
-                    filter(entry -> entry.getValue().missing()).
-                    map(Map.Entry::getKey).
-                    collect(Collectors.toList());
-        }
-    }
-
     public static class JourneyOrNot {
         private final StationIdPair requested;
         private final LocalDate queryDate;
@@ -230,12 +191,6 @@ public class RouteCalculationCombinations {
             return journey==null;
         }
 
-        public void ifPresent(Consumer<Journey> action) {
-            if (this.journey != null) {
-                action.accept(this.journey);
-            }
-        }
-
         @Override
         public String toString() {
             return "JourneyOrNot{" +
@@ -252,5 +207,46 @@ public class RouteCalculationCombinations {
             }
             return journey;
         }
+
+        public StationIdPair getPair() {
+            return requested;
+        }
+    }
+
+    public static class CombinationResults {
+        private final List<JourneyOrNot> theResults;
+
+//        public CombinationResults(Stream<Pair<StationIdPair, JourneyOrNot>> resultsStream) {
+//            theResults = resultsStream.map(Pair::getRight).collect(Collectors.toList());
+//        }
+
+        public CombinationResults(Stream<JourneyOrNot> resultsStream) {
+            theResults = resultsStream.collect(Collectors.toList());
+        }
+
+        public int size() {
+            return theResults.size();
+        }
+
+        public List<JourneyOrNot> getFailed() {
+            return theResults.stream().
+                    filter(RouteCalculationCombinations.JourneyOrNot::missing).
+                    toList();
+        }
+
+        public Set<StationIdPair> getMissing() {
+            return theResults.stream().
+                    filter(JourneyOrNot::missing).
+                    map(JourneyOrNot::getPair).
+                    collect(Collectors.toSet());
+        }
+
+        public List<Journey> getValidJourneys() {
+            return theResults.stream().
+                    filter(journeyOrNot -> !journeyOrNot.missing()).
+                    map(JourneyOrNot::getJourney).
+                    collect(Collectors.toList());
+        }
+
     }
 }
