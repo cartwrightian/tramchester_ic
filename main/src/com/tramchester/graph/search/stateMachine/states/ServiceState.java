@@ -2,13 +2,9 @@ package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
-import com.tramchester.graph.graphbuild.GraphLabel;
-import com.tramchester.graph.search.RouteCalculatorSupport;
 import com.tramchester.graph.search.stateMachine.ExistingTrip;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
@@ -22,14 +18,6 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 public class ServiceState extends TraversalState {
 
     public static class Builder implements Towards<ServiceState> {
-
-        private final boolean depthFirst;
-        private final NodeContentsRepository nodeContents;
-
-        public Builder(boolean depthFirst, NodeContentsRepository nodeContents) {
-            this.depthFirst = depthFirst;
-            this.nodeContents = nodeContents;
-        }
 
         @Override
         public void register(RegistersFromState registers) {
@@ -82,23 +70,6 @@ public class ServiceState extends TraversalState {
     @Override
     protected HourState toHour(final HourState.Builder towardsHour, final GraphNode node, final Duration cost) {
         return towardsHour.fromService(this, node, cost, maybeExistingTrip, txn);
-    }
-
-    @Override
-    public Stream<ImmutableGraphRelationship> getOutbounds(GraphTransaction txn, final RouteCalculatorSupport.PathRequest pathRequest) {
-        final TramTime queryTime = pathRequest.getActualQueryTime();
-        final int queryHour = queryTime.getHourOfDay();
-
-        return super.getOutbounds(txn, pathRequest).sorted(TramTime.RollingHourComparator(queryHour,
-                relationship -> {
-                    final GraphNode endNode = relationship.getEndNode(txn);
-                    return hourFor(endNode);
-                }));
-
-    }
-
-    private int hourFor(GraphNode endNode) {
-        return GraphLabel.getHourFrom(endNode.getLabels());
     }
 
     @Override

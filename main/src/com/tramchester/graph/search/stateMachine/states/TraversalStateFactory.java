@@ -32,7 +32,6 @@ public class TraversalStateFactory {
     @PostConstruct
     public void start() {
         logger.info("starting");
-        final boolean depthFirst = config.getDepthFirst();
         final boolean interchangesOnly = config.getChangeAtInterchangeOnly();
 
         final FindStateAfterRouteStation findStateAfterRouteStation = new FindStateAfterRouteStation();
@@ -41,12 +40,12 @@ public class TraversalStateFactory {
 
         registersStates.addBuilder(new RouteStationStateOnTrip.Builder(interchangesOnly, nodeContents));
         registersStates.addBuilder(new RouteStationStateEndTrip.Builder(interchangesOnly));
-        registersStates.addBuilder(new HourState.Builder(depthFirst, nodeContents));
+        registersStates.addBuilder(new HourState.Builder());
         registersStates.addBuilder(new JustBoardedState.Builder(interchangesOnly));
         registersStates.addBuilder(new NoPlatformStationState.Builder(findStateAfterRouteStation));
         registersStates.addBuilder(new PlatformStationState.Builder());
         registersStates.addBuilder(new WalkingState.Builder());
-        registersStates.addBuilder(new ServiceState.Builder(depthFirst, nodeContents));
+        registersStates.addBuilder(new ServiceState.Builder());
         registersStates.addBuilder(new PlatformState.Builder(findStateAfterRouteStation));
         registersStates.addBuilder(new MinuteState.Builder(interchangesOnly, nodeContents));
         registersStates.addBuilder(new DestinationState.Builder());

@@ -3,7 +3,6 @@ package com.tramchester.graph.search.stateMachine.states;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.TransportRelationshipTypes;
-import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
@@ -20,17 +19,7 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class HourState extends TraversalState {
 
-
-
     public static class Builder implements Towards<HourState> {
-
-        private final boolean depthFirst;
-        private final NodeContentsRepository nodeContents;
-
-        public Builder(boolean depthFirst, NodeContentsRepository nodeContents) {
-            this.depthFirst = depthFirst;
-            this.nodeContents = nodeContents;
-        }
 
         public HourState fromService(final ServiceState serviceState, final GraphNode node, final Duration cost,
                                      final ExistingTrip maybeExistingTrip, final GraphTransaction txn) {
@@ -49,14 +38,7 @@ public class HourState extends TraversalState {
         }
 
         private Stream<ImmutableGraphRelationship> getMinuteRelationships(final GraphNode node, final GraphTransaction txn) {
-            final Stream<ImmutableGraphRelationship> relationships = getRelationships(txn, node, OUTGOING, TO_MINUTE);
-//            if (depthFirst) {
-//                return relationships.sorted(TramTime.comparing(relationship -> {
-//                    final GraphNode endNode = relationship.getEndNode(txn);
-//                    return nodeContents.getTime(endNode);
-//                }));
-//            }
-            return relationships;
+            return getRelationships(txn, node, OUTGOING, TO_MINUTE);
         }
     }
 
