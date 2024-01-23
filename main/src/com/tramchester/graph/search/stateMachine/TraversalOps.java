@@ -14,7 +14,6 @@ import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.facade.GraphTransaction;
-import com.tramchester.graph.search.LowestCostsForDestRoutes;
 import com.tramchester.repository.TripRepository;
 import org.neo4j.graphdb.Direction;
 
@@ -29,16 +28,12 @@ public class TraversalOps {
     private final TripRepository tripRepository;
     private final IdSet<Station> destinationStationIds;
     private final IdSet<Route> destinationRoutes;
-//    private final LatLong destinationLatLon;
-//    private final SortsPositions sortsPositions;
-//    private final LowestCostsForDestRoutes lowestCostsForRoutes;
     private final TramDate queryDate;
     private final GraphTransaction txn;
 
     // TODO Split into fixed and journey specific, inject fixed direct into builders
     public TraversalOps(GraphTransaction txn, NodeContentsRepository nodeOperations, TripRepository tripRepository,
-                        LocationSet destinations, LowestCostsForDestRoutes lowestCostsForRoutes,
-                        TramDate queryDate) {
+                        LocationSet destinations, TramDate queryDate) {
         this.txn = txn;
         this.tripRepository = tripRepository;
         this.nodeOperations = nodeOperations;
@@ -46,9 +41,6 @@ public class TraversalOps {
         this.destinationRoutes = destinations.stream().
                 flatMap(station -> station.getDropoffRoutes().stream()).
                 collect(IdSet.collector());
-//        this.destinationLatLon = destinationLatLon;
-//        this.lowestCostsForRoutes = lowestCostsForRoutes;
-//        this.sortsPositions = sortsPositions;
         this.queryDate = queryDate;
     }
 
@@ -72,21 +64,6 @@ public class TraversalOps {
         }
         return 1;
     }
-
-//    public Stream<GraphRelationship> orderRelationshipsByDistance(Stream<ImmutableGraphRelationship> relationships) {
-//
-//        Set<SortsPositions.HasStationId<GraphRelationship>> facades = relationships.
-//                map(RelationshipFacade::new).
-//                collect(Collectors.toSet());
-//        return sortsPositions.sortedByNearTo(destinationLatLon, facades);
-//    }
-//
-
-//    public Stream<ImmutableGraphRelationship> orderBoardingRelationsByRouteConnections(Stream<ImmutableGraphRelationship> relationships) {
-//        return lowestCostsForRoutes.
-//                sortByDestinations(relationships.map(RelationshipWithRoute::new)).
-//                map(RelationshipWithRoute::getRelationship);
-//    }
 
     public TramTime getTimeFrom(GraphNode node) {
         return nodeOperations.getTime(node);
@@ -114,42 +91,5 @@ public class TraversalOps {
     public GraphTransaction getTransaction() {
         return txn;
     }
-
-//    private static class RelationshipFacade implements SortsPositions.HasStationId<GraphRelationship> {
-//        private final GraphRelationship relationship;
-//        private final GraphRelationshipId id;
-//        private final IdFor<Station> stationId;
-//
-//        private RelationshipFacade(final GraphRelationship relationship) {
-//            this.id = relationship.getId();
-//            this.relationship = relationship;
-//
-//            // TODO this needs to go via the cache layer?
-//            this.stationId = relationship.getEndStationId(); //getEndNode(txn).getStationId(); // GraphProps.getTowardsStationIdFrom(relationship.getEndNode());
-//        }
-//
-//        @Override
-//        public boolean equals(Object o) {
-//            if (this == o) return true;
-//            if (o == null || getClass() != o.getClass()) return false;
-//            RelationshipFacade that = (RelationshipFacade) o;
-//            return Objects.equals(id, that.id);
-//        }
-//
-//        @Override
-//        public int hashCode() {
-//            return Objects.hash(id);
-//        }
-//
-//        @Override
-//        public IdFor<Station> getStationId() {
-//            return stationId;
-//        }
-//
-//        @Override
-//        public GraphRelationship getContained() {
-//            return relationship;
-//        }
-//    }
 
 }

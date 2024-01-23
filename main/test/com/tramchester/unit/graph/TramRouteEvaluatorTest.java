@@ -26,7 +26,6 @@ import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.JourneyState;
-import com.tramchester.graph.search.LowestCostsForDestRoutes;
 import com.tramchester.graph.search.ServiceHeuristics;
 import com.tramchester.graph.search.TramRouteEvaluator;
 import com.tramchester.graph.search.diagnostics.HowIGotHere;
@@ -78,7 +77,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     private GraphNodeId startNodeId;
     private LowestCostSeen lowestCostSeen;
     private ProvidesNow providesNow;
-    private LowestCostsForDestRoutes lowestCostsForRoutes;
+//    private LowestCostsForDestRoutes lowestCostsForRoutes;
     private Duration maxInitialWait;
     private MutableGraphTransaction txn;
     private GraphNode startNode;
@@ -132,7 +131,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         path = createMock(Path.class);
         node = createMock(ImmutableGraphNode.class);
         lastRelationship = createMock(ImmutableGraphRelationship.class);
-        lowestCostsForRoutes = createMock(LowestCostsForDestRoutes.class);
+//        lowestCostsForRoutes = createMock(LowestCostsForDestRoutes.class);
 
         howIGotHere = HowIGotHere.forTest(GraphNodeId.TestOnly(42L), GraphRelationshipId.TestOnly(24L));
 
@@ -153,7 +152,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         TraversalStateFactory traversalStateFactory = new TraversalStateFactory(registersStates, contentsRepository, config);
 
         final TraversalOps traversalOps = new TraversalOps(txn, contentsRepository, tripRepository, destinationStations,
-                lowestCostsForRoutes, TestEnv.testDay());
+                TestEnv.testDay());
         return new NotStartedState(traversalOps, traversalStateFactory, TramsOnly, startNode);
     }
 

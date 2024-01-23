@@ -111,9 +111,9 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                                 map(numChanges -> createPathRequest(nodeAndStation.node, date, originalTime, requestedModes, numChanges,
                                         journeyConstraints, getMaxInitialWaitFor(nodeAndStation.location, config)))).
                         flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations,
-                                createServiceReasons(journeyRequest, originalTime), pathRequest, journeyConstraints.getFewestChangesCalculator(),
+                                createServiceReasons(journeyRequest, originalTime), pathRequest,
                                 createPreviousVisits(), lowestCostSeenForBox)).
-                        map(timedPath -> createJourney(journeyRequest, timedPath, destinations, lowestCostForDestinations, journeyIndex, txn));
+                        map(timedPath -> createJourney(journeyRequest, timedPath, destinations, journeyIndex, txn));
 
                 Set<Journey> collect = journeys.
                         filter(journey -> !journey.getStages().isEmpty()).

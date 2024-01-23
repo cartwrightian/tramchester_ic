@@ -189,9 +189,9 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
                 flatMap(numChanges -> queryTimes.stream().
                         map(queryTime -> createPathRequest(startNode, tramDate, queryTime, requestedModes, numChanges, journeyConstraints, maxInitialWait))).
                 flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations,
-                        createServiceReasons(journeyRequest, pathRequest), pathRequest, lowestCostsForRoutes, createPreviousVisits(),
+                        createServiceReasons(journeyRequest, pathRequest), pathRequest, createPreviousVisits(),
                         lowestCostSeen)).
-                map(path -> createJourney(journeyRequest, path, destinations, lowestCostsForRoutes, journeyIndex, txn));
+                map(path -> createJourney(journeyRequest, path, destinations, journeyIndex, txn));
 
         //noinspection ResultOfMethodCallIgnored
         results.onClose(() -> {

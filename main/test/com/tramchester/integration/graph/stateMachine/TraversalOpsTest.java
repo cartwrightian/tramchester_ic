@@ -7,13 +7,9 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.time.TimeRange;
-import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.facade.MutableGraphTransaction;
-import com.tramchester.graph.search.LowestCostsForDestRoutes;
-import com.tramchester.graph.search.routes.RouteToRouteCosts;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
@@ -22,7 +18,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
 
-import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.ManAirport;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -33,7 +28,6 @@ public class TraversalOpsTest {
     private TripRepository tripRepository;
     private StationRepository stationRepository;
     private MutableGraphTransaction txn;
-    private RouteToRouteCosts routeToRouteCosts;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -52,7 +46,6 @@ public class TraversalOpsTest {
         nodeOperations = componentContainer.get(NodeContentsRepository.class);
         tripRepository = componentContainer.get(TripRepository.class);
         stationRepository = componentContainer.get(StationRepository.class);
-        routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
         txn = database.beginTxMutable();
     }
@@ -69,15 +62,9 @@ public class TraversalOpsTest {
         LocationSet destinationStations = new LocationSet();
         final Station manchesterAirport = stationRepository.getStationById(ManAirport.getId());
         destinationStations.add(manchesterAirport);
-//        LatLong destinationLatLon = nearPiccGardens.latLong();
-
-        TimeRange timeRange = TimeRange.of(TramTime.of(8, 15), TramTime.of(22, 35));
-
-        LowestCostsForDestRoutes lowestCostForRoutes = routeToRouteCosts.getLowestCostCalcutatorFor(destinationStations,
-                date, timeRange, TramsOnly);
 
         TraversalOps traversalOpsForDest = new TraversalOps(txn, nodeOperations, tripRepository,
-                destinationStations, lowestCostForRoutes, date);
+                destinationStations, date);
 
         Station altrincham = stationRepository.getStationById(TramStations.Altrincham.getId());
 

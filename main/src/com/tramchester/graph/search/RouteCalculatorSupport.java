@@ -127,7 +127,6 @@ public class RouteCalculatorSupport {
     public Stream<RouteCalculator.TimedPath> findShortestPath(GraphTransaction txn, Set<GraphNodeId> destinationNodeIds,
                                                               final LocationSet endStations,
                                                               ServiceReasons reasons, PathRequest pathRequest,
-                                                              LowestCostsForDestRoutes lowestCostsForRoutes,
                                                               PreviousVisits previousSuccessfulVisit,
                                                               LowestCostSeen lowestCostSeen) {
 
@@ -139,16 +138,16 @@ public class RouteCalculatorSupport {
         logger.info("Traverse for " + pathRequest);
 
         return tramNetworkTraverser.
-                findPaths(txn, pathRequest.startNode, previousSuccessfulVisit, lowestCostSeen, lowestCostsForRoutes).
+                findPaths(txn, pathRequest.startNode, previousSuccessfulVisit, lowestCostSeen).
                 map(path -> new RouteCalculator.TimedPath(path, pathRequest.queryTime, pathRequest.numChanges));
     }
 
     @NotNull
     protected Journey createJourney(JourneyRequest journeyRequest, RouteCalculator.TimedPath path,
-                                    LocationSet destinations, LowestCostsForDestRoutes lowestCostForRoutes, AtomicInteger journeyIndex,
+                                    LocationSet destinations, AtomicInteger journeyIndex,
                                     GraphTransaction txn) {
 
-        final List<TransportStage<?, ?>> stages = pathToStages.mapDirect(path, journeyRequest, lowestCostForRoutes, destinations, txn);
+        final List<TransportStage<?, ?>> stages = pathToStages.mapDirect(path, journeyRequest, destinations, txn);
         final List<Location<?>> locationList = mapPathToLocations.mapToLocations(path.path(), txn);
 
         if (stages.isEmpty()) {

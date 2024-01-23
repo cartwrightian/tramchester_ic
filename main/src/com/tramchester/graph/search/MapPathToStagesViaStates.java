@@ -66,17 +66,14 @@ public class MapPathToStagesViaStates implements PathToStages {
 
     @Override
     public List<TransportStage<?, ?>> mapDirect(RouteCalculator.TimedPath timedPath, JourneyRequest journeyRequest,
-                                                LowestCostsForDestRoutes lowestCostForRoutes, LocationSet endStations,
+                                                LocationSet endStations,
                                                 GraphTransaction txn) {
         final Path path = timedPath.path();
         final TramTime queryTime = timedPath.queryTime();
         logger.info(format("Mapping path length %s to transport stages for %s at %s with %s changes",
                 path.length(), journeyRequest, queryTime, timedPath.numChanges()));
 
-//        final LatLong destinationLatLon = sortsPosition.midPointFrom(endStations);
-
-        final TraversalOps traversalOps = new TraversalOps(txn, nodeContentsRepository, tripRepository, endStations,
-                lowestCostForRoutes, journeyRequest.getDate());
+        final TraversalOps traversalOps = new TraversalOps(txn, nodeContentsRepository, tripRepository, endStations, journeyRequest.getDate());
 
         final MapStatesToStages mapStatesToStages = new MapStatesToStages(stationRepository, platformRepository, tripRepository, queryTime);
 
