@@ -76,9 +76,11 @@ public class FindStateAfterRouteStation extends StationStateBuilder {
         // ordering by number of hops, but this might not yield good results i.e. routes linked but at "far end"
         final Stream<ImmutableGraphRelationship> unsorted = node.getRelationships(txn, OUTGOING, BOARD, INTERCHANGE_BOARD);
 
+        // Note: Sorting is slow and gain is not worth it
+        // final Stream<ImmutableGraphRelationship> boarding = traversalOps.orderBoardingRelationsByRouteConnections(unsorted);
+
         // order matters here, i.e. explore walks first TODO WHY?
-        final Stream<ImmutableGraphRelationship> boarding = traversalOps.orderBoardingRelationsByRouteConnections(unsorted);
-        return Stream.concat(other, boarding);
+        return Stream.concat(other, unsorted);
     }
 
     private OptionalResourceIterator<ImmutableGraphRelationship> getTowardsDestination(final TraversalOps traversalOps,

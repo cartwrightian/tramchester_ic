@@ -3,10 +3,7 @@ package com.tramchester.graph.search.routes;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.InterchangeStation;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -25,11 +22,10 @@ public interface QueryPathsWithDepth {
     }
 
     class AnyOf implements QueryPath {
-        private final Set<QueryPath> paths;
+        private final List<QueryPath> paths;
 
         AnyOf(final Set<? extends QueryPath> paths) {
-            this.paths = new HashSet<>();
-            this.paths.addAll(paths);
+            this.paths = new ArrayList<>(paths);
         }
 
         @Override
@@ -56,7 +52,7 @@ public interface QueryPathsWithDepth {
                     '}';
         }
 
-        private String toString(final Set<QueryPath> paths) {
+        private String toString(final List<QueryPath> paths) {
             final StringBuilder output = new StringBuilder();
             paths.forEach(interchangePath -> {
                 output.append(System.lineSeparator());
@@ -78,7 +74,7 @@ public interface QueryPathsWithDepth {
 
         @Override
         public int getDepth() {
-            Optional<Integer> anyMatch = paths.stream().map(QueryPath::getDepth).max(Integer::compareTo);
+            final Optional<Integer> anyMatch = paths.stream().map(QueryPath::getDepth).max(Integer::compareTo);
             return anyMatch.orElse(Integer.MAX_VALUE);
         }
 

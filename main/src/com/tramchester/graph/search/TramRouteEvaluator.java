@@ -26,11 +26,9 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.EnumSet;
-import java.util.Map;
 import java.util.Set;
 
 import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO_STATION;
-import static java.lang.String.format;
 
 public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private static final Logger logger = LoggerFactory.getLogger(TramRouteEvaluator.class);
@@ -51,6 +49,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private final long timeout;
     private final Set<GraphLabel> requestedLabels;
     private final GraphTransaction txn;
+    private final boolean depthFirst;
 
     public TramRouteEvaluator(ServiceHeuristics serviceHeuristics, Set<GraphNodeId> destinationNodeIds,
                               NodeContentsRepository nodeContentsRepository, ServiceReasons reasons,
@@ -63,14 +62,17 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         this.reasons = reasons;
         this.previousVisits = previousVisits;
         this.bestResultSoFar = bestResultSoFar;
-        maxWaitMins = config.getMaxWait();
-        timeout = config.getCalcTimeoutMillis();
+
         this.startNodeId = startNodeId;
         this.begin = begin;
         this.providesNow = providesNow;
         this.requestedLabels = GraphLabel.forMode(requestedModes);
         this.maxInitialWaitMins = Math.toIntExact(maxInitialWait.toMinutes());
         this.txn = txn;
+
+        maxWaitMins = config.getMaxWait();
+        timeout = config.getCalcTimeoutMillis();
+        depthFirst = config.getDepthFirst();
     }
 
     @Override
@@ -129,11 +131,11 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
             final long durationMillis = begin.until(providesNow.getInstant(), ChronoUnit.MILLIS);
             if (durationMillis > timeout) {
-                final Map<String, Object> allProps = nextNode.getAllProperties();
-                logger.warn(format("Timed out %s ms, current cost %s, changes %s, path len %s, state: %s, labels %s, best %s",
-                        durationMillis, totalCostSoFar, numberChanges, thePath.length(), howIGotHere.getTraversalStateName(),
-                        nodeLabels, bestResultSoFar));
-                logger.warn(format("Timed out: Props for node %s were %s", nextNodeId, allProps));
+//                final Map<String, Object> allProps = nextNode.getAllProperties();
+//                logger.warn(format("Timed out %s ms, current cost %s, changes %s, path len %s, state: %s, labels %s, best %s",
+//                        durationMillis, totalCostSoFar, numberChanges, thePath.length(), howIGotHere.getTraversalStateName(),
+//                        nodeLabels, bestResultSoFar));
+//                logger.warn(format("Timed out: Props for node %s were %s", nextNodeId, allProps));
                 reasons.recordReason(ServiceReason.TimedOut(howIGotHere));
                 return ReasonCode.TimedOut;
             }
@@ -227,10 +229,13 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
                 return forMode.getReasonCode();
             }
 
-            final HeuristicsReason reachDestination = serviceHeuristics.canReachDestination(nextNode, journeyState.getNumberChanges(),
-                    howIGotHere, reasons, visitingTime);
-            if (!reachDestination.isValid()) {
-                return reachDestination.getReasonCode();
+            if (depthFirst) {
+                // too slow for breadth first on larger graphs
+                final HeuristicsReason reachDestination = serviceHeuristics.canReachDestination(nextNode, journeyState.getNumberChanges(),
+                        howIGotHere, reasons, visitingTime);
+                if (!reachDestination.isValid()) {
+                    return reachDestination.getReasonCode();
+                }
             }
 
             if (!serviceHeuristics.checkStationOpen(nextNode, howIGotHere, reasons).isValid()) {
@@ -238,10 +243,14 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
                 return ReasonCode.StationClosed;
             }
 
-            final HeuristicsReason serviceReason = serviceHeuristics.lowerCostIncludingInterchange(nextNode, howIGotHere, reasons);
-            if (!serviceReason.isValid()) {
-                return serviceReason.getReasonCode();
+            if (depthFirst) {
+                // Without the filtering from serviceHeuristics.canReachDestination becomes very expensive
+                final HeuristicsReason serviceReason = serviceHeuristics.lowerCostIncludingInterchange(nextNode, howIGotHere, reasons);
+                if (!serviceReason.isValid()) {
+                    return serviceReason.getReasonCode();
+                }
             }
+
 
         }
 

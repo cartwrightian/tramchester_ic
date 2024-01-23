@@ -108,6 +108,11 @@ public abstract class TestConfig extends AppConfiguration {
     }
 
     @Override
+    public boolean getDepthFirst() {
+        return true;
+    }
+
+    @Override
     public SwaggerBundleConfiguration getSwaggerBundleConfiguration() {
         SwaggerBundleConfiguration bundleConfiguration = new SwaggerBundleConfiguration();
         bundleConfiguration.setResourcePackage("com.tramchester.resources");

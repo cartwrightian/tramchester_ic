@@ -283,9 +283,9 @@ public class RouteInterconnectRepository extends ComponentThatCaches<RoutePairIn
 
         }
 
-        public void start(RouteIndexPairFactory pairFactory, int numRoutes) {
+        public void start(final RouteIndexPairFactory pairFactory, final int numRoutes) {
             for (int depth = 0; depth < maxDepth; depth++) {
-                RoutePairInterconnects routePairInterconnects = new RoutePairInterconnects(pairFactory, numRoutes);
+                final RoutePairInterconnects routePairInterconnects = new RoutePairInterconnects(pairFactory, numRoutes);
                 interconnectsForDepth.add(routePairInterconnects);
             }
         }
@@ -294,7 +294,7 @@ public class RouteInterconnectRepository extends ComponentThatCaches<RoutePairIn
             interconnectsForDepth.clear();
         }
 
-        public RoutePairInterconnects forDepth(int depth) {
+        private RoutePairInterconnects forDepth(final int depth) {
             return interconnectsForDepth.get(depth);
         }
 

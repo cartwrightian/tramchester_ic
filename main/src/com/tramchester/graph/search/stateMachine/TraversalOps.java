@@ -14,9 +14,7 @@ import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.facade.GraphTransaction;
-import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.search.LowestCostsForDestRoutes;
-import com.tramchester.graph.search.RelationshipWithRoute;
 import com.tramchester.repository.TripRepository;
 import org.neo4j.graphdb.Direction;
 
@@ -33,7 +31,7 @@ public class TraversalOps {
     private final IdSet<Route> destinationRoutes;
 //    private final LatLong destinationLatLon;
 //    private final SortsPositions sortsPositions;
-    private final LowestCostsForDestRoutes lowestCostsForRoutes;
+//    private final LowestCostsForDestRoutes lowestCostsForRoutes;
     private final TramDate queryDate;
     private final GraphTransaction txn;
 
@@ -49,7 +47,7 @@ public class TraversalOps {
                 flatMap(station -> station.getDropoffRoutes().stream()).
                 collect(IdSet.collector());
 //        this.destinationLatLon = destinationLatLon;
-        this.lowestCostsForRoutes = lowestCostsForRoutes;
+//        this.lowestCostsForRoutes = lowestCostsForRoutes;
 //        this.sortsPositions = sortsPositions;
         this.queryDate = queryDate;
     }
@@ -84,11 +82,11 @@ public class TraversalOps {
 //    }
 //
 
-    public Stream<ImmutableGraphRelationship> orderBoardingRelationsByRouteConnections(Stream<ImmutableGraphRelationship> relationships) {
-        return lowestCostsForRoutes.
-                sortByDestinations(relationships.map(RelationshipWithRoute::new)).
-                map(RelationshipWithRoute::getRelationship);
-    }
+//    public Stream<ImmutableGraphRelationship> orderBoardingRelationsByRouteConnections(Stream<ImmutableGraphRelationship> relationships) {
+//        return lowestCostsForRoutes.
+//                sortByDestinations(relationships.map(RelationshipWithRoute::new)).
+//                map(RelationshipWithRoute::getRelationship);
+//    }
 
     public TramTime getTimeFrom(GraphNode node) {
         return nodeOperations.getTime(node);
