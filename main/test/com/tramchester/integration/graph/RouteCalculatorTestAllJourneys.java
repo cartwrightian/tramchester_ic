@@ -24,7 +24,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import java.time.Duration;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -87,11 +86,9 @@ class RouteCalculatorTestAllJourneys {
                 //filter(pair -> !combinations.betweenEndsOfRoute(pair)).
                 collect(Collectors.toSet());
 
-        Map<StationIdPair, RouteCalculationCombinations.JourneyOrNot> results = combinations.getJourneysFor(stationIdPairs, journeyRequest);
+        RouteCalculationCombinations.CombinationResults results = combinations.getJourneysFor(stationIdPairs, journeyRequest);
 
-        List<RouteCalculationCombinations.JourneyOrNot> failed = results.values().stream().
-                filter(RouteCalculationCombinations.JourneyOrNot::missing).
-                collect(Collectors.toList());
+        List<RouteCalculationCombinations.JourneyOrNot> failed = results.getFailed();
 
         assertEquals(0L, failed.size(), format("For %s Failed some of %s (finished %s) combinations %s",
                     journeyRequest, results.size(), stationIdPairs.size(), combinations.displayFailed(failed)));

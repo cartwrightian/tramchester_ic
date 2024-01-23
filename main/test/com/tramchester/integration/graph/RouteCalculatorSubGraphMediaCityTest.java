@@ -22,7 +22,10 @@ import com.tramchester.integration.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
-import com.tramchester.repository.*;
+import com.tramchester.repository.ClosedStationsRepository;
+import com.tramchester.repository.InterchangeRepository;
+import com.tramchester.repository.RouteRepository;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
@@ -244,12 +247,9 @@ class RouteCalculatorSubGraphMediaCityTest {
                 filter(pair -> !pair.same()).
                 collect(Collectors.toSet());
 
-        Map<StationIdPair, RouteCalculationCombinations.JourneyOrNot> results = combinations.getJourneysFor(stationIdPairs, journeyRequest);
+        RouteCalculationCombinations.CombinationResults results = combinations.getJourneysFor(stationIdPairs, journeyRequest);
 
-        return results.entrySet().stream().
-                filter(entry -> entry.getValue().missing()).
-                map(Map.Entry::getKey).
-                collect(Collectors.toList());
+        return results.getFailedPairs();
 
     }
 
