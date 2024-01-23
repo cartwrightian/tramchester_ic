@@ -1,25 +1,31 @@
 package com.tramchester.graph.search;
 
+import com.tramchester.domain.LocationSet;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.places.Station;
+import com.tramchester.geo.StationDistances;
+import com.tramchester.graph.search.stateMachine.states.StationState;
+import com.tramchester.graph.search.stateMachine.states.TraversalState;
 import org.neo4j.graphdb.PathExpander;
 import org.neo4j.graphdb.traversal.BranchSelector;
 import org.neo4j.graphdb.traversal.TraversalBranch;
 import org.neo4j.graphdb.traversal.TraversalContext;
 
 import java.util.Comparator;
-import java.util.LinkedList;
 import java.util.PriorityQueue;
-import java.util.Queue;
 
 public class SpikeBranchSelector implements BranchSelector {
 
     private final TraversalBranchQueue expansionQueue;
-    private TraversalBranch branchToExpand;
     private final PathExpander<JourneyState> expander;
 
-    public SpikeBranchSelector(final TraversalBranch start, final PathExpander<JourneyState> expander) {
+    private TraversalBranch branchToExpand;
+
+    public SpikeBranchSelector(final TraversalBranch start, final PathExpander<JourneyState> expander,
+                               final StationDistances stationDistances, LocationSet destinationIds) {
         this.branchToExpand = start;
         this.expander = expander;
-        expansionQueue = new TraversalBranchQueue();
+        expansionQueue = new TraversalBranchQueue(stationDistances, destinationIds);
     }
 
     // breadth
@@ -44,8 +50,10 @@ public class SpikeBranchSelector implements BranchSelector {
 
     private static class TraversalBranchQueue {
         private final PriorityQueue<TraversalBranch> theQueue;
+        private final StationDistances.FindDistancesTo findDistances;
 
-        private TraversalBranchQueue() {
+        private TraversalBranchQueue(StationDistances stationDistances, LocationSet destinations) {
+            findDistances = stationDistances.findDistancesTo(destinations);
             theQueue = new PriorityQueue<>(new BranchComparator());
         }
 
@@ -57,36 +65,42 @@ public class SpikeBranchSelector implements BranchSelector {
             theQueue.add(next);
         }
 
-        private static class BranchComparator implements Comparator<TraversalBranch> {
+        private class BranchComparator implements Comparator<TraversalBranch> {
+
+            // TODO What is the right Strategy here?
+
+            // just copy a-star? at least for StationState
+
             @Override
             public int compare(final TraversalBranch branchA, final TraversalBranch branchB) {
                 final JourneyState stateA = (JourneyState) branchA.state();
                 final JourneyState stateB = (JourneyState) branchB.state();
-                final int compare =  stateA.getJourneyClock().compareTo(stateB.getJourneyClock());
-                if (compare==0) {
-                    return Integer.compare(stateA.getNumberChanges(), stateB.getNumberChanges());
-                } else {
-                    return compare;
+                final TraversalState traversalStateA = stateA.getTraversalState();
+                final TraversalState traversalStateB = stateB.getTraversalState();
+                if (!traversalStateA.nodeId().equals(traversalStateB.nodeId())) {
+                    // only worth comparing on distance if not the same node
+                    if ((traversalStateA instanceof StationState stationStateA) && (traversalStateB instanceof StationState stationStateB)) {
+
+                        final IdFor<Station> stationIdA = stationStateA.getStationId();
+                        final IdFor<Station> stationIdB = stationStateB.getStationId();
+
+                        long distanceA = findDistances.toStation(stationIdA);
+                        long distanceB = findDistances.toStation(stationIdB);
+
+                        return Long.compare(distanceA, distanceB);
+
+                    }
                 }
+                return stateA.getJourneyClock().compareTo(stateB.getJourneyClock());
+//                if (compare==0) {
+//                    // note swap here
+//                    return Integer.compare(branchB.length(), branchA.length());
+////                    return Integer.compare(stateA.getNumberChanges(), stateB.getNumberChanges());
+//                } else {
+//                    return compare;
+//                }
             }
         }
     }
-
-    private static class SimpleTraversalBranchQueue {
-        private final Queue<TraversalBranch> theQueue;
-
-        private SimpleTraversalBranchQueue() {
-            theQueue = new LinkedList<>();
-        }
-
-        public void addBranch(final TraversalBranch traversalBranch) {
-            theQueue.add(traversalBranch);
-        }
-
-        public TraversalBranch removeFront() {
-            return theQueue.poll();
-        }
-    }
-
 
 }

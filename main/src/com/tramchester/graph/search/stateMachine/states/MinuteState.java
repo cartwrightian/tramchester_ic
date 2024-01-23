@@ -49,12 +49,12 @@ public class MinuteState extends TraversalState {
             if (existingTrip.isOnTrip()) {
                 final IdFor<Trip> existingTripId = existingTrip.getTripId();
                 final Stream<ImmutableGraphRelationship> filterBySingleTripId = filterBySingleTripId(relationships, existingTripId);
-                return new MinuteState(hourState, filterBySingleTripId, existingTripId, cost, changeAtInterchangeOnly, this);
+                return new MinuteState(hourState, filterBySingleTripId, node, existingTripId, cost, changeAtInterchangeOnly, this);
             } else {
                 // starting a brand-new journey, since at minute node now have specific tripid to use
                 final IdFor<Trip> newTripId = getTrip(node);
                 journeyState.beginTrip(newTripId);
-                return new MinuteState(hourState, relationships, newTripId, cost, changeAtInterchangeOnly, this);
+                return new MinuteState(hourState, relationships, node, newTripId, cost, changeAtInterchangeOnly, this);
             }
         }
 
@@ -66,9 +66,10 @@ public class MinuteState extends TraversalState {
     private final boolean interchangesOnly;
     private final Trip trip;
 
-    private MinuteState(final TraversalState parent, final Stream<ImmutableGraphRelationship> relationships, final IdFor<Trip> tripId, final Duration cost,
+    private MinuteState(final TraversalState parent, final Stream<ImmutableGraphRelationship> relationships, GraphNode node,
+                        final IdFor<Trip> tripId, final Duration cost,
                         final boolean interchangesOnly, final Towards<MinuteState> builder) {
-        super(parent, relationships, cost, builder.getDestination());
+        super(parent, relationships, cost, builder.getDestination(), node);
         this.trip = traversalOps.getTrip(tripId);
         this.interchangesOnly = interchangesOnly;
     }

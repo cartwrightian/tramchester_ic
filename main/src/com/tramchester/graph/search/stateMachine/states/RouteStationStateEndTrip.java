@@ -19,13 +19,6 @@ public class RouteStationStateEndTrip extends RouteStationState {
 
     // left a trip at the very end
 
-    @Override
-    public String toString() {
-        return "RouteStationStateEndTrip{" +
-                "mode=" + mode +
-                "} " + super.toString();
-    }
-
     public static class Builder extends TowardsRouteStation<RouteStationStateEndTrip> {
 
         public Builder(final boolean interchangesOnly) {
@@ -68,7 +61,7 @@ public class RouteStationStateEndTrip extends RouteStationState {
 
     private RouteStationStateEndTrip(final MinuteState minuteState, final Stream<ImmutableGraphRelationship> routeStationOutbound, final Duration cost,
                                      final TransportMode mode, final GraphNode routeStationNode, final Trip trip, final TowardsRouteStation<RouteStationStateEndTrip> builder) {
-        super(minuteState, routeStationOutbound, cost, builder);
+        super(minuteState, routeStationOutbound, cost, builder, routeStationNode);
         this.mode = mode;
         this.routeStationNode = routeStationNode;
         this.trip = trip;
@@ -99,5 +92,11 @@ public class RouteStationStateEndTrip extends RouteStationState {
         } catch (TramchesterException e) {
             throw new RuntimeException("Unable to leave " + mode, e);
         }
+    }
+    @Override
+    public String toString() {
+        return "RouteStationStateEndTrip{" +
+                "mode=" + mode +
+                "} " + super.toString();
     }
 }

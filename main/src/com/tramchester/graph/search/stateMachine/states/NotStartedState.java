@@ -10,8 +10,9 @@ import java.util.EnumSet;
 
 public class NotStartedState extends TraversalState {
 
-    public NotStartedState(final TraversalOps traversalOps, final TraversalStateFactory traversalStateFactory, final EnumSet<TransportMode> requestedModes) {
-        super(traversalOps, traversalStateFactory, requestedModes, TraversalStateType.NotStartedState);
+    public NotStartedState(final TraversalOps traversalOps, final TraversalStateFactory traversalStateFactory,
+                           final EnumSet<TransportMode> requestedModes, final GraphNode graphNode) {
+        super(traversalOps, traversalStateFactory, requestedModes, TraversalStateType.NotStartedState, graphNode);
     }
 
     @Override

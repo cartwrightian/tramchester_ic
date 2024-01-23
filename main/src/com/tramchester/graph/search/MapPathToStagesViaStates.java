@@ -80,9 +80,11 @@ public class MapPathToStagesViaStates implements PathToStages {
 
         final MapStatesToStages mapStatesToStages = new MapStatesToStages(stationRepository, platformRepository, tripRepository, queryTime);
 
-        final TraversalState initial = new NotStartedState(traversalOps, stateFactory, journeyRequest.getRequestedModes());
+        final ImmutableGraphNode startOfPath = txn.fromStart(path);
 
-        PathMapper pathMapper = new PathMapper(path, txn);
+        final TraversalState initial = new NotStartedState(traversalOps, stateFactory, journeyRequest.getRequestedModes(), startOfPath);
+
+        final PathMapper pathMapper = new PathMapper(path, txn);
 
         pathMapper.process(initial, new PathMapper.ForGraphNode() {
             @Override
@@ -115,7 +117,6 @@ public class MapPathToStagesViaStates implements PathToStages {
 
         TraversalState finalState = pathMapper.getFinalState();
 
-        final ImmutableGraphNode startOfPath = txn.fromStart(path);
         final ImmutableGraphNode endOfPath = txn.fromEnd(path);
 
         finalState.toDestination(finalState, endOfPath, Duration.ZERO, mapStatesToStages);

@@ -79,7 +79,8 @@ public class PlatformStationState extends StationState {
 
     }
 
-    private PlatformStationState(final TraversalState parent, final Stream<ImmutableGraphRelationship> relationships, final Duration cost, final GraphNode stationNode,
+    private PlatformStationState(final TraversalState parent, final Stream<ImmutableGraphRelationship> relationships,
+                                 final Duration cost, final GraphNode stationNode,
                                  final JourneyStateUpdate journeyState, final TowardsStation<?> builder) {
         super(parent, relationships, cost, stationNode, journeyState, builder.getDestination());
     }
@@ -131,6 +132,6 @@ public class PlatformStationState extends StationState {
 
     @Override
     protected void toDestination(final DestinationState.Builder towardsDestination, final GraphNode node, final Duration cost, final JourneyStateUpdate journeyStateUpdate) {
-        towardsDestination.from(this, cost);
+        towardsDestination.from(this, cost, node);
     }
 }

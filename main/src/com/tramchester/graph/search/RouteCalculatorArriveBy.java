@@ -43,9 +43,9 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
         try {
             Duration costToDest = costCalculator.getAverageCostBetween(txn, startStation, destination, journeyRequest.getDate(), journeyRequest.getRequestedModes());
             Duration maxInitialWait = RouteCalculatorSupport.getMaxInitialWaitFor(startStation, config);
-            JourneyRequest departureTime = calcDepartTime(journeyRequest, costToDest, maxInitialWait);
-            logger.info(format("Plan journey, arrive by %s so depart by %s", journeyRequest, departureTime));
-            return routeCalculator.calculateRoute(txn, startStation, destination, departureTime);
+            JourneyRequest updatedRequest = calcDepartTime(journeyRequest, costToDest, maxInitialWait);
+            logger.info(format("Plan journey, arrive by %s so depart by %s", journeyRequest, updatedRequest));
+            return routeCalculator.calculateRoute(txn, startStation, destination, updatedRequest);
         } catch (InvalidDurationException invalidDurationException) {
             logger.error("Unable to compute cost from %s to %s for %s".formatted(startStation.getId(), destination.getId(), journeyRequest),
                     invalidDurationException);

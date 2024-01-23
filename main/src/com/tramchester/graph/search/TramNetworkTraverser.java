@@ -7,6 +7,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.geo.StationDistances;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
@@ -38,7 +39,6 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import static com.tramchester.graph.TransportRelationshipTypes.DIVERSION;
-import static org.neo4j.graphdb.traversal.BranchOrderingPolicies.PREORDER_BREADTH_FIRST;
 import static org.neo4j.graphdb.traversal.BranchOrderingPolicies.PREORDER_DEPTH_FIRST;
 import static org.neo4j.graphdb.traversal.Uniqueness.NONE;
 
@@ -57,12 +57,13 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     private final ReasonsToGraphViz reasonToGraphViz;
     private final ProvidesNow providesNow;
     private final GraphTransaction txn;
+    private final StationDistances stationDistances;
 
     public TramNetworkTraverser(GraphTransaction txn, RouteCalculatorSupport.PathRequest pathRequest,
                                 NodeContentsRepository nodeContentsRepository, TripRepository tripRepository,
                                 TraversalStateFactory traversalStateFactory, LocationSet destinations, TramchesterConfig config,
                                 Set<GraphNodeId> destinationNodeIds, ServiceReasons reasons,
-                                ReasonsToGraphViz reasonToGraphViz, ProvidesNow providesNow) {
+                                ReasonsToGraphViz reasonToGraphViz, ProvidesNow providesNow, StationDistances stationDistances) {
         this.txn = txn;
         this.nodeContentsRepository = nodeContentsRepository;
         this.tripRespository = tripRepository;
@@ -76,6 +77,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         this.actualQueryTime = pathRequest.getActualQueryTime();
         this.reasonToGraphViz = reasonToGraphViz;
         this.providesNow = providesNow;
+        this.stationDistances = stationDistances;
     }
 
     public Stream<Path> findPaths(GraphTransaction txn, GraphNode startNode, PreviousVisits previousSuccessfulVisit, LowestCostSeen lowestCostSeen,
@@ -96,19 +98,15 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         TraversalOps traversalOps = new TraversalOps(txn, nodeContentsRepository, tripRespository, destinations,
                 lowestCostsForRoutes, pathRequest.getQueryDate());
 
-        final NotStartedState traversalState = new NotStartedState(traversalOps, traversalStateFactory, pathRequest.getRequestedModes());
+        final NotStartedState traversalState = new NotStartedState(traversalOps, traversalStateFactory,
+                pathRequest.getRequestedModes(), startNode);
         final InitialBranchState<JourneyState> initialJourneyState = JourneyState.initialState(actualQueryTime, traversalState);
 
         logger.info("Create traversal for " + actualQueryTime);
 
-        final BranchOrderingPolicies selector = depthFirst ? PREORDER_DEPTH_FIRST : PREORDER_BREADTH_FIRST;
-
-//        final BranchOrderingPolicy selector = new BranchOrderingPolicy() {
-//            @Override
-//            public BranchSelector create(TraversalBranch startBranch, PathExpander expander) {
-//                return new SpikeBranchSelector(startBranch, expander);
-//            }
-//        };
+        // note: for small graphs (i.e. trams only) depth first is far faster, for larger (i.e. bus) trying out breadth
+        final BranchOrderingPolicy selector = depthFirst ? PREORDER_DEPTH_FIRST
+                : (start, expander) -> new SpikeBranchSelector(start, expander, stationDistances, destinations);
 
         TraversalDescription traversalDesc =
                 new MonoDirectionalTraversalDescription().

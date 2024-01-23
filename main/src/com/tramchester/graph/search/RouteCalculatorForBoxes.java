@@ -12,6 +12,7 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBoxWithStations;
+import com.tramchester.geo.StationDistances;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.graph.caches.LowestCostSeen;
@@ -57,10 +58,11 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                                    MapPathToLocations mapPathToLocations,
                                    BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz,
                                    ClosedStationsRepository closedStationsRepository, RunningRoutesAndServices runningRoutesAndService,
-                                   @SuppressWarnings("unused") RouteCostCalculator routeCostCalculator) {
+                                   @SuppressWarnings("unused") RouteCostCalculator routeCostCalculator,
+                                   StationDistances stationDistances) {
         super(pathToStages, nodeContentsRepository, graphDatabaseService,
                 traversalStateFactory, providesNow, mapPathToLocations,
-                transportData, config, transportData, routeToRouteCosts, reasonToGraphViz);
+                transportData, config, transportData, routeToRouteCosts, reasonToGraphViz, stationDistances);
         this.config = config;
         this.graphDatabaseService = graphDatabaseService;
         this.closedStationsRepository = closedStationsRepository;

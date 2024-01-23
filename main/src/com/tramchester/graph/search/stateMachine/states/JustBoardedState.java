@@ -38,7 +38,7 @@ public class JustBoardedState extends RouteStationState {
 
             final Stream<ImmutableGraphRelationship> services = getServices(node, txn);
 
-            return new JustBoardedState(platformState, Stream.concat(services, otherPlatforms), cost, this);
+            return new JustBoardedState(platformState, Stream.concat(services, otherPlatforms), cost, this, node);
         }
 
         public JustBoardedState fromNoPlatformStation(final NoPlatformStationState noPlatformStation, final GraphNode node,
@@ -47,7 +47,7 @@ public class JustBoardedState extends RouteStationState {
                     node.getRelationships(txn, OUTGOING, DEPART, INTERCHANGE_DEPART, DIVERSION_DEPART),
                     noPlatformStation);
             final Stream<ImmutableGraphRelationship> services = getServices(node, txn);
-            return new JustBoardedState(noPlatformStation, Stream.concat(filteredDeparts, services), cost, this);
+            return new JustBoardedState(noPlatformStation, Stream.concat(filteredDeparts, services), cost, this, node);
         }
 
         private static Stream<ImmutableGraphRelationship> getServices(final GraphNode node, final GraphTransaction txn) {
@@ -61,8 +61,8 @@ public class JustBoardedState extends RouteStationState {
     }
 
     private JustBoardedState(final TraversalState traversalState, final Stream<ImmutableGraphRelationship> outbounds,
-                             final Duration cost, final TowardsRouteStation<?> builder) {
-        super(traversalState, outbounds, cost, builder);
+                             final Duration cost, final TowardsRouteStation<?> builder, GraphNode graphNode) {
+        super(traversalState, outbounds, cost, builder, graphNode);
     }
 
     @Override

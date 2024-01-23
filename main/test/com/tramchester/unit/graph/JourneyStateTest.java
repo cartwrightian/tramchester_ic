@@ -69,7 +69,7 @@ class JourneyStateTest extends EasyMockSupport {
         final TraversalOps traversalOps = new TraversalOps(txn, nodeContentsRepository, tripRepository,
                 destinations, lowestCostsForRoutes, queryDate);
 
-        traversalState = new NotStartedState(traversalOps, traversalStateFactory, TramsOnly);
+        traversalState = new NotStartedState(traversalOps, traversalStateFactory, TramsOnly, node);
         queryTime = TramTime.of(9, 15);
     }
 

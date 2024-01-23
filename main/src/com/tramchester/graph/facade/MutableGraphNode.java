@@ -242,8 +242,8 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
     }
 
     public PlatformId getPlatformId() {
-        IdFor<Station> stationId = getStationId();
-        String platformNumber =  node.getProperty(PLATFORM_NUMBER.getText()).toString();
+        final IdFor<Station> stationId = getStationId();
+        final String platformNumber =  node.getProperty(PLATFORM_NUMBER.getText()).toString();
         return PlatformId.createId(stationId, platformNumber);
     }
 

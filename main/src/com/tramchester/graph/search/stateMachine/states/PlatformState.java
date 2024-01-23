@@ -59,7 +59,7 @@ public class PlatformState extends TraversalState implements NodeId {
 
     PlatformState(final TraversalState parent, final Stream<ImmutableGraphRelationship> relationships, final GraphNode platformNode,
                   final Duration cost, final TraversalStateType towards) {
-        super(parent, relationships, cost, towards);
+        super(parent, relationships, cost, towards, platformNode);
         this.platformNode = platformNode;
     }
 
@@ -71,18 +71,18 @@ public class PlatformState extends TraversalState implements NodeId {
     }
 
     @Override
-    protected JustBoardedState toJustBoarded(final JustBoardedState.Builder towardsJustBoarded, final GraphNode node, final Duration cost,
-                                             final JourneyStateUpdate journeyState) {
+    protected JustBoardedState toJustBoarded(final JustBoardedState.Builder towardsJustBoarded, final GraphNode boardingNode,
+                                             final Duration cost, final JourneyStateUpdate journeyState) {
         try {
-            final TransportMode actualMode = node.getTransportMode();
+            final TransportMode actualMode = boardingNode.getTransportMode();
             if (actualMode==null) {
-                throw new RuntimeException(format("Unable get transport mode at %s for %s", node.getLabels(), node.getAllProperties()));
+                throw new RuntimeException(format("Unable get transport mode at %s for %s", boardingNode.getLabels(), boardingNode.getAllProperties()));
             }
             journeyState.board(actualMode, platformNode, true);
         } catch (TramchesterException e) {
             throw new RuntimeException("unable to board tram", e);
         }
-        return towardsJustBoarded.fromPlatformState(this, node, cost, txn);
+        return towardsJustBoarded.fromPlatformState(this, boardingNode, cost, txn);
     }
 
     @Override

@@ -51,7 +51,7 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
 
     @Override
     public boolean getDepthFirst() {
-        return true;
+        return false;
     }
 
     @Override

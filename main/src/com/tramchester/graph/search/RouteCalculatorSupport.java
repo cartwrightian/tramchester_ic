@@ -9,6 +9,7 @@ import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.geo.StationDistances;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
@@ -49,12 +50,13 @@ public class RouteCalculatorSupport {
     protected final BetweenRoutesCostRepository routeToRouteCosts;
     private final NodeContentsRepository nodeContentsRepository;
     private final ReasonsToGraphViz reasonToGraphViz;
+    private final StationDistances stationDistances;
 
     protected RouteCalculatorSupport(PathToStages pathToStages, NodeContentsRepository nodeContentsRepository,
                                      GraphDatabase graphDatabaseService, TraversalStateFactory traversalStateFactory,
                                      ProvidesNow providesNow, MapPathToLocations mapPathToLocations,
                                      StationRepository stationRepository, TramchesterConfig config, TripRepository tripRepository,
-                                     BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz) {
+                                     BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz, StationDistances stationDistances) {
         this.pathToStages = pathToStages;
         this.nodeContentsRepository = nodeContentsRepository;
         this.graphDatabaseService = graphDatabaseService;
@@ -66,6 +68,7 @@ public class RouteCalculatorSupport {
         this.tripRepository = tripRepository;
         this.routeToRouteCosts = routeToRouteCosts;
         this.reasonToGraphViz = reasonToGraphViz;
+        this.stationDistances = stationDistances;
     }
 
 
@@ -131,7 +134,7 @@ public class RouteCalculatorSupport {
         TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(
                 txn, pathRequest, nodeContentsRepository,
                 tripRepository, traversalStateFactory, endStations, config, destinationNodeIds,
-                reasons, reasonToGraphViz, providesNow);
+                reasons, reasonToGraphViz, providesNow, stationDistances);
 
         logger.info("Traverse for " + pathRequest);
 
@@ -196,14 +199,6 @@ public class RouteCalculatorSupport {
         return journeyRequest.getMaxJourneyDuration();
 
     }
-
-//    private Duration getMaxCostBetween(Transaction txn, Node startNode, JourneyRequest journeyRequest, Location<?> dest, Set<TransportMode> modes) {
-//        try {
-//            return routeCostCalculator.getMaxCostBetween(txn, startNode, dest, journeyRequest.getDate(), modes);
-//        } catch (InvalidDurationException invalidDurationException) {
-//            return Duration.ofSeconds(-1);
-//        }
-//    }
 
     public PathRequest createPathRequest(GraphNode startNode, TramDate queryDate, TramTime actualQueryTime,
                                          EnumSet<TransportMode> requestedModes, int numChanges,

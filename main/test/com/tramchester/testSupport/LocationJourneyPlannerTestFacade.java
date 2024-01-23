@@ -57,6 +57,10 @@ public class LocationJourneyPlannerTestFacade {
         return asSetClosed(planner.quickestRouteForLocation(txn, start, dest, request), maxStages);
     }
 
+    public Set<Journey> quickestRouteForLocation(KnownLocations knownLocation, Station dest, JourneyRequest journeyRequest, int maxStages) {
+        return quickestRouteForLocation(knownLocation.location(), dest, journeyRequest, maxStages);
+    }
+
     @NotNull
     private Set<Journey> asSetClosed(Stream<Journey> theStream, int maxStages) {
         Set<Journey> result = theStream.
@@ -66,7 +70,5 @@ public class LocationJourneyPlannerTestFacade {
         return result;
     }
 
-    public Set<Journey> quickestRouteForLocation(KnownLocations knownLocation, Station dest, JourneyRequest journeyRequest, int maxStages) {
-        return quickestRouteForLocation(knownLocation.location(), dest, journeyRequest, maxStages);
-    }
+
 }

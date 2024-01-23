@@ -12,6 +12,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.CreateQueryTimes;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.geo.StationDistances;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
@@ -56,10 +57,10 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
                            MapPathToLocations mapPathToLocations,
                            BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz,
                            ClosedStationsRepository closedStationsRepository, RunningRoutesAndServices runningRoutesAndServices,
-                           CacheMetrics cacheMetrics) {
+                           CacheMetrics cacheMetrics, StationDistances stationDistances) {
         super(pathToStages, nodeOperations, graphDatabaseService,
                 traversalStateFactory, providesNow, mapPathToLocations,
-                transportData, config, transportData, routeToRouteCosts, reasonToGraphViz);
+                transportData, config, transportData, routeToRouteCosts, reasonToGraphViz, stationDistances);
         this.config = config;
         this.createQueryTimes = createQueryTimes;
         this.closedStationsRepository = closedStationsRepository;
@@ -75,6 +76,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         GraphNode startNode = getLocationNodeSafe(txn, start);
         GraphNode endNode = getLocationNodeSafe(txn, destination);
 
+        // for walks we pass multiple destinations TODO check this is still the case
         LocationSet destinations = LocationSet.singleton(destination);
 
         final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime());

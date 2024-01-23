@@ -160,10 +160,9 @@ public class LocationJourneyPlanner {
 
         nodesAndRelationships.addAll(addedRelationships);
 
-        LocationSet destinationStations = walksToDest.stream().
-                map(StationWalk::getStation).collect(LocationSet.stationCollector());
+        final LocationSet destinationStations = walksToDest.stream().map(StationWalk::getStation).collect(LocationSet.stationCollector());
 
-        NumberOfChanges numberOfChanges = findNumberChanges(start, walksToDest, journeyRequest.getDate(),
+        final NumberOfChanges numberOfChanges = findNumberChanges(start, walksToDest, journeyRequest.getDate(),
                 journeyRequest.getTimeRange(), journeyRequest.getRequestedModes());
 
         Stream<Journey> journeys;

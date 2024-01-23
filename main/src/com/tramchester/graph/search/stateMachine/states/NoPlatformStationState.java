@@ -138,15 +138,15 @@ public class NoPlatformStationState extends StationState {
     }
 
     @Override
-    protected void toDestination(final DestinationState.Builder towardsDestination, final GraphNode destNode,
+    protected void toDestination(final DestinationState.Builder towardsDestination, final GraphNode boardingNode,
                                  final Duration cost, final JourneyStateUpdate journeyStateUpdate) {
-        towardsDestination.from(this, cost);
+        towardsDestination.from(this, cost, boardingNode);
     }
 
-    private void boardVehicle(final GraphNode node, final JourneyStateUpdate journeyState) {
+    private void boardVehicle(final GraphNode boardingNode, final JourneyStateUpdate journeyState) {
         try {
-            final TransportMode actualMode = node.getTransportMode();
-            journeyState.board(actualMode, node, false);
+            final TransportMode actualMode = boardingNode.getTransportMode();
+            journeyState.board(actualMode, boardingNode, false);
         } catch (TramchesterException e) {
             throw new RuntimeException("unable to board vehicle", e);
         }

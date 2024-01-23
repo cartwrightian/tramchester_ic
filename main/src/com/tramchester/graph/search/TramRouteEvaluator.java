@@ -121,7 +121,6 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             return processArrivalAtDest(journeyState, howIGotHere, numberChanges);
         } else if (bestResultSoFar.everArrived()) { // Not arrived, but we have seen at least one successful route
             final Duration lowestCostSeen = bestResultSoFar.getLowestDuration();
-            //if (totalCostSoFar.compareTo(lowestCostSeen) > 0 ) {
             if (Durations.greaterThan(totalCostSoFar, lowestCostSeen)) {
                 // already longer that current shortest, no need to continue
                 reasons.recordReason(ServiceReason.HigherCost(howIGotHere));

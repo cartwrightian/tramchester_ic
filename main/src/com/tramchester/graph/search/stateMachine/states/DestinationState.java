@@ -1,5 +1,7 @@
 package com.tramchester.graph.search.stateMachine.states;
 
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
 
@@ -29,26 +31,26 @@ public class DestinationState extends TraversalState
             return TraversalStateType.DestinationState;
         }
 
-        public DestinationState from(NoPlatformStationState noPlatformStation, Duration cost) {
-            return new DestinationState(noPlatformStation, cost, this);
+        public DestinationState from(NoPlatformStationState noPlatformStation, Duration cost, GraphNode node) {
+            return new DestinationState(noPlatformStation, cost, node, this);
         }
 
-        public DestinationState from(WalkingState walkingState, Duration cost) {
-            return new DestinationState(walkingState, cost, this);
+        public DestinationState from(WalkingState walkingState, Duration cost, GraphNode node) {
+            return new DestinationState(walkingState, cost, node, this);
         }
 
-        public DestinationState from(PlatformStationState platformStationState, Duration cost) {
-            return new DestinationState(platformStationState, cost, this);
+        public DestinationState from(PlatformStationState platformStationState, Duration cost, GraphNode node) {
+            return new DestinationState(platformStationState, cost, node, this);
         }
 
-        public DestinationState from(GroupedStationState groupedStationState, Duration cost) {
-            return new DestinationState(groupedStationState, cost, this);
+        public DestinationState from(GroupedStationState groupedStationState, Duration cost, GraphNode node) {
+            return new DestinationState(groupedStationState, cost, node, this);
         }
 
     }
 
-    private DestinationState(TraversalState parent, Duration cost, Towards<DestinationState> builder) {
-        super(parent, Stream.empty(), cost, builder.getDestination());
+    private DestinationState(TraversalState parent, Duration cost, GraphNode node, Towards<DestinationState> builder) {
+        super(parent, Stream.empty(), cost, builder.getDestination(), node);
     }
 
     @Override

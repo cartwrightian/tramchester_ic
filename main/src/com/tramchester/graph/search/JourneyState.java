@@ -279,6 +279,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
             this.numberNeighbourConnections = numberNeighbourConnections;
             this.visitedStations = visitedStations;
             this.currentlyOnDiversion = currentlyOnDiversion;
+            this.numberOfDiversionsTaken = numberOfDiversionsTaken;
         }
 
         public void incrementWalkingConnections() {
@@ -315,7 +316,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
             if (numberOfBoardings==0) {
                 return 0;
             }
-            int withoutDiversions =  numberOfBoardings-1; // initial boarding
+            final int withoutDiversions =  numberOfBoardings-1; // initial boarding
             if (withoutDiversions==0) {
                 return 0;
             }

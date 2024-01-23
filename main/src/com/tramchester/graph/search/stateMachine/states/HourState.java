@@ -20,6 +20,8 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class HourState extends TraversalState {
 
+
+
     public static class Builder implements Towards<HourState> {
 
         private final boolean depthFirst;
@@ -33,7 +35,7 @@ public class HourState extends TraversalState {
         public HourState fromService(final ServiceState serviceState, final GraphNode node, final Duration cost,
                                      final ExistingTrip maybeExistingTrip, final GraphTransaction txn) {
             final Stream<ImmutableGraphRelationship> relationships = getMinuteRelationships(node, txn);
-            return new HourState(serviceState, relationships, maybeExistingTrip, cost, this);
+            return new HourState(serviceState, relationships, node, maybeExistingTrip, cost, this);
         }
 
         @Override
@@ -61,8 +63,9 @@ public class HourState extends TraversalState {
     private final ExistingTrip maybeExistingTrip;
 
     private HourState(final TraversalState parent, final Stream<ImmutableGraphRelationship> relationships,
+                      final GraphNode node,
                       final ExistingTrip maybeExistingTrip, final Duration cost, final Towards<HourState> builder) {
-        super(parent, relationships, cost, builder.getDestination());
+        super(parent, relationships, cost, builder.getDestination(), node);
         this.maybeExistingTrip = maybeExistingTrip;
     }
 

@@ -1,5 +1,6 @@
 package com.tramchester.graph.search.stateMachine.states;
 
+import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.*;
@@ -15,7 +16,9 @@ import java.util.EnumSet;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-public abstract class TraversalState extends EmptyTraversalState implements ImmuatableTraversalState {
+import static java.lang.String.format;
+
+public abstract class TraversalState extends EmptyTraversalState implements ImmuatableTraversalState, NodeId {
 
     protected final TraversalStateFactory builders;
     protected final TraversalOps traversalOps;
@@ -25,6 +28,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
     private final Duration costForLastEdge;
     private final Duration parentCost;
     private final TraversalState parent;
+    private final GraphNode graphNode;
 
     // only follow GOES_TO links for requested transport modes
     private final TransportRelationshipTypes[] requestedRelationshipTypes;
@@ -33,12 +37,13 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
 
     // initial only
     protected TraversalState(final TraversalOps traversalOps, final TraversalStateFactory traversalStateFactory,
-                             final EnumSet<TransportMode> requestedModes, final TraversalStateType stateType) {
+                             final EnumSet<TransportMode> requestedModes, final TraversalStateType stateType, GraphNode graphNode) {
         super(stateType);
         this.traversalOps = traversalOps;
         this.txn = traversalOps.getTransaction();
         this.builders = traversalStateFactory;
         this.requestedRelationshipTypes = TransportRelationshipTypes.forModes(requestedModes);
+        this.graphNode = graphNode;
 
         this.costForLastEdge = Duration.ZERO;
         this.parentCost = Duration.ZERO;
@@ -50,7 +55,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
     }
 
     protected TraversalState(final TraversalState parent, final Stream<ImmutableGraphRelationship> outbounds, final Duration costForLastEdge,
-                             final TraversalStateType stateType) {
+                             final TraversalStateType stateType, GraphNode graphNode) {
         super(stateType);
         this.traversalOps = parent.traversalOps;
         this.txn = traversalOps.getTransaction();
@@ -62,6 +67,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         this.parentCost = parent.getTotalDuration();
 
         this.requestedRelationshipTypes = parent.requestedRelationshipTypes;
+        this.graphNode = graphNode;
     }
 
     public Stream<ImmutableGraphRelationship> getOutbounds(GraphTransaction txn, RouteCalculatorSupport.PathRequest pathRequest) {
@@ -71,6 +77,11 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
     @Override
     public TraversalStateType getStateType() {
         return stateType;
+    }
+
+    @Override
+    public GraphNodeId nodeId() {
+        return graphNode.getId();
     }
 
     public static Stream<ImmutableGraphRelationship> getRelationships(final GraphTransaction txn, final GraphNode node,
@@ -207,6 +218,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
     public String toString() {
         return "TraversalState{" +
                 "costForLastEdge=" + costForLastEdge +
+                "nodeId=" + graphNode.getId() +
                 ", parentCost=" + parentCost + System.lineSeparator() +
                 ", parent=" + parent +
                 '}';
@@ -217,4 +229,11 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         return Objects.hash(parent);
     }
 
+    protected void board(JourneyStateUpdate journeyState, boolean hasPlatforms) throws TramchesterException {
+        final TransportMode actualMode = graphNode.getTransportMode();
+        if (actualMode==null) {
+            throw new RuntimeException(format("Unable get transport mode at %s for %s", graphNode.getLabels(), graphNode.getAllProperties()));
+        }
+        journeyState.board(actualMode, graphNode, hasPlatforms);
+    }
 }

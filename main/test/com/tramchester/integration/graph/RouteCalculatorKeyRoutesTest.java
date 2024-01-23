@@ -97,10 +97,7 @@ class RouteCalculatorKeyRoutesTest {
 
     @DataExpiryCategory
     @Test
-    @Disabled("issue with data, some route appear to be missing at this time")
     void shouldFindEndOfLinesToEndOfLinesNextNDays() {
-
-        // TODO Issue with exchange square on Sundays in current data
 
         final Set<StationIdPair> pairs = combinations.EndOfRoutesToEndOfRoutes(Tram);
 
@@ -155,7 +152,8 @@ class RouteCalculatorKeyRoutesTest {
         Duration longest = max.get();
 
         int maxJourneyDuration = testConfig.getMaxJourneyDuration();
-        assertTrue(Durations.greaterOrEquals(Duration.ofMinutes(maxJourneyDuration), longest), "longest was " + longest + " and not " + maxJourneyDuration);
+        assertTrue(Durations.greaterOrEquals(Duration.ofMinutes(maxJourneyDuration), longest),
+                "longest was " + longest + " more than config: " + maxJourneyDuration);
     }
 
     @Disabled("used for diagnosing specific issue")

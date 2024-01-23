@@ -14,6 +14,8 @@ import static com.tramchester.graph.TransportRelationshipTypes.GROUPED_TO_CHILD;
 
 public class GroupedStationState extends TraversalState {
 
+
+
     public static class Builder implements Towards<GroupedStationState> {
 
         // TODO map of accept states to outbound relationships
@@ -31,29 +33,25 @@ public class GroupedStationState extends TraversalState {
         }
 
         public TraversalState fromChildStation(StationState stationState, GraphNode node, Duration cost, GraphTransaction txn) {
-            return new GroupedStationState(stationState,
-                    filterExcludingEndNode(txn, node.getRelationships(txn, Direction.OUTGOING, GROUPED_TO_CHILD),stationState),
-                    cost, node.getId(), this);
+            final Stream<ImmutableGraphRelationship> relationships = filterExcludingEndNode(txn,
+                    node.getRelationships(txn, Direction.OUTGOING, GROUPED_TO_CHILD), stationState);
+            return new GroupedStationState(stationState, relationships, cost, this, node);
         }
 
         public TraversalState fromStart(NotStartedState notStartedState, GraphNode node, Duration cost, GraphTransaction txn) {
             return new GroupedStationState(notStartedState, node.getRelationships(txn, Direction.OUTGOING, GROUPED_TO_CHILD),
-                    cost, node.getId(), this);
+                    cost, this, node);
         }
     }
 
-    private final GraphNodeId stationNodeId;
-
-    private GroupedStationState(TraversalState parent, Stream<ImmutableGraphRelationship> relationships, Duration cost, GraphNodeId stationNodeId,
-                                Towards<GroupedStationState> builder) {
-        super(parent, relationships, cost, builder.getDestination());
-        this.stationNodeId = stationNodeId;
+    private GroupedStationState(TraversalState parent, Stream<ImmutableGraphRelationship> relationships, Duration cost,
+                                Towards<GroupedStationState> builder, GraphNode graphNode) {
+        super(parent, relationships, cost, builder.getDestination(), graphNode);
     }
 
     @Override
     public String toString() {
         return "GroupedStationState{" +
-                "stationNodeId=" + stationNodeId +
                 "} " + super.toString();
     }
 
@@ -71,7 +69,7 @@ public class GroupedStationState extends TraversalState {
 
     @Override
     protected void toDestination(DestinationState.Builder towardsDestination, GraphNode node, Duration cost, JourneyStateUpdate journeyStateUpdate) {
-        towardsDestination.from(this, cost);
+        towardsDestination.from(this, cost, node);
     }
 
 }

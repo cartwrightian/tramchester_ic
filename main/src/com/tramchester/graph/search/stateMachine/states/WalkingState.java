@@ -41,22 +41,23 @@ public class WalkingState extends TraversalState {
 
             // prioritise a direct walk from start if one is available
             if (towardsDest.isEmpty()) {
-                return new WalkingState(notStartedState, needTwice.stream(), cost, this);
+                return new WalkingState(notStartedState, needTwice.stream(), cost, this, firstNode);
             } else {
                 // direct
-                return new WalkingState(notStartedState, towardsDest.stream(), cost, this);
+                return new WalkingState(notStartedState, towardsDest.stream(), cost, this, firstNode);
             }
         }
 
         public TraversalState fromStation(final StationState station, final GraphNode node, final Duration cost, final GraphTransaction txn) {
             return new WalkingState(station,
-                    filterExcludingEndNode(txn, node.getRelationships(txn, OUTGOING), station), cost, this);
+                    filterExcludingEndNode(txn, node.getRelationships(txn, OUTGOING), station), cost, this, node);
         }
 
     }
 
-    private WalkingState(final TraversalState parent, final Stream<ImmutableGraphRelationship> relationships, final Duration cost, final Towards<WalkingState> builder) {
-        super(parent, relationships, cost, builder.getDestination());
+    private WalkingState(final TraversalState parent, final Stream<ImmutableGraphRelationship> relationships, final Duration cost,
+                         final Towards<WalkingState> builder, GraphNode graphNode) {
+        super(parent, relationships, cost, builder.getDestination(), graphNode);
     }
 
 //    private WalkingState(TraversalState parent, ResourceIterable<Relationship> relationships, Duration cost, Towards<WalkingState> builder) {
@@ -86,6 +87,6 @@ public class WalkingState extends TraversalState {
     protected void toDestination(final DestinationState.Builder towardsDestination, final GraphNode node, final Duration cost,
                                  final JourneyStateUpdate journeyState) {
         journeyState.endWalk(node);
-        towardsDestination.from(this, cost);
+        towardsDestination.from(this, cost, node);
     }
 }
