@@ -26,6 +26,7 @@ import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.RunningRoutesAndServices;
 import com.tramchester.repository.TransportData;
 import org.neo4j.graphdb.Path;
+import org.neo4j.graphdb.traversal.BranchOrderingPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +40,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
+import static org.neo4j.graphdb.traversal.BranchOrderingPolicies.PREORDER_DEPTH_FIRST;
 
 @LazySingleton
 public class RouteCalculator extends RouteCalculatorSupport implements TramRouteCalculator {
@@ -48,6 +50,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
     private final ClosedStationsRepository closedStationsRepository;
     private final RunningRoutesAndServices runningRoutesAndServices;
     private final CacheMetrics cacheMetrics;
+    private final StationDistances stationDistances;
 
     @Inject
     public RouteCalculator(TransportData transportData, NodeContentsRepository nodeOperations, PathToStages pathToStages,
@@ -66,6 +69,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         this.closedStationsRepository = closedStationsRepository;
         this.runningRoutesAndServices = runningRoutesAndServices;
         this.cacheMetrics = cacheMetrics;
+        this.stationDistances = stationDistances;
     }
 
     @Override
@@ -178,6 +182,10 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         final JourneyConstraints journeyConstraints = new JourneyConstraints(config, runningRoutesAndServices.getFor(tramDate),
                 closedStations, destinations, lowestCostsForRoutes, maxJourneyDuration);
 
+        // share selector across queries, to allow caching of station to station distances
+        final BranchOrderingPolicy selector = config.getDepthFirst() ? PREORDER_DEPTH_FIRST
+            : (start, expander) -> new BreadthFirstBranchSelector(start, expander, stationDistances, destinations);
+
         logger.info("Journey Constraints: " + journeyConstraints);
         logger.info("Query times: " + queryTimes);
 
@@ -187,10 +195,9 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         final Stream<Journey> results = numChangesRange(journeyRequest, numberOfChanges).
                 flatMap(numChanges -> queryTimes.stream().
-                        map(queryTime -> createPathRequest(startNode, tramDate, queryTime, requestedModes, numChanges, journeyConstraints, maxInitialWait))).
-                flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations,
-                        createServiceReasons(journeyRequest, pathRequest), pathRequest, createPreviousVisits(),
-                        lowestCostSeen)).
+                        map(queryTime -> createPathRequest(startNode, tramDate, queryTime, requestedModes, numChanges, journeyConstraints, maxInitialWait, selector))).
+                flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations, createServiceReasons(journeyRequest, pathRequest),
+                        pathRequest, createPreviousVisits(), lowestCostSeen)).
                 map(path -> createJourney(journeyRequest, path, destinations, journeyIndex, txn));
 
         //noinspection ResultOfMethodCallIgnored

@@ -84,7 +84,9 @@ public class CacheMetrics {
     }
 
     private void reportCacheStats(String className, List<Pair<String, CacheStats>> stats) {
-        stats.forEach(stat -> logger.info(format("%s: %s: %s", className, stat.getLeft(), stat.getRight().toString())));
+        stats.forEach(stat -> {
+            logger.info(format("%s: %s: %s", className, stat.getLeft(), stat.getRight().toString()));
+        });
     }
 
 }

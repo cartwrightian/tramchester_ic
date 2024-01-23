@@ -37,4 +37,8 @@ public class StationPair extends DomainPair<Station> {
     public boolean bothServeMode(TransportMode mode) {
         return first().servesMode(mode) && second().servesMode(mode);
     }
+
+    public StationIdPair getIdPair() {
+        return StationIdPair.of(first().getId(), second().getId());
+    }
 }

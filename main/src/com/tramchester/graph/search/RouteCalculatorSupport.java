@@ -23,6 +23,7 @@ import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TripRepository;
 import org.jetbrains.annotations.NotNull;
+import org.neo4j.graphdb.traversal.BranchOrderingPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -133,12 +134,12 @@ public class RouteCalculatorSupport {
         TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(
                 txn, pathRequest, nodeContentsRepository,
                 tripRepository, traversalStateFactory, endStations, config, destinationNodeIds,
-                reasons, reasonToGraphViz, providesNow, stationDistances);
+                reasons, reasonToGraphViz, providesNow);
 
         logger.info("Traverse for " + pathRequest);
 
         return tramNetworkTraverser.
-                findPaths(txn, pathRequest.startNode, previousSuccessfulVisit, lowestCostSeen).
+                findPaths(txn, pathRequest.startNode, previousSuccessfulVisit, lowestCostSeen, pathRequest.selector).
                 map(path -> new RouteCalculator.TimedPath(path, pathRequest.queryTime, pathRequest.numChanges));
     }
 
@@ -201,9 +202,9 @@ public class RouteCalculatorSupport {
 
     public PathRequest createPathRequest(GraphNode startNode, TramDate queryDate, TramTime actualQueryTime,
                                          EnumSet<TransportMode> requestedModes, int numChanges,
-                                         JourneyConstraints journeyConstraints, Duration maxInitialWait) {
+                                         JourneyConstraints journeyConstraints, Duration maxInitialWait, BranchOrderingPolicy selector) {
         ServiceHeuristics serviceHeuristics = createHeuristics(actualQueryTime, journeyConstraints, numChanges);
-        return new PathRequest(startNode, queryDate, actualQueryTime, numChanges, serviceHeuristics, requestedModes, maxInitialWait);
+        return new PathRequest(startNode, queryDate, actualQueryTime, numChanges, serviceHeuristics, requestedModes, maxInitialWait, selector);
     }
 
     public static class PathRequest {
@@ -214,9 +215,11 @@ public class RouteCalculatorSupport {
         private final TramDate queryDate;
         private final EnumSet<TransportMode> requestedModes;
         private final Duration maxInitialWait;
+        public final BranchOrderingPolicy selector;
 
         public PathRequest(GraphNode startNode, TramDate queryDate, TramTime queryTime, int numChanges,
-                           ServiceHeuristics serviceHeuristics, EnumSet<TransportMode> requestedModes, Duration maxInitialWait) {
+                           ServiceHeuristics serviceHeuristics, EnumSet<TransportMode> requestedModes,
+                           Duration maxInitialWait, BranchOrderingPolicy selector) {
             this.startNode = startNode;
             this.queryDate = queryDate;
             this.queryTime = queryTime;
@@ -224,6 +227,7 @@ public class RouteCalculatorSupport {
             this.serviceHeuristics = serviceHeuristics;
             this.requestedModes = requestedModes;
             this.maxInitialWait = maxInitialWait;
+            this.selector = selector;
         }
 
         public ServiceHeuristics getServiceHeuristics() {

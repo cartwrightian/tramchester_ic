@@ -1,5 +1,7 @@
 package com.tramchester.geo;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.id.IdFor;
@@ -21,18 +23,28 @@ public class StationDistances {
         this.stationRepository = stationRepository;
     }
 
-    public FindDistancesTo findDistancesTo(LocationSet destinations) {
+    public FindDistancesTo findDistancesTo(final LocationSet destinations) {
         return new FindDistancesTo(destinations);
     }
 
     public class FindDistancesTo {
         private final Set<GridPosition> grids;
 
+        // only look up distance to destination once for any station
+        // note: assumes FindDistancesTo lifetime is limited to one query, otherwise need tuning of cache creation to
+        // avoid memory issues
+        private final Cache<IdFor<Station>, Long> cache;
+
         public FindDistancesTo(LocationSet locations) {
             grids = locations.stream().map(Location::getGridPosition).filter(GridPosition::isValid).collect(Collectors.toSet());
+            cache = Caffeine.newBuilder().build();
         }
 
         public long toStation(final IdFor<Station> stationId) {
+            return cache.get(stationId, this::getMinDistance);
+        }
+
+        private Long getMinDistance(final IdFor<Station> stationId) {
             final Station station = stationRepository.getStationById(stationId);
             final GridPosition gridPosition = station.getGridPosition();
             final Optional<Long> find = grids.stream().map(grid -> GridPositions.distanceTo(gridPosition, grid)).min(Long::compare);

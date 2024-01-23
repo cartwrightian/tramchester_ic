@@ -14,15 +14,15 @@ import org.neo4j.graphdb.traversal.TraversalContext;
 import java.util.Comparator;
 import java.util.PriorityQueue;
 
-public class SpikeBranchSelector implements BranchSelector {
+public class BreadthFirstBranchSelector implements BranchSelector {
 
     private final TraversalBranchQueue expansionQueue;
     private final PathExpander<JourneyState> expander;
 
     private TraversalBranch branchToExpand;
 
-    public SpikeBranchSelector(final TraversalBranch start, final PathExpander<JourneyState> expander,
-                               final StationDistances stationDistances, LocationSet destinationIds) {
+    public BreadthFirstBranchSelector(final TraversalBranch start, final PathExpander<JourneyState> expander,
+                                      final StationDistances stationDistances, LocationSet destinationIds) {
         this.branchToExpand = start;
         this.expander = expander;
         expansionQueue = new TraversalBranchQueue(stationDistances, destinationIds);
@@ -92,13 +92,6 @@ public class SpikeBranchSelector implements BranchSelector {
                     }
                 }
                 return stateA.getJourneyClock().compareTo(stateB.getJourneyClock());
-//                if (compare==0) {
-//                    // note swap here
-//                    return Integer.compare(branchB.length(), branchA.length());
-////                    return Integer.compare(stateA.getNumberChanges(), stateB.getNumberChanges());
-//                } else {
-//                    return compare;
-//                }
             }
         }
     }

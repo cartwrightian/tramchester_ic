@@ -25,6 +25,7 @@ import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.RunningRoutesAndServices;
 import com.tramchester.repository.TransportData;
+import org.neo4j.graphdb.traversal.BranchOrderingPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +39,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
+import static org.neo4j.graphdb.traversal.BranchOrderingPolicies.PREORDER_DEPTH_FIRST;
 
 @LazySingleton
 public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
@@ -47,6 +49,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
     private final GraphDatabase graphDatabaseService;
     private final ClosedStationsRepository closedStationsRepository;
     private final RunningRoutesAndServices runningRoutesAndService;
+    private final StationDistances stationDistances;
 
     @Inject
     public RouteCalculatorForBoxes(TramchesterConfig config,
@@ -59,7 +62,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                                    BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz,
                                    ClosedStationsRepository closedStationsRepository, RunningRoutesAndServices runningRoutesAndService,
                                    @SuppressWarnings("unused") RouteCostCalculator routeCostCalculator,
-                                   StationDistances stationDistances) {
+                                   StationDistances stationDistances, StationDistances stationDistances1) {
         super(pathToStages, nodeContentsRepository, graphDatabaseService,
                 traversalStateFactory, providesNow, mapPathToLocations,
                 transportData, config, transportData, routeToRouteCosts, reasonToGraphViz, stationDistances);
@@ -67,6 +70,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         this.graphDatabaseService = graphDatabaseService;
         this.closedStationsRepository = closedStationsRepository;
         this.runningRoutesAndService = runningRoutesAndService;
+        this.stationDistances = stationDistances1;
     }
 
     public Stream<JourneysForBox> calculateRoutes(LocationSet destinations, JourneyRequest journeyRequest,
@@ -92,6 +96,10 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
         final Set<GraphNodeId> destinationNodeIds = getDestinationNodeIds(destinations);
 
+        // share selector across queries, to allow caching of station to station distances
+        final BranchOrderingPolicy selector = config.getDepthFirst() ? PREORDER_DEPTH_FIRST
+                : (start, expander) -> new BreadthFirstBranchSelector(start, expander, stationDistances, destinations);
+
         return grouped.parallelStream().map(box -> {
 
             logger.info(format("Finding shortest path for %s --> %s for %s", box, destinations, journeyRequest));
@@ -109,7 +117,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                         map(start -> new NodeAndStation(start, getLocationNodeSafe(txn, start))).
                         flatMap(nodeAndStation -> numChangesRange(journeyRequest, numberOfChanges).
                                 map(numChanges -> createPathRequest(nodeAndStation.node, date, originalTime, requestedModes, numChanges,
-                                        journeyConstraints, getMaxInitialWaitFor(nodeAndStation.location, config)))).
+                                        journeyConstraints, getMaxInitialWaitFor(nodeAndStation.location, config), selector))).
                         flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations,
                                 createServiceReasons(journeyRequest, originalTime), pathRequest,
                                 createPreviousVisits(), lowestCostSeenForBox)).

@@ -38,10 +38,6 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
     private final Cache<GraphRelationshipId, IdFor<Trip>> tripIdRelationshipCache;
     private final Cache<GraphRelationshipId, Duration> relationshipCostCache;
 
-//    private final Cache<GraphNodeId, IdFor<Service>> serviceNodeCache;
-//    private final Cache<GraphNodeId, IdFor<Trip>> tripNodeCache;
-//    private final Cache<GraphNodeId, IdFor<RouteStation>> routeStationIdCache;
-
     private final Cache<GraphNodeId, TramTime> timeNodeCache;
     private final Cache<GraphNodeId, Integer> hourNodeCahce;
 
@@ -56,9 +52,6 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
         relationshipCostCache = createCache("relationshipCostCache", numberFor(TransportRelationshipTypes.haveCosts()));
         tripIdRelationshipCache = createCache("tripIdRelationshipCache", numberFor(TransportRelationshipTypes.haveTripId()));
         timeNodeCache = createCache("timeNodeCache", GraphLabel.MINUTE);
-//        routeStationIdCache = createCache("routeStationIdCache", GraphLabel.ROUTE_STATION);
-//        serviceNodeCache = createCache("serviceNodeCache", GraphLabel.SERVICE);
-//        tripNodeCache = createCache("tripNodeCache", GraphLabel.MINUTE);
         hourNodeCahce = createCache("hourNodeCache", GraphLabel.HOUR);
 
         labelCache = Caffeine.newBuilder().maximumSize(50000).
@@ -80,9 +73,6 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
     public void dispose() {
         logger.info("dispose");
         relationshipCostCache.invalidateAll();
-//        serviceNodeCache.invalidateAll();
-//        routeStationIdCache.invalidateAll();
-//        tripNodeCache.invalidateAll();
         tripIdRelationshipCache.invalidateAll();
         timeNodeCache.invalidateAll();
         labelCache.invalidateAll();
@@ -107,9 +97,6 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
         result.add(Pair.of("relationshipCostCache",relationshipCostCache.stats()));
         result.add(Pair.of("tripIdRelationshipCache", tripIdRelationshipCache.stats()));
         result.add(Pair.of("timeNodeCache", timeNodeCache.stats()));
-//        result.add(Pair.of("svcIdCache", serviceNodeCache.stats()));
-//        result.add(Pair.of("routeStationIdCache", routeStationIdCache.stats()));
-//        result.add(Pair.of("tripNodeCahce", tripNodeCache.stats()));
         result.add(Pair.of("labelCache", labelCache.stats()));
 
         return result;
@@ -128,21 +115,15 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
     @Override
     public IdFor<RouteStation> getRouteStationId(GraphNode node) {
         return node.getRouteStationId();
-//        GraphNodeId nodeId = node.getId();
-//        return routeStationIdCache.get(nodeId, id -> node.getRouteStationId());
     }
 
     public IdFor<Service> getServiceId(GraphNode node) {
         return node.getServiceId();
-//        GraphNodeId nodeId = node.getId();
-//        return serviceNodeCache.get(nodeId, id -> node.getServiceId());
     }
 
     @Override
     public IdFor<Trip> getTripId(GraphNode node) {
         return node.getTripId();
-//        GraphNodeId nodeId = node.getId();
-//        return tripNodeCache.get(nodeId, id -> node.getTripId());
     }
 
     public int getHour(GraphNode node) {
