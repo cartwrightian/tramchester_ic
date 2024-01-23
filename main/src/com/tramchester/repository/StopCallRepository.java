@@ -51,7 +51,7 @@ public class StopCallRepository implements ReportsCacheStats {
         this.graphFilter = graphFilter;
         stopCalls = new HashMap<>();
 
-        // cost calcs potentially expensive
+        // cost calcs potentially expensive, but only used during graph build
         cachedCosts = Caffeine.newBuilder().maximumSize(20000).expireAfterAccess(10, TimeUnit.MINUTES).
                 recordStats().build();
         cacheMetrics.register(this);
@@ -110,8 +110,8 @@ public class StopCallRepository implements ReportsCacheStats {
                 collect(Collectors.toSet());
     }
 
-    public Costs getCostsBetween(Route route, Station first, Station second) {
-        CacheKey key = new CacheKey(route, first, second);
+    public Costs getCostsBetween(final Route route, final Station first, final Station second) {
+        final CacheKey key = new CacheKey(route, first, second);
         return cachedCosts.get(key, id -> calculateCosts(route, first, second));
     }
 

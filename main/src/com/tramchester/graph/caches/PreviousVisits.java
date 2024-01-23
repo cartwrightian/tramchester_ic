@@ -48,16 +48,17 @@ public class PreviousVisits implements ReportsCacheStats {
                 recordStats().build();
     }
 
-    public void recordVisitIfUseful(ReasonCode result, GraphNode node, ImmutableJourneyState journeyState, EnumSet<GraphLabel> labels) {
+    public void recordVisitIfUseful(final ReasonCode result, final GraphNode node, ImmutableJourneyState journeyState, final EnumSet<GraphLabel> labels) {
         if (labels.contains(GraphLabel.MINUTE) || labels.contains(GraphLabel.HOUR)) {
             // time and hour nodes represent the time on the actual journey, so if we have been here before
             // we will get the same result
-            TramTime journeyClock = journeyState.getJourneyClock();
+            final TramTime journeyClock = journeyState.getJourneyClock();
 
             switch (result) {
                 case DoesNotOperateOnTime -> timeNodePrevious.put(node.getId(), result);
                 case NotAtHour -> hourNodePrevious.put(new Key<>(node, journeyClock), result);
             }
+
             return;
         }
 
@@ -69,8 +70,8 @@ public class PreviousVisits implements ReportsCacheStats {
         if (labels.contains(GraphLabel.SERVICE)) {
             if (result == NotOnQueryDate) {
                 // the service is unavailable for the query date
-                TramTime journeyClock = journeyState.getJourneyClock();
-                boolean isNextDay = journeyClock.isNextDay();
+                final TramTime journeyClock = journeyState.getJourneyClock();
+                final boolean isNextDay = journeyClock.isNextDay();
                 if (!isNextDay) {
                     servicePrevious.put(node.getId(), result);
                 }
@@ -85,12 +86,13 @@ public class PreviousVisits implements ReportsCacheStats {
         }
         if (result == RouteNotOnQueryDate) {
             // the route is unavailable for the query date
-            TramTime journeyClock = journeyState.getJourneyClock();
+            final TramTime journeyClock = journeyState.getJourneyClock();
             final boolean isNextDay = journeyClock.isNextDay();
             if (!isNextDay) {
                 routeStationPrevious.put(nodeId, result);
             }
         }
+        // note: only occurs for depthFirst
         if (result == TooManyInterchangesRequired) {
             // too many changes, record lowest number of changes on journey that gave this result
             routeStationPrevious.put(nodeId, result);

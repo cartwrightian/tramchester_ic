@@ -4,8 +4,6 @@ import com.tramchester.domain.reference.TransportMode;
 import org.neo4j.graphdb.Label;
 
 import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -60,26 +58,45 @@ public enum GraphLabel implements Label {
         };
     }
 
-    public static Set<GraphLabel> forMode(Set<TransportMode> modes) {
-        return modes.stream().map(mode -> forMode(mode.getTransportMode())).collect(Collectors.toSet());
+    public static EnumSet<GraphLabel> forMode(final EnumSet<TransportMode> modes) {
+        return modes.stream().
+                map(mode -> forMode(mode.getTransportMode())).
+                collect(Collectors.toCollection( () -> EnumSet.noneOf(GraphLabel.class)));
     }
 
-    public static Set<GraphLabel> from(Iterable<Label> labels) {
-        Set<GraphLabel> result = new HashSet<>();
-        labels.forEach(label -> result.add(valueOf(label.name())));
-        return result;
-    }
-
-    public static Label getHourLabel(int hour) {
+    public static Label getHourLabel(final int hour) {
         return hourLabels[hour];
     }
 
-    public static int getHourFrom(EnumSet<GraphLabel> labels) {
-        for (int hour = 0; hour < 24    ; hour++) {
+    public static int getHourFrom(final EnumSet<GraphLabel> labels) {
+        for (int hour = 0; hour < 24 ; hour++) {
             if (labels.contains(hourLabels[hour])) {
                 return hour;
             }
         }
         throw new RuntimeException("Could not find hour from " + labels);
+    }
+
+    public static EnumSet<GraphLabel> from(final Iterable<Label> iter) {
+        // results from perf test, seconds
+
+        // 1.221
+        final EnumSet<GraphLabel> result = EnumSet.noneOf(GraphLabel.class);
+        for(final Label item : iter) {
+            result.add(GraphLabel.valueOf(item.name()));
+        }
+        return result;
+
+        // 1.284
+//        final EnumSet<GraphLabel> result = EnumSet.noneOf(GraphLabel.class);
+//        iter.forEach(item -> result.add(GraphLabel.valueOf(item.name())));
+//        return result;
+
+        // 1.688
+        // return Streams.stream(iter).map(label -> GraphLabel.valueOf(label.name())).collect(Collectors.toCollection(() -> EnumSet.noneOf(GraphLabel.class)));
+
+        // 3.849
+        //  final Set<GraphLabel> set = Streams.stream(iter).map(label -> GraphLabel.valueOf(label.name())).collect(Collectors.toSet());
+        //  return EnumSet.copyOf(set);
     }
 }

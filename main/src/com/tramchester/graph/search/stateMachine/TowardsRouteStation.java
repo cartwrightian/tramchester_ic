@@ -17,8 +17,8 @@ public abstract class TowardsRouteStation<T extends RouteStationState> implement
         this.interchangesOnly = interchangesOnly;
     }
 
-    protected OptionalResourceIterator<ImmutableGraphRelationship> getTowardsDestination(TraversalOps traversalOps,
-                                                                                                       GraphNode node, TramDate date, GraphTransaction txn) {
+    protected OptionalResourceIterator<ImmutableGraphRelationship> getTowardsDestination(
+            final TraversalOps traversalOps, final GraphNode node, final TramDate date, final GraphTransaction txn) {
         final Stream<ImmutableGraphRelationship> relationships = node.getRelationships(txn, OUTGOING, DEPART, INTERCHANGE_DEPART, DIVERSION_DEPART);
         return traversalOps.getTowardsDestination(Stream.concat(relationships, getActiveDiversions(node, date, txn)));
     }

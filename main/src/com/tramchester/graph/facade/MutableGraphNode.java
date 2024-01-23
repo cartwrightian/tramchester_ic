@@ -1,11 +1,13 @@
 package com.tramchester.graph.facade;
 
-import com.google.common.collect.Streams;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.places.*;
+import com.tramchester.domain.places.NPTGLocality;
+import com.tramchester.domain.places.RouteStation;
+import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
@@ -20,8 +22,10 @@ import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.graphdb.traversal.Traverser;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.EnumSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.GraphPropertyKey.*;
@@ -130,9 +134,7 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
     ///// GET //////////////////////////////////////////////////
 
     public EnumSet<GraphLabel> getLabels() {
-        final Iterable<Label> iter = node.getLabels();
-        final Set<GraphLabel> set = Streams.stream(iter).map(label -> GraphLabel.valueOf(label.name())).collect(Collectors.toSet());
-        return EnumSet.copyOf(set);
+        return GraphLabel.from(node.getLabels());
     }
 
     @Override
@@ -157,8 +159,6 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
 
     @Override
     public Integer getHour() {
-        // TODO Should use labels
-        //return (int) super.getProperty(HOUR, node);
         return GraphLabel.getHourFrom(getLabels());
     }
 

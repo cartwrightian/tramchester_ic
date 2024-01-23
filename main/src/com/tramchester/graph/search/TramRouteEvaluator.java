@@ -47,14 +47,14 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private final GraphNodeId startNodeId;
     private final Instant begin;
     private final long timeout;
-    private final Set<GraphLabel> requestedLabels;
+    private final EnumSet<GraphLabel> requestedLabels;
     private final GraphTransaction txn;
     private final boolean depthFirst;
 
     public TramRouteEvaluator(ServiceHeuristics serviceHeuristics, Set<GraphNodeId> destinationNodeIds,
                               NodeContentsRepository nodeContentsRepository, ServiceReasons reasons,
                               PreviousVisits previousVisits, LowestCostSeen bestResultSoFar, TramchesterConfig config,
-                              GraphNodeId startNodeId, Instant begin, ProvidesNow providesNow, Set<TransportMode> requestedModes,
+                              GraphNodeId startNodeId, Instant begin, ProvidesNow providesNow, EnumSet<TransportMode> requestedModes,
                               Duration maxInitialWait, GraphTransaction txn) {
         this.serviceHeuristics = serviceHeuristics;
         this.destinationNodeIds = destinationNodeIds;
@@ -81,7 +81,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     }
 
     @Override
-    public Evaluation evaluate(Path path, BranchState<JourneyState> state) {
+    public Evaluation evaluate(final Path path, final BranchState<JourneyState> state) {
 
         final ImmutableJourneyState journeyState = state.getState();
 

@@ -40,11 +40,12 @@ public class RailRouteIds implements ReportsCacheStats, RailRouteIdRepository {
     private final ProvidesRailTimetableRecords providesRailTimetableRecords;
     private final RailRouteIDBuilder railRouteIDBuilder;
     private final boolean enabled;
+    private final CacheMetrics cacheMetrics;
 
-    private final Map<IdFor<Agency>, Set<RailRouteCallingPointsWithRouteId>> routeIdsForAgency;
+    private Map<IdFor<Agency>, Set<RailRouteCallingPointsWithRouteId>> routeIdsForAgency;
 
     // many repeated calls during rail data load, caching helps significantly with performance
-    private final Cache<RailRouteCallingPoints, RailRouteId> cachedIds;
+    private Cache<RailRouteCallingPoints, RailRouteId> cachedIds;
 
     @Inject
     public RailRouteIds(RailStationRecordsRepository stationRecordsRepository, ProvidesRailTimetableRecords providesRailTimetableRecords,
@@ -54,14 +55,7 @@ public class RailRouteIds implements ReportsCacheStats, RailRouteIdRepository {
         this.providesRailTimetableRecords = providesRailTimetableRecords;
         this.railRouteIDBuilder = railRouteIDBuilder;
         enabled = config.hasRailConfig();
-        routeIdsForAgency = new HashMap<>();
-
-        // only used during load, hence very short duration
-        cachedIds = Caffeine.newBuilder().maximumSize(CACHED_ROUTES_SIZE).expireAfterAccess(2, TimeUnit.MINUTES).
-                recordStats().build();
-
-        cacheMetrics.register(this);
-
+        this.cacheMetrics = cacheMetrics;
     }
 
     @PostConstruct
@@ -71,6 +65,13 @@ public class RailRouteIds implements ReportsCacheStats, RailRouteIdRepository {
             return;
         }
 
+        routeIdsForAgency = new HashMap<>();
+        // only used during load, hence very short duration
+        cachedIds = Caffeine.newBuilder().maximumSize(CACHED_ROUTES_SIZE).expireAfterAccess(2, TimeUnit.MINUTES).
+                recordStats().build();
+
+        cacheMetrics.register(this);
+
         logger.info("Starting");
         createRouteIdsFor(providesRailTimetableRecords, stationRecordsRepository);
         logger.info("Started");
@@ -79,8 +80,10 @@ public class RailRouteIds implements ReportsCacheStats, RailRouteIdRepository {
     @PreDestroy
     public void stop() {
         logger.info("Stopping");
-        routeIdsForAgency.clear();
-        cachedIds.invalidateAll();
+        if (enabled) {
+            routeIdsForAgency.clear();
+            cachedIds.invalidateAll();
+        }
         logger.info("stopped");
     }
 
@@ -172,7 +175,7 @@ public class RailRouteIds implements ReportsCacheStats, RailRouteIdRepository {
                 filter(callingPoints -> callingPoints.getBeginEnd().equals(beginEnd)).
                 filter(callingPoints -> callingPoints.contains(agencyCallingPoints)).
                 sorted(this::compareMatching).
-                collect(Collectors.toList());
+                toList();
 
         if (matching.isEmpty()) {
             throw new RuntimeException("Could not find a route id for " + agencyCallingPoints);
@@ -208,12 +211,12 @@ public class RailRouteIds implements ReportsCacheStats, RailRouteIdRepository {
                 sum();
     }
 
-    public Set<RailRouteId> getAllIds() {
-        return routeIdsForAgency.values().stream().
-                flatMap(Collection::stream).collect(Collectors.toSet()).
-                stream().map(RailRouteCallingPointsWithRouteId::getRouteId).
-                collect(Collectors.toSet());
-    }
+//    public Set<RailRouteId> getAllIds() {
+//        return routeIdsForAgency.values().stream().
+//                flatMap(Collection::stream).collect(Collectors.toSet()).
+//                stream().map(RailRouteCallingPointsWithRouteId::getRouteId).
+//                collect(Collectors.toSet());
+//    }
 
     public static class RailRouteCallingPointsWithRouteId {
 

@@ -183,13 +183,13 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
         return (Boolean) relationship.getProperty(DAY_OFFSET.getText());
     }
 
-    public boolean validOn(TramDate tramDate) {
-        LocalDate localDate = tramDate.toLocalDate();
-        LocalDate startDate = getStartDate();
+    public boolean validOn(final TramDate tramDate) {
+        final LocalDate localDate = tramDate.toLocalDate();
+        final LocalDate startDate = getStartDate();
         if (localDate.isBefore(startDate)) {
             return false;
         }
-        LocalDate endDate = getEndDate();
+        final LocalDate endDate = getEndDate();
         if (localDate.isAfter(endDate)) {
             return false;
         }

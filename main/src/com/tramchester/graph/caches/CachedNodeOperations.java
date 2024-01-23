@@ -102,46 +102,46 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
         return result;
     }
 
-    public IdFor<Trip> getTripId(GraphRelationship relationship) {
-        GraphRelationshipId relationshipId = relationship.getId();
+    public IdFor<Trip> getTripId(final GraphRelationship relationship) {
+        final GraphRelationshipId relationshipId = relationship.getId();
         return tripIdRelationshipCache.get(relationshipId, id -> relationship.getTripId());
     }
 
-    public TramTime getTime(GraphNode node) {
-        GraphNodeId nodeId = node.getId();
+    public TramTime getTime(final GraphNode node) {
+        final GraphNodeId nodeId = node.getId();
         return timeNodeCache.get(nodeId, id -> node.getTime());
     }
 
     @Override
-    public IdFor<RouteStation> getRouteStationId(GraphNode node) {
+    public IdFor<RouteStation> getRouteStationId(final GraphNode node) {
         return node.getRouteStationId();
     }
 
-    public IdFor<Service> getServiceId(GraphNode node) {
+    public IdFor<Service> getServiceId(final GraphNode node) {
         return node.getServiceId();
     }
 
     @Override
-    public IdFor<Trip> getTripId(GraphNode node) {
+    public IdFor<Trip> getTripId(final GraphNode node) {
         return node.getTripId();
     }
 
-    public int getHour(GraphNode node) {
-        GraphNodeId nodeId = node.getId();
+    public int getHour(final GraphNode node) {
+        final GraphNodeId nodeId = node.getId();
         return hourNodeCahce.get(nodeId, id -> GraphLabel.getHourFrom(getLabels(node)));
     }
 
     @Override
-    public EnumSet<GraphLabel> getLabels(GraphNode node) {
-        GraphNodeId nodeId = node.getId();
+    public EnumSet<GraphLabel> getLabels(final GraphNode node) {
+        final GraphNodeId nodeId = node.getId();
         return labelCache.get(nodeId, id -> node.getLabels());
     }
 
     @Override
-    public Duration getCost(GraphRelationship relationship) {
-        TransportRelationshipTypes relationshipType = relationship.getType();
+    public Duration getCost(final GraphRelationship relationship) {
+        final TransportRelationshipTypes relationshipType = relationship.getType();
         if (TransportRelationshipTypes.hasCost(relationshipType)) {
-            GraphRelationshipId relationshipId = relationship.getId();
+            final GraphRelationshipId relationshipId = relationship.getId();
             return relationshipCostCache.get(relationshipId, id ->  relationship.getCost());
         } else {
             return Duration.ZERO;
@@ -149,8 +149,8 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
     }
 
     @Override
-    public void deleteFromCostCache(GraphRelationship relationship) {
-        GraphRelationshipId relationshipId = relationship.getId();
+    public void deleteFromCostCache(final GraphRelationship relationship) {
+        final GraphRelationshipId relationshipId = relationship.getId();
         relationshipCostCache.invalidate(relationshipId);
     }
 

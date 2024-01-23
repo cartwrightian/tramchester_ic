@@ -465,7 +465,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         BranchState<JourneyState> branchState = new TestBranchState();
 
         final EnumSet<GraphLabel> labels = EnumSet.of(ROUTE_STATION, TRAM);
-        Set<GraphLabel> requestedLabels = EnumSet.of(TRAM);
+        EnumSet<GraphLabel> requestedLabels = EnumSet.of(TRAM);
 
         EasyMock.expect(serviceHeuristics.getMaxPathLength()).andStubReturn(400);
         EasyMock.expect(serviceHeuristics.checkNumberChanges(0, howIGotHere, reasons)).

@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.EnumSet;
-import java.util.Set;
 
 public class ServiceHeuristics {
 
@@ -66,7 +65,7 @@ public class ServiceHeuristics {
         return valid(ReasonCode.ServiceDateOk, howIGotHere, reasons);
     }
 
-    public HeuristicsReason checkNumberChanges(int currentNumChanges, HowIGotHere howIGotHere, ServiceReasons reasons) {
+    public HeuristicsReason checkNumberChanges(final int currentNumChanges, final HowIGotHere howIGotHere, final ServiceReasons reasons) {
        reasons.incrementTotalChecked();
 
        if (currentNumChanges > currentChangesLimit) {
@@ -75,7 +74,7 @@ public class ServiceHeuristics {
        return valid(ReasonCode.NumChangesOK, howIGotHere, reasons);
     }
 
-    public HeuristicsReason checkNumberNeighbourConnections(int currentNumberConnections, HowIGotHere howIGotHere, ServiceReasons reasons) {
+    public HeuristicsReason checkNumberNeighbourConnections(final int currentNumberConnections, final HowIGotHere howIGotHere, final ServiceReasons reasons) {
         reasons.incrementTotalChecked();
 
         if (currentNumberConnections > journeyConstraints.getMaxWalkingConnections()) {
@@ -84,7 +83,7 @@ public class ServiceHeuristics {
         return valid(ReasonCode.NeighbourConnectionsOk, howIGotHere, reasons);
     }
 
-    public HeuristicsReason checkNumberWalkingConnections(int currentNumConnections, HowIGotHere howIGotHere, ServiceReasons reasons) {
+    public HeuristicsReason checkNumberWalkingConnections(final int currentNumConnections, final HowIGotHere howIGotHere, final ServiceReasons reasons) {
         reasons.incrementTotalChecked();
 
         if (currentNumConnections > journeyConstraints.getMaxWalkingConnections()) {
@@ -93,7 +92,8 @@ public class ServiceHeuristics {
         return valid(ReasonCode.NumWalkingConnectionsOk, howIGotHere, reasons);
     }
 
-    public HeuristicsReason checkTime(HowIGotHere howIGotHere, GraphNode node, TramTime currentTime, ServiceReasons reasons, int maxWait) {
+    public HeuristicsReason checkTime(final HowIGotHere howIGotHere, final GraphNode node, final TramTime currentTime,
+                                      final ServiceReasons reasons, final int maxWait) {
         reasons.incrementTotalChecked();
 
         final TramTime nodeTime = nodeOperations.getTime(node);
@@ -137,7 +137,7 @@ public class ServiceHeuristics {
         return reasons.recordReason(ServiceReason.DoesNotOperateAtHour(journeyClockTime, howIGotHere));
     }
 
-    public HeuristicsReason checkStationOpen(GraphNode node, HowIGotHere howIGotHere, ServiceReasons reasons) {
+    public HeuristicsReason checkStationOpen(final GraphNode node, final HowIGotHere howIGotHere, final ServiceReasons reasons) {
         reasons.incrementTotalChecked();
 
         final IdFor<RouteStation> routeStationId = nodeOperations.getRouteStationId(node);
@@ -153,9 +153,9 @@ public class ServiceHeuristics {
 
     }
 
-    public HeuristicsReason checkModes(final Set<GraphLabel> modelLabels, final Set<GraphLabel> requestedModeLabels,
-                                       HowIGotHere howIGotHere, ServiceReasons reasons) {
-
+    public HeuristicsReason checkModes(final EnumSet<GraphLabel> modelLabels, final EnumSet<GraphLabel> requestedModeLabels,
+                                       final HowIGotHere howIGotHere, final ServiceReasons reasons) {
+        // todo more efficient way for intersection on EnumSets?
         if (Sets.intersection(modelLabels, requestedModeLabels).isEmpty()) {
             //IdFor<RouteStation> routeStationId = nodeOperations.getRouteStationId(node);
             return reasons.recordReason(ServiceReason.TransportModeWrong(howIGotHere));
@@ -195,7 +195,7 @@ public class ServiceHeuristics {
         return valid(ReasonCode.Reachable, howIGotHere, reasons);
     }
 
-    public HeuristicsReason lowerCostIncludingInterchange(GraphNode nextNode, HowIGotHere howIGotHere, ServiceReasons reasons) {
+    public HeuristicsReason lowerCostIncludingInterchange(final GraphNode nextNode, final HowIGotHere howIGotHere, final ServiceReasons reasons) {
         reasons.incrementTotalChecked();
 
         final IdFor<RouteStation> routeStationId = nodeOperations.getRouteStationId(nextNode);
@@ -210,7 +210,7 @@ public class ServiceHeuristics {
         return valid(ReasonCode.Reachable, howIGotHere, reasons);
     }
 
-    public HeuristicsReason journeyDurationUnderLimit(final Duration totalDuration, final HowIGotHere howIGotHere, ServiceReasons reasons) {
+    public HeuristicsReason journeyDurationUnderLimit(final Duration totalDuration, final HowIGotHere howIGotHere, final ServiceReasons reasons) {
         reasons.incrementTotalChecked();
 
         if (Durations.greaterThan(totalDuration, journeyConstraints.getMaxJourneyDuration())) {
@@ -219,7 +219,7 @@ public class ServiceHeuristics {
         return valid(ReasonCode.DurationOk, howIGotHere, reasons);
     }
 
-    private HeuristicsReason valid(ReasonCode code, final HowIGotHere howIGotHere, ServiceReasons reasons) {
+    private HeuristicsReason valid(final ReasonCode code, final HowIGotHere howIGotHere, final ServiceReasons reasons) {
         return reasons.recordReason(ServiceReason.IsValid(code, howIGotHere));
     }
 
@@ -227,8 +227,8 @@ public class ServiceHeuristics {
         return journeyConstraints.getMaxPathLength();
     }
 
-    public HeuristicsReason notAlreadySeen(ImmutableJourneyState journeyState, GraphNode nextNode, final HowIGotHere howIGotHere,
-                                        ServiceReasons reasons) {
+    public HeuristicsReason notAlreadySeen(final ImmutableJourneyState journeyState, final GraphNode nextNode, final HowIGotHere howIGotHere,
+                                           final ServiceReasons reasons) {
         reasons.incrementTotalChecked();
 
         //return getStationIdFrom(node.getNode());
@@ -240,7 +240,8 @@ public class ServiceHeuristics {
     }
 
 
-    public HeuristicsReason checkNotBeenOnTripBefore(HowIGotHere howIGotHere, GraphNode minuteNode, ImmutableJourneyState journeyState, ServiceReasons reasons) {
+    public HeuristicsReason checkNotBeenOnTripBefore(final HowIGotHere howIGotHere, final GraphNode minuteNode, final ImmutableJourneyState journeyState,
+                                                     final ServiceReasons reasons) {
         reasons.incrementTotalChecked();
 
         final IdFor<Trip> tripId = nodeOperations.getTripId(minuteNode);

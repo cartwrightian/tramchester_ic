@@ -117,7 +117,7 @@ public class ImmutableGraphRelationship implements GraphRelationship {
     }
 
     @Override
-    public boolean validOn(TramDate tramDate) {
+    public boolean validOn(final TramDate tramDate) {
         return underlying.validOn(tramDate);
     }
 

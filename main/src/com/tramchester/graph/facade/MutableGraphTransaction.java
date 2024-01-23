@@ -139,45 +139,45 @@ public class MutableGraphTransaction implements GraphTransaction {
         return new BasicEvaluationContext(txn, databaseService);
     }
 
-    public Result execute(String query) {
+    public Result execute(final String query) {
         return txn.execute(query);
     }
 
     @Override
-    public List<ImmutableGraphRelationship> getRouteStationRelationships(RouteStation routeStation, Direction direction) {
-        GraphNode routeStationNode = findNode(routeStation);
+    public List<ImmutableGraphRelationship> getRouteStationRelationships(final RouteStation routeStation, final Direction direction) {
+        final GraphNode routeStationNode = findNode(routeStation);
         if (routeStationNode==null) {
             return Collections.emptyList();
         }
         return routeStationNode.getRelationships(this, direction, TransportRelationshipTypes.forPlanning()).toList();
     }
 
-    public MutableGraphNode wrapNode(Node endNode) {
-        GraphNodeId graphNodeId = idFactory.getIdFor(endNode);
+    public MutableGraphNode wrapNode(final Node endNode) {
+        final GraphNodeId graphNodeId = idFactory.getIdFor(endNode);
         return new MutableGraphNode(endNode, graphNodeId);
     }
 
-    public MutableGraphNode wrapNodeAsMutable(Node endNode) {
-        GraphNodeId graphNodeId = idFactory.getIdFor(endNode);
+    public MutableGraphNode wrapNodeAsMutable(final Node endNode) {
+        final GraphNodeId graphNodeId = idFactory.getIdFor(endNode);
         return new MutableGraphNode(endNode, graphNodeId);
     }
 
-    ImmutableGraphNode wrapNodeAsImmutable(Node endNode) {
-        MutableGraphNode underlying = wrapNodeAsMutable(endNode);
+    ImmutableGraphNode wrapNodeAsImmutable(final Node endNode) {
+        final MutableGraphNode underlying = wrapNodeAsMutable(endNode);
         return new ImmutableGraphNode(underlying);
     }
 
     @Override
-    public ImmutableGraphRelationship wrapRelationship(Relationship relationship) {
-        MutableGraphRelationship underlying = new MutableGraphRelationship(relationship, idFactory.getIdFor(relationship));
+    public ImmutableGraphRelationship wrapRelationship(final Relationship relationship) {
+        final MutableGraphRelationship underlying = new MutableGraphRelationship(relationship, idFactory.getIdFor(relationship));
         return new ImmutableGraphRelationship(underlying);
     }
 
-    public MutableGraphRelationship wrapRelationshipMutable(Relationship relationship) {
+    public MutableGraphRelationship wrapRelationshipMutable(final Relationship relationship) {
         return new MutableGraphRelationship(relationship, idFactory.getIdFor(relationship));
     }
 
-    public ImmutableGraphNode fromStart(Path path) {
+    public ImmutableGraphNode fromStart(final Path path) {
         final Node startNode = path.startNode();
         if (startNode==null) {
             return null;
@@ -185,7 +185,7 @@ public class MutableGraphTransaction implements GraphTransaction {
         return wrapNodeAsImmutable(startNode);
     }
 
-    public ImmutableGraphNode fromEnd(Path path) {
+    public ImmutableGraphNode fromEnd(final Path path) {
         final Node endNode = path.endNode();
         if (endNode==null) {
             return null;
@@ -193,8 +193,8 @@ public class MutableGraphTransaction implements GraphTransaction {
         return wrapNodeAsImmutable(endNode);
     }
 
-    public ImmutableGraphRelationship lastFrom(Path path) {
-        Relationship last = path.lastRelationship();
+    public ImmutableGraphRelationship lastFrom(final Path path) {
+        final Relationship last = path.lastRelationship();
         if (last==null) {
             return null;
         }
@@ -202,7 +202,7 @@ public class MutableGraphTransaction implements GraphTransaction {
     }
 
     @Override
-    public Iterable<ImmutableGraphNode> iter(Iterable<Node> iterable) {
+    public Iterable<ImmutableGraphNode> iter(final Iterable<Node> iterable) {
         return new Iterable<>() {
             @NotNull
             @Override
@@ -213,22 +213,22 @@ public class MutableGraphTransaction implements GraphTransaction {
         };
     }
 
-    public GraphRelationship getQueryColumnAsRelationship(Map<String, Object> row, String columnName) {
+    public GraphRelationship getQueryColumnAsRelationship(final Map<String, Object> row, final String columnName) {
         Relationship relationship = (Relationship) row.get(columnName);
         return wrapRelationship(relationship);
     }
 
-    public GraphNodeId createNodeId(Node endNode) {
+    public GraphNodeId createNodeId(final Node endNode) {
         return idFactory.getNodeIdFor(endNode.getElementId());
     }
 
     @Override
-    public ImmutableGraphNode getStartNode(Relationship relationship) {
+    public ImmutableGraphNode getStartNode(final Relationship relationship) {
         return wrapNodeAsImmutable(relationship.getStartNode());
     }
 
     @Override
-    public ImmutableGraphNode getEndNode(Relationship relationship) {
+    public ImmutableGraphNode getEndNode(final Relationship relationship) {
         return wrapNodeAsImmutable(relationship.getEndNode());
     }
 }
