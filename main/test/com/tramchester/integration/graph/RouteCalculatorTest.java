@@ -425,11 +425,9 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, ExchangeSquare, MediaCityUK);
     }
 
-    public static Duration costOfJourney(Journey journey) {
-        List<TransportStage<?,?>> stages = journey.getStages();
-        TramTime departs = stages.get(0).getFirstDepartureTime();
-        TramTime arrive = stages.get(stages.size() - 1).getExpectedArrivalTime();
-
+    public static Duration costOfJourney(final Journey journey) {
+        final TramTime departs = journey.getDepartTime();
+        final TramTime arrive = journey.getArrivalTime();
         return TramTime.difference(departs, arrive);
     }
 

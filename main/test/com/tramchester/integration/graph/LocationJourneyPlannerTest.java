@@ -48,13 +48,8 @@ class LocationJourneyPlannerTest {
     private Duration maxJourneyDuration;
     private long maxNumberOfJourneys;
     private StationRepository stationRepository;
-
-
-    @Test
-    static void todo() {
-        // TODO MAKE this a dual test
-        fail("todo");
-    }
+    
+    // TODO MAKE this a dual test
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {

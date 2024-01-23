@@ -154,29 +154,29 @@ public class RouteCalculatorSupport {
         if (stages.isEmpty()) {
             logger.error("No stages were mapped for " + journeyRequest + " for " + locationList);
         }
-        TramTime arrivalTime = getArrivalTimeFor(stages, journeyRequest);
-        TramTime departTime = getDepartTimeFor(stages, journeyRequest);
+        final TramTime arrivalTime = getArrivalTimeFor(stages, journeyRequest);
+        final TramTime departTime = getDepartTimeFor(stages, journeyRequest);
         return new Journey(departTime, path.queryTime(), arrivalTime, stages, locationList, path.numChanges(),
                 journeyIndex.getAndIncrement());
     }
 
-    private TramTime getDepartTimeFor(List<TransportStage<?, ?>> stages, JourneyRequest journeyRequest) {
+    private TramTime getDepartTimeFor(final List<TransportStage<?, ?>> stages, final JourneyRequest journeyRequest) {
         if (stages.isEmpty()) {
             logger.warn("No stages were mapped, can't get depart time");
             return journeyRequest.getOriginalTime();
         } else {
-            TransportStage<?, ?> firstStage = stages.get(0);
+            final TransportStage<?, ?> firstStage = stages.get(0);
             return firstStage.getFirstDepartureTime();
         }
     }
 
-    private TramTime getArrivalTimeFor(List<TransportStage<?, ?>> stages, JourneyRequest journeyRequest) {
-        int size = stages.size();
+    private TramTime getArrivalTimeFor(final List<TransportStage<?, ?>> stages, final JourneyRequest journeyRequest) {
+        final int size = stages.size();
         if (size == 0) {
             logger.warn("No stages were mapped, can't get arrival time");
             return journeyRequest.getOriginalTime();
         } else {
-            TransportStage<?, ?> lastStage = stages.get(size - 1);
+            final TransportStage<?, ?> lastStage = stages.get(size - 1);
             return lastStage.getExpectedArrivalTime();
         }
     }
