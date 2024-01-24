@@ -105,7 +105,7 @@ neighbourConfig:
       second: "ASHONUL"
 maxWait: 25
 maxNumberResults: 5
-maxJourneyDuration:  125
+maxJourneyDuration:  127
 numberQueries: 3
 queryInterval: 10
 depthFirst: true

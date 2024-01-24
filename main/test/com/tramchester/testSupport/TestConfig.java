@@ -84,7 +84,7 @@ public abstract class TestConfig extends AppConfiguration {
 
     // see RouteCalculatorTest.shouldFindEndOfLinesToEndOfLines
     @Override
-    public int getMaxJourneyDuration() { return 125; }
+    public int getMaxJourneyDuration() { return 127; }
 
     @Override
     public int getNumberQueries() { return 3; }

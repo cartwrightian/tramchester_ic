@@ -215,7 +215,7 @@ public class AppPage extends Page {
     }
 
     public List<TestResultSummaryRow> getResults() {
-        List<TestResultSummaryRow> results = new ArrayList<>();
+        final List<TestResultSummaryRow> results = new ArrayList<>();
         By resultsById = By.id(RESULTS);
         WebElement resultsDiv = new WebDriverWait(driver, 10).
                 until(elementToBeClickable(resultsById));

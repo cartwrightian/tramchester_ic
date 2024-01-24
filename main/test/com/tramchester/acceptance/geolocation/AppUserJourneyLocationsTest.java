@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static com.tramchester.acceptance.AppUserJourneyTest.desiredJourney;
+import static com.tramchester.acceptance.AppUserJourneyTest.desiredJourneyFromMyLocation;
 import static com.tramchester.testSupport.reference.KnownLocations.nearAltrincham;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -139,7 +140,7 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
         assertTrue(appPage.hasLocation(), "geo enabled");
 
         TramTime planTime = TramTime.of(10,15);
-        desiredJourney(appPage, nearAltrincham, TramStations.Deansgate, when, planTime, false);
+        desiredJourneyFromMyLocation(appPage, TramStations.Deansgate, when, planTime, false);
         appPage.planAJourney();
 
         List<TestResultSummaryRow> results = appPage.getResults();

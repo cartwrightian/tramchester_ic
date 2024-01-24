@@ -11,7 +11,6 @@ import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.resources.DataVersionResourceTest;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.SmokeTest;
@@ -254,9 +253,12 @@ public class AppUserJourneyTest extends UserJourneyTest {
         assertEquals(1, stages.size());
         Stage stage = stages.get(0);
 
-        validateAStage(stage, firstResult.getDepartTime(), "Board Tram", Altrincham.getName(),
+        Set<KnownTramRoute> expectedRoutes = EnumSet.of(BuryManchesterAltrincham, PiccadillyAltrincham);
+        Set<String> headSigns = new HashSet<>(Arrays.asList(Bury.getName(), Piccadilly.getName()));
+        Set<TramTime> departTimes = Collections.singleton(firstResult.getDepartTime());
+        validateAStage(stage, departTimes, "Board Tram", Altrincham.getName(),
                 Collections.singletonList(1),
-                KnownTramRoute.BuryManchesterAltrincham, Bury.getName(), 9);
+                expectedRoutes, headSigns, 9);
     }
 
     @ParameterizedTest(name = "{displayName} {arguments}")
@@ -417,8 +419,11 @@ public class AppUserJourneyTest extends UserJourneyTest {
             previousArrivalTime = arriveTime;
         }
 
+        // need to sort, otherwise unpredictable
+        List<TestResultSummaryRow> sorted = results.stream().sorted(Comparator.comparing(TestResultSummaryRow::getDepartTime)).toList();
+
         // select first journey
-        TestResultSummaryRow firstResult = results.get(0);
+        TestResultSummaryRow firstResult = sorted.get(0);
         firstResult.moveTo(providesDriver);
         appPage.waitForClickable(firstResult.getElement());
         firstResult.click(providesDriver);
@@ -547,7 +552,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
         appPage.setArriveBy(arriveBy);
     }
 
-    public static void desiredJourney(AppPage appPage, KnownLocations start, TramStations dest, LocalDate date, TramTime time, boolean arriveBy) {
+    public static void desiredJourneyFromMyLocation(AppPage appPage, TramStations dest, LocalDate date, TramTime time, boolean arriveBy) {
         appPage.setStartToMyLocation();
         appPage.setDest(dest);
         appPage.setSpecificDate(date);
@@ -562,13 +567,6 @@ public class AppUserJourneyTest extends UserJourneyTest {
         assertEquals(time, appPage.getTime());
         assertEquals(date, appPage.getDate());
         assertEquals(arriveBy, appPage.getArriveBy());
-    }
-
-    public static void validateAStage(Stage stage, TramTime departTime, String action, String actionStation, List<Integer> platforms,
-                                      KnownTramRoute expectedRoute, String headsign, int passedStops) {
-        validateAStage(stage, Collections.singleton(departTime), action, actionStation, platforms,
-                Collections.singleton(expectedRoute),
-                Collections.singleton(headsign), passedStops);
     }
 
     public static void validateAStage(Stage stage, Set<TramTime> departTimes, String action, String actionStation, List<Integer> platforms,

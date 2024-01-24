@@ -117,7 +117,7 @@ queryInterval: 10
 maxNumberResults: 5
 maxWalkingConnections: 3
 depthFirst: true
-maxJourneyDuration: 125
+maxJourneyDuration: 127
 nearestStopRangeKM: 1.6
 nearestStopForWalkingRangeKM: 1.6
 numOfNearestStopsToOffer: 5
