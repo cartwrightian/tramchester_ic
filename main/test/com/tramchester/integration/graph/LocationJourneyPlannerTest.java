@@ -48,7 +48,7 @@ class LocationJourneyPlannerTest {
     private Duration maxJourneyDuration;
     private long maxNumberOfJourneys;
     private StationRepository stationRepository;
-    
+
     // TODO MAKE this a dual test
 
     @BeforeAll
