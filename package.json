@@ -19,7 +19,7 @@
   "homepage": "https://github.com/ThoughtWorksInc/tramchester#readme",
   "dependencies": {
     "ajv": "^8.11.0",
-    "axios": "^1.6.5",
+    "axios": "^1.6.7",
     "leaflet": "^1.9.1",
     "leaflet-arrowheads": "^1.4.0",
     "leaflet-polylineoffset": "^1.1.1",
