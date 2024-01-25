@@ -67,10 +67,11 @@ public class RouteStationStateEndTrip extends RouteStationState {
         this.trip = trip;
     }
 
-    @Override
-    protected TraversalState toService(final ServiceState.Builder towardsService, final GraphNode node, final Duration cost) {
-        return towardsService.fromRouteStation(this, node, cost, txn);
-    }
+    // no services included in above, so this is never called
+//    @Override
+//    protected TraversalState toService(final ServiceState.Builder towardsService, final GraphNode node, final Duration cost) {
+//        return towardsService.fromRouteStation(this, node, cost, txn);
+//    }
 
     @Override
     protected TraversalState toNoPlatformStation(final NoPlatformStationState.Builder towardsStation, final GraphNode node, final Duration cost,

@@ -50,6 +50,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
     private final ClosedStationsRepository closedStationsRepository;
     private final RunningRoutesAndServices runningRoutesAndService;
     private final StationDistances stationDistances;
+    private final boolean depthFirst;
 
     @Inject
     public RouteCalculatorForBoxes(TramchesterConfig config,
@@ -71,6 +72,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         this.closedStationsRepository = closedStationsRepository;
         this.runningRoutesAndService = runningRoutesAndService;
         this.stationDistances = stationDistances;
+        this.depthFirst = config.getDepthFirst();
     }
 
     public Stream<JourneysForBox> calculateRoutes(LocationSet destinations, JourneyRequest journeyRequest,
@@ -116,7 +118,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                         map(start -> new NodeAndStation(start, getLocationNodeSafe(txn, start))).
                         flatMap(nodeAndStation -> numChangesRange(journeyRequest, numberOfChanges).
                                 map(numChanges -> createPathRequest(nodeAndStation.node, date, originalTime, requestedModes, numChanges,
-                                        journeyConstraints, getMaxInitialWaitFor(nodeAndStation.location, config), selector))).
+                                        journeyConstraints, getMaxInitialWaitFor(nodeAndStation.location, config), selector, depthFirst))).
                         flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations,
                                 createServiceReasons(journeyRequest, originalTime), pathRequest,
                                 createPreviousVisits(), lowestCostSeenForBox)).

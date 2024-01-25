@@ -9,7 +9,8 @@ import java.util.stream.Stream;
 
 public abstract class RouteStationState extends TraversalState {
 
-    protected RouteStationState(TraversalState parent, Stream<ImmutableGraphRelationship> outbounds, Duration costForLastEdge, TowardsRouteStation<?> builder, GraphNode graphNode) {
+    protected RouteStationState(TraversalState parent, Stream<ImmutableGraphRelationship> outbounds, Duration costForLastEdge,
+                                TowardsRouteStation<?> builder, GraphNode graphNode) {
         super(parent, outbounds, costForLastEdge, builder.getDestination(), graphNode);
     }
 }

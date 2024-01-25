@@ -200,9 +200,10 @@ public class RouteCalculatorSupport {
 
     public PathRequest createPathRequest(GraphNode startNode, TramDate queryDate, TramTime actualQueryTime,
                                          EnumSet<TransportMode> requestedModes, int numChanges,
-                                         JourneyConstraints journeyConstraints, Duration maxInitialWait, BranchOrderingPolicy selector) {
-        ServiceHeuristics serviceHeuristics = createHeuristics(actualQueryTime, journeyConstraints, numChanges);
-        return new PathRequest(startNode, queryDate, actualQueryTime, numChanges, serviceHeuristics, requestedModes, maxInitialWait, selector);
+                                         JourneyConstraints journeyConstraints, Duration maxInitialWait,
+                                         BranchOrderingPolicy selector, boolean depthFirst) {
+        final ServiceHeuristics serviceHeuristics = createHeuristics(actualQueryTime, journeyConstraints, numChanges);
+        return new PathRequest(startNode, queryDate, actualQueryTime, numChanges, serviceHeuristics, requestedModes, maxInitialWait, selector, depthFirst);
     }
 
     public static class PathRequest {
@@ -214,10 +215,11 @@ public class RouteCalculatorSupport {
         private final EnumSet<TransportMode> requestedModes;
         private final Duration maxInitialWait;
         public final BranchOrderingPolicy selector;
+        private final boolean depthFirst;
 
         public PathRequest(GraphNode startNode, TramDate queryDate, TramTime queryTime, int numChanges,
                            ServiceHeuristics serviceHeuristics, EnumSet<TransportMode> requestedModes,
-                           Duration maxInitialWait, BranchOrderingPolicy selector) {
+                           Duration maxInitialWait, BranchOrderingPolicy selector, boolean depthFirst) {
             this.startNode = startNode;
             this.queryDate = queryDate;
             this.queryTime = queryTime;
@@ -226,6 +228,7 @@ public class RouteCalculatorSupport {
             this.requestedModes = requestedModes;
             this.maxInitialWait = maxInitialWait;
             this.selector = selector;
+            this.depthFirst = depthFirst;
         }
 
         public ServiceHeuristics getServiceHeuristics() {
@@ -263,6 +266,10 @@ public class RouteCalculatorSupport {
 
         public Duration getMaxInitialWait() {
             return maxInitialWait;
+        }
+
+        public boolean getDepthFirst() {
+            return depthFirst;
         }
     }
 

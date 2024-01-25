@@ -2,16 +2,19 @@ package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.facade.*;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphNodeId;
+import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.search.JourneyStateUpdate;
-import com.tramchester.graph.search.stateMachine.*;
+import com.tramchester.graph.search.stateMachine.NodeId;
+import com.tramchester.graph.search.stateMachine.RegistersFromState;
+import com.tramchester.graph.search.stateMachine.Towards;
 
 import java.time.Duration;
 import java.util.stream.Stream;
 
-import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static java.lang.String.format;
-import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class PlatformState extends TraversalState implements NodeId {
 
@@ -35,10 +38,11 @@ public class PlatformState extends TraversalState implements NodeId {
             return TraversalStateType.PlatformState;
         }
 
-        public PlatformState from(final PlatformStationState platformStationState, final GraphNode node, final Duration cost, final GraphTransaction txn) {
-            // inc. board here since might be starting journey
-            return new PlatformState(platformStationState,
-                    node.getRelationships(txn, OUTGOING, INTERCHANGE_BOARD, BOARD), node, cost, this.getDestination());
+        public PlatformState from(final PlatformStationState stationState, final GraphNode node, final Duration cost, final GraphTransaction txn) {
+//            Stream<ImmutableGraphRelationship> boarding = node.getRelationships(txn, OUTGOING, INTERCHANGE_BOARD, BOARD);
+            Stream<ImmutableGraphRelationship> boarding = findStateAfterRouteStation.getBoardingRelationships(txn, node);
+
+            return new PlatformState(stationState, boarding, node, cost, this.getDestination());
         }
 
         public TraversalState fromRouteStationOnTrip(final RouteStationStateOnTrip routeStationStateOnTrip, final GraphNode node,

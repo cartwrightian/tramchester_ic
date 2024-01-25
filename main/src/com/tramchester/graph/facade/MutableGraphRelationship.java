@@ -132,12 +132,10 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
             endNode = txn.getEndNode(relationship);
         }
         return endNode;
-//        return txn.getEndNode(relationship);
     }
 
     public GraphNode getStartNode(GraphTransaction txn) {
         return txn.getStartNode(relationship);
-//        return txn.wrapNode(relationship.getStartNode());
     }
 
     public EnumSet<TransportMode> getTransportModes() {

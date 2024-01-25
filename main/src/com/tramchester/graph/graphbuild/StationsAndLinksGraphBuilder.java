@@ -125,14 +125,14 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
     private void addRouteStationsAndLinksFor(Agency agency, StationAndPlatformNodeCache stationAndPlatformNodeCache,
                                              RouteStationNodeCache routeStationNodeCache) {
 
-        Set<Route> routes = agency.getRoutes().stream().filter(graphFilter::shouldIncludeRoute).collect(Collectors.toSet());
+        final Set<Route> routes = agency.getRoutes().stream().filter(graphFilter::shouldIncludeRoute).collect(Collectors.toSet());
         if (routes.isEmpty()) {
             return;
         }
 
         logger.info(format("Adding %s routes for agency %s", routes.size(), agency));
 
-        Set<Station> filteredStations = transportData.getActiveStationStream().
+        final Set<Station> filteredStations = transportData.getActiveStationStream().
                 filter(graphFilter::shouldInclude).
                 collect(Collectors.toSet());
 
@@ -144,13 +144,13 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         try(TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "Adding routes")){
             MutableGraphTransaction tx = timedTransaction.transaction();
             routes.forEach(route -> {
-                IdFor<Route> asId = route.getId();
+                final IdFor<Route> asId = route.getId();
                 logger.debug("Adding route " + asId);
                 filteredStations.stream().
                         filter(station -> station.servesRouteDropOff(route) || station.servesRoutePickup(route)).
                         map(station -> transportData.getRouteStation(station, route)).
                         forEach(routeStation -> {
-                            MutableGraphNode routeStationNode = createRouteStationNode(tx, routeStation, routeStationNodeCache);
+                            final MutableGraphNode routeStationNode = createRouteStationNode(tx, routeStation, routeStationNodeCache);
                             linkStationAndRouteStation(tx, routeStation.getStation(), routeStationNode, route.getTransportMode(),
                                     stationAndPlatformNodeCache);
                         });
@@ -165,7 +165,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
 
     private void linkStationAndRouteStation(MutableGraphTransaction txn, Station station, MutableGraphNode routeStationNode,
                                             TransportMode transportMode, StationAndPlatformNodeCache cache) {
-        MutableGraphNode stationNode = cache.getStation(txn, station.getId());
+        final MutableGraphNode stationNode = cache.getStation(txn, station.getId());
 
         final MutableGraphRelationship stationToRoute = stationNode.createRelationshipTo(txn, routeStationNode, STATION_TO_ROUTE);
         final MutableGraphRelationship routeToStation = routeStationNode.createRelationshipTo(txn, stationNode, ROUTE_TO_STATION);
@@ -259,9 +259,9 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         }
     }
 
-    private MutableGraphNode createRouteStationNode(MutableGraphTransaction tx, RouteStation routeStation, RouteStationNodeCache routeStationNodeCache) {
+    private MutableGraphNode createRouteStationNode(final MutableGraphTransaction tx, final RouteStation routeStation, final RouteStationNodeCache routeStationNodeCache) {
 
-        boolean hasAlready = tx.hasAnyMatching(GraphLabel.ROUTE_STATION, GraphPropertyKey.ROUTE_STATION_ID.getText(), routeStation.getId().getGraphId());
+        final boolean hasAlready = tx.hasAnyMatching(GraphLabel.ROUTE_STATION, GraphPropertyKey.ROUTE_STATION_ID.getText(), routeStation.getId().getGraphId());
 
         if (hasAlready) {
             final String msg = "Existing route station node for " + routeStation + " with id " + routeStation.getId();
@@ -269,12 +269,12 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
             throw new RuntimeException(msg);
         }
 
-        TransportMode mode = routeStation.getRoute().getTransportMode();
-        GraphLabel modeLabel = GraphLabel.forMode(mode);
+        final TransportMode mode = routeStation.getRoute().getTransportMode();
+        final GraphLabel modeLabel = GraphLabel.forMode(mode);
 
-        Set<GraphLabel> labels = new HashSet<>(Arrays.asList(GraphLabel.ROUTE_STATION, modeLabel));
+        final Set<GraphLabel> labels = new HashSet<>(Arrays.asList(GraphLabel.ROUTE_STATION, modeLabel));
 
-        MutableGraphNode routeStationNode = createGraphNode(tx, labels);
+        final MutableGraphNode routeStationNode = createGraphNode(tx, labels);
 
         logger.debug(format("Creating route station %s nodeId %s", routeStation.getId(), routeStationNode.getId()));
         routeStationNode.set(routeStation);

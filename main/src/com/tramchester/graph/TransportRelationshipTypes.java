@@ -54,7 +54,7 @@ public enum TransportRelationshipTypes implements RelationshipType {
         return forPlanning;
     }
 
-    public static TransportRelationshipTypes forMode(TransportMode transportMode) {
+    public static TransportRelationshipTypes forMode(final TransportMode transportMode) {
         return switch (transportMode) {
             case Train, RailReplacementBus -> TRAIN_GOES_TO;
             case Bus -> BUS_GOES_TO;

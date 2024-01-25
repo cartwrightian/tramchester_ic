@@ -12,6 +12,7 @@ import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
 
 import java.time.Duration;
+import java.util.Comparator;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.TransportRelationshipTypes.TO_MINUTE;
@@ -38,7 +39,10 @@ public class HourState extends TraversalState {
         }
 
         private Stream<ImmutableGraphRelationship> getMinuteRelationships(final GraphNode node, final GraphTransaction txn) {
-            return getRelationships(txn, node, OUTGOING, TO_MINUTE);
+            Stream<ImmutableGraphRelationship> unsorted = getRelationships(txn, node, OUTGOING, TO_MINUTE);
+            // NOTE: need an ordering here to produce consistent results, time is as good as any and no obvious way to optimise
+            // the order here, unlike for HOURS
+            return unsorted.sorted(Comparator.comparing(relationship -> relationship.getEndNode(txn).getTime()));
         }
     }
 

@@ -287,12 +287,12 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     }
 
     private MutableGraphNode createServiceNodeAndRelationshipFromRouteStation(final MutableGraphTransaction tx, final Route route, final Service service,
-                                                                              final IdFor<Station> beginId, final IdFor<Station> endId,
+                                                                              final IdFor<Station> beginId, final IdFor<Station> nextStationId,
                                                                               final RouteStationNodeCache routeStationNodeCache,
                                                                               final ServiceNodeCache serviceNodeCache) {
 
-        if (serviceNodeCache.hasServiceNode(route.getId(), service, beginId, endId)) {
-            return serviceNodeCache.getServiceNode(tx, route.getId(), service, beginId, endId);
+        if (serviceNodeCache.hasServiceNode(route.getId(), service, beginId, nextStationId)) {
+            return serviceNodeCache.getServiceNode(tx, route.getId(), service, beginId, nextStationId);
         }
 
         // Node for the service
@@ -302,11 +302,10 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         final MutableGraphNode svcNode =  tx.createNode(GraphLabel.SERVICE); //createGraphNodeOld(tx, GraphLabel.SERVICE);
         svcNode.set(service);
         svcNode.set(route);
-        // TODO This is used to look up station and hence lat/long for distance ordering, store
-        //  org.neo4j.graphdb.spatial.Point instead?
-        svcNode.setTowards(endId);
 
-        serviceNodeCache.putService(route.getId(), service, beginId, endId, svcNode);
+        svcNode.setTowards(nextStationId);
+
+        serviceNodeCache.putService(route.getId(), service, beginId, nextStationId, svcNode);
 
         // start route station -> svc node
         final MutableGraphNode routeStationStart = routeStationNodeCache.getRouteStation(tx, route, beginId);

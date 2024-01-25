@@ -31,27 +31,33 @@ public class JustBoardedState extends RouteStationState {
             return TraversalStateType.JustBoardedState;
         }
 
-        public JustBoardedState fromPlatformState(final PlatformState platformState, final GraphNode node, final Duration cost, final GraphTransaction txn) {
+        public JustBoardedState fromPlatformState(final PlatformState platformState, final GraphNode routeStationNode, final Duration cost, final GraphTransaction txn) {
 
-            final Stream<ImmutableGraphRelationship> otherPlatforms = filterExcludingEndNode(txn, node.getRelationships(txn, OUTGOING, ENTER_PLATFORM),
-                    platformState);
+            final Stream<ImmutableGraphRelationship> services = getServices(routeStationNode, txn);
 
-            final Stream<ImmutableGraphRelationship> services = getServices(node, txn);
-
-            return new JustBoardedState(platformState, Stream.concat(services, otherPlatforms), cost, this, node);
+            // todo these never get used, otherwise would see a call to the base toPlatformStation and hence a runtime exception
+//            final Stream<ImmutableGraphRelationship> otherPlatforms = filterExcludingEndNode(txn, routeStationNode.getRelationships(txn, OUTGOING, ENTER_PLATFORM),
+//                    platformState);
+//            Stream<ImmutableGraphRelationship> both = Stream.concat(services, otherPlatforms);
+            return new JustBoardedState(platformState, services, cost, this, routeStationNode);
         }
 
-        public JustBoardedState fromNoPlatformStation(final NoPlatformStationState noPlatformStation, final GraphNode node,
+        public JustBoardedState fromNoPlatformStation(final NoPlatformStationState noPlatformStation, final GraphNode routeStationNode,
                                                       final Duration cost, final GraphTransaction txn) {
-            final Stream<ImmutableGraphRelationship> filteredDeparts = filterExcludingEndNode(txn,
-                    node.getRelationships(txn, OUTGOING, DEPART, INTERCHANGE_DEPART, DIVERSION_DEPART),
-                    noPlatformStation);
-            final Stream<ImmutableGraphRelationship> services = getServices(node, txn);
-            return new JustBoardedState(noPlatformStation, Stream.concat(filteredDeparts, services), cost, this, node);
+
+            final Stream<ImmutableGraphRelationship> services = getServices(routeStationNode, txn);
+
+            // todo these never get used, otherwise would see a call to the base toNoPlatformStation and hence a runtime exception
+//            final Stream<ImmutableGraphRelationship> filteredDeparts = filterExcludingEndNode(txn,
+//                    routeStationNode.getRelationships(txn, OUTGOING, DEPART, INTERCHANGE_DEPART, DIVERSION_DEPART),
+//                    noPlatformStation);
+//            Stream<ImmutableGraphRelationship> both = Stream.concat(services, filteredDeparts);
+            return new JustBoardedState(noPlatformStation, services, cost, this, routeStationNode);
         }
 
-        private static Stream<ImmutableGraphRelationship> getServices(final GraphNode node, final GraphTransaction txn) {
-            return node.getRelationships(txn, OUTGOING, TO_SERVICE);
+        private static Stream<ImmutableGraphRelationship> getServices(final GraphNode routeStationNode, final GraphTransaction txn) {
+            // not sorted, only see one svc outbound from a route station node
+            return routeStationNode.getRelationships(txn, OUTGOING, TO_SERVICE);
         }
     }
 

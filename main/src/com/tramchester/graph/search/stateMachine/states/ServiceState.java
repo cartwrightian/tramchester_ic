@@ -2,9 +2,12 @@ package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
+import com.tramchester.graph.graphbuild.GraphLabel;
+import com.tramchester.graph.search.RouteCalculatorSupport;
 import com.tramchester.graph.search.stateMachine.ExistingTrip;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
@@ -37,18 +40,18 @@ public class ServiceState extends TraversalState {
             return new ServiceState(state, hourRelationships, ExistingTrip.onTrip(tripId), cost, this, graphNode);
         }
 
-        public TraversalState fromRouteStation(final RouteStationStateEndTrip endTrip, final GraphNode graphNode, final Duration cost, final GraphTransaction txn) {
-            final Stream<ImmutableGraphRelationship> hourRelationships = getHourRelationships(graphNode, txn);
-            return new ServiceState(endTrip, hourRelationships, cost, this, graphNode);
-        }
-
         public TraversalState fromRouteStation(final JustBoardedState justBoarded, final GraphNode graphNode, final Duration cost, final GraphTransaction txn) {
             final Stream<ImmutableGraphRelationship> hourRelationships = getHourRelationships(graphNode, txn);
             return new ServiceState(justBoarded, hourRelationships, cost, this, graphNode);
         }
 
-        private Stream<ImmutableGraphRelationship> getHourRelationships(final GraphNode node, final GraphTransaction txn) {
+        // unused
+//        public TraversalState fromRouteStation(final RouteStationStateEndTrip endTrip, final GraphNode graphNode, final Duration cost, final GraphTransaction txn) {
+//            final Stream<ImmutableGraphRelationship> hourRelationships = getHourRelationships(graphNode, txn);
+//            return new ServiceState(endTrip, hourRelationships, cost, this, graphNode);
+//        }
 
+        private Stream<ImmutableGraphRelationship> getHourRelationships(final GraphNode node, final GraphTransaction txn) {
             return node.getRelationships(txn, OUTGOING, TO_HOUR);
         }
 
@@ -73,22 +76,27 @@ public class ServiceState extends TraversalState {
         return towardsHour.fromService(this, node, cost, maybeExistingTrip, txn);
     }
 
-//    @Override
-//    public Stream<ImmutableGraphRelationship> getOutbounds(GraphTransaction txn, final RouteCalculatorSupport.PathRequest pathRequest) {
-//        final TramTime queryTime = pathRequest.getActualQueryTime();
-//        final int queryHour = queryTime.getHourOfDay();
-//
-//        return super.getOutbounds(txn, pathRequest).sorted(TramTime.RollingHourComparator(queryHour,
-//                relationship -> {
-//                    final GraphNode endNode = relationship.getEndNode(txn);
-//                    return hourFor(endNode);
-//                }));
-//
-//    }
-//
-//    private int hourFor(GraphNode endNode) {
-//        return GraphLabel.getHourFrom(endNode.getLabels());
-//    }
+    @Override
+    public Stream<ImmutableGraphRelationship> getOutbounds(GraphTransaction txn, final RouteCalculatorSupport.PathRequest pathRequest) {
+        if (pathRequest.getDepthFirst()) {
+            // note: assume only hour relationships
+            // Assumes journeys that take less than 24 hours i.e. that ordering from the start hour is a good heuristic
+            final TramTime queryTime = pathRequest.getActualQueryTime();
+            final int queryHour = queryTime.getHourOfDay();
+
+            return super.getOutbounds(txn, pathRequest).sorted(TramTime.RollingHourComparator(queryHour,
+                    relationship -> {
+                        final GraphNode endNode = relationship.getEndNode(txn);
+                        return hourFor(endNode);
+                    }));
+        } else {
+            return super.getOutbounds(txn, pathRequest);
+        }
+    }
+
+    private int hourFor(GraphNode endNode) {
+        return GraphLabel.getHourFrom(endNode.getLabels());
+    }
 
     @Override
     public String toString() {

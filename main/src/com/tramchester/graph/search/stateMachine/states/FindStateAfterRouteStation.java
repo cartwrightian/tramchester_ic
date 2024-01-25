@@ -15,12 +15,12 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class FindStateAfterRouteStation extends StationStateBuilder {
 
-    public TraversalState endTripTowardsStation(TraversalStateType destination, final RouteStationStateEndTrip routeStationState,
+    public TraversalState endTripTowardsStation(final TraversalStateType destination, final RouteStationStateEndTrip routeStationState,
                                                 final GraphNode node, final Duration cost, final JourneyStateUpdate journeyState,
                                                 final boolean alreadyOnDiversion, final GraphTransaction txn) {
         // end of a trip, may need to go back to this route station to catch new service
 
-        final Stream<ImmutableGraphRelationship> boardsAndOthers = getBoardsAndOthers(node, txn, false, routeStationState.traversalOps);
+        final Stream<ImmutableGraphRelationship> boardsAndOthers = getBoardsAndOthers(node, txn, false);
 
         final Stream<ImmutableGraphRelationship> diversions = addValidDiversions(node, routeStationState, alreadyOnDiversion, txn);
 
@@ -28,35 +28,35 @@ public class FindStateAfterRouteStation extends StationStateBuilder {
         return createNoPlatformStationState(routeStationState, node, cost, journeyState, relationships, destination);
     }
 
-    public TraversalState endTripTowardsPlatform(TraversalStateType towardsState, RouteStationStateEndTrip routeStationState,
-                                                 GraphNode node, Duration cost, GraphTransaction txn) {
+    public TraversalState endTripTowardsPlatform(final TraversalStateType towardsState, final RouteStationStateEndTrip routeStationState,
+                                                 final GraphNode node, final Duration cost, final GraphTransaction txn) {
         final OptionalResourceIterator<ImmutableGraphRelationship> towardsDest = getTowardsDestination(routeStationState.traversalOps, node, txn);
         if (!towardsDest.isEmpty()) {
             return createPlatformState(towardsState, routeStationState, node, cost, towardsDest.stream());
         }
 
-        final Stream<ImmutableGraphRelationship> platformRelationships = getBoardsAndOthers(node, txn, true, routeStationState.traversalOps);
+        final Stream<ImmutableGraphRelationship> platformRelationships = getBoardsAndOthers(node, txn, true);
 
         return createPlatformState(towardsState, routeStationState, node, cost, platformRelationships);
     }
 
-    public TraversalState onTripTowardsStation(TraversalStateType destination, final RouteStationStateOnTrip onTrip, final GraphNode node,
+    public TraversalState onTripTowardsStation(final TraversalStateType destination, final RouteStationStateOnTrip onTrip, final GraphNode node,
                                                final Duration cost, final JourneyStateUpdate journeyState, final GraphTransaction txn) {
         // filter so we don't just get straight back on tram if just boarded, or if we are on an existing trip
-        final Stream<ImmutableGraphRelationship> relationships = getBoardsAndOthers(node, txn, false, onTrip.traversalOps);
+        final Stream<ImmutableGraphRelationship> relationships = getBoardsAndOthers(node, txn, false);
         final Stream<ImmutableGraphRelationship> filteredRelationships = TraversalState.filterExcludingEndNode(txn, relationships, onTrip);
         return createNoPlatformStationState(onTrip, node, cost, journeyState, filteredRelationships, destination);
     }
 
-    public TraversalState onTripTowardsPlatform(TraversalStateType towardsState, RouteStationStateOnTrip routeStationStateOnTrip, GraphNode node,
-                                                Duration cost, GraphTransaction txn) {
+    public TraversalState onTripTowardsPlatform(final TraversalStateType towardsState, final RouteStationStateOnTrip routeStationStateOnTrip,
+                                                final GraphNode node, final Duration cost, final GraphTransaction txn) {
         final TraversalOps traversalOps = routeStationStateOnTrip.traversalOps;
         final OptionalResourceIterator<ImmutableGraphRelationship> towardsDest = getTowardsDestination(traversalOps, node, txn);
         if (!towardsDest.isEmpty()) {
             return new PlatformState(routeStationStateOnTrip, towardsDest.stream(), node, cost, towardsState);
         }
 
-        final Stream<ImmutableGraphRelationship> platformRelationships = getBoardsAndOthers(node, txn, true, traversalOps);
+        final Stream<ImmutableGraphRelationship> platformRelationships = getBoardsAndOthers(node, txn, true);
 
         // Cannot filter here as might be starting a new trip from this point, so need to 'go back' to the route station
         //Stream<Relationship> filterExcludingEndNode = filterExcludingEndNode(platformRelationships, routeStationStateOnTrip);
@@ -64,7 +64,7 @@ public class FindStateAfterRouteStation extends StationStateBuilder {
         return new PlatformState(routeStationStateOnTrip, platformRelationships, node, cost, towardsState);
     }
 
-    Stream<ImmutableGraphRelationship> getBoardsAndOthers(final GraphNode node, final GraphTransaction txn, boolean isPlatform, TraversalOps traversalOps) {
+    private Stream<ImmutableGraphRelationship> getBoardsAndOthers(final GraphNode node, final GraphTransaction txn, final boolean isPlatform) {
 
         final Stream<ImmutableGraphRelationship> other;
         if (isPlatform) {
@@ -74,13 +74,20 @@ public class FindStateAfterRouteStation extends StationStateBuilder {
         }
 
         // ordering by number of hops, but this might not yield good results i.e. routes linked but at "far end"
-        final Stream<ImmutableGraphRelationship> unsorted = node.getRelationships(txn, OUTGOING, BOARD, INTERCHANGE_BOARD);
+        final Stream<ImmutableGraphRelationship> boarding = getBoardingRelationships(txn, node);
 
-        // Note: Sorting is slow and gain is not worth it
+        // Note: Sorting by route connections is slow and produces little gain
+        // TODO What to sort by?
         // final Stream<ImmutableGraphRelationship> boarding = traversalOps.orderBoardingRelationsByRouteConnections(unsorted);
 
-        // order matters here, i.e. explore walks first TODO WHY?
-        return Stream.concat(other, unsorted);
+        // order matters here when using depth first, i.e. explore walks first other will not follow those linked when solution found
+        return Stream.concat(other, boarding);
+    }
+
+    public Stream<ImmutableGraphRelationship> getBoardingRelationships(final GraphTransaction txn, final GraphNode node) {
+        // TODO Order here?
+        // towards route stations
+        return node.getRelationships(txn, OUTGOING, BOARD, INTERCHANGE_BOARD);
     }
 
     private OptionalResourceIterator<ImmutableGraphRelationship> getTowardsDestination(final TraversalOps traversalOps,
