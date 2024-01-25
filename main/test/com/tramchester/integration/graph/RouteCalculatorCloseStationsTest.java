@@ -83,7 +83,7 @@ class RouteCalculatorCloseStationsTest {
     void shouldFindUnaffectedRouteNormally() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
                 2, Duration.ofMinutes(120), 1, getRequestedModes());
-        Set<Journey> result = calculator.calculateRouteAsSet(TramStations.Altrincham, TraffordBar, journeyRequest);
+        List<Journey> result = calculator.calculateRouteAsList(TramStations.Altrincham, TraffordBar, journeyRequest);
         assertFalse(result.isEmpty());
     }
 
@@ -91,7 +91,7 @@ class RouteCalculatorCloseStationsTest {
     void shouldHandlePartialClosure() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
                 3, Duration.ofMinutes(120), 1, getRequestedModes());
-        Set<Journey> result = calculator.calculateRouteAsSet(Piccadilly, StPetersSquare, journeyRequest);
+        List<Journey> result = calculator.calculateRouteAsList(Piccadilly, StPetersSquare, journeyRequest);
         assertFalse(result.isEmpty());
     }
 
@@ -103,7 +103,7 @@ class RouteCalculatorCloseStationsTest {
     void shouldFindRouteAroundClosedStation() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
                 3, Duration.ofMinutes(120), 1, getRequestedModes());
-        Set<Journey> result = calculator.calculateRouteAsSet(MarketStreet, Victoria, journeyRequest);
+        List<Journey> result = calculator.calculateRouteAsList(MarketStreet, Victoria, journeyRequest);
         assertFalse(result.isEmpty());
     }
 
@@ -126,7 +126,7 @@ class RouteCalculatorCloseStationsTest {
         JourneyRequest journeyRequest = new JourneyRequest(travelDate, TramTime.of(8, 0),
                 false, 0, Duration.ofMinutes(120), 1, getRequestedModes());
 
-        Set<Journey> journeys = calculator.calculateRouteAsSet(Bury, Shudehill, journeyRequest);
+        List<Journey> journeys = calculator.calculateRouteAsList(Bury, Shudehill, journeyRequest);
         return journeys.stream().filter(results -> results.getStages().size() == 1).collect(Collectors.toSet());
     }
 

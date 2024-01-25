@@ -93,7 +93,7 @@ class RouteCalculatorSubGraphEcclesAshtonLine {
                 1, maxJourneyDuration, 2, TramsOnly);
 //        request.setDiag(true);
 
-        assertFalse(calculator.calculateRouteAsSet(MediaCityUK, VeloPark, request).isEmpty());
+        assertFalse(calculator.calculateRouteAsList(MediaCityUK, VeloPark, request).isEmpty());
     }
 
     @Test

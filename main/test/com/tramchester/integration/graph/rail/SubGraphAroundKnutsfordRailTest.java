@@ -32,7 +32,6 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Set;
 
 import static com.tramchester.domain.reference.TransportMode.Train;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.Hale;
@@ -162,7 +161,7 @@ class SubGraphAroundKnutsfordRailTest {
     void shouldHaveSimpleJourney() {
         JourneyRequest journeyRequest = new JourneyRequest(when, tramTime, false, 0,
                 Duration.ofMinutes(30), 1, EnumSet.noneOf(TransportMode.class));
-        Set<Journey> results = testFacade.calculateRouteAsSet(Hale.getId(), Knutsford.getId(), journeyRequest);
+        List<Journey> results = testFacade.calculateRouteAsList(Hale.getId(), Knutsford.getId(), journeyRequest);
         assertFalse(results.isEmpty());
     }
 
@@ -179,7 +178,7 @@ class SubGraphAroundKnutsfordRailTest {
         JourneyRequest journeyRequest = new JourneyRequest(when, tramTime, false, 0,
                 maxJourneyDuration, 1, allModes);
 
-        Set<Journey> results = testFacade.calculateRouteAsSet(start.getId(), dest.getId(), journeyRequest);
+        List<Journey> results = testFacade.calculateRouteAsList(start.getId(), dest.getId(), journeyRequest);
         assertFalse(results.isEmpty(), "No results from " + start + " to " + dest + " for " + journeyRequest);
     }
 

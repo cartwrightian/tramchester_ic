@@ -65,9 +65,9 @@ public class MapPathToStagesViaStates implements PathToStages {
     }
 
     @Override
-    public List<TransportStage<?, ?>> mapDirect(RouteCalculator.TimedPath timedPath, JourneyRequest journeyRequest,
-                                                LocationSet endStations,
-                                                GraphTransaction txn) {
+    public List<TransportStage<?, ?>> mapDirect(final RouteCalculator.TimedPath timedPath, final JourneyRequest journeyRequest,
+                                                final LocationSet endStations,
+                                                final GraphTransaction txn) {
         final Path path = timedPath.path();
         final TramTime queryTime = timedPath.queryTime();
         logger.info(format("Mapping path length %s to transport stages for %s at %s with %s changes",
@@ -112,7 +112,7 @@ public class MapPathToStagesViaStates implements PathToStages {
             }
         });
 
-        TraversalState finalState = pathMapper.getFinalState();
+        final TraversalState finalState = pathMapper.getFinalState();
 
         final ImmutableGraphNode endOfPath = txn.fromEnd(path);
 
@@ -131,19 +131,19 @@ public class MapPathToStagesViaStates implements PathToStages {
         return stages;
     }
 
-    private List<TransportStage<StationGroup, StationGroup>> addViaCompositeStation(GraphNode startNode, GraphNode endNode, JourneyRequest journeyRequest) {
+    private List<TransportStage<StationGroup, StationGroup>> addViaCompositeStation(final GraphNode startNode, final GraphNode endNode,
+                                                                                    final JourneyRequest journeyRequest) {
         logger.info("Add ConnectingStage Journey via single composite node");
 
         final List<TransportStage<StationGroup, StationGroup>> toAdd = new ArrayList<>();
 
-        IdFor<NPTGLocality> startId = startNode.getAreaId();
-        IdFor<NPTGLocality> endId = endNode.getAreaId();
+        final IdFor<NPTGLocality> startId = startNode.getAreaId();
+        final IdFor<NPTGLocality> endId = endNode.getAreaId();
 
-        StationGroup start = stationGroupsRepository.getStationGroup(startId);
-        StationGroup end = stationGroupsRepository.getStationGroup(endId);
+        final StationGroup start = stationGroupsRepository.getStationGroup(startId);
+        final StationGroup end = stationGroupsRepository.getStationGroup(endId);
 
-        ConnectingStage<StationGroup, StationGroup> connectingStage =
-                new ConnectingStage<>(start, end, Duration.ZERO, journeyRequest.getOriginalTime());
+        final ConnectingStage<StationGroup, StationGroup> connectingStage = new ConnectingStage<>(start, end, Duration.ZERO, journeyRequest.getOriginalTime());
         toAdd.add(connectingStage);
 
         return toAdd;

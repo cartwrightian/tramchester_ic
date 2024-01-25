@@ -366,18 +366,15 @@ public class JourneyPlannerResourceTest {
 
         JourneyPlanRepresentation results = journeyPlanner.getJourneyPlan(query);
 
-        Set<JourneyDTO> journeys = results.getJourneys();
+        Optional<JourneyDTO> findEarliest = results.getJourneys().stream().min(Comparator.comparing(JourneyDTO::getFirstDepartureTime));
+        assertTrue(findEarliest.isPresent());
 
-        Optional<TramTime> earliest = journeys.stream().map(JourneyDTO::getFirstDepartureTime).
-                map(LocalDateTime::toLocalTime).
-                map(TramTime::ofHourMins).
-                min(TramTime.comparing(time->time));
+        JourneyDTO earliestJourney = findEarliest.get();
 
-        assertTrue(earliest.isPresent());
+        TramTime firstDepart = TramTime.ofHourMins(earliestJourney.getFirstDepartureTime().toLocalTime());
 
-        final TramTime firstDepartTime = earliest.get();
-        Duration elapsed = TramTime.difference(queryTime, firstDepartTime);
-        assertTrue(Durations.lessThan(elapsed,Duration.ofMinutes(15)), "first result too far in future " + firstDepartTime);
+        Duration elapsed = TramTime.difference(queryTime, firstDepart);
+        assertTrue(Durations.lessThan(elapsed,Duration.ofMinutes(15)), "first result too far in future " + firstDepart + " for " + results.getJourneys());
     }
 
     private void checkDepartsAfterPreviousArrival(String message, Set<JourneyDTO> journeys) {

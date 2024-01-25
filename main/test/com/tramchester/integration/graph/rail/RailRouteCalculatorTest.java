@@ -26,7 +26,6 @@ import org.junit.jupiter.api.*;
 import java.time.Duration;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -196,7 +195,7 @@ public class RailRouteCalculatorTest {
 
         //journeyRequest.setDiag(true);
 
-        Set<Journey> results = testFacade.calculateRouteAsSet(Derby.getId(), Altrincham.getId(), journeyRequest);
+        List<Journey> results = testFacade.calculateRouteAsList(Derby.getId(), Altrincham.getId(), journeyRequest);
 
         assertEquals(1, results.size(), results.toString());
     }
@@ -207,7 +206,7 @@ public class RailRouteCalculatorTest {
 
         JourneyRequest request = new JourneyRequest(afterEngineering, travelTime, false, 0,
                 Duration.ofMinutes(3*60), 3, getRequestedModes());
-        Set<Journey> journeys = testFacade.calculateRouteAsSet(RailStationIds.LondonEuston.getId(),
+        List<Journey> journeys = testFacade.calculateRouteAsList(RailStationIds.LondonEuston.getId(),
                 ManchesterPiccadilly.getId(),
                 request);
         assertFalse(journeys.isEmpty());
@@ -257,7 +256,7 @@ public class RailRouteCalculatorTest {
     }
 
     private void atLeastOneDirect(JourneyRequest request, IdFor<Station> start, IdFor<Station> dest) {
-        Set<Journey> journeys = testFacade.calculateRouteAsSet(start, dest, request);
+        List<Journey> journeys = testFacade.calculateRouteAsList(start, dest, request);
         assertFalse(journeys.isEmpty());
 
         // At least one direct

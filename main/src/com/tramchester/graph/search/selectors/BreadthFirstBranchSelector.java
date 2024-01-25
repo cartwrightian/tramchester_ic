@@ -1,9 +1,10 @@
-package com.tramchester.graph.search;
+package com.tramchester.graph.search.selectors;
 
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.geo.StationDistances;
+import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.stateMachine.states.StationState;
 import com.tramchester.graph.search.stateMachine.states.TraversalState;
 import org.neo4j.graphdb.PathExpander;
@@ -31,28 +32,35 @@ public class BreadthFirstBranchSelector implements BranchSelector {
     // breadth
     @Override
     public TraversalBranch next(final TraversalContext metadata) {
-        TraversalBranch result = null;
-        while (result == null) {
-            final TraversalBranch next = branchToExpand.next(expander, metadata);
-            if (next != null) {
-                expansionQueue.addBranch(next);
-                result = next;
-            } else {
-                // nothing more from current branchToExpand, so revert to next in queue
-                branchToExpand = expansionQueue.removeFront();
-                if (branchToExpand == null) {
-                    return null;
-                }
-            }
+        TraversalBranch next = branchToExpand.next(expander, metadata);
+        while (next!=null) {
+            expansionQueue.addBranch(next);
+            next = branchToExpand.next(expander, metadata);
         }
-        return result;
+        branchToExpand = expansionQueue.removeFront();
+        return branchToExpand;
+//        TraversalBranch result = null;
+//        while (result == null) {
+//            final TraversalBranch next = branchToExpand.next(expander, metadata);
+//            if (next != null) {
+//                expansionQueue.addBranch(next);
+//                result = next;
+//            } else {
+//                // nothing more from current branchToExpand, so revert to next in queue
+//                branchToExpand = expansionQueue.removeFront();
+//                if (branchToExpand == null) {
+//                    return null;
+//                }
+//            }
+//        }
+//        return result;
     }
 
-    private static class TraversalBranchQueue {
+    public static class TraversalBranchQueue {
         private final PriorityQueue<TraversalBranch> theQueue;
         private final StationDistances.FindDistancesTo findDistances;
 
-        private TraversalBranchQueue(StationDistances stationDistances, LocationSet destinations) {
+        public TraversalBranchQueue(StationDistances stationDistances, LocationSet destinations) {
             findDistances = stationDistances.findDistancesTo(destinations);
             theQueue = new PriorityQueue<>(new BranchComparator());
         }

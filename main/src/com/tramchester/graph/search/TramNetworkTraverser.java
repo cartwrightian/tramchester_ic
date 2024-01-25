@@ -78,8 +78,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
 
     public Stream<Path> findPaths(GraphTransaction txn, GraphNode startNode, PreviousVisits previousSuccessfulVisit,
                                   LowestCostSeen lowestCostSeen, BranchOrderingPolicy selector) {
-        final boolean depthFirst = config.getDepthFirst();
-        if (depthFirst) {
+        if (config.getDepthFirst()) {
             logger.info("Depth first is enabled");
         } else {
             logger.info("Breadth first is enabled");
@@ -98,10 +97,6 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         final InitialBranchState<JourneyState> initialJourneyState = JourneyState.initialState(actualQueryTime, traversalState);
 
         logger.info("Create traversal for " + actualQueryTime);
-
-//        // note: for small graphs (i.e. trams only) depth first is far faster, for larger (i.e. bus) trying out breadth
-//        final BranchOrderingPolicy selector = depthFirst ? PREORDER_DEPTH_FIRST
-//                : (start, expander) -> new BreadthFirstBranchSelector(start, expander, stationDistances, destinations);
 
         TraversalDescription traversalDesc =
                 new MonoDirectionalTraversalDescription().

@@ -108,7 +108,7 @@ public class RouteCalculatorTest {
         Set<String> expected = Stream.of(Cornbrook, StPetersSquare, Deansgate, Piccadilly, MarketStreet, Shudehill).
                 map(TramStations::getName).collect(Collectors.toSet());
 
-        Set<Journey> journeys = calculator.calculateRouteAsSet(Altrincham, Ashton, journeyRequest);
+        List<Journey> journeys = calculator.calculateRouteAsList(Altrincham, Ashton, journeyRequest);
         assertFalse(journeys.isEmpty());
 
         Set<Integer> indexes = new HashSet<>();
@@ -149,8 +149,8 @@ public class RouteCalculatorTest {
         final TramTime originalQueryTime = TramTime.of(10, 15);
         JourneyRequest journeyRequest = new JourneyRequest(when, originalQueryTime, false, maxChanges,
                 maxJourneyDuration, maxNumResults, requestedModes);
-        Set<Journey> journeys = calculator.calculateRouteAsSet(Altrincham, Deansgate, journeyRequest);
-        Set<Journey> results = checkJourneys(Altrincham, Deansgate, originalQueryTime, journeyRequest.getDate(), journeys);
+        List<Journey> journeys = calculator.calculateRouteAsList(Altrincham, Deansgate, journeyRequest);
+        List<Journey> results = checkJourneys(Altrincham, Deansgate, originalQueryTime, journeyRequest.getDate(), journeys);
 
         results.forEach(journey -> {
             List<Location<?>> pathCallingPoints = journey.getPath();
@@ -173,17 +173,19 @@ public class RouteCalculatorTest {
 
     @Test
     void shouldHaveFirstResultWithinReasonableTimeOfQuery() {
+        Duration cutoffInterval = Duration.ofMinutes(16);
         final TramTime queryTime = TramTime.of(17, 45);
         JourneyRequest journeyRequest = standardJourneyRequest(when, queryTime, maxNumResults);
 
-        Set<Journey> journeys = calculator.calculateRouteAsSet(Altrincham, Ashton, journeyRequest);
+        List<Journey> journeys = calculator.calculateRouteAsList(Altrincham, Ashton, journeyRequest);
 
         Optional<Journey> earliest = journeys.stream().min(TramTime.comparing(Journey::getDepartTime));
         assertTrue(earliest.isPresent());
 
-        final TramTime firstDeparttime = earliest.get().getDepartTime();
-        Duration elapsed = TramTime.difference(queryTime, firstDeparttime);
-        assertFalse(greaterOrEquals(elapsed, Duration.ofMinutes(16)), "first result too far in future " + firstDeparttime);
+        final TramTime firstDepartTime = earliest.get().getDepartTime();
+        Duration elapsed = TramTime.difference(queryTime, firstDepartTime);
+        assertFalse(greaterOrEquals(elapsed, cutoffInterval), "first result too far in future " + firstDepartTime
+                + " cuttoff " + cutoffInterval + " earliest journey " + earliest) ;
     }
 
     @Test
@@ -194,8 +196,8 @@ public class RouteCalculatorTest {
         JourneyRequest journeyRequestA = standardJourneyRequest(when, queryTimeA, maxNumResults);
         JourneyRequest journeyRequestB = standardJourneyRequest(when, queryTimeB, maxNumResults);
 
-        Set<Journey> journeysA = calculator.calculateRouteAsSet(ManAirport, EastDidsbury, journeyRequestA);
-        Set<Journey> journeysB = calculator.calculateRouteAsSet(ManAirport, EastDidsbury, journeyRequestB);
+        List<Journey> journeysA = calculator.calculateRouteAsList(ManAirport, EastDidsbury, journeyRequestA);
+        List<Journey> journeysB = calculator.calculateRouteAsList(ManAirport, EastDidsbury, journeyRequestB);
 
         Optional<Journey> earliestA = journeysA.stream().min(TramTime.comparing(Journey::getDepartTime));
         assertTrue(earliestA.isPresent());
@@ -215,7 +217,7 @@ public class RouteCalculatorTest {
     void shouldHaveReasonableJourneyAltyToDeansgate() {
         JourneyRequest request = standardJourneyRequest(when, TramTime.of(10, 15), maxNumResults);
 
-        Set<Journey> results = calculator.calculateRouteAsSet(Altrincham, Deansgate, request);
+        List<Journey> results = calculator.calculateRouteAsList(Altrincham, Deansgate, request);
 
         assertFalse(results.isEmpty());
         results.forEach(journey -> {
@@ -240,9 +242,9 @@ public class RouteCalculatorTest {
 
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(10, 21), maxNumResults);
 
-        Set<Journey> servedByBothRoutes = calculator.calculateRouteAsSet(start, Deansgate, journeyRequest);
-        Set<Journey> altyToPiccGardens = calculator.calculateRouteAsSet(start, PiccadillyGardens, journeyRequest);
-        Set<Journey> altyToMarketStreet = calculator.calculateRouteAsSet(start, MarketStreet, journeyRequest);
+        List<Journey> servedByBothRoutes = calculator.calculateRouteAsList(start, Deansgate, journeyRequest);
+        List<Journey> altyToPiccGardens = calculator.calculateRouteAsList(start, PiccadillyGardens, journeyRequest);
+        List<Journey> altyToMarketStreet = calculator.calculateRouteAsList(start, MarketStreet, journeyRequest);
 
         assertEquals(altyToPiccGardens.size()+altyToMarketStreet.size(), servedByBothRoutes.size());
     }
@@ -263,7 +265,7 @@ public class RouteCalculatorTest {
     @Test
     void shouldHaveReasonableLongJourneyAcrossFromInterchange() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(8, 0), maxNumResults);
-        Set<Journey> journeys = calculator.calculateRouteAsSet(Monsall, RochdaleRail, journeyRequest);
+        List<Journey> journeys = calculator.calculateRouteAsList(Monsall, RochdaleRail, journeyRequest);
 
         assertFalse(journeys.isEmpty());
         journeys.forEach(journey -> {
@@ -283,7 +285,7 @@ public class RouteCalculatorTest {
 
         JourneyRequest request = new JourneyRequest(today, TramTime.of(11, 43), false, 0,
                 maxJourneyDuration, 1, requestedModes);
-        Set<Journey> results = calculator.calculateRouteAsSet(Altrincham, ManAirport, request);
+        List<Journey> results = calculator.calculateRouteAsList(Altrincham, ManAirport, request);
 
         assertEquals(0, results.size());
     }
@@ -295,7 +297,7 @@ public class RouteCalculatorTest {
         JourneyRequest request = new JourneyRequest(today, TramTime.of(20, 9), false, 2,
                 maxJourneyDuration, 6, requestedModes);
 
-        Set<Journey> results = calculator.calculateRouteAsSet(Deansgate, ManAirport, request);
+        List<Journey> results = calculator.calculateRouteAsList(Deansgate, ManAirport, request);
 
         assertFalse(results.isEmpty(),"no journeys found");
 
@@ -311,7 +313,7 @@ public class RouteCalculatorTest {
 
         JourneyRequest request = new JourneyRequest(today, TramTime.of(11, 43), false, maxChanges,
                 maxJourneyDuration, maxNumResults, requestedModes);
-        Set<Journey> results =  calculator.calculateRouteAsSet(Altrincham, ManAirport, request);
+        List<Journey> results =  calculator.calculateRouteAsList(Altrincham, ManAirport, request);
 
         assertFalse(results.isEmpty(), "no results");    // results is iterator
         for (Journey result : results) {
@@ -442,7 +444,7 @@ public class RouteCalculatorTest {
 
         JourneyRequest request = new JourneyRequest(when, TramTime.of(11, 45), false,
                 4, maxJourneyDuration, 3, requestedModes);
-        Set<Journey> journeys =  calculator.calculateRouteAsSet(Bury, Altrincham, request);
+        List<Journey> journeys =  calculator.calculateRouteAsList(Bury, Altrincham, request);
 
         assertFalse(journeys.isEmpty());
 
@@ -465,9 +467,9 @@ public class RouteCalculatorTest {
         JourneyRequest request = new JourneyRequest(when, TramTime.of(8, 5), false,
                 1, maxJourneyDuration, 2, requestedModes);
 
-        assertFalse(calculator.calculateRouteAsSet(MediaCityUK, Etihad, request).isEmpty());
-        assertFalse(calculator.calculateRouteAsSet(MediaCityUK, Ashton, request).isEmpty());
-        assertFalse(calculator.calculateRouteAsSet(MediaCityUK, VeloPark, request).isEmpty());
+        assertFalse(calculator.calculateRouteAsList(MediaCityUK, Etihad, request).isEmpty());
+        assertFalse(calculator.calculateRouteAsList(MediaCityUK, Ashton, request).isEmpty());
+        assertFalse(calculator.calculateRouteAsList(MediaCityUK, VeloPark, request).isEmpty());
     }
 
     @Test
@@ -579,12 +581,12 @@ public class RouteCalculatorTest {
     }
 
     private void assertGetAndCheckJourneys(JourneyRequest journeyRequest, TramStations start, TramStations dest) {
-        Set<Journey> journeys = calculator.calculateRouteAsSet(start, dest, journeyRequest);
+        List<Journey> journeys = calculator.calculateRouteAsList(start, dest, journeyRequest);
         checkJourneys(start, dest, journeyRequest.getOriginalTime(), journeyRequest.getDate(), journeys);
     }
 
     @NotNull
-    private Set<Journey> checkJourneys(TramStations start, TramStations dest, TramTime time, TramDate date, Set<Journey> journeys) {
+    private List<Journey> checkJourneys(TramStations start, TramStations dest, TramTime time, TramDate date, List<Journey> journeys) {
         String message = "from " + start.getId() + " to " + dest.getId() + " at " + time + " on " + date;
         assertFalse(journeys.isEmpty(), "Unable to find journey " + message);
         journeys.forEach(journey -> assertFalse(journey.getStages().isEmpty(), message + " missing stages for journey" + journey));
@@ -613,7 +615,7 @@ public class RouteCalculatorTest {
                 TramTime time = TramTime.of(hour, minutes);
                 JourneyRequest journeyRequest = new JourneyRequest(when, time, false, maxChanges,
                         maxJourneyDuration, 1, requestedModes);
-                Set<Journey> journeys = calculator.calculateRouteAsSet(start, dest, journeyRequest);
+                List<Journey> journeys = calculator.calculateRouteAsList(start, dest, journeyRequest);
                 if (journeys.isEmpty()) {
                     missing.add(time);
                 }

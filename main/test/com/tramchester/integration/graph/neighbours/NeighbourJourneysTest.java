@@ -182,7 +182,7 @@ public class NeighbourJourneysTest {
         JourneyRequest request = new JourneyRequest(TestEnv.testDay(),
                 TramTime.of(11,53), false, 0, maxJourneyDuration, 1, modes);
 
-        Set<Journey> journeys = routeCalculator.calculateRouteAsSet(Bury.from(stationRepository), Victoria.from(stationRepository), request);
+        List<Journey> journeys = routeCalculator.calculateRouteAsList(Bury.from(stationRepository), Victoria.from(stationRepository), request);
         assertFalse(journeys.isEmpty());
 
         journeys.forEach(journey -> {
@@ -225,7 +225,7 @@ public class NeighbourJourneysTest {
         JourneyRequest request = new JourneyRequest(TestEnv.testDay(), TramTime.of(11,45),
                         false, 0, maxJourneyDuration, 3, modes);
 
-        Set<Journey> allJourneys =  routeCalculator.calculateRouteAsSet(start, end, request);
+        List<Journey> allJourneys =  routeCalculator.calculateRouteAsList(start, end, request);
         assertFalse(allJourneys.isEmpty(), "no journeys");
 
         Set<Journey> journeys = allJourneys.stream().filter(Journey::isDirect).collect(Collectors.toSet());

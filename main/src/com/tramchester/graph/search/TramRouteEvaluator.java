@@ -251,7 +251,6 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
                 }
             }
 
-
         }
 
         // TODO is this still needed, should drop through via continue anyway?

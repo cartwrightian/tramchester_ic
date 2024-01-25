@@ -24,7 +24,7 @@ import org.junit.jupiter.api.*;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Collections;
-import java.util.Set;
+import java.util.List;
 
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static java.lang.String.format;
@@ -112,7 +112,7 @@ class RouteCalculatorSubGraphMonsallTest {
         long maxNumberOfJourneys = 1;
         JourneyRequest journeyRequest = new JourneyRequest(date, time,
                 false, 3, Duration.ofMinutes(config.getMaxJourneyDuration()), maxNumberOfJourneys, TramsOnly);
-        Set<Journey> journeys = calculator.calculateRouteAsSet(start, destination, journeyRequest);
+        List<Journey> journeys = calculator.calculateRouteAsList(start, destination, journeyRequest);
 
         Assertions.assertFalse(journeys.isEmpty(), format("No Journeys from %s to %s found at %s on %s", start, destination, time.toString(), date));
         journeys.forEach(journey -> Assertions.assertEquals(numStages, journey.getStages().size()));

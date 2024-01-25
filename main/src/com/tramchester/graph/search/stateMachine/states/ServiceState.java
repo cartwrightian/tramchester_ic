@@ -48,6 +48,7 @@ public class ServiceState extends TraversalState {
         }
 
         private Stream<ImmutableGraphRelationship> getHourRelationships(final GraphNode node, final GraphTransaction txn) {
+
             return node.getRelationships(txn, OUTGOING, TO_HOUR);
         }
 
@@ -71,6 +72,23 @@ public class ServiceState extends TraversalState {
     protected HourState toHour(final HourState.Builder towardsHour, final GraphNode node, final Duration cost) {
         return towardsHour.fromService(this, node, cost, maybeExistingTrip, txn);
     }
+
+//    @Override
+//    public Stream<ImmutableGraphRelationship> getOutbounds(GraphTransaction txn, final RouteCalculatorSupport.PathRequest pathRequest) {
+//        final TramTime queryTime = pathRequest.getActualQueryTime();
+//        final int queryHour = queryTime.getHourOfDay();
+//
+//        return super.getOutbounds(txn, pathRequest).sorted(TramTime.RollingHourComparator(queryHour,
+//                relationship -> {
+//                    final GraphNode endNode = relationship.getEndNode(txn);
+//                    return hourFor(endNode);
+//                }));
+//
+//    }
+//
+//    private int hourFor(GraphNode endNode) {
+//        return GraphLabel.getHourFrom(endNode.getLabels());
+//    }
 
     @Override
     public String toString() {

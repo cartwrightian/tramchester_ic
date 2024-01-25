@@ -20,6 +20,7 @@ import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.search.diagnostics.ReasonsToGraphViz;
+import com.tramchester.graph.search.selectors.BranchSelectorFactory;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.repository.ClosedStationsRepository;
@@ -40,7 +41,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
-import static org.neo4j.graphdb.traversal.BranchOrderingPolicies.PREORDER_DEPTH_FIRST;
 
 @LazySingleton
 public class RouteCalculator extends RouteCalculatorSupport implements TramRouteCalculator {
@@ -63,7 +63,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
                            CacheMetrics cacheMetrics, StationDistances stationDistances) {
         super(pathToStages, nodeOperations, graphDatabaseService,
                 traversalStateFactory, providesNow, mapPathToLocations,
-                transportData, config, transportData, routeToRouteCosts, reasonToGraphViz, stationDistances);
+                transportData, config, transportData, routeToRouteCosts, reasonToGraphViz);
         this.config = config;
         this.createQueryTimes = createQueryTimes;
         this.closedStationsRepository = closedStationsRepository;
@@ -77,17 +77,17 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         logger.info(format("Finding shortest path for %s (%s) --> %s (%s) for %s",
                 start.getName(), start.getId(), destination.getName(), destination.getId(), journeyRequest));
 
-        GraphNode startNode = getLocationNodeSafe(txn, start);
-        GraphNode endNode = getLocationNodeSafe(txn, destination);
+        final GraphNode startNode = getLocationNodeSafe(txn, start);
+        final GraphNode endNode = getLocationNodeSafe(txn, destination);
 
         // for walks we pass multiple destinations TODO check this is still the case
         LocationSet destinations = LocationSet.singleton(destination);
 
         final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime());
 
-        TramDate date = journeyRequest.getDate();
+        final TramDate date = journeyRequest.getDate();
 
-        NumberOfChanges numberOfChanges =  routeToRouteCosts.getNumberOfChanges(start, destination,
+        final NumberOfChanges numberOfChanges =  routeToRouteCosts.getNumberOfChanges(start, destination,
                 journeyRequest.getRequestedModes(), date, journeyRequest.getTimeRange());
 
         // route change calc issue, for media city to ashton line
@@ -162,12 +162,6 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         final EnumSet<TransportMode> requestedModes = journeyRequest.getRequestedModes();
 
-        // TODO groups will need their own method, or get expanded much earlier on
-        //final Set<Station> destinations = GroupedStations.expandStations(unexpanded);
-//        if (destinations.size()!=unexpanded.size()) {
-//            logger.info("Expanded (composite) destinations from " + unexpanded.size() + " to " + destinations.size());
-//        }
-
         final Set<GraphNodeId> destinationNodeIds = Collections.singleton(endNode.getId());
         final TramDate tramDate = journeyRequest.getDate();
 
@@ -183,8 +177,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
                 closedStations, destinations, lowestCostsForRoutes, maxJourneyDuration);
 
         // share selector across queries, to allow caching of station to station distances
-        final BranchOrderingPolicy selector = config.getDepthFirst() ? PREORDER_DEPTH_FIRST
-            : (start, expander) -> new BreadthFirstBranchSelector(start, expander, stationDistances, destinations);
+        final BranchOrderingPolicy selector = BranchSelectorFactory.getFor(config, stationDistances, destinations);
 
         logger.info("Journey Constraints: " + journeyConstraints);
         logger.info("Query times: " + queryTimes);

@@ -39,11 +39,11 @@ public class CreateQueryTimes {
 //        return result;
     }
 
-    public List<TramTime> generate(TramTime initialQueryTime) {
+    public List<TramTime> generate(final TramTime initialQueryTime) {
         List<TramTime> result = new ArrayList<>();
 
-        int interval = config.getQueryInterval();
-        int numberQueries = config.getNumberQueries();
+        final int interval = config.getQueryInterval();
+        final int numberQueries = config.getNumberQueries();
 
         int minsToAdd = 0;
         for (int i = 0; i < numberQueries; i++) {

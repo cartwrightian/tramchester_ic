@@ -21,6 +21,7 @@ import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.search.diagnostics.ReasonsToGraphViz;
+import com.tramchester.graph.search.selectors.BranchSelectorFactory;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.RunningRoutesAndServices;
@@ -39,7 +40,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
-import static org.neo4j.graphdb.traversal.BranchOrderingPolicies.PREORDER_DEPTH_FIRST;
 
 @LazySingleton
 public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
@@ -62,15 +62,15 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                                    BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz,
                                    ClosedStationsRepository closedStationsRepository, RunningRoutesAndServices runningRoutesAndService,
                                    @SuppressWarnings("unused") RouteCostCalculator routeCostCalculator,
-                                   StationDistances stationDistances, StationDistances stationDistances1) {
+                                   StationDistances stationDistances) {
         super(pathToStages, nodeContentsRepository, graphDatabaseService,
                 traversalStateFactory, providesNow, mapPathToLocations,
-                transportData, config, transportData, routeToRouteCosts, reasonToGraphViz, stationDistances);
+                transportData, config, transportData, routeToRouteCosts, reasonToGraphViz);
         this.config = config;
         this.graphDatabaseService = graphDatabaseService;
         this.closedStationsRepository = closedStationsRepository;
         this.runningRoutesAndService = runningRoutesAndService;
-        this.stationDistances = stationDistances1;
+        this.stationDistances = stationDistances;
     }
 
     public Stream<JourneysForBox> calculateRoutes(LocationSet destinations, JourneyRequest journeyRequest,
@@ -97,8 +97,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         final Set<GraphNodeId> destinationNodeIds = getDestinationNodeIds(destinations);
 
         // share selector across queries, to allow caching of station to station distances
-        final BranchOrderingPolicy selector = config.getDepthFirst() ? PREORDER_DEPTH_FIRST
-                : (start, expander) -> new BreadthFirstBranchSelector(start, expander, stationDistances, destinations);
+        final BranchOrderingPolicy selector = BranchSelectorFactory.getFor(config, stationDistances, destinations);
 
         return grouped.parallelStream().map(box -> {
 

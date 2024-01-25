@@ -152,7 +152,7 @@ class RouteCalculatorSubGraphTest {
 
     @Test
     void shouldHaveSimpleOneStopJourney() {
-        Set<Journey> results = getJourneys(Cornbrook, Pomona, when, 1);
+        List<Journey> results = getJourneys(Cornbrook, Pomona, when, 1);
         assertFalse(results.isEmpty());
     }
 
@@ -162,25 +162,25 @@ class RouteCalculatorSubGraphTest {
         TramTime time = TramTime.of(23,53);
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 3,
                 maxJourneyDuration, 1, modes);
-        Set<Journey> results = calculator.calculateRouteAsSet(Cornbrook, Pomona, journeyRequest);
+        List<Journey> results = calculator.calculateRouteAsList(Cornbrook, Pomona, journeyRequest);
         assertFalse(results.isEmpty());
     }
 
     @Test
     void shouldHaveSimpleOneStopJourneyAtWeekend() {
-        Set<Journey> results = getJourneys(Cornbrook, Pomona, TestEnv.nextSaturday(), 1);
+        List<Journey> results = getJourneys(Cornbrook, Pomona, TestEnv.nextSaturday(), 1);
         assertFalse(results.isEmpty());
     }
 
     @Test
     void shouldHaveSimpleOneStopJourneyBetweenInterchanges() {
-        Set<Journey> results = getJourneys(StPetersSquare, TramStations.Deansgate, when, 1);
+        List<Journey> results = getJourneys(StPetersSquare, TramStations.Deansgate, when, 1);
         assertFalse(results.isEmpty());
     }
 
     @Test
     void shouldHaveSimpleJourney() {
-        Set<Journey> results = getJourneys(StPetersSquare, Cornbrook, when, 1);
+        List<Journey> results = getJourneys(StPetersSquare, Cornbrook, when, 1);
         assertFalse(results.isEmpty());
     }
 
@@ -203,15 +203,15 @@ class RouteCalculatorSubGraphTest {
     }
 
     @NotNull
-    private Set<Journey> getJourneys(TramStations start, TramStations destination, TramDate when, long maxNumberJourneys) {
+    private List<Journey> getJourneys(TramStations start, TramStations destination, TramDate when, long maxNumberJourneys) {
         JourneyRequest journeyRequest = new JourneyRequest(when, tramTime, false, 3,
                 maxJourneyDuration, maxNumberJourneys, modes);
-        return calculator.calculateRouteAsSet(start,destination, journeyRequest);
+        return calculator.calculateRouteAsList(start,destination, journeyRequest);
     }
 
     private void validateAtLeastOneJourney(TramStations start, TramStations dest, JourneyRequest journeyRequest) {
         // TODO Use find any on stream instead
-        Set<Journey> results = calculator.calculateRouteAsSet(start, dest, journeyRequest);
+        List<Journey> results = calculator.calculateRouteAsList(start, dest, journeyRequest);
         assertFalse(results.isEmpty());
     }
 }

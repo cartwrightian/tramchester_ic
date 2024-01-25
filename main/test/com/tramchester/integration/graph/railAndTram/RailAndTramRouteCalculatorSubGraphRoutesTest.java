@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Stream;
 
 import static com.tramchester.testSupport.TestEnv.Modes.RailOnly;
@@ -115,7 +114,7 @@ public class RailAndTramRouteCalculatorSubGraphRoutesTest {
 
         //journeyRequest.setDiag(true);
 
-        Set<Journey> journeys = testFacade.calculateRouteAsSet(Victoria, Eccles, journeyRequest);
+        List<Journey> journeys = testFacade.calculateRouteAsList(Victoria, Eccles, journeyRequest);
         assertFalse(journeys.isEmpty());
     }
 

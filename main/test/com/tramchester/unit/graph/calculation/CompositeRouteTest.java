@@ -149,7 +149,7 @@ class CompositeRouteTest {
         final Station destination = transportData.getInterchange();
 
 //        Set<Journey> journeys = calculator.calculateRoute(txn, start, destination, journeyRequest).collect(Collectors.toSet());
-        Set<Journey> journeys =  calculator.calculateRouteAsSet(start, destination, journeyRequest);
+        List<Journey> journeys =  calculator.calculateRouteAsList(start, destination, journeyRequest);
 
         Assertions.assertEquals(1, journeys.size());
         Journey journey = (Journey) journeys.toArray()[0];
@@ -180,7 +180,7 @@ class CompositeRouteTest {
 //        Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getFirst(),
 //                fourthStationComposite, journeyRequest).collect(Collectors.toSet());
 
-        Set<Journey> journeys = calculator.calculateRouteAsSet(transportData.getFirst(), fourthStationComposite, journeyRequest);
+        List<Journey> journeys = calculator.calculateRouteAsList(transportData.getFirst(), fourthStationComposite, journeyRequest);
 
         assertFalse(journeys.isEmpty());
         journeys.forEach(journey-> assertEquals(2, journey.getStages().size()));

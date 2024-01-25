@@ -12,8 +12,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.reference.FakeStation;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.List;
 import java.util.stream.Stream;
 
 public class RouteCalculatorTestFacade {
@@ -27,22 +26,21 @@ public class RouteCalculatorTestFacade {
         this.txn = txn;
     }
 
-    public Set<Journey> calculateRouteAsSet(FakeStation start, FakeStation end, JourneyRequest journeyRequest) {
-        return calculateRouteAsSet(start.from(stationRepository), end.from(stationRepository), journeyRequest);
+    public List<Journey> calculateRouteAsList(FakeStation start, FakeStation end, JourneyRequest journeyRequest) {
+        return calculateRouteAsList(start.from(stationRepository), end.from(stationRepository), journeyRequest);
     }
 
-    public Set<Journey> calculateRouteAsSet(IdFor<Station> startId, IdFor<Station> destId, JourneyRequest request) {
-        return calculateRouteAsSet(getFor(startId), getFor(destId), request);
+    public List<Journey> calculateRouteAsList(IdFor<Station> startId, IdFor<Station> destId, JourneyRequest request) {
+        return calculateRouteAsList(getFor(startId), getFor(destId), request);
     }
 
-    public Set<Journey> calculateRouteAsSet(FakeStation start, StationGroup end, JourneyRequest journeyRequest) {
-        return calculateRouteAsSet(start.from(stationRepository), end, journeyRequest);
+    public List<Journey> calculateRouteAsList(FakeStation start, StationGroup end, JourneyRequest journeyRequest) {
+        return calculateRouteAsList(start.from(stationRepository), end, journeyRequest);
     }
 
-    @NotNull
-    public Set<Journey> calculateRouteAsSet(Location<?> start, Location<?> dest, JourneyRequest request) {
+    public @NotNull List<Journey> calculateRouteAsList(Location<?> start, Location<?> dest, JourneyRequest request) {
         Stream<Journey> stream = routeCalculator.calculateRoute(txn, start, dest, request);
-        Set<Journey> result = stream.collect(Collectors.toSet());
+        List<Journey> result = stream.toList();
         stream.close();
         return result;
     }

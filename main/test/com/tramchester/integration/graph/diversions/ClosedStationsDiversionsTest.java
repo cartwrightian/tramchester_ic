@@ -101,7 +101,7 @@ class ClosedStationsDiversionsTest {
     void shouldFindUnaffectedRouteNormally() {
         JourneyRequest journeyRequest = new JourneyRequest(when,TramTime.of(8,0), false,
                 2, Duration.ofHours(2), 1, getRequestedModes());
-        Set<Journey> result = calculator.calculateRouteAsSet(TramStations.Altrincham, TramStations.TraffordBar, journeyRequest);
+        List<Journey> result = calculator.calculateRouteAsList(TramStations.Altrincham, TramStations.TraffordBar, journeyRequest);
         assertFalse(result.isEmpty());
     }
 
@@ -110,7 +110,7 @@ class ClosedStationsDiversionsTest {
 
         JourneyRequest journeyRequest = new JourneyRequest(when,TramTime.of(8,0), false,
                 2, Duration.ofHours(2), 1, getRequestedModes());
-        Set<Journey> results = calculator.calculateRouteAsSet(TramStations.StPetersSquare, TramStations.Altrincham,
+        List<Journey> results = calculator.calculateRouteAsList(TramStations.StPetersSquare, TramStations.Altrincham,
                 journeyRequest);
 
         assertFalse(results.isEmpty());
@@ -127,7 +127,7 @@ class ClosedStationsDiversionsTest {
     void shouldFindRouteAroundCloseBackOnToTramDifferentBury() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
                 10, Duration.ofHours(2), 1, getRequestedModes());
-        Set<Journey> results = calculator.calculateRouteAsSet(TramStations.Bury, Altrincham, journeyRequest);
+        List<Journey> results = calculator.calculateRouteAsList(TramStations.Bury, Altrincham, journeyRequest);
 
         assertFalse(results.isEmpty(), "no journeys");
 
@@ -139,7 +139,7 @@ class ClosedStationsDiversionsTest {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
                 4, Duration.ofHours(2), 1, getRequestedModes());
 
-        Set<Journey> results = calculator.calculateRouteAsSet(Cornbrook, Victoria, journeyRequest);
+        List<Journey> results = calculator.calculateRouteAsList(Cornbrook, Victoria, journeyRequest);
 
         assertFalse(results.isEmpty(), "no journeys");
 
@@ -150,7 +150,7 @@ class ClosedStationsDiversionsTest {
     void shouldFindRouteAroundCloseBackOnToTramVictoriaToCornbrook() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
                 4, Duration.ofHours(2), 1, getRequestedModes());
-        Set<Journey> results = calculator.calculateRouteAsSet(Victoria, Cornbrook, journeyRequest);
+        List<Journey> results = calculator.calculateRouteAsList(Victoria, Cornbrook, journeyRequest);
 
         assertFalse(results.isEmpty(), "no journeys");
 
@@ -161,7 +161,7 @@ class ClosedStationsDiversionsTest {
     void shouldFindRouteAroundCloseBackOnToTramPiccToCornbrook() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
                 4, Duration.ofHours(2), 1, getRequestedModes());
-        Set<Journey> results = calculator.calculateRouteAsSet(Piccadilly, Cornbrook, journeyRequest);
+        List<Journey> results = calculator.calculateRouteAsList(Piccadilly, Cornbrook, journeyRequest);
 
         assertFalse(results.isEmpty(), "no journeys");
 
@@ -172,7 +172,7 @@ class ClosedStationsDiversionsTest {
     void shouldFindRouteAroundCloseBackOnToTram() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
                 4, Duration.ofHours(2), 1, getRequestedModes());
-        Set<Journey> results = calculator.calculateRouteAsSet(Monsall, Cornbrook, journeyRequest);
+        List<Journey> results = calculator.calculateRouteAsList(Monsall, Cornbrook, journeyRequest);
 
         assertFalse(results.isEmpty(), "no journeys");
 
@@ -183,14 +183,14 @@ class ClosedStationsDiversionsTest {
     void shouldFindRouteAroundCloseBackOnToTramCornbrookToPicc() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
                 4, Duration.ofHours(2), 1, getRequestedModes());
-        Set<Journey> results = calculator.calculateRouteAsSet(Cornbrook, Piccadilly, journeyRequest);
+        List<Journey> results = calculator.calculateRouteAsList(Cornbrook, Piccadilly, journeyRequest);
 
         assertFalse(results.isEmpty(), "no journeys");
 
         validateStages(results);
     }
 
-    private void validateStages(Set<Journey> results) {
+    private void validateStages(List<Journey> results) {
         results.forEach(result -> {
             final List<TransportStage<?, ?>> stages = result.getStages();
             assertEquals(3, stages.size(), "num stages " + result);
@@ -204,7 +204,7 @@ class ClosedStationsDiversionsTest {
     void shouldFindRouteAroundCloseBackOnToTramDifferentRochdale() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
                 4, Duration.ofHours(2), 1, getRequestedModes());
-        Set<Journey> results = calculator.calculateRouteAsSet(Rochdale, Altrincham, journeyRequest);
+        List<Journey> results = calculator.calculateRouteAsList(Rochdale, Altrincham, journeyRequest);
 
         assertFalse(results.isEmpty());
 
@@ -216,7 +216,7 @@ class ClosedStationsDiversionsTest {
     void shouldFindRouteToClosedStationViaWalkAtEnd() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8, 0),
                 false, 3, Duration.ofHours(2), 1, getRequestedModes());
-        Set<Journey> results = calculator.calculateRouteAsSet(TramStations.Bury, TramStations.StPetersSquare, journeyRequest);
+        List<Journey> results = calculator.calculateRouteAsList(TramStations.Bury, TramStations.StPetersSquare, journeyRequest);
 
         assertFalse(results.isEmpty());
 
@@ -232,7 +232,7 @@ class ClosedStationsDiversionsTest {
     void shouldFindRouteWhenFromStationWithDiversionToDestBeyondClosure() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
                 4, Duration.ofHours(2), 1, getRequestedModes());
-        Set<Journey> results = calculator.calculateRouteAsSet(ExchangeSquare, TramStations.Altrincham, journeyRequest);
+        List<Journey> results = calculator.calculateRouteAsList(ExchangeSquare, TramStations.Altrincham, journeyRequest);
 
         assertFalse(results.isEmpty());
     }
@@ -241,7 +241,7 @@ class ClosedStationsDiversionsTest {
     void shouldFindRouteWhenFromStationWithDiversionToOtherDiversionStation() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
                 4, Duration.ofHours(2), 1, getRequestedModes());
-        Set<Journey> results = calculator.calculateRouteAsSet(ExchangeSquare, Deansgate, journeyRequest);
+        List<Journey> results = calculator.calculateRouteAsList(ExchangeSquare, Deansgate, journeyRequest);
 
         assertFalse(results.isEmpty());
     }
@@ -252,7 +252,7 @@ class ClosedStationsDiversionsTest {
                 4, Duration.ofHours(2), 1, getRequestedModes());
 
         // change at pic gardens, an interchange
-        Set<Journey> results = calculator.calculateRouteAsSet(Ashton, Altrincham, journeyRequest);
+        List<Journey> results = calculator.calculateRouteAsList(Ashton, Altrincham, journeyRequest);
 
         assertFalse(results.isEmpty());
     }

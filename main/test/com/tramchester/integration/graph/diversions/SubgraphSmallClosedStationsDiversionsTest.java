@@ -183,7 +183,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
                 maxChanges, maxJourneyDuration, 1, getRequestedModes());
 
-        Set<Journey> results = calculator.calculateRouteAsSet(PiccadillyGardens, Victoria, journeyRequest);
+        List<Journey> results = calculator.calculateRouteAsList(PiccadillyGardens, Victoria, journeyRequest);
 
         assertFalse(results.isEmpty(), "no journeys");
     }
@@ -193,7 +193,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
                 maxChanges, maxJourneyDuration, 1, getRequestedModes());
 
-        Set<Journey> results = calculator.calculateRouteAsSet(Cornbrook, Piccadilly, journeyRequest);
+        List<Journey> results = calculator.calculateRouteAsList(Cornbrook, Piccadilly, journeyRequest);
 
         assertFalse(results.isEmpty(), "no journeys");
     }
@@ -203,7 +203,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
                 maxChanges, maxJourneyDuration, 1, getRequestedModes());
 
-        Set<Journey> results = calculator.calculateRouteAsSet(Piccadilly, Cornbrook, journeyRequest);
+        List<Journey> results = calculator.calculateRouteAsList(Piccadilly, Cornbrook, journeyRequest);
 
         assertFalse(results.isEmpty(), "no journeys");
     }
@@ -213,7 +213,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
                 maxChanges, maxJourneyDuration, 1, getRequestedModes());
 
-        Set<Journey> results = calculator.calculateRouteAsSet(Victoria, Piccadilly, journeyRequest);
+        List<Journey> results = calculator.calculateRouteAsList(Victoria, Piccadilly, journeyRequest);
 
         assertFalse(results.isEmpty(), "no journeys");
     }
@@ -223,7 +223,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
                 maxChanges, maxJourneyDuration, 1, getRequestedModes());
 
-        Set<Journey> results = calculator.calculateRouteAsSet(Piccadilly, Victoria, journeyRequest);
+        List<Journey> results = calculator.calculateRouteAsList(Piccadilly, Victoria, journeyRequest);
 
         assertFalse(results.isEmpty(), "no journeys");
     }
@@ -232,7 +232,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
     void shouldFindRouteWhenFromStationWithDiversionToOtherDiversionStation() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
                 maxChanges, maxJourneyDuration, 1, getRequestedModes());
-        Set<Journey> results = calculator.calculateRouteAsSet(ExchangeSquare, Deansgate, journeyRequest);
+        List<Journey> results = calculator.calculateRouteAsList(ExchangeSquare, Deansgate, journeyRequest);
 
         assertFalse(results.isEmpty());
     }
@@ -241,7 +241,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
     void shouldFindPiccadillyToPiccadillyGardens() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
                 maxChanges, maxJourneyDuration, 1, getRequestedModes());
-        Set<Journey> results = calculator.calculateRouteAsSet(Piccadilly, PiccadillyGardens, journeyRequest);
+        List<Journey> results = calculator.calculateRouteAsList(Piccadilly, PiccadillyGardens, journeyRequest);
 
         assertFalse(results.isEmpty());
     }
@@ -250,7 +250,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
     void shouldFindStPetersToPiccadillyGardens() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
                 maxChanges, maxJourneyDuration, 1, getRequestedModes());
-        Set<Journey> results = calculator.calculateRouteAsSet(StPetersSquare, PiccadillyGardens, journeyRequest);
+        List<Journey> results = calculator.calculateRouteAsList(StPetersSquare, PiccadillyGardens, journeyRequest);
 
         assertFalse(results.isEmpty());
     }
@@ -260,7 +260,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
                 maxChanges, maxJourneyDuration, 1, getRequestedModes());
 
-        Set<Journey> results = calculator.calculateRouteAsSet(Deansgate, PiccadillyGardens, journeyRequest);
+        List<Journey> results = calculator.calculateRouteAsList(Deansgate, PiccadillyGardens, journeyRequest);
 
         assertFalse(results.isEmpty());
     }

@@ -27,7 +27,6 @@ import org.junit.jupiter.api.*;
 import java.time.Duration;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Set;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.ManchesterPiccadilly;
@@ -90,7 +89,7 @@ public class AllModesJourneysTest {
 
         JourneyRequest requestA = new JourneyRequest(when, travelTime, false, 2,
                 maxJourneyDuration, 3, getRequestedModes());
-        Set<Journey> journeys = routeCalculator.calculateRouteAsSet(stockport, altyTram, requestA);
+        List<Journey> journeys = routeCalculator.calculateRouteAsList(stockport, altyTram, requestA);
         assertFalse(journeys.isEmpty());
     }
 
@@ -104,7 +103,7 @@ public class AllModesJourneysTest {
         JourneyRequest request = new JourneyRequest(when,
                 TramTime.of(11,53), false, 0, maxJourneyDuration, 1, getRequestedModes());
 
-        Set<Journey> journeys = routeCalculator.calculateRouteAsSet(Bury, Victoria, request);
+        List<Journey> journeys = routeCalculator.calculateRouteAsList(Bury, Victoria, request);
         assertFalse(journeys.isEmpty());
 
         journeys.forEach(journey -> {
@@ -124,7 +123,7 @@ public class AllModesJourneysTest {
 
         JourneyRequest requestA = new JourneyRequest(when, travelTime, false, 0,
                 maxJourneyDuration, 3, getRequestedModes());
-        Set<Journey> journeys = routeCalculator.calculateRouteAsSet(stockport, alty, requestA);
+        List<Journey> journeys = routeCalculator.calculateRouteAsList(stockport, alty, requestA);
         assertFalse(journeys.isEmpty());
     }
 
@@ -135,7 +134,7 @@ public class AllModesJourneysTest {
         JourneyRequest request = new JourneyRequest(when, travelTime, false, 1,
                 Duration.ofMinutes(30), 1, getRequestedModes());
 
-        Set<Journey> journeys = routeCalculator.calculateRouteAsSet(RailStationIds.Stockport.getId(), ManchesterPiccadilly.getId(), request);
+        List<Journey> journeys = routeCalculator.calculateRouteAsList(RailStationIds.Stockport.getId(), ManchesterPiccadilly.getId(), request);
         assertFalse(journeys.isEmpty());
 
         // At least one direct

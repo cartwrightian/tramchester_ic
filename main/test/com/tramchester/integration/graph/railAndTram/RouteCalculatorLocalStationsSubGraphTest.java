@@ -38,7 +38,6 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.*;
@@ -144,7 +143,7 @@ class RouteCalculatorLocalStationsSubGraphTest {
         JourneyRequest request = new JourneyRequest(when, time, false, 0,
                 Duration.ofMinutes(3), 1, getRequestedModes());
 
-        List<Journey> journeysFromTram = new ArrayList<>(testFacade.calculateRouteAsSet(tram(TramStations.Altrincham),
+        List<Journey> journeysFromTram = new ArrayList<>(testFacade.calculateRouteAsList(tram(TramStations.Altrincham),
                 rail(Altrincham), request));
 
         assertEquals(1, journeysFromTram.size());
@@ -164,7 +163,7 @@ class RouteCalculatorLocalStationsSubGraphTest {
         JourneyRequest request = new JourneyRequest(when, time, false, 0,
                 Duration.ofMinutes(3), 1, getRequestedModes());
 
-        List<Journey> journeysFromTrain = new ArrayList<>(testFacade.calculateRouteAsSet(rail(Altrincham),
+        List<Journey> journeysFromTrain = new ArrayList<>(testFacade.calculateRouteAsList(rail(Altrincham),
                 tram(TramStations.Altrincham), request));
 
         assertEquals(1, journeysFromTrain.size());
@@ -187,7 +186,7 @@ class RouteCalculatorLocalStationsSubGraphTest {
         Station start = rail(Altrincham);
         Station dest = rail(Stockport);
 
-        Set<Journey> journeys = testFacade.calculateRouteAsSet(start, dest, request);
+        List<Journey> journeys = testFacade.calculateRouteAsList(start, dest, request);
         assertEquals(1, journeys.size(), "unexpected number of journeys " + journeys);
 
         journeys.forEach(journey -> {
@@ -206,7 +205,7 @@ class RouteCalculatorLocalStationsSubGraphTest {
         Station start = rail(NavigationRaod);
         Station dest = rail(Stockport);
 
-        Set<Journey> journeys = testFacade.calculateRouteAsSet(start, dest, request);
+        List<Journey> journeys = testFacade.calculateRouteAsList(start, dest, request);
         assertEquals(1, journeys.size(), "unexpected number of journeys " + journeys);
 
         journeys.forEach(journey -> {
@@ -225,7 +224,7 @@ class RouteCalculatorLocalStationsSubGraphTest {
         Station start = rail(Altrincham);
         Station dest = rail(NavigationRaod);
 
-        Set<Journey> journeys = testFacade.calculateRouteAsSet(start, dest, request);
+        List<Journey> journeys = testFacade.calculateRouteAsList(start, dest, request);
         assertEquals(1, journeys.size(), "unexpected number of journeys " + journeys);
 
         journeys.forEach(journey -> {
@@ -245,7 +244,7 @@ class RouteCalculatorLocalStationsSubGraphTest {
         Station start = tram(TramStations.Altrincham); // TRAM
         Station dest = rail(Stockport);
 
-        List<Journey> journeys = new ArrayList<>(testFacade.calculateRouteAsSet(start, dest, request));
+        List<Journey> journeys = new ArrayList<>(testFacade.calculateRouteAsList(start, dest, request));
         assertFalse(journeys.isEmpty(), "no journeys");
 
         Journey journey = journeys.get(0);
@@ -267,7 +266,7 @@ class RouteCalculatorLocalStationsSubGraphTest {
         Station start = rail(Stockport); // TRAM
         Station dest = tram(TramStations.Timperley);
 
-        List<Journey> journeys = new ArrayList<>(testFacade.calculateRouteAsSet(start, dest, request));
+        List<Journey> journeys = new ArrayList<>(testFacade.calculateRouteAsList(start, dest, request));
         assertFalse(journeys.isEmpty(), "no journeys");
 
         Journey journey = journeys.get(0);
@@ -288,7 +287,7 @@ class RouteCalculatorLocalStationsSubGraphTest {
         Station start = tram(TramStations.NavigationRoad); // TRAM
         Station dest = rail(Stockport);
 
-        List<Journey> journeys = new ArrayList<>(testFacade.calculateRouteAsSet(start, dest, request));
+        List<Journey> journeys = new ArrayList<>(testFacade.calculateRouteAsList(start, dest, request));
         assertFalse(journeys.isEmpty(), "no journeys");
 
         Journey journey = journeys.get(0);

@@ -167,7 +167,7 @@ class RouteCalculatorSubGraphMediaCityTest {
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, maxChanges,
                 Duration.ofMinutes(config.getMaxJourneyDuration()), 1, getRequestedModes());
 
-        Set<Journey> results = calculator.calculateRouteAsSet(SalfordQuay.getId(), StPetersSquare.getId(), journeyRequest);
+        List<Journey> results = calculator.calculateRouteAsList(SalfordQuay.getId(), StPetersSquare.getId(), journeyRequest);
 
         assertFalse(results.isEmpty());
     }
@@ -269,7 +269,7 @@ class RouteCalculatorSubGraphMediaCityTest {
     void shouldHaveSimpleJourney() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(12, 0), false, 3,
                 maxJourneyDuration, 1, getRequestedModes());
-        Set<Journey> results = calculator.calculateRouteAsSet(TramStations.Pomona, MediaCityUK, journeyRequest);
+        List<Journey> results = calculator.calculateRouteAsList(TramStations.Pomona, MediaCityUK, journeyRequest);
         assertFalse(results.isEmpty());
     }
 
@@ -315,7 +315,7 @@ class RouteCalculatorSubGraphMediaCityTest {
     private void validateAtLeastOneJourney(TramStations start, TramStations dest, TramTime time, TramDate date) {
         JourneyRequest journeyRequest = new JourneyRequest(date, time, false, 5,
                 maxJourneyDuration, 1, getRequestedModes());
-        Set<Journey> results = calculator.calculateRouteAsSet(start, dest, journeyRequest);
+        List<Journey> results = calculator.calculateRouteAsList(start, dest, journeyRequest);
         assertFalse(results.isEmpty(), format("no journey from %s to %s at %s %s", start, dest, date, time));
     }
 }

@@ -152,7 +152,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRouteTest {
         TramTime time = TramTime.of(10, 40);
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 1,
                 Duration.ofMinutes(120), 2, getRequestedModes());
-        Set<Journey> results = calculator.calculateRouteAsSet(altrinchamInterchange, end, journeyRequest);
+        List<Journey> results = calculator.calculateRouteAsList(altrinchamInterchange, end, journeyRequest);
 
         assertFalse(results.isEmpty());
     }
@@ -174,7 +174,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRouteTest {
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false,
                 3, Duration.ofMinutes(120), 2, getRequestedModes());
 
-        Set<Journey> results = calculator.calculateRouteAsSet(start, altrinchamInterchange, journeyRequest);
+        List<Journey> results = calculator.calculateRouteAsList(start, altrinchamInterchange, journeyRequest);
 
         assertFalse(results.isEmpty());
     }
@@ -202,7 +202,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRouteTest {
                 for (int i = 1; i <= knutsfordIndex; i++) {
                     StopCall stopCall = stopCalls.getStopBySequenceNumber(i);
                     Station secondStation = stopCall.getStation();
-                    Set<Journey> result = calculator.calculateRouteAsSet(firstStation, secondStation, journeyRequest);
+                    List<Journey> result = calculator.calculateRouteAsList(firstStation, secondStation, journeyRequest);
                     assertFalse(result.isEmpty());
                 }
             });
