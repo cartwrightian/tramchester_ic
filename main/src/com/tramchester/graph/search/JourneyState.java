@@ -9,7 +9,10 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphNodeId;
+import com.tramchester.graph.search.stateMachine.states.ImmutableTraversalState;
 import com.tramchester.graph.search.stateMachine.states.TraversalState;
+import com.tramchester.graph.search.stateMachine.states.TraversalStateType;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.traversal.InitialBranchState;
 import org.slf4j.Logger;
@@ -68,8 +71,9 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         };
     }
 
-    public TramTime getJourneyClock() {
-        return coreState.journeyClock;
+
+    public void updateTraversalState(final TraversalState traversalState) {
+        this.traversalState = traversalState;
     }
 
     @Override
@@ -145,6 +149,11 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     @Override
+    public TramTime getJourneyClock() {
+        return coreState.journeyClock;
+    }
+
+    @Override
     public int getNumberChanges() {
         return coreState.getNumberOfChanges();
     }
@@ -177,13 +186,14 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         }
     }
 
-    public TraversalState getTraversalState() {
+    @Override
+    public ImmutableTraversalState getTraversalState() {
         return traversalState;
     }
 
     @Override
-    public String getTraversalStateName() {
-        return traversalState.getClass().getSimpleName();
+    public TraversalStateType getTraversalStateType() {
+        return traversalState.getStateType();
     }
 
     @Override
@@ -202,12 +212,13 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     @Override
-    public boolean hasVisited(final IdFor<Station> stationId) {
-        return coreState.visitedStations.contains(stationId);
+    public GraphNodeId getNodeId() {
+        return traversalState.nodeId();
     }
 
-    public void updateTraversalState(final TraversalState traversalState) {
-        this.traversalState = traversalState;
+    @Override
+    public boolean hasVisited(final IdFor<Station> stationId) {
+        return coreState.visitedStations.contains(stationId);
     }
 
 

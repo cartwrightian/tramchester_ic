@@ -20,7 +20,14 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class ServiceState extends TraversalState {
 
+
     public static class Builder implements Towards<ServiceState> {
+
+        private final boolean depthFirst;
+
+        public Builder(boolean depthFirst) {
+            this.depthFirst = depthFirst;
+        }
 
         @Override
         public void register(RegistersFromState registers) {
@@ -37,19 +44,13 @@ public class ServiceState extends TraversalState {
         public TraversalState fromRouteStation(final RouteStationStateOnTrip state, final IdFor<Trip> tripId, final GraphNode graphNode,
                                                final Duration cost, final GraphTransaction txn) {
             final Stream<ImmutableGraphRelationship> hourRelationships = getHourRelationships(graphNode, txn);
-            return new ServiceState(state, hourRelationships, ExistingTrip.onTrip(tripId), cost, this, graphNode);
+            return new ServiceState(state, hourRelationships, ExistingTrip.onTrip(tripId), cost, this, graphNode, depthFirst);
         }
 
         public TraversalState fromRouteStation(final JustBoardedState justBoarded, final GraphNode graphNode, final Duration cost, final GraphTransaction txn) {
             final Stream<ImmutableGraphRelationship> hourRelationships = getHourRelationships(graphNode, txn);
-            return new ServiceState(justBoarded, hourRelationships, cost, this, graphNode);
+            return new ServiceState(justBoarded, hourRelationships, cost, this, graphNode, depthFirst);
         }
-
-        // unused
-//        public TraversalState fromRouteStation(final RouteStationStateEndTrip endTrip, final GraphNode graphNode, final Duration cost, final GraphTransaction txn) {
-//            final Stream<ImmutableGraphRelationship> hourRelationships = getHourRelationships(graphNode, txn);
-//            return new ServiceState(endTrip, hourRelationships, cost, this, graphNode);
-//        }
 
         private Stream<ImmutableGraphRelationship> getHourRelationships(final GraphNode node, final GraphTransaction txn) {
             return node.getRelationships(txn, OUTGOING, TO_HOUR);
@@ -58,17 +59,20 @@ public class ServiceState extends TraversalState {
     }
 
     private final ExistingTrip maybeExistingTrip;
+    private final boolean depthFirst;
 
     private ServiceState(final TraversalState parent, final Stream<ImmutableGraphRelationship> relationships, final ExistingTrip maybeExistingTrip,
-                         final Duration cost, final Towards<ServiceState> builder, GraphNode graphNode) {
+                         final Duration cost, final Towards<ServiceState> builder, GraphNode graphNode, boolean depthFirst) {
         super(parent, relationships, cost, builder.getDestination(), graphNode);
         this.maybeExistingTrip = maybeExistingTrip;
+        this.depthFirst = depthFirst;
     }
 
     private ServiceState(final TraversalState parent, final Stream<ImmutableGraphRelationship> relationships,
-                         final Duration cost, final Towards<ServiceState> builder, GraphNode graphNode) {
+                         final Duration cost, final Towards<ServiceState> builder, GraphNode graphNode, boolean depthFirst) {
         super(parent, relationships, cost, builder.getDestination(), graphNode);
         this.maybeExistingTrip = ExistingTrip.none();
+        this.depthFirst = depthFirst;
     }
 
     @Override
@@ -78,7 +82,7 @@ public class ServiceState extends TraversalState {
 
     @Override
     public Stream<ImmutableGraphRelationship> getOutbounds(GraphTransaction txn, final RouteCalculatorSupport.PathRequest pathRequest) {
-        if (pathRequest.getDepthFirst()) {
+        if (depthFirst) {
             // note: assume only hour relationships
             // Assumes journeys that take less than 24 hours i.e. that ordering from the start hour is a good heuristic
             final TramTime queryTime = pathRequest.getActualQueryTime();

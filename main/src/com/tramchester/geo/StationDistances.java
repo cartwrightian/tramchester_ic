@@ -28,15 +28,15 @@ public class StationDistances {
     }
 
     public class FindDistancesTo {
-        private final Set<GridPosition> grids;
+        private final Set<GridPosition> destinationGrids;
 
         // only look up distance to destination once for any station
         // note: assumes FindDistancesTo lifetime is limited to one query, otherwise need tuning of cache creation to
         // avoid memory issues
         private final Cache<IdFor<Station>, Long> cache;
 
-        public FindDistancesTo(LocationSet locations) {
-            grids = locations.stream().map(Location::getGridPosition).filter(GridPosition::isValid).collect(Collectors.toSet());
+        public FindDistancesTo(final LocationSet destinationLocations) {
+            destinationGrids = destinationLocations.stream().map(Location::getGridPosition).filter(GridPosition::isValid).collect(Collectors.toSet());
             cache = Caffeine.newBuilder().build();
         }
 
@@ -47,8 +47,15 @@ public class StationDistances {
         private Long getMinDistance(final IdFor<Station> stationId) {
             final Station station = stationRepository.getStationById(stationId);
             final GridPosition gridPosition = station.getGridPosition();
-            final Optional<Long> find = grids.stream().map(grid -> GridPositions.distanceTo(gridPosition, grid)).min(Long::compare);
+            final Optional<Long> find = destinationGrids.stream().map(grid -> GridPositions.distanceTo(gridPosition, grid)).min(Long::compare);
             return find.orElse(Long.MAX_VALUE);
+        }
+
+        public int compare(final IdFor<Station> stationIdA, final IdFor<Station> stationIdB) {
+            final long distanceA = toStation(stationIdA);
+            final long distanceB = toStation(stationIdB);
+
+            return Long.compare(distanceA, distanceB);
         }
     }
 

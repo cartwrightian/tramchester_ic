@@ -15,7 +15,7 @@ import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.diagnostics.ReasonsToGraphViz;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
-import com.tramchester.graph.search.stateMachine.states.ImmuatableTraversalState;
+import com.tramchester.graph.search.stateMachine.states.ImmutableTraversalState;
 import com.tramchester.graph.search.stateMachine.states.NotStartedState;
 import com.tramchester.graph.search.stateMachine.states.TraversalState;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
@@ -125,7 +125,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     @Override
     public ResourceIterable<Relationship> expand(final Path path, final BranchState<JourneyState> graphState) {
         final ImmutableJourneyState currentState = graphState.getState();
-        final ImmuatableTraversalState traversalState = currentState.getTraversalState();
+        final ImmutableTraversalState traversalState = currentState.getTraversalState();
 
         final GraphNode endPathNode =  txn.fromEnd(path);
         final JourneyState journeyStateForChildren = JourneyState.fromPrevious(currentState);
@@ -153,8 +153,8 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
                 journeyStateForChildren, cost, journeyStateForChildren.isOnDiversion());
 
         journeyStateForChildren.updateTraversalState(traversalStateForChildren);
-        graphState.setState(journeyStateForChildren);
 
+        graphState.setState(journeyStateForChildren);
         Stream<ImmutableGraphRelationship> outbounds = traversalStateForChildren.getOutbounds(txn, pathRequest);
         return convertToIter(outbounds);
     }

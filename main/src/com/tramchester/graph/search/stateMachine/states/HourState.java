@@ -20,7 +20,14 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class HourState extends TraversalState {
 
+
     public static class Builder implements Towards<HourState> {
+
+        private final boolean depthFirst;
+
+        public Builder(boolean depthFirst) {
+            this.depthFirst = depthFirst;
+        }
 
         public HourState fromService(final ServiceState serviceState, final GraphNode node, final Duration cost,
                                      final ExistingTrip maybeExistingTrip, final GraphTransaction txn) {
@@ -40,9 +47,14 @@ public class HourState extends TraversalState {
 
         private Stream<ImmutableGraphRelationship> getMinuteRelationships(final GraphNode node, final GraphTransaction txn) {
             Stream<ImmutableGraphRelationship> unsorted = getRelationships(txn, node, OUTGOING, TO_MINUTE);
-            // NOTE: need an ordering here to produce consistent results, time is as good as any and no obvious way to optimise
-            // the order here, unlike for HOURS
-            return unsorted.sorted(Comparator.comparing(relationship -> relationship.getEndNode(txn).getTime()));
+            if (depthFirst) {
+                // NOTE: need an ordering here to produce consistent results, time is as good as any and no obvious way to optimise
+                // the order here, unlike for HOURS
+                return unsorted.sorted(Comparator.comparing(relationship -> relationship.getEndNode(txn).getTime()));
+            } else {
+                return unsorted;
+            }
+
         }
     }
 

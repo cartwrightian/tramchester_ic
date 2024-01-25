@@ -122,7 +122,7 @@ public class ServiceReasons {
         final ReasonCode reason = getReasonCode(journeyState.getTransportMode());
         incrementStat(reason);
 
-        final TraversalStateType stateType = journeyState.getTraversalState().getStateType();
+        final TraversalStateType stateType = journeyState.getTraversalStateType();
         if (stateStats.containsKey(stateType)) {
             stateStats.get(stateType).incrementAndGet();
         } else {

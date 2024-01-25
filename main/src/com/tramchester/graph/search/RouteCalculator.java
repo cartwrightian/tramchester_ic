@@ -51,7 +51,6 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
     private final RunningRoutesAndServices runningRoutesAndServices;
     private final CacheMetrics cacheMetrics;
     private final StationDistances stationDistances;
-    private final boolean depthFirst;
 
     @Inject
     public RouteCalculator(TransportData transportData, NodeContentsRepository nodeOperations, PathToStages pathToStages,
@@ -71,7 +70,6 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         this.runningRoutesAndServices = runningRoutesAndServices;
         this.cacheMetrics = cacheMetrics;
         this.stationDistances = stationDistances;
-        this.depthFirst = config.getDepthFirst();
     }
 
     @Override
@@ -191,7 +189,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         final Stream<Journey> results = numChangesRange(journeyRequest, numberOfChanges).
                 flatMap(numChanges -> queryTimes.stream().
                         map(queryTime -> createPathRequest(startNode, tramDate, queryTime, requestedModes, numChanges,
-                                journeyConstraints, maxInitialWait, selector, depthFirst))).
+                                journeyConstraints, maxInitialWait, selector))).
                 flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations, createServiceReasons(journeyRequest, pathRequest),
                         pathRequest, createPreviousVisits(), lowestCostSeen)).
                 map(path -> createJourney(journeyRequest, path, destinations, journeyIndex, txn));

@@ -33,6 +33,7 @@ public class TraversalStateFactory {
     public void start() {
         logger.info("starting");
         final boolean interchangesOnly = config.getChangeAtInterchangeOnly();
+        final boolean depthFirst = config.getDepthFirst();
 
         final FindStateAfterRouteStation findStateAfterRouteStation = new FindStateAfterRouteStation();
 
@@ -40,12 +41,12 @@ public class TraversalStateFactory {
 
         registersStates.addBuilder(new RouteStationStateOnTrip.Builder(interchangesOnly, nodeContents));
         registersStates.addBuilder(new RouteStationStateEndTrip.Builder(interchangesOnly));
-        registersStates.addBuilder(new HourState.Builder());
+        registersStates.addBuilder(new HourState.Builder(depthFirst));
         registersStates.addBuilder(new JustBoardedState.Builder(interchangesOnly));
         registersStates.addBuilder(new NoPlatformStationState.Builder(findStateAfterRouteStation));
         registersStates.addBuilder(new PlatformStationState.Builder());
         registersStates.addBuilder(new WalkingState.Builder());
-        registersStates.addBuilder(new ServiceState.Builder());
+        registersStates.addBuilder(new ServiceState.Builder(depthFirst));
         registersStates.addBuilder(new PlatformState.Builder(findStateAfterRouteStation));
         registersStates.addBuilder(new MinuteState.Builder(interchangesOnly, nodeContents));
         registersStates.addBuilder(new DestinationState.Builder());
@@ -71,51 +72,51 @@ public class TraversalStateFactory {
         return registersStates.getBuilderFor(from,to);
     }
 
-    public HourState.Builder getTowardsHour(TraversalStateType from) {
+    public HourState.Builder getTowardsHour(final TraversalStateType from) {
         return getFor(from, TraversalStateType.HourState);
     }
 
-    public PlatformStationState.Builder getTowardsStation(TraversalStateType from) {
+    public PlatformStationState.Builder getTowardsStation(final TraversalStateType from) {
         return getFor(from, TraversalStateType.PlatformStationState);
     }
 
-    public DestinationState.Builder getTowardsDestination(TraversalStateType from) {
+    public DestinationState.Builder getTowardsDestination(final TraversalStateType from) {
         return getFor(from, TraversalStateType.DestinationState);
     }
 
-    public MinuteState.Builder getTowardsMinute(TraversalStateType from) {
+    public MinuteState.Builder getTowardsMinute(final TraversalStateType from) {
         return getFor(from, TraversalStateType.MinuteState);
     }
 
-    public GroupedStationState.Builder getTowardsGroup(TraversalStateType from) {
+    public GroupedStationState.Builder getTowardsGroup(final TraversalStateType from) {
         return getFor(from, TraversalStateType.GroupedStationState);
     }
 
-    public NoPlatformStationState.Builder getTowardsNoPlatformStation(TraversalStateType from) {
+    public NoPlatformStationState.Builder getTowardsNoPlatformStation(final TraversalStateType from) {
         return getFor(from, TraversalStateType.NoPlatformStationState);
     }
 
-    public ServiceState.Builder getTowardsService(TraversalStateType from) {
+    public ServiceState.Builder getTowardsService(final TraversalStateType from) {
         return getFor(from, TraversalStateType.ServiceState);
     }
 
-    public PlatformState.Builder getTowardsPlatform(TraversalStateType from) {
+    public PlatformState.Builder getTowardsPlatform(final TraversalStateType from) {
         return getFor(from, TraversalStateType.PlatformState);
     }
 
-    public WalkingState.Builder getTowardsWalk(TraversalStateType from) {
+    public WalkingState.Builder getTowardsWalk(final TraversalStateType from) {
         return getFor(from, TraversalStateType.WalkingState);
     }
 
-    public JustBoardedState.Builder getTowardsJustBoarded(TraversalStateType from) {
+    public JustBoardedState.Builder getTowardsJustBoarded(final TraversalStateType from) {
         return getFor(from, TraversalStateType.JustBoardedState);
     }
 
-    public RouteStationStateOnTrip.Builder getTowardsRouteStationOnTrip(TraversalStateType from) {
+    public RouteStationStateOnTrip.Builder getTowardsRouteStationOnTrip(final TraversalStateType from) {
         return getFor(from, TraversalStateType.RouteStationStateOnTrip);
     }
 
-    public RouteStationStateEndTrip.Builder getTowardsRouteStationEndTrip(TraversalStateType from) {
+    public RouteStationStateEndTrip.Builder getTowardsRouteStationEndTrip(final TraversalStateType from) {
         return getFor(from, TraversalStateType.RouteStationStateEndTrip);
     }
 }

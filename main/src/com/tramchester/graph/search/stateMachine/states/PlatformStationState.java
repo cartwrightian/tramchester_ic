@@ -51,7 +51,6 @@ public class PlatformStationState extends StationState {
         public PlatformStationState fromStart(final NotStartedState notStartedState, final GraphNode stationNode, final Duration cost,
                                               final JourneyStateUpdate journeyState, final boolean alreadyOnDiversion,
                                               final boolean onDiversion, final GraphTransaction txn) {
-            //final Stream<ImmutableGraphRelationship> neighbours = TraversalState.getRelationships(txn, stationNode, OUTGOING, NEIGHBOUR);
             final Stream<ImmutableGraphRelationship> initial = stationNode.getRelationships(txn, OUTGOING, WALKS_FROM_STATION,
                     GROUPED_TO_PARENT, ENTER_PLATFORM, NEIGHBOUR);
             final Stream<ImmutableGraphRelationship> diversions = addValidDiversions(stationNode, notStartedState, onDiversion, txn);

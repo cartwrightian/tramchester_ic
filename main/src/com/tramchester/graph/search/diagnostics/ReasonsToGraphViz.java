@@ -11,6 +11,7 @@ import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
+import com.tramchester.graph.search.stateMachine.states.TraversalStateType;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.nptg.NPTGRepository;
 import org.apache.commons.lang3.tuple.Pair;
@@ -52,10 +53,10 @@ public class ReasonsToGraphViz {
 
         GraphNodeId endNodeId = howIGotHere.getEndNodeId();
         String reasonId = reason.getReasonCode().name() + endNodeId;
-        String stateName = howIGotHere.getTraversalStateName();
+        TraversalStateType stateType = howIGotHere.getTraversalStateName();
         GraphNode currentNode = transaction.getNodeById(endNodeId);
 
-        addNodeToDiagram(currentNode, builder, diagramState, stateName);
+        addNodeToDiagram(currentNode, builder, diagramState, stateType.name());
 
         if (includeAll || !reason.isValid()) {
             if (!diagramState.reasonIds.contains(reasonId)) {
@@ -74,7 +75,7 @@ public class ReasonsToGraphViz {
         if (!howIGotHere.atStart()) {
             GraphRelationship relationship = transaction.getRelationshipById(howIGotHere.getRelationshipId());
             GraphNode fromNode = relationship.getStartNode(transaction);
-            addNodeToDiagram(fromNode, builder, diagramState, stateName);
+            addNodeToDiagram(fromNode, builder, diagramState, stateType.name());
 
             GraphNodeId fromNodeId = fromNode.getId();
             Pair<GraphNodeId,GraphNodeId> link = Pair.of(fromNodeId, endNodeId);

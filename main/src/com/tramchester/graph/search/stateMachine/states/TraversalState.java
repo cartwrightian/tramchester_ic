@@ -18,7 +18,7 @@ import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
-public abstract class TraversalState extends EmptyTraversalState implements ImmuatableTraversalState, NodeId {
+public abstract class TraversalState extends EmptyTraversalState implements ImmutableTraversalState, NodeId {
 
     protected final TraversalStateFactory builders;
     protected final TraversalOps traversalOps;

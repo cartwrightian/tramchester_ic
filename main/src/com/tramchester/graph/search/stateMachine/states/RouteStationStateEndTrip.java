@@ -60,18 +60,13 @@ public class RouteStationStateEndTrip extends RouteStationState {
     private final Trip trip;
 
     private RouteStationStateEndTrip(final MinuteState minuteState, final Stream<ImmutableGraphRelationship> routeStationOutbound, final Duration cost,
-                                     final TransportMode mode, final GraphNode routeStationNode, final Trip trip, final TowardsRouteStation<RouteStationStateEndTrip> builder) {
+                                     final TransportMode mode, final GraphNode routeStationNode, final Trip trip,
+                                     final TowardsRouteStation<RouteStationStateEndTrip> builder) {
         super(minuteState, routeStationOutbound, cost, builder, routeStationNode);
         this.mode = mode;
         this.routeStationNode = routeStationNode;
         this.trip = trip;
     }
-
-    // no services included in above, so this is never called
-//    @Override
-//    protected TraversalState toService(final ServiceState.Builder towardsService, final GraphNode node, final Duration cost) {
-//        return towardsService.fromRouteStation(this, node, cost, txn);
-//    }
 
     @Override
     protected TraversalState toNoPlatformStation(final NoPlatformStationState.Builder towardsStation, final GraphNode node, final Duration cost,
@@ -91,7 +86,7 @@ public class RouteStationStateEndTrip extends RouteStationState {
         try {
             journeyState.leave(trip.getId(), mode, getTotalDuration(), routeStationNode);
         } catch (TramchesterException e) {
-            throw new RuntimeException("Unable to leave " + mode, e);
+            throw new RuntimeException("Unable to leave " + mode + " at " + this, e );
         }
     }
     @Override

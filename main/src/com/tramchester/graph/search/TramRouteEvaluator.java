@@ -229,6 +229,11 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
                 return forMode.getReasonCode();
             }
 
+            if (!serviceHeuristics.checkStationOpen(nextNode, howIGotHere, reasons).isValid()) {
+                // NOTE: might still reach the closed station via a walk, which is not via the RouteStation
+                return ReasonCode.StationClosed;
+            }
+
             if (depthFirst) {
                 // too slow for breadth first on larger graphs
                 final HeuristicsReason reachDestination = serviceHeuristics.canReachDestination(nextNode, journeyState.getNumberChanges(),
@@ -236,14 +241,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
                 if (!reachDestination.isValid()) {
                     return reachDestination.getReasonCode();
                 }
-            }
 
-            if (!serviceHeuristics.checkStationOpen(nextNode, howIGotHere, reasons).isValid()) {
-                // NOTE: might still reach the closed station via a walk, which is not via the RouteStation
-                return ReasonCode.StationClosed;
-            }
-
-            if (depthFirst) {
                 // Without the filtering from serviceHeuristics.canReachDestination becomes very expensive
                 final HeuristicsReason serviceReason = serviceHeuristics.lowerCostIncludingInterchange(nextNode, howIGotHere, reasons);
                 if (!serviceReason.isValid()) {

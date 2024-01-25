@@ -5,6 +5,7 @@ import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.facade.GraphRelationshipId;
 import com.tramchester.graph.search.ImmutableJourneyState;
+import com.tramchester.graph.search.stateMachine.states.TraversalStateType;
 
 import java.util.Objects;
 
@@ -13,10 +14,10 @@ public class HowIGotHere {
     //private static final long AT_START = Long.MIN_VALUE;
     private final GraphRelationshipId relationshipId;
     private final GraphNodeId nodeId;
-    private final String traversalStateName;
+    private final TraversalStateType traversalStateName;
 
     public HowIGotHere(ImmutableJourneyState immutableJourneyState, GraphNode graphNode, GraphRelationship lastFrom) {
-        this(graphNode.getId(), maintainExistingInterface(lastFrom), immutableJourneyState.getTraversalStateName());
+        this(graphNode.getId(), maintainExistingInterface(lastFrom), immutableJourneyState.getTraversalStateType());
     }
 
     // TODO For no presevre existing behaviour with relationshipId i.e. null means not started yet
@@ -27,7 +28,7 @@ public class HowIGotHere {
         return lastFrom.getId();
     }
 
-    private HowIGotHere(GraphNodeId nodeId, GraphRelationshipId relationshipId, String traversalStateName) {
+    private HowIGotHere(GraphNodeId nodeId, GraphRelationshipId relationshipId, TraversalStateType traversalStateName) {
         this.nodeId = nodeId;
         this.relationshipId = relationshipId;
         this.traversalStateName = traversalStateName;
@@ -45,20 +46,12 @@ public class HowIGotHere {
         return relationshipId==null;
     }
 
-    public String getTraversalStateName() {
+    public TraversalStateType getTraversalStateName() {
         return traversalStateName;
     }
 
-//    private static GraphRelationshipId getRelationshipFromPath(Path path) {
-//        if (path.lastRelationship()==null) {
-//            return null;
-//        } else {
-//            return GraphRelationship.lastFrom(path).getId(); // path.lastRelationship().getId();
-//        }
-//    }
-
     public static HowIGotHere forTest(GraphNodeId nodeId, GraphRelationshipId relationshipId) {
-        return new HowIGotHere(nodeId, relationshipId, "TEST_ONLY");
+        return new HowIGotHere(nodeId, relationshipId, TraversalStateType.MinuteState);
     }
 
     @Override

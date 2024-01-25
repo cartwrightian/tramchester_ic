@@ -5,8 +5,8 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.geo.StationDistances;
 import com.tramchester.graph.search.JourneyState;
+import com.tramchester.graph.search.stateMachine.states.ImmutableTraversalState;
 import com.tramchester.graph.search.stateMachine.states.StationState;
-import com.tramchester.graph.search.stateMachine.states.TraversalState;
 import org.neo4j.graphdb.PathExpander;
 import org.neo4j.graphdb.traversal.BranchSelector;
 import org.neo4j.graphdb.traversal.TraversalBranch;
@@ -39,21 +39,6 @@ public class BreadthFirstBranchSelector implements BranchSelector {
         }
         branchToExpand = expansionQueue.removeFront();
         return branchToExpand;
-//        TraversalBranch result = null;
-//        while (result == null) {
-//            final TraversalBranch next = branchToExpand.next(expander, metadata);
-//            if (next != null) {
-//                expansionQueue.addBranch(next);
-//                result = next;
-//            } else {
-//                // nothing more from current branchToExpand, so revert to next in queue
-//                branchToExpand = expansionQueue.removeFront();
-//                if (branchToExpand == null) {
-//                    return null;
-//                }
-//            }
-//        }
-//        return result;
     }
 
     public static class TraversalBranchQueue {
@@ -83,8 +68,8 @@ public class BreadthFirstBranchSelector implements BranchSelector {
             public int compare(final TraversalBranch branchA, final TraversalBranch branchB) {
                 final JourneyState stateA = (JourneyState) branchA.state();
                 final JourneyState stateB = (JourneyState) branchB.state();
-                final TraversalState traversalStateA = stateA.getTraversalState();
-                final TraversalState traversalStateB = stateB.getTraversalState();
+                final ImmutableTraversalState traversalStateA = stateA.getTraversalState();
+                final ImmutableTraversalState traversalStateB = stateB.getTraversalState();
                 if (!traversalStateA.nodeId().equals(traversalStateB.nodeId())) {
                     // only worth comparing on distance if not the same node
                     if ((traversalStateA instanceof StationState stationStateA) && (traversalStateB instanceof StationState stationStateB)) {
