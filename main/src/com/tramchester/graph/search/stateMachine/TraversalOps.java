@@ -73,14 +73,14 @@ public class TraversalOps {
         return tripRepository.getTripById(tripId);
     }
 
-    private boolean serviceNodeMatches(GraphRelationship relationship, IdFor<Service> currentSvcId) {
+    private boolean serviceNodeMatches(final GraphRelationship relationship, final IdFor<Service> currentSvcId) {
         // TODO Add ServiceID to Service Relationship??
-        GraphNode svcNode = relationship.getEndNode(txn);
-        IdFor<Service> svcId = nodeOperations.getServiceId(svcNode);
+        final GraphNode svcNode = relationship.getEndNode(txn);
+        final IdFor<Service> svcId = nodeOperations.getServiceId(svcNode);
         return currentSvcId.equals(svcId);
     }
 
-    public boolean hasOutboundFor(GraphNode node, IdFor<Service> serviceId) {
+    public boolean hasOutboundFor(final GraphNode node, final IdFor<Service> serviceId) {
         return node.getRelationships(txn, Direction.OUTGOING, TO_SERVICE).anyMatch(relationship -> serviceNodeMatches(relationship, serviceId));
     }
 

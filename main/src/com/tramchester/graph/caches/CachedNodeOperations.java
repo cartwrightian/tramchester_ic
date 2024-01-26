@@ -39,7 +39,7 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
     private final Cache<GraphRelationshipId, Duration> relationshipCostCache;
 
     private final Cache<GraphNodeId, TramTime> timeNodeCache;
-    private final Cache<GraphNodeId, Integer> hourNodeCahce;
+//    private final Cache<GraphNodeId, Integer> hourNodeCache;
 
     private final Cache<GraphNodeId, EnumSet<GraphLabel>> labelCache;
 
@@ -52,9 +52,11 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
         relationshipCostCache = createCache("relationshipCostCache", numberFor(TransportRelationshipTypes.haveCosts()));
         tripIdRelationshipCache = createCache("tripIdRelationshipCache", numberFor(TransportRelationshipTypes.haveTripId()));
         timeNodeCache = createCache("timeNodeCache", GraphLabel.MINUTE);
-        hourNodeCahce = createCache("hourNodeCache", GraphLabel.HOUR);
+//        hourNodeCache = createCache("hourNodeCache", GraphLabel.HOUR);
 
-        labelCache = Caffeine.newBuilder().maximumSize(50000).
+        long numberOfNodes = numberOfNodesAndRelationshipsRepository.numberOfNodes();
+
+        labelCache = Caffeine.newBuilder().maximumSize(numberOfNodes * 3).
                 expireAfterAccess(10, TimeUnit.MINUTES).
                 initialCapacity(40000).
                 recordStats().build();
@@ -76,7 +78,7 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
         tripIdRelationshipCache.invalidateAll();
         timeNodeCache.invalidateAll();
         labelCache.invalidateAll();
-        hourNodeCahce.invalidateAll();
+//        hourNodeCache.invalidateAll();
     }
 
     @NonNull
@@ -96,6 +98,7 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
         List<Pair<String,CacheStats>> result = new ArrayList<>();
         result.add(Pair.of("relationshipCostCache",relationshipCostCache.stats()));
         result.add(Pair.of("tripIdRelationshipCache", tripIdRelationshipCache.stats()));
+//        result.add(Pair.of("hourNodeCache", hourNodeCache.stats()));
         result.add(Pair.of("timeNodeCache", timeNodeCache.stats()));
         result.add(Pair.of("labelCache", labelCache.stats()));
 
@@ -126,10 +129,10 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
         return node.getTripId();
     }
 
-    public int getHour(final GraphNode node) {
-        final GraphNodeId nodeId = node.getId();
-        return hourNodeCahce.get(nodeId, id -> GraphLabel.getHourFrom(getLabels(node)));
-    }
+//    public int getHour(final GraphNode node) {
+//        final GraphNodeId nodeId = node.getId();
+//        return hourNodeCache.get(nodeId, id -> GraphLabel.getHourFrom(getLabels(node)));
+//    }
 
     @Override
     public EnumSet<GraphLabel> getLabels(final GraphNode node) {

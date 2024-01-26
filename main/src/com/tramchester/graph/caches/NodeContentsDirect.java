@@ -37,11 +37,6 @@ public class NodeContentsDirect implements NodeContentsRepository {
     }
 
     @Override
-    public int getHour(GraphNode node) {
-        return node.getHour();
-    }
-
-    @Override
     public IdFor<Trip> getTripId(GraphRelationship relationship) {
         return relationship.getTripId();
     }

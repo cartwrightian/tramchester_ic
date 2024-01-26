@@ -43,10 +43,9 @@ class NumberOfNodesAndRelationshipsRepository {
     }
 
     private void countRelationships() {
-        TransportRelationshipTypes[] types = TransportRelationshipTypes.values();
         try (MutableGraphTransaction txn = graphDatabase.beginTxMutable()) {
-            for (TransportRelationshipTypes relationshipType : types) {
-                long count = getCountFromQuery(txn,
+            for (final TransportRelationshipTypes relationshipType : TransportRelationshipTypes.values()) {
+                final long count = getCountFromQuery(txn,
                         "MATCH ()-[relationship:" + relationshipType.name() + "]->() " + "RETURN count(*) as count");
                 relationshipCounts.put(relationshipType, count);
                 if (count>0) {
@@ -57,10 +56,9 @@ class NumberOfNodesAndRelationshipsRepository {
     }
 
     private void countNodeNumbers() {
-        GraphLabel[] labels = GraphLabel.values();
         try (MutableGraphTransaction txn = graphDatabase.beginTxMutable()) {
-            for (GraphLabel label : labels) {
-                long count = getCountFromQuery(txn,
+            for (final GraphLabel label : GraphLabel.values()) {
+                final long count = getCountFromQuery(txn,
                         "MATCH (node:" + label.name() + ") " + "RETURN count(*) as count");
                 nodeCounts.put(label, count);
                 if (count>0) {
@@ -70,10 +68,18 @@ class NumberOfNodesAndRelationshipsRepository {
         }
     }
 
-    private long getCountFromQuery(MutableGraphTransaction txn, String query) {
-        Result result = txn.execute(query);
-        ResourceIterator<Object> rows = result.columnAs("count");
-        long count = (long) rows.next();
+
+    public long numberOfNodes() {
+        try (MutableGraphTransaction txn = graphDatabase.beginTxMutable()) {
+            return getCountFromQuery(txn, "MATCH (n)\n" +
+                    "RETURN count(n) as count");
+        }
+    }
+
+    private long getCountFromQuery(final MutableGraphTransaction txn, final String query) {
+        final Result result = txn.execute(query);
+        final ResourceIterator<Object> rows = result.columnAs("count");
+        final long count = (long) rows.next();
         result.close();
         return count;
     }
@@ -94,4 +100,5 @@ class NumberOfNodesAndRelationshipsRepository {
     public long numberOf(TransportRelationshipTypes relationshipType) {
         return relationshipCounts.get(relationshipType);
     }
+
 }

@@ -124,38 +124,44 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
 
     @Override
     public ResourceIterable<Relationship> expand(final Path path, final BranchState<JourneyState> graphState) {
+        // GraphState -> JourneyState -> TraversalState
         final ImmutableJourneyState currentState = graphState.getState();
         final ImmutableTraversalState traversalState = currentState.getTraversalState();
 
-        final GraphNode endPathNode =  txn.fromEnd(path);
         final JourneyState journeyStateForChildren = JourneyState.fromPrevious(currentState);
 
         final GraphRelationship lastRelationship = txn.lastFrom(path);
+
         final Duration cost;
+        final boolean onDiversion;
         if (lastRelationship !=null) {
             cost = nodeContentsRepository.getCost(lastRelationship);
+            onDiversion = lastRelationship.isType(DIVERSION);
             if (Durations.greaterThan(cost, Duration.ZERO)) {
                 final Duration totalCost = currentState.getTotalDurationSoFar();
                 final Duration total = totalCost.plus(cost);
                 journeyStateForChildren.updateTotalCost(total);
             }
-            if (lastRelationship.isType(DIVERSION)) {
+            if (onDiversion) {
                 final IdFor<Station> stationId = lastRelationship.getStartStationId();
                 journeyStateForChildren.beginDiversion(stationId);
             }
         } else {
             cost = Duration.ZERO;
+            onDiversion = false;
         }
+
+        final GraphNode endPathNode =  txn.fromEnd(path);
 
         final EnumSet<GraphLabel> labels = nodeContentsRepository.getLabels(endPathNode);
 
         final TraversalState traversalStateForChildren = traversalState.nextState(labels, endPathNode,
-                journeyStateForChildren, cost, journeyStateForChildren.isOnDiversion());
+                journeyStateForChildren, cost, onDiversion);
 
         journeyStateForChildren.updateTraversalState(traversalStateForChildren);
 
         graphState.setState(journeyStateForChildren);
-        Stream<ImmutableGraphRelationship> outbounds = traversalStateForChildren.getOutbounds(txn, pathRequest);
+        final Stream<ImmutableGraphRelationship> outbounds = traversalStateForChildren.getOutbounds(txn, pathRequest);
         return convertToIter(outbounds);
     }
 
