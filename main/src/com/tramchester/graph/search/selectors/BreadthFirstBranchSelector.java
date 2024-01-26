@@ -1,12 +1,10 @@
 package com.tramchester.graph.search.selectors;
 
 import com.tramchester.domain.LocationSet;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.places.Station;
 import com.tramchester.geo.StationDistances;
+import com.tramchester.graph.search.ImmutableJourneyState;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.stateMachine.states.ImmutableTraversalState;
-import com.tramchester.graph.search.stateMachine.states.StationState;
 import org.neo4j.graphdb.PathExpander;
 import org.neo4j.graphdb.traversal.BranchSelector;
 import org.neo4j.graphdb.traversal.TraversalBranch;
@@ -46,6 +44,7 @@ public class BreadthFirstBranchSelector implements BranchSelector {
         private final StationDistances.FindDistancesTo findDistances;
 
         public TraversalBranchQueue(StationDistances stationDistances, LocationSet destinations) {
+//            int metersPerMinute = 60 * metersPerSecond.intValue();
             findDistances = stationDistances.findDistancesTo(destinations);
             theQueue = new PriorityQueue<>(new BranchComparator());
         }
@@ -61,31 +60,25 @@ public class BreadthFirstBranchSelector implements BranchSelector {
         private class BranchComparator implements Comparator<TraversalBranch> {
 
             // TODO What is the right Strategy here?
-
-            // just copy a-star? at least for StationState
+            // Comparing only on distance once seen a station, so for majority of time
 
             @Override
             public int compare(final TraversalBranch branchA, final TraversalBranch branchB) {
-                final JourneyState stateA = (JourneyState) branchA.state();
-                final JourneyState stateB = (JourneyState) branchB.state();
+                final ImmutableJourneyState stateA = (JourneyState) branchA.state();
+                final ImmutableJourneyState stateB = (JourneyState) branchB.state();
+
                 final ImmutableTraversalState traversalStateA = stateA.getTraversalState();
                 final ImmutableTraversalState traversalStateB = stateB.getTraversalState();
+
+                // only worth comparing on distance if not the same node
                 if (!traversalStateA.nodeId().equals(traversalStateB.nodeId())) {
-                    // only worth comparing on distance if not the same node
-                    if ((traversalStateA instanceof StationState stationStateA) && (traversalStateB instanceof StationState stationStateB)) {
-
-                        final IdFor<Station> stationIdA = stationStateA.getStationId();
-                        final IdFor<Station> stationIdB = stationStateB.getStationId();
-
-                        long distanceA = findDistances.toStation(stationIdA);
-                        long distanceB = findDistances.toStation(stationIdB);
-
-                        return Long.compare(distanceA, distanceB);
-
+                    if(stateA.hasBegunJourney() && stateB.hasBegunJourney()) {
+                        return findDistances.compare(stateA.approxPosition(), stateB.approxPosition());
                     }
                 }
                 return stateA.getJourneyClock().compareTo(stateB.getJourneyClock());
             }
+
         }
     }
 

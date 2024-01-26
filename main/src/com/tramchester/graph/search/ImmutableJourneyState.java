@@ -24,4 +24,5 @@ public interface ImmutableJourneyState extends HasTransportMode {
     boolean isOnDiversion();
     boolean alreadyDeparted(IdFor<Trip> tripId);
     GraphNodeId getNodeId();
+    IdFor<Station> approxPosition();
 }

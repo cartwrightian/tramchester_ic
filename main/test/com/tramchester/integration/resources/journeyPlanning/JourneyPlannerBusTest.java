@@ -65,12 +65,12 @@ class JourneyPlannerBusTest {
         App app = appExt.getTestSupport().getApplication();
         GuiceContainerDependencies dependencies = app.getDependencies();
 
-        stockportCentralStops = KnownLocality.Stockport.from(stationGroupRepository);
-        nearShudehillCentralStops = KnownLocality.Shudehill.from(stationGroupRepository);
-
         mapper = new ObjectMapper();
 
         stationGroupRepository = dependencies.get(StationGroupsRepository.class);
+
+        stockportCentralStops = KnownLocality.Stockport.from(stationGroupRepository);
+        nearShudehillCentralStops = KnownLocality.Shudehill.from(stationGroupRepository);
     }
 
     @Test
@@ -91,17 +91,17 @@ class JourneyPlannerBusTest {
     void shouldBusJourneyWestEast() {
         TramTime queryTime = TramTime.of(8,45);
 
-        JourneyQueryDTO query1 = journeyResourceTestFacade.getQueryDTO(when, queryTime, StopAtAltrinchamInterchange,
+        JourneyQueryDTO queryA = journeyResourceTestFacade.getQueryDTO(when, queryTime, StopAtAltrinchamInterchange,
                 stockportCentralStops, false, 2);
 
-        JourneyPlanRepresentation planA = journeyResourceTestFacade.getJourneyPlan(query1);
+        JourneyPlanRepresentation planA = journeyResourceTestFacade.getJourneyPlan(queryA);
         List<JourneyDTO> foundA = getValidJourneysAfter(queryTime, planA);
         Assertions.assertFalse(foundA.isEmpty());
 
-        JourneyQueryDTO query = journeyResourceTestFacade.getQueryDTO(when, queryTime, stockportCentralStops,
+        JourneyQueryDTO queryB = journeyResourceTestFacade.getQueryDTO(when, queryTime, stockportCentralStops,
                 StopAtAltrinchamInterchange, false, 2);
 
-        JourneyPlanRepresentation planB = journeyResourceTestFacade.getJourneyPlan(query);
+        JourneyPlanRepresentation planB = journeyResourceTestFacade.getJourneyPlan(queryB);
         List<JourneyDTO> foundB = getValidJourneysAfter(queryTime, planB);
         Assertions.assertFalse(foundB.isEmpty());
     }

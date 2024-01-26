@@ -264,7 +264,7 @@ class BusRouteCalculatorTest {
     }
 
     @Test
-    void shouldHavePiccadilyToStockportJourney() {
+    void shouldHavePiccadillyToStockportJourney() {
         int maxChanges = 2;
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8, 0),
                 false, maxChanges, maxJourneyDuration, 3, getRequestedModes());

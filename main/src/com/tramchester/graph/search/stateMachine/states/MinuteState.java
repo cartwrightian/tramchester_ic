@@ -87,17 +87,17 @@ public class MinuteState extends TraversalState {
 
     @Override
     protected RouteStationStateOnTrip toRouteStationOnTrip(final RouteStationStateOnTrip.Builder towardsRouteStation,
-                                                           final GraphNode routeStationNode, final Duration cost, final boolean isInterchange) {
+                                                           JourneyStateUpdate journeyState, final GraphNode routeStationNode, final Duration cost, final boolean isInterchange) {
 
-        return towardsRouteStation.fromMinuteState(this, routeStationNode, cost, isInterchange, trip, txn);
+        return towardsRouteStation.fromMinuteState(journeyState, this, routeStationNode, cost, isInterchange, trip, txn);
     }
 
     @Override
     protected RouteStationStateEndTrip toRouteStationEndTrip(final RouteStationStateEndTrip.Builder towardsEndTrip,
-                                                             final GraphNode routeStationNode,
+                                                             JourneyStateUpdate journeyState, final GraphNode routeStationNode,
                                                              final Duration cost, final boolean isInterchange) {
 
-        return towardsEndTrip.fromMinuteState(this, routeStationNode, cost, isInterchange, trip, txn);
+        return towardsEndTrip.fromMinuteState(journeyState, this, routeStationNode, cost, isInterchange, trip, txn);
     }
 
     @Override

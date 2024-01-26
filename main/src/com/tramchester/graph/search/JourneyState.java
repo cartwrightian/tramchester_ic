@@ -3,6 +3,7 @@ package com.tramchester.graph.search;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -94,6 +95,11 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         coreState.setJourneyClock(boardingTime);
         this.boardingTime = boardingTime;
         this.journeyOffset = currentCost;
+    }
+
+    @Override
+    public void seenRouteStation(IdFor<Station> correspondingStationId) {
+        coreState.seenRouteStation(correspondingStationId);
     }
 
     @Override
@@ -217,6 +223,11 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     @Override
+    public IdFor<Station> approxPosition() {
+        return coreState.getLastVisited();
+    }
+
+    @Override
     public boolean hasVisited(final IdFor<Station> stationId) {
         return coreState.visitedStations.contains(stationId);
     }
@@ -265,23 +276,24 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         private int numberNeighbourConnections;
         private int numberOfDiversionsTaken;
         private boolean currentlyOnDiversion;
+        private IdFor<Station> lastSeenStation;
 
         public CoreState(final TramTime queryTime) {
             this(queryTime, false, 0,
                     TransportMode.NotSet, 0, 0, new LinkedList<>(),
-                    false, 0);
+                    false, 0, StringIdFor.invalid(Station.class));
         }
 
         // Copy cons
         public CoreState(final CoreState previous) {
             this(previous.journeyClock, previous.hasBegun, previous.numberOfBoardings, previous.currentMode, previous.numberOfWalkingConnections,
                     previous.numberNeighbourConnections, previous.visitedStations,
-                    previous.currentlyOnDiversion, previous.numberOfDiversionsTaken);
+                    previous.currentlyOnDiversion, previous.numberOfDiversionsTaken, previous.lastSeenStation);
         }
 
         private CoreState(final TramTime journeyClock, final boolean hasBegun, final int numberOfBoardings, final TransportMode currentMode,
                           int numberOfWalkingConnections, int numberNeighbourConnections, List<IdFor<Station>> visitedStations,
-                          boolean currentlyOnDiversion, int numberOfDiversionsTaken) {
+                          boolean currentlyOnDiversion, int numberOfDiversionsTaken, IdFor<Station> lastSeenStation) {
             this.hasBegun = hasBegun;
             this.journeyClock = journeyClock;
             this.currentMode = currentMode;
@@ -291,6 +303,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
             this.visitedStations = visitedStations;
             this.currentlyOnDiversion = currentlyOnDiversion;
             this.numberOfDiversionsTaken = numberOfDiversionsTaken;
+            this.lastSeenStation = lastSeenStation;
         }
 
         public void incrementWalkingConnections() {
@@ -382,6 +395,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
 
         public void seenStation(final IdFor<Station> stationId) {
             visitedStations.add(stationId);
+            lastSeenStation = stationId;
         }
 
         public void endDiversion(final GraphNode node) {
@@ -393,7 +407,6 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         }
 
         public void beginDiversion(final IdFor<Station> stationId) {
-            //IdFor<Station> stationId = diversionNode.getStationId();
             if (currentlyOnDiversion) {
                 String msg = "Already on diversion, at " + stationId;
                 logger.error(msg);
@@ -408,6 +421,14 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
 
         public boolean isOnDiversion() {
             return currentlyOnDiversion;
+        }
+
+        public IdFor<Station> getLastVisited() {
+            return lastSeenStation;
+        }
+
+        public void seenRouteStation(final IdFor<Station> correspondingStationId) {
+            lastSeenStation = correspondingStationId;
         }
     }
 

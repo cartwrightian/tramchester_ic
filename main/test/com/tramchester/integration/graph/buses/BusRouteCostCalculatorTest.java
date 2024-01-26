@@ -90,25 +90,25 @@ class BusRouteCostCalculatorTest {
 
     @Test
     void shouldFindCostsCorrectlyForAltyStockportComp() {
-        assertMinutesEquals(42, getCostBetween(average(), altrincham, stockport));
-        assertMinutesEquals(50, getCostBetween(average(), stockport, altrincham));
+        assertMinutesEquals(45, getCostBetween(average(), altrincham, stockport));
+        assertMinutesEquals(52, getCostBetween(average(), stockport, altrincham));
     }
 
     @Test
     void shouldFindCostsCorrectlyForAltyStockport() {
-        assertMinutesEquals(44, getCost(average(), StopAtAltrinchamInterchange, StockportNewbridgeLane));
-        assertMinutesEquals(52, getCost(average(), StockportNewbridgeLane, StopAtAltrinchamInterchange));
+        assertMinutesEquals(48, getCost(average(), StopAtAltrinchamInterchange, StockportNewbridgeLane));
+        assertMinutesEquals(54, getCost(average(), StockportNewbridgeLane, StopAtAltrinchamInterchange));
     }
 
     @Test
     void shouldFindCostsCorrectlyForShudehillAltyComp() {
-        assertMinutesEquals(55, getCostBetween(average(), altrincham, shudehill));
+        assertMinutesEquals(54, getCostBetween(average(), altrincham, shudehill));
         assertMinutesEquals(58, getCostBetween(average(), shudehill, altrincham));
     }
 
     @Test
     void shouldFindCostsCorrectlyForShudehillAlty() {
-        assertMinutesEquals(56, getCost(average(), StopAtAltrinchamInterchange, StopAtShudehillInterchange));
+        assertMinutesEquals(55, getCost(average(), StopAtAltrinchamInterchange, StopAtShudehillInterchange));
         assertMinutesEquals(58, getCost(average(), StopAtShudehillInterchange, StopAtAltrinchamInterchange));
     }
 

@@ -24,4 +24,6 @@ public interface JourneyStateUpdate {
 
     void updateTotalCost(Duration total);
     void recordTime(TramTime time, Duration totalCost) throws TramchesterException;
+
+    void seenRouteStation(IdFor<Station> correspondingStationId);
 }

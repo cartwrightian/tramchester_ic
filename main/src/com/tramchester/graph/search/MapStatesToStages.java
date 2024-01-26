@@ -195,7 +195,12 @@ class MapStatesToStages implements JourneyStateUpdate {
 
     @Override
     public void seenStation(IdFor<Station> stationId) {
-        // noop
+        // no-op
+    }
+
+    @Override
+    public void seenRouteStation(IdFor<Station> correspondingStationId) {
+        // no-op
     }
 
     public List<TransportStage<?, ?>> getStages() {

@@ -35,7 +35,7 @@ public class RouteStationStateEndTrip extends RouteStationState {
             return TraversalStateType.RouteStationStateEndTrip;
         }
 
-        public RouteStationStateEndTrip fromMinuteState(final MinuteState minuteState, final GraphNode node, final Duration cost,
+        public RouteStationStateEndTrip fromMinuteState(JourneyStateUpdate journeyState, final MinuteState minuteState, final GraphNode node, final Duration cost,
                                                         final boolean isInterchange, final Trip trip, final GraphTransaction txn) {
             final TransportMode transportMode = node.getTransportMode();
 
@@ -45,12 +45,12 @@ public class RouteStationStateEndTrip extends RouteStationState {
             final OptionalResourceIterator<ImmutableGraphRelationship> towardsDestination = getTowardsDestination(minuteState.traversalOps, node, date, txn);
             if (!towardsDestination.isEmpty()) {
                 // we've nearly arrived
-                return new RouteStationStateEndTrip(minuteState, towardsDestination.stream(), cost, transportMode, node, trip, this);
+                return new RouteStationStateEndTrip(journeyState, minuteState, towardsDestination.stream(), cost, transportMode, node, trip, this);
             }
 
             final Stream<ImmutableGraphRelationship> outboundsToFollow = getOutboundsToFollow(node, isInterchange, date, txn);
 
-            return new RouteStationStateEndTrip(minuteState, outboundsToFollow, cost, transportMode, node, trip, this);
+            return new RouteStationStateEndTrip(journeyState, minuteState, outboundsToFollow, cost, transportMode, node, trip, this);
         }
 
     }
@@ -59,10 +59,10 @@ public class RouteStationStateEndTrip extends RouteStationState {
     private final GraphNode routeStationNode;
     private final Trip trip;
 
-    private RouteStationStateEndTrip(final MinuteState minuteState, final Stream<ImmutableGraphRelationship> routeStationOutbound, final Duration cost,
+    private RouteStationStateEndTrip(JourneyStateUpdate journeyState, final MinuteState minuteState, final Stream<ImmutableGraphRelationship> routeStationOutbound, final Duration cost,
                                      final TransportMode mode, final GraphNode routeStationNode, final Trip trip,
                                      final TowardsRouteStation<RouteStationStateEndTrip> builder) {
-        super(minuteState, routeStationOutbound, cost, builder, routeStationNode);
+        super(minuteState, routeStationOutbound, journeyState, cost, builder, routeStationNode);
         this.mode = mode;
         this.routeStationNode = routeStationNode;
         this.trip = trip;

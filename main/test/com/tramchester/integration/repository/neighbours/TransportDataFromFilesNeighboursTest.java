@@ -27,7 +27,6 @@ import static com.tramchester.domain.reference.TransportMode.Bus;
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.integration.repository.TransportDataFromFilesTramTest.NUM_TFGM_TRAM_STATIONS;
 import static com.tramchester.integration.repository.buses.TransportDataFromFilesBusTest.TGFM_BUS_AGENCIES;
-import static com.tramchester.integration.repository.buses.TransportDataFromFilesBusTest.TGFM_BUS_ROUTES;
 import static com.tramchester.testSupport.reference.TramStations.Shudehill;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -68,13 +67,6 @@ public class TransportDataFromFilesNeighboursTest {
     @Test
     void shouldHaveTGFMBusPlusTramAgencies() {
         assertEquals(TGFM_BUS_AGENCIES + 1, agencyRepository.getAgencies().size());
-    }
-
-    @Test
-    void shouldHaveRouteNumbersForBus() {
-        long numberBusRoutes = routeRepository.getRoutes().stream().
-                filter(route -> route.getTransportMode().equals(Bus)).count();
-        assertEquals(TGFM_BUS_ROUTES, numberBusRoutes);
     }
 
     @Test

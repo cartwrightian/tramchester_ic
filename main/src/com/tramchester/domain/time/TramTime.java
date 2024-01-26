@@ -336,6 +336,10 @@ public class TramTime implements Comparable<TramTime> {
         return (int) Math.floorDiv(seconds, MINS_IN_HOUR);
     }
 
+    public TramTime plusMinutes(Long minsToAdd) {
+        return plusMinutes(minsToAdd.intValue());
+    }
+
     public TramTime plusMinutes(int minsToAdd) {
         if (minsToAdd==0) {
             return sameTime();

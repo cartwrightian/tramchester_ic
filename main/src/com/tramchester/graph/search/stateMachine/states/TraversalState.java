@@ -145,10 +145,10 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
                 return toWalk(builders.getTowardsWalk(stateType), node, cost, journeyState);
             }
             case RouteStationStateOnTrip -> {
-                return toRouteStationOnTrip(builders.getTowardsRouteStationOnTrip(stateType), node, cost, isInterchange);
+                return toRouteStationOnTrip(builders.getTowardsRouteStationOnTrip(stateType), journeyState, node, cost, isInterchange);
             }
             case RouteStationStateEndTrip -> {
-                return toRouteStationEndTrip(builders.getTowardsRouteStationEndTrip(stateType), node, cost, isInterchange);
+                return toRouteStationEndTrip(builders.getTowardsRouteStationEndTrip(stateType), journeyState, node, cost, isInterchange);
             }
             case JustBoardedState -> {
                 return toJustBoarded(builders.getTowardsJustBoarded(stateType), node, cost, journeyState);

@@ -51,7 +51,7 @@ public class Geography {
         final double metersPerSecond = (config.getWalkingMPH() * KILO_PER_MILE * 1000) / 3600D;
         walkingSpeed = Quantities.getQuantity(metersPerSecond, METRE_PER_SECOND);
 
-        int srid = Integer.parseInt(latLongCode);
+        final int srid = Integer.parseInt(latLongCode);
         geometryFactoryLatLong = new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING), srid);
     }
 

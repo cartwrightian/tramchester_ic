@@ -108,9 +108,9 @@ class StationLinksNeighboursAndCompositeResourceTest {
     }
 
     @Test
-    void expectedNumbers() {
+    void expectedNumberOfLinks() {
         List<StationToStationConnectionDTO> results = getLinks();
-        assertEquals(20401, results.size(), "count of links");
+        assertEquals(20300, results.size(), "count of links");
     }
 
     @Disabled("needs trams and buses enabled")

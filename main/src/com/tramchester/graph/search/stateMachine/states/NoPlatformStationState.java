@@ -133,7 +133,7 @@ public class NoPlatformStationState extends StationState {
     protected JustBoardedState toJustBoarded(final JustBoardedState.Builder towardsJustBoarded, final GraphNode boardNode,
                                              final Duration cost, final JourneyStateUpdate journeyState) {
         boardVehicle(boardNode, journeyState);
-        return towardsJustBoarded.fromNoPlatformStation(this, boardNode, cost, txn);
+        return towardsJustBoarded.fromNoPlatformStation(journeyState, this, boardNode, cost, txn);
     }
 
     @Override

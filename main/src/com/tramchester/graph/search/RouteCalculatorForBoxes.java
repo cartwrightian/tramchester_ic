@@ -12,7 +12,6 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBoxWithStations;
-import com.tramchester.geo.StationDistances;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.graph.caches.LowestCostSeen;
@@ -49,7 +48,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
     private final GraphDatabase graphDatabaseService;
     private final ClosedStationsRepository closedStationsRepository;
     private final RunningRoutesAndServices runningRoutesAndService;
-    private final StationDistances stationDistances;
+    private final BranchSelectorFactory branchSelectorFactory;
 
     @Inject
     public RouteCalculatorForBoxes(TramchesterConfig config,
@@ -62,7 +61,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                                    BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz,
                                    ClosedStationsRepository closedStationsRepository, RunningRoutesAndServices runningRoutesAndService,
                                    @SuppressWarnings("unused") RouteCostCalculator routeCostCalculator,
-                                   StationDistances stationDistances) {
+                                   BranchSelectorFactory branchSelectorFactory) {
         super(pathToStages, nodeContentsRepository, graphDatabaseService,
                 traversalStateFactory, providesNow, mapPathToLocations,
                 transportData, config, transportData, routeToRouteCosts, reasonToGraphViz);
@@ -70,7 +69,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         this.graphDatabaseService = graphDatabaseService;
         this.closedStationsRepository = closedStationsRepository;
         this.runningRoutesAndService = runningRoutesAndService;
-        this.stationDistances = stationDistances;
+        this.branchSelectorFactory = branchSelectorFactory;
     }
 
     public Stream<JourneysForBox> calculateRoutes(LocationSet destinations, JourneyRequest journeyRequest,
@@ -97,7 +96,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         final Set<GraphNodeId> destinationNodeIds = getDestinationNodeIds(destinations);
 
         // share selector across queries, to allow caching of station to station distances
-        final BranchOrderingPolicy selector = BranchSelectorFactory.getFor(config, stationDistances, destinations);
+        final BranchOrderingPolicy selector = branchSelectorFactory.getFor(destinations);
 
         return grouped.parallelStream().map(box -> {
 

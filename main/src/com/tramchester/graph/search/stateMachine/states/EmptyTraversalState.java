@@ -56,12 +56,12 @@ public abstract class EmptyTraversalState {
     }
 
     protected RouteStationStateOnTrip toRouteStationOnTrip(RouteStationStateOnTrip.Builder towardsRouteStation,
-                                                           GraphNode node, Duration cost, boolean isInterchange) {
+                                                           JourneyStateUpdate journeyState, GraphNode node, Duration cost, boolean isInterchange) {
         throw new RuntimeException("No such transition at " + stateType);
     }
 
     protected RouteStationStateEndTrip toRouteStationEndTrip(RouteStationStateEndTrip.Builder towardsRouteStation,
-                                                             GraphNode node, Duration cost, boolean isInterchange) {
+                                                             JourneyStateUpdate journeyState, GraphNode node, Duration cost, boolean isInterchange) {
         throw new RuntimeException("No such transition at " + stateType);
     }
 

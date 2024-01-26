@@ -12,7 +12,6 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.CreateQueryTimes;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.geo.StationDistances;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
@@ -50,7 +49,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
     private final ClosedStationsRepository closedStationsRepository;
     private final RunningRoutesAndServices runningRoutesAndServices;
     private final CacheMetrics cacheMetrics;
-    private final StationDistances stationDistances;
+    private final BranchSelectorFactory branchSelectorFactory;
 
     @Inject
     public RouteCalculator(TransportData transportData, NodeContentsRepository nodeOperations, PathToStages pathToStages,
@@ -60,7 +59,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
                            MapPathToLocations mapPathToLocations,
                            BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz,
                            ClosedStationsRepository closedStationsRepository, RunningRoutesAndServices runningRoutesAndServices,
-                           CacheMetrics cacheMetrics, StationDistances stationDistances) {
+                           CacheMetrics cacheMetrics, BranchSelectorFactory branchSelectorFactory) {
         super(pathToStages, nodeOperations, graphDatabaseService,
                 traversalStateFactory, providesNow, mapPathToLocations,
                 transportData, config, transportData, routeToRouteCosts, reasonToGraphViz);
@@ -69,7 +68,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         this.closedStationsRepository = closedStationsRepository;
         this.runningRoutesAndServices = runningRoutesAndServices;
         this.cacheMetrics = cacheMetrics;
-        this.stationDistances = stationDistances;
+        this.branchSelectorFactory = branchSelectorFactory;
     }
 
     @Override
@@ -177,7 +176,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
                 closedStations, destinations, lowestCostsForRoutes, maxJourneyDuration);
 
         // share selector across queries, to allow caching of station to station distances
-        final BranchOrderingPolicy selector = BranchSelectorFactory.getFor(config, stationDistances, destinations);
+        final BranchOrderingPolicy selector = branchSelectorFactory.getFor(destinations);
 
         logger.info("Journey Constraints: " + journeyConstraints);
         logger.info("Query times: " + queryTimes);

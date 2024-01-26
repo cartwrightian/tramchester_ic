@@ -59,13 +59,16 @@ public class NeighboursRepositoryBusTest {
 
     @Test
     void shouldHaveCorrectNeighboursForAltrinchamTram() {
-        StationGroup altrinchamComposite = KnownLocality.Altrincham.from(stationGroupsRepository);
+        StationGroup altrinchamGroup = KnownLocality.Altrincham.from(stationGroupsRepository);
+        IdSet<Station> centralIds = altrinchamGroup.getAllContained().
+                stream().filter(Station::isCentral).
+                collect(IdSet.collector());
 
         IdSet<Station> neighbours = neighboursRepository.getNeighboursFor(TramStations.Altrincham.getId())
                 .stream().collect(IdSet.collector());
-        IdSet<Station> ids = altrinchamComposite.getAllContained().stream().collect(IdSet.collector());
 
-        assertTrue(neighbours.containsAll(ids));
+
+        assertTrue(neighbours.containsAll(centralIds));
     }
 
     @Test

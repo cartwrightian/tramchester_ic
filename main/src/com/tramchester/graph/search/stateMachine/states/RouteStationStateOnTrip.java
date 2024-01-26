@@ -47,7 +47,7 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
             return TraversalStateType.RouteStationStateOnTrip;
         }
 
-        public RouteStationStateOnTrip fromMinuteState(final MinuteState minuteState, final GraphNode node, final Duration cost,
+        public RouteStationStateOnTrip fromMinuteState(JourneyStateUpdate journeyState, final MinuteState minuteState, final GraphNode node, final Duration cost,
                                                        final boolean isInterchange, final Trip trip, final GraphTransaction txn) {
             // todo, use label and/or cache this - perf impact currently low
             final TransportMode transportMode = node.getTransportMode();
@@ -58,7 +58,7 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
             final OptionalResourceIterator<ImmutableGraphRelationship> towardsDestination = getTowardsDestination(minuteState.traversalOps, node, date, txn);
             if (!towardsDestination.isEmpty()) {
                 // we've nearly arrived
-                return new RouteStationStateOnTrip(minuteState, towardsDestination.stream(), cost, node, trip.getId(), transportMode, this);
+                return new RouteStationStateOnTrip(journeyState, minuteState, towardsDestination.stream(), cost, node, trip.getId(), transportMode, this);
             }
 
             // outbound service relationships that continue the current trip
@@ -70,7 +70,7 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
             // NOTE: order of the concatenation matters here for depth first, need to do departs first to
             // explore routes including changes over continuing on possibly much longer trip
             final Stream<ImmutableGraphRelationship> relationships = Stream.concat(outboundsToFollow, towardsServiceForTrip);
-            return new RouteStationStateOnTrip(minuteState, relationships, cost, node, trip.getId(), transportMode, this);
+            return new RouteStationStateOnTrip(journeyState, minuteState, relationships, cost, node, trip.getId(), transportMode, this);
         }
 
         private Stream<ImmutableGraphRelationship> filterByTripId(final Stream<ImmutableGraphRelationship> svcRelationships, final Trip trip, final GraphTransaction txn) {
@@ -81,10 +81,10 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
 
     }
 
-    private RouteStationStateOnTrip(final TraversalState parent, final Stream<ImmutableGraphRelationship> relationships, final Duration cost,
+    private RouteStationStateOnTrip(JourneyStateUpdate journeyState, final TraversalState parent, final Stream<ImmutableGraphRelationship> relationships, final Duration cost,
                                     final GraphNode routeStationNode, final IdFor<Trip> tripId, final TransportMode transportMode,
                                     final TowardsRouteStation<RouteStationStateOnTrip> builder) {
-        super(parent, relationships, cost, builder, routeStationNode);
+        super(parent, relationships, journeyState, cost, builder, routeStationNode);
         this.routeStationNode = routeStationNode;
         this.tripId = tripId;
         this.transportMode = transportMode;
