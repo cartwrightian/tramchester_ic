@@ -45,7 +45,7 @@ function displayLiveData(app) {
     if (today.getMonth()==queryDate.getMonth()
         && today.getYear()==queryDate.getYear()
         && today.getDate()==queryDate.getDate()) {
-        queryLiveData(app, false);
+        queryLiveData(app, true);
     } else {
         app.liveDepartureResponse = null;
     }
@@ -248,7 +248,8 @@ function queryServerForJourneysPost(app, startStop, endStop, queryTime, queryDat
         then(function (response) {
             app.networkError = false;
             app.journeys = addParsedDatesToJourney(response.data.journeys);
-            app.notes = response.data.notes;
+            // get from call to get departures
+            //app.notes = response.data.notes;
             getRecentAndNearest(app);
             app.searchInProgress = false;
             app.ready = true;
