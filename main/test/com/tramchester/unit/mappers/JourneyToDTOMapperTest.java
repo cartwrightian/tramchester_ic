@@ -100,6 +100,8 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
                 andReturn(new LocationRefWithPosition(nearPiccGardensLocation));
         EasyMock.expect(DTOFactory.createLocationRefWithPosition(Deansgate.fake())).
                 andReturn(new LocationRefWithPosition(Deansgate.fake()));
+        EasyMock.expect(DTOFactory.createLocationRefWithPosition(MarketStreet.fake())).
+                andReturn(new LocationRefWithPosition(MarketStreet.fake()));
 
         replayAll();
         JourneyDTO result = mapper.createJourneyDTO(journey, when);
@@ -126,8 +128,8 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
         VehicleStageDTO stageDTOA = new VehicleStageDTO();
         EasyMock.expect(stageFactory.build(walkingStage, TravelAction.WalkFrom, when)).andReturn(stageDTOA);
 
-        EasyMock.expect(DTOFactory.createLocationRefWithPosition(Deansgate.fake())).
-                andStubReturn(new LocationRefWithPosition(Deansgate.fake()));
+        EasyMock.expect(DTOFactory.createLocationRefWithPosition(Deansgate.fake())).andStubReturn(new LocationRefWithPosition(Deansgate.fake()));
+        EasyMock.expect(DTOFactory.createLocationRefWithPosition(nearPiccGardensLocation)).andStubReturn(new LocationRefWithPosition(nearPiccGardensLocation));
 
         Journey journey = new Journey(pm10.plusMinutes(5), pm10, pm10.plusMinutes(10), stages,
                 Collections.singletonList(Deansgate.fake()), requestedNumberChanges, 0);
@@ -172,6 +174,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
                 andStubReturn(new LocationRefWithPosition(Altrincham.fake()));
         EasyMock.expect(DTOFactory.createLocationRefWithPosition(StopAtAltrinchamInterchange.fake())).
                 andStubReturn(new LocationRefWithPosition(StopAtAltrinchamInterchange.fake()));
+        EasyMock.expect(DTOFactory.createLocationRefWithPosition(Shudehill.fake())).andStubReturn(new LocationRefWithPosition(Shudehill.fake()));
 
         final List<Location<?>> path = Collections.singletonList(Altrincham.fake());
         Journey journey = new Journey(time.plusMinutes(5), time, time.plusMinutes(10), stages, path, requestedNumberChanges, 42);
@@ -229,6 +232,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
                 andStubReturn(new LocationRefWithPosition(nearPiccGardensLocation));
         EasyMock.expect(DTOFactory.createLocationRefWithPosition(MarketStreet.fake())).
                 andStubReturn(new LocationRefWithPosition(MarketStreet.fake()));
+        EasyMock.expect(DTOFactory.createLocationRefWithPosition(end)).andStubReturn(new LocationRefWithPosition(end));
 
         EasyMock.expect(stageFactory.build(rawStageA, TravelAction.Board, when)).andReturn(stageDTOA);
         EasyMock.expect(stageFactory.build(walkingStage, TravelAction.WalkTo, when)).andReturn(stageDTOB);
@@ -277,6 +281,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
 
         EasyMock.expect(DTOFactory.createLocationRefWithPosition(start)).andStubReturn(new LocationRefWithPosition(start));
         EasyMock.expect(DTOFactory.createLocationRefWithPosition(middle)).andReturn(new LocationRefWithPosition(middle));
+        EasyMock.expect(DTOFactory.createLocationRefWithPosition(finish)).andReturn(new LocationRefWithPosition(finish));
 
         EasyMock.expect(stageFactory.build(rawStageA, TravelAction.Board, when)).andReturn(stageDTOA);
         EasyMock.expect(stageFactory.build(rawStageB, TravelAction.Change, when)).andReturn(stageDTOB);
