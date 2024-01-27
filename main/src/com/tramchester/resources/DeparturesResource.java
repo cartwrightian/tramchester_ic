@@ -5,7 +5,9 @@ import com.codahale.metrics.annotation.Timed;
 import com.google.inject.Inject;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.query.DeparturesQueryDTO;
 import com.tramchester.domain.presentation.Note;
@@ -96,6 +98,8 @@ public class DeparturesResource extends TransportResource implements APIResource
             queryTime = providesNow.getNowHourMins();
         }
 
+        Set<IdForDTO> notesFor = departuresQuery.getNotesFor() == null ? Collections.emptySet() : departuresQuery.getNotesFor();
+
         EnumSet<TransportMode> modes = departuresQuery.getModes();
         if (modes.isEmpty()) {
             logger.warn("modes not supplied, fall back to all configured modes");
@@ -108,18 +112,35 @@ public class DeparturesResource extends TransportResource implements APIResource
         }
         final SortedSet<DepartureDTO> departs = new TreeSet<>(departuresMapper.mapToDTO(dueTrams, providesNow.getDateTime()));
 
-        List<Note> notes = Collections.emptyList();
+        final List<Note> notes;
         if (departuresQuery.getIncludeNotes()) {
-            final Set<Station> nearbyStations = dueTrams.stream().map(UpcomingDeparture::getDisplayLocation).collect(Collectors.toSet());
-            notes = providesNotes.createNotesForStations(nearbyStations, queryDate, queryTime);
+            Set<Station> stations = getStationsToQueryForNotes(notesFor, dueTrams);
+            notes = providesNotes.createNotesForStations(stations, queryDate, queryTime);
             if (notes.isEmpty()) {
                 logger.warn("Notes empty for " + location.getId() + " at " + queryTime);
             }
+        } else {
+            notes = Collections.emptyList();
         }
 
         return Response.ok(new DepartureListDTO(departs, notes)).build();
     }
 
+    private Set<Station> getStationsToQueryForNotes(final Set<IdForDTO> notesFor, final List<UpcomingDeparture> dueTrams) {
+        if (notesFor.isEmpty()) {
+            // based on the nearby departures
+            logger.info("No specific stations provided, default to nearby");
+            return dueTrams.stream().map(UpcomingDeparture::getDisplayLocation).collect(Collectors.toSet());
+        } else {
+            // TODO other location types needed?
+            logger.info("Getting notes for specific stations " + notesFor);
+            return notesFor.stream().
+                    filter((stationId -> locationRepository.hasLocation(LocationType.Station, stationId))).
+                    map(stationId -> locationRepository.getLocation(LocationType.Station, stationId)).
+                    map(location -> (Station)location).
+                    collect(Collectors.toSet());
+        }
+    }
 
 
 }

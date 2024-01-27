@@ -100,14 +100,14 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         }
 
         // if no modes provided then default to all modes currently configured
-        EnumSet<TransportMode> modes = query.getModes().isEmpty() ? config.getTransportModes() : EnumSet.copyOf(query.getModes());
+        final EnumSet<TransportMode> modes = query.getModes().isEmpty() ? config.getTransportModes() : EnumSet.copyOf(query.getModes());
 
-        Location<?> start = locationRepository.getLocation(query.getStartType(), query.getStartId());
-        Location<?> dest = locationRepository.getLocation(query.getDestType(), query.getDestId());
+        final Location<?> start = locationRepository.getLocation(query.getStartType(), query.getStartId());
+        final Location<?> dest = locationRepository.getLocation(query.getDestType(), query.getDestId());
 
-        try(MutableGraphTransaction tx = graphDatabase.beginTxMutable() ) {
+        try(final MutableGraphTransaction tx = graphDatabase.beginTxMutable() ) {
 
-            TramDate queryTramDate = query.getTramDate();
+            final TramDate queryTramDate = query.getTramDate();
             Stream<Journey> journeyStream = getJourneys(tx, queryTramDate, query.getTime(),
                     start, dest, query.isArriveBy(), query.getMaxChanges(), modes);
 

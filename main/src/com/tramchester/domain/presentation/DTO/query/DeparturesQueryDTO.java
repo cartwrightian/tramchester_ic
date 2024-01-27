@@ -34,6 +34,10 @@ public class DeparturesQueryDTO {
     @JsonProperty("notes")
     private Boolean includeNotes;
 
+    @JsonSetter(nulls = Nulls.SKIP)
+    @JsonProperty("notesFor")
+    private Set<IdForDTO> notesFor;
+
     public DeparturesQueryDTO(LocationType locationType, IdForDTO locationId, boolean includeNotes) {
         this.locationType = locationType;
         this.locationId = locationId;
@@ -84,6 +88,18 @@ public class DeparturesQueryDTO {
         this.includeNotes = includeNotes;
     }
 
+    public boolean hasValidTime() {
+        return time != LocalTime.MAX;
+    }
+
+    public void setNotesFor(Set<IdForDTO> notesFor) {
+        this.notesFor = notesFor;
+    }
+
+    public Set<IdForDTO> getNotesFor() {
+        return notesFor;
+    }
+
     @Override
     public String toString() {
         return "DeparturesQueryDTO{" +
@@ -93,9 +109,5 @@ public class DeparturesQueryDTO {
                 ", modes=" + modes +
                 ", includeNotes=" + includeNotes +
                 '}';
-    }
-
-    public boolean hasValidTime() {
-        return time != LocalTime.MAX;
     }
 }

@@ -38,20 +38,21 @@ function selectModesEnabled(scope) {
     return scope.modes.length > 1;
 }
 
+// called post journey query
 function displayLiveData(app) {
     const queryDate = new Date(app.date); 
     const today = getNow();
-    // check live data for today only 
+    // check live data for today only, todo 
     if (today.getMonth()==queryDate.getMonth()
         && today.getYear()==queryDate.getYear()
         && today.getDate()==queryDate.getDate()) {
-        queryLiveData(app, true);
+        queryLiveData(app);
     } else {
         app.liveDepartureResponse = null;
     }
 }
 
-function queryLiveData(app, includeNotes) {
+function queryLiveData(app) {
 
     var modes;
     var locationType;
@@ -75,20 +76,24 @@ function queryLiveData(app, includeNotes) {
         locationId = app.startStop.id;
     }
 
+    var getNotesFor = [];
+    getNotesFor.push(locationId);
+
     const query = {
         time: app.time,
         locationType: locationType,
         locationId: locationId,
-        notes: includeNotes,
+        notes: true,
+        notesFor: getNotesFor,
         modes: modes
     }
 
     axios.post( '/api/departures/location', query, { timeout: 11000 }).
         then(function (response) {
             app.liveDepartureResponse = addParsedDatesToLive(response.data);
-            if (includeNotes) {
+            //if (includeNotes) {
                 app.notes = response.data.notes;
-            }
+            //}
             app.networkError = false;
             app.liveInProgress = false;
         }).
@@ -251,6 +256,7 @@ function queryServerForJourneysPost(app, startStop, endStop, queryTime, queryDat
             // get from call to get departures
             //app.notes = response.data.notes;
             getRecentAndNearest(app);
+            displayLiveData(app);
             app.searchInProgress = false;
             app.ready = true;
         }).
@@ -338,13 +344,12 @@ var app = new Vue({
             queryNearbyTrams() {
                 app.liveInProgress = true;
                 this.$nextTick(function () {
-                    queryLiveData(app, true);
+                    queryLiveData(app);
                 });
             },
             queryServer() {
                 queryServerForJourneysPost(app, this.startStop, this.endStop, this.time,
                     this.date, this.arriveBy, this.maxChanges);
-                displayLiveData(app);
             },
             setCookie() {
                 var cookie = { 'visited' : true };
