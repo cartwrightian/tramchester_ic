@@ -33,6 +33,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,18 +113,19 @@ public class DeparturesResource extends TransportResource implements APIResource
         }
         final SortedSet<DepartureDTO> departs = new TreeSet<>(departuresMapper.mapToDTO(dueTrams, providesNow.getDateTime()));
 
-        final List<Note> notes;
-        if (departuresQuery.getIncludeNotes()) {
-            Set<Station> stations = getStationsToQueryForNotes(notesFor, dueTrams);
-            notes = providesNotes.createNotesForStations(stations, queryDate, queryTime);
-            if (notes.isEmpty()) {
-                logger.warn("Notes empty for " + location.getId() + " at " + queryTime);
-            }
-        } else {
-            notes = Collections.emptyList();
-        }
+        final List<Note> notes = getNotes(notesFor, dueTrams, queryDate, queryTime, location);
 
         return Response.ok(new DepartureListDTO(departs, notes)).build();
+    }
+
+    @NotNull
+    private List<Note> getNotes(Set<IdForDTO> notesFor, List<UpcomingDeparture> dueTrams, TramDate queryDate, TramTime queryTime, Location<?> location) {
+        Set<Station> stations = getStationsToQueryForNotes(notesFor, dueTrams);
+        final List<Note> notes = providesNotes.createNotesForStations(stations, queryDate, queryTime);
+        if (notes.isEmpty()) {
+            logger.warn("Notes empty for " + location.getId() + " at " + queryTime);
+        }
+        return notes;
     }
 
     private Set<Station> getStationsToQueryForNotes(final Set<IdForDTO> notesFor, final List<UpcomingDeparture> dueTrams) {

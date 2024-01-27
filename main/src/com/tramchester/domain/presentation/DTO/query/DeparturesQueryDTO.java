@@ -31,24 +31,17 @@ public class DeparturesQueryDTO {
     private Set<TransportMode> modes;
 
     @JsonSetter(nulls = Nulls.SKIP)
-    @JsonProperty("notes")
-    private Boolean includeNotes;
-
-    @JsonSetter(nulls = Nulls.SKIP)
     @JsonProperty("notesFor")
     private Set<IdForDTO> notesFor;
 
-    public DeparturesQueryDTO(LocationType locationType, IdForDTO locationId, boolean includeNotes) {
+    public DeparturesQueryDTO(LocationType locationType, IdForDTO locationId) {
         this.locationType = locationType;
         this.locationId = locationId;
-        this.includeNotes = includeNotes;
         modes = Collections.emptySet();
-        // deserialisation
     }
 
     public DeparturesQueryDTO() {
         modes = Collections.emptySet();
-        includeNotes = false;
         time = LocalTime.MAX;
         // deserialisation
     }
@@ -80,14 +73,6 @@ public class DeparturesQueryDTO {
         this.modes = modes;
     }
 
-    public boolean getIncludeNotes() {
-        return includeNotes;
-    }
-
-    public void setIncludeNotes(boolean includeNotes) {
-        this.includeNotes = includeNotes;
-    }
-
     public boolean hasValidTime() {
         return time != LocalTime.MAX;
     }
@@ -107,7 +92,7 @@ public class DeparturesQueryDTO {
                 ", locationType=" + locationType +
                 ", locationId='" + locationId + '\'' +
                 ", modes=" + modes +
-                ", includeNotes=" + includeNotes +
+                ", notesFor=" + notesFor +
                 '}';
     }
 }

@@ -55,8 +55,6 @@ class DeparturesResourceTest {
 
     private Station stationWithNotes;
     private Station stationWithDepartures;
-    private StationRepository stationRepository;
-    private ProvidesLocalNow providesLocalNow;
     private PlatformMessageSource platformMessageSource;
 
     @BeforeEach
@@ -65,8 +63,8 @@ class DeparturesResourceTest {
         final GuiceContainerDependencies dependencies = app.getDependencies();
 
         platformMessageSource = dependencies.get(PlatformMessageSource.class);
-        stationRepository = dependencies.get(StationRepository.class);
-        providesLocalNow = dependencies.get(ProvidesLocalNow.class);
+        StationRepository stationRepository = dependencies.get(StationRepository.class);
+        ProvidesLocalNow providesLocalNow = dependencies.get(ProvidesLocalNow.class);
 
         TramDate queryDate = providesLocalNow.getTramDate();
         TramTime time = providesLocalNow.getNowHourMins();
@@ -98,25 +96,11 @@ class DeparturesResourceTest {
     }
 
     @Test
-    @LiveDataTestCategory
-    void shouldGetDueTramsForStationWithoutNotes() {
-        // split out messages to own test as need to be able to disable those separately
-        assertNotNull(stationWithDepartures, "No station with notes");
-        Response response = getResponseForStation(stationWithDepartures, false);
-        assertEquals(200, response.getStatus());
-        DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
-
-        SortedSet<DepartureDTO> departures = departureList.getDepartures();
-        assertFalse(departures.isEmpty(), "no departures found for " + stationWithDepartures.getName());
-        departures.forEach(depart -> assertEquals(new LocationRefDTO(stationWithDepartures), depart.getFrom()));
-    }
-    
-    @Test
     @LiveDataMessagesCategory
     @LiveDataDueTramCategory
     void shouldHaveMessagesForStationWithNotes() {
         assertNotNull(stationWithNotes, "No station with notes");
-        Response response = getResponseForStation(stationWithNotes, true);
+        Response response = getResponseForStation(stationWithNotes);
         assertEquals(200, response.getStatus());
         DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
 
@@ -128,7 +112,7 @@ class DeparturesResourceTest {
     @LiveDataDueTramCategory
     void shouldHaveMessagesForSpecificStation() {
 
-        DeparturesQueryDTO queryDTO = getQueryDTO(stationWithNotes, true);
+        DeparturesQueryDTO queryDTO = getQueryDTO(stationWithNotes);
         queryDTO.setNotesFor(Collections.singleton(IdForDTO.createFor(stationWithNotes)));
         Response response = getPostResponse(queryDTO);
         assertEquals(200, response.getStatus());
@@ -145,7 +129,7 @@ class DeparturesResourceTest {
     void shouldHaveNoMessagesForNoneExistentStation() {
         IdForDTO invalidStation = BusStations.KnutsfordStationStand3.getIdForDTO();
 
-        DeparturesQueryDTO queryDTO = getQueryDTO(stationWithNotes, true);
+        DeparturesQueryDTO queryDTO = getQueryDTO(stationWithNotes);
         queryDTO.setNotesFor(Collections.singleton(invalidStation));
         Response response = getPostResponse(queryDTO);
         assertEquals(200, response.getStatus());
@@ -162,7 +146,7 @@ class DeparturesResourceTest {
         Station station = stationWithDepartures;
 
         LocalTime now = TestEnv.LocalNow().toLocalTime();
-        SortedSet<DepartureDTO> departures = getDeparturesForStationTimeWithoutNotes(station, now);
+        SortedSet<DepartureDTO> departures = getDeparturesForStation(station, now);
         assertFalse(departures.isEmpty(), "no due trams at " + station);
         departures.forEach(depart -> assertEquals(new LocationRefDTO(station), depart.getFrom()));
     }
@@ -172,7 +156,7 @@ class DeparturesResourceTest {
     void shouldGetDueTramsForStationWithQuerytimePast() {
         LocalTime queryTime = TestEnv.LocalNow().toLocalTime().minusMinutes(120);
 
-        SortedSet<DepartureDTO> departures = getDeparturesForStationTimeWithoutNotes(stationWithDepartures, queryTime);
+        SortedSet<DepartureDTO> departures = getDeparturesForStation(stationWithDepartures, queryTime);
         assertTrue(departures.isEmpty());
     }
 
@@ -181,7 +165,7 @@ class DeparturesResourceTest {
     void shouldGetDueTramsForStationWithQuerytimeFuture() {
         LocalTime queryTime = TestEnv.LocalNow().toLocalTime().plusMinutes(120);
 
-        SortedSet<DepartureDTO> departures = getDeparturesForStationTimeWithoutNotes(stationWithDepartures, queryTime);
+        SortedSet<DepartureDTO> departures = getDeparturesForStation(stationWithDepartures, queryTime);
 
         assertTrue(departures.isEmpty());
     }
@@ -243,30 +227,6 @@ class DeparturesResourceTest {
         LocationRefDTO nextDepart = departureDTO.getFrom();
         assertTrue(nearAlty.contains(nextDepart.getId()), nextDepart.toString());
         assertFalse(departureDTO.getStatus().isEmpty());
-//        assertFalse(departureDTO.getDestination().isEmpty());
-
-    }
-
-    @Test
-    @LiveDataMessagesCategory
-    @LiveDataDueTramCategory
-    void shouldGetDueTramsForStationNotesRequestedOrNot() {
-        Station station = stationWithNotes;
-
-        assertNotNull(stationWithNotes, "No station with notes");
-        // Notes disabled
-        Response response = getResponseForStation(station, false);
-        assertEquals(200, response.getStatus());
-
-        DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
-        assertTrue(departureList.getNotes().isEmpty(), "no notes expected");
-
-        // Notes enabled
-        response = getResponseForStation(station, true);
-        assertEquals(200, response.getStatus());
-
-        departureList = response.readEntity(DepartureListDTO.class);
-        assertFalse(departureList.getNotes().isEmpty(), "no notes for " + station);
 
     }
 
@@ -281,8 +241,8 @@ class DeparturesResourceTest {
         return departureList.getDepartures();
     }
 
-    private SortedSet<DepartureDTO> getDeparturesForStationTimeWithoutNotes(Station station, LocalTime queryTime) {
-        DeparturesQueryDTO queryDTO = getQueryDTO(station, false);
+    private SortedSet<DepartureDTO> getDeparturesForStation(Station station, LocalTime queryTime) {
+        DeparturesQueryDTO queryDTO = getQueryDTO(station);
         queryDTO.setTime(queryTime);
 
         Response response = getPostResponse(queryDTO);
@@ -291,8 +251,8 @@ class DeparturesResourceTest {
         return departureList.getDepartures();
     }
 
-    private Response getResponseForStation(Station station, boolean includeNotes) {
-        DeparturesQueryDTO queryDTO = getQueryDTO(station, includeNotes);
+    private Response getResponseForStation(Station station) {
+        DeparturesQueryDTO queryDTO = getQueryDTO(station);
         return getPostResponse(queryDTO);
     }
 
@@ -309,15 +269,14 @@ class DeparturesResourceTest {
     }
 
     @NotNull
-    private DeparturesQueryDTO getQueryDTO(Station station, boolean includeNotes) {
-        return new DeparturesQueryDTO(LocationType.Station, IdForDTO.createFor(station),
-                includeNotes);
+    private DeparturesQueryDTO getQueryDTO(Station station) {
+        return new DeparturesQueryDTO(LocationType.Station, IdForDTO.createFor(station));
     }
 
     @NotNull
     private DeparturesQueryDTO getQueryDTO(LatLong where) {
         //String latLong = String.format("%s,%s", where.getLat(), where.getLon());
-        return new DeparturesQueryDTO(LocationType.MyLocation, IdForDTO.createFor(where), false);
+        return new DeparturesQueryDTO(LocationType.MyLocation, IdForDTO.createFor(where));
     }
 
 
