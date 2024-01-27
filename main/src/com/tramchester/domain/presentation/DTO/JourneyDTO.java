@@ -20,8 +20,8 @@ import java.util.List;
 @JsonTypeInfo(include=JsonTypeInfo.As.WRAPPER_OBJECT, use= JsonTypeInfo.Id.NAME)
 public class JourneyDTO {
 
-    private LocationRefDTO begin;
-    private LocationRefDTO destination;
+    private LocationRefWithPosition begin;
+    private LocationRefWithPosition destination;
     private List<SimpleStageDTO> stages;
     private LocalDateTime expectedArrivalTime; // needed to handle 'next day' results
     private LocalDateTime firstDepartureTime;  // needed to handle 'next day' results
@@ -35,7 +35,7 @@ public class JourneyDTO {
         // Deserialization
     }
 
-    public JourneyDTO(LocationRefDTO begin, LocationRefDTO destination,
+    public JourneyDTO(LocationRefWithPosition begin, LocationRefWithPosition destination,
                       List<SimpleStageDTO> stages,
                       LocalDateTime expectedArrivalTime, LocalDateTime firstDepartureTime,
                       List<LocationRefWithPosition> changeStations, TramTime queryTime,
@@ -44,7 +44,7 @@ public class JourneyDTO {
                 path, queryDate.toLocalDate(), index);
     }
 
-    public JourneyDTO(LocationRefDTO begin, LocationRefDTO destination, List<SimpleStageDTO> stages,
+    public JourneyDTO(LocationRefWithPosition begin, LocationRefWithPosition destination, List<SimpleStageDTO> stages,
                       LocalDateTime expectedArrivalTime, LocalDateTime firstDepartureTime,
                       List<LocationRefWithPosition> changeStations, TramTime queryTime,
                       List<LocationRefWithPosition> path, LocalDate queryDate, int index) {

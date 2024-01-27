@@ -80,7 +80,7 @@ public class JourneysForGridResource implements APIResource, GraphDatabaseDepend
 
         Location<?> destination = locationRepository.getLocation(gridQueryDTO.getDestType(), gridQueryDTO.getDestId());
 
-        logger.info("Create search for " + destination);
+        logger.info("Create search for " + destination.getId());
 
         Stream<BoxWithCostDTO> results = search.findForGrid(destination, gridQueryDTO.getGridSize(), journeyRequest).
                 map(box -> transformToDTO(box, date));

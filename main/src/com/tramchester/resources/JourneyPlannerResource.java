@@ -13,13 +13,11 @@ import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.DTO.query.JourneyQueryDTO;
-import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.facade.MutableGraphTransaction;
-import com.tramchester.livedata.repository.ProvidesNotes;
 import com.tramchester.mappers.JourneyDTODuplicateFilter;
 import com.tramchester.mappers.JourneyToDTOMapper;
 import com.tramchester.repository.LocationRepository;
@@ -37,7 +35,6 @@ import java.net.URI;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -57,13 +54,12 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
     private final TramchesterConfig config;
     private final JourneyDTODuplicateFilter duplicateFilter;
     private final LocationRepository locationRepository;
-    private final ProvidesNotes providesNotes;
 
     @Inject
     public JourneyPlannerResource(UpdateRecentJourneys updateRecentJourneys,
                                   GraphDatabase graphDatabase,
                                   ProvidesNow providesNow, LocationJourneyPlanner locToLocPlanner, JourneyToDTOMapper journeyToDTOMapper,
-                                  TramchesterConfig config, JourneyDTODuplicateFilter duplicateFilter, LocationRepository locationRepository, ProvidesNotes providesNotes) {
+                                  TramchesterConfig config, JourneyDTODuplicateFilter duplicateFilter, LocationRepository locationRepository) {
         super(updateRecentJourneys, providesNow);
         this.locToLocPlanner = locToLocPlanner;
         this.journeyToDTOMapper = journeyToDTOMapper;
@@ -71,7 +67,6 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         this.locationRepository = locationRepository;
         this.graphDatabase = graphDatabase;
         this.config = config;
-        this.providesNotes = providesNotes;
     }
 
     // Content-Type header in the POST request with a value of application/json
@@ -114,8 +109,6 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
             Set<Journey> journeys = journeyStream.collect(Collectors.toSet());
             journeyStream.close(); // important, onCLose used to trigger removal of walk nodes etc.
 
-            List<Note> notes = providesNotes.createNotesForJourneys(journeys, queryTramDate);
-
             // duplicates where same path and timings, just different change points
             Set<JourneyDTO> journeyDTOS = journeys.stream().
                     map(journey -> journeyToDTOMapper.createJourneyDTO(journey,queryTramDate)).collect(Collectors.toSet());
@@ -125,7 +118,7 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
                 logger.info(format("Filtered out %s of %s journeys", diff, journeyDTOS.size()));
             }
 
-            JourneyPlanRepresentation planRepresentation = new JourneyPlanRepresentation(filtered, notes);
+            JourneyPlanRepresentation planRepresentation = new JourneyPlanRepresentation(filtered);
 
             if (planRepresentation.getJourneys().isEmpty()) {
                 logger.warn(format("No journeys found from %s to %s at %s on %s",

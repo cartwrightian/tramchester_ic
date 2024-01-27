@@ -94,7 +94,7 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
     }
 
     public int updateCache(List<TramStationDepartureInfo> departureInfos) {
-        if (!areMetricsEnabled()) {
+        if (!isEnabled()) {
             logger.error("Unexpected call of updateCache since live data is disabled");
         }
         logger.info("Updating cache");
@@ -169,7 +169,7 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
 
     @Override
     public List<PlatformMessage> messagesFor(Station station, TramDate when, TramTime queryTime) {
-        if (!areMetricsEnabled()) {
+        if (!isEnabled()) {
             return Collections.emptyList();
         }
 
@@ -184,11 +184,9 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
         return results;
     }
 
-
-
     @Override
     public Optional<PlatformMessage> messagesFor(IdFor<Platform> platformId, TramDate queryDate, TramTime queryTime) {
-        if (!areMetricsEnabled()) {
+        if (!isEnabled()) {
             return Optional.empty();
         }
 

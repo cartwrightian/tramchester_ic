@@ -8,14 +8,12 @@ import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.DTO.query.JourneyQueryDTO;
-import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.JourneyResourceTestFacade;
 import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
-import com.tramchester.livedata.tfgm.ProvidesTramNotes;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.JourneyPlannerResource;
 import com.tramchester.testSupport.TestEnv;
@@ -31,7 +29,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.reference.TramStations.*;
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsIn.oneOf;
 import static org.junit.jupiter.api.Assertions.*;
@@ -283,35 +281,6 @@ public class JourneyPlannerResourceTest {
 
         assertFalse(journeys.isEmpty(), "no journeys");
         checkDepartsAfterPreviousArrival("Altrincham to airport at 11:43 sunday", journeys);
-    }
-
-    @Test
-    void shouldWarnOnSaturdayAndSundayJourney() {
-
-        Note weekendNote = new Note("At the weekend your journey may be affected by improvement works."
-                + ProvidesTramNotes.website, Note.NoteType.Weekend);
-
-        JourneyQueryDTO query2 = journeyPlanner.getQueryDTO(TestEnv.nextSunday(), TramTime.of(11, 43), Altrincham, ManAirport, false, 3);
-
-        JourneyPlanRepresentation resultsA = journeyPlanner.getJourneyPlan(query2);
-
-        assertThat(resultsA.getNotes(), hasItem(weekendNote));
-        //results.getJourneys().forEach(journeyDTO -> assertThat(journeyDTO.getNotes(), hasItem(weekendNote)));
-
-        JourneyQueryDTO query1 = journeyPlanner.getQueryDTO(TestEnv.nextSaturday(), TramTime.of(11, 43), Altrincham, ManAirport, false, 3);
-
-        JourneyPlanRepresentation resultsB = journeyPlanner.getJourneyPlan(query1);
-
-        assertThat(resultsB.getNotes(), hasItem(weekendNote));
-        //results.getJourneys().forEach(journeyDTO -> assertThat(journeyDTO.getNotes(), hasItem(weekendNote)));
-
-        JourneyQueryDTO query = journeyPlanner.getQueryDTO(TestEnv.nextMonday(), TramTime.of(11, 43), Altrincham, ManAirport, false, 3);
-
-        JourneyPlanRepresentation notWeekendResult = journeyPlanner.getJourneyPlan(query);
-
-        assertThat(notWeekendResult.getNotes(), not(hasItem(weekendNote)));
-//        notWeekendResult.getJourneys().forEach(journeyDTO -> assertThat(journeyDTO.getNotes(), not(hasItem(weekendNote))));
-
     }
 
     @Test
