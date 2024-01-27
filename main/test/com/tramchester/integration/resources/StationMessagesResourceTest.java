@@ -53,6 +53,7 @@ class StationMessagesResourceTest {
         TramDate queryDate = providesLocalNow.getTramDate();
         TramTime time = providesLocalNow.getNowHourMins();
 
+        // todo only live data notes here? might see failure below if only non-live messages present
         Optional<PlatformMessage> searchForMessage = stationRepository.getAllStationStream().
                 map(station -> platformMessageSource.messagesFor(station, queryDate, time)).
                 flatMap(Collection::stream).
@@ -72,15 +73,19 @@ class StationMessagesResourceTest {
         List<Note> notes = departureList.getNotes();
         assertFalse(notes.isEmpty(), "no notes found for " + stationWithNotes.getName());
 
-        Set<Note> forStation = notes.stream().
-                filter(note -> getDisplayedAtIdsFor(note).contains(IdForDTO.createFor(stationWithNotes))).
+        Set<Note> liveDataNotes = notes.stream().
+                filter(note -> note.getNoteType() == Note.NoteType.Live).
                 collect(Collectors.toSet());
 
-        assertEquals(notes.size(), forStation.size());
+        Set<Note> forStation = liveDataNotes.stream().filter(note -> getDisplayedAtIdsFor(note).contains(IdForDTO.createFor(stationWithNotes))).
+                collect(Collectors.toSet());
+
+        assertEquals(liveDataNotes.size(), forStation.size());
 
     }
 
     private Set<IdForDTO> getDisplayedAtIdsFor(Note note) {
+        assertNotNull(note.getDisplayedAt(),"displayedAt null for " + note);
         return note.getDisplayedAt().stream().
                map(LocationRefDTO::getId).collect(Collectors.toSet());
     }
