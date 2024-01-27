@@ -9,7 +9,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.mappers.serialisation.*;
+import com.tramchester.mappers.serialisation.TramTimeJsonDeserializer;
+import com.tramchester.mappers.serialisation.TramTimeJsonSerializer;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -19,7 +20,8 @@ import java.util.List;
 @JsonTypeInfo(include=JsonTypeInfo.As.WRAPPER_OBJECT, use= JsonTypeInfo.Id.NAME)
 public class JourneyDTO {
 
-    private LocationRefWithPosition begin;
+    private LocationRefDTO begin;
+    private LocationRefDTO destination;
     private List<SimpleStageDTO> stages;
     private LocalDateTime expectedArrivalTime; // needed to handle 'next day' results
     private LocalDateTime firstDepartureTime;  // needed to handle 'next day' results
@@ -33,19 +35,21 @@ public class JourneyDTO {
         // Deserialization
     }
 
-    public JourneyDTO(LocationRefWithPosition begin, List<SimpleStageDTO> stages,
+    public JourneyDTO(LocationRefDTO begin, LocationRefDTO destination,
+                      List<SimpleStageDTO> stages,
                       LocalDateTime expectedArrivalTime, LocalDateTime firstDepartureTime,
                       List<LocationRefWithPosition> changeStations, TramTime queryTime,
                       List<LocationRefWithPosition> path, TramDate queryDate, int index) {
-        this(begin, stages, expectedArrivalTime, firstDepartureTime, changeStations, queryTime,
+        this(begin, destination, stages, expectedArrivalTime, firstDepartureTime, changeStations, queryTime,
                 path, queryDate.toLocalDate(), index);
     }
 
-    public JourneyDTO(LocationRefWithPosition begin, List<SimpleStageDTO> stages,
+    public JourneyDTO(LocationRefDTO begin, LocationRefDTO destination, List<SimpleStageDTO> stages,
                       LocalDateTime expectedArrivalTime, LocalDateTime firstDepartureTime,
                       List<LocationRefWithPosition> changeStations, TramTime queryTime,
                       List<LocationRefWithPosition> path, LocalDate queryDate, int index) {
         this.begin = begin;
+        this.destination = destination;
         this.stages = stages;
         this.expectedArrivalTime = expectedArrivalTime;
         this.firstDepartureTime = firstDepartureTime;
@@ -74,6 +78,8 @@ public class JourneyDTO {
         return begin;
     }
 
+    public LocationRefDTO getDestination() { return destination; }
+
     public List<LocationRefWithPosition> getChangeStations() {
         return changeStations;
     }
@@ -82,6 +88,7 @@ public class JourneyDTO {
     public String toString() {
         return "JourneyDTO{" +
                 "begin=" + begin.getId() +
+                ", destination=" + destination.getId() +
                 ", stages=" + stages +
                 ", expectedArrivalTime=" + expectedArrivalTime +
                 ", firstDepartureTime=" + firstDepartureTime +

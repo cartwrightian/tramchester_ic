@@ -116,6 +116,15 @@ public class Journey implements Iterable<TransportStage<?,?>>, CallsAtPlatforms 
         return stages.get(0).getFirstStation();
     }
 
+
+    public Location<?> getDestination() {
+       int lastIndex = stages.size() -1;
+       if (lastIndex<0) {
+           lastIndex = 0;
+       }
+       return stages.get(lastIndex).getLastStation();
+    }
+
     public int getRequestedNumberChanges() {
         return requestedNumberChanges;
     }
@@ -162,4 +171,5 @@ public class Journey implements Iterable<TransportStage<?,?>>, CallsAtPlatforms 
     public int getJourneyIndex() {
         return journeyIndex;
     }
+
 }

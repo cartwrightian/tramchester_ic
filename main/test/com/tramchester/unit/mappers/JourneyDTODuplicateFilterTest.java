@@ -128,7 +128,7 @@ class JourneyDTODuplicateFilterTest {
         LocalDateTime firstDepartureTime = departTime.toDate(queryDate);
         LocalDateTime expectedArrivalTime = departTime.plusMinutes(duration).toDate(queryDate);
 
-        return new JourneyDTO(begin, stages,
+        return new JourneyDTO(begin, getStationRef(NavigationRoad), stages,
                 expectedArrivalTime, firstDepartureTime,
                 changeStations, queryTime,
                 path, queryDate, journeyIndex);

@@ -46,43 +46,66 @@ function displayLiveData(app) {
     if (today.getMonth()==queryDate.getMonth()
         && today.getYear()==queryDate.getYear()
         && today.getDate()==queryDate.getDate()) {
-        queryLiveData(app);
+        const notesStations = getCallingStationsFrom(app.journeys);
+        queryLiveData(app, notesStations);
     } else {
         app.liveDepartureResponse = null;
     }
 }
 
-function queryLiveData(app) {
+function getCallingStationsFrom(journeys) {
+    var stations = new Set();
+    journeys.forEach(journeyPlan => {
+        const journey = journeyPlan.journey;
+        const changes = journey.changeStations;
+        changes.forEach(change => {
+            if (change.locationType=='Station') {
+                stations.add(change.id);
+            }
+        })
+        stations.add(journey.destination.id);
+    })
+    return Array.from(stations);
+}
+
+function getLocationType(stop) {
+    if (stop==null) {
+       return app.myLocation.locationType;
+    } else {
+        return stop.locationType;
+    }
+}
+
+function queryLiveData(app, noteStations) {
 
     var modes;
-    var locationType;
-    if (app.startStop==null) {
-        locationType = 'MyLocation';
+    var startLocationType = getLocationType(app.startStop);
+    if (startLocationType==app.myLocation.locationType) {
         modes = app.selectedModes;
     } else {
-        locationType = app.startStop.locationType;
         modes = app.startStop.transportModes;
     }
 
-    var locationId; 
-    if (app.myLocation != null) {
-        if (locationType == app.myLocation.locationType) { 
-            const place = app.location; // should not have location place holder without a valid location
-            locationId = place.coords.latitude + ',' + place.coords.longitude
+    var startLocationId; 
+    const place = app.location;
+    if (place != null) {
+        if (startLocationType == app.myLocation.locationType) { 
+            startLocationId = place.coords.latitude + ',' + place.coords.longitude
         } else {
-            locationId = app.startStop.id;
+            startLocationId = app.startStop.id;
         }
     } else {
-        locationId = app.startStop.id;
+        // no location available
+        startLocationId = app.startStop.id;
     }
 
-    var getNotesFor = [];
-    getNotesFor.push(locationId);
+    var getNotesFor = noteStations.slice();
+    getNotesFor.push(startLocationId);
 
     const query = {
         time: app.time,
-        locationType: locationType,
-        locationId: locationId,
+        locationType: startLocationType,
+        locationId: startLocationId,
         notes: true,
         notesFor: getNotesFor,
         modes: modes
@@ -91,9 +114,7 @@ function queryLiveData(app) {
     axios.post( '/api/departures/location', query, { timeout: 11000 }).
         then(function (response) {
             app.liveDepartureResponse = addParsedDatesToLive(response.data);
-            //if (includeNotes) {
-                app.notes = response.data.notes;
-            //}
+            app.notes = response.data.notes;
             app.networkError = false;
             app.liveInProgress = false;
         }).
@@ -344,7 +365,7 @@ var app = new Vue({
             queryNearbyTrams() {
                 app.liveInProgress = true;
                 this.$nextTick(function () {
-                    queryLiveData(app);
+                    queryLiveData(app,[]);
                 });
             },
             queryServer() {

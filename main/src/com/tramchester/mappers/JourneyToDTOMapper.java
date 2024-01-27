@@ -58,12 +58,14 @@ public class JourneyToDTOMapper {
 
         LocationRefWithPosition begin = stationDTOFactory.createLocationRefWithPosition(journey.getBeginning());
 
+        LocationRefWithPosition destination = stationDTOFactory.createLocationRefWithPosition(journey.getDestination());
+
         List<LocationRefWithPosition> changeStations = asListOf(journey.getChangeStations());
 
         List<LocationRefWithPosition> path = asListOf(journey.getPath());
 
         LocalDate date = queryDate.toLocalDate();
-        return new JourneyDTO(begin, stages,
+        return new JourneyDTO(begin, destination, stages,
                 journey.getArrivalTime().toDate(date), journey.getDepartTime().toDate(date),
                 changeStations, queryTime,
                 path, date, journey.getJourneyIndex());
