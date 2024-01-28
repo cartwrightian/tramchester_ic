@@ -76,16 +76,16 @@ public class CreateNodesAndRelationships {
         return addRelationshipFor(txn, fromNode, toNode, walkCost, NEIGHBOUR);
     }
 
-    protected void addGroupRelationshipTowardsParent(MutableGraphTransaction txn, MutableGraphNode fromNode, MutableGraphNode toNode, Duration walkCost) {
-        addRelationshipFor(txn, fromNode, toNode, walkCost, GROUPED_TO_PARENT);
+    protected void addGroupRelationshipTowardsParent(MutableGraphTransaction txn, MutableGraphNode stationNode, MutableGraphNode groupNode, Duration walkCost) {
+        addRelationshipFor(txn, stationNode, groupNode, walkCost, GROUPED_TO_PARENT);
     }
 
-    protected void addGroupRelationshipTowardsChild(MutableGraphTransaction txn, MutableGraphNode fromNode, MutableGraphNode toNode, Duration walkCost) {
-        addRelationshipFor(txn, fromNode, toNode, walkCost, GROUPED_TO_CHILD);
+    protected void addGroupRelationshipTowardsChild(MutableGraphTransaction txn, MutableGraphNode groupNode, MutableGraphNode stationNode, Duration walkCost) {
+        addRelationshipFor(txn, groupNode, stationNode, walkCost, GROUPED_TO_CHILD);
     }
 
-    private boolean addRelationshipFor(MutableGraphTransaction txn, MutableGraphNode fromNode, MutableGraphNode toNode,
-                                       Duration walkCost, TransportRelationshipTypes relationshipType) {
+    private boolean addRelationshipFor(final MutableGraphTransaction txn, final MutableGraphNode fromNode, final MutableGraphNode toNode,
+                                       final Duration walkCost, final TransportRelationshipTypes relationshipType) {
 
         final boolean alreadyPresent = fromNode.getRelationships(txn, Direction.OUTGOING, relationshipType).
                 map(relationship -> relationship.getEndNodeId(txn)).

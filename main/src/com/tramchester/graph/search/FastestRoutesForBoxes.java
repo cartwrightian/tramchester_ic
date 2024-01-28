@@ -4,7 +4,6 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.*;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Location;
-import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBoxWithStations;
 import com.tramchester.geo.GridPosition;
@@ -45,33 +44,36 @@ public class FastestRoutesForBoxes {
     public Stream<BoundingBoxWithCost> findForGrid(Location<?> destination, long gridSize, JourneyRequest journeyRequest)  {
 
         logger.info("Creating station groups for gridsize " + gridSize + " and destination " + destination);
-        GridPosition gridPosition = destination.getGridPosition();
+        final GridPosition gridPosition = destination.getGridPosition();
 
         return findForGrid(gridPosition, gridSize, journeyRequest);
     }
 
     @NotNull
-    public Stream<BoundingBoxWithCost> findForGrid(GridPosition destinationGrid, long gridSize, JourneyRequest journeyRequest) {
+    private Stream<BoundingBoxWithCost> findForGrid(GridPosition destinationGrid, long gridSize, final JourneyRequest journeyRequest) {
         logger.info("Creating station groups for gridsize " + gridSize + " and destination " + destinationGrid);
 
-        Set<BoundingBoxWithStations> searchGrid = stationLocations.getStationsInGrids(gridSize).
+        final Set<BoundingBoxWithStations> searchGrid = stationLocations.getStationsInGrids(gridSize).
                 filter(boxWithStations -> anyOpen(boxWithStations.getStations(), journeyRequest.getDate())).
                 collect(Collectors.toSet());
 
-        BoundingBoxWithStations searchBoxWithDest = searchGrid.stream().
-                filter(box -> box.contained(destinationGrid)).findFirst().
+        final BoundingBoxWithStations searchBoxWithDest = searchGrid.stream().
+                filter(box -> box.contained(destinationGrid)).
+                findFirst().
                 orElseThrow(() -> new RuntimeException("Unable to find destination in any boxes " + destinationGrid));
 
-        LocationSet destinations = LocationSet.of(searchBoxWithDest.getStations());
+        final LocationSet destinations = searchBoxWithDest.getStations();
 
         logger.info(format("Using %s groups and %s destinations", searchGrid.size(), destinations.size()));
 
-        List<BoundingBoxWithStations> sortedSearchGrid = sortGridNearestFirst(searchGrid, destinationGrid);
+        final List<BoundingBoxWithStations> sortedSearchGrid = sortGridNearestFirst(searchGrid, destinationGrid);
+
         return calculator.calculateRoutes(destinations, journeyRequest, sortedSearchGrid).
                 map(box -> cheapest(box, destinationGrid));
     }
 
-    private boolean anyOpen(Set<Station> stations, TramDate date) {
+    private boolean anyOpen(final LocationSet stations, final TramDate date) {
+        // any not closed
         return stations.stream().anyMatch(station -> !closedStationsRepository.isClosed(station, date));
     }
 

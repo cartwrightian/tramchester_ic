@@ -176,13 +176,13 @@ public class StationAvailabilityRepository {
         return stationGroup.getAllContained().stream().anyMatch(station -> isAvailable(station, date, timeRange, requestedModes));
     }
 
-    public Set<Route> getPickupRoutesFor(Location<?> location, TramDate date, TimeRange timeRange, EnumSet<TransportMode> modes) {
+    public Set<Route> getPickupRoutesFor(final Location<?> location, final TramDate date, final TimeRange timeRange, final EnumSet<TransportMode> modes) {
         if (location.getLocationType()==LocationType.StationGroup) {
-            StationGroup stationGroup = (StationGroup) location;
+            final StationGroup stationGroup = (StationGroup) location;
             return getPickupRoutesForGroup(stationGroup, date, timeRange, modes);
         }
         if (closedStationsRepository.isClosed(location, date)) {
-            ClosedStation closedStation = closedStationsRepository.getClosedStation(location, date);
+            final ClosedStation closedStation = closedStationsRepository.getClosedStation(location, date);
             return getPickupRoutesFor(closedStation, date, timeRange, modes);
         }
         if (!pickupsForLocation.containsKey(location)) {
@@ -191,7 +191,7 @@ public class StationAvailabilityRepository {
         return pickupsForLocation.get(location).getRoutes(date, timeRange, modes);
     }
 
-    private Set<Route> getPickupRoutesForGroup(StationGroup stationGroup, TramDate date, TimeRange timeRange, EnumSet<TransportMode> modes) {
+    private Set<Route> getPickupRoutesForGroup(final StationGroup stationGroup, final TramDate date, final TimeRange timeRange, final EnumSet<TransportMode> modes) {
         return stationGroup.getAllContained().stream().
                 flatMap(station -> getPickupRoutesFor(station, date, timeRange, modes).stream()).
                 collect(Collectors.toSet());
@@ -225,7 +225,7 @@ public class StationAvailabilityRepository {
                 collect(Collectors.toSet());
     }
 
-    public Set<Route> getPickupRoutesFor(LocationSet locations, TramDate date, TimeRange timeRange, EnumSet<TransportMode> modes) {
+    public Set<Route> getPickupRoutesFor(final LocationSet locations, final TramDate date, final TimeRange timeRange, final EnumSet<TransportMode> modes) {
         return locations.stream().
                 flatMap(location -> getPickupRoutesFor(location, date, timeRange, modes).stream()).
                 collect(Collectors.toSet());

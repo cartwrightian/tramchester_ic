@@ -77,12 +77,8 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     }
 
     public Stream<Path> findPaths(GraphTransaction txn, GraphNode startNode, PreviousVisits previousSuccessfulVisit,
-                                  LowestCostSeen lowestCostSeen, BranchOrderingPolicy selector) {
-        if (config.getDepthFirst()) {
-            logger.info("Depth first is enabled");
-        } else {
-            logger.info("Breadth first is enabled");
-        }
+                                  LowestCostSeen lowestCostSeen, BranchOrderingPolicy selector, boolean fullLogging) {
+
 
         Instant begin = providesNow.getInstant();
         Duration maxInitialWait = pathRequest.getMaxInitialWait();
@@ -96,7 +92,9 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
                 pathRequest.getRequestedModes(), startNode);
         final InitialBranchState<JourneyState> initialJourneyState = JourneyState.initialState(actualQueryTime, traversalState);
 
-        logger.info("Create traversal for " + actualQueryTime);
+        if (fullLogging) {
+            logger.info("Create traversal for " + actualQueryTime);
+        }
 
         TraversalDescription traversalDesc =
                 new MonoDirectionalTraversalDescription().
@@ -113,12 +111,16 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
 
         //noinspection ResultOfMethodCallIgnored
         stream.onClose(() -> {
-            reasons.reportReasons(txn, pathRequest, reasonToGraphViz);
-            previousSuccessfulVisit.reportStats();
+            if (fullLogging) {
+                reasons.reportReasons(txn, pathRequest, reasonToGraphViz);
+                previousSuccessfulVisit.reportStats();
+            }
             traversalState.dispose();
         });
 
-        logger.info("Return traversal stream");
+        if (fullLogging) {
+            logger.info("Return traversal stream");
+        }
         return stream.filter(path -> destinationNodeIds.contains(txn.fromEnd(path).getId()));
     }
 

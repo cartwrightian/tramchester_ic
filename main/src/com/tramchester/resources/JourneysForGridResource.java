@@ -53,7 +53,7 @@ public class JourneysForGridResource implements APIResource, GraphDatabaseDepend
     }
 
     // TODO Cache lifetime could potentially be quite long here, but makes testing harder.....
-
+    // TODO correct media type?
     @Path("/query")
     @POST
     @Timed
@@ -69,21 +69,23 @@ public class JourneysForGridResource implements APIResource, GraphDatabaseDepend
         final TramDate date = gridQueryDTO.getTramDate();
 
         // just find the first one -- todo this won't be lowest cost route....
-        long maxNumberOfJourneys = 3;
+        long maxNumberOfJourneys = 1;
 
-        Duration maxDuration = Duration.ofMinutes(gridQueryDTO.getMaxDuration());
+        final Duration maxDuration = Duration.ofMinutes(gridQueryDTO.getMaxDuration());
 
-        EnumSet<TransportMode> allModes = config.getTransportModes();
-        JourneyRequest journeyRequest = new JourneyRequest(date, departureTime,
+        // todo into parameters
+        final EnumSet<TransportMode> allModes = config.getTransportModes();
+
+        final JourneyRequest journeyRequest = new JourneyRequest(date, departureTime,
                 false, gridQueryDTO.getMaxChanges(), maxDuration, maxNumberOfJourneys, allModes);
         journeyRequest.setWarnIfNoResults(false);
 
-        Location<?> destination = locationRepository.getLocation(gridQueryDTO.getDestType(), gridQueryDTO.getDestId());
+        final Location<?> destination = locationRepository.getLocation(gridQueryDTO.getDestType(), gridQueryDTO.getDestId());
 
         logger.info("Create search for " + destination.getId());
 
-        Stream<BoxWithCostDTO> results = search.findForGrid(destination, gridQueryDTO.getGridSize(), journeyRequest).
-                map(box -> transformToDTO(box, date));
+        final Stream<BoxWithCostDTO> results = search.findForGrid(destination, gridQueryDTO.getGridSize(), journeyRequest).
+                map(box -> BoxWithCostDTO.createFrom(dtoMapper, date, box));
 
         JsonStreamingOutput<BoxWithCostDTO> jsonStreamingOutput = new JsonStreamingOutput<>(results);
 
@@ -91,10 +93,6 @@ public class JourneysForGridResource implements APIResource, GraphDatabaseDepend
         Response.ResponseBuilder responseBuilder = Response.ok(jsonStreamingOutput);
         return responseBuilder.build();
 
-    }
-
-    private BoxWithCostDTO transformToDTO(BoundingBoxWithCost box, TramDate serviceDate) {
-        return BoxWithCostDTO.createFrom(dtoMapper, serviceDate, box);
     }
 
 }

@@ -27,11 +27,11 @@ public class DTOFactory {
     public DTOFactory() {
     }
 
-    public LocationRefDTO createLocationRefDTO(Location<?> location) {
+    public LocationRefDTO createLocationRefDTO(final Location<?> location) {
         return new LocationRefDTO(location);
     }
 
-    public LocationRefWithPosition createLocationRefWithPosition(Location<?> location) {
+    public LocationRefWithPosition createLocationRefWithPosition(final Location<?> location) {
         return new LocationRefWithPosition(location);
     }
 

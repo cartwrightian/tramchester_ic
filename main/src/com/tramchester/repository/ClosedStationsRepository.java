@@ -10,6 +10,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.Station;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
@@ -127,12 +128,12 @@ public class ClosedStationsRepository {
                 collect(Collectors.toSet());
     }
 
-    public boolean isClosed(Location<?> location, TramDate date) {
-        if (!(location instanceof Station)) {
+    public boolean isClosed(final Location<?> location, final TramDate date) {
+        if (location.getLocationType()!= LocationType.Station) {
             return false;
         }
-        Station station = (Station) location;
-        IdFor<Station> stationId = station.getId();
+        final Station station = (Station) location;
+        final IdFor<Station> stationId = station.getId();
 
         return isClosed(stationId, date);
     }

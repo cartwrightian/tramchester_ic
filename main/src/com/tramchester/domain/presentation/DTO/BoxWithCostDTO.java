@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.tramchester.domain.BoundingBoxWithCost;
+import com.tramchester.domain.Journey;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.CoordinateTransforms;
@@ -30,17 +31,18 @@ public class BoxWithCostDTO {
         // deserialisation
     }
 
-    public static BoxWithCostDTO createFrom(JourneyToDTOMapper mapper, TramDate serviceDate,
-                                            BoundingBoxWithCost box) {
+    public static BoxWithCostDTO createFrom(final JourneyToDTOMapper mapper, final TramDate serviceDate,
+                                            final BoundingBoxWithCost box) {
 
         // TODO Assuming valid positions here
-        LatLong bottomLeft = CoordinateTransforms.getLatLong(box.getBottomLeft());
-        LatLong topRight = CoordinateTransforms.getLatLong(box.getTopRight());
+        final LatLong bottomLeft = CoordinateTransforms.getLatLong(box.getBottomLeft());
+        final LatLong topRight = CoordinateTransforms.getLatLong(box.getTopRight());
 
-        long mins = box.getDuration().toMinutes();
+        final long mins = box.getDuration().toMinutes();
 
-        if (box.getJourney()!=null) {
-            return new BoxWithCostDTO(bottomLeft, topRight, mins, mapper.createJourneyDTO(box.getJourney(), serviceDate));
+        final Journey journey = box.getJourney();
+        if (journey !=null) {
+            return new BoxWithCostDTO(bottomLeft, topRight, mins, mapper.createJourneyDTO(journey, serviceDate));
         } else {
             return new BoxWithCostDTO(bottomLeft, topRight, mins, null);
         }

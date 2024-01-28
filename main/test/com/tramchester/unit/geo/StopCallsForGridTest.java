@@ -1,9 +1,6 @@
 package com.tramchester.unit.geo;
 
-import com.tramchester.domain.BoxWithServiceFrequency;
-import com.tramchester.domain.DataSourceID;
-import com.tramchester.domain.MutableService;
-import com.tramchester.domain.Service;
+import com.tramchester.domain.*;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.NoPlatformStopCall;
@@ -60,10 +57,10 @@ public class StopCallsForGridTest extends EasyMockSupport {
         final Station station2 = TramStations.Bury.fake();
         final Station station3 = TramStations.Anchorage.fake();
 
-        Set<Station> gridAStations = new HashSet<>();
+        LocationSet gridAStations = new LocationSet();
         gridAStations.add(station1);
         gridAStations.add(station2);
-        Set<Station> gridBStations = new HashSet<>();
+        LocationSet gridBStations = new LocationSet();
         gridBStations.add(station3);
 
         Set<StopCall> station1Calls = createStopCalls(station1, begin, 10,3);

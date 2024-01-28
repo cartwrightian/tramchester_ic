@@ -23,10 +23,7 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -127,7 +124,7 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
     }
 
     // create a bitmask for route->route changes that are possible on a given date and transport mode
-    public IndexedBitSet createOverlapMatrixFor(TramDate date, Set<TransportMode> requestedModes) {
+    public IndexedBitSet createOverlapMatrixFor(final TramDate date, final EnumSet<TransportMode> requestedModes) {
 
         final Set<Short> availableOnDate = new HashSet<>();
         for (short routeIndex = 0; routeIndex < numRoutes; routeIndex++) {
@@ -137,9 +134,9 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
             }
         }
 
-        IndexedBitSet result = IndexedBitSet.Square(numRoutes);
+        final IndexedBitSet result = IndexedBitSet.Square(numRoutes);
         for (short firstRouteIndex = 0; firstRouteIndex < numRoutes; firstRouteIndex++) {
-            SimpleBitmap row = SimpleBitmap.create(numRoutes);
+            final SimpleBitmap row = SimpleBitmap.create(numRoutes);
             if (availableOnDate.contains(firstRouteIndex)) {
                 for (short secondRouteIndex = 0; secondRouteIndex < numRoutes; secondRouteIndex++) {
                     if (availableOnDate.contains(secondRouteIndex)) {
@@ -151,7 +148,9 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
         }
         availableOnDate.clear();
 
-        logger.info(format("created overlap matrix for %s and modes %s with %s entries", date, requestedModes, result.numberOfBitsSet()));
+        if (logger.isDebugEnabled()) {
+            logger.debug(format("created overlap matrix for %s and modes %s with %s entries", date, requestedModes, result.numberOfBitsSet()));
+        }
         return result;
     }
 

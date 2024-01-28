@@ -1,15 +1,13 @@
 package com.tramchester.geo;
 
+import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.places.Station;
-
-import java.util.Set;
 
 public class BoundingBoxWithStations extends BoundingBox {
 
-    private final Set<Station> stationsWithin;
+    private final LocationSet stationsWithin;
 
-    public BoundingBoxWithStations(BoundingBox box, Set<Station> stationsWithin) {
+    public BoundingBoxWithStations(BoundingBox box, LocationSet stationsWithin) {
         super(box);
         this.stationsWithin = stationsWithin;
     }
@@ -18,7 +16,7 @@ public class BoundingBoxWithStations extends BoundingBox {
         return !stationsWithin.isEmpty();
     }
 
-    public Set<Station> getStations() {
+    public LocationSet getStations() {
         return stationsWithin;
     }
 

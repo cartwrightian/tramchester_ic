@@ -85,8 +85,8 @@ public class StationGroupsGraphBuilder extends CreateNodesAndRelationships {
         return new Ready();
     }
 
-    private void addCompositeNodesAndLinks(TransportMode mode) {
-        Set<StationGroup> allComposite = stationGroupsRepository.getStationGroupsFor(mode);
+    private void addCompositeNodesAndLinks(final TransportMode mode) {
+        final Set<StationGroup> allComposite = stationGroupsRepository.getStationGroupsFor(mode);
 
         if (allComposite.isEmpty()) {
             logger.info("No composite stations to add for " + mode);
@@ -96,12 +96,12 @@ public class StationGroupsGraphBuilder extends CreateNodesAndRelationships {
         final String logMessage = "adding " + allComposite.size() + " composite stations for " + mode;
 
         try(TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, logMessage)) {
-            MutableGraphTransaction txn = timedTransaction.transaction();
+            final MutableGraphTransaction txn = timedTransaction.transaction();
             allComposite.stream().filter(graphFilter::shouldInclude).
                 filter(this::shouldInclude).
                 forEach(compositeStation -> {
-                    MutableGraphNode stationNode = createGroupedStationNodes(txn, compositeStation);
-                    linkStations(txn, stationNode, compositeStation);
+                    final MutableGraphNode groupNode = createGroupedStationNodes(txn, compositeStation);
+                    linkStations(txn, groupNode, compositeStation);
             });
             timedTransaction.commit();
         }
@@ -120,20 +120,20 @@ public class StationGroupsGraphBuilder extends CreateNodesAndRelationships {
         return groupNode;
     }
 
-    private void linkStations(MutableGraphTransaction txn, MutableGraphNode parentNode, StationGroup stationGroup) {
-        Set<Station> contained = stationGroup.getAllContained();
+    private void linkStations(final MutableGraphTransaction txn, final MutableGraphNode groupNode, final StationGroup stationGroup) {
+        final Set<Station> contained = stationGroup.getAllContained();
 
         contained.stream().
                 filter(graphFilter::shouldInclude).
                 forEach(station -> {
                     final Duration walkingCost = geography.getWalkingDuration(stationGroup, station);
-                    MutableGraphNode childNode = stationAndPlatformNodeCache.getStation(txn, station.getId());
-                    if (childNode==null) {
+                    final MutableGraphNode stationNode = stationAndPlatformNodeCache.getStation(txn, station.getId());
+                    if (stationNode==null) {
                         throw new RuntimeException("cannot find node for " + station);
                     }
 
-                    addGroupRelationshipTowardsChild(txn, parentNode, childNode, walkingCost);
-                    addGroupRelationshipTowardsParent(txn, childNode, parentNode, walkingCost);
+                    addGroupRelationshipTowardsChild(txn, groupNode, stationNode, walkingCost);
+                    addGroupRelationshipTowardsParent(txn, stationNode, groupNode, walkingCost);
         });
     }
 

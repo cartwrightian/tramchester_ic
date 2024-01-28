@@ -133,22 +133,22 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     @Override
-    public NumberOfChanges getNumberOfChanges(LocationSet starts, LocationSet destinations, TramDate date, TimeRange timeRange,
-                                              EnumSet<TransportMode> requestedModes) {
+    public NumberOfChanges getNumberOfChanges(final LocationSet starts, final LocationSet destinations, final TramDate date, final TimeRange timeRange,
+                                              final EnumSet<TransportMode> requestedModes) {
 
-        Set<Route> startRoutes = pickupRoutesFor(starts, date, timeRange, requestedModes);
-        Set<Route> endRoutes = dropoffRoutesFor(destinations, date, timeRange, requestedModes);
-
+        final Set<Route> startRoutes = pickupRoutesFor(starts, date, timeRange, requestedModes);
         if (startRoutes.isEmpty()) {
             logger.warn(format("start stations %s not available at %s and %s ", HasId.asIds(starts), date, timeRange));
             return NumberOfChanges.None();
         }
+
+        final Set<Route> endRoutes = dropoffRoutesFor(destinations, date, timeRange, requestedModes);
         if (endRoutes.isEmpty()) {
             logger.warn(format("destination stations %s not available at %s and %s ", HasId.asIds(starts), date, timeRange));
             return NumberOfChanges.None();
         }
 
-        StationAvailabilityFacade availabilityFacade = getAvailabilityFacade(availabilityRepository, date, timeRange, requestedModes);
+        final StationAvailabilityFacade availabilityFacade = getAvailabilityFacade(availabilityRepository, date, timeRange, requestedModes);
 
         if (neighboursRepository.areNeighbours(starts, destinations)) {
             return new NumberOfChanges(1, 1);
@@ -232,23 +232,23 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     @NotNull
-    private NumberOfChanges getNumberOfHops(Set<Route> startRoutes, Set<Route> destinationRoutes, TramDate date,
-                                            StationAvailabilityFacade interchangesOperating,
-                                            int closureOffset, EnumSet<TransportMode> requestedModes) {
+    private NumberOfChanges getNumberOfHops(final Set<Route> startRoutes, final Set<Route> destinationRoutes, final TramDate date,
+                                            final StationAvailabilityFacade interchangesOperating,
+                                            final int closureOffset, final EnumSet<TransportMode> requestedModes) {
         if (logger.isDebugEnabled()) {
             logger.debug(format("Compute number of changes between %s and %s on %s",
                     HasId.asIds(startRoutes), HasId.asIds(destinationRoutes), date));
         }
 
-        IndexedBitSet dateAndModeOverlaps = costs.createOverlapMatrixFor(date, requestedModes);
+        final IndexedBitSet dateAndModeOverlaps = costs.createOverlapMatrixFor(date, requestedModes);
 
-        Set<RoutePair> routePairs = getRoutePairs(startRoutes, destinationRoutes);
+        final Set<RoutePair> routePairs = getRoutePairs(startRoutes, destinationRoutes);
 
-        Set<Integer> numberOfChangesForRoutes = routePairs.stream().
+        final Set<Integer> numberOfChangesForRoutes = routePairs.stream().
                 map(pair -> getNumberChangesFor(pair, date, interchangesOperating, dateAndModeOverlaps)).
                 collect(Collectors.toSet());
 
-        int maxDepth = RouteCostMatrix.MAX_DEPTH;
+        final int maxDepth = RouteCostMatrix.MAX_DEPTH;
 
         int minHops = minHops(numberOfChangesForRoutes);
         if (minHops > maxDepth) {
@@ -266,17 +266,17 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             maxHops = maxHops + closureOffset;
         }
 
-        NumberOfChanges numberOfChanges = new NumberOfChanges(minHops, maxHops);
+        final NumberOfChanges numberOfChanges = new NumberOfChanges(minHops, maxHops);
         if (logger.isDebugEnabled()) {
             logger.debug(format("Computed number of changes from %s to %s on %s as %s",
                     HasId.asIds(startRoutes), HasId.asIds(destinationRoutes), date, numberOfChanges));
+            interchangesOperating.reportStats();
         }
 
-        interchangesOperating.reportStats();
         return numberOfChanges;
     }
 
-    private int maxHops(Set<Integer> numberOfChangesForRoutes) {
+    private int maxHops(final Set<Integer> numberOfChangesForRoutes) {
         final Optional<Integer> query = numberOfChangesForRoutes.stream().
                 filter(result -> result != Integer.MAX_VALUE).
                 max(Integer::compare);
@@ -287,7 +287,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         return query.orElse(Integer.MAX_VALUE);
     }
 
-    private int minHops(Set<Integer> numberOfChangesForRoutes) {
+    private int minHops(final Set<Integer> numberOfChangesForRoutes) {
         final Optional<Integer> query = numberOfChangesForRoutes.stream().
                 min(Integer::compare);
 
@@ -309,7 +309,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         return availabilityRepository.getDropoffRoutesFor(locations, date, timeRange, modes);
     }
 
-    private Set<Route> pickupRoutesFor(LocationSet locations, TramDate date, TimeRange timeRange, EnumSet<TransportMode> modes) {
+    private Set<Route> pickupRoutesFor(final LocationSet locations, final TramDate date, final TimeRange timeRange, final EnumSet<TransportMode> modes) {
         return availabilityRepository.getPickupRoutesFor(locations, date, timeRange, modes);
     }
 

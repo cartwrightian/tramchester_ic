@@ -64,7 +64,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                                    BranchSelectorFactory branchSelectorFactory) {
         super(pathToStages, nodeContentsRepository, graphDatabaseService,
                 traversalStateFactory, providesNow, mapPathToLocations,
-                transportData, config, transportData, routeToRouteCosts, reasonToGraphViz);
+                transportData, config, transportData, routeToRouteCosts, reasonToGraphViz, false);
         this.config = config;
         this.graphDatabaseService = graphDatabaseService;
         this.closedStationsRepository = closedStationsRepository;
@@ -72,24 +72,25 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         this.branchSelectorFactory = branchSelectorFactory;
     }
 
-    public Stream<JourneysForBox> calculateRoutes(LocationSet destinations, JourneyRequest journeyRequest,
-                                                  List<BoundingBoxWithStations> grouped) {
+    public Stream<JourneysForBox> calculateRoutes(final LocationSet destinations, final JourneyRequest journeyRequest,
+                                                  final List<BoundingBoxWithStations> grouped) {
         logger.info("Finding routes for bounding boxes");
 
-        // TODO Compute over a range of times
+        // TODO Compute over a range of times??
         final TramTime originalTime = journeyRequest.getOriginalTime();
-
         final EnumSet<TransportMode> requestedModes = journeyRequest.getRequestedModes();
+        final TramDate date = journeyRequest.getDate();
+        final TimeRange timeRange = journeyRequest.getTimeRange();
+        final Duration maxJourneyDuration = journeyRequest.getMaxJourneyDuration();
+        final long maxNumberOfJourneys = journeyRequest.getMaxNumberOfJourneys();
 
-        TramDate date = journeyRequest.getDate();
         final LowestCostsForDestRoutes lowestCostForDestinations = routeToRouteCosts.getLowestCostCalcutatorFor(destinations, date,
-                journeyRequest.getTimeRange(), requestedModes);
+                timeRange, requestedModes);
         final RunningRoutesAndServices.FilterForDate routeAndServicesFilter = runningRoutesAndService.getFor(date);
 
         final IdSet<Station> closedStations = closedStationsRepository.getFullyClosedStationsFor(date).stream().
                 map(ClosedStation::getStationId).collect(IdSet.idCollector());
 
-        final Duration maxJourneyDuration = journeyRequest.getMaxJourneyDuration();
         final JourneyConstraints journeyConstraints = new JourneyConstraints(config, routeAndServicesFilter, closedStations,
                 destinations, lowestCostForDestinations, maxJourneyDuration);
 
@@ -100,17 +101,19 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
         return grouped.parallelStream().map(box -> {
 
-            logger.info(format("Finding shortest path for %s --> %s for %s", box, destinations, journeyRequest));
-            final LocationSet startingStations = LocationSet.of(box.getStations());
+            if (logger.isDebugEnabled()) {
+                logger.debug(format("Finding shortest path for %s --> %s for %s", box, destinations, journeyRequest));
+            }
+            final LocationSet startingStations = box.getStations();
             final LowestCostSeen lowestCostSeenForBox = new LowestCostSeen();
 
-            final NumberOfChanges numberOfChanges = computeNumberOfChanges(startingStations, destinations, date, journeyRequest.getTimeRange(), requestedModes);
+            final NumberOfChanges numberOfChanges = computeNumberOfChanges(startingStations, destinations, date, timeRange, requestedModes);
 
             final AtomicInteger journeyIndex = new AtomicInteger(0);
 
-            try(GraphTransaction txn = graphDatabaseService.beginTx()) {
+            try(final GraphTransaction txn = graphDatabaseService.beginTx()) {
 
-                Stream<Journey> journeys = startingStations.stream().
+                final Stream<Journey> journeys = startingStations.stream().
                         filter(start -> !destinations.contains(start)).
                         map(start -> new NodeAndStation(start, getLocationNodeSafe(txn, start))).
                         flatMap(nodeAndStation -> numChangesRange(journeyRequest, numberOfChanges).
@@ -121,9 +124,9 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                                 createPreviousVisits(), lowestCostSeenForBox)).
                         map(timedPath -> createJourney(journeyRequest, timedPath, destinations, journeyIndex, txn));
 
-                Set<Journey> collect = journeys.
+                final Set<Journey> collect = journeys.
                         filter(journey -> !journey.getStages().isEmpty()).
-                        limit(journeyRequest.getMaxNumberOfJourneys()).
+                        limit(maxNumberOfJourneys).
                         collect(Collectors.toSet());
 
                 // yielding

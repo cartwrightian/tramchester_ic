@@ -1,17 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Travel times</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+   <title>Travel Times</title>
+   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 </head>
 
 <body>
-<div id="tramMap" ><h1>Experimental Travel Time map</h1>
-    <div id="leafletMap" style="height: 1000px" class="w-75"></div>
-    <app-footer v-bind:feedinfo="feedinfo" v-bind:havepos="havePos" v-on:network-error="networkErrorOccured()">
-    </app-footer>
-</div>
+    <h1 class="tramchesterHeading">Tramchester</h1>
+    <div id="tramMap">
+        <v-app>
+            <v-main>
+                <v-container id="startAndEnd" class="ml-2">
+                    <v-row >
+                        <v-col>
+                            <select :id="destination" v-model="destination" required>
+                                <option :value="null" selected>Please select destination</option>
+                                <option class="stop" v-for="stop in allStops" :value="stop" 
+                                    :key="stop.id">{{stop.name}}</option>
+                            </select>
+                        </v-col>
+                        <v-col>
+                            <label for="maxChanges">max changes:</label>
+                            <input type="number" name="max changes" min="1" max="8" id="maxChanges" v-model="maxChanges"> 
+                        </v-col>
+                        <v-col>
+                            <v-btn id="drawButton" color="primary" @click="compute">Compute</v-btn>
+                        </v-col>
+                    </v-row>
+                </v-container>
+                <div id="leafletMap"></div>
+            </v-main>
+        </v-app>
+
+        <!-- TODO
+        <v-footer>
+            <app-footer v-bind:feedinfo="feedinfo" v-on:disclaimer-clicked="showDisclaimer" v-bind:havepos="havePos" 
+                v-on:network-error="networkErrorOccured()"></app-footer>
+        </v-footer>
+        -->
+    </div>
+
 
 <script src="/app/traveltimes.js"></script>
 

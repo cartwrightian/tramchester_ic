@@ -151,7 +151,7 @@ public class StationGroupsRepository {
         if (enabled) {
             return;
         }
-        String msg = "Repository is disabled";
+        String msg = "Station Group Repository is disabled";
         logger.error(msg);
         throw new RuntimeException(msg);
     }

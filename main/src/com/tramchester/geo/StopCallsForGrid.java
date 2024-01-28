@@ -4,6 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.BoxWithServiceFrequency;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.input.StopCall;
+import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
@@ -44,18 +45,21 @@ public class StopCallsForGrid {
     }
 
     @NotNull
-    private BoxWithServiceFrequency createFrequencyBox(TramDate date, TramTime begin, TramTime end, BoundingBoxWithStations box) {
-        Map<Station, Integer> stationToNumberStopCalls = new HashMap<>();
-        EnumSet<TransportMode> modes = EnumSet.noneOf(TransportMode.class);
-        box.getStations().forEach(station -> {
-            Set<StopCall> calls = stopCallRepository.getStopCallsFor(station, date, begin, end);
-            if (!calls.isEmpty()) {
-                stationToNumberStopCalls.put(station, calls.size());
-                modes.addAll(calls.stream().map(StopCall::getTransportMode).collect(Collectors.toSet()));
-            }
+    private BoxWithServiceFrequency createFrequencyBox(final TramDate date, final TramTime begin, final TramTime end, final BoundingBoxWithStations box) {
+        final Map<Station, Integer> stationToNumberStopCalls = new HashMap<>();
+        final EnumSet<TransportMode> modes = EnumSet.noneOf(TransportMode.class);
+        box.getStations().stream().
+                filter(location -> location.getLocationType()== LocationType.Station).
+                map(location -> (Station)location).
+                forEach(station -> {
+                    final Set<StopCall> calls = stopCallRepository.getStopCallsFor(station, date, begin, end);
+                    if (!calls.isEmpty()) {
+                        stationToNumberStopCalls.put(station, calls.size());
+                        modes.addAll(calls.stream().map(StopCall::getTransportMode).collect(Collectors.toCollection(() ->EnumSet.noneOf(TransportMode.class))));
+                    }
         });
 
-        int total = stationToNumberStopCalls.values().stream().mapToInt(num->num).sum();
+        final int total = stationToNumberStopCalls.values().stream().mapToInt(num->num).sum();
         return new BoxWithServiceFrequency(box, stationToNumberStopCalls.keySet(), total, modes);
     }
 

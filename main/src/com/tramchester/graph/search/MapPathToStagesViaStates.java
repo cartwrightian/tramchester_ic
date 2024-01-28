@@ -4,8 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.places.NPTGLocality;
-import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramTime;
@@ -18,7 +17,6 @@ import com.tramchester.graph.search.stateMachine.states.NotStartedState;
 import com.tramchester.graph.search.stateMachine.states.TraversalState;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import com.tramchester.repository.PlatformRepository;
-import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TripRepository;
 import org.neo4j.graphdb.Path;
@@ -27,7 +25,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -46,19 +43,16 @@ public class MapPathToStagesViaStates implements PathToStages {
     private final StationRepository stationRepository;
     private final PlatformRepository platformRepository;
     private final TraversalStateFactory stateFactory;
-    private final StationGroupsRepository stationGroupsRepository;
     private final NodeContentsRepository nodeContentsRepository;
     private final TripRepository tripRepository;
 
     @Inject
     public MapPathToStagesViaStates(StationRepository stationRepository, PlatformRepository platformRepository,
-                                    TraversalStateFactory stateFactory, StationGroupsRepository stationGroupsRepository,
-                                    NodeContentsRepository nodeContentsRepository,
+                                    TraversalStateFactory stateFactory, NodeContentsRepository nodeContentsRepository,
                                     TripRepository tripRepository) {
         this.stationRepository = stationRepository;
         this.platformRepository = platformRepository;
         this.stateFactory = stateFactory;
-        this.stationGroupsRepository = stationGroupsRepository;
         this.nodeContentsRepository = nodeContentsRepository;
         this.tripRepository = tripRepository;
 
@@ -67,11 +61,13 @@ public class MapPathToStagesViaStates implements PathToStages {
     @Override
     public List<TransportStage<?, ?>> mapDirect(final RouteCalculator.TimedPath timedPath, final JourneyRequest journeyRequest,
                                                 final LocationSet endStations,
-                                                final GraphTransaction txn) {
+                                                final GraphTransaction txn, boolean fullLogging) {
         final Path path = timedPath.path();
         final TramTime queryTime = timedPath.queryTime();
-        logger.info(format("Mapping path length %s to transport stages for %s at %s with %s changes",
-                path.length(), journeyRequest, queryTime, timedPath.numChanges()));
+        if (fullLogging) {
+            logger.info(format("Mapping path length %s to transport stages for %s at %s with %s changes",
+                    path.length(), journeyRequest, queryTime, timedPath.numChanges()));
+        }
 
         final TraversalOps traversalOps = new TraversalOps(txn, nodeContentsRepository, tripRepository, endStations, journeyRequest.getDate());
 
@@ -121,8 +117,9 @@ public class MapPathToStagesViaStates implements PathToStages {
         final List<TransportStage<?, ?>> stages = mapStatesToStages.getStages();
         if (stages.isEmpty()) {
             if (path.length()==2) {
+                /// child -> parent, end <- parent => startOfPath is station, endOfPath is station
                 if (startOfPath.hasRelationship(OUTGOING, GROUPED_TO_PARENT) && (endOfPath.hasRelationship(INCOMING, GROUPED_TO_CHILD))) {
-                    stages.addAll(addViaCompositeStation(startOfPath, endOfPath, journeyRequest));
+                    stages.add(getDirectConnectionFor(startOfPath, endOfPath, journeyRequest));
                 }
             } else {
                 logger.warn("Did not map any stages for path length:" + path.length() + " path:" + timedPath + " request: " + journeyRequest);
@@ -131,22 +128,16 @@ public class MapPathToStagesViaStates implements PathToStages {
         return stages;
     }
 
-    private List<TransportStage<StationGroup, StationGroup>> addViaCompositeStation(final GraphNode startNode, final GraphNode endNode,
-                                                                                    final JourneyRequest journeyRequest) {
-        logger.info("Add ConnectingStage Journey via single composite node");
+    private  ConnectingStage<Station, Station> getDirectConnectionFor(final GraphNode startNode, final GraphNode endNode,
+                                                                                  final JourneyRequest journeyRequest) {
+        final IdFor<Station> startId = startNode.getStationId();
+        final IdFor<Station> endId = endNode.getStationId();
 
-        final List<TransportStage<StationGroup, StationGroup>> toAdd = new ArrayList<>();
+        final Station start = stationRepository.getStationById(startId);
+        final Station end = stationRepository.getStationById(endId);
 
-        final IdFor<NPTGLocality> startId = startNode.getAreaId();
-        final IdFor<NPTGLocality> endId = endNode.getAreaId();
-
-        final StationGroup start = stationGroupsRepository.getStationGroup(startId);
-        final StationGroup end = stationGroupsRepository.getStationGroup(endId);
-
-        final ConnectingStage<StationGroup, StationGroup> connectingStage = new ConnectingStage<>(start, end, Duration.ZERO, journeyRequest.getOriginalTime());
-        toAdd.add(connectingStage);
-
-        return toAdd;
+        // todo duration should be walking costs?
+        return new ConnectingStage<>(start, end, Duration.ZERO, journeyRequest.getOriginalTime());
     }
 
 

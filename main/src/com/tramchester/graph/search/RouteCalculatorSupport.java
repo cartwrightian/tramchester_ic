@@ -50,12 +50,13 @@ public class RouteCalculatorSupport {
     protected final BetweenRoutesCostRepository routeToRouteCosts;
     private final NodeContentsRepository nodeContentsRepository;
     private final ReasonsToGraphViz reasonToGraphViz;
+    private final boolean fullLogging; // turn down logging for grid searches
 
     protected RouteCalculatorSupport(PathToStages pathToStages, NodeContentsRepository nodeContentsRepository,
                                      GraphDatabase graphDatabaseService, TraversalStateFactory traversalStateFactory,
                                      ProvidesNow providesNow, MapPathToLocations mapPathToLocations,
                                      StationRepository stationRepository, TramchesterConfig config, TripRepository tripRepository,
-                                     BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz) {
+                                     BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz, boolean fullLogging) {
         this.pathToStages = pathToStages;
         this.nodeContentsRepository = nodeContentsRepository;
         this.graphDatabaseService = graphDatabaseService;
@@ -67,6 +68,7 @@ public class RouteCalculatorSupport {
         this.tripRepository = tripRepository;
         this.routeToRouteCosts = routeToRouteCosts;
         this.reasonToGraphViz = reasonToGraphViz;
+        this.fullLogging = fullLogging;
     }
 
 
@@ -93,26 +95,30 @@ public class RouteCalculatorSupport {
     }
 
     @NotNull
-    protected Stream<Integer> numChangesRange(JourneyRequest journeyRequest, NumberOfChanges computedChanges) {
+    protected Stream<Integer> numChangesRange(final JourneyRequest journeyRequest, final NumberOfChanges computedChanges) {
         final int requestedMaxChanges = journeyRequest.getMaxChanges();
 
         final int computedMaxChanges = computedChanges.getMax();
         final int computedMinChanges = computedChanges.getMin();
 
-        if (requestedMaxChanges < computedMinChanges) {
-            logger.error(format("Requested max changes (%s) is less than computed minimum changes (%s) needed",
-                    requestedMaxChanges, computedMaxChanges));
+        if (fullLogging) {
+            if (requestedMaxChanges < computedMinChanges) {
+                logger.error(format("Requested max changes (%s) is less than computed minimum changes (%s) needed",
+                        requestedMaxChanges, computedMaxChanges));
+            }
+
+            if (computedMaxChanges > requestedMaxChanges) {
+                logger.info(format("Will exclude some routes, requests changes %s is less then computed max changes %s",
+                        requestedMaxChanges, computedMaxChanges));
+            }
         }
 
-        if (computedMaxChanges > requestedMaxChanges) {
-            logger.info(format("Will exclude some routes, requests changes %s is less then computed max changes %s",
-                    requestedMaxChanges, computedMaxChanges));
+        final int max = Math.min(computedMaxChanges, requestedMaxChanges);
+        final int min = Math.min(computedMinChanges, requestedMaxChanges);
+
+        if (fullLogging) {
+            logger.info("Will check journey from " + min + " to " + max + " changes. Computed was " + computedChanges);
         }
-
-        int max = Math.min(computedMaxChanges, requestedMaxChanges);
-        int min = Math.min(computedMinChanges, requestedMaxChanges);
-
-        logger.info("Will check journey from " + min + " to " + max +" changes. Computed was " + computedChanges);
         return IntStream.rangeClosed(min, max).boxed();
     }
 
@@ -127,33 +133,42 @@ public class RouteCalculatorSupport {
                                                               ServiceReasons reasons, PathRequest pathRequest,
                                                               PreviousVisits previousSuccessfulVisit,
                                                               LowestCostSeen lowestCostSeen) {
+        if (fullLogging) {
+            if (config.getDepthFirst()) {
+                logger.info("Depth first is enabled. Traverse for " + pathRequest);
+            } else {
+                logger.info("Breadth first is enabled. Traverse for " + pathRequest);
+            }
+        }
 
         TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(
                 txn, pathRequest, nodeContentsRepository,
                 tripRepository, traversalStateFactory, endStations, config, destinationNodeIds,
                 reasons, reasonToGraphViz, providesNow);
 
-        logger.info("Traverse for " + pathRequest);
-
         return tramNetworkTraverser.
-                findPaths(txn, pathRequest.startNode, previousSuccessfulVisit, lowestCostSeen, pathRequest.selector).
+                findPaths(txn, pathRequest.startNode, previousSuccessfulVisit, lowestCostSeen, pathRequest.selector, fullLogging).
                 map(path -> new RouteCalculator.TimedPath(path, pathRequest.queryTime, pathRequest.numChanges));
     }
 
     @NotNull
-    protected Journey createJourney(JourneyRequest journeyRequest, RouteCalculator.TimedPath path,
-                                    LocationSet destinations, AtomicInteger journeyIndex,
-                                    GraphTransaction txn) {
+    protected Journey createJourney(final JourneyRequest journeyRequest, final RouteCalculator.TimedPath path,
+                                    final LocationSet destinations, final AtomicInteger journeyIndex,
+                                    final GraphTransaction txn) {
 
-        final List<TransportStage<?, ?>> stages = pathToStages.mapDirect(path, journeyRequest, destinations, txn);
+        final List<TransportStage<?, ?>> stages = pathToStages.mapDirect(path, journeyRequest, destinations, txn, fullLogging);
         final List<Location<?>> locationList = mapPathToLocations.mapToLocations(path.path(), txn);
 
         if (stages.isEmpty()) {
             logger.error("No stages were mapped for " + journeyRequest + " for " + locationList);
         }
+
         final TramTime arrivalTime = getArrivalTimeFor(stages, journeyRequest);
         final TramTime departTime = getDepartTimeFor(stages, journeyRequest);
-        logger.info("Created journey with " + stages.size() + " stages and dpeart time of " + departTime);
+        if (fullLogging) {
+
+            logger.info("Created journey with " + stages.size() + " stages and depart time of " + departTime);
+        }
         return new Journey(departTime, path.queryTime(), arrivalTime, stages, locationList, path.numChanges(),
                 journeyIndex.getAndIncrement());
     }

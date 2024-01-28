@@ -28,7 +28,7 @@ public enum TransportRelationshipTypes implements RelationshipType {
     TO_HOUR,
     TO_MINUTE,
 
-    // between composite stations to/from contained stations
+    // between grouped stations to/from contained stations
     GROUPED_TO_PARENT,
     GROUPED_TO_CHILD,
 

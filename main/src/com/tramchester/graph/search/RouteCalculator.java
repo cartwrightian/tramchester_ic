@@ -62,7 +62,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
                            CacheMetrics cacheMetrics, BranchSelectorFactory branchSelectorFactory) {
         super(pathToStages, nodeOperations, graphDatabaseService,
                 traversalStateFactory, providesNow, mapPathToLocations,
-                transportData, config, transportData, routeToRouteCosts, reasonToGraphViz);
+                transportData, config, transportData, routeToRouteCosts, reasonToGraphViz, true);
         this.config = config;
         this.createQueryTimes = createQueryTimes;
         this.closedStationsRepository = closedStationsRepository;

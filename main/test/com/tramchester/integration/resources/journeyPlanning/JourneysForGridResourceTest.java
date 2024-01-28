@@ -2,6 +2,7 @@ package com.tramchester.integration.resources.journeyPlanning;
 
 import com.tramchester.App;
 import com.tramchester.GuiceContainerDependencies;
+import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.Station;
@@ -118,8 +119,8 @@ class JourneysForGridResourceTest {
                 filter(boxWithStations -> anyOpen(boxWithStations.getStations())).collect(Collectors.toSet());
     }
 
-    private boolean anyOpen(Set<Station> stations) {
-        return stations.stream().anyMatch(station -> !closedStationsRepository.isClosed(station, when));
+    private boolean anyOpen(LocationSet locations) {
+        return locations.stream().anyMatch(station -> !closedStationsRepository.isClosed(station, when));
     }
 
 

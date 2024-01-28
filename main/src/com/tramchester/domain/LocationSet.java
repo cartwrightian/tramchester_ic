@@ -64,7 +64,7 @@ public class LocationSet {
                 map(location -> (Station) location);
     }
 
-    public static LocationSet of(Set<Station> stations) {
+    public static LocationSet of(final Set<Station> stations) {
         return new LocationSet(stations);
     }
 

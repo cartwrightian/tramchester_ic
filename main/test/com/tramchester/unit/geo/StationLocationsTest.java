@@ -1,6 +1,7 @@
 package com.tramchester.unit.geo;
 
 import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -206,7 +207,7 @@ class StationLocationsTest extends EasyMockSupport {
 
         replayAll();
         stationLocations.start();
-        List<BoundingBoxWithStations> boxedStations = stationLocations.getStationsInGrids(1000).collect(Collectors.toList());
+        List<BoundingBoxWithStations> boxedStations = stationLocations.getStationsInGrids(1000).toList();
 
         assertEquals(2, boxedStations.size());
 
@@ -214,9 +215,12 @@ class StationLocationsTest extends EasyMockSupport {
         Optional<BoundingBoxWithStations> maybeCentral = boxedStations.stream().filter(box -> box.getStations().size() == 2).findFirst();
         assertTrue(maybeCentral.isPresent());
         BoundingBoxWithStations centralBox = maybeCentral.get();
-        Set<Station> central = centralBox.getStations();
+
+        LocationSet central = centralBox.getStations();
         assertEquals(2, central.size());
-        assertTrue(central.containsAll(Arrays.asList(testStationB, testStationC)));
+        assertTrue(central.contains(testStationB));
+        assertTrue(central.contains(testStationC));
+//        assertTrue(central.containsAll(Arrays.asList(testStationB, testStationC)));
         assertTrue(centralBox.contained(nearShudehill.grid()));
         assertTrue(centralBox.contained(nearPiccGardens.grid()));
 
@@ -224,7 +228,8 @@ class StationLocationsTest extends EasyMockSupport {
         Optional<BoundingBoxWithStations> maybeAlty = boxedStations.stream().filter(box -> box.getStations().size() == 1).findFirst();
         assertTrue(maybeAlty.isPresent());
         BoundingBoxWithStations altyBox = maybeAlty.get();
-        Set<Station> alty = altyBox.getStations();
+
+        LocationSet alty = altyBox.getStations();
         assertEquals(1, alty.size());
         assertTrue(alty.contains(testStationA));
         assertTrue(altyBox.contained(nearAltrincham.grid()));

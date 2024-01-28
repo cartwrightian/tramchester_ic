@@ -27,16 +27,16 @@ public class StageDTOFactory {
         this.stationDTOFactory = stationDTOFactory;
     }
 
-    public SimpleStageDTO build(TransportStage<?,?> source, TravelAction travelAction, TramDate queryDate) {
+    public SimpleStageDTO build(final TransportStage<?,?> source, final TravelAction travelAction, final TramDate queryDate) {
 
-        LocationRefWithPosition firstStation = stationDTOFactory.createLocationRefWithPosition(source.getFirstStation());
-        LocationRefWithPosition lastStation = stationDTOFactory.createLocationRefWithPosition(source.getLastStation());
-        LocationRefWithPosition actionStation = stationDTOFactory.createLocationRefWithPosition(source.getActionStation());
-        LocalDateTime firstDepartureTime = source.getFirstDepartureTime().toDate(queryDate);
-        LocalDateTime expectedArrivalTime = source.getExpectedArrivalTime().toDate(queryDate);
+        final LocationRefWithPosition firstStation = stationDTOFactory.createLocationRefWithPosition(source.getFirstStation());
+        final LocationRefWithPosition lastStation = stationDTOFactory.createLocationRefWithPosition(source.getLastStation());
+        final LocationRefWithPosition actionStation = stationDTOFactory.createLocationRefWithPosition(source.getActionStation());
+        final LocalDateTime firstDepartureTime = source.getFirstDepartureTime().toDate(queryDate);
+        final LocalDateTime expectedArrivalTime = source.getExpectedArrivalTime().toDate(queryDate);
 
-        Route route = source.getRoute();
-        RouteRefDTO routeRefDTO = new RouteRefDTO(route);
+        final Route route = source.getRoute();
+        final RouteRefDTO routeRefDTO = new RouteRefDTO(route);
 
         final Duration duration = source.getDuration();
         if (source instanceof WalkingStage<?,?> || source instanceof ConnectingStage<?,?>) {
@@ -48,9 +48,9 @@ public class StageDTOFactory {
                     routeRefDTO, travelAction, queryDate);
         }
 
-        IdForDTO tripId = new IdForDTO(source.getTripId());
+        final IdForDTO tripId = new IdForDTO(source.getTripId());
         if (source.hasBoardingPlatform()) {
-            PlatformDTO boardingPlatform = new PlatformDTO(source.getBoardingPlatform());
+            final PlatformDTO boardingPlatform = new PlatformDTO(source.getBoardingPlatform());
 
             return new VehicleStageDTO(firstStation,
                     lastStation,

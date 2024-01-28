@@ -244,12 +244,12 @@ public class StationLocations implements StationLocationsRepository {
                 filter(quadrant -> quadrant.within(range, position)).collect(Collectors.toSet());
     }
 
-    private Set<Station> getStationsWithin(BoundingBox box) {
-        Stream<BoundingBox> overlaps = quadrants.stream().filter(box::overlapsWith);
+    private LocationSet getStationsWithin(final BoundingBox box) {
+        final Stream<BoundingBox> overlaps = quadrants.stream().filter(box::overlapsWith);
 
-        Stream<Station> candidateStations = overlaps.flatMap(quadrant -> stationBoxes.get(quadrant).stream());
+        final Stream<Station> candidateStations = overlaps.flatMap(quadrant -> stationBoxes.get(quadrant).stream());
 
-        return candidateStations.filter(box::contained).collect(Collectors.toSet());
+        return candidateStations.filter(box::contained).collect(LocationSet.stationCollector());
     }
 
     private Stream<Long> getEastingsStream(long gridSize) {

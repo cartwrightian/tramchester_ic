@@ -21,7 +21,6 @@ import javax.inject.Inject;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @LazySingleton
 public class JourneyToDTOMapper {
@@ -35,47 +34,49 @@ public class JourneyToDTOMapper {
         this.stationDTOFactory = DTOFactory;
     }
 
-    public JourneyDTO createJourneyDTO(Journey journey, TramDate queryDate) {
+    public JourneyDTO createJourneyDTO(final Journey journey, final TramDate queryDate) {
         logger.info("Mapping journey with " + journey.getStages().size() + " stages for " + queryDate);
 
-        List<SimpleStageDTO> stages = new ArrayList<>();
+        final List<SimpleStageDTO> stages = new ArrayList<>();
 
-        List<TransportStage<?,?>> rawJourneyStages = journey.getStages();
+        final List<TransportStage<?,?>> rawJourneyStages = journey.getStages();
         if (rawJourneyStages.isEmpty()) {
             final String msg = "Journey has no stages " + journey;
             logger.error(msg);
             throw new RuntimeException(msg);
         }
 
-        TramTime queryTime = journey.getQueryTime();
+        final TramTime queryTime = journey.getQueryTime();
 
-        for(TransportStage<?,?> rawStage : rawJourneyStages) {
-            logger.info("Adding stage " + rawStage);
-            TravelAction action = decideTravelAction(stages, rawStage);
-            SimpleStageDTO stageDTO = stageFactory.build(rawStage, action, queryDate);
+        for(final TransportStage<?,?> rawStage : rawJourneyStages) {
+            // performance on grids
+            //logger.info("Adding stage " + rawStage);
+            final TravelAction action = decideTravelAction(stages, rawStage);
+            final SimpleStageDTO stageDTO = stageFactory.build(rawStage, action, queryDate);
             stages.add(stageDTO);
         }
 
-        LocationRefWithPosition begin = stationDTOFactory.createLocationRefWithPosition(journey.getBeginning());
+        final LocationRefWithPosition begin = stationDTOFactory.createLocationRefWithPosition(journey.getBeginning());
 
-        LocationRefWithPosition destination = stationDTOFactory.createLocationRefWithPosition(journey.getDestination());
+        final LocationRefWithPosition destination = stationDTOFactory.createLocationRefWithPosition(journey.getDestination());
 
-        List<LocationRefWithPosition> changeStations = asListOf(journey.getChangeStations());
+        final List<LocationRefWithPosition> changeStations = toLocationRefWithPosition(journey.getChangeStations());
 
-        List<LocationRefWithPosition> path = asListOf(journey.getPath());
+        final List<LocationRefWithPosition> path = toLocationRefWithPosition(journey.getPath());
 
-        LocalDate date = queryDate.toLocalDate();
+        final LocalDate date = queryDate.toLocalDate();
+
         return new JourneyDTO(begin, destination, stages,
                 journey.getArrivalTime().toDate(date), journey.getDepartTime().toDate(date),
                 changeStations, queryTime,
                 path, date, journey.getJourneyIndex());
     }
 
-    private List<LocationRefWithPosition> asListOf(List<Location<?>> locations) {
-        return locations.stream().map(stationDTOFactory::createLocationRefWithPosition).collect(Collectors.toList());
+    private List<LocationRefWithPosition> toLocationRefWithPosition(final List<Location<?>> locations) {
+        return locations.stream().map(stationDTOFactory::createLocationRefWithPosition).toList();
     }
 
-    private TravelAction decideTravelAction(List<SimpleStageDTO> stages, TransportStage<?,?> rawStage) {
+    private TravelAction decideTravelAction(final List<SimpleStageDTO> stages, final TransportStage<?,?> rawStage) {
         return switch (rawStage.getMode()) {
             case Tram, Bus, RailReplacementBus, Train, Ferry, Subway -> decideActionForStations(stages);
             case Walk -> decideWalkingAction(rawStage);
@@ -89,12 +90,12 @@ public class JourneyToDTOMapper {
         return walkingStage.getTowardsMyLocation() ? TravelAction.WalkFrom : TravelAction.WalkTo;
     }
 
-    private TravelAction decideActionForStations(List<SimpleStageDTO> stagesSoFar) {
+    private TravelAction decideActionForStations(final List<SimpleStageDTO> stagesSoFar) {
         if (stagesSoFar.isEmpty()) {
             return TravelAction.Board;
         }
-        SimpleStageDTO previousStage = stagesSoFar.get(stagesSoFar.size() - 1);
-        TransportMode previousMode = previousStage.getMode();
+        final SimpleStageDTO previousStage = stagesSoFar.get(stagesSoFar.size() - 1);
+        final TransportMode previousMode = previousStage.getMode();
         if ((previousMode ==TransportMode.Walk) || previousMode ==TransportMode.Connect) {
             return TravelAction.Board;
         }
