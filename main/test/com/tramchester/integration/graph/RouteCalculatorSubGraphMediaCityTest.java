@@ -7,6 +7,7 @@ import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.LocationIdPairSet;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
@@ -68,7 +69,7 @@ class RouteCalculatorSubGraphMediaCityTest {
     private MutableGraphTransaction txn;
 
     private Duration maxJourneyDuration;
-    private RouteCalculationCombinations combinations;
+    private RouteCalculationCombinations<Station> combinations;
     private StationRepository stationRepository;
     private ClosedStationsRepository closedStationRepository;
     private TramDate badDate;
@@ -103,7 +104,7 @@ class RouteCalculatorSubGraphMediaCityTest {
         maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
         stationRepository = componentContainer.get(StationRepository.class);
         txn = database.beginTxMutable();
-        combinations = new RouteCalculationCombinations(componentContainer);
+        combinations = new RouteCalculationCombinations<>(componentContainer);
         calculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
         closedStationRepository = componentContainer.get(ClosedStationsRepository.class);
 
@@ -133,7 +134,7 @@ class RouteCalculatorSubGraphMediaCityTest {
     @Test
     void shouldHaveJourneyFromEveryStationToEveryOtherNDaysAhead() {
 
-        List<Pair<TramDate, Set<StationIdPair>>> failed = TestEnv.getUpcomingDates().
+        List<Pair<TramDate, LocationIdPairSet<Station>>> failed = TestEnv.getUpcomingDates().
                 filter(date -> !date.isChristmasPeriod()).
                 filter(date -> !date.equals(badDate)).
                 map(date -> new JourneyRequest(date, TramTime.of(9, 0), false,
@@ -227,25 +228,25 @@ class RouteCalculatorSubGraphMediaCityTest {
                 Duration.ofMinutes(config.getMaxJourneyDuration()), 1, getRequestedModes());
 
         // pairs of stations to check
-        Set<StationIdPair> results = getFailedPairedFor(journeyRequest);
+        LocationIdPairSet<Station> results = getFailedPairedFor(journeyRequest);
         assertTrue(results.isEmpty(), results + " failed for " + journeyRequest);
     }
 
-    private Set<StationIdPair> getFailedPairedFor(JourneyRequest journeyRequest) {
+    private LocationIdPairSet<Station> getFailedPairedFor(JourneyRequest journeyRequest) {
         TramDate date = journeyRequest.getDate();
         Set<Station> stations = tramStations.stream().
                 map(tramStations -> tramStations.from(stationRepository)).
                 filter(station -> !closedStationRepository.isClosed(station, date)).
                 collect(Collectors.toSet());
 
-        Set<StationIdPair> stationIdPairs = stations.stream().flatMap(start -> stations.stream().
-                filter(dest -> !dest.getId().equals(start.getId())).
-                filter(dest -> !combinations.betweenInterchanges(start, dest)).
-                map(dest -> StationIdPair.of(start, dest))).
-                filter(pair -> !pair.same()).
-                collect(Collectors.toSet());
+        LocationIdPairSet<Station> stationIdPairs = stations.stream().flatMap(start -> stations.stream().
+                        filter(dest -> !dest.getId().equals(start.getId())).
+                        filter(dest -> !combinations.betweenInterchanges(start, dest)).
+                        map(dest -> LocationIdPair.of(start, dest))).
+                        filter(pair -> !pair.same()).
+                        collect(LocationIdPairSet.collector());
 
-        RouteCalculationCombinations.CombinationResults results = combinations.getJourneysFor(stationIdPairs, journeyRequest);
+        RouteCalculationCombinations.CombinationResults<Station> results = combinations.getJourneysFor(stationIdPairs, journeyRequest);
 
         return results.getMissing();
 

@@ -4,8 +4,9 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.JourneyRequest;
-import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.LocationIdPairSet;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
@@ -18,7 +19,6 @@ import org.junit.jupiter.api.*;
 
 import java.time.Duration;
 import java.util.EnumSet;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static com.tramchester.domain.reference.TransportMode.Train;
@@ -32,7 +32,7 @@ class RailRouteCalculatorCombinationTests {
 
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;
-    private RouteCalculationCombinations combinations;
+    private RouteCalculationCombinations<Station> combinations;
 
     private final TramDate when = TestEnv.testDay();
     private MutableGraphTransaction txn;
@@ -54,7 +54,7 @@ class RailRouteCalculatorCombinationTests {
     @BeforeEach
     void beforeEachTestRuns() {
         txn = database.beginTxMutable(TXN_TIMEOUT, TimeUnit.SECONDS);
-        combinations = new RouteCalculationCombinations(componentContainer);
+        combinations = new RouteCalculationCombinations<>(componentContainer);
     }
 
     @AfterEach
@@ -69,7 +69,7 @@ class RailRouteCalculatorCombinationTests {
         JourneyRequest request = new JourneyRequest(when, travelTime, false,
                 10, Duration.ofHours(8), 1, getRequestedModes());
 
-        Set<StationIdPair> stationIdPairs = combinations.InterchangeToInterchange(Train);
+        LocationIdPairSet<Station> stationIdPairs = combinations.InterchangeToInterchange(Train);
         combinations.validateAllHaveAtLeastOneJourney(stationIdPairs, request, true);
     }
 
@@ -84,7 +84,7 @@ class RailRouteCalculatorCombinationTests {
         JourneyRequest request = new JourneyRequest(when, travelTime, false,
                 10, Duration.ofHours(8), 1, getRequestedModes());
 
-        Set<StationIdPair> stationIdPairs = combinations.EndOfRoutesToEndOfRoutes(Train);
+        LocationIdPairSet<Station> stationIdPairs = combinations.EndOfRoutesToEndOfRoutes(Train);
         combinations.validateAllHaveAtLeastOneJourney(stationIdPairs, request, true);
     }
 

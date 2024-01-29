@@ -1,7 +1,9 @@
 package com.tramchester.repository;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdForDTO;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.*;
 import com.tramchester.repository.postcodes.PostcodeRepository;
 
@@ -43,4 +45,24 @@ public class LocationRepository {
             case MyLocation -> MyLocation.parseFromId(rawId);
         };
     }
+
+    public <T extends Location<T>> Location<?> getLocation(final IdFor<T> locationId) {
+        LocationType type = LocationType.getFor(locationId);
+        return switch (type) {
+            case Station -> getStation(locationId);
+            case StationGroup -> getGroupStation(locationId);
+            case Postcode, MyLocation, Platform -> throw new RuntimeException("not supported yet");
+        };
+    }
+
+    private <T extends Location<?>> Location<?> getStation(IdFor<T> location) {
+        IdFor<Station> stationId = StringIdFor.convert(location, Station.class);
+        return stationRepository.getStationById(stationId);
+    }
+
+    private <T extends Location<?>> Location<?> getGroupStation(IdFor<T> location) {
+        IdFor<NPTGLocality> stationId = StringIdFor.convert(location, NPTGLocality.class);
+        return stationGroupsRepository.getStationGroup(stationId);
+    }
+
 }

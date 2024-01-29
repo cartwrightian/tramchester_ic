@@ -2,16 +2,12 @@ package com.tramchester.repository;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.ClosedStation;
-import com.tramchester.domain.DataSourceID;
-import com.tramchester.domain.StationClosures;
+import com.tramchester.domain.*;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.places.Location;
-import com.tramchester.domain.places.LocationType;
-import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.*;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.filters.GraphFilter;
@@ -117,8 +113,8 @@ public class ClosedStationsRepository {
                 filter(closure -> closure.getDateRange().contains(date));
     }
 
-
-    public boolean hasClosuresOn(TramDate date) {
+    public boolean hasClosuresOn(final TramDate date) {
+        // todo maybe pre-compute by date as well?
         return getClosures(date, true).findAny().isPresent() || getClosures(date, false).findAny().isPresent();
     }
 
@@ -128,17 +124,44 @@ public class ClosedStationsRepository {
                 collect(Collectors.toSet());
     }
 
-    public boolean isClosed(final Location<?> location, final TramDate date) {
-        if (location.getLocationType()!= LocationType.Station) {
-            return false;
-        }
-        final Station station = (Station) location;
-        final IdFor<Station> stationId = station.getId();
+    public <T extends Location<T>> boolean bothOpen(LocationIdPair<T> locationPair, TramDate date) {
+        LocationType locationType = locationPair.getLocationType();
 
-        return isClosed(stationId, date);
+        if (locationType!=LocationType.Station) {
+            throw new RuntimeException("Not defined yet");
+        }
+
+        // TODO LocationId
+        IdFor<Station> beginId = (IdFor<Station>) locationPair.getBeginId();
+        IdFor<Station> endId = (IdFor<Station>) locationPair.getEndId();
+
+        return (! ( isClosed(beginId,date) || isClosed(endId, date) ));
+
+    }
+
+    public boolean isClosed(final Location<?> location, final TramDate date) {
+        return switch (location.getLocationType()) {
+            case Station -> isStationClosed((Station)location, date);
+            case StationGroup -> isGroupClosed((StationGroup)location, date);
+            case Platform -> isPlatformClosed((Platform)location, date);
+            case Postcode, MyLocation -> false;
+        };
+    }
+
+    private boolean isPlatformClosed(Platform platform, TramDate date) {
+        return isStationClosed(platform.getStation(), date);
+    }
+
+    private boolean isStationClosed(Station station, TramDate date) {
+        return isClosed(station.getId(), date);
+    }
+
+    private boolean isGroupClosed(final StationGroup group, final TramDate date) {
+        return group.getAllContained().stream().allMatch(station -> isClosed(station.getId(), date));
     }
 
     public boolean isClosed(IdFor<Station> stationId, TramDate date) {
+        // todo maybe pre-compute by date as well?
         if (!hasAClosure.contains(stationId)) {
             return false;
         }
@@ -169,4 +192,6 @@ public class ClosedStationsRepository {
 
         return maybe.get();
     }
+
+
 }

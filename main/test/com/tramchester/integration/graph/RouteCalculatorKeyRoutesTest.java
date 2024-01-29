@@ -7,6 +7,8 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.LocationIdPairSet;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramTime;
@@ -38,7 +40,7 @@ class RouteCalculatorKeyRoutesTest {
     private static TramchesterConfig testConfig;
 
     private TramDate when;
-    private RouteCalculationCombinations combinations;
+    private RouteCalculationCombinations<Station> combinations;
     private JourneyRequest journeyRequest;
     private Duration maxJourneyDuration;
     private EnumSet<TransportMode> modes;
@@ -64,34 +66,34 @@ class RouteCalculatorKeyRoutesTest {
         int maxChanges = 4;
         journeyRequest = new JourneyRequest(when, TramTime.of(8, 5), false, maxChanges,
                 maxJourneyDuration, 1, modes);
-        combinations = new RouteCalculationCombinations(componentContainer);
+        combinations = new RouteCalculationCombinations<>(componentContainer);
     }
 
     @Test
     void shouldFindEndOfRoutesToInterchanges() {
-        Set<StationIdPair> stationIdPairs = combinations.EndOfRoutesToInterchanges(Tram);
-        RouteCalculationCombinations.CombinationResults results = combinations.getJourneysFor(stationIdPairs, journeyRequest);
+        LocationIdPairSet<Station> stationIdPairs = combinations.EndOfRoutesToInterchanges(Tram);
+        RouteCalculationCombinations.CombinationResults<Station> results = combinations.getJourneysFor(stationIdPairs, journeyRequest);
         validateFor(results);
     }
 
     @Test
     void shouldFindEndOfRoutesToEndOfRoute() {
-        Set<StationIdPair> stationIdPairs = combinations.EndOfRoutesToEndOfRoutes(Tram);
-        RouteCalculationCombinations.CombinationResults results = combinations.getJourneysFor(stationIdPairs, journeyRequest);
+        LocationIdPairSet<Station> stationIdPairs = combinations.EndOfRoutesToEndOfRoutes(Tram);
+        RouteCalculationCombinations.CombinationResults<Station> results = combinations.getJourneysFor(stationIdPairs, journeyRequest);
         validateFor(results);
     }
 
     @Test
     void shouldFindInterchangesToEndOfRoutes() {
-        Set<StationIdPair> stationIdPairs = combinations.InterchangeToEndRoutes(Tram);
-        RouteCalculationCombinations.CombinationResults results = combinations.getJourneysFor(stationIdPairs, journeyRequest);
+        LocationIdPairSet<Station> stationIdPairs = combinations.InterchangeToEndRoutes(Tram);
+        RouteCalculationCombinations.CombinationResults<Station> results = combinations.getJourneysFor(stationIdPairs, journeyRequest);
         validateFor(results);
     }
 
     @Test
     void shouldFindInterchangesToInterchanges() {
-        Set<StationIdPair> stationIdPairs = combinations.InterchangeToInterchange(Tram);
-        RouteCalculationCombinations.CombinationResults results = combinations.getJourneysFor(stationIdPairs, journeyRequest);
+        LocationIdPairSet<Station> stationIdPairs = combinations.InterchangeToInterchange(Tram);
+        RouteCalculationCombinations.CombinationResults<Station> results = combinations.getJourneysFor(stationIdPairs, journeyRequest);
         validateFor(results);
     }
 
@@ -99,17 +101,17 @@ class RouteCalculatorKeyRoutesTest {
     @Test
     void shouldFindEndOfLinesToEndOfLinesNextNDays() {
 
-        final Set<StationIdPair> pairs = combinations.EndOfRoutesToEndOfRoutes(Tram);
+        final LocationIdPairSet<Station> pairs = combinations.EndOfRoutesToEndOfRoutes(Tram);
 
-        final Map<TramDate, Set<StationIdPair>> missing = new HashMap<>();
+        final Map<TramDate, LocationIdPairSet<Station>> missing = new HashMap<>();
 
         for(int day = 0; day< TestEnv.DAYS_AHEAD; day++) {
             TramDate testDate = avoidChristmasDate(when.plusDays(day));
             if (testDate.getDayOfWeek() != DayOfWeek.SUNDAY) {
                 JourneyRequest request = new JourneyRequest(testDate, TramTime.of(8, 5), false, 4,
                         maxJourneyDuration, 1, modes);
-                RouteCalculationCombinations.CombinationResults results = combinations.getJourneysFor(pairs, request);
-                Set<StationIdPair> missingForDate = results.getMissing();
+                RouteCalculationCombinations.CombinationResults<Station> results = combinations.getJourneysFor(pairs, request);
+                LocationIdPairSet<Station> missingForDate = results.getMissing();
                 if (!missingForDate.isEmpty()) {
                     missing.put(testDate, missingForDate);
                 }
@@ -123,13 +125,13 @@ class RouteCalculatorKeyRoutesTest {
     @DataExpiryCategory
     @Test
     void shouldFindEndOfLinesToEndOfLinesInNDays() {
-        final Set<StationIdPair> pairs = combinations.EndOfRoutesToEndOfRoutes(Tram);
+        final LocationIdPairSet<Station> pairs = combinations.EndOfRoutesToEndOfRoutes(Tram);
         // helps with diagnosis when trams not running on a specific day vs. actual missing data
 
         TramDate testDate = avoidChristmasDate(when);
         JourneyRequest request = new JourneyRequest(testDate, TramTime.of(8,5), false, 4,
                 maxJourneyDuration, 1, modes);
-        RouteCalculationCombinations.CombinationResults results = combinations.getJourneysFor(pairs, request);
+        RouteCalculationCombinations.CombinationResults<Station> results = combinations.getJourneysFor(pairs, request);
         validateFor(results);
     }
 
@@ -139,7 +141,7 @@ class RouteCalculatorKeyRoutesTest {
         JourneyRequest longestJourneyRequest = new JourneyRequest(when, TramTime.of(9, 0), false, 2,
                 maxJourneyDuration.multipliedBy(2), 3, modes);
 
-        RouteCalculationCombinations.CombinationResults results =
+        RouteCalculationCombinations.CombinationResults<Station> results =
                 combinations.getJourneysFor(combinations.EndOfRoutesToEndOfRoutes(Tram), longestJourneyRequest);
 
         validateFor(results);
@@ -161,21 +163,21 @@ class RouteCalculatorKeyRoutesTest {
 
         List<StationIdPair> stationIdPairs = new ArrayList<>();
         for (int i = 0; i < 99; i++) {
-            stationIdPairs.add(new StationIdPair(ShawAndCrompton, Ashton));
+            stationIdPairs.add(StationIdPair.of(ShawAndCrompton, Ashton));
         }
 
         TramDate queryDate = when;
         TramTime queryTime = TramTime.of(8,0);
 
-        Optional<Pair<StationIdPair, RouteCalculationCombinations.JourneyOrNot>> failed = stationIdPairs.parallelStream().
+        Optional<Pair<StationIdPair, RouteCalculationCombinations.JourneyOrNot<Station>>> failed = stationIdPairs.parallelStream().
                 map(requested -> {
                     try (MutableGraphTransaction txn = database.beginTxMutable()) {
                         JourneyRequest journeyRequest = new JourneyRequest(queryDate, queryTime, false,
                                 3, maxJourneyDuration, 1, modes);
                         Optional<Journey> optionalJourney = combinations.findJourneys(txn, requested.getBeginId(), requested.getEndId(),
                                 journeyRequest);
-                        RouteCalculationCombinations.JourneyOrNot journeyOrNot =
-                                new RouteCalculationCombinations.JourneyOrNot(requested, queryDate, queryTime, optionalJourney);
+                        RouteCalculationCombinations.JourneyOrNot<Station> journeyOrNot =
+                                new RouteCalculationCombinations.JourneyOrNot<>(requested, queryDate, queryTime, optionalJourney);
                         return Pair.of(requested, journeyOrNot);
                     }
                 }).filter(pair -> pair.getRight().missing()).findAny();
@@ -183,8 +185,8 @@ class RouteCalculatorKeyRoutesTest {
         assertFalse(failed.isPresent());
     }
 
-    private void validateFor(RouteCalculationCombinations.CombinationResults results) {
-        Set<StationIdPair> missingForDate = results.getMissing();
+    private void validateFor(RouteCalculationCombinations.CombinationResults<Station> results) {
+        LocationIdPairSet<Station> missingForDate = results.getMissing();
         assertTrue(missingForDate.isEmpty(), missingForDate.toString());
     }
 

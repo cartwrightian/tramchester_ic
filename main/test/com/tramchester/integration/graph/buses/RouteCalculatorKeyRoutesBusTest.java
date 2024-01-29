@@ -4,8 +4,9 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.JourneyRequest;
-import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.LocationIdPairSet;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.integration.testSupport.RouteCalculationCombinations;
@@ -17,7 +18,6 @@ import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.util.Set;
 
 import static com.tramchester.domain.reference.TransportMode.Bus;
 import static com.tramchester.testSupport.TestEnv.Modes.BusesOnly;
@@ -31,7 +31,7 @@ class RouteCalculatorKeyRoutesBusTest {
     private static TramchesterConfig testConfig;
 
     private final TramDate when = TestEnv.testDay();
-    private RouteCalculationCombinations combinations;
+    private RouteCalculationCombinations<Station> combinations;
     private JourneyRequest journeyRequest;
 
     @BeforeAll
@@ -56,7 +56,7 @@ class RouteCalculatorKeyRoutesBusTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        combinations = new RouteCalculationCombinations(componentContainer);
+        combinations = new RouteCalculationCombinations<>(componentContainer);
         TramTime time = TramTime.of(8, 0);
         int numberChanges = 3;
         journeyRequest = new JourneyRequest(when, time, false, numberChanges,
@@ -65,25 +65,25 @@ class RouteCalculatorKeyRoutesBusTest {
 
     @Test
     void shouldFindEndOfRoutesToInterchanges() {
-        Set<StationIdPair> stationIdPairs = combinations.EndOfRoutesToInterchanges(Bus);
+        LocationIdPairSet<Station> stationIdPairs = combinations.EndOfRoutesToInterchanges(Bus);
         combinations.validateAllHaveAtLeastOneJourney(stationIdPairs, journeyRequest, true);
     }
 
     @Test
     void shouldFindEndOfRoutesToEndOfRoute() {
-        Set<StationIdPair> stationIdPairs = combinations.EndOfRoutesToEndOfRoutes(Bus);
+        LocationIdPairSet<Station> stationIdPairs = combinations.EndOfRoutesToEndOfRoutes(Bus);
         combinations.validateAllHaveAtLeastOneJourney(stationIdPairs, journeyRequest, true);
     }
 
     @Test
     void shouldFindInterchangesToEndOfRoutes() {
-        Set<StationIdPair> stationIdPairs = combinations.InterchangeToEndRoutes(Bus);
+        LocationIdPairSet<Station> stationIdPairs = combinations.InterchangeToEndRoutes(Bus);
         combinations.validateAllHaveAtLeastOneJourney(stationIdPairs, journeyRequest, true);
     }
 
     @Test
     void shouldFindInterchangesToInterchanges() {
-        Set<StationIdPair> stationIdPairs = combinations.InterchangeToInterchange(Bus);
+        LocationIdPairSet<Station> stationIdPairs = combinations.InterchangeToInterchange(Bus);
         combinations.validateAllHaveAtLeastOneJourney(stationIdPairs, journeyRequest, true);
     }
 

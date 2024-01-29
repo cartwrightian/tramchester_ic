@@ -242,7 +242,7 @@ public class StopCalls {
         }
 
         public StationIdPair getStations() {
-            return StationIdPair.of(first.station, second.getStation());
+            return StationIdPair.of(first.station.getId(), second.getStation().getId());
         }
     }
 }

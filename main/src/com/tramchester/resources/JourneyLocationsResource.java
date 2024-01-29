@@ -121,7 +121,7 @@ public class JourneyLocationsResource extends UsesRecentCookie implements APIRes
             matching = stationRepository.getStationsServing(mode);
         }
 
-        final List<LocationRefDTO> results = toStationRefDTOList(matching);
+        final List<LocationRefDTO> results = toLocationRefDTOList(matching);
         if (results.isEmpty()) {
             logger.warn("No stations found for " + mode.name());
         } else {
@@ -149,7 +149,7 @@ public class JourneyLocationsResource extends UsesRecentCookie implements APIRes
 
         List<? extends Location<?>> nearestLocations = getNearestLocations(location, margin, mode);
 
-        List<LocationRefDTO> results = toStationRefDTOList(nearestLocations);
+        List<LocationRefDTO> results = toLocationRefDTOList(nearestLocations);
 
         return Response.ok(results).build();
     }
@@ -193,13 +193,13 @@ public class JourneyLocationsResource extends UsesRecentCookie implements APIRes
 
         Set<Location<?>> recent = recentJourneysToLocations.from(recentJourneys, modes);
 
-        List<LocationRefDTO> results = toStationRefDTOList(recent);
+        List<LocationRefDTO> results = toLocationRefDTOList(recent);
 
         return Response.ok(results).build();
     }
 
     @NotNull
-    private List<LocationRefDTO> toStationRefDTOList(Collection<? extends Location<?>> stations) {
+    private List<LocationRefDTO> toLocationRefDTOList(Collection<? extends Location<?>> stations) {
         return stations.stream().
                 map(DTOFactory::createLocationRefDTO).
                 // sort server side is here as an optimisation for front end sorting time
