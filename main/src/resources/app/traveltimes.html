@@ -14,22 +14,39 @@
         <v-app>
             <v-main>
                 <v-container id="startAndEnd" class="ml-2">
-                    <v-row >
-                        <v-col>
-                            <select :id="destination" v-model="destination" required>
-                                <option :value="null" selected>Please select destination</option>
-                                <option class="stop" v-for="stop in allStops" :value="stop" 
-                                    :key="stop.id">{{stop.name}}</option>
-                            </select>
-                        </v-col>
-                        <v-col>
-                            <label for="maxChanges">max changes:</label>
-                            <input type="number" name="max changes" min="1" max="8" id="maxChanges" v-model="maxChanges"> 
-                        </v-col>
-                        <v-col>
-                            <v-btn id="drawButton" color="primary" @click="compute">Compute</v-btn>
-                        </v-col>
-                    </v-row>
+                    <form @submit="compute">
+                        <v-row >
+                            <v-col class="pl-0 col-md-auto">
+                                <select :id="destination" v-model="destination" required>
+                                    <option :value="null" selected>Please select destination</option>
+                                    <option class="stop" v-for="stop in allStops" :value="stop" 
+                                        :key="stop.id">{{stop.name}}</option>
+                                </select>
+                            </v-col>
+                            <v-col class="pl-0 col-md-auto">     
+                                <input type="time" id="time" v-model="time"/>
+                            </v-col>
+                            <v-col class="pl-0 col-md-auto">
+                                <label for="maxChanges">changes:</label>
+                                <input type="number" name="max changes" min="0" max="5" 
+                                    id="maxChanges" v-model="maxChanges" size="4"> 
+                            </v-col>
+                            <v-col class="pl-0 col-md-auto">
+                                <label for="maxDuration">duration:</label>
+                                <input type="number" name="max duration" min="15" max="120" 
+                                    id="maxDuration" v-model="maxDuration" size="4"> 
+                            </v-col>
+                            <v-col class="pl-0 col-md-auto">
+                                <input type="date" id="date" v-model="date"/>
+                            </v-col>
+                            <v-col class="pl-0 col-md-auto">
+                                <v-btn id="todayButton" small color="secondary" @click="dateToNow()">Today</v-btn>
+                            </v-col>
+                            <v-col class="pl-0 col-md-auto">
+                                <v-btn id="drawButton" small color="primary"  type="submit">Compute</v-btn>
+                            </v-col>
+                        </v-row>
+                    </form>
                 </v-container>
                 <div id="leafletMap"></div>
             </v-main>

@@ -27,7 +27,7 @@ import Routes from './components/Routes';
 
 function getCurrentDate() {
     const now = new Date().toISOString();
-    return now.substr(0,  now.indexOf("T")); // iso-8601 date part only as YYYY-MM-DD
+    return now.substring(0,  now.indexOf("T")); // iso-8601 date part only as YYYY-MM-DD
 }
 
 function boxClicked(event) {
@@ -40,7 +40,6 @@ function boxClicked(event) {
     })
     var line = L.polyline( steps, { color: 'red' });
     mapApp.journeyLayer.addLayer(line);
-    mapApp.journeyLayer.addTo(mapApp.map);
 }
 
 function addBoxWithCost(boxWithCost) {
@@ -74,9 +73,10 @@ function getColourForCost(boxWithCost) {
     return '#00'+greenString+'00';
 }
 
-function queryForGrid(gridSize, destinationType, stationId, departureTime, departureDate, maxChanges, maxDuration) {
+function queryForGrid(gridSize, destinationType, stationId, time, date, maxChanges, maxDuration) {
     var query = {
-            destType: destinationType, destId: stationId, gridSize: gridSize, departureTime: departureTime, departureDate: departureDate, 
+            destType: destinationType, destId: stationId, gridSize: gridSize, departureTime: time, 
+            departureDate: date, 
             maxChanges: maxChanges, 
             maxDuration: maxDuration}
 
@@ -141,12 +141,15 @@ async function getStationsFromServer(app) {
     allStops: [],
     map: null,
     grid: null,
+    date: getCurrentDate(),
     destination: null,
     journeyLayer: null,
     costsLayer: null,
     networkError: false,
     routes: [],
     maxChanges: 2,
+    maxDuration: 60,
+    time: "09:30",
     feedinfo: []
  }
 
@@ -165,14 +168,25 @@ var mapApp = new Vue({
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(mapApp.map);
-            mapApp.journeyLayer = L.featureGroup();
             mapApp.costsLayer = L.featureGroup();
             mapApp.costsLayer.addTo(mapApp.map);
+            mapApp.journeyLayer = L.featureGroup();
+            mapApp.journeyLayer.addTo(mapApp.map);
         },
-        compute() {
+        compute(event) {
+            if (event!=null) {
+                event.preventDefault(); // stop page reload on form submission
+            }
             mapApp.costsLayer.clearLayers();
-            queryForGrid(1000, mapApp.destination.locationType, mapApp.destination.id , "07:30", getCurrentDate(), 
-                mapApp.maxChanges, "60");
+            mapApp.journeyLayer.clearLayers();
+            this.$nextTick(function () {
+                queryForGrid(1000, mapApp.destination.locationType, mapApp.destination.id , mapApp.time, 
+                    mapApp.date, 
+                    mapApp.maxChanges, mapApp.maxDuration);
+            });
+        },
+        dateToNow() {
+            mapApp.date = getCurrentDate();
         }
     },
     mounted () {
