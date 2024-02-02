@@ -11,11 +11,9 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.facade.MutableGraphTransaction;
-import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.StationClosuresForTest;
 import com.tramchester.integration.testSupport.tram.IntegrationTramClosedStationsTestConfig;
-import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.jetbrains.annotations.NotNull;
@@ -70,8 +68,7 @@ class RouteCalculatorCloseStationsTest {
     @BeforeEach
     void beforeEachTestRuns() {
         txn = database.beginTxMutable(TXN_TIMEOUT, TimeUnit.SECONDS);
-        StationRepository stationRepository = componentContainer.get(StationRepository.class);
-        calculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
+        calculator = new RouteCalculatorTestFacade(componentContainer, txn);
     }
 
     @AfterEach

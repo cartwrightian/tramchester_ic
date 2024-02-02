@@ -214,7 +214,7 @@ public class TestEnv {
     }
 
     public static BoundingBox getTFGMBusBounds() {
-        return new BoundingBox(333200, 373250, 414500, 437850);
+        return new BoundingBox(333200, 373130, 414500, 437850);
     }
 
     public static BoundingBox getTrainBounds() {
@@ -289,7 +289,6 @@ public class TestEnv {
     }
 
     public static Platform createPlatformFor(Station station, String platformNumber) {
-        //PlatformId platformId = new PlatformId(station.getId(), platformNumber);
         PlatformId platformId = PlatformId.createId(station.getId(), platformNumber);
         return MutablePlatform.buildForTFGMTram(platformId, station, station.getLatLong(),
                 station.getDataSourceID(), station.getLocalityId());

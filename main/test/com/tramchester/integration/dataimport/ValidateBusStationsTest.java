@@ -2,8 +2,11 @@ package com.tramchester.integration.dataimport;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.geo.BoundingBox;
+import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
@@ -17,20 +20,24 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-import static com.tramchester.testSupport.reference.KnownLocality.GreaterManchester;
 import static org.junit.jupiter.api.Assertions.*;
 
 @BusTest
-class ValidateBusTestStations {
+class ValidateBusStationsTest {
 
     private static ComponentContainer componentContainer;
+    private static TramchesterConfig config;
 
     private StationRepository stationRepository;
+    private StationGroupsRepository stationGroupRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new ComponentsBuilder().create(new IntegrationBusTestConfig(), TestEnv.NoopRegisterMetrics());
+        config = new IntegrationBusTestConfig();
+        componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
 
@@ -42,6 +49,7 @@ class ValidateBusTestStations {
     @BeforeEach
     void beforeEachTestRuns() {
         stationRepository = componentContainer.get(StationRepository.class);
+        stationGroupRepository = componentContainer.get(StationGroupsRepository.class);
     }
 
     @Test
@@ -49,6 +57,8 @@ class ValidateBusTestStations {
         List<BusStations> testStations = Arrays.asList(BusStations.values());
 
         testStations.forEach(enumValue -> {
+            assertTrue(stationRepository.hasStationId(enumValue.getId()), enumValue + " is missing from repo");
+
             Station testStation = enumValue.fake();
             Station realStation = enumValue.from(stationRepository);
 
@@ -65,19 +75,43 @@ class ValidateBusTestStations {
             assertFalse(realStation.getDropoffRoutes().isEmpty(), "no drop offs " + realStation.getName());
             assertFalse(realStation.getPickupRoutes().isEmpty(), "no pick ups " + realStation.getName());
         });
-
     }
 
     @Test
-    void shouldHaveCorrectTestCompositeStations() {
+    void shouldHaveStationInBoundsLatLong() {
+        BoundingBox bounds = config.getBounds();
 
-        StationGroupsRepository stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
+        Set<BusStations> outOfBounds = Arrays.stream(BusStations.values()).
+                filter(station -> !bounds.contained(station.getLatLong())).
+                collect(Collectors.toSet());
 
-        GreaterManchester.forEach(knowLocality -> {
-            StationGroup group = knowLocality.from(stationGroupsRepository);
-            assertNotNull(group, "no central stations found for " + group);
-            assertTrue(group.getAllContained().size()>1, "not enough stations for " + group);
-        });
-
+        assertTrue(outOfBounds.isEmpty(), "had stations out of bounds " + outOfBounds + " for box " + bounds + " co-ords " + displayCoord(outOfBounds));
     }
+
+    private String displayCoord(Set<BusStations> outOfBounds) {
+        StringBuilder result = new StringBuilder();
+        for (BusStations station : outOfBounds) {
+            if (!result.isEmpty()) {
+                result.append(" ,");
+            }
+            LatLong latLong = station.getLatLong();
+            result.append(latLong);
+            result.append(" ").append(CoordinateTransforms.getGridPosition(latLong));
+        }
+        return result.toString();
+    }
+
+    @Test
+    void shouldHaveCorrespondingLocalityLoadedForTestStops() {
+        // only checks for those loaded, see above test for catching missing ones
+        Set<Station> missingALocality = Arrays.stream(BusStations.values()).
+                filter(station -> stationRepository.hasStationId(station.getId())).
+                map(station -> station.from(stationRepository)).
+                filter(station -> !stationGroupRepository.hasArea(station.getLocalityId())).
+                collect(Collectors.toSet());
+
+        assertTrue(missingALocality.isEmpty(), missingALocality.toString());
+    }
+
+
 }

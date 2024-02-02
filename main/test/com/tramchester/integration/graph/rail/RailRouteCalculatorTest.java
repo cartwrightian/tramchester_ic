@@ -14,7 +14,6 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.facade.MutableGraphTransaction;
-import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
@@ -77,7 +76,7 @@ public class RailRouteCalculatorTest {
     @BeforeEach
     void beforeEachTestRuns() {
         txn = database.beginTxMutable(TXN_TIMEOUT, TimeUnit.SECONDS);
-        testFacade = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
+        testFacade = new RouteCalculatorTestFacade(componentContainer, txn);
 
         stockport = Stockport.from(stationRepository);
         manchesterPiccadilly = stationRepository.getStationById(ManchesterPiccadilly.getId());

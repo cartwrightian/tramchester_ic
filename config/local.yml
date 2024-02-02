@@ -61,7 +61,7 @@ cacheFolder: data/cache
 calcTimeoutMillis: 3500
 bounds:
   minEastings: 333200
-  minNorthings: 373250
+  minNorthings: 373130
   maxEasting: 414500
   maxNorthings: 437850
 tfgmTramliveData:

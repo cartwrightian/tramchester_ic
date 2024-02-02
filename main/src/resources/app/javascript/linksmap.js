@@ -31,6 +31,16 @@ function getColourFor(station) {
     }
 }
 
+function display(boundary) {
+    const bottomLeft = boundary.bottomLeft;
+    const topRight = boundary.topRight;
+    const prec = 8;
+    return "<br>[("
+        +bottomLeft.lat.toFixed(prec)+","+bottomLeft.lon.toFixed(prec)+"),("
+        +topRight.lat.toFixed(prec)+","+topRight.lon.toFixed(prec)
+        +")]";
+}
+
 function addStationToMap(station, stationLayerGroup, isInterchange) {
     const lat = station.latLong.lat;
     const lon = station.latLong.lon;
@@ -57,14 +67,14 @@ function addStationToMap(station, stationLayerGroup, isInterchange) {
     stationLayerGroup.addLayer(marker);
 }
 
-function addPlatformsToMap(platform, stationLayerGroup) {
-    const lat = platform.latLong.lat;
-    const lon = platform.latLong.lon;
+// function addPlatformsToMap(platform, stationLayerGroup) {
+//     const lat = platform.latLong.lat;
+//     const lon = platform.latLong.lon;
 
-    var marker = new L.circleMarker(L.latLng(lat, lon), { title: platform.name, radius: 1, color: "black" });
-    marker.bindTooltip("Platform " +platform.id+ "<br>Name " + platform.name);
-    stationLayerGroup.addLayer(marker);
-}
+//     var marker = new L.circleMarker(L.latLng(lat, lon), { title: platform.name, radius: 1, color: "black" });
+//     marker.bindTooltip("Platform " +platform.id+ "<br>Name " + platform.name);
+//     stationLayerGroup.addLayer(marker);
+// }
 
 function createPolyForArea(area, colour) {
     const boundary = area.points;
@@ -112,7 +122,7 @@ var mapApp = new Vue({
             areas.forEach(area => {
                 var polygon = createPolyForArea(area, "purple");
                 const areaId = area.areaId;
-                polygon.bindTooltip("area " + areaId + "<br> " + area.areaName); // + "<br>" + area.type);
+                polygon.bindTooltip("area " + areaId + "<br> " + area.areaName, { sticky: true}); // + "<br>" + area.type);
                 areaLayerGroup.addLayer(polygon);
             })
 
@@ -120,41 +130,43 @@ var mapApp = new Vue({
         },
         addStationsBoundary: function(map, area) {
             var polygon = createPolyForArea(area, "red");
-            //polygon.bindTooltip("area " + areaId + "<br> " + area.areaName + "<br>" + area.type);
+            polygon.bindTooltip("loaded stations boundary", { sticky: true});
             polygon.addTo(map);
         },
         addGroups: function(map, groups) {
-            var groupLayer = L.layerGroup();
+            const groupLayer = L.layerGroup();
             groups.forEach(group => {
-                var steps = [];
+                const steps = [];
                 group.contained.forEach(station => {
                     steps.push([station.latLong.lat, station.latLong.lon]);
                 })
-                var first = group.contained[0];
+                const first = group.contained[0];
                 steps.push([first.latLong.lat, first.latLong.lon]);
-                var shape = L.polygon(steps);
+                const shape = L.polygon(steps);
                 shape.setStyle({color: "pink", opacity: 0.7, fill: true, fillOpacity: 0.5});
                 groupLayer.addLayer(shape);
             })
             groupLayer.addTo(map);
         },
         addQuadrants: function(map, quadrants) {
-            var quadrantLayer = L.layerGroup();
+            const quadrantLayer = L.layerGroup();
             quadrants.forEach(quadrant => {
-                var bottomLeft = quadrant.bottomLeft;
-                var topRight = quadrant.topRight;
-                var bounds = [ [bottomLeft.lat, bottomLeft.lon], [topRight.lat, topRight.lon] ];
-                var box = L.rectangle(bounds, { color: "black", stroke: false });
+                const bottomLeft = quadrant.bottomLeft;
+                const topRight = quadrant.topRight;
+                const bounds = [ [bottomLeft.lat, bottomLeft.lon], [topRight.lat, topRight.lon] ];
+                const box = L.rectangle(bounds, { color: "black", stroke: false });
+                box.bindTooltip("quadrant" + display(quadrant));
                 quadrantLayer.addLayer(box);
             });
             quadrantLayer.addTo(map);
         },
         addBounds: function(map, bounds) {
-            var boundsLayer = L.layerGroup();
-            var bottomLeft = bounds.bottomLeft;
-            var topRight = bounds.topRight;
-            var bounds = [ [bottomLeft.lat, bottomLeft.lon], [topRight.lat, topRight.lon] ];
-            var box = L.rectangle(bounds, { color: "blue", stroke: true, weight: 1, fill: false });
+            const boundsLayer = L.layerGroup();
+            const bottomLeft = bounds.bottomLeft;
+            const topRight = bounds.topRight;
+            const boundsForRect = [ [bottomLeft.lat, bottomLeft.lon], [topRight.lat, topRight.lon] ];
+            const box = L.rectangle(boundsForRect, { color: "blue", stroke: true, weight: 1, fill: false });
+            box.bindTooltip("config bounds " + display(bounds), { sticky: true});
             boundsLayer.addLayer(box);
             boundsLayer.addTo(map);
         },
@@ -167,10 +179,12 @@ var mapApp = new Vue({
                 steps.push([link.end.latLong.lat, link.end.latLong.lon]);
                 var line = L.polyline(steps); // hurts performance .arrowheads({ size: '5px', frequency: 'endonly' });
                 if (link.linkType==="Linked") {
-                    line.bindTooltip("Link " + link.begin.id + " and " + link.end.id + "<br> " + link.transportModes);
+                    line.bindTooltip("Link " + link.begin.id + " and " + link.end.id + "<br> " + link.transportModes, 
+                        { sticky: true});
                     line.setStyle({color: "blue", opacity: 0.3});
                 } else if (link.linkType==="Neighbours") {
-                    line.bindTooltip("Neighbours " + link.begin.id + " and " + link.end.id + "<br> " + link.transportModes);
+                    line.bindTooltip("Neighbours " + link.begin.id + " and " + link.end.id + "<br> " + link.transportModes, 
+                        { sticky: true});
                     line.setStyle({color: "yellow", opacity: 0.6});
                 }
                 linkLayerGroup.addLayer(line);

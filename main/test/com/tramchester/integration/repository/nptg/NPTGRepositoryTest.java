@@ -72,7 +72,7 @@ public class NPTGRepositoryTest {
     @Test
     void shouldNotHaveWestminsterAsOutOfBounds() {
 
-        IdFor<NPTGLocality> id = KnownLocality.LondonWestminster.getId();
+        IdFor<NPTGLocality> id = KnownLocality.LondonWestminster.getAreaId();
 
         assertFalse(repository.hasLocaility(id));
     }

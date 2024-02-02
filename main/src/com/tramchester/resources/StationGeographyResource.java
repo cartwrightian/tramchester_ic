@@ -185,9 +185,9 @@ public class StationGeographyResource implements APIResource, GraphDatabaseDepen
     public Response getBounds() {
         logger.info("Get bounds");
 
-        BoxDTO quadrantDTOs = new BoxDTO(config.getBounds());
+        final BoxDTO bounds = new BoxDTO(config.getBounds());
 
-        return Response.ok(quadrantDTOs).build();
+        return Response.ok(bounds).build();
 
     }
 

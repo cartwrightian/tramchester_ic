@@ -7,7 +7,6 @@ import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.LocationType;
-import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
@@ -126,10 +125,10 @@ class JourneyLocationsResourceBusTest {
         List<LocationRefDTO> locationList = result.readEntity(new GenericType<>() {});
 
         assertEquals(2,locationList.size());
-        IdSet<NPTGLocality> ids = locationList.stream().
+        IdSet<StationGroup> ids = locationList.stream().
                 map(LocationRefDTO::getId).
                 map(IdForDTO::getActualId).
-                map(NPTGLocality::createId).
+                map(StationGroup::createId).
                 collect(IdSet.idCollector());
 
         assertTrue(ids.contains(KnownLocality.ManchesterCityCentre.getId()), locationList.toString());
@@ -139,7 +138,8 @@ class JourneyLocationsResourceBusTest {
 
     @Test
     void shouldSurfaceCorrectRecentStationsWhenHaveMixInCookie() throws JsonProcessingException {
-        Stream<StationGroup> groups = Stream.of(KnownLocality.Altrincham, KnownLocality.Shudehill, KnownLocality.Stockport).map(locality -> locality.from(stationGroupsRepository));
+        Stream<StationGroup> groups = Stream.of(KnownLocality.Altrincham, KnownLocality.Shudehill,
+                KnownLocality.Stockport).map(locality -> locality.from(stationGroupsRepository));
 
         // fake as tram stations not loaded into repository
         Stream<Station> stations = Stream.of(TramStations.Bury.fake(), TramStations.Victoria.fake());
@@ -153,10 +153,10 @@ class JourneyLocationsResourceBusTest {
 
         assertEquals(3, locationDTOs.size());
 
-        IdSet<NPTGLocality> ids = locationDTOs.stream().
+        IdSet<StationGroup> ids = locationDTOs.stream().
                 map(LocationRefDTO::getId).
                 map(IdForDTO::getActualId).
-                map(NPTGLocality::createId).
+                map(StationGroup::createId).
                 collect(IdSet.idCollector());
 
         assertTrue(ids.contains(KnownLocality.Altrincham.getId()));
@@ -179,19 +179,15 @@ class JourneyLocationsResourceBusTest {
 
         assertEquals(3, locationDTOs.size());
 
-        IdSet<NPTGLocality> ids = locationDTOs.stream().
+        IdSet<StationGroup> ids = locationDTOs.stream().
                 map(LocationRefDTO::getId).
                 map(IdForDTO::getActualId).
-                map(NPTGLocality::createId).
+                map(StationGroup::createId).
                 collect(IdSet.idCollector());
 
         assertTrue(ids.contains(KnownLocality.Altrincham.getId()));
         assertTrue(ids.contains(KnownLocality.Shudehill.getId()));
         assertTrue(ids.contains(KnownLocality.Stockport.getId()));
-    }
-
-    Stream<StationGroup> getGroups(KnownLocality... localities) {
-        return Arrays.stream(localities).map(locality -> locality.from(stationGroupsRepository));
     }
 
 }

@@ -56,7 +56,7 @@ class RouteCalculatorKeyRoutesBusTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        combinations = new RouteCalculationCombinations<>(componentContainer);
+        combinations = new RouteCalculationCombinations<>(componentContainer, RouteCalculationCombinations.checkStationOpen(componentContainer) );
         TramTime time = TramTime.of(8, 0);
         int numberChanges = 3;
         journeyRequest = new JourneyRequest(when, time, false, numberChanges,

@@ -17,7 +17,6 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
-import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
 import com.tramchester.integration.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
@@ -104,8 +103,8 @@ class RouteCalculatorSubGraphMediaCityTest {
         maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
         stationRepository = componentContainer.get(StationRepository.class);
         txn = database.beginTxMutable();
-        combinations = new RouteCalculationCombinations<>(componentContainer);
-        calculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
+        combinations = new RouteCalculationCombinations<>(componentContainer, RouteCalculationCombinations.checkStationOpen(componentContainer) );
+        calculator = new RouteCalculatorTestFacade(componentContainer, txn);
         closedStationRepository = componentContainer.get(ClosedStationsRepository.class);
 
         // no journeys 16/4/2023 but nothing on website to explain why.....

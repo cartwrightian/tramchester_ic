@@ -26,22 +26,24 @@ public class StopDataLoader {
         this.config = config;
     }
 
-    public PreloadedStationsAndPlatforms load(Stream<StopData> stops) {
+    public PreloadedStationsAndPlatforms load(final Stream<StopData> stops) {
         logger.info("Loading stops within bounds");
         BoundingBox bounds = config.getBounds();
 
         final PreloadedStationsAndPlatforms allStations = new PreloadedStationsAndPlatforms(factory);
 
-        AtomicInteger excluded = new AtomicInteger(0);
+        final AtomicInteger excluded = new AtomicInteger(0);
         stops.forEach((stopData) -> {
-            LatLong latLong = stopData.getLatLong();
+            final LatLong latLong = stopData.getLatLong();
             if (latLong.isValid()) {
-                GridPosition position = getGridPosition(stopData.getLatLong());
+                final GridPosition position = getGridPosition(stopData.getLatLong());
                 if (bounds.contained(position)) {
                     preLoadStation(allStations, stopData, factory);
                 } else {
                     // Don't know which transport modes the station serves at this stage, so no way to filter further
-                    logger.debug("Excluding stop outside of bounds" + stopData);
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Excluding stop outside of bounds" + stopData);
+                    }
                     excluded.incrementAndGet();
                 }
             } else {
@@ -67,7 +69,7 @@ public class StopDataLoader {
         }
     }
 
-    private GridPosition getGridPosition(LatLong latLong) {
+    private GridPosition getGridPosition(final LatLong latLong) {
         return CoordinateTransforms.getGridPosition(latLong);
     }
 }

@@ -46,4 +46,5 @@ public interface Station extends Location<Station> {
     static IdFor<Station> createId(IdFor<NaptanRecord> naptanId) {
         return StringIdFor.convert(naptanId, Station.class);
     }
+
 }

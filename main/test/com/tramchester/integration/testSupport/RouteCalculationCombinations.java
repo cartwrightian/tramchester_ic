@@ -12,6 +12,7 @@ import com.tramchester.domain.id.LocationIdPairSet;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
@@ -23,7 +24,6 @@ import org.jetbrains.annotations.NotNull;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -37,17 +37,28 @@ public class RouteCalculationCombinations<T extends Location<T>> {
     private final StationRepository stationRepository;
     private final InterchangeRepository interchangeRepository;
     private final RouteEndRepository routeEndRepository;
-    private final ClosedStationsRepository closedStationsRepository;
+    private final ChecksOpen<T> checksOpen;
     private final LocationRepository locationRepository;
 
-    public RouteCalculationCombinations(ComponentContainer componentContainer) {
+    public RouteCalculationCombinations(ComponentContainer componentContainer, ChecksOpen<T> checksOpen) {
         this.database = componentContainer.get(GraphDatabase.class);
         this.calculator = componentContainer.get(RouteCalculator.class);
         this.stationRepository = componentContainer.get(StationRepository.class);
         this.locationRepository = componentContainer.get(LocationRepository.class);
         this.interchangeRepository = componentContainer.get(InterchangeRepository.class);
         routeEndRepository = componentContainer.get(RouteEndRepository.class);
-        closedStationsRepository = componentContainer.get(ClosedStationsRepository.class);
+        this.checksOpen = checksOpen;
+    }
+
+    public static ChecksOpen<Station> checkStationOpen(ComponentContainer componentContainer) {
+        final ClosedStationsRepository closedStationRepository = componentContainer.get(ClosedStationsRepository.class);
+        return (stationId, date) -> !closedStationRepository.isClosed(stationId, date);
+    }
+
+    public static ChecksOpen<StationGroup> checkGroupOpen(ComponentContainer componentContainer) {
+        final ClosedStationsRepository closedStationRepository = componentContainer.get(ClosedStationsRepository.class);
+        final StationGroupsRepository stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
+        return (stationGroupId, date) -> !closedStationRepository.isGroupClosed(stationGroupsRepository.getStationGroup(stationGroupId), date);
     }
 
     public Optional<Journey> findJourneys(MutableGraphTransaction txn, IdFor<T> start, IdFor<T> dest, JourneyRequest journeyRequest) {
@@ -80,6 +91,11 @@ public class RouteCalculationCombinations<T extends Location<T>> {
         return results;
     }
 
+    private boolean bothOpen(LocationIdPair<T> locationIdPair, JourneyRequest journeyRequest) {
+        return checksOpen.isOpen(locationIdPair.getBeginId(), journeyRequest.getDate()) &&
+                checksOpen.isOpen(locationIdPair.getEndId(), journeyRequest.getDate());
+    }
+
     public CombinationResults<T> getJourneysFor(final LocationIdPairSet<T> stationIdPairs, JourneyRequest journeyRequest) {
         return validateAllHaveAtLeastOneJourney(stationIdPairs, journeyRequest, false);
     }
@@ -104,18 +120,6 @@ public class RouteCalculationCombinations<T extends Location<T>> {
                     }
                 });
         return new CombinationResults<>(resultsStream);
-    }
-
-    private boolean bothOpen(final LocationIdPair<T> stationIdPair, final JourneyRequest request) {
-        // TODO Revisit this
-        final TramDate date = request.getDate();
-        return closedStationsRepository.bothOpen(stationIdPair, date);
-//        if (closedStationsRepository.hasClosuresOn(date)) {
-//            return ! (closedStationsRepository.isClosed(stationIdPair.getBeginId(), date) ||
-//                    closedStationsRepository.isClosed(stationIdPair.getEndId(), date));
-//        }
-//        return true;
-
     }
 
     public String displayFailed(List<JourneyOrNot<T>> pairs) {
@@ -219,10 +223,6 @@ public class RouteCalculationCombinations<T extends Location<T>> {
     public static class CombinationResults<T extends Location<T>> {
         private final List<JourneyOrNot<T>> theResults;
 
-//        public CombinationResults(Stream<Pair<StationIdPair, JourneyOrNot>> resultsStream) {
-//            theResults = resultsStream.map(Pair::getRight).collect(Collectors.toList());
-//        }
-
         public CombinationResults(Stream<JourneyOrNot<T>> resultsStream) {
             theResults = resultsStream.collect(Collectors.toList());
         }
@@ -251,5 +251,9 @@ public class RouteCalculationCombinations<T extends Location<T>> {
                     collect(Collectors.toList());
         }
 
+    }
+
+    public static interface ChecksOpen<T extends Location<T>> {
+        boolean isOpen(IdFor<T> beginId, TramDate date);
     }
 }

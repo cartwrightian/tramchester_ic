@@ -8,8 +8,10 @@ public class BoxDTO {
     private LatLong bottomLeft;
     private LatLong topRight;
 
-    public BoxDTO(BoundingBox box) {
+    public BoxDTO(final BoundingBox box) {
         this(CoordinateTransforms.getLatLong(box.getBottomLeft()), CoordinateTransforms.getLatLong(box.getTopRight()));
+
+        //this(CoordinateTransforms.getOSM(box.getBottomLeft()), CoordinateTransforms.getOSM(box.getTopRight()));
     }
 
     public BoxDTO(LatLong bottomLeft, LatLong topRight) {

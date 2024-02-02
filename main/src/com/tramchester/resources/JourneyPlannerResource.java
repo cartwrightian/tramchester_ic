@@ -103,7 +103,7 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         try(final MutableGraphTransaction tx = graphDatabase.beginTxMutable() ) {
 
             final TramDate queryTramDate = query.getTramDate();
-            Stream<Journey> journeyStream = getJourneys(tx, queryTramDate, query.getTime(),
+            final Stream<Journey> journeyStream = getJourneys(tx, queryTramDate, query.getTime(),
                     start, dest, query.isArriveBy(), query.getMaxChanges(), modes);
 
             Set<Journey> journeys = journeyStream.collect(Collectors.toSet());

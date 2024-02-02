@@ -2,12 +2,17 @@ package com.tramchester.repository;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.*;
+import com.tramchester.domain.ClosedStation;
+import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.Platform;
+import com.tramchester.domain.StationClosures;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.places.*;
+import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.StationGroup;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.filters.GraphFilter;
@@ -33,15 +38,17 @@ public class ClosedStationsRepository {
     private final StationRepository stationRepository;
     private final StationLocations stationLocations;
     private final GraphFilter filter;
+    private final LocationRepository locationRepository;
 
     @Inject
     public ClosedStationsRepository(TramchesterConfig config, StationRepository stationRepository, StationLocations stationLocations,
-                                    GraphFilter filter) {
+                                    GraphFilter filter, LocationRepository locationRepository) {
         this.config = config;
         this.stationRepository = stationRepository;
         this.stationLocations = stationLocations;
 
         this.filter = filter;
+        this.locationRepository = locationRepository;
         closed = new HashSet<>();
         hasAClosure = new IdSet<>();
     }
@@ -52,7 +59,7 @@ public class ClosedStationsRepository {
         config.getGTFSDataSource().forEach(source -> {
             Set<StationClosures> closures = new HashSet<>(source.getStationClosures());
             if (!closures.isEmpty()) {
-                captureClosedStations(closures);
+                captureClosedStationsFromConfig(closures);
             } else {
                 logger.info("No closures for " + source.getName());
             }
@@ -61,12 +68,12 @@ public class ClosedStationsRepository {
         logger.info("Started");
     }
 
-    private void captureClosedStations(Set<StationClosures> closures) {
+    private void captureClosedStationsFromConfig(final Set<StationClosures> closures) {
         final MarginInMeters range = MarginInMeters.of(config.getNearestStopForWalkingRangeKM());
 
         closures.forEach(closure -> {
-            DateRange dateRange = closure.getDateRange();
-            boolean fullyClosed = closure.isFullyClosed();
+            final DateRange dateRange = closure.getDateRange();
+            final boolean fullyClosed = closure.isFullyClosed();
             Set<ClosedStation> closedStations = closure.getStations().stream().
                     map(stationId -> createClosedStation(stationId, dateRange, fullyClosed, range)).
                     collect(Collectors.toSet());
@@ -124,21 +131,6 @@ public class ClosedStationsRepository {
                 collect(Collectors.toSet());
     }
 
-    public <T extends Location<T>> boolean bothOpen(LocationIdPair<T> locationPair, TramDate date) {
-        LocationType locationType = locationPair.getLocationType();
-
-        if (locationType!=LocationType.Station) {
-            throw new RuntimeException("Not defined yet");
-        }
-
-        // TODO LocationId
-        IdFor<Station> beginId = (IdFor<Station>) locationPair.getBeginId();
-        IdFor<Station> endId = (IdFor<Station>) locationPair.getEndId();
-
-        return (! ( isClosed(beginId,date) || isClosed(endId, date) ));
-
-    }
-
     public boolean isClosed(final Location<?> location, final TramDate date) {
         return switch (location.getLocationType()) {
             case Station -> isStationClosed((Station)location, date);
@@ -156,7 +148,7 @@ public class ClosedStationsRepository {
         return isClosed(station.getId(), date);
     }
 
-    private boolean isGroupClosed(final StationGroup group, final TramDate date) {
+    public boolean isGroupClosed(final StationGroup group, final TramDate date) {
         return group.getAllContained().stream().allMatch(station -> isClosed(station.getId(), date));
     }
 

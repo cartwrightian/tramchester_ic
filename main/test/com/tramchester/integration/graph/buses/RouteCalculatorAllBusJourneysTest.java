@@ -3,12 +3,16 @@ package com.tramchester.integration.graph.buses;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.LocationIdPair;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.places.Station;
+import com.tramchester.domain.id.LocationIdPairSet;
+import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
-import com.tramchester.repository.ClosedStationsRepository;
+import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.AfterAll;
@@ -16,10 +20,13 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.util.EnumSet;
+import java.util.List;
 
+import static com.tramchester.domain.reference.TransportMode.Bus;
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @BusTest
 class RouteCalculatorAllBusJourneysTest {
@@ -28,9 +35,9 @@ class RouteCalculatorAllBusJourneysTest {
     private static TramchesterConfig testConfig;
 
     private TramDate when;
-    private RouteCalculationCombinations<Station> combinations;
-    private ClosedStationsRepository closedRepository;
+    private RouteCalculationCombinations<StationGroup> combinations;
     private EnumSet<TransportMode> modes;
+    private StationGroupsRepository stationGroupRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -48,45 +55,34 @@ class RouteCalculatorAllBusJourneysTest {
     void beforeEachTestRuns() {
         when = TestEnv.testDay();
         modes = TramsOnly;
-        combinations = new RouteCalculationCombinations<>(componentContainer);
-        closedRepository = componentContainer.get(ClosedStationsRepository.class);
+        combinations = new RouteCalculationCombinations<>(componentContainer, RouteCalculationCombinations.checkGroupOpen(componentContainer));
+        stationGroupRepository = componentContainer.get(StationGroupsRepository.class);
     }
 
     @Test
-    void wip() {
-        fail("todo");
-    }
+    void shouldFindRouteEachStationToEveryOtherStream() {
 
-//    @Test
-//    void shouldFindRouteEachStationToEveryOtherStream() {
-//        TransportData data = componentContainer.get(TransportData.class);
-//
-//        final TramTime time = TramTime.of(8, 5);
-//        Set<Station> haveServices = data.getStationsServing(Tram).stream().
-//                filter(station -> !closedRepository.isClosed(station, when)).
-//                collect(Collectors.toSet());
-//
-//        int maxChanges = 2;
-//        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, maxChanges,
-//                Duration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, modes);
-//
-//        // pairs of stations to check
-//        Set<StationIdPair> stationIdPairs = haveServices.stream().flatMap(start -> haveServices.stream().
-//                filter(dest -> !combinations.betweenInterchanges(start, dest)).
-//                map(dest -> StationIdPair.of(start, dest))).
-//                filter(pair -> !pair.same()).
-//                // was here to avoid duplication....
-//                //filter(pair -> !combinations.betweenEndsOfRoute(pair)).
-//                collect(Collectors.toSet());
-//
-//        RouteCalculationCombinations.CombinationResults<Station> results = combinations.getJourneysFor(stationIdPairs, journeyRequest);
-//
-//        List<RouteCalculationCombinations.JourneyOrNot<Station>> failed = results.getFailed();
-//
-//        assertEquals(0L, failed.size(), format("For %s Failed some of %s (finished %s) combinations %s",
-//                    journeyRequest, results.size(), stationIdPairs.size(), combinations.displayFailed(failed)));
-//
-//    }
+        final TramTime time = TramTime.of(8, 5);
+
+        int maxChanges = 3;
+        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, maxChanges,
+                Duration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, modes);
+
+
+        LocationIdPairSet<StationGroup> stationGroupPairs = stationGroupRepository.getStationGroupsFor(Bus).stream().
+                flatMap(groupA -> stationGroupRepository.getStationGroupsFor(Bus).stream().
+                        map(groupB -> LocationIdPair.of(groupA, groupB))).
+                filter(pair -> !pair.same()).
+                collect(LocationIdPairSet.collector());
+
+        RouteCalculationCombinations.CombinationResults<StationGroup> results = combinations.getJourneysFor(stationGroupPairs, journeyRequest);
+
+        List<RouteCalculationCombinations.JourneyOrNot<StationGroup>> failed = results.getFailed();
+
+        assertEquals(0L, failed.size(), String.format("For %s Failed some of %s (finished %s) combinations %s",
+                    journeyRequest, results.size(), stationGroupPairs.size(), combinations.displayFailed(failed)));
+
+    }
 
 
 }

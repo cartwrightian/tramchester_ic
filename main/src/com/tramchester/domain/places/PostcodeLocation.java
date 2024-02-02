@@ -25,10 +25,6 @@ public class PostcodeLocation implements Location<PostcodeLocation>, CoreDomain,
     private LatLong latLong;
     private GridPosition gridPosition;
 
-    public PostcodeLocation(LatLong latLong, PostcodeLocationId id) {
-        this(id, latLong, CoordinateTransforms.getGridPosition(latLong));
-    }
-
     public PostcodeLocation(GridPosition gridPosition, PostcodeLocationId id) {
         this(id, CoordinateTransforms.getLatLong(gridPosition), gridPosition);
     }

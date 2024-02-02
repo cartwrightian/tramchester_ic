@@ -5,17 +5,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import com.tramchester.domain.presentation.LatLong;
-import org.geotools.geometry.GeneralDirectPosition;
+import org.geotools.api.geometry.Position;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.crs.CRSAuthorityFactory;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.operation.CoordinateOperation;
+import org.geotools.api.referencing.operation.TransformException;
+import org.geotools.geometry.Position2D;
 import org.geotools.referencing.ReferencingFactoryFinder;
 import org.geotools.referencing.operation.DefaultCoordinateOperationFactory;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.opengis.geometry.DirectPosition;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.CRSAuthorityFactory;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.CoordinateOperation;
-import org.opengis.referencing.operation.TransformException;
 
 import java.io.IOException;
 
@@ -79,10 +79,10 @@ class LatLongTest {
         int easting = 433931;
         int northing = 338207;
 
-        DirectPosition eastNorth = new GeneralDirectPosition(easting, northing);
+        Position eastNorth = new Position2D(easting, northing);
 
         CoordinateOperation operation = new DefaultCoordinateOperationFactory().createOperation(nationalGridRefSys, latLongRef);
-        DirectPosition latLong = operation.getMathTransform().transform(eastNorth, null);
+        Position latLong = operation.getMathTransform().transform(eastNorth, null);
 
         double expectedLat = 52.940190;
         double expectedLon = -1.4965572;
@@ -104,10 +104,10 @@ class LatLongTest {
         double lat = 52.940190;
         double lon = -1.4965572;
 
-        DirectPosition latLong = new GeneralDirectPosition(lat, lon);
+        Position latLong = new Position2D(lat, lon);
 
         CoordinateOperation operation = new DefaultCoordinateOperationFactory().createOperation(latLongRef, nationalGridRefSys);
-        DirectPosition nationalGrid = operation.getMathTransform().transform(latLong, null);
+        Position nationalGrid = operation.getMathTransform().transform(latLong, null);
 
         long expectedEasting = 433931;
         long expectedNorthing = 338207;

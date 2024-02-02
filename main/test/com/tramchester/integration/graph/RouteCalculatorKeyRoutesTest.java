@@ -66,7 +66,7 @@ class RouteCalculatorKeyRoutesTest {
         int maxChanges = 4;
         journeyRequest = new JourneyRequest(when, TramTime.of(8, 5), false, maxChanges,
                 maxJourneyDuration, 1, modes);
-        combinations = new RouteCalculationCombinations<>(componentContainer);
+        combinations = new RouteCalculationCombinations<>(componentContainer, RouteCalculationCombinations.checkStationOpen(componentContainer) );
     }
 
     @Test

@@ -13,11 +13,9 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.facade.MutableGraphTransaction;
-import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.StationGroupsRepository;
-import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.testTags.BusTest;
@@ -33,6 +31,7 @@ import java.util.concurrent.TimeUnit;
 import static com.tramchester.testSupport.TestEnv.Modes.BusesOnly;
 import static com.tramchester.testSupport.reference.BusStations.PiccadilyStationStopA;
 import static com.tramchester.testSupport.reference.BusStations.StopAtAltrinchamInterchange;
+import static com.tramchester.testSupport.reference.KnownLocality.MIN_CHANGES;
 import static org.junit.jupiter.api.Assertions.*;
 
 @BusTest
@@ -71,7 +70,6 @@ class BusRouteCalculatorTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        StationRepository stationRepository = componentContainer.get(StationRepository.class);
 
         maxJourneyDuration = Duration.ofMinutes(testConfig.getMaxJourneyDuration());
         stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
@@ -83,7 +81,7 @@ class BusRouteCalculatorTest {
         shudehillLocality = KnownLocality.Shudehill.from(stationGroupsRepository);
 
         txn = database.beginTxMutable(TXN_TIMEOUT, TimeUnit.SECONDS);
-        calculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
+        calculator = new RouteCalculatorTestFacade(componentContainer, txn);
     }
 
     @AfterEach
@@ -183,6 +181,36 @@ class BusRouteCalculatorTest {
     private long countNonConnectStages(Journey journey) {
         return journey.getStages().stream().
                 filter(stage -> stage.getMode().getTransportMode() != TransportMode.Connect).count();
+    }
+
+    @Test
+    void shouldHaveManchesterAirportToShudehill() {
+        TramTime time = TramTime.of(11, 30);
+        JourneyRequest request = new JourneyRequest(when, time, false, MIN_CHANGES,
+                Duration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, BusesOnly);
+
+        List<Journey> results = calculator.calculateRouteAsList(KnownLocality.ManchesterAirport, KnownLocality.Shudehill, request);
+        assertFalse(results.isEmpty());
+    }
+
+    @Test
+    void shouldHaveMacclesfieldToKnutsford() {
+        TramTime time = TramTime.of(11, 30);
+        JourneyRequest request = new JourneyRequest(when, time, false, MIN_CHANGES,
+                Duration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, BusesOnly);
+
+        List<Journey> results = calculator.calculateRouteAsList(KnownLocality.Macclesfield, KnownLocality.Knutsford, request);
+        assertFalse(results.isEmpty());
+    }
+
+    @Test
+    void shouldHaveMacclesfieldToShudehill() {
+        TramTime time = TramTime.of(11, 30);
+        JourneyRequest request = new JourneyRequest(when, time, false, MIN_CHANGES,
+                Duration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, BusesOnly);
+
+        List<Journey> results = calculator.calculateRouteAsList(KnownLocality.Macclesfield, KnownLocality.Shudehill, request);
+        assertFalse(results.isEmpty());
     }
 
     @Test

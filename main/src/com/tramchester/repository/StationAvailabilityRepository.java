@@ -23,6 +23,7 @@ import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
+
 @LazySingleton
 public class StationAvailabilityRepository {
     private static final Logger logger = LoggerFactory.getLogger(StationAvailabilityRepository.class);

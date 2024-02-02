@@ -5,10 +5,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.UpdateRecentJourneys;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.places.Location;
-import com.tramchester.domain.places.MyLocation;
-import com.tramchester.domain.places.NPTGLocality;
-import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.*;
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
 import com.tramchester.domain.presentation.DTO.factory.LocationDTOFactory;
@@ -161,9 +158,11 @@ public class JourneyLocationsResource extends UsesRecentCookie implements APIRes
 
         if (mode==TransportMode.Bus) {
             // convert to localities
-            IdSet<NPTGLocality> localityIds = stations.stream().
+            IdSet<StationGroup> localityIds = stations.stream().
                     map(Location::getLocalityId).
-                    filter(IdFor::isValid).collect(IdSet.idCollector());
+                    map(StationGroup::idFrom).
+                    filter(IdFor::isValid).
+                    collect(IdSet.idCollector());
             logger.info("Convert nearest stations to localities for " + mode);
             return localityIds.stream().map(stationGroupsRepository::getStationGroup).toList();
         } else {

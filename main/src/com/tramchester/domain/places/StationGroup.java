@@ -12,6 +12,7 @@ import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.graphbuild.GraphLabel;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.EnumSet;
@@ -19,8 +20,6 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-// TODO Should the ID here be NaptanArea Id not station ID?
 
 /***
  * Stations grouped together as in same nptg locality, use as starting or end point for a journey
@@ -39,12 +38,17 @@ public class StationGroup implements Location<StationGroup> {
         if (groupedStations.isEmpty()) {
             throw new RuntimeException("Attempt to create empty group for " + localityId + " name name " +name);
         }
-        this.id = StringIdFor.convert(localityId, StationGroup.class);
+        this.id = idFrom(localityId);
         this.latLong = computeLatLong(groupedStations);
         this.dataSourceId = computeDataSourceId(groupedStations);
         this.groupedStations = groupedStations;
         this.localityId = localityId;
         this.name = name;
+    }
+
+    @NotNull
+    public static IdFor<StationGroup> idFrom(IdFor<NPTGLocality> localityId) {
+        return StringIdFor.convert(localityId, StationGroup.class);
     }
 
     public static IdFor<StationGroup> createId(String text) {

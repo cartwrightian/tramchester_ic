@@ -26,6 +26,7 @@ import java.util.EnumSet;
 import static com.tramchester.testSupport.TestEnv.Modes.BusesOnly;
 import static com.tramchester.testSupport.reference.KnownLocality.Shudehill;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 @BusTest
@@ -37,7 +38,7 @@ public class BusRouteToRouteCostsTest {
     private StationRepository stationRepository;
     private StationGroupsRepository stationGroupsRepository;
     private TramDate date;
-    private TimeRange timeRange;
+    private TimeRange wholeDayRange;
     private EnumSet<TransportMode> modes;
 
     @BeforeAll
@@ -60,7 +61,7 @@ public class BusRouteToRouteCostsTest {
         stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
 
         date = TestEnv.testDay();
-        timeRange = TimeRange.of(TramTime.of(4,45), TramTime.of(23,55));
+        wholeDayRange = TimeRange.of(TramTime.of(4,45), TramTime.of(23,55));
         modes = BusesOnly;
     }
 
@@ -77,7 +78,7 @@ public class BusRouteToRouteCostsTest {
         StationGroup end = KnownLocality.Stockport.from(stationGroupsRepository);
 
         // one for the temp stockport bus station, was zero, seems direct alty buses terminating somewhere else
-        assertEquals(0, routeToRouteCosts.getNumberOfChanges(start, end, date, timeRange, modes).getMin());
+        assertEquals(0, routeToRouteCosts.getNumberOfChanges(start, end, date, wholeDayRange, modes).getMin());
     }
 
     @Test
@@ -85,7 +86,7 @@ public class BusRouteToRouteCostsTest {
         StationGroup start = KnownLocality.Altrincham.from(stationGroupsRepository);
         StationGroup end = Shudehill.from(stationGroupsRepository);
 
-        NumberOfChanges numberOfChanges = routeToRouteCosts.getNumberOfChanges(start, end, date, timeRange, modes);
+        NumberOfChanges numberOfChanges = routeToRouteCosts.getNumberOfChanges(start, end, date, wholeDayRange, modes);
         assertEquals(1, numberOfChanges.getMin());
         assertEquals(3, numberOfChanges.getMax());
     }
@@ -96,10 +97,38 @@ public class BusRouteToRouteCostsTest {
         StationGroup end = Shudehill.from(stationGroupsRepository);
 
         NumberOfChanges numberOfChanges = routeToRouteCosts.getNumberOfChanges(LocationSet.singleton(start),
-                LocationSet.of(end.getAllContained()), date, timeRange, modes);
+                LocationSet.of(end.getAllContained()), date, wholeDayRange, modes);
 
         assertEquals(2, numberOfChanges.getMin());
         assertEquals(3, numberOfChanges.getMax());
+    }
+
+    @Test
+    void shouldHaveValidResultForAltyToMacc() {
+        StationGroup start = KnownLocality.Altrincham.from(stationGroupsRepository);
+        StationGroup dest = KnownLocality.Macclesfield.from(stationGroupsRepository);
+
+        TimeRange range = TimeRange.of(TramTime.of(10,5), TramTime.of(14,53));
+        NumberOfChanges results = routeToRouteCosts.getNumberOfChanges(start, dest, TramDate.of(2024,1,29), range, modes);
+
+        assertEquals(0, results.getMin());
+        assertEquals(2, results.getMax());
+    }
+
+    @Test
+    void shouldHaveConnectionsBetweenKnowLocalities() {
+        EnumSet<KnownLocality> greaterManchester = KnownLocality.GreaterManchester;
+
+        for(KnownLocality begin : greaterManchester) {
+            for(KnownLocality end : greaterManchester) {
+                if (begin!=end) {
+                    NumberOfChanges results = routeToRouteCosts.getNumberOfChanges(begin.from(stationGroupsRepository),
+                            end.from(stationGroupsRepository), date, wholeDayRange, modes);
+                    assertTrue(results.getMin()<=KnownLocality.MIN_CHANGES, "failed for " + begin + " " + end);
+                    assertTrue(results.getMax()<=4, "failed for " + begin + " " + end);
+                }
+            }
+        }
     }
 
 }

@@ -30,11 +30,20 @@ public enum KnownLocality {
         this.localityId = localityId;
     }
 
-    public IdFor<NPTGLocality> getId() {
+    public IdFor<NPTGLocality> getAreaId() {
         return NPTGLocality.createId(localityId);
+    }
+
+    public IdFor<StationGroup> getId() {
+        return StationGroup.createId(localityId);
     }
 
     public StationGroup from(StationGroupsRepository stationGroupRepository) {
         return stationGroupRepository.getStationGroup(getId());
     }
+
+    /***
+     * See BusRouteToRouteCostsTest for verification, useful to record this as used on several tests
+     */
+    public static final int MIN_CHANGES = 2;
 }

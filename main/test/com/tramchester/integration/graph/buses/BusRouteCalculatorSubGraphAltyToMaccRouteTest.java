@@ -21,7 +21,6 @@ import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
-import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.*;
@@ -42,6 +41,7 @@ import java.util.stream.Collectors;
 import static com.tramchester.testSupport.TestEnv.Modes.BusesOnly;
 import static com.tramchester.testSupport.TestEnv.NoopRegisterMetrics;
 import static com.tramchester.testSupport.TestEnv.deleteDBIfPresent;
+import static com.tramchester.testSupport.reference.KnownLocality.MIN_CHANGES;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -50,7 +50,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRouteTest {
 
     private static ComponentContainer componentContainer;
     private static TramchesterConfig config;
-    private static Set<Route> altyToKnutsford;
+    private static Set<Route> altyToMacc;
 
     private RouteCalculatorTestFacade calculator;
 
@@ -59,6 +59,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRouteTest {
     private StationGroupsRepository stationGroupsRepository;
     private StationGroup altrinchamInterchange;
     private List<Station> knutfordStations;
+    private StationRepository stationRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
@@ -74,7 +75,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRouteTest {
     }
 
     private static void configureFilter(ConfigurableGraphFilter graphFilter, TransportData transportData) {
-        altyToKnutsford.forEach(route -> graphFilter.addRoute(route.getId()));
+        altyToMacc.forEach(route -> graphFilter.addRoute(route.getId()));
     }
 
     @AfterAll
@@ -88,23 +89,20 @@ class BusRouteCalculatorSubGraphAltyToMaccRouteTest {
         RouteRepository routeRepository = componentContainer.get(TransportData.class);
         AgencyRepository agencyRepository = componentContainer.get(AgencyRepository.class);
         IdFor<Agency> agencyId = agencyRepository.findByName("D&G Bus");
-        altyToKnutsford = routeRepository.findRoutesByName(agencyId,
+        altyToMacc = routeRepository.findRoutesByName(agencyId,
                 "Altrincham - Wilmslow - Knutsford - Macclesfield");
-        assertFalse(altyToKnutsford.isEmpty());
+        assertFalse(altyToMacc.isEmpty());
 
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
 
-        StationRepository stationRepository = componentContainer.get(StationRepository.class);
         stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
+        stationRepository = componentContainer.get(StationRepository.class);
 
         txn = database.beginTxMutable();
 
-        calculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
+        calculator = new RouteCalculatorTestFacade(componentContainer, txn);
 
         when = TestEnv.testDay();
-
-
-        altrinchamInterchange =  KnownLocality.Altrincham.from(stationGroupsRepository);
 
         StationLocations stationLocations = componentContainer.get(StationLocations.class);
 
@@ -118,6 +116,9 @@ class BusRouteCalculatorSubGraphAltyToMaccRouteTest {
                 stream().
                 filter(station -> station.getName().contains("Bus Station")).
                 collect(Collectors.toList());
+
+        altrinchamInterchange =  KnownLocality.Altrincham.from(stationGroupsRepository);
+
     }
 
     @AfterEach
@@ -134,7 +135,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRouteTest {
 
     @Test
     void shouldFindRoutesForTest() {
-        assertNotNull(altyToKnutsford);
+        assertNotNull(altyToMacc);
     }
 
     @Test
@@ -179,13 +180,37 @@ class BusRouteCalculatorSubGraphAltyToMaccRouteTest {
         assertFalse(results.isEmpty());
     }
 
+    @Test
+    void shouldHaveKnownGoodJourney() {
+        Station start = stationRepository.getStationById(Station.createId("0600MA6001")); // "The Towers" CHEPJWM
+        Station dest = stationRepository.getStationById(Station.createId("0600MA0175")); // "Grove Park" CHEMJDT
+
+        TramTime time = TramTime.of(12, 40);
+        JourneyRequest request = new JourneyRequest(when, time, false, MIN_CHANGES,
+                Duration.ofMinutes(config.getMaxJourneyDuration()), 1, BusesOnly);
+
+        List<Journey> results = calculator.calculateRouteAsList(start, dest, request);
+        assertFalse(results.isEmpty());
+    }
+
+    @Test
+    void shouldHaveMacclesfieldToKnutsford() {
+        TramTime time = TramTime.of(11, 30);
+        JourneyRequest request = new JourneyRequest(when, time, false, MIN_CHANGES,
+                Duration.ofMinutes(config.getMaxJourneyDuration()), 1, BusesOnly);
+
+        List<Journey> results = calculator.calculateRouteAsList(KnownLocality.Macclesfield, KnownLocality.Knutsford,
+                request);
+        assertFalse(results.isEmpty());
+    }
+
     @Disabled("WIP")
     @Test
     void shouldHaveSimpleRouteWithStationsAlongTheWay() {
 
         // TODO WIP
 
-        altyToKnutsford.forEach(route -> {
+        altyToMacc.forEach(route -> {
             //List<Station> stationsAlongRoute = routeCallingStations.getStationsFor(route);
             route.getTrips().forEach(trip -> {
                 StopCalls stopCalls = trip.getStopCalls();
@@ -216,7 +241,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRouteTest {
     void produceDiagramOfGraphSubset() throws IOException {
         DiagramCreator creator = componentContainer.get(DiagramCreator.class);
         // all station for both sets of routes
-        Set<Station> stations = altyToKnutsford.stream().
+        Set<Station> stations = altyToMacc.stream().
                 flatMap(route -> route.getTrips().stream()).
                 flatMap(trip -> trip.getStopCalls().getStationSequence(false).stream()).
                 collect(Collectors.toSet());

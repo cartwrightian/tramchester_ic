@@ -92,7 +92,7 @@ public class RouteInterconnectRepository extends ComponentThatCaches<RoutePairIn
     }
 
     private void createInterconnects(final RouteDateAndDayOverlap routeDateAndDayOverlap, final int currentDegree) {
-        final int totalSize = numRoutes * numRoutes;
+        final int totalPossible = numRoutes * numRoutes;
         if (currentDegree<1) {
             throw new RuntimeException("Only call for >1 , got " + currentDegree);
         }
@@ -126,7 +126,7 @@ public class RouteInterconnectRepository extends ComponentThatCaches<RoutePairIn
 
             final long took = Duration.between(startTime, Instant.now()).toMillis();
             final int added = routePairInterconnects.numberOfLinks();
-            final double percentage = ((double)added)/((double)totalSize) * 100D;
+            final double percentage = ((double)added)/((double)totalPossible) * 100D;
             logger.info(String.format("Added route interconnection pairs %s (%s %%) Degree %s in %s ms",
                     added, percentage, currentDegree, took));
 

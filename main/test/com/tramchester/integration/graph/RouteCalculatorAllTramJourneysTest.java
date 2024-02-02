@@ -61,7 +61,7 @@ class RouteCalculatorAllTramJourneysTest {
     void beforeEachTestRuns() {
         when = TestEnv.testDay();
         modes = TramsOnly;
-        combinations = new RouteCalculationCombinations<>(componentContainer);
+        combinations = new RouteCalculationCombinations<>(componentContainer, RouteCalculationCombinations.checkStationOpen(componentContainer) );
         closedRepository = componentContainer.get(ClosedStationsRepository.class);
     }
 

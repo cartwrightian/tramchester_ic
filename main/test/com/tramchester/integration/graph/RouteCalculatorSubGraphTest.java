@@ -12,7 +12,6 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
-import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
@@ -77,9 +76,8 @@ class RouteCalculatorSubGraphTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        StationRepository stationRepository = componentContainer.get(StationRepository.class);
         txn = database.beginTxMutable();
-        calculator = new RouteCalculatorTestFacade(componentContainer.get(RouteCalculator.class), stationRepository, txn);
+        calculator = new RouteCalculatorTestFacade(componentContainer, txn);
 
         tramTime = TramTime.of(8, 0);
         maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());

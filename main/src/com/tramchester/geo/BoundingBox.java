@@ -66,7 +66,7 @@ public class BoundingBox {
         return topRight.getNorthings();
     }
 
-    public boolean within(MarginInMeters marginInMeters, GridPosition position) {
+    public boolean within(final MarginInMeters marginInMeters, final GridPosition position) {
         if (!position.isValid()) {
             throw new RuntimeException("Invalid grid position " + position);
         }
@@ -86,7 +86,7 @@ public class BoundingBox {
         return contained(CoordinateTransforms.getGridPosition(destination));
     }
 
-    public boolean contained(GridPosition position) {
+    public boolean contained(final GridPosition position) {
         if (!position.isValid()) {
             throw new RuntimeException("Invalid grid position " + position);
         }

@@ -199,12 +199,12 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         StationAvailabilityFacade changeStationOperating = getAvailabilityFacade(availabilityRepository, date, timeRange, preferredModes);
 
         if (pickupRoutes.isEmpty()) {
-            logger.warn(format("start station %s has no matching pick-up routes for %s %s %s",
+            logger.warn(format("start location %s has no matching pick-up routes for %s %s %s",
                     startStation.getId(), date, timeRange, preferredModes));
             return NumberOfChanges.None();
         }
         if (dropoffRoutes.isEmpty()) {
-            logger.warn(format("destination station %s has no matching drop-off routes for %s %s %s",
+            logger.warn(format("destination location %s has no matching drop-off routes for %s %s %s",
                     destination.getId(), date, timeRange, preferredModes));
             return NumberOfChanges.None();
         }

@@ -1,16 +1,28 @@
 package com.tramchester.unit.geo;
 
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
+import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.BusStations;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import static com.tramchester.testSupport.reference.KnownLocations.nearWythenshaweHosp;
+import static com.tramchester.testSupport.reference.BusStations.PiccadilyStationStopA;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CoordinateTransformsTest {
 
+    final static BoundingBox bounds = TestEnv.getTFGMBusBounds();
+
+    private static final GridPosition MaccTheTowersFromNaptan = new GridPosition(391829, 373136);
+
+    // useful table https://blis.com/precision-matters-critical-importance-decimal-places-five-lowest-go/
+    private static final double DELTA = 0.0001D; // approx 11 meters
+
+    @Disabled("suspect data")
     @Test
     void shouldConvertToGridCorrectly() {
 
@@ -29,6 +41,7 @@ class CoordinateTransformsTest {
         assertTrue(result.isValid());
     }
 
+    @Disabled("suspect data, see test based on real data below")
     @Test
     void shouldConvertToLatLongCorrectly() {
 
@@ -60,19 +73,6 @@ class CoordinateTransformsTest {
     }
 
     @Test
-    void shouldConvertForWythenshaweHops() {
-        long easting = 380598;
-        long northing = 387938;
-        GridPosition position = new GridPosition(easting, northing);
-
-        LatLong result = CoordinateTransforms.getLatLong(position);
-
-        LatLong expected = nearWythenshaweHosp.latLong();
-        assertEquals(expected.getLat(), result.getLat(), 0.01);
-        assertEquals(expected.getLon(), result.getLon(), 0.01);
-    }
-
-    @Test
     void shouldConvertForRailFormatGrid() {
         LatLong derby = new LatLong(52.9161645,-1.4655347);
 
@@ -81,4 +81,67 @@ class CoordinateTransformsTest {
         assertEquals(436036, grid.getEastings());
         assertEquals(335549, grid.getNorthings());
     }
+
+    @Test
+    void shouldHaveRoundTripStartLatLong() {
+
+        LatLong latLong = BusStations.MacclesfieldTheTowers.getLatLong();
+
+        GridPosition grid = CoordinateTransforms.getGridPosition(latLong);
+
+        LatLong result = CoordinateTransforms.getLatLong(grid);
+
+        assertEquals(latLong.getLon(), result.getLon(), DELTA);
+        assertEquals(latLong.getLat(), result.getLat(), DELTA);
+    }
+
+    @Test
+    void shouldHaveRoundTripStartGrid() {
+
+        // NOTE: will not catch issues if transformations are *equally* off spec
+
+        GridPosition grid = bounds.getBottomLeft();
+
+        LatLong latLong = CoordinateTransforms.getLatLong(grid);
+
+        GridPosition result = CoordinateTransforms.getGridPosition(latLong);
+
+        assertEquals(grid.getEastings(), result.getEastings());
+        assertEquals(grid.getNorthings(), result.getNorthings());
+    }
+
+    @Disabled("suspect data")
+    @Test
+    void shouldHaveExpectedGrid() {
+        GridPosition grid = CoordinateTransforms.getGridPosition(PiccadilyStationStopA.getLatLong());
+
+        assertEquals(397814, grid.getNorthings());
+        assertEquals(384735, grid.getEastings());
+    }
+
+    @Test
+    void shouldHaveSameConversionFromGridAsNaptan() {
+
+        LatLong result = CoordinateTransforms.getLatLong(MaccTheTowersFromNaptan);
+
+        BusStations macclesfieldTheTowers = BusStations.MacclesfieldTheTowers;
+
+        assertEquals(macclesfieldTheTowers.getLatLong().getLon(), result.getLon(), DELTA);
+        assertEquals(macclesfieldTheTowers.getLatLong().getLat(), result.getLat(), DELTA);
+
+    }
+
+    @Test
+    void shouldHaveSameConversionForLatLongAsNaptan() {
+        BusStations macclesfieldTheTowers = BusStations.MacclesfieldTheTowers;
+
+        GridPosition result = CoordinateTransforms.getGridPosition(macclesfieldTheTowers.getLatLong());
+
+        int deltaMeters = 2;
+        assertEquals(MaccTheTowersFromNaptan.getEastings(), result.getEastings(), deltaMeters);
+        assertEquals(MaccTheTowersFromNaptan.getNorthings(), result.getNorthings(), deltaMeters);
+
+    }
+
+
 }

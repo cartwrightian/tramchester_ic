@@ -54,7 +54,7 @@ class RailRouteCalculatorCombinationTests {
     @BeforeEach
     void beforeEachTestRuns() {
         txn = database.beginTxMutable(TXN_TIMEOUT, TimeUnit.SECONDS);
-        combinations = new RouteCalculationCombinations<>(componentContainer);
+        combinations = new RouteCalculationCombinations<>(componentContainer, RouteCalculationCombinations.checkStationOpen(componentContainer) );
     }
 
     @AfterEach

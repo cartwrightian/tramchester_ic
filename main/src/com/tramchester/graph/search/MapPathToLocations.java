@@ -63,7 +63,7 @@ public class MapPathToLocations {
         if (labels.contains(GROUPED)) {
             //return getAreaIdFromGrouped(graphNode.getNode());
             IdFor<NPTGLocality> areaId = node.getAreaId();
-            final StationGroup stationGroup = stationGroupsRepository.getStationGroup(areaId);
+            final StationGroup stationGroup = stationGroupsRepository.getStationGroupForArea(areaId);
             if (stationGroup==null) {
                 throw new RuntimeException(format("Missing grouped station %s for %s labels %s props %s",
                         areaId, node.getId(), node.getLabels(), node.getAllProperties()));

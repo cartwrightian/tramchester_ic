@@ -40,7 +40,7 @@ public class StationGroupsRepository {
 
     private final boolean enabled;
 
-    private final Map<IdFor<NPTGLocality>, StationGroup> stationGroups;
+    private final Map<IdFor<StationGroup>, StationGroup> stationGroups;
     private final Map<String, StationGroup> stationGroupsByName;
 
     @Inject
@@ -93,7 +93,7 @@ public class StationGroupsRepository {
         logger.info("started");
     }
 
-    private void populateFor(GTFSSourceConfig dataSource, Set<TransportMode> enabledModes) {
+    private void populateFor(final GTFSSourceConfig dataSource, final Set<TransportMode> enabledModes) {
         if (graphFilter.isFiltered()) {
             logger.warn("Filtering is enabled");
         }
@@ -141,9 +141,9 @@ public class StationGroupsRepository {
             logger.error(format("Using %s as name, missing area code %s for station group %s", areaName, localityId, HasId.asIds(stationsToGroup)));
         }
 
-        StationGroup stationGroup = new StationGroup(stationsToGroup, localityId, areaName);
+        final StationGroup stationGroup = new StationGroup(stationsToGroup, localityId, areaName);
 
-        stationGroups.put(localityId, stationGroup);
+        stationGroups.put(stationGroup.getId(), stationGroup);
         stationGroupsByName.put(areaName, stationGroup);
     }
 
@@ -156,7 +156,7 @@ public class StationGroupsRepository {
         throw new RuntimeException(msg);
     }
 
-    public Set<StationGroup> getStationGroupsFor(TransportMode mode) {
+    public Set<StationGroup> getStationGroupsFor(final TransportMode mode) {
         guardIsEnabled();
         return stationGroups.values().stream().
                 filter(station -> station.getTransportModes().contains(mode)).
@@ -173,12 +173,16 @@ public class StationGroupsRepository {
         return new HashSet<>(stationGroups.values());
     }
 
-    public StationGroup getStationGroup(IdFor<NPTGLocality> areaId) {
+    public StationGroup getStationGroup(IdFor<StationGroup> stationGroupId) {
         guardIsEnabled();
-        return stationGroups.get(areaId);
+        return stationGroups.get(stationGroupId);
     }
 
-    public boolean hasGroup(IdFor<NPTGLocality> id) {
+    public StationGroup getStationGroupForArea(IdFor<NPTGLocality> areaId) {
+        return getStationGroup(StationGroup.idFrom(areaId));
+    }
+
+    public boolean hasGroup(final IdFor<StationGroup> id) {
         // no guard here as need to handle situation where Group is set in cookie but groups no longer enabled
         if (isEnabled()) {
             return stationGroups.containsKey(id);
@@ -188,9 +192,14 @@ public class StationGroupsRepository {
         }
     }
 
+    public boolean hasArea(final IdFor<NPTGLocality> areaId) {
+        return hasGroup(StationGroup.idFrom(areaId));
+    }
+
     public boolean isEnabled() {
         return enabled;
     }
+
 
 
 }

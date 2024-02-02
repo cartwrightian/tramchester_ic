@@ -1,4 +1,4 @@
-package com.tramchester.integration.graph.buses;
+package com.tramchester.integration.repository.buses;
 
 
 import com.tramchester.ComponentContainer;

@@ -7,6 +7,8 @@ import org.locationtech.jts.geom.Coordinate;
 
 import java.util.Objects;
 
+// TODO Stop passing this to front-end and use LatLongForOpenStreetMap
+
 @JsonIgnoreProperties(value = "valid", allowGetters = true)
 public class LatLong {
 

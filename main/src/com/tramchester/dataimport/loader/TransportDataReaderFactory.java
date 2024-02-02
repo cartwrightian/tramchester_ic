@@ -85,7 +85,7 @@ public class TransportDataReaderFactory {
         private final DownloadedConfig downloadConfig;
         private final GetsFileModTime getsFileModTime;
 
-        GetModTimeFor(DownloadedConfig downloadConfig, GetsFileModTime getsFileModTime) {
+        public GetModTimeFor(DownloadedConfig downloadConfig, GetsFileModTime getsFileModTime) {
             this.downloadConfig = downloadConfig;
             this.getsFileModTime = getsFileModTime;
         }

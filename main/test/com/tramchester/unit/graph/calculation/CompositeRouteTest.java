@@ -14,9 +14,8 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.InvalidDurationException;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.RouteCostCalculator;
-import com.tramchester.graph.search.RouteCalculator;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.repository.RunningRoutesAndServices;
 import com.tramchester.repository.StationGroupsRepository;
@@ -81,7 +80,6 @@ class CompositeRouteTest {
         transportData = (TramTransportDataForTestFactory.TramTransportDataForTest) componentContainer.get(TransportData.class);
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
-        RouteCalculator routeCalculator = componentContainer.get(RouteCalculator.class);
 
         queryDate = TramDate.of(2014,6,30);
         queryTime = TramTime.of(7, 57);
@@ -98,7 +96,7 @@ class CompositeRouteTest {
         locationJourneyPlanner = new LocationJourneyPlannerTestFacade(componentContainer.get(LocationJourneyPlanner.class),
                 stationRepository, txn);
 
-        calculator = new RouteCalculatorTestFacade(routeCalculator, stationRepository, txn);
+        calculator = new RouteCalculatorTestFacade(componentContainer, txn);
 
     }
 

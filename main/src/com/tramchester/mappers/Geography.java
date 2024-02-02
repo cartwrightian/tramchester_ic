@@ -33,14 +33,20 @@ import static tech.units.indriya.unit.Units.METRE_PER_SECOND;
 import static tech.units.indriya.unit.Units.SECOND;
 
 
+
+// TODO Consider using GeodeticCalculator from geotools?
+// https://gis.stackexchange.com/questions/110249/coordinate-conversion-epsg3857-to-epsg4326-using-opengis-jts-too-slow
+
 @LazySingleton
 public class Geography {
     private static final Logger logger = LoggerFactory.getLogger(Geography.class);
 
     private final static double KILO_PER_MILE = 1.609344D;
 
-    public static final String AUTHORITY = "EPSG";
+    private static final String AUTHORITY = "EPSG";
 
+    // EPSG:4326
+    // see also CoordinateTransformations
     private static final String latLongCode = DefaultGeographicCRS.WGS84.getIdentifier(new CitationImpl(AUTHORITY)).getCode();
 
     private final GeometryFactory geometryFactoryLatLong;
@@ -70,6 +76,12 @@ public class Geography {
         return getWalkingDuration(distance);
     }
 
+    /***
+     * Uses lat/long
+     * @param placeA location A
+     * @param placeB location B
+     * @return distance between A and B
+     */
     public Quantity<Length> getDistanceBetweenInMeters(final Location<?> placeA, final Location<?> placeB) {
         final Point pointA = geometryFactoryLatLong.createPoint(placeA.getLatLong().getCoordinate());
         final Point pointB = geometryFactoryLatLong.createPoint(placeB.getLatLong().getCoordinate());

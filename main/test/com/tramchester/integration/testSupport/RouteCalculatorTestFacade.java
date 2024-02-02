@@ -1,5 +1,6 @@
 package com.tramchester.integration.testSupport;
 
+import com.tramchester.ComponentContainer;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.id.IdFor;
@@ -8,8 +9,10 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.search.RouteCalculator;
+import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.reference.FakeStation;
+import com.tramchester.testSupport.reference.KnownLocality;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -19,10 +22,12 @@ public class RouteCalculatorTestFacade {
     private final RouteCalculator routeCalculator;
     private final StationRepository stationRepository;
     private final MutableGraphTransaction txn;
+    private final StationGroupsRepository stationGroupsRepository;
 
-    public RouteCalculatorTestFacade(RouteCalculator routeCalculator, StationRepository stationRepository, MutableGraphTransaction txn) {
-       this.routeCalculator = routeCalculator;
-        this.stationRepository = stationRepository;
+    public  RouteCalculatorTestFacade(ComponentContainer componentContainer, MutableGraphTransaction txn) {
+        this.routeCalculator = componentContainer.get(RouteCalculator.class);
+        this.stationRepository = componentContainer.get(StationRepository.class);
+        this.stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
         this.txn = txn;
     }
 
@@ -36,6 +41,10 @@ public class RouteCalculatorTestFacade {
 
     public List<Journey> calculateRouteAsList(FakeStation start, StationGroup end, JourneyRequest journeyRequest) {
         return calculateRouteAsList(start.from(stationRepository), end, journeyRequest);
+    }
+
+    public List<Journey> calculateRouteAsList(KnownLocality begin, KnownLocality end, JourneyRequest request) {
+        return calculateRouteAsList(begin.from(stationGroupsRepository), end.from(stationGroupsRepository), request);
     }
 
     public @NotNull List<Journey> calculateRouteAsList(Location<?> start, Location<?> dest, JourneyRequest request) {

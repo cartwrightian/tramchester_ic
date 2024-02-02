@@ -1,41 +1,52 @@
 package com.tramchester.geo;
 
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.mappers.Geography;
-import org.geotools.geometry.GeneralDirectPosition;
-import org.geotools.referencing.ReferencingFactoryFinder;
+import org.geotools.api.geometry.Position;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.operation.CoordinateOperation;
+import org.geotools.api.referencing.operation.MathTransform;
+import org.geotools.api.referencing.operation.TransformException;
+import org.geotools.geometry.Position2D;
+import org.geotools.referencing.CRS;
 import org.geotools.referencing.operation.DefaultCoordinateOperationFactory;
 import org.jetbrains.annotations.NotNull;
-import org.opengis.geometry.DirectPosition;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.CRSAuthorityFactory;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.CoordinateOperation;
-import org.opengis.referencing.operation.TransformException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static com.tramchester.mappers.Geography.AUTHORITY;
 
 public class CoordinateTransforms {
     private static final Logger logger;
 
-    private static final CoordinateOperation gridToLatLong;
-    private static final CoordinateOperation latLongToGrid;
+    // NationGrid (i.e. from naptan) uses OSGB36 a different DATUM from WGS84
+
+    public static final String NATION_GRID_EPSG = "EPSG:27700";
+    public static final String WGS84_LATLONG_EPGS = "EPSG:4326";
+
+    private static final MathTransform latLongToGridTransform;
+    private static final MathTransform gridToLatLongTransform;
+
+    private static final CoordinateReferenceSystem nationalGridCRS;
+    private static final CoordinateReferenceSystem latLongCRS;
 
     static {
         logger = LoggerFactory.getLogger(CoordinateTransforms.class);
 
-        String latLongCode = Geography.getLatLongCode();
-
         try {
-            CRSAuthorityFactory authorityFactory = ReferencingFactoryFinder.getCRSAuthorityFactory(AUTHORITY, null);
+            nationalGridCRS = CRS.decode(NATION_GRID_EPSG);
+            latLongCRS = CRS.decode(WGS84_LATLONG_EPGS);
 
-            CoordinateReferenceSystem nationalGridRefSys = authorityFactory.createCoordinateReferenceSystem("27700");
-            CoordinateReferenceSystem latLongRef = authorityFactory.createCoordinateReferenceSystem(latLongCode);
+            logCoordinateRefSystem("national grid", nationalGridCRS);
+            logCoordinateRefSystem("lat long", latLongCRS);
 
-            latLongToGrid = new DefaultCoordinateOperationFactory().createOperation(latLongRef, nationalGridRefSys);
-            gridToLatLong = new DefaultCoordinateOperationFactory().createOperation(nationalGridRefSys, latLongRef);
+            DefaultCoordinateOperationFactory defaultCoordinateOperationFactory = new DefaultCoordinateOperationFactory();
+
+            CoordinateOperation latLongToGridOp = defaultCoordinateOperationFactory.createOperation(latLongCRS, nationalGridCRS);
+//            CoordinateOperation gridToLatLongOp = defaultCoordinateOperationFactory.createOperation(nationalGridCRS, latLongCRS);
+
+            gridToLatLongTransform = CRS.findMathTransform(nationalGridCRS, latLongCRS, false);
+
+//            gridToLatLongTransform = gridToLatLongOp.getMathTransform();
+            latLongToGridTransform = latLongToGridOp.getMathTransform();
 
         } catch (FactoryException e) {
             String msg = "Unable to init geotools factory or transforms";
@@ -44,9 +55,9 @@ public class CoordinateTransforms {
         }
     }
 
-//    private CoordinateTransforms() {
-//
-//    }
+    private static void logCoordinateRefSystem(String prefix, CoordinateReferenceSystem nationalGridRefSys) {
+        logger.info(prefix +": ids:'" + nationalGridRefSys.getIdentifiers() + "' name:'" + nationalGridRefSys.getName() + "'");
+    }
 
     @NotNull
     public static GridPosition getGridPosition(final LatLong position) {
@@ -57,8 +68,8 @@ public class CoordinateTransforms {
 
         try {
             // note the lat(y) lon(x) ordering here
-            final DirectPosition directPositionLatLong = new GeneralDirectPosition(position.getLat(), position.getLon());
-            final DirectPosition directPositionGrid = latLongToGrid.getMathTransform().transform(directPositionLatLong, null);
+            final Position2D directPositionLatLong = new Position2D(latLongCRS, position.getLat(), position.getLon());
+            final Position directPositionGrid = latLongToGridTransform.transform(directPositionLatLong, null);
 
             final long easting = Math.round(directPositionGrid.getOrdinate(0));
             final long northing = Math.round(directPositionGrid.getOrdinate(1));
@@ -78,8 +89,10 @@ public class CoordinateTransforms {
         }
 
         try {
-            final DirectPosition directPositionGrid = new GeneralDirectPosition(gridPosition.getEastings(), gridPosition.getNorthings());
-            final DirectPosition directPositionLatLong = gridToLatLong.getMathTransform().transform(directPositionGrid, null);
+            final Position2D directPositionGrid = new Position2D(nationalGridCRS, gridPosition.getEastings(),
+                    gridPosition.getNorthings());
+
+            final Position directPositionLatLong = gridToLatLongTransform.transform(directPositionGrid, null);
             final double lat = directPositionLatLong.getOrdinate(0);
             final double lon = directPositionLatLong.getOrdinate(1);
             return new LatLong(lat, lon);
@@ -89,5 +102,6 @@ public class CoordinateTransforms {
             return LatLong.Invalid;
         }
     }
+
 
 }
