@@ -44,7 +44,7 @@ class BusStationsLocationsTest {
     void beforeEachTestRuns() {
         stationLocations = componentContainer.get(StationLocations.class);
         stationRepository = componentContainer.get(StationRepository.class);
-        inMeters =  MarginInMeters.of(testConfig.getNearestStopForWalkingRangeKM());
+        inMeters =  MarginInMeters.ofKM(testConfig.getNearestStopForWalkingRangeKM());
     }
 
     @AfterAll

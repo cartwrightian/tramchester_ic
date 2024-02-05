@@ -87,7 +87,7 @@ public class GeographyTest {
         Geography.LocationsSource<Station> provider = () -> Stream.of(stationC, stationA, stationB);
 
         List<Station> results = geography.
-                getNearToSorted(provider, myLocation.getGridPosition(), MarginInMeters.of(20000)).collect(Collectors.toList());
+                getNearToSorted(provider, myLocation.getGridPosition(), MarginInMeters.ofMeters(20000)).collect(Collectors.toList());
 
         assertEquals(3, results.size());
         assertEquals(stationA, results.get(0));

@@ -26,7 +26,6 @@ import javax.measure.quantity.Time;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
@@ -79,7 +78,7 @@ public class Geography {
     }
 
     /***
-     * Uses lat/long
+     * Uses lat/long, slower but accurate
      * @param placeA location A
      * @param placeB location B
      * @return distance between A and B
@@ -109,7 +108,7 @@ public class Geography {
             logger.warn("Created a boundary with zero points");
         }
 
-        return Arrays.stream(boundary.getCoordinates()).map(LatLong::of).collect(Collectors.toList());
+        return Arrays.stream(boundary.getCoordinates()).map(LatLong::of).toList();
     }
 
     private <T extends Location<T>> Stream<T> getNearbyCrude(final LocationsSource<T> locationsSource,

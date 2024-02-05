@@ -135,7 +135,7 @@ public class JourneyLocationsResource extends UsesRecentCookie implements APIRes
     @ApiResponse(content = @Content(array = @ArraySchema(uniqueItems = true, schema = @Schema(implementation = LocationRefDTO.class))))
     @CacheControl(noCache = true)
     public Response getNearWithMode(@PathParam("mode") String rawMode, @QueryParam("lat") double lat, @QueryParam("lon") double lon) {
-        MarginInMeters margin = MarginInMeters.of(config.getNearestStopRangeKM());
+        MarginInMeters margin = MarginInMeters.ofKM(config.getNearestStopRangeKM());
         logger.info(format("Get locations within %s of %s,%s and mode %s", margin, lat, lon, rawMode));
 
         TransportMode mode = TransportMode.valueOf(rawMode);

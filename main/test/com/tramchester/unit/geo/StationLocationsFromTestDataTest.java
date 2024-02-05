@@ -62,7 +62,7 @@ public class StationLocationsFromTestDataTest {
     @Test
     void shouldFindFirstStation() {
         List<Station> results = stationLocations.nearestStationsSorted(nearAltrincham.getGridPosition(), 3,
-                MarginInMeters.of(1000), modes);
+                MarginInMeters.ofMeters(1000), modes);
         assertEquals(1, results.size(), results.toString());
 
         // fallback name, no naptan area data loaded
@@ -73,7 +73,7 @@ public class StationLocationsFromTestDataTest {
     @Test
     void shouldFindFourthStation() {
         List<Station> results = stationLocations.nearestStationsSorted(nearKnutsfordBusStation.location(), 3,
-                MarginInMeters.of(1000), modes);
+                MarginInMeters.ofMeters(1000), modes);
         assertEquals(1, results.size(), results.toString());
 
         // fallback name, no naptan area data loaded
@@ -83,7 +83,7 @@ public class StationLocationsFromTestDataTest {
     @Test
     void shouldFindSecondStation() {
         List<Station> results = stationLocations.nearestStationsSorted(nearWythenshaweHosp.location(), 3,
-                MarginInMeters.of(500), modes);
+                MarginInMeters.ofMeters(500), modes);
         assertEquals(1, results.size(), results.toString());
         assertTrue(results.contains(transportData.getSecond()));
     }
@@ -91,7 +91,7 @@ public class StationLocationsFromTestDataTest {
     @Test
     void shouldFindLastStation() {
         List<Station> results = stationLocations.nearestStationsSorted(nearPiccGardens.location(), 3,
-                MarginInMeters.of(500), modes);
+                MarginInMeters.ofMeters(500), modes);
         assertEquals(1, results.size(), results.toString());
         assertTrue(results.contains(transportData.getLast()));
     }
@@ -99,7 +99,7 @@ public class StationLocationsFromTestDataTest {
     @Test
     void shouldFindInterchange() {
         List<Station> results = stationLocations.nearestStationsSorted(nearShudehill.location(), 3,
-                MarginInMeters.of(500), modes);
+                MarginInMeters.ofMeters(500), modes);
         assertEquals(1, results.size(), results.toString());
         assertTrue(results.contains(transportData.getInterchange()));
     }
@@ -107,7 +107,7 @@ public class StationLocationsFromTestDataTest {
     @Test
     void shouldFindNearStockport() {
         List<Station> results = stationLocations.nearestStationsSorted(nearStockportBus.location(), 3,
-                MarginInMeters.of(500), modes);
+                MarginInMeters.ofMeters(500), modes);
         assertEquals(1, results.size(), results.toString());
         assertTrue(results.contains(transportData.getFifthStation()));
     }

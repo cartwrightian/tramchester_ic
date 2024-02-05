@@ -110,7 +110,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRouteTest {
         // TODO USE BusStations.KnutfordStationAreaId here
         //LatLong nearKnutsfordBusStation = new LatLong(53.30262,-2.3775267);
 
-        final MarginInMeters rangeInMeters = MarginInMeters.of(1000);
+        final MarginInMeters rangeInMeters = MarginInMeters.ofMeters(1000);
         knutfordStations = stationLocations.nearestStationsSorted(KnownLocations.nearKnutsfordBusStation.location(),
                         10, rangeInMeters, config.getTransportModes()).
                 stream().

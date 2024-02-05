@@ -69,7 +69,7 @@ public class LocationJourneyPlanner {
         this.nodeOperations = nodeOperations;
         this.stationLocations = stationLocations;
         this.graphFilter = graphFilter;
-        this.margin = MarginInMeters.of(config.getNearestStopForWalkingRangeKM());
+        this.margin = MarginInMeters.ofKM(config.getNearestStopForWalkingRangeKM());
         this.routeToRouteCosts = routeToRouteCosts;
     }
 

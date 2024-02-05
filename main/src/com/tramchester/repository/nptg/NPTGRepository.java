@@ -33,7 +33,7 @@ public class NPTGRepository {
     private static final Logger logger = LoggerFactory.getLogger(NPTGRepository.class);
 
     // some localities referenced from station/stops loaded within bounds might themselves lie outside
-    private static final long MARGIN_IN_METERS = 3000;
+    private static final int MARGIN_IN_METERS = 3000;
 
     private final NPTGXMLDataLoader dataLoader;
     private final TramchesterConfig config;
@@ -68,9 +68,9 @@ public class NPTGRepository {
 
     private void loadData(final BoundingBox bounds) {
 
-        final MarginInMeters initialMargin = MarginInMeters.of(MARGIN_IN_METERS*2);
+        final MarginInMeters initialMargin = MarginInMeters.ofMeters(MARGIN_IN_METERS*2);
 
-        final MarginInMeters loadMargin = MarginInMeters.of(MARGIN_IN_METERS);
+        final MarginInMeters loadMargin = MarginInMeters.ofMeters(MARGIN_IN_METERS);
 
         // todo use the callback mechanism instead
         List<NPTGLocalityXMLData> inBoundsRecords = new ArrayList<>();

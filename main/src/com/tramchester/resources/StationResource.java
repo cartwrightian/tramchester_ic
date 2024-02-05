@@ -158,7 +158,7 @@ public class StationResource extends UsesRecentCookie implements APIResource {
     @ApiResponse(content = @Content(array = @ArraySchema(uniqueItems = true, schema = @Schema(implementation = LocationRefDTO.class))))
     @CacheControl(noCache = true)
     public Response getNear(@QueryParam("lat") double lat, @QueryParam("lon") double lon) {
-        MarginInMeters margin = MarginInMeters.of(config.getNearestStopRangeKM());
+        MarginInMeters margin = MarginInMeters.ofKM(config.getNearestStopRangeKM());
         logger.info(format("Get stations with %s of %s,%s", margin, lat, lon));
 
         EnumSet<TransportMode> modes = transportModeRepository.getModes();
@@ -182,7 +182,7 @@ public class StationResource extends UsesRecentCookie implements APIResource {
     @ApiResponse(content = @Content(array = @ArraySchema(uniqueItems = true, schema = @Schema(implementation = LocationRefDTO.class))))
     @CacheControl(noCache = true)
     public Response getNearWithMode(@PathParam("mode") String rawMode, @QueryParam("lat") double lat, @QueryParam("lon") double lon) {
-        MarginInMeters margin = MarginInMeters.of(config.getNearestStopRangeKM());
+        MarginInMeters margin = MarginInMeters.ofKM(config.getNearestStopRangeKM());
         logger.info(format("Get stations with %s of %s,%s and mode %s", margin, lat, lon, rawMode));
 
         TransportMode mode = TransportMode.valueOf(rawMode);

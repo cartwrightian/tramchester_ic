@@ -63,7 +63,7 @@ class PostcodeRepositoryTest {
     void shouldHavePostcodesNear() {
         GridPosition place = nearPiccGardens.grid();
 
-        Set<PostcodeLocation> found = repository.getPostcodesNear(place, MarginInMeters.of(500)).collect(Collectors.toSet());
+        Set<PostcodeLocation> found = repository.getPostcodesNear(place, MarginInMeters.ofMeters(500)).collect(Collectors.toSet());
         assertFalse(found.isEmpty());
 
         Set<String> postcodes = found.stream().map(PostcodeLocation::getName).collect(Collectors.toSet());

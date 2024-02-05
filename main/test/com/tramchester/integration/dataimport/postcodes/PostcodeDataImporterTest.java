@@ -119,7 +119,7 @@ class PostcodeDataImporterTest {
 
     private boolean outsideStationRange(PostcodeData postcode) {
         return !stationLocations.anyStationsWithinRangeOf(postcode.getGridPosition(),
-                MarginInMeters.of(testConfig.getNearestStopForWalkingRangeKM()));
+                MarginInMeters.ofKM(testConfig.getNearestStopForWalkingRangeKM()));
 //        List<Station> found = stationLocations.nearestStationsSorted(postcode.getGridPosition(), 1,
 //                MarginInMeters.of(testConfig.getNearestStopForWalkingRangeKM()));
 //        return found.isEmpty();

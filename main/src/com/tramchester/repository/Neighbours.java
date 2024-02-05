@@ -78,7 +78,7 @@ public class Neighbours implements NeighboursRepository {
     }
 
     private void createNeighbours() {
-        final MarginInMeters marginInMeters = MarginInMeters.of(config.getDistanceToNeighboursKM());
+        final MarginInMeters marginInMeters = MarginInMeters.ofKM(config.getDistanceToNeighboursKM());
 
         logger.info(format("Adding neighbouring stations for range %s and diff modes only %s",
                 marginInMeters, DIFF_MODES_ONLY));

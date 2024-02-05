@@ -118,7 +118,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
     void shouldValidateRangeIsCorrectForDiversions() {
         StationLocations stationLocations = componentContainer.get(StationLocations.class);
 
-        MarginInMeters range = MarginInMeters.of(config.getNearestStopForWalkingRangeKM());
+        MarginInMeters range = MarginInMeters.ofKM(config.getNearestStopForWalkingRangeKM());
 
         Station piccGardens = PiccadillyGardens.from(stationRepository);
 

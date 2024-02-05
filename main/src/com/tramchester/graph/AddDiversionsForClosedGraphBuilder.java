@@ -119,7 +119,7 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
             return;
         }
 
-        final MarginInMeters range = MarginInMeters.of(config.getNearestStopForWalkingRangeKM());
+        final MarginInMeters range = MarginInMeters.ofKM(config.getNearestStopForWalkingRangeKM());
 
         closures.stream().
                 filter(closedStation -> filter.shouldInclude(closedStation.getStation())).

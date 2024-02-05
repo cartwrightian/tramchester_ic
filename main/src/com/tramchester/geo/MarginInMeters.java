@@ -7,48 +7,44 @@ import tech.units.indriya.unit.Units;
 import javax.measure.quantity.Length;
 
 public class MarginInMeters {
-    private final ComparableQuantity<Length> distance;
-    private final long meters;
+    private final int meters;
 
-    public static MarginInMeters of(long meters) {
-        return new MarginInMeters(meters);
-    }
-
-    private MarginInMeters(long meters) {
-        this.distance =  Quantities.getQuantity(meters, Units.METRE);
+    private MarginInMeters(int meters) {
         this.meters = meters;
     }
 
-    public static MarginInMeters of(Double kilometers) {
+    public static MarginInMeters ofMeters(int meters) {
+        return new MarginInMeters(meters);
+    }
+
+    public static MarginInMeters ofKM(Double kilometers) {
         double meters = kilometers * 1000D;
-        return new MarginInMeters(Math.round(meters));
+        return new MarginInMeters(Math.toIntExact(Math.round(meters)));
     }
 
     public static MarginInMeters invalid() {
-        return new MarginInMeters(Long.MIN_VALUE);
+        return new MarginInMeters(Integer.MIN_VALUE);
     }
 
     /***
      * @return margin in meters
      */
-    public long get() {
+    public int get() {
         return meters;
+    }
+
+    public ComparableQuantity<Length> getDistance() {
+        return Quantities.getQuantity(meters, Units.METRE);
     }
 
     @Override
     public String toString() {
         return "MarginInMeters{" +
-                "meters=" + distance +
+                "meters=" + meters +
                 '}';
     }
 
     public boolean within(final ComparableQuantity<Length> amount) {
-
-        return amount.isLessThanOrEqualTo(distance);
-
-//        final Quantity<Length> amountInMeters = amount.to(Units.METRE);
-//        final Number value = amountInMeters.getValue();
-//
-//        return amount <= meters;
+        return amount.isLessThanOrEqualTo(getDistance());
     }
 }

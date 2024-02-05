@@ -90,7 +90,7 @@ public class NaptanRepositoryContainer implements NaptanRepository {
 
         final BoundingBox bounds = config.getBounds();
         final Double range = config.getNearestStopForWalkingRangeKM();
-        final MarginInMeters margin = MarginInMeters.of(range);
+        final MarginInMeters margin = MarginInMeters.ofKM(range);
 
         logger.info("Loading data for " + bounds + " and range " + margin);
 

@@ -69,7 +69,7 @@ public class ClosedStationsRepository {
     }
 
     private void captureClosedStationsFromConfig(final Set<StationClosures> closures) {
-        final MarginInMeters range = MarginInMeters.of(config.getNearestStopForWalkingRangeKM());
+        final MarginInMeters range = MarginInMeters.ofKM(config.getNearestStopForWalkingRangeKM());
 
         closures.forEach(closure -> {
             final DateRange dateRange = closure.getDateRange();

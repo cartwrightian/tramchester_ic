@@ -95,7 +95,7 @@ public class DeparturesRepository {
     }
 
     private List<UpcomingDeparture> getDeparturesNearTo(final Location<?> location, final EnumSet<TransportMode> modes) {
-        final MarginInMeters margin = MarginInMeters.of(config.getNearestStopRangeKM());
+        final MarginInMeters margin = MarginInMeters.ofKM(config.getNearestStopRangeKM());
         final int numOfNearestStopsToOffer = config.getNumOfNearestStopsToOffer();
 
         List<Station> nearbyStations = stationLocationsRepository.nearestStationsSorted(location, numOfNearestStopsToOffer,

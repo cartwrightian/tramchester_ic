@@ -107,7 +107,7 @@ public class PostcodeBoundBoxRealDataTest {
                 filter(GridPosition::isValid).collect(Collectors.toSet());
 
         long matched = validGrids.stream().
-                filter(grid -> boundsFor.within( MarginInMeters.of(0), grid)).count();
+                filter(grid -> boundsFor.within( MarginInMeters.ofMeters(0), grid)).count();
 
         assertEquals(validGrids.size(), matched);
     }
@@ -132,11 +132,11 @@ public class PostcodeBoundBoxRealDataTest {
         // NOTE: these are bounding boxs which cover significantly more area than the postcodes themselves,
         // and can overlap
         Set<String> codes = boundingBoxs.getCodesFor(nearShudehill.grid(),
-                MarginInMeters.of(0));
+                MarginInMeters.ofMeters(0));
         assertTrue(codes.contains("m"));
 
         Set<String> codesForAlty = boundingBoxs.getCodesFor(nearAltrincham.grid(),
-                MarginInMeters.of(0));
+                MarginInMeters.ofMeters(0));
         assertTrue(codesForAlty.contains("wa"));
 
     }

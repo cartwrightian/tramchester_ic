@@ -56,16 +56,16 @@ class StationLocationsTest extends EasyMockSupport {
         assertEquals(5, GridPositions.distanceTo(gridPositionA, origin));
 
         // not in range
-        assertFalse(GridPositions.withinDistEasting(origin, gridPositionA, MarginInMeters.of(2)));
+        assertFalse(GridPositions.withinDistEasting(origin, gridPositionA, MarginInMeters.ofMeters(2)));
         // within the given range
-        assertTrue(GridPositions.withinDistEasting(origin, gridPositionA,  MarginInMeters.of(3)));
-        assertTrue(GridPositions.withinDistEasting(origin, gridPositionA,  MarginInMeters.of(4)));
+        assertTrue(GridPositions.withinDistEasting(origin, gridPositionA,  MarginInMeters.ofMeters(3)));
+        assertTrue(GridPositions.withinDistEasting(origin, gridPositionA,  MarginInMeters.ofMeters(4)));
 
         // not in range
-        assertFalse(GridPositions.withinDistNorthing(origin, gridPositionA,  MarginInMeters.of(2)));
+        assertFalse(GridPositions.withinDistNorthing(origin, gridPositionA,  MarginInMeters.ofMeters(2)));
         // within the given range
-        assertTrue(GridPositions.withinDistNorthing(origin, gridPositionA,  MarginInMeters.of(4)));
-        assertTrue(GridPositions.withinDistNorthing(origin, gridPositionA,  MarginInMeters.of(5)));
+        assertTrue(GridPositions.withinDistNorthing(origin, gridPositionA,  MarginInMeters.ofMeters(4)));
+        assertTrue(GridPositions.withinDistNorthing(origin, gridPositionA,  MarginInMeters.ofMeters(5)));
     }
 
     @NotNull
@@ -83,7 +83,7 @@ class StationLocationsTest extends EasyMockSupport {
         EasyMock.expect(stationRepository.getActiveStationStream()).andStubAnswer(() ->
                 Stream.of(stationA, stationC));
 
-        MarginInMeters margin = MarginInMeters.of(1600);
+        MarginInMeters margin = MarginInMeters.ofMeters(1600);
 
         EasyMock.expect(geography.getNearToUnsorted(EasyMock.isA(Geography.LocationsSource.class), EasyMock.eq(nearAltrincham.grid()),
                 EasyMock.eq(margin))).andReturn(Stream.of(stationA));
@@ -106,7 +106,7 @@ class StationLocationsTest extends EasyMockSupport {
         Station stationC = createTestStation("id789", "nameC", nearShudehill);
 
         MyLocation location = nearAltrincham.location();
-        final MarginInMeters rangeInMeters = MarginInMeters.of(20000);
+        final MarginInMeters rangeInMeters = MarginInMeters.ofMeters(20000);
 
         EasyMock.expect(geography.getNearToSorted(EasyMock.isA(Geography.LocationsSource.class), EasyMock.eq(location.getGridPosition()),
                         EasyMock.eq(rangeInMeters))).
@@ -127,7 +127,7 @@ class StationLocationsTest extends EasyMockSupport {
         Station stationC = createTestStation("id789", "nameC", nearShudehill);
 
         MyLocation location = nearAltrincham.location();
-        final MarginInMeters rangeInMeters = MarginInMeters.of(20000);
+        final MarginInMeters rangeInMeters = MarginInMeters.ofMeters(20000);
 
         EasyMock.expect(geography.getNearToSorted(EasyMock.isA(Geography.LocationsSource.class), EasyMock.eq(location.getGridPosition()),
                         EasyMock.eq(rangeInMeters))).
