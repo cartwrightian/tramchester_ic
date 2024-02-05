@@ -39,9 +39,9 @@ public class MarginInMeters {
                 '}';
     }
 
-    public boolean within(Quantity<Length> amount) {
-        Quantity<Length> amountInMeters = amount.to(Units.METRE);
-        Number value = amountInMeters.getValue();
+    public boolean within(final Quantity<Length> amount) {
+        final Quantity<Length> amountInMeters = amount.to(Units.METRE);
+        final Number value = amountInMeters.getValue();
 
         return value.longValue() <= meters;
     }

@@ -57,7 +57,7 @@ class StationGroupRepositoryTest {
         assertEquals(26, contained.size(), groupedStations.toString());
 
         assertEquals(LocationType.StationGroup, groupedStations.getLocationType());
-        assertEquals(KnownLocality.Altrincham.getId(), groupedStations.getLocalityId());
+        assertEquals(KnownLocality.Altrincham.getId(), groupedStations.getId());
 
         IdSet<Station> ids = contained.stream().collect(IdSet.collector());
         assertTrue(ids.contains(BusStations.StopAtAltrinchamInterchange.getId()));

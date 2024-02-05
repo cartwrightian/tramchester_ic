@@ -6,7 +6,7 @@ import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.RemoteDataAvailable;
 import com.tramchester.dataimport.UnzipFetchedData;
-import com.tramchester.dataimport.nptg.NPTGDataLoader;
+import com.tramchester.dataimport.nptg.NPTGXMLDataLoader;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithNaptan;
@@ -68,10 +68,10 @@ public class NaptanAndNPTGDatadownloadTest {
 
         assertTrue(Files.exists(result));
 
-        Path expected = configDataPath.resolve("Localities.csv");
+        Path expected = configDataPath.resolve(NPTGXMLDataLoader.LOCALITIES_XML);
         assertEquals(expected, result);
 
-        FileFilter filter = pathname -> pathname.getName().toLowerCase().endsWith(".csv");
+        FileFilter filter = pathname -> pathname.getName().toLowerCase().endsWith(".xml");
         final File[] fileArray = configDataPath.toFile().listFiles(filter);
         assertNotNull(fileArray);
 
@@ -81,7 +81,7 @@ public class NaptanAndNPTGDatadownloadTest {
         assertEquals(1, names.size(), "Unexpected number of files " + names);
 
         // this is the important one, is the file we need present or not?
-        assertTrue(names.contains(NPTGDataLoader.LOCALITIES_CSV), NPTGDataLoader.LOCALITIES_CSV + " is missing");
+        assertTrue(names.contains(NPTGXMLDataLoader.LOCALITIES_XML), NPTGXMLDataLoader.LOCALITIES_XML + " is missing from " + names);
 
     }
 

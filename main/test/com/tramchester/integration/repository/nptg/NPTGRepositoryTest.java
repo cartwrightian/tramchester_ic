@@ -57,7 +57,7 @@ public class NPTGRepositoryTest {
 
         NPTGLocality result = repository.get(id);
         assertEquals("Castlefield", result.getLocalityName());
-        assertEquals("Manchester City Centre", result.getParentLocalityName(), result.toString());
+        assertEquals(KnownLocality.ManchesterCityCentre.getLocalityId(), result.getParentLocalityId(), result.toString());
     }
 
     @Test
@@ -78,6 +78,16 @@ public class NPTGRepositoryTest {
     }
 
     @Test
+    void shouldHaveExpectedParentLocalityName() {
+        IdFor<NPTGLocality> localityId = KnownLocality.Shudehill.getLocalityId();
+
+        NPTGLocality result = repository.get(localityId);
+
+        assertEquals("Manchester City Centre", result.getParentLocalityName());
+
+    }
+
+    @Test
     void shouldHaveRecordForAllLoadedNaptanStops() {
         // to assist in setting margin for bounds
         NaptanRepository naptanRepository = componentContainer.get(NaptanRepository.class);
@@ -90,5 +100,20 @@ public class NPTGRepositoryTest {
         assertEquals(0, missingRecords.size(), missingRecords.toString());
     }
 
+    @Test
+    void shouldHaveParentId() {
+        IdFor<NPTGLocality> manCityId = KnownLocality.ManchesterCityCentre.getLocalityId();
+        IdFor<NPTGLocality> shudehillId = KnownLocality.Shudehill.getLocalityId();
+        IdFor<NPTGLocality> manchesterId = KnownLocality.Manchester.getLocalityId();
+
+        NPTGLocality shudehill = repository.get(shudehillId);
+        assertEquals(manCityId, shudehill.getParentLocalityId());
+
+        NPTGLocality manCity = repository.get(manCityId);
+        assertEquals(manchesterId, manCity.getParentLocalityId());
+
+        NPTGLocality manchester = repository.get(manchesterId);
+        assertEquals(NPTGLocality.InvalidId(), manchester.getParentLocalityId());
+    }
 
 }

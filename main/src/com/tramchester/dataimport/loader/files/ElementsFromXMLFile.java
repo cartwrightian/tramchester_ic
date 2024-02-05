@@ -1,10 +1,9 @@
-package com.tramchester.dataimport.NaPTAN.xml;
+package com.tramchester.dataimport.loader.files;
 
 import com.ctc.wstx.stax.WstxInputFactory;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.tramchester.dataimport.NaPTAN.xml.stopPoint.NaptanStopData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,28 +16,29 @@ import java.io.Reader;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 
-public class NaptanFromXMLFile {
-    private static final Logger logger = LoggerFactory.getLogger(NaptanFromXMLFile.class);
+public class ElementsFromXMLFile<T> {
+    private static final Logger logger = LoggerFactory.getLogger(ElementsFromXMLFile.class);
 
     private final Path filePath;
     private final Charset charset;
     private final XmlMapper mapper;
-    private final NaptanXmlConsumer naptanXmlConsumer;
+    private final XmlElementConsumer<T> xmlElementConsumer;
     private final WstxInputFactory factory;
     private final String stopElementName;
 
-    private final JavaType stopDataJavaType;
+    private final JavaType elementJavaType;
 
-    public NaptanFromXMLFile(Path filePath, Charset charset, XmlMapper mapper, NaptanXmlConsumer naptanXmlConsumer) {
+    public ElementsFromXMLFile(Path filePath, Charset charset, XmlMapper mapper, XmlElementConsumer<T> xmlElementConsumer) {
         this.filePath = filePath.toAbsolutePath();
         this.charset = charset;
         this.mapper = mapper;
-        this.naptanXmlConsumer = naptanXmlConsumer;
+        this.xmlElementConsumer = xmlElementConsumer;
 
         factory = new WstxInputFactory();
 
-        stopElementName = getElementName(NaptanStopData.class);
-        stopDataJavaType = mapper.getTypeFactory().constructType(NaptanStopData.class);
+        Class<T> elementType = xmlElementConsumer.getElementType();
+        stopElementName = getElementName(elementType);
+        elementJavaType = mapper.getTypeFactory().constructType(elementType);
 
     }
 
@@ -51,7 +51,7 @@ public class NaptanFromXMLFile {
         try {
             final Reader fileReader = new FileReader(filePath.toString(), charset);
             final BufferedReader reader = new BufferedReader(fileReader);
-            logger.info("Load naptan data from " +filePath.toAbsolutePath());
+            logger.info("Load xml data from " +filePath.toAbsolutePath() + " for " + elementJavaType);
             load(reader);
             reader.close();
         } catch (IOException | XMLStreamException e) {
@@ -85,12 +85,14 @@ public class NaptanFromXMLFile {
     }
 
     private void consumeStopElement(final XMLStreamReader in) throws IOException {
-        final NaptanStopData element = mapper.readValue(in, stopDataJavaType);
-        naptanXmlConsumer.process(element);
+        final T element = mapper.readValue(in, elementJavaType);
+        xmlElementConsumer.process(element);
     }
 
-    public interface NaptanXmlConsumer {
-        void process(final NaptanStopData element);
+    public interface XmlElementConsumer<T> {
+        void process(final T element);
+
+        Class<T> getElementType();
     }
 
 }

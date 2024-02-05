@@ -16,6 +16,7 @@ public enum KnownLocality {
     Knutsford("E0044368"),
     Broadheath("E0028613"),
     ManchesterCityCentre("E0057786"),
+    Manchester("N0076111"),
     PiccadillyGardens("N0075071"),
     Bollington("E0044356"),
 
@@ -39,6 +40,10 @@ public enum KnownLocality {
 
     public IdFor<StationGroup> getId() {
         return StationGroup.createId(localityId);
+    }
+
+    public IdFor<NPTGLocality> getLocalityId() {
+        return NPTGLocality.createId(localityId);
     }
 
     public StationGroup from(StationGroupsRepository stationGroupRepository) {

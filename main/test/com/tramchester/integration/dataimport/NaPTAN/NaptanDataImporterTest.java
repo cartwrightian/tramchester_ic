@@ -3,6 +3,7 @@ package com.tramchester.integration.dataimport.NaPTAN;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.dataimport.NaPTAN.xml.NaptanDataCallbackImporter;
+import com.tramchester.dataimport.loader.files.ElementsFromXMLFile;
 import com.tramchester.dataimport.NaPTAN.xml.stopPoint.NaptanStopData;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
@@ -41,7 +42,17 @@ class NaptanDataImporterTest {
         NaptanDataCallbackImporter dataImporter = componentContainer.get(NaptanDataCallbackImporter.class);
 
         loadedStops = new ArrayList<>();
-        dataImporter.loadData(element -> loadedStops.add(element));
+        dataImporter.loadData(new ElementsFromXMLFile.XmlElementConsumer<>() {
+            @Override
+            public void process(NaptanStopData element) {
+                loadedStops.add(element);
+            }
+
+            @Override
+            public Class<NaptanStopData> getElementType() {
+                return NaptanStopData.class;
+            }
+        });
     }
 
     @AfterAll

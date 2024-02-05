@@ -4,7 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.NaPTAN.NaptanXMLData;
 import com.tramchester.dataimport.NaPTAN.xml.NaptanDataCallbackImporter;
-import com.tramchester.dataimport.NaPTAN.xml.NaptanFromXMLFile;
+import com.tramchester.dataimport.loader.files.ElementsFromXMLFile;
 import com.tramchester.dataimport.NaPTAN.xml.stopPoint.NaptanStopData;
 import com.tramchester.domain.id.*;
 import com.tramchester.domain.places.Location;
@@ -279,7 +279,7 @@ public class NaptanRepositoryContainer implements NaptanRepository {
         return geography.createBoundaryFor(points);
     }
 
-    private class Consumer implements NaptanFromXMLFile.NaptanXmlConsumer {
+    private class Consumer implements ElementsFromXMLFile.XmlElementConsumer<NaptanStopData> {
 
         private final BoundingBox bounds;
         private final MarginInMeters margin;
@@ -296,6 +296,11 @@ public class NaptanRepositoryContainer implements NaptanRepository {
             if (!consumeStop(element, bounds, margin)) {
                 skippedStop++;
             }
+        }
+
+        @Override
+        public Class<NaptanStopData> getElementType() {
+            return NaptanStopData.class;
         }
 
         public void logSkipped(Logger logger) {

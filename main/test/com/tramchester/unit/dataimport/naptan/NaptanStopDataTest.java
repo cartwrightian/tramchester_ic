@@ -1,6 +1,5 @@
 package com.tramchester.unit.dataimport.naptan;
 
-import com.tramchester.dataimport.NaPTAN.NaptanXMLData;
 import com.tramchester.dataimport.NaPTAN.xml.stopPoint.NaptanStopData;
 import com.tramchester.dataimport.NaPTAN.xml.stopPoint.NaptanXMLStopAreaRef;
 import com.tramchester.domain.id.StringIdFor;
@@ -23,7 +22,11 @@ import static com.tramchester.repository.naptan.NaptanStopType.busCoachTrolleySt
 import static com.tramchester.repository.naptan.NaptanStopType.tramMetroUndergroundPlatform;
 import static org.junit.jupiter.api.Assertions.*;
 
-class NaptanStopDataTest extends ParserTestXMLHelper {
+class NaptanStopDataTest extends ParserTestXMLHelper<NaptanStopData> {
+
+    NaptanStopDataTest() {
+        super(NaptanStopData.class);
+    }
 
     /***
      * xml into split lines, useful for diagnosis etc
@@ -93,7 +96,7 @@ class NaptanStopDataTest extends ParserTestXMLHelper {
                         +">"
                         + text + "</NaPTAN>";
 
-        NaptanStopData data = (NaptanStopData) super.parseFirstOnly(fullBody);
+        NaptanStopData data = super.parseFirstOnly(fullBody);
 
         assertNotNull(data);
 
@@ -126,15 +129,15 @@ class NaptanStopDataTest extends ParserTestXMLHelper {
                 ":45.1995824Z\">280G00000001</StopAreaRef></StopAreas><AdministrativeAreaRef>280</AdministrativeAreaRef></StopPoint>" +
                 "</StopPoints></NaPTAN>";
 
-        List<NaptanXMLData> items = super.parseAll(text);
+        List<NaptanStopData> items = super.parseAll(text);
 
         assertEquals(items.size(), 2);
 
-        NaptanStopData dataA = (NaptanStopData) items.get(0);
+        NaptanStopData dataA = items.get(0);
         assertNotNull(dataA);
         assertIdEquals("acto1111", dataA.getAtcoCode());
 
-        NaptanStopData dataB = (NaptanStopData) items.get(1);
+        NaptanStopData dataB = items.get(1);
         assertNotNull(dataB);
         assertIdEquals("acto2222", dataB.getAtcoCode());
     }
@@ -153,7 +156,7 @@ class NaptanStopDataTest extends ParserTestXMLHelper {
                 ":45.1995824Z\">280G00000001</StopAreaRef></StopAreas><AdministrativeAreaRef>280</AdministrativeAreaRef>" +
                 "</StopPoint></StopPoints></NaPTAN>";
 
-        NaptanStopData data = (NaptanStopData) super.parseFirstOnly(text);
+        NaptanStopData data = super.parseFirstOnly(text);
 
         assertNotNull(data);
 
@@ -189,7 +192,7 @@ class NaptanStopDataTest extends ParserTestXMLHelper {
                 "30:00\" ModificationDateTime=\"2007-09-26T13:00:00\" Modification=\"revise\" RevisionNumber=\"1\" Status=\"active\">ABDARE</Plusb" +
                 "usZoneRef></PlusbusZones></StopPoint></StopPoints></NaPTAN>";
 
-        NaptanStopData data = (NaptanStopData) super.parseFirstOnly(text);
+        NaptanStopData data = super.parseFirstOnly(text);
 
         assertNotNull(data);
 
@@ -218,7 +221,7 @@ class NaptanStopDataTest extends ParserTestXMLHelper {
                 "Modification=\"revise\" RevisionNumber=\"5\" Status=\"active\">MNCRPIC</PlusbusZoneRef>" +
                 "</PlusbusZones></StopPoint></StopPoints></NaPTAN>";
 
-        NaptanStopData data = (NaptanStopData) super.parseFirstOnly(text);
+        NaptanStopData data = super.parseFirstOnly(text);
 
         assertIdEquals("9400ZZMAALT", data.getAtcoCode());
         assertEquals(StringIdFor.convert(TramStations.Altrincham.getId(), NaptanRecord.class), data.getAtcoCode());
@@ -247,7 +250,7 @@ class NaptanStopDataTest extends ParserTestXMLHelper {
                 "<AdministrativeAreaRef>083</AdministrativeAreaRef><Public>false</Public>" +
                 "</StopPoint></StopPoints></NaPTAN>";
 
-        NaptanStopData data = (NaptanStopData) super.parseFirstOnly(text);
+        NaptanStopData data = super.parseFirstOnly(text);
 
         assertEquals(2, data.stopAreasRefs().size());
 

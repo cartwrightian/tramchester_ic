@@ -121,20 +121,19 @@ public class StationGroupsRepository {
 
         groupedByAreaId.entrySet().stream().
                 filter(item -> item.getValue().size() > 1).
-                forEach(item -> groupByAreaAndAdd(item.getKey(), item.getValue()));
+                forEach(item -> {
+                    final Set<Station> stationsInArea = item.getValue();
+                    stationsInArea.forEach(station ->  addStationGroup(item.getKey(), stationsInArea));
+                });
 
         logger.info("Created " + stationGroups.size() + " composite stations from " + groupedByAreaId.size());
-    }
-
-    private void groupByAreaAndAdd(IdFor<NPTGLocality> localityId, Set<Station> stationsInArea) {
-        stationsInArea.forEach(station ->  addStationGroup(localityId, stationsInArea));
     }
 
     private void addStationGroup(final IdFor<NPTGLocality> localityId, final Set<Station> stationsToGroup) {
 
         final String areaName;
         if (nptgRepository.hasLocaility(localityId)) {
-            NPTGLocality locality = nptgRepository.get(localityId);
+            final NPTGLocality locality = nptgRepository.get(localityId);
             areaName = locality.getLocalityName();
         } else {
             areaName  = localityId.toString();

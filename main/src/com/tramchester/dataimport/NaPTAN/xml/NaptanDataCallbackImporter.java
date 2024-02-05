@@ -5,7 +5,9 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.module.blackbird.BlackbirdModule;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.FetchDataFromUrl;
+import com.tramchester.dataimport.NaPTAN.xml.stopPoint.NaptanStopData;
 import com.tramchester.dataimport.RemoteDataAvailable;
+import com.tramchester.dataimport.loader.files.ElementsFromXMLFile;
 import com.tramchester.domain.DataSourceID;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
@@ -38,7 +40,7 @@ public class NaptanDataCallbackImporter {
                 build();
     }
 
-    public void loadData(NaptanFromXMLFile.NaptanXmlConsumer consumer) {
+    public void loadData(ElementsFromXMLFile.XmlElementConsumer<NaptanStopData> consumer) {
         if (!enabled) {
             logger.warn("Not enabled");
             return;
@@ -62,7 +64,7 @@ public class NaptanDataCallbackImporter {
 
         logger.info("Loading data from " + filePath.toAbsolutePath());
         // naptan xml is UTF-8
-        NaptanFromXMLFile dataLoader = new NaptanFromXMLFile(filePath, StandardCharsets.UTF_8, mapper, consumer);
+        ElementsFromXMLFile<NaptanStopData> dataLoader = new ElementsFromXMLFile<>(filePath, StandardCharsets.UTF_8, mapper, consumer);
 
         dataLoader.load();
     }

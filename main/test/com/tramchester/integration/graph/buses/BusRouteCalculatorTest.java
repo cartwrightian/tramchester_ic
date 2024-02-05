@@ -195,11 +195,9 @@ class BusRouteCalculatorTest {
 
     @Test
     void shouldHaveAltrinchamToBollington() {
-        TramTime time = TramTime.of(16,30);
+        TramTime time = TramTime.of(11,30);
 
-        TramDate date = TramDate.of(2024,2,3);
-
-        JourneyRequest request = new JourneyRequest(date, time, false, MIN_CHANGES,
+        JourneyRequest request = new JourneyRequest(when, time, false, MIN_CHANGES,
                 Duration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, BusesOnly);
 
         List<Journey> results = calculator.calculateRouteAsList(KnownLocality.Altrincham, KnownLocality.Bollington, request);
