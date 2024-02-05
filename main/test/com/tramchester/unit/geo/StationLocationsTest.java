@@ -47,7 +47,7 @@ class StationLocationsTest extends EasyMockSupport {
 
     @Test
     void shouldHaveGridPositionBehaviours() {
-        GridPosition gridPositionA = new GridPosition(3,4);
+        GridPosition gridPositionA = new GridPosition(3,4); // 9 + 16 = 25
         assertEquals(3, gridPositionA.getEastings());
         assertEquals(4, gridPositionA.getNorthings());
 
@@ -55,11 +55,15 @@ class StationLocationsTest extends EasyMockSupport {
         assertEquals(5, GridPositions.distanceTo(origin, gridPositionA));
         assertEquals(5, GridPositions.distanceTo(gridPositionA, origin));
 
+        // not in range
         assertFalse(GridPositions.withinDistEasting(origin, gridPositionA, MarginInMeters.of(2)));
+        // within the given range
         assertTrue(GridPositions.withinDistEasting(origin, gridPositionA,  MarginInMeters.of(3)));
         assertTrue(GridPositions.withinDistEasting(origin, gridPositionA,  MarginInMeters.of(4)));
 
+        // not in range
         assertFalse(GridPositions.withinDistNorthing(origin, gridPositionA,  MarginInMeters.of(2)));
+        // within the given range
         assertTrue(GridPositions.withinDistNorthing(origin, gridPositionA,  MarginInMeters.of(4)));
         assertTrue(GridPositions.withinDistNorthing(origin, gridPositionA,  MarginInMeters.of(5)));
     }
@@ -166,7 +170,7 @@ class StationLocationsTest extends EasyMockSupport {
 
     @Test
     void shouldHaveExpectedBoundingBoxes() {
-        long gridSize = 50;
+        final int gridSize = 50;
 
         Station testStationA = createTestStation("id123", "name", nearPiccGardens);
         Station testStationC = createTestStation("id789", "nameB", nearShudehill);
@@ -181,8 +185,8 @@ class StationLocationsTest extends EasyMockSupport {
         verifyAll();
 
         Set<BoundingBox> expected = new HashSet<>();
-        for (long x = area.getMinEastings(); x <= area.getMaxEasting(); x = x + gridSize) {
-            for (long y = area.getMinNorthings(); y <= area.getMaxNorthings(); y = y + gridSize) {
+        for (int x = area.getMinEastings(); x <= area.getMaxEasting(); x = x + gridSize) {
+            for (int y = area.getMinNorthings(); y <= area.getMaxNorthings(); y = y + gridSize) {
                 BoundingBox box = new BoundingBox(x, y, x + gridSize, y + gridSize);
                 expected.add(box);
             }

@@ -14,6 +14,7 @@ import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.locationtech.jts.geom.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tech.units.indriya.ComparableQuantity;
 import tech.units.indriya.quantity.Quantities;
 import tech.units.indriya.unit.Units;
 
@@ -67,6 +68,7 @@ public class Geography {
 
     private Duration getWalkingDuration(final Quantity<Length> distance) {
         final double seconds = getWalkingTime(distance).to(SECOND).getValue().doubleValue();
+        //noinspection WrapperTypeMayBePrimitive , should be no warning since longValue() is called.....
         final Double roundUp = Math.ceil(seconds);
         return Duration.of(roundUp.longValue(), SECONDS);
     }
@@ -82,7 +84,7 @@ public class Geography {
      * @param placeB location B
      * @return distance between A and B
      */
-    public Quantity<Length> getDistanceBetweenInMeters(final Location<?> placeA, final Location<?> placeB) {
+    public ComparableQuantity<Length> getDistanceBetweenInMeters(final Location<?> placeA, final Location<?> placeB) {
         final Point pointA = geometryFactoryLatLong.createPoint(placeA.getLatLong().getCoordinate());
         final Point pointB = geometryFactoryLatLong.createPoint(placeB.getLatLong().getCoordinate());
 
@@ -108,10 +110,6 @@ public class Geography {
         }
 
         return Arrays.stream(boundary.getCoordinates()).map(LatLong::of).collect(Collectors.toList());
-    }
-    
-    public static String getLatLongCode() {
-        return latLongCode;
     }
 
     private <T extends Location<T>> Stream<T> getNearbyCrude(final LocationsSource<T> locationsSource,

@@ -14,7 +14,7 @@ import com.tramchester.testSupport.reference.TestPostcodes;
 import com.tramchester.testSupport.testTags.PostcodeTest;
 import org.junit.jupiter.api.*;
 
-import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -48,11 +48,14 @@ class PostcodeDataImporterTest {
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
-        loadedPostcodes = new HashSet<>();
-        importer.loadLocalPostcodes().stream().
+        //loadedPostcodes = new HashSet<>();
+        List<PostcodeDataImporter.PostcodeDataStream> postcodeDataStreams = importer.loadLocalPostcodes();
+
+        loadedPostcodes = postcodeDataStreams.stream().
                 filter(PostcodeDataImporter.PostcodeDataStream::wasLoaded).
                 flatMap(PostcodeDataImporter.PostcodeDataStream::getDataStream).
-                forEach(postcodeData -> loadedPostcodes.add(postcodeData));
+                collect(Collectors.toSet());
+//                forEach(postcodeData -> loadedPostcodes.add(postcodeData));
     }
 
     @AfterEach
@@ -86,18 +89,18 @@ class PostcodeDataImporterTest {
 
         BoundingBox bounds = stationLocations.getActiveStationBounds();
 
-        long eastingsMax = loadedPostcodes.stream().
-                map(data -> data.getGridPosition().getEastings()).max(Long::compareTo).orElse(-1L);
-        long eastingsMin = loadedPostcodes.stream().
-                map(data -> data.getGridPosition().getEastings()).min(Long::compareTo).orElse(-1L);
+        int eastingsMax = loadedPostcodes.stream().
+                map(data -> data.getGridPosition().getEastings()).max(Integer::compareTo).orElse(-1);
+        int eastingsMin = loadedPostcodes.stream().
+                map(data -> data.getGridPosition().getEastings()).min(Integer::compareTo).orElse(-1);
 
         assertTrue(eastingsMax <= bounds.getMaxEasting()+margin);
         assertTrue(eastingsMin >= bounds.getMinEastings()-margin);
 
-        long northingsMax = loadedPostcodes.stream().
-                map(data -> data.getGridPosition().getNorthings()).max(Long::compareTo).orElse(-1L);
-        long northingsMin = loadedPostcodes.stream().
-                map(data -> data.getGridPosition().getNorthings()).min(Long::compareTo).orElse(-1L);
+        int northingsMax = loadedPostcodes.stream().
+                map(data -> data.getGridPosition().getNorthings()).max(Integer::compareTo).orElse(-1);
+        int northingsMin = loadedPostcodes.stream().
+                map(data -> data.getGridPosition().getNorthings()).min(Integer::compareTo).orElse(-1);
 
         assertTrue(northingsMax <= bounds.getMaxNorthings()+margin);
         assertTrue(northingsMin >= bounds.getMinNorthings()-margin,

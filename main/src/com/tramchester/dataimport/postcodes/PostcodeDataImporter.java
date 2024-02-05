@@ -69,8 +69,8 @@ public class PostcodeDataImporter {
             return Collections.emptyList();
         }
 
-        RemoteDataSourceConfig dataSourceConfig = config.getDataRemoteSourceConfig(DataSourceID.postcode);
-        Path dataFilesDirectory = dataSourceConfig.getDataPath().resolve(dataFolder);
+        final RemoteDataSourceConfig dataSourceConfig = config.getDataRemoteSourceConfig(DataSourceID.postcode);
+        final Path dataFilesDirectory = dataSourceConfig.getDataPath().resolve(dataFolder);
 
         logger.info("Load postcode files from " + dataFilesDirectory.toAbsolutePath());
 
@@ -79,8 +79,8 @@ public class PostcodeDataImporter {
             return Collections.emptyList();
         }
 
-        BoundingBox stationBounds = stationLocations.getActiveStationBounds();
-        Set<Path> csvFiles;
+        final BoundingBox stationBounds = stationLocations.getActiveStationBounds();
+        final Set<Path> csvFiles;
         try {
             csvFiles = Files.list(dataFilesDirectory).
                     filter(Files::isRegularFile).
@@ -97,24 +97,28 @@ public class PostcodeDataImporter {
             logger.info("Found " + csvFiles.size() + " files in " + dataFilesDirectory.toAbsolutePath());
         }
 
-        return csvFiles.stream().
+        List<PostcodeDataStream> loaded = csvFiles.stream().
                 map(file -> loadDataFromFile(file, stationBounds)).
                 filter(PostcodeDataStream::wasLoaded).
                 collect(Collectors.toList());
+
+        logger.info("Found " + loaded.size() + " postcodes area(s)");
+
+        return loaded;
     }
 
     private PostcodeDataStream loadDataFromFile(Path file, BoundingBox loadedStationsBounds) {
         logger.debug("Load postcode data from " + file.toAbsolutePath());
 
-        MarginInMeters walkingDistance = MarginInMeters.of(config.getNearestStopForWalkingRangeKM());
+        final MarginInMeters walkingDistance = MarginInMeters.of(config.getNearestStopForWalkingRangeKM());
 
-        TransportDataFromCSVFile<PostcodeData, PostcodeData> loader = new TransportDataFromCSVFile<>(file, PostcodeData.class, PostcodeData.CVS_HEADER, mapper);
-        Stream<PostcodeData> stream = getPostcodesFor(loader);
+        final TransportDataFromCSVFile<PostcodeData, PostcodeData> loader = new TransportDataFromCSVFile<>(file, PostcodeData.class, PostcodeData.CVS_HEADER, mapper);
+        final Stream<PostcodeData> stream = getPostcodesFor(loader);
 
-        String code = postcodeBounds.convertPathToCode(file);
+        final String code = postcodeBounds.convertPathToCode(file);
 
         if (postcodeBounds.isLoaded() && postcodeBounds.hasBoundsFor(file)) {
-            BoundingBox boundsForPostcodeFile = postcodeBounds.getBoundsFor(file);
+            final BoundingBox boundsForPostcodeFile = postcodeBounds.getBoundsFor(file);
             if (boundsForPostcodeFile.overlapsWith(loadedStationsBounds)) {
                 logger.info(format("Postcode(s) in file %s match bounds %s", file, loadedStationsBounds));
                 return new PostcodeDataStream(code, true,

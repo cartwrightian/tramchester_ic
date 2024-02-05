@@ -82,16 +82,16 @@ public class PostcodeBoundBoxRealDataTest {
 
         Set<PostcodeData> centralManchester = getPostcodeData(centralManchesterPostcodes);
 
-        Long minEasting = getMinimumFor(centralManchester, GridPosition::getEastings);
+        int minEasting = getMinimumFor(centralManchester, GridPosition::getEastings);
         assertEquals(minEasting, boundsFor.getMinEastings());
 
-        Long minNorthing = getMinimumFor(centralManchester, GridPosition::getNorthings);
+        int minNorthing = getMinimumFor(centralManchester, GridPosition::getNorthings);
         assertEquals(minNorthing, boundsFor.getMinNorthings());
 
-        Long maxEasting = getMaximumFor(centralManchester, GridPosition::getEastings);
+        int maxEasting = getMaximumFor(centralManchester, GridPosition::getEastings);
         assertEquals(maxEasting, boundsFor.getMaxEasting());
 
-        Long maxNorthing = getMaximumFor(centralManchester, GridPosition::getNorthings);
+        int maxNorthing = getMaximumFor(centralManchester, GridPosition::getNorthings);
         assertEquals(maxNorthing, boundsFor.getMaxNorthings());
     }
 
@@ -141,20 +141,20 @@ public class PostcodeBoundBoxRealDataTest {
 
     }
 
-    private Long getMinimumFor(Set<PostcodeData> postcodes, Function<GridPosition, Long> getGrid) {
-        Optional<Long> min = getNoneZeroFor(postcodes, getGrid).min(Long::compare);
+    private int getMinimumFor(Set<PostcodeData> postcodes, Function<GridPosition, Integer> getGrid) {
+        Optional<Integer> min = getNoneZeroFor(postcodes, getGrid).min(Long::compare);
         assertTrue(min.isPresent());
         return min.get();
     }
 
-    private Long getMaximumFor(Set<PostcodeData> postcodes, Function<GridPosition, Long> getGrid) {
-        Optional<Long> max = getNoneZeroFor(postcodes, getGrid).max(Long::compare);
+    private int getMaximumFor(Set<PostcodeData> postcodes, Function<GridPosition, Integer> getGrid) {
+        Optional<Integer> max = getNoneZeroFor(postcodes, getGrid).max(Long::compare);
         assertTrue(max.isPresent());
         return max.get();
     }
 
     @NotNull
-    private Stream<Long> getNoneZeroFor(Set<PostcodeData> postcodes, Function<GridPosition, Long> getGrid) {
+    private Stream<Integer> getNoneZeroFor(Set<PostcodeData> postcodes, Function<GridPosition, Integer> getGrid) {
         return postcodes.stream().
                 map(PostcodeData::getGridPosition).
                 map(getGrid).

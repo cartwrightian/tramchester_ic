@@ -41,7 +41,7 @@ public class FastestRoutesForBoxes {
         this.geography = geography;
     }
 
-    public Stream<BoundingBoxWithCost> findForGrid(Location<?> destination, long gridSize, JourneyRequest journeyRequest)  {
+    public Stream<BoundingBoxWithCost> findForGrid(Location<?> destination, int gridSize, JourneyRequest journeyRequest)  {
 
         logger.info("Creating station groups for gridsize " + gridSize + " and destination " + destination);
         final GridPosition gridPosition = destination.getGridPosition();
@@ -50,7 +50,7 @@ public class FastestRoutesForBoxes {
     }
 
     @NotNull
-    private Stream<BoundingBoxWithCost> findForGrid(GridPosition destinationGrid, long gridSize, final JourneyRequest journeyRequest) {
+    private Stream<BoundingBoxWithCost> findForGrid(GridPosition destinationGrid, int gridSize, final JourneyRequest journeyRequest) {
         logger.info("Creating station groups for gridsize " + gridSize + " and destination " + destinationGrid);
 
         final Set<BoundingBoxWithStations> searchGrid = stationLocations.getStationsInGrids(gridSize).

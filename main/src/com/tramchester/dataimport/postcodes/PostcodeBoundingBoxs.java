@@ -107,13 +107,13 @@ public class PostcodeBoundingBoxs extends ComponentThatCaches<PostcodeHintData, 
     private void updateFor(String code, PostcodeData postcode, BoundingBox boundingBox) {
         logger.debug("Upadating bounds for " + code + " from " + postcode.getId());
         GridPosition gridPosition = postcode.getGridPosition();
-        long postcodeEastings = gridPosition.getEastings();
-        long postcodeNorthings = gridPosition.getNorthings();
+        int postcodeEastings = gridPosition.getEastings();
+        int postcodeNorthings = gridPosition.getNorthings();
 
-        long newMinEasting = Math.min(postcodeEastings, boundingBox.getMinEastings());
-        long newMinNorthing = Math.min(postcodeNorthings, boundingBox.getMinNorthings());
-        long newMaxEasting = Math.max(postcodeEastings, boundingBox.getMaxEasting());
-        long newMaxNorthing = Math.max(postcodeNorthings, boundingBox.getMaxNorthings());
+        int newMinEasting = Math.min(postcodeEastings, boundingBox.getMinEastings());
+        int newMinNorthing = Math.min(postcodeNorthings, boundingBox.getMinNorthings());
+        int newMaxEasting = Math.max(postcodeEastings, boundingBox.getMaxEasting());
+        int newMaxNorthing = Math.max(postcodeNorthings, boundingBox.getMaxNorthings());
 
         postcodeBounds.put(code, new BoundingBox(newMinEasting, newMinNorthing, newMaxEasting, newMaxNorthing));
     }

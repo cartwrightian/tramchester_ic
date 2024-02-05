@@ -154,7 +154,7 @@ public class RailStationRecordsRepository {
     }
 
     private GridPosition convertToOsGrid(int easting, int northing) {
-        return new GridPosition(easting* 100L, northing* 100L);
+        return new GridPosition(easting * 100, northing * 100);
     }
 
     private void addStation(MutableStation mutableStation, String tipLoc) {

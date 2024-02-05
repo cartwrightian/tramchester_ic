@@ -45,8 +45,8 @@ class CoordinateTransformsTest {
     @Test
     void shouldConvertToLatLongCorrectly() {
 
-        long easting = 433931;
-        long northing = 338207;
+        int easting = 433931;
+        int northing = 338207;
         GridPosition position = new GridPosition(easting, northing);
 
         LatLong result = CoordinateTransforms.getLatLong(position);

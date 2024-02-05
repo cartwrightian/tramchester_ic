@@ -3,7 +3,9 @@ package com.tramchester.geo;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.places.*;
+import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.NPTGLocality;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.mappers.Geography;
@@ -18,7 +20,7 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.LongStream;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 @LazySingleton
@@ -220,7 +222,7 @@ public class StationLocations implements StationLocationsRepository {
         return geography.getNearToUnsorted(() -> candidateStations, gridPosition, margin).findAny().isPresent();
     }
 
-    public Stream<BoundingBoxWithStations> getStationsInGrids(long gridSize) {
+    public Stream<BoundingBoxWithStations> getStationsInGrids(int gridSize) {
         if (gridSize <= 0) {
             throw new RuntimeException("Invalid grid size of " + gridSize);
         }
@@ -232,7 +234,7 @@ public class StationLocations implements StationLocationsRepository {
                 filter(BoundingBoxWithStations::hasStations);
     }
 
-    public Stream<BoundingBox> createBoundingBoxsFor(long gridSize) {
+    public Stream<BoundingBox> createBoundingBoxsFor(int gridSize) {
         // addresses performance and memory usages on very large grids
         return getEastingsStream(gridSize).
                 flatMap(x -> getNorthingsStream(gridSize).
@@ -252,31 +254,31 @@ public class StationLocations implements StationLocationsRepository {
         return candidateStations.filter(box::contained).collect(LocationSet.stationCollector());
     }
 
-    private Stream<Long> getEastingsStream(long gridSize) {
-        long minEastings = bounds.getMinEastings();
-        long maxEasting = bounds.getMaxEasting();
-        return LongStream.
+    private Stream<Integer> getEastingsStream(int gridSize) {
+        int minEastings = bounds.getMinEastings();
+        int maxEasting = bounds.getMaxEasting();
+        return IntStream.
                 iterate(minEastings, current -> current <= maxEasting, current -> current + gridSize).boxed();
     }
 
-    private Stream<Long> getNorthingsStream(long gridSize) {
-        long minNorthings = bounds.getMinNorthings();
-        long maxNorthings = bounds.getMaxNorthings();
-        return LongStream.iterate(minNorthings, current -> current <= maxNorthings, current -> current + gridSize).boxed();
+    private Stream<Integer> getNorthingsStream(int gridSize) {
+        int minNorthings = bounds.getMinNorthings();
+        int maxNorthings = bounds.getMaxNorthings();
+        return IntStream.iterate(minNorthings, current -> current <= maxNorthings, current -> current + gridSize).boxed();
     }
 
     private static class CreateBoundingBox {
-        private long minEastings = Long.MAX_VALUE;
-        private long maxEasting = Long.MIN_VALUE;
-        private long minNorthings = Long.MAX_VALUE;
-        private long maxNorthings = Long.MIN_VALUE;
+        private int minEastings = Integer.MAX_VALUE;
+        private int maxEasting = Integer.MIN_VALUE;
+        private int minNorthings = Integer.MAX_VALUE;
+        private int maxNorthings = Integer.MIN_VALUE;
 
         private BoundingBox createBoundingBox(Stream<Station> stations) {
             stations.map(Station::getGridPosition).
                     filter(GridPosition::isValid).
                     forEach(gridPosition -> {
-                        long eastings = gridPosition.getEastings();
-                        long northings = gridPosition.getNorthings();
+                        int eastings = gridPosition.getEastings();
+                        int northings = gridPosition.getNorthings();
 
                         if (eastings < minEastings) {
                             minEastings = eastings;
@@ -292,8 +294,8 @@ public class StationLocations implements StationLocationsRepository {
                         }
                     });
 
-            if (minEastings==Long.MAX_VALUE || maxEasting==Long.MIN_VALUE ||
-                    minNorthings==Long.MIN_VALUE || maxNorthings==Long.MIN_VALUE) {
+            if (minEastings==Integer.MAX_VALUE || maxEasting==Integer.MIN_VALUE ||
+                    minNorthings==Integer.MIN_VALUE || maxNorthings==Integer.MIN_VALUE) {
                 String message = "Could not form bounded box for active stations, are any stations loaded?";
                 logger.error(message);
                 throw new RuntimeException(message);

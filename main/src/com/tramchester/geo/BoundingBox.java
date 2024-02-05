@@ -20,10 +20,10 @@ public class BoundingBox {
     private final GridPosition bottomLeft;
     private final GridPosition topRight;
 
-    public BoundingBox(@JsonProperty(value = "minEastings", required = true) long minEastings,
-                       @JsonProperty(value = "minNorthings", required = true) long minNorthings,
-                       @JsonProperty(value = "maxEasting", required = true) long maxEasting,
-                       @JsonProperty(value = "maxNorthings", required = true) long maxNorthings) {
+    public BoundingBox(@JsonProperty(value = "minEastings", required = true) int minEastings,
+                       @JsonProperty(value = "minNorthings", required = true) int minNorthings,
+                       @JsonProperty(value = "maxEasting", required = true) int maxEasting,
+                       @JsonProperty(value = "maxNorthings", required = true) int maxNorthings) {
         this(new GridPosition(minEastings, minNorthings), new GridPosition(maxEasting, maxNorthings));
     }
 
@@ -50,19 +50,19 @@ public class BoundingBox {
         return topRight;
     }
 
-    public long getMinEastings() {
+    public int getMinEastings() {
         return bottomLeft.getEastings();
     }
 
-    public long getMinNorthings() {
+    public int getMinNorthings() {
         return bottomLeft.getNorthings();
     }
 
-    public long getMaxEasting() {
+    public int getMaxEasting() {
         return topRight.getEastings();
     }
 
-    public long getMaxNorthings() {
+    public int getMaxNorthings() {
         return topRight.getNorthings();
     }
 
@@ -115,13 +115,13 @@ public class BoundingBox {
 
     public Set<BoundingBox> quadrants() {
         Set<BoundingBox> result = new HashSet<>();
-        final long left = bottomLeft.getEastings();
-        final long top = topRight.getNorthings();
-        final long bottom = bottomLeft.getNorthings();
-        final long right = topRight.getEastings();
+        final int left = bottomLeft.getEastings();
+        final int top = topRight.getNorthings();
+        final int bottom = bottomLeft.getNorthings();
+        final int right = topRight.getEastings();
 
-        long midEasting = left + ((right - left) / 2);
-        long midNorthing = bottom +  ((top - bottom) / 2);
+        int midEasting = left + ((right - left) / 2);
+        int midNorthing = bottom +  ((top - bottom) / 2);
 
         GridPosition middle = new GridPosition(midEasting, midNorthing);
 
@@ -176,8 +176,8 @@ public class BoundingBox {
     }
 
     public GridPosition getMidPoint() {
-        long midEasting = (bottomLeft.getEastings() + topRight.getEastings()) / 2;
-        long midNorthing = (bottomLeft.getNorthings() + topRight.getNorthings()) / 2;
+        int midEasting = (bottomLeft.getEastings() + topRight.getEastings()) / 2;
+        int midNorthing = (bottomLeft.getNorthings() + topRight.getNorthings()) / 2;
         return new GridPosition(midEasting, midNorthing);
     }
 }

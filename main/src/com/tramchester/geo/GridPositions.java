@@ -3,11 +3,13 @@ package com.tramchester.geo;
 public class GridPositions {
 
     public static boolean withinDistEasting(final GridPosition gridPositionA, final GridPosition gridPositionB, final MarginInMeters rangeInMeters) {
-        return rangeInMeters.get() >= getDistEasting(gridPositionA, gridPositionB) ;
+        return getDistEasting(gridPositionA, gridPositionB) <= rangeInMeters.get();
+        //return rangeInMeters.get() >= getDistEasting(gridPositionA, gridPositionB) ;
     }
 
     public static boolean withinDistNorthing(final GridPosition gridPositionA, final GridPosition gridPositionB, final MarginInMeters rangeInMeters) {
-        return rangeInMeters.get() >= getDistNorthing(gridPositionA, gridPositionB);
+        return getDistNorthing(gridPositionA, gridPositionB) <= rangeInMeters.get();
+        //return rangeInMeters.get() >= getDistNorthing(gridPositionA, gridPositionB);
     }
 
     private static long getDistNorthing(final GridPosition gridPositionA, final GridPosition gridPositionB) {

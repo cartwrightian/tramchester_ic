@@ -76,7 +76,7 @@ class RouteCalculatorForBoundingBoxTest {
     @Test
     void shouldFindJourneysForBoundedBoxStations() {
         BoundingBox bounds = stationLocations.getActiveStationBounds();
-        long gridSize = (bounds.getMaxNorthings()-bounds.getMinNorthings()) / 100;
+        int gridSize = (bounds.getMaxNorthings()-bounds.getMinNorthings()) / 100;
 
         List<BoundingBoxWithStations> grouped = stationLocations.getStationsInGrids(gridSize)
                 .filter(this::anyOpen)

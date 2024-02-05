@@ -37,8 +37,8 @@ public class NPTGLocalityXMLData  {
             return GridPosition.Invalid;
         }
         try {
-            long northing = Long.parseLong(rawNorthin);
-            long easting = Long.parseLong(rawEasting);
+            int northing = Integer.parseInt(rawNorthin);
+            int easting = Integer.parseInt(rawEasting);
             return new GridPosition(easting, northing);
         }
         catch (NumberFormatException exception) {

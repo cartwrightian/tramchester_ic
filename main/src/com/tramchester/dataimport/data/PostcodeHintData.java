@@ -7,10 +7,10 @@ import java.util.Objects;
 
 public class PostcodeHintData implements CachableData {
     private String code;
-    private long minEasting;
-    private long minNorthing;
-    private long maxEasting;
-    private long maxNorthing;
+    private int minEasting;
+    private int minNorthing;
+    private int maxEasting;
+    private int maxNorthing;
 
     public PostcodeHintData() {
         // for deserialization
@@ -29,19 +29,19 @@ public class PostcodeHintData implements CachableData {
         return code;
     }
 
-    public long getMinEasting() {
+    public int getMinEasting() {
         return minEasting;
     }
 
-    public long getMinNorthing() {
+    public int getMinNorthing() {
         return minNorthing;
     }
 
-    public long getMaxEasting() {
+    public int getMaxEasting() {
         return maxEasting;
     }
 
-    public long getMaxNorthing() {
+    public int getMaxNorthing() {
         return maxNorthing;
     }
 

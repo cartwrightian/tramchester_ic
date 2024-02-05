@@ -71,8 +71,8 @@ public class CoordinateTransforms {
             final Position2D directPositionLatLong = new Position2D(latLongCRS, position.getLat(), position.getLon());
             final Position directPositionGrid = latLongToGridTransform.transform(directPositionLatLong, null);
 
-            final long easting = Math.round(directPositionGrid.getOrdinate(0));
-            final long northing = Math.round(directPositionGrid.getOrdinate(1));
+            final int easting = Math.toIntExact(Math.round(directPositionGrid.getOrdinate(0)));
+            final int northing = Math.toIntExact(Math.round(directPositionGrid.getOrdinate(1)));
 
             return new GridPosition(easting, northing);
         }

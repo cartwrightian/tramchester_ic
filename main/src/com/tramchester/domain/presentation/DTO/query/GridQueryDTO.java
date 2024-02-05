@@ -20,9 +20,9 @@ public class GridQueryDTO {
     final private IdForDTO destId;
     final private LocalDate departureDate;
     final private LocalTime departureTime;
-    final private long maxDuration;
+    final private long maxDuration; // todo should be an int
     final private int maxChanges;
-    final private long gridSize;
+    final private int gridSize;
 
     @JsonCreator
     public GridQueryDTO(
@@ -32,7 +32,7 @@ public class GridQueryDTO {
             @JsonProperty(value="departureTime", required = true) LocalTime departureTime,
             @JsonProperty(value="maxDuration", required = true) long maxDuration,
             @JsonProperty(value="maxChanges", required = true) int maxChanges,
-            @JsonProperty(value="gridSize", required = true) long gridSize) {
+            @JsonProperty(value="gridSize", required = true) int gridSize) {
         this.destType = destType;
         this.destId = destId;
         this.departureDate = departureDate;
@@ -70,7 +70,7 @@ public class GridQueryDTO {
         return maxChanges;
     }
 
-    public long getGridSize() {
+    public int getGridSize() {
         return gridSize;
     }
 

@@ -1,11 +1,13 @@
 package com.tramchester.geo;
 
+import tech.units.indriya.ComparableQuantity;
+import tech.units.indriya.quantity.Quantities;
 import tech.units.indriya.unit.Units;
 
-import javax.measure.Quantity;
 import javax.measure.quantity.Length;
 
 public class MarginInMeters {
+    private final ComparableQuantity<Length> distance;
     private final long meters;
 
     public static MarginInMeters of(long meters) {
@@ -13,6 +15,7 @@ public class MarginInMeters {
     }
 
     private MarginInMeters(long meters) {
+        this.distance =  Quantities.getQuantity(meters, Units.METRE);
         this.meters = meters;
     }
 
@@ -35,14 +38,17 @@ public class MarginInMeters {
     @Override
     public String toString() {
         return "MarginInMeters{" +
-                "meters=" + meters +
+                "meters=" + distance +
                 '}';
     }
 
-    public boolean within(final Quantity<Length> amount) {
-        final Quantity<Length> amountInMeters = amount.to(Units.METRE);
-        final Number value = amountInMeters.getValue();
+    public boolean within(final ComparableQuantity<Length> amount) {
 
-        return value.longValue() <= meters;
+        return amount.isLessThanOrEqualTo(distance);
+
+//        final Quantity<Length> amountInMeters = amount.to(Units.METRE);
+//        final Number value = amountInMeters.getValue();
+//
+//        return amount <= meters;
     }
 }
