@@ -11,6 +11,7 @@ import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.CreateQueryTimes;
 import com.tramchester.domain.time.ProvidesNow;
+import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.caches.LowestCostSeen;
@@ -24,6 +25,7 @@ import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.RunningRoutesAndServices;
+import com.tramchester.repository.StationAvailabilityRepository;
 import com.tramchester.repository.TransportData;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.traversal.BranchOrderingPolicy;
@@ -51,6 +53,8 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
     private final CacheMetrics cacheMetrics;
     private final BranchSelectorFactory branchSelectorFactory;
 
+    // TODO Refactoring here, way too messy and confusing constructor
+
     @Inject
     public RouteCalculator(TransportData transportData, NodeContentsRepository nodeOperations, PathToStages pathToStages,
                            TramchesterConfig config, CreateQueryTimes createQueryTimes,
@@ -59,10 +63,11 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
                            MapPathToLocations mapPathToLocations,
                            BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz,
                            ClosedStationsRepository closedStationsRepository, RunningRoutesAndServices runningRoutesAndServices,
-                           CacheMetrics cacheMetrics, BranchSelectorFactory branchSelectorFactory) {
+                           CacheMetrics cacheMetrics, BranchSelectorFactory branchSelectorFactory,
+                           StationAvailabilityRepository stationAvailabilityRepository) {
         super(pathToStages, nodeOperations, graphDatabaseService,
                 traversalStateFactory, providesNow, mapPathToLocations,
-                transportData, config, transportData, routeToRouteCosts, reasonToGraphViz, true);
+                transportData, config, transportData, routeToRouteCosts, reasonToGraphViz, stationAvailabilityRepository, true);
         this.config = config;
         this.createQueryTimes = createQueryTimes;
         this.closedStationsRepository = closedStationsRepository;
@@ -104,7 +109,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
             }
         }
 
-        Duration maxInitialWait = getMaxInitialWaitFor(start, config);
+        final Duration maxInitialWait = getMaxInitialWaitFor(start, config);
         return getJourneyStream(txn, startNode, endNode, journeyRequest, destinations, queryTimes, numberOfChanges, maxInitialWait).
                 limit(journeyRequest.getMaxNumberOfJourneys());
     }
@@ -150,9 +155,9 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
                 takeWhile(finished::notDoneYet);
     }
 
-    private Stream<Journey> getJourneyStream(GraphTransaction txn, GraphNode startNode, GraphNode endNode, JourneyRequest journeyRequest,
-                                             LocationSet destinations, List<TramTime> queryTimes, NumberOfChanges numberOfChanges,
-                                             Duration maxInitialWait) {
+    private Stream<Journey> getJourneyStream(final GraphTransaction txn, final GraphNode startNode, final GraphNode endNode, final JourneyRequest journeyRequest,
+                                             final LocationSet destinations, final List<TramTime> queryTimes, final NumberOfChanges numberOfChanges,
+                                             final Duration maxInitialWait) {
 
         if (numberOfChanges.getMin()==Integer.MAX_VALUE) {
             logger.error(format("Computed min number of changes is MAX_VALUE, journey %s is not possible?", journeyRequest));
@@ -172,8 +177,9 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         final IdSet<Station> closedStations = closedStationsRepository.getFullyClosedStationsFor(tramDate).stream().
                 map(ClosedStation::getStationId).collect(IdSet.idCollector());
 
+        final TimeRange destinationsAvailable = super.getDestinationsAvailable(destinations, tramDate);
         final JourneyConstraints journeyConstraints = new JourneyConstraints(config, runningRoutesAndServices.getFor(tramDate),
-                closedStations, destinations, lowestCostsForRoutes, maxJourneyDuration);
+                closedStations, destinations, lowestCostsForRoutes, maxJourneyDuration, destinationsAvailable);
 
         // share selector across queries, to allow caching of station to station distances
         final BranchOrderingPolicy selector = branchSelectorFactory.getFor(destinations);

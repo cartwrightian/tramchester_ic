@@ -4,8 +4,10 @@ import com.google.common.collect.Sets;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -13,6 +15,7 @@ import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class LocationSet {
@@ -62,6 +65,12 @@ public class LocationSet {
         return locations.stream().
                 filter(location -> location.getLocationType()==LocationType.Station).
                 map(location -> (Station) location);
+    }
+
+    public EnumSet<TransportMode> getModes() {
+        return locations.stream().
+                flatMap(location -> location.getTransportModes().stream()).
+                collect(Collectors.toCollection(() -> EnumSet.noneOf(TransportMode.class)));
     }
 
     public static LocationSet of(final Set<Station> stations) {
@@ -117,5 +126,6 @@ public class LocationSet {
     public boolean isEmpty() {
         return locations.isEmpty();
     }
+
 
 }

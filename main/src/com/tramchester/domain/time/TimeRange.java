@@ -1,6 +1,8 @@
 package com.tramchester.domain.time;
 
 import java.time.Duration;
+import java.util.Objects;
+import java.util.Set;
 
 import static java.lang.String.format;
 
@@ -24,6 +26,16 @@ public class TimeRange {
         end = tramTime;
     }
 
+    public void updateToInclude(final TramTime callingTime) {
+        if (callingTime.isBefore(begin)) {
+            begin = callingTime;
+            return;
+        }
+        if (callingTime.isAfter(end)) {
+            end = callingTime;
+        }
+    }
+
     public static TimeRange of(TramTime time, Duration before, Duration after) {
         if (time.getHourOfDay()==0 && !time.isNextDay()) {
             Duration currentMinsOfDay = Duration.ofMinutes(time.getMinuteOfHour());
@@ -44,10 +56,26 @@ public class TimeRange {
         return new TimeRange(first, second);
     }
 
+    public static TimeRange coveringAllOf(final Set<TimeRange> ranges) {
+        if (ranges.isEmpty()) {
+            throw new RuntimeException("No time ranges supplied");
+        }
+        TramTime earliest = TramTime.of(23,59);
+        TramTime latest = TramTime.of(0,1);
+        for(final TimeRange range : ranges) {
+            if (range.begin.isBefore(earliest)) {
+                earliest = range.begin;
+            }
+            if (range.end.isAfter(latest)) {
+                latest = range.end;
+            }
+        }
+        return TimeRange.of(earliest, latest);
+    }
+
     public boolean contains(TramTime time) {
         return time.between(begin, end);
     }
-
 
     @Override
     public String toString() {
@@ -57,15 +85,6 @@ public class TimeRange {
                 '}';
     }
 
-    public void updateToInclude(TramTime callingTime) {
-        if (callingTime.isBefore(begin)) {
-            begin = callingTime;
-            return;
-        }
-        if (callingTime.isAfter(end)) {
-            end = callingTime;
-        }
-    }
 
     public boolean anyOverlap(TimeRange other) {
         return contains(other.begin) || contains(other.end) || other.contains(begin) || other.contains(end);
@@ -92,5 +111,22 @@ public class TimeRange {
             throw new RuntimeException("Cannot call for a range that is already into following day");
         }
         return TimeRange.of(TramTime.nextDay(begin), TramTime.nextDay(end));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TimeRange timeRange = (TimeRange) o;
+        return Objects.equals(begin, timeRange.begin) && Objects.equals(end, timeRange.end);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(begin, end);
+    }
+
+    public TramTime getEnd() {
+        return end;
     }
 }

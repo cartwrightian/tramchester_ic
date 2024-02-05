@@ -35,9 +35,12 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
         final Set<TransportMode> groupedStationModes = Collections.singleton(TransportMode.Bus);
 
         final Path downloadFolder = Path.of("data/bus");
+
+        // TODO not long enough?
+        Duration maxInitialWait = Duration.ofMinutes(45);
         gtfsSourceConfig = new TFGMGTFSSourceTestConfig(
                 Collections.singleton(GTFSTransportationType.bus),
-                modesWithPlatforms, additionalInterchanges, groupedStationModes, Collections.emptyList(), Duration.ofMinutes(45));
+                modesWithPlatforms, additionalInterchanges, groupedStationModes, Collections.emptyList(), maxInitialWait);
         remoteDataSourceConfig = TFGMRemoteDataSourceConfig.createFor(downloadFolder);
     }
 

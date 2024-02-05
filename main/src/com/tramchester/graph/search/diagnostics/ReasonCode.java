@@ -17,6 +17,7 @@ public enum ReasonCode {
     TookTooLong,
     NotAtHour,
     AlreadyDeparted,
+    DestinationUnavailableAtTime,
     HigherCost,
     HigherCostViaExchange,
     PathTooLong,
@@ -65,7 +66,7 @@ public enum ReasonCode {
                     TookTooLong, ServiceNotRunningAtTime, NotAtHour, DoesNotOperateOnTime, NotOnQueryDate, MoreChanges,
                     AlreadyDeparted, StationClosed, TooManyNeighbourConnections, TimedOut, RouteNotOnQueryDate, HigherCostViaExchange,
                     ExchangeNotReachable, TooManyRouteChangesRequired, TooManyInterchangesRequired, AlreadySeenStation,
-                    TransportModeWrong, SameTrip
+                    TransportModeWrong, SameTrip, DestinationUnavailableAtTime
                     -> Evaluation.EXCLUDE_AND_PRUNE;
             case OnTram, OnBus, OnTrain, NotOnVehicle, CachedUNKNOWN, PreviousCacheMiss, NumWalkingConnectionsOk,
                     NeighbourConnectionsOk, OnShip, OnSubway, OnWalk, CachedNotAtHour,

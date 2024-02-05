@@ -5,6 +5,9 @@ import com.tramchester.domain.time.TramTime;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -138,5 +141,29 @@ public class TimeRangeTest {
         assertTrue(range.contains(TramTime.of(23,59)));
 
         assertFalse(range.contains(TramTime.of(0,30)));
+    }
+
+    @Test
+    void shouldHaveRangeCoveringAllOfSingle() {
+
+        TimeRange timeRange = TimeRange.of(TramTime.of(8,45), TramTime.of(9,55));
+        TimeRange result = TimeRange.coveringAllOf(Collections.singleton(timeRange));
+
+        assertEquals(timeRange, result);
+    }
+
+    @Test
+    void shouldHaveRangeCoveringAllOf() {
+
+        TramTime earliest = TramTime.of(8, 45);
+        TramTime latest = TramTime.of(17, 15);
+
+        TimeRange timeRangeA = TimeRange.of(earliest, TramTime.of(9,55));
+        TimeRange timeRangeB = TimeRange.of(TramTime.of(9,15), TramTime.of(16,35));
+        TimeRange timeRangeC = TimeRange.of(TramTime.of(16,25), latest);
+
+        TimeRange result = TimeRange.coveringAllOf(new HashSet<>(Arrays.asList(timeRangeB, timeRangeA, timeRangeC)));
+
+        assertEquals(TimeRange.of(earliest, latest), result);
     }
 }

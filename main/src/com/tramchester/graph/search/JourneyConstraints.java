@@ -8,6 +8,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.RunningRoutesAndServices;
 import org.slf4j.Logger;
@@ -27,6 +28,7 @@ public class JourneyConstraints {
     private static final Logger logger = LoggerFactory.getLogger(JourneyConstraints.class);
 
     private final RunningRoutesAndServices.FilterForDate routesAndServicesFilter;
+    private final TimeRange destinationsAvailable;
     private final TramchesterConfig config;
     private final int maxPathLength;
     private final LocationSet endStations;
@@ -38,10 +40,12 @@ public class JourneyConstraints {
 
     public JourneyConstraints(TramchesterConfig config, RunningRoutesAndServices.FilterForDate routesAndServicesFilter,
                               IdSet<Station> closedStationsIds, LocationSet endStations,
-                              LowestCostsForDestRoutes lowestCostForDestinations, Duration maxJourneyDuration) {
+                              LowestCostsForDestRoutes lowestCostForDestinations, Duration maxJourneyDuration,
+                              TimeRange destinationsAvailable) {
         this.config = config;
         this.lowestCostForDestinations = lowestCostForDestinations;
         this.routesAndServicesFilter = routesAndServicesFilter;
+        this.destinationsAvailable = destinationsAvailable;
         this.maxPathLength = computeMaxPathLength();
 
         this.endStations = endStations;
@@ -111,7 +115,7 @@ public class JourneyConstraints {
                 '}';
     }
 
-    public boolean isUnavailable(Route route, TramTime visitTime) {
+    public boolean isUnavailable(final Route route, final TramTime visitTime) {
         return !routesAndServicesFilter.isRouteRunning(route.getId(), visitTime.isNextDay());
     }
 
@@ -123,5 +127,25 @@ public class JourneyConstraints {
     // time and date separate for performance reasons
     public boolean isRunningAtTime(final IdFor<Service> serviceId, final TramTime time, final int maxWait) {
         return routesAndServicesFilter.isServiceRunningByTime(serviceId, time, maxWait);
+    }
+
+    public boolean destinationsAvailable(final TramTime time) {
+        if (destinationsAvailable.contains(time)) {
+            return true;
+        }
+        final TramTime end = destinationsAvailable.getEnd();
+        if (end.isNextDay()) {
+            TramTime realEnd = destinationsAvailable.forFollowingDay().getEnd();
+            return !time.isAfter(realEnd);
+        } else {
+            if (time.isAfter(end)) {
+                return false;
+            }
+        }
+
+
+        // todo logic on earliest?
+
+        return true;
     }
 }

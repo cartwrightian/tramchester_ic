@@ -24,6 +24,7 @@ import com.tramchester.graph.search.selectors.BranchSelectorFactory;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.RunningRoutesAndServices;
+import com.tramchester.repository.StationAvailabilityRepository;
 import com.tramchester.repository.TransportData;
 import org.neo4j.graphdb.traversal.BranchOrderingPolicy;
 import org.slf4j.Logger;
@@ -61,10 +62,10 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                                    BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz,
                                    ClosedStationsRepository closedStationsRepository, RunningRoutesAndServices runningRoutesAndService,
                                    @SuppressWarnings("unused") RouteCostCalculator routeCostCalculator,
-                                   BranchSelectorFactory branchSelectorFactory) {
+                                   BranchSelectorFactory branchSelectorFactory, StationAvailabilityRepository stationAvailabilityRepository) {
         super(pathToStages, nodeContentsRepository, graphDatabaseService,
                 traversalStateFactory, providesNow, mapPathToLocations,
-                transportData, config, transportData, routeToRouteCosts, reasonToGraphViz, false);
+                transportData, config, transportData, routeToRouteCosts, reasonToGraphViz, stationAvailabilityRepository, false);
         this.config = config;
         this.graphDatabaseService = graphDatabaseService;
         this.closedStationsRepository = closedStationsRepository;
@@ -91,8 +92,9 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         final IdSet<Station> closedStations = closedStationsRepository.getFullyClosedStationsFor(date).stream().
                 map(ClosedStation::getStationId).collect(IdSet.idCollector());
 
+        TimeRange destinationsAvailable = getDestinationsAvailable(destinations, date);
         final JourneyConstraints journeyConstraints = new JourneyConstraints(config, routeAndServicesFilter, closedStations,
-                destinations, lowestCostForDestinations, maxJourneyDuration);
+                destinations, lowestCostForDestinations, maxJourneyDuration, destinationsAvailable);
 
         final Set<GraphNodeId> destinationNodeIds = getDestinationNodeIds(destinations);
 

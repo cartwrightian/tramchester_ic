@@ -217,6 +217,10 @@ public abstract class ServiceReason {
         return new DoesNotOperateOnTime(ReasonCode.AlreadyDeparted, currentElapsed, path);
     }
 
+    public static HeuristicsReason DestinationUnavailableAtTime(TramTime currentElapsed, HowIGotHere path) {
+        return new DoesNotOperateOnTime(ReasonCode.DestinationUnavailableAtTime, currentElapsed, path);
+    }
+
     public static HeuristicsReason Cached(ReasonCode code, TramTime currentElapsed, HowIGotHere path) {
 
         return switch (code) {

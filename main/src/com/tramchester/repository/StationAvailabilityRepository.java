@@ -28,6 +28,8 @@ import static java.lang.String.format;
 public class StationAvailabilityRepository {
     private static final Logger logger = LoggerFactory.getLogger(StationAvailabilityRepository.class);
 
+    // TODO Need to tidy up handling of different locaiton types here, it is messy and inconsistent
+
     // NOTE: use routes here since they tend to have specific times ranges, whereas services end up 24x7 some stations
     private final Map<Location<?>, ServedRoute> pickupsForLocation;
     private final Map<Location<?>, ServedRoute> dropoffsForLocation;
@@ -173,7 +175,7 @@ public class StationAvailabilityRepository {
                 dropoffsForLocation.get(location).anyAvailable(date, timeRange, requestedModes);
     }
 
-    private boolean isGroupAvailable(StationGroup stationGroup, TramDate date, TimeRange timeRange, EnumSet<TransportMode> requestedModes) {
+    private boolean isGroupAvailable(final StationGroup stationGroup, final TramDate date, final TimeRange timeRange, final EnumSet<TransportMode> requestedModes) {
         return stationGroup.getAllContained().stream().anyMatch(station -> isAvailable(station, date, timeRange, requestedModes));
     }
 
@@ -198,13 +200,13 @@ public class StationAvailabilityRepository {
                 collect(Collectors.toSet());
     }
 
-    public Set<Route> getDropoffRoutesFor(Location<?> location, TramDate date, TimeRange timeRange, EnumSet<TransportMode> modes) {
+    public Set<Route> getDropoffRoutesFor(final Location<?> location, final TramDate date, final TimeRange timeRange, final EnumSet<TransportMode> modes) {
         if (location.getLocationType()==LocationType.StationGroup) {
-            StationGroup stationGroup = (StationGroup) location;
+            final StationGroup stationGroup = (StationGroup) location;
             return getDropoffRoutesForGroup(stationGroup, date, timeRange, modes);
         }
         if (closedStationsRepository.isClosed(location, date)) {
-            ClosedStation closedStation = closedStationsRepository.getClosedStation(location, date);
+            final ClosedStation closedStation = closedStationsRepository.getClosedStation(location, date);
             return getDropoffRoutesFor(closedStation, date,timeRange, modes);
         }
         if (!dropoffsForLocation.containsKey(location)) {
@@ -249,4 +251,30 @@ public class StationAvailabilityRepository {
         return pickupsForLocation.size() + dropoffsForLocation.size();
     }
 
+    public TimeRange getAvailableTimesFor(final LocationSet destinations, final TramDate tramDate) {
+
+        final EnumSet<TransportMode> modes = destinations.getModes();
+        final Set<TimeRange> ranges = destinations.stream().
+                flatMap(location -> expand(location).stream()).
+                //filter(location -> !closedStationsRepository.isClosed(location, tramDate)).
+                filter(dropoffsForLocation::containsKey).
+                map(dropoffsForLocation::get).
+                flatMap(servedRoute -> servedRoute.getTimeRanges(tramDate, modes)).
+                collect(Collectors.toSet());
+
+        // now create timerange
+        return TimeRange.coveringAllOf(ranges);
+
+    }
+
+    private Set<Location<?>> expand(Location<?> location) {
+        if (location.getLocationType()==LocationType.Station) {
+            return Collections.singleton(location);
+        }
+        if (location.getLocationType()==LocationType.StationGroup) {
+            StationGroup group = (StationGroup) location;
+            return new HashSet<>(group.getAllContained());
+        }
+        throw new RuntimeException("Unsupport location type " + location.getId() + " " + location.getLocationType());
+    }
 }

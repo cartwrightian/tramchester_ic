@@ -163,15 +163,15 @@ public class ClosedStationsRepository {
                 anyMatch(closedStation -> closedStation.getDateRange().contains(date));
     }
 
-    public ClosedStation getClosedStation(Location<?> location, TramDate date) {
-        Station station = (Station) location;
+    public ClosedStation getClosedStation(final Location<?> location, final TramDate date) {
+        final Station station = (Station) location;
         if (station==null) {
-            String msg = "Not a station " + location;
+            String msg = "Not a station " + location.getId();
             logger.error(msg);
             throw new RuntimeException(msg);
         }
 
-        Optional<ClosedStation> maybe = closed.stream().
+        final Optional<ClosedStation> maybe = closed.stream().
                 filter(closedStation -> closedStation.getStationId().equals(station.getId())).
                 filter(closedStation -> closedStation.getDateRange().contains(date)).
                 findFirst();

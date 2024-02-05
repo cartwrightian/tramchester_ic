@@ -101,6 +101,10 @@ public class ServiceHeuristics {
             return reasons.recordReason(ServiceReason.AlreadyDeparted(currentTime, howIGotHere));
         }
 
+        if (!journeyConstraints.destinationsAvailable(nodeTime)) {
+            return reasons.recordReason(ServiceReason.DestinationUnavailableAtTime(currentTime, howIGotHere));
+        }
+
         // Wait to get the service?
         final TimeRange window = TimeRange.of(nodeTime, Duration.ofMinutes(maxWait), Duration.ZERO);
 

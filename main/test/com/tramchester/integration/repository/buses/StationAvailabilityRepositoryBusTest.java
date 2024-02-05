@@ -32,7 +32,8 @@ import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.domain.time.TramTime.of;
 import static com.tramchester.testSupport.TestEnv.Modes.BusesOnly;
 import static com.tramchester.testSupport.reference.TramStations.Altrincham;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @BusTest
 public class StationAvailabilityRepositoryBusTest {
@@ -133,6 +134,17 @@ public class StationAvailabilityRepositoryBusTest {
         Set<Route> dropoffs = availabilityRepository.getDropoffRoutesFor(macclesfield, when, eveningRange, modes);
         assertTrue(dropoffs.isEmpty());
 
+    }
+
+    @Test
+    void shouldHaveAvailabilityAtBollington() {
+
+        StationGroup bollington = KnownLocality.Bollington.from(stationGroupRepository);
+
+        TimeRange timeRange = TimeRange.of(TramTime.of(2,0), TramTime.of(23,30));
+        TramDate date = TramDate.of(2024, 3, 2);
+        Set<Route> dropoffs = availabilityRepository.getDropoffRoutesFor(bollington, date, timeRange, modes);
+        assertFalse(dropoffs.isEmpty());
     }
 
 

@@ -8,6 +8,7 @@ import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
+import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.caches.LowestCostSeen;
@@ -19,6 +20,7 @@ import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.search.diagnostics.ReasonsToGraphViz;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
+import com.tramchester.repository.StationAvailabilityRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TripRepository;
 import org.jetbrains.annotations.NotNull;
@@ -50,13 +52,14 @@ public class RouteCalculatorSupport {
     protected final BetweenRoutesCostRepository routeToRouteCosts;
     private final NodeContentsRepository nodeContentsRepository;
     private final ReasonsToGraphViz reasonToGraphViz;
+    private final StationAvailabilityRepository stationAvailabilityRepository;
     private final boolean fullLogging; // turn down logging for grid searches
 
     protected RouteCalculatorSupport(PathToStages pathToStages, NodeContentsRepository nodeContentsRepository,
                                      GraphDatabase graphDatabaseService, TraversalStateFactory traversalStateFactory,
                                      ProvidesNow providesNow, MapPathToLocations mapPathToLocations,
                                      StationRepository stationRepository, TramchesterConfig config, TripRepository tripRepository,
-                                     BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz, boolean fullLogging) {
+                                     BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz, StationAvailabilityRepository stationAvailabilityRepository, boolean fullLogging) {
         this.pathToStages = pathToStages;
         this.nodeContentsRepository = nodeContentsRepository;
         this.graphDatabaseService = graphDatabaseService;
@@ -68,6 +71,7 @@ public class RouteCalculatorSupport {
         this.tripRepository = tripRepository;
         this.routeToRouteCosts = routeToRouteCosts;
         this.reasonToGraphViz = reasonToGraphViz;
+        this.stationAvailabilityRepository = stationAvailabilityRepository;
         this.fullLogging = fullLogging;
     }
 
@@ -83,8 +87,8 @@ public class RouteCalculatorSupport {
     }
 
     @NotNull
-    public Set<GraphNodeId> getDestinationNodeIds(LocationSet destinations) {
-        Set<GraphNodeId> destinationNodeIds;
+    public Set<GraphNodeId> getDestinationNodeIds(final LocationSet destinations) {
+        final Set<GraphNodeId> destinationNodeIds;
         try(GraphTransaction txn = graphDatabaseService.beginTx()) {
             destinationNodeIds = destinations.stream().
                     map(location -> getLocationNodeSafe(txn, location)).
@@ -120,12 +124,6 @@ public class RouteCalculatorSupport {
             logger.info("Will check journey from " + min + " to " + max + " changes. Computed was " + computedChanges);
         }
         return IntStream.rangeClosed(min, max).boxed();
-    }
-
-    @NotNull
-    private ServiceHeuristics createHeuristics(TramTime actualQueryTime, JourneyConstraints journeyConstraints, int maxNumChanges) {
-        return new ServiceHeuristics(stationRepository, nodeContentsRepository, journeyConstraints, actualQueryTime,
-                maxNumChanges);
     }
 
     public Stream<RouteCalculator.TimedPath> findShortestPath(GraphTransaction txn, Set<GraphNodeId> destinationNodeIds,
@@ -217,8 +215,13 @@ public class RouteCalculatorSupport {
                                          EnumSet<TransportMode> requestedModes, int numChanges,
                                          JourneyConstraints journeyConstraints, Duration maxInitialWait,
                                          BranchOrderingPolicy selector) {
-        final ServiceHeuristics serviceHeuristics = createHeuristics(actualQueryTime, journeyConstraints, numChanges);
+        final ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeContentsRepository, journeyConstraints,
+                actualQueryTime, numChanges);
         return new PathRequest(startNode, queryDate, actualQueryTime, numChanges, serviceHeuristics, requestedModes, maxInitialWait, selector);
+    }
+
+    protected TimeRange getDestinationsAvailable(LocationSet destinations, TramDate tramDate) {
+        return stationAvailabilityRepository.getAvailableTimesFor(destinations, tramDate);
     }
 
     public static class PathRequest {
@@ -283,8 +286,7 @@ public class RouteCalculatorSupport {
     }
 
     public static Duration getMaxInitialWaitFor(final Location<?> location, final TramchesterConfig config) {
-        final DataSourceID dataSourceID = location.getDataSourceID();
-        return config.getInitialMaxWaitFor(dataSourceID);
+        return config.getInitialMaxWaitFor(location.getDataSourceID());
     }
 
     public static Duration getMaxInitialWaitFor(final Set<StationWalk> stationWalks, final TramchesterConfig config) {
@@ -293,7 +295,7 @@ public class RouteCalculatorSupport {
                 map(station -> getMaxInitialWaitFor(station, config)).
                 max(Duration::compareTo);
         if (longestWait.isEmpty()) {
-            throw new RuntimeException("Could not compute inital max wait for " + stationWalks);
+            throw new RuntimeException("Could not compute initial max wait for " + stationWalks);
         }
         return longestWait.get();
     }

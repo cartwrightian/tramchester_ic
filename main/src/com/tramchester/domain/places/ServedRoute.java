@@ -11,8 +11,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ServedRoute {
+
+    // TODO TEST ME PROPERLY!
 
     private final Set<RouteAndService> routeAndServices;
     private final Map<RouteAndService, TimeRange> timeWindows;
@@ -51,16 +54,23 @@ public class ServedRoute {
     public Set<Route> getRoutes(final TramDate date, final TimeRange range, final EnumSet<TransportMode> modes) {
         final Set<Route> results = getRouteForDateAndTimeRange(date, range, modes);
         if (range.intoNextDay()) {
-            TimeRange nextDayRange = range.forFollowingDay();
-            TramDate followingDay = date.plusDays(1);
+            final TimeRange nextDayRange = range.forFollowingDay();
+            final TramDate followingDay = date.plusDays(1);
             results.addAll(getRouteForDateAndTimeRange(followingDay, nextDayRange, modes));
         } else {
             // Cope with services from previous day that run into current date and range
-            TramDate previousDay = date.minusDays(1);
-            TimeRange previousDayRange = range.transposeToNextDay();
+            final TramDate previousDay = date.minusDays(1);
+            final TimeRange previousDayRange = range.transposeToNextDay();
             results.addAll(getRouteForDateAndTimeRange(previousDay, previousDayRange, modes));
         }
         return results;
+    }
+
+    public Stream<TimeRange> getTimeRanges(final TramDate tramDate, final EnumSet<TransportMode> modes) {
+        return routeAndServices.stream().
+                filter(routeAndService -> routeAndService.isAvailableOn(tramDate)).
+                filter(routeAndService -> modes.contains(routeAndService.getTransportMode())).
+                map(timeWindows::get);
     }
 
     // TODO Remove date filtering here?
@@ -74,12 +84,12 @@ public class ServedRoute {
                 collect(Collectors.toSet());
     }
 
-    public boolean anyAvailable(TramDate when, TimeRange timeRange, EnumSet<TransportMode> requestedModes) {
+    public boolean anyAvailable(final TramDate when, final TimeRange timeRange, final EnumSet<TransportMode> requestedModes) {
         // todo optimise this
         return !getRoutes(when, timeRange, requestedModes).isEmpty();
     }
 
-    private boolean hasTimeRangerOverlap(TimeRange range, RouteAndService routeAndService) {
+    private boolean hasTimeRangerOverlap(final TimeRange range, final RouteAndService routeAndService) {
         return timeWindows.get(routeAndService).anyOverlap(range);
     }
 
@@ -104,5 +114,6 @@ public class ServedRoute {
     public Set<TransportMode> getTransportModes() {
         return Collections.unmodifiableSet(allServedModes);
     }
+
 
 }

@@ -17,6 +17,9 @@ public enum KnownLocality {
     Broadheath("E0028613"),
     ManchesterCityCentre("E0057786"),
     PiccadillyGardens("N0075071"),
+    Bollington("E0044356"),
+
+    // see below, keep last of the GM locations
     OldfieldBrow("E0029171"),
 
     // out of bounds

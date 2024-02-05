@@ -3,6 +3,7 @@ package com.tramchester.integration.repository;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
@@ -91,6 +92,18 @@ public class StationAvailabilityRepositoryTest {
         boolean lateAtNight = availabilityRepository.isAvailable(stPeters, when, TimeRange.of(of(3,5), of(3,15)), modes);
 
         assertFalse(lateAtNight);
+    }
+
+    @Test
+    void shouldGetAvailableTimeRangeForDate() {
+        Station stPeters = StPetersSquare.from(stationRepository);
+        LocationSet destinations = LocationSet.singleton(stPeters);
+        TimeRange result = availabilityRepository.getAvailableTimesFor(destinations, when);
+
+        assertTrue(result.contains(TramTime.of(8,0)));
+        assertFalse(result.contains(TramTime.of(3,0)));
+
+        assertEquals(TimeRange.of(TramTime.of(5,15), TramTime.nextDay(0,51)), result);
     }
 
     @Test

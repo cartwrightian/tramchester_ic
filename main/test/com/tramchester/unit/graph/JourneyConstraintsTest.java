@@ -8,6 +8,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.search.JourneyConstraints;
 import com.tramchester.graph.search.LowestCostsForDestRoutes;
@@ -35,6 +36,7 @@ public class JourneyConstraintsTest extends EasyMockSupport {
     private RunningRoutesAndServices.FilterForDate filterForDate;
     private TestConfigWithTramMode config;
     private LowestCostsForDestRoutes lowestCostForDest;
+    private Duration maxJourneyDuration;
 
     @BeforeEach
     void beforeEachTestRuns() {
@@ -47,21 +49,49 @@ public class JourneyConstraintsTest extends EasyMockSupport {
 
         LocationSet endStations = LocationSet.singleton(TramStations.Bury.fake());
 
-        final Duration maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
+        maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
         journeyConstraints = new JourneyConstraints(config, filterForDate,
-                closedStations, endStations, lowestCostForDest, maxJourneyDuration);
+                closedStations, endStations, lowestCostForDest, maxJourneyDuration,
+                TimeRange.of(TramTime.of(8,0), TramTime.of(23,0)));
     }
 
     @Test
     void shouldCarryBasicParams() {
         assertEquals(config.getMaxWalkingConnections(), journeyConstraints.getMaxWalkingConnections());
-//        assertEquals(config.getMaxNeighbourConnections(), journeyConstraints.getMaxNumberWalkingConnections());
         assertMinutesEquals(config.getMaxJourneyDuration(), journeyConstraints.getMaxJourneyDuration());
     }
 
     @Test
     void shouldHaveProvidedLowestCostCalc() {
         assertSame(lowestCostForDest, journeyConstraints.getFewestChangesCalculator());
+    }
+
+    @Test
+    void shouldHaveTimesDestinationsAvailable() {
+        // outside of range but not after range
+        assertTrue(journeyConstraints.destinationsAvailable(TramTime.of(7,15)));
+        // within range
+        assertTrue(journeyConstraints.destinationsAvailable(TramTime.of(8,15)));
+
+        // after range
+        assertFalse(journeyConstraints.destinationsAvailable(TramTime.of(23,50)));
+        assertFalse(journeyConstraints.destinationsAvailable(TramTime.nextDay(1,5)));
+    }
+
+    @Test
+    void shouldHaveTimesAvailableEarlyMorningFromPreviousDay() {
+        TimeRange timeRange = TimeRange.of(TramTime.of(16, 0), TramTime.nextDay(1, 5));
+
+        JourneyConstraints constraints = new JourneyConstraints(config, filterForDate,
+                new IdSet<>(), LocationSet.singleton(TramStations.Bury.fake()), lowestCostForDest, maxJourneyDuration,
+                timeRange);
+
+        assertTrue(constraints.destinationsAvailable(TramTime.of(16,15)));
+        assertTrue(constraints.destinationsAvailable(TramTime.nextDay(0,45)));
+        assertTrue(constraints.destinationsAvailable(TramTime.of(0,45))); // not next day
+
+        assertFalse(constraints.destinationsAvailable(TramTime.of(1,10)));
+        assertFalse(constraints.destinationsAvailable(TramTime.nextDay(1,10)));
     }
 
     @Test
@@ -149,6 +179,12 @@ public class JourneyConstraintsTest extends EasyMockSupport {
         assertEquals(400, journeyConstraints.getMaxPathLength());
     }
 
+
+    @Test
+    void shouldCheckDestinationAvailableAtTime() {
+
+    }
+
     private static class TestConfigWithTramMode extends TestConfig {
         @Override
         protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
@@ -160,4 +196,5 @@ public class JourneyConstraintsTest extends EasyMockSupport {
             return EnumSet.of(Tram);
         }
     }
+
 }
