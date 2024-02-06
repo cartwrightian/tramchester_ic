@@ -11,6 +11,7 @@ import com.tramchester.graph.graphbuild.StationGroupsGraphBuilder;
 import com.tramchester.integration.testSupport.TestGroupType;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,7 @@ import java.util.stream.Stream;
 import static com.tramchester.graph.TransportRelationshipTypes.GROUPED_TO_GROUPED;
 import static org.junit.jupiter.api.Assertions.*;
 
+@BusTest
 public class StationGroupsGraphBuilderTest {
     private static ComponentContainer componentContainer;
     private static IntegrationBusTestConfig testConfig;
