@@ -310,6 +310,7 @@ public class DiagramCreator {
             case SUBWAY_GOES_TO -> "Subway";
             case GROUPED_TO_CHILD -> "groupChild";
             case GROUPED_TO_PARENT -> "groupParent";
+            case GROUPED_TO_GROUPED -> "G2G";
             case ROUTE_TO_STATION -> "RS";
             case STATION_TO_ROUTE -> "SR";
             case WALKS_FROM_STATION -> "WF";

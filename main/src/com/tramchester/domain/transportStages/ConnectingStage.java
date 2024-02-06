@@ -60,7 +60,7 @@ public class ConnectingStage<FROM extends Location<?>, DEST extends Location<?>>
 
     @Override
     public TramTime getExpectedArrivalTime() {
-        return walkStartTime.plus(getDuration());
+        return walkStartTime.plusRounded(getDuration());
     }
 
     @Override

@@ -85,7 +85,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         final GraphNode endNode = getLocationNodeSafe(txn, destination);
 
         // for walks we pass multiple destinations TODO check this is still the case
-        LocationSet destinations = LocationSet.singleton(destination);
+        final LocationSet destinations = LocationSet.singleton(destination);
 
         final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime());
 

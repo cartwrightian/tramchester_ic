@@ -107,7 +107,7 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
     private JourneyRequest calcDepartTime(JourneyRequest originalRequest, Duration costToDest, Duration maxInitialWait) {
         TramTime queryTime = originalRequest.getOriginalTime();
 
-        final TramTime departTime = queryTime.minus(costToDest);
+        final TramTime departTime = queryTime.minusRounded(costToDest);
 
         //final int waitTime = config.getMaxInitialWait() / 2;
         final int waitTimeMinutes = Math.toIntExact(maxInitialWait.toMinutes() / 2);

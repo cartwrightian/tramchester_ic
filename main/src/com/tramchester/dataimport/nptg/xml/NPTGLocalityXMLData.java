@@ -2,6 +2,7 @@ package com.tramchester.dataimport.nptg.xml;
 
 
 import com.fasterxml.jackson.annotation.*;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.GridPosition;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -74,5 +75,32 @@ public class NPTGLocalityXMLData  {
                 ", location=" + location +
                 ", parentLocalityRef='" + parentLocalityRef + '\'' +
                 '}';
+    }
+
+    public String getLatitude() {
+        return location.getTranslation().getLatitude();
+    }
+
+    public String getLongitude() {
+        return location.getTranslation().getLongitude();
+    }
+
+    public LatLong getLatLong() {
+        final String rawLat = getLatitude();
+        final String rawLon = getLongitude();
+        if (rawLat==null||rawLon==null) {
+            return LatLong.Invalid;
+        }
+        if (rawLat.isEmpty()||rawLon.isEmpty()) {
+            return LatLong.Invalid;
+        }
+        try {
+            double lat = Double.parseDouble(rawLat);
+            double lon = Double.parseDouble(rawLon);
+            return new LatLong(lat, lon);
+        }
+        catch (NumberFormatException exception) {
+            return LatLong.Invalid;
+        }
     }
 }

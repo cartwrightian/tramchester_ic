@@ -41,25 +41,31 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
         return id;
     }
 
-    public void setCost(Duration cost) {
-        int minutes = roundUpNearestMinute(cost);
-        relationship.setProperty(COST.getText(), minutes);
-    }
-
     public void setTransportMode(TransportMode transportMode) {
         relationship.setProperty(TRANSPORT_MODE.getText(), transportMode.getNumber());
     }
 
-    public void setMaxCost(Duration duration) {
-        int minutes = roundUpNearestMinute(duration);
-        relationship.setProperty(MAX_COST.getText(), minutes);
+    public void setCost(Duration cost) {
+//        int minutes = roundUpNearestMinute(cost);
+        long seconds = cost.toSeconds();
+        relationship.setProperty(COST.getText(), seconds);
     }
 
-    public int roundUpNearestMinute(final Duration duration) {
-        @SuppressWarnings("WrapperTypeMayBePrimitive")
-        final Double minutes = Math.ceil(duration.toSeconds()/60D);
-        return minutes.intValue();
+//    public void setMaxCost(Duration duration) {
+//        int minutes = roundUpNearestMinute(duration);
+//        relationship.setProperty(MAX_COST.getText(), minutes);
+//    }
+
+    public Duration getCost() {
+        final long seconds = (long) relationship.getProperty(COST.getText());
+        return Duration.ofSeconds(seconds);
     }
+
+//    public int roundUpNearestMinute(final Duration duration) {
+//        @SuppressWarnings("WrapperTypeMayBePrimitive")
+//        final Double minutes = Math.ceil(duration.toSeconds()/60D);
+//        return minutes.intValue();
+//    }
 
     public void setTime(TramTime tramTime) {
         setTime(tramTime, relationship);
@@ -121,10 +127,6 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
         relationship.delete();
     }
 
-    public Duration getCost() {
-        final int value = (int) relationship.getProperty(COST.getText());
-        return Duration.ofMinutes(value);
-    }
 
     @Override
     public GraphNode getEndNode(final GraphTransaction txn) {

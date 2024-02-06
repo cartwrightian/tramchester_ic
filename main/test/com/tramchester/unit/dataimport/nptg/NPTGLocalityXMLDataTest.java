@@ -59,6 +59,9 @@ class NPTGLocalityXMLDataTest extends ParserTestXMLHelper<NPTGLocalityXMLData> {
         assertEquals("365491", data.getEasting());
         assertEquals("158651", data.getNorthing());
 
+        assertEquals("51.3259", data.getLatitude());
+        assertEquals("-2.496644", data.getLongitude());
+
         assertEquals("N0060403", data.getParentLocalityRef());
     }
 

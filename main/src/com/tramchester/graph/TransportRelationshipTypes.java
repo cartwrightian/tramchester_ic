@@ -31,6 +31,7 @@ public enum TransportRelationshipTypes implements RelationshipType {
     // between grouped stations to/from contained stations
     GROUPED_TO_PARENT,
     GROUPED_TO_CHILD,
+    GROUPED_TO_GROUPED,
 
     // routes, allow faster initial estimation of cost and 'hop' counts while traversing minimal number of nodes
     ON_ROUTE,  // links route stations on same route

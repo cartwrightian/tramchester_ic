@@ -177,8 +177,8 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         routeToStation.setTransportMode(transportMode);
         stationToRoute.setTransportMode(transportMode);
 
-        stationToRoute.setMaxCost(minimumChangeCost);
-        routeToStation.setMaxCost(Duration.ZERO);
+//        stationToRoute.setMaxCost(minimumChangeCost);
+//        routeToStation.setMaxCost(Duration.ZERO);
     }
 
     // NOTE: for services that skip some stations, but same stations not skipped by other services

@@ -72,13 +72,13 @@ public class TramTime implements Comparable<TramTime> {
      * @param <T> type of the items to sort
      */
     public static <T> Comparator<T> RollingHourComparator(final int pivotPointHour, final ToHourFunction<T> toIntFunction) {
-        final int offset = 24 - pivotPointHour;
+        final int offset = HOURS_IN_DAY - pivotPointHour;
         return (itemA, itemB) -> {
             final int intA = toIntFunction.applyAsHour(itemA);
             final int intB = toIntFunction.applyAsHour(itemB);
 
-            final int modA = (intA+offset) % 24;
-            final int modB = (intB+offset) % 24;
+            final int modA = (intA+offset) % HOURS_IN_DAY;
+            final int modB = (intB+offset) % HOURS_IN_DAY;
 
             return Integer.compare(modA, modB);
         };
@@ -326,14 +326,31 @@ public class TramTime implements Comparable<TramTime> {
         return minusMinutes(minutes);
     }
 
+    public TramTime minusRounded(Duration duration) {
+        final double minutesExact = duration.toSeconds() / 60D;
+        final long minutes = Math.round(minutesExact);
+        return minusMinutes(Math.toIntExact(minutes));
+    }
+
+    /***
+     * Add duration but round to nearest minute
+     * @param duration duration to add
+     * @return the new time
+     */
+    public TramTime plusRounded(final Duration duration) {
+        final double minutesExact = duration.toSeconds() / 60D;
+        final long minutes = Math.round(minutesExact);
+        return plusMinutes(minutes);
+    }
+
     // TODO Store seconds in tram time
     private int getMinutesSafe(Duration duration) {
         long seconds = duration.getSeconds();
-        int mod = Math.floorMod(seconds, MINS_IN_HOUR);
+        int mod = Math.floorMod(seconds, 60);
         if (mod!=0) {
             throw new RuntimeException("Accuracy lost attempting to convert " + duration + " to minutes");
         }
-        return (int) Math.floorDiv(seconds, MINS_IN_HOUR);
+        return (int) Math.floorDiv(seconds, 60);
     }
 
     public TramTime plusMinutes(Long minsToAdd) {
@@ -401,6 +418,7 @@ public class TramTime implements Comparable<TramTime> {
         LocalDateTime base = LocalDateTime.of(startDate.toLocalDate(), asLocalTime());
         return base.plusDays(offsetDays);
     }
+
 
     @FunctionalInterface
     public interface ToTramTimeFunction<T> {

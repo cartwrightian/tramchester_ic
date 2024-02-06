@@ -110,7 +110,7 @@ public class PostcodeDataImporter {
     private PostcodeDataStream loadDataFromFile(Path file, BoundingBox loadedStationsBounds) {
         logger.debug("Load postcode data from " + file.toAbsolutePath());
 
-        final MarginInMeters walkingDistance = MarginInMeters.ofKM(config.getNearestStopForWalkingRangeKM());
+        final MarginInMeters walkingDistance = config.getWalkingDistanceRange();
 
         final TransportDataFromCSVFile<PostcodeData, PostcodeData> loader = new TransportDataFromCSVFile<>(file, PostcodeData.class, PostcodeData.CVS_HEADER, mapper);
         final Stream<PostcodeData> stream = getPostcodesFor(loader);

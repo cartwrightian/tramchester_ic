@@ -325,7 +325,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         }
 
         public void incrementJourneyClock(final Duration duration) {
-            journeyClock = journeyClock.plus(duration);
+            journeyClock = journeyClock.plusRounded(duration);
         }
 
         public boolean onBoard() {

@@ -37,7 +37,7 @@ class StationGroupTest {
 
         IdFor<NPTGLocality> areaId = NPTGLocality.createId("areaId");
         StationGroup groupedStations = new StationGroup(Collections.singleton(stationA), areaId,
-                "compName");
+                "compName", NPTGLocality.createId("parentId"), latLong);
 
         assertEquals(LocationType.StationGroup, groupedStations.getLocationType());
 
@@ -48,6 +48,7 @@ class StationGroupTest {
 
         assertEquals(areaId, groupedStations.getLocalityId());
         assertEquals(StationGroup.createId("areaId"), groupedStations.getId());
+        assertEquals(StationGroup.createId("parentId"), groupedStations.getParentId());
         assertEquals("areaId", groupedStations.getId().getGraphId());
 
         assertTrue(groupedStations.hasPlatforms());
@@ -86,7 +87,7 @@ class StationGroupTest {
 
         Set<Station> stations = new HashSet<>(Arrays.asList(stationA, stationB));
         IdFor<NPTGLocality> areaId = NPTGLocality.createId("areaId");
-        StationGroup stationGroup = new StationGroup(stations, areaId, "compName");
+        StationGroup stationGroup = new StationGroup(stations, areaId, "compName", NPTGLocality.InvalidId(), new LatLong(53, -2));
 
         assertEquals(LocationType.StationGroup, stationGroup.getLocationType());
 
@@ -97,8 +98,8 @@ class StationGroupTest {
         assertEquals("areaId", stationGroup.getId().getGraphId());
         //assertEquals("areaId", stationGroup.getId().forDTO());
 
-        assertEquals(3, stationGroup.getLatLong().getLat(),0);
-        assertEquals(6, stationGroup.getLatLong().getLon(),0);
+        assertEquals(53, stationGroup.getLatLong().getLat(),0);
+        assertEquals(-2, stationGroup.getLatLong().getLon(),0);
         assertEquals(areaId, stationGroup.getLocalityId());
 
         final Set<TransportMode> transportModes = stationGroup.getTransportModes();
@@ -133,7 +134,7 @@ class StationGroupTest {
 
         Set<Station> stations = new HashSet<>(Arrays.asList(stationA, stationB));
         IdFor<NPTGLocality> areaId = NPTGLocality.createId("areaId");
-        StationGroup stationGroup = new StationGroup(stations, areaId, "compName");
+        StationGroup stationGroup = new StationGroup(stations, areaId, "compName", NPTGLocality.InvalidId(), new LatLong(53, -2));
 
         assertFalse(stationGroup.hasPickup());
         assertFalse(stationGroup.hasDropoff());

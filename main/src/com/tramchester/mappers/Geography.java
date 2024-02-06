@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
-import static tech.units.indriya.unit.Units.METRE_PER_SECOND;
 import static tech.units.indriya.unit.Units.SECOND;
 
 
@@ -40,8 +39,6 @@ import static tech.units.indriya.unit.Units.SECOND;
 @LazySingleton
 public class Geography {
     private static final Logger logger = LoggerFactory.getLogger(Geography.class);
-
-    private final static double KILO_PER_MILE = 1.609344D;
 
     private static final String AUTHORITY = "EPSG";
 
@@ -54,8 +51,7 @@ public class Geography {
 
     @Inject
     public Geography(TramchesterConfig config) {
-        final double metersPerSecond = (config.getWalkingMPH() * KILO_PER_MILE * 1000) / 3600D;
-        walkingSpeed = Quantities.getQuantity(metersPerSecond, METRE_PER_SECOND);
+        walkingSpeed = config.getWalkingSpeed();
 
         final int srid = Integer.parseInt(latLongCode);
         geometryFactoryLatLong = new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING), srid);

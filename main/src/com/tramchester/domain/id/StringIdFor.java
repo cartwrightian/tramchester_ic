@@ -110,11 +110,6 @@ public class StringIdFor<T extends CoreDomain> implements IdFor<T> {
         return domainType;
     }
 
-//    public static <Z extends CoreDomain> IdFor<Z> getIdFromGraphEntity(Entity entity, GraphPropertyKey propertyKey, Class<Z> domainType) {
-//        String value =  entity.getProperty(propertyKey.getText()).toString();
-//        return createId(value, domainType);
-//    }
-
     public static <CLASS extends CoreDomain> StringIdFor<CLASS> invalid(Class<CLASS> domainType) {
         return new StringIdFor<>(domainType);
     }

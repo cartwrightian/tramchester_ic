@@ -218,7 +218,7 @@ public class ServiceHeuristics {
         reasons.incrementTotalChecked();
 
         if (Durations.greaterThan(totalDuration, journeyConstraints.getMaxJourneyDuration())) {
-            return reasons.recordReason(ServiceReason.TookTooLong(actualQueryTime.plus(totalDuration), howIGotHere));
+            return reasons.recordReason(ServiceReason.TookTooLong(actualQueryTime.plusRounded(totalDuration), howIGotHere));
         }
         return valid(ReasonCode.DurationOk, howIGotHere, reasons);
     }

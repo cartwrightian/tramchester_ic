@@ -6,7 +6,6 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.postcodes.PostcodeData;
 import com.tramchester.dataimport.postcodes.PostcodeDataImporter;
 import com.tramchester.geo.BoundingBox;
-import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.integration.testSupport.tram.TramWithPostcodesEnabled;
 import com.tramchester.testSupport.TestEnv;
@@ -85,7 +84,7 @@ class PostcodeDataImporterTest {
     void shouldMatchStationsBounds() {
 
         // Check bounding box formed by stations plus margin
-        long margin = Math.round(testConfig.getNearestStopForWalkingRangeKM() * 1000D);
+        long margin = testConfig.getWalkingDistanceRange().get(); //Math.round(testConfig.getNearestStopForWalkingRangeKM() * 1000D);
 
         BoundingBox bounds = stationLocations.getActiveStationBounds();
 
@@ -118,10 +117,6 @@ class PostcodeDataImporterTest {
     }
 
     private boolean outsideStationRange(PostcodeData postcode) {
-        return !stationLocations.anyStationsWithinRangeOf(postcode.getGridPosition(),
-                MarginInMeters.ofKM(testConfig.getNearestStopForWalkingRangeKM()));
-//        List<Station> found = stationLocations.nearestStationsSorted(postcode.getGridPosition(), 1,
-//                MarginInMeters.of(testConfig.getNearestStopForWalkingRangeKM()));
-//        return found.isEmpty();
+        return !stationLocations.anyStationsWithinRangeOf(postcode.getGridPosition(), testConfig.getWalkingDistanceRange());
     }
 }

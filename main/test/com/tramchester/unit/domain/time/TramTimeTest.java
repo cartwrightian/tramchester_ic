@@ -445,6 +445,26 @@ class TramTimeTest {
     }
 
     @Test
+    void shouldRoundToNearestMinutes() {
+        TramTime time = of(1,13);
+
+        assertEquals(time, time.plusRounded(Duration.ofSeconds(0)));
+        assertEquals(time, time.plusRounded(Duration.ofSeconds(1)));
+        assertEquals(time, time.plusRounded(Duration.ofSeconds(29)));
+
+        TramTime plusOneMinute = time.plusMinutes(1);
+        assertEquals(plusOneMinute, time.plusRounded(Duration.ofSeconds(30)));
+        assertEquals(plusOneMinute, time.plusRounded(Duration.ofSeconds(31)));
+        assertEquals(plusOneMinute, time.plusRounded(Duration.ofSeconds(59)));
+        assertEquals(plusOneMinute, time.plusRounded(Duration.ofSeconds(60)));
+        assertEquals(plusOneMinute, time.plusRounded(Duration.ofSeconds(61)));
+
+        assertEquals(time.plusMinutes(2), time.plusRounded(Duration.ofSeconds(121)));
+
+
+    }
+
+    @Test
     void shouldNotThrowIfSafeConversationIsUsed() {
         LocalTime now = LocalTime.now();
         final LocalTime time = now.getSecond()==0 ? now.plusSeconds(1) : now;

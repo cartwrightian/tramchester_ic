@@ -5,6 +5,7 @@ import tech.units.indriya.quantity.Quantities;
 import tech.units.indriya.unit.Units;
 
 import javax.measure.quantity.Length;
+import java.util.Objects;
 
 public class MarginInMeters {
     private final int meters;
@@ -46,5 +47,18 @@ public class MarginInMeters {
 
     public boolean within(final ComparableQuantity<Length> amount) {
         return amount.isLessThanOrEqualTo(getDistance());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MarginInMeters that = (MarginInMeters) o;
+        return meters == that.meters;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(meters);
     }
 }

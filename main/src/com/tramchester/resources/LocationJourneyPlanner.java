@@ -69,7 +69,7 @@ public class LocationJourneyPlanner {
         this.nodeOperations = nodeOperations;
         this.stationLocations = stationLocations;
         this.graphFilter = graphFilter;
-        this.margin = MarginInMeters.ofKM(config.getNearestStopForWalkingRangeKM());
+        this.margin = config.getWalkingDistanceRange();
         this.routeToRouteCosts = routeToRouteCosts;
     }
 
@@ -332,7 +332,7 @@ public class LocationJourneyPlanner {
             }
 
             walkingRelationship.setCost(cost);
-            walkingRelationship.setMaxCost(cost);
+//            walkingRelationship.setMaxCost(cost);
             walkingRelationship.set(walkStation);
             return walkingRelationship;
         }

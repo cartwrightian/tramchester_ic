@@ -129,7 +129,7 @@ class MapStatesToStages implements JourneyStateUpdate {
     }
 
     private TramTime getActualClock() {
-        return actualTime.plus(totalCost.minus(costOffsetAtActual));
+        return actualTime.plusRounded(totalCost.minus(costOffsetAtActual));
     }
 
     @Override
@@ -149,7 +149,7 @@ class MapStatesToStages implements JourneyStateUpdate {
             logger.info("Begin walk from start " + walkStartLocation + " at " + beginWalkClock) ;
         } else {
             walkStartStation = beforeWalkNode.getStationId();
-            beginWalkClock = getActualClock().minus(cost);
+            beginWalkClock = getActualClock().minusRounded(cost);
             logger.info("Begin walk from station " + walkStartStation + " at " + beginWalkClock);
         }
     }

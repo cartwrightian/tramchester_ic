@@ -250,10 +250,22 @@ public class TestEnv {
         assertEquals(expected.getLon(), actual.getLon(), delta, "lon: " +message);
     }
 
+    @Deprecated
     public static void assertMinutesEquals(int minutes, Duration duration) {
         assertEquals(Duration.ofMinutes(minutes), duration, "Duration %s did match %d minutes".formatted(duration, minutes));
     }
 
+    @Deprecated
+    public static void assertMinutesEquals(Duration durationA, Duration durationB) {
+        assertEquals(roundToMinutes(durationA), roundToMinutes(durationB), "Duration %s did match %s round to mins".formatted(durationA, durationB));
+    }
+
+    private static long roundToMinutes(Duration duration) {
+        final double minutesExact = duration.toSeconds() / 60D;
+        return Math.round(minutesExact);
+    }
+
+    @Deprecated
     public static void assertMinutesEquals(int minutes, Duration duration, String message) {
         assertEquals(Duration.ofMinutes(minutes), duration, message);
     }

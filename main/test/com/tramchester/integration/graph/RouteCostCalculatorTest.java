@@ -24,6 +24,7 @@ import java.util.Set;
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
 import static com.tramchester.testSupport.reference.TramStations.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ConfigParameterResolver.class)
 @DualTest
@@ -92,7 +93,7 @@ class RouteCostCalculatorTest {
         final Duration altyToBury = routeCostCalculator.getAverageCostBetween(txn, altrincham, bury, when, modes);
 
         assertMinutesEquals(63, buryToAlty);
-        assertMinutesEquals(65, altyToBury);
+        assertEquals(Duration.ofMinutes(64).plusSeconds(38), altyToBury);
     }
 
     @Test

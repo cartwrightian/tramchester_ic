@@ -67,11 +67,11 @@ public class RouteCostCalculator {
     }
 
     private Duration getCostBetween(GraphTransaction txn, Location<?> startLocation, Location<?> endLocation, GraphPropertyKey key, TramDate date, Set<TransportMode> modes) throws InvalidDurationException {
-        GraphNode startNode = txn.findNode(startLocation);
+        final GraphNode startNode = txn.findNode(startLocation);
         if (startNode==null) {
             throw new RuntimeException("Could not find start node for graph id " + startLocation.getId().getGraphId());
         }
-        GraphNode endNode = txn.findNode(endLocation);
+        final GraphNode endNode = txn.findNode(endLocation);
         if (endNode==null) {
             throw new RuntimeException("Could not find end node for graph id" + endLocation.getId().getGraphId());
         }
@@ -84,26 +84,26 @@ public class RouteCostCalculator {
     private Duration calculateLeastCost(GraphTransaction txn, GraphNode startNode, GraphNode endNode, GraphPropertyKey key,
                                         TramDate date, Set<TransportMode> modes) throws InvalidDurationException {
 
-        Set<Route> routesRunningOn = routeRepository.getRoutesRunningOn(date).stream().
+        final Set<Route> routesRunningOn = routeRepository.getRoutesRunningOn(date).stream().
                 filter(route -> modes.contains(route.getTransportMode())).collect(Collectors.toSet());
 
-        IdSet<Route> available = IdSet.from(routesRunningOn);
+        final IdSet<Route> available = IdSet.from(routesRunningOn);
         // TODO fetch all the relationshipIds first
 
-        EvaluationContext context = graphDatabaseService.createContext(txn);
+        final EvaluationContext context = graphDatabaseService.createContext(txn);
 
-        GraphRelationshipFilter routeFilter = new GraphRelationshipFilter(txn,
+        final GraphRelationshipFilter routeFilter = new GraphRelationshipFilter(txn,
                 graphRelationship -> !graphRelationship.isType(ON_ROUTE) || available.contains(graphRelationship.getRouteId()));
 
 //        Predicate<? super Relationship> routeFilter = (Predicate<Relationship>) relationship ->
 //                !relationship.isType(ON_ROUTE) || available.contains(GraphProps.getRouteIdFrom(relationship));
 
-        PathExpander<Double> forTypesAndDirections = fullExpanderForCostApproximation(routeFilter);
+        final PathExpander<Double> forTypesAndDirections = fullExpanderForCostApproximation(routeFilter);
 
-        PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(context, forTypesAndDirections,
+        final PathFinder<WeightedPath> finder = GraphAlgoFactory.dijkstra(context, forTypesAndDirections,
                 new UsefulLoggingCostEvaluator(key));
 
-        WeightedPath path = ImmutableGraphNode.findSinglePath(finder, startNode, endNode);
+        final WeightedPath path = ImmutableGraphNode.findSinglePath(finder, startNode, endNode);
         if (path==null) {
             final String message = format("No (least cost) path found between node %s [%s] and node %s [%s]",
                     startNode.getId(), startNode.getAllProperties(), endNode.getId(), endNode.getAllProperties());
@@ -112,8 +112,8 @@ public class RouteCostCalculator {
         }
         double weight  = Math.floor(path.weight());
 
-        int value = (int) weight;
-        return Duration.ofMinutes(value);
+        int seconds = (int) weight;
+        return Duration.ofSeconds(seconds);
     }
 
     private PathExpander<Double> fullExpanderForCostApproximation(Predicate<? super Relationship> routeFilter) {
@@ -125,6 +125,7 @@ public class RouteCostCalculator {
                 add(WALKS_FROM_STATION, Direction.OUTGOING).
                 add(NEIGHBOUR, Direction.OUTGOING).
                 add(GROUPED_TO_PARENT, Direction.OUTGOING).
+                add(GROUPED_TO_GROUPED, Direction.OUTGOING).
                 add(GROUPED_TO_CHILD, Direction.OUTGOING).
                 addRelationshipFilter(routeFilter).
                 build();

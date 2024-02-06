@@ -5,16 +5,19 @@ import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.presentation.LatLong;
 
 public class NPTGLocality implements CoreDomain, HasId<NPTGLocality> {
     private final IdFor<NPTGLocality> id;
     private final String localityName;
     private final String parentLocalityName;
     private final IdFor<NPTGLocality> parentLocalityId;
+    private final LatLong latLong;
 
     public NPTGLocality(NPTGLocalityXMLData item, String parentLocalityName) {
         this.id = createId(item.getNptgLocalityCode());
         this.localityName = item.getLocalityName();
+        this.latLong = item.getLatLong();
 
         String parentLocalityRef = item.getParentLocalityRef();
         if (parentLocalityRef==null) {
@@ -52,5 +55,13 @@ public class NPTGLocality implements CoreDomain, HasId<NPTGLocality> {
 
     public IdFor<NPTGLocality> getParentLocalityId() {
         return parentLocalityId;
+    }
+
+    public boolean hasParentLocalityId() {
+        return parentLocalityId.isValid();
+    }
+
+    public LatLong getLatLong() {
+        return latLong;
     }
 }

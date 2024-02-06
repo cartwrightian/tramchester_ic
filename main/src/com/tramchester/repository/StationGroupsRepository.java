@@ -4,7 +4,6 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
-import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
@@ -31,6 +30,11 @@ import static java.lang.String.format;
 @LazySingleton
 public class StationGroupsRepository {
     private static final Logger logger = LoggerFactory.getLogger(StationGroupsRepository.class);
+
+
+    // TODO this should be zero?
+    // Group needs to have more than this many stations to be includes
+    public static final int NUMBER_OF_STATIONS_THRESHOLD = 1;
 
     private final TramchesterConfig config;
     private final NaptanRepository naptanRepository;
@@ -75,7 +79,7 @@ public class StationGroupsRepository {
         }
 
         logger.info("starting");
-        List<GTFSSourceConfig> dataSources = config.getGTFSDataSource();
+        final List<GTFSSourceConfig> dataSources = config.getGTFSDataSource();
         dataSources.forEach(dataSource -> {
             final Set<TransportMode> modesToGroupStations = dataSource.groupedStationModes();
             if (!modesToGroupStations.isEmpty()) {
@@ -120,30 +124,60 @@ public class StationGroupsRepository {
                 collect(Collectors.groupingBy(Station::getLocalityId, Collectors.toSet()));
 
         groupedByAreaId.entrySet().stream().
-                filter(item -> item.getValue().size() > 1).
+                filter(item -> item.getValue().size() > NUMBER_OF_STATIONS_THRESHOLD).
                 forEach(item -> {
                     final Set<Station> stationsInArea = item.getValue();
-                    stationsInArea.forEach(station ->  addStationGroup(item.getKey(), stationsInArea));
+                    stationsInArea.forEach(station ->  addStationGroup(item.getKey(), stationsInArea, groupedByAreaId));
                 });
 
         logger.info("Created " + stationGroups.size() + " composite stations from " + groupedByAreaId.size());
     }
 
-    private void addStationGroup(final IdFor<NPTGLocality> localityId, final Set<Station> stationsToGroup) {
+    private void addStationGroup(final IdFor<NPTGLocality> localityId, final Set<Station> stationsToGroup,
+                                 final Map<IdFor<NPTGLocality>, Set<Station>> groupedByAreaId) {
 
         final String areaName;
+        final NPTGLocality locality;
         if (nptgRepository.hasLocaility(localityId)) {
-            final NPTGLocality locality = nptgRepository.get(localityId);
+            locality = nptgRepository.get(localityId);
             areaName = locality.getLocalityName();
         } else {
-            areaName  = localityId.toString();
-            logger.error(format("Using %s as name, missing area code %s for station group %s", areaName, localityId, HasId.asIds(stationsToGroup)));
+            String message = "Missing locality " + localityId;
+            logger.error(message);
+            throw new RuntimeException(message);
+//            areaName  = localityId.toString();
+//            locality = null;
+//            logger.error(format("Using %s as name, missing area code %s for station group %s", areaName, localityId, HasId.asIds(stationsToGroup)));
         }
 
-        final StationGroup stationGroup = new StationGroup(stationsToGroup, localityId, areaName);
+        final IdFor<NPTGLocality> parentId = getParentIdFor(locality, groupedByAreaId);
+
+        final StationGroup stationGroup = new StationGroup(stationsToGroup, localityId, areaName, parentId, locality.getLatLong());
 
         stationGroups.put(stationGroup.getId(), stationGroup);
         stationGroupsByName.put(areaName, stationGroup);
+    }
+
+    private IdFor<NPTGLocality> getParentIdFor(final NPTGLocality locality, final Map<IdFor<NPTGLocality>, Set<Station>> groupedByAreaId) {
+        if (locality==null) {
+            return NPTGLocality.InvalidId();
+        }
+
+        final IdFor<NPTGLocality> parentId = locality.getParentLocalityId();
+
+        if (!parentId.isValid()) {
+            return NPTGLocality.InvalidId();
+        }
+
+        if (!groupedByAreaId.containsKey(parentId)) {
+            return NPTGLocality.InvalidId();
+        }
+
+        if (groupedByAreaId.get(parentId).size()<= NUMBER_OF_STATIONS_THRESHOLD) {
+            return NPTGLocality.InvalidId();
+        }
+
+        return parentId;
     }
 
     private void guardIsEnabled() {

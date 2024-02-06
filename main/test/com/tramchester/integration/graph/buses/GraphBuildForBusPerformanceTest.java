@@ -44,7 +44,7 @@ class GraphBuildForBusPerformanceTest {
     }
 
     @Test
-    void shouldTriggerCompositesBuild() {
+    void shouldTriggerGroupBuild() {
         componentContainer.get(StationGroupsGraphBuilder.Ready.class);
     }
 

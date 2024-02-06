@@ -33,13 +33,20 @@ public class StationGroup implements Location<StationGroup> {
 
     private final LatLong latLong;
     private final DataSourceID dataSourceId;
+    private final IdFor<StationGroup> parentId;
 
-    public StationGroup(Set<Station> groupedStations, IdFor<NPTGLocality> localityId, String name) {
+    public StationGroup(final Set<Station> groupedStations, final IdFor<NPTGLocality> localityId, final String name, final IdFor<NPTGLocality> parentId,
+                        LatLong latLong) {
         if (groupedStations.isEmpty()) {
             throw new RuntimeException("Attempt to create empty group for " + localityId + " name name " +name);
         }
         this.id = idFrom(localityId);
-        this.latLong = computeLatLong(groupedStations);
+        if (parentId.isValid()) {
+            this.parentId = idFrom(parentId);
+        } else {
+            this.parentId = StringIdFor.invalid(StationGroup.class);
+        }
+        this.latLong = latLong;
         this.dataSourceId = computeDataSourceId(groupedStations);
         this.groupedStations = groupedStations;
         this.localityId = localityId;
@@ -169,24 +176,24 @@ public class StationGroup implements Location<StationGroup> {
         return sourceIds.iterator().next();
     }
 
-    private static LatLong computeLatLong(Set<Station> stations) {
-        double lat = stations.stream().mapToDouble(station -> station.getLatLong().getLat()).
-                average().orElse(Double.NaN);
-        double lon = stations.stream().mapToDouble(station -> station.getLatLong().getLon()).
-                average().orElse(Double.NaN);
-        return new LatLong(lat, lon);
-    }
-
     @Override
     public String toString() {
         return "GroupedStations{" +
-                "areaId=" + localityId +
-                ", groupedStations=" + HasId.asIds(groupedStations) +
+                " id=" + id +
+                ", areaId=" + localityId +
                 ", name='" + name + '\'' +
-                ", id=" + id +
                 ", latLong=" + latLong +
                 ", dataSourceId=" + dataSourceId +
+                ", parentId=" + parentId +
+                ", groupedStations=" + HasId.asIds(groupedStations) +
                 '}';
     }
 
+    public IdFor<StationGroup> getParentId() {
+        return parentId;
+    }
+
+    public boolean hasParent() {
+        return parentId.isValid();
+    }
 }

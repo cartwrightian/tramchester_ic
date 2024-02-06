@@ -244,7 +244,7 @@ public class GraphPropsTest {
     }
 
     @Test
-    void shouldSetCostCeiling() {
+    void shouldSetCostExact() {
         MutableGraphNode nodeA = txn.createNode(GraphLabel.ROUTE_STATION);
         MutableGraphNode nodeB = txn.createNode(GraphLabel.ROUTE_STATION);
 
@@ -256,23 +256,7 @@ public class GraphPropsTest {
 
         Duration result = relationship.getCost();
 
-        assertEquals(Duration.ofMinutes(43), result);
-    }
-
-    @Test
-    void shouldSetCostRoundUp() {
-        MutableGraphNode nodeA = txn.createNode(GraphLabel.ROUTE_STATION);
-        MutableGraphNode nodeB = txn.createNode(GraphLabel.ROUTE_STATION);
-
-        MutableGraphRelationship relationship = nodeA.createRelationshipTo(txn, nodeB, TransportRelationshipTypes.ON_ROUTE);
-
-        Duration duration = Duration.ofMinutes(42).plusSeconds(55);
-
-        relationship.setCost(duration);
-
-        Duration result = relationship.getCost();
-
-        assertEquals(Duration.ofMinutes(43), result);
+        assertEquals(duration, result);
     }
 
     @NotNull

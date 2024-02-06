@@ -76,12 +76,18 @@ public class CreateNodesAndRelationships {
         return addRelationshipFor(txn, fromNode, toNode, walkCost, NEIGHBOUR);
     }
 
-    protected void addGroupRelationshipTowardsParent(MutableGraphTransaction txn, MutableGraphNode stationNode, MutableGraphNode groupNode, Duration walkCost) {
+    protected void addContainedRelationshipTowardsGroup(MutableGraphTransaction txn, MutableGraphNode stationNode, MutableGraphNode groupNode, Duration walkCost) {
         addRelationshipFor(txn, stationNode, groupNode, walkCost, GROUPED_TO_PARENT);
     }
 
-    protected void addGroupRelationshipTowardsChild(MutableGraphTransaction txn, MutableGraphNode groupNode, MutableGraphNode stationNode, Duration walkCost) {
+    protected void addGroupRelationshipTowardsContained(MutableGraphTransaction txn, MutableGraphNode groupNode, MutableGraphNode stationNode, Duration walkCost) {
         addRelationshipFor(txn, groupNode, stationNode, walkCost, GROUPED_TO_CHILD);
+    }
+
+    protected void addRelationshipsBetweenGroupAndParentGroup(final MutableGraphTransaction txn, final MutableGraphNode childGroupNode,
+                                                              final MutableGraphNode parentGroupNode, final Duration walkCost) {
+        addRelationshipFor(txn, parentGroupNode, childGroupNode, walkCost, GROUPED_TO_GROUPED);
+        addRelationshipFor(txn, childGroupNode, parentGroupNode, walkCost, GROUPED_TO_GROUPED);
     }
 
     private boolean addRelationshipFor(final MutableGraphTransaction txn, final MutableGraphNode fromNode, final MutableGraphNode toNode,
@@ -97,7 +103,7 @@ public class CreateNodesAndRelationships {
 
         final MutableGraphRelationship relationship = createRelationship(txn, fromNode, toNode, relationshipType);
         relationship.setCost(walkCost);
-        relationship.setMaxCost(walkCost);
+//        relationship.setMaxCost(walkCost);
         return true;
     }
 }

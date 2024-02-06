@@ -2,13 +2,17 @@ package com.tramchester.integration.repository.nptg;
 
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.NaptanRecord;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithNaptan;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.naptan.NaptanRepository;
 import com.tramchester.repository.nptg.NPTGRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -21,6 +25,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.EnumSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -29,6 +35,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class NPTGRepositoryTest {
     private static GuiceContainerDependencies componentContainer;
     private NPTGRepository repository;
+    private StationRepository stationRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -46,6 +53,7 @@ public class NPTGRepositoryTest {
     @BeforeEach
     void beforeEachTestRuns() {
         repository = componentContainer.get(NPTGRepository.class);
+        stationRepository = componentContainer.get(StationRepository.class);
     }
 
     @Test
@@ -58,6 +66,8 @@ public class NPTGRepositoryTest {
         NPTGLocality result = repository.get(id);
         assertEquals("Castlefield", result.getLocalityName());
         assertEquals(KnownLocality.ManchesterCityCentre.getLocalityId(), result.getParentLocalityId(), result.toString());
+
+        assertEquals(new LatLong(53.47642,-2.253821), result.getLatLong());
     }
 
     @Test
@@ -115,5 +125,26 @@ public class NPTGRepositoryTest {
         NPTGLocality manchester = repository.get(manchesterId);
         assertEquals(NPTGLocality.InvalidId(), manchester.getParentLocalityId());
     }
+
+    @Test
+    void spikeOnLocalitiesWithStationAndParent() {
+        IdSet<NPTGLocality> fromStations = stationRepository.getAllStationStream().map(Location::getLocalityId).collect(IdSet.idCollector());
+
+        Set<NPTGLocality> withStations = repository.getAll().stream().filter(locality -> fromStations.contains(locality.getId())).collect(Collectors.toSet());
+
+        assertFalse(withStations.isEmpty());
+
+        Set<NPTGLocality> withStationAndParents = withStations.stream().filter(NPTGLocality::hasParentLocalityId).collect(Collectors.toSet());
+
+        assertFalse(withStationAndParents.isEmpty());
+
+        Set<NPTGLocality> parentHasStations = withStationAndParents.stream().
+                filter(locality -> fromStations.contains(locality.getParentLocalityId())).collect(Collectors.toSet());
+
+        assertFalse(parentHasStations.isEmpty());
+
+        assertEquals(31, parentHasStations.size(), HasId.asIds(parentHasStations));
+    }
+
 
 }

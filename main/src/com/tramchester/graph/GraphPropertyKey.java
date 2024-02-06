@@ -22,7 +22,7 @@ public enum GraphPropertyKey {
     AREA_ID("area_id"),
 
     COST("cost"),
-    MAX_COST("max_cost"),
+//    MAX_COST("max_cost"),
     HOUR("hour"),
     TIME("time"),
     DAY_OFFSET("day_offset"),

@@ -89,8 +89,7 @@ public class NaptanRepositoryContainer implements NaptanRepository {
     private void loadStopDataForConfiguredArea() {
 
         final BoundingBox bounds = config.getBounds();
-        final Double range = config.getNearestStopForWalkingRangeKM();
-        final MarginInMeters margin = MarginInMeters.ofKM(range);
+        final MarginInMeters margin = config.getWalkingDistanceRange();
 
         logger.info("Loading data for " + bounds + " and range " + margin);
 

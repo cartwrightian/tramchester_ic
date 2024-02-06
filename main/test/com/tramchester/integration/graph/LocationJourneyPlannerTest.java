@@ -317,7 +317,7 @@ class LocationJourneyPlannerTest {
             assertEquals(TransportMode.Walk, rawStage.getMode());
             assertEquals(PiccadillyGardens.getId(), rawStage.getLastStation().getId());
             assertEquals(nearPiccGardens.latLong(), rawStage.getFirstStation().getLatLong());
-            assertMinutesEquals(3, rawStage.getDuration());
+            assertMinutesEquals(Duration.ofMinutes(2), rawStage.getDuration());
         });
     }
 

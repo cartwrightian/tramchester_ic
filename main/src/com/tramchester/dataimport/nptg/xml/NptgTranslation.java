@@ -9,11 +9,17 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 public class NptgTranslation {
     private final String easting;
     private final String northing;
+    private final String latitude;
+    private final String longitude;
 
     public NptgTranslation(@JsonProperty("Easting") String easting,
-                           @JsonProperty("Northing") String northing) {
+                           @JsonProperty("Northing") String northing,
+                           @JsonProperty("Latitude") String latitude,
+                           @JsonProperty("Longitude") String longitude) {
         this.easting = easting;
         this.northing = northing;
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 
     public String getEasting() {
@@ -22,5 +28,13 @@ public class NptgTranslation {
 
     public String getNorthing() {
         return northing;
+    }
+
+    public String getLatitude() {
+        return latitude;
+    }
+
+    public String getLongitude() {
+        return longitude;
     }
 }

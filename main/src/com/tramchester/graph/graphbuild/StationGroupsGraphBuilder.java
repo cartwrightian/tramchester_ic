@@ -3,12 +3,14 @@ package com.tramchester.graph.graphbuild;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.TimedTransaction;
+import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.MutableGraphNode;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.filters.GraphFilter;
@@ -22,7 +24,10 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /***
  * Add nodes and relationships for group stations to the existing graph
@@ -37,6 +42,7 @@ public class StationGroupsGraphBuilder extends CreateNodesAndRelationships {
     private final GraphFilter graphFilter;
     private final StationAndPlatformNodeCache stationAndPlatformNodeCache;
     private final Geography geography;
+    private final Duration maxWalkingDuration;
 
     // NOTE: cannot use graphquery here as creates a circular dependency on this class
 
@@ -52,6 +58,7 @@ public class StationGroupsGraphBuilder extends CreateNodesAndRelationships {
         this.graphFilter = graphFilter;
         this.stationAndPlatformNodeCache = builderCache;
         this.geography = geography;
+        maxWalkingDuration = config.getWalkingDuration();
     }
 
     @PostConstruct
@@ -72,7 +79,7 @@ public class StationGroupsGraphBuilder extends CreateNodesAndRelationships {
                 return;
             }
         }
-        config.getTransportModes().forEach(this::addCompositeNodesAndLinks);
+        config.getTransportModes().forEach(this::addGroupedStationsNodesAndLinks);
         try(MutableGraphTransaction txn = graphDatabase.beginTxMutable()) {
             addDBFlag(txn);
             txn.commit();
@@ -85,25 +92,63 @@ public class StationGroupsGraphBuilder extends CreateNodesAndRelationships {
         return new Ready();
     }
 
-    private void addCompositeNodesAndLinks(final TransportMode mode) {
-        final Set<StationGroup> allComposite = stationGroupsRepository.getStationGroupsFor(mode);
+    private void addGroupedStationsNodesAndLinks(final TransportMode mode) {
+        final Set<StationGroup> groupsForMode = stationGroupsRepository.getStationGroupsFor(mode);
 
-        if (allComposite.isEmpty()) {
-            logger.info("No composite stations to add for " + mode);
+        if (groupsForMode.isEmpty()) {
+            logger.info("No grouped stations to add for " + mode);
             return;
         }
 
-        final String logMessage = "adding " + allComposite.size() + " composite stations for " + mode;
+        final String logMessage = "Adding " + groupsForMode.size() + " station groups for " + mode;
+
+        final Map<IdFor<StationGroup>, GraphNodeId> nodeForGroups = new HashMap<>();
 
         try(TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, logMessage)) {
             final MutableGraphTransaction txn = timedTransaction.transaction();
-            allComposite.stream().filter(graphFilter::shouldInclude).
+            groupsForMode.stream().filter(graphFilter::shouldInclude).
                 filter(this::shouldInclude).
-                forEach(compositeStation -> {
-                    final MutableGraphNode groupNode = createGroupedStationNodes(txn, compositeStation);
-                    linkStations(txn, groupNode, compositeStation);
+                forEach(group -> {
+                    final MutableGraphNode groupNode = createGroupedStationNodes(txn, group);
+                    nodeForGroups.put(group.getId(), groupNode.getId());
+                    linkStationsWithGroup(txn, groupNode, group);
             });
             timedTransaction.commit();
+        }
+
+        logger.info("Added " + nodeForGroups.size() + " station groups");
+
+        final AtomicInteger parentChildLinks = new AtomicInteger(0);
+        try(TimedTransaction addParentTxn = new TimedTransaction(graphDatabase, logger, "add parents for groups")) {
+            final MutableGraphTransaction txn = addParentTxn.transaction();
+            groupsForMode.stream().filter(graphFilter::shouldInclude).
+                    filter(this::shouldInclude).
+                    filter(StationGroup::hasParent).
+                    filter(group -> nodeForGroups.containsKey(group.getParentId())).
+                    forEach(group -> {
+                        final GraphNodeId currentNodeId = nodeForGroups.get(group.getId());
+                        final GraphNodeId parentNodeId = nodeForGroups.get(group.getParentId());
+                        createGroupToParentRelationship(txn, txn.getNodeByIdMutable(currentNodeId), txn.getNodeByIdMutable(parentNodeId), group);
+                        parentChildLinks.getAndIncrement();
+                    });
+            addParentTxn.commit();
+        }
+
+        logger.info("Added " + parentChildLinks.get() + " links between parent/child station groups");
+
+        nodeForGroups.clear();
+
+    }
+
+    private void createGroupToParentRelationship(final MutableGraphTransaction txn, final MutableGraphNode childNode,
+                                                 final MutableGraphNode parentNode, final StationGroup childGroup) {
+        // parent group <-> child group
+        final Location<?> parentGroup = stationGroupsRepository.getStationGroup(childGroup.getParentId());
+        final Duration walkingCost = geography.getWalkingDuration(childGroup, parentGroup);
+
+        if (walkingCost.compareTo(maxWalkingDuration)<=0) {
+            // todo seems some group's parents are a long way off
+            addRelationshipsBetweenGroupAndParentGroup(txn, childNode, parentNode, walkingCost);
         }
     }
 
@@ -113,27 +158,28 @@ public class StationGroupsGraphBuilder extends CreateNodesAndRelationships {
     }
 
     private MutableGraphNode createGroupedStationNodes(MutableGraphTransaction txn, StationGroup stationGroup) {
-        MutableGraphNode groupNode = createGraphNode(txn, GraphLabel.GROUPED);
-        IdFor<NPTGLocality> areaId = stationGroup.getLocalityId();
+        final MutableGraphNode groupNode = createGraphNode(txn, GraphLabel.GROUPED);
+        final IdFor<NPTGLocality> areaId = stationGroup.getLocalityId();
         groupNode.setAreaId(areaId);
         groupNode.set(stationGroup);
         return groupNode;
     }
 
-    private void linkStations(final MutableGraphTransaction txn, final MutableGraphNode groupNode, final StationGroup stationGroup) {
+    private void linkStationsWithGroup(final MutableGraphTransaction txn, final MutableGraphNode groupNode, final StationGroup stationGroup) {
         final Set<Station> contained = stationGroup.getAllContained();
 
         contained.stream().
                 filter(graphFilter::shouldInclude).
                 forEach(station -> {
                     final Duration walkingCost = geography.getWalkingDuration(stationGroup, station);
+
                     final MutableGraphNode stationNode = stationAndPlatformNodeCache.getStation(txn, station.getId());
                     if (stationNode==null) {
                         throw new RuntimeException("cannot find node for " + station);
                     }
 
-                    addGroupRelationshipTowardsChild(txn, groupNode, stationNode, walkingCost);
-                    addGroupRelationshipTowardsParent(txn, stationNode, groupNode, walkingCost);
+                    addGroupRelationshipTowardsContained(txn, groupNode, stationNode, walkingCost);
+                    addContainedRelationshipTowardsGroup(txn, stationNode, groupNode, walkingCost);
         });
     }
 

@@ -70,7 +70,7 @@ public class StationLocationsTest {
 
     @Test
     void shouldHaveLocationsInBounds() {
-        MarginInMeters margin = MarginInMeters.ofKM(config.getNearestStopForWalkingRangeKM());
+        MarginInMeters margin = config.getWalkingDistanceRange();
         final BoundingBox fullBoundsOfAllTramStations = locations.getActiveStationBounds();
 
         assertTrue(fullBoundsOfAllTramStations.contained(nearShudehill.grid()));
@@ -83,7 +83,7 @@ public class StationLocationsTest {
 
     @Test
     void shouldHaveExpectedStationLocations() {
-        MarginInMeters margin = MarginInMeters.ofKM(config.getNearestStopForWalkingRangeKM());
+        MarginInMeters margin = config.getWalkingDistanceRange();
 
         assertTrue(locations.anyStationsWithinRangeOf(nearShudehill.location(), margin));
         assertTrue(locations.anyStationsWithinRangeOf(nearPiccGardens.location(), margin));

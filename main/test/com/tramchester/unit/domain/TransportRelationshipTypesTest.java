@@ -22,7 +22,7 @@ class TransportRelationshipTypesTest {
 
     @Test
     void shouldRememberToUpdateTestsBelowIfNewTypesAdd() {
-        assertEquals(25, all.size(),"New types, update the tests?");
+        assertEquals(26, all.size(),"New types, update the tests?");
     }
 
     @Test
