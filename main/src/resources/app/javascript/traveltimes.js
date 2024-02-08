@@ -1,6 +1,5 @@
 
 const axios = require('axios');
-const oboe = require('oboe');
 
 import Vue from 'vue'
 
@@ -43,6 +42,10 @@ function boxClicked(event) {
 }
 
 function addBoxWithCost(boxWithCost) {
+    if (boxWithCost==null) {
+        console.error("empty box received");
+        return;
+    }
     const bounds = [[boxWithCost.bottomLeft.lat, boxWithCost.bottomLeft.lon], 
         [boxWithCost.topRight.lat, boxWithCost.topRight.lon]];
 
@@ -83,20 +86,60 @@ function queryForGrid(gridSize, destinationType, stationId, time, date, maxChang
     queryServerForGrid(query);
 }
 
-// TODO Oboe is now unmaintained, but axios can't (won't?) support streaming, need an alternative
-// https://github.com/axios/axios/issues/479
-function queryServerForGrid(query) {     
-    oboe({
-        'url': '/api/grid/query',
-        'method': 'POST',
-        'body' : query
-    }).node('BoxWithCost', function (box) {
-        addBoxWithCost(box);
-    })
-    .fail(function (errorReport) {
-        console.log("Failed to load grid '" + errorReport.toString() + "'");
+
+async function queryServerForGrid(query) {
+    const queryJSON = JSON.stringify(query);
+    const headers = new Headers({"Content-Type" : "application/json"});
+    const request = new Request('/api/grid/chunked', {
+            method: 'POST',
+            headers: headers,
+            body: queryJSON
+    });
+    const response = fetch(request);
+    (await response).body.pipeThrough(new TextDecoderStream()).
+        pipeThrough(bufferedLines()).
+        pipeThrough(parseJSON()).
+        pipeTo(createBox());
+}
+
+const createBox = () => {
+    return new WritableStream({
+        write(item) {
+            addBoxWithCost(item.BoxWithCost);
+        }
     });
 }
+
+const bufferedLines = () => {
+    const newLine = '\n';
+    var buffer = '';
+    return new TransformStream({
+      transform(textChunk, controller) {
+        buffer += textChunk;
+        const lines = buffer.split(newLine);
+        lines.slice(0, -1).forEach((line) => controller.enqueue(line));
+        const leftOver = lines[lines.length - 1];
+        buffer = leftOver;
+      },
+      flush(controller) {
+        if (buffer.length>0) {
+            controller.enqueue(buffer);
+        }
+      }
+    });
+  };
+
+  const parseJSON = () => {
+    return new TransformStream({
+      transform(line, controller) {
+        if (line.length==0) {
+            // skip newline
+        } else {
+            controller.enqueue(JSON.parse(line));
+        }
+      }
+    });
+  };
 
 function getTransportModesThenStations(app) {
     var url = '/api/version/modes';

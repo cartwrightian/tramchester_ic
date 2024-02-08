@@ -8,6 +8,8 @@ import com.tramchester.geo.BoundingBox;
 
 import io.dropwizard.core.server.DefaultServerFactory;
 import io.dropwizard.core.server.ServerFactory;
+import io.dropwizard.jetty.GzipHandlerFactory;
+import io.dropwizard.util.DataSize;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
 import jakarta.validation.Valid;
@@ -16,6 +18,34 @@ import java.util.Collections;
 import java.util.List;
 
 public abstract class TestConfig extends AppConfiguration {
+
+    // TODO Better way to handle server factory
+
+    @Override
+    public void setServerFactory(ServerFactory factory) {
+        throw new RuntimeException("Not supported");
+    }
+
+    @Override
+    public ServerFactory getServerFactory() {
+        DefaultServerFactory factory = new DefaultServerFactory();
+        factory.setApplicationContextPath("/");
+        factory.setAdminContextPath("/admin");
+        factory.setJerseyRootPath("/api/*");
+
+        // replicate real sever config
+        final GzipHandlerFactory gzip = new GzipHandlerFactory();
+        gzip.setSyncFlush(true);
+        gzip.setEnabled(true);
+        gzip.setBufferSize(DataSize.kilobytes(8));
+        gzip.setMinimumEntitySize(DataSize.bytes(180));
+
+        gzip.setExcludedPaths(Collections.singleton("/api/grid/chunked"));
+
+        factory.setGzipFilterFactory(gzip);
+
+        return factory;
+    }
 
     @Override
     public List<GTFSSourceConfig> getGTFSDataSource() {
@@ -122,14 +152,6 @@ public abstract class TestConfig extends AppConfiguration {
     @Override
     public int getDataExpiryThreadhold() { return 3; }
 
-    @Override
-    public ServerFactory getServerFactory() {
-        DefaultServerFactory factory = new DefaultServerFactory();
-        factory.setApplicationContextPath("/");
-        factory.setAdminContextPath("/admin");
-        factory.setJerseyRootPath("/api/*");
-        return factory;
-    }
 
     @Override
     public @Valid BoundingBox getBounds() {

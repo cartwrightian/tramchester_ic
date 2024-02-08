@@ -7,7 +7,11 @@ import io.dropwizard.testing.junit5.DropwizardAppExtension;
 
 public class IntegrationAppExtension extends DropwizardAppExtension<AppConfiguration> {
 
+    // NOTE See TestConfig for set-up of server, including gzip
+
     public IntegrationAppExtension(Class<? extends Application<AppConfiguration>> applicationClass, AppConfiguration configuration) {
         super(applicationClass, configuration);
+
     }
+
 }

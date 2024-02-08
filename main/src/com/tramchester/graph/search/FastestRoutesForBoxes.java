@@ -43,7 +43,7 @@ public class FastestRoutesForBoxes {
 
     public Stream<BoundingBoxWithCost> findForGrid(Location<?> destination, int gridSize, JourneyRequest journeyRequest)  {
 
-        logger.info("Creating station groups for gridsize " + gridSize + " and destination " + destination);
+        logger.info("Creating station groups for gridsize " + gridSize + " and destination " + destination.getId());
         final GridPosition gridPosition = destination.getGridPosition();
 
         return findForGrid(gridPosition, gridSize, journeyRequest);

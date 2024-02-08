@@ -9,7 +9,6 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.BoxWithCostDTO;
 import com.tramchester.domain.presentation.DTO.query.GridQueryDTO;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBoxWithStations;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.integration.testSupport.APIClient;
@@ -36,7 +35,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.tramchester.testSupport.TestEnv.dateFormatDashes;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
@@ -44,10 +42,7 @@ class JourneysForGridResourceTest {
     private static final IntegrationAppExtension appExtension =
             new IntegrationAppExtension(App.class, new ResourceTramTestConfig<>(JourneysForGridResource.class));
 
-
     private ParseJSONStream<BoxWithCostDTO> parseStream;
-    private String time;
-    private String date;
     private int maxChanges;
     private int gridSize;
     private int maxDuration;
@@ -62,8 +57,6 @@ class JourneysForGridResourceTest {
 
         parseStream = new ParseJSONStream<>(BoxWithCostDTO.class);
 
-        time = TramTime.of(9,15).toPattern();
-        date = when.format(dateFormatDashes);
         maxChanges = 3;
         gridSize = 2000;
         maxDuration = 40;
@@ -112,6 +105,55 @@ class JourneysForGridResourceTest {
 
         assertEquals(expectedBoxes.size() - outOfRangeForDuration, notDest.size(), "Expected " + expectedBoxes + " but got " + notDest);
     }
+
+    @Test
+    void shouldHaveJourneysForWholeGridChunked() throws IOException {
+        LatLong destPos = KnownLocations.nearStPetersSquare.latLong();
+        Station destination = TramStations.StPetersSquare.from(stationRepository);
+
+        final int outOfRangeForDuration = 3;
+
+        IdForDTO destinationId = IdForDTO.createFor(destination);
+        LocalDate departureDate = when.toLocalDate();
+        LocalTime departureTime = LocalTime.of(9,15);
+        GridQueryDTO gridQueryDTO = new GridQueryDTO(destination.getLocationType(), destinationId, departureDate,
+                departureTime, maxDuration, maxChanges, gridSize);
+
+        Response response = APIClient.postAPIRequest(appExtension, "grid/chunked", gridQueryDTO);
+
+        assertEquals(200, response.getStatus());
+
+        final InputStream inputStream = response.readEntity(InputStream.class);
+        final List<BoxWithCostDTO> results = parseStream.receive(response, inputStream);
+        assertFalse(results.isEmpty());
+
+        // fe issue repro
+        Set<BoxWithCostDTO> missingBL = results.stream().filter(box -> box.getBottomLeft() == null).collect(Collectors.toSet());
+        assertTrue(missingBL.isEmpty(), missingBL.toString());
+
+        // fe issue repro
+        Set<BoxWithCostDTO> missingTR = results.stream().filter(box -> box.getTopRight() == null).collect(Collectors.toSet());
+        assertTrue(missingTR.isEmpty(), missingBL.toString());
+
+        final List<BoxWithCostDTO> containsDest = results.stream().filter(result -> result.getMinutes() == 0).toList();
+        assertEquals(1, containsDest.size());
+        BoxWithCostDTO boxWithDest = containsDest.get(0);
+        assertTrue(boxWithDest.getBottomLeft().getLat() <= destPos.getLat());
+        assertTrue(boxWithDest.getBottomLeft().getLon() <= destPos.getLon());
+        assertTrue(boxWithDest.getTopRight().getLat() >= destPos.getLat());
+        assertTrue(boxWithDest.getTopRight().getLon() >= destPos.getLon());
+
+        List<BoxWithCostDTO> notDest = results.stream().filter(result -> result.getMinutes() > 0).toList();
+        notDest.forEach(boundingBoxWithCost -> assertTrue(boundingBoxWithCost.getMinutes()<=maxDuration));
+
+        List<BoxWithCostDTO> noResult = results.stream().filter(result -> result.getMinutes() < 0).toList();
+        assertEquals(outOfRangeForDuration, noResult.size());
+
+        Set<BoundingBoxWithStations> expectedBoxes = getExpectedBoxesInSearchGrid(destination);
+
+        assertEquals(expectedBoxes.size() - outOfRangeForDuration, notDest.size(), "Expected " + expectedBoxes + " but got " + notDest);
+    }
+
 
     private Set<BoundingBoxWithStations> getExpectedBoxesInSearchGrid(Station destination) {
         return stationLocations.getStationsInGrids(gridSize).
