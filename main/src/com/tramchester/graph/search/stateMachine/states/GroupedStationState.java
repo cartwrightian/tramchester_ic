@@ -11,6 +11,7 @@ import java.time.Duration;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.TransportRelationshipTypes.GROUPED_TO_CHILD;
+import static com.tramchester.graph.TransportRelationshipTypes.GROUPED_TO_GROUPED;
 
 public class GroupedStationState extends TraversalState {
 
@@ -23,6 +24,7 @@ public class GroupedStationState extends TraversalState {
             registers.add(TraversalStateType.PlatformStationState, this);
             registers.add(TraversalStateType.NoPlatformStationState, this);
             registers.add(TraversalStateType.NotStartedState, this);
+            registers.add(TraversalStateType.GroupedStationState, this);
         }
 
         @Override
@@ -32,13 +34,19 @@ public class GroupedStationState extends TraversalState {
 
         public TraversalState fromChildStation(StationState stationState, GraphNode node, Duration cost, GraphTransaction txn) {
             final Stream<ImmutableGraphRelationship> relationships = filterExcludingEndNode(txn,
-                    node.getRelationships(txn, Direction.OUTGOING, GROUPED_TO_CHILD), stationState);
+                    node.getRelationships(txn, Direction.OUTGOING, GROUPED_TO_CHILD, GROUPED_TO_GROUPED), stationState);
             return new GroupedStationState(stationState, relationships, cost, this, node);
         }
 
         public TraversalState fromStart(NotStartedState notStartedState, GraphNode node, Duration cost, GraphTransaction txn) {
-            return new GroupedStationState(notStartedState, node.getRelationships(txn, Direction.OUTGOING, GROUPED_TO_CHILD),
+            return new GroupedStationState(notStartedState, node.getRelationships(txn, Direction.OUTGOING, GROUPED_TO_CHILD, GROUPED_TO_GROUPED),
                     cost, this, node);
+        }
+
+        public TraversalState fromGrouped(GroupedStationState parent, Duration cost, GraphNode node, GraphTransaction txn) {
+            final Stream<ImmutableGraphRelationship> relationships = filterExcludingEndNode(txn,
+                    node.getRelationships(txn, Direction.OUTGOING, GROUPED_TO_CHILD, GROUPED_TO_GROUPED), parent);
+            return new GroupedStationState(parent, relationships, cost, this, node);
         }
     }
 
@@ -70,4 +78,8 @@ public class GroupedStationState extends TraversalState {
         towardsDestination.from(this, cost, node);
     }
 
+    @Override
+    protected TraversalState toGrouped(Builder towardsGroup, GraphNode node, Duration cost, JourneyStateUpdate journeyState) {
+        return towardsGroup.fromGrouped(this, cost, node, txn);
+    }
 }

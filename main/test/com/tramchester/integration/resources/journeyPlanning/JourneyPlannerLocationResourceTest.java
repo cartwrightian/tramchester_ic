@@ -205,7 +205,17 @@ class JourneyPlannerLocationResourceTest {
         Set<JourneyDTO> journeys = validateJourneyFromLocation(nearPiccGardens, TramStations.PiccadillyGardens,
                 TramTime.of(9,0), false, when);
 
-        checkAltyToPiccGardens(journeys);
+        assertFalse(journeys.isEmpty());
+        JourneyDTO first = getEarliestArrivingJourney(journeys);
+
+        assertEquals(getDateTimeFor(when, 9, 0), first.getFirstDepartureTime(), "wrong departure time for " + first);
+        assertEquals(getDateTimeFor(when, 9, 2), first.getExpectedArrivalTime(), "wrong arrival time for " + first);
+
+        List<SimpleStageDTO> stages = first.getStages();
+        assertEquals(1, stages.size());
+        SimpleStageDTO stage = stages.get(0);
+        assertEquals(getDateTimeFor(when, 9, 0), stage.getFirstDepartureTime());
+        assertEquals(getDateTimeFor(when, 9, 2), stage.getExpectedArrivalTime());
     }
 
     @Test
@@ -214,20 +224,6 @@ class JourneyPlannerLocationResourceTest {
         Set<JourneyDTO> journeys = validateJourneyFromLocation(nearPiccGardens, TramStations.PiccadillyGardens,
                 queryTime, true, when);
         journeys.forEach(journeyDTO -> assertTrue(journeyDTO.getFirstDepartureTime().isBefore(queryTime.toDate(when))));
-    }
-
-    private void checkAltyToPiccGardens(Set<JourneyDTO> journeys) {
-        assertFalse(journeys.isEmpty());
-        JourneyDTO first = getEarliestArrivingJourney(journeys);
-
-        assertEquals(getDateTimeFor(when, 9, 0), first.getFirstDepartureTime(), "wrong departure time for " + first);
-        assertEquals(getDateTimeFor(when, 9, 3), first.getExpectedArrivalTime(), "wrong arrival time for " + first);
-
-        List<SimpleStageDTO> stages = first.getStages();
-        assertEquals(1, stages.size());
-        SimpleStageDTO stage = stages.get(0);
-        assertEquals(getDateTimeFor(when, 9, 0), stage.getFirstDepartureTime());
-        assertEquals(getDateTimeFor(when, 9, 3), stage.getExpectedArrivalTime());
     }
 
     @NotNull

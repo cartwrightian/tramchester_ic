@@ -141,11 +141,10 @@ class BusRouteCalculatorTest {
     @Test
     void shouldHaveAltyToTownCentre() {
         TramTime time = TramTime.of(15,52);
-        TramDate date = TramDate.of(2024,1,19);
 
         Location<?> manchesterCityCentre = KnownLocality.ManchesterCityCentre.from(stationGroupsRepository);
 
-        JourneyRequest request = new JourneyRequest(date, time, false, 3,
+        JourneyRequest request = new JourneyRequest(when, time, false, 3,
                 maxJourneyDuration, 3, getRequestedModes());
         List<Journey> journeys = calculator.calculateRouteAsList(altrinchamCentral, manchesterCityCentre, request);
         assertFalse(journeys.isEmpty());

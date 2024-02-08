@@ -111,31 +111,6 @@ public class JourneyPlannerResourceTest {
 
     }
 
-    @Disabled("date now out of range")
-    @Test
-    void shouldHaveCorrectHeadsignAltrinchamToDeangate() {
-        // repro issue with failing acceptance test Wrong headsign, got 'Piccadilly (Manchester Metrolink)'
-        final List<String> possibleHeadsigns = Arrays.asList( Bury.getName(), Piccadilly.getName());
-
-        TramTime queryTime = TramTime.of(10,0);
-
-        TramDate problemDate = TramDate.of(2023, 12,28);
-        JourneyQueryDTO query = journeyPlanner.getQueryDTO(problemDate, queryTime, TramStations.Altrincham,
-                Deansgate, false, 0);
-
-        JourneyPlanRepresentation plan = journeyPlanner.getJourneyPlan(query);
-
-        Set<JourneyDTO> journeys = plan.getJourneys();
-        assertFalse(journeys.isEmpty(), "no results for " + query);
-
-        journeys.forEach(journey -> {
-            VehicleStageDTO firstStage = (VehicleStageDTO) journey.getStages().get(0);
-
-            String headSign = firstStage.getHeadSign();
-            assertTrue(possibleHeadsigns.contains(headSign), "unexpected headsign " + headSign);
-        });
-    }
-
     @Test
     void shouldNotFindAnyResultsIfNoneTramModeIsRequested() {
 
