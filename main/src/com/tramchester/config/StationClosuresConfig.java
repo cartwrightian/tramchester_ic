@@ -19,6 +19,7 @@ import java.util.Set;
 //            begin: 2023-07-15
 //            end: 2023-09-20
 //            fullyClosed: true
+//            diversionsOnly: []
 
 public class StationClosuresConfig extends Configuration implements StationClosures {
 
@@ -26,15 +27,18 @@ public class StationClosuresConfig extends Configuration implements StationClosu
     private final LocalDate begin;
     private final LocalDate end;
     private final Boolean fullyClosed;
+    private final Set<String> diversionsOnly;
 
     public StationClosuresConfig(@JsonProperty(value = "stations", required = true) Set<String> stationsText,
                                  @JsonProperty(value = "begin", required = true) LocalDate begin,
                                  @JsonProperty(value = "end", required = true) LocalDate end,
-                                 @JsonProperty(value = "fullyClosed", required = true) Boolean fullyClosed)  {
+                                 @JsonProperty(value = "fullyClosed", required = true) Boolean fullyClosed,
+                                 @JsonProperty(value = "diversionsOnly", required = true) Set<String> diversionsOnly)  {
         this.stationsText = stationsText;
         this.begin = begin;
         this.end = end;
         this.fullyClosed = fullyClosed;
+        this.diversionsOnly = diversionsOnly;
     }
 
 
@@ -66,13 +70,19 @@ public class StationClosuresConfig extends Configuration implements StationClosu
     }
 
     @Override
+    public IdSet<Station> getDiversionsOnly() {
+        return diversionsOnly.stream().map(Station::createId).collect(IdSet.idCollector());
+    }
+
+    @Override
     public String toString() {
-        return "StationClosureConfig{" +
-                "stations=" + stationsText +
+        return "StationClosuresConfig{" +
+                "stationsText=" + stationsText +
                 ", begin=" + begin +
                 ", end=" + end +
                 ", fullyClosed=" + fullyClosed +
-                "} ";
+                ", diversionsOnly=" + diversionsOnly +
+                '}';
     }
 
     @Override
@@ -80,11 +90,11 @@ public class StationClosuresConfig extends Configuration implements StationClosu
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         StationClosuresConfig that = (StationClosuresConfig) o;
-        return stationsText.equals(that.stationsText) && begin.equals(that.begin) && end.equals(that.end) && fullyClosed.equals(that.fullyClosed);
+        return Objects.equals(stationsText, that.stationsText) && Objects.equals(begin, that.begin) && Objects.equals(end, that.end) && Objects.equals(fullyClosed, that.fullyClosed) && Objects.equals(diversionsOnly, that.diversionsOnly);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(stationsText, begin, end, fullyClosed);
+        return Objects.hash(stationsText, begin, end, fullyClosed, diversionsOnly);
     }
 }

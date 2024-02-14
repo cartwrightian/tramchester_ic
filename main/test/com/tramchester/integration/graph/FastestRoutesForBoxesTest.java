@@ -16,6 +16,7 @@ import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.search.FastestRoutesForBoxes;
+import com.tramchester.graph.search.RouteCalculatorForBoxes;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -30,7 +31,6 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -116,9 +116,9 @@ class FastestRoutesForBoxesTest {
                 TestEnv.testDay(), time, false, 2,
                 Duration.ofMinutes(120), 3, TramsOnly);
 
-        Stream<BoundingBoxWithCost> results = calculator.findForGrid(destination, 2000, journeyRequest);
+        RouteCalculatorForBoxes.RequestStopStream<BoundingBoxWithCost> results = calculator.findForGrid(destination, 2000, journeyRequest);
 
-        List<BoundingBoxWithCost> destinationBox = results.
+        List<BoundingBoxWithCost> destinationBox = results.getStream().
                 filter(boundingBoxWithCost -> boundingBoxWithCost.getDuration().isZero()).
                 toList();
 

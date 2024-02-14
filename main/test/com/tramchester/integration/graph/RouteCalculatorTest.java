@@ -267,7 +267,7 @@ public class RouteCalculatorTest {
         assertFalse(journeys.isEmpty());
         journeys.forEach(journey -> {
             // direct, or change at shaw
-            assertTrue(journey.getStages().size()<=2);
+            assertTrue(journey.getStages().size()<=2, Integer.toString(journey.getStages().size()));
         });
     }
 
@@ -595,7 +595,7 @@ public class RouteCalculatorTest {
                     assertFalse(
                             stage.getFirstDepartureTime().isBefore(earliestAtNextStage), stage + " arrived before " + earliestAtNextStage);
                 }
-                earliestAtNextStage = stage.getFirstDepartureTime().plus(stage.getDuration());
+                earliestAtNextStage = stage.getFirstDepartureTime().plusRounded(stage.getDuration());
             }
         });
         return journeys;

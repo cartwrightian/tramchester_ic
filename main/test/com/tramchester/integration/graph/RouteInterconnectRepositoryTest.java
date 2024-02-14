@@ -27,6 +27,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
+import com.tramchester.testSupport.testTags.VictoriaCrackedRailTest;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
@@ -157,6 +158,7 @@ public class RouteInterconnectRepositoryTest {
 
     }
 
+    @VictoriaCrackedRailTest
     @Test
     void shouldCheckFor2Changes() {
 
@@ -178,7 +180,33 @@ public class RouteInterconnectRepositoryTest {
 
         assertEquals(2, results.getDepth());
 
+        // victoria cracked rail diversion, 4 -> 3
         assertEquals(4, results.numberPossible(), results.toString()); // two sets of changes needed
+    }
+
+    @Test
+    void shouldCheckFor2ChangesCrackedRailDiversion() {
+
+        Route routeA = routeHelper.getOneRoute(PiccadillyBury, date);
+        Route routeB = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
+
+        assertEquals(2, routeMatrix.getConnectionDepthFor(routeA, routeB));
+
+        RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
+
+        // ignore data and mode here
+        IndexedBitSet dateOverlaps = routeMatrix.createOverlapMatrixFor(date, modes);
+        // 196 -> 49
+        assertEquals(49, dateOverlaps.numberOfBitsSet());
+
+        PathResults results = repository.getInterchangesFor(indexPair, dateOverlaps, interchangeStation -> true);
+
+        assertTrue(results.hasAny());
+
+        assertEquals(2, results.getDepth());
+
+        // victoria cracked rail diversion, 4 -> 3
+        assertEquals(3, results.numberPossible(), results.toString()); // two sets of changes needed
     }
 
     @Test

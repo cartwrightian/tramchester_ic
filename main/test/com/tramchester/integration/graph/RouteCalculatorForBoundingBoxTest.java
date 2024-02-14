@@ -25,10 +25,10 @@ import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class RouteCalculatorForBoundingBoxTest {
     // Note this needs to be > time for whole test fixture, see note below in @After
@@ -89,8 +89,9 @@ class RouteCalculatorForBoundingBoxTest {
 
         LocationSet destinations = LocationSet.singleton(TramStations.StPetersSquare.from(stationRepository));
 
-        Stream<JourneysForBox> stream = calculator.calculateRoutes(destinations, journeyRequest, grouped);
-        List<JourneysForBox> groupedJourneys = stream.toList();
+        RouteCalculatorForBoxes.RequestStopStream<JourneysForBox> result = calculator.calculateRoutes(destinations, journeyRequest, grouped);
+
+        List<JourneysForBox> groupedJourneys = result.getStream().toList();
 
         assertFalse(groupedJourneys.isEmpty());
 

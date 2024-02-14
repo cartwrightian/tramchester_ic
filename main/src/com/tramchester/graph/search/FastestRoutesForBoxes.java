@@ -19,7 +19,6 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
@@ -41,7 +40,7 @@ public class FastestRoutesForBoxes {
         this.geography = geography;
     }
 
-    public Stream<BoundingBoxWithCost> findForGrid(Location<?> destination, int gridSize, JourneyRequest journeyRequest)  {
+    public RouteCalculatorForBoxes.RequestStopStream<BoundingBoxWithCost> findForGrid(Location<?> destination, int gridSize, JourneyRequest journeyRequest)  {
 
         logger.info("Creating station groups for gridsize " + gridSize + " and destination " + destination.getId());
         final GridPosition gridPosition = destination.getGridPosition();
@@ -50,7 +49,7 @@ public class FastestRoutesForBoxes {
     }
 
     @NotNull
-    private Stream<BoundingBoxWithCost> findForGrid(GridPosition destinationGrid, int gridSize, final JourneyRequest journeyRequest) {
+    private RouteCalculatorForBoxes.RequestStopStream<BoundingBoxWithCost> findForGrid(GridPosition destinationGrid, int gridSize, final JourneyRequest journeyRequest) {
         logger.info("Creating station groups for gridsize " + gridSize + " and destination " + destinationGrid);
 
         final Set<BoundingBoxWithStations> searchGrid = stationLocations.getStationsInGrids(gridSize).

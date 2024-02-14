@@ -29,6 +29,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.VictoriaCrackedRailTest;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
@@ -64,7 +65,9 @@ class RouteCalculatorSubGraphMediaCityTest {
             Anchorage,
             HarbourCity,
             MediaCityUK,
-            TraffordBar);
+            TraffordBar,
+            // Victoria Broken Rail
+            Shudehill, MarketStreet);
     private MutableGraphTransaction txn;
 
     private Duration maxJourneyDuration;
@@ -116,6 +119,7 @@ class RouteCalculatorSubGraphMediaCityTest {
         txn.close();
     }
 
+    @VictoriaCrackedRailTest
     @Test
     void shouldHaveMediaCityToExchangeSquare() {
         validateAtLeastOneJourney(MediaCityUK, Cornbrook, TramTime.of(9,0), TestEnv.nextSaturday());
@@ -255,11 +259,13 @@ class RouteCalculatorSubGraphMediaCityTest {
         return TramsOnly;
     }
 
+    @VictoriaCrackedRailTest
     @Test
     void reproduceMediaCityIssue() {
         validateAtLeastOneJourney(ExchangeSquare, MediaCityUK, TramTime.of(12,0), when);
     }
 
+    @VictoriaCrackedRailTest
     @Test
     void reproduceMediaCityIssueSaturdays() {
         validateAtLeastOneJourney(ExchangeSquare, MediaCityUK, TramTime.of(9,0), TestEnv.nextSaturday());

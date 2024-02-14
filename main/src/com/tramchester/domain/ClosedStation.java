@@ -1,7 +1,6 @@
 package com.tramchester.domain;
 
 import com.tramchester.domain.dates.DateRange;
-import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 
@@ -57,13 +56,13 @@ public class ClosedStation {
                 "station=" + station.getId() +
                 ", dateRange=" + dateRange +
                 ", fullyClosed=" + fullyClosed +
-                ", nearbyOpenStations=" + HasId.asIds(nearbyOpenStations) +
+                ", nearbyOpenStations=" + nearbyOpenStations +
                 '}';
     }
 
     /***
-     * @return Nearby stations that have a linked relationship with the closed station
-     * TODO But if it's closed are they still linked??
+     * @return Nearby stations that have a linked relationship with the closed station.
+     * Might have been provided by config.
      */
     public Set<Station> getNearbyLinkedStation() {
         return nearbyOpenStations;

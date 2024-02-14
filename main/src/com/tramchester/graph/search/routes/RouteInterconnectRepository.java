@@ -191,7 +191,7 @@ public class RouteInterconnectRepository extends ComponentThatCaches<RoutePairIn
 
     /***
      * Finds the paths (between the routes, via interchanges) between the routes given in the indexPair, for the given
-     * date overlaps between the 2, filtering the interchanges using the profided filter.
+     * date overlaps between the 2, filtering the interchanges using the provided filter.
      * @param indexPair the routes to find path between
      * @param dateOverlaps representation of the dates the two routes overlap (aka run) on
      * @param interchangeFilter an (inclusive) filter for the interchanges to use when finding the path
@@ -202,7 +202,9 @@ public class RouteInterconnectRepository extends ComponentThatCaches<RoutePairIn
         final int degree = routeCostMatrix.getDegree(indexPair);
 
         if (degree==Byte.MAX_VALUE) {
-            logger.warn("No degree found for " + routeIndex.getPairFor(indexPair));
+            if (!graphFilter.isActive()) {
+                logger.warn("No degree found for " + routeIndex.getPairFor(indexPair));
+            }
             return new PathResults.NoPathResults();
         }
 

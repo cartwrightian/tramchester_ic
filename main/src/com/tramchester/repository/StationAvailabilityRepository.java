@@ -254,16 +254,22 @@ public class StationAvailabilityRepository {
     public TimeRange getAvailableTimesFor(final LocationSet destinations, final TramDate tramDate) {
 
         final EnumSet<TransportMode> modes = destinations.getModes();
+
         final Set<TimeRange> ranges = destinations.stream().
                 flatMap(location -> expand(location).stream()).
-                //filter(location -> !closedStationsRepository.isClosed(location, tramDate)).
                 filter(dropoffsForLocation::containsKey).
                 map(dropoffsForLocation::get).
                 flatMap(servedRoute -> servedRoute.getTimeRanges(tramDate, modes)).
                 collect(Collectors.toSet());
 
-        // now create timerange
-        return TimeRange.coveringAllOf(ranges);
+        if (ranges.isEmpty()) {
+            // likely down to closed station(s)
+            logger.warn("Found no time range available for " + destinations + " (Closed stations?) Will use whole day");
+            return TimeRange.of(TramTime.of(0,1), TramTime.of(23,59));
+        } else {
+            // now create timerange
+            return TimeRange.coveringAllOf(ranges);
+        }
 
     }
 

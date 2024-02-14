@@ -113,7 +113,9 @@ public class StationLocationsTest {
         Station stPeters = TramStations.StPetersSquare.from(stationRepository);
 
         Set<Platform> platforms = stPeters.getPlatforms();
-        assertEquals(4, platforms.size());
+
+        // Victoria Broken Rail 4->3
+        assertEquals(3, platforms.size());
 
         platforms.forEach(platform -> {
             IdFor<NPTGLocality> areaId = platform.getLocalityId();

@@ -1,24 +1,28 @@
 package com.tramchester.integration.testSupport;
 
 import com.tramchester.domain.StationClosures;
+import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.dates.DateRange;
 import com.tramchester.testSupport.reference.TramStations;
 
-public class StationClosuresForTest implements StationClosures {
+import java.util.Set;
+
+public class StationClosuresConfigForTest implements StationClosures {
 
     private final TramStations station;
     private final TramDate begin;
     private final TramDate end;
     private final boolean fullyClosed;
+    private final Set<String> diversionOnly;
 
-    public StationClosuresForTest(TramStations station, TramDate begin, TramDate end, boolean fullyClosed) {
+    public StationClosuresConfigForTest(TramStations station, TramDate begin, TramDate end, boolean fullyClosed, Set<String> diversionOnly) {
         this.station = station;
         this.begin = begin;
         this.end = end;
         this.fullyClosed = fullyClosed;
+        this.diversionOnly = diversionOnly;
     }
 
     @Override
@@ -44,5 +48,10 @@ public class StationClosuresForTest implements StationClosures {
     @Override
     public DateRange getDateRange() {
         return new DateRange(begin, end);
+    }
+
+    @Override
+    public IdSet<Station> getDiversionsOnly() {
+        return diversionOnly.stream().map(Station::createId).collect(IdSet.idCollector());
     }
 }

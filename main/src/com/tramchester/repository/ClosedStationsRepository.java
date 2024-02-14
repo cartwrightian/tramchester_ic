@@ -8,6 +8,7 @@ import com.tramchester.domain.Platform;
 import com.tramchester.domain.StationClosures;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Location;
@@ -38,17 +39,15 @@ public class ClosedStationsRepository {
     private final StationRepository stationRepository;
     private final StationLocations stationLocations;
     private final GraphFilter filter;
-    private final LocationRepository locationRepository;
 
     @Inject
     public ClosedStationsRepository(TramchesterConfig config, StationRepository stationRepository, StationLocations stationLocations,
-                                    GraphFilter filter, LocationRepository locationRepository) {
+                                    GraphFilter filter) {
         this.config = config;
         this.stationRepository = stationRepository;
         this.stationLocations = stationLocations;
 
         this.filter = filter;
-        this.locationRepository = locationRepository;
         closed = new HashSet<>();
         hasAClosure = new IdSet<>();
     }
@@ -74,25 +73,36 @@ public class ClosedStationsRepository {
         closures.forEach(closure -> {
             final DateRange dateRange = closure.getDateRange();
             final boolean fullyClosed = closure.isFullyClosed();
+            final IdSet<Station> diversionsOnly = closure.getDiversionsOnly();
             Set<ClosedStation> closedStations = closure.getStations().stream().
-                    map(stationId -> createClosedStation(stationId, dateRange, fullyClosed, range)).
+                    map(stationId -> createClosedStation(stationId, dateRange, fullyClosed, range, diversionsOnly)).
                     collect(Collectors.toSet());
             closed.addAll(closedStations);
         });
     }
 
-    private ClosedStation createClosedStation(IdFor<Station> stationId, DateRange dateRange, boolean fullyClosed, MarginInMeters range) {
+    private ClosedStation createClosedStation(IdFor<Station> stationId, DateRange dateRange, boolean fullyClosed,
+                                              MarginInMeters range, IdSet<Station> diversionsOnly) {
         hasAClosure.add(stationId);
+        final Station station = stationRepository.getStationById(stationId);
 
-        Station station = stationRepository.getStationById(stationId);
-        Set<Station> nearbyOpenStations = getNearbyStations(station, range);
-        return new ClosedStation(station, dateRange, fullyClosed, nearbyOpenStations);
+        if (diversionsOnly.isEmpty()) {
+            Set<Station> nearbyOpenStations = getNearbyStations(station, range);
+            logger.info("Only nearby station diversions " + HasId.asIds(nearbyOpenStations) + " for closed station " + station.getId());
+
+            return new ClosedStation(station, dateRange, fullyClosed, nearbyOpenStations);
+        } else {
+            Set<Station> diversions = diversionsOnly.stream().map(stationRepository::getStationById).collect(Collectors.toSet());
+            logger.info("Only adding diversions " + diversions + " for closed station " + station.getId());
+            return new ClosedStation(station, dateRange, fullyClosed, diversions);
+        }
+
     }
 
     private Set<Station> getNearbyStations(Station station, MarginInMeters range) {
-        Stream<Station> withinRange = stationLocations.nearestStationsUnsorted(station, range);
+        final Stream<Station> withinRange = stationLocations.nearestStationsUnsorted(station, range);
 
-        Set<Station> found = withinRange.
+        final Set<Station> found = withinRange.
                 filter(filter::shouldInclude).
                 filter(nearby -> !nearby.equals(station)).
                 collect(Collectors.toSet());
@@ -110,7 +120,7 @@ public class ClosedStationsRepository {
         logger.info("Stopped");
     }
 
-    public Set<ClosedStation> getFullyClosedStationsFor(TramDate date) {
+    public Set<ClosedStation> getFullyClosedStationsFor(final TramDate date) {
         return getClosures(date, true).collect(Collectors.toSet());
     }
 

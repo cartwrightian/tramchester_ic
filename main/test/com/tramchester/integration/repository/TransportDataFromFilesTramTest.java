@@ -36,6 +36,7 @@ import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryCategory;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
+import com.tramchester.testSupport.testTags.VictoriaCrackedRailTest;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -102,8 +103,14 @@ public class TransportDataFromFilesTramTest {
         assertEquals(1, transportData.getAgencies().stream().filter(agency -> agency.getTransportModes().contains(Tram)).count());
         assertEquals(NUM_TFGM_TRAM_STATIONS, transportData.getStations(EnumSet.of(Tram)).size());
 
-        int expected = 199;
-        assertEquals(expected, transportData.getPlatforms(EnumSet.of(Tram)).size());
+        // victoria cracked rail diversion
+        int expectedPlatforms = 199 - 2;
+        assertEquals(expectedPlatforms, transportData.getPlatforms(EnumSet.of(Tram)).size());
+    }
+
+    @Test
+    void shouldRemindToCheckOnVictoriaCrackedRailSituation() {
+        assertFalse(when.isAfter(TramDate.of(2024, 2,28)), "Check if the rail is fixed");
     }
 
     @Test
@@ -224,7 +231,7 @@ public class TransportDataFromFilesTramTest {
                 map(routeStation -> Pair.of(routeStation.getStationId(), routeStation.getRoute().getName())).
                 collect(Collectors.toSet());
 
-        assertEquals(4, routeStationPairs.size(), routeStations.toString());
+        assertEquals(5, routeStationPairs.size(), routeStations.toString());
 
         Set<String> routeNames =
                 routeStations.stream().
@@ -397,16 +404,16 @@ public class TransportDataFromFilesTramTest {
     void shouldHaveServicesRunningAtReasonableTimesNDaysAhead() {
 
         int latestHour = 23;
-        int earlistHour = 7;
+        int earliestHour = 7;
 
-        List<TramTime> times = IntStream.range(earlistHour, latestHour).boxed().
+        List<TramTime> times = IntStream.range(earliestHour, latestHour).boxed().
                 map(hour -> TramTime.of(hour, 0)).
                 sorted().
                 toList();
 
         int maxwait = 25;
 
-        Map<Pair<TramDate, TramTime>, IdSet<Station>> missing = new HashMap<>();
+        final Map<Pair<TramDate, TramTime>, IdSet<Station>> missing = new HashMap<>();
 
         TestEnv.getUpcomingDates().filter(date -> !date.isChristmasPeriod()).forEach(date -> {
             transportData.getStations(EnumSet.of(Tram)).stream().
@@ -434,6 +441,7 @@ public class TransportDataFromFilesTramTest {
 
     }
 
+    @VictoriaCrackedRailTest
     @Test
     void shouldHavePlatformAndAreaForCityCenter() {
         IdFor<Platform> platformId = PlatformId.createId(StPetersSquare.getId(), "3");
@@ -443,6 +451,17 @@ public class TransportDataFromFilesTramTest {
         assertNotNull(platform, "could not find " + platformId);
         assertEquals("St Peter's Square platform 3", platform.getName());
         assertEquals(TramStations.StPetersSquare.createIdFor("3"), platform.getId());
+    }
+
+    @Test
+    void shouldHavePlatformAndAreaForCityCenterCrackedRail() {
+        IdFor<Platform> platformId = PlatformId.createId(StPetersSquare.getId(), "2");
+
+        //assertTrue(transportData.hasPlatformId(id));
+        Platform platform = transportData.getPlatformById(platformId);
+        assertNotNull(platform, "could not find " + platformId);
+        assertEquals("St Peter's Square platform 2", platform.getName());
+        assertEquals(TramStations.StPetersSquare.createIdFor("2"), platform.getId());
     }
 
     @Test

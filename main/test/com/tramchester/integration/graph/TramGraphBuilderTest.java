@@ -26,18 +26,23 @@ import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
+import com.tramchester.testSupport.testTags.VictoriaCrackedRailTest;
 import org.assertj.core.util.Streams;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Direction;
 
 import java.time.Duration;
-import java.util.*;
+import java.util.List;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
-import static com.tramchester.testSupport.reference.KnownTramRoute.*;
+import static com.tramchester.testSupport.reference.KnownTramRoute.BuryManchesterAltrincham;
+import static com.tramchester.testSupport.reference.KnownTramRoute.EcclesManchesterAshtonUnderLyne;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -201,6 +206,7 @@ class TramGraphBuilderTest {
                 + fromConfigAndDiscovered + " and DB " + fromDB);
     }
 
+    @VictoriaCrackedRailTest
     @Test
     void shouldHaveLinkRelationshipsCorrectForNonInterchange() {
         Station exchangeSq = ExchangeSquare.from(stationRepository);

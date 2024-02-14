@@ -15,7 +15,7 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.*;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
-import com.tramchester.integration.testSupport.StationClosuresForTest;
+import com.tramchester.integration.testSupport.StationClosuresConfigForTest;
 import com.tramchester.integration.testSupport.tram.IntegrationTramClosedStationsTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StationsWithDiversionRepository;
@@ -55,7 +55,8 @@ class ClosedStationsDiversionsTest {
     private MutableGraphTransaction txn;
 
     private final static List<StationClosures> closedStations = Collections.singletonList(
-            new StationClosuresForTest(TramStations.StPetersSquare, when, when.plusWeeks(1), true));
+            new StationClosuresConfigForTest(TramStations.StPetersSquare, when, when.plusWeeks(1),
+                    true, Collections.emptySet()));
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {

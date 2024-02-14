@@ -12,6 +12,7 @@ import com.tramchester.domain.presentation.DTO.query.GridQueryDTO;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.search.FastestRoutesForBoxes;
+import com.tramchester.graph.search.RouteCalculatorForBoxes;
 import com.tramchester.mappers.JourneyToDTOMapper;
 import com.tramchester.repository.LocationRepository;
 import io.swagger.v3.oas.annotations.Operation;
@@ -90,9 +91,10 @@ public class JourneysForGridResource implements APIResource, GraphDatabaseDepend
         // todo single newline should be line
         final ChunkedOutput<BoxWithCostDTO> output = new ChunkedOutput<>(BoxWithCostDTO.class, "\n\n");
 
-        final Stream<BoxWithCostDTO> dtoStream = search.findForGrid(destination, gridQueryDTO.getGridSize(), journeyRequest).
+        final RouteCalculatorForBoxes.RequestStopStream<BoxWithCostDTO> result = search.findForGrid(destination, gridQueryDTO.getGridSize(), journeyRequest).
                 map(box -> BoxWithCostDTO.createFrom(dtoMapper, date, box));
 
+        Stream<BoxWithCostDTO> dtoStream = result.getStream();
 
         // todo need way to stop calculation gracefully if socket is closed
 
@@ -101,7 +103,7 @@ public class JourneysForGridResource implements APIResource, GraphDatabaseDepend
         Runnable worker = () -> {
             try {
                 logger.info("Sending response for request " + gridQueryDTO);
-                dtoStream.forEach(dto -> sendTo(output, dto, service));
+                dtoStream.forEach(dto -> sendTo(output, dto, result));
             } finally {
                 try {
                     output.close();
@@ -118,7 +120,8 @@ public class JourneysForGridResource implements APIResource, GraphDatabaseDepend
         return output;
     }
 
-    private synchronized void sendTo(ChunkedOutput<BoxWithCostDTO> output, BoxWithCostDTO dto, ExecutorService service) {
+    private synchronized void sendTo(ChunkedOutput<BoxWithCostDTO> output, BoxWithCostDTO dto,
+                                     RouteCalculatorForBoxes.RequestStopStream<BoxWithCostDTO> requestStopStream) {
         if (output.isClosed()) {
             logger.error("Output is closed");
             return;
@@ -132,6 +135,7 @@ public class JourneysForGridResource implements APIResource, GraphDatabaseDepend
 
         } catch (IOException exception) {
             logger.error("Could not send " + dto, exception);
+            requestStopStream.stop();
         }
     }
 

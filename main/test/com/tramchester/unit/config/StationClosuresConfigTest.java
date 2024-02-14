@@ -32,7 +32,8 @@ public class StationClosuresConfigTest {
         String yaml = "stations: [ \"9400ZZMAECC\", \"9400ZZMALDY\", \"9400ZZMAWST\" ]\n" +
                 "begin: 2023-07-15\n" +
                 "end: 2023-09-20\n" +
-                "fullyClosed: true";
+                "fullyClosed: true\n" +
+                "diversionsOnly: [ \"9400ZZMAVIC\" ]";
 
 
         StationClosuresConfig result = mapper.readValue(yaml, StationClosuresConfig.class);
@@ -45,6 +46,8 @@ public class StationClosuresConfigTest {
 
         assertEquals(TramDate.of(2023,7,15), result.getBegin());
         assertEquals(TramDate.of(2023,9,20), result.getEnd());
+
+        assertEquals(IdSet.singleton(TramStations.Victoria.getId()), result.getDiversionsOnly());
 
         assertTrue(result.isFullyClosed());
 

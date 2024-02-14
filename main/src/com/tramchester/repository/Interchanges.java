@@ -47,7 +47,8 @@ public class Interchanges implements InterchangeRepository {
     @Inject
     public Interchanges(FindStationsByNumberLinks findStationsByNumberConnections, StationRepository stationRepository,
                         NeighboursRepository neighboursRepository, TramchesterConfig config, GraphFilter graphFilter,
-                        RouteIndex routeIndex, RouteIndexPairFactory pairFactory, StationsAndLinksGraphBuilder.Ready ready) {
+                        RouteIndex routeIndex, RouteIndexPairFactory pairFactory,
+                        @SuppressWarnings("unused") StationsAndLinksGraphBuilder.Ready ready) {
         this.findStationsByNumberConnections = findStationsByNumberConnections;
         this.stationRepository = stationRepository;
         this.neighboursRepository = neighboursRepository;

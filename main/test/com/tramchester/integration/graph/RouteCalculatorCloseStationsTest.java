@@ -12,18 +12,16 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
-import com.tramchester.integration.testSupport.StationClosuresForTest;
+import com.tramchester.integration.testSupport.StationClosuresConfigForTest;
 import com.tramchester.integration.testSupport.tram.IntegrationTramClosedStationsTestConfig;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.VictoriaCrackedRailTest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -45,8 +43,8 @@ class RouteCalculatorCloseStationsTest {
 
     // see note below on DB deletion
     private final static List<StationClosures> closedStations = Arrays.asList(
-            new StationClosuresForTest(Shudehill, when, when.plusWeeks(1), true),
-            new StationClosuresForTest(PiccadillyGardens, when, when.plusWeeks(1), false));
+            new StationClosuresConfigForTest(Shudehill, when, when.plusWeeks(1), true, Collections.emptySet()),
+            new StationClosuresConfigForTest(PiccadillyGardens, when, when.plusWeeks(1), false, Collections.emptySet()));
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -96,6 +94,7 @@ class RouteCalculatorCloseStationsTest {
         return TramsOnly;
     }
 
+    @VictoriaCrackedRailTest
     @Test
     void shouldFindRouteAroundClosedStation() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,

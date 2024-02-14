@@ -250,7 +250,6 @@ public class TestEnv {
         assertEquals(expected.getLon(), actual.getLon(), delta, "lon: " +message);
     }
 
-    @Deprecated
     public static void assertMinutesEquals(int minutes, Duration duration) {
         assertEquals(Duration.ofMinutes(minutes), duration, "Duration %s did match %d minutes".formatted(duration, minutes));
     }

@@ -35,7 +35,9 @@ import java.time.Duration;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -73,7 +75,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         this.branchSelectorFactory = branchSelectorFactory;
     }
 
-    public Stream<JourneysForBox> calculateRoutes(final LocationSet destinations, final JourneyRequest journeyRequest,
+    public RequestStopStream<JourneysForBox> calculateRoutes(final LocationSet destinations, final JourneyRequest journeyRequest,
                                                   final List<BoundingBoxWithStations> grouped) {
         logger.info("Finding routes for bounding boxes");
 
@@ -101,7 +103,11 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         // share selector across queries, to allow caching of station to station distances
         final BranchOrderingPolicy selector = branchSelectorFactory.getFor(destinations);
 
-        return grouped.parallelStream().map(box -> {
+        final RequestStopStream<JourneysForBox> result = new RequestStopStream<>();
+
+        Stream<JourneysForBox> stream = grouped.parallelStream().
+                filter(item -> result.isRunning()).
+                map(box -> {
 
             if (logger.isDebugEnabled()) {
                 logger.debug(format("Finding shortest path for %s --> %s for %s", box, destinations, journeyRequest));
@@ -113,7 +119,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
             final AtomicInteger journeyIndex = new AtomicInteger(0);
 
-            try(final GraphTransaction txn = graphDatabaseService.beginTx()) {
+            try (final GraphTransaction txn = graphDatabaseService.beginTx()) {
 
                 final Stream<Journey> journeys = startingStations.stream().
                         filter(start -> !destinations.contains(start)).
@@ -136,6 +142,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
             }
         });
 
+        return result.setStream(stream);
     }
 
     private record NodeAndStation(Location<?> location, GraphNode node) {
@@ -144,5 +151,50 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
     private NumberOfChanges computeNumberOfChanges(LocationSet starts, LocationSet destinations, TramDate date, TimeRange timeRange, EnumSet<TransportMode> modes) {
         return routeToRouteCosts.getNumberOfChanges(starts, destinations, date, timeRange, modes);
+    }
+
+    public static class RequestStopStream<T> {
+        private Stream<T> theStream;
+        private final AtomicBoolean running;
+
+        public RequestStopStream() {
+            running = new AtomicBoolean(true);
+        }
+
+        public RequestStopStream(final AtomicBoolean running) {
+            this.running = running;
+        }
+
+        public RequestStopStream<T> setStream(final Stream<T> stream) {
+            if (this.theStream!=null) {
+                throw new RuntimeException("stream already set");
+            }
+            this.theStream = stream;
+            return this;
+        }
+
+        public <R> RequestStopStream<R> map(final Function<T,R> mapper) {
+            final RequestStopStream<R> result = new RequestStopStream<>(this.running);
+            return result.setStream(theStream.map(mapper));
+        }
+
+        public Stream<T> getStream() {
+            return theStream;
+        }
+
+        public synchronized void stop() {
+            logger.warn("Stop was requested");
+            running.set(false);
+        }
+
+        public synchronized boolean isRunning() {
+            boolean result = running.get();
+            if (!result) {
+                logger.warn("Not running");
+            } else {
+                logger.warn("Running");
+            }
+            return result;
+        }
     }
 }

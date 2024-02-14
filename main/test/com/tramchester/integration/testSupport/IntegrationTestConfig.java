@@ -13,10 +13,7 @@ import com.tramchester.testSupport.TestEnv;
 
 import java.nio.file.Path;
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 public abstract class IntegrationTestConfig extends TestConfig {
 
@@ -26,16 +23,15 @@ public abstract class IntegrationTestConfig extends TestConfig {
 
     protected final RailRemoteDataSourceConfig railRemoteDataSource;
 
-    public static final StationClosures ecclesToWeasteClosed;
+    public static final StationClosures exchangeSquareBrokenRail;
 
     static {
-        List<String> closedStations = Arrays.asList("9400ZZMAECC", "9400ZZMALDY");
-        ecclesToWeasteClosed = new StationClosuresConfig(new HashSet<>(closedStations),
-            LocalDate.of(2023,7,15),
-            LocalDate.of(2023,9,20), true);
+        Set<String> closed = Collections.singleton("9400ZZMAEXS");
+        exchangeSquareBrokenRail = new StationClosuresConfig(closed, LocalDate.of(2024,2,12),
+            LocalDate.of(2024,3,12), false, Collections.singleton("9400ZZMAVIC"));
     }
 
-    public static final List<StationClosures> CurrentClosures = Collections.singletonList(ecclesToWeasteClosed);
+    public static final List<StationClosures> CurrentClosures = Collections.singletonList(exchangeSquareBrokenRail);
     private final TestGroupType testGroupType;
 
     protected IntegrationTestConfig(TestGroupType testGroupType) {

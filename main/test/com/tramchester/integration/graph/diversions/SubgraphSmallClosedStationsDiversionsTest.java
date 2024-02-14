@@ -19,7 +19,7 @@ import com.tramchester.graph.facade.*;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
-import com.tramchester.integration.testSupport.StationClosuresForTest;
+import com.tramchester.integration.testSupport.StationClosuresConfigForTest;
 import com.tramchester.integration.testSupport.tram.IntegrationTramClosedStationsTestConfig;
 import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.StationRepository;
@@ -55,7 +55,8 @@ class SubgraphSmallClosedStationsDiversionsTest {
     private final static TramDate when = TestEnv.testDay();
 
     private final static List<StationClosures> closedStations = List.of(
-            new StationClosuresForTest(PiccadillyGardens, when, when.plusWeeks(1), false));
+            new StationClosuresConfigForTest(PiccadillyGardens, when, when.plusWeeks(1), false,
+                    Collections.emptySet()));
 
     private static final List<TramStations> centralStations = Arrays.asList(
             Cornbrook,

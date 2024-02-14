@@ -8,20 +8,18 @@ import com.tramchester.domain.StationClosures;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
-import com.tramchester.integration.testSupport.StationClosuresForTest;
+import com.tramchester.integration.testSupport.StationClosuresConfigForTest;
 import com.tramchester.integration.testSupport.tram.IntegrationTramClosedStationsTestConfig;
 import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static com.tramchester.domain.reference.CentralZoneStation.*;
 import static com.tramchester.testSupport.reference.TramStations.StPetersSquare;
@@ -45,9 +43,13 @@ public class ClosedStationsRepositoryTest {
         when = TestEnv.testDay();
         overlap = when.plusDays(3);
 
-        StationClosuresForTest closureA = new StationClosuresForTest(StPetersSquare, when, when.plusWeeks(1), true);
-        StationClosuresForTest closureB = new StationClosuresForTest(TraffordCentre, overlap, when.plusWeeks(2), false);
-        List<StationClosures> closedStations = Arrays.asList(closureA, closureB);
+        Set<String> diversionOnly = Collections.emptySet();
+        StationClosuresConfigForTest closureA = new StationClosuresConfigForTest(StPetersSquare, when, when.plusWeeks(1), true, diversionOnly);
+        StationClosuresConfigForTest closureB = new StationClosuresConfigForTest(TraffordCentre, overlap, when.plusWeeks(2), false, diversionOnly);
+        StationClosuresConfigForTest closureC = new StationClosuresConfigForTest(TramStations.ExchangeSquare, overlap, when.plusWeeks(3),
+                false, Collections.singleton("9400ZZMAVIC"));
+
+        List<StationClosures> closedStations = Arrays.asList(closureA, closureB, closureC);
 
         config = new IntegrationTramClosedStationsTestConfig(closedStations, true);
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
@@ -64,6 +66,21 @@ public class ClosedStationsRepositoryTest {
     void beforeEachTestRuns() {
         closedStationsRepository = componentContainer.get(ClosedStationsRepository.class);
         afterClosures = when.plusWeeks(4);
+    }
+
+    @Test
+    void shouldUseProvidedDiversions() {
+        Set<ClosedStation> closed = closedStationsRepository.getClosedStationsFor(DataSourceID.tfgm);
+        List<ClosedStation> closedIn3Weeks = closed.stream().filter(closedStation -> closedStation.getDateRange().contains(when.plusWeeks(3))).toList();
+        assertEquals(1, closedIn3Weeks.size());
+
+        ClosedStation closure = closedIn3Weeks.get(0);
+        List<Station> nearby = new ArrayList<>(closure.getNearbyLinkedStation());
+
+        assertEquals(1, nearby.size());
+
+        Station divert = nearby.get(0);
+        assertEquals(TramStations.Victoria.getId(), divert.getId());
     }
 
     @Test
@@ -102,7 +119,7 @@ public class ClosedStationsRepositoryTest {
     @Test
     void shouldHaveClosedByDataSourceId() {
         Set<ClosedStation> closedStations = closedStationsRepository.getClosedStationsFor(DataSourceID.tfgm);
-        assertEquals(2, closedStations.size());
+        assertEquals(3, closedStations.size());
     }
 
     @Test

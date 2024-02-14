@@ -16,4 +16,6 @@ public interface StationClosures {
     boolean isFullyClosed();
 
     DateRange getDateRange();
+
+    IdSet<Station> getDiversionsOnly();
 }

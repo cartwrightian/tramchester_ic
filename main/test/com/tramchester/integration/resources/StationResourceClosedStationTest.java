@@ -8,7 +8,7 @@ import com.tramchester.domain.presentation.DTO.StationClosureDTO;
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
-import com.tramchester.integration.testSupport.StationClosuresForTest;
+import com.tramchester.integration.testSupport.StationClosuresConfigForTest;
 import com.tramchester.integration.testSupport.tram.IntegrationTramClosedStationsTestConfig;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
@@ -31,7 +31,7 @@ public class StationResourceClosedStationTest {
     private static final TramStations closedStation = TramStations.StPetersSquare;
 
     private final static List<StationClosures> closedStations = Collections.singletonList(
-            new StationClosuresForTest(closedStation, when, when.plusWeeks(1), false));
+            new StationClosuresConfigForTest(closedStation, when, when.plusWeeks(1), false, Collections.emptySet()));
 
     // NOTE: planning disabled here
     private static final AppConfiguration config = new IntegrationTramClosedStationsTestConfig(closedStations, false);

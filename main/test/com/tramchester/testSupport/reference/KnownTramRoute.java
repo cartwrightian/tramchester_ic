@@ -15,16 +15,16 @@ import java.util.Set;
  */
 public enum KnownTramRoute {
 
-    PiccadillyAltrincham("Purple Line", "Piccadilly - Altrincham", "842"),
+    PiccadillyAltrincham("Purple Line", "Piccadilly - Altrincham", "1790"),
 
     BuryManchesterAltrincham("Green Line", "Crumpsall - Manchester - Altrincham", "841"),
 
-    EcclesManchesterAshtonUnderLyne("Blue Line", "Eccles - Manchester - Ashton Under Lyne", "843"),
+    EcclesManchesterAshtonUnderLyne("Blue Line", "Eccles - Manchester - Ashton Under Lyne", "1789"),
 
     PiccadillyBury("Yellow Line", "Piccadilly - Bury", "844"),
 
     RochdaleShawandCromptonManchesterEastDidisbury("Pink Line",
-            "Rochdale - Shaw and Crompton - Manchester - East D", "845"),
+            "Rochdale - Shaw and Crompton - Manchester - East D", "1786"),
 
     VictoriaWythenshaweManchesterAirport("Navy Line", "Victoria - Wythenshawe - Manchester Airport", "848"),
 

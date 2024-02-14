@@ -37,10 +37,11 @@ gtfsSourceConfig:
     groupedStationModes: []
     addWalksForClosed: true
     stationClosures:
-    - stations: [ "9400ZZMAECC", "9400ZZMALDY" ]
-      begin: 2023-07-15
-      end: 2023-09-20
-      fullyClosed: true
+    - stations: [ "9400ZZMAEXS" ]
+      begin: 2024-02-12
+      end: 2024-03-12
+      fullyClosed: false
+      diversionsOnly: [ 9400ZZMAVIC ]
 remoteSources:
   - name: tfgm
     dataURL: ${TRAM_DATAURL:- s3://tramchesternewdist/dist/${RELEASE_NUMBER}/tfgm_data.zip}

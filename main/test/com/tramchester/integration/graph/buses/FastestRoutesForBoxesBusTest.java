@@ -9,6 +9,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.search.FastestRoutesForBoxes;
+import com.tramchester.graph.search.RouteCalculatorForBoxes;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -62,7 +63,9 @@ class FastestRoutesForBoxesBusTest {
                 date, time, false, 2,
                 Duration.ofMinutes(60), 2, BusesOnly);
 
-        Stream<BoundingBoxWithCost> results = calculator.findForGrid(destination, 1000, journeyRequest);
+        RouteCalculatorForBoxes.RequestStopStream<BoundingBoxWithCost> result = calculator.findForGrid(destination, 1000, journeyRequest);
+
+        Stream<BoundingBoxWithCost> results = result.getStream();
 
         List<BoundingBoxWithCost> destinationBox = results.
                 filter(boundingBoxWithCost -> boundingBoxWithCost.getDuration().isZero()).
