@@ -23,7 +23,6 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 import org.glassfish.jersey.server.ChunkedOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +30,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.EnumSet;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
@@ -54,49 +55,8 @@ public class JourneysForGridResource implements APIResource, GraphDatabaseDepend
         this.dtoMapper = dtoMapper;
     }
 
-    // TODO Cache lifetime could potentially be quite long here, but makes testing harder.....
-    @Path("/query")
-    @POST
-    @Timed
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Find cheapest travel costs for a grid of locations")
-    @ApiResponse(content = @Content(schema = @Schema(implementation = BoundingBoxWithCost.class)))
-    //@CacheControl(maxAge = 30, maxAgeUnit = TimeUnit.SECONDS)
-    public Response gridCosts(GridQueryDTO gridQueryDTO) {
-        logger.info(format("Query for grid times for %s", gridQueryDTO));
-
-        final TramTime departureTime = gridQueryDTO.getDepartureTramTime();
-        final TramDate date = gridQueryDTO.getTramDate();
-
-        // just find the first one -- todo this won't be lowest cost route....
-        long maxNumberOfJourneys = 1;
-
-        final Duration maxDuration = Duration.ofMinutes(gridQueryDTO.getMaxDuration());
-
-        // todo into parameters
-        final EnumSet<TransportMode> allModes = config.getTransportModes();
-
-        final JourneyRequest journeyRequest = new JourneyRequest(date, departureTime,
-                false, gridQueryDTO.getMaxChanges(), maxDuration, maxNumberOfJourneys, allModes);
-        journeyRequest.setWarnIfNoResults(false);
-
-        final Location<?> destination = locationRepository.getLocation(gridQueryDTO.getDestType(), gridQueryDTO.getDestId());
-
-        logger.info("Create search for " + destination.getId());
-
-        final Stream<BoxWithCostDTO> results = search.findForGrid(destination, gridQueryDTO.getGridSize(), journeyRequest).
-                map(box -> BoxWithCostDTO.createFrom(dtoMapper, date, box));
-
-        JsonStreamingOutput<BoxWithCostDTO> jsonStreamingOutput = new JsonStreamingOutput<>(results);
-
-        logger.info("returning result stream");
-        Response.ResponseBuilder responseBuilder = Response.ok(jsonStreamingOutput);
-        return responseBuilder.build();
-    }
 
     // TODO Cache lifetime could potentially be quite long here, but makes testing harder.....
-    // TODO correct media type?
     @Path("/chunked")
     @POST
     @Timed
@@ -133,12 +93,16 @@ public class JourneysForGridResource implements APIResource, GraphDatabaseDepend
         final Stream<BoxWithCostDTO> dtoStream = search.findForGrid(destination, gridQueryDTO.getGridSize(), journeyRequest).
                 map(box -> BoxWithCostDTO.createFrom(dtoMapper, date, box));
 
-        new Thread(() -> {
+
+        // todo need way to stop calculation gracefully if socket is closed
+
+        ExecutorService service = Executors.newFixedThreadPool(1);
+
+        Runnable worker = () -> {
             try {
                 logger.info("Sending response for request " + gridQueryDTO);
-                dtoStream.forEach(dto -> sendTo(output, dto));
-            }
-            finally {
+                dtoStream.forEach(dto -> sendTo(output, dto, service));
+            } finally {
                 try {
                     output.close();
                     logger.info("Finished sending response for " + gridQueryDTO);
@@ -147,14 +111,16 @@ public class JourneysForGridResource implements APIResource, GraphDatabaseDepend
                     dtoStream.close();
                 }
             }
-        }).start();
+        };
+
+        service.submit(worker);
 
         return output;
     }
 
-    private void sendTo(ChunkedOutput<BoxWithCostDTO> output, BoxWithCostDTO dto) {
+    private synchronized void sendTo(ChunkedOutput<BoxWithCostDTO> output, BoxWithCostDTO dto, ExecutorService service) {
         if (output.isClosed()) {
-            logger.info("Output is closed");
+            logger.error("Output is closed");
             return;
         }
 
@@ -163,9 +129,9 @@ public class JourneysForGridResource implements APIResource, GraphDatabaseDepend
             if (logger.isDebugEnabled()) {
                 logger.debug("send " + dto);
             }
+
         } catch (IOException exception) {
             logger.error("Could not send " + dto, exception);
-            // todo check if need to close output?
         }
     }
 

@@ -76,18 +76,18 @@ function getColourForCost(boxWithCost) {
     return '#00'+greenString+'00';
 }
 
-function queryForGrid(gridSize, destinationType, stationId, time, date, maxChanges, maxDuration) {
+function queryForGrid(app, gridSize, destinationType, stationId, time, date, maxChanges, maxDuration) {
     var query = {
             destType: destinationType, destId: stationId, gridSize: gridSize, departureTime: time, 
             departureDate: date, 
             maxChanges: maxChanges, 
             maxDuration: maxDuration}
 
-    queryServerForGrid(query);
+    queryServerForGrid(query, app);
 }
 
 
-async function queryServerForGrid(query) {
+async function queryServerForGrid(query,app) {
     const queryJSON = JSON.stringify(query);
     const headers = new Headers({"Content-Type" : "application/json"});
     const request = new Request('/api/grid/chunked', {
@@ -95,7 +95,14 @@ async function queryServerForGrid(query) {
             headers: headers,
             body: queryJSON
     });
-    const response = fetch(request);
+
+    if (app.abortController!=null) {
+        app.abortController.abort();
+    }
+
+    app.abortController = new AbortController();
+    const signal = app.abortController.signal;
+    const response = fetch(request, { signal });
     (await response).body.pipeThrough(new TextDecoderStream()).
         pipeThrough(bufferedLines()).
         pipeThrough(parseJSON()).
@@ -193,6 +200,7 @@ async function getStationsFromServer(app) {
     maxChanges: 2,
     maxDuration: 60,
     time: "09:30",
+    abortController: null,
     feedinfo: []
  }
 
@@ -217,19 +225,25 @@ var mapApp = new Vue({
             mapApp.journeyLayer.addTo(mapApp.map);
         },
         compute(event) {
+            //this.cancel();
             if (event!=null) {
                 event.preventDefault(); // stop page reload on form submission
             }
             mapApp.costsLayer.clearLayers();
             mapApp.journeyLayer.clearLayers();
             this.$nextTick(function () {
-                queryForGrid(1000, mapApp.destination.locationType, mapApp.destination.id , mapApp.time, 
+                queryForGrid(mapApp, 1000, mapApp.destination.locationType, mapApp.destination.id , mapApp.time, 
                     mapApp.date, 
                     mapApp.maxChanges, mapApp.maxDuration);
             });
         },
         dateToNow() {
             mapApp.date = getCurrentDate();
+        },
+        cancel() {
+            if (mapApp.abortController!=null) {
+                mapApp.abortController.abort();
+            }
         }
     },
     mounted () {

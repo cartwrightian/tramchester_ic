@@ -92,7 +92,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         final IdSet<Station> closedStations = closedStationsRepository.getFullyClosedStationsFor(date).stream().
                 map(ClosedStation::getStationId).collect(IdSet.idCollector());
 
-        TimeRange destinationsAvailable = getDestinationsAvailable(destinations, date);
+        final TimeRange destinationsAvailable = getDestinationsAvailable(destinations, date);
         final JourneyConstraints journeyConstraints = new JourneyConstraints(config, routeAndServicesFilter, closedStations,
                 destinations, lowestCostForDestinations, maxJourneyDuration, destinationsAvailable);
 

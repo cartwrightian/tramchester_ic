@@ -139,7 +139,7 @@ public class RouteCalculatorSupport {
             }
         }
 
-        TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(
+        final TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(
                 txn, pathRequest, nodeContentsRepository,
                 tripRepository, traversalStateFactory, endStations, config, destinationNodeIds,
                 reasons, reasonToGraphViz, providesNow);

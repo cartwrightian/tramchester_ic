@@ -69,44 +69,6 @@ class JourneysForGridResourceTest {
     }
 
     @Test
-    void shouldHaveJourneysForWholeGrid() throws IOException {
-        LatLong destPos = KnownLocations.nearStPetersSquare.latLong();
-        Station destination = TramStations.StPetersSquare.from(stationRepository);
-
-        final int outOfRangeForDuration = 3;
-
-        IdForDTO destinationId = IdForDTO.createFor(destination);
-        LocalDate departureDate = when.toLocalDate();
-        LocalTime departureTime = LocalTime.of(9,15);
-        GridQueryDTO gridQueryDTO = new GridQueryDTO(destination.getLocationType(), destinationId, departureDate, departureTime, maxDuration, maxChanges, gridSize);
-
-        Response response = APIClient.postAPIRequest(appExtension, "grid/query", gridQueryDTO);
-        assertEquals(200, response.getStatus());
-
-        InputStream inputStream = response.readEntity(InputStream.class);
-        List<BoxWithCostDTO> results = parseStream.receive(response, inputStream);
-        assertFalse(results.isEmpty());
-
-        List<BoxWithCostDTO> containsDest = results.stream().filter(result -> result.getMinutes() == 0).toList();
-        assertEquals(1, containsDest.size());
-        BoxWithCostDTO boxWithDest = containsDest.get(0);
-        assertTrue(boxWithDest.getBottomLeft().getLat() <= destPos.getLat());
-        assertTrue(boxWithDest.getBottomLeft().getLon() <= destPos.getLon());
-        assertTrue(boxWithDest.getTopRight().getLat() >= destPos.getLat());
-        assertTrue(boxWithDest.getTopRight().getLon() >= destPos.getLon());
-
-        List<BoxWithCostDTO> notDest = results.stream().filter(result -> result.getMinutes() > 0).toList();
-        notDest.forEach(boundingBoxWithCost -> assertTrue(boundingBoxWithCost.getMinutes()<=maxDuration));
-
-        List<BoxWithCostDTO> noResult = results.stream().filter(result -> result.getMinutes() < 0).toList();
-        assertEquals(outOfRangeForDuration, noResult.size());
-
-        Set<BoundingBoxWithStations> expectedBoxes = getExpectedBoxesInSearchGrid(destination);
-
-        assertEquals(expectedBoxes.size() - outOfRangeForDuration, notDest.size(), "Expected " + expectedBoxes + " but got " + notDest);
-    }
-
-    @Test
     void shouldHaveJourneysForWholeGridChunked() throws IOException {
         LatLong destPos = KnownLocations.nearStPetersSquare.latLong();
         Station destination = TramStations.StPetersSquare.from(stationRepository);

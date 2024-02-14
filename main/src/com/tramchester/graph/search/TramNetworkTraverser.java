@@ -80,7 +80,8 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
                                   LowestCostSeen lowestCostSeen, BranchOrderingPolicy selector, boolean fullLogging) {
 
 
-        Instant begin = providesNow.getInstant();
+        final Instant begin = providesNow.getInstant();
+
         Duration maxInitialWait = pathRequest.getMaxInitialWait();
         final TramRouteEvaluator tramRouteEvaluator = new TramRouteEvaluator(pathRequest.getServiceHeuristics(),
                 destinationNodeIds, nodeContentsRepository, reasons, previousSuccessfulVisit, lowestCostSeen, config,
