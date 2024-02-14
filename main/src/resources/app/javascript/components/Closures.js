@@ -41,11 +41,12 @@ export default {
         }
     },
     template: `
-    <div id="closuresComponent" v-if="closures.length>0">
-        <div class="card bg-warning tramchesterApp w-75" align="center">
-            <div class="card-body">
-                <h5 class="card-title">Station Closures</h5>
-                <div class="card-text" align="centre">
+    <div id="closuresComponent">
+        <v-container v-if="closures.length>0">
+            <v-card>
+                <v-card-title>Station Closures</v-card-title>
+                <v-card-subtitle>Visit <a href="https://www.tfgm.com/">www.tfgm.com</a> for full details</v-card-subtitle>
+                <v-card-text>
                     <ul id="ClosureList" class="Closures list-group list-group-flush">
                         <li v-for="closed in closures" id="ClosedItem">
                             <div v-if="closed.fullyClosed == true">
@@ -56,10 +57,9 @@ export default {
                             </div>
                         </li>
                     </ul>
-                    Visit <a href="https://www.tfgm.com/">www.tfgm.com</a> for full details
-                </div>
-            </div>
-        </div>
+                </v-card-text>
+            </v-card>
+        </v-container>
     </div>
     `
 }

@@ -100,10 +100,10 @@
 
     <div id="outputs" class="ml-0 mr-0">
         <notes :receivednotes="notes"></notes>
+        <closures></closures>
         <live-departures :livedataresponse="liveDepartureResponse"></live-departures>
         <journeys :journeysresponse="journeys" :numjourneystodisplay="numberJourneysToDisplay" 
             v-on:earlier-tram="changeTime" v-on:later-tram="changeTime"></journeys>
-        <closures></closures>
     </div>
 
     </v-main>
