@@ -2,6 +2,7 @@ package com.tramchester.graph.search;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.*;
+import com.tramchester.domain.collections.RequestStopStream;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.time.TramTime;
@@ -40,7 +41,7 @@ public class FastestRoutesForBoxes {
         this.geography = geography;
     }
 
-    public RouteCalculatorForBoxes.RequestStopStream<BoundingBoxWithCost> findForGrid(Location<?> destination, int gridSize, JourneyRequest journeyRequest)  {
+    public RequestStopStream<BoundingBoxWithCost> findForGrid(Location<?> destination, int gridSize, JourneyRequest journeyRequest)  {
 
         logger.info("Creating station groups for gridsize " + gridSize + " and destination " + destination.getId());
         final GridPosition gridPosition = destination.getGridPosition();
@@ -49,7 +50,7 @@ public class FastestRoutesForBoxes {
     }
 
     @NotNull
-    private RouteCalculatorForBoxes.RequestStopStream<BoundingBoxWithCost> findForGrid(GridPosition destinationGrid, int gridSize, final JourneyRequest journeyRequest) {
+    private RequestStopStream<BoundingBoxWithCost> findForGrid(GridPosition destinationGrid, int gridSize, final JourneyRequest journeyRequest) {
         logger.info("Creating station groups for gridsize " + gridSize + " and destination " + destinationGrid);
 
         final Set<BoundingBoxWithStations> searchGrid = stationLocations.getStationsInGrids(gridSize).

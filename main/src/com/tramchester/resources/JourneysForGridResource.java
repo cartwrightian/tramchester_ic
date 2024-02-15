@@ -5,6 +5,7 @@ import com.google.inject.Inject;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.BoundingBoxWithCost;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.collections.RequestStopStream;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.DTO.BoxWithCostDTO;
@@ -12,7 +13,6 @@ import com.tramchester.domain.presentation.DTO.query.GridQueryDTO;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.search.FastestRoutesForBoxes;
-import com.tramchester.graph.search.RouteCalculatorForBoxes;
 import com.tramchester.mappers.JourneyToDTOMapper;
 import com.tramchester.repository.LocationRepository;
 import io.swagger.v3.oas.annotations.Operation;
@@ -91,7 +91,7 @@ public class JourneysForGridResource implements APIResource, GraphDatabaseDepend
         // todo single newline should be line
         final ChunkedOutput<BoxWithCostDTO> output = new ChunkedOutput<>(BoxWithCostDTO.class, "\n\n");
 
-        final RouteCalculatorForBoxes.RequestStopStream<BoxWithCostDTO> result = search.findForGrid(destination, gridQueryDTO.getGridSize(), journeyRequest).
+        final RequestStopStream<BoxWithCostDTO> result = search.findForGrid(destination, gridQueryDTO.getGridSize(), journeyRequest).
                 map(box -> BoxWithCostDTO.createFrom(dtoMapper, date, box));
 
         Stream<BoxWithCostDTO> dtoStream = result.getStream();
@@ -121,7 +121,7 @@ public class JourneysForGridResource implements APIResource, GraphDatabaseDepend
     }
 
     private synchronized void sendTo(ChunkedOutput<BoxWithCostDTO> output, BoxWithCostDTO dto,
-                                     RouteCalculatorForBoxes.RequestStopStream<BoxWithCostDTO> requestStopStream) {
+                                     RequestStopStream<BoxWithCostDTO> requestStopStream) {
         if (output.isClosed()) {
             logger.error("Output is closed");
             return;

@@ -6,6 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.JourneysForBox;
 import com.tramchester.domain.LocationSet;
+import com.tramchester.domain.collections.RequestStopStream;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
@@ -89,7 +90,7 @@ class RouteCalculatorForBoundingBoxTest {
 
         LocationSet destinations = LocationSet.singleton(TramStations.StPetersSquare.from(stationRepository));
 
-        RouteCalculatorForBoxes.RequestStopStream<JourneysForBox> result = calculator.calculateRoutes(destinations, journeyRequest, grouped);
+        RequestStopStream<JourneysForBox> result = calculator.calculateRoutes(destinations, journeyRequest, grouped);
 
         List<JourneysForBox> groupedJourneys = result.getStream().toList();
 

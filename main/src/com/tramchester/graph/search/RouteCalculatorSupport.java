@@ -197,8 +197,8 @@ public class RouteCalculatorSupport {
     }
 
     @NotNull
-    protected ServiceReasons createServiceReasons(JourneyRequest journeyRequest, TramTime time) {
-        return new ServiceReasons(journeyRequest, time, providesNow);
+    protected ServiceReasons createServiceReasons(JourneyRequest journeyRequest) {
+        return new ServiceReasons(journeyRequest, journeyRequest.getOriginalTime(), providesNow);
     }
 
     @NotNull
@@ -211,6 +211,15 @@ public class RouteCalculatorSupport {
 
     }
 
+    public PathRequest createPathRequest(final JourneyRequest journeyRequest, final NodeAndStation nodeAndStation, final int numChanges,
+                                         final JourneyConstraints journeyConstraints, final BranchOrderingPolicy selector) {
+        final Duration maxInitialWait = getMaxInitialWaitFor(nodeAndStation.location, config);
+        return createPathRequest(nodeAndStation.node, journeyRequest.getDate(), journeyRequest.getOriginalTime(), journeyRequest.getRequestedModes(),
+                numChanges, journeyConstraints, maxInitialWait, selector);
+    }
+
+    // use version that takes a JourneyRequest
+    @Deprecated
     public PathRequest createPathRequest(GraphNode startNode, TramDate queryDate, TramTime actualQueryTime,
                                          EnumSet<TransportMode> requestedModes, int numChanges,
                                          JourneyConstraints journeyConstraints, Duration maxInitialWait,
@@ -332,6 +341,15 @@ public class RouteCalculatorSupport {
             return seenMaxJourneys < journeysPerStation.size();
 
         }
+    }
+
+    @NotNull
+    protected NodeAndStation createNodeAndStation(GraphTransaction txn, Location<?> start) {
+        return new NodeAndStation(start, getLocationNodeSafe(txn, start));
+    }
+
+    public record NodeAndStation(Location<?> location, GraphNode node) {
+
     }
 
 

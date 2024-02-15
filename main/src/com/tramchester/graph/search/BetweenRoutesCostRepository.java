@@ -1,6 +1,7 @@
 package com.tramchester.graph.search;
 
 import com.google.inject.ImplementedBy;
+import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.Route;
@@ -21,6 +22,10 @@ public interface BetweenRoutesCostRepository {
     NumberOfChanges getNumberOfChanges(StationGroup start, StationGroup end, TramDate date, TimeRange time, EnumSet<TransportMode> modes);
     NumberOfChanges getNumberOfChanges(Route routeA, Route routeB, TramDate date, TimeRange timeRange, EnumSet<TransportMode> requestedModes);
 
+    LowestCostsForDestRoutes getLowestCostCalcutatorFor(LocationSet desintationRoutes, JourneyRequest journeyRequest);
+
+    // use version with Journey request
+    @Deprecated
     LowestCostsForDestRoutes getLowestCostCalcutatorFor(LocationSet desintationRoutes, TramDate date, TimeRange time, EnumSet<TransportMode> modes);
 
 }

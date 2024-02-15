@@ -5,6 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.BoundingBoxWithCost;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.collections.RequestStopStream;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.NPTGLocality;
@@ -16,7 +17,6 @@ import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.search.FastestRoutesForBoxes;
-import com.tramchester.graph.search.RouteCalculatorForBoxes;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -116,7 +116,7 @@ class FastestRoutesForBoxesTest {
                 TestEnv.testDay(), time, false, 2,
                 Duration.ofMinutes(120), 3, TramsOnly);
 
-        RouteCalculatorForBoxes.RequestStopStream<BoundingBoxWithCost> results = calculator.findForGrid(destination, 2000, journeyRequest);
+        RequestStopStream<BoundingBoxWithCost> results = calculator.findForGrid(destination, 2000, journeyRequest);
 
         List<BoundingBoxWithCost> destinationBox = results.getStream().
                 filter(boundingBoxWithCost -> boundingBoxWithCost.getDuration().isZero()).

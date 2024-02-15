@@ -4,10 +4,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.domain.LocationSet;
-import com.tramchester.domain.NumberOfChanges;
-import com.tramchester.domain.Route;
-import com.tramchester.domain.RoutePair;
+import com.tramchester.domain.*;
 import com.tramchester.domain.collections.IndexedBitSet;
 import com.tramchester.domain.collections.RouteIndexPair;
 import com.tramchester.domain.collections.RouteIndexPairFactory;
@@ -220,6 +217,20 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                 interchangesOperating, 0, requestedModes);
     }
 
+    @Override
+    public LowestCostsForDestRoutes getLowestCostCalcutatorFor(LocationSet destinationRoutes, JourneyRequest journeyRequest) {
+        return getLowestCostCalcutatorFor(destinationRoutes, journeyRequest.getDate(), journeyRequest.getTimeRange(), journeyRequest.getRequestedModes());
+    }
+
+    /***
+     * Use version that takes a JourneyRequest
+     * @param destinations possible destinations
+     * @param date Date of journey
+     * @param timeRange time range to search
+     * @param requestedModes modes to use
+     * @return
+     */
+    @Deprecated
     @Override
     public LowestCostsForDestRoutes getLowestCostCalcutatorFor(LocationSet destinations, TramDate date, TimeRange timeRange,
                                                                EnumSet<TransportMode> requestedModes) {

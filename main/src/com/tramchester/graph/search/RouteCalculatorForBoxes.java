@@ -3,6 +3,7 @@ package com.tramchester.graph.search;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
+import com.tramchester.domain.collections.RequestStopStream;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Location;
@@ -10,13 +11,11 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TimeRange;
-import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBoxWithStations;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
-import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.search.diagnostics.ReasonsToGraphViz;
@@ -26,18 +25,16 @@ import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.RunningRoutesAndServices;
 import com.tramchester.repository.StationAvailabilityRepository;
 import com.tramchester.repository.TransportData;
+import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.traversal.BranchOrderingPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.time.Duration;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -76,27 +73,14 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
     }
 
     public RequestStopStream<JourneysForBox> calculateRoutes(final LocationSet destinations, final JourneyRequest journeyRequest,
-                                                  final List<BoundingBoxWithStations> grouped) {
-        logger.info("Finding routes for bounding boxes");
+                                                             final List<BoundingBoxWithStations> boxes) {
+        logger.info("Finding routes for " + boxes.size() + " bounding boxes");
 
         // TODO Compute over a range of times??
-        final TramTime originalTime = journeyRequest.getOriginalTime();
-        final EnumSet<TransportMode> requestedModes = journeyRequest.getRequestedModes();
-        final TramDate date = journeyRequest.getDate();
-        final TimeRange timeRange = journeyRequest.getTimeRange();
-        final Duration maxJourneyDuration = journeyRequest.getMaxJourneyDuration();
+
         final long maxNumberOfJourneys = journeyRequest.getMaxNumberOfJourneys();
 
-        final LowestCostsForDestRoutes lowestCostForDestinations = routeToRouteCosts.getLowestCostCalcutatorFor(destinations, date,
-                timeRange, requestedModes);
-        final RunningRoutesAndServices.FilterForDate routeAndServicesFilter = runningRoutesAndService.getFor(date);
-
-        final IdSet<Station> closedStations = closedStationsRepository.getFullyClosedStationsFor(date).stream().
-                map(ClosedStation::getStationId).collect(IdSet.idCollector());
-
-        final TimeRange destinationsAvailable = getDestinationsAvailable(destinations, date);
-        final JourneyConstraints journeyConstraints = new JourneyConstraints(config, routeAndServicesFilter, closedStations,
-                destinations, lowestCostForDestinations, maxJourneyDuration, destinationsAvailable);
+        final JourneyConstraints journeyConstraints = createJourneyConstraints(destinations, journeyRequest);
 
         final Set<GraphNodeId> destinationNodeIds = getDestinationNodeIds(destinations);
 
@@ -105,7 +89,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
         final RequestStopStream<JourneysForBox> result = new RequestStopStream<>();
 
-        Stream<JourneysForBox> stream = grouped.parallelStream().
+        final Stream<JourneysForBox> stream = boxes.parallelStream().
                 filter(item -> result.isRunning()).
                 map(box -> {
 
@@ -115,21 +99,17 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
             final LocationSet startingStations = box.getStations();
             final LowestCostSeen lowestCostSeenForBox = new LowestCostSeen();
 
-            final NumberOfChanges numberOfChanges = computeNumberOfChanges(startingStations, destinations, date, timeRange, requestedModes);
-
             final AtomicInteger journeyIndex = new AtomicInteger(0);
 
             try (final GraphTransaction txn = graphDatabaseService.beginTx()) {
 
                 final Stream<Journey> journeys = startingStations.stream().
                         filter(start -> !destinations.contains(start)).
-                        map(start -> new NodeAndStation(start, getLocationNodeSafe(txn, start))).
-                        flatMap(nodeAndStation -> numChangesRange(journeyRequest, numberOfChanges).
-                                map(numChanges -> createPathRequest(nodeAndStation.node, date, originalTime, requestedModes, numChanges,
-                                        journeyConstraints, getMaxInitialWaitFor(nodeAndStation.location, config), selector))).
+                        map(start -> createNodeAndStation(txn, start)).
+                        flatMap(nodeAndStation -> numChangesRange(journeyRequest, startingStations, destinations).
+                                map(numChanges -> createPathRequest(journeyRequest, nodeAndStation,  numChanges, journeyConstraints, selector))).
                         flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations,
-                                createServiceReasons(journeyRequest, originalTime), pathRequest,
-                                createPreviousVisits(), lowestCostSeenForBox)).
+                                createServiceReasons(journeyRequest), pathRequest, createPreviousVisits(), lowestCostSeenForBox)).
                         map(timedPath -> createJourney(journeyRequest, timedPath, destinations, journeyIndex, txn));
 
                 final Set<Journey> collect = journeys.
@@ -145,56 +125,28 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         return result.setStream(stream);
     }
 
-    private record NodeAndStation(Location<?> location, GraphNode node) {
+    @NotNull
+    private JourneyConstraints createJourneyConstraints(final LocationSet destinations, final JourneyRequest journeyRequest) {
+        final TramDate date = journeyRequest.getDate();
 
+        final TimeRange destinationsAvailable = getDestinationsAvailable(destinations, date);
+        final LowestCostsForDestRoutes lowestCostForDestinations = routeToRouteCosts.getLowestCostCalcutatorFor(destinations, journeyRequest);
+        final RunningRoutesAndServices.FilterForDate routeAndServicesFilter = runningRoutesAndService.getFor(date);
+        final IdSet<Station> closedStations = closedStationsRepository.getFullyClosedStationsFor(date).stream().
+                map(ClosedStation::getStationId).collect(IdSet.idCollector());
+
+        return new JourneyConstraints(config, routeAndServicesFilter, closedStations,
+                destinations, lowestCostForDestinations, journeyRequest.getMaxJourneyDuration(), destinationsAvailable);
     }
 
     private NumberOfChanges computeNumberOfChanges(LocationSet starts, LocationSet destinations, TramDate date, TimeRange timeRange, EnumSet<TransportMode> modes) {
         return routeToRouteCosts.getNumberOfChanges(starts, destinations, date, timeRange, modes);
     }
 
-    public static class RequestStopStream<T> {
-        private Stream<T> theStream;
-        private final AtomicBoolean running;
-
-        public RequestStopStream() {
-            running = new AtomicBoolean(true);
-        }
-
-        public RequestStopStream(final AtomicBoolean running) {
-            this.running = running;
-        }
-
-        public RequestStopStream<T> setStream(final Stream<T> stream) {
-            if (this.theStream!=null) {
-                throw new RuntimeException("stream already set");
-            }
-            this.theStream = stream;
-            return this;
-        }
-
-        public <R> RequestStopStream<R> map(final Function<T,R> mapper) {
-            final RequestStopStream<R> result = new RequestStopStream<>(this.running);
-            return result.setStream(theStream.map(mapper));
-        }
-
-        public Stream<T> getStream() {
-            return theStream;
-        }
-
-        public synchronized void stop() {
-            logger.warn("Stop was requested");
-            running.set(false);
-        }
-
-        public synchronized boolean isRunning() {
-            boolean result = running.get();
-            if (!result) {
-                logger.warn("Not running");
-            } else {
-                logger.warn("Running");
-            }
-            return result;
-        }
+    protected Stream<Integer> numChangesRange(final JourneyRequest journeyRequest, final LocationSet startingStations, final LocationSet destinations) {
+        NumberOfChanges numberChanges = computeNumberOfChanges(startingStations, destinations, journeyRequest.getDate(), journeyRequest.getTimeRange(),
+                journeyRequest.getRequestedModes());
+        return numChangesRange(journeyRequest, numberChanges);
     }
+
 }
