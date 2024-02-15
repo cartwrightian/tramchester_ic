@@ -30,7 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.util.EnumSet;
 import java.util.Set;
 import java.util.Spliterator;
@@ -45,49 +44,46 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
 
     private final NodeContentsRepository nodeContentsRepository;
     private final TripRepository tripRespository;
-    private final TramTime actualQueryTime;
-    private final Set<GraphNodeId> destinationNodeIds;
-    private final LocationSet destinations;
     private final TramchesterConfig config;
-    private final ServiceReasons reasons;
     private final TraversalStateFactory traversalStateFactory;
-    private final RouteCalculatorSupport.PathRequest pathRequest;
     private final ReasonsToGraphViz reasonToGraphViz;
     private final ProvidesNow providesNow;
     private final GraphTransaction txn;
+    private final boolean fullLogging;
 
-    public TramNetworkTraverser(GraphTransaction txn, RouteCalculatorSupport.PathRequest pathRequest,
-                                NodeContentsRepository nodeContentsRepository, TripRepository tripRepository,
-                                TraversalStateFactory traversalStateFactory, LocationSet destinations, TramchesterConfig config,
-                                Set<GraphNodeId> destinationNodeIds, ServiceReasons reasons,
-                                ReasonsToGraphViz reasonToGraphViz, ProvidesNow providesNow) {
+    private final Set<GraphNodeId> destinationNodeIds;
+    private final LocationSet destinations;
+
+    public TramNetworkTraverser(GraphTransaction txn, NodeContentsRepository nodeContentsRepository, TripRepository tripRepository,
+                                TraversalStateFactory traversalStateFactory, TramchesterConfig config, ReasonsToGraphViz reasonToGraphViz,
+                                ProvidesNow providesNow,
+                                boolean fullLogging, Set<GraphNodeId> destinationNodeIds, LocationSet destinations) {
         this.txn = txn;
         this.nodeContentsRepository = nodeContentsRepository;
         this.tripRespository = tripRepository;
         this.traversalStateFactory = traversalStateFactory;
+        this.fullLogging = fullLogging;
         this.destinationNodeIds = destinationNodeIds;
         this.destinations = destinations;
         this.config = config;
-        this.reasons = reasons;
-        this.pathRequest = pathRequest;
 
-        this.actualQueryTime = pathRequest.getActualQueryTime();
         this.reasonToGraphViz = reasonToGraphViz;
         this.providesNow = providesNow;
     }
 
-    public Stream<Path> findPaths(GraphTransaction txn, GraphNode startNode, PreviousVisits previousSuccessfulVisit,
-                                  LowestCostSeen lowestCostSeen, BranchOrderingPolicy selector, boolean fullLogging) {
+    public Stream<Path> findPaths(final GraphTransaction txn, final RouteCalculatorSupport.PathRequest pathRequest, final PreviousVisits previousSuccessfulVisit,
+                                  final ServiceReasons reasons, final LowestCostSeen lowestCostSeen) {
 
+        final BranchOrderingPolicy selector = pathRequest.getSelector();
+        final GraphNode startNode = pathRequest.getStartNode();
+        final TramTime actualQueryTime = pathRequest.getActualQueryTime();
 
-        final Instant begin = providesNow.getInstant();
-
-        Duration maxInitialWait = pathRequest.getMaxInitialWait();
-        final TramRouteEvaluator tramRouteEvaluator = new TramRouteEvaluator(pathRequest.getServiceHeuristics(),
+        final TramRouteEvaluator tramRouteEvaluator = new TramRouteEvaluator(pathRequest,
                 destinationNodeIds, nodeContentsRepository, reasons, previousSuccessfulVisit, lowestCostSeen, config,
-                startNode.getId(), begin, providesNow, pathRequest.getRequestedModes(), maxInitialWait, txn);
+                startNode.getId(), providesNow, txn);
 
-        TraversalOps traversalOps = new TraversalOps(txn, nodeContentsRepository, tripRespository, destinations, pathRequest.getQueryDate());
+        final TraversalOps traversalOps = new TraversalOps(txn, nodeContentsRepository, tripRespository, destinations,
+                pathRequest.getQueryDate(), pathRequest.getActualQueryTime());
 
         final NotStartedState traversalState = new NotStartedState(traversalOps, traversalStateFactory,
                 pathRequest.getRequestedModes(), startNode);
@@ -97,7 +93,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
             logger.info("Create traversal for " + actualQueryTime);
         }
 
-        TraversalDescription traversalDesc =
+        final TraversalDescription traversalDesc =
                 new MonoDirectionalTraversalDescription().
                         // api updated, the call to expand overrides any calls to relationships
                 uniqueness(NONE).
@@ -105,10 +101,10 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
                 order(selector).
                 evaluator(tramRouteEvaluator);
 
-        Traverser traverse = startNode.getTraverserFor(traversalDesc);
-        Spliterator<Path> spliterator = traverse.spliterator();
+        final Traverser traverse = startNode.getTraverserFor(traversalDesc);
+        final Spliterator<Path> spliterator = traverse.spliterator();
 
-        Stream<Path> stream = StreamSupport.stream(spliterator, false);
+        final Stream<Path> stream = StreamSupport.stream(spliterator, false);
 
         //noinspection ResultOfMethodCallIgnored
         stream.onClose(() -> {
@@ -164,7 +160,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         journeyStateForChildren.updateTraversalState(traversalStateForChildren);
 
         graphState.setState(journeyStateForChildren);
-        final Stream<ImmutableGraphRelationship> outbounds = traversalStateForChildren.getOutbounds(txn, pathRequest);
+        final Stream<ImmutableGraphRelationship> outbounds = traversalStateForChildren.getOutbounds(txn);
         return convertToIter(outbounds);
     }
 

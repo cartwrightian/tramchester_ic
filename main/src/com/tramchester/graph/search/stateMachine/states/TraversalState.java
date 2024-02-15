@@ -6,7 +6,6 @@ import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.JourneyStateUpdate;
-import com.tramchester.graph.search.RouteCalculatorSupport;
 import com.tramchester.graph.search.stateMachine.NodeId;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
 import org.neo4j.graphdb.Direction;
@@ -70,7 +69,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         this.graphNode = graphNode;
     }
 
-    public Stream<ImmutableGraphRelationship> getOutbounds(GraphTransaction txn, RouteCalculatorSupport.PathRequest pathRequest) {
+    public Stream<ImmutableGraphRelationship> getOutbounds(GraphTransaction txn) {
         return outbounds;
     }
 

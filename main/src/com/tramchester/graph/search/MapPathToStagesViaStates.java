@@ -69,7 +69,8 @@ public class MapPathToStagesViaStates implements PathToStages {
                     path.length(), journeyRequest, queryTime, timedPath.numChanges()));
         }
 
-        final TraversalOps traversalOps = new TraversalOps(txn, nodeContentsRepository, tripRepository, endStations, journeyRequest.getDate());
+        final TraversalOps traversalOps = new TraversalOps(txn, nodeContentsRepository, tripRepository, endStations, journeyRequest.getDate(),
+                journeyRequest.getOriginalTime());
 
         final MapStatesToStages mapStatesToStages = new MapStatesToStages(stationRepository, platformRepository, tripRepository, queryTime);
 

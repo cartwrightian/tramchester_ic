@@ -64,10 +64,12 @@ class JourneyStateTest extends EasyMockSupport {
 
         MutableGraphTransaction txn = createMock(MutableGraphTransaction.class);
 
-        final TraversalOps traversalOps = new TraversalOps(txn, nodeContentsRepository, tripRepository, destinations, queryDate);
+        queryTime = TramTime.of(9, 15);
+
+        final TraversalOps traversalOps = new TraversalOps(txn, nodeContentsRepository, tripRepository, destinations,
+                queryDate, queryTime);
 
         traversalState = new NotStartedState(traversalOps, traversalStateFactory, TramsOnly, node);
-        queryTime = TramTime.of(9, 15);
     }
 
     @Test

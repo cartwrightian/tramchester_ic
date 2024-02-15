@@ -51,11 +51,20 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private final GraphTransaction txn;
     private final boolean depthFirst;
 
-    public TramRouteEvaluator(ServiceHeuristics serviceHeuristics, Set<GraphNodeId> destinationNodeIds,
-                              NodeContentsRepository nodeContentsRepository, ServiceReasons reasons,
-                              PreviousVisits previousVisits, LowestCostSeen bestResultSoFar, TramchesterConfig config,
-                              GraphNodeId startNodeId, Instant begin, ProvidesNow providesNow, EnumSet<TransportMode> requestedModes,
-                              Duration maxInitialWait, GraphTransaction txn) {
+    public TramRouteEvaluator(final RouteCalculatorSupport.PathRequest pathRequest, final Set<GraphNodeId> destinationNodeIds,
+                              final NodeContentsRepository nodeContentsRepository, final ServiceReasons reasons,
+                              final PreviousVisits previousVisits, final LowestCostSeen bestResultSoFar, final TramchesterConfig config,
+                              final GraphNodeId startNodeId, final ProvidesNow providesNow,
+                              final GraphTransaction txn) {
+        this(pathRequest.getServiceHeuristics(), destinationNodeIds, nodeContentsRepository, reasons, previousVisits, bestResultSoFar, config, startNodeId,
+                providesNow.getInstant(), providesNow, pathRequest.getRequestedModes(), pathRequest.getMaxInitialWait(), txn);
+    }
+
+    public TramRouteEvaluator(final ServiceHeuristics serviceHeuristics, final Set<GraphNodeId> destinationNodeIds,
+                              final NodeContentsRepository nodeContentsRepository, final ServiceReasons reasons,
+                              final PreviousVisits previousVisits, final LowestCostSeen bestResultSoFar, final TramchesterConfig config,
+                              final GraphNodeId startNodeId, final Instant begin, final ProvidesNow providesNow, final EnumSet<TransportMode> requestedModes,
+                              final Duration maxInitialWait, final GraphTransaction txn) {
         this.serviceHeuristics = serviceHeuristics;
         this.destinationNodeIds = destinationNodeIds;
         this.nodeContentsRepository = nodeContentsRepository;

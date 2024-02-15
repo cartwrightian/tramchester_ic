@@ -34,10 +34,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.time.Duration;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
@@ -193,8 +190,9 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
                 flatMap(numChanges -> queryTimes.stream().
                         map(queryTime -> createPathRequest(startNode, tramDate, queryTime, requestedModes, numChanges,
                                 journeyConstraints, maxInitialWait, selector))).
-                flatMap(pathRequest -> findShortestPath(txn, destinationNodeIds, destinations, createServiceReasons(journeyRequest, pathRequest),
-                        pathRequest, createPreviousVisits(), lowestCostSeen)).
+                flatMap(pathRequest -> findShortestPath(txn, createServiceReasons(journeyRequest, pathRequest), pathRequest,
+                        createPreviousVisits(), lowestCostSeen, destinations, destinationNodeIds
+                )).
                 map(path -> createJourney(journeyRequest, path, destinations, journeyIndex, txn));
 
         //noinspection ResultOfMethodCallIgnored
@@ -206,7 +204,16 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         return results;
     }
 
-    public record TimedPath(Path path, TramTime queryTime, int numChanges) {
+    public static final class TimedPath {
+        private final Path path;
+        private final TramTime queryTime;
+        private final int numChanges;
+
+        public TimedPath(final Path path, final PathRequest pathRequest) {
+            this.path = path;
+            this.queryTime = pathRequest.getActualQueryTime();
+            this.numChanges = pathRequest.getNumChanges();
+        }
 
         @Override
             public String toString() {
@@ -216,6 +223,34 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
                         ", numChanges=" + numChanges +
                         '}';
             }
+
+        public Path path() {
+            return path;
         }
+
+        public TramTime queryTime() {
+            return queryTime;
+        }
+
+        public int numChanges() {
+            return numChanges;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this) return true;
+            if (obj == null || obj.getClass() != this.getClass()) return false;
+            var that = (TimedPath) obj;
+            return Objects.equals(this.path, that.path) &&
+                    Objects.equals(this.queryTime, that.queryTime) &&
+                    this.numChanges == that.numChanges;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(path, queryTime, numChanges);
+        }
+
+    }
 }
 

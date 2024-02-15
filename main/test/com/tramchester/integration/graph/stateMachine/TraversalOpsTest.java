@@ -7,6 +7,7 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.facade.MutableGraphTransaction;
@@ -64,7 +65,7 @@ public class TraversalOpsTest {
         destinationStations.add(manchesterAirport);
 
         TraversalOps traversalOpsForDest = new TraversalOps(txn, nodeOperations, tripRepository,
-                destinationStations, date);
+                destinationStations, date, TramTime.of(9,45));
 
         Station altrincham = stationRepository.getStationById(TramStations.Altrincham.getId());
 

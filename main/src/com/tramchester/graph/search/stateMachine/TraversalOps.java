@@ -30,10 +30,11 @@ public class TraversalOps {
     private final IdSet<Route> destinationRoutes;
     private final TramDate queryDate;
     private final GraphTransaction txn;
+    private final int queryHour;
 
     // TODO Split into fixed and journey specific, inject fixed direct into builders
     public TraversalOps(GraphTransaction txn, NodeContentsRepository nodeOperations, TripRepository tripRepository,
-                        LocationSet destinations, TramDate queryDate) {
+                        LocationSet destinations, TramDate queryDate, TramTime queryTime) {
         this.txn = txn;
         this.tripRepository = tripRepository;
         this.nodeOperations = nodeOperations;
@@ -42,6 +43,7 @@ public class TraversalOps {
                 flatMap(station -> station.getDropoffRoutes().stream()).
                 collect(IdSet.collector());
         this.queryDate = queryDate;
+        this.queryHour = queryTime.getHourOfDay();
     }
 
     public <R extends GraphRelationship> OptionalResourceIterator<R> getTowardsDestination(final Stream<R> outgoing) {
@@ -92,4 +94,7 @@ public class TraversalOps {
         return txn;
     }
 
+    public int getQueryHour() {
+        return queryHour;
+    }
 }

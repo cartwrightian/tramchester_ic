@@ -78,10 +78,10 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     private GraphNodeId startNodeId;
     private LowestCostSeen lowestCostSeen;
     private ProvidesNow providesNow;
-//    private LowestCostsForDestRoutes lowestCostsForRoutes;
     private Duration maxInitialWait;
     private MutableGraphTransaction txn;
     private GraphNode startNode;
+    private TramTime queryTime;
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
@@ -123,10 +123,11 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         startNode = createMock(GraphNode.class);
 
         long maxNumberOfJourneys = 2;
+        queryTime = TramTime.of(8, 15);
         JourneyRequest journeyRequest = new JourneyRequest(
-                TestEnv.nextSaturday(), TramTime.of(8,15), false,
+                TestEnv.nextSaturday(), queryTime, false,
                 3, Duration.ofMinutes(config.getMaxJourneyDuration()), maxNumberOfJourneys, TramsOnly);
-        reasons = new ServiceReasons(journeyRequest, TramTime.of(8,15), providesNow);
+        reasons = new ServiceReasons(journeyRequest, queryTime, providesNow);
 
         serviceHeuristics = createMock(ServiceHeuristics.class);
         path = createMock(Path.class);
@@ -153,7 +154,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         TraversalStateFactory traversalStateFactory = new TraversalStateFactory(registersStates, contentsRepository, config);
 
         final TraversalOps traversalOps = new TraversalOps(txn, contentsRepository, tripRepository, destinationStations,
-                TestEnv.testDay());
+                TestEnv.testDay(), queryTime);
         return new NotStartedState(traversalOps, traversalStateFactory, TramsOnly, startNode);
     }
 

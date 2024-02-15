@@ -131,11 +131,9 @@ public class RouteCalculatorSupport {
         return IntStream.rangeClosed(min, max).boxed();
     }
 
-    public Stream<RouteCalculator.TimedPath> findShortestPath(GraphTransaction txn, Set<GraphNodeId> destinationNodeIds,
-                                                              final LocationSet endStations,
-                                                              ServiceReasons reasons, PathRequest pathRequest,
-                                                              PreviousVisits previousSuccessfulVisit,
-                                                              LowestCostSeen lowestCostSeen) {
+    public Stream<RouteCalculator.TimedPath> findShortestPath(final GraphTransaction txn, ServiceReasons reasons, PathRequest pathRequest,
+                                                              PreviousVisits previousSuccessfulVisit, LowestCostSeen lowestCostSeen,
+                                                              final LocationSet endStations, Set<GraphNodeId> destinationNodeIds) {
         if (fullLogging) {
             if (config.getDepthFirst()) {
                 logger.info("Depth first is enabled. Traverse for " + pathRequest);
@@ -145,13 +143,11 @@ public class RouteCalculatorSupport {
         }
 
         final TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(
-                txn, pathRequest, nodeContentsRepository,
-                tripRepository, traversalStateFactory, endStations, config, destinationNodeIds,
-                reasons, reasonToGraphViz, providesNow);
+                txn, nodeContentsRepository,
+                tripRepository, traversalStateFactory, config, reasonToGraphViz, providesNow, fullLogging, destinationNodeIds, endStations);
 
-        return tramNetworkTraverser.
-                findPaths(txn, pathRequest.startNode, previousSuccessfulVisit, lowestCostSeen, pathRequest.selector, fullLogging).
-                map(path -> new RouteCalculator.TimedPath(path, pathRequest.queryTime, pathRequest.numChanges));
+        return tramNetworkTraverser.findPaths(txn, pathRequest, previousSuccessfulVisit, reasons, lowestCostSeen).
+                map(path -> new RouteCalculator.TimedPath(path, pathRequest));
     }
 
     @NotNull
@@ -219,12 +215,11 @@ public class RouteCalculatorSupport {
     public PathRequest createPathRequest(final JourneyRequest journeyRequest, final NodeAndStation nodeAndStation, final int numChanges,
                                          final JourneyConstraints journeyConstraints, final BranchOrderingPolicy selector) {
         final Duration maxInitialWait = getMaxInitialWaitFor(nodeAndStation.location, config);
-        return createPathRequest(nodeAndStation.node, journeyRequest.getDate(), journeyRequest.getOriginalTime(), journeyRequest.getRequestedModes(),
-                numChanges, journeyConstraints, maxInitialWait, selector);
+        final ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeContentsRepository, journeyConstraints,
+                journeyRequest.getOriginalTime(), numChanges);
+        return new PathRequest(journeyRequest, nodeAndStation.node, numChanges, serviceHeuristics, maxInitialWait, selector);
     }
 
-    // use version that takes a JourneyRequest
-    @Deprecated
     public PathRequest createPathRequest(GraphNode startNode, TramDate queryDate, TramTime actualQueryTime,
                                          EnumSet<TransportMode> requestedModes, int numChanges,
                                          JourneyConstraints journeyConstraints, Duration maxInitialWait,
@@ -246,7 +241,14 @@ public class RouteCalculatorSupport {
         private final TramDate queryDate;
         private final EnumSet<TransportMode> requestedModes;
         private final Duration maxInitialWait;
-        public final BranchOrderingPolicy selector;
+        private final BranchOrderingPolicy selector;
+
+        public PathRequest(JourneyRequest journeyRequest, GraphNode startNode, int numChanges, ServiceHeuristics serviceHeuristics,
+                           Duration maxInitialWait, BranchOrderingPolicy selector) {
+            this(startNode, journeyRequest.getDate(), journeyRequest.getOriginalTime(), numChanges, serviceHeuristics, journeyRequest.getRequestedModes(),
+                    maxInitialWait, selector);
+
+        }
 
         public PathRequest(GraphNode startNode, TramDate queryDate, TramTime queryTime, int numChanges,
                            ServiceHeuristics serviceHeuristics, EnumSet<TransportMode> requestedModes,
@@ -296,6 +298,14 @@ public class RouteCalculatorSupport {
 
         public Duration getMaxInitialWait() {
             return maxInitialWait;
+        }
+
+        public GraphNode getStartNode() {
+            return startNode;
+        }
+
+        public BranchOrderingPolicy getSelector() {
+            return selector;
         }
     }
 
