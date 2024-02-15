@@ -124,12 +124,20 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         return costs.numberOfBitsSet();
     }
 
-    @Override
     public NumberOfChanges getNumberOfChanges(StationGroup start, StationGroup end, TramDate date, TimeRange time, EnumSet<TransportMode> modes) {
         return getNumberOfChanges(LocationSet.of(start.getAllContained()), LocationSet.of(end.getAllContained()), date, time, modes);
     }
 
     @Override
+    public NumberOfChanges getNumberOfChanges(StationGroup start, StationGroup end, JourneyRequest journeyRequest) {
+        return getNumberOfChanges(start, end, journeyRequest.getDate(), journeyRequest.getTimeRange(), journeyRequest.getRequestedModes());
+    }
+
+    @Override
+    public NumberOfChanges getNumberOfChanges(LocationSet starts, LocationSet destinations, JourneyRequest journeyRequest) {
+        return getNumberOfChanges(starts, destinations, journeyRequest.getDate(), journeyRequest.getTimeRange(), journeyRequest.getRequestedModes());
+    }
+
     public NumberOfChanges getNumberOfChanges(final LocationSet starts, final LocationSet destinations, final TramDate date, final TimeRange timeRange,
                                               final EnumSet<TransportMode> requestedModes) {
 
@@ -161,6 +169,11 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     @Override
+    public NumberOfChanges getNumberOfChanges(Location<?> start, Location<?> destination, JourneyRequest journeyRequest) {
+        return getNumberOfChanges(start, destination, journeyRequest.getRequestedModes(), journeyRequest.getDate(),
+                journeyRequest.getTimeRange());
+    }
+
     public NumberOfChanges getNumberOfChanges(Location<?> startStation, Location<?> destination,
                                               EnumSet<TransportMode> preferredModes, TramDate date, TimeRange timeRange) {
 
@@ -210,7 +223,6 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     }
 
-    @Override
     public NumberOfChanges getNumberOfChanges(Route routeA, Route routeB, TramDate date, TimeRange timeRange, EnumSet<TransportMode> requestedModes) {
         StationAvailabilityFacade interchangesOperating = getAvailabilityFacade(availabilityRepository, date, timeRange, requestedModes);
         return getNumberOfHops(Collections.singleton(routeA), Collections.singleton(routeB), date,
@@ -218,20 +230,10 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     @Override
-    public LowestCostsForDestRoutes getLowestCostCalcutatorFor(LocationSet destinationRoutes, JourneyRequest journeyRequest) {
-        return getLowestCostCalcutatorFor(destinationRoutes, journeyRequest.getDate(), journeyRequest.getTimeRange(), journeyRequest.getRequestedModes());
+    public LowestCostsForDestRoutes getLowestCostCalculatorFor(LocationSet desintationRoutes, JourneyRequest journeyRequest) {
+        return getLowestCostCalcutatorFor(desintationRoutes, journeyRequest.getDate(), journeyRequest.getTimeRange(), journeyRequest.getRequestedModes());
     }
 
-    /***
-     * Use version that takes a JourneyRequest
-     * @param destinations possible destinations
-     * @param date Date of journey
-     * @param timeRange time range to search
-     * @param requestedModes modes to use
-     * @return
-     */
-    @Deprecated
-    @Override
     public LowestCostsForDestRoutes getLowestCostCalcutatorFor(LocationSet destinations, TramDate date, TimeRange timeRange,
                                                                EnumSet<TransportMode> requestedModes) {
         final Set<Route> destinationRoutes = destinations.stream().

@@ -6,9 +6,7 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.collections.RequestStopStream;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.geo.BoundingBoxWithStations;
@@ -31,7 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -130,7 +127,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         final TramDate date = journeyRequest.getDate();
 
         final TimeRange destinationsAvailable = getDestinationsAvailable(destinations, date);
-        final LowestCostsForDestRoutes lowestCostForDestinations = routeToRouteCosts.getLowestCostCalcutatorFor(destinations, journeyRequest);
+        final LowestCostsForDestRoutes lowestCostForDestinations = routeToRouteCosts.getLowestCostCalculatorFor(destinations, journeyRequest);
         final RunningRoutesAndServices.FilterForDate routeAndServicesFilter = runningRoutesAndService.getFor(date);
         final IdSet<Station> closedStations = closedStationsRepository.getFullyClosedStationsFor(date).stream().
                 map(ClosedStation::getStationId).collect(IdSet.idCollector());
@@ -139,14 +136,5 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                 destinations, lowestCostForDestinations, journeyRequest.getMaxJourneyDuration(), destinationsAvailable);
     }
 
-    private NumberOfChanges computeNumberOfChanges(LocationSet starts, LocationSet destinations, TramDate date, TimeRange timeRange, EnumSet<TransportMode> modes) {
-        return routeToRouteCosts.getNumberOfChanges(starts, destinations, date, timeRange, modes);
-    }
-
-    protected Stream<Integer> numChangesRange(final JourneyRequest journeyRequest, final LocationSet startingStations, final LocationSet destinations) {
-        NumberOfChanges numberChanges = computeNumberOfChanges(startingStations, destinations, journeyRequest.getDate(), journeyRequest.getTimeRange(),
-                journeyRequest.getRequestedModes());
-        return numChangesRange(journeyRequest, numberChanges);
-    }
 
 }

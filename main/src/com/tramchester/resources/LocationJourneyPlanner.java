@@ -7,22 +7,20 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.NumberOfChanges;
-import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.time.TimeRange;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.geo.StationLocationsRepository;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.caches.NodeContentsRepository;
-import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.facade.MutableGraphNode;
 import com.tramchester.graph.facade.MutableGraphRelationship;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.BetweenRoutesCostRepository;
@@ -102,7 +100,7 @@ public class LocationJourneyPlanner {
         logger.info(format("Finding shortest path for %s --> %s (%s) for %s", start.getId(),
                 destination.getId(), destination.getName(), journeyRequest));
 
-        GridPosition startGrid = start.getGridPosition();
+        final GridPosition startGrid = start.getGridPosition();
         if (!stationLocations.getActiveStationBounds().within(margin, startGrid)) {
             logger.warn(format("Start %s not within %s of station bounds %s", startGrid, margin, stationLocations.getActiveStationBounds()));
         }
@@ -113,13 +111,12 @@ public class LocationJourneyPlanner {
             return Stream.empty();
         }
 
-        WalkNodesAndRelationships nodesAndRelationships = new WalkNodesAndRelationships(txn, nodeOperations);
-        MutableGraphNode startOfWalkNode = nodesAndRelationships.createWalkingNode(start, journeyRequest);
+        final WalkNodesAndRelationships nodesAndRelationships = new WalkNodesAndRelationships(txn, nodeOperations);
+        final MutableGraphNode startOfWalkNode = nodesAndRelationships.createWalkingNode(start, journeyRequest);
         nodesAndRelationships.createWalksToStart(startOfWalkNode, walksToStart);
 
-        Stream<Journey> journeys;
-        NumberOfChanges numberOfChanges = findNumberChanges(walksToStart, destination, journeyRequest.getDate(),
-                journeyRequest.getTimeRange(), journeyRequest.getRequestedModes());
+        final NumberOfChanges numberOfChanges = findNumberChanges(walksToStart, destination, journeyRequest);
+        final Stream<Journey> journeys;
         if (journeyRequest.getArriveBy()) {
             journeys = routeCalculatorArriveBy.calculateRouteWalkAtStart(txn, walksToStart, startOfWalkNode, destination, journeyRequest, numberOfChanges);
         } else {
@@ -162,8 +159,7 @@ public class LocationJourneyPlanner {
 
         final LocationSet destinationStations = walksToDest.stream().map(StationWalk::getStation).collect(LocationSet.stationCollector());
 
-        final NumberOfChanges numberOfChanges = findNumberChanges(start, walksToDest, journeyRequest.getDate(),
-                journeyRequest.getTimeRange(), journeyRequest.getRequestedModes());
+        final NumberOfChanges numberOfChanges = findNumberChanges(start, walksToDest, journeyRequest);
 
         Stream<Journey> journeys;
         if (journeyRequest.getArriveBy()) {
@@ -198,8 +194,7 @@ public class LocationJourneyPlanner {
         LocationSet destinationStations = walksToDest.stream().
                 map(StationWalk::getStation).collect(LocationSet.stationCollector());
 
-        NumberOfChanges numberOfChanges = findNumberChanges(walksAtStart, walksToDest, journeyRequest.getDate(),
-                journeyRequest.getTimeRange(), journeyRequest.getRequestedModes());
+        NumberOfChanges numberOfChanges = findNumberChanges(walksAtStart, walksToDest, journeyRequest);
 
         /// CALC
         Stream<Journey> journeys;
@@ -234,20 +229,20 @@ public class LocationJourneyPlanner {
         return stationWalks;
     }
 
-    private NumberOfChanges findNumberChanges(Location<?> start, Set<StationWalk> walksToDest, TramDate date, TimeRange timeRange, EnumSet<TransportMode> modes) {
+    private NumberOfChanges findNumberChanges(Location<?> start, Set<StationWalk> walksToDest, JourneyRequest journeyRequest) {
         LocationSet destinations = walksToDest.stream().map(StationWalk::getStation).collect(LocationSet.stationCollector());
-        return routeToRouteCosts.getNumberOfChanges(LocationSet.singleton(start), destinations, date, timeRange, modes);
+        return routeToRouteCosts.getNumberOfChanges(LocationSet.singleton(start), destinations, journeyRequest);
     }
 
-    private NumberOfChanges findNumberChanges(Set<StationWalk> walksToStart, Location<?> destination, TramDate date, TimeRange timeRange, EnumSet<TransportMode> modes) {
+    private NumberOfChanges findNumberChanges(Set<StationWalk> walksToStart, Location<?> destination, JourneyRequest journeyRequest) {
         LocationSet starts = walksToStart.stream().map(StationWalk::getStation).collect(LocationSet.stationCollector());
-        return routeToRouteCosts.getNumberOfChanges(starts, LocationSet.singleton(destination), date, timeRange, modes);
+        return routeToRouteCosts.getNumberOfChanges(starts, LocationSet.singleton(destination), journeyRequest);
     }
 
-    private NumberOfChanges findNumberChanges(Set<StationWalk> walksAtStart, Set<StationWalk> walksToDest, TramDate date, TimeRange timeRange, EnumSet<TransportMode> modes) {
+    private NumberOfChanges findNumberChanges(Set<StationWalk> walksAtStart, Set<StationWalk> walksToDest, JourneyRequest journeyRequest) {
         LocationSet destinations = walksToDest.stream().map(StationWalk::getStation).collect(LocationSet.stationCollector());
         LocationSet starts = walksAtStart.stream().map(StationWalk::getStation).collect(LocationSet.stationCollector());
-        return routeToRouteCosts.getNumberOfChanges(starts, destinations, date, timeRange, modes);
+        return routeToRouteCosts.getNumberOfChanges(starts, destinations, journeyRequest);
     }
 
     private Set<StationWalk> createWalks(Location<?> location, List<Station> startStations) {

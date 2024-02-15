@@ -91,8 +91,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         final TramDate date = journeyRequest.getDate();
 
-        final NumberOfChanges numberOfChanges =  routeToRouteCosts.getNumberOfChanges(start, destination,
-                journeyRequest.getRequestedModes(), date, journeyRequest.getTimeRange());
+        final NumberOfChanges numberOfChanges =  routeToRouteCosts.getNumberOfChanges(start, destination, journeyRequest);
 
         // route change calc issue, for media city to ashton line
         // not clear if existing mechanism works now routes are bi-directional
@@ -121,7 +120,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         GraphNode startNode = getLocationNodeSafe(txn, start);
         final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime());
 
-        Duration maxInitialWait = getMaxInitialWaitFor(start, config);
+        final Duration maxInitialWait = getMaxInitialWaitFor(start, config);
 
         return getJourneyStream(txn, startNode, endOfWalk, journeyRequest, destinations, queryTimes, numberOfChanges, maxInitialWait).
                 limit(journeyRequest.getMaxNumberOfJourneys());
@@ -132,8 +131,8 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
                                                      JourneyRequest journeyRequest, NumberOfChanges numberOfChanges) {
 
         final InitialWalksFinished finished = new InitialWalksFinished(journeyRequest, stationWalks);
-        GraphNode endNode = getLocationNodeSafe(txn, destination);
-        LocationSet destinations = LocationSet.singleton(destination);
+        final GraphNode endNode = getLocationNodeSafe(txn, destination);
+        final LocationSet destinations = LocationSet.singleton(destination);
         final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime(), stationWalks);
 
         Duration maxInitialWait = getMaxInitialWaitFor(stationWalks, config);
@@ -170,8 +169,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         final TramDate tramDate = journeyRequest.getDate();
 
         // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
-        final LowestCostsForDestRoutes lowestCostsForRoutes = routeToRouteCosts.getLowestCostCalcutatorFor(destinations, tramDate,
-                journeyRequest.getTimeRange(), requestedModes);
+        final LowestCostsForDestRoutes lowestCostsForRoutes = routeToRouteCosts.getLowestCostCalculatorFor(destinations, journeyRequest);
         final Duration maxJourneyDuration = getMaxDurationFor(journeyRequest);
 
         final IdSet<Station> closedStations = closedStationsRepository.getFullyClosedStationsFor(tramDate).stream().
