@@ -3,6 +3,7 @@ package com.tramchester.graph.search;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
+import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Location;
@@ -186,13 +187,16 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         final AtomicInteger journeyIndex = new AtomicInteger(0);
 
+        // TODO for now stopping computation only support for Grids
+        Running running = () -> true;
+
         final Stream<Journey> results = numChangesRange(journeyRequest, numberOfChanges).
                 flatMap(numChanges -> queryTimes.stream().
                         map(queryTime -> createPathRequest(startNode, tramDate, queryTime, requestedModes, numChanges,
                                 journeyConstraints, maxInitialWait, selector))).
                 flatMap(pathRequest -> findShortestPath(txn, createServiceReasons(journeyRequest, pathRequest), pathRequest,
-                        createPreviousVisits(), lowestCostSeen, destinations, destinationNodeIds
-                )).
+                        createPreviousVisits(), lowestCostSeen, destinations, destinationNodeIds,
+                        running)).
                 map(path -> createJourney(journeyRequest, path, destinations, journeyIndex, txn));
 
         //noinspection ResultOfMethodCallIgnored

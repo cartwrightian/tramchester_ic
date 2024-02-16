@@ -1,6 +1,7 @@
 package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.ProvidesNow;
@@ -50,21 +51,22 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private final EnumSet<GraphLabel> requestedLabels;
     private final GraphTransaction txn;
     private final boolean depthFirst;
+    private final Running running;
 
     public TramRouteEvaluator(final RouteCalculatorSupport.PathRequest pathRequest, final Set<GraphNodeId> destinationNodeIds,
                               final NodeContentsRepository nodeContentsRepository, final ServiceReasons reasons,
                               final PreviousVisits previousVisits, final LowestCostSeen bestResultSoFar, final TramchesterConfig config,
                               final GraphNodeId startNodeId, final ProvidesNow providesNow,
-                              final GraphTransaction txn) {
+                              final GraphTransaction txn, Running running) {
         this(pathRequest.getServiceHeuristics(), destinationNodeIds, nodeContentsRepository, reasons, previousVisits, bestResultSoFar, config, startNodeId,
-                providesNow.getInstant(), providesNow, pathRequest.getRequestedModes(), pathRequest.getMaxInitialWait(), txn);
+                providesNow, pathRequest.getRequestedModes(), pathRequest.getMaxInitialWait(), txn, running);
     }
 
     public TramRouteEvaluator(final ServiceHeuristics serviceHeuristics, final Set<GraphNodeId> destinationNodeIds,
                               final NodeContentsRepository nodeContentsRepository, final ServiceReasons reasons,
                               final PreviousVisits previousVisits, final LowestCostSeen bestResultSoFar, final TramchesterConfig config,
-                              final GraphNodeId startNodeId, final Instant begin, final ProvidesNow providesNow, final EnumSet<TransportMode> requestedModes,
-                              final Duration maxInitialWait, final GraphTransaction txn) {
+                              final GraphNodeId startNodeId, final ProvidesNow providesNow, final EnumSet<TransportMode> requestedModes,
+                              final Duration maxInitialWait, final GraphTransaction txn, Running running) {
         this.serviceHeuristics = serviceHeuristics;
         this.destinationNodeIds = destinationNodeIds;
         this.nodeContentsRepository = nodeContentsRepository;
@@ -73,7 +75,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         this.bestResultSoFar = bestResultSoFar;
 
         this.startNodeId = startNodeId;
-        this.begin = begin;
+        this.begin = providesNow.getInstant();
         this.providesNow = providesNow;
         this.requestedLabels = GraphLabel.forMode(requestedModes);
         this.maxInitialWaitMins = Math.toIntExact(maxInitialWait.toMinutes());
@@ -82,6 +84,9 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         maxWaitMins = config.getMaxWait();
         timeout = config.getCalcTimeoutMillis();
         depthFirst = config.getDepthFirst();
+
+
+        this.running = running;
     }
 
     @Override
@@ -91,6 +96,11 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
     @Override
     public Evaluation evaluate(final Path path, final BranchState<JourneyState> state) {
+
+        if (!running.isRunning()) {
+            logger.warn("Requested to stop");
+            return Evaluation.EXCLUDE_AND_PRUNE;
+        }
 
         final ImmutableJourneyState journeyState = state.getState();
 

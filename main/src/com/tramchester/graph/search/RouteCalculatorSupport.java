@@ -2,6 +2,7 @@ package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
+import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.StationWalk;
@@ -133,7 +134,8 @@ public class RouteCalculatorSupport {
 
     public Stream<RouteCalculator.TimedPath> findShortestPath(final GraphTransaction txn, ServiceReasons reasons, PathRequest pathRequest,
                                                               PreviousVisits previousSuccessfulVisit, LowestCostSeen lowestCostSeen,
-                                                              final LocationSet endStations, Set<GraphNodeId> destinationNodeIds) {
+                                                              final LocationSet endStations, Set<GraphNodeId> destinationNodeIds,
+                                                              Running running) {
         if (fullLogging) {
             if (config.getDepthFirst()) {
                 logger.info("Depth first is enabled. Traverse for " + pathRequest);
@@ -142,11 +144,11 @@ public class RouteCalculatorSupport {
             }
         }
 
-        final TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(
-                txn, nodeContentsRepository,
-                tripRepository, traversalStateFactory, config, reasonToGraphViz, providesNow, fullLogging, destinationNodeIds, endStations);
+        final TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(txn, nodeContentsRepository,
+                tripRepository, traversalStateFactory, config, reasonToGraphViz, providesNow, fullLogging);
 
-        return tramNetworkTraverser.findPaths(txn, pathRequest, previousSuccessfulVisit, reasons, lowestCostSeen).
+        return tramNetworkTraverser.
+                findPaths(txn, pathRequest, previousSuccessfulVisit, reasons, lowestCostSeen, destinationNodeIds, endStations, running).
                 map(path -> new RouteCalculator.TimedPath(path, pathRequest));
     }
 
@@ -165,7 +167,6 @@ public class RouteCalculatorSupport {
         final TramTime arrivalTime = getArrivalTimeFor(stages, journeyRequest);
         final TramTime departTime = getDepartTimeFor(stages, journeyRequest);
         if (fullLogging) {
-
             logger.info("Created journey with " + stages.size() + " stages and depart time of " + departTime);
         }
         return new Journey(departTime, path.queryTime(), arrivalTime, stages, locationList, path.numChanges(),

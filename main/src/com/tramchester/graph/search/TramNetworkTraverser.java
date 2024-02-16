@@ -2,6 +2,7 @@ package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.LocationSet;
+import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.Durations;
@@ -51,28 +52,24 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     private final GraphTransaction txn;
     private final boolean fullLogging;
 
-    private final Set<GraphNodeId> destinationNodeIds;
-    private final LocationSet destinations;
-
     public TramNetworkTraverser(GraphTransaction txn, NodeContentsRepository nodeContentsRepository, TripRepository tripRepository,
                                 TraversalStateFactory traversalStateFactory, TramchesterConfig config, ReasonsToGraphViz reasonToGraphViz,
-                                ProvidesNow providesNow,
-                                boolean fullLogging, Set<GraphNodeId> destinationNodeIds, LocationSet destinations) {
+                                ProvidesNow providesNow, boolean fullLogging) {
         this.txn = txn;
         this.nodeContentsRepository = nodeContentsRepository;
         this.tripRespository = tripRepository;
         this.traversalStateFactory = traversalStateFactory;
         this.fullLogging = fullLogging;
-        this.destinationNodeIds = destinationNodeIds;
-        this.destinations = destinations;
         this.config = config;
 
         this.reasonToGraphViz = reasonToGraphViz;
         this.providesNow = providesNow;
     }
 
-    public Stream<Path> findPaths(final GraphTransaction txn, final RouteCalculatorSupport.PathRequest pathRequest, final PreviousVisits previousSuccessfulVisit,
-                                  final ServiceReasons reasons, final LowestCostSeen lowestCostSeen) {
+    public Stream<Path> findPaths(final GraphTransaction txn, final RouteCalculatorSupport.PathRequest pathRequest,
+                                  final PreviousVisits previousSuccessfulVisit,
+                                  final ServiceReasons reasons, final LowestCostSeen lowestCostSeen,
+                                  final Set<GraphNodeId> destinationNodeIds, final LocationSet destinations, Running running) {
 
         final BranchOrderingPolicy selector = pathRequest.getSelector();
         final GraphNode startNode = pathRequest.getStartNode();
@@ -80,7 +77,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
 
         final TramRouteEvaluator tramRouteEvaluator = new TramRouteEvaluator(pathRequest,
                 destinationNodeIds, nodeContentsRepository, reasons, previousSuccessfulVisit, lowestCostSeen, config,
-                startNode.getId(), providesNow, txn);
+                startNode.getId(), providesNow, txn, running);
 
         final TraversalOps traversalOps = new TraversalOps(txn, nodeContentsRepository, tripRespository, destinations,
                 pathRequest.getQueryDate(), pathRequest.getActualQueryTime());
