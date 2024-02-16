@@ -94,11 +94,11 @@ public class ServiceReasons {
     }
 
     private void recordEndNodeVisit(final HowIGotHere howIGotHere) {
-        final GraphNodeId endNode = howIGotHere.getEndNodeId();
-        if (nodeVisits.containsKey(endNode)) {
-            nodeVisits.get(endNode).incrementAndGet();
+        final GraphNodeId endNodeId = howIGotHere.getEndNodeId();
+        if (nodeVisits.containsKey(endNodeId)) {
+            nodeVisits.get(endNodeId).incrementAndGet();
         } else {
-            nodeVisits.put(endNode, new AtomicInteger(1));
+            nodeVisits.put(endNodeId, new AtomicInteger(1));
         }
     }
 

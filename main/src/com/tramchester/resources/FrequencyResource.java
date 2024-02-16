@@ -63,7 +63,7 @@ public class FrequencyResource extends TransportResource implements APIResource 
         TramTime startTime = parseTime(startTimeRaw);
         TramTime endTime = parseTime(endTimeRaw);
 
-        Stream<BoxWithServiceFrequency> results = stopCallsForGrid.getServiceFreqencies(gridSize, date, startTime, endTime);
+        Stream<BoxWithServiceFrequency> results = stopCallsForGrid.getServiceFrequencies(gridSize, date, startTime, endTime);
         Stream<BoxWithFrequencyDTO> dtoStream = results.map(this::createDTO);
         JsonStreamingOutput<BoxWithFrequencyDTO> jsonStreamingOutput = new JsonStreamingOutput<>(dtoStream);
 

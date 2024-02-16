@@ -181,7 +181,7 @@ class StationLocationsTest extends EasyMockSupport {
         replayAll();
         stationLocations.start();
         BoundingBox area = stationLocations.getActiveStationBounds();
-        Set<BoundingBox> found = stationLocations.createBoundingBoxsFor(gridSize).collect(Collectors.toSet());
+        Set<BoundingBox> found = stationLocations.createBoundingBoxesFor(gridSize).collect(Collectors.toSet());
         verifyAll();
 
         Set<BoundingBox> expected = new HashSet<>();

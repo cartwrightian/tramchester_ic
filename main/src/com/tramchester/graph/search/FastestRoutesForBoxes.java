@@ -1,16 +1,17 @@
 package com.tramchester.graph.search;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.domain.*;
+import com.tramchester.domain.BoundingBoxWithCost;
+import com.tramchester.domain.Journey;
+import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.JourneysForBox;
 import com.tramchester.domain.collections.RequestStopStream;
-import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.geo.BoundingBoxWithStations;
 import com.tramchester.geo.GridPosition;
-import com.tramchester.geo.StationLocations;
+import com.tramchester.geo.StationBoxFactory;
+import com.tramchester.geo.StationsBoxSimpleGrid;
 import com.tramchester.mappers.Geography;
-import com.tramchester.repository.ClosedStationsRepository;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.time.Duration;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -27,16 +27,13 @@ import static java.lang.String.format;
 public class FastestRoutesForBoxes {
     private static final Logger logger = LoggerFactory.getLogger(FastestRoutesForBoxes.class);
 
-    private final StationLocations stationLocations;
-    private final ClosedStationsRepository closedStationsRepository;
+    private final StationBoxFactory stationBoxFactory;
     private final RouteCalculatorForBoxes calculator;
     private final Geography geography;
 
     @Inject
-    public FastestRoutesForBoxes(StationLocations stationLocations, ClosedStationsRepository closedStationsRepository,
-                                 RouteCalculatorForBoxes calculator, Geography geography) {
-        this.stationLocations = stationLocations;
-        this.closedStationsRepository = closedStationsRepository;
+    public FastestRoutesForBoxes(StationBoxFactory stationBoxFactory, RouteCalculatorForBoxes calculator, Geography geography) {
+        this.stationBoxFactory = stationBoxFactory;
         this.calculator = calculator;
         this.geography = geography;
     }
@@ -53,31 +50,26 @@ public class FastestRoutesForBoxes {
     private RequestStopStream<BoundingBoxWithCost> findForGrid(GridPosition destinationGrid, int gridSize, final JourneyRequest journeyRequest) {
         logger.info("Creating station groups for gridsize " + gridSize + " and destination " + destinationGrid);
 
-        final Set<BoundingBoxWithStations> searchGrid = stationLocations.getStationsInGrids(gridSize).
-                filter(boxWithStations -> anyOpen(boxWithStations.getStations(), journeyRequest.getDate())).
-                collect(Collectors.toSet());
+//        final Set<BoundingBoxWithStations> searchGrid = stationLocations.getStationsInGrids(gridSize).
+//                filter(boxWithStations -> anyOpen(boxWithStations.getStations(), journeyRequest.getDate())).
+//                collect(Collectors.toSet());
 
-        final BoundingBoxWithStations searchBoxWithDest = searchGrid.stream().
+        final List<StationsBoxSimpleGrid> searchGrid = stationBoxFactory.getStationBoxes(gridSize, journeyRequest.getDate());
+
+        final StationsBoxSimpleGrid searchBoxWithDest = searchGrid.stream().
                 filter(box -> box.contained(destinationGrid)).
                 findFirst().
                 orElseThrow(() -> new RuntimeException("Unable to find destination in any boxes " + destinationGrid));
 
-        final LocationSet destinations = searchBoxWithDest.getStations();
+        logger.info(format("Using %s groups and %s destinations", searchGrid.size(), searchBoxWithDest.getStations().size()));
 
-        logger.info(format("Using %s groups and %s destinations", searchGrid.size(), destinations.size()));
+        final List<StationsBoxSimpleGrid> sortedSearchGrid = sortGridNearestFirst(searchGrid, destinationGrid);
 
-        final List<BoundingBoxWithStations> sortedSearchGrid = sortGridNearestFirst(searchGrid, destinationGrid);
-
-        return calculator.calculateRoutes(destinations, journeyRequest, sortedSearchGrid).
+        return calculator.calculateRoutes(searchBoxWithDest, journeyRequest, sortedSearchGrid).
                 map(box -> cheapest(box, destinationGrid));
     }
 
-    private boolean anyOpen(final LocationSet stations, final TramDate date) {
-        // any not closed
-        return stations.stream().anyMatch(station -> !closedStationsRepository.isClosed(station, date));
-    }
-
-    private List<BoundingBoxWithStations> sortGridNearestFirst(Set<BoundingBoxWithStations> searchGrid, GridPosition destinationGrid) {
+    private List<StationsBoxSimpleGrid> sortGridNearestFirst(List<StationsBoxSimpleGrid> searchGrid, GridPosition destinationGrid) {
         return searchGrid.stream().
                 sorted((a,b) -> geography.chooseNearestToGrid(destinationGrid, a.getMidPoint(), b.getMidPoint())).
                 collect(Collectors.toList());

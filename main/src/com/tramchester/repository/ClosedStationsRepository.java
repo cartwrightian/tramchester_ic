@@ -93,7 +93,7 @@ public class ClosedStationsRepository {
             return new ClosedStation(station, dateRange, fullyClosed, nearbyOpenStations);
         } else {
             Set<Station> diversions = diversionsOnly.stream().map(stationRepository::getStationById).collect(Collectors.toSet());
-            logger.info("Only adding diversions " + diversions + " for closed station " + station.getId());
+            logger.info("Only adding diversions " + HasId.asIds(diversions) + " for closed station " + station.getId());
             return new ClosedStation(station, dateRange, fullyClosed, diversions);
         }
 
@@ -195,5 +195,14 @@ public class ClosedStationsRepository {
         return maybe.get();
     }
 
-
+    public boolean isFullyClosed(Station station, TramDate date) {
+        if (!hasClosuresOn(date)) {
+            return false;
+        }
+        if (!hasAClosure.contains(station.getId())) {
+            return false;
+        }
+        ClosedStation closedStation = getClosedStation(station, date);
+        return closedStation.isFullyClosed();
+    }
 }

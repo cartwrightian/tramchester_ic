@@ -113,8 +113,7 @@ public class BoundingBox {
         return true;
     }
 
-    public Set<BoundingBox> quadrants() {
-        Set<BoundingBox> result = new HashSet<>();
+    public GridPosition middle() {
         final int left = bottomLeft.getEastings();
         final int top = topRight.getNorthings();
         final int bottom = bottomLeft.getNorthings();
@@ -123,14 +122,28 @@ public class BoundingBox {
         int midEasting = left + ((right - left) / 2);
         int midNorthing = bottom +  ((top - bottom) / 2);
 
-        GridPosition middle = new GridPosition(midEasting, midNorthing);
+        return new GridPosition(midEasting, midNorthing);
+    }
 
-        BoundingBox bottomLeftQuadrant = new BoundingBox(bottomLeft, middle);
-        BoundingBox topRightQuadrant = new BoundingBox(middle, topRight);
+    public Set<BoundingBox> quadrants() {
+        final Set<BoundingBox> result = new HashSet<>();
 
-        BoundingBox topLeftQuadrant = new BoundingBox(
+        final int left = bottomLeft.getEastings();
+        final int top = topRight.getNorthings();
+        final int bottom = bottomLeft.getNorthings();
+        final int right = topRight.getEastings();
+
+        int midEasting = left + ((right - left) / 2);
+        int midNorthing = bottom +  ((top - bottom) / 2);
+
+        final GridPosition middle = new GridPosition(midEasting, midNorthing);
+
+        final BoundingBox bottomLeftQuadrant = new BoundingBox(bottomLeft, middle);
+        final BoundingBox topRightQuadrant = new BoundingBox(middle, topRight);
+
+        final BoundingBox topLeftQuadrant = new BoundingBox(
                 new GridPosition(left, midNorthing), new GridPosition(midEasting, top));
-        BoundingBox bottomRightQuadrant = new BoundingBox(
+        final BoundingBox bottomRightQuadrant = new BoundingBox(
                 new GridPosition(midEasting, bottom), new GridPosition(right, midNorthing));
 
         result.add(bottomLeftQuadrant);

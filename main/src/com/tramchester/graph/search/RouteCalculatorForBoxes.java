@@ -12,6 +12,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.geo.BoundingBoxWithStations;
+import com.tramchester.geo.StationsBoxSimpleGrid;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.graph.caches.LowestCostSeen;
@@ -71,11 +72,13 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         this.branchSelectorFactory = branchSelectorFactory;
     }
 
-    public RequestStopStream<JourneysForBox> calculateRoutes(final LocationSet destinations, final JourneyRequest journeyRequest,
-                                                             final List<BoundingBoxWithStations> boxes) {
+    public RequestStopStream<JourneysForBox> calculateRoutes(final StationsBoxSimpleGrid destinationBox, final JourneyRequest journeyRequest,
+                                                             final List<StationsBoxSimpleGrid> boxes) {
         logger.info("Finding routes for " + boxes.size() + " bounding boxes");
 
         // TODO Compute over a range of times??
+
+        final LocationSet destinations = destinationBox.getStations();
 
         final long maxNumberOfJourneys = journeyRequest.getMaxNumberOfJourneys();
 
@@ -85,7 +88,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
         // share selector across queries, to allow caching of station to station distances
         // TODO Optimise using box based distance calculation? -- avoid doing per station per box
-        final BranchOrderingPolicy selector = branchSelectorFactory.getFor(destinations);
+        final BranchOrderingPolicy selector = branchSelectorFactory.getFor(destinationBox, boxes);
 
         final RequestStopStream<JourneysForBox> result = new RequestStopStream<>();
 

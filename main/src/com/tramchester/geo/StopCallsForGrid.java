@@ -36,7 +36,7 @@ public class StopCallsForGrid {
         this.stopCallRepository = stopCallRepository;
     }
 
-    public Stream<BoxWithServiceFrequency> getServiceFreqencies(int gridSize, TramDate date, TramTime begin, TramTime end) {
+    public Stream<BoxWithServiceFrequency> getServiceFrequencies(int gridSize, TramDate date, TramTime begin, TramTime end) {
         logger.info(format("Get stopcalls for grid size %s on %s between %s and %s", gridSize, date, begin, end));
 
         return stationLocations.getStationsInGrids(gridSize).

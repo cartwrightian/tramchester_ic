@@ -222,19 +222,21 @@ public class StationLocations implements StationLocationsRepository {
         return geography.getNearToUnsorted(() -> candidateStations, gridPosition, margin).findAny().isPresent();
     }
 
-    public Stream<BoundingBoxWithStations> getStationsInGrids(int gridSize) {
+    public Stream<BoundingBoxWithStations> getStationsInGrids(final int gridSize) {
         if (gridSize <= 0) {
             throw new RuntimeException("Invalid grid size of " + gridSize);
         }
 
         logger.info("Getting groupded stations for grid size " + gridSize);
 
-        return createBoundingBoxsFor(gridSize).
+        return createBoundingBoxesFor(gridSize).
                 map(box -> new BoundingBoxWithStations(box, getStationsWithin(box))).
                 filter(BoundingBoxWithStations::hasStations);
     }
 
-    public Stream<BoundingBox> createBoundingBoxsFor(int gridSize) {
+    // todo use StationBoxFactory instead
+    @Deprecated
+    public Stream<BoundingBox> createBoundingBoxesFor(final int gridSize) {
         // addresses performance and memory usages on very large grids
         return getEastingsStream(gridSize).
                 flatMap(x -> getNorthingsStream(gridSize).
@@ -246,7 +248,7 @@ public class StationLocations implements StationLocationsRepository {
                 filter(quadrant -> quadrant.within(range, position)).collect(Collectors.toSet());
     }
 
-    private LocationSet getStationsWithin(final BoundingBox box) {
+    public LocationSet getStationsWithin(final BoundingBox box) {
         final Stream<BoundingBox> overlaps = quadrants.stream().filter(box::overlapsWith);
 
         final Stream<Station> candidateStations = overlaps.flatMap(quadrant -> stationBoxes.get(quadrant).stream());
@@ -255,8 +257,8 @@ public class StationLocations implements StationLocationsRepository {
     }
 
     private Stream<Integer> getEastingsStream(int gridSize) {
-        int minEastings = bounds.getMinEastings();
-        int maxEasting = bounds.getMaxEasting();
+        final int minEastings = bounds.getMinEastings();
+        final int maxEasting = bounds.getMaxEasting();
         return IntStream.
                 iterate(minEastings, current -> current <= maxEasting, current -> current + gridSize).boxed();
     }

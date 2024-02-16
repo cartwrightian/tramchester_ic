@@ -5,13 +5,11 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.JourneysForBox;
-import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.collections.RequestStopStream;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.geo.BoundingBox;
-import com.tramchester.geo.BoundingBoxWithStations;
-import com.tramchester.geo.StationLocations;
+import com.tramchester.geo.*;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.search.RouteCalculatorForBoxes;
@@ -24,12 +22,11 @@ import org.junit.jupiter.api.*;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 class RouteCalculatorForBoundingBoxTest {
     // Note this needs to be > time for whole test fixture, see note below in @After
@@ -45,6 +42,7 @@ class RouteCalculatorForBoundingBoxTest {
     private StationLocations stationLocations;
     private StationRepository stationRepository;
     private ClosedStationsRepository closedStationsRepository;
+    private StationBoxFactory stationBoxFactory;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -67,6 +65,7 @@ class RouteCalculatorForBoundingBoxTest {
         stationLocations = componentContainer.get(StationLocations.class);
         stationRepository = componentContainer.get(StationRepository.class);
         closedStationsRepository = componentContainer.get(ClosedStationsRepository.class);
+        stationBoxFactory = componentContainer.get(StationBoxFactory.class);
     }
 
     @AfterEach
@@ -79,18 +78,20 @@ class RouteCalculatorForBoundingBoxTest {
         BoundingBox bounds = stationLocations.getActiveStationBounds();
         int gridSize = (bounds.getMaxNorthings()-bounds.getMinNorthings()) / 100;
 
-        List<BoundingBoxWithStations> grouped = stationLocations.getStationsInGrids(gridSize)
-                .filter(this::anyOpen)
-                .collect(Collectors.toList());
+        final List<StationsBoxSimpleGrid> grouped = stationBoxFactory.getStationBoxes(gridSize, when);
 
         long maxNumberOfJourneys = 3;
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(9,30),
                 false, 3, Duration.ofMinutes(testConfig.getMaxJourneyDuration()), maxNumberOfJourneys,
                 TramsOnly);
 
-        LocationSet destinations = LocationSet.singleton(TramStations.StPetersSquare.from(stationRepository));
+        Station station = TramStations.StPetersSquare.from(stationRepository);
 
-        RequestStopStream<JourneysForBox> result = calculator.calculateRoutes(destinations, journeyRequest, grouped);
+        Optional<StationsBoxSimpleGrid> findDestBox = grouped.stream().filter(box -> box.getStations().contains(station)).findFirst();
+        assertTrue(findDestBox.isPresent());
+        StationsBoxSimpleGrid destinationBox = findDestBox.get();
+
+        RequestStopStream<JourneysForBox> result = calculator.calculateRoutes(destinationBox, journeyRequest, grouped);
 
         List<JourneysForBox> groupedJourneys = result.getStream().toList();
 
