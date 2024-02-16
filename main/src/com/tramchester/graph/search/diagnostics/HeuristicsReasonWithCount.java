@@ -3,7 +3,7 @@ package com.tramchester.graph.search.diagnostics;
 public class HeuristicsReasonWithCount extends HeuristicsReason {
     private final int count;
 
-    protected HeuristicsReasonWithCount(ReasonCode code, HowIGotHere path, int count) {
+    protected HeuristicsReasonWithCount(final ReasonCode code, final HowIGotHere path, final int count) {
         super(code, path);
         this.count = count;
     }

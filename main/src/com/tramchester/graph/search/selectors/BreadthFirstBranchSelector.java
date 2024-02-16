@@ -21,7 +21,7 @@ public class BreadthFirstBranchSelector implements BranchSelector {
     private TraversalBranch branchToExpand;
 
     public BreadthFirstBranchSelector(final TraversalBranch start, final PathExpander<JourneyState> expander,
-                                      final StationDistances stationDistances, LocationSet destinationIds) {
+                                      final StationDistances stationDistances, final LocationSet destinationIds) {
         this.branchToExpand = start;
         this.expander = expander;
         expansionQueue = new TraversalBranchQueue(stationDistances, destinationIds);
@@ -43,8 +43,7 @@ public class BreadthFirstBranchSelector implements BranchSelector {
         private final PriorityQueue<TraversalBranch> theQueue;
         private final StationDistances.FindDistancesTo findDistances;
 
-        public TraversalBranchQueue(StationDistances stationDistances, LocationSet destinations) {
-//            int metersPerMinute = 60 * metersPerSecond.intValue();
+        public TraversalBranchQueue(final StationDistances stationDistances, final LocationSet destinations) {
             findDistances = stationDistances.findDistancesTo(destinations);
             theQueue = new PriorityQueue<>(new BranchComparator());
         }

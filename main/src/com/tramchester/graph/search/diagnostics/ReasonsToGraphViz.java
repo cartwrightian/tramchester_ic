@@ -6,10 +6,7 @@ import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.caches.NodeContentsRepository;
-import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.GraphNodeId;
-import com.tramchester.graph.facade.GraphRelationship;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateType;
 import com.tramchester.repository.StationRepository;
@@ -48,13 +45,14 @@ public class ReasonsToGraphViz {
         diagramState.clear();
     }
 
-    private void add(HeuristicsReason reason, GraphTransaction transaction, StringBuilder builder, DiagramState diagramState) {
-        HowIGotHere howIGotHere = reason.getHowIGotHere();
+    private void add(final HeuristicsReason reason, final GraphTransaction transaction, final StringBuilder builder,
+                     final DiagramState diagramState) {
+        final HowIGotHere howIGotHere = reason.getHowIGotHere();
 
-        GraphNodeId endNodeId = howIGotHere.getEndNodeId();
-        String reasonId = reason.getReasonCode().name() + endNodeId;
-        TraversalStateType stateType = howIGotHere.getTraversalStateName();
-        GraphNode currentNode = transaction.getNodeById(endNodeId);
+        final GraphNodeId endNodeId = howIGotHere.getEndNodeId();
+        final String reasonId = reason.getReasonCode().name() + endNodeId;
+        final TraversalStateType stateType = howIGotHere.getTraversalStateName();
+        final GraphNode currentNode = transaction.getNodeById(endNodeId);
 
         addNodeToDiagram(currentNode, builder, diagramState, stateType.name());
 
@@ -73,12 +71,12 @@ public class ReasonsToGraphViz {
         }
 
         if (!howIGotHere.atStart()) {
-            GraphRelationship relationship = transaction.getRelationshipById(howIGotHere.getRelationshipId());
-            GraphNode fromNode = relationship.getStartNode(transaction);
+            final GraphRelationship relationship = transaction.getRelationshipById(howIGotHere.getRelationshipId());
+            final GraphNode fromNode = relationship.getStartNode(transaction);
             addNodeToDiagram(fromNode, builder, diagramState, stateType.name());
 
-            GraphNodeId fromNodeId = fromNode.getId();
-            Pair<GraphNodeId,GraphNodeId> link = Pair.of(fromNodeId, endNodeId);
+            final GraphNodeId fromNodeId = fromNode.getId();
+            final Pair<GraphNodeId,GraphNodeId> link = Pair.of(fromNodeId, endNodeId);
             if (!diagramState.relationships.contains(link)) {
                 diagramState.relationships.add(link);
                 RelationshipType relationshipType = relationship.getType();
@@ -87,7 +85,7 @@ public class ReasonsToGraphViz {
         }
     }
 
-    private void addNodeToDiagram(GraphNode node, StringBuilder builder, DiagramState diagramState, String stateName) {
+    private void addNodeToDiagram(final GraphNode node, final StringBuilder builder, final DiagramState diagramState, final String stateName) {
         GraphNodeId nodeId = node.getId();
         if (!diagramState.nodes.contains(nodeId)) {
             diagramState.nodes.add(nodeId);
@@ -99,30 +97,30 @@ public class ReasonsToGraphViz {
         }
     }
 
-    private String getIdsFor(GraphNode node) {
-        StringBuilder ids = new StringBuilder();
-        EnumSet<GraphLabel> labels = nodeContentsRepository.getLabels(node);
+    private String getIdsFor(final GraphNode node) {
+        final StringBuilder ids = new StringBuilder();
+        final EnumSet<GraphLabel> labels = nodeContentsRepository.getLabels(node);
 
         if (labels.contains(GraphLabel.GROUPED)) {
             //return getAreaIdFromGrouped(graphNode.getNode());
-            IdFor<NPTGLocality> areaId = node.getAreaId();
-            NPTGLocality area = nptgRepository.get(areaId);
-            ids.append(System.lineSeparator()).append(area.getLocalityName()+" "+area.getParentLocalityName());
+            final IdFor<NPTGLocality> areaId = node.getAreaId();
+            final NPTGLocality area = nptgRepository.get(areaId);
+            ids.append(System.lineSeparator()).append(area.getLocalityName()).append(" ").append(area.getParentLocalityName());
             return ids.toString();
         }
 
         if (labels.contains(GraphLabel.STATION)) {
-            IdFor<Station> stationIdFrom = node.getStationId();
-            Station station = stationRepository.getStationById(stationIdFrom);
+            final IdFor<Station> stationIdFrom = node.getStationId();
+            final Station station = stationRepository.getStationById(stationIdFrom);
             ids.append(System.lineSeparator()).append(station.getName());
         }
 
         if (labels.contains(GraphLabel.ROUTE_STATION)) {
-            IdFor<Station> stationIdFrom = node.getStationId();
-            Station station = stationRepository.getStationById(stationIdFrom);
+            final IdFor<Station> stationIdFrom = node.getStationId();
+            final Station station = stationRepository.getStationById(stationIdFrom);
             ids.append(System.lineSeparator()).append(station.getName());
             //return getRouteIdFrom(graphNode.getNode());
-            String value = node.getRouteId().toString();
+            final String value = node.getRouteId().toString();
             ids.append(System.lineSeparator());
             ids.append(value);
         }
@@ -133,9 +131,9 @@ public class ReasonsToGraphViz {
         }
 
         if (labels.contains(GraphLabel.MINUTE)) {
-            TramTime time = node.getTime();
+            final TramTime time = node.getTime();
             ids.append(time.toString());
-            String value = node.getTripId().toString();
+            final String value = node.getTripId().toString();
             ids.append(System.lineSeparator());
             ids.append(value);
         }

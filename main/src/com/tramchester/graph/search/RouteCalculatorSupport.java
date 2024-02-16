@@ -99,11 +99,6 @@ public class RouteCalculatorSupport {
         return destinationNodeIds;
     }
 
-    protected Stream<Integer> numChangesRange(final JourneyRequest journeyRequest, final LocationSet startingStations, final LocationSet destinations) {
-        final NumberOfChanges numberChanges = routeToRouteCosts.getNumberOfChanges(startingStations, destinations, journeyRequest);
-        return numChangesRange(journeyRequest, numberChanges);
-    }
-
     @NotNull
     protected Stream<Integer> numChangesRange(final JourneyRequest journeyRequest, final NumberOfChanges computedChanges) {
         final int requestedMaxChanges = journeyRequest.getMaxChanges();

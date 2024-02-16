@@ -152,7 +152,7 @@ public class PreviousVisits implements ReportsCacheStats {
 
     @Override
     public List<Pair<String, CacheStats>> stats() {
-        List<Pair<String, CacheStats>> results = new ArrayList<>();
+        final List<Pair<String, CacheStats>> results = new ArrayList<>();
         results.add(Pair.of("timeNodePrevious", timeNodePrevious.stats()));
         results.add(Pair.of("hourNodePrevious", hourNodePrevious.stats()));
         results.add(Pair.of("routeStationPrevious", routeStationPrevious.stats()));

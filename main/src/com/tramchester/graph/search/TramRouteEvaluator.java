@@ -121,7 +121,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             reasons.recordReason(ServiceReason.CacheMiss(howIGotHere));
         }
 
-        final ReasonCode reasonCode = doEvaluate(path, journeyState, nextNode, labels, last);
+        final ReasonCode reasonCode = doEvaluate(path, journeyState, nextNode, labels, howIGotHere);
         final Evaluation result = reasonCode.getEvaluationAction();
 
         previousVisits.recordVisitIfUseful(reasonCode, nextNode, journeyState, labels);
@@ -130,11 +130,10 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     }
 
     private ReasonCode doEvaluate(final Path thePath, final ImmutableJourneyState journeyState, final GraphNode nextNode,
-                                  final EnumSet<GraphLabel> nodeLabels, final GraphRelationship last) {
+                                  final EnumSet<GraphLabel> nodeLabels, HowIGotHere howIGotHere) {
 
         final GraphNodeId nextNodeId = nextNode.getId();
 
-        final HowIGotHere howIGotHere = new HowIGotHere(journeyState, nextNode, last);
         final Duration totalCostSoFar = journeyState.getTotalDurationSoFar();
         final int numberChanges = journeyState.getNumberChanges();
 

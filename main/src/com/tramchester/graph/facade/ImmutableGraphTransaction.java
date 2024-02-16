@@ -81,7 +81,7 @@ public class ImmutableGraphTransaction implements GraphTransaction  {
     }
 
     @Override
-    public ImmutableGraphNode fromEnd(Path path) {
+    public ImmutableGraphNode fromEnd(final Path path) {
         return underlying.fromEnd(path);
     }
 

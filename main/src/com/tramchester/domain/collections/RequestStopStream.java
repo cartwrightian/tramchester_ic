@@ -45,7 +45,7 @@ public class RequestStopStream<T> implements Running {
         running.set(false);
     }
 
-    public synchronized boolean isRunning() {
+    public boolean isRunning() {
         return running.get();
     }
 

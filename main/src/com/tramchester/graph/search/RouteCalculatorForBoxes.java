@@ -1,5 +1,7 @@
 package com.tramchester.graph.search;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
@@ -82,9 +84,12 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         final Set<GraphNodeId> destinationNodeIds = getDestinationNodeIds(destinations);
 
         // share selector across queries, to allow caching of station to station distances
+        // TODO Optimise using box based distance calculation? -- avoid doing per station per box
         final BranchOrderingPolicy selector = branchSelectorFactory.getFor(destinations);
 
         final RequestStopStream<JourneysForBox> result = new RequestStopStream<>();
+
+        final ChangesForDestinations changesForDestinations = new ChangesForDestinations(destinations, journeyRequest);
 
         final Stream<JourneysForBox> stream = boxes.parallelStream().
                 filter(item -> result.isRunning()).
@@ -103,7 +108,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                 final Stream<Journey> journeys = startingStations.stream().
                         filter(start -> !destinations.contains(start)).
                         map(start -> createNodeAndStation(txn, start)).
-                        flatMap(nodeAndStation -> numChangesRange(journeyRequest, startingStations, destinations).
+                        flatMap(nodeAndStation -> changesForDestinations.getNumberOfChangesRange((box)).
                                 map(numChanges -> createPathRequest(journeyRequest, nodeAndStation,  numChanges, journeyConstraints, selector))).
 
                         filter(item -> result.isRunning()).
@@ -123,6 +128,28 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         });
 
         return result.setStream(stream);
+    }
+
+    private class ChangesForDestinations {
+        private final LocationSet destinations;
+        private final JourneyRequest journeyRequest;
+        private final Cache<BoundingBoxWithStations, NumberOfChanges> cache;
+
+        private ChangesForDestinations(LocationSet destinations, JourneyRequest journeyRequest) {
+            this.destinations = destinations;
+            this.journeyRequest = journeyRequest;
+            cache = Caffeine.newBuilder().build();
+        }
+
+        public Stream<Integer> getNumberOfChangesRange(final BoundingBoxWithStations box) {
+            final NumberOfChanges numberChanges = cache.get(box, theBox -> computeNumberOfChanges(box));
+            return numChangesRange(journeyRequest, numberChanges);
+        }
+
+        private NumberOfChanges computeNumberOfChanges(BoundingBoxWithStations box) {
+            return routeToRouteCosts.getNumberOfChanges(box.getStations(), destinations, journeyRequest);
+        }
+
     }
 
     @NotNull

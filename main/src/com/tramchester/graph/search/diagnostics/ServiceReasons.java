@@ -4,10 +4,7 @@ import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.GraphNodeId;
-import com.tramchester.graph.facade.GraphTransaction;
-import com.tramchester.graph.facade.ImmutableGraphNode;
+import com.tramchester.graph.facade.*;
 import com.tramchester.graph.search.ImmutableJourneyState;
 import com.tramchester.graph.search.RouteCalculatorSupport;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateType;
@@ -38,8 +35,8 @@ public class ServiceReasons {
     private final JourneyRequest journeyRequest;
     private final List<HeuristicsReason> reasons;
     // stats
-    private final Map<ReasonCode, AtomicInteger> reasonCodeStats; // reason -> count
-    private final Map<TraversalStateType, AtomicInteger> stateStats; // State -> num visits
+    private final EnumMap<ReasonCode, AtomicInteger> reasonCodeStats; // reason -> count
+    private final EnumMap<TraversalStateType, AtomicInteger> stateStats; // State -> num visits
     private final Map<GraphNodeId, AtomicInteger> nodeVisits; // count of visits to nodes
     private final AtomicInteger totalChecked = new AtomicInteger(0);
     private final boolean diagnosticsEnabled;
@@ -69,7 +66,7 @@ public class ServiceReasons {
         Arrays.asList(ReasonCode.values()).forEach(code -> reasonCodeStats.put(code, new AtomicInteger(0)));
     }
 
-    public void reportReasons(GraphTransaction transaction, RouteCalculatorSupport.PathRequest pathRequest, ReasonsToGraphViz reasonToGraphViz) {
+    public void reportReasons(final GraphTransaction transaction, final RouteCalculatorSupport.PathRequest pathRequest, final ReasonsToGraphViz reasonToGraphViz) {
         if (diagnosticsEnabled) {
             createGraphFile(transaction, reasonToGraphViz, pathRequest);
         }
@@ -109,7 +106,7 @@ public class ServiceReasons {
         totalChecked.incrementAndGet();
     }
 
-    private void incrementStat(ReasonCode reasonCode) {
+    private void incrementStat(final ReasonCode reasonCode) {
         reasonCodeStats.get(reasonCode).incrementAndGet();
     }
 
@@ -130,7 +127,7 @@ public class ServiceReasons {
         }
     }
 
-    private ReasonCode getReasonCode(TransportMode transportMode) {
+    private ReasonCode getReasonCode(final TransportMode transportMode) {
         return switch (transportMode) {
             case Tram -> ReasonCode.OnTram;
             case Bus, RailReplacementBus -> ReasonCode.OnBus;
@@ -143,7 +140,7 @@ public class ServiceReasons {
         };
     }
 
-    private void reportStats(GraphTransaction txn, RouteCalculatorSupport.PathRequest pathRequest) {
+    private void reportStats(final GraphTransaction txn, final RouteCalculatorSupport.PathRequest pathRequest) {
         if ((!success) && journeyRequest.getWarnIfNoResults()) {
             logger.warn("No result found for at " + pathRequest.getActualQueryTime() + " changes " + pathRequest.getNumChanges() +
                     " for " + journeyRequest );
@@ -157,14 +154,14 @@ public class ServiceReasons {
         }
     }
 
-    private void logVisits(GraphTransaction txn) {
-        Set<GraphNodeId> haveInvalidReasonCode = reasons.stream().
+    private void logVisits(final GraphTransaction txn) {
+        final Set<GraphNodeId> haveInvalidReasonCode = reasons.stream().
                 filter(reason -> !reason.isValid()).
                 map(HeuristicsReason::getNodeId).
                 collect(Collectors.toSet());
 
         // Pair<Node, Number of Visits>
-        Set<Pair<ImmutableGraphNode, Integer>> topVisits = nodeVisits.entrySet().stream().
+        final Set<Pair<ImmutableGraphNode, Integer>> topVisits = nodeVisits.entrySet().stream().
                 filter(entry -> haveInvalidReasonCode.contains(entry.getKey())).
                 map(entry -> Pair.of(entry.getKey(), entry.getValue().get())).
                 //filter(entry -> entry.getValue() > THRESHHOLD_FOR_NUMBER_VISITS_DIAGS).
@@ -189,16 +186,16 @@ public class ServiceReasons {
         logger.info("Reasons for node " + nodeDetails(node) + " : " + summaryByCount(reasonsForId));
     }
 
-    private String summaryByCount(List<HeuristicsReason> reasons) {
+    private String summaryByCount(final List<HeuristicsReason> reasons) {
 
-        Map<ReasonCode, AtomicInteger> counts = new HashMap<>();
+        final Map<ReasonCode, AtomicInteger> counts = new HashMap<>();
         Arrays.stream(ReasonCode.values()).forEach(code -> counts.put(code, new AtomicInteger(0)));
 
         reasons.stream().
                 filter(reason -> !reason.isValid()).
                 forEach(reason -> counts.get(reason.getReasonCode()).getAndIncrement());
 
-        StringBuilder stringBuilder = new StringBuilder();
+        final StringBuilder stringBuilder = new StringBuilder();
         counts.forEach((key, value) -> {
             if (value.get() > 0) {
                 stringBuilder.append(key).append(":").append(value.get()).append(" ");
@@ -209,21 +206,21 @@ public class ServiceReasons {
         return stringBuilder.toString();
     }
 
-    private String nodeDetails(GraphNode node) {
-        StringBuilder labels = new StringBuilder();
+    private String nodeDetails(final GraphNode node) {
+        final StringBuilder labels = new StringBuilder();
         node.getLabels().forEach(label -> labels.append(" ").append(label));
         return labels + " " + node.getAllProperties().toString();
     }
 
-    private void logStats(String prefix, Map<?, AtomicInteger> stats) {
+    private void logStats(final String prefix, final Map<?, AtomicInteger> stats) {
         stats.entrySet().stream().
                 filter(entry -> entry.getValue().get() > 0).
                 sorted(Comparator.comparingInt(a -> a.getValue().get())).
                 forEach(entry -> logger.info(format("%s => %s: %s", prefix, entry.getKey(), entry.getValue().get())));
     }
 
-    private void createGraphFile(GraphTransaction txn, ReasonsToGraphViz reasonsToGraphViz, RouteCalculatorSupport.PathRequest pathRequest) {
-        String fileName = createFilename(pathRequest);
+    private void createGraphFile(final GraphTransaction txn, final ReasonsToGraphViz reasonsToGraphViz, final RouteCalculatorSupport.PathRequest pathRequest) {
+        final String fileName = createFilename(pathRequest);
 
         if (reasons.isEmpty()) {
             logger.warn(format("Not creating dot file %s, reasons empty", fileName));
@@ -233,12 +230,12 @@ public class ServiceReasons {
         }
 
         try {
-            StringBuilder builder = new StringBuilder();
+            final StringBuilder builder = new StringBuilder();
             builder.append("digraph G {\n");
             reasonsToGraphViz.appendTo(builder, reasons, txn);
             builder.append("}");
 
-            FileWriter writer = new FileWriter(fileName);
+            final FileWriter writer = new FileWriter(fileName);
             writer.write(builder.toString());
             writer.close();
             logger.info(format("Created file %s", fileName));
@@ -248,11 +245,12 @@ public class ServiceReasons {
         }
     }
 
-    private String createFilename(RouteCalculatorSupport.PathRequest pathRequest) {
-        String status = success ? "found" : "notfound";
-        String dateString = providesLocalNow.getDateTime().toLocalDate().toString();
-        String changes = "changes" + pathRequest.getNumChanges();
-        String postfix = journeyRequest.getUid().toString();
+    private String createFilename(final RouteCalculatorSupport.PathRequest pathRequest) {
+        final String status = success ? "found" : "notfound";
+        final String dateString = providesLocalNow.getDateTime().toLocalDate().toString();
+        final String changes = "changes" + pathRequest.getNumChanges();
+        final String postfix = journeyRequest.getUid().toString();
+
         String fileName = format("%s_%s%s_at_%s_%s_%s.dot", status,
                 queryTime.getHourOfDay(), queryTime.getMinuteOfHour(),
                 dateString, changes, postfix);

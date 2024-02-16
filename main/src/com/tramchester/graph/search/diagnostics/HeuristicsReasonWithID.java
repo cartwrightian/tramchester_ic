@@ -9,7 +9,7 @@ public class HeuristicsReasonWithID<T extends CoreDomain> extends HeuristicsReas
     private final IdFor<T> id;
     private final String typeName;
 
-    protected HeuristicsReasonWithID(ReasonCode code, HowIGotHere path, IdFor<T> id) {
+    protected HeuristicsReasonWithID(final ReasonCode code, final HowIGotHere path, final IdFor<T> id) {
         super(code, path);
         this.id = id;
         typeName = id.getClass().getSimpleName();

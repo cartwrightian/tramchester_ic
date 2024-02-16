@@ -124,6 +124,7 @@ public class JourneysForGridResource implements APIResource, GraphDatabaseDepend
                                      RequestStopStream<BoxWithCostDTO> requestStopStream) {
         if (output.isClosed()) {
             logger.error("Output is closed");
+            requestStopStream.stop();
             return;
         }
 

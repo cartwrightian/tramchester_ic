@@ -11,24 +11,27 @@ import java.util.Objects;
 
 public class HowIGotHere {
 
-    //private static final long AT_START = Long.MIN_VALUE;
     private final GraphRelationshipId relationshipId;
     private final GraphNodeId nodeId;
     private final TraversalStateType traversalStateName;
 
-    public HowIGotHere(ImmutableJourneyState immutableJourneyState, GraphNode graphNode, GraphRelationship lastFrom) {
+    public static HowIGotHere forTest(final GraphNodeId nodeId, final GraphRelationshipId relationshipId) {
+        return new HowIGotHere(nodeId, relationshipId, TraversalStateType.MinuteState);
+    }
+
+    public HowIGotHere(final ImmutableJourneyState immutableJourneyState, final GraphNode graphNode, final GraphRelationship lastFrom) {
         this(graphNode.getId(), maintainExistingInterface(lastFrom), immutableJourneyState.getTraversalStateType());
     }
 
     // TODO For no presevre existing behaviour with relationshipId i.e. null means not started yet
-    private static GraphRelationshipId maintainExistingInterface(GraphRelationship lastFrom) {
+    private static GraphRelationshipId maintainExistingInterface(final GraphRelationship lastFrom) {
         if (lastFrom==null) {
             return null;
         }
         return lastFrom.getId();
     }
 
-    private HowIGotHere(GraphNodeId nodeId, GraphRelationshipId relationshipId, TraversalStateType traversalStateName) {
+    private HowIGotHere(final GraphNodeId nodeId, final GraphRelationshipId relationshipId, final TraversalStateType traversalStateName) {
         this.nodeId = nodeId;
         this.relationshipId = relationshipId;
         this.traversalStateName = traversalStateName;
@@ -50,9 +53,6 @@ public class HowIGotHere {
         return traversalStateName;
     }
 
-    public static HowIGotHere forTest(GraphNodeId nodeId, GraphRelationshipId relationshipId) {
-        return new HowIGotHere(nodeId, relationshipId, TraversalStateType.MinuteState);
-    }
 
     @Override
     public boolean equals(Object o) {

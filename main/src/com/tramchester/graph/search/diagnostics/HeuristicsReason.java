@@ -13,7 +13,7 @@ public abstract class HeuristicsReason {
         return howIGotHere;
     }
 
-    protected HeuristicsReason(ReasonCode code, HowIGotHere path) {
+    protected HeuristicsReason(final ReasonCode code, final HowIGotHere path) {
         this.code = code;
         this.howIGotHere = path;
     }

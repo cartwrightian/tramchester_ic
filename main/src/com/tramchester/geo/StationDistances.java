@@ -47,7 +47,9 @@ public class StationDistances {
         private Long getMinDistance(final IdFor<Station> stationId) {
             final Station station = stationRepository.getStationById(stationId);
             final GridPosition gridPosition = station.getGridPosition();
-            final Optional<Long> find = destinationGrids.stream().map(grid -> GridPositions.distanceTo(gridPosition, grid)).min(Long::compare);
+            final Optional<Long> find = destinationGrids.stream().
+                    map(grid -> GridPositions.distanceTo(gridPosition, grid)).
+                    min(Long::compare);
             return find.orElse(Long.MAX_VALUE);
         }
 
