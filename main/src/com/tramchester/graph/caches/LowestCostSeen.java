@@ -21,10 +21,6 @@ public class LowestCostSeen {
         return lowestCost.get();
     }
 
-    public void setLowestCost(Duration duration) {
-        lowestCost.getAndSet(duration);
-    }
-
     public int getLowestNumChanges() {
         return lowestNumChanges.get();
     }
@@ -43,10 +39,10 @@ public class LowestCostSeen {
 
     }
 
-    public void setLowestCost(ImmutableJourneyState journeyState) {
+    public synchronized void setLowestCost(final ImmutableJourneyState journeyState) {
         arrived.incrementAndGet();
         lowestNumChanges.getAndSet(journeyState.getNumberChanges());
-        setLowestCost(journeyState.getTotalDurationSoFar());
+        lowestCost.getAndSet(journeyState.getTotalDurationSoFar());
     }
 
     @Override

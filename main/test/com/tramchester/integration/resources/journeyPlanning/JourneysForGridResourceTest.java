@@ -114,6 +114,9 @@ class JourneysForGridResourceTest {
         Set<BoundingBoxWithStations> expectedBoxes = getExpectedBoxesInSearchGrid(destination);
 
         assertEquals(expectedBoxes.size() - outOfRangeForDuration, notDest.size(), "Expected " + expectedBoxes + " but got " + notDest);
+
+        Set<BoxWithCostDTO> tookTooLong = results.stream().filter(boxWithCostDTO -> boxWithCostDTO.getMinutes() > maxDuration).collect(Collectors.toSet());
+        assertTrue(tookTooLong.isEmpty(), tookTooLong.toString());
     }
 
 

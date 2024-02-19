@@ -170,10 +170,12 @@ public class PreviousVisits implements ReportsCacheStats {
 
         private final GraphNodeId nodeId;
         private final T other;
+        private final int hashCode;
 
         public Key(GraphNode node, T other) {
             this.nodeId = node.getId();
             this.other = other;
+            hashCode = Objects.hash(nodeId, other);
         }
 
         @Override
@@ -186,7 +188,7 @@ public class PreviousVisits implements ReportsCacheStats {
 
         @Override
         public int hashCode() {
-            return Objects.hash(nodeId, other);
+            return hashCode;
         }
     }
 

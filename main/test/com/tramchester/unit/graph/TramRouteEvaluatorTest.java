@@ -675,6 +675,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(journeyState.getTotalDurationSoFar()).andReturn(costSoFar);
         EasyMock.expect(journeyState.getNumberChanges()).andReturn(10);
         EasyMock.expect(journeyState.getTraversalStateType()).andStubReturn(TraversalStateType.PlatformState);
+        EasyMock.expect(journeyState.approxPosition()).andReturn(Shudehill.getId());
 
         // stub return, only used in logging
         EasyMock.expect(path.length()).andStubReturn(42);

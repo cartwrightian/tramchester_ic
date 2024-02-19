@@ -39,7 +39,6 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
     private final Cache<GraphRelationshipId, Duration> relationshipCostCache;
 
     private final Cache<GraphNodeId, TramTime> timeNodeCache;
-//    private final Cache<GraphNodeId, Integer> hourNodeCache;
 
     private final Cache<GraphNodeId, EnumSet<GraphLabel>> labelCache;
 
@@ -78,7 +77,6 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
         tripIdRelationshipCache.invalidateAll();
         timeNodeCache.invalidateAll();
         labelCache.invalidateAll();
-//        hourNodeCache.invalidateAll();
     }
 
     @NonNull
@@ -128,11 +126,6 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
     public IdFor<Trip> getTripId(final GraphNode node) {
         return node.getTripId();
     }
-
-//    public int getHour(final GraphNode node) {
-//        final GraphNodeId nodeId = node.getId();
-//        return hourNodeCache.get(nodeId, id -> GraphLabel.getHourFrom(getLabels(node)));
-//    }
 
     @Override
     public EnumSet<GraphLabel> getLabels(final GraphNode node) {

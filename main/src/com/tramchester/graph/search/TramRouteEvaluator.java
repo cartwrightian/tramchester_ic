@@ -98,7 +98,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     public Evaluation evaluate(final Path path, final BranchState<JourneyState> state) {
 
         if (!running.isRunning()) {
-            logger.warn("Requested to stop");
+            logger.debug("Requested to stop");
             return Evaluation.EXCLUDE_AND_PRUNE;
         }
 
@@ -154,12 +154,14 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 //                        durationMillis, totalCostSoFar, numberChanges, thePath.length(), howIGotHere.getTraversalStateName(),
 //                        nodeLabels, bestResultSoFar));
 //                logger.warn(format("Timed out: Props for node %s were %s", nextNodeId, allProps));
+                logger.warn(String.format("Timed out at '%s' node %s state type %s",
+                        journeyState.approxPosition(), nextNodeId, journeyState.getTraversalStateType()));
                 reasons.recordReason(ServiceReason.TimedOut(howIGotHere));
                 return ReasonCode.TimedOut;
             }
         }
 
-        reasons.recordStat(journeyState);
+        reasons.recordState(journeyState);
 
         // no journey longer than N nodes
         // TODO check length based on current transport mode??
@@ -285,15 +287,16 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     }
 
     @NotNull
-    private ReasonCode processArrivalAtDest(ImmutableJourneyState journeyState, HowIGotHere howIGotHere, int numberChanges) {
+    private synchronized ReasonCode processArrivalAtDest(final ImmutableJourneyState journeyState, final HowIGotHere howIGotHere,
+                                                         final int numberChanges) {
         if (bestResultSoFar.isLower(journeyState)) {
             // a better route than seen so far
             bestResultSoFar.setLowestCost(journeyState);
-            reasons.recordSuccess();
+            reasons.recordArrived();
             return ReasonCode.Arrived;
         } else if (numberChanges < bestResultSoFar.getLowestNumChanges()) {
             // fewer hops can be a useful option
-            reasons.recordSuccess();
+            reasons.recordArrived();
             return ReasonCode.Arrived;
         } else {
             // found a route, but longer or more hops than current shortest

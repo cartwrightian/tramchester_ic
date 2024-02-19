@@ -75,14 +75,10 @@ public class BreadthFirstBranchSelectorForGridSearch implements BranchSelector {
                         final StationsBoxSimpleGrid boxA = stationToBox.get(stateA.approxPosition());
                         final StationsBoxSimpleGrid boxB = stationToBox.get(stateB.approxPosition());
 
-                        return compareDistancesToDest(boxA, boxB);
+                        return Integer.compare(distance(boxA), distance(boxB));
                     }
                 }
                 return stateA.getJourneyClock().compareTo(stateB.getJourneyClock());
-            }
-
-            private int compareDistancesToDest(final StationsBoxSimpleGrid boxA, final StationsBoxSimpleGrid boxB) {
-                return Integer.compare(distance(boxA), distance(boxB));
             }
 
             private int distance(final StationsBoxSimpleGrid current) {

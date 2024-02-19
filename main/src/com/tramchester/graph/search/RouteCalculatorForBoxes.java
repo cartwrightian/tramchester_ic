@@ -6,6 +6,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.collections.RequestStopStream;
+import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
@@ -20,6 +21,7 @@ import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.search.diagnostics.ReasonsToGraphViz;
+import com.tramchester.graph.search.diagnostics.ServiceReasons;
 import com.tramchester.graph.search.selectors.BranchSelectorFactory;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import com.tramchester.repository.ClosedStationsRepository;
@@ -32,8 +34,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.time.Duration;
 import java.util.List;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -94,6 +99,10 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
         final ChangesForDestinations changesForDestinations = new ChangesForDestinations(destinations, journeyRequest);
 
+        final ServiceReasons serviceReasons = createServiceReasons(journeyRequest);
+
+        scheduleLogging(result, serviceReasons);
+
         final Stream<JourneysForBox> stream = boxes.parallelStream().
                 filter(item -> result.isRunning()).
                 map(box -> {
@@ -115,7 +124,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                                 map(numChanges -> createPathRequest(journeyRequest, nodeAndStation,  numChanges, journeyConstraints, selector))).
 
                         filter(item -> result.isRunning()).
-                        flatMap(pathRequest -> findShortestPath(txn, createServiceReasons(journeyRequest), pathRequest, createPreviousVisits(),
+                        flatMap(pathRequest -> findShortestPath(txn, serviceReasons, pathRequest, createPreviousVisits(),
                                 lowestCostSeenForBox, destinations, destinationNodeIds, result)).
                         filter(item -> result.isRunning()).
                         map(timedPath -> createJourney(journeyRequest, timedPath, destinations, journeyIndex, txn));
@@ -131,6 +140,23 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         });
 
         return result.setStream(stream);
+    }
+
+    private static void scheduleLogging(final Running results, final ServiceReasons serviceReasons) {
+        final Timer timer = new Timer("GridSearchLoggingTimer");
+
+        long logFrequency = Duration.ofMinutes(1).toMillis();
+        TimerTask loggingTask = new TimerTask() {
+            @Override
+            public void run() {
+                if (results.isRunning()) {
+                    serviceReasons.logCounters();
+                } else {
+                    timer.cancel();
+                }
+            }
+        };
+        timer.scheduleAtFixedRate(loggingTask, logFrequency, logFrequency);
     }
 
     private class ChangesForDestinations {

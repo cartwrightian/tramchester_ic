@@ -4,7 +4,10 @@ import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.facade.*;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphNodeId;
+import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.ImmutableGraphNode;
 import com.tramchester.graph.search.ImmutableJourneyState;
 import com.tramchester.graph.search.RouteCalculatorSupport;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateType;
@@ -16,6 +19,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -24,7 +28,6 @@ public class ServiceReasons {
 
     private static final Logger logger;
     public static final int NUMBER_MOST_VISITED_NODES_TO_LOG = 10;
-//    public static final int THRESHHOLD_FOR_NUMBER_VISITS_DIAGS = 400;
 
     static {
         logger = LoggerFactory.getLogger(ServiceReasons.class);
@@ -52,9 +55,10 @@ public class ServiceReasons {
         diagnosticsEnabled = journeyRequest.getDiagnosticsEnabled();
 
         reasonCodeStats = new EnumMap<>(ReasonCode.class);
-        Arrays.asList(ReasonCode.values()).forEach(code -> reasonCodeStats.put(code, new AtomicInteger(0)));
+        Arrays.stream(ReasonCode.values()).forEach(code -> reasonCodeStats.put(code, new AtomicInteger(0)));
 
         stateStats = new EnumMap<>(TraversalStateType.class);
+        Arrays.stream(TraversalStateType.values()).forEach(type -> stateStats.put(type, new AtomicInteger(0)));
         nodeVisits = new HashMap<>();
     }
 
@@ -63,7 +67,8 @@ public class ServiceReasons {
         reasonCodeStats.clear();
         stateStats.clear();
         nodeVisits.clear();
-        Arrays.asList(ReasonCode.values()).forEach(code -> reasonCodeStats.put(code, new AtomicInteger(0)));
+        reasonCodeStats.clear();
+        Arrays.stream(ReasonCode.values()).forEach(code -> reasonCodeStats.put(code, new AtomicInteger(0)));
     }
 
     public void reportReasons(final GraphTransaction transaction, final RouteCalculatorSupport.PathRequest pathRequest, final ReasonsToGraphViz reasonToGraphViz) {
@@ -78,10 +83,9 @@ public class ServiceReasons {
         reset();
     }
 
-
     public HeuristicsReason recordReason(final HeuristicsReason serviceReason) {
         if (diagnosticsEnabled) {
-            reasons.add(serviceReason);
+            addReason(serviceReason);
             recordEndNodeVisit(serviceReason.getHowIGotHere());
         } else {
             if (!serviceReason.isValid()) {
@@ -89,43 +93,52 @@ public class ServiceReasons {
             }
         }
 
-        incrementStat(serviceReason.getReasonCode());
+        incrementReasonCode(serviceReason.getReasonCode());
         return serviceReason;
-    }
-
-    private void recordEndNodeVisit(final HowIGotHere howIGotHere) {
-        final GraphNodeId endNodeId = howIGotHere.getEndNodeId();
-        if (nodeVisits.containsKey(endNodeId)) {
-            nodeVisits.get(endNodeId).incrementAndGet();
-        } else {
-            nodeVisits.put(endNodeId, new AtomicInteger(1));
-        }
     }
 
     public void incrementTotalChecked() {
         totalChecked.incrementAndGet();
     }
 
-    private void incrementStat(final ReasonCode reasonCode) {
-        reasonCodeStats.get(reasonCode).incrementAndGet();
-    }
-
-    public void recordSuccess() {
-        incrementStat(ReasonCode.Arrived);
+    public void recordArrived() {
+        incrementReasonCode(ReasonCode.Arrived);
         success = true;
     }
 
-    public void recordStat(final ImmutableJourneyState journeyState) {
+    public void recordState(final ImmutableJourneyState journeyState) {
         final ReasonCode reason = getReasonCode(journeyState.getTransportMode());
-        incrementStat(reason);
+        incrementReasonCode(reason);
 
         final TraversalStateType stateType = journeyState.getTraversalStateType();
-        if (stateStats.containsKey(stateType)) {
-            stateStats.get(stateType).incrementAndGet();
+        recordStateType(stateType);
+    }
+
+    //*********** Safe access to counters
+
+    private synchronized void addReason(HeuristicsReason serviceReason) {
+        reasons.add(serviceReason);
+    }
+
+    private void recordEndNodeVisit(final HowIGotHere howIGotHere) {
+        final GraphNodeId endNodeId = howIGotHere.getEndNodeId();
+
+        if (nodeVisits.containsKey(endNodeId)) {
+            nodeVisits.get(endNodeId).getAndIncrement();
         } else {
-            stateStats.put(stateType, new AtomicInteger(1));
+            nodeVisits.put(endNodeId, new AtomicInteger(1));
         }
     }
+
+    private void recordStateType(final TraversalStateType stateType) {
+        stateStats.get(stateType).incrementAndGet();
+    }
+
+    private void incrementReasonCode(final ReasonCode reasonCode) {
+        reasonCodeStats.get(reasonCode).incrementAndGet();
+    }
+
+    //***********
 
     private ReasonCode getReasonCode(final TransportMode transportMode) {
         return switch (transportMode) {
@@ -146,12 +159,17 @@ public class ServiceReasons {
                     " for " + journeyRequest );
         }
         logger.info("Service reasons for query time: " + queryTime);
-        logger.info("Total checked: " + totalChecked.get() + " for " + journeyRequest.toString());
-        logStats("reasoncodes", reasonCodeStats);
-        logStats("states", stateStats);
+        logCounters();
         if (diagnosticsEnabled) {
             logVisits(txn);
         }
+    }
+
+    public void logCounters() {
+        logger.info("Total checked: " + totalChecked.get() + " for " + journeyRequest.toString());
+        logStats("reasoncodes", reasonCodeStats, AtomicInteger::get);
+        logStats("states", stateStats, AtomicInteger::get);
+        logger.info("Visited " + nodeVisits.size() + " nodes");
     }
 
     private void logVisits(final GraphTransaction txn) {
@@ -180,7 +198,7 @@ public class ServiceReasons {
     private void reasonsAtNode(final GraphNode node) {
         final GraphNodeId nodeId = node.getId();
         // beware of Set here, will collapse reasons
-        List<HeuristicsReason> reasonsForId = reasons.stream().
+        final List<HeuristicsReason> reasonsForId = reasons.stream().
                 filter(reason -> reason.getNodeId() == nodeId).
                 collect(Collectors.toList());
         logger.info("Reasons for node " + nodeDetails(node) + " : " + summaryByCount(reasonsForId));
@@ -212,11 +230,11 @@ public class ServiceReasons {
         return labels + " " + node.getAllProperties().toString();
     }
 
-    private void logStats(final String prefix, final Map<?, AtomicInteger> stats) {
+    private <T>  void logStats(final String prefix, final Map<?, T> stats, Function<T, Integer> getCount) {
         stats.entrySet().stream().
-                filter(entry -> entry.getValue().get() > 0).
-                sorted(Comparator.comparingInt(a -> a.getValue().get())).
-                forEach(entry -> logger.info(format("%s => %s: %s", prefix, entry.getKey(), entry.getValue().get())));
+                filter(entry -> getCount.apply(entry.getValue()) > 0).
+                sorted(Comparator.comparingInt(entry -> getCount.apply(entry.getValue()))).
+                forEach(entry -> logger.info(format("%s => %s: %s", prefix, entry.getKey(), getCount.apply(entry.getValue()))));
     }
 
     private void createGraphFile(final GraphTransaction txn, final ReasonsToGraphViz reasonsToGraphViz, final RouteCalculatorSupport.PathRequest pathRequest) {
@@ -272,5 +290,24 @@ public class ServiceReasons {
                 ", diagnosticsEnabled=" + diagnosticsEnabled +
                 ", success=" + success +
                 '}';
+    }
+
+    public int getTotalChecked() {
+        return totalChecked.get();
+    }
+
+    public Map<ReasonCode, Integer> getReasons() {
+        return reasonCodeStats.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, value -> value.getValue().get()));
+//        return new EnumMap<>(reasonCodeStats);
+    }
+
+    public Map<TraversalStateType, Integer> getStates() {
+        return stateStats.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, value -> value.getValue().get()));
+//        return new EnumMap<>(stateStats);
+    }
+
+    public Map<GraphNodeId, Integer> getNodeVisits() {
+        return nodeVisits.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, value -> value.getValue().get()));
+//        return new HashMap<>(nodeVisits);
     }
 }

@@ -40,9 +40,6 @@ public class JourneysForBox {
     }
 
     public Journey getLowestCost() {
-//        if (journeys.size()==1) {
-//            return journeys.get(0);
-//        }
         return journeys.stream().min(Comparator.comparing(Journey::getArrivalTime)).
                 orElseThrow(() -> new RuntimeException("Journeys empty"));
     }

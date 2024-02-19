@@ -50,10 +50,6 @@ public class FastestRoutesForBoxes {
     private RequestStopStream<BoundingBoxWithCost> findForGrid(GridPosition destinationGrid, int gridSize, final JourneyRequest journeyRequest) {
         logger.info("Creating station groups for gridsize " + gridSize + " and destination " + destinationGrid);
 
-//        final Set<BoundingBoxWithStations> searchGrid = stationLocations.getStationsInGrids(gridSize).
-//                filter(boxWithStations -> anyOpen(boxWithStations.getStations(), journeyRequest.getDate())).
-//                collect(Collectors.toSet());
-
         final List<StationsBoxSimpleGrid> searchGrid = stationBoxFactory.getStationBoxes(gridSize, journeyRequest.getDate());
 
         final StationsBoxSimpleGrid searchBoxWithDest = searchGrid.stream().
@@ -61,8 +57,10 @@ public class FastestRoutesForBoxes {
                 findFirst().
                 orElseThrow(() -> new RuntimeException("Unable to find destination in any boxes " + destinationGrid));
 
-        logger.info(format("Using %s groups and %s destinations", searchGrid.size(), searchBoxWithDest.getStations().size()));
+        logger.info(format("Using %s groups and %s destinations, request %s", searchGrid.size(), searchBoxWithDest.getStations().size(),
+                journeyRequest));
 
+        // todo worth it? aim is to prepopulate caches quickly
         final List<StationsBoxSimpleGrid> sortedSearchGrid = sortGridNearestFirst(searchGrid, destinationGrid);
 
         return calculator.calculateRoutes(searchBoxWithDest, journeyRequest, sortedSearchGrid).
