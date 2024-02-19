@@ -137,7 +137,7 @@ function getFeedinfo(app) {
 }
 
 function getTransportModesThenStations(app, beta) {
-    var url = '/api/version/modes';
+    var url = '/api/version/config';
     if (beta) {
         url = url + "?beta";
     }

@@ -73,10 +73,10 @@ public class StationGeographyResource implements APIResource, GraphDatabaseDepen
     public Response getAll() {
         logger.info("Get station links");
 
-        Stream<StationToStationConnection> allLinks = config.getTransportModes().
+        final Stream<StationToStationConnection> allLinks = config.getTransportModes().
                 stream().flatMap(mode -> findStationLinks.findLinkedFor(mode).stream());
 
-        List<StationToStationConnectionDTO> results = allLinks.
+        final List<StationToStationConnectionDTO> results = allLinks.
                 filter(StationToStationConnection::hasValidLatlongs).
                 map(dtoFactory::createStationLinkDTO).
                 toList();

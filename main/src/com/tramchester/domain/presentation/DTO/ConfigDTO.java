@@ -32,4 +32,13 @@ public class ConfigDTO {
     public int getNumberJourneysToDisplay() {
         return numberJourneysToDisplay;
     }
+
+    @Override
+    public String toString() {
+        return "ConfigDTO{" +
+                "modes=" + modes +
+                ", postcodesEnabled=" + postcodesEnabled +
+                ", numberJourneysToDisplay=" + numberJourneysToDisplay +
+                '}';
+    }
 }

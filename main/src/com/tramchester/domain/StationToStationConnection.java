@@ -66,7 +66,8 @@ public class StationToStationConnection {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         StationToStationConnection that = (StationToStationConnection) o;
-        return Objects.equals(pair, that.pair) && Objects.equals(linkingModes, that.linkingModes) && linkType == that.linkType && Objects.equals(distanceBetweenInMeters, that.distanceBetweenInMeters);
+        return Objects.equals(pair, that.pair) && Objects.equals(linkingModes, that.linkingModes)
+                && linkType == that.linkType && Objects.equals(distanceBetweenInMeters, that.distanceBetweenInMeters);
     }
 
     @Override
@@ -100,7 +101,7 @@ public class StationToStationConnection {
      * @return set of modes
      */
     public EnumSet<TransportMode> getContainedModes() {
-        Set<TransportMode> modes = new HashSet<>(pair.getBegin().getTransportModes());
+        final Set<TransportMode> modes = new HashSet<>(pair.getBegin().getTransportModes());
         modes.addAll(pair.getEnd().getTransportModes());
         return EnumSet.copyOf(modes);
     }

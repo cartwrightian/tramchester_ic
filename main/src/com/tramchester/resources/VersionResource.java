@@ -49,22 +49,22 @@ public class VersionResource implements APIResource {
         return VersionRepository.getVersion();
     }
 
-    // TODO Rename as /config
     @GET
     @Operation(description = "Config from server includes, Transport modes enabled, Postcode enabled, etc")
     @ApiResponse(content = @Content(schema = @Schema(implementation = ConfigDTO.class)))
-    @Path("/modes")
+    @Path("/config")
     @CacheControl(maxAge = 10, maxAgeUnit = TimeUnit.SECONDS)
     public Response modes(@QueryParam("beta") String betaRaw) {
-        logger.info("Get modes");
+        logger.info("Get config");
 
-        boolean beta = betaRaw!=null;
-        Set<TransportMode> modes = repository.getModes(beta);
-
-        logger.info("Returning modes " + modes);
+        final boolean beta = betaRaw!=null;
+        final Set<TransportMode> modes = repository.getModes(beta);
 
         final boolean postcodesEnabled = config.hasRemoteDataSourceConfig(DataSourceID.postcode);
-        ConfigDTO configDTO = new ConfigDTO(modes, postcodesEnabled, config.getMaxNumResults());
+        final ConfigDTO configDTO = new ConfigDTO(modes, postcodesEnabled, config.getMaxNumResults());
+
+        logger.info("Returning config " + configDTO);
+
 
         return Response.ok(configDTO).build();
     }

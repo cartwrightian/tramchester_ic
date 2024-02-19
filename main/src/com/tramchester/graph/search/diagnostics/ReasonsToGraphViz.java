@@ -39,8 +39,8 @@ public class ReasonsToGraphViz {
         this.nodeContentsRepository = nodeContentsRepository;
     }
 
-    public void appendTo(StringBuilder builder, List<HeuristicsReason> reasons, GraphTransaction txn) {
-        DiagramState diagramState = new DiagramState();
+    public void appendTo(final StringBuilder builder, final List<HeuristicsReason> reasons, final GraphTransaction txn) {
+        final DiagramState diagramState = new DiagramState();
         reasons.forEach(reason -> add(reason, txn, builder, diagramState));
         diagramState.clear();
     }
@@ -63,7 +63,7 @@ public class ReasonsToGraphViz {
                 builder.append(format("\"%s\" [label=\"%s\"] [shape=%s];\n", reasonId, reason.textForGraph(), shape));
             }
 
-            Pair<GraphNodeId, String> reasonLink = Pair.of(endNodeId, reasonId);
+            final Pair<GraphNodeId, String> reasonLink = Pair.of(endNodeId, reasonId);
             if (!diagramState.reasonRelationships.contains(reasonLink)) {
                 diagramState.reasonRelationships.add(reasonLink);
                 builder.append(format("\"%s\"->\"%s\"", endNodeId, reasonId));
@@ -86,12 +86,12 @@ public class ReasonsToGraphViz {
     }
 
     private void addNodeToDiagram(final GraphNode node, final StringBuilder builder, final DiagramState diagramState, final String stateName) {
-        GraphNodeId nodeId = node.getId();
+        final GraphNodeId nodeId = node.getId();
         if (!diagramState.nodes.contains(nodeId)) {
             diagramState.nodes.add(nodeId);
-            StringBuilder nodeLabel = new StringBuilder();
+            final StringBuilder nodeLabel = new StringBuilder();
             nodeContentsRepository.getLabels(node).forEach(label -> nodeLabel.append(label.name()).append(" "));
-            String ids = getIdsFor(node);
+            final String ids = getIdsFor(node);
             nodeLabel.append("\n").append(ids).append("\n").append(stateName);
             builder.append(format("\"%s\" [label=\"%s\"] [shape=%s];\n", nodeId, nodeLabel, "hexagon"));
         }

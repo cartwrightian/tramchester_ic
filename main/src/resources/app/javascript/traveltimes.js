@@ -149,7 +149,7 @@ const bufferedLines = () => {
   };
 
 function getTransportModesThenStations(app) {
-    var url = '/api/version/modes';
+    var url = '/api/version/config';
 
     axios.get(url)
         .then(function (response) {

@@ -112,7 +112,7 @@ public class PreviousVisits implements ReportsCacheStats {
     public ReasonCode getPreviousResult(final GraphNode node, final ImmutableJourneyState journeyState, final EnumSet<GraphLabel> labels) {
 
         if (labels.contains(GraphLabel.MINUTE)) {
-            // time node has by definition a unique time
+            // time node has by definition a unique time and can only arrive at the "same time" as previous visits
             final ReasonCode timeFound = timeNodePrevious.getIfPresent(node.getId());
             if (timeFound != null) {
                 return timeFound;
@@ -120,6 +120,7 @@ public class PreviousVisits implements ReportsCacheStats {
         }
 
         if (labels.contains(GraphLabel.HOUR)) {
+            // Can arrive at a hour nodes at different times, so need to include that in the key
             final ReasonCode hourFound = hourNodePrevious.getIfPresent(new Key<>(node, journeyState.getJourneyClock()));
             if (hourFound != null) {
                 return hourFound;

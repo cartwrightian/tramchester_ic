@@ -220,6 +220,9 @@ class BusRouteCalculatorTest {
         JourneyRequest request = new JourneyRequest(when, time, false, MIN_CHANGES,
                 Duration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, BusesOnly);
 
+        // todo remove this
+        request.setDiag(true);
+
         List<Journey> results = calculator.calculateRouteAsList(KnownLocality.Macclesfield, KnownLocality.Shudehill, request);
         assertFalse(results.isEmpty());
     }

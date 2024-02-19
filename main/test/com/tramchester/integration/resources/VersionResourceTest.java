@@ -50,7 +50,7 @@ class VersionResourceTest {
     void shouldGetTransportModes() {
         Set<TransportMode> expectedModes = configuration.getTransportModes();
 
-        Response responce = APIClient.getApiResponse(appExtension, endPoint+"/modes");
+        Response responce = APIClient.getApiResponse(appExtension, endPoint+"/config");
         assertEquals(200, responce.getStatus());
 
         ConfigDTO results = responce.readEntity(ConfigDTO.class);
@@ -67,7 +67,7 @@ class VersionResourceTest {
     void shouldGetTransportModesWithBetaFlag() {
         Set<TransportMode> expectedModes = configuration.getTransportModes();
 
-        Response responce = APIClient.getApiResponse(appExtension, endPoint+"/modes?beta=true");
+        Response responce = APIClient.getApiResponse(appExtension, endPoint+"/config?beta=true");
         assertEquals(200, responce.getStatus());
 
         ConfigDTO results = responce.readEntity(ConfigDTO.class);
