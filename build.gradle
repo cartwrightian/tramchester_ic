@@ -141,7 +141,8 @@ sourceSets {
             srcDirs = ['main/src']
         }
         resources {
-            srcDirs = ['main/src/resources','config']
+            //srcDirs = ['main/src/resources','config']
+            srcDirs = ['config']
         }
     }
     test {
@@ -191,9 +192,9 @@ tasks.register('webpack', Exec) {
     inputs.files(fileTree("main/src/resources/app"))
 
     if (isWindows) {
-        commandLine "./node_modules/.bin/webpack.cmd"
+        commandLine './node_modules/.bin/webpack.cmd', '--env', 'environment='+environment
     } else {
-        commandLine "./node_modules/.bin/webpack"
+        commandLine './node_modules/.bin/webpack',  '--env', 'environment='+environment
     }
 }
 

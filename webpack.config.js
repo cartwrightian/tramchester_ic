@@ -1,15 +1,19 @@
 const path = require('path');
 const { VueLoaderPlugin } = require('vue-loader')
 
-module.exports = {
-  mode: 'development',
-  entry: {
+module.exports = (env) => {
+ console.log('Environment is ' + env.environment)
+ return {
+  mode: env.environment === 'Dev' ? 'development' : 'production',
+  entry:  env.environment === 'Dev' ? {
     main: './main/src/resources/app/javascript/journeyplan.js',
     trammap: './main/src/resources/app/javascript/trammap.js',
     traveltimes: './main/src/resources/app/javascript/traveltimes.js',
     routemap: './main/src/resources/app/javascript/routemap.js',
     linksmap: './main/src/resources/app/javascript/linksmap.js',
     frequency: './main/src/resources/app/javascript/frequency.js'
+  } : {
+    main: './main/src/resources/app/javascript/journeyplan.js'
   },
   output: {
     path: path.resolve(__dirname, 'build/resources/main/app'),
@@ -40,10 +44,7 @@ module.exports = {
       },
         {
             test:/\.html$/,
-            type: 'asset/resource' //,
-//            generator: {
-//                 filename: 'images/[hash][ext][query]'
-//               }
+            type: 'asset/resource'
         },
       {
          test: /\.(woff|woff2|eot|ttf|otf)$/i,
@@ -79,4 +80,5 @@ module.exports = {
   plugins: [
       new VueLoaderPlugin()
           ]
+  }
 };
