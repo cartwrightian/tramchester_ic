@@ -41,6 +41,8 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
 
     public abstract String getEnvironmentName() ;
 
+    public abstract Integer getBuildNumber();
+
     public abstract Integer getStaticAssetCacheTimeSeconds();
 
     // URL to pull Cloud instance meta-data from
@@ -239,5 +241,10 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
 
         Number seconds = result.to(SECOND).getValue();
         return Duration.ofSeconds(seconds.longValue());
+    }
+
+    public boolean inProdEnv() {
+        // TODO env name into an enum
+        return getEnvironmentName().startsWith("Prod");
     }
 }

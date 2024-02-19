@@ -2,7 +2,6 @@ package com.tramchester.resources;
 
 import com.google.inject.Inject;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.presentation.DTO.ConfigDTO;
 import com.tramchester.domain.presentation.Version;
 import com.tramchester.domain.reference.TransportMode;
@@ -31,10 +30,12 @@ public class VersionResource implements APIResource {
     private static final Logger logger = LoggerFactory.getLogger(VersionResource.class);
 
     private final TransportModeRepository repository;
+    private final VersionRepository versionRepository;
     private final TramchesterConfig config;
 
     @Inject
-    public VersionResource(TransportModeRepository repository, TramchesterConfig config) {
+    public VersionResource(TransportModeRepository repository, VersionRepository versionRepository, TramchesterConfig config) {
+        this.versionRepository = versionRepository;
         logger.info("created");
         this.repository = repository;
         this.config = config;
@@ -46,7 +47,7 @@ public class VersionResource implements APIResource {
     @CacheControl(maxAge = 30, maxAgeUnit = TimeUnit.SECONDS)
     public Version version() {
         logger.info("Get version");
-        return VersionRepository.getVersion();
+        return versionRepository.getVersion();
     }
 
     @GET
@@ -54,17 +55,15 @@ public class VersionResource implements APIResource {
     @ApiResponse(content = @Content(schema = @Schema(implementation = ConfigDTO.class)))
     @Path("/config")
     @CacheControl(maxAge = 10, maxAgeUnit = TimeUnit.SECONDS)
-    public Response modes(@QueryParam("beta") String betaRaw) {
+    public Response config(@QueryParam("beta") String betaRaw) {
         logger.info("Get config");
 
         final boolean beta = betaRaw!=null;
         final Set<TransportMode> modes = repository.getModes(beta);
 
-        final boolean postcodesEnabled = config.hasRemoteDataSourceConfig(DataSourceID.postcode);
-        final ConfigDTO configDTO = new ConfigDTO(modes, postcodesEnabled, config.getMaxNumResults());
+        final ConfigDTO configDTO = new ConfigDTO(modes, config);
 
         logger.info("Returning config " + configDTO);
-
 
         return Response.ok(configDTO).build();
     }

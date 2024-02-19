@@ -38,7 +38,7 @@ import java.util.stream.Stream;
 
 @Path("/geo")
 @Produces(MediaType.APPLICATION_JSON)
-public class StationGeographyResource implements APIResource, GraphDatabaseDependencyMarker {
+public class StationGeographyResource implements APIResource, GraphDatabaseDependencyMarker, ExperimentalAPIMarker {
     private static final Logger logger = LoggerFactory.getLogger(StationGeographyResource.class);
 
     private final FindLinkedStations findStationLinks;

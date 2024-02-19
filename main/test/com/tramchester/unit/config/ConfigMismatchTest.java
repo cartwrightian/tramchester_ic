@@ -288,6 +288,9 @@ class ConfigMismatchTest {
 
         assertEquals(expected.redirectToSecure(), testConfig.redirectToSecure());
 
+        assertEquals(expected.getBuildNumber(), testConfig.getBuildNumber());
+        assertEquals(expected.getEnvironmentName(), testConfig.getEnvironmentName());
+
         boolean hasNeighbourConfig = expected.hasNeighbourConfig();
         assertEquals(hasNeighbourConfig, testConfig.hasNeighbourConfig(), "has neighbour config");
         if (hasNeighbourConfig) {

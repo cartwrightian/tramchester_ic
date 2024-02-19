@@ -156,6 +156,10 @@ public class AppConfiguration extends TramchesterConfig {
     private String environmentName;
 
     @NotNull
+    @JsonProperty("buildNumber")
+    private Integer buildNumber;
+
+    @NotNull
     @JsonProperty("depthFirst")
     private Boolean depthFirst;
 
@@ -251,6 +255,11 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public String getEnvironmentName() {
         return environmentName;
+    }
+
+    @Override
+    public Integer getBuildNumber() {
+        return buildNumber;
     }
 
     @Override

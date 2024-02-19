@@ -8,6 +8,8 @@ import com.tramchester.cloud.SendMetricsToCloudWatch;
 import com.tramchester.cloud.SignalToCloudformationReady;
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.config.TfgmTramLiveDataConfig;
+import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.presentation.Version;
 import com.tramchester.healthchecks.LiveDataJobHealthCheck;
 import com.tramchester.livedata.cloud.CountsUploadedLiveData;
 import com.tramchester.livedata.tfgm.LiveDataFetcher;
@@ -16,7 +18,7 @@ import com.tramchester.livedata.tfgm.PlatformMessageRepository;
 import com.tramchester.livedata.tfgm.TramDepartureRepository;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.metrics.RegistersMetricsWithDropwizard;
-import com.tramchester.repository.VersionRepository;
+import com.tramchester.resources.ExperimentalAPIMarker;
 import com.tramchester.resources.GraphDatabaseDependencyMarker;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.configuration.ConfigurationSourceProvider;
@@ -34,6 +36,7 @@ import io.dropwizard.metrics.servlets.HealthCheckServlet;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import jakarta.servlet.DispatcherType;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.http.HttpCookie;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
@@ -148,7 +151,7 @@ public class App extends Application<AppConfiguration>  {
             @Override
             protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(AppConfiguration configuration) {
                 final SwaggerBundleConfiguration bundleConfiguration = configuration.getSwaggerBundleConfiguration();
-                bundleConfiguration.setVersion(VersionRepository.getVersion().getBuildNumber());
+                bundleConfiguration.setVersion(getBuildNumber());
                 return bundleConfiguration;
             }
         });
@@ -157,6 +160,15 @@ public class App extends Application<AppConfiguration>  {
         logger.info("Add asset bundle for swagger-ui");
         bootstrap.addBundle(new AssetsBundle("/assets/swagger-ui", "/swagger-ui"));
         logger.info("init bootstrap finished");
+    }
+
+    private String getBuildNumber() {
+        // for when config not yet available
+        String build = System.getenv("BUILD");
+        if (StringUtils.isEmpty(build)) {
+            build = "0";
+        }
+        return format("%s.%s", Version.MajorVersion, build);
     }
 
     @Override
@@ -213,7 +225,7 @@ public class App extends Application<AppConfiguration>  {
         filtersForStaticContent(environment, configuration.getStaticAssetCacheTimeSeconds());
 
         // api end points registration
-        registerAPIResources(environment.jersey(), configuration.getPlanningEnabled());
+        registerAPIResources(environment.jersey(), configuration);
 
         // TODO Check this
         logger.info("Set samesite cookie attribute");
@@ -255,10 +267,17 @@ public class App extends Application<AppConfiguration>  {
         logger.warn("Now running");
     }
 
-    private void registerAPIResources(JerseyEnvironment jerseyEnvironment, boolean planningEnabled) {
+    private void registerAPIResources(final JerseyEnvironment jerseyEnvironment, TramchesterConfig config) {
         logger.info("Registering api endpoints");
 
+        final boolean planningEnabled = config.getPlanningEnabled();
+        final boolean inProdEnv = config.inProdEnv();
+
         container.getResources().forEach(apiResourceType -> {
+            final String canonicalName = apiResourceType.getCanonicalName();
+
+            boolean isExperimental = ExperimentalAPIMarker.class.isAssignableFrom(apiResourceType);
+
             boolean register;
             if (planningEnabled) {
                 register = true;
@@ -267,11 +286,21 @@ public class App extends Application<AppConfiguration>  {
                 register = !forPlanning;
             }
 
-            final String canonicalName = apiResourceType.getCanonicalName();
+            if (register) {
+                if (isExperimental) {
+                    if (inProdEnv) {
+                        logger.warn("Skip experimental api " + canonicalName);
+                        register = false;
+                    } else {
+                        logger.warn("Including experimental api " + canonicalName);
+                    }
+                }
+            }
+
             if (register) {
                 logger.info("Register " + canonicalName);
                 // this injects as a singleton
-                Object apiResource = container.get(apiResourceType);
+                final Object apiResource = container.get(apiResourceType);
                 jerseyEnvironment.register(apiResource);
             } else {
                 logger.warn(format("Not registering '%s', planning is disabled", canonicalName));

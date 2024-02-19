@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 
 @Path("/routes")
 @Produces(MediaType.APPLICATION_JSON)
-public class RouteResource implements APIResource {
+public class RouteResource implements APIResource, ExperimentalAPIMarker {
     private static final Logger logger = LoggerFactory.getLogger(RouteResource.class);
 
     private final RoutesMapper routesMapper;

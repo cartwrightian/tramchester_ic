@@ -21,7 +21,7 @@ public class TransportModeRepository {
     @Inject
     public TransportModeRepository(TramchesterConfig config) {
         this.enabledModes = config.getTransportModes();
-        this.inProduction = config.getEnvironmentName().startsWith("Prod");
+        this.inProduction = config.inProdEnv();
     }
 
     public EnumSet<TransportMode> getModes() {

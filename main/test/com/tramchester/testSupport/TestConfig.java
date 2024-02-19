@@ -202,4 +202,13 @@ public abstract class TestConfig extends AppConfiguration {
     public String getEnvironmentName() {
         return System.getenv("PLACE");
     }
+
+    @Override
+    public Integer getBuildNumber() {
+        String build = System.getenv("BUILD");
+        if (build==null) {
+            return 0;
+        }
+        return Integer.parseInt(build);
+    }
 }

@@ -1,5 +1,7 @@
 package com.tramchester.domain.presentation.DTO;
 
+import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.reference.TransportMode;
 
 import java.util.ArrayList;
@@ -10,11 +12,13 @@ public class ConfigDTO {
     private List<TransportMode> modes;
     private boolean postcodesEnabled;
     private int numberJourneysToDisplay;
+    private String environmentName;
 
-    public ConfigDTO(Collection<TransportMode> modes, boolean postcodesEnabled, int numberJourneysToDisplay) {
+    public ConfigDTO(Collection<TransportMode> modes, TramchesterConfig config) {
         this.modes = new ArrayList<>(modes);
-        this.postcodesEnabled = postcodesEnabled;
-        this.numberJourneysToDisplay = numberJourneysToDisplay;
+        this.postcodesEnabled = config.hasRemoteDataSourceConfig(DataSourceID.postcode);;
+        this.numberJourneysToDisplay = config.getMaxNumResults();
+        this.environmentName = config.getEnvironmentName();
     }
 
     public ConfigDTO() {
@@ -39,6 +43,7 @@ public class ConfigDTO {
                 "modes=" + modes +
                 ", postcodesEnabled=" + postcodesEnabled +
                 ", numberJourneysToDisplay=" + numberJourneysToDisplay +
+                ", environmentName='" + environmentName + '\'' +
                 '}';
     }
 }

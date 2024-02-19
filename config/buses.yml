@@ -22,6 +22,7 @@ graphDBConfig:
   memoryTransactionGlobalMaxSize: 650m
 distributionBucket: tramchesternewdist
 environmentName: ${PLACE}
+buildNumber: ${BUILD:- 0}
 gtfsSourceConfig:
   -
     name: tfgm
