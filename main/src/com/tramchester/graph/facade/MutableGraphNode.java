@@ -4,10 +4,7 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.places.NPTGLocality;
-import com.tramchester.domain.places.RouteStation;
-import com.tramchester.domain.places.Station;
-import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.places.*;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
@@ -249,6 +246,15 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
 
     public boolean hasStationId() {
         return hasIdFor(Station.class);
+    }
+
+    @Override
+    public IdFor<Station> getTowardsStationId() {
+        String text = (String) node.getProperty(TOWARDS_STATION_ID.getText());
+        if (text==null) {
+            return Station.InvalidId();
+        }
+        return Station.createId(text);
     }
 
     ///// utility ////////////////////////////////////////////////////////////

@@ -3,6 +3,7 @@ package com.tramchester.domain.collections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -12,22 +13,25 @@ public class RequestStopStream<T> implements Running {
 
     private Stream<T> theStream;
     private final AtomicBoolean running;
+    private final CountDownLatch awaitStream;
 
     public RequestStopStream() {
-        running = new AtomicBoolean(true);
+        this(new AtomicBoolean(true));
     }
 
     public RequestStopStream(final AtomicBoolean running) {
         this.running = running;
+        awaitStream = new CountDownLatch(1);
     }
 
-    public RequestStopStream<T> setStream(final Stream<T> stream) {
+    public synchronized RequestStopStream<T> setStream(final Stream<T> stream) {
         if (this.theStream != null) {
             String message = "stream already set";
             logger.error(message);
             throw new RuntimeException(message);
         }
         this.theStream = stream;
+        awaitStream.countDown();
         return this;
     }
 
@@ -36,7 +40,8 @@ public class RequestStopStream<T> implements Running {
         return result.setStream(theStream.map(mapper));
     }
 
-    public Stream<T> getStream() {
+    public synchronized Stream<T> getStream() throws InterruptedException {
+        awaitStream.await();
         return theStream;
     }
 

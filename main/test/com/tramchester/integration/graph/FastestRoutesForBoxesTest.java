@@ -33,8 +33,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class FastestRoutesForBoxesTest {
 
@@ -100,7 +99,7 @@ class FastestRoutesForBoxesTest {
     }
 
     @Test
-    void shouldFindRoutesForAllExceptStart() {
+    void shouldFindRoutesForAllExceptStart() throws InterruptedException {
         TramStations testStationWithInvalidPosition = TramStations.StPetersSquare;
 
         LatLong latLong = KnownLocations.nearStPetersSquare.latLong();
@@ -117,6 +116,8 @@ class FastestRoutesForBoxesTest {
                 Duration.ofMinutes(120), 3, TramsOnly);
 
         RequestStopStream<BoundingBoxWithCost> results = calculator.findForGrid(destination, 2000, journeyRequest);
+
+        assertNotNull(results.getStream());
 
         List<BoundingBoxWithCost> destinationBox = results.getStream().
                 filter(boundingBoxWithCost -> boundingBoxWithCost.getDuration().isZero()).

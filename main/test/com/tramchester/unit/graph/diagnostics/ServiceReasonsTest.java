@@ -2,16 +2,18 @@ package com.tramchester.unit.graph.diagnostics;
 
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.presentation.DTO.diagnostics.JourneyDiagnostics;
+import com.tramchester.domain.presentation.DTO.diagnostics.StationDiagnosticsDTO;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesLocalNow;
-import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.facade.GraphNodeId;
+import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.ImmutableGraphNode;
+import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.ImmutableJourneyState;
-import com.tramchester.graph.search.diagnostics.HowIGotHere;
-import com.tramchester.graph.search.diagnostics.ReasonCode;
-import com.tramchester.graph.search.diagnostics.ServiceReason;
-import com.tramchester.graph.search.diagnostics.ServiceReasons;
+import com.tramchester.graph.search.RouteCalculatorSupport;
+import com.tramchester.graph.search.diagnostics.*;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateType;
 import com.tramchester.testSupport.reference.TramStations;
 import org.easymock.EasyMock;
@@ -20,7 +22,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
-import java.util.Map;
+import java.util.*;
 
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -29,15 +31,19 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class ServiceReasonsTest extends EasyMockSupport {
 
     private ServiceReasons serviceReasons;
+    private ProvidesLocalNow providesLocalNow;
+    private CreateFailedJourneyDiagnostics failedJourneyDiagnostics;
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
         TramTime time = TramTime.of(13, 45);
         JourneyRequest journeyRequest = new JourneyRequest(TramDate.of(2024,5,30), time,
                 false, 3, Duration.ofHours(1), 1, TramsOnly);
-        ProvidesNow providesLocalNow = new ProvidesLocalNow();
+        providesLocalNow = new ProvidesLocalNow();
 
-        serviceReasons = new ServiceReasons(journeyRequest, time, providesLocalNow);
+        failedJourneyDiagnostics = createMock(CreateFailedJourneyDiagnostics.class);
+
+        serviceReasons = new ServiceReasons(journeyRequest, time, providesLocalNow, failedJourneyDiagnostics);
 
     }
 
@@ -54,6 +60,48 @@ public class ServiceReasonsTest extends EasyMockSupport {
 
         serviceReasons.logCounters();
 
+    }
+
+    @Test
+    void shouldProvideDiagnostics() {
+        TramTime time = TramTime.of(13, 45);
+        JourneyRequest journeyRequest = new JourneyRequest(TramDate.of(2024,5,30), time,
+                false, 3, Duration.ofHours(1), 1, TramsOnly);
+
+        journeyRequest.setDiag(true);
+
+        serviceReasons = new ServiceReasons(journeyRequest, time, providesLocalNow, failedJourneyDiagnostics);
+
+        HowIGotHere howIGotHere = createMock(HowIGotHere.class);
+
+        GraphNodeId nodeId = GraphNodeId.TestOnly(42);
+        EasyMock.expect(howIGotHere.getEndNodeId()).andStubReturn(nodeId);
+
+        ImmutableGraphNode node = createMock(ImmutableGraphNode.class);
+        EasyMock.expect(node.getLabels()).andStubReturn(EnumSet.of(GraphLabel.STATION));
+        EasyMock.expect(node.getAllProperties()).andStubReturn(new HashMap<>());
+        EasyMock.expect(node.getId()).andStubReturn(nodeId);
+
+        GraphTransaction txn = createMock(GraphTransaction.class);
+        EasyMock.expect(txn.getNodeById(nodeId)).andReturn(node);
+
+        RouteCalculatorSupport.PathRequest pathRequest = createMock(RouteCalculatorSupport.PathRequest.class);
+        EasyMock.expect(pathRequest.getNumChanges()).andReturn(3);
+
+        HeuristicsReason serviceReasonA = ServiceReason.AlreadyDeparted(TramTime.of(15, 33), howIGotHere);
+        HeuristicsReason serviceReasonB = ServiceReason.DoesNotOperateAtHour(TramTime.of(16,32), howIGotHere);
+
+        List<StationDiagnosticsDTO> dtos = new ArrayList<>();
+        JourneyDiagnostics someDiags = new JourneyDiagnostics(dtos, 1, 1);
+        List<HeuristicsReason> reasons = Arrays.asList(serviceReasonA, serviceReasonB);
+        EasyMock.expect(failedJourneyDiagnostics.recordFailedJourneys(reasons)).andReturn(someDiags);
+
+        replayAll();
+        serviceReasons.recordReason(serviceReasonA);
+        serviceReasons.recordReason(serviceReasonB);
+
+        serviceReasons.reportReasons(txn, pathRequest);
+        verifyAll();
     }
 
     @Test
@@ -79,7 +127,7 @@ public class ServiceReasonsTest extends EasyMockSupport {
         HowIGotHere howIGotHereA = createMock(HowIGotHere.class);
         HowIGotHere howIGotHereB = createMock(HowIGotHere.class);
 
-        Map<ReasonCode, Integer> reasons = serviceReasons.getReasons();
+//        Map<ReasonCode, Integer> reasons = serviceReasons.getReasons();
 
         GraphNodeId idA = GraphNodeId.TestOnly(42);
         GraphNodeId idB = GraphNodeId.TestOnly(98);
@@ -100,7 +148,7 @@ public class ServiceReasonsTest extends EasyMockSupport {
 
         verifyAll();
 
-        reasons = serviceReasons.getReasons();
+        Map<ReasonCode, Integer> reasons = serviceReasons.getReasons();
 
         assertEquals(3, reasons.get(ReasonCode.TookTooLong));
         assertEquals(1, reasons.get(ReasonCode.StationClosed));

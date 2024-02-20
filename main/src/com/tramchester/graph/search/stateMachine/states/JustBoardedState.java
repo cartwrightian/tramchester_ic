@@ -64,7 +64,7 @@ public class JustBoardedState extends RouteStationState {
     }
 
     @Override
-    protected TraversalState toService(final ServiceState.Builder towardsService, final GraphNode node, final Duration cost) {
-        return towardsService.fromRouteStation(this, node, cost, txn);
+    protected TraversalState toService(final ServiceState.Builder towardsService, final GraphNode serviceNode, final Duration cost) {
+        return towardsService.fromRouteStation(this, serviceNode, cost, txn);
     }
 }

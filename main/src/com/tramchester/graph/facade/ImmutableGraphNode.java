@@ -142,6 +142,11 @@ public class ImmutableGraphNode implements GraphNode {
     }
 
     @Override
+    public IdFor<Station> getTowardsStationId() {
+        return underlying.getTowardsStationId();
+    }
+
+    @Override
     public Stream<ImmutableGraphRelationship> getRelationships(GraphTransaction txn, Direction direction, TransportRelationshipTypes relationshipType) {
         return underlying.getRelationships(txn, direction, relationshipType);
     }

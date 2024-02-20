@@ -91,8 +91,8 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
     }
 
     @Override
-    protected TraversalState toService(final ServiceState.Builder towardsService, final GraphNode node, final Duration cost) {
-        return towardsService.fromRouteStation(this, tripId, node, cost, txn);
+    protected TraversalState toService(final ServiceState.Builder towardsService, final GraphNode serviceNode, final Duration cost) {
+        return towardsService.fromRouteStation(this, tripId, serviceNode, cost, txn);
     }
 
     @Override

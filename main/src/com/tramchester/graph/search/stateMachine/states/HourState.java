@@ -1,6 +1,8 @@
 package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.GraphNode;
@@ -18,8 +20,7 @@ import java.util.stream.Stream;
 import static com.tramchester.graph.TransportRelationshipTypes.TO_MINUTE;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
-public class HourState extends TraversalState {
-
+public class HourState extends TraversalState implements HasTowardsStationId {
 
     public static class Builder implements Towards<HourState> {
 
@@ -30,9 +31,10 @@ public class HourState extends TraversalState {
         }
 
         public HourState fromService(final ServiceState serviceState, final GraphNode node, final Duration cost,
-                                     final ExistingTrip maybeExistingTrip, final GraphTransaction txn) {
+                                     final ExistingTrip maybeExistingTrip, final IdFor<Station> towardsStationId,
+                                     final GraphTransaction txn) {
             final Stream<ImmutableGraphRelationship> relationships = getMinuteRelationships(node, txn);
-            return new HourState(serviceState, relationships, node, maybeExistingTrip, cost, this);
+            return new HourState(serviceState, relationships, node, maybeExistingTrip, towardsStationId, cost, this);
         }
 
         @Override
@@ -59,12 +61,14 @@ public class HourState extends TraversalState {
     }
 
     private final ExistingTrip maybeExistingTrip;
+    private final IdFor<Station> towardsStationId;
 
     private HourState(final TraversalState parent, final Stream<ImmutableGraphRelationship> relationships,
-                      final GraphNode node,
-                      final ExistingTrip maybeExistingTrip, final Duration cost, final Towards<HourState> builder) {
+                      final GraphNode node, final ExistingTrip maybeExistingTrip,
+                      IdFor<Station> towardsStationId, final Duration cost, final Towards<HourState> builder) {
         super(parent, relationships, cost, builder.getDestination(), node);
         this.maybeExistingTrip = maybeExistingTrip;
+        this.towardsStationId = towardsStationId;
     }
 
     @Override
@@ -77,7 +81,13 @@ public class HourState extends TraversalState {
             throw new RuntimeException("Unable to process time ordering", exception);
         }
 
-        return towardsMinute.fromHour(this, minuteNode, cost, maybeExistingTrip, journeyState, currentModes, txn);
+        return towardsMinute.fromHour(this, minuteNode, cost, maybeExistingTrip, towardsStationId, journeyState, currentModes, txn);
+    }
+
+
+    @Override
+    public IdFor<Station> getTowards() {
+        return towardsStationId;
     }
 
     @Override

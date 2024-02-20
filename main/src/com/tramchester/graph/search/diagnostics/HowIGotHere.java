@@ -1,10 +1,14 @@
 package com.tramchester.graph.search.diagnostics;
 
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.places.Station;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.facade.GraphRelationshipId;
 import com.tramchester.graph.search.ImmutableJourneyState;
+import com.tramchester.graph.search.stateMachine.states.HasTowardsStationId;
+import com.tramchester.graph.search.stateMachine.states.ImmutableTraversalState;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateType;
 
 import java.util.Objects;
@@ -14,27 +18,45 @@ public class HowIGotHere {
     private final GraphRelationshipId relationshipId;
     private final GraphNodeId nodeId;
     private final TraversalStateType traversalStateName;
-
-    public static HowIGotHere forTest(final GraphNodeId nodeId, final GraphRelationshipId relationshipId) {
-        return new HowIGotHere(nodeId, relationshipId, TraversalStateType.MinuteState);
-    }
+    private final IdFor<Station> approxPosition;
+    private final IdFor<Station> towards;
 
     public HowIGotHere(final ImmutableJourneyState immutableJourneyState, final GraphNode graphNode, final GraphRelationship lastFrom) {
-        this(graphNode.getId(), maintainExistingInterface(lastFrom), immutableJourneyState.getTraversalStateType());
+        this(graphNode.getId(), maintainExistingInterface(lastFrom), immutableJourneyState.getTraversalStateType(),
+                immutableJourneyState.approxPosition(), getTowards(immutableJourneyState));
     }
 
-    // TODO For no presevre existing behaviour with relationshipId i.e. null means not started yet
+    public HowIGotHere(final GraphNodeId nodeId, final GraphRelationshipId relationshipId, final TraversalStateType traversalStateName,
+                        IdFor<Station> approxPosition, IdFor<Station> towards) {
+        this.nodeId = nodeId;
+        this.relationshipId = relationshipId;
+        this.traversalStateName = traversalStateName;
+        this.approxPosition = approxPosition;
+        this.towards = towards;
+    }
+
+    private static IdFor<Station> getTowards(final ImmutableJourneyState journeyState) {
+        final TraversalStateType traversalStateType = journeyState.getTraversalStateType();
+        return switch (traversalStateType) {
+            case ServiceState, MinuteState, HourState -> {
+                final ImmutableTraversalState traversalState = journeyState.getTraversalState();
+                if (traversalState instanceof HasTowardsStationId hasTowardsStationId) {
+                    yield hasTowardsStationId.getTowards();
+                } else {
+                    throw new RuntimeException("Missing towrards for " + traversalStateType);
+                }
+            }
+            default -> Station.InvalidId();
+        };
+
+    }
+
+    // TODO use state type instead?
     private static GraphRelationshipId maintainExistingInterface(final GraphRelationship lastFrom) {
         if (lastFrom==null) {
             return null;
         }
         return lastFrom.getId();
-    }
-
-    private HowIGotHere(final GraphNodeId nodeId, final GraphRelationshipId relationshipId, final TraversalStateType traversalStateName) {
-        this.nodeId = nodeId;
-        this.relationshipId = relationshipId;
-        this.traversalStateName = traversalStateName;
     }
 
     public GraphNodeId getEndNodeId() {
@@ -72,8 +94,20 @@ public class HowIGotHere {
         return "HowIGotHere{" +
                 "relationshipId=" + relationshipId +
                 ", nodeId=" + nodeId +
-                ", traversalStateName='" + traversalStateName + '\'' +
+                ", traversalStateName=" + traversalStateName +
+                ", approxPosition=" + approxPosition +
                 '}';
     }
 
+    public IdFor<Station> getApproxLocation() {
+        return approxPosition;
+    }
+
+    public boolean hasTowardsId() {
+        return towards.isValid();
+    }
+
+    public IdFor<Station> getTowardsId() {
+        return towards;
+    }
 }

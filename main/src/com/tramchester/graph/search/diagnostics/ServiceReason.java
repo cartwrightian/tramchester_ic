@@ -7,6 +7,8 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 
+import java.util.Objects;
+
 import static java.lang.String.format;
 
 public abstract class ServiceReason {
@@ -153,12 +155,17 @@ public abstract class ServiceReason {
         }
 
         @Override
-        public boolean equals(Object obj) {
-            if (!(obj instanceof DoesNotOperateOnTime)) {
-                return false;
-            }
-            DoesNotOperateOnTime other = (DoesNotOperateOnTime) obj;
-            return other.elapsedTime.equals(this.elapsedTime);
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            if (!super.equals(o)) return false;
+            DoesNotOperateOnTime that = (DoesNotOperateOnTime) o;
+            return Objects.equals(elapsedTime, that.elapsedTime);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(super.hashCode(), elapsedTime);
         }
     }
 

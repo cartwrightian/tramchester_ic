@@ -28,6 +28,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,31 +95,47 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
             return Response.serverError().build();
         }
 
-        // if no modes provided then default to all modes currently configured
-        final EnumSet<TransportMode> modes = query.getModes().isEmpty() ? config.getTransportModes() : EnumSet.copyOf(query.getModes());
+        final boolean diagnostics = checkForDiagnosticsEnabled(query);
+
+//        final EnumSet<TransportMode> modes = query.getModes().isEmpty() ? config.getTransportModes() : EnumSet.copyOf(query.getModes());
 
         final Location<?> start = locationRepository.getLocation(query.getStartType(), query.getStartId());
         final Location<?> dest = locationRepository.getLocation(query.getDestType(), query.getDestId());
 
+        final JourneyRequest journeyRequest = createJourneyRequest(query);
+
+        if (diagnostics) {
+            logger.info("diagnostics requested");
+            journeyRequest.setDiag(true);
+        }
+
         try(final MutableGraphTransaction tx = graphDatabase.beginTxMutable() ) {
 
             final TramDate queryTramDate = query.getTramDate();
-            final Stream<Journey> journeyStream = getJourneys(tx, queryTramDate, query.getTime(),
-                    start, dest, query.isArriveBy(), query.getMaxChanges(), modes);
+            final Stream<Journey> journeyStream = getJourneyStream(tx, start, dest, journeyRequest);
 
-            Set<Journey> journeys = journeyStream.collect(Collectors.toSet());
+            final Set<Journey> journeys = journeyStream.collect(Collectors.toSet());
             journeyStream.close(); // important, onCLose used to trigger removal of walk nodes etc.
 
             // duplicates where same path and timings, just different change points
-            Set<JourneyDTO> journeyDTOS = journeys.stream().
+            final Set<JourneyDTO> journeyDTOS = journeys.stream().
                     map(journey -> journeyToDTOMapper.createJourneyDTO(journey,queryTramDate)).collect(Collectors.toSet());
-            Set<JourneyDTO> filtered = duplicateFilter.apply(journeyDTOS);
+            final Set<JourneyDTO> filtered = duplicateFilter.apply(journeyDTOS);
             int diff = journeyDTOS.size()-filtered.size();
             if (diff!=0) {
                 logger.info(format("Filtered out %s of %s journeys", diff, journeyDTOS.size()));
             }
 
-            JourneyPlanRepresentation planRepresentation = new JourneyPlanRepresentation(filtered);
+            // TODO likely this will only remain for the diag API, with streamed for the production one
+            final JourneyPlanRepresentation planRepresentation = new JourneyPlanRepresentation(filtered);
+
+            if (diagnostics) {
+                if (journeyRequest.hasReceivedDiagnostics()) {
+                    planRepresentation.addDiag(journeyRequest.getDiagnostics());
+                } else {
+                    logger.error("Diagnostics requested, but not received");
+                }
+            }
 
             if (planRepresentation.getJourneys().isEmpty()) {
                 logger.warn(format("No journeys found from %s to %s at %s on %s",
@@ -135,6 +152,21 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         }
     }
 
+    private boolean checkForDiagnosticsEnabled(JourneyQueryDTO query) {
+        final boolean diagnostics;
+        if (query.getDiagnostics()) {
+            if (config.inProdEnv()) {
+                logger.error("Got diagnostics flags while in prodcution, will be ignored");
+                diagnostics = false;
+            } else {
+                diagnostics = true;
+            }
+        } else {
+            diagnostics = false;
+        }
+        return diagnostics;
+    }
+
     @POST
     @Timed
     @Path("/streamed")
@@ -148,6 +180,8 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
                                         @Context UriInfo uriInfo) {
         logger.info("Got journey query " + query);
 
+        // diagnostics not supported for streamed response, no way to send them via the stream
+
         if (query==null) {
             logger.warn("Got null query");
             return Response.serverError().build();
@@ -157,24 +191,26 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
             logger.error("Problem with received: " + query);
             return Response.serverError().build();
         }
-        EnumSet<TransportMode> modes = query.getModes().isEmpty() ? config.getTransportModes() : EnumSet.copyOf(query.getModes());
 
-        Location<?> start = locationRepository.getLocation(query.getStartType(), query.getStartId());
-        Location<?> dest = locationRepository.getLocation(query.getDestType(), query.getDestId());
+        final Location<?> start = locationRepository.getLocation(query.getStartType(), query.getStartId());
+        final Location<?> dest = locationRepository.getLocation(query.getDestType(), query.getDestId());
 
-        MutableGraphTransaction tx =  graphDatabase.beginTxMutable();
+
+        final MutableGraphTransaction tx =  graphDatabase.beginTxMutable();
 
         try {
-            TramDate date = query.getTramDate();
-            Stream<JourneyDTO> dtoStream = getJourneys(tx, date, query.getTime(), start, dest,
-                    query.isArriveBy(), query.getMaxChanges(), modes).
+            final TramDate date = query.getTramDate();
+
+            final JourneyRequest journeyRequest = createJourneyRequest(query);
+
+            final Stream<JourneyDTO> dtoStream = getJourneyStream(tx, start, dest, journeyRequest).
                     map(journey -> journeyToDTOMapper.createJourneyDTO(journey, date));
 
-            JsonStreamingOutput<JourneyDTO> jsonStreamingOutput = new JsonStreamingOutput<>(tx, dtoStream);
+            final JsonStreamingOutput<JourneyDTO> jsonStreamingOutput = new JsonStreamingOutput<>(tx, dtoStream);
 
             // stream is closed in JsonStreamingOutput
 
-            boolean secure = isHttps(forwardedHeader);
+            final boolean secure = isHttps(forwardedHeader);
             return buildResponse(Response.ok(jsonStreamingOutput), start, dest, cookie, uriInfo, secure);
 
         } catch(Exception exception) {
@@ -183,29 +219,34 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         }
     }
 
+    private JourneyRequest createJourneyRequest(final JourneyQueryDTO query) {
+        // if no modes provided then default to all modes currently configured
+        final EnumSet<TransportMode> modes = query.getModes().isEmpty() ? config.getTransportModes() : EnumSet.copyOf(query.getModes());
+        final TramDate date = query.getTramDate();
+        final LocalTime time = query.getTime();
+        final boolean arriveBy = query.isArriveBy();
+        final int maxChanges = query.getMaxChanges();
+        final TramTime queryTime = TramTime.ofHourMins(time);
+        final Duration maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
+
+        return new JourneyRequest(date, queryTime, arriveBy, maxChanges, maxJourneyDuration,  config.getMaxNumResults(), modes);
+    }
+
     private Response buildResponse(Response.ResponseBuilder responseBuilder, Location<?> start, Location<?> dest, Cookie cookie,
                                    UriInfo uriInfo, boolean secure) throws JsonProcessingException {
-        URI baseUri = uriInfo.getBaseUri();
+        final URI baseUri = uriInfo.getBaseUri();
         responseBuilder.cookie(createRecentCookie(cookie, start, dest, secure, baseUri));
         return responseBuilder.build();
     }
 
-    private Stream<Journey> getJourneys(MutableGraphTransaction tx, TramDate date, LocalTime time, Location<?> start,
-                                        Location<?> dest, boolean arriveBy, int maxChanges, EnumSet<TransportMode> modes) {
-
-        TramTime queryTime = TramTime.ofHourMins(time);
-        final Duration maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
-
-        JourneyRequest journeyRequest = new JourneyRequest(date, queryTime, arriveBy, maxChanges,
-                maxJourneyDuration,  config.getMaxNumResults(), modes);
-
+    @NotNull
+    private Stream<Journey> getJourneyStream(MutableGraphTransaction tx, Location<?> start, Location<?> dest, JourneyRequest journeyRequest) {
         logger.info(format("Plan journey from %s to %s on %s", start.getId(), dest.getId(), journeyRequest));
 
         return locToLocPlanner.quickestRouteForLocation(tx, start, dest, journeyRequest).
                 filter(journey -> !journey.getStages().isEmpty());
-        //.map(journey -> journeyToDTOMapper.createJourneyDTO(journey, journeyRequest.getDate()));
-
     }
+
 
 
 }

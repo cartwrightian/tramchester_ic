@@ -17,7 +17,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class LiveDataSNSPublisherTestSubscrinber extends EasyMockSupport {
+public class LiveDataSNSPubSubTest extends EasyMockSupport {
     private LiveDataSNSPublisher publisher;
     private SNSPublisherSubscriber snsPublisher;
     private TfgmTramLiveDataConfig liveConfig;

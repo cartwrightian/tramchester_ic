@@ -20,6 +20,7 @@ import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.search.diagnostics.CreateFailedJourneyDiagnostics;
 import com.tramchester.graph.search.diagnostics.ReasonsToGraphViz;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
 import com.tramchester.graph.search.selectors.BranchSelectorFactory;
@@ -66,10 +67,10 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                                    BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz,
                                    ClosedStationsRepository closedStationsRepository, RunningRoutesAndServices runningRoutesAndService,
                                    @SuppressWarnings("unused") RouteCostCalculator routeCostCalculator,
-                                   BranchSelectorFactory branchSelectorFactory, StationAvailabilityRepository stationAvailabilityRepository) {
+                                   BranchSelectorFactory branchSelectorFactory, StationAvailabilityRepository stationAvailabilityRepository, CreateFailedJourneyDiagnostics failedJourneyDiagnostics) {
         super(pathToStages, nodeContentsRepository, graphDatabaseService,
                 traversalStateFactory, providesNow, mapPathToLocations,
-                transportData, config, transportData, routeToRouteCosts, reasonToGraphViz, stationAvailabilityRepository, false);
+                transportData, config, transportData, routeToRouteCosts, reasonToGraphViz, failedJourneyDiagnostics, stationAvailabilityRepository, false);
         this.config = config;
         this.graphDatabaseService = graphDatabaseService;
         this.closedStationsRepository = closedStationsRepository;

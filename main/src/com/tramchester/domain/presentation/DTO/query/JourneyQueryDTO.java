@@ -43,13 +43,17 @@ public class JourneyQueryDTO  {
     @JsonProperty("modes")
     private Set<TransportMode> modes;
 
+    @JsonSetter(nulls = Nulls.SKIP)
+    @JsonProperty("diagnostics")
+    private Boolean diagnostics;
+
     public JourneyQueryDTO() {
         modes = Collections.emptySet();
         // deserialisation
     }
 
     public JourneyQueryDTO(LocalDate date, LocalTime time, LocationType startType, IdForDTO startId, LocationType destType,
-                           IdForDTO destId, boolean arriveBy, int maxChanges) {
+                           IdForDTO destId, boolean arriveBy, int maxChanges, Boolean diagnostics) {
 
         this.date = date;
         this.time = time;
@@ -59,23 +63,25 @@ public class JourneyQueryDTO  {
         this.destId = destId;
         this.arriveBy = arriveBy;
         this.maxChanges = maxChanges;
+        this.diagnostics = diagnostics;
         this.modes = Collections.emptySet();
     }
 
-    public static JourneyQueryDTO create(LocalDate date, TramTime time, Location<?> start, Location<?> dest, boolean arriveBy, int maxChanges) {
+    public static JourneyQueryDTO create(LocalDate date, TramTime time, Location<?> start, Location<?> dest,
+                                         boolean arriveBy, int maxChanges, boolean diagnostics) {
 
         IdForDTO startId = IdForDTO.createFor(start);
         IdForDTO destId = IdForDTO.createFor(dest);
         LocationType startType = start.getLocationType();
         LocationType destType = dest.getLocationType();
 
-        return new JourneyQueryDTO(date, time.asLocalTime(), startType, startId, destType, destId, arriveBy, maxChanges);
+        return new JourneyQueryDTO(date, time.asLocalTime(), startType, startId, destType, destId, arriveBy, maxChanges, diagnostics);
 
     }
 
     public static JourneyQueryDTO create(TramDate date, TramTime time, Location<?> start, Location<?> dest,
                                          boolean arriveBy, int maxChanges) {
-        return create(date.toLocalDate(), time, start, dest, arriveBy, maxChanges);
+        return create(date.toLocalDate(), time, start, dest, arriveBy, maxChanges, false);
     }
 
     @Override
@@ -84,12 +90,13 @@ public class JourneyQueryDTO  {
                 "date=" + date +
                 ", time=" + time +
                 ", startType=" + startType +
-                ", startId='" + startId + '\'' +
+                ", startId=" + startId +
                 ", destType=" + destType +
-                ", destId='" + destId + '\'' +
+                ", destId=" + destId +
                 ", arriveBy=" + arriveBy +
                 ", maxChanges=" + maxChanges +
                 ", modes=" + modes +
+                ", diagnostics=" + diagnostics +
                 '}';
     }
 
@@ -142,5 +149,12 @@ public class JourneyQueryDTO  {
 
     public Set<TransportMode> getModes() {
         return modes;
+    }
+
+    public Boolean getDiagnostics() {
+        if (diagnostics==null) {
+            return false;
+        }
+        return diagnostics;
     }
 }

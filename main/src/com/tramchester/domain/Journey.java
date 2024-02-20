@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class Journey implements Iterable<TransportStage<?,?>>, CallsAtPlatforms {
+public class Journey implements Iterable<TransportStage<?,?>> {
 
     private final TramTime queryTime;
     private final TramTime arrivalTime;
@@ -43,7 +43,6 @@ public class Journey implements Iterable<TransportStage<?,?>>, CallsAtPlatforms 
         return stages;
     }
 
-    @Override
     public IdSet<Platform> getCallingPlatformIds() {
        return stages.stream().filter(TransportStage::hasBoardingPlatform).
                map(TransportStage::getBoardingPlatform).

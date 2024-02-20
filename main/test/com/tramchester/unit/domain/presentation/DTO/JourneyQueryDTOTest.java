@@ -19,7 +19,7 @@ public class JourneyQueryDTOTest {
     void shouldSerializedDeserialize() throws JsonProcessingException {
         JourneyQueryDTO dto = new JourneyQueryDTO(LocalDate.of(2022, 11, 15),
                 LocalTime.of(13,56), LocationType.Station, new IdForDTO("startId"),
-                LocationType.Station, new IdForDTO("destId"), false, 3);
+                LocationType.Station, new IdForDTO("destId"), false, 3, true);
 
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
@@ -36,6 +36,7 @@ public class JourneyQueryDTOTest {
         assertEquals(dto.getStartId(), result.getStartId());
         assertEquals(dto.getMaxChanges(), result.getMaxChanges());
         assertEquals(dto.getModes(), result.getModes());
+        assertEquals(dto.getDiagnostics(), result.getDiagnostics());
 
 
     }

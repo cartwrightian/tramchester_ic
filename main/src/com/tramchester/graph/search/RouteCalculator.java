@@ -20,6 +20,7 @@ import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.search.diagnostics.CreateFailedJourneyDiagnostics;
 import com.tramchester.graph.search.diagnostics.ReasonsToGraphViz;
 import com.tramchester.graph.search.selectors.BranchSelectorFactory;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
@@ -62,10 +63,10 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
                            BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz,
                            ClosedStationsRepository closedStationsRepository, RunningRoutesAndServices runningRoutesAndServices,
                            CacheMetrics cacheMetrics, BranchSelectorFactory branchSelectorFactory,
-                           StationAvailabilityRepository stationAvailabilityRepository) {
+                           StationAvailabilityRepository stationAvailabilityRepository, CreateFailedJourneyDiagnostics failedJourneyDiagnostics) {
         super(pathToStages, nodeOperations, graphDatabaseService,
                 traversalStateFactory, providesNow, mapPathToLocations,
-                transportData, config, transportData, routeToRouteCosts, reasonToGraphViz, stationAvailabilityRepository, true);
+                transportData, config, transportData, routeToRouteCosts, reasonToGraphViz, failedJourneyDiagnostics, stationAvailabilityRepository, true);
         this.config = config;
         this.createQueryTimes = createQueryTimes;
         this.closedStationsRepository = closedStationsRepository;
@@ -213,10 +214,14 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         private final TramTime queryTime;
         private final int numChanges;
 
-        public TimedPath(final Path path, final PathRequest pathRequest) {
+        public TimedPath(final Path path, final TramTime actualQueryTime, int numChanges) {
             this.path = path;
-            this.queryTime = pathRequest.getActualQueryTime();
-            this.numChanges = pathRequest.getNumChanges();
+            this.queryTime = actualQueryTime;
+            this.numChanges = numChanges;
+        }
+
+        public TimedPath(final Path path, final PathRequest pathRequest) {
+            this(path, pathRequest.getActualQueryTime(), pathRequest.getNumChanges());
         }
 
         @Override

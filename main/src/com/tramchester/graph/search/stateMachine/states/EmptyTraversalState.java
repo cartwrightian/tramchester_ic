@@ -26,7 +26,7 @@ public abstract class EmptyTraversalState {
         throw new RuntimeException("No such transition at " + stateType);
     }
 
-    protected TraversalState toService(ServiceState.Builder towardsService, GraphNode node, Duration cost) {
+    protected TraversalState toService(ServiceState.Builder towardsService, GraphNode serviceNode, Duration cost) {
         throw new RuntimeException("No such transition at " + stateType);
     }
 

@@ -9,14 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ThoughtWorksInc/tramchester.git"
+    "url": "git+https://github.com/cartwrightian/tramchester_ic.git"
   },
   "author": "Ian Cartwright",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/ThoughtWorksInc/tramchester/issues"
+    "url": "https://github.com/users/cartwrightian/projects/1"
   },
-  "homepage": "https://github.com/ThoughtWorksInc/tramchester#readme",
+  "homepage": "https://github.com/cartwrightian/tramchester_ic",
   "dependencies": {
     "ajv": "^8.11.0",
     "axios": "^1.6.5",

@@ -53,7 +53,7 @@ class FastestRoutesForBoxesBusTest {
 
     @Disabled("peformance")
     @Test
-    void shouldReproIssueWithMappingResults() {
+    void shouldReproIssueWithMappingResults() throws InterruptedException {
         StationGroup destination = KnownLocality.ManchesterCityCentre.from(stationGroupsRepository);
 
         TramTime time = TramTime.of(7,30);

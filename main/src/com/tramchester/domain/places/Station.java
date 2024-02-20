@@ -47,4 +47,8 @@ public interface Station extends Location<Station> {
         return StringIdFor.convert(naptanId, Station.class);
     }
 
+    static IdFor<Station> InvalidId() {
+        return StringIdFor.invalid(Station.class);
+    }
+
 }

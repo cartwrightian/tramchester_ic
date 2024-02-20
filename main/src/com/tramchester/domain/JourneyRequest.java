@@ -1,6 +1,7 @@
 package com.tramchester.domain;
 
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.presentation.DTO.diagnostics.JourneyDiagnostics;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
@@ -8,6 +9,7 @@ import com.tramchester.domain.time.TramTime;
 import java.time.Duration;
 import java.util.EnumSet;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class JourneyRequest {
     private final TramDate date;
@@ -20,9 +22,11 @@ public class JourneyRequest {
 
     private final EnumSet<TransportMode> requestedModes;
 
-    private boolean diagnostics;
+    private boolean diagRequested;
     private boolean warnIfNoResults;
 
+    private final AtomicBoolean diagnosticsReceived;
+    private JourneyDiagnostics journeyDiagnostics;
 
     public JourneyRequest(TramDate date, TramTime originalQueryTime, boolean arriveBy, int maxChanges,
                           Duration maxJourneyDuration, long maxNumberOfJourneys, EnumSet<TransportMode> requestedModes) {
@@ -39,14 +43,15 @@ public class JourneyRequest {
             throw new RuntimeException("Must provides modes");
         }
 
-        diagnostics = false;
+        diagRequested = false;
         warnIfNoResults = true;
+        diagnosticsReceived = new AtomicBoolean(false);
     }
 
     public JourneyRequest(JourneyRequest originalRequest, TramTime computedDepartTime) {
         this(originalRequest.date, computedDepartTime, originalRequest.arriveBy, originalRequest.maxChanges,
                 originalRequest.maxJourneyDuration, originalRequest.maxNumberOfJourneys, originalRequest.requestedModes);
-        diagnostics = originalRequest.diagnostics;
+        diagRequested = originalRequest.diagRequested;
         warnIfNoResults = originalRequest.warnIfNoResults;
     }
 
@@ -93,12 +98,12 @@ public class JourneyRequest {
     }
 
     public boolean getDiagnosticsEnabled() {
-        return diagnostics;
+        return diagRequested;
     }
 
     @SuppressWarnings("unused")
     public JourneyRequest setDiag(boolean flag) {
-        diagnostics = flag;
+        diagRequested = flag;
         return this;
     }
 
@@ -142,5 +147,18 @@ public class JourneyRequest {
 
     public TimeRange getTimeRange() {
         return TimeRange.of(originalQueryTime, Duration.ZERO, maxJourneyDuration);
+    }
+
+    public synchronized void injectDiag(JourneyDiagnostics diagnostics) {
+        this.journeyDiagnostics = diagnostics;
+        diagnosticsReceived.set(true);
+    }
+
+    public boolean hasReceivedDiagnostics() {
+        return diagnosticsReceived.get();
+    }
+
+    public JourneyDiagnostics getDiagnostics() {
+        return journeyDiagnostics;
     }
 }

@@ -18,6 +18,7 @@ import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.search.diagnostics.CreateFailedJourneyDiagnostics;
 import com.tramchester.graph.search.diagnostics.ReasonsToGraphViz;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
@@ -25,6 +26,7 @@ import com.tramchester.repository.StationAvailabilityRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TripRepository;
 import org.jetbrains.annotations.NotNull;
+import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.traversal.BranchOrderingPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,6 +55,7 @@ public class RouteCalculatorSupport {
     protected final BetweenRoutesCostRepository routeToRouteCosts;
     private final NodeContentsRepository nodeContentsRepository;
     private final ReasonsToGraphViz reasonToGraphViz;
+    private final CreateFailedJourneyDiagnostics failedJourneyDiagnostics;
     private final StationAvailabilityRepository stationAvailabilityRepository;
     private final boolean fullLogging; // turn down logging for grid searches
 
@@ -60,7 +63,7 @@ public class RouteCalculatorSupport {
                                      GraphDatabase graphDatabaseService, TraversalStateFactory traversalStateFactory,
                                      ProvidesNow providesNow, MapPathToLocations mapPathToLocations,
                                      StationRepository stationRepository, TramchesterConfig config, TripRepository tripRepository,
-                                     BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz, StationAvailabilityRepository stationAvailabilityRepository, boolean fullLogging) {
+                                     BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz, CreateFailedJourneyDiagnostics failedJourneyDiagnostics, StationAvailabilityRepository stationAvailabilityRepository, boolean fullLogging) {
         this.pathToStages = pathToStages;
         this.nodeContentsRepository = nodeContentsRepository;
         this.graphDatabaseService = graphDatabaseService;
@@ -72,6 +75,7 @@ public class RouteCalculatorSupport {
         this.tripRepository = tripRepository;
         this.routeToRouteCosts = routeToRouteCosts;
         this.reasonToGraphViz = reasonToGraphViz;
+        this.failedJourneyDiagnostics = failedJourneyDiagnostics;
         this.stationAvailabilityRepository = stationAvailabilityRepository;
         this.fullLogging = fullLogging;
     }
@@ -142,9 +146,9 @@ public class RouteCalculatorSupport {
         final TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(txn, nodeContentsRepository,
                 tripRepository, traversalStateFactory, config, reasonToGraphViz, providesNow, fullLogging);
 
-        return tramNetworkTraverser.
-                findPaths(txn, pathRequest, previousSuccessfulVisit, reasons, lowestCostSeen, destinationNodeIds, endStations, running).
-                map(path -> new RouteCalculator.TimedPath(path, pathRequest));
+        final Stream<Path> paths = tramNetworkTraverser.findPaths(txn, pathRequest, previousSuccessfulVisit, reasons, lowestCostSeen,
+                destinationNodeIds, endStations, running);
+        return paths.map(path -> new RouteCalculator.TimedPath(path, pathRequest));
     }
 
     @NotNull
@@ -195,12 +199,12 @@ public class RouteCalculatorSupport {
 
     @NotNull
     protected ServiceReasons createServiceReasons(JourneyRequest journeyRequest) {
-        return new ServiceReasons(journeyRequest, journeyRequest.getOriginalTime(), providesNow);
+        return new ServiceReasons(journeyRequest, journeyRequest.getOriginalTime(), providesNow, failedJourneyDiagnostics);
     }
 
     @NotNull
     protected ServiceReasons createServiceReasons(JourneyRequest journeyRequest, PathRequest pathRequest) {
-        return new ServiceReasons(journeyRequest, pathRequest.queryTime, providesNow);
+        return new ServiceReasons(journeyRequest, pathRequest.queryTime, providesNow, failedJourneyDiagnostics);
     }
 
     protected Duration getMaxDurationFor(JourneyRequest journeyRequest) {

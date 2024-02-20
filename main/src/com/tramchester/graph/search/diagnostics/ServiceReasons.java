@@ -1,6 +1,7 @@
 package com.tramchester.graph.search.diagnostics;
 
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.presentation.DTO.diagnostics.JourneyDiagnostics;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
@@ -36,6 +37,8 @@ public class ServiceReasons {
     private final TramTime queryTime;
     private final ProvidesNow providesLocalNow;
     private final JourneyRequest journeyRequest;
+    private final CreateFailedJourneyDiagnostics failedJourneyDiagnostics;
+
     private final List<HeuristicsReason> reasons;
     // stats
     private final EnumMap<ReasonCode, AtomicInteger> reasonCodeStats; // reason -> count
@@ -46,10 +49,12 @@ public class ServiceReasons {
 
     private boolean success;
 
-    public ServiceReasons(JourneyRequest journeyRequest, TramTime queryTime, ProvidesNow providesLocalNow) {
+    public ServiceReasons(JourneyRequest journeyRequest, TramTime queryTime, ProvidesNow providesLocalNow,
+                          CreateFailedJourneyDiagnostics failedJourneyDiagnostics) {
         this.queryTime = queryTime;
         this.providesLocalNow = providesLocalNow;
         this.journeyRequest = journeyRequest;
+        this.failedJourneyDiagnostics = failedJourneyDiagnostics;
         reasons = new ArrayList<>();
         success = false;
         diagnosticsEnabled = journeyRequest.getDiagnosticsEnabled();
@@ -71,9 +76,14 @@ public class ServiceReasons {
         Arrays.stream(ReasonCode.values()).forEach(code -> reasonCodeStats.put(code, new AtomicInteger(0)));
     }
 
-    public void reportReasons(final GraphTransaction transaction, final RouteCalculatorSupport.PathRequest pathRequest, final ReasonsToGraphViz reasonToGraphViz) {
+    public void reportReasons(final GraphTransaction transaction, final RouteCalculatorSupport.PathRequest pathRequest) {
         if (diagnosticsEnabled) {
-            createGraphFile(transaction, reasonToGraphViz, pathRequest);
+            // replace with new mechanism below
+//            createGraphFile(transaction, reasonToGraphViz, pathRequest);
+            if (!success) {
+                JourneyDiagnostics diagnostics = failedJourneyDiagnostics.recordFailedJourneys(reasons);
+                journeyRequest.injectDiag(diagnostics);
+            }
         }
 
         if (!success || diagnosticsEnabled) {
@@ -155,7 +165,7 @@ public class ServiceReasons {
 
     private void reportStats(final GraphTransaction txn, final RouteCalculatorSupport.PathRequest pathRequest) {
         if ((!success) && journeyRequest.getWarnIfNoResults()) {
-            logger.warn("No result found for at " + pathRequest.getActualQueryTime() + " changes " + pathRequest.getNumChanges() +
+            logger.warn("No result found for at " + journeyRequest.getOriginalTime() + " changes " + pathRequest.getNumChanges() +
                     " for " + journeyRequest );
         }
         logger.info("Service reasons for query time: " + queryTime);

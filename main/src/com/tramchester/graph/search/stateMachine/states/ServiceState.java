@@ -2,6 +2,7 @@ package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphTransaction;
@@ -17,7 +18,7 @@ import java.util.stream.Stream;
 import static com.tramchester.graph.TransportRelationshipTypes.TO_HOUR;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
-public class ServiceState extends TraversalState {
+public class ServiceState extends TraversalState implements HasTowardsStationId {
 
     public static class Builder implements Towards<ServiceState> {
 
@@ -46,9 +47,9 @@ public class ServiceState extends TraversalState {
                     state.traversalOps.getQueryHour());
         }
 
-        public TraversalState fromRouteStation(final JustBoardedState justBoarded, final GraphNode graphNode, final Duration cost, final GraphTransaction txn) {
-            final Stream<ImmutableGraphRelationship> hourRelationships = getHourRelationships(graphNode, txn);
-            return new ServiceState(justBoarded, hourRelationships, cost, this, graphNode, depthFirst, justBoarded.traversalOps.getQueryHour());
+        public TraversalState fromRouteStation(final JustBoardedState justBoarded, final GraphNode serviceNode, final Duration cost, final GraphTransaction txn) {
+            final Stream<ImmutableGraphRelationship> hourRelationships = getHourRelationships(serviceNode, txn);
+            return new ServiceState(justBoarded, hourRelationships, cost, this, serviceNode, depthFirst, justBoarded.traversalOps.getQueryHour());
         }
 
         private Stream<ImmutableGraphRelationship> getHourRelationships(final GraphNode node, final GraphTransaction txn) {
@@ -60,26 +61,30 @@ public class ServiceState extends TraversalState {
     private final ExistingTrip maybeExistingTrip;
     private final boolean depthFirst;
     private final int queryHour;
+    private final IdFor<Station> towardsStationId;
 
-    private ServiceState(final TraversalState parent, final Stream<ImmutableGraphRelationship> relationships, final ExistingTrip maybeExistingTrip,
-                         final Duration cost, final Towards<ServiceState> builder, GraphNode graphNode, boolean depthFirst, int queryHour) {
-        super(parent, relationships, cost, builder.getDestination(), graphNode);
+    private ServiceState(final TraversalState parent, final Stream<ImmutableGraphRelationship> relationships,
+                         final ExistingTrip maybeExistingTrip,
+                         final Duration cost, final Towards<ServiceState> builder, GraphNode serviceNode, boolean depthFirst, int queryHour) {
+        super(parent, relationships, cost, builder.getDestination(), serviceNode);
         this.maybeExistingTrip = maybeExistingTrip;
         this.depthFirst = depthFirst;
         this.queryHour = queryHour;
+        this.towardsStationId = serviceNode.getTowardsStationId();
     }
 
     private ServiceState(final TraversalState parent, final Stream<ImmutableGraphRelationship> relationships,
-                         final Duration cost, final Towards<ServiceState> builder, GraphNode graphNode, boolean depthFirst, int queryHour) {
-        super(parent, relationships, cost, builder.getDestination(), graphNode);
+                         final Duration cost, final Towards<ServiceState> builder, GraphNode serviceNode, boolean depthFirst, int queryHour) {
+        super(parent, relationships, cost, builder.getDestination(), serviceNode);
         this.queryHour = queryHour;
         this.maybeExistingTrip = ExistingTrip.none();
         this.depthFirst = depthFirst;
+        this.towardsStationId = serviceNode.getTowardsStationId();
     }
 
     @Override
     protected HourState toHour(final HourState.Builder towardsHour, final GraphNode node, final Duration cost) {
-        return towardsHour.fromService(this, node, cost, maybeExistingTrip, txn);
+        return towardsHour.fromService(this, node, cost, maybeExistingTrip, towardsStationId, txn);
     }
 
     @Override
@@ -98,6 +103,11 @@ public class ServiceState extends TraversalState {
 
     private int hourFor(GraphNode endNode) {
         return GraphLabel.getHourFrom(endNode.getLabels());
+    }
+
+    @Override
+    public IdFor<Station> getTowards() {
+        return towardsStationId;
     }
 
     @Override

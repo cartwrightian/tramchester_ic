@@ -37,6 +37,8 @@ public interface GraphNode {
 
     IdFor<Station> getStationId();
 
+    IdFor<Station> getTowardsStationId();
+
     IdFor<Route> getRouteId();
 
     IdFor<NPTGLocality> getAreaId();

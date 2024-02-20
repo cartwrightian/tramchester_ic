@@ -6,15 +6,23 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.LocationType;
+import com.tramchester.domain.places.Station;
+import com.tramchester.domain.presentation.DTO.diagnostics.DiagnosticReasonDTO;
+import com.tramchester.domain.presentation.DTO.diagnostics.JourneyDiagnostics;
+import com.tramchester.domain.presentation.DTO.diagnostics.StationDiagnosticsDTO;
+import com.tramchester.domain.presentation.DTO.diagnostics.StationDiagnosticsLinkDTO;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.VehicleStage;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.search.diagnostics.ReasonCode;
 import com.tramchester.integration.testSupport.ConfigParameterResolver;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.testSupport.TestEnv;
@@ -560,6 +568,45 @@ public class RouteCalculatorTest {
         TramTime time = TramTime.of(9,0);
         JourneyRequest journeyRequest = standardJourneyRequest(when, time, maxNumResults);
         assertGetAndCheckJourneys(journeyRequest, Rochdale, Eccles);
+    }
+
+    @Test
+    void shouldNotFindJourney() {
+        // time needs to be when trams still running?
+        JourneyRequest journeyRequest = standardJourneyRequest(TestEnv.nextSunday(), TramTime.of(1,0), maxNumResults);
+        journeyRequest.setDiag(true);
+
+        List<Journey> journeys = calculator.calculateRouteAsList(Bury, Altrincham, journeyRequest);
+
+        // todo handle failed journeys, only returned when diagnostics enabled
+        assertTrue(journeys.isEmpty());
+
+        assertTrue(journeyRequest.hasReceivedDiagnostics());
+
+        JourneyDiagnostics results = journeyRequest.getDiagnostics();
+        assertNotNull(results);
+
+        Optional<StationDiagnosticsDTO> findBury = results.getDtoList().stream().filter(item -> Bury.getIdForDTO().equals(item.getBegin().getId())).findFirst();
+
+        assertTrue(findBury.isPresent());
+
+        StationDiagnosticsDTO bury = findBury.get();
+
+        List<StationDiagnosticsLinkDTO> links = bury.getLinks();
+        assertEquals(1, links.size());
+
+        StationDiagnosticsLinkDTO stationDiagnosticsLinkDTO = links.get(0);
+        IdFor<Station> radcliffeId = Station.createId("9400ZZMARAD");
+        assertEquals(new IdForDTO(radcliffeId), stationDiagnosticsLinkDTO.getTowards().getId());
+
+        List<DiagnosticReasonDTO> notAvailables = stationDiagnosticsLinkDTO.getReasons().
+                stream().filter(reason -> reason.getCode() == ReasonCode.DestinationUnavailableAtTime).toList();
+
+        assertEquals(1, notAvailables.size());
+
+        String text = notAvailables.get(0).getText();
+        assertTrue(text.contains("01:01"), text);
+
     }
 
     @NotNull

@@ -18,10 +18,7 @@ import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.search.JourneyConstraints;
 import com.tramchester.graph.search.LowestCostsForDestRoutes;
 import com.tramchester.graph.search.ServiceHeuristics;
-import com.tramchester.graph.search.diagnostics.HeuristicsReason;
-import com.tramchester.graph.search.diagnostics.HowIGotHere;
-import com.tramchester.graph.search.diagnostics.ReasonCode;
-import com.tramchester.graph.search.diagnostics.ServiceReasons;
+import com.tramchester.graph.search.diagnostics.*;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -60,6 +57,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
     private Duration maxJourneyDuration;
     private long maxNumberOfJourneys;
     private LowestCostsForDestRoutes fewestHopsForRoutes;
+    private CreateFailedJourneyDiagnostics failedJourneyDiagnostics;
 
     @BeforeEach
     void beforeEachTestRuns() {
@@ -73,6 +71,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         howIGotHere = createMock(HowIGotHere.class);
         stationRepository = createMock(StationRepository.class);
         fewestHopsForRoutes = createMock(LowestCostsForDestRoutes.class);
+        failedJourneyDiagnostics = createMock(CreateFailedJourneyDiagnostics.class);
 
         int maxPathLength = 400;
         journeyConstraints = createMock(JourneyConstraints.class);
@@ -96,7 +95,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
     void shouldCheckNodeBasedOnServiceIdAndServiceDates() {
         TramTime queryTime = TramTime.of(8,1);
         JourneyRequest journeyRequest = getJourneyRequest(queryTime);
-        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
+        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, failedJourneyDiagnostics);
 
         TramTime visitTime =  queryTime.plusMinutes(35);
         EasyMock.expect(journeyConstraints.isRunningOnDate(serviceIdA, visitTime)).andReturn(true);
@@ -124,7 +123,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
     void shouldCheckNodeBasedOnServiceIdAndServiceTimings() {
         TramTime queryTime = TramTime.of(8,1);
         JourneyRequest journeyRequest = getJourneyRequest(queryTime);
-        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
+        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, failedJourneyDiagnostics);
 
         TramTime visitTime =  queryTime.plusMinutes(35);
         EasyMock.expect(journeyConstraints.isRunningOnDate(serviceIdA, visitTime)).andReturn(true);
@@ -154,7 +153,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
     void shouldCheckNodeOpenStation() {
         TramTime queryTime = TramTime.of(8,1);
         JourneyRequest journeyRequest = getJourneyRequest(queryTime);
-        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
+        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, failedJourneyDiagnostics);
 
         RouteStation routeStationA = new RouteStation(Bury.fake(), TestEnv.getTramTestRoute());
         RouteStation routeStationB = new RouteStation(Shudehill.fake(), TestEnv.getTramTestRoute());
@@ -188,7 +187,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         TramTime queryTime = TramTime.of(9,1);
 
         JourneyRequest journeyRequest = getJourneyRequest(queryTime);
-        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
+        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, failedJourneyDiagnostics);
 
         EasyMock.expect(journeyConstraints.getFewestChangesCalculator()).andReturn(fewestHopsForRoutes);
 
@@ -216,7 +215,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
     void shouldBeInterestedInCorrectHoursCrossesNextHour() {
         TramTime queryTime = TramTime.of(7,0);
         JourneyRequest journeyRequest = getJourneyRequest(queryTime);
-        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
+        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, failedJourneyDiagnostics);
 
         EasyMock.expect(journeyConstraints.getFewestChangesCalculator()).andReturn(fewestHopsForRoutes);
 
@@ -237,7 +236,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
     void shouldBeInterestedInCorrectHoursPriorToMidnight() {
         TramTime queryTime = TramTime.of(23,10);
         JourneyRequest journeyRequest = getJourneyRequest(queryTime);
-        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
+        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, failedJourneyDiagnostics);
 
         EasyMock.expect(journeyConstraints.getFewestChangesCalculator()).andReturn(fewestHopsForRoutes);
 
@@ -262,7 +261,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
     void shouldBeInterestedInCorrectHoursPriorAcrossMidnight() {
         TramTime queryTime = TramTime.of(23,40);
         JourneyRequest journeyRequest = getJourneyRequest(queryTime);
-        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
+        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, failedJourneyDiagnostics);
 
         EasyMock.expect(journeyConstraints.getFewestChangesCalculator()).andReturn(fewestHopsForRoutes);
 
@@ -284,7 +283,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
     void shouldBeInterestedInCorrectHoursEarlyMorning() {
         TramTime queryTime = TramTime.of(0,5);
         JourneyRequest journeyRequest = getJourneyRequest(queryTime);
-        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
+        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, failedJourneyDiagnostics);
 
         EasyMock.expect(journeyConstraints.getFewestChangesCalculator()).andReturn(fewestHopsForRoutes);
 
@@ -305,7 +304,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
     void shouldBeInterestedInCorrectHoursEarlyMorningNextHour() {
         TramTime queryTime = TramTime.of(0,50);
         JourneyRequest journeyRequest = getJourneyRequest(queryTime);
-        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
+        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, failedJourneyDiagnostics);
 
         EasyMock.expect(journeyConstraints.getFewestChangesCalculator()).andReturn(fewestHopsForRoutes);
 
@@ -326,7 +325,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
     void shouldCheckTimeAtNodeCorrectly() {
         TramTime baseQueryTime = TramTime.of(7,0);
         JourneyRequest journeyRequest = getJourneyRequest(baseQueryTime);
-        ServiceReasons reasons = new ServiceReasons(journeyRequest, baseQueryTime, providesLocalNow);
+        ServiceReasons reasons = new ServiceReasons(journeyRequest, baseQueryTime, providesLocalNow, failedJourneyDiagnostics);
 
         EasyMock.expect(journeyConstraints.getFewestChangesCalculator()).andReturn(fewestHopsForRoutes);
 
@@ -358,7 +357,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
     void shouldCheckTimeAtNodeCorrectlyOverMidnight() {
         TramTime queryTime = TramTime.of(23,50);
         JourneyRequest journeyRequest = getJourneyRequest(queryTime);
-        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
+        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, failedJourneyDiagnostics);
 
         LocalTime nodeTime = LocalTime.of(0, 5);
 
@@ -381,7 +380,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         TramTime queryTime = TramTime.of(14,50);
 
         JourneyRequest journeyRequest = getJourneyRequest(queryTime);
-        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
+        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, failedJourneyDiagnostics);
 
         LocalTime nodeTime = LocalTime.of(15, 5);
         GraphNode node = createMock(GraphNode.class);
@@ -412,7 +411,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         TramTime queryTime = TramTime.of(14,50);
 
         JourneyRequest journeyRequest = getJourneyRequest(queryTime);
-        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
+        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, failedJourneyDiagnostics);
 
         LocalTime nodeTime = LocalTime.of(15, 5);
         GraphNode node = createMock(GraphNode.class);
@@ -463,7 +462,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
     void shouldBeInterestedInCorrectHoursOverMidnightLongerJourney() {
         TramTime queryTime = TramTime.of(23,10);
         JourneyRequest journeyRequest = getJourneyRequest(queryTime);
-        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
+        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, failedJourneyDiagnostics);
 
         EasyMock.expect(journeyConstraints.getFewestChangesCalculator()).andReturn(fewestHopsForRoutes);
 
@@ -485,7 +484,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         TramTime queryTime = TramTime.of(11,20);
         JourneyRequest journeyRequest = new JourneyRequest(TestEnv.nextSaturday(), queryTime,
                 false, 3, maxJourneyDuration, maxNumberOfJourneys, getRequestedModes());
-        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
+        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, failedJourneyDiagnostics);
 
         int overallMaxLen = config30MinsWait.getMaxJourneyDuration();
 
@@ -508,7 +507,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         TramTime queryTime = TramTime.of(11,20);
         JourneyRequest journeyRequest = new JourneyRequest(TestEnv.nextSaturday(), queryTime,
                 false, 2, Duration.ofMinutes(160), maxNumberOfJourneys, getRequestedModes());
-        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
+        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, failedJourneyDiagnostics);
 
         EasyMock.expect(journeyConstraints.getFewestChangesCalculator()).andReturn(fewestHopsForRoutes);
 
@@ -529,7 +528,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         TramTime queryTime = TramTime.of(11,20);
         JourneyRequest journeyRequest = new JourneyRequest(TestEnv.nextSaturday(), queryTime,
                 false, 2, Duration.ofMinutes(160), maxNumberOfJourneys, getRequestedModes());
-        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
+        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, failedJourneyDiagnostics);
 
         IdFor<Station> stationId = TramStations.Altrincham.getId();
         IdFor<Route> routeId = Route.createId("currentRoute");
@@ -572,7 +571,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         TramTime queryTime = TramTime.of(23,20);
         JourneyRequest journeyRequest = new JourneyRequest(TestEnv.nextSaturday(), queryTime,
                 false, 3, maxJourneyDuration, maxNumberOfJourneys, getRequestedModes());
-        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow);
+        ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, failedJourneyDiagnostics);
         EasyMock.expect(journeyConstraints.getFewestChangesCalculator()).andReturn(fewestHopsForRoutes);
 
         int overallMaxLen = config30MinsWait.getMaxJourneyDuration();

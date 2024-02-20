@@ -74,7 +74,7 @@ class RouteCalculatorForBoundingBoxTest {
     }
 
     @Test
-    void shouldFindJourneysForBoundedBoxStations() {
+    void shouldFindJourneysForBoundedBoxStations() throws InterruptedException {
         BoundingBox bounds = stationLocations.getActiveStationBounds();
         int gridSize = (bounds.getMaxNorthings()-bounds.getMinNorthings()) / 100;
 
@@ -93,6 +93,8 @@ class RouteCalculatorForBoundingBoxTest {
 
         RequestStopStream<JourneysForBox> result = calculator.calculateRoutes(destinationBox, journeyRequest, grouped);
 
+        assertNotNull(result.getStream());
+
         List<JourneysForBox> groupedJourneys = result.getStream().toList();
 
         assertFalse(groupedJourneys.isEmpty());
@@ -106,7 +108,4 @@ class RouteCalculatorForBoundingBoxTest {
         } ));
     }
 
-    private boolean anyOpen(BoundingBoxWithStations boxWithStations) {
-        return boxWithStations.getStations().stream().anyMatch(station -> !closedStationsRepository.isClosed(station, when));
-    }
 }

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+     <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+     <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css" rel="stylesheet">
+     <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+    <title>Tramchester</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+</head>
+<body>
+<h1 class="tramchesterHeading">Tramchester</h1>
+<div id="journeyplan">
+    <v-app>
+        <v-main>
+    <form @submit="plan" class="tramchesterApp">
+        <v-container id="startAndEnd" class="ml-2">
+            <v-row >
+                <v-col class="pl-0">
+                    <div id="selectStart">
+                        <location-selection :disabled='!ready' :name="'start'" v-model="startStop" :other="endStop" :modes="selectedModes"
+                            :geo="havePos" :stops="stops">
+                        </location-selection>
+                    </div>
+                </v-col>
+            </v-row>
+            <v-row>
+                <v-col class="pl-0">
+                    <div id="selectEnd">
+                        <location-selection :disabled='!ready' :name="'destination'" v-model="endStop"  :other="startStop" :modes="selectedModes"
+                        :geo="havePos" :stops="stops" >
+                    </location-selection>
+                    </div>
+                </v-col>
+            </v-row>
+            <v-row>
+                <v-col class="pl-0 col-md-auto">
+                    <label for="arriveBy">arrive by</label>
+                    <input type="checkbox" id="arriveBy" v-model="arriveBy">
+                </v-col>
+                <v-col class="col-md-auto">     
+                    <input type="time" id="time" v-model="time"/>
+                </v-col>
+                <v-col>
+                    <v-btn id="nowButton" color="secondary" small @click="timeToNow()">Now</v-btn>
+                </v-col>
+            </v-row>
+            <v-row>
+                <v-col class="pl-0 col-md-auto">
+                    <input type="date" id="date" v-model="date"/>
+                </v-col>
+                <v-col class="pl-0">
+                    <v-btn id="todayButton" small color="secondary" @click="dateToNow()">Today</v-btn>
+                    <input type="hidden" id="hiddendate" v-model="date"></input>
+                </v-col>
+            </v-row>
+            <v-row v-if="selectModesEnabled">
+                <v-col class="pl-0">
+                    <v-select v-model="selectedModes" :items="modes" multiple density="compact">
+                    </v-select>
+                </v-col>
+                <v-col>
+                    <label for="maxChanges">max changes:</label>
+                    <input type="number" name="max changes" min="1" max="8" id="maxChanges" v-model="maxChanges"> 
+                </v-col>
+            </v-row>
+            <v-row>
+                <v-col class="pl-0" class="text-left">
+                    <v-btn :disabled='!ready' id="plan" type="submit" color="primary">
+                        Plan
+                        <v-progress-circular
+                            v-if="searchInProgress"
+                            id="spinner"
+                            indeterminate
+                            color="primary"
+                            ></v-progress-circular>
+                    </v-btn>
+                </v-col>
+            </v-row>
+    </v-container>
+    </form>
+
+    <v-card id="networkError" selectable v-if="networkError" class="mt-2 ml-0 mr-0">
+        <v-card-title>Network Error</v-card-title>
+        <v-card-text>
+            Unable to commmunicate with server, please check your network connection and try again
+        </v-card-text>
+    </v-card>
+
+    <div id="outputs" class="ml-0 mr-0">
+        <closures></closures>
+        <journeys :journeysresponse="journeys" :numjourneystodisplay="numberJourneysToDisplay" 
+            v-on:earlier-tram="changeTime" v-on:later-tram="changeTime"></journeys>
+            <div id="leafletMap" style="height: 600px" class="w-75"></div>
+    </div>
+
+    </v-main>
+
+</v-app>
+
+</div> <!-- end of app -->
+
+<script src="/app/diag.js"></script>
+
+</body>
+
+</html>

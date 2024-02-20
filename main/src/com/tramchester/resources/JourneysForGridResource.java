@@ -94,7 +94,13 @@ public class JourneysForGridResource implements APIResource, GraphDatabaseDepend
         final RequestStopStream<BoxWithCostDTO> result = search.findForGrid(destination, gridQueryDTO.getGridSize(), journeyRequest).
                 map(box -> BoxWithCostDTO.createFrom(dtoMapper, date, box));
 
-        Stream<BoxWithCostDTO> dtoStream = result.getStream();
+        final Stream<BoxWithCostDTO> dtoStream;
+        try {
+            dtoStream = result.getStream();
+        } catch (InterruptedException e) {
+            logger.error("Unable to access results stream");
+            return output;
+        }
 
         // todo need way to stop calculation gracefully if socket is closed
 

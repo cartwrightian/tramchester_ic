@@ -7,17 +7,15 @@ import java.util.Objects;
 
 public class HeuristicsReasonWithID<T extends CoreDomain> extends HeuristicsReason {
     private final IdFor<T> id;
-    private final String typeName;
 
     protected HeuristicsReasonWithID(final ReasonCode code, final HowIGotHere path, final IdFor<T> id) {
         super(code, path);
         this.id = id;
-        typeName = id.getClass().getSimpleName();
     }
 
     @Override
     public String textForGraph() {
-        return super.textForGraph() + System.lineSeparator() + " " +typeName+ ":" +id;
+        return super.textForGraph() + ":" +id;
     }
 
     @Override
@@ -26,11 +24,11 @@ public class HeuristicsReasonWithID<T extends CoreDomain> extends HeuristicsReas
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         HeuristicsReasonWithID<?> that = (HeuristicsReasonWithID<?>) o;
-        return id.equals(that.id) && typeName.equals(that.typeName);
+        return Objects.equals(id, that.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), id, typeName);
+        return Objects.hash(super.hashCode(), id);
     }
 }
