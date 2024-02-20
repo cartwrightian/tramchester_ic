@@ -129,6 +129,12 @@ public class ServiceHeuristics {
 
         final int hourAtNode = GraphLabel.getHourFrom(hourLabels);
 
+        // if earliest minute of the hour already too late....
+        final TramTime nodeTime = TramTime.of(hourAtNode,0);
+        if (!journeyConstraints.destinationsAvailable(nodeTime)) {
+            return reasons.recordReason(ServiceReason.DestinationUnavailableAtTime(nodeTime, howIGotHere));
+        }
+
         // TODO Need better way to handle this
         final TramTime beginWindow = hourAtNode==0 ? TramTime.nextDay(0,0) : TramTime.of(hourAtNode, 0);
 
@@ -235,7 +241,6 @@ public class ServiceHeuristics {
                                            final ServiceReasons reasons) {
         reasons.incrementTotalChecked();
 
-        //return getStationIdFrom(node.getNode());
         final IdFor<Station> stationId = nextNode.getStationId();
         if (journeyState.hasVisited(stationId)) {
             return reasons.recordReason(ServiceReason.AlreadySeenStation(stationId, howIGotHere));

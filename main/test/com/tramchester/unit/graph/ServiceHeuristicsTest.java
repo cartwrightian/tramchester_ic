@@ -190,6 +190,12 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, failedJourneyDiagnostics);
 
         EasyMock.expect(journeyConstraints.getFewestChangesCalculator()).andReturn(fewestHopsForRoutes);
+        EasyMock.expect(journeyConstraints.destinationsAvailable(TramTime.of(8,0))).andReturn(true);
+        EasyMock.expect(journeyConstraints.destinationsAvailable(TramTime.of(10,0))).andReturn(true);
+        EasyMock.expect(journeyConstraints.destinationsAvailable(TramTime.of(11,0))).andReturn(true);
+        EasyMock.expect(journeyConstraints.destinationsAvailable(TramTime.of(18,0))).andReturn(true);
+        EasyMock.expect(journeyConstraints.destinationsAvailable(TramTime.of(23,0))).andReturn(true);
+
 
         // querytime + costSoFar + maxWait (for board) = latest time could arrive here
         // querytime + costSoFar + 0 = earlier time could arrive here
@@ -218,6 +224,10 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, failedJourneyDiagnostics);
 
         EasyMock.expect(journeyConstraints.getFewestChangesCalculator()).andReturn(fewestHopsForRoutes);
+        EasyMock.expect(journeyConstraints.destinationsAvailable(TramTime.of(8,0))).andReturn(true);
+        EasyMock.expect(journeyConstraints.destinationsAvailable(TramTime.of(9,0))).andReturn(true);
+        EasyMock.expect(journeyConstraints.destinationsAvailable(TramTime.of(11,0))).andReturn(true);
+
 
         TramTime elapsed = TramTime.of(10,29);
 
@@ -239,6 +249,10 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, failedJourneyDiagnostics);
 
         EasyMock.expect(journeyConstraints.getFewestChangesCalculator()).andReturn(fewestHopsForRoutes);
+        EasyMock.expect(journeyConstraints.destinationsAvailable(TramTime.of(22,0))).andReturn(true);
+        EasyMock.expect(journeyConstraints.destinationsAvailable(TramTime.of(0,0))).andReturn(true);
+        EasyMock.expect(journeyConstraints.destinationsAvailable(TramTime.of(1,0))).andReturn(true);
+
 
         int costSoFar = 15;  // 23.25
         TramTime elapsed = queryTime.plusMinutes(costSoFar);
@@ -264,6 +278,9 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, failedJourneyDiagnostics);
 
         EasyMock.expect(journeyConstraints.getFewestChangesCalculator()).andReturn(fewestHopsForRoutes);
+        EasyMock.expect(journeyConstraints.destinationsAvailable(TramTime.of(22,0))).andReturn(true);
+        EasyMock.expect(journeyConstraints.destinationsAvailable(TramTime.of(0,0))).andReturn(true);
+        EasyMock.expect(journeyConstraints.destinationsAvailable(TramTime.of(1,0))).andReturn(true);
 
         int costSoFar = 15;  // 23.55
         TramTime elapsed = queryTime.plusMinutes(costSoFar);
@@ -286,6 +303,9 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, failedJourneyDiagnostics);
 
         EasyMock.expect(journeyConstraints.getFewestChangesCalculator()).andReturn(fewestHopsForRoutes);
+        EasyMock.expect(journeyConstraints.destinationsAvailable(TramTime.of(23,0))).andReturn(true);
+        EasyMock.expect(journeyConstraints.destinationsAvailable(TramTime.of(1,0))).andReturn(true);
+
 
         int costSoFar = 15;  // = 23.55
         TramTime elapsed = queryTime.plusMinutes(costSoFar);
@@ -307,6 +327,8 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, failedJourneyDiagnostics);
 
         EasyMock.expect(journeyConstraints.getFewestChangesCalculator()).andReturn(fewestHopsForRoutes);
+        EasyMock.expect(journeyConstraints.destinationsAvailable(TramTime.of(23,0))).andReturn(true);
+        EasyMock.expect(journeyConstraints.destinationsAvailable(TramTime.of(0,0))).andReturn(true);
 
         int costSoFar = 15;
         TramTime elapsed = queryTime.plusMinutes(costSoFar);
@@ -465,6 +487,9 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, failedJourneyDiagnostics);
 
         EasyMock.expect(journeyConstraints.getFewestChangesCalculator()).andReturn(fewestHopsForRoutes);
+        EasyMock.expect(journeyConstraints.destinationsAvailable(TramTime.of(22,0))).andReturn(true);
+        EasyMock.expect(journeyConstraints.destinationsAvailable(TramTime.of(23,0))).andReturn(true);
+        EasyMock.expect(journeyConstraints.destinationsAvailable(TramTime.of(1,0))).andReturn(true);
 
         TramTime elapsed = TramTime.of(0,1);
 

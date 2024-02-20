@@ -124,7 +124,7 @@ function addLinks(node, layer, origin, maxEdgeReasons) {
         var steps = [];
         steps.push([origin.latLong.lat, origin.latLong.lon]);
         steps.push([link.towards.latLong.lat, link.towards.latLong.lon]);
-        const lineWidth = (node.reasons.length / maxEdgeReasons) * 20;
+        const lineWidth = Math.max(1, (node.reasons.length / maxEdgeReasons) * 20);
         const line = L.polyline(steps);
     
         line.setStyle({color: "red", opacity: 0.6, weight: lineWidth })
@@ -140,7 +140,7 @@ function addNodeToMap(node, app, maxNodeReasons, maxEdgeReasons) {
     const lat = station.latLong.lat;
     const lon = station.latLong.lon;
     const location = L.latLng(lat, lon);
-    const radius = (node.reasons.length / maxNodeReasons) * 20;
+    const radius = Math.max(1, (node.reasons.length / maxNodeReasons) * 20);
     const marker = new L.circleMarker(location, 
         { fill: true, fillColor: "LightBlue", fillOpacity: 0.8, title: station.name, radius: radius, color: "LightBlue" });
 
@@ -179,7 +179,7 @@ function queryServerForJourneysPost(app, startStop, endStop, queryTime, queryDat
         diagnostics: true
     };
 
-    axios.post('/api/journey/', query, {timeout: 60000 }).
+    axios.post('/api/journey/', query, {timeout: 5*60000 }).
         then(function (response) {
             app.networkError = false;
             app.journeys = addParsedDatesToJourney(response.data.journeys);

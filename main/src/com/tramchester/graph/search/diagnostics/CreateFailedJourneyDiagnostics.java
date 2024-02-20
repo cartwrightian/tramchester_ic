@@ -48,7 +48,9 @@ public class CreateFailedJourneyDiagnostics {
                 }
 
             } else {
-                logger.warn("Skipping node " + howIGotHere.getEndNodeId() + " as no position");
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Skipping node " + howIGotHere.getEndNodeId() + " as no position");
+                }
             }
 
         });
