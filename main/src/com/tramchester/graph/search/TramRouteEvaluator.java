@@ -2,6 +2,8 @@ package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.collections.Running;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramTime;
@@ -39,6 +41,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private final ServiceReasons reasons;
     private final PreviousVisits previousVisits;
     private final LowestCostSeen bestResultSoFar;
+    private final boolean diagEnabled;
 
     private final int maxWaitMins;
     private final int maxInitialWaitMins;
@@ -78,6 +81,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
         maxWaitMins = config.getMaxWait();
         depthFirst = config.getDepthFirst();
+        this.diagEnabled = reasons.getDiagnosticsEnabled();
 
         seenTimeNode = new HashSet<>();
 
@@ -111,7 +115,6 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         final HeuristicsReason previousResult = previousVisits.getPreviousResult(journeyState, labels, howIGotHere);
         boolean cacheHit = (previousResult.getReasonCode() != ReasonCode.PreviousCacheMiss);
         if (cacheHit) {
-//            final TramTime journeyClock = journeyState.getJourneyClock();
             reasons.recordReason(HeuristicsReasons.Cached(previousResult, howIGotHere));
             return Evaluation.EXCLUDE_AND_PRUNE;
         }
@@ -121,7 +124,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         final HeuristicsReason heuristicsReason = doEvaluate(path, journeyState, nextNode, labels, howIGotHere);
         final Evaluation result = heuristicsReason.getEvaluationAction();
 
-        previousVisits.recordVisitIfUseful(heuristicsReason, nextNode, journeyState, labels);
+        previousVisits.cacheVisitIfUseful(heuristicsReason, nextNode, journeyState, labels);
 
         return result;
     }
@@ -143,17 +146,16 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
                 return reasons.recordReason(HeuristicsReasons.HigherCost(howIGotHere));
             }
 
-            // TODO SPIKE!
-//            final long durationMillis = begin.until(providesNow.getInstant(), ChronoUnit.MILLIS);
-//            if (durationMillis > timeout) {
-//                logger.warn(String.format("Timed out at '%s' node %s state type %s", journeyState.approxPosition(),
-//                        nextNodeId, journeyState.getTraversalStateType()));
-//                reasons.recordReason(ServiceReason.TimedOut(howIGotHere));
-//                return ReasonCode.TimedOut;
-//            }
         }
 
         reasons.recordState(journeyState);
+
+        if (diagEnabled) {
+            if (nodeLabels.contains(GraphLabel.GROUPED)) {
+                final IdFor<NPTGLocality> areaId = nextNode.getAreaId();
+                reasons.recordReason(HeuristicReasonsOK.SeenGroup(ReasonCode.SeenGroup, howIGotHere, areaId));
+            }
+        }
 
         // no journey longer than N nodes
         // TODO check length based on current transport mode??
@@ -192,9 +194,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
         // returned to the start?
         if ((thePath.length() > 1) && nextNodeId.equals(startNodeId)) {
-            final HeuristicsReason returnedToStart = HeuristicsReasons.ReturnedToStart(howIGotHere);
-            reasons.recordReason(returnedToStart);
-            return returnedToStart;
+            return reasons.recordReason(HeuristicsReasons.ReturnedToStart(howIGotHere));
         }
 
         final TramTime visitingTime = journeyState.getJourneyClock();
@@ -205,7 +205,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             // TODO SPIKE!
             if (!depthFirst) {
                 if (this.seenTimeNode.contains(nextNodeId)) {
-                    return HeuristicsReasons.AlreadySeenTime(howIGotHere);
+                    return reasons.recordReason(HeuristicsReasons.AlreadySeenTime(howIGotHere, nextNodeId));
                 } else {
                     seenTimeNode.add(nextNodeId);
                 }
@@ -222,25 +222,15 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             }
         }
 
-//        if (!depthFirst) {
-//            // TODO SPIKE!
-//            if (nodeLabels.contains(GraphLabel.STATION)) {
-//                if (!serviceHeuristics.notAlreadySeen(journeyState, nextNode, howIGotHere, reasons).isValid()) {
-//                    return ReasonCode.AlreadySeenStation;
-//                }
-//            }
-//
-//        }
-
         /////
         // these next are ordered by frequency / number of nodes of type
 
         // -->Hour
         // check hour
         if (nodeLabels.contains(GraphLabel.HOUR)) {
-            final HeuristicsReason interestededInHour = serviceHeuristics.interestedInHour(howIGotHere, visitingTime, reasons, timeToWait, nodeLabels);
-            if (!interestededInHour.isValid()) {
-                return interestededInHour;
+            final HeuristicsReason interestedInHour = serviceHeuristics.interestedInHour(howIGotHere, visitingTime, reasons, timeToWait, nodeLabels);
+            if (!interestedInHour.isValid()) {
+                return interestedInHour;
             }
         }
 
@@ -292,11 +282,11 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         if (inboundRelationship != null) {
             // for walking routes we do want to include them all even if at same time
             if (inboundRelationship.isType(WALKS_TO_STATION)) {
-                return reasons.recordReason(HeuristicsReasons.IsValid(ReasonCode.WalkOk, howIGotHere));
+                return reasons.recordReason(HeuristicReasonsOK.IsValid(ReasonCode.WalkOk, howIGotHere));
             }
         }
 
-        return reasons.recordReason(HeuristicsReasons.Continue(howIGotHere));
+        return reasons.recordReason(HeuristicReasonsOK.Continue(howIGotHere));
     }
 
     @NotNull
@@ -305,11 +295,11 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         if (bestResultSoFar.isLower(journeyState)) {
             // a better route than seen so far
             bestResultSoFar.setLowestCost(journeyState);
-            return reasons.recordReason(HeuristicsReasons.Arrived(howIGotHere));
+            return reasons.recordReason(HeuristicReasonsOK.Arrived(howIGotHere));
 //            return ReasonCode.Arrived;
         } else if (numberChanges < bestResultSoFar.getLowestNumChanges()) {
             // fewer hops can be a useful option
-            return reasons.recordReason(HeuristicsReasons.Arrived(howIGotHere));
+            return reasons.recordReason(HeuristicReasonsOK.Arrived(howIGotHere));
 //            return ReasonCode.Arrived;
         } else {
             // found a route, but longer or more hops than current shortest

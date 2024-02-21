@@ -10,6 +10,7 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphRelationship;
@@ -17,11 +18,12 @@ import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.repository.TripRepository;
 import org.neo4j.graphdb.Direction;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.tramchester.graph.TransportRelationshipTypes.TO_SERVICE;
+import static com.tramchester.graph.TransportRelationshipTypes.*;
 
 public class TraversalOps {
     private final NodeContentsRepository nodeOperations;
@@ -31,6 +33,9 @@ public class TraversalOps {
     private final TramDate queryDate;
     private final GraphTransaction txn;
     private final int queryHour;
+
+    private static final EnumSet<TransportRelationshipTypes> haveStationId = EnumSet.of(LEAVE_PLATFORM, INTERCHANGE_DEPART,
+            DEPART, WALKS_TO_STATION, DIVERSION_DEPART);
 
     // TODO Split into fixed and journey specific, inject fixed direct into builders
     public TraversalOps(GraphTransaction txn, NodeContentsRepository nodeOperations, TripRepository tripRepository,
@@ -48,9 +53,18 @@ public class TraversalOps {
 
     public <R extends GraphRelationship> OptionalResourceIterator<R> getTowardsDestination(final Stream<R> outgoing) {
         final List<R> filtered = outgoing.
-                filter(depart -> destinationStationIds.contains(depart.getStationId())).
+                filter(depart -> destinationStationIds.contains(getLocationIdFor(depart))).
                 collect(Collectors.toList());
         return OptionalResourceIterator.from(filtered);
+    }
+
+    private static IdFor<Station> getLocationIdFor(final GraphRelationship depart) {
+        final TransportRelationshipTypes departType = depart.getType();
+        if (haveStationId.contains(departType)) {
+            return depart.getStationId();
+        } else {
+            throw new RuntimeException("Unsupported relationship type " + departType);
+        }
     }
 
     public int onDestRouteFirst(final HasId<Route> a, final HasId<Route> b) {

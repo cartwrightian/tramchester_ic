@@ -194,10 +194,25 @@ class BusRouteCalculatorTest {
 
     @Test
     void shouldHaveAltrinchamToBollington() {
-        TramTime time = TramTime.of(11,30);
+        TramTime time = TramTime.of(10,37);
 
         JourneyRequest request = new JourneyRequest(when, time, false, MIN_CHANGES,
                 Duration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, BusesOnly);
+
+        List<Journey> results = calculator.calculateRouteAsList(KnownLocality.Altrincham, KnownLocality.Bollington, request);
+        assertFalse(results.isEmpty());
+
+    }
+
+    @Test
+    void shouldHaveAltrinchamToBollingtonReproIssue() {
+        TramTime time = TramTime.of(10,37);
+
+        TramDate date = TramDate.of(2024,2,21);
+        JourneyRequest request = new JourneyRequest(date, time, false, MIN_CHANGES,
+                Duration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, BusesOnly);
+
+        request.setDiag(true);
 
         List<Journey> results = calculator.calculateRouteAsList(KnownLocality.Altrincham, KnownLocality.Bollington, request);
         assertFalse(results.isEmpty());

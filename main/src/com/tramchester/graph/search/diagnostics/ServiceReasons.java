@@ -50,8 +50,8 @@ public class ServiceReasons {
 
     private final AtomicBoolean success;
 
-    public ServiceReasons(JourneyRequest journeyRequest, TramTime queryTime, ProvidesNow providesLocalNow,
-                          CreateFailedJourneyDiagnostics failedJourneyDiagnostics) {
+    public ServiceReasons(final JourneyRequest journeyRequest, final TramTime queryTime, final ProvidesNow providesLocalNow,
+                          final CreateFailedJourneyDiagnostics failedJourneyDiagnostics) {
         this.queryTime = queryTime;
         this.providesLocalNow = providesLocalNow;
         this.journeyRequest = journeyRequest;
@@ -68,23 +68,10 @@ public class ServiceReasons {
         nodeVisits = new HashMap<>();
     }
 
-    private void reset() {
-        reasons.clear();
-        reasonCodeStats.clear();
-        stateStats.clear();
-        nodeVisits.clear();
-        reasonCodeStats.clear();
-        Arrays.stream(ReasonCode.values()).forEach(code -> reasonCodeStats.put(code, new AtomicInteger(0)));
-    }
-
     public void reportReasons(final GraphTransaction transaction, final RouteCalculatorSupport.PathRequest pathRequest) {
         if (diagnosticsEnabled) {
-            // replace with new mechanism below
-//            createGraphFile(transaction, reasonToGraphViz, pathRequest);
-            if (!success.get()) {
-                JourneyDiagnostics diagnostics = failedJourneyDiagnostics.recordFailedJourneys(reasons);
-                journeyRequest.injectDiag(diagnostics);
-            }
+            JourneyDiagnostics diagnostics = failedJourneyDiagnostics.recordFailedJourneys(reasons);
+            journeyRequest.injectDiag(diagnostics);
         }
 
         if (!success.get() || diagnosticsEnabled) {
@@ -92,6 +79,15 @@ public class ServiceReasons {
         }
 
         reset();
+    }
+
+    private void reset() {
+        reasons.clear();
+        reasonCodeStats.clear();
+        stateStats.clear();
+        nodeVisits.clear();
+        reasonCodeStats.clear();
+        Arrays.stream(ReasonCode.values()).forEach(code -> reasonCodeStats.put(code, new AtomicInteger(0)));
     }
 
     public HeuristicsReason recordReason(final HeuristicsReason serviceReason) {
@@ -127,7 +123,7 @@ public class ServiceReasons {
 
     //*********** Safe access to counters
 
-    private synchronized void addReason(HeuristicsReason serviceReason) {
+    private synchronized void addReason(final HeuristicsReason serviceReason) {
         reasons.add(serviceReason);
     }
 
@@ -320,5 +316,9 @@ public class ServiceReasons {
     public Map<GraphNodeId, Integer> getNodeVisits() {
         return nodeVisits.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, value -> value.getValue().get()));
 //        return new HashMap<>(nodeVisits);
+    }
+
+    public boolean getDiagnosticsEnabled() {
+        return diagnosticsEnabled;
     }
 }

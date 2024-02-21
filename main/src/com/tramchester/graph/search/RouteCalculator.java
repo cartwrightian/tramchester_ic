@@ -22,6 +22,7 @@ import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.search.diagnostics.CreateFailedJourneyDiagnostics;
 import com.tramchester.graph.search.diagnostics.ReasonsToGraphViz;
+import com.tramchester.graph.search.diagnostics.ServiceReasons;
 import com.tramchester.graph.search.selectors.BranchSelectorFactory;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import com.tramchester.metrics.CacheMetrics;
@@ -76,7 +77,8 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
     }
 
     @Override
-    public Stream<Journey> calculateRoute(GraphTransaction txn, Location<?> start, Location<?> destination, JourneyRequest journeyRequest) {
+    public Stream<Journey> calculateRoute(final GraphTransaction txn, final Location<?> start, final Location<?> destination,
+                                          final JourneyRequest journeyRequest) {
         logger.info(format("Finding shortest path for %s (%s) --> %s (%s) for %s",
                 start.getName(), start.getId(), destination.getName(), destination.getId(), journeyRequest));
 
@@ -108,8 +110,16 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         }
 
         final Duration maxInitialWait = getMaxInitialWaitFor(start, config);
-        return getJourneyStream(txn, startNode, endNode, journeyRequest, destinations, queryTimes, numberOfChanges, maxInitialWait).
-                limit(journeyRequest.getMaxNumberOfJourneys());
+
+        if (journeyRequest.getDiagnosticsEnabled()) {
+            logger.warn("Diagnostics enabled, will only query for single result");
+
+            return getSingleJourneyStream(txn, startNode, endNode, journeyRequest, destinations, maxInitialWait).
+                    limit(journeyRequest.getMaxNumberOfJourneys());
+        } else {
+            return getJourneyStream(txn, startNode, endNode, journeyRequest, destinations, queryTimes, numberOfChanges, maxInitialWait).
+                    limit(journeyRequest.getMaxNumberOfJourneys());
+        }
     }
 
     @Override
@@ -151,6 +161,58 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         Duration maxInitialWait = getMaxInitialWaitFor(stationWalks, config);
         return getJourneyStream(txn, startNode, endNode, journeyRequest, destinationStations, queryTimes, numberOfChanges, maxInitialWait).
                 takeWhile(finished::notDoneYet);
+    }
+
+
+    private Stream<Journey> getSingleJourneyStream(final GraphTransaction txn, final GraphNode startNode, final GraphNode endNode,
+                                                   final JourneyRequest journeyRequest, final LocationSet destinations,
+                                                   final Duration maxInitialWait) {
+
+
+        final Set<GraphNodeId> destinationNodeIds = Collections.singleton(endNode.getId());
+        final TramDate tramDate = journeyRequest.getDate();
+
+        // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
+        final LowestCostsForDestRoutes lowestCostsForRoutes = routeToRouteCosts.getLowestCostCalculatorFor(destinations, journeyRequest);
+        final Duration maxJourneyDuration = getMaxDurationFor(journeyRequest);
+
+        final IdSet<Station> closedStations = closedStationsRepository.getFullyClosedStationsFor(tramDate).stream().
+                map(ClosedStation::getStationId).collect(IdSet.idCollector());
+
+        final TimeRange destinationsAvailable = super.getDestinationsAvailable(destinations, tramDate);
+
+        final JourneyConstraints journeyConstraints = new JourneyConstraints(config, runningRoutesAndServices.getFor(tramDate),
+                closedStations, destinations, lowestCostsForRoutes, maxJourneyDuration, destinationsAvailable);
+
+        // share selector across queries, to allow caching of station to station distances
+        final BranchOrderingPolicy selector = branchSelectorFactory.getFor(destinations);
+
+        logger.info("Journey Constraints: " + journeyConstraints);
+
+        final LowestCostSeen lowestCostSeen = new LowestCostSeen();
+
+        final AtomicInteger journeyIndex = new AtomicInteger(0);
+
+        // TODO for now stopping computation only support for Grids
+        Running running = () -> true;
+
+        final PathRequest singlePathRequest = createPathRequest(startNode, tramDate, journeyRequest.getOriginalTime(), journeyRequest.getRequestedModes(),
+                journeyRequest.getMaxChanges(),
+                journeyConstraints, maxInitialWait, selector);
+
+        final ServiceReasons serviceReasons = createServiceReasons(journeyRequest, singlePathRequest);
+
+        final Stream<Journey> results = findShortestPath(txn, serviceReasons, singlePathRequest,
+                        createPreviousVisits(), lowestCostSeen, destinations, destinationNodeIds, running).
+                map(path -> createJourney(journeyRequest, path, destinations, journeyIndex, txn));
+
+        //noinspection ResultOfMethodCallIgnored
+        results.onClose(() -> {
+            cacheMetrics.report();
+            logger.info("Journey stream closed");
+        });
+
+        return results;
     }
 
     private Stream<Journey> getJourneyStream(final GraphTransaction txn, final GraphNode startNode, final GraphNode endNode, final JourneyRequest journeyRequest,

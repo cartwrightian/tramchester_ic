@@ -6,7 +6,6 @@ import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.Durations;
-import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
@@ -44,26 +43,24 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     private static final Logger logger = LoggerFactory.getLogger(TramNetworkTraverser.class);
 
     private final NodeContentsRepository nodeContentsRepository;
-    private final TripRepository tripRespository;
+    private final TripRepository tripRepository;
     private final TramchesterConfig config;
     private final TraversalStateFactory traversalStateFactory;
     private final ReasonsToGraphViz reasonToGraphViz;
-    private final ProvidesNow providesNow;
     private final GraphTransaction txn;
     private final boolean fullLogging;
 
     public TramNetworkTraverser(GraphTransaction txn, NodeContentsRepository nodeContentsRepository, TripRepository tripRepository,
                                 TraversalStateFactory traversalStateFactory, TramchesterConfig config, ReasonsToGraphViz reasonToGraphViz,
-                                ProvidesNow providesNow, boolean fullLogging) {
+                                boolean fullLogging) {
         this.txn = txn;
         this.nodeContentsRepository = nodeContentsRepository;
-        this.tripRespository = tripRepository;
+        this.tripRepository = tripRepository;
         this.traversalStateFactory = traversalStateFactory;
         this.fullLogging = fullLogging;
         this.config = config;
 
         this.reasonToGraphViz = reasonToGraphViz;
-        this.providesNow = providesNow;
     }
 
     public Stream<Path> findPaths(final GraphTransaction txn, final RouteCalculatorSupport.PathRequest pathRequest,
@@ -79,7 +76,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
                 destinationNodeIds, nodeContentsRepository, reasons, previousSuccessfulVisit, lowestCostSeen, config,
                 startNode.getId(), txn, running);
 
-        final TraversalOps traversalOps = new TraversalOps(txn, nodeContentsRepository, tripRespository, destinations,
+        final TraversalOps traversalOps = new TraversalOps(txn, nodeContentsRepository, tripRepository, destinations,
                 pathRequest.getQueryDate(), pathRequest.getActualQueryTime());
 
         final NotStartedState traversalState = new NotStartedState(traversalOps, traversalStateFactory,

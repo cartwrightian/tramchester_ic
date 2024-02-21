@@ -71,7 +71,7 @@ public class ServiceHeuristics {
        if (currentNumChanges > currentChangesLimit) {
          return reasons.recordReason(HeuristicsReasons.TooManyChanges(howIGotHere, currentNumChanges));
        }
-       return valid(ReasonCode.NumChangesOK, howIGotHere, reasons);
+       return reasons.recordReason(HeuristicReasonsOK.NumChangesOK(ReasonCode.NumChangesOK, howIGotHere, currentNumChanges));
     }
 
     public HeuristicsReason checkNumberNeighbourConnections(final int currentNumberConnections, final HowIGotHere howIGotHere, final ServiceReasons reasons) {
@@ -109,42 +109,36 @@ public class ServiceHeuristics {
         final TimeRange window = TimeRange.of(nodeTime, Duration.ofMinutes(maxWait), Duration.ZERO);
 
         if (window.contains(currentTime)) {
-            return valid(ReasonCode.TimeOk, howIGotHere, reasons);
+            return reasons.recordReason(HeuristicReasonsOK.TimeOK(ReasonCode.TimeOk, howIGotHere, nodeTime));
         }
 
         return reasons.recordReason(HeuristicsReasons.DoesNotOperateOnTime(currentTime, howIGotHere));
     }
 
-    public HeuristicsReason interestedInHour(final HowIGotHere howIGotHere, final TramTime journeyClockTime,
+    public HeuristicsReason interestedInHour(final HowIGotHere howIGotHere, final TramTime currentTime,
                                           final ServiceReasons reasons, final int maxWait, final EnumSet<GraphLabel> hourLabels) {
         reasons.incrementTotalChecked();
 
-        final int queryTimeHour = journeyClockTime.getHourOfDay();
-
-        final GraphLabel queryTimeHourLabel = (GraphLabel) GraphLabel.getHourLabel(queryTimeHour);
-        if (hourLabels.contains(queryTimeHourLabel)) {
-            // quick win, same hour
-            return valid(ReasonCode.HourOk, howIGotHere, reasons);
-        }
-
         final int hourAtNode = GraphLabel.getHourFrom(hourLabels);
 
-        // if earliest minute of the hour already too late....
-        final TramTime nodeTime = TramTime.of(hourAtNode,0);
-        if (!journeyConstraints.destinationsAvailable(nodeTime)) {
-            return reasons.recordReason(HeuristicsReasons.DestinationUnavailableAtTime(nodeTime, howIGotHere));
+        final TimeRange travelTimes = TimeRange.of(currentTime, currentTime.plusMinutes(maxWait));
+        TimeRange hourRangeToday = TimeRange.of(TramTime.of(hourAtNode, 0), TramTime.of(hourAtNode, 59));
+
+        // todo check if valid, maybe the destination is open in the following hour for example
+//        if (!journeyConstraints.destinationsAvailable(hourRange)) {
+//            final TramTime nodeTime = TramTime.of(hourAtNode,0);
+//            return reasons.recordReason(HeuristicsReasons.DestinationUnavailableAtTime(nodeTime, howIGotHere));
+//        }
+
+        if (travelTimes.anyOverlap(hourRangeToday)) {
+            return reasons.recordReason(HeuristicReasonsOK.HourOk(ReasonCode.HourOk, howIGotHere, currentTime));
         }
-
-        // TODO Need better way to handle this
-        final TramTime beginWindow = hourAtNode==0 ? TramTime.nextDay(0,0) : TramTime.of(hourAtNode, 0);
-
-        final TimeRange windowForWait = TimeRange.of(beginWindow, Duration.ofMinutes(maxWait), Duration.ZERO);
-
-        if (windowForWait.contains(journeyClockTime)) {
-            return valid(ReasonCode.HourOk, howIGotHere, reasons);
+        TimeRange hourRangeTommorow = TimeRange.of(TramTime.nextDay(hourAtNode, 0), TramTime.nextDay(hourAtNode, 59));
+        if (travelTimes.anyOverlap(hourRangeTommorow)) {
+            return reasons.recordReason(HeuristicReasonsOK.HourOk(ReasonCode.HourOk, howIGotHere, currentTime));
         }
+        return reasons.recordReason(HeuristicsReasons.DoesNotOperateAtHour(currentTime, howIGotHere));
 
-        return reasons.recordReason(HeuristicsReasons.DoesNotOperateAtHour(journeyClockTime, howIGotHere));
     }
 
     public HeuristicsReason checkStationOpen(final GraphNode node, final HowIGotHere howIGotHere, final ServiceReasons reasons) {
@@ -230,23 +224,23 @@ public class ServiceHeuristics {
     }
 
     private HeuristicsReason valid(final ReasonCode code, final HowIGotHere howIGotHere, final ServiceReasons reasons) {
-        return reasons.recordReason(HeuristicsReasons.IsValid(code, howIGotHere));
+        return reasons.recordReason(HeuristicReasonsOK.IsValid(code, howIGotHere));
     }
 
     public int getMaxPathLength() {
         return journeyConstraints.getMaxPathLength();
     }
 
-    public HeuristicsReason notAlreadySeen(final ImmutableJourneyState journeyState, final GraphNode nextNode, final HowIGotHere howIGotHere,
-                                           final ServiceReasons reasons) {
-        reasons.incrementTotalChecked();
-
-        final IdFor<Station> stationId = nextNode.getStationId();
-        if (journeyState.hasVisited(stationId)) {
-            return reasons.recordReason(HeuristicsReasons.AlreadySeenStation(stationId, howIGotHere));
-        }
-        return valid(ReasonCode.Continue, howIGotHere, reasons);
-    }
+//    public HeuristicsReason notAlreadySeen(final ImmutableJourneyState journeyState, final GraphNode nextNode, final HowIGotHere howIGotHere,
+//                                           final ServiceReasons reasons) {
+//        reasons.incrementTotalChecked();
+//
+//        final IdFor<Station> stationId = nextNode.getStationId();
+//        if (journeyState.hasVisited(stationId)) {
+//            return reasons.recordReason(HeuristicsReasons.AlreadySeenStation(stationId, howIGotHere));
+//        }
+//        return valid(ReasonCode.Continue, howIGotHere, reasons);
+//    }
 
 
     public HeuristicsReason checkNotBeenOnTripBefore(final HowIGotHere howIGotHere, final GraphNode minuteNode, final ImmutableJourneyState journeyState,

@@ -53,7 +53,7 @@ public class PreviousVisits implements ReportsCacheStats {
 
     // TODO Disable for depth first?
 
-    public void recordVisitIfUseful(final HeuristicsReason reason, final GraphNode node, ImmutableJourneyState journeyState, final EnumSet<GraphLabel> labels) {
+    public void cacheVisitIfUseful(final HeuristicsReason reason, final GraphNode node, ImmutableJourneyState journeyState, final EnumSet<GraphLabel> labels) {
 
         final ReasonCode reasonCode = reason.getReasonCode();
 

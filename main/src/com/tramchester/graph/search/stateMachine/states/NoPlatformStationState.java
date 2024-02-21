@@ -52,7 +52,6 @@ public class NoPlatformStationState extends StationState {
         public NoPlatformStationState fromStart(final NotStartedState notStartedState, final GraphNode node, final Duration cost,
                                                 final JourneyStateUpdate journeyState, final boolean alreadyOnDiversion,
                                                 final boolean onDiversion, final GraphTransaction txn) {
-            //final Stream<ImmutableGraphRelationship> neighbours = getRelationships(txn, node, OUTGOING, NEIGHBOUR);
 
             final Stream<ImmutableGraphRelationship> walksAndGroup = boardRelationshipsPlus(node, txn, WALKS_FROM_STATION, GROUPED_TO_PARENT, NEIGHBOUR);
 
@@ -75,16 +74,16 @@ public class NoPlatformStationState extends StationState {
         public NoPlatformStationState fromNeighbour(final StationState noPlatformStation, final GraphNode node, final Duration cost,
                                                     final JourneyStateUpdate journeyState,
                                                     final boolean onDiversion, final GraphTransaction txn) {
-            Stream<ImmutableGraphRelationship> grouped = node.getRelationships(txn, OUTGOING,GROUPED_TO_PARENT);
-            Stream<ImmutableGraphRelationship> boarding = findStateAfterRouteStation.getBoardingRelationships(txn, node);
+            final Stream<ImmutableGraphRelationship> grouped = node.getRelationships(txn, OUTGOING,GROUPED_TO_PARENT);
+            final Stream<ImmutableGraphRelationship> boarding = findStateAfterRouteStation.getBoardingRelationships(txn, node);
             return new NoPlatformStationState(noPlatformStation, Stream.concat(grouped, boarding), cost, node, journeyState, getDestination());
         }
 
         @Override
         public NoPlatformStationState fromGrouped(final GroupedStationState groupedStationState, final GraphNode node, final Duration cost,
                                                   final JourneyStateUpdate journeyState, final GraphTransaction txn) {
-            Stream<ImmutableGraphRelationship> neighbour = node.getRelationships(txn, OUTGOING, BOARD, INTERCHANGE_BOARD, NEIGHBOUR);
-            Stream<ImmutableGraphRelationship> boarding = findStateAfterRouteStation.getBoardingRelationships(txn, node);
+            final Stream<ImmutableGraphRelationship> neighbour = node.getRelationships(txn, OUTGOING, BOARD, INTERCHANGE_BOARD, NEIGHBOUR);
+            final Stream<ImmutableGraphRelationship> boarding = findStateAfterRouteStation.getBoardingRelationships(txn, node);
             return new NoPlatformStationState(groupedStationState, Stream.concat(neighbour, boarding), cost,  node, journeyState, getDestination());
         }
 

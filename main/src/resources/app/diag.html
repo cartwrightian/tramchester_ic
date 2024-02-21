@@ -53,14 +53,14 @@
                     <input type="hidden" id="hiddendate" v-model="date"></input>
                 </v-col>
             </v-row>
-            <v-row v-if="selectModesEnabled">
-                <v-col class="pl-0">
+            <v-row >
+                <v-col class="pl-0" v-if="selectModesEnabled">
                     <v-select v-model="selectedModes" :items="modes" multiple density="compact">
                     </v-select>
                 </v-col>
                 <v-col>
                     <label for="maxChanges">max changes:</label>
-                    <input type="number" name="max changes" min="1" max="8" id="maxChanges" v-model="maxChanges"> 
+                    <input type="number" name="max changes" min="0" max="8" id="maxChanges" v-model="maxChanges"> 
                 </v-col>
             </v-row>
             <v-row>

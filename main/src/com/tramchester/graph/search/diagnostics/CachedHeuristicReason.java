@@ -2,7 +2,7 @@ package com.tramchester.graph.search.diagnostics;
 
 import java.util.Objects;
 
-public class CachedHeuristicReason extends SimpleHeuristicReason {
+public class CachedHeuristicReason extends InvalidHeuristicReason {
     private final HeuristicsReason contained;
 
     public CachedHeuristicReason(HeuristicsReason contained, HowIGotHere howIGotHere) {

@@ -6,17 +6,14 @@ import com.tramchester.graph.search.diagnostics.ReasonCode;
 import java.util.EnumSet;
 import java.util.List;
 
-public class StationDiagnosticsLinkDTO {
+public class StationDiagnosticsLinkDTO extends CommonDiagnosticsDTO {
     private final LocationRefWithPosition towards;
     private final List<DiagnosticReasonDTO> reasons;
-    private final boolean timeoutSeen;
-    private final boolean pathTooLong;
 
     public StationDiagnosticsLinkDTO(LocationRefWithPosition towards, List<DiagnosticReasonDTO> reasons, EnumSet<ReasonCode> codes) {
+        super(codes);
         this.towards = towards;
         this.reasons = reasons;
-        this.timeoutSeen = codes.contains(ReasonCode.TimedOut);
-        pathTooLong = codes.contains(ReasonCode.PathTooLong);
     }
 
     public LocationRefWithPosition getTowards() {
@@ -27,11 +24,4 @@ public class StationDiagnosticsLinkDTO {
         return reasons;
     }
 
-    public boolean isTimeoutSeen() {
-        return timeoutSeen;
-    }
-
-    public boolean isPathTooLong() {
-        return pathTooLong;
-    }
 }

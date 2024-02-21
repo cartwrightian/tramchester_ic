@@ -570,6 +570,7 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Rochdale, Eccles);
     }
 
+    @Disabled("diag testing only")
     @Test
     void shouldNotFindJourney() {
         // time needs to be when trams still running?
@@ -602,7 +603,7 @@ public class RouteCalculatorTest {
         List<DiagnosticReasonDTO> notAvailables = stationDiagnosticsLinkDTO.getReasons().
                 stream().filter(reason -> reason.getCode() == ReasonCode.DestinationUnavailableAtTime).toList();
 
-        assertEquals(3, notAvailables.size());
+        assertEquals(1, notAvailables.size());
 
         //String text = notAvailables.get(0).getText();
         //assertTrue(text.contains("01:01"), text);

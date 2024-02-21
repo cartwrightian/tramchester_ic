@@ -11,7 +11,6 @@ public enum ReasonCode {
     NotOnQueryDate,
     RouteNotOnQueryDate,
     DoesNotOperateOnTime,
-//    NotReachable,
     ExchangeNotReachable,
     ServiceNotRunningAtTime,
     TookTooLong,
@@ -32,11 +31,11 @@ public enum ReasonCode {
     TooManyWalkingConnections,
     TooManyNeighbourConnections,
     StationClosed,
-    TimedOut,
+//    TimedOut,
     TooManyRouteChangesRequired,
     TooManyInterchangesRequired,
 
-    CachedUNKNOWN,
+//    CachedUNKNOWN,
     CachedNotAtHour,
     CachedDoesNotOperateOnTime,
     CachedTooManyRouteChangesRequired,
@@ -53,6 +52,7 @@ public enum ReasonCode {
     OnSubway,
     OnWalk,
     NotOnVehicle,
+    SeenGroup,
 
     Arrived;
 
@@ -65,14 +65,14 @@ public enum ReasonCode {
                     -> Evaluation.INCLUDE_AND_PRUNE;
             case HigherCost, ReturnedToStart, PathTooLong, TooManyChanges, TooManyWalkingConnections,
                     TookTooLong, ServiceNotRunningAtTime, NotAtHour, DoesNotOperateOnTime, NotOnQueryDate, MoreChanges,
-                    AlreadyDeparted, StationClosed, TooManyNeighbourConnections, TimedOut, RouteNotOnQueryDate, HigherCostViaExchange,
+                    AlreadyDeparted, StationClosed, TooManyNeighbourConnections, RouteNotOnQueryDate, HigherCostViaExchange,
                     ExchangeNotReachable, TooManyRouteChangesRequired, TooManyInterchangesRequired, AlreadySeenStation,
                     TransportModeWrong, SameTrip, DestinationUnavailableAtTime, AlreadySeenTime
                     -> Evaluation.EXCLUDE_AND_PRUNE;
-            case OnTram, OnBus, OnTrain, NotOnVehicle, CachedUNKNOWN, PreviousCacheMiss, NumWalkingConnectionsOk,
+            case OnTram, OnBus, OnTrain, NotOnVehicle, PreviousCacheMiss, NumWalkingConnectionsOk,
                     NeighbourConnectionsOk, OnShip, OnSubway, OnWalk, CachedNotAtHour,
                     CachedDoesNotOperateOnTime, CachedTooManyRouteChangesRequired, CachedRouteNotOnQueryDate,
-                    CachedNotOnQueryDate, CachedTooManyInterchangesRequired
+                    CachedNotOnQueryDate, CachedTooManyInterchangesRequired, SeenGroup
                     -> throw new RuntimeException("Unexpected reason-code during evaluation: " + code.name());
         };
     }

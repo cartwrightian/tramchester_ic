@@ -81,14 +81,15 @@ public class RouteCalculatorSupport {
     }
 
 
-    protected GraphNode getLocationNodeSafe(GraphTransaction txn, Location<?> location) {
-        GraphNode stationNode = txn.findNode(location);
-        if (stationNode == null) {
+    protected GraphNode getLocationNodeSafe(final GraphTransaction txn, final Location<?> location) {
+        final GraphNode findNode = txn.findNode(location);
+        if (findNode == null) {
             String msg = "Unable to find node for " + location.getId();
             logger.error(msg);
             throw new RuntimeException(msg);
         }
-        return stationNode;
+        logger.info("found node " + findNode.getId() + " for " + location.getId());
+        return findNode;
     }
 
     @NotNull
@@ -131,10 +132,10 @@ public class RouteCalculatorSupport {
         return IntStream.rangeClosed(min, max).boxed();
     }
 
-    public Stream<RouteCalculator.TimedPath> findShortestPath(final GraphTransaction txn, ServiceReasons reasons, PathRequest pathRequest,
-                                                              PreviousVisits previousSuccessfulVisit, LowestCostSeen lowestCostSeen,
-                                                              final LocationSet endStations, Set<GraphNodeId> destinationNodeIds,
-                                                              Running running) {
+    public Stream<RouteCalculator.TimedPath> findShortestPath(final GraphTransaction txn, final ServiceReasons reasons, final PathRequest pathRequest,
+                                                              final PreviousVisits previousSuccessfulVisit, final LowestCostSeen lowestCostSeen,
+                                                              final LocationSet endStations, final Set<GraphNodeId> destinationNodeIds,
+                                                              final Running running) {
         if (fullLogging) {
             if (config.getDepthFirst()) {
                 logger.info("Depth first is enabled. Traverse for " + pathRequest);
@@ -144,7 +145,7 @@ public class RouteCalculatorSupport {
         }
 
         final TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(txn, nodeContentsRepository,
-                tripRepository, traversalStateFactory, config, reasonToGraphViz, providesNow, fullLogging);
+                tripRepository, traversalStateFactory, config, reasonToGraphViz, fullLogging);
 
         final Stream<Path> paths = tramNetworkTraverser.findPaths(txn, pathRequest, previousSuccessfulVisit, reasons, lowestCostSeen,
                 destinationNodeIds, endStations, running);
@@ -203,7 +204,7 @@ public class RouteCalculatorSupport {
     }
 
     @NotNull
-    protected ServiceReasons createServiceReasons(JourneyRequest journeyRequest, PathRequest pathRequest) {
+    protected ServiceReasons createServiceReasons(final JourneyRequest journeyRequest, final PathRequest pathRequest) {
         return new ServiceReasons(journeyRequest, pathRequest.queryTime, providesNow, failedJourneyDiagnostics);
     }
 

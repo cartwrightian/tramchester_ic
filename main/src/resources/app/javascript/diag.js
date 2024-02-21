@@ -124,10 +124,10 @@ function addLinks(node, layer, origin, maxEdgeReasons) {
         var steps = [];
         steps.push([origin.latLong.lat, origin.latLong.lon]);
         steps.push([link.towards.latLong.lat, link.towards.latLong.lon]);
-        const lineWidth = Math.max(1, (link.reasons.length / maxEdgeReasons) * 20);
+        const lineWidth = Math.max(2, (link.reasons.length / maxEdgeReasons) * 20);
         const line = L.polyline(steps);
 
-        const lineColour = link.pathTooLong ? "red" : "purple";
+        const lineColour = getColour(link, "purple");
     
         line.setStyle({color: lineColour, opacity: 0.6, weight: lineWidth })
 
@@ -137,15 +137,26 @@ function addLinks(node, layer, origin, maxEdgeReasons) {
 
 }
 
+function getColour(item, defaultColour) {
+    if (item.arrived) {
+        return "green";
+    }
+    if (item.pathTooLong) {
+        return "red";
+    }
+    return defaultColour;
+}
+
 function addNodeToMap(node, app, maxNodeReasons, maxEdgeReasons) {
     const station = node.begin;
     const lat = station.latLong.lat;
     const lon = station.latLong.lon;
     const location = L.latLng(lat, lon);
-    const radius = Math.max(1, (node.reasons.length / maxNodeReasons) * 20);
-    const markerColour = node.pathTooLong ? "red" : "LightBlue";
+    const radius = Math.max(2, (node.reasons.length / maxNodeReasons) * 20);
+    
+    const markerColour = getColour(node, "LightBlue");
     const marker = new L.circleMarker(location, 
-        { fill: true, fillColor: markerColour, fillOpacity: 0.8, title: station.name, radius: radius, color: "LightBlue" });
+        { fill: true, fillColor: markerColour, fillOpacity: 0.8, title: station.name, radius: radius, color: markerColour });
 
     var stationText = station.name + " '" + station.id + "<br>";
     stationText = stationText + reasonsToText(node.reasons);
@@ -169,6 +180,14 @@ function updateMapWithDiag(app, diagnostics) {
         addNodeToMap(node, app, maxNodeReasons, maxEdgeReasons)
     })
 
+}
+
+function createPolyForArea(area, colour) {
+    const boundary = area.points;
+    var points = [];
+    boundary.forEach(latLong => points.push([latLong.lat, latLong.lon]));
+    var polygon = L.polygon(points, { stroke: true, weight: 1, fill: true, fillOpacity: 0.2, color: colour });
+    return polygon;
 }
 
 function queryServerForJourneysPost(app, startStop, endStop, queryTime, queryDate, queryArriveBy, changes) {
@@ -235,6 +254,7 @@ function queryServerForJourneysPost(app, startStop, endStop, queryTime, queryDat
     timeModal: false, // todo still used?
     map: null,
     bounds: null,
+    areas: null,
     stationLayerGroup: null,
     edgesLayerGroup: null
 }
@@ -282,6 +302,8 @@ var app = new Vue({
                 app.addBounds(map, app.bounds);
                 app.edgesLayerGroup.addTo(map);
                 app.stationLayerGroup.addTo(map);
+
+                app.addAreas(map, app.areas);
             },
             plan(event){
                 if (event!=null) {
@@ -311,6 +333,18 @@ var app = new Vue({
             },
             dateToNow() {
                 app.date = getCurrentDate();
+            },
+            addAreas: function(map, areas) {
+                var areaLayerGroup = L.layerGroup();
+                
+                areas.forEach(area => {
+                    var polygon = createPolyForArea(area, "grey");
+                    const areaId = area.areaId;
+                    polygon.bindTooltip("area " + areaId + "<br> " + area.areaName, { sticky: true});
+                    areaLayerGroup.addLayer(polygon);
+                })
+    
+                areaLayerGroup.addTo(map);
             }
         },
         mounted () {
@@ -329,7 +363,7 @@ var app = new Vue({
                     app.networkError = false;
                     //app.quadrants = quadResp.data;
                     app.bounds = boundsResp.data;
-                    //app.areas = areasResp.data;
+                    app.areas = areasResp.data;
                     app.draw();
                 })).catch(error => {
                     app.networkError = true;
