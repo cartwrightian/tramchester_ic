@@ -4,7 +4,6 @@ import com.tramchester.domain.LocationSet;
 import com.tramchester.geo.StationDistances;
 import com.tramchester.graph.search.ImmutableJourneyState;
 import com.tramchester.graph.search.JourneyState;
-import com.tramchester.graph.search.stateMachine.states.ImmutableTraversalState;
 import org.neo4j.graphdb.PathExpander;
 import org.neo4j.graphdb.traversal.BranchSelector;
 import org.neo4j.graphdb.traversal.TraversalBranch;
@@ -63,19 +62,24 @@ public class BreadthFirstBranchSelector implements BranchSelector {
 
             @Override
             public int compare(final TraversalBranch branchA, final TraversalBranch branchB) {
-                final ImmutableJourneyState stateA = (JourneyState) branchA.state();
-                final ImmutableJourneyState stateB = (JourneyState) branchB.state();
-
-                final ImmutableTraversalState traversalStateA = stateA.getTraversalState();
-                final ImmutableTraversalState traversalStateB = stateB.getTraversalState();
+                final ImmutableJourneyState journeyStateA = (ImmutableJourneyState) branchA.state();
+                final ImmutableJourneyState journeyStateB = (ImmutableJourneyState) branchB.state();
 
                 // only worth comparing on distance if not the same node
-                if (!traversalStateA.nodeId().equals(traversalStateB.nodeId())) {
-                    if(stateA.hasBegunJourney() && stateB.hasBegunJourney()) {
-                        return findDistances.compare(stateA.approxPosition(), stateB.approxPosition());
-                    }
+                if (journeyStateA.getNodeId().equals(journeyStateB.getNodeId())) {
+                    return journeyStateA.getJourneyClock().compareTo(journeyStateB.getJourneyClock());
                 }
-                return stateA.getJourneyClock().compareTo(stateB.getJourneyClock());
+
+                if(journeyStateA.hasBegunJourney() && journeyStateB.hasBegunJourney()) {
+                    return findDistances.compare(journeyStateA.approxPosition(), journeyStateB.approxPosition());
+                } else if (journeyStateA.hasBegunJourney()) {
+                    return -1;
+                } else if (journeyStateB.hasBegunJourney()) {
+                    return 1;
+                } else {
+                    return journeyStateA.getJourneyClock().compareTo(journeyStateB.getJourneyClock());
+                }
+
             }
 
         }

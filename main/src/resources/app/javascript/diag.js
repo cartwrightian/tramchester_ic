@@ -124,10 +124,12 @@ function addLinks(node, layer, origin, maxEdgeReasons) {
         var steps = [];
         steps.push([origin.latLong.lat, origin.latLong.lon]);
         steps.push([link.towards.latLong.lat, link.towards.latLong.lon]);
-        const lineWidth = Math.max(1, (node.reasons.length / maxEdgeReasons) * 20);
+        const lineWidth = Math.max(1, (link.reasons.length / maxEdgeReasons) * 20);
         const line = L.polyline(steps);
+
+        const lineColour = link.pathTooLong ? "red" : "purple";
     
-        line.setStyle({color: "red", opacity: 0.6, weight: lineWidth })
+        line.setStyle({color: lineColour, opacity: 0.6, weight: lineWidth })
 
         line.bindTooltip(reasonsToText(link.reasons));       
         layer.addLayer(line);
@@ -141,8 +143,9 @@ function addNodeToMap(node, app, maxNodeReasons, maxEdgeReasons) {
     const lon = station.latLong.lon;
     const location = L.latLng(lat, lon);
     const radius = Math.max(1, (node.reasons.length / maxNodeReasons) * 20);
+    const markerColour = node.pathTooLong ? "red" : "LightBlue";
     const marker = new L.circleMarker(location, 
-        { fill: true, fillColor: "LightBlue", fillOpacity: 0.8, title: station.name, radius: radius, color: "LightBlue" });
+        { fill: true, fillColor: markerColour, fillOpacity: 0.8, title: station.name, radius: radius, color: "LightBlue" });
 
     var stationText = station.name + " '" + station.id + "<br>";
     stationText = stationText + reasonsToText(node.reasons);

@@ -10,6 +10,7 @@ import com.tramchester.domain.presentation.DTO.diagnostics.JourneyDiagnostics;
 import com.tramchester.domain.presentation.DTO.diagnostics.StationDiagnosticsDTO;
 import com.tramchester.domain.presentation.DTO.diagnostics.StationDiagnosticsLinkDTO;
 import com.tramchester.repository.StationRepository;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,36 +68,47 @@ public class CreateFailedJourneyDiagnostics {
             final LocationRefWithPosition stationDto = new LocationRefWithPosition(station);
             final List<StationDiagnosticsLinkDTO> links = node.visitEdges(this::createLink);
             int currentMaxReasonsForEdges = getMaxNumReasons(node.edges);
-            if (currentMaxReasonsForEdges> maxEdgeReasons.get()) {
+            if (currentMaxReasonsForEdges > maxEdgeReasons.get()) {
                 maxEdgeReasons.set(currentMaxReasonsForEdges);
             }
-            if (node.reasonCodes.size()> maxNodeReasons.get()) {
-                maxNodeReasons.set(node.reasonCodes.size());
+            final Set<HeuristicsReason> heuristicsReasons = node.reasonCodes;
+            if (heuristicsReasons.size() > maxNodeReasons.get()) {
+                maxNodeReasons.set(heuristicsReasons.size());
             }
-            return new StationDiagnosticsDTO(stationDto, convertReasons(node.reasonCodes), links);
+            return new StationDiagnosticsDTO(stationDto, convertReasons(heuristicsReasons), links, getCodes(heuristicsReasons));
         });
         return new JourneyDiagnostics(dto, maxNodeReasons.get(), maxEdgeReasons.get());
+    }
+
+    private EnumSet<ReasonCode> getCodes(Set<HeuristicsReason> reasonCodes) {
+        return reasonCodes.stream().map(reason -> reason.code).collect(Collectors.toCollection(() -> EnumSet.noneOf(ReasonCode.class)));
     }
 
     private int getMaxNumReasons(Map<IdFor<Station>, Edge> edges) {
         return edges.values().stream().mapToInt(item -> item.reasonCodes.size()).max().orElse(0);
     }
 
-
-    private List<DiagnosticReasonDTO> convertReasons(Set<HeuristicsReason> reasonCodes) {
+    private List<DiagnosticReasonDTO> convertReasons(final Set<HeuristicsReason> reasonCodes) {
         return reasonCodes.stream().
                 filter(reason -> !reason.isValid()).
-                filter(reason -> !reason.isCached()).
+                //filter(reason -> !reason.isCached()).
                 sorted(Comparator.comparingInt(a -> a.code.ordinal())).
-                map(DiagnosticReasonDTO::new).distinct().collect(Collectors.toList());
+                map(CreateFailedJourneyDiagnostics::createDiagnosticReasonDTO).distinct().collect(Collectors.toList());
     }
 
-    private StationDiagnosticsLinkDTO createLink(Edge edge) {
+    @NotNull
+    private static DiagnosticReasonDTO createDiagnosticReasonDTO(HeuristicsReason heuristicsReason) {
+        if (heuristicsReason.getReasonCode()==ReasonCode.NotOnQueryDate) {
+            return new DiagnosticReasonDTO(ReasonCode.NotOnQueryDate, "NotOnQueryDate", heuristicsReason.isValid());
+        }
+        return new DiagnosticReasonDTO(heuristicsReason);
+    }
+
+    private StationDiagnosticsLinkDTO createLink(final Edge edge) {
         Location<?> station = stationRepository.getStationById(edge.end.stationId);
         LocationRefWithPosition towardsDTO = new LocationRefWithPosition(station);
-        return new StationDiagnosticsLinkDTO(towardsDTO, convertReasons(edge.reasonCodes));
+        return new StationDiagnosticsLinkDTO(towardsDTO, convertReasons(edge.reasonCodes), getCodes(edge.reasonCodes));
     }
-
 
     private class DiagnosticTree {
         private final Map<IdFor<Station>,Node> nodes;

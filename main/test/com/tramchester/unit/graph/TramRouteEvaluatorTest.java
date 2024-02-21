@@ -44,6 +44,7 @@ import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.traversal.BranchState;
@@ -672,6 +673,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         verifyAll();
     }
 
+    @Disabled("timeout has been removed")
     @Test
     void shouldExcludeIfTimedOut() {
         BranchState<JourneyState> branchState = new TestBranchState();

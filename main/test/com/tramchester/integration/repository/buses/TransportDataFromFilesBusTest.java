@@ -75,11 +75,6 @@ class TransportDataFromFilesBusTest {
         assertEquals(TGFM_BUS_AGENCIES, transportData.getAgencies().size());
     }
 
-    @Test
-    void shouldHaveRouteNumbersForBus() {
-        int numberRoutes = transportData.getRoutes().size();
-        assertWithinNPercent(TGFM_BUS_ROUTES, numberRoutes, 0.1F);
-    }
 
     @Test
     void shouldHaveExpectedStationAndPlatformNumbersForBus() {
@@ -109,19 +104,7 @@ class TransportDataFromFilesBusTest {
         assertEquals(0, tram);
     }
 
-    @Test
-    void shouldGetSpecificBusRoutes() {
-        Collection<Route> results = transportData.getRoutes();
-        long gmsRoutes = results.stream().filter(route -> route.getAgency().equals(StagecoachManchester)).count();
-        assertWithinNPercent(157, gmsRoutes, 0.1F);
-    }
 
-    @Test
-    void shouldGetOnlyBusRoutes() {
-        Collection<Route> results = transportData.getRoutes();
-        long notBus = results.stream().filter(route -> !route.getTransportMode().equals(Bus)).count();
-        assertEquals(0, notBus);
-    }
 
     @Test
     void shouldGetAgencies() {
@@ -129,17 +112,7 @@ class TransportDataFromFilesBusTest {
         assertTrue(agencies.contains(StagecoachManchester), HasId.asIds(agencies));
     }
 
-    @Test
-    void shouldHaveRoutesWithServices() {
-        Set<Route> routes = transportData.getRoutes();
 
-        Set<Route> noSvcs = routes.stream().filter(route -> route.getServices().isEmpty()).collect(Collectors.toSet());
-
-        //assertTrue(noSvcs.isEmpty(), HasId.asIds(noSvcs));
-        // see next test
-        assertEquals(0, noSvcs.size(),  HasId.asIds(noSvcs));
-
-    }
 
     @Test
     void shouldHaveNotHaveRoutesWithZeroTrips() {

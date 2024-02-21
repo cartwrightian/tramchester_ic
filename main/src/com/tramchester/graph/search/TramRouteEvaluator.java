@@ -25,8 +25,8 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.Set;
 
 import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO_STATION;
@@ -52,6 +52,8 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private final GraphTransaction txn;
     private final boolean depthFirst;
     private final Running running;
+
+    private final Set<GraphNodeId> seenTimeNode;
 
     public TramRouteEvaluator(final RouteCalculatorSupport.PathRequest pathRequest, final Set<GraphNodeId> destinationNodeIds,
                               final NodeContentsRepository nodeContentsRepository, final ServiceReasons reasons,
@@ -85,6 +87,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         timeout = config.getCalcTimeoutMillis();
         depthFirst = config.getDepthFirst();
 
+        seenTimeNode = new HashSet<>();
 
         this.running = running;
     }
@@ -109,10 +112,11 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
         final EnumSet<GraphLabel> labels = nodeContentsRepository.getLabels(nextNode);
 
+        final HowIGotHere howIGotHere = new HowIGotHere(journeyState, nextNode, last);
+
         // NOTE: This makes a significant impact on performance, without it algo explore the same
         // path again and again for the same time in the case where it is a valid time.
         final ReasonCode previousResult = previousVisits.getPreviousResult(nextNode, journeyState, labels);
-        final HowIGotHere howIGotHere = new HowIGotHere(journeyState, nextNode, last);
         if (previousResult != ReasonCode.PreviousCacheMiss) {
             final TramTime journeyClock = journeyState.getJourneyClock();
             reasons.recordReason(ServiceReason.Cached(previousResult, journeyClock, howIGotHere));
@@ -147,18 +151,14 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
                 return ReasonCode.HigherCost;
             }
 
-            final long durationMillis = begin.until(providesNow.getInstant(), ChronoUnit.MILLIS);
-            if (durationMillis > timeout) {
-//                final Map<String, Object> allProps = nextNode.getAllProperties();
-//                logger.warn(format("Timed out %s ms, current cost %s, changes %s, path len %s, state: %s, labels %s, best %s",
-//                        durationMillis, totalCostSoFar, numberChanges, thePath.length(), howIGotHere.getTraversalStateName(),
-//                        nodeLabels, bestResultSoFar));
-//                logger.warn(format("Timed out: Props for node %s were %s", nextNodeId, allProps));
-                logger.warn(String.format("Timed out at '%s' node %s state type %s",
-                        journeyState.approxPosition(), nextNodeId, journeyState.getTraversalStateType()));
-                reasons.recordReason(ServiceReason.TimedOut(howIGotHere));
-                return ReasonCode.TimedOut;
-            }
+            // TODO SPIKE!
+//            final long durationMillis = begin.until(providesNow.getInstant(), ChronoUnit.MILLIS);
+//            if (durationMillis > timeout) {
+//                logger.warn(String.format("Timed out at '%s' node %s state type %s", journeyState.approxPosition(),
+//                        nextNodeId, journeyState.getTraversalStateType()));
+//                reasons.recordReason(ServiceReason.TimedOut(howIGotHere));
+//                return ReasonCode.TimedOut;
+//            }
         }
 
         reasons.recordState(journeyState);
@@ -166,7 +166,9 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         // no journey longer than N nodes
         // TODO check length based on current transport mode??
         if (thePath.length() > serviceHeuristics.getMaxPathLength()) {
-            logger.warn("Hit max path length");
+            if (depthFirst) {
+                logger.warn("Hit max path length");
+            }
             reasons.recordReason(ServiceReason.PathToLong(howIGotHere));
             return ReasonCode.PathTooLong;
         }
@@ -202,6 +204,15 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         // --> Minute
         // check time
         if (nodeLabels.contains(GraphLabel.MINUTE)) {
+            // TODO SPIKE!
+            if (!depthFirst) {
+                if (this.seenTimeNode.contains(nextNodeId)) {
+                    return ReasonCode.AlreadySeenTime;
+                } else {
+                    seenTimeNode.add(nextNodeId);
+                }
+            }
+
             HeuristicsReason serviceReasonTripCheck = serviceHeuristics.checkNotBeenOnTripBefore(howIGotHere, nextNode, journeyState, reasons);
             if (!serviceReasonTripCheck.isValid()) {
                 return serviceReasonTripCheck.getReasonCode();
@@ -213,12 +224,15 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             }
         }
 
-        // SPIKE!
-        if (nodeLabels.contains(GraphLabel.STATION)) {
-            if (!serviceHeuristics.notAlreadySeen(journeyState, nextNode, howIGotHere, reasons).isValid()) {
-                return ReasonCode.AlreadySeenStation;
-            }
-        }
+//        if (!depthFirst) {
+//            // TODO SPIKE!
+//            if (nodeLabels.contains(GraphLabel.STATION)) {
+//                if (!serviceHeuristics.notAlreadySeen(journeyState, nextNode, howIGotHere, reasons).isValid()) {
+//                    return ReasonCode.AlreadySeenStation;
+//                }
+//            }
+//
+//        }
 
         /////
         // these next are ordered by frequency / number of nodes of type

@@ -27,10 +27,6 @@ public class StationDistances {
         return new FindDistancesTo(destinations);
     }
 
-//    public FindDistancesToBox findDistancesTo(BoundingBox destinationBox) {
-//        return new FindDistancesToBox(destinationBox);
-//    }
-
     public class FindDistancesTo {
         private final Set<GridPosition> destinationGrids;
 
@@ -66,24 +62,4 @@ public class StationDistances {
 
     }
 
-//    public static class FindDistancesToBox {
-//        private final GridPosition middleOfDest;
-//        private final Cache<BoundingBox, Long> cache;
-//
-//        public FindDistancesToBox(BoundingBox destinationBox) {
-//            middleOfDest = destinationBox.middle();
-//            cache = Caffeine.newBuilder().build();
-//        }
-//
-//        public int compare(final BoundingBox boxA, final BoundingBox boxB) {
-//            final long distanceA = cache.get(boxA, theBox -> getDistance(boxA));
-//            final long distanceB = cache.get(boxB, theBox -> getDistance(boxB));
-//
-//            return Long.compare(distanceA, distanceB);
-//        }
-//
-//        private long getDistance(final BoundingBox box) {
-//            return GridPositions.distanceTo(middleOfDest, box.middle());
-//        }
-//    }
 }

@@ -11,7 +11,7 @@ import java.util.Objects;
 
 import static java.lang.String.format;
 
-public abstract class ServiceReason {
+public class ServiceReason {
 
     private static class Unreachable extends HeuristicsReason {
         protected Unreachable(ReasonCode code, HowIGotHere path) {
@@ -132,6 +132,8 @@ public abstract class ServiceReason {
         }
     }
 
+    ////////////////////////////////////
+
     private static class DoesNotOperateOnTime extends HeuristicsReason
     {
         protected final TramTime elapsedTime;
@@ -166,6 +168,43 @@ public abstract class ServiceReason {
         @Override
         public int hashCode() {
             return Objects.hash(super.hashCode(), elapsedTime);
+        }
+    }
+
+    private static class DoesNotOperateAtHour extends HeuristicsReason
+    {
+        protected final int hour;
+
+        protected DoesNotOperateAtHour(final ReasonCode reasonCode, final TramTime elapsedTime, final HowIGotHere path) {
+            super(reasonCode, path);
+            if (elapsedTime==null) {
+                throw new RuntimeException("Must provide time");
+            }
+            this.hour = elapsedTime.getHourOfDay();
+        }
+
+        @Override
+        public String textForGraph() {
+            return format("%s%s%s", getReasonCode().name(), System.lineSeparator(), hour);
+        }
+
+        @Override
+        public String toString() {
+            return super.toString() + " hour:"+hour;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            if (!super.equals(o)) return false;
+            DoesNotOperateAtHour that = (DoesNotOperateAtHour) o;
+            return Objects.equals(hour, that.hour);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(super.hashCode(), hour);
         }
     }
 
@@ -213,7 +252,7 @@ public abstract class ServiceReason {
     }
 
     public static HeuristicsReason DoesNotOperateAtHour(final TramTime currentElapsed, final HowIGotHere path) {
-        return new DoesNotOperateOnTime(ReasonCode.NotAtHour, currentElapsed, path);
+        return new DoesNotOperateAtHour(ReasonCode.NotAtHour, currentElapsed, path);
     }
 
     public static HeuristicsReason AlreadyDeparted(final TramTime currentElapsed, final HowIGotHere path) {
@@ -227,7 +266,7 @@ public abstract class ServiceReason {
     public static HeuristicsReason Cached(final ReasonCode code, final TramTime currentElapsed, final HowIGotHere path) {
 
         return switch (code) {
-            case NotAtHour -> new DoesNotOperateOnTime(ReasonCode.CachedNotAtHour, currentElapsed, path);
+            case NotAtHour -> new DoesNotOperateAtHour(ReasonCode.CachedNotAtHour, currentElapsed, path);
             case DoesNotOperateOnTime -> new DoesNotOperateOnTime(ReasonCode.CachedDoesNotOperateOnTime, currentElapsed, path);
             case TooManyRouteChangesRequired -> new DoesNotOperateOnTime(ReasonCode.CachedTooManyRouteChangesRequired, currentElapsed, path);
             case RouteNotOnQueryDate -> new DoesNotOperateOnTime(ReasonCode.CachedRouteNotOnQueryDate, currentElapsed, path);
