@@ -138,17 +138,10 @@ public class HeuristicsReasons {
         return new DoesNotOperateOnTime(ReasonCode.DestinationUnavailableAtTime, currentElapsed, path);
     }
 
-    public static HeuristicsReason Cached(final ReasonCode code, final TramTime currentElapsed, final HowIGotHere path) {
+    public static HeuristicsReason Cached(final HeuristicsReason contained, final HowIGotHere path) {
 
-        return switch (code) {
-            case NotAtHour -> new DoesNotOperateAtHour(ReasonCode.CachedNotAtHour, currentElapsed, path);
-            case DoesNotOperateOnTime -> new DoesNotOperateOnTime(ReasonCode.CachedDoesNotOperateOnTime, currentElapsed, path);
-            case TooManyRouteChangesRequired -> new DoesNotOperateOnTime(ReasonCode.CachedTooManyRouteChangesRequired, currentElapsed, path);
-            case RouteNotOnQueryDate -> new DoesNotOperateOnTime(ReasonCode.CachedRouteNotOnQueryDate, currentElapsed, path);
-            case NotOnQueryDate -> new DoesNotOperateOnTime(ReasonCode.CachedNotOnQueryDate, currentElapsed, path);
-            case TooManyInterchangesRequired -> new DoesNotOperateOnTime(ReasonCode.CachedTooManyInterchangesRequired, currentElapsed, path);
-            default -> new DoesNotOperateOnTime(ReasonCode.CachedUNKNOWN, currentElapsed, path);
-        };
+        return new CachedHeuristicReason(contained, path);
+
     }
 
     public static HeuristicsReason HigherCost(final HowIGotHere howIGotHere) {

@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -47,7 +48,7 @@ public class ServiceReasons {
     private final AtomicInteger totalChecked = new AtomicInteger(0);
     private final boolean diagnosticsEnabled;
 
-    private boolean success;
+    private final AtomicBoolean success;
 
     public ServiceReasons(JourneyRequest journeyRequest, TramTime queryTime, ProvidesNow providesLocalNow,
                           CreateFailedJourneyDiagnostics failedJourneyDiagnostics) {
@@ -56,7 +57,7 @@ public class ServiceReasons {
         this.journeyRequest = journeyRequest;
         this.failedJourneyDiagnostics = failedJourneyDiagnostics;
         reasons = new ArrayList<>();
-        success = false;
+        success = new AtomicBoolean(false);
         diagnosticsEnabled = journeyRequest.getDiagnosticsEnabled();
 
         reasonCodeStats = new EnumMap<>(ReasonCode.class);
@@ -80,13 +81,13 @@ public class ServiceReasons {
         if (diagnosticsEnabled) {
             // replace with new mechanism below
 //            createGraphFile(transaction, reasonToGraphViz, pathRequest);
-            if (!success) {
+            if (!success.get()) {
                 JourneyDiagnostics diagnostics = failedJourneyDiagnostics.recordFailedJourneys(reasons);
                 journeyRequest.injectDiag(diagnostics);
             }
         }
 
-        if (!success || diagnosticsEnabled) {
+        if (!success.get() || diagnosticsEnabled) {
             reportStats(transaction, pathRequest);
         }
 
@@ -94,6 +95,11 @@ public class ServiceReasons {
     }
 
     public HeuristicsReason recordReason(final HeuristicsReason serviceReason) {
+
+        if (serviceReason.getReasonCode()==ReasonCode.Arrived) {
+            success.set(true);
+        }
+
         if (diagnosticsEnabled) {
             addReason(serviceReason);
             recordEndNodeVisit(serviceReason.getHowIGotHere());
@@ -159,7 +165,7 @@ public class ServiceReasons {
     }
 
     private void reportStats(final GraphTransaction txn, final RouteCalculatorSupport.PathRequest pathRequest) {
-        if ((!success) && journeyRequest.getWarnIfNoResults()) {
+        if ((!success.get()) && journeyRequest.getWarnIfNoResults()) {
             logger.warn("No result found for at " + journeyRequest.getOriginalTime() + " changes " + pathRequest.getNumChanges() +
                     " for " + journeyRequest );
         }
@@ -269,7 +275,7 @@ public class ServiceReasons {
     }
 
     private String createFilename(final RouteCalculatorSupport.PathRequest pathRequest) {
-        final String status = success ? "found" : "notfound";
+        final String status = success.get() ? "found" : "notfound";
         final String dateString = providesLocalNow.getDateTime().toLocalDate().toString();
         final String changes = "changes" + pathRequest.getNumChanges();
         final String postfix = journeyRequest.getUid().toString();

@@ -72,13 +72,11 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         this.bestResultSoFar = bestResultSoFar;
 
         this.startNodeId = startNodeId;
-//        Instant begin = providesNow.getInstant();
         this.requestedLabels = GraphLabel.forMode(requestedModes);
         this.maxInitialWaitMins = Math.toIntExact(maxInitialWait.toMinutes());
         this.txn = txn;
 
         maxWaitMins = config.getMaxWait();
-//        long timeout = config.getCalcTimeoutMillis();
         depthFirst = config.getDepthFirst();
 
         seenTimeNode = new HashSet<>();
@@ -110,14 +108,15 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
         // NOTE: This makes a significant impact on performance, without it algo explore the same
         // path again and again for the same time in the case where it is a valid time.
-        final ReasonCode previousResult = previousVisits.getPreviousResult(nextNode, journeyState, labels);
-        if (previousResult != ReasonCode.PreviousCacheMiss) {
-            final TramTime journeyClock = journeyState.getJourneyClock();
-            reasons.recordReason(HeuristicsReasons.Cached(previousResult, journeyClock, howIGotHere));
+        final HeuristicsReason previousResult = previousVisits.getPreviousResult(journeyState, labels, howIGotHere);
+        boolean cacheHit = (previousResult.getReasonCode() != ReasonCode.PreviousCacheMiss);
+        if (cacheHit) {
+//            final TramTime journeyClock = journeyState.getJourneyClock();
+            reasons.recordReason(HeuristicsReasons.Cached(previousResult, howIGotHere));
             return Evaluation.EXCLUDE_AND_PRUNE;
-        } else {
-            reasons.recordReason(HeuristicsReasons.CacheMiss(howIGotHere));
         }
+
+        reasons.recordReason(HeuristicsReasons.CacheMiss(howIGotHere));
 
         final HeuristicsReason heuristicsReason = doEvaluate(path, journeyState, nextNode, labels, howIGotHere);
         final Evaluation result = heuristicsReason.getEvaluationAction();

@@ -9,6 +9,8 @@ import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.ImmutableJourneyState;
 import com.tramchester.graph.search.diagnostics.HeuristicsReason;
+import com.tramchester.graph.search.diagnostics.HeuristicsReasons;
+import com.tramchester.graph.search.diagnostics.HowIGotHere;
 import com.tramchester.graph.search.diagnostics.ReasonCode;
 import com.tramchester.repository.ReportsCacheStats;
 import org.apache.commons.lang3.tuple.Pair;
@@ -29,10 +31,10 @@ public class PreviousVisits implements ReportsCacheStats {
 
     private static final int CACHE_DURATION_MINS = 5;
 
-    private final Cache<GraphNodeId, ReasonCode> timeNodePrevious;
-    private final Cache<Key<TramTime>, ReasonCode> hourNodePrevious;
-    private final Cache<GraphNodeId, ReasonCode> routeStationPrevious;
-    private final Cache<GraphNodeId, ReasonCode> servicePrevious;
+    private final Cache<GraphNodeId, HeuristicsReason> timeNodePrevious;
+    private final Cache<Key<TramTime>, HeuristicsReason> hourNodePrevious;
+    private final Cache<GraphNodeId, HeuristicsReason> routeStationPrevious;
+    private final Cache<GraphNodeId, HeuristicsReason> servicePrevious;
     private final Cache<GraphNodeId, Integer> lowestNumberOfChanges;
 
     public PreviousVisits() {
@@ -49,9 +51,13 @@ public class PreviousVisits implements ReportsCacheStats {
                 recordStats().build();
     }
 
-    public void recordVisitIfUseful(final HeuristicsReason result, final GraphNode node, ImmutableJourneyState journeyState, final EnumSet<GraphLabel> labels) {
+    // TODO Disable for depth first?
 
-        final ReasonCode reasonCode = result.getReasonCode();
+    public void recordVisitIfUseful(final HeuristicsReason reason, final GraphNode node, ImmutableJourneyState journeyState, final EnumSet<GraphLabel> labels) {
+
+        final ReasonCode reasonCode = reason.getReasonCode();
+
+        final GraphNodeId id = node.getId();
 
         if (labels.contains(GraphLabel.MINUTE) || labels.contains(GraphLabel.HOUR)) {
             // time and hour nodes represent the time on the actual journey, so if we have been here before
@@ -59,15 +65,15 @@ public class PreviousVisits implements ReportsCacheStats {
             final TramTime journeyClock = journeyState.getJourneyClock();
 
             switch (reasonCode) {
-                case DoesNotOperateOnTime -> timeNodePrevious.put(node.getId(), reasonCode);
-                case NotAtHour -> hourNodePrevious.put(new Key<>(node, journeyClock), reasonCode);
+                case DoesNotOperateOnTime -> timeNodePrevious.put(id, reason);
+                case NotAtHour -> hourNodePrevious.put(new Key<>(id, journeyClock), reason);
             }
 
             return;
         }
 
         if (labels.contains(GraphLabel.ROUTE_STATION)) {
-            recordRouteStationVisitIfUseful(reasonCode, node.getId(), journeyState);
+            recordRouteStationVisitIfUseful(reason, id, journeyState);
             return;
         }
 
@@ -77,29 +83,31 @@ public class PreviousVisits implements ReportsCacheStats {
                 final TramTime journeyClock = journeyState.getJourneyClock();
                 final boolean isNextDay = journeyClock.isNextDay();
                 if (!isNextDay) {
-                    servicePrevious.put(node.getId(), reasonCode);
+                    servicePrevious.put(id, reason);
                 }
             }
         }
     }
 
-    private void recordRouteStationVisitIfUseful(final ReasonCode result, final GraphNodeId nodeId, final ImmutableJourneyState journeyState) {
-        if (result == TooManyRouteChangesRequired) {
+    private void recordRouteStationVisitIfUseful(final HeuristicsReason reason, final GraphNodeId nodeId, final ImmutableJourneyState journeyState) {
+        final ReasonCode reasonCode = reason.getReasonCode();
+
+        if (reasonCode == TooManyRouteChangesRequired) {
             // based on a route->route changes count only, invariant on current state of a journey
-            routeStationPrevious.put(nodeId, result);
+            routeStationPrevious.put(nodeId, reason);
         }
-        if (result == RouteNotOnQueryDate) {
+        if (reasonCode == RouteNotOnQueryDate) {
             // the route is unavailable for the query date
             final TramTime journeyClock = journeyState.getJourneyClock();
             final boolean isNextDay = journeyClock.isNextDay();
             if (!isNextDay) {
-                routeStationPrevious.put(nodeId, result);
+                routeStationPrevious.put(nodeId, reason);
             }
         }
         // note: only occurs for depthFirst
-        if (result == TooManyInterchangesRequired) {
+        if (reasonCode == TooManyInterchangesRequired) {
             // too many changes, record lowest number of changes on journey that gave this result
-            routeStationPrevious.put(nodeId, result);
+            routeStationPrevious.put(nodeId, reason);
 
             final int numberChanges = journeyState.getNumberChanges();
             final Integer currentLowest = lowestNumberOfChanges.getIfPresent(nodeId);
@@ -113,11 +121,14 @@ public class PreviousVisits implements ReportsCacheStats {
         }
     }
 
-    public ReasonCode getPreviousResult(final GraphNode node, final ImmutableJourneyState journeyState, final EnumSet<GraphLabel> labels) {
+    public HeuristicsReason getPreviousResult(final ImmutableJourneyState journeyState,
+                                              final EnumSet<GraphLabel> labels, HowIGotHere howIGotHere) {
+
+        final GraphNodeId nodeId = howIGotHere.getEndNodeId();
 
         if (labels.contains(GraphLabel.MINUTE)) {
             // time node has by definition a unique time and can only arrive at the "same time" as previous visits
-            final ReasonCode timeFound = timeNodePrevious.getIfPresent(node.getId());
+            final HeuristicsReason timeFound = timeNodePrevious.getIfPresent(nodeId);
             if (timeFound != null) {
                 return timeFound;
             }
@@ -125,17 +136,17 @@ public class PreviousVisits implements ReportsCacheStats {
 
         if (labels.contains(GraphLabel.HOUR)) {
             // Can arrive at a hour nodes at different times, so need to include that in the key
-            final ReasonCode hourFound = hourNodePrevious.getIfPresent(new Key<>(node, journeyState.getJourneyClock()));
+            final HeuristicsReason hourFound = hourNodePrevious.getIfPresent(new Key<>(nodeId, journeyState.getJourneyClock()));
             if (hourFound != null) {
                 return hourFound;
             }
         }
 
         if (labels.contains(GraphLabel.ROUTE_STATION)) {
-            final ReasonCode found = routeStationPrevious.getIfPresent(node.getId());
+            final HeuristicsReason found = routeStationPrevious.getIfPresent(nodeId);
             if (found != null) {
-                if (found == TooManyInterchangesRequired) {
-                    final Integer currentLowest = lowestNumberOfChanges.getIfPresent(node.getId());
+                if (found.getReasonCode() == TooManyInterchangesRequired) {
+                    final Integer currentLowest = lowestNumberOfChanges.getIfPresent(nodeId);
                     if (currentLowest!=null && journeyState.getNumberChanges()>=currentLowest) {
                         return found;
                     }
@@ -146,13 +157,13 @@ public class PreviousVisits implements ReportsCacheStats {
         }
 
         if (labels.contains(GraphLabel.SERVICE)) {
-            final ReasonCode found = servicePrevious.getIfPresent(node.getId());
+            final HeuristicsReason found = servicePrevious.getIfPresent(nodeId);
             if (found != null) {
                 return found;
             }
         }
 
-        return ReasonCode.PreviousCacheMiss;
+        return HeuristicsReasons.CacheMiss(howIGotHere);
     }
 
     @Override
@@ -177,8 +188,8 @@ public class PreviousVisits implements ReportsCacheStats {
         private final T other;
         private final int hashCode;
 
-        public Key(GraphNode node, T other) {
-            this.nodeId = node.getId();
+        public Key(GraphNodeId nodeId, T other) {
+            this.nodeId = nodeId;
             this.other = other;
             hashCode = Objects.hash(nodeId, other);
         }
