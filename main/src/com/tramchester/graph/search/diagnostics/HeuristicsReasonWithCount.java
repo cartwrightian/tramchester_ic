@@ -1,6 +1,6 @@
 package com.tramchester.graph.search.diagnostics;
 
-public class HeuristicsReasonWithCount extends HeuristicsReason {
+public class HeuristicsReasonWithCount extends SimpleHeuristicReason {
     private final int count;
 
     protected HeuristicsReasonWithCount(final ReasonCode code, final HowIGotHere path, final int count) {

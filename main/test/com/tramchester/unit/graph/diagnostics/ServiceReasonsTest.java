@@ -88,8 +88,8 @@ public class ServiceReasonsTest extends EasyMockSupport {
         RouteCalculatorSupport.PathRequest pathRequest = createMock(RouteCalculatorSupport.PathRequest.class);
         EasyMock.expect(pathRequest.getNumChanges()).andReturn(3);
 
-        HeuristicsReason serviceReasonA = ServiceReason.AlreadyDeparted(TramTime.of(15, 33), howIGotHere);
-        HeuristicsReason serviceReasonB = ServiceReason.DoesNotOperateAtHour(TramTime.of(16,32), howIGotHere);
+        HeuristicsReason serviceReasonA = HeuristicsReasons.AlreadyDeparted(TramTime.of(15, 33), howIGotHere);
+        HeuristicsReason serviceReasonB = HeuristicsReasons.DoesNotOperateAtHour(TramTime.of(16,32), howIGotHere);
 
         List<StationDiagnosticsDTO> dtos = new ArrayList<>();
         JourneyDiagnostics someDiags = new JourneyDiagnostics(dtos, 1, 1);
@@ -141,10 +141,10 @@ public class ServiceReasonsTest extends EasyMockSupport {
         TramTime time = TramTime.of(18,35);
 
         replayAll();
-        serviceReasons.recordReason(ServiceReason.TookTooLong(time, howIGotHereA));
-        serviceReasons.recordReason(ServiceReason.TookTooLong(time, howIGotHereA));
-        serviceReasons.recordReason(ServiceReason.TookTooLong(time, howIGotHereA));
-        serviceReasons.recordReason(ServiceReason.StationClosed(howIGotHereB, TramStations.Shudehill.getId()));
+        serviceReasons.recordReason(HeuristicsReasons.TookTooLong(time, howIGotHereA));
+        serviceReasons.recordReason(HeuristicsReasons.TookTooLong(time, howIGotHereA));
+        serviceReasons.recordReason(HeuristicsReasons.TookTooLong(time, howIGotHereA));
+        serviceReasons.recordReason(HeuristicsReasons.StationClosed(howIGotHereB, TramStations.Shudehill.getId()));
 
         verifyAll();
 

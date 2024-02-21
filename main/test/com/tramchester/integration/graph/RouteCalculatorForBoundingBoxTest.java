@@ -24,6 +24,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static org.junit.jupiter.api.Assertions.*;
@@ -93,9 +94,11 @@ class RouteCalculatorForBoundingBoxTest {
 
         RequestStopStream<JourneysForBox> result = calculator.calculateRoutes(destinationBox, journeyRequest, grouped);
 
-        assertNotNull(result.getStream());
+        Stream<JourneysForBox> stream = result.getStream();
 
-        List<JourneysForBox> groupedJourneys = result.getStream().toList();
+        assertNotNull(stream);
+
+        List<JourneysForBox> groupedJourneys = stream.toList();
 
         assertFalse(groupedJourneys.isEmpty());
 

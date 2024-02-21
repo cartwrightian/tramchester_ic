@@ -130,7 +130,7 @@ public class ServiceReasons {
         reasons.add(serviceReason);
     }
 
-    private void recordEndNodeVisit(final HowIGotHere howIGotHere) {
+    private synchronized void recordEndNodeVisit(final HowIGotHere howIGotHere) {
         final GraphNodeId endNodeId = howIGotHere.getEndNodeId();
 
         if (nodeVisits.containsKey(endNodeId)) {

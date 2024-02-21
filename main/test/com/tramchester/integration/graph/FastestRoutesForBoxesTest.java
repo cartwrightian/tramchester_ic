@@ -31,6 +31,7 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static org.junit.jupiter.api.Assertions.*;
@@ -117,9 +118,11 @@ class FastestRoutesForBoxesTest {
 
         RequestStopStream<BoundingBoxWithCost> results = calculator.findForGrid(destination, 2000, journeyRequest);
 
-        assertNotNull(results.getStream());
+        Stream<BoundingBoxWithCost> stream = results.getStream();
 
-        List<BoundingBoxWithCost> destinationBox = results.getStream().
+        assertNotNull(stream);
+
+        List<BoundingBoxWithCost> destinationBox = stream.
                 filter(boundingBoxWithCost -> boundingBoxWithCost.getDuration().isZero()).
                 toList();
 

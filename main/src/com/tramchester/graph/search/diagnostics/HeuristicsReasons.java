@@ -6,55 +6,11 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
-
-import java.util.Objects;
+import com.tramchester.graph.search.ValidHeuristicReason;
 
 import static java.lang.String.format;
 
-public class ServiceReason {
-
-    private static class Unreachable extends HeuristicsReason {
-        protected Unreachable(ReasonCode code, HowIGotHere path) {
-                super(code , path);
-        }
-    }
-
-    //////////////
-
-    public static class IsValid extends HeuristicsReason
-    {
-        protected IsValid(ReasonCode code, HowIGotHere path) {
-            super(code, path);
-        }
-
-        @Override
-        public boolean isValid() {
-            return true;
-        }
-    }
-
-    private static class Continue extends HeuristicsReason {
-
-        public Continue(final HowIGotHere path) {
-            super(ReasonCode.Continue, path);
-        }
-
-        @Override
-        public boolean isValid() {
-            return true;
-        }
-    }
-
-    private static class ReturnedToStart extends HeuristicsReason {
-        protected ReturnedToStart(final HowIGotHere path) {
-            super(ReasonCode.ReturnedToStart, path);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            return obj instanceof DoesNotRunOnQueryDate;
-        }
-    }
+public class HeuristicsReasons {
 
     private static class SameTrip extends HeuristicsReasonWithID<Trip> {
         private SameTrip(final IdFor<Trip> tripId, final HowIGotHere path) {
@@ -74,8 +30,7 @@ public class ServiceReason {
         }
     }
 
-    private static class DoesNotRunOnQueryDate extends HeuristicsReasonWithID<Service>
-    {
+    private static class DoesNotRunOnQueryDate extends HeuristicsReasonWithID<Service> {
         protected DoesNotRunOnQueryDate(final HowIGotHere path, final IdFor<Service> nodeServiceId) {
             super(ReasonCode.NotOnQueryDate, path, nodeServiceId);
         }
@@ -87,33 +42,21 @@ public class ServiceReason {
         }
     }
 
-    private static class TimedOut extends HeuristicsReason {
-        protected TimedOut(final HowIGotHere path) {
-            super(ReasonCode.TimedOut, path);
-        }
-    }
+//    private static class TooManyWalkingConnections extends HeuristicsReasonWithCount {
+//        protected TooManyWalkingConnections(final HowIGotHere path, final int count) {
+//            super(ReasonCode.TooManyWalkingConnections, path, count);
+//        }
+//    }
 
-    private static class TooManyWalkingConnections extends HeuristicsReasonWithCount {
-        protected TooManyWalkingConnections(final HowIGotHere path, final int count) {
-            super(ReasonCode.TooManyWalkingConnections, path, count);
-        }
-    }
-
-    private static class TooManyNeighbourConnections extends HeuristicsReasonWithCount {
-        protected TooManyNeighbourConnections(final HowIGotHere path, final int count) {
-            super(ReasonCode.TooManyNeighbourConnections, path, count);
-        }
-    }
+//    private static class TooManyNeighbourConnections extends HeuristicsReasonWithCount {
+//        protected TooManyNeighbourConnections(final HowIGotHere path, final int count) {
+//            super(ReasonCode.TooManyNeighbourConnections, path, count);
+//        }
+//    }
 
     private static class StationClosed extends HeuristicsReasonWithID<Station> {
         protected StationClosed(final HowIGotHere howIGotHere, final IdFor<Station> closed) {
             super(ReasonCode.StationClosed, howIGotHere, closed);
-        }
-    }
-
-    private static class TransportModeWrong extends HeuristicsReason {
-        protected TransportModeWrong(final HowIGotHere howIGotHere) {
-            super(ReasonCode.TransportModeWrong, howIGotHere);
         }
     }
 
@@ -132,91 +75,15 @@ public class ServiceReason {
         }
     }
 
-    ////////////////////////////////////
-
-    private static class DoesNotOperateOnTime extends HeuristicsReason
-    {
-        protected final TramTime elapsedTime;
-
-        protected DoesNotOperateOnTime(final ReasonCode reasonCode, final TramTime elapsedTime, final HowIGotHere path) {
-            super(reasonCode, path);
-            if (elapsedTime==null) {
-                throw new RuntimeException("Must provide time");
-            }
-            this.elapsedTime = elapsedTime;
-        }
-
-        @Override
-        public String textForGraph() {
-            return format("%s%s%s", getReasonCode().name(), System.lineSeparator(), elapsedTime.toPattern());
-        }
-
-        @Override
-        public String toString() {
-            return super.toString() + " time:"+elapsedTime.toString();
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            if (!super.equals(o)) return false;
-            DoesNotOperateOnTime that = (DoesNotOperateOnTime) o;
-            return Objects.equals(elapsedTime, that.elapsedTime);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(super.hashCode(), elapsedTime);
-        }
-    }
-
-    private static class DoesNotOperateAtHour extends HeuristicsReason
-    {
-        protected final int hour;
-
-        protected DoesNotOperateAtHour(final ReasonCode reasonCode, final TramTime elapsedTime, final HowIGotHere path) {
-            super(reasonCode, path);
-            if (elapsedTime==null) {
-                throw new RuntimeException("Must provide time");
-            }
-            this.hour = elapsedTime.getHourOfDay();
-        }
-
-        @Override
-        public String textForGraph() {
-            return format("%s%s%s", getReasonCode().name(), System.lineSeparator(), hour);
-        }
-
-        @Override
-        public String toString() {
-            return super.toString() + " hour:"+hour;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            if (!super.equals(o)) return false;
-            DoesNotOperateAtHour that = (DoesNotOperateAtHour) o;
-            return Objects.equals(hour, that.hour);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(super.hashCode(), hour);
-        }
-    }
-
     ///////////////////////////////////
     /// convenience methods
 
-    public static IsValid IsValid(final ReasonCode code, final HowIGotHere path) {
-        return new IsValid( code, path);
+    public static HeuristicsReason IsValid(final ReasonCode code, final HowIGotHere path) {
+        return new ValidHeuristicReason( code, path);
     }
 
     public static HeuristicsReason Continue(final HowIGotHere path) {
-        return new Continue(path);
+        return new ValidHeuristicReason(ReasonCode.Continue, path);
     }
 
     public static HeuristicsReason DoesNotRunOnQueryDate(final HowIGotHere path, final IdFor<Service> nodeServiceId) {
@@ -228,7 +95,7 @@ public class ServiceReason {
     }
 
     public static HeuristicsReason StationNotReachable(final HowIGotHere path, final ReasonCode code) {
-        return new Unreachable(code, path);
+        return new SimpleHeuristicReason(code, path);
     }
 
     public static HeuristicsReason DoesNotOperateOnTime(final TramTime currentElapsed, final HowIGotHere path) {
@@ -240,11 +107,11 @@ public class ServiceReason {
     }
 
     public static HeuristicsReason TooManyWalkingConnections(final HowIGotHere path, final int count) {
-        return new TooManyWalkingConnections(path, count);
+        return new HeuristicsReasonWithCount(ReasonCode.TooManyWalkingConnections, path, count);
     }
 
     public static HeuristicsReason TooManyNeighbourConnections(final HowIGotHere path, final int count) {
-        return new TooManyNeighbourConnections(path, count);
+        return new HeuristicsReasonWithCount(ReasonCode.TooManyNeighbourConnections, path, count);
     }
 
     public static HeuristicsReason TookTooLong(final TramTime currentElapsed, final HowIGotHere path) {
@@ -277,36 +144,36 @@ public class ServiceReason {
     }
 
     public static HeuristicsReason HigherCost(final HowIGotHere howIGotHere) {
-        return new ServiceReason.Unreachable(ReasonCode.HigherCost, howIGotHere);
+        return new SimpleHeuristicReason(ReasonCode.HigherCost, howIGotHere);
     }
 
     public static HeuristicsReason PathToLong(final HowIGotHere path) {
-        return new ServiceReason.Unreachable(ReasonCode.PathTooLong, path);
+        return new SimpleHeuristicReason(ReasonCode.PathTooLong, path);
     }
 
     public static HeuristicsReason ReturnedToStart(final HowIGotHere path) {
-        return new ReturnedToStart(path);
+        return new SimpleHeuristicReason(ReasonCode.ReturnedToStart, path);
     }
 
     public static HeuristicsReason StationClosed(final HowIGotHere howIGotHere, IdFor<Station> closed) {
         return new StationClosed(howIGotHere, closed);
     }
 
-    public static HeuristicsReason TimedOut(final HowIGotHere howIGotHere) {
-        return new TimedOut(howIGotHere);
-    }
+//    public static HeuristicsReason TimedOut(final HowIGotHere howIGotHere) {
+//        return new TimedOut(howIGotHere);
+//    }
 
 
     public static HeuristicsReason TransportModeWrong(final HowIGotHere howIGotHere) {
-        return new ServiceReason.TransportModeWrong(howIGotHere);
+        return new SimpleHeuristicReason(ReasonCode.TransportModeWrong, howIGotHere);
     }
 
     public static HeuristicsReason RouteNotToday(final HowIGotHere howIGotHere, final IdFor<Route> id) {
-        return new ServiceReason.RouteNotAvailableOnQueryDate(howIGotHere, id);
+        return new HeuristicsReasons.RouteNotAvailableOnQueryDate(howIGotHere, id);
     }
 
     public static HeuristicsReason CacheMiss(final HowIGotHere howIGotHere) {
-        return new IsValid(ReasonCode.PreviousCacheMiss, howIGotHere);
+        return new SimpleHeuristicReason(ReasonCode.PreviousCacheMiss, howIGotHere);
     }
 
     public static HeuristicsReason AlreadySeenStation(final IdFor<Station> stationId, final HowIGotHere howIGotHere) {

@@ -81,7 +81,7 @@ public class CreateFailedJourneyDiagnostics {
     }
 
     private EnumSet<ReasonCode> getCodes(Set<HeuristicsReason> reasonCodes) {
-        return reasonCodes.stream().map(reason -> reason.code).collect(Collectors.toCollection(() -> EnumSet.noneOf(ReasonCode.class)));
+        return reasonCodes.stream().map(HeuristicsReason::getReasonCode).collect(Collectors.toCollection(() -> EnumSet.noneOf(ReasonCode.class)));
     }
 
     private int getMaxNumReasons(Map<IdFor<Station>, Edge> edges) {
@@ -92,7 +92,7 @@ public class CreateFailedJourneyDiagnostics {
         return reasonCodes.stream().
                 filter(reason -> !reason.isValid()).
                 //filter(reason -> !reason.isCached()).
-                sorted(Comparator.comparingInt(a -> a.code.ordinal())).
+                sorted(Comparator.comparingInt(a -> a.getReasonCode().ordinal())).
                 map(CreateFailedJourneyDiagnostics::createDiagnosticReasonDTO).distinct().collect(Collectors.toList());
     }
 
