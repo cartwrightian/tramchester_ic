@@ -1,6 +1,7 @@
 package com.tramchester.graph.search.diagnostics;
 
 import com.tramchester.graph.facade.GraphNodeId;
+import org.neo4j.graphdb.traversal.Evaluation;
 
 import java.util.Objects;
 
@@ -37,6 +38,11 @@ public class SimpleHeuristicReason implements HeuristicsReason {
     @Override
     public GraphNodeId getNodeId() {
         return howIGotHere.getEndNodeId();
+    }
+
+    @Override
+    public Evaluation getEvaluationAction() {
+        return code.getEvaluationAction();
     }
 
     @Override

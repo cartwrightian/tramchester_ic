@@ -107,15 +107,13 @@ public class ServiceReasonsTest extends EasyMockSupport {
     @Test
     void shouldRecordArrival() {
 
+        HowIGotHere howIGotHere = createMock(HowIGotHere.class);
+
+        serviceReasons.recordReason(HeuristicsReasons.Arrived(howIGotHere));
+        serviceReasons.recordReason(HeuristicsReasons.Arrived(howIGotHere));
+        serviceReasons.recordReason(HeuristicsReasons.Arrived(howIGotHere));
+
         Map<ReasonCode, Integer> reasons = serviceReasons.getReasons();
-
-//        assertFalse(reasons.containsKey(ReasonCode.Arrived));
-
-        serviceReasons.recordArrived();
-        serviceReasons.recordArrived();
-        serviceReasons.recordArrived();
-
-        reasons = serviceReasons.getReasons();
 
         assertEquals(3, reasons.get(ReasonCode.Arrived));
 

@@ -17,7 +17,7 @@ public class HowIGotHere {
 
     private final GraphRelationshipId relationshipId;
     private final GraphNodeId nodeId;
-    private final TraversalStateType traversalStateName;
+    private final TraversalStateType traversalStateType;
     private final IdFor<Station> approxPosition;
     private final IdFor<Station> towards;
 
@@ -26,11 +26,11 @@ public class HowIGotHere {
                 immutableJourneyState.approxPosition(), getTowards(immutableJourneyState));
     }
 
-    public HowIGotHere(final GraphNodeId nodeId, final GraphRelationshipId relationshipId, final TraversalStateType traversalStateName,
+    public HowIGotHere(final GraphNodeId nodeId, final GraphRelationshipId relationshipId, final TraversalStateType traversalStateType,
                         IdFor<Station> approxPosition, IdFor<Station> towards) {
         this.nodeId = nodeId;
         this.relationshipId = relationshipId;
-        this.traversalStateName = traversalStateName;
+        this.traversalStateType = traversalStateType;
         this.approxPosition = approxPosition;
         this.towards = towards;
     }
@@ -71,8 +71,8 @@ public class HowIGotHere {
         return relationshipId==null;
     }
 
-    public TraversalStateType getTraversalStateName() {
-        return traversalStateName;
+    public TraversalStateType getTraversalStateType() {
+        return traversalStateType;
     }
 
 
@@ -94,7 +94,7 @@ public class HowIGotHere {
         return "HowIGotHere{" +
                 "relationshipId=" + relationshipId +
                 ", nodeId=" + nodeId +
-                ", traversalStateName=" + traversalStateName +
+                ", traversalStateName=" + traversalStateType +
                 ", approxPosition=" + approxPosition +
                 '}';
     }

@@ -1,6 +1,7 @@
 package com.tramchester.graph.search.diagnostics;
 
 import com.tramchester.graph.facade.GraphNodeId;
+import org.neo4j.graphdb.traversal.Evaluation;
 
 public interface HeuristicsReason {
     boolean isValid();
@@ -11,4 +12,5 @@ public interface HeuristicsReason {
 
     GraphNodeId getNodeId();
 
+    Evaluation getEvaluationAction();
 }

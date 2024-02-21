@@ -77,7 +77,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
 
         final TramRouteEvaluator tramRouteEvaluator = new TramRouteEvaluator(pathRequest,
                 destinationNodeIds, nodeContentsRepository, reasons, previousSuccessfulVisit, lowestCostSeen, config,
-                startNode.getId(), providesNow, txn, running);
+                startNode.getId(), txn, running);
 
         final TraversalOps traversalOps = new TraversalOps(txn, nodeContentsRepository, tripRespository, destinations,
                 pathRequest.getQueryDate(), pathRequest.getActualQueryTime());

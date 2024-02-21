@@ -51,7 +51,7 @@ public class ReasonsToGraphViz {
 
         final GraphNodeId endNodeId = howIGotHere.getEndNodeId();
         final String reasonId = reason.getReasonCode().name() + endNodeId;
-        final TraversalStateType stateType = howIGotHere.getTraversalStateName();
+        final TraversalStateType stateType = howIGotHere.getTraversalStateType();
         final GraphNode currentNode = transaction.getNodeById(endNodeId);
 
         addNodeToDiagram(currentNode, builder, diagramState, stateType.name());

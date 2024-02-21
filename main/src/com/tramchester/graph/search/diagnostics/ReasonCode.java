@@ -11,7 +11,7 @@ public enum ReasonCode {
     NotOnQueryDate,
     RouteNotOnQueryDate,
     DoesNotOperateOnTime,
-    NotReachable,
+//    NotReachable,
     ExchangeNotReachable,
     ServiceNotRunningAtTime,
     TookTooLong,
@@ -63,7 +63,7 @@ public enum ReasonCode {
                     -> Evaluation.INCLUDE_AND_CONTINUE;
             case Arrived
                     -> Evaluation.INCLUDE_AND_PRUNE;
-            case HigherCost, ReturnedToStart, PathTooLong, TooManyChanges, TooManyWalkingConnections, NotReachable,
+            case HigherCost, ReturnedToStart, PathTooLong, TooManyChanges, TooManyWalkingConnections,
                     TookTooLong, ServiceNotRunningAtTime, NotAtHour, DoesNotOperateOnTime, NotOnQueryDate, MoreChanges,
                     AlreadyDeparted, StationClosed, TooManyNeighbourConnections, TimedOut, RouteNotOnQueryDate, HigherCostViaExchange,
                     ExchangeNotReachable, TooManyRouteChangesRequired, TooManyInterchangesRequired, AlreadySeenStation,

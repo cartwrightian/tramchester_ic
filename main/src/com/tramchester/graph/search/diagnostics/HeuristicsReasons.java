@@ -42,6 +42,10 @@ public class HeuristicsReasons {
         }
     }
 
+    public static HeuristicsReason AlreadySeenTime(HowIGotHere howIGotHere) {
+        return new SimpleHeuristicReason(ReasonCode.AlreadySeenTime, howIGotHere);
+    }
+
 //    private static class TooManyWalkingConnections extends HeuristicsReasonWithCount {
 //        protected TooManyWalkingConnections(final HowIGotHere path, final int count) {
 //            super(ReasonCode.TooManyWalkingConnections, path, count);
@@ -84,6 +88,10 @@ public class HeuristicsReasons {
 
     public static HeuristicsReason Continue(final HowIGotHere path) {
         return new ValidHeuristicReason(ReasonCode.Continue, path);
+    }
+
+    public static HeuristicsReason Arrived(final HowIGotHere path) {
+        return new ValidHeuristicReason(ReasonCode.Arrived, path);
     }
 
     public static HeuristicsReason DoesNotRunOnQueryDate(final HowIGotHere path, final IdFor<Service> nodeServiceId) {

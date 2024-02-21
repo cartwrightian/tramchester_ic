@@ -111,11 +111,6 @@ public class ServiceReasons {
         totalChecked.incrementAndGet();
     }
 
-    public void recordArrived() {
-        incrementReasonCode(ReasonCode.Arrived);
-        success = true;
-    }
-
     public void recordState(final ImmutableJourneyState journeyState) {
         final ReasonCode reason = getReasonCode(journeyState.getTransportMode());
         incrementReasonCode(reason);

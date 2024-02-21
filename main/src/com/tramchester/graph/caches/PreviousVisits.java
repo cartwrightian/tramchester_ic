@@ -8,6 +8,7 @@ import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.ImmutableJourneyState;
+import com.tramchester.graph.search.diagnostics.HeuristicsReason;
 import com.tramchester.graph.search.diagnostics.ReasonCode;
 import com.tramchester.repository.ReportsCacheStats;
 import org.apache.commons.lang3.tuple.Pair;
@@ -48,32 +49,35 @@ public class PreviousVisits implements ReportsCacheStats {
                 recordStats().build();
     }
 
-    public void recordVisitIfUseful(final ReasonCode result, final GraphNode node, ImmutableJourneyState journeyState, final EnumSet<GraphLabel> labels) {
+    public void recordVisitIfUseful(final HeuristicsReason result, final GraphNode node, ImmutableJourneyState journeyState, final EnumSet<GraphLabel> labels) {
+
+        final ReasonCode reasonCode = result.getReasonCode();
+
         if (labels.contains(GraphLabel.MINUTE) || labels.contains(GraphLabel.HOUR)) {
             // time and hour nodes represent the time on the actual journey, so if we have been here before
             // we will get the same result
             final TramTime journeyClock = journeyState.getJourneyClock();
 
-            switch (result) {
-                case DoesNotOperateOnTime -> timeNodePrevious.put(node.getId(), result);
-                case NotAtHour -> hourNodePrevious.put(new Key<>(node, journeyClock), result);
+            switch (reasonCode) {
+                case DoesNotOperateOnTime -> timeNodePrevious.put(node.getId(), reasonCode);
+                case NotAtHour -> hourNodePrevious.put(new Key<>(node, journeyClock), reasonCode);
             }
 
             return;
         }
 
         if (labels.contains(GraphLabel.ROUTE_STATION)) {
-            recordRouteStationVisitIfUseful(result, node.getId(), journeyState);
+            recordRouteStationVisitIfUseful(reasonCode, node.getId(), journeyState);
             return;
         }
 
         if (labels.contains(GraphLabel.SERVICE)) {
-            if (result == NotOnQueryDate) {
+            if (reasonCode == NotOnQueryDate) {
                 // the service is unavailable for the query date
                 final TramTime journeyClock = journeyState.getJourneyClock();
                 final boolean isNextDay = journeyClock.isNextDay();
                 if (!isNextDay) {
-                    servicePrevious.put(node.getId(), result);
+                    servicePrevious.put(node.getId(), reasonCode);
                 }
             }
         }
