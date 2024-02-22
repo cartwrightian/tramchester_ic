@@ -35,7 +35,7 @@ public class LocationSet<T extends Location<T>> implements LocationCollection {
         this.locations = new HashSet<>(locationSet.locations);
     }
 
-    public static  <T extends Location<T>> LocationSet<T> of(final Set<T> items) {
+    public static  <T extends Location<T>> LocationSet<T> of(final Collection<T> items) {
         return new LocationSet<>(items);
     }
 
@@ -83,12 +83,6 @@ public class LocationSet<T extends Location<T>> implements LocationCollection {
     public Stream<Location<?>> locationStream() {
         return locations.stream().map(item -> item);
     }
-
-//    @Override
-//    public boolean contains(IdFor<Station> stationId) {
-//        return locations.stream().anyMatch(item -> item.getId().equals(stationId));
-//    }
-
 
     public void addAll(final LocationSet<T> other) {
         this.locations.addAll(other.locations);

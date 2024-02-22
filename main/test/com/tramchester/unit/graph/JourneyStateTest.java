@@ -9,6 +9,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.MutableStation;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
@@ -53,7 +54,7 @@ class JourneyStateTest extends EasyMockSupport {
         station.addRoutePickUp(TestEnv.getTramTestRoute());
         station.addRoutePickUp(TestEnv.getTramTestRoute());
 
-        LocationSet destinations = LocationSet.singleton(station);
+        LocationSet<Station> destinations = LocationSet.singleton(station);
 
         TripRepository tripRepository = createMock(TripRepository.class);
         NodeContentsRepository nodeContentsRepository = createMock(NodeContentsRepository.class);

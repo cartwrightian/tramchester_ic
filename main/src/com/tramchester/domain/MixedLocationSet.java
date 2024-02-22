@@ -15,21 +15,26 @@ import java.util.stream.Stream;
 public class MixedLocationSet implements LocationCollection {
     private final Set<Location<?>> locations;
 
-    public MixedLocationSet(Location<?> item) {
-        locations = new HashSet<>();
-        locations.add(item);
-    }
-
     public <T extends Location<T>> MixedLocationSet(Collection<T> value) {
         locations = new HashSet<>(value);
+    }
+
+    public MixedLocationSet() {
+        locations = new HashSet<>();
     }
 
     public MixedLocationSet(LocationCollection collection) {
         locations = collection.locationStream().collect(Collectors.toSet());
     }
 
-    public static MixedLocationSet singleton(Location<?> location) {
-        return new MixedLocationSet(location);
+    public static MixedLocationSet singleton(final Location<?> location) {
+        final MixedLocationSet result = new MixedLocationSet();
+        result.add(location);
+        return result;
+    }
+
+    public void add(final Location<?> item) {
+        locations.add(item);
     }
 
     public EnumSet<TransportMode> getModes() {
@@ -42,10 +47,6 @@ public class MixedLocationSet implements LocationCollection {
     public Stream<Location<?>> locationStream() {
         return locations.stream();
     }
-
-//    public boolean contains(final IdFor<Station> stationId) {
-//        return locations.stream().anyMatch(location -> location.getLocationId().equals(new LocationId(stationId)));
-//    }
 
     @Override
     public int size() {
@@ -72,4 +73,6 @@ public class MixedLocationSet implements LocationCollection {
                 "ids=" + HasId.asIds(locations) +
                 '}';
     }
+
+
 }

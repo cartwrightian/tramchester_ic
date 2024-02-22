@@ -60,7 +60,7 @@ public class TraversalOpsTest {
     void shouldHaveCorrectOrderingCompare() {
         TramDate date = TestEnv.testDay();
 
-        LocationSet destinationStations = new LocationSet();
+        LocationSet<Station> destinationStations = new LocationSet<>();
         final Station manchesterAirport = stationRepository.getStationById(ManAirport.getId());
         destinationStations.add(manchesterAirport);
 

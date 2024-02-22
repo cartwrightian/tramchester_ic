@@ -12,8 +12,6 @@ public interface LocationCollection {
 
     Stream<Location<?>> locationStream();
 
-//    boolean contains(IdFor<Station> stationId);
-
     int size();
 
     boolean isEmpty();

@@ -29,13 +29,13 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertSame;
 
-public class BreathFirstBranchSelectorQueueTest extends EasyMockSupport {
+public class BreadthFirstBranchSelectorQueueTest extends EasyMockSupport {
 
     private static GuiceContainerDependencies componentContainer;
 
     private StationRepository stationRepository;
     private StationDistances stationDistances;
-    private LocationSet destinations;
+    private LocationSet<Station> destinations;
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
@@ -172,8 +172,8 @@ public class BreathFirstBranchSelectorQueueTest extends EasyMockSupport {
         return state;
     }
 
-    private LocationSet getDestinations(List<TramStations> list) {
-        Set<Station> asSet = list.stream().map(station -> station.from(stationRepository)).collect(Collectors.toSet());
+    private LocationSet<Station> getDestinations(List<TramStations> list) {
+        final Set<Station> asSet = list.stream().map(station -> station.from(stationRepository)).collect(Collectors.toSet());
         return LocationSet.of(asSet);
     }
 }

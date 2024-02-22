@@ -126,9 +126,9 @@ public class NeighbourJourneysTest {
     @Test
     void shouldHaveCorrectRouteToRouteHopsWhenNeighboursSets() {
 
-        LocationSet trams = new LocationSet(Arrays.asList(Altrincham.from(stationRepository), HarbourCity.from(stationRepository)));
+        LocationSet<Station> trams = new LocationSet<>(Arrays.asList(Altrincham.from(stationRepository), HarbourCity.from(stationRepository)));
 
-        LocationSet buses = new LocationSet(Arrays.asList(KnutsfordStationStand3.from(stationRepository), StockportNewbridgeLane.from(stationRepository)));
+        LocationSet<Station> buses = new LocationSet<>(Arrays.asList(KnutsfordStationStand3.from(stationRepository), StockportNewbridgeLane.from(stationRepository)));
 
 
         NumberOfChanges busToTramHops = routeToRouteCosts.getNumberOfChanges(buses, trams, date, timeRange, modes);

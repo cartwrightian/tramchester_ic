@@ -62,7 +62,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TramRouteEvaluatorTest extends EasyMockSupport {
 
-    private LocationSet destinationStations;
+    private LocationSet<Station> destinationStations;
     private ServiceHeuristics serviceHeuristics;
     private NodeContentsRepository contentsRepository;
     private Path path;

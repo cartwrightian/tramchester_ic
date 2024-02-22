@@ -23,7 +23,7 @@ public interface HasId<DOMAINTYPE extends CoreDomain> {
         return idMap.getIds().toString();
     }
 
-    static String asIds(final LocationSet locationSet) {
+    static String asIds(final LocationSet<?> locationSet) {
         return locationSet.asIds();
     }
 

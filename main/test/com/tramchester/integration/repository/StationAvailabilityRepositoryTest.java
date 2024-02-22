@@ -97,7 +97,7 @@ public class StationAvailabilityRepositoryTest {
     @Test
     void shouldGetAvailableTimeRangeForDate() {
         Station stPeters = StPetersSquare.from(stationRepository);
-        LocationSet destinations = LocationSet.singleton(stPeters);
+        LocationSet<Station> destinations = LocationSet.singleton(stPeters);
         TimeRange result = availabilityRepository.getAvailableTimesFor(destinations, when);
 
         assertTrue(result.contains(TramTime.of(8,0)));

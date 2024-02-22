@@ -44,7 +44,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
 
     private static final int MAX_WAIT = 30;
     private static final int MAX_NUM_CHANGES = 5;
-    private final LocationSet endStations = LocationSet.singleton(TramStations.Deansgate.fake());
+    private final LocationSet<Station> endStations = LocationSet.singleton(TramStations.Deansgate.fake());
 
     private final TramchesterConfig config30MinsWait = new NeedMaxWaitConfig(MAX_WAIT);
     private NodeContentsRepository nodeContentsCache;
@@ -423,7 +423,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeContentsCache,
                 journeyConstraints, queryTime, MAX_NUM_CHANGES);
         HeuristicsReason serviceReason = serviceHeuristics.checkTime(howIGotHere, node, currentElapsed, reasons, MAX_WAIT);
-        assertEquals(true, serviceReason.isValid(), format("currentElapsed: %s nodeTime: %s wait: %s reason: %s",
+        assertTrue(serviceReason.isValid(), format("currentElapsed: %s nodeTime: %s wait: %s reason: %s",
                 currentElapsed, tramTime, MAX_WAIT, serviceReason));
         verifyAll();
     }
@@ -452,7 +452,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeContentsCache,
                 journeyConstraints, queryTime, MAX_NUM_CHANGES);
         HeuristicsReason serviceReason = serviceHeuristics.checkTime(howIGotHere, node, currentElapsed, reasons, MAX_WAIT);
-        assertEquals(false, serviceReason.isValid(), format("currentElapsed: %s nodeTime: %s wait: %s reason: %s",
+        assertFalse(serviceReason.isValid(), format("currentElapsed: %s nodeTime: %s wait: %s reason: %s",
                 currentElapsed, tramTime, MAX_WAIT, serviceReason));
         verifyAll();
     }

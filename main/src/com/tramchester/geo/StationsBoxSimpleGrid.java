@@ -1,6 +1,7 @@
 package com.tramchester.geo;
 
 import com.tramchester.domain.LocationSet;
+import com.tramchester.domain.places.Station;
 
 import java.util.Objects;
 
@@ -8,7 +9,7 @@ public class StationsBoxSimpleGrid extends BoundingBoxWithStations {
     final int x;
     final int y;
 
-    public StationsBoxSimpleGrid(int x, int y, BoundingBox box, LocationSet stationsWithin) {
+    public StationsBoxSimpleGrid(int x, int y, BoundingBox box, LocationSet<Station> stationsWithin) {
         super(box, stationsWithin);
         this.x = x;
         this.y = y;

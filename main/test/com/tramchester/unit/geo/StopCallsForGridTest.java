@@ -57,10 +57,10 @@ public class StopCallsForGridTest extends EasyMockSupport {
         final Station station2 = TramStations.Bury.fake();
         final Station station3 = TramStations.Anchorage.fake();
 
-        LocationSet gridAStations = new LocationSet();
+        LocationSet<Station> gridAStations = new LocationSet<>();
         gridAStations.add(station1);
         gridAStations.add(station2);
-        LocationSet gridBStations = new LocationSet();
+        LocationSet<Station> gridBStations = new LocationSet<>();
         gridBStations.add(station3);
 
         Set<StopCall> station1Calls = createStopCalls(station1, begin, 10,3);
@@ -88,11 +88,11 @@ public class StopCallsForGridTest extends EasyMockSupport {
 
         assertEquals(2, results.size());
 
-        List<BoxWithServiceFrequency> forBoxA = results.stream().filter(result -> result.overlapsWith(boxA)).collect(Collectors.toList());
+        List<BoxWithServiceFrequency> forBoxA = results.stream().filter(result -> result.overlapsWith(boxA)).toList();
         assertEquals(1, forBoxA.size());
         assertEquals(3+3, forBoxA.get(0).getNumberOfStopcalls());
 
-        List<BoxWithServiceFrequency> forBoxB = results.stream().filter(result -> result.overlapsWith(boxB)).collect(Collectors.toList());
+        List<BoxWithServiceFrequency> forBoxB = results.stream().filter(result -> result.overlapsWith(boxB)).toList();
         assertEquals(1, forBoxB.size());
         assertEquals(10, forBoxB.get(0).getNumberOfStopcalls());
     }

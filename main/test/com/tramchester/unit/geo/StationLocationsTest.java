@@ -73,6 +73,7 @@ class StationLocationsTest extends EasyMockSupport {
         return StationHelper.forTest(id, "area", name, location.latLong(), DataSourceID.tfgm, false);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     void shouldCheckForNearbyStation() {
 
@@ -108,6 +109,7 @@ class StationLocationsTest extends EasyMockSupport {
         MyLocation location = nearAltrincham.location();
         final MarginInMeters rangeInMeters = MarginInMeters.ofMeters(20000);
 
+        //noinspection unchecked
         EasyMock.expect(geography.getNearToSorted(EasyMock.isA(Geography.LocationsSource.class), EasyMock.eq(location.getGridPosition()),
                         EasyMock.eq(rangeInMeters))).
                 andReturn(Stream.of(stationA, stationB, stationC));
@@ -129,6 +131,7 @@ class StationLocationsTest extends EasyMockSupport {
         MyLocation location = nearAltrincham.location();
         final MarginInMeters rangeInMeters = MarginInMeters.ofMeters(20000);
 
+        //noinspection unchecked
         EasyMock.expect(geography.getNearToSorted(EasyMock.isA(Geography.LocationsSource.class), EasyMock.eq(location.getGridPosition()),
                         EasyMock.eq(rangeInMeters))).
                 andReturn(Stream.of(stationA, stationB, stationC));
