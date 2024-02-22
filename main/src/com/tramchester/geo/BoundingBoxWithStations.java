@@ -2,12 +2,13 @@ package com.tramchester.geo;
 
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.places.Station;
 
 public class BoundingBoxWithStations extends BoundingBox {
 
-    private final LocationSet stationsWithin;
+    private final LocationSet<Station> stationsWithin;
 
-    public BoundingBoxWithStations(BoundingBox box, LocationSet stationsWithin) {
+    public BoundingBoxWithStations(BoundingBox box, LocationSet<Station> stationsWithin) {
         super(box);
         this.stationsWithin = stationsWithin;
     }
@@ -16,7 +17,7 @@ public class BoundingBoxWithStations extends BoundingBox {
         return !stationsWithin.isEmpty();
     }
 
-    public LocationSet getStations() {
+    public LocationSet<Station> getStations() {
         return stationsWithin;
     }
 

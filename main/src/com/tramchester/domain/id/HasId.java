@@ -11,41 +11,32 @@ public interface HasId<DOMAINTYPE extends CoreDomain> {
 
     IdFor<DOMAINTYPE> getId();
 
-    static <S extends HasId<?>> String asIds(Collection<S> items) {
+    static <S extends HasId<?>> String asIds(final Collection<S> items) {
         return collectionToIdStringList(items, item -> item.getId().toString());
     }
 
-    static <P extends DomainPair<?>> String asIds(P pair) {
+    static <P extends DomainPair<?>> String asIds(final P pair) {
         return "(" + pair.first().getId() + ", " + pair.second().getId() + ")";
     }
 
-//    static String asIdsNested(List<List<RoutePair>> listOfList) {
-//        Stream<String> stream = listOfList.stream().map(HasId::pairsAsIds);
-//        return stream.reduce((a,b) -> a+", "+b).orElse("");
-//    }
-
-//    static <P extends DomainPair<?>> String pairsAsIds(Collection<P> items) {
-//        return collectionToIdStringList(items, HasId::asIds);
-//    }
-
-    static String asIds(IdMap<?> idMap) {
+    static String asIds(final IdMap<?> idMap) {
         return idMap.getIds().toString();
     }
 
-    static String asIds(LocationSet locationSet) {
+    static String asIds(final LocationSet locationSet) {
         return locationSet.asIds();
     }
 
     @NotNull
-    static <T> String collectionToIdStringList(Collection<T> items, GetsId<T> getsId) {
-        StringBuilder ids = new StringBuilder();
+    static <T> String collectionToIdStringList(final Collection<T> items, final GetsId<T> getsId) {
+        final StringBuilder ids = new StringBuilder();
         ids.append("[");
         items.forEach(item -> ids.append(" '").append(getsId.asString(item)).append("'"));
         ids.append("]");
         return ids.toString();
     }
 
-    static <T extends HasId<T> & CoreDomain> IdFor<T> asId(T item) {
+    static <T extends HasId<T> & CoreDomain> IdFor<T> asId(final T item) {
         return item.getId();
     }
 

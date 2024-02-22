@@ -5,6 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.DiagramCreator;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
@@ -123,7 +124,7 @@ class CompositeRouteTest {
     @Test
     void shouldHaveFirstCompositeStation() {
         assertNotNull(startGroup);
-        Set<Station> grouped = startGroup.getAllContained();
+        LocationSet<Station> grouped = startGroup.getAllContained();
         assertEquals(3, grouped.size());
         assertTrue(grouped.contains(transportData.getFirst()));
         assertTrue(grouped.contains(transportData.getFirstDupName()));
@@ -133,7 +134,7 @@ class CompositeRouteTest {
     @Test
     void shouldHaveFourthCompositeStation() {
         assertNotNull(fourthStationComposite);
-        Set<Station> grouped = fourthStationComposite.getAllContained();
+        LocationSet<Station> grouped = fourthStationComposite.getAllContained();
         assertEquals(2, grouped.size());
         assertTrue(grouped.contains(transportData.getFourthStation()));
         assertTrue(grouped.contains(transportData.getFourthStationDupName()));

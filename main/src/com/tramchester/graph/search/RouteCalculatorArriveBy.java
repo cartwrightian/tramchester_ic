@@ -2,10 +2,7 @@ package com.tramchester.graph.search;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.Journey;
-import com.tramchester.domain.JourneyRequest;
-import com.tramchester.domain.LocationSet;
-import com.tramchester.domain.NumberOfChanges;
+import com.tramchester.domain.*;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.time.InvalidDurationException;
@@ -55,7 +52,7 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
     }
 
     @Override
-    public Stream<Journey> calculateRouteWalkAtEnd(GraphTransaction txn, Location<?> start, GraphNode endOfWalk, LocationSet  destStations,
+    public Stream<Journey> calculateRouteWalkAtEnd(GraphTransaction txn, Location<?> start, GraphNode endOfWalk, LocationCollection destStations,
                                                    JourneyRequest journeyRequest, NumberOfChanges numberOfChanges) {
         try {
             Duration costToDest = costCalculator.getAverageCostBetween(txn, start, endOfWalk, journeyRequest.getDate(), journeyRequest.getRequestedModes());
@@ -88,7 +85,7 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
 
     @Override
     public Stream<Journey> calculateRouteWalkAtStartAndEnd(GraphTransaction txn, Set<StationWalk> stationWalks, GraphNode startNode,
-                                                           GraphNode endNode, LocationSet destinationStations,
+                                                           GraphNode endNode, LocationCollection destinationStations,
                                                            JourneyRequest journeyRequest, NumberOfChanges numberOfChanges) {
         try {
             Duration costToDest = costCalculator.getAverageCostBetween(txn, startNode, endNode, journeyRequest.getDate(), journeyRequest.getRequestedModes());

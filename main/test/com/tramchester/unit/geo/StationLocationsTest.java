@@ -220,7 +220,7 @@ class StationLocationsTest extends EasyMockSupport {
         assertTrue(maybeCentral.isPresent());
         BoundingBoxWithStations centralBox = maybeCentral.get();
 
-        LocationSet central = centralBox.getStations();
+        LocationSet<Station> central = centralBox.getStations();
         assertEquals(2, central.size());
         assertTrue(central.contains(testStationB));
         assertTrue(central.contains(testStationC));
@@ -233,7 +233,7 @@ class StationLocationsTest extends EasyMockSupport {
         assertTrue(maybeAlty.isPresent());
         BoundingBoxWithStations altyBox = maybeAlty.get();
 
-        LocationSet alty = altyBox.getStations();
+        LocationSet<Station> alty = altyBox.getStations();
         assertEquals(1, alty.size());
         assertTrue(alty.contains(testStationA));
         assertTrue(altyBox.contained(nearAltrincham.grid()));

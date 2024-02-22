@@ -76,7 +76,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         int maxPathLength = 400;
         journeyConstraints = createMock(JourneyConstraints.class);
         EasyMock.expect(journeyConstraints.getMaxPathLength()).andStubReturn(maxPathLength);
-        EasyMock.expect(journeyConstraints.getEndStations()).andStubReturn(endStations);
+        EasyMock.expect(journeyConstraints.getDestinations()).andStubReturn(endStations);
         EasyMock.expect(journeyConstraints.getMaxJourneyDuration()).andStubReturn(maxJourneyDuration);
         EasyMock.expect(howIGotHere.getEndNodeId()).andStubReturn(GraphNodeId.TestOnly(42L));
     }

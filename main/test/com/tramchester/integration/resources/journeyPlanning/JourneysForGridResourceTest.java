@@ -126,7 +126,7 @@ class JourneysForGridResourceTest {
                 filter(boxWithStations -> anyOpen(boxWithStations.getStations())).collect(Collectors.toSet());
     }
 
-    private boolean anyOpen(LocationSet locations) {
+    private boolean anyOpen(LocationSet<Station> locations) {
         return locations.stream().anyMatch(station -> !closedStationsRepository.isClosed(station, when));
     }
 

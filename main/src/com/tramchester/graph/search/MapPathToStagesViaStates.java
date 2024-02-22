@@ -2,7 +2,7 @@ package com.tramchester.graph.search;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.JourneyRequest;
-import com.tramchester.domain.LocationSet;
+import com.tramchester.domain.LocationCollection;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
@@ -60,7 +60,7 @@ public class MapPathToStagesViaStates implements PathToStages {
 
     @Override
     public List<TransportStage<?, ?>> mapDirect(final RouteCalculator.TimedPath timedPath, final JourneyRequest journeyRequest,
-                                                final LocationSet endStations,
+                                                final LocationCollection endStations,
                                                 final GraphTransaction txn, boolean fullLogging) {
         final Path path = timedPath.path();
         final TramTime queryTime = timedPath.queryTime();

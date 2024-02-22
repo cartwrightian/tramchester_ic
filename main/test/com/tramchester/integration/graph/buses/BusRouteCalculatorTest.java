@@ -273,7 +273,7 @@ class BusRouteCalculatorTest {
     void shouldHandleJourneyDirectWithinASingleComposite() {
 
         StationGroup piccadillyComp = stationGroupsRepository.findByName("Piccadilly Rail Station");
-        List<Station> stations = new ArrayList<>(piccadillyComp.getAllContained());
+        List<Station> stations = piccadillyComp.getAllContained().stream().toList();
         assertTrue(stations.size()>2);
         Station start = stations.get(0);
         Station end = stations.get(1);

@@ -12,6 +12,7 @@ import com.tramchester.dataimport.loader.TransportDataReader;
 import com.tramchester.dataimport.loader.TransportDataReaderFactory;
 import com.tramchester.dataimport.loader.files.TransportDataFromFileFactory;
 import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.NaptanRecord;
@@ -87,7 +88,7 @@ public class ValidateKnownLocalityTest {
         for(KnownLocality knownLocality : KnownLocality.GreaterManchester) {
             StationGroup stationGroup = knownLocality.from(stationGroupsRepository);
 
-            Set<Station> contained = stationGroup.getAllContained();
+            LocationSet<Station> contained = stationGroup.getAllContained();
             IdSet<Station> outside = contained.stream().
                     filter(station -> !boundingBox.contained(station.getLatLong())).
                     collect(IdSet.collector());

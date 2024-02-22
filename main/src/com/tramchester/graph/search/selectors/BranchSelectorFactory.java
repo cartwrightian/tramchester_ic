@@ -2,7 +2,8 @@ package com.tramchester.graph.search.selectors;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.LocationSet;
+import com.tramchester.domain.LocationCollection;
+import com.tramchester.domain.MixedLocationSet;
 import com.tramchester.geo.StationDistances;
 import com.tramchester.geo.StationsBoxSimpleGrid;
 import org.neo4j.graphdb.traversal.BranchOrderingPolicy;
@@ -25,7 +26,7 @@ public class BranchSelectorFactory {
         this.stationDistances = stationDistances;
     }
 
-    public BranchOrderingPolicy getFor(final LocationSet destinations) {
+    public BranchOrderingPolicy getFor(final LocationCollection destinations) {
         logger.info("creating for depthFirst " + config.getDepthFirst());
 
         return config.getDepthFirst() ? DepthFirstBranchSelector::new :

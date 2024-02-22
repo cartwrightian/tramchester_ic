@@ -2,6 +2,7 @@ package com.tramchester.graph.graphbuild;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.NPTGLocality;
@@ -166,7 +167,7 @@ public class StationGroupsGraphBuilder extends CreateNodesAndRelationships {
     }
 
     private void linkStationsWithGroup(final MutableGraphTransaction txn, final MutableGraphNode groupNode, final StationGroup stationGroup) {
-        final Set<Station> contained = stationGroup.getAllContained();
+        final LocationSet<Station> contained = stationGroup.getAllContained();
 
         contained.stream().
                 filter(graphFilter::shouldInclude).

@@ -18,5 +18,5 @@ public interface NeighboursRepository {
     Set<StationToStationConnection> getNeighbourLinksFor(IdFor<Station> id);
     boolean hasNeighbours(IdFor<Station> id);
     boolean areNeighbours(Location<?> locationA, Location<?> locationB);
-    boolean areNeighbours(LocationSet starts, LocationSet destinations);
+    boolean areNeighbours(LocationSet<Station> starts, LocationSet<Station> destinations);
 }

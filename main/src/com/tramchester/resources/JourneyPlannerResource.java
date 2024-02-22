@@ -195,7 +195,6 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         final Location<?> start = locationRepository.getLocation(query.getStartType(), query.getStartId());
         final Location<?> dest = locationRepository.getLocation(query.getDestType(), query.getDestId());
 
-
         final MutableGraphTransaction tx =  graphDatabase.beginTxMutable();
 
         try {

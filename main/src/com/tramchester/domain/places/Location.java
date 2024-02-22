@@ -9,8 +9,9 @@ import com.tramchester.geo.HasGridPosition;
 
 import java.util.Set;
 
-public interface Location<TYPE extends Location<?>> extends HasId<TYPE>, HasGridPosition, HasTransportModes,
-        GraphProperty, HasGraphLabel, CoreDomain {
+public interface Location<TYPE extends Location<TYPE>> extends HasGridPosition, HasTransportModes,
+        GraphProperty, HasGraphLabel, CoreDomain , HasId<TYPE>
+    {
 
     String getName();
 
@@ -49,5 +50,10 @@ public interface Location<TYPE extends Location<?>> extends HasId<TYPE>, HasGrid
 
     // marked as an interchange in the source data
     boolean isMarkedInterchange();
+
+    default LocationId getLocationId() {
+        return new LocationId(getId());
+    }
+
 
 }

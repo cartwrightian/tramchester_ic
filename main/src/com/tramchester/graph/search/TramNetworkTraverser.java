@@ -1,7 +1,8 @@
 package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.LocationSet;
+import com.tramchester.domain.LocationCollection;
+import com.tramchester.domain.MixedLocationSet;
 import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
@@ -66,7 +67,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     public Stream<Path> findPaths(final GraphTransaction txn, final RouteCalculatorSupport.PathRequest pathRequest,
                                   final PreviousVisits previousSuccessfulVisit,
                                   final ServiceReasons reasons, final LowestCostSeen lowestCostSeen,
-                                  final Set<GraphNodeId> destinationNodeIds, final LocationSet destinations, Running running) {
+                                  final Set<GraphNodeId> destinationNodeIds, final LocationCollection destinations, Running running) {
 
         final BranchOrderingPolicy selector = pathRequest.getSelector();
         final GraphNode startNode = pathRequest.getStartNode();

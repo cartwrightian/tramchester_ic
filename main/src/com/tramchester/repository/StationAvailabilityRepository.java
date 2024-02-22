@@ -228,7 +228,7 @@ public class StationAvailabilityRepository {
                 collect(Collectors.toSet());
     }
 
-    public Set<Route> getPickupRoutesFor(final LocationSet locations, final TramDate date, final TimeRange timeRange, final EnumSet<TransportMode> modes) {
+    public Set<Route> getPickupRoutesFor(final LocationSet<Station> locations, final TramDate date, final TimeRange timeRange, final EnumSet<TransportMode> modes) {
         return locations.stream().
                 flatMap(location -> getPickupRoutesFor(location, date, timeRange, modes).stream()).
                 collect(Collectors.toSet());
@@ -241,7 +241,7 @@ public class StationAvailabilityRepository {
                 collect(Collectors.toSet());
     }
 
-    public Set<Route> getDropoffRoutesFor(LocationSet locations, TramDate date, TimeRange timeRange, EnumSet<TransportMode> modes) {
+    public Set<Route> getDropoffRoutesFor(LocationSet<Station> locations, TramDate date, TimeRange timeRange, EnumSet<TransportMode> modes) {
         return locations.stream().
                 flatMap(location -> getDropoffRoutesFor(location, date, timeRange, modes).stream()).
                 collect(Collectors.toSet());
@@ -251,12 +251,12 @@ public class StationAvailabilityRepository {
         return pickupsForLocation.size() + dropoffsForLocation.size();
     }
 
-    public TimeRange getAvailableTimesFor(final LocationSet destinations, final TramDate tramDate) {
+    public TimeRange getAvailableTimesFor(final LocationCollection destinations, final TramDate tramDate) {
 
         final EnumSet<TransportMode> modes = destinations.getModes();
 
-        final Set<TimeRange> ranges = destinations.stream().
-                flatMap(location -> expand(location).stream()).
+        final Set<TimeRange> ranges = destinations.locationStream().
+                flatMap(location -> expand(location).locationStream()).
                 filter(dropoffsForLocation::containsKey).
                 map(dropoffsForLocation::get).
                 flatMap(servedRoute -> servedRoute.getTimeRanges(tramDate, modes)).
@@ -273,14 +273,14 @@ public class StationAvailabilityRepository {
 
     }
 
-    private Set<Location<?>> expand(Location<?> location) {
+    private LocationCollection expand(Location<?> location) {
         if (location.getLocationType()==LocationType.Station) {
-            return Collections.singleton(location);
+            return MixedLocationSet.singleton(location);
         }
         if (location.getLocationType()==LocationType.StationGroup) {
             StationGroup group = (StationGroup) location;
-            return new HashSet<>(group.getAllContained());
+            return group.getAllContained();
         }
-        throw new RuntimeException("Unsupport location type " + location.getId() + " " + location.getLocationType());
+        throw new RuntimeException("Unsupported location type " + location.getId() + " " + location.getLocationType());
     }
 }

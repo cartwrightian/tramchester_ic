@@ -48,7 +48,7 @@ public class BreadthFirstBranchSelectorForGridSearch implements BranchSelector {
             this.destination = destination;
             theQueue = new PriorityQueue<>(new BranchComparator());
             stationToBox = new HashMap<>();
-            startingBoxes.forEach(box -> box.getStations().stationsOnlyStream().forEach(station -> stationToBox.put(station.getId(), box)));
+            startingBoxes.forEach(box -> box.getStations().stream().forEach(station -> stationToBox.put(station.getId(), box)));
         }
 
         public TraversalBranch removeFront() {

@@ -3,6 +3,7 @@ package com.tramchester.testSupport.reference;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdForDTO;
+import com.tramchester.domain.places.LocationId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.repository.StationRepository;
@@ -27,4 +28,8 @@ public interface FakeStation extends HasId<Station> {
     Station fake();
 
     IdForDTO getIdForDTO();
+
+    default LocationId getLocationId() {
+        return new LocationId(getId());
+    }
 }

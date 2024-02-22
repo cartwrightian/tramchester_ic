@@ -2,6 +2,7 @@ package com.tramchester.domain;
 
 import com.google.common.collect.Sets;
 import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.LocationId;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -18,101 +19,122 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class LocationSet {
+public class LocationSet<T extends Location<T>> implements LocationCollection {
 
-    private final Set<Location<?>> locations;
+    private final Set<T> locations;
 
     public LocationSet() {
         locations = new HashSet<>();
     }
 
-    public <T extends Location<T>> LocationSet(Collection<T> stations) {
-        this.locations = new HashSet<>(stations);
+    public LocationSet(Collection<T> locations) {
+        this.locations = new HashSet<>(locations);
+    }
+
+    public LocationSet(LocationSet<T> locationSet) {
+        this.locations = new HashSet<>(locationSet.locations);
+    }
+
+    public static  <T extends Location<T>> LocationSet<T> of(final Set<T> items) {
+        return new LocationSet<>(items);
+    }
+
+    public static <S extends Location<S>> LocationSet<S> singleton(S location) {
+        final LocationSet<S> locationSet = new LocationSet<>();
+        locationSet.add(location);
+        return locationSet;
     }
 
     public int size() {
         return locations.size();
     }
 
-    public Stream<Location<?>> stream() {
+    public Stream<T> stream() {
         return locations.stream();
     }
 
-    public void add(Location<?> location) {
+    public void add(T location) {
         locations.add(location);
     }
 
-    public boolean contains(Location<?> start) {
-        return locations.contains(start);
+    public boolean contains(T item) {
+        return locations.contains(item);
     }
 
-    public String asIds() {
-        StringBuilder ids = new StringBuilder();
-        ids.append("[");
-        locations.forEach(item -> ids.append(" '").append(item.getId()).append("'"));
-        ids.append("]");
-        return ids.toString();
-    }
-
-    @Override
-    public String toString() {
-        return "LocationSet{" +
-                "locations=" + this.asIds() +
-                '}';
-    }
-
+    /***
+     * Need to sort out issue around id's
+     * @return only those locations in the set that are stations
+     */
+    @Deprecated
     public Stream<Station> stationsOnlyStream() {
         return locations.stream().
                 filter(location -> location.getLocationType()==LocationType.Station).
                 map(location -> (Station) location);
     }
 
+    @Override
     public EnumSet<TransportMode> getModes() {
         return locations.stream().
                 flatMap(location -> location.getTransportModes().stream()).
                 collect(Collectors.toCollection(() -> EnumSet.noneOf(TransportMode.class)));
     }
 
-    public static LocationSet of(final Set<Station> stations) {
-        return new LocationSet(stations);
+    @Override
+    public Stream<Location<?>> locationStream() {
+        return locations.stream().map(item -> item);
     }
 
-    public static LocationSet singleton(Location<?> location) {
-        final LocationSet locationSet = new LocationSet();
-        locationSet.add(location);
-        return locationSet;
-    }
+//    @Override
+//    public boolean contains(IdFor<Station> stationId) {
+//        return locations.stream().anyMatch(item -> item.getId().equals(stationId));
+//    }
 
-    public void addAll(LocationSet other) {
+
+    public void addAll(final LocationSet<T> other) {
         this.locations.addAll(other.locations);
     }
 
-    private static LocationSet combine(LocationSet setA, LocationSet setB) {
-        LocationSet result = new LocationSet();
+    private static <S extends Location<S>> LocationSet<S> combine(final LocationSet<S> setA, final LocationSet<S> setB) {
+        final LocationSet<S> result = new LocationSet<>();
         result.locations.addAll(setA.locations);
         result.locations.addAll(setB.locations);
         return result;
     }
 
-    public static Collector<Station, LocationSet, LocationSet> stationCollector() {
+    @Override
+    public String toString() {
+        return "LocationSet{" +
+                "locations=" + asIds() +
+                '}';
+    }
+
+    public String asIds() {
+        final StringBuilder ids = new StringBuilder();
+        ids.append("[");
+        locations.forEach(item -> ids.append(" '").append(item.getId()).append("'"));
+        ids.append("]");
+        return ids.toString();
+    }
+
+    public static <S extends Location<S>> Collector<S, LocationSet<S>, LocationSet<S>> stationCollector() {
         return new Collector<>() {
             @Override
-            public Supplier<LocationSet> supplier() {
+            public Supplier<LocationSet<S>> supplier() {
                 return LocationSet::new;
             }
 
             @Override
-            public BiConsumer<LocationSet, Station> accumulator() {
+            public BiConsumer<LocationSet<S>, S> accumulator() {
                 return LocationSet::add;
             }
 
             @Override
-            public BinaryOperator<LocationSet> combiner() {
+            public BinaryOperator<LocationSet<S>> combiner() {
                 return LocationSet::combine;
             }
 
             @Override
-            public Function<LocationSet, LocationSet> finisher() {
+            public Function<LocationSet<S>, LocationSet<S>> finisher() {
                 return items -> items;
             }
 
@@ -125,6 +147,11 @@ public class LocationSet {
 
     public boolean isEmpty() {
         return locations.isEmpty();
+    }
+
+    @Override
+    public boolean contains(LocationId locationId) {
+        return locations.stream().anyMatch(location -> location.getLocationId().equals(locationId));
     }
 
 

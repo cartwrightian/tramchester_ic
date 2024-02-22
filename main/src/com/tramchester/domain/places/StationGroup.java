@@ -1,6 +1,7 @@
 package com.tramchester.domain.places;
 
 import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.HasId;
@@ -28,7 +29,7 @@ import java.util.stream.Collectors;
 public class StationGroup implements Location<StationGroup> {
     private final IdFor<StationGroup> id;
     private final IdFor<NPTGLocality> localityId;
-    private final Set<Station> groupedStations;
+    private final LocationSet<Station> groupedStations;
     private final String name;
 
     private final LatLong latLong;
@@ -48,7 +49,7 @@ public class StationGroup implements Location<StationGroup> {
         }
         this.latLong = latLong;
         this.dataSourceId = computeDataSourceId(groupedStations);
-        this.groupedStations = groupedStations;
+        this.groupedStations = LocationSet.of(groupedStations);
         this.localityId = localityId;
         this.name = name;
     }
@@ -62,8 +63,8 @@ public class StationGroup implements Location<StationGroup> {
         return StringIdFor.createId(text, StationGroup.class);
     }
 
-    public Set<Station> getAllContained() {
-        return groupedStations;
+    public LocationSet<Station> getAllContained() {
+        return new LocationSet<>(groupedStations);
     }
 
     @Override

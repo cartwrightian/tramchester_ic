@@ -1,7 +1,9 @@
 package com.tramchester.geo;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.domain.LocationCollection;
 import com.tramchester.domain.LocationSet;
+import com.tramchester.domain.MixedLocationSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.NPTGLocality;
@@ -36,7 +38,7 @@ public class StationLocations implements StationLocationsRepository {
     private final Geography geography;
     private final Set<BoundingBox> quadrants;
 
-    private final Map<IdFor<NPTGLocality>, LocationSet> locationsWithinLocality;
+    private final Map<IdFor<NPTGLocality>, MixedLocationSet> locationsWithinLocality;
     private final Map<BoundingBox, Set<Station>> stationBoxes;
 
     private BoundingBox bounds;
@@ -114,23 +116,23 @@ public class StationLocations implements StationLocationsRepository {
                 collect(Collectors.groupingBy(Location::getLocalityId)).entrySet()
                 .stream().
                 filter(entry -> !entry.getValue().isEmpty()).
-                forEach(entry -> locationsWithinLocality.put(entry.getKey(), new LocationSet(entry.getValue())));
+                forEach(entry -> locationsWithinLocality.put(entry.getKey(), new MixedLocationSet(entry.getValue())));
 
         platformRepository.getPlaformStream().
                 filter(Location::isActive).
                 collect(Collectors.groupingBy(Location::getLocalityId)).entrySet()
                 .stream().
                 filter(entry -> !entry.getValue().isEmpty()).
-                forEach(entry -> updateLocations(entry.getKey(), new LocationSet(entry.getValue())));
+                forEach(entry -> updateLocations(entry.getKey(), new LocationSet<>(entry.getValue())));
 
         logger.info("Added " + locationsWithinLocality.size() + " areas which have stations");
     }
 
-    private void updateLocations(IdFor<NPTGLocality> localityIdFor, LocationSet toAdd) {
+    private void updateLocations(final IdFor<NPTGLocality> localityIdFor, final LocationCollection toAdd) {
         if (locationsWithinLocality.containsKey(localityIdFor)) {
             locationsWithinLocality.get(localityIdFor).addAll(toAdd);
         } else {
-            locationsWithinLocality.put(localityIdFor, toAdd);
+            locationsWithinLocality.put(localityIdFor, new MixedLocationSet(toAdd));
         }
     }
 
@@ -139,7 +141,7 @@ public class StationLocations implements StationLocationsRepository {
     }
 
     @Override
-    public LocationSet getLocationsWithin(IdFor<NPTGLocality> areaId) {
+    public LocationCollection getLocationsWithin(IdFor<NPTGLocality> areaId) {
         return locationsWithinLocality.get(areaId);
     }
 
@@ -248,7 +250,7 @@ public class StationLocations implements StationLocationsRepository {
                 filter(quadrant -> quadrant.within(range, position)).collect(Collectors.toSet());
     }
 
-    public LocationSet getStationsWithin(final BoundingBox box) {
+    public LocationSet<Station> getStationsWithin(final BoundingBox box) {
         final Stream<BoundingBox> overlaps = quadrants.stream().filter(box::overlapsWith);
 
         final Stream<Station> candidateStations = overlaps.flatMap(quadrant -> stationBoxes.get(quadrant).stream());

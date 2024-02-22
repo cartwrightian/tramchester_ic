@@ -9,12 +9,14 @@ import com.tramchester.domain.collections.RequestStopStream;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.geo.*;
+import com.tramchester.geo.BoundingBox;
+import com.tramchester.geo.StationBoxFactory;
+import com.tramchester.geo.StationLocations;
+import com.tramchester.geo.StationsBoxSimpleGrid;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.search.RouteCalculatorForBoxes;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
-import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
@@ -42,7 +44,6 @@ class RouteCalculatorForBoundingBoxTest {
     private MutableGraphTransaction txn;
     private StationLocations stationLocations;
     private StationRepository stationRepository;
-    private ClosedStationsRepository closedStationsRepository;
     private StationBoxFactory stationBoxFactory;
 
     @BeforeAll
@@ -65,7 +66,6 @@ class RouteCalculatorForBoundingBoxTest {
         calculator = componentContainer.get(RouteCalculatorForBoxes.class);
         stationLocations = componentContainer.get(StationLocations.class);
         stationRepository = componentContainer.get(StationRepository.class);
-        closedStationsRepository = componentContainer.get(ClosedStationsRepository.class);
         stationBoxFactory = componentContainer.get(StationBoxFactory.class);
     }
 
@@ -90,6 +90,7 @@ class RouteCalculatorForBoundingBoxTest {
 
         Optional<StationsBoxSimpleGrid> findDestBox = grouped.stream().filter(box -> box.getStations().contains(station)).findFirst();
         assertTrue(findDestBox.isPresent());
+
         StationsBoxSimpleGrid destinationBox = findDestBox.get();
 
         RequestStopStream<JourneysForBox> result = calculator.calculateRoutes(destinationBox, journeyRequest, grouped);

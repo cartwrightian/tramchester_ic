@@ -1,6 +1,6 @@
 package com.tramchester.graph.search.stateMachine;
 
-import com.tramchester.domain.LocationSet;
+import com.tramchester.domain.LocationCollection;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.dates.TramDate;
@@ -8,7 +8,7 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.LocationId;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.caches.NodeContentsRepository;
@@ -28,7 +28,7 @@ import static com.tramchester.graph.TransportRelationshipTypes.*;
 public class TraversalOps {
     private final NodeContentsRepository nodeOperations;
     private final TripRepository tripRepository;
-    private final IdSet<Station> destinationStationIds;
+    private final LocationCollection destinationIds;
     private final IdSet<Route> destinationRoutes;
     private final TramDate queryDate;
     private final GraphTransaction txn;
@@ -39,13 +39,13 @@ public class TraversalOps {
 
     // TODO Split into fixed and journey specific, inject fixed direct into builders
     public TraversalOps(GraphTransaction txn, NodeContentsRepository nodeOperations, TripRepository tripRepository,
-                        LocationSet destinations, TramDate queryDate, TramTime queryTime) {
+                        LocationCollection destinations, TramDate queryDate, TramTime queryTime) {
         this.txn = txn;
         this.tripRepository = tripRepository;
         this.nodeOperations = nodeOperations;
-        this.destinationStationIds = destinations.stationsOnlyStream().collect(IdSet.collector());
-        this.destinationRoutes = destinations.stream().
-                flatMap(station -> station.getDropoffRoutes().stream()).
+        this.destinationIds = destinations; //.stationsOnlyStream().collect(IdSet.collector());
+        this.destinationRoutes = destinations.locationStream().
+                flatMap(location -> location.getDropoffRoutes().stream()).
                 collect(IdSet.collector());
         this.queryDate = queryDate;
         this.queryHour = queryTime.getHourOfDay();
@@ -53,15 +53,15 @@ public class TraversalOps {
 
     public <R extends GraphRelationship> OptionalResourceIterator<R> getTowardsDestination(final Stream<R> outgoing) {
         final List<R> filtered = outgoing.
-                filter(depart -> destinationStationIds.contains(getLocationIdFor(depart))).
+                filter(depart -> destinationIds.contains(getLocationIdFor(depart))).
                 collect(Collectors.toList());
         return OptionalResourceIterator.from(filtered);
     }
 
-    private static IdFor<Station> getLocationIdFor(final GraphRelationship depart) {
+    private static LocationId getLocationIdFor(final GraphRelationship depart) {
         final TransportRelationshipTypes departType = depart.getType();
         if (haveStationId.contains(departType)) {
-            return depart.getStationId();
+            return new LocationId(depart.getStationId());
         } else {
             throw new RuntimeException("Unsupported relationship type " + departType);
         }

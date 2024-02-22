@@ -59,9 +59,9 @@ class StationGroupTest {
         assertEquals(1, transportModes.size());
         assertTrue(transportModes.contains(Tram));
 
-        Set<Station> containted = groupedStations.getAllContained();
-        assertEquals(1, containted.size());
-        assertTrue(containted.contains(stationA));
+        LocationSet<Station> contained = groupedStations.getAllContained();
+        assertEquals(1, contained.size());
+        assertTrue(contained.contains(stationA));
     }
 
     @Test
@@ -111,10 +111,10 @@ class StationGroupTest {
         assertEquals(1, stationGroup.getPickupRoutes().size());
 //        assertEquals(2, stationGroup.getAgencies().size());
 
-        Set<Station> containted = stationGroup.getAllContained();
-        assertEquals(2, containted.size());
-        assertTrue(containted.contains(stationA));
-        assertTrue(containted.contains(stationB));
+        LocationSet<Station> contained = stationGroup.getAllContained();
+        assertEquals(2, contained.size());
+        assertTrue(contained.contains(stationA));
+        assertTrue(contained.contains(stationB));
 
     }
 

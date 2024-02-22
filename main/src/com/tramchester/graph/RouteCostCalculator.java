@@ -51,7 +51,8 @@ public class RouteCostCalculator {
         return calculateLeastCost(txn, startNode, endNode, COST, date, modes);
     }
 
-    public Duration getAverageCostBetween(GraphTransaction txn, Location<?> station, GraphNode endNode, TramDate date, Set<TransportMode> modes) throws InvalidDurationException {
+    public Duration getAverageCostBetween(GraphTransaction txn, Location<?> station, GraphNode endNode, TramDate date,
+                                          Set<TransportMode> modes) throws InvalidDurationException {
         GraphNode startNode = txn.findNode(station);
         return calculateLeastCost(txn, startNode, endNode, COST, date, modes);
     }

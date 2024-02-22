@@ -1,6 +1,7 @@
 package com.tramchester.graph.search.selectors;
 
-import com.tramchester.domain.LocationSet;
+import com.tramchester.domain.LocationCollection;
+import com.tramchester.domain.MixedLocationSet;
 import com.tramchester.geo.StationDistances;
 import com.tramchester.graph.search.ImmutableJourneyState;
 import com.tramchester.graph.search.JourneyState;
@@ -20,7 +21,7 @@ public class BreadthFirstBranchSelector implements BranchSelector {
     private TraversalBranch branchToExpand;
 
     public BreadthFirstBranchSelector(final TraversalBranch start, final PathExpander<JourneyState> expander,
-                                      final StationDistances stationDistances, final LocationSet destinationIds) {
+                                      final StationDistances stationDistances, final LocationCollection destinationIds) {
         this.branchToExpand = start;
         this.expander = expander;
         expansionQueue = new TraversalBranchQueue(stationDistances, destinationIds);
@@ -42,7 +43,7 @@ public class BreadthFirstBranchSelector implements BranchSelector {
         private final PriorityQueue<TraversalBranch> theQueue;
         private final StationDistances.FindDistancesTo findDistances;
 
-        public TraversalBranchQueue(final StationDistances stationDistances, final LocationSet destinations) {
+        public TraversalBranchQueue(final StationDistances stationDistances, final LocationCollection destinations) {
             findDistances = stationDistances.findDistancesTo(destinations);
             theQueue = new PriorityQueue<>(new BranchComparator());
         }

@@ -3,7 +3,7 @@ package com.tramchester.geo;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.domain.LocationSet;
+import com.tramchester.domain.LocationCollection;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
@@ -23,7 +23,7 @@ public class StationDistances {
         this.stationRepository = stationRepository;
     }
 
-    public FindDistancesTo findDistancesTo(final LocationSet destinations) {
+    public FindDistancesTo findDistancesTo(final LocationCollection destinations) {
         return new FindDistancesTo(destinations);
     }
 
@@ -35,8 +35,8 @@ public class StationDistances {
         // avoid memory issues
         private final Cache<IdFor<Station>, Long> cache;
 
-        public FindDistancesTo(final LocationSet destinationLocations) {
-            destinationGrids = destinationLocations.stream().map(Location::getGridPosition).filter(GridPosition::isValid).collect(Collectors.toSet());
+        public FindDistancesTo(final LocationCollection destinationLocations) {
+            destinationGrids = destinationLocations.locationStream().map(Location::getGridPosition).filter(GridPosition::isValid).collect(Collectors.toSet());
             cache = Caffeine.newBuilder().build();
         }
 

@@ -84,7 +84,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
         // TODO Compute over a range of times??
 
-        final LocationSet destinations = destinationBox.getStations();
+        final LocationSet<Station> destinations = destinationBox.getStations();
 
         final long maxNumberOfJourneys = journeyRequest.getMaxNumberOfJourneys();
 
@@ -111,7 +111,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
             if (logger.isDebugEnabled()) {
                 logger.debug(format("Finding shortest path for %s --> %s for %s", box, destinations, journeyRequest));
             }
-            final LocationSet startingStations = box.getStations();
+            final LocationSet<Station> startingStations = box.getStations();
             final LowestCostSeen lowestCostSeenForBox = new LowestCostSeen();
 
             final AtomicInteger journeyIndex = new AtomicInteger(0);
@@ -161,11 +161,11 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
     }
 
     private class ChangesForDestinations {
-        private final LocationSet destinations;
+        private final LocationSet<Station> destinations;
         private final JourneyRequest journeyRequest;
         private final Cache<BoundingBoxWithStations, NumberOfChanges> cache;
 
-        private ChangesForDestinations(LocationSet destinations, JourneyRequest journeyRequest) {
+        private ChangesForDestinations(LocationSet<Station> destinations, JourneyRequest journeyRequest) {
             this.destinations = destinations;
             this.journeyRequest = journeyRequest;
             cache = Caffeine.newBuilder().build();
@@ -183,7 +183,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
     }
 
     @NotNull
-    private JourneyConstraints createJourneyConstraints(final LocationSet destinations, final JourneyRequest journeyRequest) {
+    private JourneyConstraints createJourneyConstraints(final LocationSet<Station> destinations, final JourneyRequest journeyRequest) {
         final TramDate date = journeyRequest.getDate();
 
         final TimeRange destinationsAvailable = getDestinationsAvailable(destinations, date);

@@ -210,12 +210,12 @@ public class Neighbours implements NeighboursRepository {
     }
 
     @Override
-    public boolean areNeighbours(final LocationSet starts, final LocationSet destinations) {
-        return starts.stationsOnlyStream().
+    public boolean areNeighbours(final LocationSet<Station> starts, final LocationSet<Station> destinations) {
+        return starts.stream().
                 map(Location::getId).
                 filter(this::hasNeighbours).
                 map(this::getNeighboursFor).
-                anyMatch(neighbours -> destinations.stationsOnlyStream().anyMatch(neighbours::contains));
+                anyMatch(neighbours -> destinations.stream().anyMatch(neighbours::contains));
     }
 
     @Override

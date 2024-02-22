@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.LocationSet;
+import com.tramchester.domain.MixedLocationSet;
 import com.tramchester.domain.StationPair;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
@@ -54,7 +55,7 @@ public class StationDistancesTest {
         long expectedMeters = 1030;
 
         Location<?> navigationRoad = TramStations.NavigationRoad.from(stationRepository);
-        long result = stationDistances.findDistancesTo(LocationSet.singleton(navigationRoad)).toStation(TramStations.Altrincham.getId());
+        long result = stationDistances.findDistancesTo(MixedLocationSet.singleton(navigationRoad)).toStation(TramStations.Altrincham.getId());
 
         assertEquals(expectedMeters, result);
 
@@ -67,7 +68,7 @@ public class StationDistancesTest {
         Set<Station> aroundPiccadilly = Stream.of(Piccadilly, PiccadillyGardens, MarketStreet).
                 map(item -> item.from(stationRepository)).collect(Collectors.toSet());
 
-        LocationSet locationSet = LocationSet.of(aroundPiccadilly);
+        LocationSet<Station> locationSet = LocationSet.of(aroundPiccadilly);
         long result = stationDistances.findDistancesTo(locationSet).toStation(TramStations.Bury.getId());
 
         assertEquals(expectedMeters, result);

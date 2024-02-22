@@ -93,10 +93,10 @@ public class RouteCalculatorSupport {
     }
 
     @NotNull
-    public Set<GraphNodeId> getDestinationNodeIds(final LocationSet destinations) {
+    public Set<GraphNodeId> getDestinationNodeIds(final LocationCollection destinations) {
         final Set<GraphNodeId> destinationNodeIds;
         try(GraphTransaction txn = graphDatabaseService.beginTx()) {
-            destinationNodeIds = destinations.stream().
+            destinationNodeIds = destinations.locationStream().
                     map(location -> getLocationNodeSafe(txn, location)).
                     map(GraphNode::getId).
                     collect(Collectors.toSet());
@@ -134,7 +134,7 @@ public class RouteCalculatorSupport {
 
     public Stream<RouteCalculator.TimedPath> findShortestPath(final GraphTransaction txn, final ServiceReasons reasons, final PathRequest pathRequest,
                                                               final PreviousVisits previousSuccessfulVisit, final LowestCostSeen lowestCostSeen,
-                                                              final LocationSet endStations, final Set<GraphNodeId> destinationNodeIds,
+                                                              final LocationCollection destinations, final Set<GraphNodeId> destinationNodeIds,
                                                               final Running running) {
         if (fullLogging) {
             if (config.getDepthFirst()) {
@@ -148,13 +148,13 @@ public class RouteCalculatorSupport {
                 tripRepository, traversalStateFactory, config, reasonToGraphViz, fullLogging);
 
         final Stream<Path> paths = tramNetworkTraverser.findPaths(txn, pathRequest, previousSuccessfulVisit, reasons, lowestCostSeen,
-                destinationNodeIds, endStations, running);
+                destinationNodeIds, destinations, running);
         return paths.map(path -> new RouteCalculator.TimedPath(path, pathRequest));
     }
 
     @NotNull
     protected Journey createJourney(final JourneyRequest journeyRequest, final RouteCalculator.TimedPath path,
-                                    final LocationSet destinations, final AtomicInteger journeyIndex,
+                                    final LocationCollection destinations, final AtomicInteger journeyIndex,
                                     final GraphTransaction txn) {
 
         final List<TransportStage<?, ?>> stages = pathToStages.mapDirect(path, journeyRequest, destinations, txn, fullLogging);
@@ -230,7 +230,7 @@ public class RouteCalculatorSupport {
         return new PathRequest(startNode, queryDate, actualQueryTime, numChanges, serviceHeuristics, requestedModes, maxInitialWait, selector);
     }
 
-    protected TimeRange getDestinationsAvailable(LocationSet destinations, TramDate tramDate) {
+    protected TimeRange getDestinationsAvailable(LocationCollection destinations, TramDate tramDate) {
         return stationAvailabilityRepository.getAvailableTimesFor(destinations, tramDate);
     }
 

@@ -3,6 +3,7 @@ package com.tramchester.integration.geo;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.LocationCollection;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;
@@ -103,9 +104,9 @@ public class StationLocationsTest {
 
         assertTrue(locations.hasStationsOrPlatformsIn(areaId));
 
-        LocationSet found = locations.getLocationsWithin(areaId);
+        LocationCollection found = locations.getLocationsWithin(areaId);
         assertFalse(found.isEmpty());
-        assertTrue(found.contains(station));
+        assertTrue(found.contains(station.getLocationId()));
     }
 
     @Test
@@ -123,9 +124,9 @@ public class StationLocationsTest {
 
             assertTrue(locations.hasStationsOrPlatformsIn(areaId), "platform " + platform);
 
-            LocationSet found = locations.getLocationsWithin(areaId);
+            LocationCollection found = locations.getLocationsWithin(areaId);
             assertFalse(found.isEmpty(), "platform " + platform);
-            assertTrue(found.contains(platform), "platform " + platform + " not in " + found);
+            assertTrue(found.contains(platform.getLocationId()), "platform " + platform + " not in " + found);
         });
     }
 

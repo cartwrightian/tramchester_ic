@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.ClosedStation;
 import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.StationClosures;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
@@ -11,6 +12,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.StationClosuresConfigForTest;
 import com.tramchester.integration.testSupport.tram.IntegrationTramClosedStationsTestConfig;
 import com.tramchester.repository.ClosedStationsRepository;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.AfterAll;
@@ -21,9 +23,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.*;
 
-import static com.tramchester.domain.reference.CentralZoneStation.*;
-import static com.tramchester.testSupport.reference.TramStations.StPetersSquare;
-import static com.tramchester.testSupport.reference.TramStations.TraffordCentre;
+import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ClosedStationsRepositoryTest {
@@ -37,6 +37,7 @@ public class ClosedStationsRepositoryTest {
     private ClosedStationsRepository closedStationsRepository;
 
     private TramDate afterClosures;
+    private StationRepository stationRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -65,7 +66,40 @@ public class ClosedStationsRepositoryTest {
     @BeforeEach
     void beforeEachTestRuns() {
         closedStationsRepository = componentContainer.get(ClosedStationsRepository.class);
+        stationRepository = componentContainer.get(StationRepository.class);
         afterClosures = when.plusWeeks(4);
+    }
+
+    @Test
+    void shouldHaveAnyOpenCheckWhenNotClosedStation() {
+        LocationSet<Station> locations = new LocationSet<>();
+        locations.add(TramStations.Altrincham.from(stationRepository));
+        assertTrue(closedStationsRepository.anyStationOpen(locations, when));
+    }
+
+    @Test
+    void shouldHaveAnyOpenCheckWhenClosed() {
+        LocationSet<Station> locations = new LocationSet<>(Collections.singletonList(StPetersSquare.from(stationRepository)));
+        assertFalse(closedStationsRepository.anyStationOpen(locations, when));
+    }
+
+    @Test
+    void shouldHaveAnyOpenCheckWhenNotFullyClosed() {
+        LocationSet<Station> locations = new LocationSet<>(Arrays.asList(TraffordCentre.from(stationRepository), ExchangeSquare.from(stationRepository)));
+        assertTrue(closedStationsRepository.anyStationOpen(locations, overlap));
+    }
+
+    @Test
+    void shouldHaveAnyOpenCheckWhenNotClosedIncluded() {
+        LocationSet<Station> locations = new LocationSet<>(Arrays.asList(StPetersSquare.from(stationRepository), Bury.from(stationRepository)));
+        assertTrue(closedStationsRepository.anyStationOpen(locations, when));
+    }
+
+    @Test
+    void shouldHaveAnyOpenCheckAfterClosure() {
+        LocationSet<Station> locations = new LocationSet<>();
+        locations.add(TramStations.Altrincham.from(stationRepository));
+        assertTrue(closedStationsRepository.anyStationOpen(locations, afterClosures));
     }
 
     @Test

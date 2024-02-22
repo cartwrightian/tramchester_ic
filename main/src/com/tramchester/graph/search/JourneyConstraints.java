@@ -1,9 +1,7 @@
 package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.LocationSet;
-import com.tramchester.domain.Route;
-import com.tramchester.domain.Service;
+import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
@@ -32,7 +30,7 @@ public class JourneyConstraints {
     private final TimeRange destinationsAvailable;
     private final TramchesterConfig config;
     private final int maxPathLength;
-    private final LocationSet endStations;
+    private final LocationCollection destinations;
     private final IdSet<Station> closedStationsIds;
     private final Duration maxJourneyDuration;
     private final int maxWalkingConnections;
@@ -40,7 +38,7 @@ public class JourneyConstraints {
     private final LowestCostsForDestRoutes lowestCostForDestinations;
 
     public JourneyConstraints(TramchesterConfig config, RunningRoutesAndServices.FilterForDate routesAndServicesFilter,
-                              IdSet<Station> closedStationsIds, LocationSet endStations,
+                              IdSet<Station> closedStationsIds, LocationCollection destinations,
                               LowestCostsForDestRoutes lowestCostForDestinations, Duration maxJourneyDuration,
                               TimeRange destinationsAvailable) {
         this.config = config;
@@ -49,7 +47,7 @@ public class JourneyConstraints {
         this.destinationsAvailable = destinationsAvailable;
         this.maxPathLength = computeMaxPathLength();
 
-        this.endStations = endStations;
+        this.destinations = destinations;
         this.maxJourneyDuration = maxJourneyDuration;
         this.maxWalkingConnections = config.getMaxWalkingConnections();
 
@@ -83,8 +81,8 @@ public class JourneyConstraints {
         return maxPathLength;
     }
 
-    public LocationSet getEndStations() {
-        return endStations;
+    public LocationCollection getDestinations() {
+        return destinations;
     }
 
     public Duration getMaxJourneyDuration() {
@@ -108,7 +106,7 @@ public class JourneyConstraints {
         return "JourneyConstraints{" +
                 "runningServices=" + routesAndServicesFilter +
                 ", maxPathLength=" + maxPathLength +
-                ", endStations=" + endStations +
+                ", endStations=" + destinations +
                 ", closedStations=" + closedStationsIds +
                 ", maxJourneyDuration=" + maxJourneyDuration +
                 ", maxWalkingConnections=" + maxWalkingConnections +

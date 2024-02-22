@@ -125,7 +125,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     public NumberOfChanges getNumberOfChanges(StationGroup start, StationGroup end, TramDate date, TimeRange time, EnumSet<TransportMode> modes) {
-        return getNumberOfChanges(LocationSet.of(start.getAllContained()), LocationSet.of(end.getAllContained()), date, time, modes);
+        return getNumberOfChanges(start.getAllContained(), end.getAllContained(), date, time, modes);
     }
 
     @Override
@@ -134,11 +134,11 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     @Override
-    public NumberOfChanges getNumberOfChanges(LocationSet starts, LocationSet destinations, JourneyRequest journeyRequest) {
+    public NumberOfChanges getNumberOfChanges(LocationSet<Station> starts, LocationSet<Station> destinations, JourneyRequest journeyRequest) {
         return getNumberOfChanges(starts, destinations, journeyRequest.getDate(), journeyRequest.getTimeRange(), journeyRequest.getRequestedModes());
     }
 
-    public NumberOfChanges getNumberOfChanges(final LocationSet starts, final LocationSet destinations, final TramDate date, final TimeRange timeRange,
+    public NumberOfChanges getNumberOfChanges(final LocationSet<Station> starts, final LocationSet<Station> destinations, final TramDate date, final TimeRange timeRange,
                                               final EnumSet<TransportMode> requestedModes) {
 
         final Set<Route> startRoutes = pickupRoutesFor(starts, date, timeRange, requestedModes);
@@ -174,7 +174,37 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                 journeyRequest.getTimeRange());
     }
 
-    public NumberOfChanges getNumberOfChanges(Location<?> startStation, Location<?> destination,
+    @Override
+    public NumberOfChanges getNumberOfChanges(Location<?> start, LocationSet<Station> destinations, JourneyRequest journeyRequest) {
+        TramDate date = journeyRequest.getDate();
+        TimeRange timeRange = journeyRequest.getTimeRange();
+        EnumSet<TransportMode> preferredModes = journeyRequest.getRequestedModes();
+
+        final Set<Route> pickupRoutes = availabilityRepository.getPickupRoutesFor(start, date, timeRange, preferredModes);
+        final Set<Route> dropoffRoutes = availabilityRepository.getDropoffRoutesFor(destinations, date, timeRange, preferredModes);
+
+        final int closureOffset = getClosureOffset(start, destinations, date);
+
+        final StationAvailabilityFacade availabilityFacade = new StationAvailabilityFacade(availabilityRepository, date, timeRange, preferredModes);
+        return getNumberOfHops(pickupRoutes, dropoffRoutes, date, availabilityFacade, closureOffset, preferredModes);
+    }
+
+    @Override
+    public NumberOfChanges getNumberOfChanges(LocationSet<Station> starts, Location<?> destination, JourneyRequest journeyRequest) {
+        TramDate date = journeyRequest.getDate();
+        TimeRange timeRange = journeyRequest.getTimeRange();
+        EnumSet<TransportMode> preferredModes = journeyRequest.getRequestedModes();
+
+        final Set<Route> pickupRoutes = availabilityRepository.getPickupRoutesFor(starts, date, timeRange, preferredModes);
+        final Set<Route> dropoffRoutes = availabilityRepository.getDropoffRoutesFor(destination, date, timeRange, preferredModes);
+
+        int closureOffset = getClosureOffset(destination, starts, date);
+
+        final StationAvailabilityFacade availabilityFacade = new StationAvailabilityFacade(availabilityRepository, date, timeRange, preferredModes);
+        return getNumberOfHops(pickupRoutes, dropoffRoutes, date, availabilityFacade, closureOffset, preferredModes);
+    }
+
+    public NumberOfChanges getNumberOfChanges(Location<?> startLocation, Location<?> destLocation,
                                               EnumSet<TransportMode> preferredModes, TramDate date, TimeRange timeRange) {
 
         if (preferredModes.isEmpty()) {
@@ -183,44 +213,55 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         // should be captured correctly in the route matrix, but if filtering routes by transport mode/date/time-range
         // might miss a direct walk incorrectly at the start
-        if (neighboursRepository.areNeighbours(startStation, destination)) {
-            logger.info(format("Number of changes set to 1 since %s and %s are neighbours", startStation.getId(), destination.getId()));
+        if (neighboursRepository.areNeighbours(startLocation, destLocation)) {
+            logger.info(format("Number of changes set to 1 since %s and %s are neighbours", startLocation.getId(), destLocation.getId()));
             return new NumberOfChanges(1, 1);
         }
 
-        boolean startClosed = closedStationsRepository.isClosed(startStation, date);
-        boolean destClosed = closedStationsRepository.isClosed(destination, date);
-
-        int closureOffset = (startClosed?1:0) + (destClosed?1:0);
+        int closureOffset = getClosureOffset(startLocation, destLocation, date);
 
         // Need to respect timing here, otherwise can find a route that is valid at an interchange but isn't
         // actually running from the start or destination
-        final Set<Route> pickupRoutes = availabilityRepository.getPickupRoutesFor(startStation, date, timeRange, preferredModes);
-        final Set<Route> dropoffRoutes = availabilityRepository.getDropoffRoutesFor(destination, date, timeRange, preferredModes);
+        final Set<Route> pickupRoutes = availabilityRepository.getPickupRoutesFor(startLocation, date, timeRange, preferredModes);
+        final Set<Route> dropoffRoutes = availabilityRepository.getDropoffRoutesFor(destLocation, date, timeRange, preferredModes);
 
         // TODO If the station is a partial closure or full closure AND walking diversions exist, then need
         // to calculate routes from those neighbours?
         // OR create fake routes?
 
         logger.info(format("Compute number of changes between %s (%s) and %s (%s) using modes '%s' on %s within %s",
-                startStation.getId(), HasId.asIds(pickupRoutes), destination.getId(), HasId.asIds(dropoffRoutes),
+                startLocation.getId(), HasId.asIds(pickupRoutes), destLocation.getId(), HasId.asIds(dropoffRoutes),
                 preferredModes, date, timeRange));
 
-        StationAvailabilityFacade changeStationOperating = getAvailabilityFacade(availabilityRepository, date, timeRange, preferredModes);
+        final StationAvailabilityFacade changeStationOperating = getAvailabilityFacade(availabilityRepository, date, timeRange, preferredModes);
 
         if (pickupRoutes.isEmpty()) {
             logger.warn(format("start location %s has no matching pick-up routes for %s %s %s",
-                    startStation.getId(), date, timeRange, preferredModes));
+                    startLocation.getId(), date, timeRange, preferredModes));
             return NumberOfChanges.None();
         }
         if (dropoffRoutes.isEmpty()) {
             logger.warn(format("destination location %s has no matching drop-off routes for %s %s %s",
-                    destination.getId(), date, timeRange, preferredModes));
+                    destLocation.getId(), date, timeRange, preferredModes));
             return NumberOfChanges.None();
         }
 
         return getNumberOfHops(pickupRoutes, dropoffRoutes, date, changeStationOperating, closureOffset, preferredModes);
 
+    }
+
+    private int getClosureOffset(Location<?> start, LocationSet<Station> destinations, TramDate date) {
+        boolean startClosed = closedStationsRepository.isClosed(start, date);
+        boolean destClosed = closedStationsRepository.allClosed(destinations, date);
+
+        return (startClosed?1:0) + (destClosed?1:0);
+    }
+
+    private int getClosureOffset(Location<?> start, Location<?> dest, TramDate date) {
+        boolean startClosed = closedStationsRepository.isClosed(start, date);
+        boolean destClosed = closedStationsRepository.isClosed(dest, date);
+
+        return (startClosed?1:0) + (destClosed?1:0);
     }
 
     public NumberOfChanges getNumberOfChanges(Route routeA, Route routeB, TramDate date, TimeRange timeRange, EnumSet<TransportMode> requestedModes) {
@@ -230,13 +271,13 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     @Override
-    public LowestCostsForDestRoutes getLowestCostCalculatorFor(LocationSet desintationRoutes, JourneyRequest journeyRequest) {
+    public LowestCostsForDestRoutes getLowestCostCalculatorFor(LocationCollection desintationRoutes, JourneyRequest journeyRequest) {
         return getLowestCostCalcutatorFor(desintationRoutes, journeyRequest.getDate(), journeyRequest.getTimeRange(), journeyRequest.getRequestedModes());
     }
 
-    public LowestCostsForDestRoutes getLowestCostCalcutatorFor(LocationSet destinations, TramDate date, TimeRange timeRange,
+    public LowestCostsForDestRoutes getLowestCostCalcutatorFor(LocationCollection destinations, TramDate date, TimeRange timeRange,
                                                                EnumSet<TransportMode> requestedModes) {
-        final Set<Route> destinationRoutes = destinations.stream().
+        final Set<Route> destinationRoutes = destinations.locationStream().
                 map(dest -> availabilityRepository.getDropoffRoutesFor(dest, date, timeRange, requestedModes)).
                 flatMap(Collection::stream).
                 collect(Collectors.toUnmodifiableSet());
@@ -318,11 +359,11 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                 collect(Collectors.toSet());
     }
 
-    private Set<Route> dropoffRoutesFor(LocationSet locations, TramDate date, TimeRange timeRange, EnumSet<TransportMode> modes) {
+    private Set<Route> dropoffRoutesFor(LocationSet<Station> locations, TramDate date, TimeRange timeRange, EnumSet<TransportMode> modes) {
         return availabilityRepository.getDropoffRoutesFor(locations, date, timeRange, modes);
     }
 
-    private Set<Route> pickupRoutesFor(final LocationSet locations, final TramDate date, final TimeRange timeRange, final EnumSet<TransportMode> modes) {
+    private Set<Route> pickupRoutesFor(final LocationSet<Station> locations, final TramDate date, final TimeRange timeRange, final EnumSet<TransportMode> modes) {
         return availabilityRepository.getPickupRoutesFor(locations, date, timeRange, modes);
     }
 

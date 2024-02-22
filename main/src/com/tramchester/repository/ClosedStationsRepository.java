@@ -2,16 +2,14 @@ package com.tramchester.repository;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.ClosedStation;
-import com.tramchester.domain.DataSourceID;
-import com.tramchester.domain.Platform;
-import com.tramchester.domain.StationClosures;
+import com.tramchester.domain.*;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.geo.MarginInMeters;
@@ -159,7 +157,11 @@ public class ClosedStationsRepository {
     }
 
     public boolean isGroupClosed(final StationGroup group, final TramDate date) {
-        return group.getAllContained().stream().allMatch(station -> isClosed(station.getId(), date));
+        return allClosed(group.getAllContained(), date);
+    }
+
+    public boolean allClosed(final LocationCollection locations, TramDate date) {
+        return locations.locationStream().allMatch(location -> isClosed(location, date));
     }
 
     public boolean isClosed(IdFor<Station> stationId, TramDate date) {
@@ -174,12 +176,12 @@ public class ClosedStationsRepository {
     }
 
     public ClosedStation getClosedStation(final Location<?> location, final TramDate date) {
-        final Station station = (Station) location;
-        if (station==null) {
+        if (location.getLocationType()!=LocationType.Station) {
             String msg = "Not a station " + location.getId();
             logger.error(msg);
             throw new RuntimeException(msg);
         }
+        final Station station = (Station) location;
 
         final Optional<ClosedStation> maybe = closed.stream().
                 filter(closedStation -> closedStation.getStationId().equals(station.getId())).
@@ -204,5 +206,29 @@ public class ClosedStationsRepository {
         }
         ClosedStation closedStation = getClosedStation(station, date);
         return closedStation.isFullyClosed();
+    }
+
+    public boolean anyStationOpen(final LocationSet<Station> locations, final TramDate date) {
+        if (!hasClosuresOn(date)) {
+            return true;
+        }
+
+        final Set<Station> haveAClosure = locations.stream().
+                filter(station -> hasAClosure.contains(station.getId())).
+                collect(Collectors.toSet());
+
+        if (haveAClosure.size() != locations.size()) {
+            return true;
+        }
+
+        // count have many closed are fully closed
+        long fullyClosedCount = haveAClosure.stream().
+                map(station -> getClosedStation(station, date)).
+                filter(ClosedStation::isFullyClosed).
+                count();
+
+        // all fully closed
+        return fullyClosedCount!=haveAClosure.size();
+
     }
 }

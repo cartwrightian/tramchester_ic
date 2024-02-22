@@ -86,7 +86,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         final GraphNode endNode = getLocationNodeSafe(txn, destination);
 
         // for walks we pass multiple destinations TODO check this is still the case
-        final LocationSet destinations = LocationSet.singleton(destination);
+        final MixedLocationSet destinations = MixedLocationSet.singleton(destination);
 
         final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime());
 
@@ -123,7 +123,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
     }
 
     @Override
-    public Stream<Journey> calculateRouteWalkAtEnd(GraphTransaction txn, Location<?> start, GraphNode endOfWalk, LocationSet destinations,
+    public Stream<Journey> calculateRouteWalkAtEnd(GraphTransaction txn, Location<?> start, GraphNode endOfWalk, LocationCollection destinations,
                                                    JourneyRequest journeyRequest, NumberOfChanges numberOfChanges)
     {
         GraphNode startNode = getLocationNodeSafe(txn, start);
@@ -141,7 +141,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         final InitialWalksFinished finished = new InitialWalksFinished(journeyRequest, stationWalks);
         final GraphNode endNode = getLocationNodeSafe(txn, destination);
-        final LocationSet destinations = LocationSet.singleton(destination);
+        final MixedLocationSet destinations = MixedLocationSet.singleton(destination);
         final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime(), stationWalks);
 
         Duration maxInitialWait = getMaxInitialWaitFor(stationWalks, config);
@@ -152,7 +152,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
     @Override
     public Stream<Journey> calculateRouteWalkAtStartAndEnd(GraphTransaction txn, Set<StationWalk> stationWalks, GraphNode startNode, GraphNode endNode,
-                                                           LocationSet destinationStations, JourneyRequest journeyRequest,
+                                                           LocationCollection destinationStations, JourneyRequest journeyRequest,
                                                            NumberOfChanges numberOfChanges) {
 
         final InitialWalksFinished finished = new InitialWalksFinished(journeyRequest, stationWalks);
@@ -165,7 +165,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
 
     private Stream<Journey> getSingleJourneyStream(final GraphTransaction txn, final GraphNode startNode, final GraphNode endNode,
-                                                   final JourneyRequest journeyRequest, final LocationSet destinations,
+                                                   final JourneyRequest journeyRequest, final MixedLocationSet destinations,
                                                    final Duration maxInitialWait) {
 
 
@@ -216,7 +216,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
     }
 
     private Stream<Journey> getJourneyStream(final GraphTransaction txn, final GraphNode startNode, final GraphNode endNode, final JourneyRequest journeyRequest,
-                                             final LocationSet destinations, final List<TramTime> queryTimes, final NumberOfChanges numberOfChanges,
+                                             final LocationCollection destinations, final List<TramTime> queryTimes, final NumberOfChanges numberOfChanges,
                                              final Duration maxInitialWait) {
 
         if (numberOfChanges.getMin()==Integer.MAX_VALUE) {

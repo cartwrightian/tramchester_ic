@@ -1,7 +1,7 @@
 package com.tramchester.geo;
 
 import com.google.inject.ImplementedBy;
-import com.tramchester.domain.LocationSet;
+import com.tramchester.domain.LocationCollection;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.NPTGLocality;
@@ -21,7 +21,7 @@ public interface StationLocationsRepository {
 
     BoundingBox getActiveStationBounds();
 
-    LocationSet getLocationsWithin(IdFor<NPTGLocality> areaId);
+    LocationCollection getLocationsWithin(IdFor<NPTGLocality> areaId);
 
     boolean hasStationsOrPlatformsIn(IdFor<NPTGLocality> areaId);
 

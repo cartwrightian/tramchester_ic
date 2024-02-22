@@ -80,7 +80,7 @@ public class NeighboursRepositoryBusTest {
 
     @Test
     void shouldHaveCorrectNeighboursForBusAtShudehill() {
-        shudehillGroup.getAllContained().forEach(station -> {
+        shudehillGroup.getAllContained().stream().forEach(station -> {
             IdSet<Station> neighbours = neighboursRepository.getNeighboursFor(station.getId()).stream().collect(IdSet.collector());
             assertTrue(neighbours.contains(shudehillTram.getId()));
         });

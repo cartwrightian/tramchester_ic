@@ -3,6 +3,7 @@ package com.tramchester.geo;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.places.Station;
 import com.tramchester.repository.ClosedStationsRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +48,7 @@ public class StationBoxFactory {
             int northing = bounds.getMinNorthings();
             for (int y = 0; y < maxY; y++) {
                 final BoundingBox box = new BoundingBox(eastings, northing, eastings+gridSizeInMeters, northing+gridSizeInMeters);
-                final LocationSet stations = stationLocations.getStationsWithin(box);
+                final LocationSet<Station> stations = stationLocations.getStationsWithin(box);
                 if (!stations.isEmpty()) {
                     if (anyOpen(stations, date)) {
                         final StationsBoxSimpleGrid stationBox = new StationsBoxSimpleGrid(x, y, box, stations);
@@ -65,9 +66,7 @@ public class StationBoxFactory {
         return results;
     }
 
-    private boolean anyOpen(final LocationSet stations, final TramDate date) {
-        // any not closed
-        // todo pass in the LocationSet to the repository
-        return stations.stationsOnlyStream().anyMatch(station -> !closedStationsRepository.isFullyClosed(station, date));
+    private boolean anyOpen(final LocationSet<Station> locations, final TramDate date) {
+        return closedStationsRepository.anyStationOpen(locations, date);
     }
 }
