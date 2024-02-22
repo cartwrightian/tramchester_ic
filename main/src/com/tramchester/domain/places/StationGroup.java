@@ -119,7 +119,7 @@ public class StationGroup implements Location<StationGroup> {
 
     @Override
     public GraphPropertyKey getProp() {
-        return GraphPropertyKey.AREA_ID;
+        return GraphPropertyKey.STATION_GROUP_ID;
     }
 
     @Override

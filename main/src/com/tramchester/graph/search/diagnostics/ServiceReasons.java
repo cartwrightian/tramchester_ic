@@ -38,7 +38,7 @@ public class ServiceReasons {
     private final TramTime queryTime;
     private final ProvidesNow providesLocalNow;
     private final JourneyRequest journeyRequest;
-    private final CreateFailedJourneyDiagnostics failedJourneyDiagnostics;
+    private final CreateJourneyDiagnostics failedJourneyDiagnostics;
 
     private final List<HeuristicsReason> reasons;
     // stats
@@ -51,7 +51,7 @@ public class ServiceReasons {
     private final AtomicBoolean success;
 
     public ServiceReasons(final JourneyRequest journeyRequest, final TramTime queryTime, final ProvidesNow providesLocalNow,
-                          final CreateFailedJourneyDiagnostics failedJourneyDiagnostics) {
+                          final CreateJourneyDiagnostics failedJourneyDiagnostics) {
         this.queryTime = queryTime;
         this.providesLocalNow = providesLocalNow;
         this.journeyRequest = journeyRequest;

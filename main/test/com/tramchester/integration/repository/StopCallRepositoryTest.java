@@ -22,9 +22,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.util.Set;
 
-import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class StopCallRepositoryTest {
@@ -97,6 +97,6 @@ public class StopCallRepositoryTest {
         assertFalse(costs.isEmpty());
         assertTrue(costs.consistent(), costs.toString());
 
-        assertMinutesEquals(3, costs.min(), costs.toString());
+        assertEquals(Duration.ofMinutes(3), costs.min(), costs.toString());
     }
 }

@@ -5,7 +5,9 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramTime;
@@ -20,8 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
-import java.util.LinkedList;
-import java.util.List;
 
 public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     private static final Logger logger = LoggerFactory.getLogger(JourneyState.class);
@@ -100,6 +100,11 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     @Override
     public void seenRouteStation(IdFor<Station> correspondingStationId) {
         coreState.seenRouteStation(correspondingStationId);
+    }
+
+    @Override
+    public void seenStationGroup(IdFor<StationGroup> stationGroupId) {
+        coreState.seenStationGroup(stationGroupId);
     }
 
     @Override
@@ -223,15 +228,9 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     @Override
-    public IdFor<Station> approxPosition() {
+    public IdFor<? extends Location<?>> approxPosition() {
         return coreState.getLastVisited();
     }
-
-    @Override
-    public boolean hasVisited(final IdFor<Station> stationId) {
-        return coreState.visitedStations.contains(stationId);
-    }
-
 
     @Override
     public TransportMode getTransportMode() {
@@ -264,9 +263,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
 
-
     private static class CoreState {
-        private final List<IdFor<Station>> visitedStations;
 
         private boolean hasBegun;
         private TramTime journeyClock;
@@ -276,31 +273,30 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         private int numberNeighbourConnections;
         private int numberOfDiversionsTaken;
         private boolean currentlyOnDiversion;
-        private IdFor<Station> lastSeenStation;
+        private IdFor<? extends Location<?>> lastSeenStation;
 
         public CoreState(final TramTime queryTime) {
             this(queryTime, false, 0,
-                    TransportMode.NotSet, 0, 0, new LinkedList<>(),
+                    TransportMode.NotSet, 0, 0,
                     false, 0, StringIdFor.invalid(Station.class));
         }
 
         // Copy cons
         public CoreState(final CoreState previous) {
             this(previous.journeyClock, previous.hasBegun, previous.numberOfBoardings, previous.currentMode, previous.numberOfWalkingConnections,
-                    previous.numberNeighbourConnections, previous.visitedStations,
+                    previous.numberNeighbourConnections,
                     previous.currentlyOnDiversion, previous.numberOfDiversionsTaken, previous.lastSeenStation);
         }
 
-        private CoreState(final TramTime journeyClock, final boolean hasBegun, final int numberOfBoardings, final TransportMode currentMode,
-                          int numberOfWalkingConnections, int numberNeighbourConnections, List<IdFor<Station>> visitedStations,
-                          boolean currentlyOnDiversion, int numberOfDiversionsTaken, IdFor<Station> lastSeenStation) {
+        private <T extends Location<?>> CoreState(final TramTime journeyClock, final boolean hasBegun, final int numberOfBoardings, final TransportMode currentMode,
+                          int numberOfWalkingConnections, int numberNeighbourConnections,
+                          boolean currentlyOnDiversion, int numberOfDiversionsTaken, IdFor<? extends T> lastSeenStation) {
             this.hasBegun = hasBegun;
             this.journeyClock = journeyClock;
             this.currentMode = currentMode;
             this.numberOfBoardings = numberOfBoardings;
             this.numberOfWalkingConnections = numberOfWalkingConnections;
             this.numberNeighbourConnections = numberNeighbourConnections;
-            this.visitedStations = visitedStations;
             this.currentlyOnDiversion = currentlyOnDiversion;
             this.numberOfDiversionsTaken = numberOfDiversionsTaken;
             this.lastSeenStation = lastSeenStation;
@@ -377,7 +373,6 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         @Override
         public String toString() {
             return "CoreState{" +
-                    "visitedStations=" + visitedStations +
                     ", hasBegun=" + hasBegun +
                     ", journeyClock=" + journeyClock +
                     ", currentMode=" + currentMode +
@@ -394,8 +389,15 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         }
 
         public void seenStation(final IdFor<Station> stationId) {
-            visitedStations.add(stationId);
             lastSeenStation = stationId;
+        }
+
+        public void seenRouteStation(final IdFor<Station> correspondingStationId) {
+            lastSeenStation = correspondingStationId;
+        }
+
+        public void seenStationGroup(IdFor<StationGroup> stationGroupId) {
+            lastSeenStation = stationGroupId;
         }
 
         public void endDiversion(final GraphNode node) {
@@ -423,13 +425,10 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
             return currentlyOnDiversion;
         }
 
-        public IdFor<Station> getLastVisited() {
+        public IdFor<? extends Location<?>> getLastVisited() {
             return lastSeenStation;
         }
 
-        public void seenRouteStation(final IdFor<Station> correspondingStationId) {
-            lastSeenStation = correspondingStationId;
-        }
     }
 
 }

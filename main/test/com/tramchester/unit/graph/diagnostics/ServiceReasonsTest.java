@@ -32,7 +32,7 @@ public class ServiceReasonsTest extends EasyMockSupport {
 
     private ServiceReasons serviceReasons;
     private ProvidesLocalNow providesLocalNow;
-    private CreateFailedJourneyDiagnostics failedJourneyDiagnostics;
+    private CreateJourneyDiagnostics failedJourneyDiagnostics;
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
@@ -41,7 +41,7 @@ public class ServiceReasonsTest extends EasyMockSupport {
                 false, 3, Duration.ofHours(1), 1, TramsOnly);
         providesLocalNow = new ProvidesLocalNow();
 
-        failedJourneyDiagnostics = createMock(CreateFailedJourneyDiagnostics.class);
+        failedJourneyDiagnostics = createMock(CreateJourneyDiagnostics.class);
 
         serviceReasons = new ServiceReasons(journeyRequest, time, providesLocalNow, failedJourneyDiagnostics);
 

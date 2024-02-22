@@ -9,7 +9,7 @@ import com.tramchester.domain.presentation.DTO.diagnostics.DiagnosticReasonDTO;
 import com.tramchester.domain.presentation.DTO.diagnostics.JourneyDiagnostics;
 import com.tramchester.domain.presentation.DTO.diagnostics.StationDiagnosticsDTO;
 import com.tramchester.domain.presentation.DTO.diagnostics.StationDiagnosticsLinkDTO;
-import com.tramchester.repository.StationRepository;
+import com.tramchester.repository.LocationRepository;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,15 +21,15 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @LazySingleton
-public class CreateFailedJourneyDiagnostics {
-    private static final Logger logger = LoggerFactory.getLogger(CreateFailedJourneyDiagnostics.class);
+public class CreateJourneyDiagnostics {
+    private static final Logger logger = LoggerFactory.getLogger(CreateJourneyDiagnostics.class);
 
-    private final StationRepository stationRepository;
+    private final LocationRepository locationRepository;
 
 
     @Inject
-    public CreateFailedJourneyDiagnostics(StationRepository stationRepository) {
-        this.stationRepository = stationRepository;
+    public CreateJourneyDiagnostics(LocationRepository locationRepository) {
+        this.locationRepository = locationRepository;
     }
 
     public JourneyDiagnostics recordFailedJourneys(final List<HeuristicsReason> reasons) {
@@ -37,9 +37,9 @@ public class CreateFailedJourneyDiagnostics {
 
         reasons.forEach(reason -> {
             final HowIGotHere howIGotHere = reason.getHowIGotHere();
-            final IdFor<Station> stationId = howIGotHere.getApproxLocation();
-            if (stationId.isValid()) {
-                final Node node = tree.addOrUpdateNode(stationId);
+            final IdFor<? extends Location<?>> locationId = howIGotHere.getApproxLocation();
+            if (locationId.isValid()) {
+                final Node node = tree.addOrUpdateNode(locationId);
 
                 if (howIGotHere.hasTowardsId()) {
                     final IdFor<Station> towardsId = howIGotHere.getTowardsId();
@@ -63,12 +63,12 @@ public class CreateFailedJourneyDiagnostics {
     private JourneyDiagnostics createFrom(final DiagnosticTree tree) {
         final AtomicInteger maxNodeReasons = new AtomicInteger(0);
         final AtomicInteger maxEdgeReasons = new AtomicInteger(0);
-        final List<StationDiagnosticsDTO> dto = tree.visit(node -> createStationDiagnosticsDTO(node, maxEdgeReasons, maxNodeReasons));
+        final List<StationDiagnosticsDTO> dto = tree.visit(node -> createLocationDiagnosticsDTO(node, maxEdgeReasons, maxNodeReasons));
         return new JourneyDiagnostics(dto, maxNodeReasons.get(), maxEdgeReasons.get());
     }
 
     @NotNull
-    private StationDiagnosticsDTO createStationDiagnosticsDTO(final Node node, final AtomicInteger maxEdgeReasons, final AtomicInteger maxNodeReasons) {
+    private StationDiagnosticsDTO createLocationDiagnosticsDTO(final Node node, final AtomicInteger maxEdgeReasons, final AtomicInteger maxNodeReasons) {
 
         final int currentMaxReasonsForEdges = getMaxNumReasons(node.edges.values());
         if (currentMaxReasonsForEdges > maxEdgeReasons.get()) {
@@ -79,16 +79,16 @@ public class CreateFailedJourneyDiagnostics {
             maxNodeReasons.set(heuristicsReasons.size());
         }
 
-        final Station station = stationRepository.getStationById(node.stationId);
-        final LocationRefWithPosition stationDto = new LocationRefWithPosition(station);
+        final Location<?> location = locationRepository.getLocation(node.locationId);
+        final LocationRefWithPosition stationDto = new LocationRefWithPosition(location);
         final List<StationDiagnosticsLinkDTO> links = node.visitEdges(this::createStationDiagLinkDTO);
 
         return new StationDiagnosticsDTO(stationDto, convertReasons(heuristicsReasons), links, getCodes(heuristicsReasons));
     }
 
     private StationDiagnosticsLinkDTO createStationDiagLinkDTO(final Edge edge) {
-        final Location<?> station = stationRepository.getStationById(edge.end.stationId);
-        final LocationRefWithPosition towardsDTO = new LocationRefWithPosition(station);
+        final Location<?> location = locationRepository.getLocation(edge.end.locationId);
+        final LocationRefWithPosition towardsDTO = new LocationRefWithPosition(location);
         return new StationDiagnosticsLinkDTO(towardsDTO, convertReasons(edge.reasonCodes), getCodes(edge.reasonCodes));
     }
 
@@ -104,7 +104,7 @@ public class CreateFailedJourneyDiagnostics {
         return reasonCodes.stream().
                 filter(reason -> isInteresting(reason.getReasonCode())).
                 sorted(Comparator.comparingInt(a -> a.getReasonCode().ordinal())).
-                map(CreateFailedJourneyDiagnostics::createDiagnosticReasonDTO).distinct().collect(Collectors.toList());
+                map(CreateJourneyDiagnostics::createDiagnosticReasonDTO).distinct().collect(Collectors.toList());
     }
 
     private boolean isInteresting(ReasonCode reasonCode) {
@@ -129,13 +129,13 @@ public class CreateFailedJourneyDiagnostics {
 
 
     private class DiagnosticTree {
-        private final Map<IdFor<Station>,Node> nodes;
+        private final Map<IdFor<? extends Location<?>>, Node> nodes;
 
         public DiagnosticTree() {
             nodes = new HashMap<>();
         }
 
-        public Node addOrUpdateNode(IdFor<Station> stationId) {
+        public Node addOrUpdateNode(IdFor<? extends Location<?>> stationId) {
 
             final Node node;
             if (!nodes.containsKey(stationId)) {
@@ -159,12 +159,12 @@ public class CreateFailedJourneyDiagnostics {
     }
 
     private class Node {
-        private final IdFor<Station> stationId;
-        private final Map<IdFor<Station>, Edge> edges;
+        private final IdFor<? extends Location<?>> locationId;
+        private final Map<IdFor<? extends Location<?>>, Edge> edges;
         private final Set<HeuristicsReason> reasonCodes;
 
-        private Node(IdFor<Station> stationId) {
-            this.stationId = stationId;
+        private Node(IdFor<? extends Location<?>> locationId) {
+            this.locationId = locationId;
             edges = new HashMap<>();
             reasonCodes = new HashSet<>();
         }

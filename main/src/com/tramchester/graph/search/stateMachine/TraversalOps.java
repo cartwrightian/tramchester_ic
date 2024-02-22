@@ -43,7 +43,7 @@ public class TraversalOps {
         this.txn = txn;
         this.tripRepository = tripRepository;
         this.nodeOperations = nodeOperations;
-        this.destinationIds = destinations; //.stationsOnlyStream().collect(IdSet.collector());
+        this.destinationIds = destinations;
         this.destinationRoutes = destinations.locationStream().
                 flatMap(location -> location.getDropoffRoutes().stream()).
                 collect(IdSet.collector());
@@ -62,6 +62,8 @@ public class TraversalOps {
         final TransportRelationshipTypes departType = depart.getType();
         if (haveStationId.contains(departType)) {
             return new LocationId(depart.getStationId());
+        } else if (departType==GROUPED_TO_PARENT) {
+            return new LocationId(depart.getStationGroupId());
         } else {
             throw new RuntimeException("Unsupported relationship type " + departType);
         }

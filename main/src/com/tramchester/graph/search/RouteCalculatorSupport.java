@@ -18,7 +18,7 @@ import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphTransaction;
-import com.tramchester.graph.search.diagnostics.CreateFailedJourneyDiagnostics;
+import com.tramchester.graph.search.diagnostics.CreateJourneyDiagnostics;
 import com.tramchester.graph.search.diagnostics.ReasonsToGraphViz;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
@@ -55,7 +55,7 @@ public class RouteCalculatorSupport {
     protected final BetweenRoutesCostRepository routeToRouteCosts;
     private final NodeContentsRepository nodeContentsRepository;
     private final ReasonsToGraphViz reasonToGraphViz;
-    private final CreateFailedJourneyDiagnostics failedJourneyDiagnostics;
+    private final CreateJourneyDiagnostics failedJourneyDiagnostics;
     private final StationAvailabilityRepository stationAvailabilityRepository;
     private final boolean fullLogging; // turn down logging for grid searches
 
@@ -63,7 +63,7 @@ public class RouteCalculatorSupport {
                                      GraphDatabase graphDatabaseService, TraversalStateFactory traversalStateFactory,
                                      ProvidesNow providesNow, MapPathToLocations mapPathToLocations,
                                      StationRepository stationRepository, TramchesterConfig config, TripRepository tripRepository,
-                                     BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz, CreateFailedJourneyDiagnostics failedJourneyDiagnostics, StationAvailabilityRepository stationAvailabilityRepository, boolean fullLogging) {
+                                     BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz, CreateJourneyDiagnostics failedJourneyDiagnostics, StationAvailabilityRepository stationAvailabilityRepository, boolean fullLogging) {
         this.pathToStages = pathToStages;
         this.nodeContentsRepository = nodeContentsRepository;
         this.graphDatabaseService = graphDatabaseService;

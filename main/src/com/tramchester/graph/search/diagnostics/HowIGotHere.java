@@ -1,6 +1,7 @@
 package com.tramchester.graph.search.diagnostics;
 
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphNodeId;
@@ -18,7 +19,7 @@ public class HowIGotHere {
     private final GraphRelationshipId relationshipId;
     private final GraphNodeId nodeId;
     private final TraversalStateType traversalStateType;
-    private final IdFor<Station> approxPosition;
+    private final IdFor<? extends Location<?>> approxPosition;
     private final IdFor<Station> towards;
 
     public HowIGotHere(final ImmutableJourneyState immutableJourneyState, final GraphNode graphNode, final GraphRelationship lastFrom) {
@@ -27,7 +28,7 @@ public class HowIGotHere {
     }
 
     public HowIGotHere(final GraphNodeId nodeId, final GraphRelationshipId relationshipId, final TraversalStateType traversalStateType,
-                        IdFor<Station> approxPosition, IdFor<Station> towards) {
+                       IdFor<? extends Location<?>> approxPosition, IdFor<Station> towards) {
         this.nodeId = nodeId;
         this.relationshipId = relationshipId;
         this.traversalStateType = traversalStateType;
@@ -99,7 +100,7 @@ public class HowIGotHere {
                 '}';
     }
 
-    public IdFor<Station> getApproxLocation() {
+    public IdFor<? extends Location<?>> getApproxLocation() {
         return approxPosition;
     }
 

@@ -37,8 +37,8 @@ public class NotStartedState extends TraversalState {
     }
 
     @Override
-    protected TraversalState toGrouped(final GroupedStationState.Builder towardsGroup, final GraphNode node, final Duration cost, final JourneyStateUpdate journeyState) {
-        return towardsGroup.fromStart(this, node, cost, txn);
+    protected TraversalState toGrouped(final GroupedStationState.Builder towardsGroup, JourneyStateUpdate journeyStateUpdate, final GraphNode node, final Duration cost, final JourneyStateUpdate journeyState) {
+        return towardsGroup.fromStart(this, node, journeyStateUpdate, cost, txn);
     }
 
     @Override

@@ -7,6 +7,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
@@ -149,5 +150,10 @@ public class ImmutableGraphRelationship implements GraphRelationship {
     @Override
     public IdFor<Station> getStartStationId() {
         return underlying.getStartStationId();
+    }
+
+    @Override
+    public IdFor<StationGroup> getStationGroupId() {
+        return underlying.getStationGroupId();
     }
 }

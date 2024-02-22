@@ -1,6 +1,7 @@
 package com.tramchester.graph.search.selectors;
 
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.geo.StationsBoxSimpleGrid;
 import com.tramchester.graph.search.ImmutableJourneyState;
@@ -72,10 +73,16 @@ public class BreadthFirstBranchSelectorForGridSearch implements BranchSelector {
                 // only worth comparing on distance if not the same node
                 if (!traversalStateA.nodeId().equals(traversalStateB.nodeId())) {
                     if(stateA.hasBegunJourney() && stateB.hasBegunJourney()) {
-                        final StationsBoxSimpleGrid boxA = stationToBox.get(stateA.approxPosition());
-                        final StationsBoxSimpleGrid boxB = stationToBox.get(stateB.approxPosition());
+                        final IdFor<? extends Location<?>> approxPositionA = stateA.approxPosition();
+                        final IdFor<? extends Location<?>> approxPositionB = stateB.approxPosition();
 
-                        return Integer.compare(distance(boxA), distance(boxB));
+                        if (approxPositionA.getDomainType()== Station.class && approxPositionB.getDomainType()== Station.class) {
+                            final StationsBoxSimpleGrid boxA = stationToBox.get(approxPositionA);
+                            final StationsBoxSimpleGrid boxB = stationToBox.get(approxPositionB);
+
+                            return Integer.compare(distance(boxA), distance(boxB));
+                        }
+
                     }
                 }
                 return stateA.getJourneyClock().compareTo(stateB.getJourneyClock());

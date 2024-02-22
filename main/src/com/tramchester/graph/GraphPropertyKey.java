@@ -8,6 +8,7 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.StationGroup;
 
 public enum GraphPropertyKey {
     STATION_ID("station_id"),
@@ -20,9 +21,9 @@ public enum GraphPropertyKey {
     TRANSPORT_MODE("transport_mode"),
     TRANSPORT_MODES("transport_modes"),
     AREA_ID("area_id"),
+    STATION_GROUP_ID("stationgroup_id"),
 
     COST("cost"),
-//    MAX_COST("max_cost"),
     HOUR("hour"),
     TIME("time"),
     DAY_OFFSET("day_offset"),
@@ -62,6 +63,9 @@ public enum GraphPropertyKey {
         }
         if (klass.equals(NPTGLocality.class)) {
             return AREA_ID;
+        }
+        if (klass.equals(StationGroup.class)) {
+            return STATION_GROUP_ID;
         }
         throw new RuntimeException("Missing key for type" + klass);
     }

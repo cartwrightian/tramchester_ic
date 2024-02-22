@@ -216,6 +216,11 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
     }
 
     @Override
+    public IdFor<StationGroup> getStationGroupId() {
+        return getIdFor(StationGroup.class, node);
+    }
+
+    @Override
     public IdFor<NPTGLocality> getAreaId() {
         return getIdFor(NPTGLocality.class, node);
     }

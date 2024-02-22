@@ -16,11 +16,12 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 public class FindStateAfterRouteStation extends StationStateBuilder {
 
     public TraversalState endTripTowardsStation(final TraversalStateType destination, final RouteStationStateEndTrip routeStationState,
-                                                final GraphNode node, final Duration cost, final JourneyStateUpdate journeyState,
+                                                final GraphNode node, final Duration cost, final JourneyStateUpdate journeyStateUpdate,
                                                 final boolean alreadyOnDiversion, final GraphTransaction txn) {
-        final OptionalResourceIterator<ImmutableGraphRelationship> towardsDest = getTowardsDestination(routeStationState.traversalOps, node, txn, false);
+        final OptionalResourceIterator<ImmutableGraphRelationship> towardsDest = getTowardsDestination(routeStationState.traversalOps,
+                node, txn, false);
         if (!towardsDest.isEmpty()) {
-            return createNoPlatformStationState(routeStationState, node, cost, journeyState, towardsDest.stream(), destination);
+            return createNoPlatformStationState(routeStationState, node, cost, journeyStateUpdate, towardsDest.stream(), destination);
         }
         // end of a trip, may need to go back to this route station to catch new service
 
@@ -28,12 +29,13 @@ public class FindStateAfterRouteStation extends StationStateBuilder {
         final Stream<ImmutableGraphRelationship> diversions = addValidDiversions(node, routeStationState, alreadyOnDiversion, txn);
 
         final Stream<ImmutableGraphRelationship> relationships = Stream.concat(boardsAndOthers, diversions);
-        return createNoPlatformStationState(routeStationState, node, cost, journeyState, relationships, destination);
+        return createNoPlatformStationState(routeStationState, node, cost, journeyStateUpdate, relationships, destination);
     }
 
     public TraversalState endTripTowardsPlatform(final TraversalStateType towardsState, final RouteStationStateEndTrip routeStationState,
                                                  final GraphNode node, final Duration cost, final GraphTransaction txn) {
-        final OptionalResourceIterator<ImmutableGraphRelationship> towardsDest = getTowardsDestination(routeStationState.traversalOps, node, txn, true);
+        final OptionalResourceIterator<ImmutableGraphRelationship> towardsDest = getTowardsDestination(routeStationState.traversalOps,
+                node, txn, true);
         if (!towardsDest.isEmpty()) {
             return createPlatformState(towardsState, routeStationState, node, cost, towardsDest.stream());
         }
@@ -45,7 +47,8 @@ public class FindStateAfterRouteStation extends StationStateBuilder {
 
     public TraversalState onTripTowardsStation(final TraversalStateType destination, final RouteStationStateOnTrip onTrip, final GraphNode node,
                                                final Duration cost, final JourneyStateUpdate journeyState, final GraphTransaction txn) {
-        final OptionalResourceIterator<ImmutableGraphRelationship> towardsDest = getTowardsDestination(onTrip.traversalOps, node, txn, false);
+        final OptionalResourceIterator<ImmutableGraphRelationship> towardsDest = getTowardsDestination(onTrip.traversalOps,
+                node, txn, false);
         if (!towardsDest.isEmpty()) {
             return createNoPlatformStationState(onTrip, node, cost, journeyState, towardsDest.stream(), destination);
         }
@@ -109,10 +112,10 @@ public class FindStateAfterRouteStation extends StationStateBuilder {
     }
 
     private NoPlatformStationState createNoPlatformStationState(TraversalState parentState, GraphNode node,
-                                                                Duration cost, JourneyStateUpdate journeyState,
+                                                                Duration cost, JourneyStateUpdate journeyStateUpdate,
                                                                 Stream<ImmutableGraphRelationship> relationships,
                                                                 TraversalStateType towardsState) {
-        return new NoPlatformStationState(parentState, relationships, cost, node, journeyState, towardsState);
+        return new NoPlatformStationState(parentState, relationships, cost, node, journeyStateUpdate, towardsState);
     }
 
     private static PlatformState createPlatformState(TraversalStateType towardsState, RouteStationStateEndTrip routeStationState,

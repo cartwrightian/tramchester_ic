@@ -97,8 +97,8 @@ public class NoPlatformStationState extends StationState {
     }
 
     NoPlatformStationState(final TraversalState parent, final Stream<ImmutableGraphRelationship> relationships, final Duration cost,
-                           final GraphNode stationNode, final JourneyStateUpdate journeyState, final TraversalStateType builderStateTYpe) {
-        super(parent, relationships, cost, stationNode, journeyState, builderStateTYpe);
+                           final GraphNode stationNode, final JourneyStateUpdate journeyStateUpdate, final TraversalStateType builderStateTYpe) {
+        super(parent, relationships, cost, stationNode, journeyStateUpdate, builderStateTYpe);
     }
 
     @Override
@@ -123,9 +123,9 @@ public class NoPlatformStationState extends StationState {
     }
 
     @Override
-    protected TraversalState toGrouped(final GroupedStationState.Builder towardsGroup, final GraphNode groupNode,
+    protected TraversalState toGrouped(final GroupedStationState.Builder towardsGroup, JourneyStateUpdate journeyStateUpdate, final GraphNode groupNode,
                                        final Duration cost, final JourneyStateUpdate journeyState) {
-        return towardsGroup.fromChildStation(this, groupNode, cost, txn);
+        return towardsGroup.fromChildStation(this, journeyStateUpdate, groupNode, cost, txn);
     }
 
     @Override

@@ -6,6 +6,7 @@ import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
@@ -204,6 +205,11 @@ class MapStatesToStages implements JourneyStateUpdate {
 
     @Override
     public void seenRouteStation(IdFor<Station> correspondingStationId) {
+        // no-op
+    }
+
+    @Override
+    public void seenStationGroup(IdFor<StationGroup> stationGroupId) {
         // no-op
     }
 

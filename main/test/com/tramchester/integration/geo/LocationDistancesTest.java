@@ -8,7 +8,7 @@ import com.tramchester.domain.MixedLocationSet;
 import com.tramchester.domain.StationPair;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
-import com.tramchester.geo.StationDistances;
+import com.tramchester.geo.LocationDistances;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -26,10 +26,10 @@ import java.util.stream.Stream;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class StationDistancesTest {
+public class LocationDistancesTest {
 
     private static ComponentContainer componentContainer;
-    private StationDistances stationDistances;
+    private LocationDistances locationDistances;
     private StationRepository stationRepository;
 
     @BeforeAll
@@ -46,7 +46,7 @@ public class StationDistancesTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        stationDistances = componentContainer.get(StationDistances.class);
+        locationDistances = componentContainer.get(LocationDistances.class);
         stationRepository = componentContainer.get(StationRepository.class);
     }
 
@@ -55,7 +55,7 @@ public class StationDistancesTest {
         long expectedMeters = 1030;
 
         Location<?> navigationRoad = TramStations.NavigationRoad.from(stationRepository);
-        long result = stationDistances.findDistancesTo(MixedLocationSet.singleton(navigationRoad)).toStation(TramStations.Altrincham.getId());
+        long result = locationDistances.findDistancesTo(MixedLocationSet.singleton(navigationRoad)).toStation(TramStations.Altrincham.getId());
 
         assertEquals(expectedMeters, result);
 
@@ -69,7 +69,7 @@ public class StationDistancesTest {
                 map(item -> item.from(stationRepository)).collect(Collectors.toSet());
 
         LocationSet<Station> locationSet = LocationSet.of(aroundPiccadilly);
-        long result = stationDistances.findDistancesTo(locationSet).toStation(TramStations.Bury.getId());
+        long result = locationDistances.findDistancesTo(locationSet).toStation(TramStations.Bury.getId());
 
         assertEquals(expectedMeters, result);
     }
@@ -84,7 +84,7 @@ public class StationDistancesTest {
 
         Stream<StationPair> pairs = all.stream().flatMap(stationA -> all.stream().map(stationB -> StationPair.of(stationA, stationB)));
 
-        long foundOk = pairs.map(pair -> stationDistances.findDistancesTo(LocationSet.singleton(pair.getBegin())).toStation(pair.getEnd().getId())).
+        long foundOk = pairs.map(pair -> locationDistances.findDistancesTo(LocationSet.singleton(pair.getBegin())).toStation(pair.getEnd().getId())).
                 filter(result -> result != Long.MAX_VALUE).count();
 
         long expected = (long) count * count;

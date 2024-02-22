@@ -62,9 +62,9 @@ public class RouteCalculationCombinations<T extends Location<T>> {
     }
 
     public Optional<Journey> findJourneys(MutableGraphTransaction txn, IdFor<T> start, IdFor<T> dest, JourneyRequest journeyRequest) {
-        return calculator.calculateRoute(txn, locationRepository.getLocation(start),
-                        locationRepository.getLocation(dest), journeyRequest)
-                .limit(1).findAny();
+        return calculator.calculateRoute(txn, locationRepository.getLocation(start), locationRepository.getLocation(dest), journeyRequest)
+                .limit(1).
+                findAny();
     }
 
     public CombinationResults<T> validateAllHaveAtLeastOneJourney(final LocationIdPairSet<T> stationIdPairs,

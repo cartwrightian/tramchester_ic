@@ -1,8 +1,7 @@
 package com.tramchester.graph.search.selectors;
 
 import com.tramchester.domain.LocationCollection;
-import com.tramchester.domain.MixedLocationSet;
-import com.tramchester.geo.StationDistances;
+import com.tramchester.geo.LocationDistances;
 import com.tramchester.graph.search.ImmutableJourneyState;
 import com.tramchester.graph.search.JourneyState;
 import org.neo4j.graphdb.PathExpander;
@@ -21,10 +20,10 @@ public class BreadthFirstBranchSelector implements BranchSelector {
     private TraversalBranch branchToExpand;
 
     public BreadthFirstBranchSelector(final TraversalBranch start, final PathExpander<JourneyState> expander,
-                                      final StationDistances stationDistances, final LocationCollection destinationIds) {
+                                      final LocationDistances locationDistances, final LocationCollection destinationIds) {
         this.branchToExpand = start;
         this.expander = expander;
-        expansionQueue = new TraversalBranchQueue(stationDistances, destinationIds);
+        expansionQueue = new TraversalBranchQueue(locationDistances, destinationIds);
     }
 
     // breadth
@@ -41,10 +40,10 @@ public class BreadthFirstBranchSelector implements BranchSelector {
 
     public static class TraversalBranchQueue {
         private final PriorityQueue<TraversalBranch> theQueue;
-        private final StationDistances.FindDistancesTo findDistances;
+        private final LocationDistances.FindDistancesTo findDistances;
 
-        public TraversalBranchQueue(final StationDistances stationDistances, final LocationCollection destinations) {
-            findDistances = stationDistances.findDistancesTo(destinations);
+        public TraversalBranchQueue(final LocationDistances locationDistances, final LocationCollection destinations) {
+            findDistances = locationDistances.findDistancesTo(destinations);
             theQueue = new PriorityQueue<>(new BranchComparator());
         }
 

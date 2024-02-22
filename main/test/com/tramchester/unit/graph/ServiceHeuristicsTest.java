@@ -57,7 +57,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
     private Duration maxJourneyDuration;
     private long maxNumberOfJourneys;
     private LowestCostsForDestRoutes fewestHopsForRoutes;
-    private CreateFailedJourneyDiagnostics failedJourneyDiagnostics;
+    private CreateJourneyDiagnostics failedJourneyDiagnostics;
 
     @BeforeEach
     void beforeEachTestRuns() {
@@ -71,7 +71,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         howIGotHere = createMock(HowIGotHere.class);
         stationRepository = createMock(StationRepository.class);
         fewestHopsForRoutes = createMock(LowestCostsForDestRoutes.class);
-        failedJourneyDiagnostics = createMock(CreateFailedJourneyDiagnostics.class);
+        failedJourneyDiagnostics = createMock(CreateJourneyDiagnostics.class);
 
         int maxPathLength = 400;
         journeyConstraints = createMock(JourneyConstraints.class);

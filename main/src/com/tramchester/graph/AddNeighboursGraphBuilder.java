@@ -6,8 +6,8 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.StationToStationConnection;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
-import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.facade.MutableGraphNode;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.CreateNodesAndRelationships;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
@@ -20,8 +20,6 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.time.Duration;
 import java.util.Set;
-
-import static java.lang.String.format;
 
 @LazySingleton
 public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
@@ -140,9 +138,7 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
                         throw new RuntimeException(msg);
                     }
                     final Duration walkingCost = link.getConnectionTime();
-                    if (!addNeighbourRelationship(txn, fromNode, toNode, walkingCost)) {
-                        logger.warn(format("Already neighbour link between %s", link));
-                    }
+                    addNeighbourRelationship(txn, fromNode, toNode, walkingCost);
                 });
     }
 

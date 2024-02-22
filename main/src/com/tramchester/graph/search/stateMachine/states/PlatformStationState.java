@@ -118,9 +118,9 @@ public class PlatformStationState extends StationState {
     }
 
     @Override
-    protected TraversalState toGrouped(final GroupedStationState.Builder towardsGroup, final GraphNode node, final Duration cost,
+    protected TraversalState toGrouped(final GroupedStationState.Builder towardsGroup, JourneyStateUpdate journeyStateUpdate, final GraphNode node, final Duration cost,
                                        final JourneyStateUpdate journeyState) {
-        return towardsGroup.fromChildStation(this, node, cost, txn);
+        return towardsGroup.fromChildStation(this, journeyStateUpdate, node, cost, txn);
     }
 
     @Override

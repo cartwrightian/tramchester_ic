@@ -1,7 +1,11 @@
 package com.tramchester.graph.search.stateMachine.states;
 
 
-import com.tramchester.graph.facade.*;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.places.StationGroup;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
@@ -32,27 +36,30 @@ public class GroupedStationState extends TraversalState {
             return TraversalStateType.GroupedStationState;
         }
 
-        public TraversalState fromChildStation(StationState stationState, GraphNode node, Duration cost, GraphTransaction txn) {
+        public TraversalState fromChildStation(StationState stationState, JourneyStateUpdate journeyStateUpdate, GraphNode node, Duration cost, GraphTransaction txn) {
             final Stream<ImmutableGraphRelationship> relationships = filterExcludingEndNode(txn,
                     node.getRelationships(txn, Direction.OUTGOING, GROUPED_TO_CHILD, GROUPED_TO_GROUPED), stationState);
-            return new GroupedStationState(stationState, relationships, cost, this, node);
+            return new GroupedStationState(stationState, journeyStateUpdate, relationships, cost, this, node);
         }
 
-        public TraversalState fromStart(NotStartedState notStartedState, GraphNode node, Duration cost, GraphTransaction txn) {
-            return new GroupedStationState(notStartedState, node.getRelationships(txn, Direction.OUTGOING, GROUPED_TO_CHILD, GROUPED_TO_GROUPED),
+        public TraversalState fromStart(NotStartedState notStartedState, GraphNode node, JourneyStateUpdate journeyStateUpdate, Duration cost, GraphTransaction txn) {
+            final Stream<ImmutableGraphRelationship> relationships = node.getRelationships(txn, Direction.OUTGOING, GROUPED_TO_CHILD, GROUPED_TO_GROUPED);
+            return new GroupedStationState(notStartedState, journeyStateUpdate, relationships,
                     cost, this, node);
         }
 
-        public TraversalState fromGrouped(GroupedStationState parent, Duration cost, GraphNode node, GraphTransaction txn) {
+        public TraversalState fromGrouped(GroupedStationState parent, Duration cost, JourneyStateUpdate journeyStateUpdate, GraphNode node, GraphTransaction txn) {
             final Stream<ImmutableGraphRelationship> relationships = filterExcludingEndNode(txn,
                     node.getRelationships(txn, Direction.OUTGOING, GROUPED_TO_CHILD, GROUPED_TO_GROUPED), parent);
-            return new GroupedStationState(parent, relationships, cost, this, node);
+            return new GroupedStationState(parent, journeyStateUpdate, relationships, cost, this, node);
         }
     }
 
-    private GroupedStationState(TraversalState parent, Stream<ImmutableGraphRelationship> relationships, Duration cost,
+    private GroupedStationState(TraversalState parent, final JourneyStateUpdate journeyStateUpdate, Stream<ImmutableGraphRelationship> relationships, Duration cost,
                                 Towards<GroupedStationState> builder, GraphNode graphNode) {
         super(parent, relationships, cost, builder.getDestination(), graphNode);
+        final IdFor<StationGroup> stationGroupdId = graphNode.getStationGroupId();
+        journeyStateUpdate.seenStationGroup(stationGroupdId);
     }
 
     @Override
@@ -79,7 +86,7 @@ public class GroupedStationState extends TraversalState {
     }
 
     @Override
-    protected TraversalState toGrouped(Builder towardsGroup, GraphNode node, Duration cost, JourneyStateUpdate journeyState) {
-        return towardsGroup.fromGrouped(this, cost, node, txn);
+    protected TraversalState toGrouped(Builder towardsGroup, JourneyStateUpdate journeyStateUpdate, GraphNode node, Duration cost, JourneyStateUpdate journeyState) {
+        return towardsGroup.fromGrouped(this, cost, journeyStateUpdate, node, txn);
     }
 }

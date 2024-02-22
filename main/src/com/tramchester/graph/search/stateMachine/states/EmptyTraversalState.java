@@ -35,7 +35,7 @@ public abstract class EmptyTraversalState {
         throw new RuntimeException("No such transition at " + stateType);
     }
 
-    protected TraversalState toGrouped(GroupedStationState.Builder towardsGroup, GraphNode node, Duration cost, JourneyStateUpdate journeyState) {
+    protected TraversalState toGrouped(GroupedStationState.Builder towardsGroup, JourneyStateUpdate journeyStateUpdate, GraphNode node, Duration cost, JourneyStateUpdate journeyState) {
         throw new RuntimeException("No such transition at " + stateType);
     }
 

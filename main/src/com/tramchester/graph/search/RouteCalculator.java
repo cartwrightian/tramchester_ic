@@ -20,7 +20,7 @@ import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphTransaction;
-import com.tramchester.graph.search.diagnostics.CreateFailedJourneyDiagnostics;
+import com.tramchester.graph.search.diagnostics.CreateJourneyDiagnostics;
 import com.tramchester.graph.search.diagnostics.ReasonsToGraphViz;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
 import com.tramchester.graph.search.selectors.BranchSelectorFactory;
@@ -64,7 +64,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
                            BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz,
                            ClosedStationsRepository closedStationsRepository, RunningRoutesAndServices runningRoutesAndServices,
                            CacheMetrics cacheMetrics, BranchSelectorFactory branchSelectorFactory,
-                           StationAvailabilityRepository stationAvailabilityRepository, CreateFailedJourneyDiagnostics failedJourneyDiagnostics) {
+                           StationAvailabilityRepository stationAvailabilityRepository, CreateJourneyDiagnostics failedJourneyDiagnostics) {
         super(pathToStages, nodeOperations, graphDatabaseService,
                 traversalStateFactory, providesNow, mapPathToLocations,
                 transportData, config, transportData, routeToRouteCosts, reasonToGraphViz, failedJourneyDiagnostics, stationAvailabilityRepository, true);

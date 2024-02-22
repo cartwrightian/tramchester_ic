@@ -11,6 +11,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
@@ -46,26 +47,14 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
     }
 
     public void setCost(Duration cost) {
-//        int minutes = roundUpNearestMinute(cost);
         long seconds = cost.toSeconds();
         relationship.setProperty(COST.getText(), seconds);
     }
-
-//    public void setMaxCost(Duration duration) {
-//        int minutes = roundUpNearestMinute(duration);
-//        relationship.setProperty(MAX_COST.getText(), minutes);
-//    }
 
     public Duration getCost() {
         final long seconds = (long) relationship.getProperty(COST.getText());
         return Duration.ofSeconds(seconds);
     }
-
-//    public int roundUpNearestMinute(final Duration duration) {
-//        @SuppressWarnings("WrapperTypeMayBePrimitive")
-//        final Double minutes = Math.ceil(duration.toSeconds()/60D);
-//        return minutes.intValue();
-//    }
 
     public void setTime(TramTime tramTime) {
         setTime(tramTime, relationship);
@@ -228,6 +217,11 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
     @Override
     public IdFor<Station> getStartStationId() {
         return getIdFor(Station.class, relationship.getStartNode());
+    }
+
+    @Override
+    public IdFor<StationGroup> getStationGroupId() {
+        return getIdFor(StationGroup.class, relationship.getEndNode());
     }
 
     @Override
