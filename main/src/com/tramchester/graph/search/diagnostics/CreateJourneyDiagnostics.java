@@ -115,12 +115,12 @@ public class CreateJourneyDiagnostics {
     }
 
     @NotNull
-    private static DiagnosticReasonDTO createDiagnosticReasonDTO(HeuristicsReason heuristicsReason) {
+    private static DiagnosticReasonDTO createDiagnosticReasonDTO(final HeuristicsReason heuristicsReason) {
         if (heuristicsReason.getReasonCode()==ReasonCode.NotOnQueryDate) {
-            return new DiagnosticReasonDTO(ReasonCode.NotOnQueryDate, "NotOnQueryDate", heuristicsReason.isValid());
+            return new DiagnosticReasonDTO(ReasonCode.NotOnQueryDate, "NotOnQueryDate", heuristicsReason.isValid(), heuristicsReason.getHowIGotHere().getTraversalStateType());
         }
         if (heuristicsReason.getReasonCode()==ReasonCode.CachedNotOnQueryDate) {
-            return new DiagnosticReasonDTO(ReasonCode.CachedNotOnQueryDate, "CachedNotOnQueryDate", heuristicsReason.isValid());
+            return new DiagnosticReasonDTO(ReasonCode.CachedNotOnQueryDate, "CachedNotOnQueryDate", heuristicsReason.isValid(), heuristicsReason.getHowIGotHere().getTraversalStateType());
         }
         return new DiagnosticReasonDTO(heuristicsReason);
     }
@@ -162,7 +162,7 @@ public class CreateJourneyDiagnostics {
         private final Map<IdFor<? extends Location<?>>, Edge> edges;
         private final Set<HeuristicsReason> reasonCodes;
 
-        private Node(IdFor<? extends Location<?>> locationId) {
+        private Node(final IdFor<? extends Location<?>> locationId) {
             this.locationId = locationId;
             edges = new HashMap<>();
             reasonCodes = new HashSet<>();
@@ -186,6 +186,7 @@ public class CreateJourneyDiagnostics {
         public <T> List<T> visitEdges(Function<Edge, T> function) {
             return edges.values().stream().map(function).toList();
         }
+
     }
 
     private class Edge {

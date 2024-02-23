@@ -13,38 +13,38 @@ public class HeuristicsReasons {
 
     private static class SameTrip extends HeuristicsReasonWithID<Trip> {
         private SameTrip(final IdFor<Trip> tripId, final HowIGotHere path) {
-            super(ReasonCode.SameTrip, path, tripId);
+            super(ReasonCode.SameTrip, path, tripId, false);
         }
     }
 
     private static class RouteNotAvailableOnQueryDate extends HeuristicsReasonWithID<Route> {
         protected RouteNotAvailableOnQueryDate(final HowIGotHere path, final IdFor<Route> routeId) {
-            super(ReasonCode.RouteNotOnQueryDate, path, routeId);
+            super(ReasonCode.RouteNotOnQueryDate, path, routeId, false);
         }
     }
 
     private static class DoesNotRunOnQueryDate extends HeuristicsReasonWithID<Service> {
         protected DoesNotRunOnQueryDate(final HowIGotHere path, final IdFor<Service> nodeServiceId) {
-            super(ReasonCode.NotOnQueryDate, path, nodeServiceId);
+            super(ReasonCode.NotOnQueryDate, path, nodeServiceId, false);
         }
     }
 
     public static HeuristicsReason AlreadySeenTime(HowIGotHere howIGotHere, GraphNodeId nextNodeId) {
-        return new InvalidHeutisticReasonWithAttribute<>(ReasonCode.AlreadySeenTime, howIGotHere, nextNodeId);
+        return new HeuristicReasonWithAttribute<>(ReasonCode.AlreadySeenTime, howIGotHere, nextNodeId, false);
     }
 
     private static class StationClosed extends HeuristicsReasonWithID<Station> {
         protected StationClosed(final HowIGotHere howIGotHere, final IdFor<Station> closed) {
-            super(ReasonCode.StationClosed, howIGotHere, closed);
+            super(ReasonCode.StationClosed, howIGotHere, closed, false);
         }
     }
 
-    private static class ServiceDoesNotOperateOnTime<T> extends InvalidHeutisticReasonWithAttribute<T> {
+    private static class ServiceDoesNotOperateOnTime<T> extends HeuristicReasonWithAttribute<T> {
 
         private final IdFor<Service> serviceId;
 
         protected ServiceDoesNotOperateOnTime(final ReasonCode reasonCode, final T elapsedTime, final HowIGotHere path, final IdFor<Service> serviceId) {
-            super(reasonCode, path, elapsedTime);
+            super(reasonCode, path, elapsedTime, false);
             this.serviceId = serviceId;
         }
 
@@ -67,39 +67,39 @@ public class HeuristicsReasons {
     }
 
     public static HeuristicsReason StationNotReachable(final HowIGotHere path, final ReasonCode code) {
-        return new InvalidHeuristicReason(code, path);
+        return new HeuristicReasonWithValidity(code, path, false);
     }
 
     public static HeuristicsReason DoesNotOperateOnTime(final TramTime currentElapsed, final HowIGotHere path) {
-        return new InvalidHeutisticReasonWithAttribute<>(ReasonCode.DoesNotOperateOnTime, path, currentElapsed);
+        return new HeuristicReasonWithAttribute<>(ReasonCode.DoesNotOperateOnTime, path, currentElapsed, false);
     }
 
     public static HeuristicsReason TooManyChanges(final HowIGotHere path, final int number) {
-        return new InvalidHeutisticReasonWithAttribute<>(ReasonCode.TooManyChanges, path, number);
+        return new HeuristicReasonWithAttribute<>(ReasonCode.TooManyChanges, path, number, false);
     }
 
     public static HeuristicsReason TooManyWalkingConnections(final HowIGotHere path, final int count) {
-        return new InvalidHeutisticReasonWithAttribute<>(ReasonCode.TooManyWalkingConnections, path, count);
+        return new HeuristicReasonWithAttribute<>(ReasonCode.TooManyWalkingConnections, path, count, false);
     }
 
     public static HeuristicsReason TooManyNeighbourConnections(final HowIGotHere path, final int count) {
-        return new InvalidHeutisticReasonWithAttribute<>(ReasonCode.TooManyNeighbourConnections, path, count);
+        return new HeuristicReasonWithAttribute<>(ReasonCode.TooManyNeighbourConnections, path, count, false);
     }
 
     public static HeuristicsReason TookTooLong(final TramTime currentElapsed, final HowIGotHere path) {
-        return new InvalidHeutisticReasonWithAttribute<>(ReasonCode.TookTooLong, path, currentElapsed);
+        return new HeuristicReasonWithAttribute<>(ReasonCode.TookTooLong, path, currentElapsed, false);
     }
 
-    public static HeuristicsReason DoesNotOperateAtHour(final TramTime currentElapsed, final HowIGotHere path) {
-        return new InvalidHeutisticReasonWithAttribute<>(ReasonCode.NotAtHour, path, currentElapsed);
+    public static HeuristicsReason DoesNotOperateAtHour(final TramTime currentElapsed, final HowIGotHere path, int hourAtNode) {
+        return new HeuristicReasonWithAttributes<>(ReasonCode.NotAtHour, path, hourAtNode, currentElapsed, false);
     }
 
     public static HeuristicsReason AlreadyDeparted(final TramTime tramTime, final HowIGotHere path) {
-        return new InvalidHeutisticReasonWithAttribute<>(ReasonCode.AlreadyDeparted, path, tramTime);
+        return new HeuristicReasonWithAttribute<>(ReasonCode.AlreadyDeparted, path, tramTime, false);
     }
 
     public static HeuristicsReason DestinationUnavailableAtTime(final TramTime tramTime, final HowIGotHere path) {
-        return new InvalidHeutisticReasonWithAttribute<>(ReasonCode.DestinationUnavailableAtTime, path, tramTime);
+        return new HeuristicReasonWithAttribute<>(ReasonCode.DestinationUnavailableAtTime, path, tramTime, false);
     }
 
     public static HeuristicsReason Cached(final HeuristicsReason contained, final HowIGotHere path) {
@@ -107,15 +107,15 @@ public class HeuristicsReasons {
     }
 
     public static HeuristicsReason HigherCost(final HowIGotHere howIGotHere) {
-        return new InvalidHeuristicReason(ReasonCode.HigherCost, howIGotHere);
+        return new HeuristicReasonWithValidity(ReasonCode.HigherCost, howIGotHere, false);
     }
 
     public static HeuristicsReason PathToLong(final HowIGotHere path) {
-        return new InvalidHeuristicReason(ReasonCode.PathTooLong, path);
+        return new HeuristicReasonWithValidity(ReasonCode.PathTooLong, path, false);
     }
 
     public static HeuristicsReason ReturnedToStart(final HowIGotHere path) {
-        return new InvalidHeuristicReason(ReasonCode.ReturnedToStart, path);
+        return new HeuristicReasonWithValidity(ReasonCode.ReturnedToStart, path, false);
     }
 
     public static HeuristicsReason StationClosed(final HowIGotHere howIGotHere, IdFor<Station> closed) {
@@ -123,7 +123,7 @@ public class HeuristicsReasons {
     }
 
     public static HeuristicsReason TransportModeWrong(final HowIGotHere howIGotHere) {
-        return new InvalidHeuristicReason(ReasonCode.TransportModeWrong, howIGotHere);
+        return new HeuristicReasonWithValidity(ReasonCode.TransportModeWrong, howIGotHere, false);
     }
 
     public static HeuristicsReason RouteNotToday(final HowIGotHere howIGotHere, final IdFor<Route> id) {

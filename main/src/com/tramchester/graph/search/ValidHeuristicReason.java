@@ -2,15 +2,11 @@ package com.tramchester.graph.search;
 
 import com.tramchester.graph.search.diagnostics.HowIGotHere;
 import com.tramchester.graph.search.diagnostics.ReasonCode;
-import com.tramchester.graph.search.diagnostics.InvalidHeuristicReason;
+import com.tramchester.graph.search.diagnostics.HeuristicReasonWithValidity;
 
-public class ValidHeuristicReason extends InvalidHeuristicReason {
+public class ValidHeuristicReason extends HeuristicReasonWithValidity {
     public ValidHeuristicReason(ReasonCode code, HowIGotHere howIGotHere) {
-        super(code, howIGotHere);
+        super(code, howIGotHere, true);
     }
 
-    @Override
-    public boolean isValid() {
-        return true;
-    }
 }

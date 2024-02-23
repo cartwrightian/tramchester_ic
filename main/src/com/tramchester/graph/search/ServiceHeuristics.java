@@ -121,23 +121,25 @@ public class ServiceHeuristics {
 
         final int hourAtNode = GraphLabel.getHourFrom(hourLabels);
 
-        final TimeRange travelTimes = TimeRange.of(currentTime, currentTime.plusMinutes(maxWait));
-        TimeRange hourRangeToday = TimeRange.of(TramTime.of(hourAtNode, 0), TramTime.of(hourAtNode, 59));
-
         // todo check if valid, maybe the destination is open in the following hour for example
 //        if (!journeyConstraints.destinationsAvailable(hourRange)) {
 //            final TramTime nodeTime = TramTime.of(hourAtNode,0);
 //            return reasons.recordReason(HeuristicsReasons.DestinationUnavailableAtTime(nodeTime, howIGotHere));
 //        }
 
+        final TimeRange travelTimes = TimeRange.of(currentTime, currentTime.plusMinutes(maxWait));
+
+        final TimeRange hourRangeToday = TimeRange.of(TramTime.of(hourAtNode, 0), TramTime.of(hourAtNode, 59));
         if (travelTimes.anyOverlap(hourRangeToday)) {
-            return reasons.recordReason(HeuristicReasonsOK.HourOk(ReasonCode.HourOk, howIGotHere, currentTime));
+            return reasons.recordReason(HeuristicReasonsOK.HourOk(ReasonCode.HourOk, howIGotHere, currentTime, hourAtNode));
         }
-        TimeRange hourRangeTommorow = TimeRange.of(TramTime.nextDay(hourAtNode, 0), TramTime.nextDay(hourAtNode, 59));
+
+        final TimeRange hourRangeTommorow = TimeRange.of(TramTime.nextDay(hourAtNode, 0), TramTime.nextDay(hourAtNode, 59));
         if (travelTimes.anyOverlap(hourRangeTommorow)) {
-            return reasons.recordReason(HeuristicReasonsOK.HourOk(ReasonCode.HourOk, howIGotHere, currentTime));
+            return reasons.recordReason(HeuristicReasonsOK.HourOk(ReasonCode.HourOk, howIGotHere, currentTime, hourAtNode));
         }
-        return reasons.recordReason(HeuristicsReasons.DoesNotOperateAtHour(currentTime, howIGotHere));
+
+        return reasons.recordReason(HeuristicsReasons.DoesNotOperateAtHour(currentTime, howIGotHere, hourAtNode));
 
     }
 

@@ -2,11 +2,11 @@ package com.tramchester.graph.search.diagnostics;
 
 import java.util.Objects;
 
-public class CachedHeuristicReason extends InvalidHeuristicReason {
+public class CachedHeuristicReason extends HeuristicReasonWithValidity {
     private final HeuristicsReason contained;
 
     public CachedHeuristicReason(HeuristicsReason contained, HowIGotHere howIGotHere) {
-        super(getReasonCodeForCached(contained.getReasonCode()), howIGotHere);
+        super(getReasonCodeForCached(contained.getReasonCode()), howIGotHere, contained.isValid());
         this.contained = contained;
     }
 

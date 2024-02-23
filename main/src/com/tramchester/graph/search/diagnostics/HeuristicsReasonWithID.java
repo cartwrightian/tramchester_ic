@@ -5,11 +5,11 @@ import com.tramchester.domain.id.IdFor;
 
 import java.util.Objects;
 
-public class HeuristicsReasonWithID<T extends CoreDomain> extends InvalidHeuristicReason {
+public class HeuristicsReasonWithID<T extends CoreDomain> extends HeuristicReasonWithValidity {
     private final IdFor<T> id;
 
-    protected HeuristicsReasonWithID(final ReasonCode code, final HowIGotHere path, final IdFor<T> id) {
-        super(code, path);
+    protected HeuristicsReasonWithID(final ReasonCode code, final HowIGotHere path, final IdFor<T> id, boolean validity) {
+        super(code, path, validity);
         this.id = id;
     }
 

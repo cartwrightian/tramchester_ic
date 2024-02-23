@@ -445,13 +445,13 @@ public class TransportDataFromFilesTramTest {
     @VictoriaCrackedRailTest
     @Test
     void shouldHavePlatformAndAreaForCityCenter() {
-        IdFor<Platform> platformId = PlatformId.createId(StPetersSquare.getId(), "3");
+        IdFor<Platform> platformId = PlatformId.createId(StPetersSquare.getId(), "2");
 
-        //assertTrue(transportData.hasPlatformId(id));
+        assertTrue(transportData.hasPlatformId(platformId));
         Platform platform = transportData.getPlatformById(platformId);
         assertNotNull(platform, "could not find " + platformId);
-        assertEquals("St Peter's Square platform 3", platform.getName());
-        assertEquals(TramStations.StPetersSquare.createIdFor("3"), platform.getId());
+        assertEquals("St Peter's Square platform 2", platform.getName());
+        assertEquals(TramStations.StPetersSquare.createIdFor("2"), platform.getId());
     }
 
     @Test

@@ -3,69 +3,35 @@ package com.tramchester.graph.search.diagnostics;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.search.ValidHeuristicReason;
-
-import java.util.Objects;
 
 public class HeuristicReasonsOK {
 
     public static HeuristicsReason IsValid(final ReasonCode code, final HowIGotHere path) {
-        return new ValidHeuristicReason( code, path);
+        return new HeuristicReasonWithValidity( code, path, true);
     }
 
     public static HeuristicsReason Continue(final HowIGotHere path) {
-        return new ValidHeuristicReason(ReasonCode.Continue, path);
+        return new HeuristicReasonWithValidity(ReasonCode.Continue, path, true);
     }
 
     public static HeuristicsReason Arrived(final HowIGotHere path) {
-        return new ValidHeuristicReason(ReasonCode.Arrived, path);
+        return new HeuristicReasonWithValidity(ReasonCode.Arrived, path, true);
     }
 
     public static HeuristicsReason NumChangesOK(ReasonCode reasonCode, HowIGotHere howIGotHere, int currentNumChanges) {
-        return new ValidWithAttribute<>(reasonCode, howIGotHere, currentNumChanges);
+        return new HeuristicReasonWithAttribute<>(reasonCode, howIGotHere, currentNumChanges, true);
     }
 
     public static HeuristicsReason TimeOK(ReasonCode reasonCode, HowIGotHere howIGotHere, TramTime tramTime) {
-        return new ValidWithAttribute<>(reasonCode, howIGotHere, tramTime);
+        return new HeuristicReasonWithAttribute<>(reasonCode, howIGotHere, tramTime, true);
     }
 
-    public static HeuristicsReason HourOk(ReasonCode reasonCode, HowIGotHere howIGotHere, TramTime tramTime) {
-        return new ValidWithAttribute<>(reasonCode, howIGotHere, tramTime);
+    public static HeuristicsReason HourOk(ReasonCode reasonCode, HowIGotHere howIGotHere, TramTime tramTime, int hour) {
+        return new HeuristicReasonWithAttributes<>(reasonCode, howIGotHere, tramTime, hour,true);
     }
 
     public static HeuristicsReason SeenGroup(ReasonCode reasonCode, HowIGotHere howIGotHere, IdFor<NPTGLocality> areaId) {
-        return new ValidWithAttribute<>(reasonCode, howIGotHere, areaId);
+        return new HeuristicReasonWithAttribute<>(reasonCode, howIGotHere, areaId, true);
     }
-
-    private static class ValidWithAttribute<T> extends ValidHeuristicReason {
-
-        private final T attribute;
-
-        public ValidWithAttribute(ReasonCode code, HowIGotHere howIGotHere, T attribute) {
-            super(code, howIGotHere);
-            this.attribute = attribute;
-        }
-
-        @Override
-        public String textForGraph() {
-            return super.textForGraph()+":"+attribute.toString();
-        }
-
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            if (!super.equals(o)) return false;
-            ValidWithAttribute<?> that = (ValidWithAttribute<?>) o;
-            return Objects.equals(attribute, that.attribute);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(super.hashCode(), attribute);
-        }
-    }
-
 
 }

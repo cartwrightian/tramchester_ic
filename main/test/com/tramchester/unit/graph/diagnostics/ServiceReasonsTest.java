@@ -89,7 +89,8 @@ public class ServiceReasonsTest extends EasyMockSupport {
         EasyMock.expect(pathRequest.getNumChanges()).andReturn(3);
 
         HeuristicsReason serviceReasonA = HeuristicsReasons.AlreadyDeparted(TramTime.of(15, 33), howIGotHere);
-        HeuristicsReason serviceReasonB = HeuristicsReasons.DoesNotOperateAtHour(TramTime.of(16,32), howIGotHere);
+        HeuristicsReason serviceReasonB = HeuristicsReasons.DoesNotOperateAtHour(TramTime.of(16,32),
+                howIGotHere, 13);
 
         List<StationDiagnosticsDTO> dtos = new ArrayList<>();
         JourneyDiagnostics someDiags = new JourneyDiagnostics(dtos, 1, 1);

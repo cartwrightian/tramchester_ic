@@ -5,19 +5,21 @@ import org.neo4j.graphdb.traversal.Evaluation;
 
 import java.util.Objects;
 
-public class InvalidHeuristicReason implements HeuristicsReason {
+public class HeuristicReasonWithValidity implements HeuristicsReason {
 
     private final ReasonCode code;
     private final HowIGotHere howIGotHere;
+    private final boolean validity;
 
-    protected InvalidHeuristicReason(ReasonCode code, HowIGotHere howIGotHere) {
+    protected HeuristicReasonWithValidity(ReasonCode code, HowIGotHere howIGotHere, boolean validity) {
         this.code = code;
         this.howIGotHere = howIGotHere;
+        this.validity = validity;
     }
 
     @Override
     public boolean isValid() {
-        return false;
+        return validity;
     }
 
     @Override
@@ -49,7 +51,7 @@ public class InvalidHeuristicReason implements HeuristicsReason {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        InvalidHeuristicReason that = (InvalidHeuristicReason) o;
+        HeuristicReasonWithValidity that = (HeuristicReasonWithValidity) o;
         return code == that.code;
     }
 

@@ -2,6 +2,7 @@ package com.tramchester.domain.presentation.DTO.diagnostics;
 
 import com.tramchester.graph.search.diagnostics.HeuristicsReason;
 import com.tramchester.graph.search.diagnostics.ReasonCode;
+import com.tramchester.graph.search.stateMachine.states.TraversalStateType;
 
 import java.util.Objects;
 
@@ -9,15 +10,18 @@ public class DiagnosticReasonDTO {
     private final ReasonCode code;
     private final String text;
     private final boolean isValid;
+    private final TraversalStateType stateType;
 
     public DiagnosticReasonDTO(HeuristicsReason heuristicsReason) {
-        this(heuristicsReason.getReasonCode(), heuristicsReason.textForGraph(), heuristicsReason.isValid());
+        this(heuristicsReason.getReasonCode(), heuristicsReason.textForGraph(), heuristicsReason.isValid(),
+                heuristicsReason.getHowIGotHere().getTraversalStateType());
     }
 
-    public DiagnosticReasonDTO(ReasonCode code, String text, boolean isValid) {
+    public DiagnosticReasonDTO(ReasonCode code, String text, boolean isValid, TraversalStateType stateType) {
         this.code = code;
         this.text = text;
         this.isValid = isValid;
+        this.stateType = stateType;
     }
 
     public ReasonCode getCode() {
@@ -25,7 +29,7 @@ public class DiagnosticReasonDTO {
     }
 
     public String getText() {
-        return text;
+        return stateType.name() +  " " + text;
     }
 
     public boolean isValid() {
@@ -43,5 +47,9 @@ public class DiagnosticReasonDTO {
     @Override
     public int hashCode() {
         return Objects.hash(code, text, isValid);
+    }
+
+    public TraversalStateType getStateType() {
+        return stateType;
     }
 }
