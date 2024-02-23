@@ -47,7 +47,6 @@ public class CreateJourneyDiagnostics {
                 } else {
                     node.addReason(reason);
                 }
-
             } else {
                 if (logger.isDebugEnabled()) {
                     logger.debug("Skipping node " + howIGotHere.getEndNodeId() + " has no position");

@@ -28,7 +28,7 @@ public class HowIGotHere {
     }
 
     public HowIGotHere(final GraphNodeId nodeId, final GraphRelationshipId relationshipId, final TraversalStateType traversalStateType,
-                       IdFor<? extends Location<?>> approxPosition, IdFor<Station> towards) {
+                       IdFor<? extends Location<?>> approxPosition, final IdFor<Station> towards) {
         this.nodeId = nodeId;
         this.relationshipId = relationshipId;
         this.traversalStateType = traversalStateType;
@@ -44,7 +44,7 @@ public class HowIGotHere {
                 if (traversalState instanceof HasTowardsStationId hasTowardsStationId) {
                     yield hasTowardsStationId.getTowards();
                 } else {
-                    throw new RuntimeException("Missing towrards for " + traversalStateType);
+                    throw new RuntimeException("Missing towards for " + traversalStateType);
                 }
             }
             default -> Station.InvalidId();

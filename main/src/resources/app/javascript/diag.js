@@ -148,23 +148,28 @@ function getColour(item, defaultColour) {
 }
 
 function addNodeToMap(node, app, maxNodeReasons, maxEdgeReasons) {
-    const station = node.begin;
-    const lat = station.latLong.lat;
-    const lon = station.latLong.lon;
-    const location = L.latLng(lat, lon);
-    const radius = Math.max(2, (node.reasons.length / maxNodeReasons) * 20);
-    
-    const markerColour = getColour(node, "LightBlue");
-    const marker = new L.circleMarker(location, 
-        { fill: true, fillColor: markerColour, fillOpacity: 0.8, title: station.name, radius: radius, color: markerColour });
+    const location = node.begin;
+    const lat = location.latLong.lat;
+    const lon = location.latLong.lon;
+    const latLong = L.latLng(lat, lon);
 
-    var stationText = station.name + " '" + station.id + "<br>";
+    const isArea = location.locationType == "StationGroup";
+    const defaultColour = isArea ? "Black" : "LightBlue";
+    const defaultRadius = isArea ? 5 : 2;
+
+    const radius = Math.max(defaultRadius, (node.reasons.length / maxNodeReasons) * 20);
+    const markerColour = getColour(node, defaultColour);
+
+    const marker = new L.circleMarker(latLong, 
+        { fill: true, fillColor: markerColour, fillOpacity: 0.8, title: location.name, radius: radius, color: markerColour });
+
+    var stationText = location.name + " '" + location.id + "<br>";
     stationText = stationText + reasonsToText(node.reasons);
     marker.bindTooltip(stationText);
 
     app.stationLayerGroup.addLayer(marker);
 
-    addLinks(node, app.edgesLayerGroup, station, maxEdgeReasons)
+    addLinks(node, app.edgesLayerGroup, location, maxEdgeReasons)
 
 }
 

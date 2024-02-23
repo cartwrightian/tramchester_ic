@@ -94,7 +94,7 @@ logging:
 
   appenders:
     - type: console
-      threshold: WARN
+      threshold: INFO
     - type: syslog
       host: localhost
       port: 514

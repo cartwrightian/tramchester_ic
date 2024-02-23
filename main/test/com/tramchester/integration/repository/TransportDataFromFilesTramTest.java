@@ -110,7 +110,8 @@ public class TransportDataFromFilesTramTest {
 
     @Test
     void shouldRemindToCheckOnVictoriaCrackedRailSituation() {
-        assertFalse(when.isAfter(TramDate.of(2024, 2,28)), "Check if the rail is fixed");
+        TramDate now = TramDate.from(TestEnv.LocalNow());
+        assertFalse(now.isAfter(TramDate.of(2024, 2,26)), "Check if the rail is fixed, works due 25/2/2024 according to tfgm");
     }
 
     @Test

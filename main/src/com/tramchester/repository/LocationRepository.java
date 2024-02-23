@@ -47,7 +47,7 @@ public class LocationRepository {
     }
 
     public Location<?> getLocation(final IdFor<? extends Location<?>> locationId) {
-        LocationType type = LocationType.getFor(locationId);
+        final LocationType type = LocationType.getFor(locationId);
         return switch (type) {
             case Station -> getStation(locationId);
             case StationGroup -> getGroupStation(locationId);
