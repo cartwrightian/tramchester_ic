@@ -9,7 +9,10 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.search.ValidHeuristicReason;
 
+import java.time.Duration;
+
 public class HeuristicsReasons {
+
 
     private static class SameTrip extends HeuristicsReasonWithID<Trip> {
         private SameTrip(final IdFor<Trip> tripId, final HowIGotHere path) {
@@ -39,21 +42,6 @@ public class HeuristicsReasons {
         }
     }
 
-    private static class ServiceDoesNotOperateOnTime<T> extends HeuristicReasonWithAttribute<T> {
-
-        private final IdFor<Service> serviceId;
-
-        protected ServiceDoesNotOperateOnTime(final ReasonCode reasonCode, final T elapsedTime, final HowIGotHere path, final IdFor<Service> serviceId) {
-            super(reasonCode, path, elapsedTime, false);
-            this.serviceId = serviceId;
-        }
-
-        @Override
-        public String textForGraph() {
-            return super.textForGraph() + " " + serviceId;
-        }
-    }
-
     ///////////////////////////////////
     /// convenience methods
 
@@ -63,7 +51,7 @@ public class HeuristicsReasons {
     }
 
     public static HeuristicsReason ServiceNotRunningAtTime(final HowIGotHere path, final IdFor<Service> serviceId, final TramTime time) {
-        return new ServiceDoesNotOperateOnTime<>(ReasonCode.ServiceNotRunningAtTime, time, path, serviceId);
+        return new HeuristicReasonWithAttributes<>(ReasonCode.ServiceNotRunningAtTime, path, serviceId, time, false);
     }
 
     public static HeuristicsReason StationNotReachable(final HowIGotHere path, final ReasonCode code) {
@@ -91,7 +79,7 @@ public class HeuristicsReasons {
     }
 
     public static HeuristicsReason DoesNotOperateAtHour(final TramTime currentElapsed, final HowIGotHere path, int hourAtNode) {
-        return new HeuristicReasonWithAttributes<>(ReasonCode.NotAtHour, path, hourAtNode, currentElapsed, false);
+        return new HeuristicReasonWithAttributes<>(ReasonCode.NotAtHour, path, currentElapsed, hourAtNode,false);
     }
 
     public static HeuristicsReason AlreadyDeparted(final TramTime tramTime, final HowIGotHere path) {
@@ -106,8 +94,17 @@ public class HeuristicsReasons {
         return new CachedHeuristicReason(contained, path);
     }
 
-    public static HeuristicsReason HigherCost(final HowIGotHere howIGotHere) {
-        return new HeuristicReasonWithValidity(ReasonCode.HigherCost, howIGotHere, false);
+    public static HeuristicsReason HigherCost(final HowIGotHere howIGotHere, Duration duration) {
+        return new HeuristicReasonWithAttribute<>(ReasonCode.HigherCost, howIGotHere, duration, false);
+    }
+
+    public static HeuristicsReason ArrivedMoreChanges(HowIGotHere howIGotHere, int numberChanges, Duration duration) {
+        return new HeuristicReasonWithAttributes<>(ReasonCode.ArrivedMoreChanges, howIGotHere, duration, numberChanges, false);
+    }
+
+
+    public static HeuristicsReason ArrivedLater(HowIGotHere howIGotHere, Duration duration, int numberChanges) {
+        return new HeuristicReasonWithAttributes<>(ReasonCode.ArrivedLater, howIGotHere, duration, numberChanges, false);
     }
 
     public static HeuristicsReason PathToLong(final HowIGotHere path) {

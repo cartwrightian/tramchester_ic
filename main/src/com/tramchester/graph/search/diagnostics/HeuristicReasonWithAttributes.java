@@ -32,4 +32,12 @@ public class HeuristicReasonWithAttributes<A,B> extends HeuristicReasonWithValid
     public int hashCode() {
         return Objects.hash(super.hashCode(), attributeA, attributeB);
     }
+
+    public A getAttributeA() {
+        return attributeA;
+    }
+
+    public B getAttributeB() {
+        return attributeB;
+    }
 }

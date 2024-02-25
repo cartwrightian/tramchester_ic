@@ -219,6 +219,22 @@ class BusRouteCalculatorTest {
 
     }
 
+    @Disabled("debug of specific issue only")
+    @Test
+    void shouldHaveAltrinchamToAirportReproIssue() {
+        TramTime time = TramTime.of(10,37);
+
+        TramDate date = TramDate.of(2024,2,21);
+        JourneyRequest request = new JourneyRequest(date, time, false, MIN_CHANGES,
+                Duration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, BusesOnly);
+
+        request.setDiag(true);
+
+        List<Journey> results = calculator.calculateRouteAsList(KnownLocality.Altrincham, KnownLocality.ManchesterAirport, request);
+        assertFalse(results.isEmpty());
+
+    }
+
     @Test
     void shouldHaveMacclesfieldToKnutsford() {
         TramTime time = TramTime.of(11, 30);

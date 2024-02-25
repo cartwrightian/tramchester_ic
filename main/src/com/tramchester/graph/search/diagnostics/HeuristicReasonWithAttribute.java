@@ -29,4 +29,8 @@ public class HeuristicReasonWithAttribute<T> extends HeuristicReasonWithValidity
     public int hashCode() {
         return Objects.hash(super.hashCode(), attribute);
     }
+
+    public T getAttribute() {
+        return attribute;
+    }
 }

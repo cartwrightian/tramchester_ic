@@ -19,6 +19,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @LazySingleton
 public class CreateJourneyDiagnostics {
@@ -100,10 +101,83 @@ public class CreateJourneyDiagnostics {
     }
 
     private List<DiagnosticReasonDTO> convertReasons(final Set<HeuristicsReason> reasonCodes) {
-        return reasonCodes.stream().
+        final Set<HeuristicsReason> consolidated = consolidateCodes(reasonCodes);
+        return consolidated.stream().
                 filter(reason -> isInteresting(reason.getReasonCode())).
                 sorted(Comparator.comparingInt(a -> a.getReasonCode().ordinal())).
                 map(CreateJourneyDiagnostics::createDiagnosticReasonDTO).distinct().collect(Collectors.toList());
+    }
+
+    // to keep things easy to understand and
+    private Set<HeuristicsReason> consolidateCodes(final Set<HeuristicsReason> heuristicsReasons) {
+        final Map<ReasonCode, Set<HeuristicsReason>> map = new HashMap<>();
+
+        heuristicsReasons.forEach(reason -> {
+            final ReasonCode reasonCode = reason.getReasonCode();
+            if (!map.containsKey(reasonCode)) {
+                map.put(reasonCode, new HashSet<>());
+            }
+            map.get(reasonCode).add(reason);
+        });
+
+        return map.entrySet().stream().
+                flatMap(entry -> expand(entry.getKey(), entry.getValue().stream())).
+                collect(Collectors.toSet());
+    }
+
+    private Stream<HeuristicsReason> expand(final ReasonCode code, final Stream<HeuristicsReason> reasons) {
+        if (code==ReasonCode.NotAtHour || code==ReasonCode.ServiceNotRunningAtTime || code==ReasonCode.HourOk) {
+            return consolidateMultipleByFirstAttribute(reasons);
+        } else if (code==ReasonCode.CachedNotAtHour) {
+            Stream<HeuristicsReason> cachedReasons = reasons.
+                    map(reason -> (CachedHeuristicReason)reason).
+                    map(CachedHeuristicReason::getContained);
+            return consolidateMultipleByFirstAttribute(cachedReasons).map(CachedHeuristicReason::new);
+        } else if (code==ReasonCode.TimeOk || code==ReasonCode.DoesNotOperateOnTime) {
+            return Stream.of(consolidateSingle(reasons.toList()));
+        }
+        else {
+            return reasons;
+        }
+    }
+
+    private HeuristicsReason consolidateSingle(final List<HeuristicsReason> reasons) {
+        Optional<String> attributeValues = reasons.stream().filter(reason -> reason instanceof HeuristicReasonWithAttribute).
+                map(reason -> (HeuristicReasonWithAttribute<?>) reason).
+                map(HeuristicReasonWithAttribute::getAttribute).
+                map(item -> " " + item).
+                reduce((s1, s2) -> s1 + s2);
+
+        HeuristicsReason example = reasons.get(0);
+        return new HeuristicReasonWithAttribute<>(example.getReasonCode(), example.getHowIGotHere(), attributeValues.orElse(""), example.isValid());
+
+    }
+
+    private Stream<HeuristicsReason> consolidateMultipleByFirstAttribute(final Stream<HeuristicsReason> reasons) {
+        final Map<Object, Set<HeuristicReasonWithAttributes<?, ?>>> collected = new HashMap<>();
+        reasons.
+                filter(reason -> reason instanceof HeuristicReasonWithAttributes).
+                map(reason -> (HeuristicReasonWithAttributes<?, ?>) reason).
+                forEach(reason -> {
+                    Object attributeA = reason.getAttributeA();
+                    if (!collected.containsKey(attributeA)) {
+                        collected.put(attributeA, new HashSet<>());
+                    }
+                    collected.get(attributeA).add(reason);
+                });
+
+        return collected.entrySet().stream().map(entry -> createRolledUp(entry.getKey(), entry.getValue()));
+    }
+
+    private HeuristicsReason createRolledUp(final Object key, final Set<HeuristicReasonWithAttributes<?, ?>> reasonsToConsolidate) {
+        final Optional<HeuristicReasonWithAttributes<?, ?>> findExample = reasonsToConsolidate.stream().filter(item -> item.getAttributeA().equals(key)).findFirst();
+        if (findExample.isEmpty()) {
+            throw new RuntimeException("Could not find key " + key.toString() + " in " + reasonsToConsolidate);
+        }
+        final HeuristicReasonWithAttributes<?, ?> example = findExample.get();
+        final Optional<String> reducded = reasonsToConsolidate.stream().map(item -> " " + item.getAttributeB().toString()).reduce((s1, s2) -> s1 + s2);
+        final String text = reducded.orElse("");
+        return new HeuristicReasonWithAttributes<>(example.getReasonCode(), example.getHowIGotHere(), key, text, example.isValid());
     }
 
     private boolean isInteresting(ReasonCode reasonCode) {
@@ -117,15 +191,15 @@ public class CreateJourneyDiagnostics {
     @NotNull
     private static DiagnosticReasonDTO createDiagnosticReasonDTO(final HeuristicsReason heuristicsReason) {
         if (heuristicsReason.getReasonCode()==ReasonCode.NotOnQueryDate) {
-            return new DiagnosticReasonDTO(ReasonCode.NotOnQueryDate, "NotOnQueryDate", heuristicsReason.isValid(), heuristicsReason.getHowIGotHere().getTraversalStateType());
+            return new DiagnosticReasonDTO(ReasonCode.NotOnQueryDate, "NotOnQueryDate", heuristicsReason.isValid(),
+                    heuristicsReason.getHowIGotHere().getTraversalStateType());
         }
         if (heuristicsReason.getReasonCode()==ReasonCode.CachedNotOnQueryDate) {
-            return new DiagnosticReasonDTO(ReasonCode.CachedNotOnQueryDate, "CachedNotOnQueryDate", heuristicsReason.isValid(), heuristicsReason.getHowIGotHere().getTraversalStateType());
+            return new DiagnosticReasonDTO(ReasonCode.CachedNotOnQueryDate, "CachedNotOnQueryDate", heuristicsReason.isValid(),
+                    heuristicsReason.getHowIGotHere().getTraversalStateType());
         }
         return new DiagnosticReasonDTO(heuristicsReason);
     }
-
-
 
     private class DiagnosticTree {
         private final Map<IdFor<? extends Location<?>>, Node> nodes;

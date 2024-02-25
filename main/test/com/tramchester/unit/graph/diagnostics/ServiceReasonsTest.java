@@ -110,9 +110,10 @@ public class ServiceReasonsTest extends EasyMockSupport {
 
         HowIGotHere howIGotHere = createMock(HowIGotHere.class);
 
-        serviceReasons.recordReason(HeuristicReasonsOK.Arrived(howIGotHere));
-        serviceReasons.recordReason(HeuristicReasonsOK.Arrived(howIGotHere));
-        serviceReasons.recordReason(HeuristicReasonsOK.Arrived(howIGotHere));
+        Duration totalCostSoFar = Duration.ofMinutes(42);
+        serviceReasons.recordReason(HeuristicReasonsOK.Arrived(howIGotHere, totalCostSoFar,2));
+        serviceReasons.recordReason(HeuristicReasonsOK.Arrived(howIGotHere, totalCostSoFar, 2));
+        serviceReasons.recordReason(HeuristicReasonsOK.Arrived(howIGotHere, totalCostSoFar, 2));
 
         Map<ReasonCode, Integer> reasons = serviceReasons.getReasons();
 

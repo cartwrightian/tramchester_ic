@@ -138,12 +138,12 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         final int numberChanges = journeyState.getNumberChanges();
 
         if (destinationNodeIds.contains(nextNodeId)) { // We've Arrived
-            return processArrivalAtDest(journeyState, howIGotHere, numberChanges);
+            return processArrivalAtDest(journeyState, howIGotHere, numberChanges, totalCostSoFar);
         } else if (bestResultSoFar.everArrived()) { // Not arrived, but we have seen at least one successful route
             final Duration lowestCostSeen = bestResultSoFar.getLowestDuration();
             if (Durations.greaterThan(totalCostSoFar, lowestCostSeen)) {
                 // already longer that current shortest, no need to continue
-                return reasons.recordReason(HeuristicsReasons.HigherCost(howIGotHere));
+                return reasons.recordReason(HeuristicsReasons.HigherCost(howIGotHere, totalCostSoFar));
             }
 
         }
@@ -291,19 +291,24 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
     @NotNull
     private synchronized HeuristicsReason processArrivalAtDest(final ImmutableJourneyState journeyState, final HowIGotHere howIGotHere,
-                                                         final int numberChanges) {
+                                                               final int numberChanges, Duration totalCostSoFar) {
+
+        // todo set a thresh-hold on this rather than just having to be lower?
         if (bestResultSoFar.isLower(journeyState)) {
             // a better route than seen so far
             bestResultSoFar.setLowestCost(journeyState);
-            return reasons.recordReason(HeuristicReasonsOK.Arrived(howIGotHere));
-//            return ReasonCode.Arrived;
-        } else if (numberChanges < bestResultSoFar.getLowestNumChanges()) {
+            return reasons.recordReason(HeuristicReasonsOK.Arrived(howIGotHere, totalCostSoFar, numberChanges));
+        }
+
+        final int lowestNumChanges = bestResultSoFar.getLowestNumChanges();
+        if (numberChanges == lowestNumChanges) {
+            return reasons.recordReason(HeuristicsReasons.ArrivedLater(howIGotHere, totalCostSoFar, numberChanges));
+        } else if (numberChanges < lowestNumChanges) {
             // fewer hops can be a useful option
-            return reasons.recordReason(HeuristicReasonsOK.Arrived(howIGotHere));
-//            return ReasonCode.Arrived;
+            return reasons.recordReason(HeuristicReasonsOK.Arrived(howIGotHere, totalCostSoFar, numberChanges));
         } else {
             // found a route, but longer or more hops than current shortest
-            return reasons.recordReason(HeuristicsReasons.HigherCost(howIGotHere));
+            return reasons.recordReason(HeuristicsReasons.ArrivedMoreChanges(howIGotHere, numberChanges, totalCostSoFar));
         }
     }
 
