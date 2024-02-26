@@ -64,6 +64,7 @@ public class TraversalStateFactory {
         logger.info("stopped");
     }
 
+
     private <S extends TraversalState, T extends Towards<S>> T  getFor(TraversalStateType from, TraversalStateType to) {
         if (!running) {
             // help to diagnose / pinpoint issues with timeout causing shutdown from integration tests

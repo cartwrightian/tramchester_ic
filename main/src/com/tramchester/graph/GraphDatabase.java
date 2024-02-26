@@ -197,10 +197,6 @@ public class GraphDatabase implements DatabaseEventListener {
         return tx.findNodes(label);
     }
 
-//    public EvaluationContext createContext(Transaction txn) {
-//        return new BasicEvaluationContext(txn, databaseService);
-//    }
-
     public EvaluationContext createContext(GraphTransaction txn) {
         return txn.createEvaluationContext(databaseService);
     }

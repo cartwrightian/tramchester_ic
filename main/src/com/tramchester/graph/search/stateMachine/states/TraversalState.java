@@ -19,7 +19,7 @@ import static java.lang.String.format;
 
 public abstract class TraversalState extends EmptyTraversalState implements ImmutableTraversalState, NodeId {
 
-    protected final TraversalStateFactory builders;
+    protected final TraversalStateFactory traversalStateFactory;
     protected final TraversalOps traversalOps;
     protected final GraphTransaction txn;
 
@@ -40,7 +40,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         super(stateType);
         this.traversalOps = traversalOps;
         this.txn = traversalOps.getTransaction();
-        this.builders = traversalStateFactory;
+        this.traversalStateFactory = traversalStateFactory;
         this.requestedRelationshipTypes = TransportRelationshipTypes.forModes(requestedModes);
         this.graphNode = graphNode;
 
@@ -58,7 +58,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         super(stateType);
         this.traversalOps = parent.traversalOps;
         this.txn = traversalOps.getTransaction();
-        this.builders = parent.builders;
+        this.traversalStateFactory = parent.traversalStateFactory;
         this.parent = parent;
 
         this.outbounds = outbounds; //outbounds.toList();
@@ -120,37 +120,37 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
                                              final Duration cost, final boolean alreadyOnDiversion, final boolean isInterchange) {
         switch (nextType) {
             case MinuteState -> {
-                return toMinute(builders.getTowardsMinute(stateType), node, cost, journeyStateUpdate, requestedRelationshipTypes);
+                return toMinute(traversalStateFactory.getTowardsMinute(stateType), node, cost, journeyStateUpdate, requestedRelationshipTypes);
             }
             case HourState -> {
-                return toHour(builders.getTowardsHour(stateType), node, cost);
+                return toHour(traversalStateFactory.getTowardsHour(stateType), node, cost);
             }
             case GroupedStationState -> {
-                return toGrouped(builders.getTowardsGroup(stateType), journeyStateUpdate, node, cost, journeyStateUpdate);
+                return toGrouped(traversalStateFactory.getTowardsGroup(stateType), journeyStateUpdate, node, cost, journeyStateUpdate);
             }
             case PlatformStationState -> {
-                return toPlatformStation(builders.getTowardsStation(stateType), node, cost, journeyStateUpdate, alreadyOnDiversion);
+                return toPlatformStation(traversalStateFactory.getTowardsStation(stateType), node, cost, journeyStateUpdate, alreadyOnDiversion);
             }
             case NoPlatformStationState -> {
-                return toNoPlatformStation(builders.getTowardsNoPlatformStation(stateType), node, cost, journeyStateUpdate, alreadyOnDiversion);
+                return toNoPlatformStation(traversalStateFactory.getTowardsNoPlatformStation(stateType), node, cost, journeyStateUpdate, alreadyOnDiversion);
             }
             case ServiceState -> {
-                return toService(builders.getTowardsService(stateType), node, cost);
+                return toService(traversalStateFactory.getTowardsService(stateType), node, cost);
             }
             case PlatformState -> {
-                return toPlatform(builders.getTowardsPlatform(stateType), node, cost, alreadyOnDiversion, journeyStateUpdate);
+                return toPlatform(traversalStateFactory.getTowardsPlatform(stateType), node, cost, alreadyOnDiversion, journeyStateUpdate);
             }
             case WalkingState -> {
-                return toWalk(builders.getTowardsWalk(stateType), node, cost, journeyStateUpdate);
+                return toWalk(traversalStateFactory.getTowardsWalk(stateType), node, cost, journeyStateUpdate);
             }
             case RouteStationStateOnTrip -> {
-                return toRouteStationOnTrip(builders.getTowardsRouteStationOnTrip(stateType), journeyStateUpdate, node, cost, isInterchange);
+                return toRouteStationOnTrip(traversalStateFactory.getTowardsRouteStationOnTrip(stateType), journeyStateUpdate, node, cost, isInterchange);
             }
             case RouteStationStateEndTrip -> {
-                return toRouteStationEndTrip(builders.getTowardsRouteStationEndTrip(stateType), journeyStateUpdate, node, cost, isInterchange);
+                return toRouteStationEndTrip(traversalStateFactory.getTowardsRouteStationEndTrip(stateType), journeyStateUpdate, node, cost, isInterchange);
             }
             case JustBoardedState -> {
-                return toJustBoarded(builders.getTowardsJustBoarded(stateType), node, cost, journeyStateUpdate);
+                return toJustBoarded(traversalStateFactory.getTowardsJustBoarded(stateType), node, cost, journeyStateUpdate);
             }
             default -> throw new RuntimeException("Unexpected next state " + nextType + " at " + this);
         }
@@ -188,7 +188,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
     }
 
     public void toDestination(final TraversalState from, final GraphNode finalNode, final Duration cost, final JourneyStateUpdate journeyState) {
-        toDestination(builders.getTowardsDestination(from.getStateType()), finalNode, cost, journeyState);
+        toDestination(traversalStateFactory.getTowardsDestination(from.getStateType()), finalNode, cost, journeyState);
     }
 
     public void dispose() {

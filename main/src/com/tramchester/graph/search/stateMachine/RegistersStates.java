@@ -18,7 +18,7 @@ public class RegistersStates implements RegistersFromState {
         map = new HashMap<>();
     }
 
-    public <S extends TraversalState, T extends Towards<S>> T getBuilderFor(TraversalStateType from, TraversalStateType to) {
+    public <S extends TraversalState, T extends Towards<S>> T getBuilderFor(final TraversalStateType from, final TraversalStateType to) {
         final FromTo key = new FromTo(from, to);
 
         if (!map.containsKey(key)) {

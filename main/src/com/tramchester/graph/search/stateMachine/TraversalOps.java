@@ -1,12 +1,9 @@
 package com.tramchester.graph.search.stateMachine;
 
 import com.tramchester.domain.LocationCollection;
-import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.LocationId;
 import com.tramchester.domain.time.TramTime;
@@ -29,7 +26,6 @@ public class TraversalOps {
     private final NodeContentsRepository nodeOperations;
     private final TripRepository tripRepository;
     private final LocationCollection destinationIds;
-    private final IdSet<Route> destinationRoutes;
     private final TramDate queryDate;
     private final GraphTransaction txn;
     private final int queryHour;
@@ -44,9 +40,6 @@ public class TraversalOps {
         this.tripRepository = tripRepository;
         this.nodeOperations = nodeOperations;
         this.destinationIds = destinations;
-        this.destinationRoutes = destinations.locationStream().
-                flatMap(location -> location.getDropoffRoutes().stream()).
-                collect(IdSet.collector());
         this.queryDate = queryDate;
         this.queryHour = queryTime.getHourOfDay();
     }
@@ -69,25 +62,11 @@ public class TraversalOps {
         }
     }
 
-    public int onDestRouteFirst(final HasId<Route> a, final HasId<Route> b) {
-        final IdFor<Route> routeA = a.getId();
-        final IdFor<Route> routeB = b.getId();
-        final boolean toDestA = destinationRoutes.contains(routeA);
-        final boolean toDestB = destinationRoutes.contains(routeB);
-        if (toDestA == toDestB) {
-            return 0;
-        }
-        if (toDestA) {
-            return -1;
-        }
-        return 1;
-    }
-
-    public TramTime getTimeFrom(GraphNode node) {
+    public TramTime getTimeFrom(final GraphNode node) {
         return nodeOperations.getTime(node);
     }
 
-    public Trip getTrip(IdFor<Trip> tripId) {
+    public Trip getTrip(final IdFor<Trip> tripId) {
         return tripRepository.getTripById(tripId);
     }
 
