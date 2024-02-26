@@ -1,7 +1,10 @@
 package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.*;
+import com.tramchester.domain.Journey;
+import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.LocationCollection;
+import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Location;
@@ -19,9 +22,8 @@ import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.search.diagnostics.CreateJourneyDiagnostics;
-import com.tramchester.graph.search.diagnostics.ReasonsToGraphViz;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
-import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
+import com.tramchester.graph.search.stateMachine.RegistersStates;
 import com.tramchester.repository.StationAvailabilityRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TripRepository;
@@ -51,33 +53,33 @@ public class RouteCalculatorSupport {
     private final StationRepository stationRepository;
     private final TramchesterConfig config;
     private final TripRepository tripRepository;
-    private final TraversalStateFactory traversalStateFactory;
     protected final BetweenRoutesCostRepository routeToRouteCosts;
     private final NodeContentsRepository nodeContentsRepository;
-    private final ReasonsToGraphViz reasonToGraphViz;
     private final CreateJourneyDiagnostics failedJourneyDiagnostics;
     private final StationAvailabilityRepository stationAvailabilityRepository;
     private final boolean fullLogging; // turn down logging for grid searches
+    private final RegistersStates registersStates;
 
     protected RouteCalculatorSupport(PathToStages pathToStages, NodeContentsRepository nodeContentsRepository,
-                                     GraphDatabase graphDatabaseService, TraversalStateFactory traversalStateFactory,
+                                     GraphDatabase graphDatabaseService, RegistersStates registersStates,
                                      ProvidesNow providesNow, MapPathToLocations mapPathToLocations,
                                      StationRepository stationRepository, TramchesterConfig config, TripRepository tripRepository,
-                                     BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz, CreateJourneyDiagnostics failedJourneyDiagnostics, StationAvailabilityRepository stationAvailabilityRepository, boolean fullLogging) {
+                                     BetweenRoutesCostRepository routeToRouteCosts,
+                                     CreateJourneyDiagnostics failedJourneyDiagnostics, StationAvailabilityRepository stationAvailabilityRepository,
+                                     boolean fullLogging) {
         this.pathToStages = pathToStages;
         this.nodeContentsRepository = nodeContentsRepository;
         this.graphDatabaseService = graphDatabaseService;
-        this.traversalStateFactory = traversalStateFactory;
         this.providesNow = providesNow;
         this.mapPathToLocations = mapPathToLocations;
         this.stationRepository = stationRepository;
         this.config = config;
         this.tripRepository = tripRepository;
         this.routeToRouteCosts = routeToRouteCosts;
-        this.reasonToGraphViz = reasonToGraphViz;
         this.failedJourneyDiagnostics = failedJourneyDiagnostics;
         this.stationAvailabilityRepository = stationAvailabilityRepository;
         this.fullLogging = fullLogging;
+        this.registersStates = registersStates;
     }
 
 
@@ -145,7 +147,7 @@ public class RouteCalculatorSupport {
         }
 
         final TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(txn, nodeContentsRepository,
-                tripRepository, traversalStateFactory, config, reasonToGraphViz, fullLogging);
+                tripRepository, registersStates, config, fullLogging);
 
         final Stream<Path> paths = tramNetworkTraverser.findPaths(txn, pathRequest, previousSuccessfulVisit, reasons, lowestCostSeen,
                 destinationNodeIds, destinations, running);

@@ -1,6 +1,7 @@
 package com.tramchester.graph.search;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.LocationCollection;
 import com.tramchester.domain.id.IdFor;
@@ -12,6 +13,7 @@ import com.tramchester.domain.transportStages.ConnectingStage;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
+import com.tramchester.graph.search.stateMachine.RegistersStates;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
 import com.tramchester.graph.search.stateMachine.states.NotStartedState;
 import com.tramchester.graph.search.stateMachine.states.TraversalState;
@@ -42,20 +44,22 @@ public class MapPathToStagesViaStates implements PathToStages {
 
     private final StationRepository stationRepository;
     private final PlatformRepository platformRepository;
-    private final TraversalStateFactory stateFactory;
     private final NodeContentsRepository nodeContentsRepository;
     private final TripRepository tripRepository;
+    private final RegistersStates registersStates;
+    private final TramchesterConfig config;
 
     @Inject
     public MapPathToStagesViaStates(StationRepository stationRepository, PlatformRepository platformRepository,
-                                    TraversalStateFactory stateFactory, NodeContentsRepository nodeContentsRepository,
-                                    TripRepository tripRepository) {
+                                    NodeContentsRepository nodeContentsRepository,
+                                    TripRepository tripRepository, RegistersStates registersStates, TramchesterConfig config) {
         this.stationRepository = stationRepository;
         this.platformRepository = platformRepository;
-        this.stateFactory = stateFactory;
         this.nodeContentsRepository = nodeContentsRepository;
         this.tripRepository = tripRepository;
 
+        this.registersStates = registersStates;
+        this.config = config;
     }
 
     @Override
@@ -68,6 +72,9 @@ public class MapPathToStagesViaStates implements PathToStages {
             logger.info(format("Mapping path length %s to transport stages for %s at %s with %s changes",
                     path.length(), journeyRequest, queryTime, timedPath.numChanges()));
         }
+
+        final TraversalStateFactory stateFactory = new TraversalStateFactory(registersStates, nodeContentsRepository, config);
+        stateFactory.start();
 
         final TraversalOps traversalOps = new TraversalOps(txn, nodeContentsRepository, tripRepository, endStations, journeyRequest.getDate(),
                 journeyRequest.getOriginalTime());

@@ -21,10 +21,9 @@ import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.search.diagnostics.CreateJourneyDiagnostics;
-import com.tramchester.graph.search.diagnostics.ReasonsToGraphViz;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
 import com.tramchester.graph.search.selectors.BranchSelectorFactory;
-import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
+import com.tramchester.graph.search.stateMachine.RegistersStates;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.RunningRoutesAndServices;
@@ -58,16 +57,15 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
     @Inject
     public RouteCalculator(TransportData transportData, NodeContentsRepository nodeOperations, PathToStages pathToStages,
                            TramchesterConfig config, CreateQueryTimes createQueryTimes,
-                           TraversalStateFactory traversalStateFactory, GraphDatabase graphDatabaseService,
-                           ProvidesNow providesNow,
-                           MapPathToLocations mapPathToLocations,
-                           BetweenRoutesCostRepository routeToRouteCosts, ReasonsToGraphViz reasonToGraphViz,
+                           RegistersStates registersStates, GraphDatabase graphDatabaseService,
+                           ProvidesNow providesNow, MapPathToLocations mapPathToLocations,
+                           BetweenRoutesCostRepository routeToRouteCosts,
                            ClosedStationsRepository closedStationsRepository, RunningRoutesAndServices runningRoutesAndServices,
                            CacheMetrics cacheMetrics, BranchSelectorFactory branchSelectorFactory,
                            StationAvailabilityRepository stationAvailabilityRepository, CreateJourneyDiagnostics failedJourneyDiagnostics) {
         super(pathToStages, nodeOperations, graphDatabaseService,
-                traversalStateFactory, providesNow, mapPathToLocations,
-                transportData, config, transportData, routeToRouteCosts, reasonToGraphViz, failedJourneyDiagnostics, stationAvailabilityRepository, true);
+                registersStates, providesNow, mapPathToLocations,
+                transportData, config, transportData, routeToRouteCosts, failedJourneyDiagnostics, stationAvailabilityRepository, true);
         this.config = config;
         this.createQueryTimes = createQueryTimes;
         this.closedStationsRepository = closedStationsRepository;

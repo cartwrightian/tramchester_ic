@@ -2,7 +2,6 @@ package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.LocationCollection;
-import com.tramchester.domain.MixedLocationSet;
 import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
@@ -13,8 +12,8 @@ import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
-import com.tramchester.graph.search.diagnostics.ReasonsToGraphViz;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
+import com.tramchester.graph.search.stateMachine.RegistersStates;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
 import com.tramchester.graph.search.stateMachine.states.ImmutableTraversalState;
 import com.tramchester.graph.search.stateMachine.states.NotStartedState;
@@ -46,28 +45,30 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     private final NodeContentsRepository nodeContentsRepository;
     private final TripRepository tripRepository;
     private final TramchesterConfig config;
-    private final TraversalStateFactory traversalStateFactory;
-    private final ReasonsToGraphViz reasonToGraphViz;
     private final GraphTransaction txn;
     private final boolean fullLogging;
+    private final RegistersStates registersStates;
 
     public TramNetworkTraverser(GraphTransaction txn, NodeContentsRepository nodeContentsRepository, TripRepository tripRepository,
-                                TraversalStateFactory traversalStateFactory, TramchesterConfig config, ReasonsToGraphViz reasonToGraphViz,
+                                RegistersStates registersStates, TramchesterConfig config,
                                 boolean fullLogging) {
         this.txn = txn;
         this.nodeContentsRepository = nodeContentsRepository;
         this.tripRepository = tripRepository;
-        this.traversalStateFactory = traversalStateFactory;
         this.fullLogging = fullLogging;
         this.config = config;
+        this.registersStates = registersStates;
 
-        this.reasonToGraphViz = reasonToGraphViz;
     }
 
     public Stream<Path> findPaths(final GraphTransaction txn, final RouteCalculatorSupport.PathRequest pathRequest,
                                   final PreviousVisits previousSuccessfulVisit,
                                   final ServiceReasons reasons, final LowestCostSeen lowestCostSeen,
                                   final Set<GraphNodeId> destinationNodeIds, final LocationCollection destinations, Running running) {
+
+        TraversalStateFactory traversalStateFactory = new TraversalStateFactory(registersStates, nodeContentsRepository, config);
+
+        traversalStateFactory.start();
 
         final BranchOrderingPolicy selector = pathRequest.getSelector();
         final GraphNode startNode = pathRequest.getStartNode();

@@ -1,6 +1,5 @@
 package com.tramchester.graph.search.stateMachine.states;
 
-import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.search.stateMachine.RegistersStates;
@@ -8,11 +7,6 @@ import com.tramchester.graph.search.stateMachine.Towards;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.inject.Inject;
-
-@LazySingleton
 public class TraversalStateFactory {
     private static final Logger logger = LoggerFactory.getLogger(TraversalStateFactory.class);
 
@@ -21,7 +15,6 @@ public class TraversalStateFactory {
     private final NodeContentsRepository nodeContents;
     private boolean running;
 
-    @Inject
     public TraversalStateFactory(RegistersStates registersStates, NodeContentsRepository nodeContents, TramchesterConfig config) {
         this.registersStates = registersStates;
         this.nodeContents = nodeContents;
@@ -29,7 +22,6 @@ public class TraversalStateFactory {
         running = false;
     }
 
-    @PostConstruct
     public void start() {
         logger.info("starting");
         final boolean interchangesOnly = config.getChangeAtInterchangeOnly();
@@ -56,7 +48,6 @@ public class TraversalStateFactory {
         logger.info("started");
     }
 
-    @PreDestroy
     public void stop() {
         logger.info("stopping");
         running = false;
