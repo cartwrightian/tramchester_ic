@@ -6,7 +6,6 @@ import com.tramchester.domain.id.InvalidId;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.TransportRelationshipTypes;
-import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
@@ -22,14 +21,15 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class MinuteState extends TraversalState implements HasTowardsStationId {
 
-    public static class Builder implements Towards<MinuteState> {
+    public static class Builder extends StateBuilder<MinuteState> {
 
         private final boolean changeAtInterchangeOnly;
-        private final NodeContentsRepository nodeContents;
+//        private final NodeContentsRepository nodeContents;
 
-        public Builder(boolean changeAtInterchangeOnly, NodeContentsRepository nodeContents) {
-            this.changeAtInterchangeOnly = changeAtInterchangeOnly;
-            this.nodeContents = nodeContents;
+        public Builder(StateBuilderParameters builderParameters) {
+            super(builderParameters);
+            this.changeAtInterchangeOnly = builderParameters.interchangesOnly();
+//            this.nodeContents = nodeContents;
         }
 
         @Override
@@ -61,7 +61,7 @@ public class MinuteState extends TraversalState implements HasTowardsStationId {
         }
 
         private Stream<ImmutableGraphRelationship> filterBySingleTripId(final Stream<ImmutableGraphRelationship> relationships, final IdFor<Trip> existingTripId) {
-            return relationships.filter(relationship -> nodeContents.getTripId(relationship).equals(existingTripId));
+            return relationships.filter(relationship -> super.getTripId(relationship).equals(existingTripId));
         }
     }
 
@@ -73,7 +73,7 @@ public class MinuteState extends TraversalState implements HasTowardsStationId {
                         final IdFor<Trip> tripId, IdFor<Station> towardsStationId, final Duration cost,
                         final boolean interchangesOnly, final Towards<MinuteState> builder) {
         super(parent, relationships, cost, builder.getDestination(), node);
-        this.trip = traversalOps.getTrip(tripId);
+        this.trip = super.getTrip(tripId);
         this.towardsStationId = towardsStationId;
         this.interchangesOnly = interchangesOnly;
     }

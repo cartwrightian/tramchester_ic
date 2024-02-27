@@ -1,7 +1,5 @@
 package com.tramchester.graph.search.stateMachine.states;
 
-import com.tramchester.config.TramchesterConfig;
-import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.search.stateMachine.RegistersStates;
 import com.tramchester.graph.search.stateMachine.Towards;
 import org.slf4j.Logger;
@@ -11,38 +9,32 @@ public class TraversalStateFactory {
     private static final Logger logger = LoggerFactory.getLogger(TraversalStateFactory.class);
 
     private final RegistersStates registersStates;
-    private final TramchesterConfig config;
-    private final NodeContentsRepository nodeContents;
     private boolean running;
 
-    public TraversalStateFactory(RegistersStates registersStates, NodeContentsRepository nodeContents, TramchesterConfig config) {
-        this.registersStates = registersStates;
-        this.nodeContents = nodeContents;
-        this.config = config;
+    public TraversalStateFactory() {
+        this.registersStates = new RegistersStates();
         running = false;
     }
 
-    public void start() {
-        logger.info("starting");
-        final boolean interchangesOnly = config.getChangeAtInterchangeOnly();
-        final boolean depthFirst = config.getDepthFirst();
+    public void createBuildersFor(StateBuilderParameters builderParameters) {
+        logger.info("create builders for " + builderParameters);
 
         final FindStateAfterRouteStation findStateAfterRouteStation = new FindStateAfterRouteStation();
 
         //    NotStartedState not currently via a builder
 
-        registersStates.addBuilder(new RouteStationStateOnTrip.Builder(interchangesOnly, nodeContents));
-        registersStates.addBuilder(new RouteStationStateEndTrip.Builder(interchangesOnly));
-        registersStates.addBuilder(new HourState.Builder(depthFirst));
-        registersStates.addBuilder(new JustBoardedState.Builder(interchangesOnly));
-        registersStates.addBuilder(new NoPlatformStationState.Builder(findStateAfterRouteStation));
-        registersStates.addBuilder(new PlatformStationState.Builder());
-        registersStates.addBuilder(new WalkingState.Builder());
-        registersStates.addBuilder(new ServiceState.Builder(depthFirst));
-        registersStates.addBuilder(new PlatformState.Builder(findStateAfterRouteStation));
-        registersStates.addBuilder(new MinuteState.Builder(interchangesOnly, nodeContents));
-        registersStates.addBuilder(new DestinationState.Builder());
-        registersStates.addBuilder(new GroupedStationState.Builder());
+        registersStates.addBuilder(new RouteStationStateOnTrip.Builder(builderParameters));
+        registersStates.addBuilder(new RouteStationStateEndTrip.Builder(builderParameters));
+        registersStates.addBuilder(new HourState.Builder(builderParameters));
+        registersStates.addBuilder(new JustBoardedState.Builder(builderParameters));
+        registersStates.addBuilder(new NoPlatformStationState.Builder(builderParameters, findStateAfterRouteStation));
+        registersStates.addBuilder(new PlatformStationState.Builder(builderParameters));
+        registersStates.addBuilder(new WalkingState.Builder(builderParameters));
+        registersStates.addBuilder(new ServiceState.Builder(builderParameters));
+        registersStates.addBuilder(new PlatformState.Builder(builderParameters, findStateAfterRouteStation));
+        registersStates.addBuilder(new MinuteState.Builder(builderParameters));
+        registersStates.addBuilder(new DestinationState.Builder(builderParameters));
+        registersStates.addBuilder(new GroupedStationState.Builder(builderParameters));
 
         running = true;
         logger.info("started");
@@ -111,4 +103,5 @@ public class TraversalStateFactory {
     public RouteStationStateEndTrip.Builder getTowardsRouteStationEndTrip(final TraversalStateType from) {
         return getFor(from, TraversalStateType.RouteStationStateEndTrip);
     }
+
 }

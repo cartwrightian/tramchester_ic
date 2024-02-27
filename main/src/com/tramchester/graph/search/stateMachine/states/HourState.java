@@ -22,12 +22,13 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class HourState extends TraversalState implements HasTowardsStationId {
 
-    public static class Builder implements Towards<HourState> {
+    public static class Builder extends StateBuilder<HourState> {
 
         private final boolean depthFirst;
 
-        public Builder(boolean depthFirst) {
-            this.depthFirst = depthFirst;
+        public Builder(StateBuilderParameters builderParameters) {
+            super(builderParameters);
+            this.depthFirst = builderParameters.depthFirst();
         }
 
         public HourState fromService(final ServiceState serviceState, final GraphNode node, final Duration cost,
@@ -75,7 +76,8 @@ public class HourState extends TraversalState implements HasTowardsStationId {
     protected TraversalState toMinute(final MinuteState.Builder towardsMinute, final GraphNode minuteNode, final Duration cost,
                                       final JourneyStateUpdate journeyState, final TransportRelationshipTypes[] currentModes) {
         try {
-            final TramTime time = traversalOps.getTimeFrom(minuteNode);
+            //final TramTime time = traversalOps.getTimeFrom(minuteNode);
+            final TramTime time = super.getTimeFrom(minuteNode);
             journeyState.recordTime(time, getTotalDuration());
         } catch (TramchesterException exception) {
             throw new RuntimeException("Unable to process time ordering", exception);

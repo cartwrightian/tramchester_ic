@@ -17,8 +17,8 @@ public class JustBoardedState extends RouteStationState {
 
     public static class Builder extends TowardsRouteStation<JustBoardedState> {
 
-        public Builder(boolean interchangesOnly) {
-            super(interchangesOnly);
+        public Builder(StateBuilderParameters builderParameters) {
+            super(builderParameters);
         }
 
         @Override

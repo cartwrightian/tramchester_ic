@@ -20,12 +20,13 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class ServiceState extends TraversalState implements HasTowardsStationId {
 
-    public static class Builder implements Towards<ServiceState> {
+    public static class Builder extends StateBuilder<ServiceState> {
 
         private final boolean depthFirst;
 
-        public Builder(boolean depthFirst) {
-            this.depthFirst = depthFirst;
+        public Builder(StateBuilderParameters builderParameters) {
+            super(builderParameters);
+            this.depthFirst = builderParameters.depthFirst();
         }
 
         @Override
@@ -44,12 +45,12 @@ public class ServiceState extends TraversalState implements HasTowardsStationId 
                                                final Duration cost, final GraphTransaction txn) {
             final Stream<ImmutableGraphRelationship> hourRelationships = getHourRelationships(graphNode, txn);
             return new ServiceState(state, hourRelationships, ExistingTrip.onTrip(tripId), cost, this, graphNode, depthFirst,
-                    state.traversalOps.getQueryHour());
+                    super.getQueryHour());
         }
 
         public TraversalState fromRouteStation(final JustBoardedState justBoarded, final GraphNode serviceNode, final Duration cost, final GraphTransaction txn) {
             final Stream<ImmutableGraphRelationship> hourRelationships = getHourRelationships(serviceNode, txn);
-            return new ServiceState(justBoarded, hourRelationships, cost, this, serviceNode, depthFirst, justBoarded.traversalOps.getQueryHour());
+            return new ServiceState(justBoarded, hourRelationships, cost, this, serviceNode, depthFirst, super.getQueryHour());
         }
 
         private Stream<ImmutableGraphRelationship> getHourRelationships(final GraphNode node, final GraphTransaction txn) {

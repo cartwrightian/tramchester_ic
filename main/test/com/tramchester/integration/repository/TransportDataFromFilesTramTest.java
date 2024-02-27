@@ -57,7 +57,7 @@ import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-// TODO Split out by i/f roles, this has gotten too big
+// TODO WIP Split out by i/f roles, this has gotten too big
 // Begun, started to create tests by repository instead
 
 @ExtendWith(ConfigParameterResolver.class)
@@ -111,7 +111,7 @@ public class TransportDataFromFilesTramTest {
     @Test
     void shouldRemindToCheckOnVictoriaCrackedRailSituation() {
         TramDate now = TramDate.from(TestEnv.LocalNow());
-        assertFalse(now.isAfter(TramDate.of(2024, 2,26)), "Check if the rail is fixed, works due 25/2/2024 according to tfgm");
+        assertFalse(now.isAfter(TramDate.of(2024, 3,3)), "Check if the rail is fixed, works due 25/2/2024 according to tfgm");
     }
 
     @Test

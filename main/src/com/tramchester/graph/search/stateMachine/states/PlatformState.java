@@ -9,7 +9,6 @@ import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.NodeId;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
-import com.tramchester.graph.search.stateMachine.Towards;
 
 import java.time.Duration;
 import java.util.stream.Stream;
@@ -18,11 +17,12 @@ import static java.lang.String.format;
 
 public class PlatformState extends TraversalState implements NodeId {
 
-    public static class Builder implements Towards<PlatformState>, FromRouteStationStates {
+    public static class Builder extends StateBuilder<PlatformState> implements FromRouteStationStates {
 
         private final FindStateAfterRouteStation findStateAfterRouteStation;
 
-        public Builder(FindStateAfterRouteStation findStateAfterRouteStation) {
+        public Builder(StateBuilderParameters stateBuilderParameters, FindStateAfterRouteStation findStateAfterRouteStation) {
+            super(stateBuilderParameters);
             this.findStateAfterRouteStation = findStateAfterRouteStation;
         }
 
@@ -46,14 +46,14 @@ public class PlatformState extends TraversalState implements NodeId {
 
         public TraversalState fromRouteStationOnTrip(final RouteStationStateOnTrip routeStationStateOnTrip, final GraphNode node,
                                                      final Duration cost, final JourneyStateUpdate journeyState, final GraphTransaction txn) {
-            return findStateAfterRouteStation.onTripTowardsPlatform(getDestination(), routeStationStateOnTrip, node, cost, txn);
+            return findStateAfterRouteStation.onTripTowardsPlatform(getDestination(), routeStationStateOnTrip, node, cost, txn, this);
         }
 
         public TraversalState fromRouteStationEndTrip(final RouteStationStateEndTrip routeStationState, final GraphNode node,
                                                       final Duration cost,
                                                       JourneyStateUpdate journeyState, boolean alreadyOnDiversion,
                                                       final GraphTransaction txn) {
-            return findStateAfterRouteStation.endTripTowardsPlatform(getDestination(), routeStationState, node, cost, txn);
+            return findStateAfterRouteStation.endTripTowardsPlatform(getDestination(), routeStationState, node, cost, txn, this);
         }
 
     }

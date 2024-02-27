@@ -61,7 +61,7 @@ class JourneyStateTest extends EasyMockSupport {
         final TramchesterConfig config = TestEnv.GET();
 
         RegistersStates registersStates = new RegistersStates();
-        TraversalStateFactory traversalStateFactory = new TraversalStateFactory(registersStates, nodeContentsRepository, config);
+        TraversalStateFactory traversalStateFactory = new TraversalStateFactory();
 
         MutableGraphTransaction txn = createMock(MutableGraphTransaction.class);
 

@@ -13,12 +13,8 @@ import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
-import com.tramchester.graph.search.stateMachine.RegistersStates;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
-import com.tramchester.graph.search.stateMachine.states.ImmutableTraversalState;
-import com.tramchester.graph.search.stateMachine.states.NotStartedState;
-import com.tramchester.graph.search.stateMachine.states.TraversalState;
-import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
+import com.tramchester.graph.search.stateMachine.states.*;
 import com.tramchester.repository.TripRepository;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.PathExpander;
@@ -47,17 +43,14 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     private final TramchesterConfig config;
     private final GraphTransaction txn;
     private final boolean fullLogging;
-    private final RegistersStates registersStates;
 
     public TramNetworkTraverser(GraphTransaction txn, NodeContentsRepository nodeContentsRepository, TripRepository tripRepository,
-                                RegistersStates registersStates, TramchesterConfig config,
-                                boolean fullLogging) {
+                                TramchesterConfig config, boolean fullLogging) {
         this.txn = txn;
         this.nodeContentsRepository = nodeContentsRepository;
         this.tripRepository = tripRepository;
         this.fullLogging = fullLogging;
         this.config = config;
-        this.registersStates = registersStates;
 
     }
 
@@ -66,9 +59,12 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
                                   final ServiceReasons reasons, final LowestCostSeen lowestCostSeen,
                                   final Set<GraphNodeId> destinationNodeIds, final LocationCollection destinations, Running running) {
 
-        TraversalStateFactory traversalStateFactory = new TraversalStateFactory(registersStates, nodeContentsRepository, config);
+        TraversalStateFactory traversalStateFactory = new TraversalStateFactory();
 
-        traversalStateFactory.start();
+        final StateBuilderParameters builderParameters = new StateBuilderParameters(pathRequest.getQueryDate(), pathRequest.getActualQueryTime().getHourOfDay(),
+                destinations, nodeContentsRepository, config.getDepthFirst(), config.getChangeAtInterchangeOnly());
+
+        traversalStateFactory.createBuildersFor(builderParameters);
 
         final BranchOrderingPolicy selector = pathRequest.getSelector();
         final GraphNode startNode = pathRequest.getStartNode();

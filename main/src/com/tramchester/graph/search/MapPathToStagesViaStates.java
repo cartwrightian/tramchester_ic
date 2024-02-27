@@ -13,9 +13,9 @@ import com.tramchester.domain.transportStages.ConnectingStage;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
-import com.tramchester.graph.search.stateMachine.RegistersStates;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
 import com.tramchester.graph.search.stateMachine.states.NotStartedState;
+import com.tramchester.graph.search.stateMachine.states.StateBuilderParameters;
 import com.tramchester.graph.search.stateMachine.states.TraversalState;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import com.tramchester.repository.PlatformRepository;
@@ -46,19 +46,17 @@ public class MapPathToStagesViaStates implements PathToStages {
     private final PlatformRepository platformRepository;
     private final NodeContentsRepository nodeContentsRepository;
     private final TripRepository tripRepository;
-    private final RegistersStates registersStates;
     private final TramchesterConfig config;
 
     @Inject
     public MapPathToStagesViaStates(StationRepository stationRepository, PlatformRepository platformRepository,
                                     NodeContentsRepository nodeContentsRepository,
-                                    TripRepository tripRepository, RegistersStates registersStates, TramchesterConfig config) {
+                                    TripRepository tripRepository, TramchesterConfig config) {
         this.stationRepository = stationRepository;
         this.platformRepository = platformRepository;
         this.nodeContentsRepository = nodeContentsRepository;
         this.tripRepository = tripRepository;
 
-        this.registersStates = registersStates;
         this.config = config;
     }
 
@@ -73,8 +71,11 @@ public class MapPathToStagesViaStates implements PathToStages {
                     path.length(), journeyRequest, queryTime, timedPath.numChanges()));
         }
 
-        final TraversalStateFactory stateFactory = new TraversalStateFactory(registersStates, nodeContentsRepository, config);
-        stateFactory.start();
+        final TraversalStateFactory stateFactory = new TraversalStateFactory();
+        StateBuilderParameters builderParameters = new StateBuilderParameters(journeyRequest.getDate(), journeyRequest.getOriginalTime().getHourOfDay(),
+                endStations, nodeContentsRepository, config.getDepthFirst(), config.getChangeAtInterchangeOnly());
+
+        stateFactory.createBuildersFor(builderParameters);
 
         final TraversalOps traversalOps = new TraversalOps(txn, nodeContentsRepository, tripRepository, endStations, journeyRequest.getDate(),
                 journeyRequest.getOriginalTime());

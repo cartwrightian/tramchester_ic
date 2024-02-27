@@ -1,13 +1,15 @@
 package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.domain.Service;
-import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.facade.*;
 import com.tramchester.graph.caches.NodeContentsRepository;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphNodeId;
+import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.NodeId;
 import com.tramchester.graph.search.stateMachine.OptionalResourceIterator;
@@ -32,9 +34,9 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
 
         private final NodeContentsRepository nodeContents;
 
-        public Builder(boolean interchangesOnly, NodeContentsRepository nodeContents) {
-            super(interchangesOnly);
-            this.nodeContents = nodeContents;
+        public Builder(StateBuilderParameters builderParameters) {
+            super(builderParameters);
+            this.nodeContents = builderParameters.nodeContents();
         }
 
         @Override
@@ -53,9 +55,9 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
             final TransportMode transportMode = node.getTransportMode();
 
             // TODO Crossing midnight?
-            final TramDate date = minuteState.traversalOps.getQueryDate();
+//            final TramDate date = minuteState.traversalOps.getQueryDate();
 
-            final OptionalResourceIterator<ImmutableGraphRelationship> towardsDestination = getTowardsDestination(minuteState.traversalOps, node, date, txn);
+            final OptionalResourceIterator<ImmutableGraphRelationship> towardsDestination = getTowardsDestination(node, txn);
             if (!towardsDestination.isEmpty()) {
                 // we've nearly arrived
                 return new RouteStationStateOnTrip(journeyState, minuteState, towardsDestination.stream(), cost, node, trip.getId(), transportMode, this);
@@ -65,7 +67,7 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
             final Stream<ImmutableGraphRelationship> towardsServiceForTrip = filterByTripId(node.getRelationships(txn, OUTGOING, TO_SERVICE), trip, txn);
 
             // now add outgoing to platforms/stations
-            final Stream<ImmutableGraphRelationship> outboundsToFollow = getOutboundsToFollow(node, isInterchange, date, txn);
+            final Stream<ImmutableGraphRelationship> outboundsToFollow = getOutboundsToFollow(node, isInterchange, txn);
 
             // NOTE: order of the concatenation matters here for depth first, need to do departs first to
             // explore routes including changes over continuing on possibly much longer trip

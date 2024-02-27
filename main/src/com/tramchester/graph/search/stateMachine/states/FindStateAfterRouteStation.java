@@ -5,7 +5,6 @@ import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.OptionalResourceIterator;
-import com.tramchester.graph.search.stateMachine.TraversalOps;
 
 import java.time.Duration;
 import java.util.stream.Stream;
@@ -17,8 +16,8 @@ public class FindStateAfterRouteStation extends StationStateBuilder {
 
     public TraversalState endTripTowardsStation(final TraversalStateType destination, final RouteStationStateEndTrip routeStationState,
                                                 final GraphNode node, final Duration cost, final JourneyStateUpdate journeyStateUpdate,
-                                                final boolean alreadyOnDiversion, final GraphTransaction txn) {
-        final OptionalResourceIterator<ImmutableGraphRelationship> towardsDest = getTowardsDestination(routeStationState.traversalOps,
+                                                final boolean alreadyOnDiversion, final GraphTransaction txn, StateBuilder<?> stateBuilder) {
+        final OptionalResourceIterator<ImmutableGraphRelationship> towardsDest = getTowardsDestination(stateBuilder,
                 node, txn, false);
         if (!towardsDest.isEmpty()) {
             return createNoPlatformStationState(routeStationState, node, cost, journeyStateUpdate, towardsDest.stream(), destination);
@@ -26,15 +25,15 @@ public class FindStateAfterRouteStation extends StationStateBuilder {
         // end of a trip, may need to go back to this route station to catch new service
 
         final Stream<ImmutableGraphRelationship> boardsAndOthers = getBoardsAndOthers(node, txn, false);
-        final Stream<ImmutableGraphRelationship> diversions = addValidDiversions(node, routeStationState, alreadyOnDiversion, txn);
+        final Stream<ImmutableGraphRelationship> diversions = stateBuilder.addValidDiversions(node, alreadyOnDiversion, txn);
 
         final Stream<ImmutableGraphRelationship> relationships = Stream.concat(boardsAndOthers, diversions);
         return createNoPlatformStationState(routeStationState, node, cost, journeyStateUpdate, relationships, destination);
     }
 
     public TraversalState endTripTowardsPlatform(final TraversalStateType towardsState, final RouteStationStateEndTrip routeStationState,
-                                                 final GraphNode node, final Duration cost, final GraphTransaction txn) {
-        final OptionalResourceIterator<ImmutableGraphRelationship> towardsDest = getTowardsDestination(routeStationState.traversalOps,
+                                                 final GraphNode node, final Duration cost, final GraphTransaction txn, StateBuilder<?> stateBuilder) {
+        final OptionalResourceIterator<ImmutableGraphRelationship> towardsDest = getTowardsDestination(stateBuilder,
                 node, txn, true);
         if (!towardsDest.isEmpty()) {
             return createPlatformState(towardsState, routeStationState, node, cost, towardsDest.stream());
@@ -46,9 +45,8 @@ public class FindStateAfterRouteStation extends StationStateBuilder {
     }
 
     public TraversalState onTripTowardsStation(final TraversalStateType destination, final RouteStationStateOnTrip onTrip, final GraphNode node,
-                                               final Duration cost, final JourneyStateUpdate journeyState, final GraphTransaction txn) {
-        final OptionalResourceIterator<ImmutableGraphRelationship> towardsDest = getTowardsDestination(onTrip.traversalOps,
-                node, txn, false);
+                                               final Duration cost, final JourneyStateUpdate journeyState, final GraphTransaction txn, StateBuilder<?> stateBuilder) {
+        final OptionalResourceIterator<ImmutableGraphRelationship> towardsDest = getTowardsDestination(stateBuilder, node, txn, false);
         if (!towardsDest.isEmpty()) {
             return createNoPlatformStationState(onTrip, node, cost, journeyState, towardsDest.stream(), destination);
         }
@@ -60,9 +58,9 @@ public class FindStateAfterRouteStation extends StationStateBuilder {
     }
 
     public TraversalState onTripTowardsPlatform(final TraversalStateType towardsState, final RouteStationStateOnTrip routeStationStateOnTrip,
-                                                final GraphNode node, final Duration cost, final GraphTransaction txn) {
-        final TraversalOps traversalOps = routeStationStateOnTrip.traversalOps;
-        final OptionalResourceIterator<ImmutableGraphRelationship> towardsDest = getTowardsDestination(traversalOps, node, txn, true);
+                                                final GraphNode node, final Duration cost, final GraphTransaction txn, StateBuilder<?> stateBuilder) {
+//        final TraversalOps traversalOps = routeStationStateOnTrip.traversalOps;
+        final OptionalResourceIterator<ImmutableGraphRelationship> towardsDest = getTowardsDestination(stateBuilder, node, txn, true);
         if (!towardsDest.isEmpty()) {
             return new PlatformState(routeStationStateOnTrip, towardsDest.stream(), node, cost, towardsState);
         }
@@ -101,13 +99,13 @@ public class FindStateAfterRouteStation extends StationStateBuilder {
         return node.getRelationships(txn, OUTGOING, BOARD, INTERCHANGE_BOARD);
     }
 
-    private OptionalResourceIterator<ImmutableGraphRelationship> getTowardsDestination(final TraversalOps traversalOps,
+    private OptionalResourceIterator<ImmutableGraphRelationship> getTowardsDestination(final StateBuilder<?> stateBuilder,
                                                                                        final GraphNode node, final GraphTransaction txn,
                                                                                        boolean isPlatform) {
         if (isPlatform) {
-            return traversalOps.getTowardsDestination(node.getRelationships(txn, OUTGOING, LEAVE_PLATFORM));
+            return stateBuilder.getTowardsDestination(node.getRelationships(txn, OUTGOING, LEAVE_PLATFORM));
         } else {
-            return traversalOps.getTowardsDestination(node.getRelationships(txn, OUTGOING, GROUPED_TO_PARENT));
+            return stateBuilder.getTowardsDestination(node.getRelationships(txn, OUTGOING, GROUPED_TO_PARENT));
         }
     }
 

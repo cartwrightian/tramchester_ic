@@ -1,7 +1,10 @@
 package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.domain.exceptions.TramchesterException;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
@@ -20,7 +23,7 @@ import static java.lang.String.format;
 public abstract class TraversalState extends EmptyTraversalState implements ImmutableTraversalState, NodeId {
 
     protected final TraversalStateFactory traversalStateFactory;
-    protected final TraversalOps traversalOps;
+    private final TraversalOps traversalOps;
     protected final GraphTransaction txn;
 
     private final Stream<ImmutableGraphRelationship> outbounds;
@@ -234,5 +237,13 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
             throw new RuntimeException(format("Unable get transport mode at %s for %s", graphNode.getLabels(), graphNode.getAllProperties()));
         }
         journeyState.board(actualMode, graphNode, hasPlatforms);
+    }
+
+    protected TramTime getTimeFrom(GraphNode minuteNode) {
+        return traversalOps.getTimeFrom(minuteNode);
+    }
+
+    protected Trip getTrip(IdFor<Trip> tripId) {
+        return traversalOps.getTrip(tripId);
     }
 }

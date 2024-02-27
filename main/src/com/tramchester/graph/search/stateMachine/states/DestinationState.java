@@ -1,7 +1,6 @@
 package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
 
@@ -16,7 +15,11 @@ import java.util.stream.Stream;
 public class DestinationState extends TraversalState
 {
 
-    public static class Builder implements Towards<DestinationState> {
+    public static class Builder extends StateBuilder<DestinationState> {
+
+        protected Builder(StateBuilderParameters parameters) {
+            super(parameters);
+        }
 
         @Override
         public void register(RegistersFromState registers) {

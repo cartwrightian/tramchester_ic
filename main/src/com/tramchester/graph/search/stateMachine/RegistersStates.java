@@ -1,19 +1,15 @@
 package com.tramchester.graph.search.stateMachine;
 
-import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.graph.search.stateMachine.states.TraversalState;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateType;
 
-import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Set;
 
-@LazySingleton
 public class RegistersStates implements RegistersFromState {
 
     final HashMap<FromTo, Towards<? extends TraversalState>> map;
 
-    @Inject
     public RegistersStates() {
         map = new HashMap<>();
     }

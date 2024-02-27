@@ -16,11 +16,12 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class NoPlatformStationState extends StationState {
 
-    public static class Builder extends StationStateBuilder implements TowardsStation<NoPlatformStationState>, FromRouteStationStates {
+    public static class Builder extends StateBuilder<NoPlatformStationState> implements TowardsStation<NoPlatformStationState>, FromRouteStationStates {
 
         private final FindStateAfterRouteStation findStateAfterRouteStation;
 
-        public Builder(FindStateAfterRouteStation findStateAfterRouteStation) {
+        public Builder(StateBuilderParameters builderParameters, FindStateAfterRouteStation findStateAfterRouteStation) {
+            super(builderParameters);
             this.findStateAfterRouteStation = findStateAfterRouteStation;
         }
 
@@ -55,19 +56,20 @@ public class NoPlatformStationState extends StationState {
 
             final Stream<ImmutableGraphRelationship> walksAndGroup = boardRelationshipsPlus(node, txn, WALKS_FROM_STATION, GROUPED_TO_PARENT, NEIGHBOUR);
 
-            final Stream<ImmutableGraphRelationship> diversions = addValidDiversions(node, notStartedState, alreadyOnDiversion, txn);
+            final Stream<ImmutableGraphRelationship> diversions = addValidDiversions(node, alreadyOnDiversion, txn);
 
             return new NoPlatformStationState(notStartedState, Stream.concat(walksAndGroup, diversions), cost, node, journeyState, getDestination());
         }
 
         public TraversalState fromRouteStationEndTrip(final RouteStationStateEndTrip routeStationState, final GraphNode node, final Duration cost,
                                                final JourneyStateUpdate journeyState, final boolean alreadyOnDiversion, final GraphTransaction txn) {
-            return findStateAfterRouteStation.endTripTowardsStation(getDestination(), routeStationState, node, cost, journeyState, alreadyOnDiversion, txn);
+            return findStateAfterRouteStation.endTripTowardsStation(getDestination(), routeStationState, node, cost,
+                    journeyState, alreadyOnDiversion, txn, this);
         }
 
         public TraversalState fromRouteStationOnTrip(final RouteStationStateOnTrip onTrip, final GraphNode node, final Duration cost,
                                                final JourneyStateUpdate journeyState, final GraphTransaction txn) {
-            return findStateAfterRouteStation.onTripTowardsStation(getDestination(), onTrip, node, cost, journeyState, txn);
+            return findStateAfterRouteStation.onTripTowardsStation(getDestination(), onTrip, node, cost, journeyState, txn, this);
         }
 
         @Override

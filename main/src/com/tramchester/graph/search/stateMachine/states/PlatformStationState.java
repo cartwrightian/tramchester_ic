@@ -1,6 +1,9 @@
 package com.tramchester.graph.search.stateMachine.states;
 
-import com.tramchester.graph.facade.*;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphNodeId;
+import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.TowardsStation;
@@ -13,7 +16,11 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class PlatformStationState extends StationState {
 
-    public static class Builder extends StationStateBuilder implements TowardsStation<PlatformStationState>  {
+    public static class Builder extends StateBuilder<PlatformStationState> implements TowardsStation<PlatformStationState>  {
+
+        protected Builder(StateBuilderParameters builderParameters) {
+            super(builderParameters);
+        }
 
         @Override
         public void register(RegistersFromState registers) {
@@ -42,7 +49,7 @@ public class PlatformStationState extends StationState {
                                                  final JourneyStateUpdate journeyState, final boolean onDiversion, final GraphTransaction txn) {
             final Stream<ImmutableGraphRelationship> initial = stationNode.getRelationships(txn, OUTGOING, WALKS_FROM_STATION, ENTER_PLATFORM,
                     NEIGHBOUR, GROUPED_TO_PARENT);
-            final Stream<ImmutableGraphRelationship> diversions = addValidDiversions(stationNode,  platformState, onDiversion, txn);
+            final Stream<ImmutableGraphRelationship> diversions = addValidDiversions(stationNode, onDiversion, txn);
             final Stream<ImmutableGraphRelationship> relationships = Stream.concat(initial, diversions);
             return new PlatformStationState(platformState, filterExcludingEndNode(txn, relationships, platformState), cost,
                     stationNode, journeyState, this);
@@ -53,7 +60,7 @@ public class PlatformStationState extends StationState {
                                               final boolean onDiversion, final GraphTransaction txn) {
             final Stream<ImmutableGraphRelationship> initial = stationNode.getRelationships(txn, OUTGOING, WALKS_FROM_STATION,
                     GROUPED_TO_PARENT, ENTER_PLATFORM, NEIGHBOUR);
-            final Stream<ImmutableGraphRelationship> diversions = addValidDiversions(stationNode, notStartedState, onDiversion, txn);
+            final Stream<ImmutableGraphRelationship> diversions = addValidDiversions(stationNode, onDiversion, txn);
 
             final Stream<ImmutableGraphRelationship> relationships = Stream.concat(initial, diversions);
             return new PlatformStationState(notStartedState, relationships, cost, stationNode, journeyState, this);
@@ -63,7 +70,7 @@ public class PlatformStationState extends StationState {
         public PlatformStationState fromNeighbour(final StationState stationState, final GraphNode stationNode, final Duration cost,
                                                   final JourneyStateUpdate journeyState, final boolean onDiversion, final GraphTransaction txn) {
             final Stream<ImmutableGraphRelationship> initial = stationNode.getRelationships(txn, OUTGOING, ENTER_PLATFORM, GROUPED_TO_PARENT);
-            final Stream<ImmutableGraphRelationship> diversions = addValidDiversions(stationNode, stationState, onDiversion, txn);
+            final Stream<ImmutableGraphRelationship> diversions = addValidDiversions(stationNode, onDiversion, txn);
 
 
             final Stream<ImmutableGraphRelationship> relationships = Stream.concat(initial, diversions);

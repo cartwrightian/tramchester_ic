@@ -17,7 +17,11 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class WalkingState extends TraversalState {
 
-    public static class Builder implements Towards<WalkingState> {
+    public static class Builder extends StateBuilder<WalkingState> {
+
+        protected Builder(StateBuilderParameters parameters) {
+            super(parameters);
+        }
 
         @Override
         public void register(RegistersFromState registers) {
@@ -37,7 +41,7 @@ public class WalkingState extends TraversalState {
         public TraversalState fromStart(final NotStartedState notStartedState, final GraphNode firstNode, final Duration cost, final GraphTransaction txn) {
             final Stream<ImmutableGraphRelationship> relationships = firstNode.getRelationships(txn, OUTGOING, WALKS_TO_STATION);
             final List<ImmutableGraphRelationship> needTwice = relationships.toList();
-            final OptionalResourceIterator<ImmutableGraphRelationship> towardsDest = notStartedState.traversalOps.getTowardsDestination(needTwice.stream());
+            final OptionalResourceIterator<ImmutableGraphRelationship> towardsDest = super.getTowardsDestination(needTwice.stream());
 
             // prioritise a direct walk from start if one is available
             if (towardsDest.isEmpty()) {
@@ -59,10 +63,6 @@ public class WalkingState extends TraversalState {
                          final Towards<WalkingState> builder, GraphNode graphNode) {
         super(parent, relationships, cost, builder.getDestination(), graphNode);
     }
-
-//    private WalkingState(TraversalState parent, ResourceIterable<Relationship> relationships, Duration cost, Towards<WalkingState> builder) {
-//        super(parent, relationships, cost, builder.getDestination());
-//    }
 
     @Override
     public String toString() {

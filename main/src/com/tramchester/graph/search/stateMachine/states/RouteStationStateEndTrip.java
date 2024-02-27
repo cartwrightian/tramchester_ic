@@ -1,6 +1,5 @@
 package com.tramchester.graph.search.stateMachine.states;
 
-import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
@@ -21,8 +20,8 @@ public class RouteStationStateEndTrip extends RouteStationState {
 
     public static class Builder extends TowardsRouteStation<RouteStationStateEndTrip> {
 
-        public Builder(final boolean interchangesOnly) {
-            super(interchangesOnly);
+        public Builder(StateBuilderParameters builderParameters) {
+            super(builderParameters);
         }
 
         @Override
@@ -40,15 +39,15 @@ public class RouteStationStateEndTrip extends RouteStationState {
             final TransportMode transportMode = node.getTransportMode();
 
             // TODO Crossing midnight?
-            final TramDate date = minuteState.traversalOps.getQueryDate();
+            //final TramDate date = minuteState.traversalOps.getQueryDate();
 
-            final OptionalResourceIterator<ImmutableGraphRelationship> towardsDestination = getTowardsDestination(minuteState.traversalOps, node, date, txn);
+            final OptionalResourceIterator<ImmutableGraphRelationship> towardsDestination = getTowardsDestination(node, txn);
             if (!towardsDestination.isEmpty()) {
                 // we've nearly arrived
                 return new RouteStationStateEndTrip(journeyState, minuteState, towardsDestination.stream(), cost, transportMode, node, trip, this);
             }
 
-            final Stream<ImmutableGraphRelationship> outboundsToFollow = getOutboundsToFollow(node, isInterchange, date, txn);
+            final Stream<ImmutableGraphRelationship> outboundsToFollow = getOutboundsToFollow(node, isInterchange, txn);
 
             return new RouteStationStateEndTrip(journeyState, minuteState, outboundsToFollow, cost, transportMode, node, trip, this);
         }
