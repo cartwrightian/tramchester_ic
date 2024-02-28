@@ -60,7 +60,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
                                   final Set<GraphNodeId> destinationNodeIds, final LocationCollection destinations, Running running) {
 
 
-        final StateBuilderParameters builderParameters = new StateBuilderParameters(pathRequest.getQueryDate(), pathRequest.getActualQueryTime().getHourOfDay(),
+        final StateBuilderParameters builderParameters = new StateBuilderParameters(pathRequest.getQueryDate(), pathRequest.getActualQueryTime(),
                 destinations, nodeContentsRepository, config, pathRequest.getRequestedModes());
 
         TraversalStateFactory traversalStateFactory = new TraversalStateFactory(builderParameters);

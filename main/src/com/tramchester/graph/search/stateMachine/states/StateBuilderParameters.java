@@ -4,6 +4,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.LocationCollection;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.caches.NodeContentsRepository;
 
@@ -19,12 +20,12 @@ public final class StateBuilderParameters {
     private final boolean interchangesOnly;
     private final TransportRelationshipTypes[] currentModes;
 
-    public StateBuilderParameters(TramDate queryDate, int queryHour,
+    public StateBuilderParameters(TramDate queryDate, TramTime queryTime,
                                   LocationCollection destinationIds,
                                   NodeContentsRepository nodeContents,
                                   TramchesterConfig config, EnumSet<TransportMode> requestedModes) {
         this.queryDate = queryDate;
-        this.queryHour = queryHour;
+        this.queryHour = queryTime.getHourOfDay();
         this.destinationIds = destinationIds;
         this.nodeContents = nodeContents;
         this.depthFirst = config.getDepthFirst();

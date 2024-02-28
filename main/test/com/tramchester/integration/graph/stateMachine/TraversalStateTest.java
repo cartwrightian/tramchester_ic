@@ -78,7 +78,7 @@ public class TraversalStateTest {
         final TraversalOps traversalOps = new TraversalOps(txn, nodeContentsRepository, tripRepository);
 
         EnumSet<TransportMode> modes = EnumSet.of(TransportMode.Tram);
-        StateBuilderParameters builderParameters = new StateBuilderParameters(date, time.getHourOfDay(),
+        StateBuilderParameters builderParameters = new StateBuilderParameters(date, time,
                 endStations,
                 nodeContentsRepository, config, modes);
 
