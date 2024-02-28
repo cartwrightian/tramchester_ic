@@ -23,7 +23,6 @@ import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.search.diagnostics.CreateJourneyDiagnostics;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
 import com.tramchester.graph.search.selectors.BranchSelectorFactory;
-import com.tramchester.graph.search.stateMachine.RegistersStates;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.RunningRoutesAndServices;
@@ -57,15 +56,15 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
     @Inject
     public RouteCalculator(TransportData transportData, NodeContentsRepository nodeOperations, PathToStages pathToStages,
                            TramchesterConfig config, CreateQueryTimes createQueryTimes,
-                           RegistersStates registersStates, GraphDatabase graphDatabaseService,
+                           GraphDatabase graphDatabaseService,
                            ProvidesNow providesNow, MapPathToLocations mapPathToLocations,
                            BetweenRoutesCostRepository routeToRouteCosts,
                            ClosedStationsRepository closedStationsRepository, RunningRoutesAndServices runningRoutesAndServices,
                            CacheMetrics cacheMetrics, BranchSelectorFactory branchSelectorFactory,
                            StationAvailabilityRepository stationAvailabilityRepository, CreateJourneyDiagnostics failedJourneyDiagnostics) {
         super(pathToStages, nodeOperations, graphDatabaseService,
-                registersStates, providesNow, mapPathToLocations,
-                transportData, config, transportData, routeToRouteCosts, failedJourneyDiagnostics, stationAvailabilityRepository, true);
+                providesNow, mapPathToLocations, transportData, config, transportData, routeToRouteCosts,
+                failedJourneyDiagnostics, stationAvailabilityRepository, true);
         this.config = config;
         this.createQueryTimes = createQueryTimes;
         this.closedStationsRepository = closedStationsRepository;

@@ -4,7 +4,6 @@ import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
@@ -74,7 +73,7 @@ public class HourState extends TraversalState implements HasTowardsStationId {
 
     @Override
     protected TraversalState toMinute(final MinuteState.Builder towardsMinute, final GraphNode minuteNode, final Duration cost,
-                                      final JourneyStateUpdate journeyState, final TransportRelationshipTypes[] currentModes) {
+                                      final JourneyStateUpdate journeyState) {
         try {
             //final TramTime time = traversalOps.getTimeFrom(minuteNode);
             final TramTime time = super.getTimeFrom(minuteNode);
@@ -83,7 +82,7 @@ public class HourState extends TraversalState implements HasTowardsStationId {
             throw new RuntimeException("Unable to process time ordering", exception);
         }
 
-        return towardsMinute.fromHour(this, minuteNode, cost, maybeExistingTrip, towardsStationId, journeyState, currentModes, txn);
+        return towardsMinute.fromHour(this, minuteNode, cost, maybeExistingTrip, towardsStationId, journeyState, txn);
     }
 
 

@@ -33,18 +33,17 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
     private final GraphNode graphNode;
 
     // only follow GOES_TO links for requested transport modes
-    private final TransportRelationshipTypes[] requestedRelationshipTypes;
 
     private TraversalState child;
 
     // initial only
     protected TraversalState(final TraversalOps traversalOps, final TraversalStateFactory traversalStateFactory,
-                             final EnumSet<TransportMode> requestedModes, final TraversalStateType stateType, GraphNode graphNode) {
+                             final TraversalStateType stateType, GraphNode graphNode,
+                             final GraphTransaction txn) {
         super(stateType);
         this.traversalOps = traversalOps;
-        this.txn = traversalOps.getTransaction();
+        this.txn = txn;
         this.traversalStateFactory = traversalStateFactory;
-        this.requestedRelationshipTypes = TransportRelationshipTypes.forModes(requestedModes);
         this.graphNode = graphNode;
 
         this.costForLastEdge = Duration.ZERO;
@@ -57,18 +56,17 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
     }
 
     protected TraversalState(final TraversalState parent, final Stream<ImmutableGraphRelationship> outbounds, final Duration costForLastEdge,
-                             final TraversalStateType stateType, GraphNode graphNode) {
+                             final TraversalStateType stateType, final GraphNode graphNode) {
         super(stateType);
         this.traversalOps = parent.traversalOps;
-        this.txn = traversalOps.getTransaction();
+        this.txn = parent.txn;
         this.traversalStateFactory = parent.traversalStateFactory;
         this.parent = parent;
 
-        this.outbounds = outbounds; //outbounds.toList();
+        this.outbounds = outbounds;
         this.costForLastEdge = costForLastEdge;
         this.parentCost = parent.getTotalDuration();
 
-        this.requestedRelationshipTypes = parent.requestedRelationshipTypes;
         this.graphNode = graphNode;
     }
 
@@ -123,7 +121,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
                                              final Duration cost, final boolean alreadyOnDiversion, final boolean isInterchange) {
         switch (nextType) {
             case MinuteState -> {
-                return toMinute(traversalStateFactory.getTowardsMinute(stateType), node, cost, journeyStateUpdate, requestedRelationshipTypes);
+                return toMinute(traversalStateFactory.getTowardsMinute(stateType), node, cost, journeyStateUpdate);
             }
             case HourState -> {
                 return toHour(traversalStateFactory.getTowardsHour(stateType), node, cost);

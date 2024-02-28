@@ -58,7 +58,8 @@ public class RouteStationStateEndTrip extends RouteStationState {
     private final GraphNode routeStationNode;
     private final Trip trip;
 
-    private RouteStationStateEndTrip(JourneyStateUpdate journeyState, final MinuteState minuteState, final Stream<ImmutableGraphRelationship> routeStationOutbound, final Duration cost,
+    private RouteStationStateEndTrip(JourneyStateUpdate journeyState, final MinuteState minuteState, final Stream<ImmutableGraphRelationship> routeStationOutbound,
+                                     final Duration cost,
                                      final TransportMode mode, final GraphNode routeStationNode, final Trip trip,
                                      final TowardsRouteStation<RouteStationStateEndTrip> builder) {
         super(minuteState, routeStationOutbound, journeyState, cost, builder, routeStationNode);

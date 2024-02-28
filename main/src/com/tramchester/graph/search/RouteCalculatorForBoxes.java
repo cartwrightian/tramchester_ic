@@ -23,7 +23,6 @@ import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.search.diagnostics.CreateJourneyDiagnostics;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
 import com.tramchester.graph.search.selectors.BranchSelectorFactory;
-import com.tramchester.graph.search.stateMachine.RegistersStates;
 import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.RunningRoutesAndServices;
 import com.tramchester.repository.StationAvailabilityRepository;
@@ -58,7 +57,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
     @Inject
     public RouteCalculatorForBoxes(TramchesterConfig config,
                                    TransportData transportData,
-                                   GraphDatabase graphDatabaseService, RegistersStates registersStates,
+                                   GraphDatabase graphDatabaseService,
                                    PathToStages pathToStages,
                                    NodeContentsRepository nodeContentsRepository,
                                    ProvidesNow providesNow,
@@ -68,7 +67,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                                    @SuppressWarnings("unused") RouteCostCalculator routeCostCalculator,
                                    BranchSelectorFactory branchSelectorFactory, StationAvailabilityRepository stationAvailabilityRepository, CreateJourneyDiagnostics failedJourneyDiagnostics) {
         super(pathToStages, nodeContentsRepository, graphDatabaseService,
-                registersStates, providesNow, mapPathToLocations,
+                providesNow, mapPathToLocations,
                 transportData, config, transportData, routeToRouteCosts, failedJourneyDiagnostics, stationAvailabilityRepository, false);
         this.config = config;
         this.graphDatabaseService = graphDatabaseService;

@@ -1,6 +1,5 @@
 package com.tramchester.graph.search.stateMachine.states;
 
-import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.search.JourneyStateUpdate;
 
@@ -39,7 +38,7 @@ public abstract class EmptyTraversalState {
         throw new RuntimeException("No such transition at " + stateType);
     }
 
-    protected TraversalState toMinute(MinuteState.Builder towardsMinute, GraphNode node, Duration cost, JourneyStateUpdate journeyState, TransportRelationshipTypes[] currentModes) {
+    protected TraversalState toMinute(MinuteState.Builder towardsMinute, GraphNode node, Duration cost, JourneyStateUpdate journeyState) {
         throw new RuntimeException("No such transition at " + stateType);
     }
 

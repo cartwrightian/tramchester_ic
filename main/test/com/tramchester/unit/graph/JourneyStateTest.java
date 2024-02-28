@@ -17,9 +17,9 @@ import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.search.JourneyState;
-import com.tramchester.graph.search.stateMachine.RegistersStates;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
 import com.tramchester.graph.search.stateMachine.states.NotStartedState;
+import com.tramchester.graph.search.stateMachine.states.StateBuilderParameters;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import com.tramchester.repository.TripRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -60,17 +60,19 @@ class JourneyStateTest extends EasyMockSupport {
         NodeContentsRepository nodeContentsRepository = createMock(NodeContentsRepository.class);
         final TramchesterConfig config = TestEnv.GET();
 
-        RegistersStates registersStates = new RegistersStates();
-        TraversalStateFactory traversalStateFactory = new TraversalStateFactory();
+        queryTime = TramTime.of(9, 15);
+
+        StateBuilderParameters builderParams = new StateBuilderParameters(queryDate, queryTime.getHourOfDay(), destinations,
+                nodeContentsRepository, config, TramsOnly);
+        TraversalStateFactory traversalStateFactory = new TraversalStateFactory(builderParams);
 
         MutableGraphTransaction txn = createMock(MutableGraphTransaction.class);
 
-        queryTime = TramTime.of(9, 15);
 
-        final TraversalOps traversalOps = new TraversalOps(txn, nodeContentsRepository, tripRepository, destinations,
-                queryDate, queryTime);
+        final TraversalOps traversalOps = new TraversalOps(txn, nodeContentsRepository, tripRepository
+        );
 
-        traversalState = new NotStartedState(traversalOps, traversalStateFactory, TramsOnly, node);
+        traversalState = new NotStartedState(traversalOps, traversalStateFactory, node, txn);
     }
 
     @Test

@@ -22,14 +22,11 @@ import static org.neo4j.graphdb.Direction.OUTGOING;
 public class MinuteState extends TraversalState implements HasTowardsStationId {
 
     public static class Builder extends StateBuilder<MinuteState> {
-
-        private final boolean changeAtInterchangeOnly;
-//        private final NodeContentsRepository nodeContents;
+        final TransportRelationshipTypes[] currentModes;
 
         public Builder(StateBuilderParameters builderParameters) {
             super(builderParameters);
-            this.changeAtInterchangeOnly = builderParameters.interchangesOnly();
-//            this.nodeContents = nodeContents;
+            currentModes = builderParameters.currentModes();
         }
 
         @Override
@@ -44,19 +41,19 @@ public class MinuteState extends TraversalState implements HasTowardsStationId {
 
         public TraversalState fromHour(final HourState hourState, final GraphNode node, final Duration cost, final ExistingTrip existingTrip,
                                        final IdFor<Station> towardsStationId, final JourneyStateUpdate journeyState,
-                                       final TransportRelationshipTypes[] currentModes, final GraphTransaction txn) {
+                                       final GraphTransaction txn) {
 
             final Stream<ImmutableGraphRelationship> relationships = node.getRelationships(txn, OUTGOING, currentModes);
 
             if (existingTrip.isOnTrip()) {
                 final IdFor<Trip> existingTripId = existingTrip.getTripId();
                 final Stream<ImmutableGraphRelationship> filterBySingleTripId = filterBySingleTripId(relationships, existingTripId);
-                return new MinuteState(hourState, filterBySingleTripId, node, existingTripId, towardsStationId, cost, changeAtInterchangeOnly, this);
+                return new MinuteState(hourState, filterBySingleTripId, node, existingTripId, towardsStationId, cost, this);
             } else {
                 // starting a brand-new journey, since at minute node now have specific tripid to use
                 final IdFor<Trip> newTripId = getTrip(node);
                 journeyState.beginTrip(newTripId);
-                return new MinuteState(hourState, relationships, node, newTripId, towardsStationId, cost, changeAtInterchangeOnly, this);
+                return new MinuteState(hourState, relationships, node, newTripId, towardsStationId, cost, this);
             }
         }
 
@@ -65,17 +62,16 @@ public class MinuteState extends TraversalState implements HasTowardsStationId {
         }
     }
 
-    private final boolean interchangesOnly;
+//    private final boolean interchangesOnly;
     private final Trip trip;
     private final IdFor<Station> towardsStationId;
 
     private MinuteState(final TraversalState parent, final Stream<ImmutableGraphRelationship> relationships, GraphNode node,
                         final IdFor<Trip> tripId, IdFor<Station> towardsStationId, final Duration cost,
-                        final boolean interchangesOnly, final Towards<MinuteState> builder) {
+                        final Towards<MinuteState> builder) {
         super(parent, relationships, cost, builder.getDestination(), node);
         this.trip = super.getTrip(tripId);
         this.towardsStationId = towardsStationId;
-        this.interchangesOnly = interchangesOnly;
     }
 
     private static IdFor<Trip> getTrip(final GraphNode endNode) {
@@ -112,7 +108,6 @@ public class MinuteState extends TraversalState implements HasTowardsStationId {
     @Override
     public String toString() {
         return "MinuteState{" +
-                "interchangesOnly=" + interchangesOnly +
                 ", trip='" + trip.getId() + '\'' +
                 "} " + super.toString();
     }

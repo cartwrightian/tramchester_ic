@@ -59,12 +59,11 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
                                   final ServiceReasons reasons, final LowestCostSeen lowestCostSeen,
                                   final Set<GraphNodeId> destinationNodeIds, final LocationCollection destinations, Running running) {
 
-        TraversalStateFactory traversalStateFactory = new TraversalStateFactory();
 
         final StateBuilderParameters builderParameters = new StateBuilderParameters(pathRequest.getQueryDate(), pathRequest.getActualQueryTime().getHourOfDay(),
-                destinations, nodeContentsRepository, config.getDepthFirst(), config.getChangeAtInterchangeOnly());
+                destinations, nodeContentsRepository, config, pathRequest.getRequestedModes());
 
-        traversalStateFactory.createBuildersFor(builderParameters);
+        TraversalStateFactory traversalStateFactory = new TraversalStateFactory(builderParameters);
 
         final BranchOrderingPolicy selector = pathRequest.getSelector();
         final GraphNode startNode = pathRequest.getStartNode();
@@ -74,11 +73,10 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
                 destinationNodeIds, nodeContentsRepository, reasons, previousSuccessfulVisit, lowestCostSeen, config,
                 startNode.getId(), txn, running);
 
-        final TraversalOps traversalOps = new TraversalOps(txn, nodeContentsRepository, tripRepository, destinations,
-                pathRequest.getQueryDate(), pathRequest.getActualQueryTime());
+        final TraversalOps traversalOps = new TraversalOps(txn, nodeContentsRepository, tripRepository);
 
         final NotStartedState traversalState = new NotStartedState(traversalOps, traversalStateFactory,
-                pathRequest.getRequestedModes(), startNode);
+                startNode, txn);
         final InitialBranchState<JourneyState> initialJourneyState = JourneyState.initialState(actualQueryTime, traversalState);
 
         if (fullLogging) {

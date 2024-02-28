@@ -23,7 +23,6 @@ import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.search.diagnostics.CreateJourneyDiagnostics;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
-import com.tramchester.graph.search.stateMachine.RegistersStates;
 import com.tramchester.repository.StationAvailabilityRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TripRepository;
@@ -58,10 +57,9 @@ public class RouteCalculatorSupport {
     private final CreateJourneyDiagnostics failedJourneyDiagnostics;
     private final StationAvailabilityRepository stationAvailabilityRepository;
     private final boolean fullLogging; // turn down logging for grid searches
-    private final RegistersStates registersStates;
 
     protected RouteCalculatorSupport(PathToStages pathToStages, NodeContentsRepository nodeContentsRepository,
-                                     GraphDatabase graphDatabaseService, RegistersStates registersStates,
+                                     GraphDatabase graphDatabaseService,
                                      ProvidesNow providesNow, MapPathToLocations mapPathToLocations,
                                      StationRepository stationRepository, TramchesterConfig config, TripRepository tripRepository,
                                      BetweenRoutesCostRepository routeToRouteCosts,
@@ -79,7 +77,6 @@ public class RouteCalculatorSupport {
         this.failedJourneyDiagnostics = failedJourneyDiagnostics;
         this.stationAvailabilityRepository = stationAvailabilityRepository;
         this.fullLogging = fullLogging;
-        this.registersStates = registersStates;
     }
 
 

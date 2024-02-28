@@ -64,11 +64,6 @@ public abstract class StateBuilder<T extends TraversalState> implements Towards<
         }
     }
 
-//    public TramTime getTimeFrom(final GraphNode node) {
-//        return nodeOperations.getTime(node);
-//    }
-
-
     public Stream<ImmutableGraphRelationship> addValidDiversions(final GraphNode node, final boolean alreadyOnDiversion, final GraphTransaction txn) {
 
         if (alreadyOnDiversion) {

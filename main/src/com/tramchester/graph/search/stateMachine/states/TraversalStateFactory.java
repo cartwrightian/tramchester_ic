@@ -5,18 +5,19 @@ import com.tramchester.graph.search.stateMachine.Towards;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Set;
+
 public class TraversalStateFactory {
     private static final Logger logger = LoggerFactory.getLogger(TraversalStateFactory.class);
 
     private final RegistersStates registersStates;
-    private boolean running;
 
-    public TraversalStateFactory() {
+    public TraversalStateFactory(final StateBuilderParameters builderParameters) {
         this.registersStates = new RegistersStates();
-        running = false;
+        createBuildersFor(builderParameters);
     }
 
-    public void createBuildersFor(StateBuilderParameters builderParameters) {
+    private void createBuildersFor(StateBuilderParameters builderParameters) {
         logger.info("create builders for " + builderParameters);
 
         final FindStateAfterRouteStation findStateAfterRouteStation = new FindStateAfterRouteStation();
@@ -36,23 +37,11 @@ public class TraversalStateFactory {
         registersStates.addBuilder(new DestinationState.Builder(builderParameters));
         registersStates.addBuilder(new GroupedStationState.Builder(builderParameters));
 
-        running = true;
-        logger.info("started");
-    }
-
-    public void stop() {
-        logger.info("stopping");
-        running = false;
-        registersStates.clear();
-        logger.info("stopped");
     }
 
 
     private <S extends TraversalState, T extends Towards<S>> T  getFor(TraversalStateType from, TraversalStateType to) {
-        if (!running) {
-            // help to diagnose / pinpoint issues with timeout causing shutdown from integration tests
-            throw new RuntimeException("Not running");
-        }
+
         return registersStates.getBuilderFor(from,to);
     }
 
@@ -104,4 +93,7 @@ public class TraversalStateFactory {
         return getFor(from, TraversalStateType.RouteStationStateEndTrip);
     }
 
+    public Set<RegistersStates.FromTo> getTransitions() {
+        return registersStates.getTransitions();
+    }
 }

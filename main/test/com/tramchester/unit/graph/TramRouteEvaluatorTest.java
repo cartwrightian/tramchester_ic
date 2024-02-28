@@ -7,6 +7,7 @@ import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.collections.Running;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
@@ -30,9 +31,9 @@ import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.ServiceHeuristics;
 import com.tramchester.graph.search.TramRouteEvaluator;
 import com.tramchester.graph.search.diagnostics.*;
-import com.tramchester.graph.search.stateMachine.RegistersStates;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
 import com.tramchester.graph.search.stateMachine.states.NotStartedState;
+import com.tramchester.graph.search.stateMachine.states.StateBuilderParameters;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateType;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
@@ -62,7 +63,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TramRouteEvaluatorTest extends EasyMockSupport {
 
-    private LocationSet<Station> destinationStations;
     private ServiceHeuristics serviceHeuristics;
     private NodeContentsRepository contentsRepository;
     private Path path;
@@ -80,6 +80,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     private Duration maxInitialWait;
     private MutableGraphTransaction txn;
     private GraphNode startNode;
+    private LocationSet<Station> destinationStations;
     private TramTime queryTime;
 
     @BeforeEach
@@ -155,12 +156,14 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     @NotNull
     private NotStartedState getNotStartedState(GraphNode startNode) {
 
-        RegistersStates registersStates = new RegistersStates();
-        TraversalStateFactory traversalStateFactory = new TraversalStateFactory();
+        TramDate queryDate = TestEnv.testDay();
+        StateBuilderParameters builderParams = new StateBuilderParameters(queryDate, queryTime.getHourOfDay(), destinationStations,
+                contentsRepository, config, TramsOnly);
 
-        final TraversalOps traversalOps = new TraversalOps(txn, contentsRepository, tripRepository, destinationStations,
-                TestEnv.testDay(), queryTime);
-        return new NotStartedState(traversalOps, traversalStateFactory, TramsOnly, startNode);
+        TraversalStateFactory traversalStateFactory = new TraversalStateFactory(builderParams);
+
+        final TraversalOps traversalOps = new TraversalOps(txn, contentsRepository, tripRepository);
+        return new NotStartedState(traversalOps, traversalStateFactory, startNode, txn);
     }
 
     @NotNull

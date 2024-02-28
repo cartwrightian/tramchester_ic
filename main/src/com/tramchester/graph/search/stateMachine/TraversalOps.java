@@ -1,13 +1,9 @@
 package com.tramchester.graph.search.stateMachine;
 
-import com.tramchester.domain.LocationCollection;
 import com.tramchester.domain.Service;
-import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.places.LocationId;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphRelationship;
@@ -15,51 +11,17 @@ import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.repository.TripRepository;
 import org.neo4j.graphdb.Direction;
 
-import java.util.EnumSet;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static com.tramchester.graph.TransportRelationshipTypes.*;
+import static com.tramchester.graph.TransportRelationshipTypes.TO_SERVICE;
 
 public class TraversalOps {
     private final NodeContentsRepository nodeOperations;
     private final TripRepository tripRepository;
-    private final LocationCollection destinationIds;
-    private final TramDate queryDate;
     private final GraphTransaction txn;
-    private final int queryHour;
 
-    private static final EnumSet<TransportRelationshipTypes> haveStationId = EnumSet.of(LEAVE_PLATFORM, INTERCHANGE_DEPART,
-            DEPART, WALKS_TO_STATION, DIVERSION_DEPART);
-
-    // TODO Split into fixed and journey specific, inject fixed direct into builders
-    public TraversalOps(GraphTransaction txn, NodeContentsRepository nodeOperations, TripRepository tripRepository,
-                        LocationCollection destinations, TramDate queryDate, TramTime queryTime) {
+    public TraversalOps(GraphTransaction txn, NodeContentsRepository nodeOperations, TripRepository tripRepository) {
         this.txn = txn;
         this.tripRepository = tripRepository;
         this.nodeOperations = nodeOperations;
-        this.destinationIds = destinations;
-        this.queryDate = queryDate;
-        this.queryHour = queryTime.getHourOfDay();
-    }
-
-    public <R extends GraphRelationship> OptionalResourceIterator<R> getTowardsDestination(final Stream<R> outgoing) {
-        final List<R> filtered = outgoing.
-                filter(depart -> destinationIds.contains(getLocationIdFor(depart))).
-                collect(Collectors.toList());
-        return OptionalResourceIterator.from(filtered);
-    }
-
-    private static LocationId getLocationIdFor(final GraphRelationship depart) {
-        final TransportRelationshipTypes departType = depart.getType();
-        if (haveStationId.contains(departType)) {
-            return new LocationId(depart.getStationId());
-        } else if (departType==GROUPED_TO_PARENT) {
-            return new LocationId(depart.getStationGroupId());
-        } else {
-            throw new RuntimeException("Unsupported relationship type " + departType);
-        }
     }
 
     public TramTime getTimeFrom(final GraphNode node) {
@@ -81,15 +43,4 @@ public class TraversalOps {
         return node.getRelationships(txn, Direction.OUTGOING, TO_SERVICE).anyMatch(relationship -> serviceNodeMatches(relationship, serviceId));
     }
 
-    public TramDate getQueryDate() {
-        return queryDate;
-    }
-
-    public GraphTransaction getTransaction() {
-        return txn;
-    }
-
-    public int getQueryHour() {
-        return queryHour;
-    }
 }

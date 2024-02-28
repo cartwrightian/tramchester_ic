@@ -71,20 +71,18 @@ public class MapPathToStagesViaStates implements PathToStages {
                     path.length(), journeyRequest, queryTime, timedPath.numChanges()));
         }
 
-        final TraversalStateFactory stateFactory = new TraversalStateFactory();
-        StateBuilderParameters builderParameters = new StateBuilderParameters(journeyRequest.getDate(), journeyRequest.getOriginalTime().getHourOfDay(),
-                endStations, nodeContentsRepository, config.getDepthFirst(), config.getChangeAtInterchangeOnly());
+        final StateBuilderParameters builderParameters = new StateBuilderParameters(journeyRequest.getDate(), timedPath.queryTime().getHourOfDay(),
+                endStations, nodeContentsRepository, config, journeyRequest.getRequestedModes());
 
-        stateFactory.createBuildersFor(builderParameters);
+        final TraversalStateFactory stateFactory = new TraversalStateFactory(builderParameters);
 
-        final TraversalOps traversalOps = new TraversalOps(txn, nodeContentsRepository, tripRepository, endStations, journeyRequest.getDate(),
-                journeyRequest.getOriginalTime());
+        final TraversalOps traversalOps = new TraversalOps(txn, nodeContentsRepository, tripRepository);
 
         final MapStatesToStages mapStatesToStages = new MapStatesToStages(stationRepository, platformRepository, tripRepository, queryTime);
 
         final ImmutableGraphNode startOfPath = txn.fromStart(path);
 
-        final TraversalState initial = new NotStartedState(traversalOps, stateFactory, journeyRequest.getRequestedModes(), startOfPath);
+        final TraversalState initial = new NotStartedState(traversalOps, stateFactory, startOfPath, txn);
 
         final PathMapper pathMapper = new PathMapper(path, txn);
 
