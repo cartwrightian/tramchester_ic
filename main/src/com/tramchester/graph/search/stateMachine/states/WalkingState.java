@@ -59,7 +59,7 @@ public class WalkingState extends TraversalState {
 
     }
 
-    private WalkingState(final TraversalState parent, final Stream<ImmutableGraphRelationship> relationships, final Duration cost,
+    private WalkingState(final ImmutableTraversalState parent, final Stream<ImmutableGraphRelationship> relationships, final Duration cost,
                          final Towards<WalkingState> builder, GraphNode graphNode) {
         super(parent, relationships, cost, builder.getDestination(), graphNode);
     }

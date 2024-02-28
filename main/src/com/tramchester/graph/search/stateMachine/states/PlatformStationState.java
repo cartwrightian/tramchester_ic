@@ -72,7 +72,6 @@ public class PlatformStationState extends StationState {
             final Stream<ImmutableGraphRelationship> initial = stationNode.getRelationships(txn, OUTGOING, ENTER_PLATFORM, GROUPED_TO_PARENT);
             final Stream<ImmutableGraphRelationship> diversions = addValidDiversions(stationNode, journeyState, txn);
 
-
             final Stream<ImmutableGraphRelationship> relationships = Stream.concat(initial, diversions);
             return new PlatformStationState(stationState, relationships, cost, stationNode, journeyState, this);
         }

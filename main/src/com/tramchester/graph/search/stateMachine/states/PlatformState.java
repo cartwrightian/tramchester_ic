@@ -60,8 +60,8 @@ public class PlatformState extends TraversalState implements NodeId {
 
     private final GraphNode platformNode;
 
-    PlatformState(final TraversalState parent, final Stream<ImmutableGraphRelationship> relationships, final GraphNode platformNode,
-                  final Duration cost, final TraversalStateType towards) {
+    protected PlatformState(final ImmutableTraversalState parent, final Stream<ImmutableGraphRelationship> relationships, final GraphNode platformNode,
+                            final Duration cost, final TraversalStateType towards) {
         super(parent, relationships, cost, towards, platformNode);
         this.platformNode = platformNode;
     }

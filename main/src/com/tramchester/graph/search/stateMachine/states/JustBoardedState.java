@@ -58,7 +58,7 @@ public class JustBoardedState extends RouteStationState {
         return "RouteStationStateJustBoarded{} " + super.toString();
     }
 
-    private JustBoardedState(final TraversalState traversalState, final Stream<ImmutableGraphRelationship> outbounds,
+    private JustBoardedState(final ImmutableTraversalState traversalState, final Stream<ImmutableGraphRelationship> outbounds,
                              JourneyStateUpdate journeyState, final Duration cost, final TowardsRouteStation<?> builder, GraphNode graphNode) {
         super(traversalState, outbounds, journeyState, cost, builder, graphNode);
     }

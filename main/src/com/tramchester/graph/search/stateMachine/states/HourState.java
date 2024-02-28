@@ -75,7 +75,6 @@ public class HourState extends TraversalState implements HasTowardsStationId {
     protected TraversalState toMinute(final MinuteState.Builder towardsMinute, final GraphNode minuteNode, final Duration cost,
                                       final JourneyStateUpdate journeyState) {
         try {
-            //final TramTime time = traversalOps.getTimeFrom(minuteNode);
             final TramTime time = super.getTimeFrom(minuteNode);
             journeyState.recordTime(time, getTotalDuration());
         } catch (TramchesterException exception) {

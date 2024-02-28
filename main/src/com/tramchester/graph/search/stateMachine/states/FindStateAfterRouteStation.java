@@ -109,7 +109,7 @@ public class FindStateAfterRouteStation extends StationStateBuilder {
         }
     }
 
-    private NoPlatformStationState createNoPlatformStationState(TraversalState parentState, GraphNode node,
+    private NoPlatformStationState createNoPlatformStationState(ImmutableTraversalState parentState, GraphNode node,
                                                                 Duration cost, JourneyStateUpdate journeyStateUpdate,
                                                                 Stream<ImmutableGraphRelationship> relationships,
                                                                 TraversalStateType towardsState) {

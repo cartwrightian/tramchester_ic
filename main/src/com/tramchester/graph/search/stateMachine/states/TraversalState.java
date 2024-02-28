@@ -252,8 +252,8 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         journeyState.board(actualMode, graphNode, hasPlatforms);
     }
 
-    protected TramTime getTimeFrom(GraphNode minuteNode) {
-        return traversalOps.getTimeFrom(minuteNode);
+    protected TramTime getTimeFrom(GraphNode graphNode) {
+        return traversalOps.getTimeFrom(graphNode);
     }
 
     protected Trip getTrip(IdFor<Trip> tripId) {

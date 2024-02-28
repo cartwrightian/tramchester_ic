@@ -98,7 +98,7 @@ public class NoPlatformStationState extends StationState {
 
     }
 
-    NoPlatformStationState(final TraversalState parent, final Stream<ImmutableGraphRelationship> relationships, final Duration cost,
+    NoPlatformStationState(final ImmutableTraversalState parent, final Stream<ImmutableGraphRelationship> relationships, final Duration cost,
                            final GraphNode stationNode, final JourneyStateUpdate journeyStateUpdate, final TraversalStateType builderStateTYpe) {
         super(parent, relationships, cost, stationNode, journeyStateUpdate, builderStateTYpe);
     }

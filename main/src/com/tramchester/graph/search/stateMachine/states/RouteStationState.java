@@ -10,7 +10,7 @@ import java.util.stream.Stream;
 
 public abstract class RouteStationState extends TraversalState {
 
-    protected RouteStationState(TraversalState parent, Stream<ImmutableGraphRelationship> outbounds,
+    protected RouteStationState(ImmutableTraversalState parent, Stream<ImmutableGraphRelationship> outbounds,
                                 JourneyStateUpdate journeyState,
                                 Duration costForLastEdge, TowardsRouteStation<?> builder, GraphNode graphNode) {
         super(parent, outbounds, costForLastEdge, builder.getDestination(), graphNode);

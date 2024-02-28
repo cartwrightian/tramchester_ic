@@ -12,10 +12,11 @@ import java.util.EnumSet;
 
 public interface ImmutableTraversalState {
 
-    Duration getTotalDuration();
 
     TraversalState nextState(EnumSet<GraphLabel> nodeLabels, GraphNode node,
                              JourneyStateUpdate journeyState, Duration duration);
+
+    Duration getTotalDuration();
 
     TraversalStateType getStateType();
 

@@ -66,7 +66,7 @@ public class MinuteState extends TraversalState implements HasTowardsStationId {
     private final Trip trip;
     private final IdFor<Station> towardsStationId;
 
-    private MinuteState(final TraversalState parent, final Stream<ImmutableGraphRelationship> relationships, GraphNode node,
+    private MinuteState(final ImmutableTraversalState parent, final Stream<ImmutableGraphRelationship> relationships, GraphNode node,
                         final IdFor<Trip> tripId, IdFor<Station> towardsStationId, final Duration cost,
                         final Towards<MinuteState> builder) {
         super(parent, relationships, cost, builder.getDestination(), node);
