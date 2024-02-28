@@ -90,8 +90,6 @@ public class TraversalStateTest {
 
         JourneyStateUpdate updateState = new JourneyState(time, notStartedState);
 
-        boolean alreadyOnDiversion = false;
-
         Duration cost = Duration.ofMinutes(5);
 
         Station station = TraffordBar.from(stationRepository);

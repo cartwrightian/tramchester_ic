@@ -85,7 +85,7 @@ public class PlatformStationState extends StationState {
 
     }
 
-    private PlatformStationState(final TraversalState parent, final Stream<ImmutableGraphRelationship> relationships,
+    private PlatformStationState(final ImmutableTraversalState parent, final Stream<ImmutableGraphRelationship> relationships,
                                  final Duration cost, final GraphNode stationNode,
                                  final JourneyStateUpdate journeyState, final TowardsStation<?> builder) {
         super(parent, relationships, cost, stationNode, journeyState, builder.getDestination());

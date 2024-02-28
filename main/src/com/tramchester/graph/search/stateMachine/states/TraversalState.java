@@ -29,7 +29,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
     private final Stream<ImmutableGraphRelationship> outbounds;
     private final Duration costForLastEdge;
     private final Duration parentCost;
-    private final TraversalState parent;
+    private final ImmutableTraversalState parent;
     private final GraphNode graphNode;
 
     // only follow GOES_TO links for requested transport modes
@@ -55,12 +55,12 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         }
     }
 
-    protected TraversalState(final TraversalState parent, final Stream<ImmutableGraphRelationship> outbounds, final Duration costForLastEdge,
+    protected TraversalState(final ImmutableTraversalState parent, final Stream<ImmutableGraphRelationship> outbounds, final Duration costForLastEdge,
                              final TraversalStateType stateType, final GraphNode graphNode) {
         super(stateType);
-        this.traversalOps = parent.traversalOps;
-        this.txn = parent.txn;
-        this.traversalStateFactory = parent.traversalStateFactory;
+        this.traversalOps = parent.getTraversalOps();
+        this.txn = parent.getTransaction();
+        this.traversalStateFactory = parent.getTraversalStateFactory();
         this.parent = parent;
 
         this.outbounds = outbounds;
@@ -68,6 +68,21 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         this.parentCost = parent.getTotalDuration();
 
         this.graphNode = graphNode;
+    }
+
+    @Override
+    public TraversalStateFactory getTraversalStateFactory() {
+        return traversalStateFactory;
+    }
+
+    @Override
+    public GraphTransaction getTransaction() {
+        return txn;
+    }
+
+    @Override
+    public TraversalOps getTraversalOps() {
+        return traversalOps;
     }
 
     public Stream<ImmutableGraphRelationship> getOutbounds(GraphTransaction txn) {
