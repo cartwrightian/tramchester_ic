@@ -11,9 +11,9 @@ import com.tramchester.graph.search.stateMachine.states.WalkingState;
 import java.time.Duration;
 
 public interface TowardsStation<T extends StationState> extends Towards<T> {
-    T fromNeighbour(StationState stationState, GraphNode next, Duration cost, JourneyStateUpdate journeyState, boolean onDiversion, GraphTransaction txn);
+    T fromNeighbour(StationState stationState, GraphNode next, Duration cost, JourneyStateUpdate journeyState, boolean alreadyOnDiversion, GraphTransaction txn);
     T fromStart(NotStartedState notStartedState, GraphNode firstNode, Duration cost, JourneyStateUpdate journeyState, boolean alreadyOnDiversion,
-                boolean onDiversion, GraphTransaction txn);
+                GraphTransaction txn);
     T fromWalking(WalkingState walkingState, GraphNode node, Duration cost, JourneyStateUpdate journeyState, GraphTransaction txn);
     T fromGrouped(GroupedStationState groupedStationState, GraphNode next, Duration cost, JourneyStateUpdate journeyState, GraphTransaction txn);
 }

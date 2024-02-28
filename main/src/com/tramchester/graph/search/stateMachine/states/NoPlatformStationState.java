@@ -52,7 +52,7 @@ public class NoPlatformStationState extends StationState {
         @Override
         public NoPlatformStationState fromStart(final NotStartedState notStartedState, final GraphNode node, final Duration cost,
                                                 final JourneyStateUpdate journeyState, final boolean alreadyOnDiversion,
-                                                final boolean onDiversion, final GraphTransaction txn) {
+                                                final GraphTransaction txn) {
 
             final Stream<ImmutableGraphRelationship> walksAndGroup = boardRelationshipsPlus(node, txn, WALKS_FROM_STATION, GROUPED_TO_PARENT, NEIGHBOUR);
 

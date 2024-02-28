@@ -86,12 +86,10 @@ public class TraversalStateTest {
 
         PlatformStationState.Builder builder = traversalStateFactory.getTowardsStation(TraversalStateType.PlatformState);
 
-        final NotStartedState notStartedState = new NotStartedState(traversalOps, traversalStateFactory,
-                null, txn);
+        final NotStartedState notStartedState = new NotStartedState(traversalOps, traversalStateFactory, null, txn);
 
         JourneyStateUpdate updateState = new JourneyState(time, notStartedState);
 
-        boolean onDiversion = false;
         boolean alreadyOnDiversion = false;
 
         Duration cost = Duration.ofMinutes(5);
@@ -99,7 +97,7 @@ public class TraversalStateTest {
         Station station = TraffordBar.from(stationRepository);
         GraphNode stationNode = txn.findNode(station);
 
-        PlatformStationState state = builder.fromStart(notStartedState, stationNode, cost, updateState, alreadyOnDiversion, onDiversion, txn);
+        PlatformStationState state = builder.fromStart(notStartedState, stationNode, cost, updateState, alreadyOnDiversion, txn);
 
         List<ImmutableGraphRelationship> results = state.getOutbounds(txn).toList();
     }
