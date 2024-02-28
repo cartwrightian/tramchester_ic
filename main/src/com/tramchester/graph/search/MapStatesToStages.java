@@ -34,6 +34,7 @@ class MapStatesToStages implements JourneyStateUpdate {
     private final List<TransportStage<?, ?>> stages;
 
     private boolean onVehicle;
+    private boolean onDiversion;
 
     private Duration totalCost; // total cost of entire journey
     private TramTime actualTime; // updated each time pass minute node and know 'actual' time
@@ -62,22 +63,26 @@ class MapStatesToStages implements JourneyStateUpdate {
         onVehicle = false;
         totalCost = Duration.ZERO;
         costOffsetAtActual = Duration.ZERO;
+        onDiversion = false;
     }
 
     @Override
     public void board(final TransportMode transportMode, final GraphNode node, final boolean hasPlatform) {
         onVehicle = true;
         boardingTime = null;
+        if (onDiversion) {
+            logger.info("End diversion");
+            onDiversion = false;
+        }
 
-        //return getStationIdFrom(node.getNode());
-        IdFor<Station> actionStationId = node.getStationId();
+        final IdFor<Station> actionStationId = node.getStationId();
         if (logger.isDebugEnabled()) {
             logger.debug("Board " + transportMode + " " + actionStationId + " totalcost  " + totalCost);
         }
         vehicleStagePending = new VehicleStagePending(stationRepository, tripRepository, platformRepository,
                 actionStationId, totalCost);
         if (hasPlatform) {
-            IdFor<Platform> boardingPlatformId = node.getPlatformId();
+            final IdFor<Platform> boardingPlatformId = node.getPlatformId();
             vehicleStagePending.addPlatform(boardingPlatformId);
         }
     }
@@ -211,6 +216,19 @@ class MapStatesToStages implements JourneyStateUpdate {
     @Override
     public void seenStationGroup(IdFor<StationGroup> stationGroupId) {
         // no-op
+    }
+
+    @Override
+    public void beginDiversion(IdFor<Station> stationId) {
+        if (onDiversion) {
+            throw new RuntimeException("Already on diversion at " + stationId);
+        }
+        onDiversion = true;
+    }
+
+    @Override
+    public boolean onDiversion() {
+        return onDiversion;
     }
 
     public List<TransportStage<?, ?>> getStages() {

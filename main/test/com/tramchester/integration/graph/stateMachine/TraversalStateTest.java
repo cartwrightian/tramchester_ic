@@ -97,7 +97,7 @@ public class TraversalStateTest {
         Station station = TraffordBar.from(stationRepository);
         GraphNode stationNode = txn.findNode(station);
 
-        PlatformStationState state = builder.fromStart(notStartedState, stationNode, cost, updateState, alreadyOnDiversion, txn);
+        PlatformStationState state = builder.fromStart(notStartedState, stationNode, cost, updateState,  txn);
 
         List<ImmutableGraphRelationship> results = state.getOutbounds(txn).toList();
     }

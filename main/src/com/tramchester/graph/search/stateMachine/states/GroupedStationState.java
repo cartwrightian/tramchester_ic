@@ -73,13 +73,13 @@ public class GroupedStationState extends TraversalState {
 
     @Override
     protected PlatformStationState toPlatformStation(PlatformStationState.Builder towardsStation, GraphNode node, Duration cost,
-                                                     JourneyStateUpdate journeyState, boolean onDiversion) {
+                                                     JourneyStateUpdate journeyState) {
         return towardsStation.fromGrouped(this, node, cost, journeyState, txn);
     }
 
     @Override
     protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsStation, GraphNode node, Duration cost,
-                                                 JourneyStateUpdate journeyState, boolean onDiversion) {
+                                                 JourneyStateUpdate journeyState) {
         return towardsStation.fromGrouped(this, node, cost, journeyState, txn);
     }
 

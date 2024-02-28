@@ -51,20 +51,20 @@ public class NoPlatformStationState extends StationState {
 
         @Override
         public NoPlatformStationState fromStart(final NotStartedState notStartedState, final GraphNode node, final Duration cost,
-                                                final JourneyStateUpdate journeyState, final boolean alreadyOnDiversion,
+                                                final JourneyStateUpdate journeyState,
                                                 final GraphTransaction txn) {
 
             final Stream<ImmutableGraphRelationship> walksAndGroup = boardRelationshipsPlus(node, txn, WALKS_FROM_STATION, GROUPED_TO_PARENT, NEIGHBOUR);
 
-            final Stream<ImmutableGraphRelationship> diversions = addValidDiversions(node, alreadyOnDiversion, txn);
+            final Stream<ImmutableGraphRelationship> diversions = addValidDiversions(node, journeyState, txn);
 
             return new NoPlatformStationState(notStartedState, Stream.concat(walksAndGroup, diversions), cost, node, journeyState, getDestination());
         }
 
         public TraversalState fromRouteStationEndTrip(final RouteStationStateEndTrip routeStationState, final GraphNode node, final Duration cost,
-                                               final JourneyStateUpdate journeyState, final boolean alreadyOnDiversion, final GraphTransaction txn) {
+                                               final JourneyStateUpdate journeyState, final GraphTransaction txn) {
             return findStateAfterRouteStation.endTripTowardsStation(getDestination(), routeStationState, node, cost,
-                    journeyState, alreadyOnDiversion, txn, this);
+                    journeyState, txn, this);
         }
 
         public TraversalState fromRouteStationOnTrip(final RouteStationStateOnTrip onTrip, final GraphNode node, final Duration cost,
@@ -75,7 +75,7 @@ public class NoPlatformStationState extends StationState {
         @Override
         public NoPlatformStationState fromNeighbour(final StationState noPlatformStation, final GraphNode node, final Duration cost,
                                                     final JourneyStateUpdate journeyState,
-                                                    final boolean onDiversion, final GraphTransaction txn) {
+                                                    final GraphTransaction txn) {
             final Stream<ImmutableGraphRelationship> grouped = node.getRelationships(txn, OUTGOING,GROUPED_TO_PARENT);
             final Stream<ImmutableGraphRelationship> boarding = findStateAfterRouteStation.getBoardingRelationships(txn, node);
             return new NoPlatformStationState(noPlatformStation, Stream.concat(grouped, boarding), cost, node, journeyState, getDestination());
@@ -105,16 +105,16 @@ public class NoPlatformStationState extends StationState {
 
     @Override
     protected PlatformStationState toPlatformStation(final PlatformStationState.Builder towardsStation, final GraphNode next, final Duration cost,
-                                                     final JourneyStateUpdate journeyState, final boolean onDiversion) {
+                                                     final JourneyStateUpdate journeyState) {
         journeyState.toNeighbour(stationNode, next, cost);
-        return towardsStation.fromNeighbour(this, next, cost, journeyState, onDiversion, txn);
+        return towardsStation.fromNeighbour(this, next, cost, journeyState, txn);
     }
 
     @Override
     protected TraversalState toNoPlatformStation(final Builder towardsStation, final GraphNode next, final Duration cost,
-                                                 final JourneyStateUpdate journeyState, final boolean onDiversion) {
+                                                 final JourneyStateUpdate journeyState) {
         journeyState.toNeighbour(stationNode, next, cost);
-        return towardsStation.fromNeighbour(this, next, cost, journeyState, onDiversion, txn);
+        return towardsStation.fromNeighbour(this, next, cost, journeyState, txn);
     }
 
     @Override

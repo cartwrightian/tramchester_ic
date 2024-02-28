@@ -16,7 +16,7 @@ public class FindStateAfterRouteStation extends StationStateBuilder {
 
     public TraversalState endTripTowardsStation(final TraversalStateType destination, final RouteStationStateEndTrip routeStationState,
                                                 final GraphNode node, final Duration cost, final JourneyStateUpdate journeyStateUpdate,
-                                                final boolean alreadyOnDiversion, final GraphTransaction txn, StateBuilder<?> stateBuilder) {
+                                                final GraphTransaction txn, StateBuilder<?> stateBuilder) {
         final OptionalResourceIterator<ImmutableGraphRelationship> towardsDest = getTowardsDestination(stateBuilder,
                 node, txn, false);
         if (!towardsDest.isEmpty()) {
@@ -25,7 +25,7 @@ public class FindStateAfterRouteStation extends StationStateBuilder {
         // end of a trip, may need to go back to this route station to catch new service
 
         final Stream<ImmutableGraphRelationship> boardsAndOthers = getBoardsAndOthers(node, txn, false);
-        final Stream<ImmutableGraphRelationship> diversions = stateBuilder.addValidDiversions(node, alreadyOnDiversion, txn);
+        final Stream<ImmutableGraphRelationship> diversions = stateBuilder.addValidDiversions(node, journeyStateUpdate, txn);
 
         final Stream<ImmutableGraphRelationship> relationships = Stream.concat(boardsAndOthers, diversions);
         return createNoPlatformStationState(routeStationState, node, cost, journeyStateUpdate, relationships, destination);

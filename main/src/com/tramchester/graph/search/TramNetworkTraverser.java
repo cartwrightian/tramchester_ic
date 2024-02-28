@@ -122,22 +122,21 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         final GraphRelationship lastRelationship = txn.lastFrom(path);
 
         final Duration cost;
-        final boolean onDiversion;
-        if (lastRelationship !=null) {
+        if (lastRelationship != null) {
             cost = nodeContentsRepository.getCost(lastRelationship);
-            onDiversion = lastRelationship.isType(DIVERSION);
+
             if (Durations.greaterThan(cost, Duration.ZERO)) {
                 final Duration totalCost = currentState.getTotalDurationSoFar();
                 final Duration total = totalCost.plus(cost);
                 journeyStateForChildren.updateTotalCost(total);
             }
-            if (onDiversion) {
+
+            if (lastRelationship.isType(DIVERSION)) {
                 final IdFor<Station> stationId = lastRelationship.getStartStationId();
                 journeyStateForChildren.beginDiversion(stationId);
             }
         } else {
             cost = Duration.ZERO;
-            onDiversion = false;
         }
 
         final GraphNode endPathNode =  txn.fromEnd(path);
@@ -145,7 +144,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         final EnumSet<GraphLabel> labels = nodeContentsRepository.getLabels(endPathNode);
 
         final TraversalState traversalStateForChildren = traversalState.nextState(labels, endPathNode,
-                journeyStateForChildren, cost, onDiversion);
+                journeyStateForChildren, cost);
 
         journeyStateForChildren.updateTraversalState(traversalStateForChildren);
 

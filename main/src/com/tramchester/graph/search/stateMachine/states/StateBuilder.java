@@ -11,6 +11,7 @@ import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
+import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.OptionalResourceIterator;
 import com.tramchester.graph.search.stateMachine.Towards;
 import org.neo4j.graphdb.Direction;
@@ -64,17 +65,15 @@ public abstract class StateBuilder<T extends TraversalState> implements Towards<
         }
     }
 
-    public Stream<ImmutableGraphRelationship> addValidDiversions(final GraphNode node, final boolean alreadyOnDiversion, final GraphTransaction txn) {
+    public Stream<ImmutableGraphRelationship> addValidDiversions(final GraphNode node, JourneyStateUpdate journeyStateUpdate, final GraphTransaction txn) {
 
-        if (alreadyOnDiversion) {
+        if (journeyStateUpdate.onDiversion()) {
             logger.info("Already on diversion " + node.getStationId());
             return Stream.empty();
         }
 
         if (node.hasRelationship(Direction.OUTGOING, DIVERSION)) {
-            return node.
-                    getRelationships(txn, Direction.OUTGOING, DIVERSION).
-                    filter(diversion -> diversion.validOn(queryDate));
+            return node.getRelationships(txn, Direction.OUTGOING, DIVERSION).filter(diversion -> diversion.validOn(queryDate));
         }
 
         return Stream.empty();

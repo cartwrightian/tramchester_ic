@@ -90,7 +90,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
     }
 
     public TraversalState nextState(final EnumSet<GraphLabel> nodeLabels, final GraphNode node,
-                                    final JourneyStateUpdate journeyState, final Duration cost, final boolean alreadyOnDiversion) {
+                                    final JourneyStateUpdate journeyState, final Duration cost) {
 
         final boolean isInterchange = nodeLabels.contains(GraphLabel.INTERCHANGE);
         final boolean hasPlatforms = nodeLabels.contains(GraphLabel.HAS_PLATFORMS);
@@ -113,12 +113,12 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
 
         final TraversalStateType nextType = getNextStateType(stateType, actualNodeType, hasPlatforms, node);
 
-        return getTraversalState(nextType, node, journeyState, cost, alreadyOnDiversion, isInterchange);
+        return getTraversalState(nextType, node, journeyState, cost, isInterchange);
 
     }
 
     private TraversalState getTraversalState(final TraversalStateType nextType, final GraphNode node, final JourneyStateUpdate journeyStateUpdate,
-                                             final Duration cost, final boolean alreadyOnDiversion, final boolean isInterchange) {
+                                             final Duration cost, final boolean isInterchange) {
         switch (nextType) {
             case MinuteState -> {
                 return toMinute(traversalStateFactory.getTowardsMinute(stateType), node, cost, journeyStateUpdate);
@@ -130,16 +130,16 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
                 return toGrouped(traversalStateFactory.getTowardsGroup(stateType), journeyStateUpdate, node, cost, journeyStateUpdate);
             }
             case PlatformStationState -> {
-                return toPlatformStation(traversalStateFactory.getTowardsStation(stateType), node, cost, journeyStateUpdate, alreadyOnDiversion);
+                return toPlatformStation(traversalStateFactory.getTowardsStation(stateType), node, cost, journeyStateUpdate);
             }
             case NoPlatformStationState -> {
-                return toNoPlatformStation(traversalStateFactory.getTowardsNoPlatformStation(stateType), node, cost, journeyStateUpdate, alreadyOnDiversion);
+                return toNoPlatformStation(traversalStateFactory.getTowardsNoPlatformStation(stateType), node, cost, journeyStateUpdate);
             }
             case ServiceState -> {
                 return toService(traversalStateFactory.getTowardsService(stateType), node, cost);
             }
             case PlatformState -> {
-                return toPlatform(traversalStateFactory.getTowardsPlatform(stateType), node, cost, alreadyOnDiversion, journeyStateUpdate);
+                return toPlatform(traversalStateFactory.getTowardsPlatform(stateType), node, cost, journeyStateUpdate);
             }
             case WalkingState -> {
                 return toWalk(traversalStateFactory.getTowardsWalk(stateType), node, cost, journeyStateUpdate);

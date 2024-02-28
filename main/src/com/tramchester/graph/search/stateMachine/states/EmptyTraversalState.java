@@ -21,7 +21,7 @@ public abstract class EmptyTraversalState {
         throw new RuntimeException("No such transition at " + stateType);
     }
 
-    protected TraversalState toPlatform(PlatformState.Builder towardsPlatform, GraphNode node, Duration cost, boolean alreadyOnDiversion, JourneyStateUpdate journeyState) {
+    protected TraversalState toPlatform(PlatformState.Builder towardsPlatform, GraphNode node, Duration cost, JourneyStateUpdate journeyState) {
         throw new RuntimeException("No such transition at " + stateType);
     }
 
@@ -30,7 +30,7 @@ public abstract class EmptyTraversalState {
     }
 
     protected TraversalState toNoPlatformStation(NoPlatformStationState.Builder towardsNoPlatformStation, GraphNode node, Duration cost,
-                                                 JourneyStateUpdate journeyState, boolean onDiversion) {
+                                                 JourneyStateUpdate journeyState) {
         throw new RuntimeException("No such transition at " + stateType);
     }
 
@@ -42,7 +42,8 @@ public abstract class EmptyTraversalState {
         throw new RuntimeException("No such transition at " + stateType);
     }
 
-    protected PlatformStationState toPlatformStation(PlatformStationState.Builder towardsStation, GraphNode node, Duration cost, JourneyStateUpdate journeyState, boolean onDiversion) {
+    protected PlatformStationState toPlatformStation(PlatformStationState.Builder towardsStation, GraphNode node, Duration cost,
+                                                     JourneyStateUpdate journeyState) {
         throw new RuntimeException("No such transition at " + stateType);
     }
 

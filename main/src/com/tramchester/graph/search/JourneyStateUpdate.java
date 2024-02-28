@@ -29,4 +29,7 @@ public interface JourneyStateUpdate {
     void seenRouteStation(IdFor<Station> correspondingStationId);
 
     void seenStationGroup(IdFor<StationGroup> stationGroupId);
+
+    void beginDiversion(final IdFor<Station> stationId);
+    boolean onDiversion();
 }

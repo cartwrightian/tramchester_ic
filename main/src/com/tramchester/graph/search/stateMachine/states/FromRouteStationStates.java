@@ -11,6 +11,6 @@ public interface FromRouteStationStates {
                                           Duration cost, JourneyStateUpdate journeyState, GraphTransaction txn);
 
     TraversalState fromRouteStationEndTrip(RouteStationStateEndTrip routeStationState, GraphNode node, Duration cost,
-                                           JourneyStateUpdate journeyState, boolean alreadyOnDiversion, GraphTransaction txn);
+                                           JourneyStateUpdate journeyState, GraphTransaction txn);
 
 }

@@ -31,8 +31,7 @@ import java.util.EnumSet;
 import java.util.List;
 
 import static com.tramchester.graph.GraphPropertyKey.STOP_SEQ_NUM;
-import static com.tramchester.graph.TransportRelationshipTypes.GROUPED_TO_CHILD;
-import static com.tramchester.graph.TransportRelationshipTypes.GROUPED_TO_PARENT;
+import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static java.lang.String.format;
 import static org.neo4j.graphdb.Direction.INCOMING;
 import static org.neo4j.graphdb.Direction.OUTGOING;
@@ -90,8 +89,7 @@ public class MapPathToStagesViaStates implements PathToStages {
             @Override
             public TraversalState getNextStateFrom(final TraversalState previous, final GraphNode node, final Duration currentCost) {
                 final EnumSet<GraphLabel> labels = nodeContentsRepository.getLabels(node);
-                final boolean alreadyOnDiversion = false;
-                final TraversalState next = previous.nextState(labels, node, mapStatesToStages, currentCost, alreadyOnDiversion);
+                final TraversalState next = previous.nextState(labels, node, mapStatesToStages, currentCost);
 
                 logger.debug("At state " + previous.getClass().getSimpleName() + " next is " + next.getClass().getSimpleName());
 
@@ -110,6 +108,10 @@ public class MapPathToStagesViaStates implements PathToStages {
                 }
                 if (relationship.hasProperty(STOP_SEQ_NUM)) {
                     mapStatesToStages.passStop(relationship);
+                }
+                if (relationship.isType(DIVERSION)) {
+                    final IdFor<Station> stationId = relationship.getStartStationId();
+                    mapStatesToStages.beginDiversion(stationId);
                 }
                 return lastRelationshipCost;
             }

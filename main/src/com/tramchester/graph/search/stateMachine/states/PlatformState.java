@@ -51,7 +51,7 @@ public class PlatformState extends TraversalState implements NodeId {
 
         public TraversalState fromRouteStationEndTrip(final RouteStationStateEndTrip routeStationState, final GraphNode node,
                                                       final Duration cost,
-                                                      JourneyStateUpdate journeyState, boolean alreadyOnDiversion,
+                                                      JourneyStateUpdate journeyState,
                                                       final GraphTransaction txn) {
             return findStateAfterRouteStation.endTripTowardsPlatform(getDestination(), routeStationState, node, cost, txn, this);
         }
@@ -90,8 +90,8 @@ public class PlatformState extends TraversalState implements NodeId {
 
     @Override
     protected PlatformStationState toPlatformStation(final PlatformStationState.Builder towardsStation, final GraphNode node, final Duration cost,
-                                                     final JourneyStateUpdate journeyState, final boolean onDiversion) {
-        return towardsStation.fromPlatform(this, node, cost, journeyState, onDiversion, txn);
+                                                     final JourneyStateUpdate journeyState) {
+        return towardsStation.fromPlatform(this, node, cost, journeyState, txn);
     }
 
     @Override

@@ -46,21 +46,21 @@ public class PlatformStationState extends StationState {
         }
 
         public PlatformStationState fromPlatform(final PlatformState platformState, final GraphNode stationNode, final Duration cost,
-                                                 final JourneyStateUpdate journeyState, final boolean onDiversion, final GraphTransaction txn) {
+                                                 final JourneyStateUpdate journeyState, final GraphTransaction txn) {
             final Stream<ImmutableGraphRelationship> initial = stationNode.getRelationships(txn, OUTGOING, WALKS_FROM_STATION, ENTER_PLATFORM,
                     NEIGHBOUR, GROUPED_TO_PARENT);
-            final Stream<ImmutableGraphRelationship> diversions = addValidDiversions(stationNode, onDiversion, txn);
+            final Stream<ImmutableGraphRelationship> diversions = addValidDiversions(stationNode, journeyState, txn);
             final Stream<ImmutableGraphRelationship> relationships = Stream.concat(initial, diversions);
             return new PlatformStationState(platformState, filterExcludingEndNode(txn, relationships, platformState), cost,
                     stationNode, journeyState, this);
         }
 
         public PlatformStationState fromStart(final NotStartedState notStartedState, final GraphNode stationNode, final Duration cost,
-                                              final JourneyStateUpdate journeyState, final boolean alreadyOnDiversion,
+                                              final JourneyStateUpdate journeyState,
                                               final GraphTransaction txn) {
             final Stream<ImmutableGraphRelationship> initial = stationNode.getRelationships(txn, OUTGOING, WALKS_FROM_STATION,
                     GROUPED_TO_PARENT, ENTER_PLATFORM, NEIGHBOUR);
-            final Stream<ImmutableGraphRelationship> diversions = addValidDiversions(stationNode, alreadyOnDiversion, txn);
+            final Stream<ImmutableGraphRelationship> diversions = addValidDiversions(stationNode, journeyState, txn);
 
             final Stream<ImmutableGraphRelationship> relationships = Stream.concat(initial, diversions);
             return new PlatformStationState(notStartedState, relationships, cost, stationNode, journeyState, this);
@@ -68,9 +68,9 @@ public class PlatformStationState extends StationState {
 
         @Override
         public PlatformStationState fromNeighbour(final StationState stationState, final GraphNode stationNode, final Duration cost,
-                                                  final JourneyStateUpdate journeyState, final boolean onDiversion, final GraphTransaction txn) {
+                                                  final JourneyStateUpdate journeyState, final GraphTransaction txn) {
             final Stream<ImmutableGraphRelationship> initial = stationNode.getRelationships(txn, OUTGOING, ENTER_PLATFORM, GROUPED_TO_PARENT);
-            final Stream<ImmutableGraphRelationship> diversions = addValidDiversions(stationNode, onDiversion, txn);
+            final Stream<ImmutableGraphRelationship> diversions = addValidDiversions(stationNode, journeyState, txn);
 
 
             final Stream<ImmutableGraphRelationship> relationships = Stream.concat(initial, diversions);
@@ -112,16 +112,16 @@ public class PlatformStationState extends StationState {
 
     @Override
     protected TraversalState toNoPlatformStation(final NoPlatformStationState.Builder toStation, final GraphNode node, final Duration cost,
-                                                 final JourneyStateUpdate journeyState, final boolean onDiversion) {
+                                                 final JourneyStateUpdate journeyState) {
         journeyState.toNeighbour(stationNode, node, cost);
-        return toStation.fromNeighbour(this, node, cost, journeyState, onDiversion, txn);
+        return toStation.fromNeighbour(this, node, cost, journeyState, txn);
     }
 
     @Override
     protected PlatformStationState toPlatformStation(final Builder towardsStation, final GraphNode node, final Duration cost,
-                                                     final JourneyStateUpdate journeyState, final boolean onDiversion) {
+                                                     final JourneyStateUpdate journeyState) {
         journeyState.toNeighbour(stationNode, node, cost);
-        return towardsStation.fromNeighbour(this, node, cost, journeyState, onDiversion, txn);
+        return towardsStation.fromNeighbour(this, node, cost, journeyState, txn);
     }
 
     @Override
@@ -132,7 +132,7 @@ public class PlatformStationState extends StationState {
 
     @Override
     protected TraversalState toPlatform(final PlatformState.Builder towardsPlatform, final GraphNode node,
-                                        final Duration cost, boolean alreadyOnDiversion, final JourneyStateUpdate journeyState) {
+                                        final Duration cost, final JourneyStateUpdate journeyState) {
         return towardsPlatform.from(this, node, cost, txn);
     }
 

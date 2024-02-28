@@ -13,7 +13,7 @@ public interface ImmutableTraversalState {
     Duration getTotalDuration();
 
     TraversalState nextState(EnumSet<GraphLabel> nodeLabels, GraphNode node,
-                             JourneyStateUpdate journeyState, Duration duration, boolean alreadyOnDiversion);
+                             JourneyStateUpdate journeyState, Duration duration);
 
     TraversalStateType getStateType();
 

@@ -107,6 +107,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         coreState.seenStationGroup(stationGroupId);
     }
 
+
     @Override
     public void beginWalk(final GraphNode beforeWalkNode, final boolean atStart, final Duration unused) {
         coreState.incrementWalkingConnections();
@@ -127,8 +128,14 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         coreState.incrementNeighbourConnections();
     }
 
+    @Override
     public void beginDiversion(final IdFor<Station> stationId) {
         coreState.beginDiversion(stationId);
+    }
+
+    @Override
+    public boolean onDiversion() {
+        return coreState.isOnDiversion();
     }
 
     @Override
@@ -288,8 +295,8 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
                     previous.currentlyOnDiversion, previous.numberOfDiversionsTaken, previous.lastSeenStation);
         }
 
-        private <T extends Location<?>> CoreState(final TramTime journeyClock, final boolean hasBegun, final int numberOfBoardings, final TransportMode currentMode,
-                          int numberOfWalkingConnections, int numberNeighbourConnections,
+        private <T extends Location<?>> CoreState(final TramTime journeyClock, final boolean hasBegun, final int numberOfBoardings,
+                                                  final TransportMode currentMode, int numberOfWalkingConnections, int numberNeighbourConnections,
                           boolean currentlyOnDiversion, int numberOfDiversionsTaken, IdFor<? extends T> lastSeenStation) {
             this.hasBegun = hasBegun;
             this.journeyClock = journeyClock;
@@ -404,7 +411,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
             if (currentlyOnDiversion) {
                 //return getStationIdFrom(node.getNode());
                 logger.info("End diversion at " + node.getStationId());
-                this.currentlyOnDiversion = false;
+                currentlyOnDiversion = false;
             }
         }
 
