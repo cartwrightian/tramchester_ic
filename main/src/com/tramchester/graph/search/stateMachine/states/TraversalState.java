@@ -15,7 +15,6 @@ import org.neo4j.graphdb.Direction;
 
 import java.time.Duration;
 import java.util.EnumSet;
-import java.util.Objects;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
@@ -29,7 +28,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
     private final Stream<ImmutableGraphRelationship> outbounds;
     private final Duration costForLastEdge;
     private final Duration parentCost;
-    private final ImmutableTraversalState parent;
+//    private final ImmutableTraversalState parenXt;
     private final GraphNode graphNode;
 
     // only follow GOES_TO links for requested transport modes
@@ -44,11 +43,11 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         this.traversalOps = traversalOps;
         this.txn = txn;
         this.traversalStateFactory = traversalStateFactory;
-        this.graphNode = graphNode;
 
+        this.graphNode = graphNode;
         this.costForLastEdge = Duration.ZERO;
         this.parentCost = Duration.ZERO;
-        this.parent = null;
+//        this.parent = null;
         this.outbounds = Stream.empty();
         if (stateType!=TraversalStateType.NotStartedState) {
             throw new RuntimeException("Attempt to create for incorrect initial state " + stateType);
@@ -61,7 +60,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         this.traversalOps = parent.getTraversalOps();
         this.txn = parent.getTransaction();
         this.traversalStateFactory = parent.getTraversalStateFactory();
-        this.parent = parent;
+//        this.parent = parent;
 
         this.outbounds = outbounds;
         this.costForLastEdge = costForLastEdge;
@@ -235,14 +234,14 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
                 "costForLastEdge=" + costForLastEdge +
                 "nodeId=" + graphNode.getId() +
                 ", parentCost=" + parentCost + System.lineSeparator() +
-                ", parent=" + parent +
+//                ", parent=" + parent +
                 '}';
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(parent);
-    }
+//    @Override
+//    public int hashCode() {
+//        return Objects.hash(parent);
+//    }
 
     protected void board(JourneyStateUpdate journeyState, boolean hasPlatforms) throws TramchesterException {
         final TransportMode actualMode = graphNode.getTransportMode();
