@@ -237,10 +237,6 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
         return (LocalDate) relationship.getProperty(START_DATE.getText());
     }
 
-    /***
-     * Towards station id
-     * @return station id
-     */
     public IdFor<Station> getStationId() {
         return getIdFor(Station.class, relationship);
     }
@@ -280,7 +276,8 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
     @Override
     public String toString() {
         return "MutableGraphRelationship{" +
-                "id=" + id +
+                "type=" + relationship.getType() +
+                " id=" + id +
                 "} ";
     }
 

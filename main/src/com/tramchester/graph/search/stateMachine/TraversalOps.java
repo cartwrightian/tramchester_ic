@@ -43,4 +43,8 @@ public class TraversalOps {
         return node.getRelationships(txn, Direction.OUTGOING, TO_SERVICE).anyMatch(relationship -> serviceNodeMatches(relationship, serviceId));
     }
 
+    public boolean hasOutboundTripFor(final GraphNode node, final IdFor<Trip> tripId) {
+        return node.getRelationships(txn, Direction.OUTGOING, TO_SERVICE).anyMatch(relationship -> relationship.hasTripId(tripId));
+    }
+
 }

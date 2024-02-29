@@ -237,6 +237,8 @@ class TramGraphBuilderTest {
                 map(GraphRelationship::getServiceId).
                 collect(IdSet.idCollector());
 
+        assertFalse(graphSvcsFromRouteStations.isEmpty());
+
         // check number of outbound services matches services in transport data files
         IdSet<Service> fileSvcIds = getTripsFor(transportData.getTrips(), mediaCityUK).stream().
                 filter(trip -> trip.getRoute().equals(tramRouteEcclesAshton)).
@@ -244,6 +246,53 @@ class TramGraphBuilderTest {
                 collect(IdSet.idCollector());
 
         assertEquals(graphSvcsFromRouteStations, fileSvcIds);
+
+    }
+
+
+    @Test
+    void shouldHaveCorrectOutboundsServiceAndTripAtCornbrook() {
+
+        Station cornbrook = Cornbrook.from(stationRepository);
+
+        Route buryToAlty = tramRouteHelper.getOneRoute(BuryManchesterAltrincham, when);
+
+        RouteStation routeStation = stationRepository.getRouteStation(cornbrook, buryToAlty);
+
+        List<ImmutableGraphRelationship> outboundsFromRouteStation = txn.getRouteStationRelationships(routeStation, Direction.OUTGOING);
+
+        List<ImmutableGraphRelationship> svcOutbounds = outboundsFromRouteStation.stream().
+                filter(relationship -> relationship.isType(TO_SERVICE)).toList();
+        assertFalse(svcOutbounds.isEmpty());
+
+        IdSet<Service> unique = svcOutbounds.stream().map(ImmutableGraphRelationship::getServiceId).collect(IdSet.idCollector());
+
+        // should have two outbound relationship for each svc, one towards each of the 2 neighbours
+        assertEquals(2 * unique.size(), svcOutbounds.size(), displayAllProps(svcOutbounds));
+
+        // iff service relationship exists check that all expected trip ids are present
+
+        svcOutbounds.
+                forEach(svcRelationship -> {
+                    IdFor<Service> svcId = svcRelationship.getServiceId();
+                    IdFor<Station> towards = svcRelationship.getEndNode(txn).getTowardsStationId();
+                    Set<Trip> matchingTrips = transportData.getTrips().stream().
+                            filter(trip -> trip.getService().getId().equals(svcId)).
+                            filter(trip -> trip.getRoute().equals(buryToAlty)).
+                            filter(trip -> trip.callsAt(cornbrook.getId())).
+                            filter(trip -> isAfter(trip, cornbrook.getId(), towards)).
+                            filter(trip -> !trip.lastStation().equals(cornbrook.getId())).
+                            collect(Collectors.toSet());
+
+                    Set<Trip> missing = matchingTrips.stream().filter(tripId -> !svcRelationship.hasTripId(tripId.getId())).collect(Collectors.toSet());
+                    assertTrue(missing.isEmpty(), svcId + " had missing trips " + missing);
+                });
+    }
+
+    private boolean isAfter(Trip trip, IdFor<Station> stationA, IdFor<Station> stationB) {
+        int seqA = trip.getStopCalls().getStopFor(stationA).getGetSequenceNumber();
+        int seqB = trip.getStopCalls().getStopFor(stationB).getGetSequenceNumber();
+        return seqB > seqA;
     }
 
     @Test
@@ -385,5 +434,17 @@ class TramGraphBuilderTest {
 
         tripIdsFromFile.removeAll(graphInboundTripIds);
         assertEquals(0, tripIdsFromFile.size());
+    }
+
+    private String displayAllProps(final List<ImmutableGraphRelationship> relationships) {
+        StringBuilder stringBuilder = new StringBuilder();
+        relationships.forEach(relationship -> {
+            stringBuilder.
+                    append(relationship.getType()).append(" ").
+                    append(relationship.getId()).append(" ").
+                    append(relationship.getAllProperties()).append(" ").
+                    append(System.lineSeparator());
+        });
+        return stringBuilder.toString();
     }
 }

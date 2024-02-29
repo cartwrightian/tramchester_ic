@@ -43,17 +43,17 @@ public class MinuteState extends TraversalState implements HasTowardsStationId {
                                        final IdFor<Station> towardsStationId, final JourneyStateUpdate journeyState,
                                        final GraphTransaction txn) {
 
-            final Stream<ImmutableGraphRelationship> relationships = node.getRelationships(txn, OUTGOING, currentModes);
+            final Stream<ImmutableGraphRelationship> allOutboundForMode = node.getRelationships(txn, OUTGOING, currentModes);
 
             if (existingTrip.isOnTrip()) {
                 final IdFor<Trip> existingTripId = existingTrip.getTripId();
-                final Stream<ImmutableGraphRelationship> filterBySingleTripId = filterBySingleTripId(relationships, existingTripId);
+                final Stream<ImmutableGraphRelationship> filterBySingleTripId = filterBySingleTripId(allOutboundForMode, existingTripId);
                 return new MinuteState(hourState, filterBySingleTripId, node, existingTripId, towardsStationId, cost, this);
             } else {
                 // starting a brand-new journey, since at minute node now have specific tripid to use
                 final IdFor<Trip> newTripId = getTrip(node);
                 journeyState.beginTrip(newTripId);
-                return new MinuteState(hourState, relationships, node, newTripId, towardsStationId, cost, this);
+                return new MinuteState(hourState, allOutboundForMode, node, newTripId, towardsStationId, cost, this);
             }
         }
 
@@ -62,7 +62,6 @@ public class MinuteState extends TraversalState implements HasTowardsStationId {
         }
     }
 
-//    private final boolean interchangesOnly;
     private final Trip trip;
     private final IdFor<Station> towardsStationId;
 
@@ -85,6 +84,10 @@ public class MinuteState extends TraversalState implements HasTowardsStationId {
         return trip.getService().getId();
     }
 
+    public IdFor<Trip> getTripId() {
+        return trip.getId();
+    }
+
     @Override
     public IdFor<Station> getTowards() {
         return towardsStationId;
@@ -99,7 +102,7 @@ public class MinuteState extends TraversalState implements HasTowardsStationId {
 
     @Override
     protected RouteStationStateEndTrip toRouteStationEndTrip(final RouteStationStateEndTrip.Builder towardsEndTrip,
-                                                             JourneyStateUpdate journeyState, final GraphNode routeStationNode,
+                                                             final JourneyStateUpdate journeyState, final GraphNode routeStationNode,
                                                              final Duration cost, final boolean isInterchange) {
 
         return towardsEndTrip.fromMinuteState(journeyState, this, routeStationNode, cost, isInterchange, trip, txn);
