@@ -45,4 +45,6 @@ public interface Trip extends HasId<Trip>, HasTransportMode, GraphProperty, Core
     boolean operatesOn(TramDate date);
 
     IdFor<Station> firstStation();
+
+    IdFor<Station> lastStation();
 }

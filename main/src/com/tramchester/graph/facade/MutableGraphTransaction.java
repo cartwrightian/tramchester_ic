@@ -96,16 +96,16 @@ public class MutableGraphTransaction implements GraphTransaction {
         return !nodes.isEmpty();
     }
 
-    private MutableGraphNode findNodeMutable(GraphLabel label, GraphPropertyKey key, String value) {
+    private MutableGraphNode findNodeMutable(final GraphLabel label, final GraphPropertyKey key, final String value) {
         return findNodeMutable(label, key.getText(), value);
     }
 
-    private ImmutableGraphNode findNode(GraphLabel label, GraphPropertyKey key, String value) {
+    private ImmutableGraphNode findNode(final GraphLabel label, final GraphPropertyKey key, final String value) {
         return findNode(label, key.getText(), value);
     }
 
-    private ImmutableGraphNode findNode(GraphLabel label, String key, String value) {
-        Node node = txn.findNode(label, key, value);
+    private ImmutableGraphNode findNode(final GraphLabel label, final String key, final String value) {
+        final Node node = txn.findNode(label, key, value);
         if (node==null) {
             return null;
         }
@@ -121,21 +121,21 @@ public class MutableGraphTransaction implements GraphTransaction {
     }
 
     @Override
-    public <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> ImmutableGraphNode findNode(ITEM item) {
+    public <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> ImmutableGraphNode findNode(final ITEM item) {
         return findNode(item.getNodeLabel(), item.getProp(), item.getId().getGraphId());
     }
 
-    public <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> MutableGraphNode findNodeMutable(ITEM item) {
+    public <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> MutableGraphNode findNodeMutable(final ITEM item) {
         return findNodeMutable(item.getNodeLabel(), item.getProp(), item.getId().getGraphId());
     }
 
     // TODO strong typed version so make sure correct ID getGrpahId() is used?
-    public Result execute(String queryText, Map<String, Object> queryParams) {
+    public Result execute(final String queryText, final Map<String, Object> queryParams) {
         return txn.execute(queryText, queryParams);
     }
 
     @Override
-    public EvaluationContext createEvaluationContext(GraphDatabaseService databaseService) {
+    public EvaluationContext createEvaluationContext(final GraphDatabaseService databaseService) {
         return new BasicEvaluationContext(txn, databaseService);
     }
 

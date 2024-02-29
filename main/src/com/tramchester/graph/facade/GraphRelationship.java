@@ -15,6 +15,7 @@ import com.tramchester.graph.TransportRelationshipTypes;
 
 import java.time.Duration;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Map;
 
 public interface GraphRelationship {
@@ -62,4 +63,8 @@ public interface GraphRelationship {
     IdFor<Station> getStartStationId();
 
     IdFor<StationGroup> getStationGroupId();
+
+    List<IdFor<Trip>> getTripIds();
+
+    boolean hasTripId(IdFor<Trip> tripId);
 }

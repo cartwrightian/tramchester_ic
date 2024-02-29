@@ -177,6 +177,14 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
         return txn.wrapRelationship(found);
     }
 
+    public MutableGraphRelationship getSingleRelationshipMutable(MutableGraphTransaction txn, TransportRelationshipTypes transportRelationshipTypes, Direction direction) {
+        Relationship found = node.getSingleRelationship(transportRelationshipTypes, direction);
+        if (found==null) {
+            return null;
+        }
+        return txn.wrapRelationshipMutable(found);
+    }
+
     <T extends CoreDomain> IdFor<T> getId(Class<T> theClass) {
         return getIdFor(theClass, node);
     }

@@ -21,9 +21,7 @@ import org.neo4j.graphdb.Relationship;
 
 import java.time.Duration;
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.Map;
+import java.util.*;
 
 import static com.tramchester.graph.GraphPropertyKey.*;
 
@@ -93,7 +91,7 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
         relationship.setProperty(START_DATE.getText(), localDate);
     }
 
-    public void addTransportMode(TransportMode mode) {
+    public void addTransportMode(final TransportMode mode) {
         short modeNumber = mode.getNumber();
         if (!(relationship.hasProperty(TRANSPORT_MODES.getText()))) {
             relationship.setProperty(TRANSPORT_MODES.getText(), new short[]{modeNumber});
@@ -101,15 +99,61 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
         }
 
         short[] existing = (short[]) relationship.getProperty(TRANSPORT_MODES.getText());
+        // note: not sorted, hence not binary search here
         for (short value : existing) {
             if (value == modeNumber) {
                 return;
             }
         }
 
-        short[] replacement = Arrays.copyOf(existing, existing.length + 1);
+        final short[] replacement = Arrays.copyOf(existing, existing.length + 1);
         replacement[existing.length] = modeNumber;
         relationship.setProperty(TRANSPORT_MODES.getText(), replacement);
+    }
+
+
+    public void addTripId(final IdFor<Trip> tripId) {
+        final String text = tripId.getGraphId();
+        final String property = TRIP_ID_LIST.getText();
+        if (!(relationship.hasProperty(property))) {
+            relationship.setProperty(property, new String[]{text});
+            return;
+        }
+
+        final String[] existing = (String[]) relationship.getProperty(property);
+        // todo better way to do this check?
+        final List<String> existingList = Arrays.asList(existing);
+        if (existingList.contains(text)) {
+            return;
+        }
+
+        String[] replacement = Arrays.copyOf(existing, existing.length + 1);
+        replacement[existing.length] = text;
+        relationship.setProperty(property, replacement);
+    }
+
+
+    public List<IdFor<Trip>> getTripIds() {
+        final String property = TRIP_ID_LIST.getText();
+        if (!relationship.hasProperty(property)) {
+            return Collections.emptyList();
+        }
+        final String[] existing = (String[]) relationship.getProperty(property);
+
+        return Arrays.stream(existing).map(Trip::createId).toList();
+    }
+
+    @Override
+    public boolean hasTripId(final IdFor<Trip> tripId) {
+        final String text = tripId.getGraphId();
+
+        final String property = TRIP_ID_LIST.getText();
+        if (!relationship.hasProperty(property)) {
+            throw new RuntimeException("Unexpected for this relationship " + this);
+        }
+        final String[] existing = (String[]) relationship.getProperty(property);
+        final List<String> existingList = Arrays.asList(existing);
+        return existingList.contains(text);
     }
 
     public void delete() {
@@ -232,4 +276,13 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
     Relationship getRelationship() {
         return relationship;
     }
+
+    @Override
+    public String toString() {
+        return "MutableGraphRelationship{" +
+                "id=" + id +
+                "} ";
+    }
+
+
 }

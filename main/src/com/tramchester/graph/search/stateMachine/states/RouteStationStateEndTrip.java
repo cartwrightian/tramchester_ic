@@ -38,9 +38,6 @@ public class RouteStationStateEndTrip extends RouteStationState {
                                                         final boolean isInterchange, final Trip trip, final GraphTransaction txn) {
             final TransportMode transportMode = node.getTransportMode();
 
-            // TODO Crossing midnight?
-            //final TramDate date = minuteState.traversalOps.getQueryDate();
-
             final OptionalResourceIterator<ImmutableGraphRelationship> towardsDestination = getTowardsDestination(node, txn);
             if (!towardsDestination.isEmpty()) {
                 // we've nearly arrived

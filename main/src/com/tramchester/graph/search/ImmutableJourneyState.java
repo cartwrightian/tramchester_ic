@@ -20,7 +20,7 @@ public interface ImmutableJourneyState extends HasTransportMode {
     boolean hasBegunJourney();
     int getNumberNeighbourConnections();
     Duration getTotalDurationSoFar();
-    boolean isOnDiversion();
+
     boolean alreadyDeparted(IdFor<Trip> tripId);
     GraphNodeId getNodeId();
     IdFor<? extends Location<?>> approxPosition();

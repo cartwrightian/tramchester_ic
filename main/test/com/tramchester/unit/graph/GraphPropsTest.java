@@ -6,6 +6,7 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.RailRouteId;
 import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -196,6 +197,38 @@ public class GraphPropsTest {
         assertEquals(2, result.size());
         assertTrue(result.contains(TransportMode.Train));
         assertTrue(result.contains(TransportMode.Bus));
+
+    }
+
+    @Test
+    void shouldAddTripIds() {
+        MutableGraphNode nodeA = txn.createNode(GraphLabel.ROUTE_STATION);
+        MutableGraphNode nodeB = txn.createNode(GraphLabel.ROUTE_STATION);
+
+        MutableGraphRelationship relationship = nodeA.createRelationshipTo(txn, nodeB, TransportRelationshipTypes.ON_ROUTE);
+
+        IdFor<Trip> tripA = Trip.createId("tripA");
+        IdFor<Trip> tripB = Trip.createId("tripB");
+
+        relationship.addTripId(tripB);
+
+        assertTrue(relationship.hasTripId(tripB));
+
+        relationship.addTripId(tripA);
+
+        assertTrue(relationship.hasTripId(tripA));
+
+        List<IdFor<Trip>> result = relationship.getTripIds();
+
+        assertEquals(2, result.size());
+        assertTrue(result.contains(tripA));
+        assertTrue(result.contains(tripB));
+
+        relationship.addTripId(tripA);
+
+        result = relationship.getTripIds();
+
+        assertEquals(2, result.size());
 
     }
 

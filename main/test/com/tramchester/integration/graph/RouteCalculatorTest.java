@@ -127,7 +127,7 @@ public class RouteCalculatorTest {
         });
 
         assertEquals(journeys.size(), indexes.size());
-        // to do due to filtering of duplicates this is not possible
+        // todo due to filtering of duplicates this is not possible
 //        for (int i = 0; i < journeys.size(); i++) {
 //            assertTrue(indexes.contains(i), "Missing index " + i);
 //        }

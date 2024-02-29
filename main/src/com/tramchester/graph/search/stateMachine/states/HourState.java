@@ -48,7 +48,7 @@ public class HourState extends TraversalState implements HasTowardsStationId {
         }
 
         private Stream<ImmutableGraphRelationship> getMinuteRelationships(final GraphNode node, final GraphTransaction txn) {
-            Stream<ImmutableGraphRelationship> unsorted = getRelationships(txn, node, OUTGOING, TO_MINUTE);
+            Stream<ImmutableGraphRelationship> unsorted = node.getRelationships(txn, OUTGOING, TO_MINUTE);
             if (depthFirst) {
                 // NOTE: need an ordering here to produce consistent results, time is as good as any and no obvious way to optimise
                 // the order here, unlike for HOURS

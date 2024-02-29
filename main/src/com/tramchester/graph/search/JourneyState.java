@@ -220,11 +220,6 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     @Override
-    public boolean isOnDiversion() {
-        return coreState.isOnDiversion();
-    }
-
-    @Override
     public boolean alreadyDeparted(final IdFor<Trip> tripId) {
         return tripsDone.contains(tripId);
     }
@@ -409,8 +404,9 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
 
         public void endDiversion(final GraphNode node) {
             if (currentlyOnDiversion) {
-                //return getStationIdFrom(node.getNode());
-                logger.info("End diversion at " + node.getStationId());
+                if (logger.isDebugEnabled()) {
+                    logger.debug("End diversion at " + node.getStationId());
+                }
                 currentlyOnDiversion = false;
             }
         }
@@ -422,7 +418,9 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
                 // WIP TODO
                 throw new RuntimeException(msg);
             } else {
-                logger.info("Begin diversion at " + stationId);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Begin diversion at " + stationId);
+                }
                 currentlyOnDiversion = true;
                 numberOfDiversionsTaken = numberOfDiversionsTaken + 1;
             }

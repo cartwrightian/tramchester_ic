@@ -102,7 +102,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
                 reasons.reportReasons(txn, pathRequest);
                 previousSuccessfulVisit.reportStats();
             }
-            traversalState.dispose();
+            //traversalState.dispose();
         });
 
         if (fullLogging) {

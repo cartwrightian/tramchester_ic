@@ -20,6 +20,7 @@ import org.neo4j.internal.helpers.collection.Iterables;
 import java.time.Duration;
 import java.util.EnumSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -155,5 +156,22 @@ public class ImmutableGraphRelationship implements GraphRelationship {
     @Override
     public IdFor<StationGroup> getStationGroupId() {
         return underlying.getStationGroupId();
+    }
+
+    @Override
+    public List<IdFor<Trip>> getTripIds() {
+        return underlying.getTripIds();
+    }
+
+    @Override
+    public boolean hasTripId(final IdFor<Trip> tripId) {
+        return underlying.hasTripId(tripId);
+    }
+
+    @Override
+    public String toString() {
+        return "ImmutableGraphRelationship{" +
+                underlying.toString() +
+                '}';
     }
 }

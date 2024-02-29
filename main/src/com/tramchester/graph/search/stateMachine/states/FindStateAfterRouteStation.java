@@ -12,7 +12,7 @@ import java.util.stream.Stream;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
-public class FindStateAfterRouteStation extends StationStateBuilder {
+public class FindStateAfterRouteStation  {
 
     public TraversalState endTripTowardsStation(final TraversalStateType destination, final RouteStationStateEndTrip routeStationState,
                                                 final GraphNode node, final Duration cost, final JourneyStateUpdate journeyStateUpdate,
@@ -53,13 +53,12 @@ public class FindStateAfterRouteStation extends StationStateBuilder {
 
         // filter so we don't just get straight back on tram if just boarded, or if we are on an existing trip
         final Stream<ImmutableGraphRelationship> relationships = getBoardsAndOthers(node, txn, false);
-        final Stream<ImmutableGraphRelationship> filteredRelationships = TraversalState.filterExcludingEndNode(txn, relationships, onTrip);
+        final Stream<ImmutableGraphRelationship> filteredRelationships = stateBuilder.filterExcludingEndNode(txn, relationships, onTrip);
         return createNoPlatformStationState(onTrip, node, cost, journeyState, filteredRelationships, destination);
     }
 
     public TraversalState onTripTowardsPlatform(final TraversalStateType towardsState, final RouteStationStateOnTrip routeStationStateOnTrip,
                                                 final GraphNode node, final Duration cost, final GraphTransaction txn, StateBuilder<?> stateBuilder) {
-//        final TraversalOps traversalOps = routeStationStateOnTrip.traversalOps;
         final OptionalResourceIterator<ImmutableGraphRelationship> towardsDest = getTowardsDestination(stateBuilder, node, txn, true);
         if (!towardsDest.isEmpty()) {
             return new PlatformState(routeStationStateOnTrip, towardsDest.stream(), node, cost, towardsState);

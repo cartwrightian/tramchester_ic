@@ -1,23 +1,17 @@
 package com.tramchester.graph.search.stateMachine.states;
 
-import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.NodeId;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
-import org.neo4j.graphdb.Direction;
 
 import java.time.Duration;
 import java.util.EnumSet;
 import java.util.stream.Stream;
-
-import static java.lang.String.format;
 
 public abstract class TraversalState extends EmptyTraversalState implements ImmutableTraversalState, NodeId {
 
@@ -28,16 +22,11 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
     private final Stream<ImmutableGraphRelationship> outbounds;
     private final Duration costForLastEdge;
     private final Duration parentCost;
-//    private final ImmutableTraversalState parenXt;
     private final GraphNode graphNode;
-
-    // only follow GOES_TO links for requested transport modes
-
-    private TraversalState child;
 
     // initial only
     protected TraversalState(final TraversalOps traversalOps, final TraversalStateFactory traversalStateFactory,
-                             final TraversalStateType stateType, GraphNode graphNode,
+                             final TraversalStateType stateType, final GraphNode graphNode,
                              final GraphTransaction txn) {
         super(stateType);
         this.traversalOps = traversalOps;
@@ -47,7 +36,6 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         this.graphNode = graphNode;
         this.costForLastEdge = Duration.ZERO;
         this.parentCost = Duration.ZERO;
-//        this.parent = null;
         this.outbounds = Stream.empty();
         if (stateType!=TraversalStateType.NotStartedState) {
             throw new RuntimeException("Attempt to create for incorrect initial state " + stateType);
@@ -60,7 +48,6 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         this.traversalOps = parent.getTraversalOps();
         this.txn = parent.getTransaction();
         this.traversalStateFactory = parent.getTraversalStateFactory();
-//        this.parent = parent;
 
         this.outbounds = outbounds;
         this.costForLastEdge = costForLastEdge;
@@ -96,11 +83,6 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
     @Override
     public GraphNodeId nodeId() {
         return graphNode.getId();
-    }
-
-    public static Stream<ImmutableGraphRelationship> getRelationships(final GraphTransaction txn, final GraphNode node,
-                                                                      final Direction direction, final TransportRelationshipTypes types) {
-        return node.getRelationships(txn, direction, types);
     }
 
     public TraversalState nextState(final EnumSet<GraphLabel> nodeLabels, final GraphNode node,
@@ -192,6 +174,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         }
         if (currentStateType==TraversalStateType.MinuteState) {
             final MinuteState minuteState = (MinuteState) this;
+            // todo this needs to be trip id based, since routes (and hence services) are bi-directional
             if (traversalOps.hasOutboundFor(node, minuteState.getServiceId())) {
                 return TraversalStateType.RouteStationStateOnTrip;
             } else {
@@ -206,20 +189,6 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         toDestination(traversalStateFactory.getTowardsDestination(from.getStateType()), finalNode, cost, journeyState);
     }
 
-    public void dispose() {
-        if (child!=null) {
-            child.dispose();
-            child = null;
-        }
-    }
-
-    protected static <R extends GraphRelationship> Stream<R> filterExcludingEndNode(final GraphTransaction txn,
-                                                                                    final Stream<R> relationships,
-                                                                                    final NodeId hasNodeId) {
-        final GraphNodeId nodeId = hasNodeId.nodeId();
-        return relationships.filter(relationship -> !relationship.getEndNodeId(txn).equals(nodeId));
-    }
-
     public Duration getTotalDuration() {
         return parentCost.plus(getCurrentDuration());
     }
@@ -228,34 +197,21 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         return costForLastEdge;
     }
 
+    protected TramTime getTimeFrom(final GraphNode graphNode) {
+        return traversalOps.getTimeFrom(graphNode);
+    }
+
+    protected Trip getTrip(final IdFor<Trip> tripId) {
+        return traversalOps.getTrip(tripId);
+    }
+
+
     @Override
     public String toString() {
         return "TraversalState{" +
                 "costForLastEdge=" + costForLastEdge +
                 "nodeId=" + graphNode.getId() +
                 ", parentCost=" + parentCost + System.lineSeparator() +
-//                ", parent=" + parent +
                 '}';
-    }
-
-//    @Override
-//    public int hashCode() {
-//        return Objects.hash(parent);
-//    }
-
-    protected void board(JourneyStateUpdate journeyState, boolean hasPlatforms) throws TramchesterException {
-        final TransportMode actualMode = graphNode.getTransportMode();
-        if (actualMode==null) {
-            throw new RuntimeException(format("Unable get transport mode at %s for %s", graphNode.getLabels(), graphNode.getAllProperties()));
-        }
-        journeyState.board(actualMode, graphNode, hasPlatforms);
-    }
-
-    protected TramTime getTimeFrom(GraphNode graphNode) {
-        return traversalOps.getTimeFrom(graphNode);
-    }
-
-    protected Trip getTrip(IdFor<Trip> tripId) {
-        return traversalOps.getTrip(tripId);
     }
 }

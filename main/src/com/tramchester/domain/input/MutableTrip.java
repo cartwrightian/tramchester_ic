@@ -180,4 +180,14 @@ public class MutableTrip implements Trip {
         return stopCalls.getFirstStop().getStationId();
     }
 
+    @Override
+    public IdFor<Station> lastStation() {
+        final StopCall lastStop = stopCalls.getLastStop();
+        if (!lastStop.callsAtStation()) {
+            // todo
+            throw new RuntimeException("Undefined behaviour, last stop is not called at");
+        }
+        return lastStop.getStationId();
+    }
+
 }

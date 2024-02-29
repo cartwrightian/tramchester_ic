@@ -41,6 +41,7 @@ import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static com.tramchester.graph.graphbuild.GraphLabel.INTERCHANGE;
 import static java.lang.String.format;
+import static org.neo4j.graphdb.Direction.INCOMING;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
 @LazySingleton
@@ -276,7 +277,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                         final IdFor<Station> endId = leg.getSecondStation().getId();
 
                         final Service service = trip.getService();
-                        final MutableGraphNode serviceNode = createServiceNodeAndRelationshipFromRouteStation(tx, route, service,
+                        final MutableGraphNode serviceNode = createServiceNodeAndRelationshipFromRouteStation(tx, route, trip,
                                 beginId, endId, routeStationNodeCache, serviceNodeCache);
 
                         createHourNodeAndRelationshipFromService(tx, route.getId(), service,
@@ -286,33 +287,48 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         });
     }
 
-    private MutableGraphNode createServiceNodeAndRelationshipFromRouteStation(final MutableGraphTransaction tx, final Route route, final Service service,
+    private MutableGraphNode createServiceNodeAndRelationshipFromRouteStation(final MutableGraphTransaction tx, final Route route, final Trip trip,
                                                                               final IdFor<Station> beginId, final IdFor<Station> nextStationId,
                                                                               final RouteStationNodeCache routeStationNodeCache,
                                                                               final ServiceNodeCache serviceNodeCache) {
 
-        if (serviceNodeCache.hasServiceNode(route.getId(), service, beginId, nextStationId)) {
-            return serviceNodeCache.getServiceNode(tx, route.getId(), service, beginId, nextStationId);
-        }
+        final Service service = trip.getService();
 
         // Node for the service
         // -route ID here as some towardsServices can go via multiple routes, this seems to be associated with the depots
         // -some towardsServices can go in two different directions from a station i.e. around Media City UK
 
-        final MutableGraphNode svcNode =  tx.createNode(GraphLabel.SERVICE); //createGraphNodeOld(tx, GraphLabel.SERVICE);
-        svcNode.set(service);
-        svcNode.set(route);
+        final MutableGraphNode svcNode;
+        final boolean existing;
+        if (serviceNodeCache.hasServiceNode(route.getId(), service, beginId, nextStationId)) {
+            svcNode = serviceNodeCache.getServiceNode(tx, route.getId(), service, beginId, nextStationId);
+            existing = true;
+        } else {
+            svcNode =  tx.createNode(GraphLabel.SERVICE); //createGraphNodeOld(tx, GraphLabel.SERVICE);
+            svcNode.set(service);
+            svcNode.set(route);
 
-        svcNode.setTowards(nextStationId);
+            svcNode.setTowards(nextStationId);
 
-        serviceNodeCache.putService(route.getId(), service, beginId, nextStationId, svcNode);
+            serviceNodeCache.putService(route.getId(), service, beginId, nextStationId, svcNode);
+            existing = false;
+        }
 
         // start route station -> svc node
-        final MutableGraphNode routeStationStart = routeStationNodeCache.getRouteStation(tx, route, beginId);
-        final MutableGraphRelationship svcRelationship = createRelationship(tx, routeStationStart, svcNode, TO_SERVICE);
-        svcRelationship.set(service);
-        svcRelationship.setCost(Duration.ZERO);
-        svcRelationship.set(route);
+        final MutableGraphNode routeStationNode = routeStationNodeCache.getRouteStation(tx, route, beginId);
+        final MutableGraphRelationship svcRelationship;
+        if (!existing) {
+            svcRelationship = createRelationship(tx, routeStationNode, svcNode, TO_SERVICE);
+            svcRelationship.set(service);
+            svcRelationship.setCost(Duration.ZERO);
+            svcRelationship.set(route);
+        } else {
+            // note: switch of direction here, can't use OUTGOING from routeStationStart since has multiple links to services
+            svcRelationship = svcNode.getSingleRelationshipMutable(tx, TO_SERVICE, INCOMING);
+        }
+
+        svcRelationship.addTripId(trip.getId());
+
         return svcNode;
 
     }

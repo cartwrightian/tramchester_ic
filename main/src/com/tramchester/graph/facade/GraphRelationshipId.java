@@ -32,7 +32,7 @@ public class GraphRelationshipId {
     @Override
     public String toString() {
         return "GraphRelationshipId{" +
-                "legacyId=" + internalId +
+                "internalId=" + internalId +
                 '}';
     }
 
