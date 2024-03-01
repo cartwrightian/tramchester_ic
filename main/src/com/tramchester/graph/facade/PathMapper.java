@@ -1,6 +1,5 @@
 package com.tramchester.graph.facade;
 
-import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.search.stateMachine.states.TraversalState;
 import org.neo4j.graphdb.Entity;
 import org.neo4j.graphdb.Node;
@@ -29,7 +28,7 @@ public class PathMapper {
                 currentState = forGraphNode.getNextStateFrom(currentState, graphNode, currentCost);
             }
             if (entity instanceof Relationship relationship) {
-                final GraphRelationship graphRelationship = txn.wrapRelationship(relationship, TransportRelationshipTypes.from(relationship));
+                final GraphRelationship graphRelationship = txn.wrapRelationship(relationship);
                 currentCost = forGraphRelationship.getCostFor(currentState, graphRelationship);
             }
         }

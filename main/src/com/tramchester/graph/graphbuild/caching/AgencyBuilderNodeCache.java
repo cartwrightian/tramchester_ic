@@ -38,8 +38,8 @@ public class AgencyBuilderNodeCache implements ServiceNodeCache, HourNodeCache {
     }
 
     @Override
-    public void putHour(IdFor<Route> routeId, Service service, IdFor<Station> station, Integer hour, GraphNode node) {
-        String hourKey = CreateKeys.getHourKey(routeId, service.getId(), station, hour);
+    public void putHour(final IdFor<Route> routeId, final Service service, final IdFor<Station> startId, final Integer hour, final GraphNode node) {
+        final String hourKey = CreateKeys.getHourKey(routeId, service.getId(), startId, hour);
         hourNodes.put(hourKey, node.getId());
     }
 

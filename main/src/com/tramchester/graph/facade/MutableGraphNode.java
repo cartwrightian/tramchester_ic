@@ -55,7 +55,7 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
 
     public MutableGraphRelationship createRelationshipTo(final MutableGraphTransaction txn, final MutableGraphNode end, final TransportRelationshipTypes relationshipType) {
         final Relationship relationshipTo = node.createRelationshipTo(end.node, relationshipType);
-        return txn.wrapRelationshipMutable(relationshipTo, relationshipType);
+        return txn.wrapRelationshipMutable(relationshipTo);
     }
 
     public void addLabel(Label label) {
@@ -136,17 +136,17 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
 
     @Override
     public Stream<ImmutableGraphRelationship> getRelationships(GraphTransaction txn, Direction direction, TransportRelationshipTypes relationshipType) {
-        return node.getRelationships(direction, relationshipType).stream().map(relationship -> txn.wrapRelationship(relationship, relationshipType));
+        return node.getRelationships(direction, relationshipType).stream().map(txn::wrapRelationship);
     }
 
     public Stream<MutableGraphRelationship> getRelationshipsMutable(MutableGraphTransaction txn, Direction direction, TransportRelationshipTypes relationshipType) {
-        return node.getRelationships(direction, relationshipType).stream().map(relationship -> txn.wrapRelationshipMutable(relationship, relationshipType));
+        return node.getRelationships(direction, relationshipType).stream().map(txn::wrapRelationshipMutable);
     }
 
     @Override
     public Stream<ImmutableGraphRelationship> getRelationships(GraphTransaction txn, Direction direction, TransportRelationshipTypes... transportRelationshipTypes) {
         return node.getRelationships(direction, transportRelationshipTypes).stream().
-                map(relationship -> txn.wrapRelationship(relationship, TransportRelationshipTypes.from(relationship)));
+                map(txn::wrapRelationship);
     }
 
     @Override
@@ -175,7 +175,7 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
         if (found==null) {
             return null;
         }
-        return txn.wrapRelationship(found, transportRelationshipType);
+        return txn.wrapRelationship(found);
     }
 
     public MutableGraphRelationship getSingleRelationshipMutable(MutableGraphTransaction txn, TransportRelationshipTypes transportRelationshipType, Direction direction) {
@@ -183,7 +183,7 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
         if (found==null) {
             return null;
         }
-        return txn.wrapRelationshipMutable(found, transportRelationshipType);
+        return txn.wrapRelationshipMutable(found);
     }
 
     <T extends CoreDomain> IdFor<T> getId(Class<T> theClass) {
@@ -275,9 +275,10 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
 
     @Override
     public String toString() {
-        return "GraphNode{" +
-                "neo4jNode=" + node +
-                '}';
+        return "MutableGraphNode{" +
+                "node=" + node +
+                ", graphNodeId=" + graphNodeId +
+                "}";
     }
 
     @Override

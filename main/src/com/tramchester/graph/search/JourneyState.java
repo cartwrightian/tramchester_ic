@@ -32,6 +32,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     private TramTime boardingTime;
     private TraversalState traversalState;
     private final IdSet<Trip> tripsDone;
+    private IdFor<Trip> currentTrip;
 
     public JourneyState(TramTime queryTime, TraversalState traversalState) {
         coreState = new CoreState(queryTime);
@@ -39,6 +40,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         this.traversalState = traversalState;
         journeyOffset = Duration.ZERO;
         tripsDone = new IdSet<>();
+        currentTrip = Trip.InvalidId();
     }
 
     public static JourneyState fromPrevious(ImmutableJourneyState previousState) {
@@ -53,6 +55,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         this.journeyOffset = previousState.journeyOffset;
         this.traversalState = previousState.traversalState;
         this.tripsDone = IdSet.copy(previousState.tripsDone);
+        this.currentTrip = previousState.currentTrip;
         if (coreState.onBoard()) {
             this.boardingTime = previousState.boardingTime;
         }
@@ -114,11 +117,6 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     @Override
-    public void beginTrip(final IdFor<Trip> newTripId) {
-        // noop
-    }
-
-    @Override
     public void endWalk(final GraphNode stationNode) {
         // noop
     }
@@ -139,6 +137,16 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     @Override
+    public boolean onTrip() {
+        return currentTrip.isValid();
+    }
+
+    @Override
+    public IdFor<Trip> getCurrentTrip() {
+        return currentTrip;
+    }
+
+    @Override
     public void seenStation(final IdFor<Station> stationId) {
         coreState.seenStation(stationId);
     }
@@ -151,6 +159,18 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         leave(totalDuration);
         tripsDone.add(tripId);
         coreState.leaveVehicle();
+        if (!tripId.equals(currentTrip)) {
+            throw new RuntimeException("Left a trip that was never started, left " + tripId + " but was on " + currentTrip);
+        }
+        currentTrip = Trip.InvalidId();
+    }
+
+    @Override
+    public void beginTrip(final IdFor<Trip> newTripId) {
+        if (currentTrip.isValid()) {
+            throw new RuntimeException("Attempted to start new trip " + newTripId + " when already on " + currentTrip);
+        }
+        this.currentTrip = newTripId;
     }
 
     private void leave(final Duration currentTotalCost) {
@@ -165,6 +185,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         journeyOffset = currentTotalCost;
         boardingTime = null;
     }
+
 
     @Override
     public TramTime getJourneyClock() {

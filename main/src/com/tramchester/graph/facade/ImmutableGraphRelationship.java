@@ -22,6 +22,7 @@ import java.time.Duration;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 public class ImmutableGraphRelationship implements GraphRelationship {
@@ -173,5 +174,18 @@ public class ImmutableGraphRelationship implements GraphRelationship {
         return "ImmutableGraphRelationship{" +
                 underlying.toString() +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ImmutableGraphRelationship that = (ImmutableGraphRelationship) o;
+        return Objects.equals(underlying, that.underlying);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(underlying);
     }
 }

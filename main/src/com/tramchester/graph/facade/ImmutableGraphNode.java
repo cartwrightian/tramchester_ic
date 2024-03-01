@@ -223,4 +223,10 @@ public class ImmutableGraphNode implements GraphNode {
         }
     }
 
+    @Override
+    public String toString() {
+        return "ImmutableGraphNode{" +
+                "underlying=" + underlying +
+                '}';
+    }
 }

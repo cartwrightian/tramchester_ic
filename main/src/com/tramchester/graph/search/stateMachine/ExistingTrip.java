@@ -1,14 +1,13 @@
 package com.tramchester.graph.search.stateMachine;
 
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.InvalidId;
 import com.tramchester.domain.input.Trip;
 
 public class ExistingTrip {
     private final IdFor<Trip> tripId;
 
     private ExistingTrip() {
-        this.tripId = new InvalidId<>(Trip.class);
+        this.tripId = Trip.InvalidId();
     }
 
     private ExistingTrip(IdFor<Trip> tripId) {
@@ -23,13 +22,13 @@ public class ExistingTrip {
         return new ExistingTrip(tripId);
     }
 
-    public boolean isOnTrip() {
-        return tripId.isValid();
-    }
-
-    public IdFor<Trip> getTripId() {
-        return tripId;
-    }
+//    public boolean isOnTrip() {
+//        return tripId.isValid();
+//    }
+//
+//    public IdFor<Trip> getTripId() {
+//        return tripId;
+//    }
 
     @Override
     public String toString() {

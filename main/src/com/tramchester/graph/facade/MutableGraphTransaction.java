@@ -64,7 +64,7 @@ public class MutableGraphTransaction implements GraphTransaction {
         if (relationship==null) {
             return null;
         }
-        return wrapRelationship(relationship, TransportRelationshipTypes.from(relationship));
+        return wrapRelationship(relationship);
     }
 
     public MutableGraphNode createNode(Set<GraphLabel> labels) {
@@ -75,7 +75,7 @@ public class MutableGraphTransaction implements GraphTransaction {
     }
 
     @Override
-    public Stream<ImmutableGraphNode> findNodes(GraphLabel graphLabel) {
+    public Stream<ImmutableGraphNode> findNodes(final GraphLabel graphLabel) {
         return txn.findNodes(graphLabel).stream().map(this::wrapNodeAsImmutable);
     }
 
@@ -168,13 +168,13 @@ public class MutableGraphTransaction implements GraphTransaction {
     }
 
     @Override
-    public ImmutableGraphRelationship wrapRelationship(final Relationship relationship, TransportRelationshipTypes relationshipType) {
-        final MutableGraphRelationship underlying = new MutableGraphRelationship(relationship, idFactory.getIdFor(relationship), relationshipType);
+    public ImmutableGraphRelationship wrapRelationship(final Relationship relationship) {
+        final MutableGraphRelationship underlying = new MutableGraphRelationship(relationship, idFactory.getIdFor(relationship));
         return new ImmutableGraphRelationship(underlying);
     }
 
-    public MutableGraphRelationship wrapRelationshipMutable(final Relationship relationship, TransportRelationshipTypes relationshipType) {
-        return new MutableGraphRelationship(relationship, idFactory.getIdFor(relationship), relationshipType);
+    public MutableGraphRelationship wrapRelationshipMutable(final Relationship relationship) {
+        return new MutableGraphRelationship(relationship, idFactory.getIdFor(relationship));
     }
 
     public ImmutableGraphNode fromStart(final Path path) {
@@ -198,7 +198,7 @@ public class MutableGraphTransaction implements GraphTransaction {
         if (last==null) {
             return null;
         }
-        return wrapRelationship(last, TransportRelationshipTypes.from(last));
+        return wrapRelationship(last);
     }
 
     @Override
@@ -215,7 +215,7 @@ public class MutableGraphTransaction implements GraphTransaction {
 
     public GraphRelationship getQueryColumnAsRelationship(final Map<String, Object> row, final String columnName) {
         final Relationship relationship = (Relationship) row.get(columnName);
-        return wrapRelationship(relationship, TransportRelationshipTypes.from(relationship));
+        return wrapRelationship(relationship);
     }
 
     public GraphNodeId createNodeId(final Node endNode) {

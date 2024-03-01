@@ -18,28 +18,24 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.HaveGraphProperties;
 import com.tramchester.graph.TransportRelationshipTypes;
+import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Relationship;
 
 import java.time.Duration;
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.tramchester.graph.GraphPropertyKey.*;
 
 public class MutableGraphRelationship extends HaveGraphProperties implements GraphRelationship {
     private final Relationship relationship;
     private final GraphRelationshipId id;
-    private final TransportRelationshipTypes relationshipType;
 
     private ImmutableGraphNode endNode;
 
-    MutableGraphRelationship(Relationship relationship, GraphRelationshipId id, TransportRelationshipTypes relationshipType) {
+    MutableGraphRelationship(Relationship relationship, GraphRelationshipId id) {
         this.relationship = relationship;
         this.id = id;
-        this.relationshipType = relationshipType;
     }
 
     public GraphRelationshipId getId() {
@@ -196,7 +192,7 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
     }
 
     public TransportRelationshipTypes getType() {
-        return relationshipType;
+        return TransportRelationshipTypes.from(relationship);
     }
 
     public IdFor<Route> getRouteId() {
@@ -283,11 +279,43 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MutableGraphRelationship that = (MutableGraphRelationship) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
+    @Override
     public String toString() {
+        TransportRelationshipTypes relationshipType = getType();
+        final String key = getExtraDiagnostics(relationshipType);
         return "MutableGraphRelationship{" +
                 "type=" + relationshipType +
+                key +
                 " id=" + id +
                 "} ";
+    }
+
+    @NotNull
+    private String getExtraDiagnostics(TransportRelationshipTypes relationshipType) {
+        final String key;
+        // TODO Include more types here, aids with debug etc
+        if (relationshipType==TransportRelationshipTypes.TO_SERVICE) {
+            key = " serviceId=" + getServiceId().toString()
+                    + " routeId="+getRouteId();
+        }
+        else if (relationshipType==TransportRelationshipTypes.INTERCHANGE_DEPART || relationshipType==TransportRelationshipTypes.DEPART) {
+            key = " routeStationId=" + getRouteStationId();
+        } else {
+            key = "";
+        }
+        return key;
     }
 
 

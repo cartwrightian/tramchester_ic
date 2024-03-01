@@ -4,6 +4,7 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.InvalidId;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -14,6 +15,10 @@ public interface Trip extends HasId<Trip>, HasTransportMode, GraphProperty, Core
 
     static IdFor<Trip> createId(String text) {
         return StringIdFor.createId(text, Trip.class);
+    }
+
+    static IdFor<Trip> InvalidId() {
+        return new InvalidId<>(Trip.class);
     }
 
     IdFor<Trip> getId();

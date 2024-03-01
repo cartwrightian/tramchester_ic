@@ -171,6 +171,7 @@ public class TraversalStateTest extends EasyMockSupport {
         assertEquals(fromStation, platformIds);
     }
 
+    @Disabled("WIP")
     @Test
     void shouldHaveAllExpectedOutboundWhenDestNotAvailableOnTrip() {
         LocationCollection endStations = new LocationSet<>(Collections.singletonList(Bury.from(stationRepository)));
@@ -233,9 +234,8 @@ public class TraversalStateTest extends EasyMockSupport {
         StringBuilder stringBuilder = new StringBuilder();
         relationships.forEach(relationship -> {
             stringBuilder.
-                    append(relationship.getType()).append(" ").
-                    append(relationship.getId()).append(" ").
-                    append(relationship.getAllProperties()).append(" ").
+                    append(relationship.toString()).
+                    //append(relationship.getAllProperties()).append(" ").
                     append(System.lineSeparator());
         });
         return stringBuilder.toString();

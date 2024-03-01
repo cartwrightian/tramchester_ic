@@ -32,7 +32,8 @@ public class JustBoardedState extends RouteStationState {
             return TraversalStateType.JustBoardedState;
         }
 
-        public JustBoardedState fromPlatformState(JourneyStateUpdate journeyState, final PlatformState platformState, final GraphNode routeStationNode, final Duration cost, final GraphTransaction txn) {
+        public JustBoardedState fromPlatformState(JourneyStateUpdate journeyState, final PlatformState platformState, final GraphNode routeStationNode,
+                                                  final Duration cost, final GraphTransaction txn) {
 
             final Stream<ImmutableGraphRelationship> services = getServices(routeStationNode, txn);
 

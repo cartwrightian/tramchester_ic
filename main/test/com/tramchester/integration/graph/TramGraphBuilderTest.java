@@ -257,11 +257,7 @@ class TramGraphBuilderTest {
 
         Route buryToAlty = tramRouteHelper.getOneRoute(BuryManchesterAltrincham, when);
 
-        RouteStation routeStation = stationRepository.getRouteStation(cornbrook, buryToAlty);
-
-        List<ImmutableGraphRelationship> outboundsFromRouteStation = txn.getRouteStationRelationships(routeStation, Direction.OUTGOING);
-
-        List<ImmutableGraphRelationship> svcOutbounds = outboundsFromRouteStation.stream().filter(relationship -> relationship.isType(TO_SERVICE)).toList();
+        List<ImmutableGraphRelationship> svcOutbounds = getOutboundsForRouteStation(cornbrook, buryToAlty);
         assertFalse(svcOutbounds.isEmpty());
 
         IdSet<Service> unique = svcOutbounds.stream().map(ImmutableGraphRelationship::getServiceId).collect(IdSet.idCollector());
@@ -279,6 +275,79 @@ class TramGraphBuilderTest {
                     IdSet<Trip> expectedTrips = relevantTripsFor(svcId, buryToAlty, cornbrook, towardsStationId);
                     assertEquals(expectedTrips, tripIds, "trip mismatch for " + svcId + " towards " + towardsStationId);
                 });
+
+    }
+
+    @Test
+    void shouldHaveCorrecRelationshipsForServicesAtCornbrook() {
+
+        Route route = tramRouteHelper.getOneRoute(BuryManchesterAltrincham, when);
+
+        List<ImmutableGraphRelationship> svcOutbounds = getOutboundsForRouteStation(Cornbrook.from(stationRepository), route);
+        assertFalse(svcOutbounds.isEmpty());
+
+        svcOutbounds.forEach(svcRelationship -> {
+            GraphNode serviceNode = svcRelationship.getEndNode(txn);
+
+            List<ImmutableGraphRelationship> incoming = serviceNode.getRelationships(txn, Direction.INCOMING, TO_SERVICE).toList();
+
+            assertTrue(incoming.contains(svcRelationship));
+            assertEquals(1, incoming.size(), "Got more than one inbound for " + serviceNode + " from services " + incoming);
+
+        });
+    }
+
+    @Test
+    void shouldNotHaveHourNodesWithoutServiceRelationship() {
+
+        List<ImmutableGraphNode> hourNodes = txn.findNodes(GraphLabel.HOUR).toList();
+
+        Set<ImmutableGraphNode> haveLinks = hourNodes.stream().
+                filter(hourNode -> hourNode.getRelationships(txn, Direction.INCOMING, TO_HOUR).findAny().isPresent()).
+                collect(Collectors.toSet());
+
+        assertEquals(hourNodes.size(), haveLinks.size());
+
+    }
+
+    @Test
+    void shouldOnlyHaveOneServiceRelationshipInboundForEveryHourNode() {
+
+        Stream<ImmutableGraphNode> hourNodes = txn.findNodes(GraphLabel.HOUR);
+
+        Set<ImmutableGraphNode> tooMany = hourNodes.
+                filter(hourNode -> hourNode.getRelationships(txn, Direction.INCOMING, TO_HOUR).count()>1).
+                collect(Collectors.toSet());
+
+        assertTrue(tooMany.isEmpty(), tooMany.toString());
+
+    }
+
+    @Test
+    void shouldHaveAllTimeNodesWithLinkToRouteStation() {
+        Stream<ImmutableGraphNode> timeNodes = txn.findNodes(GraphLabel.MINUTE);
+
+        long missing = timeNodes.filter(timeNode -> !timeNode.hasRelationship(Direction.OUTGOING, TRAM_GOES_TO)).count();
+
+        assertEquals(0, missing);
+    }
+
+    @Test
+    void shouldHaveAllTimeNodesWithLTripId() {
+        Stream<ImmutableGraphNode> timeNodes = txn.findNodes(GraphLabel.MINUTE);
+
+        long missing = timeNodes.filter(timeNode -> !timeNode.hasTripId()).count();
+
+        assertEquals(0, missing);
+    }
+
+    @NotNull
+    private List<ImmutableGraphRelationship> getOutboundsForRouteStation(final Station station, Route route) {
+        RouteStation routeStation = stationRepository.getRouteStation(station, route);
+
+        List<ImmutableGraphRelationship> outboundsFromRouteStation = txn.getRouteStationRelationships(routeStation, Direction.OUTGOING);
+
+        return outboundsFromRouteStation.stream().filter(relationship -> relationship.isType(TO_SERVICE)).toList();
     }
 
     @Test

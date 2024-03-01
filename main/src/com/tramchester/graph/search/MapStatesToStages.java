@@ -50,6 +50,7 @@ class MapStatesToStages implements JourneyStateUpdate {
 
     private WalkFromStartPending walkFromStartPending;
     private VehicleStagePending vehicleStagePending;
+    private IdFor<Trip> currentTrip;
 
 
     public MapStatesToStages(StationRepository stationRepository, PlatformRepository platformRepository,
@@ -64,6 +65,7 @@ class MapStatesToStages implements JourneyStateUpdate {
         totalCost = Duration.ZERO;
         costOffsetAtActual = Duration.ZERO;
         onDiversion = false;
+        currentTrip = Trip.InvalidId();
     }
 
     @Override
@@ -116,6 +118,7 @@ class MapStatesToStages implements JourneyStateUpdate {
         if (logger.isDebugEnabled()) {
             logger.debug("Added " + vehicleStage);
         }
+        currentTrip = Trip.InvalidId();
         reset();
     }
 
@@ -141,7 +144,7 @@ class MapStatesToStages implements JourneyStateUpdate {
     @Override
     public void beginTrip(IdFor<Trip> newTripId) {
         logger.debug("Begin trip:" + newTripId);
-        //this.tripId = newTripId;
+        this.currentTrip = newTripId;
     }
 
     @Override
@@ -229,6 +232,16 @@ class MapStatesToStages implements JourneyStateUpdate {
     @Override
     public boolean onDiversion() {
         return onDiversion;
+    }
+
+    @Override
+    public boolean onTrip() {
+        return currentTrip.isValid();
+    }
+
+    @Override
+    public IdFor<Trip> getCurrentTrip() {
+        return currentTrip;
     }
 
     public List<TransportStage<?, ?>> getStages() {

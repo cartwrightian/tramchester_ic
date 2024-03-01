@@ -2,7 +2,6 @@ package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.InvalidId;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.TransportRelationshipTypes;
@@ -39,21 +38,21 @@ public class MinuteState extends TraversalState implements HasTowardsStationId {
             return TraversalStateType.MinuteState;
         }
 
-        public TraversalState fromHour(final HourState hourState, final GraphNode node, final Duration cost, final ExistingTrip existingTrip,
+        public TraversalState fromHour(final HourState hourState, final GraphNode minuteNode, final Duration cost, final ExistingTrip existingTrip,
                                        final IdFor<Station> towardsStationId, final JourneyStateUpdate journeyState,
                                        final GraphTransaction txn) {
 
-            final Stream<ImmutableGraphRelationship> allOutboundForMode = node.getRelationships(txn, OUTGOING, currentModes);
+            final Stream<ImmutableGraphRelationship> allOutboundForMode = minuteNode.getRelationships(txn, OUTGOING, currentModes);
 
-            if (existingTrip.isOnTrip()) {
-                final IdFor<Trip> existingTripId = existingTrip.getTripId();
+            if (journeyState.onTrip()) {
+                final IdFor<Trip> existingTripId = journeyState.getCurrentTrip();
                 final Stream<ImmutableGraphRelationship> filterBySingleTripId = filterBySingleTripId(allOutboundForMode, existingTripId);
-                return new MinuteState(hourState, filterBySingleTripId, node, existingTripId, towardsStationId, cost, this);
+                return new MinuteState(hourState, filterBySingleTripId, minuteNode, existingTripId, towardsStationId, cost, this);
             } else {
-                // starting a brand-new journey, since at minute node now have specific tripid to use
-                final IdFor<Trip> newTripId = getTrip(node);
+                // since at minute node now have specific tripId to use
+                final IdFor<Trip> newTripId = getTrip(minuteNode);
                 journeyState.beginTrip(newTripId);
-                return new MinuteState(hourState, allOutboundForMode, node, newTripId, towardsStationId, cost, this);
+                return new MinuteState(hourState, allOutboundForMode, minuteNode, newTripId, towardsStationId, cost, this);
             }
         }
 
@@ -73,11 +72,12 @@ public class MinuteState extends TraversalState implements HasTowardsStationId {
         this.towardsStationId = towardsStationId;
     }
 
-    private static IdFor<Trip> getTrip(final GraphNode endNode) {
-        if (!endNode.hasTripId()) {
-            return new InvalidId<>(Trip.class);
+    private static IdFor<Trip> getTrip(final GraphNode node) {
+        if (!node.hasTripId()) {
+            throw new RuntimeException("Missing trip id at " + node);
+//            return new InvalidId<>(Trip.class);
         }
-        return endNode.getTripId();
+        return node.getTripId();
     }
 
     public IdFor<Service> getServiceId() {

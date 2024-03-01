@@ -135,6 +135,14 @@ public class RouteCalculatorTest {
     }
 
     @Test
+    void shouldHaveExpectedPathsForSimpleJoruney() {
+        JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(17,45), false,
+                3, maxJourneyDuration, 5, requestedModes);
+
+        calculator.calculateRouteAsList(TraffordBar, Deansgate, journeyRequest);
+    }
+
+    @Test
     void shouldHaveSimpleOneStopJourneyNextDays() {
         checkRouteNextNDays(TraffordBar, Altrincham, when, TramTime.of(9,0), DAYS_AHEAD);
     }

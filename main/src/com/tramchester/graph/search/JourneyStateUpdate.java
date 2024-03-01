@@ -32,4 +32,7 @@ public interface JourneyStateUpdate {
 
     void beginDiversion(final IdFor<Station> stationId);
     boolean onDiversion();
+
+    boolean onTrip();
+    IdFor<Trip> getCurrentTrip();
 }
