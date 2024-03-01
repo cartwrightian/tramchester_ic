@@ -7,7 +7,10 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.InvalidDurationException;
-import com.tramchester.graph.facade.*;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphRelationshipFilter;
+import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.ImmutableGraphNode;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.repository.RouteRepository;
 import org.neo4j.graphalgo.EvaluationContext;
@@ -21,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.time.Duration;
+import java.util.EnumSet;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -47,27 +51,31 @@ public class RouteCostCalculator {
         this.routeRepository = routeRepository;
     }
 
-    public Duration getAverageCostBetween(GraphTransaction txn, GraphNode startNode, GraphNode endNode, TramDate date, Set<TransportMode> modes) throws InvalidDurationException {
+    public Duration getAverageCostBetween(final GraphTransaction txn, final GraphNode startNode, final GraphNode endNode,
+                                          final TramDate date, final EnumSet<TransportMode> modes) throws InvalidDurationException {
         return calculateLeastCost(txn, startNode, endNode, COST, date, modes);
     }
 
-    public Duration getAverageCostBetween(GraphTransaction txn, Location<?> station, GraphNode endNode, TramDate date,
-                                          Set<TransportMode> modes) throws InvalidDurationException {
-        GraphNode startNode = txn.findNode(station);
+    public Duration getAverageCostBetween(final GraphTransaction txn, final Location<?> station, final GraphNode endNode, final TramDate date,
+                                          final EnumSet<TransportMode> modes) throws InvalidDurationException {
+        final GraphNode startNode = txn.findNode(station);
         return calculateLeastCost(txn, startNode, endNode, COST, date, modes);
     }
 
     // startNode must have been found within supplied txn
-    public Duration getAverageCostBetween(GraphTransaction txn, GraphNode startNode, Location<?> endStation, TramDate date, Set<TransportMode> modes) throws InvalidDurationException {
-        GraphNode endNode = txn.findNode(endStation);
+    public Duration getAverageCostBetween(final GraphTransaction txn, final GraphNode startNode, final Location<?> endStation,
+                                          final TramDate date, final EnumSet<TransportMode> modes) throws InvalidDurationException {
+        final GraphNode endNode = txn.findNode(endStation);
         return calculateLeastCost(txn, startNode, endNode, COST, date, modes);
     }
 
-    public Duration getAverageCostBetween(GraphTransaction txn, Location<?> startStation, Location<?> endStation, TramDate date, Set<TransportMode> modes) throws InvalidDurationException {
+    public Duration getAverageCostBetween(final GraphTransaction txn, final Location<?> startStation, final Location<?> endStation,
+                                          final TramDate date, final EnumSet<TransportMode> modes) throws InvalidDurationException {
         return getCostBetween(txn, startStation, endStation, COST, date, modes);
     }
 
-    private Duration getCostBetween(GraphTransaction txn, Location<?> startLocation, Location<?> endLocation, GraphPropertyKey key, TramDate date, Set<TransportMode> modes) throws InvalidDurationException {
+    private Duration getCostBetween(final GraphTransaction txn, final Location<?> startLocation, final Location<?> endLocation,
+                                    final GraphPropertyKey key, final TramDate date, final EnumSet<TransportMode> modes) throws InvalidDurationException {
         final GraphNode startNode = txn.findNode(startLocation);
         if (startNode==null) {
             throw new RuntimeException("Could not find start node for graph id " + startLocation.getId().getGraphId());
@@ -82,8 +90,8 @@ public class RouteCostCalculator {
     }
 
     // startNode and endNode must have been found within supplied txn
-    private Duration calculateLeastCost(GraphTransaction txn, GraphNode startNode, GraphNode endNode, GraphPropertyKey key,
-                                        TramDate date, Set<TransportMode> modes) throws InvalidDurationException {
+    private Duration calculateLeastCost(final GraphTransaction txn, final GraphNode startNode, final GraphNode endNode, final GraphPropertyKey key,
+                                        final TramDate date, final EnumSet<TransportMode> modes) throws InvalidDurationException {
 
         final Set<Route> routesRunningOn = routeRepository.getRoutesRunningOn(date).stream().
                 filter(route -> modes.contains(route.getTransportMode())).collect(Collectors.toSet());
@@ -117,7 +125,7 @@ public class RouteCostCalculator {
         return Duration.ofSeconds(seconds);
     }
 
-    private PathExpander<Double> fullExpanderForCostApproximation(Predicate<? super Relationship> routeFilter) {
+    private PathExpander<Double> fullExpanderForCostApproximation(final Predicate<? super Relationship> routeFilter) {
         return PathExpanderBuilder.empty().
                 add(ON_ROUTE, Direction.OUTGOING).
                 add(STATION_TO_ROUTE, Direction.OUTGOING).
@@ -139,13 +147,13 @@ public class RouteCostCalculator {
 
         private final String name;
 
-        public UsefulLoggingCostEvaluator(GraphPropertyKey costProperty) {
+        public UsefulLoggingCostEvaluator(final GraphPropertyKey costProperty) {
             super(costProperty.getText());
             this.name = costProperty.getText();
         }
 
         @Override
-        public Double getCost(Relationship relationship, Direction direction) {
+        public Double getCost(final Relationship relationship, final Direction direction) {
             try {
                 return super.getCost(relationship, direction);
             }

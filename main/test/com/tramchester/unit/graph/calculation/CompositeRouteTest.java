@@ -33,6 +33,7 @@ import org.junit.jupiter.api.*;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
@@ -203,7 +204,7 @@ class CompositeRouteTest {
 
     @Test
     void shouldHaveRouteCosts() throws InvalidDurationException {
-        Set<TransportMode> modes = TramsOnly;
+        EnumSet<TransportMode> modes = TramsOnly;
 
         RouteCostCalculator routeCostCalculator = componentContainer.get(RouteCostCalculator.class);
         assertMinutesEquals(41, routeCostCalculator.getAverageCostBetween(txn, startGroup, transportData.getLast(), queryDate, modes));

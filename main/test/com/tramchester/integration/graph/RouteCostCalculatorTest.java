@@ -8,8 +8,8 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.InvalidDurationException;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.RouteCostCalculator;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.integration.testSupport.ConfigParameterResolver;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -19,7 +19,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.time.Duration;
-import java.util.Set;
+import java.util.EnumSet;
 
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
@@ -40,7 +40,7 @@ class RouteCostCalculatorTest {
     private Station altrincham;
     private Station mediaCity;
     private Station airport;
-    private Set<TransportMode> modes;
+    private EnumSet<TransportMode> modes;
 
     @BeforeAll
     static void onceBeforeAnyTestRuns(TramchesterConfig tramchesterConfig) {

@@ -22,7 +22,6 @@ import org.junit.jupiter.api.*;
 
 import java.time.Duration;
 import java.util.EnumSet;
-import java.util.Set;
 import java.util.function.BiFunction;
 
 import static com.tramchester.domain.reference.TransportMode.Bus;
@@ -43,7 +42,7 @@ class BusRouteCostCalculatorTest {
     private StationRepository stationRepository;
 
     private final TramDate date = TestEnv.testDay();
-    private Set<TransportMode> modes;
+    private EnumSet<TransportMode> modes;
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() {

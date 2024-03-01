@@ -8,8 +8,8 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.InvalidDurationException;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.RouteCostCalculator;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -18,7 +18,6 @@ import org.junit.jupiter.api.*;
 
 import java.time.Duration;
 import java.util.EnumSet;
-import java.util.Set;
 
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
 import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
@@ -39,7 +38,7 @@ public class RailRouteCostsTest {
     private Station miltonKeynes;
 
     private final TramDate date = TestEnv.testDay();
-    private Set<TransportMode> modes;
+    private EnumSet<TransportMode> modes;
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
