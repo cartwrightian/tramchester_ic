@@ -5,6 +5,7 @@ import com.tramchester.domain.GraphProperty;
 import com.tramchester.domain.HasGraphLabel;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.RouteStation;
+import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import org.neo4j.graphalgo.EvaluationContext;
 import org.neo4j.graphdb.*;
@@ -15,7 +16,7 @@ import java.util.stream.Stream;
 public interface GraphTransaction extends AutoCloseable {
     void close();
 
-    ImmutableGraphRelationship wrapRelationship(Relationship relationship);
+    ImmutableGraphRelationship wrapRelationship(Relationship relationship, TransportRelationshipTypes relationshipType);
 
     GraphNode wrapNode(Node node);
 

@@ -32,12 +32,14 @@ import static com.tramchester.graph.GraphPropertyKey.*;
 public class MutableGraphRelationship extends HaveGraphProperties implements GraphRelationship {
     private final Relationship relationship;
     private final GraphRelationshipId id;
+    private final TransportRelationshipTypes relationshipType;
 
     private ImmutableGraphNode endNode;
 
-    MutableGraphRelationship(Relationship relationship, GraphRelationshipId id) {
+    MutableGraphRelationship(Relationship relationship, GraphRelationshipId id, TransportRelationshipTypes relationshipType) {
         this.relationship = relationship;
         this.id = id;
+        this.relationshipType = relationshipType;
     }
 
     public GraphRelationshipId getId() {
@@ -125,7 +127,10 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
         }
 
         final String[] existing = (String[]) relationship.getProperty(property);
-        // todo better way to do this check?
+//        final int index = Arrays.binarySearch(existing, text);
+//        if (index>=0) {
+//            return;
+//        }
         final List<String> existingList = Arrays.asList(existing);
         if (existingList.contains(text)) {
             return;
@@ -133,6 +138,7 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
 
         String[] replacement = Arrays.copyOf(existing, existing.length + 1);
         replacement[existing.length] = text;
+        Arrays.sort(existing);
         relationship.setProperty(property, replacement);
     }
 
@@ -156,6 +162,8 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
             throw new RuntimeException("Unexpected for this relationship " + this);
         }
         final String[] existing = (String[]) relationship.getProperty(property);
+        // NOTE: assumed sorted
+//        return (Arrays.binarySearch(existing, text)>=0);
         final List<String> existingList = Arrays.asList(existing);
         return existingList.contains(text);
     }
@@ -188,7 +196,7 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
     }
 
     public TransportRelationshipTypes getType() {
-        return TransportRelationshipTypes.valueOf(relationship.getType().name());
+        return relationshipType;
     }
 
     public IdFor<Route> getRouteId() {
@@ -227,10 +235,7 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
             return false;
         }
         final LocalDate endDate = getEndDate();
-        if (localDate.isAfter(endDate)) {
-            return false;
-        }
-        return true;
+        return !localDate.isAfter(endDate);
     }
 
     private LocalDate getEndDate() {
@@ -280,7 +285,7 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
     @Override
     public String toString() {
         return "MutableGraphRelationship{" +
-                "type=" + relationship.getType() +
+                "type=" + relationshipType +
                 " id=" + id +
                 "} ";
     }

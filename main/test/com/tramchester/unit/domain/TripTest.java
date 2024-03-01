@@ -57,6 +57,8 @@ class TripTest {
         assertEquals(1, seqNums.get(0).intValue());
         assertEquals(2, seqNums.get(1).intValue());
         assertEquals(3, seqNums.get(2).intValue());
+
+
     }
 
     @Test
@@ -93,6 +95,28 @@ class TripTest {
         trip.addStop(secondStop);
 
         assertFalse(trip.intoNextDay());
+    }
+
+    @Test
+    void shouldHaveOneStartAfterAnother() {
+        PlatformStopCall firstStop = TestEnv.createTramStopCall(trip, "statA1", stationA, (byte) 1,
+                of(10, 0), of(10, 1));
+        PlatformStopCall secondStop = TestEnv.createTramStopCall(trip, "statB1", stationB, (byte) 2,
+                of(10, 5), of(10, 6));
+        PlatformStopCall thirdStop = TestEnv.createTramStopCall(trip, "statA1", stationC, (byte) 3,
+                of(10, 10), of(10, 10));
+
+        trip.addStop(firstStop);
+        trip.addStop(secondStop);
+        trip.addStop(thirdStop);
+
+        assertTrue(trip.isAfter(stationA.getId(), stationB.getId()));
+        assertTrue(trip.isAfter(stationA.getId(), stationC.getId()));
+        assertTrue(trip.isAfter(stationB.getId(), stationC.getId()));
+
+        assertFalse(trip.isAfter(stationA.getId(), stationA.getId()));
+        assertFalse(trip.isAfter(stationB.getId(), stationA.getId()));
+        assertFalse(trip.isAfter(stationC.getId(), stationA.getId()));
     }
 
     @Test

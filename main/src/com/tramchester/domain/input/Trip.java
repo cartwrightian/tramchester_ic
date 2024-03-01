@@ -47,4 +47,6 @@ public interface Trip extends HasId<Trip>, HasTransportMode, GraphProperty, Core
     IdFor<Station> firstStation();
 
     IdFor<Station> lastStation();
+
+    boolean isAfter(IdFor<Station> first, IdFor<Station> second);
 }

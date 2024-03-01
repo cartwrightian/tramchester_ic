@@ -190,4 +190,16 @@ public class MutableTrip implements Trip {
         return lastStop.getStationId();
     }
 
+    /***
+     * @param first first station id
+     * @param second second start id
+     * @return true iff second is after first for this trip
+     */
+    @Override
+    public boolean isAfter(final IdFor<Station> first, final IdFor<Station> second) {
+        final int seqA = stopCalls.getStopFor(first).getGetSequenceNumber();
+        final int seqB = stopCalls.getStopFor(second).getGetSequenceNumber();
+        return seqB > seqA;
+    }
+
 }

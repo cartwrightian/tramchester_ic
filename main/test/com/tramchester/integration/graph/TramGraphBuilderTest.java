@@ -338,15 +338,9 @@ class TramGraphBuilderTest {
                 filter(trip -> trip.getService().getId().equals(svcId)).
                 filter(trip -> trip.getRoute().equals(route)).
                 filter(trip -> trip.callsAt(station.getId())).
-                filter(trip -> isAfter(trip, station.getId(), towards)).
+                filter(trip -> trip.isAfter(station.getId(), towards)).
                 filter(trip -> !trip.lastStation().equals(station.getId())).
                 collect(IdSet.collector());
-    }
-
-    private boolean isAfter(Trip trip, IdFor<Station> stationA, IdFor<Station> stationB) {
-        int seqA = trip.getStopCalls().getStopFor(stationA).getGetSequenceNumber();
-        int seqB = trip.getStopCalls().getStopFor(stationB).getGetSequenceNumber();
-        return seqB > seqA;
     }
 
     @Test

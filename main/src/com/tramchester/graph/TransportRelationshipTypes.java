@@ -66,14 +66,14 @@ public enum TransportRelationshipTypes implements RelationshipType {
         };
     }
 
-    public static boolean hasCost(TransportRelationshipTypes relationshipType) {
+    public static boolean hasCost(final TransportRelationshipTypes relationshipType) {
         return switch (relationshipType) {
             case TO_HOUR,TO_MINUTE, TO_SERVICE -> false;
             default -> true;
         };
     }
 
-    public static boolean hasTripId(TransportRelationshipTypes relationshipType) {
+    public static boolean hasTripId(final TransportRelationshipTypes relationshipType) {
         return switch (relationshipType) {
             case TRAM_GOES_TO, TRAIN_GOES_TO, BUS_GOES_TO, FERRY_GOES_TO, SUBWAY_GOES_TO, TO_MINUTE -> true;
             default -> false;
@@ -88,12 +88,12 @@ public enum TransportRelationshipTypes implements RelationshipType {
         return Arrays.stream(values()).filter(TransportRelationshipTypes::hasTripId).collect(Collectors.toSet());
     }
 
-    public static TransportRelationshipTypes from(Relationship relationship) {
+    public static TransportRelationshipTypes from(final Relationship relationship) {
         return valueOf(relationship.getType().name());
     }
 
-    public static TransportRelationshipTypes[] forModes(Set<TransportMode> transportModes) {
-        TransportRelationshipTypes[] results = new TransportRelationshipTypes[transportModes.size()];
+    public static TransportRelationshipTypes[] forModes(final EnumSet<TransportMode> transportModes) {
+        final TransportRelationshipTypes[] results = new TransportRelationshipTypes[transportModes.size()];
         int index = 0;
         for (TransportMode mode: transportModes) {
             results[index] = forMode(mode);

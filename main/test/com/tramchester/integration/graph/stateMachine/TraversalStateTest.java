@@ -40,8 +40,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
-import static com.tramchester.testSupport.reference.TramStations.Bury;
-import static com.tramchester.testSupport.reference.TramStations.Cornbrook;
+import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TraversalStateTest extends EasyMockSupport {
@@ -115,7 +114,7 @@ public class TraversalStateTest extends EasyMockSupport {
         GraphNode routeStationNode = txn.findNode(routeStation);
 
         boolean isInterchange = true;
-        Trip trip = findATrip(route);
+        Trip trip = findATrip(route, TraffordBar.getId());
 
         replayAll();
         RouteStationStateOnTrip routeStationStateOnTrip = builder.fromMinuteState(updateState, minuteState, routeStationNode, cost, isInterchange, trip, txn);
@@ -155,7 +154,7 @@ public class TraversalStateTest extends EasyMockSupport {
         GraphNode routeStationNode = txn.findNode(routeStation);
 
         boolean isInterchange = true;
-        Trip trip = findATrip(route);
+        Trip trip = findATrip(route, TraffordBar.getId());
 
         replayAll();
         RouteStationStateEndTrip routeStationStateOnTrip = builder.fromMinuteState(updateState, minuteState, routeStationNode, cost, isInterchange, trip, txn);
@@ -172,7 +171,6 @@ public class TraversalStateTest extends EasyMockSupport {
         assertEquals(fromStation, platformIds);
     }
 
-    @Disabled("WIP")
     @Test
     void shouldHaveAllExpectedOutboundWhenDestNotAvailableOnTrip() {
         LocationCollection endStations = new LocationSet<>(Collections.singletonList(Bury.from(stationRepository)));
@@ -195,7 +193,7 @@ public class TraversalStateTest extends EasyMockSupport {
         GraphNode routeStationNode = txn.findNode(routeStation);
 
         boolean isInterchange = true;
-        Trip trip = findATrip(route);
+        Trip trip = findATrip(route, Deansgate.getId());
 
         replayAll();
         RouteStationStateOnTrip routeStationStateOnTrip = builder.fromMinuteState(updateState, minuteState, routeStationNode,
@@ -257,13 +255,14 @@ public class TraversalStateTest extends EasyMockSupport {
     }
 
     @NotNull
-    private Trip findATrip(Route route) {
+    private Trip findATrip(Route route, IdFor<Station> towardsId) {
         // want a trip that calls at cornbrook but does not finish these
-        IdFor<Station> stationId = cornbrook.getId();
+        IdFor<Station> cornbrookId = cornbrook.getId();
         Optional<Trip> findTrip = route.getTrips().stream().
-                filter(trip -> trip.callsAt(stationId) && trip.operatesOn(when)).
-                filter(trip -> !trip.lastStation().equals(stationId)).
-                filter(trip -> !trip.firstStation().equals(stationId)).
+                filter(trip -> trip.callsAt(cornbrookId) && trip.operatesOn(when)).
+                filter(trip -> !trip.lastStation().equals(cornbrookId)).
+                filter(trip -> !trip.firstStation().equals(cornbrookId)).
+                filter(trip -> trip.isAfter(cornbrookId, towardsId)).
                 findFirst();
 
         assertFalse(findTrip.isEmpty());

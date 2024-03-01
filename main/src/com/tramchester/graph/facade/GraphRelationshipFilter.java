@@ -1,5 +1,6 @@
 package com.tramchester.graph.facade;
 
+import com.tramchester.graph.TransportRelationshipTypes;
 import org.neo4j.graphdb.Relationship;
 
 import java.util.function.Predicate;
@@ -14,8 +15,8 @@ public class GraphRelationshipFilter  implements Predicate<Relationship> {
         }
 
         @Override
-        public boolean test(Relationship relationship) {
-            return contained.test(txn.wrapRelationship(relationship));
+        public boolean test(final Relationship relationship) {
+            return contained.test(txn.wrapRelationship(relationship, TransportRelationshipTypes.from(relationship)));
         }
 
 }

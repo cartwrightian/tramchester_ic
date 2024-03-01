@@ -5,6 +5,7 @@ import com.tramchester.domain.GraphProperty;
 import com.tramchester.domain.HasGraphLabel;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.RouteStation;
+import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import org.neo4j.graphalgo.EvaluationContext;
 import org.neo4j.graphdb.*;
@@ -66,8 +67,8 @@ public class ImmutableGraphTransaction implements GraphTransaction  {
     }
 
     @Override
-    public ImmutableGraphRelationship wrapRelationship(Relationship relationship) {
-        return underlying.wrapRelationship(relationship);
+    public ImmutableGraphRelationship wrapRelationship(Relationship relationship, TransportRelationshipTypes relationshipType) {
+        return underlying.wrapRelationship(relationship, relationshipType);
     }
 
     @Override
