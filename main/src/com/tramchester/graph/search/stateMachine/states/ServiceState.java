@@ -1,14 +1,12 @@
 package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.graphbuild.GraphLabel;
-import com.tramchester.graph.search.stateMachine.ExistingTrip;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
 
@@ -41,10 +39,10 @@ public class ServiceState extends TraversalState implements HasTowardsStationId 
             return TraversalStateType.ServiceState;
         }
 
-        public TraversalState fromRouteStation(final RouteStationStateOnTrip state, final IdFor<Trip> tripId, final GraphNode graphNode,
+        public TraversalState fromRouteStation(final RouteStationStateOnTrip state, final GraphNode graphNode,
                                                final Duration cost, final GraphTransaction txn) {
             final Stream<ImmutableGraphRelationship> hourRelationships = getHourRelationships(graphNode, txn);
-            return new ServiceState(state, hourRelationships, ExistingTrip.onTrip(tripId), cost, this, graphNode, depthFirst,
+            return new ServiceState(state, hourRelationships, cost, this, graphNode, depthFirst,
                     super.getQueryHour());
         }
 
@@ -59,33 +57,32 @@ public class ServiceState extends TraversalState implements HasTowardsStationId 
 
     }
 
-    private final ExistingTrip maybeExistingTrip;
+//    private final ExistingTrip maybeExistingTrip;
     private final boolean depthFirst;
     private final int queryHour;
     private final IdFor<Station> towardsStationId;
 
-    private ServiceState(final TraversalState parent, final Stream<ImmutableGraphRelationship> relationships,
-                         final ExistingTrip maybeExistingTrip,
-                         final Duration cost, final Towards<ServiceState> builder, GraphNode serviceNode, boolean depthFirst, int queryHour) {
-        super(parent, relationships, cost, builder.getDestination(), serviceNode);
-        this.maybeExistingTrip = maybeExistingTrip;
-        this.depthFirst = depthFirst;
-        this.queryHour = queryHour;
-        this.towardsStationId = serviceNode.getTowardsStationId();
-    }
+//    private ServiceState(final TraversalState parent, final Stream<ImmutableGraphRelationship> relationships,
+//                         final Duration cost, final Towards<ServiceState> builder, GraphNode serviceNode, boolean depthFirst, int queryHour) {
+//        super(parent, relationships, cost, builder.getDestination(), serviceNode);
+////        this.maybeExistingTrip = maybeExistingTrip;
+//        this.depthFirst = depthFirst;
+//        this.queryHour = queryHour;
+//        this.towardsStationId = serviceNode.getTowardsStationId();
+//    }
 
     private ServiceState(final TraversalState parent, final Stream<ImmutableGraphRelationship> relationships,
                          final Duration cost, final Towards<ServiceState> builder, GraphNode serviceNode, boolean depthFirst, int queryHour) {
         super(parent, relationships, cost, builder.getDestination(), serviceNode);
         this.queryHour = queryHour;
-        this.maybeExistingTrip = ExistingTrip.none();
+//        this.maybeExistingTrip = ExistingTrip.none();
         this.depthFirst = depthFirst;
         this.towardsStationId = serviceNode.getTowardsStationId();
     }
 
     @Override
     protected HourState toHour(final HourState.Builder towardsHour, final GraphNode node, final Duration cost) {
-        return towardsHour.fromService(this, node, cost, maybeExistingTrip, towardsStationId, txn);
+        return towardsHour.fromService(this, node, cost, towardsStationId, txn);
     }
 
     @Override
@@ -114,7 +111,6 @@ public class ServiceState extends TraversalState implements HasTowardsStationId 
     @Override
     public String toString() {
         return "ServiceState{" +
-                "maybeExistingTrip=" + maybeExistingTrip +
                 "} " + super.toString();
     }
 

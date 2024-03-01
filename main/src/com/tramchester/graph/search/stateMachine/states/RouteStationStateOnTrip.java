@@ -51,10 +51,11 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
 
         public RouteStationStateOnTrip fromMinuteState(JourneyStateUpdate journeyState, final MinuteState minuteState,
                                                        final GraphNode routeStationNode, final Duration cost, final boolean isInterchange,
-                                                       final Trip trip, final GraphTransaction txn) {
+                                                       final Trip trip, // TODO Remove this
+                                                       final GraphTransaction txn) {
             // todo, use label and/or cache this - perf impact currently low
             final TransportMode transportMode = routeStationNode.getTransportMode();
-            final IdFor<Trip> tripId = trip.getId();
+            final IdFor<Trip> tripId = journeyState.getCurrentTrip();
 
             final OptionalResourceIterator<ImmutableGraphRelationship> towardsDestination = getTowardsDestination(routeStationNode, txn);
             if (!towardsDestination.isEmpty()) {
@@ -104,7 +105,7 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
 
     @Override
     protected TraversalState toService(final ServiceState.Builder towardsService, final GraphNode serviceNode, final Duration cost) {
-        return towardsService.fromRouteStation(this, tripId, serviceNode, cost, txn);
+        return towardsService.fromRouteStation(this, serviceNode, cost, txn);
     }
 
     @Override
