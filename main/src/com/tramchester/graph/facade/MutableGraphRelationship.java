@@ -8,6 +8,7 @@ import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -21,7 +22,10 @@ import org.neo4j.graphdb.Relationship;
 
 import java.time.Duration;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
 
 import static com.tramchester.graph.GraphPropertyKey.*;
 
@@ -133,14 +137,14 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
     }
 
 
-    public List<IdFor<Trip>> getTripIds() {
+    public IdSet<Trip> getTripIds() {
         final String property = TRIP_ID_LIST.getText();
         if (!relationship.hasProperty(property)) {
-            return Collections.emptyList();
+            return IdSet.emptySet();
         }
         final String[] existing = (String[]) relationship.getProperty(property);
 
-        return Arrays.stream(existing).map(Trip::createId).toList();
+        return Arrays.stream(existing).map(Trip::createId).collect(IdSet.idCollector());
     }
 
     @Override

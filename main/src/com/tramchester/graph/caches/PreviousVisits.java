@@ -36,8 +36,10 @@ public class PreviousVisits implements ReportsCacheStats {
     private final Cache<GraphNodeId, HeuristicsReason> routeStationPrevious;
     private final Cache<GraphNodeId, HeuristicsReason> servicePrevious;
     private final Cache<GraphNodeId, Integer> lowestNumberOfChanges;
+    private final boolean cachingDisabled;
 
-    public PreviousVisits() {
+    public PreviousVisits(boolean cachingDisabled) {
+        this.cachingDisabled = cachingDisabled;
         timeNodePrevious = createCache(100000);
         hourNodePrevious = createCache(400000);
         routeStationPrevious = createCache(40000);
@@ -54,6 +56,9 @@ public class PreviousVisits implements ReportsCacheStats {
     // TODO Disable for depth first?
 
     public void cacheVisitIfUseful(final HeuristicsReason reason, final GraphNode node, ImmutableJourneyState journeyState, final EnumSet<GraphLabel> labels) {
+        if (cachingDisabled) {
+            return;
+        }
 
         final ReasonCode reasonCode = reason.getReasonCode();
 
@@ -123,6 +128,10 @@ public class PreviousVisits implements ReportsCacheStats {
 
     public HeuristicsReason getPreviousResult(final ImmutableJourneyState journeyState,
                                               final EnumSet<GraphLabel> labels, HowIGotHere howIGotHere) {
+
+        if (cachingDisabled) {
+            return HeuristicsReasons.CacheMiss(howIGotHere);
+        }
 
         final GraphNodeId nodeId = howIGotHere.getEndNodeId();
 

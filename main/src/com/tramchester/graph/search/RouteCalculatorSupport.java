@@ -193,8 +193,8 @@ public class RouteCalculatorSupport {
         }
     }
 
-    protected PreviousVisits createPreviousVisits() {
-        return new PreviousVisits();
+    protected PreviousVisits createPreviousVisits(JourneyRequest journeyRequest) {
+        return new PreviousVisits(journeyRequest.getCachingDisabled());
     }
 
     @NotNull

@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.*;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.RailRouteId;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.Trip;
@@ -21,10 +22,10 @@ import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.UnitTestOfGraphConfig;
 import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
-import com.tramchester.testSupport.UnitTestOfGraphConfig;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
@@ -218,7 +219,7 @@ public class GraphPropsTest {
 
         assertTrue(relationship.hasTripId(tripA));
 
-        List<IdFor<Trip>> result = relationship.getTripIds();
+        IdSet<Trip> result = relationship.getTripIds();
 
         assertEquals(2, result.size());
         assertTrue(result.contains(tripA));

@@ -4,6 +4,7 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -15,7 +16,6 @@ import com.tramchester.graph.TransportRelationshipTypes;
 
 import java.time.Duration;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Map;
 
 public interface GraphRelationship {
@@ -64,7 +64,7 @@ public interface GraphRelationship {
 
     IdFor<StationGroup> getStationGroupId();
 
-    List<IdFor<Trip>> getTripIds();
+    IdSet<Trip> getTripIds();
 
     boolean hasTripId(IdFor<Trip> tripId);
 }

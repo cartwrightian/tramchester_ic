@@ -4,6 +4,7 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
@@ -20,7 +21,6 @@ import org.neo4j.internal.helpers.collection.Iterables;
 import java.time.Duration;
 import java.util.EnumSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -159,7 +159,7 @@ public class ImmutableGraphRelationship implements GraphRelationship {
     }
 
     @Override
-    public List<IdFor<Trip>> getTripIds() {
+    public IdSet<Trip> getTripIds() {
         return underlying.getTripIds();
     }
 

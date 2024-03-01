@@ -303,6 +303,8 @@ public class RouteCalculatorTest {
         JourneyRequest request = new JourneyRequest(today, TramTime.of(20, 9), false, 2,
                 maxJourneyDuration, 6, requestedModes);
 
+        //request.setCachingDisabled(true);
+
         List<Journey> results = calculator.calculateRouteAsList(Deansgate, ManAirport, request);
 
         assertFalse(results.isEmpty(),"no journeys found");

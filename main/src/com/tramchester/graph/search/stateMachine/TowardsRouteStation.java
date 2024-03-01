@@ -38,6 +38,7 @@ public abstract class TowardsRouteStation<T extends RouteStationState> extends S
                 outboundsToFollow = Stream.empty();
             }
         } else {
+            // not only interchanges
             outboundsToFollow = node.getRelationships(txn, OUTGOING, DEPART, INTERCHANGE_DEPART);
         }
 
@@ -47,7 +48,7 @@ public abstract class TowardsRouteStation<T extends RouteStationState> extends S
     }
 
     private Stream<ImmutableGraphRelationship> getActiveDiversions(final GraphNode node, final GraphTransaction txn) {
-        TramDate queryDate = super.getQueryDate();
+        final TramDate queryDate = super.getQueryDate();
 
         final Stream<ImmutableGraphRelationship> diversions = node.getRelationships(txn, OUTGOING, DIVERSION_DEPART);
         return diversions.filter(relationship -> relationship.validOn(queryDate));

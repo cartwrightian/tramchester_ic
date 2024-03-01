@@ -174,7 +174,6 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         }
         if (currentStateType==TraversalStateType.MinuteState) {
             final MinuteState minuteState = (MinuteState) this;
-            // todo this needs to be trip id based, since routes (and hence services) are bi-directional
             if (traversalOps.hasOutboundTripFor(node, minuteState.getTripId())) {
                 return TraversalStateType.RouteStationStateOnTrip;
             } else {

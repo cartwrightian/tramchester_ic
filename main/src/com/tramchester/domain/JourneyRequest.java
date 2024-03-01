@@ -24,6 +24,7 @@ public class JourneyRequest {
 
     private boolean diagRequested;
     private boolean warnIfNoResults;
+    private boolean cachingDisabled;
 
     private final AtomicBoolean diagnosticsReceived;
     private JourneyDiagnostics journeyDiagnostics;
@@ -44,6 +45,7 @@ public class JourneyRequest {
         }
 
         diagRequested = false;
+        cachingDisabled = false;
         warnIfNoResults = true;
         diagnosticsReceived = new AtomicBoolean(false);
     }
@@ -165,5 +167,14 @@ public class JourneyRequest {
 
     public JourneyDiagnostics getDiagnostics() {
         return journeyDiagnostics;
+    }
+
+    public boolean getCachingDisabled() {
+        return cachingDisabled;
+    }
+
+    public void setCachingDisabled(boolean disabled) {
+        // aids with debugging and performance tuning
+        this.cachingDisabled = disabled;
     }
 }

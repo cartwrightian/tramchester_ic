@@ -200,7 +200,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         final ServiceReasons serviceReasons = createServiceReasons(journeyRequest, singlePathRequest);
 
         final Stream<Journey> results = findShortestPath(txn, serviceReasons, singlePathRequest,
-                        createPreviousVisits(), lowestCostSeen, destinations, destinationNodeIds, running).
+                        createPreviousVisits(journeyRequest), lowestCostSeen, destinations, destinationNodeIds, running).
                 map(path -> createJourney(journeyRequest, path, destinations, journeyIndex, txn));
 
         //noinspection ResultOfMethodCallIgnored
@@ -255,7 +255,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
                         map(queryTime -> createPathRequest(startNode, tramDate, queryTime, requestedModes, numChanges,
                                 journeyConstraints, maxInitialWait, selector))).
                 flatMap(pathRequest -> findShortestPath(txn, createServiceReasons(journeyRequest, pathRequest), pathRequest,
-                        createPreviousVisits(), lowestCostSeen, destinations, destinationNodeIds,
+                        createPreviousVisits(journeyRequest), lowestCostSeen, destinations, destinationNodeIds,
                         running)).
                 map(path -> createJourney(journeyRequest, path, destinations, journeyIndex, txn));
 

@@ -28,6 +28,7 @@ import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.VictoriaCrackedRailTest;
 import org.assertj.core.util.Streams;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Direction;
 
@@ -249,7 +250,6 @@ class TramGraphBuilderTest {
 
     }
 
-
     @Test
     void shouldHaveCorrectOutboundsServiceAndTripAtCornbrook() {
 
@@ -261,8 +261,7 @@ class TramGraphBuilderTest {
 
         List<ImmutableGraphRelationship> outboundsFromRouteStation = txn.getRouteStationRelationships(routeStation, Direction.OUTGOING);
 
-        List<ImmutableGraphRelationship> svcOutbounds = outboundsFromRouteStation.stream().
-                filter(relationship -> relationship.isType(TO_SERVICE)).toList();
+        List<ImmutableGraphRelationship> svcOutbounds = outboundsFromRouteStation.stream().filter(relationship -> relationship.isType(TO_SERVICE)).toList();
         assertFalse(svcOutbounds.isEmpty());
 
         IdSet<Service> unique = svcOutbounds.stream().map(ImmutableGraphRelationship::getServiceId).collect(IdSet.idCollector());
@@ -275,18 +274,73 @@ class TramGraphBuilderTest {
         svcOutbounds.
                 forEach(svcRelationship -> {
                     IdFor<Service> svcId = svcRelationship.getServiceId();
-                    IdFor<Station> towards = svcRelationship.getEndNode(txn).getTowardsStationId();
-                    Set<Trip> matchingTrips = transportData.getTrips().stream().
-                            filter(trip -> trip.getService().getId().equals(svcId)).
-                            filter(trip -> trip.getRoute().equals(buryToAlty)).
-                            filter(trip -> trip.callsAt(cornbrook.getId())).
-                            filter(trip -> isAfter(trip, cornbrook.getId(), towards)).
-                            filter(trip -> !trip.lastStation().equals(cornbrook.getId())).
-                            collect(Collectors.toSet());
-
-                    Set<Trip> missing = matchingTrips.stream().filter(tripId -> !svcRelationship.hasTripId(tripId.getId())).collect(Collectors.toSet());
-                    assertTrue(missing.isEmpty(), svcId + " had missing trips " + missing);
+                    IdFor<Station> towardsStationId = svcRelationship.getEndNode(txn).getTowardsStationId();
+                    IdSet<Trip> tripIds = svcRelationship.getTripIds();
+                    IdSet<Trip> expectedTrips = relevantTripsFor(svcId, buryToAlty, cornbrook, towardsStationId);
+                    assertEquals(expectedTrips, tripIds, "trip mismatch for " + svcId + " towards " + towardsStationId);
                 });
+    }
+
+    @Test
+    void shouldHaveSameOutboundTripIdsForNeighbouringRouteStationWhenSameRouteAndSvc() {
+        // outbound from manchester Timperley then Navigation Road
+        Station stationA = Timperley.from(stationRepository);
+        Station stationB = NavigationRoad.from(stationRepository);
+
+        Route buryToAlty = tramRouteHelper.getOneRoute(BuryManchesterAltrincham, when);
+
+        RouteStation routeStationA = stationRepository.getRouteStation(stationA, buryToAlty);
+        RouteStation routeStationB = stationRepository.getRouteStation(stationB, buryToAlty);
+
+        List<ImmutableGraphRelationship> svcOutboundsA = txn.getRouteStationRelationships(routeStationA, Direction.OUTGOING).
+                stream().filter(relationship -> relationship.isType(TO_SERVICE)).
+                toList();
+        assertFalse(svcOutboundsA.isEmpty());
+
+        List<ImmutableGraphRelationship> svcOutboundsB = txn.getRouteStationRelationships(routeStationB, Direction.OUTGOING).
+                stream().filter(relationship -> relationship.isType(TO_SERVICE)).
+                toList();
+        assertFalse(svcOutboundsB.isEmpty());
+
+        assertEquals(svcOutboundsA.size(), svcOutboundsB.size(), "not same set of services");
+
+        IdSet<Service> uniqueSvcIds = svcOutboundsA.stream().map(ImmutableGraphRelationship::getServiceId).collect(IdSet.idCollector());
+        assertFalse(uniqueSvcIds.isEmpty());
+
+        uniqueSvcIds.forEach(svcId -> {
+            // from A towards B only
+            List<ImmutableGraphRelationship> fromA = svcOutboundsA.stream().
+                    filter(svcOutbounds -> svcOutbounds.getServiceId().equals(svcId)).
+                    filter(svcOutbound -> svcOutbound.getEndNode(txn).getTowardsStationId().equals(stationB.getId())).toList();
+            // from B, excluding back towards A
+            List<ImmutableGraphRelationship> fromB = svcOutboundsB.
+                    stream().filter(svcOutbounds -> svcOutbounds.getServiceId().equals(svcId)).
+                    filter(svcOutbound -> !svcOutbound.getEndNode(txn).getTowardsStationId().equals(stationA.getId())).toList();
+
+            assertEquals(1, fromA.size());
+            assertEquals(1, fromB.size());
+
+            IdSet<Trip> tripsFromA = fromA.get(0).getTripIds();
+            IdSet<Trip> tripsFromB = fromB.get(0).getTripIds();
+
+            assertFalse(tripsFromA.isEmpty());
+            assertFalse(tripsFromB.isEmpty());
+
+            assertEquals(tripsFromA, tripsFromB);
+
+        });
+
+    }
+
+    @NotNull
+    private IdSet<Trip> relevantTripsFor(IdFor<Service> svcId, Route route, Station station, IdFor<Station> towards) {
+        return transportData.getTrips().stream().
+                filter(trip -> trip.getService().getId().equals(svcId)).
+                filter(trip -> trip.getRoute().equals(route)).
+                filter(trip -> trip.callsAt(station.getId())).
+                filter(trip -> isAfter(trip, station.getId(), towards)).
+                filter(trip -> !trip.lastStation().equals(station.getId())).
+                collect(IdSet.collector());
     }
 
     private boolean isAfter(Trip trip, IdFor<Station> stationA, IdFor<Station> stationB) {

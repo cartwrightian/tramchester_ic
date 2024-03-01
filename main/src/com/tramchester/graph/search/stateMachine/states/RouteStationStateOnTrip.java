@@ -6,7 +6,10 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.caches.NodeContentsRepository;
-import com.tramchester.graph.facade.*;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphNodeId;
+import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.NodeId;
 import com.tramchester.graph.search.stateMachine.OptionalResourceIterator;
@@ -51,7 +54,7 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
                                                        final Trip trip, final GraphTransaction txn) {
             // todo, use label and/or cache this - perf impact currently low
             final TransportMode transportMode = routeStationNode.getTransportMode();
-            IdFor<Trip> tripId = trip.getId();
+            final IdFor<Trip> tripId = trip.getId();
 
             final OptionalResourceIterator<ImmutableGraphRelationship> towardsDestination = getTowardsDestination(routeStationNode, txn);
             if (!towardsDestination.isEmpty()) {
@@ -61,8 +64,10 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
             }
 
             // outbound service relationships that continue the current trip
+
             final Stream<ImmutableGraphRelationship> towardsServiceForTrip = filterBySvc(
                     routeStationNode.getRelationships(txn, OUTGOING, TO_SERVICE), trip, txn);
+
 //            final Stream<ImmutableGraphRelationship> towardsServiceForTrip = filterByTripId(
 //                    routeStationNode.getRelationships(txn, OUTGOING, TO_SERVICE), tripId);
 

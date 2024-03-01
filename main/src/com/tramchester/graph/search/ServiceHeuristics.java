@@ -233,17 +233,6 @@ public class ServiceHeuristics {
         return journeyConstraints.getMaxPathLength();
     }
 
-//    public HeuristicsReason notAlreadySeen(final ImmutableJourneyState journeyState, final GraphNode nextNode, final HowIGotHere howIGotHere,
-//                                           final ServiceReasons reasons) {
-//        reasons.incrementTotalChecked();
-//
-//        final IdFor<Station> stationId = nextNode.getStationId();
-//        if (journeyState.hasVisited(stationId)) {
-//            return reasons.recordReason(HeuristicsReasons.AlreadySeenStation(stationId, howIGotHere));
-//        }
-//        return valid(ReasonCode.Continue, howIGotHere, reasons);
-//    }
-
 
     public HeuristicsReason checkNotBeenOnTripBefore(final HowIGotHere howIGotHere, final GraphNode minuteNode, final ImmutableJourneyState journeyState,
                                                      final ServiceReasons reasons) {
