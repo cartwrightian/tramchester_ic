@@ -2,6 +2,7 @@ package com.tramchester.graph.facade;
 
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
@@ -67,4 +68,6 @@ public interface GraphRelationship {
     IdSet<Trip> getTripIds();
 
     boolean hasTripId(IdFor<Trip> tripId);
+
+    DateRange getDateRange();
 }

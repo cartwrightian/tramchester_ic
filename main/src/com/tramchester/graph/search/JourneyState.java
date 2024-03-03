@@ -281,6 +281,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
                 "coreState=" + coreState +
                 ", journeyOffset=" + journeyOffset +
                 ", boardingTime=" + boardingTime +
+                ", currentTrip=" + currentTrip +
                 ", traversalState=" + traversalState +
                 '}';
     }

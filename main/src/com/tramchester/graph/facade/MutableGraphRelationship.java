@@ -85,6 +85,12 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
         setEndDate(range.getEndDate().toLocalDate());
     }
 
+    public DateRange getDateRange() {
+        LocalDate start = getStartDate();
+        LocalDate end = getEndDate();
+        return new DateRange(TramDate.of(start), TramDate.of(end));
+    }
+
     public void setEndDate(LocalDate localDate) {
         relationship.setProperty(END_DATE.getText(), localDate);
     }

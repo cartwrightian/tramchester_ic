@@ -21,6 +21,8 @@ public enum GraphLabel implements Label {
     FERRY, // aka a port
     SUBWAY,
 
+    HAS_DIVERSION, // impacted by a diversion
+
     PLATFORM,
     QUERY_NODE, // created to support journeys walking from arbitary location
     SERVICE,

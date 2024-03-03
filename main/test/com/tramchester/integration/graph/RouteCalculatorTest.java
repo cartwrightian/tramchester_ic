@@ -115,7 +115,7 @@ public class RouteCalculatorTest {
                 map(TramStations::getName).collect(Collectors.toSet());
 
         List<Journey> journeys = calculator.calculateRouteAsList(Altrincham, Ashton, journeyRequest);
-        assertFalse(journeys.isEmpty());
+        assertFalse(journeys.isEmpty(), journeyRequest.toString());
 
         Set<Integer> indexes = new HashSet<>();
 

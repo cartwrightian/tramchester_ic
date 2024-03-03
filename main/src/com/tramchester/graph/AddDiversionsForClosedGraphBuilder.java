@@ -5,20 +5,21 @@ import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.ClosedStation;
 import com.tramchester.domain.dates.DateRange;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.geo.MarginInMeters;
-import com.tramchester.graph.facade.MutableGraphNode;
-import com.tramchester.graph.facade.MutableGraphRelationship;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.facade.*;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.CreateNodesAndRelationships;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
 import com.tramchester.mappers.Geography;
 import com.tramchester.repository.ClosedStationsRepository;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StationsWithDiversionRepository;
 import org.apache.commons.lang3.tuple.Pair;
+import org.neo4j.graphdb.Direction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +29,7 @@ import javax.inject.Inject;
 import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.tramchester.domain.id.HasId.asIds;
 import static com.tramchester.graph.GraphPropertyKey.SOURCE_NAME_PROP;
@@ -41,23 +43,25 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
     private final GraphDatabase database;
     private final ClosedStationsRepository closedStationsRepository;
     private final TramchesterConfig config;
-    private final GraphFilter filter;
+    private final GraphFilter graphFilter;
     private final Geography geography;
     private final StationsWithDiversions stationsWithDiversions;
+    private final StationRepository stationRepository;
 
     @Inject
-    public AddDiversionsForClosedGraphBuilder(GraphDatabase database, GraphFilter filter,
+    public AddDiversionsForClosedGraphBuilder(GraphDatabase database, GraphFilter graphFilter,
                                               ClosedStationsRepository closedStationsRepository,
                                               TramchesterConfig config,
                                               @SuppressWarnings("unused") StationsAndLinksGraphBuilder.Ready ready,
-                                              Geography geography) {
+                                              Geography geography, StationRepository stationRepository) {
         super(database);
         this.database = database;
-        this.filter = filter;
+        this.graphFilter = graphFilter;
         this.closedStationsRepository = closedStationsRepository;
         this.config = config;
 
         this.geography = geography;
+        this.stationRepository = stationRepository;
 
         stationsWithDiversions = new StationsWithDiversions();
     }
@@ -90,6 +94,7 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
 
             if (hasDBFlag) {
                 logger.info("Node and prop present, assuming walks for closed already built in DB for " + sourceName);
+                recordDiversionsInPlace();
                 return;
             }
 
@@ -98,6 +103,26 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
             reportStats();
         });
         logger.info("started");
+    }
+
+    private void recordDiversionsInPlace() {
+        try (final ImmutableGraphTransaction txn = graphDatabase.beginTx()) {
+            final Stream<ImmutableGraphNode> haveDiversions = txn.findNodes(GraphLabel.HAS_DIVERSION);
+            haveDiversions.forEach(node -> recordDiversionsAtNode(node, txn));
+        }
+    }
+
+    private void recordDiversionsAtNode(final ImmutableGraphNode node, final GraphTransaction txn) {
+        final IdFor<Station> stationId = node.getStationId();
+        final Station station = stationRepository.getStationById(stationId);
+
+        final Stream<ImmutableGraphRelationship> outgoingDiversion = node.getRelationships(txn, Direction.OUTGOING, DIVERSION);
+
+        final Set<DateRange> ranges = outgoingDiversion.map(ImmutableGraphRelationship::getDateRange).collect(Collectors.toSet());
+
+        logger.info("Recording diversion for " + stationId + " for " + ranges);
+
+        stationsWithDiversions.add(station, ranges);
     }
 
     @PreDestroy
@@ -109,7 +134,7 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
         return new Ready();
     }
 
-    private void createWalksForClosed(GTFSSourceConfig source) {
+    private void createWalksForClosed(final GTFSSourceConfig source) {
         logger.info("Add walks for closed stations for " + source.getName());
         final Set<ClosedStation> closures = closedStationsRepository.getClosedStationsFor(source.getDataSourceId());
         final IdSet<Station> closedStationIds = closures.stream().map(ClosedStation::getStationId).collect(IdSet.idCollector());
@@ -122,7 +147,7 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
         final MarginInMeters range = config.getWalkingDistanceRange();
 
         closures.stream().
-                filter(closedStation -> filter.shouldInclude(closedStation.getStation())).
+                filter(closedStation -> graphFilter.shouldInclude(closedStation.getStation())).
                 filter(closedStation -> closedStation.getStation().getGridPosition().isValid()).
             forEach(closedStation -> {
 
@@ -141,11 +166,11 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
             });
     }
 
-    private void createWalks(Set<Station> linkedNearby, ClosedStation closedStation, MarginInMeters range) {
+    private void createWalks(final Set<Station> linkedNearby, final ClosedStation closedStation, final MarginInMeters range) {
         try(TimedTransaction timedTransaction = new TimedTransaction(database, logger, "create diversions for " +closedStation.getStationId())) {
-            MutableGraphTransaction txn = timedTransaction.transaction();
+            final MutableGraphTransaction txn = timedTransaction.transaction();
             addDiversionsToAndFromClosed(txn, linkedNearby, closedStation);
-            int added = addDiversionsAroundClosed(txn, linkedNearby, closedStation, range);
+            final int added = addDiversionsAroundClosed(txn, linkedNearby, closedStation, range);
             if (added==0) {
                 logger.warn("Did not create any diversions around closure of " + closedStation.getStationId());
             }
@@ -153,22 +178,22 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
         }
     }
 
-    private boolean hasDBFlag(GTFSSourceConfig sourceConfig) {
+    private boolean hasDBFlag(final GTFSSourceConfig sourceConfig) {
         logger.info("Checking DB if walks added for " + sourceConfig.getName() +  " closed stations");
         final boolean flag;
-        try (MutableGraphTransaction txn = graphDatabase.beginTxMutable()) {
-            String value = sourceConfig.getName();
+        try (final MutableGraphTransaction txn = graphDatabase.beginTxMutable()) {
+            final String value = sourceConfig.getName();
 
             flag = txn.hasAnyMatching(GraphLabel.WALK_FOR_CLOSED_ENABLED, SOURCE_NAME_PROP.getText(), value);
         }
         return flag;
     }
 
-    private void addDBFlag(GTFSSourceConfig sourceConfig) {
+    private void addDBFlag(final GTFSSourceConfig sourceConfig) {
         try (MutableGraphTransaction txn = graphDatabase.beginTxMutable()) {
-            List<MutableGraphNode> nodes = txn.findNodesMutable(GraphLabel.WALK_FOR_CLOSED_ENABLED).toList();
+            final List<MutableGraphNode> nodes = txn.findNodesMutable(GraphLabel.WALK_FOR_CLOSED_ENABLED).toList();
 
-            MutableGraphNode node;
+            final MutableGraphNode node;
             if (nodes.isEmpty()) {
                 logger.info("Creating " + GraphLabel.WALK_FOR_CLOSED_ENABLED + " node");
                 node = createGraphNode(txn, GraphLabel.WALK_FOR_CLOSED_ENABLED);
@@ -187,7 +212,7 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
         }
     }
 
-    private void addDiversionsToAndFromClosed(MutableGraphTransaction txn, final Set<Station> others, ClosedStation closure) {
+    private void addDiversionsToAndFromClosed(final MutableGraphTransaction txn, final Set<Station> others, final ClosedStation closure) {
         final Station closedStation = closure.getStation();
 
         final MutableGraphNode closedNode = txn.findNodeMutable(closedStation);
@@ -199,7 +224,7 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
 
         logger.info("Adding Diversion relations to/from closed " + closedStation.getId() + " to/from " + asIds(others));
 
-        others.stream().filter(filter::shouldInclude).forEach(otherStation -> {
+        others.stream().filter(graphFilter::shouldInclude).forEach(otherStation -> {
 
             final Duration cost = geography.getWalkingDuration(closedStation, otherStation);
 
@@ -221,13 +246,15 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
             fromClosed.set(otherStation);
             fromOther.set(closedStation);
 
+            otherNode.addLabel(GraphLabel.HAS_DIVERSION);
             stationsWithDiversions.add(otherStation, closure.getDateRange());
 
         });
     }
 
-    private int addDiversionsAroundClosed(MutableGraphTransaction txn, Set<Station> nearbyStations, ClosedStation closure, MarginInMeters range) {
-        Set<Pair<Station, Station>> toLinkViaDiversion = nearbyStations.stream().
+    private int addDiversionsAroundClosed(final MutableGraphTransaction txn, final Set<Station> nearbyStations,
+                                          final ClosedStation closure, final MarginInMeters range) {
+        final Set<Pair<Station, Station>> toLinkViaDiversion = nearbyStations.stream().
                 flatMap(nearbyA -> nearbyStations.stream().map(nearbyB -> Pair.of(nearbyA, nearbyB))).
                 filter(pair -> !pair.getLeft().equals(pair.getRight())).
                 filter(pair -> range.within(geography.getDistanceBetweenInMeters(pair.getLeft(), pair.getRight()))).
@@ -239,80 +266,87 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
 
         logger.info("Create " + toLinkViaDiversion.size() + " diversions to/from stations");
 
-        Set<Station> uniqueStations = new HashSet<>();
+        final Set<Station> uniqueStations = new HashSet<>();
 
         toLinkViaDiversion.forEach(pair -> {
-            Station first = pair.getLeft();
-            Station second = pair.getRight();
+            final Station first = pair.getLeft();
+            final Station second = pair.getRight();
 
             uniqueStations.add(first);
             uniqueStations.add(second);
 
-            Duration cost = geography.getWalkingDuration(first, second);
+            final Duration cost = geography.getWalkingDuration(first, second);
 
             logger.info(format("Create diversion between %s and %s cost %s", first.getId(), second.getId(), cost));
 
-            MutableGraphNode firstNode = txn.findNodeMutable(first);
-            MutableGraphNode secondNode = txn.findNodeMutable(second);
+            final MutableGraphNode firstNode = txn.findNodeMutable(first);
+            final MutableGraphNode secondNode = txn.findNodeMutable(second);
 
-            MutableGraphRelationship relationship = createRelationship(txn, firstNode, secondNode, DIVERSION);
+            firstNode.addLabel(GraphLabel.HAS_DIVERSION);
+
+            final MutableGraphRelationship relationship = createRelationship(txn, firstNode, secondNode, DIVERSION);
             setCommonProperties(relationship, cost, closure);
             relationship.set(second);
         });
 
+        // TODO Is this correct?
         uniqueStations.forEach(station -> stationsWithDiversions.add(station, closure.getDateRange()));
 
         return toLinkViaDiversion.size();
     }
 
-    private void setCommonProperties(MutableGraphRelationship relationship, Duration cost, ClosedStation closure) {
+    private void setCommonProperties(final MutableGraphRelationship relationship, final Duration cost, final ClosedStation closure) {
         relationship.setCost(cost);
         relationship.setDateRange(closure.getDateRange());
     }
 
     @Override
-    public boolean hasDiversions(Station station) {
+    public boolean hasDiversions(final Station station) {
         return stationsWithDiversions.hasDiversions(station);
     }
 
     @Override
-    public Set<DateRange> getDateRangesFor(Station station) {
+    public Set<DateRange> getDateRangesFor(final Station station) {
         return stationsWithDiversions.getDateRangesFor(station);
+    }
+
+    private static class StationsWithDiversions implements StationsWithDiversionRepository {
+
+        private final Map<Station, Set<DateRange>> diversions;
+
+        private StationsWithDiversions() {
+            diversions = new HashMap<>();
+        }
+
+        @Override
+        public boolean hasDiversions(final Station station) {
+            return diversions.containsKey(station);
+        }
+
+        @Override
+        public Set<DateRange> getDateRangesFor(final Station station) {
+            return diversions.get(station);
+        }
+
+        public void add(final Station station, final DateRange dateRange) {
+            if (!diversions.containsKey(station)) {
+                diversions.put(station, new HashSet<>());
+            }
+            diversions.get(station).add(dateRange);
+        }
+
+        public void close() {
+            diversions.clear();
+        }
+
+        public void add(final Station station, final Set<DateRange> ranges) {
+            diversions.put(station, new HashSet<>(ranges));
+        }
     }
 
     public static class Ready {
         private Ready() {
 
-        }
-    }
-
-    private static class StationsWithDiversions implements StationsWithDiversionRepository {
-
-        private final Map<Station, Set<DateRange>> closures;
-
-        private StationsWithDiversions() {
-            closures = new HashMap<>();
-        }
-
-        @Override
-        public boolean hasDiversions(Station station) {
-            return closures.containsKey(station);
-        }
-
-        @Override
-        public Set<DateRange> getDateRangesFor(Station station) {
-            return closures.get(station);
-        }
-
-        public void add(Station station, DateRange dateRange) {
-            if (!closures.containsKey(station)) {
-                closures.put(station, new HashSet<>());
-            }
-            closures.get(station).add(dateRange);
-        }
-
-        public void close() {
-            closures.clear();
         }
     }
 }

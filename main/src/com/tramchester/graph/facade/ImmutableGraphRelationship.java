@@ -2,6 +2,7 @@ package com.tramchester.graph.facade;
 
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
@@ -187,5 +188,10 @@ public class ImmutableGraphRelationship implements GraphRelationship {
     @Override
     public int hashCode() {
         return Objects.hash(underlying);
+    }
+
+    @Override
+    public DateRange getDateRange() {
+        return underlying.getDateRange();
     }
 }

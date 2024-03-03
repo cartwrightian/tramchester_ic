@@ -130,7 +130,7 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
                 flatMap(Collection::stream).
                 collect(Collectors.toSet());
 
-        RailConfig railConfig = getRailConfig();
+        final RailConfig railConfig = getRailConfig();
         if (railConfig!=null) {
             modes.add(Train);
             modes.add(RailReplacementBus);
@@ -197,9 +197,9 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
 
     private void populateDataSourceMap() {
         if (dataSources.isEmpty()) {
-            List<GTFSSourceConfig> gtfsSources = getGTFSDataSource();
+            final List<GTFSSourceConfig> gtfsSources = getGTFSDataSource();
             gtfsSources.forEach(gtfsSource -> dataSources.put(gtfsSource.getDataSourceId(), gtfsSource));
-            RailConfig railConfig = getRailConfig();
+            final RailConfig railConfig = getRailConfig();
             if (railConfig != null) {
                 dataSources.put(railConfig.getDataSourceId(), railConfig);
             }

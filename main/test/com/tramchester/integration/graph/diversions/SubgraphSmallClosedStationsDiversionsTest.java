@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.DiagramCreator;
 import com.tramchester.domain.*;
+import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Location;
@@ -13,20 +14,26 @@ import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
+import com.tramchester.graph.AddDiversionsForClosedGraphBuilder;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.*;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
+import com.tramchester.graph.filters.GraphFilter;
+import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
+import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.StationClosuresConfigForTest;
 import com.tramchester.integration.testSupport.tram.IntegrationTramClosedStationsTestConfig;
+import com.tramchester.mappers.Geography;
 import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StationsWithDiversionRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Direction;
 
@@ -74,6 +81,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
     private MutableGraphTransaction txn;
     private Duration maxJourneyDuration;
     private int maxChanges;
+    private StationsWithDiversionRepository diversionRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
@@ -99,8 +107,13 @@ class SubgraphSmallClosedStationsDiversionsTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
+        // trigger full build of graph DB
+        componentContainer.get(StagedTransportGraphBuilder.Ready.class);
+
         txn = database.beginTxMutable(TXN_TIMEOUT, TimeUnit.SECONDS);
         stationRepository = componentContainer.get(StationRepository.class);
+        diversionRepository = componentContainer.get(StationsWithDiversionRepository.class);
+
         calculator = new RouteCalculatorTestFacade(componentContainer, txn);
         maxJourneyDuration = Duration.ofMinutes(30);
         maxChanges = 2;
@@ -137,13 +150,48 @@ class SubgraphSmallClosedStationsDiversionsTest {
 
     @Test
     void shouldHaveTheDiversionsInTheRepository() {
-        StationsWithDiversionRepository repository = componentContainer.get(StationsWithDiversionRepository.class);
-        assertTrue(repository.hasDiversions(MarketStreet.from(stationRepository)));
-        assertTrue(repository.hasDiversions(StPetersSquare.from(stationRepository)));
-        assertTrue(repository.hasDiversions(Piccadilly.from(stationRepository)));
-        assertTrue(repository.hasDiversions(Shudehill.from(stationRepository)));
-        assertTrue(repository.hasDiversions(ExchangeSquare.from(stationRepository)));
+        assertTrue(diversionRepository.hasDiversions(MarketStreet.from(stationRepository)));
+        assertTrue(diversionRepository.hasDiversions(StPetersSquare.from(stationRepository)));
+        assertTrue(diversionRepository.hasDiversions(Piccadilly.from(stationRepository)));
+        assertTrue(diversionRepository.hasDiversions(Shudehill.from(stationRepository)));
+        assertTrue(diversionRepository.hasDiversions(ExchangeSquare.from(stationRepository)));
+
+        // try again but via load from DB, instead of during population
+        StationsWithDiversionRepository again = recreateRepository();
+
+        assertTrue(again.hasDiversions(MarketStreet.from(stationRepository)));
+        assertTrue(again.hasDiversions(StPetersSquare.from(stationRepository)));
+        assertTrue(again.hasDiversions(Piccadilly.from(stationRepository)));
+        assertTrue(again.hasDiversions(Shudehill.from(stationRepository)));
+        assertTrue(again.hasDiversions(ExchangeSquare.from(stationRepository)));
     }
+
+    @Test
+    void shouldHaveCorrectDateRangesForDiversion() {
+        DateRange expected = DateRange.of(when, when.plusWeeks(1));
+
+        hasDateRange(MarketStreet.from(stationRepository), expected, diversionRepository);
+        hasDateRange(StPetersSquare.from(stationRepository), expected, diversionRepository);
+        hasDateRange(Piccadilly.from(stationRepository), expected, diversionRepository);
+        hasDateRange(Shudehill.from(stationRepository), expected, diversionRepository);
+        hasDateRange(ExchangeSquare.from(stationRepository), expected, diversionRepository);
+
+        // try again but via load from DB, instead of during population
+        StationsWithDiversionRepository again = recreateRepository();
+        hasDateRange(MarketStreet.from(stationRepository), expected, again);
+        hasDateRange(StPetersSquare.from(stationRepository), expected, again);
+        hasDateRange(Piccadilly.from(stationRepository), expected, again);
+        hasDateRange(Shudehill.from(stationRepository), expected, again);
+        hasDateRange(ExchangeSquare.from(stationRepository), expected, again);
+
+    }
+
+    private void hasDateRange(Station station, DateRange expected, StationsWithDiversionRepository repository) {
+        final Set<DateRange> dateRanges = repository.getDateRangesFor(station);
+        assertEquals(1, dateRanges.size());
+        assertTrue(dateRanges.contains(expected));
+    }
+
 
     @Test
     void shouldHaveExpectedRouteToRouteCostsForClosedStations() {
@@ -297,6 +345,20 @@ class SubgraphSmallClosedStationsDiversionsTest {
     void produceDiagramOfGraphSubset() throws IOException {
         DiagramCreator creator = componentContainer.get(DiagramCreator.class);
         creator.create(Path.of("subgraph_central_with_closure_trams.dot"), StPetersSquare.fake(), 100, true);
+    }
+
+    @NotNull
+    private StationsWithDiversionRepository recreateRepository() {
+        GraphFilter graphFilter = componentContainer.get(GraphFilter.class);
+        ClosedStationsRepository closedStationRepository = componentContainer.get(ClosedStationsRepository.class);
+        StationsAndLinksGraphBuilder.Ready ready = componentContainer.get(StationsAndLinksGraphBuilder.Ready.class);
+        Geography geography = componentContainer.get(Geography.class);
+
+        AddDiversionsForClosedGraphBuilder again = new AddDiversionsForClosedGraphBuilder(database, graphFilter, closedStationRepository,
+                config, ready, geography, stationRepository);
+
+        again.start();
+        return again;
     }
 
     private static class SubgraphConfig extends IntegrationTramClosedStationsTestConfig {

@@ -171,7 +171,8 @@ public class TraversalStateTest extends EasyMockSupport {
         assertEquals(fromStation, platformIds);
     }
 
-    @Disabled("WIP")
+
+    @Disabled("wip")
     @Test
     void shouldHaveAllExpectedOutboundWhenDestNotAvailableOnTrip() {
         LocationCollection endStations = new LocationSet<>(Collections.singletonList(Bury.from(stationRepository)));
@@ -185,16 +186,18 @@ public class TraversalStateTest extends EasyMockSupport {
 
         MinuteState minuteState = mockMinuteNode(traversalStateFactory);
 
-        JourneyStateUpdate updateState = new JourneyState(time, minuteState);
-
         Route route = tramRouteHelper.getOneRoute(KnownTramRoute.BuryManchesterAltrincham, when);
+
+        Trip trip = findATrip(route, Deansgate.getId());
+
+        JourneyStateUpdate updateState = new JourneyState(time, minuteState);
+        updateState.beginTrip(trip.getId());
 
         RouteStation routeStation = new RouteStation(cornbrook, route);
 
         GraphNode routeStationNode = txn.findNode(routeStation);
 
         boolean isInterchange = true;
-        Trip trip = findATrip(route, Deansgate.getId());
 
         replayAll();
         RouteStationStateOnTrip routeStationStateOnTrip = builder.fromMinuteState(updateState, minuteState, routeStationNode,
