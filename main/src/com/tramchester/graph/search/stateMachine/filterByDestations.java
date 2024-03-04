@@ -6,16 +6,16 @@ import org.neo4j.internal.helpers.collection.Iterables;
 
 import java.util.Collection;
 
-public class OptionalResourceIterator<T> implements ResourceIterable<T> {
+public class filterByDestations<T> implements ResourceIterable<T> {
 
     private final ResourceIterable<T> contained;
     private final boolean empty;
 
-    public static <T> OptionalResourceIterator<T> from(Collection<T> collection) {
-        return new OptionalResourceIterator<>(collection);
+    public static <T> filterByDestations<T> from(Collection<T> collection) {
+        return new filterByDestations<>(collection);
     }
 
-    public OptionalResourceIterator(Collection<T> collection) {
+    public filterByDestations(Collection<T> collection) {
         empty = collection.isEmpty();
         contained = Iterables.asResourceIterable(collection);
 

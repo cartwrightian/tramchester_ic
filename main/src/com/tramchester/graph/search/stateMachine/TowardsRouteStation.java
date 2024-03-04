@@ -22,9 +22,10 @@ public abstract class TowardsRouteStation<T extends RouteStationState> extends S
         this.interchangesOnly = builderParameters.interchangesOnly();
     }
 
-    protected OptionalResourceIterator<ImmutableGraphRelationship> getTowardsDestination(final GraphNode node, final GraphTransaction txn) {
+    protected filterByDestations<ImmutableGraphRelationship> getTowardsDestination(final GraphNode node, final GraphTransaction txn) {
         final Stream<ImmutableGraphRelationship> relationships = node.getRelationships(txn, OUTGOING, DEPART, INTERCHANGE_DEPART, DIVERSION_DEPART);
-        return getTowardsDestination(Stream.concat(relationships, getActiveDiversions(node, txn)));
+        return getTowardsDestination(relationships);
+        //return getTowardsDestination(Stream.concat(relationships, getActiveDiversions(node, txn)));
     }
 
     // TODO When to follow diversion departs? Should these be (also) INTERCHANGE_DEPART ?
@@ -42,6 +43,7 @@ public abstract class TowardsRouteStation<T extends RouteStationState> extends S
             outboundsToFollow = node.getRelationships(txn, OUTGOING, DEPART, INTERCHANGE_DEPART);
         }
 
+        // also follow any active diversions
         final Stream<ImmutableGraphRelationship> diversions = getActiveDiversions(node, txn);
         return Stream.concat(outboundsToFollow, diversions);
 

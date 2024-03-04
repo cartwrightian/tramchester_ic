@@ -10,7 +10,7 @@ import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.facade.*;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.NodeId;
-import com.tramchester.graph.search.stateMachine.OptionalResourceIterator;
+import com.tramchester.graph.search.stateMachine.filterByDestations;
 import com.tramchester.graph.search.stateMachine.Towards;
 import org.neo4j.graphdb.Direction;
 import org.slf4j.Logger;
@@ -45,11 +45,11 @@ public abstract class StateBuilder<T extends TraversalState> implements Towards<
         return queryDate;
     }
 
-    public <R extends GraphRelationship> OptionalResourceIterator<R> getTowardsDestination(final Stream<R> outgoing) {
+    public <R extends GraphRelationship> filterByDestations<R> getTowardsDestination(final Stream<R> outgoing) {
         final List<R> filtered = outgoing.
                 filter(depart -> destinationIds.contains(getLocationIdFor(depart))).
                 collect(Collectors.toList());
-        return OptionalResourceIterator.from(filtered);
+        return filterByDestations.from(filtered);
     }
 
     private static LocationId getLocationIdFor(final GraphRelationship depart) {
