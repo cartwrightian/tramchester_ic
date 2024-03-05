@@ -62,8 +62,8 @@ public class JourneyPlannerCookieTest {
 
     @Test
     void shouldSetCookieForRecentJourney() throws IOException {
-        Station start = TramStations.Bury.from(stationRepository);
-        Station end = TramStations.ManAirport.from(stationRepository);
+        Station start = TramStations.Altrincham.from(stationRepository);
+        Station end = TramStations.StPetersSquare.from(stationRepository);
 
         TramTime time = TramTime.ofHourMins(now.toLocalTime());
 
@@ -77,11 +77,11 @@ public class JourneyPlannerCookieTest {
         assertTrue(recentJourneys.getTimeStamps().contains(new Timestamped(start, now)));
         assertTrue(recentJourneys.getTimeStamps().contains(new Timestamped(end, now)));
     }
-
+git s
     @Test
     void shouldUpdateCookieForRecentJourney() throws IOException {
-        Station start = TramStations.Bury.from(stationRepository);
-        Station end = TramStations.ManAirport.from(stationRepository);
+        Station start = TramStations.Altrincham.from(stationRepository);
+        Station end = TramStations.StPetersSquare.from(stationRepository);
 
         TramTime time = TramTime.ofHourMins(now.toLocalTime());
 
@@ -108,8 +108,8 @@ public class JourneyPlannerCookieTest {
 
     @Test
     void shouldPreseverCookieForRecentJourneyIfDifferentLocationType() throws IOException {
-        Station start = TramStations.Bury.from(stationRepository);
-        Station end = TramStations.ManAirport.from(stationRepository);
+        Station start = TramStations.Altrincham.from(stationRepository);
+        Station end = TramStations.StPetersSquare.from(stationRepository);
 
         TramTime time = TramTime.ofHourMins(now.toLocalTime());
 

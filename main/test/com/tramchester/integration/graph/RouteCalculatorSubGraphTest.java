@@ -126,8 +126,9 @@ class RouteCalculatorSubGraphTest {
         for (TramStations start: stations) {
             for (TramStations destination: stations) {
                 if (!start.equals(destination)) {
-                    validateAtLeastOneJourney(start, destination, new JourneyRequest(when, tramTime, false, 5,
-                            maxJourneyDuration, 1, modes));
+                    JourneyRequest journeyRequest = new JourneyRequest(when, tramTime, false, 5, maxJourneyDuration,
+                            1, modes);
+                    validateAtLeastOneJourney(start, destination, journeyRequest);
                 }
             }
         }
@@ -160,6 +161,7 @@ class RouteCalculatorSubGraphTest {
         TramTime time = TramTime.of(23,53);
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 3,
                 maxJourneyDuration, 1, modes);
+        journeyRequest.setDiag(true);
         List<Journey> results = calculator.calculateRouteAsList(Cornbrook, Pomona, journeyRequest);
         assertFalse(results.isEmpty());
     }
@@ -209,7 +211,7 @@ class RouteCalculatorSubGraphTest {
 
     private void validateAtLeastOneJourney(TramStations start, TramStations dest, JourneyRequest journeyRequest) {
         // TODO Use find any on stream instead
-        List<Journey> results = calculator.calculateRouteAsList(start, dest, journeyRequest);
+        final List<Journey> results = calculator.calculateRouteAsList(start, dest, journeyRequest);
         assertFalse(results.isEmpty());
     }
 }

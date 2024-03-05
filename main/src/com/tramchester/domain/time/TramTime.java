@@ -19,8 +19,6 @@ public class TramTime implements Comparable<TramTime> {
     public static final int MINS_IN_HOUR = 60;
     public static final int HOURS_IN_DAY = 24;
 
-    // TODO Need to handle hours>24 flag as next day
-
     private final int hour;
     private final int minute;
     private final int offsetDays;
@@ -34,7 +32,15 @@ public class TramTime implements Comparable<TramTime> {
         this.minute = minute;
         this.offsetDays = offsetDays;
         this.hash = Objects.hash(hour, minute, offsetDays);
-        toPattern = format("%02d:%02d",hour,minute); // expensive
+        toPattern = createPatternString(hour, minute, offsetDays);
+    }
+
+    private String createPatternString(int hour, int minute, int offsetDays) {
+        final String result = format("%02d:%02d", hour, minute); // expensive
+        if (offsetDays>0) {
+           return result + nextDaySuffix;
+        }
+        return result;
     }
 
     private TramTime() {
@@ -401,11 +407,7 @@ public class TramTime implements Comparable<TramTime> {
     }
 
     public String serialize() {
-        String result = toPattern;
-        if (isNextDay()) {
-            result = result + nextDaySuffix;
-        }
-        return result;
+        return toPattern;
     }
 
     // to date, respecting day offset

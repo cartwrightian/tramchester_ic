@@ -33,7 +33,7 @@ public class HeuristicsReasons {
     }
 
     public static HeuristicsReason AlreadySeenTime(HowIGotHere howIGotHere, GraphNodeId nextNodeId) {
-        return new HeuristicReasonWithAttribute<>(ReasonCode.AlreadySeenTime, howIGotHere, nextNodeId, false);
+        return new HeuristicReasonWithAttribute<>(ReasonCode.AlreadySeenTime, howIGotHere, nextNodeId, false, GraphNodeId::toString);
     }
 
     private static class StationClosed extends HeuristicsReasonWithID<Station> {
@@ -51,7 +51,8 @@ public class HeuristicsReasons {
     }
 
     public static HeuristicsReason ServiceNotRunningAtTime(final HowIGotHere path, final IdFor<Service> serviceId, final TramTime time) {
-        return new HeuristicReasonWithAttributes<>(ReasonCode.ServiceNotRunningAtTime, path, serviceId, time, false);
+        return new HeuristicReasonWithAttributes<>(ReasonCode.ServiceNotRunningAtTime, path, serviceId, time, false,
+                Object::toString, TramTime::toPattern);
     }
 
     public static HeuristicsReason StationNotReachable(final HowIGotHere path, final ReasonCode code) {
@@ -59,35 +60,36 @@ public class HeuristicsReasons {
     }
 
     public static HeuristicsReason DoesNotOperateOnTime(final TramTime currentElapsed, final HowIGotHere path) {
-        return new HeuristicReasonWithAttribute<>(ReasonCode.DoesNotOperateOnTime, path, currentElapsed, false);
+        return new HeuristicReasonWithAttribute<>(ReasonCode.DoesNotOperateOnTime, path, currentElapsed, false, TramTime::toPattern);
     }
 
     public static HeuristicsReason TooManyChanges(final HowIGotHere path, final int number) {
-        return new HeuristicReasonWithAttribute<>(ReasonCode.TooManyChanges, path, number, false);
+        return new HeuristicReasonWithAttribute<>(ReasonCode.TooManyChanges, path, number, false, Object::toString);
     }
 
     public static HeuristicsReason TooManyWalkingConnections(final HowIGotHere path, final int count) {
-        return new HeuristicReasonWithAttribute<>(ReasonCode.TooManyWalkingConnections, path, count, false);
+        return new HeuristicReasonWithAttribute<>(ReasonCode.TooManyWalkingConnections, path, count, false, Object::toString);
     }
 
     public static HeuristicsReason TooManyNeighbourConnections(final HowIGotHere path, final int count) {
-        return new HeuristicReasonWithAttribute<>(ReasonCode.TooManyNeighbourConnections, path, count, false);
+        return new HeuristicReasonWithAttribute<>(ReasonCode.TooManyNeighbourConnections, path, count, false, Object::toString);
     }
 
     public static HeuristicsReason TookTooLong(final TramTime currentElapsed, final HowIGotHere path) {
-        return new HeuristicReasonWithAttribute<>(ReasonCode.TookTooLong, path, currentElapsed, false);
+        return new HeuristicReasonWithAttribute<>(ReasonCode.TookTooLong, path, currentElapsed, false, TramTime::toPattern);
     }
 
     public static HeuristicsReason DoesNotOperateAtHour(final TramTime currentElapsed, final HowIGotHere path, int hourAtNode) {
-        return new HeuristicReasonWithAttributes<>(ReasonCode.NotAtHour, path, currentElapsed, hourAtNode,false);
+        return new HeuristicReasonWithAttributes<>(ReasonCode.NotAtHour, path, currentElapsed, hourAtNode, false,
+                TramTime::toPattern, Object::toString);
     }
 
     public static HeuristicsReason AlreadyDeparted(final TramTime tramTime, final HowIGotHere path) {
-        return new HeuristicReasonWithAttribute<>(ReasonCode.AlreadyDeparted, path, tramTime, false);
+        return new HeuristicReasonWithAttribute<>(ReasonCode.AlreadyDeparted, path, tramTime, false, TramTime::toPattern);
     }
 
     public static HeuristicsReason DestinationUnavailableAtTime(final TramTime tramTime, final HowIGotHere path) {
-        return new HeuristicReasonWithAttribute<>(ReasonCode.DestinationUnavailableAtTime, path, tramTime, false);
+        return new HeuristicReasonWithAttribute<>(ReasonCode.DestinationUnavailableAtTime, path, tramTime, false, TramTime::toPattern);
     }
 
     public static HeuristicsReason Cached(final HeuristicsReason contained, final HowIGotHere path) {
@@ -95,16 +97,18 @@ public class HeuristicsReasons {
     }
 
     public static HeuristicsReason HigherCost(final HowIGotHere howIGotHere, Duration duration) {
-        return new HeuristicReasonWithAttribute<>(ReasonCode.HigherCost, howIGotHere, duration, false);
+        return new HeuristicReasonWithAttribute<>(ReasonCode.HigherCost, howIGotHere, duration, false, Duration::toString);
     }
 
     public static HeuristicsReason ArrivedMoreChanges(HowIGotHere howIGotHere, int numberChanges, Duration duration) {
-        return new HeuristicReasonWithAttributes<>(ReasonCode.ArrivedMoreChanges, howIGotHere, duration, numberChanges, false);
+        return new HeuristicReasonWithAttributes<>(ReasonCode.ArrivedMoreChanges, howIGotHere, duration, numberChanges, false,
+                Duration::toString, Object::toString);
     }
 
 
     public static HeuristicsReason ArrivedLater(HowIGotHere howIGotHere, Duration duration, int numberChanges) {
-        return new HeuristicReasonWithAttributes<>(ReasonCode.ArrivedLater, howIGotHere, duration, numberChanges, false);
+        return new HeuristicReasonWithAttributes<>(ReasonCode.ArrivedLater, howIGotHere, duration, numberChanges, false,
+                Duration::toString, Object::toString);
     }
 
     public static HeuristicsReason PathToLong(final HowIGotHere path) {

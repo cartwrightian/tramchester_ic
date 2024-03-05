@@ -17,23 +17,25 @@ public class HeuristicReasonsOK {
     }
 
     public static HeuristicsReason Arrived(final HowIGotHere path, Duration totalCostSoFar, int numberOfChanges) {
-        return new HeuristicReasonWithAttributes<>(ReasonCode.Arrived, path, totalCostSoFar, numberOfChanges,true);
+        return new HeuristicReasonWithAttributes<>(ReasonCode.Arrived, path, totalCostSoFar, numberOfChanges, true,
+                Duration::toString, Object::toString);
     }
 
     public static HeuristicsReason NumChangesOK(ReasonCode reasonCode, HowIGotHere howIGotHere, int currentNumChanges) {
-        return new HeuristicReasonWithAttribute<>(reasonCode, howIGotHere, currentNumChanges, true);
+        return new HeuristicReasonWithAttribute<>(reasonCode, howIGotHere, currentNumChanges, true, Object::toString);
     }
 
     public static HeuristicsReason TimeOK(ReasonCode reasonCode, HowIGotHere howIGotHere, TramTime tramTime) {
-        return new HeuristicReasonWithAttribute<>(reasonCode, howIGotHere, tramTime, true);
+        return new HeuristicReasonWithAttribute<>(reasonCode, howIGotHere, tramTime, true, TramTime::toPattern);
     }
 
     public static HeuristicsReason HourOk(ReasonCode reasonCode, HowIGotHere howIGotHere, TramTime tramTime, int hour) {
-        return new HeuristicReasonWithAttributes<>(reasonCode, howIGotHere, hour, tramTime,true);
+        return new HeuristicReasonWithAttributes<>(reasonCode, howIGotHere, hour, tramTime, true,
+                Object::toString, TramTime::toPattern);
     }
 
     public static HeuristicsReason SeenGroup(ReasonCode reasonCode, HowIGotHere howIGotHere, IdFor<NPTGLocality> areaId) {
-        return new HeuristicReasonWithAttribute<>(reasonCode, howIGotHere, areaId, true);
+        return new HeuristicReasonWithAttribute<>(reasonCode, howIGotHere, areaId, true, Object::toString);
     }
 
 }

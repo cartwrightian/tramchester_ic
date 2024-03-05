@@ -16,8 +16,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -244,44 +242,6 @@ public class ServiceReasons {
                 forEach(entry -> logger.info(format("%s => %s: %s", prefix, entry.getKey(), getCount.apply(entry.getValue()))));
     }
 
-    private void createGraphFile(final GraphTransaction txn, final ReasonsToGraphViz reasonsToGraphViz, final RouteCalculatorSupport.PathRequest pathRequest) {
-        final String fileName = createFilename(pathRequest);
-
-        if (reasons.isEmpty()) {
-            logger.warn(format("Not creating dot file %s, reasons empty", fileName));
-            return;
-        } else {
-            logger.warn("Creating diagnostic dot file: " + fileName);
-        }
-
-        try {
-            final StringBuilder builder = new StringBuilder();
-            builder.append("digraph G {\n");
-            reasonsToGraphViz.appendTo(builder, reasons, txn);
-            builder.append("}");
-
-            final FileWriter writer = new FileWriter(fileName);
-            writer.write(builder.toString());
-            writer.close();
-            logger.info(format("Created file %s", fileName));
-        }
-        catch (IOException e) {
-            logger.warn("Unable to create diagnostic graph file", e);
-        }
-    }
-
-    private String createFilename(final RouteCalculatorSupport.PathRequest pathRequest) {
-        final String status = success.get() ? "found" : "notfound";
-        final String dateString = providesLocalNow.getDateTime().toLocalDate().toString();
-        final String changes = "changes" + pathRequest.getNumChanges();
-        final String postfix = journeyRequest.getUid().toString();
-
-        String fileName = format("%s_%s%s_at_%s_%s_%s.dot", status,
-                queryTime.getHourOfDay(), queryTime.getMinuteOfHour(),
-                dateString, changes, postfix);
-        fileName = fileName.replaceAll(":","");
-        return fileName;
-    }
 
     @Override
     public String toString() {

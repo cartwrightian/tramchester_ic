@@ -171,8 +171,7 @@ public class TraversalStateTest extends EasyMockSupport {
         assertEquals(fromStation, platformIds);
     }
 
-
-    @Disabled("wip")
+    @Disabled("WIP")
     @Test
     void shouldHaveAllExpectedOutboundWhenDestNotAvailableOnTrip() {
         LocationCollection endStations = new LocationSet<>(Collections.singletonList(Bury.from(stationRepository)));

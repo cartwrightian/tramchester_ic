@@ -5,6 +5,7 @@ import com.tramchester.graph.search.diagnostics.ReasonCode;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
 
 public class StationDiagnosticsDTO extends CommonDiagnosticsDTO{
     private final LocationRefWithPosition begin;
@@ -31,4 +32,16 @@ public class StationDiagnosticsDTO extends CommonDiagnosticsDTO{
         return links;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        StationDiagnosticsDTO that = (StationDiagnosticsDTO) o;
+        return Objects.equals(getBegin(), that.getBegin());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getBegin());
+    }
 }

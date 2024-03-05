@@ -1,22 +1,27 @@
 package com.tramchester.graph.search.diagnostics;
 
 import java.util.Objects;
+import java.util.function.Function;
 
 public class HeuristicReasonWithAttributes<A,B> extends HeuristicReasonWithValidity {
 
     private final A attributeA;
     private final B attributeB;
+    private final Function<A, String> displayA;
+    private final Function<B, String> displayB;
 
     protected HeuristicReasonWithAttributes(ReasonCode code, HowIGotHere howIGotHere,
-                                            A attributeA, B attributeB, boolean validity) {
+                                            A attributeA, B attributeB, boolean validity, Function<A, String> displayA, Function<B, String> displayB) {
         super(code, howIGotHere, validity);
         this.attributeA = attributeA;
         this.attributeB = attributeB;
+        this.displayA = displayA;
+        this.displayB = displayB;
     }
 
     @Override
     public String textForGraph() {
-        return super.textForGraph() + " " + attributeA.toString() + " " + attributeB.toString();
+        return super.textForGraph() + " " + displayA.apply(attributeA) + " " + displayB.apply(attributeB);
     }
 
     @Override
@@ -39,5 +44,13 @@ public class HeuristicReasonWithAttributes<A,B> extends HeuristicReasonWithValid
 
     public B getAttributeB() {
         return attributeB;
+    }
+
+    public String textForAttributeA() {
+        return displayA.apply(attributeA);
+    }
+
+    public String textForAttributeB() {
+        return displayB.apply(attributeB);
     }
 }

@@ -144,12 +144,13 @@ public class CreateJourneyDiagnostics {
     private HeuristicsReason consolidateSingle(final List<HeuristicsReason> reasons) {
         Optional<String> attributeValues = reasons.stream().filter(reason -> reason instanceof HeuristicReasonWithAttribute).
                 map(reason -> (HeuristicReasonWithAttribute<?>) reason).
-                map(HeuristicReasonWithAttribute::getAttribute).
+                map(HeuristicReasonWithAttribute::textForAttribute).
                 map(item -> " " + item).
                 reduce((s1, s2) -> s1 + s2);
 
         HeuristicsReason example = reasons.get(0);
-        return new HeuristicReasonWithAttribute<>(example.getReasonCode(), example.getHowIGotHere(), attributeValues.orElse(""), example.isValid());
+        return new HeuristicReasonWithAttribute<>(example.getReasonCode(), example.getHowIGotHere(), attributeValues.orElse(""), example.isValid(),
+                text -> text);
 
     }
 
@@ -170,14 +171,20 @@ public class CreateJourneyDiagnostics {
     }
 
     private HeuristicsReason createRolledUp(final Object key, final Set<HeuristicReasonWithAttributes<?, ?>> reasonsToConsolidate) {
-        final Optional<HeuristicReasonWithAttributes<?, ?>> findExample = reasonsToConsolidate.stream().filter(item -> item.getAttributeA().equals(key)).findFirst();
+        final Optional<HeuristicReasonWithAttributes<?, ?>> findExample = reasonsToConsolidate.stream().
+                filter(item -> item.getAttributeA().equals(key)).
+                findFirst();
+
         if (findExample.isEmpty()) {
             throw new RuntimeException("Could not find key " + key.toString() + " in " + reasonsToConsolidate);
         }
         final HeuristicReasonWithAttributes<?, ?> example = findExample.get();
-        final Optional<String> reducded = reasonsToConsolidate.stream().map(item -> " " + item.getAttributeB().toString()).reduce((s1, s2) -> s1 + s2);
-        final String text = reducded.orElse("");
-        return new HeuristicReasonWithAttributes<>(example.getReasonCode(), example.getHowIGotHere(), key, text, example.isValid());
+        final String textForSharedKey = example.textForAttributeA();
+
+        final Optional<String> reduced = reasonsToConsolidate.stream().map(item -> " " + item.textForAttributeB()).reduce((s1, s2) -> s1 + s2);
+        final String text = reduced.orElse("");
+        return new HeuristicReasonWithAttributes<>(example.getReasonCode(), example.getHowIGotHere(), key, text, example.isValid(),
+                unused -> textForSharedKey, s -> s);
     }
 
     private boolean isInteresting(ReasonCode reasonCode) {

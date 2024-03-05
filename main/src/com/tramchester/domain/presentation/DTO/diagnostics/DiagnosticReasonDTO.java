@@ -12,7 +12,7 @@ public class DiagnosticReasonDTO {
     private final boolean isValid;
     private final TraversalStateType stateType;
 
-    public DiagnosticReasonDTO(HeuristicsReason heuristicsReason) {
+    public DiagnosticReasonDTO(final HeuristicsReason heuristicsReason) {
         this(heuristicsReason.getReasonCode(), heuristicsReason.textForGraph(), heuristicsReason.isValid(),
                 heuristicsReason.getHowIGotHere().getTraversalStateType());
     }

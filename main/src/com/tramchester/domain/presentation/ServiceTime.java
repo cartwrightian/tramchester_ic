@@ -38,10 +38,6 @@ public class ServiceTime implements Comparable<ServiceTime> {
         return serviceId;
     }
 
-    public TramTime getLeaves() {
-        return leaveBegin;
-    }
-
     @Override
     public String toString() {
         return "ServiceTime{" +

@@ -83,7 +83,7 @@ class TramTimeTest {
         assertEquals("18:56",time.serialize());
 
         TramTime nextDay = nextDay(11,42);
-        assertEquals("11:42",nextDay.toPattern());
+        assertEquals("11:42+24",nextDay.toPattern());
         assertEquals("11:42+24",nextDay.serialize());
     }
 

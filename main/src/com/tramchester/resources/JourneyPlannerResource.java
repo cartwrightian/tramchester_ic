@@ -97,8 +97,6 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
 
         final boolean diagnostics = checkForDiagnosticsEnabled(query);
 
-//        final EnumSet<TransportMode> modes = query.getModes().isEmpty() ? config.getTransportModes() : EnumSet.copyOf(query.getModes());
-
         final Location<?> start = locationRepository.getLocation(query.getStartType(), query.getStartId());
         final Location<?> dest = locationRepository.getLocation(query.getDestType(), query.getDestId());
 
