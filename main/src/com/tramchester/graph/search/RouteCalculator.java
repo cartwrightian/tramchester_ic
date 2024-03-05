@@ -75,7 +75,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
     @Override
     public Stream<Journey> calculateRoute(final GraphTransaction txn, final Location<?> start, final Location<?> destination,
-                                          final JourneyRequest journeyRequest) {
+                                          final JourneyRequest journeyRequest, Running running) {
         logger.info(format("Finding shortest path for %s (%s) --> %s (%s) for %s",
                 start.getName(), start.getId(), destination.getName(), destination.getId(), journeyRequest));
 
@@ -111,30 +111,30 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         if (journeyRequest.getDiagnosticsEnabled()) {
             logger.warn("Diagnostics enabled, will only query for single result");
 
-            return getSingleJourneyStream(txn, startNode, endNode, journeyRequest, destinations, maxInitialWait).
+            return getSingleJourneyStream(txn, startNode, endNode, journeyRequest, destinations, maxInitialWait, running).
                     limit(journeyRequest.getMaxNumberOfJourneys());
         } else {
-            return getJourneyStream(txn, startNode, endNode, journeyRequest, destinations, queryTimes, numberOfChanges, maxInitialWait).
+            return getJourneyStream(txn, startNode, endNode, journeyRequest, destinations, queryTimes, numberOfChanges, maxInitialWait, running).
                     limit(journeyRequest.getMaxNumberOfJourneys());
         }
     }
 
     @Override
     public Stream<Journey> calculateRouteWalkAtEnd(GraphTransaction txn, Location<?> start, GraphNode endOfWalk, LocationCollection destinations,
-                                                   JourneyRequest journeyRequest, NumberOfChanges numberOfChanges)
+                                                   JourneyRequest journeyRequest, NumberOfChanges numberOfChanges, Running running)
     {
         GraphNode startNode = getLocationNodeSafe(txn, start);
         final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime());
 
         final Duration maxInitialWait = getMaxInitialWaitFor(start, config);
 
-        return getJourneyStream(txn, startNode, endOfWalk, journeyRequest, destinations, queryTimes, numberOfChanges, maxInitialWait).
+        return getJourneyStream(txn, startNode, endOfWalk, journeyRequest, destinations, queryTimes, numberOfChanges, maxInitialWait, running).
                 limit(journeyRequest.getMaxNumberOfJourneys());
     }
 
     @Override
     public Stream<Journey> calculateRouteWalkAtStart(GraphTransaction txn, Set<StationWalk> stationWalks, GraphNode startOfWalkNode, Location<?> destination,
-                                                     JourneyRequest journeyRequest, NumberOfChanges numberOfChanges) {
+                                                     JourneyRequest journeyRequest, NumberOfChanges numberOfChanges, Running running) {
 
         final InitialWalksFinished finished = new InitialWalksFinished(journeyRequest, stationWalks);
         final GraphNode endNode = getLocationNodeSafe(txn, destination);
@@ -143,27 +143,27 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         Duration maxInitialWait = getMaxInitialWaitFor(stationWalks, config);
 
-        return getJourneyStream(txn, startOfWalkNode, endNode, journeyRequest, destinations, queryTimes, numberOfChanges, maxInitialWait).
+        return getJourneyStream(txn, startOfWalkNode, endNode, journeyRequest, destinations, queryTimes, numberOfChanges, maxInitialWait, running).
                 takeWhile(finished::notDoneYet);
     }
 
     @Override
     public Stream<Journey> calculateRouteWalkAtStartAndEnd(GraphTransaction txn, Set<StationWalk> stationWalks, GraphNode startNode, GraphNode endNode,
                                                            LocationCollection destinationStations, JourneyRequest journeyRequest,
-                                                           NumberOfChanges numberOfChanges) {
+                                                           NumberOfChanges numberOfChanges, Running running) {
 
         final InitialWalksFinished finished = new InitialWalksFinished(journeyRequest, stationWalks);
         final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime(), stationWalks);
 
         Duration maxInitialWait = getMaxInitialWaitFor(stationWalks, config);
-        return getJourneyStream(txn, startNode, endNode, journeyRequest, destinationStations, queryTimes, numberOfChanges, maxInitialWait).
+        return getJourneyStream(txn, startNode, endNode, journeyRequest, destinationStations, queryTimes, numberOfChanges, maxInitialWait, running).
                 takeWhile(finished::notDoneYet);
     }
 
 
     private Stream<Journey> getSingleJourneyStream(final GraphTransaction txn, final GraphNode startNode, final GraphNode endNode,
                                                    final JourneyRequest journeyRequest, final MixedLocationSet destinations,
-                                                   final Duration maxInitialWait) {
+                                                   final Duration maxInitialWait, Running running) {
 
 
         final Set<GraphNodeId> destinationNodeIds = Collections.singleton(endNode.getId());
@@ -190,9 +190,6 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         final AtomicInteger journeyIndex = new AtomicInteger(0);
 
-        // TODO for now stopping computation only support for Grids
-        Running running = () -> true;
-
         final PathRequest singlePathRequest = createPathRequest(startNode, tramDate, journeyRequest.getOriginalTime(), journeyRequest.getRequestedModes(),
                 journeyRequest.getMaxChanges(),
                 journeyConstraints, maxInitialWait, selector);
@@ -214,7 +211,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
     private Stream<Journey> getJourneyStream(final GraphTransaction txn, final GraphNode startNode, final GraphNode endNode, final JourneyRequest journeyRequest,
                                              final LocationCollection destinations, final List<TramTime> queryTimes, final NumberOfChanges numberOfChanges,
-                                             final Duration maxInitialWait) {
+                                             final Duration maxInitialWait, Running running) {
 
         if (numberOfChanges.getMin()==Integer.MAX_VALUE) {
             logger.error(format("Computed min number of changes is MAX_VALUE, journey %s is not possible?", journeyRequest));
@@ -246,9 +243,6 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         final LowestCostSeen lowestCostSeen = new LowestCostSeen();
 
         final AtomicInteger journeyIndex = new AtomicInteger(0);
-
-        // TODO for now stopping computation only support for Grids
-        Running running = () -> true;
 
         final Stream<Journey> results = numChangesRange(journeyRequest, numberOfChanges).
                 flatMap(numChanges -> queryTimes.stream().

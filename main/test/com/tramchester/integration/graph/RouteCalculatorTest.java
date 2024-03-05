@@ -185,6 +185,20 @@ public class RouteCalculatorTest {
         });
     }
 
+    @Disabled("WIP")
+    @Test
+    void shouldHaveLateNightBuryToAirportWithBrokenRailAtVictoria() {
+        TramDate date = TramDate.of(2024, 3, 5);
+        TramTime time = TramTime.of(22,54);
+
+        JourneyRequest journeyRequest = new JourneyRequest(date, time, false, maxChanges,
+                maxJourneyDuration, maxNumResults, requestedModes);
+
+        List<Journey> journeys = calculator.calculateRouteAsList(Bury, ManAirport, journeyRequest);
+
+        assertFalse(journeys.isEmpty());
+    }
+
     @Test
     void shouldHaveFirstResultWithinReasonableTimeOfQuery() {
         Duration cutoffInterval = Duration.ofMinutes(16);

@@ -151,7 +151,7 @@ public class JourneyRequest {
         return TimeRange.of(originalQueryTime, Duration.ZERO, maxJourneyDuration);
     }
 
-    public synchronized void injectDiag(JourneyDiagnostics diagnostics) {
+    public synchronized void injectDiag(final JourneyDiagnostics diagnostics) {
         // todo need better way to handle passing back diagnostics
         // for now when diags is enabled don't look for range of times or changes
         if (diagnosticsReceived.get()) {

@@ -77,7 +77,7 @@ public class JourneyPlannerCookieTest {
         assertTrue(recentJourneys.getTimeStamps().contains(new Timestamped(start, now)));
         assertTrue(recentJourneys.getTimeStamps().contains(new Timestamped(end, now)));
     }
-git s
+
     @Test
     void shouldUpdateCookieForRecentJourney() throws IOException {
         Station start = TramStations.Altrincham.from(stationRepository);

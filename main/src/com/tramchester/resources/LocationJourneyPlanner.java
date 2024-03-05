@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
+import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationWalk;
@@ -85,10 +86,11 @@ public class LocationJourneyPlanner {
         }
 
         // station => station
+        Running running = () -> true;
         if (journeyRequest.getArriveBy()) {
-            return routeCalculatorArriveBy.calculateRoute(txn, start, destination, journeyRequest);
+            return routeCalculatorArriveBy.calculateRoute(txn, start, destination, journeyRequest, running);
         } else {
-            return routeCalculator.calculateRoute(txn, start, destination, journeyRequest);
+            return routeCalculator.calculateRoute(txn, start, destination, journeyRequest, running);
         }
     }
 
@@ -114,10 +116,11 @@ public class LocationJourneyPlanner {
 
         final NumberOfChanges numberOfChanges = findNumberChangesWalkAtStart(walksToStart, destination, journeyRequest);
         final Stream<Journey> journeys;
+        Running running = () -> true;
         if (journeyRequest.getArriveBy()) {
-            journeys = routeCalculatorArriveBy.calculateRouteWalkAtStart(txn, walksToStart, startOfWalkNode, destination, journeyRequest, numberOfChanges);
+            journeys = routeCalculatorArriveBy.calculateRouteWalkAtStart(txn, walksToStart, startOfWalkNode, destination, journeyRequest, numberOfChanges, running);
         } else {
-            journeys = routeCalculator.calculateRouteWalkAtStart(txn, walksToStart, startOfWalkNode, destination, journeyRequest, numberOfChanges);
+            journeys = routeCalculator.calculateRouteWalkAtStart(txn, walksToStart, startOfWalkNode, destination, journeyRequest, numberOfChanges, running);
         }
 
         //noinspection ResultOfMethodCallIgnored
@@ -159,10 +162,11 @@ public class LocationJourneyPlanner {
         final NumberOfChanges numberOfChanges = findNumberChangesWalkAtEnd(start, walksToDest, journeyRequest);
 
         Stream<Journey> journeys;
+        Running running = () -> true;
         if (journeyRequest.getArriveBy()) {
-            journeys = routeCalculatorArriveBy.calculateRouteWalkAtEnd(txn, start, endWalk, destinationStations, journeyRequest, numberOfChanges);
+            journeys = routeCalculatorArriveBy.calculateRouteWalkAtEnd(txn, start, endWalk, destinationStations, journeyRequest, numberOfChanges, running);
         } else {
-            journeys = routeCalculator.calculateRouteWalkAtEnd(txn, start, endWalk, destinationStations, journeyRequest, numberOfChanges);
+            journeys = routeCalculator.calculateRouteWalkAtEnd(txn, start, endWalk, destinationStations, journeyRequest, numberOfChanges, running);
         }
 
         //noinspection ResultOfMethodCallIgnored
@@ -195,12 +199,13 @@ public class LocationJourneyPlanner {
 
         /// CALC
         Stream<Journey> journeys;
+        Running running = () -> true;
         if (journeyRequest.getArriveBy()) {
             journeys = routeCalculatorArriveBy.calculateRouteWalkAtStartAndEnd(txn, walksAtStart, startNode,  endWalk, destinationStations,
-                    journeyRequest, numberOfChanges);
+                    journeyRequest, numberOfChanges, running);
         } else {
             journeys = routeCalculator.calculateRouteWalkAtStartAndEnd(txn, walksAtStart, startNode, endWalk, destinationStations,
-                    journeyRequest, numberOfChanges);
+                    journeyRequest, numberOfChanges, running);
         }
 
         //noinspection ResultOfMethodCallIgnored

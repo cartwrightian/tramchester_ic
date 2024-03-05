@@ -175,7 +175,7 @@ class RouteCalculatorKeyRoutesTest {
                         JourneyRequest journeyRequest = new JourneyRequest(queryDate, queryTime, false,
                                 3, maxJourneyDuration, 1, modes);
                         Optional<Journey> optionalJourney = combinations.findJourneys(txn, requested.getBeginId(), requested.getEndId(),
-                                journeyRequest);
+                                journeyRequest, () -> true);
                         RouteCalculationCombinations.JourneyOrNot<Station> journeyOrNot =
                                 new RouteCalculationCombinations.JourneyOrNot<>(requested, queryDate, queryTime, optionalJourney);
                         return Pair.of(requested, journeyOrNot);

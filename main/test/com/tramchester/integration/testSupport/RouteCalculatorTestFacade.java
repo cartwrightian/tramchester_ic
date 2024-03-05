@@ -3,6 +3,7 @@ package com.tramchester.integration.testSupport;
 import com.tramchester.ComponentContainer;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
@@ -22,6 +23,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -61,7 +64,8 @@ public class RouteCalculatorTestFacade {
     }
 
     public @NotNull List<Journey> calculateRouteAsList(final Location<?> start, final Location<?> dest, final JourneyRequest request) {
-        final Stream<Journey> stream = routeCalculator.calculateRoute(txn, start, dest, request);
+        Running running = new TimesOutRunner(Duration.ofSeconds(30));
+        final Stream<Journey> stream = routeCalculator.calculateRoute(txn, start, dest, request, running);
         final List<Journey> result = stream.toList();
         stream.close();
         if (request.getDiagnosticsEnabled()) {
@@ -117,4 +121,25 @@ public class RouteCalculatorTestFacade {
         return fileName;
     }
 
+    private static class TimesOutRunner implements Running {
+        private final Instant creationTime;
+        private final Duration timeout;
+
+        private TimesOutRunner(Duration timeout) {
+            this.timeout = timeout;
+            this.creationTime = Instant.now();
+        }
+
+        @Override
+        public boolean isRunning() {
+            final Instant current = Instant.now();
+            final Duration duration = Duration.between(creationTime, current);
+
+            final boolean carryOn = duration.compareTo(timeout) < 0;
+            if (!carryOn) {
+                logger.warn("Timeout signaled for " + duration);
+            }
+            return carryOn;
+        }
+    }
 }

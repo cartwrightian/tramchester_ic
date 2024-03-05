@@ -76,7 +76,7 @@ class TramRouteTestCacheIssue {
 
         Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getFirst(),
                 transportData.getInterchange(),
-                journeyRequest).collect(Collectors.toSet());
+                journeyRequest, () -> true).collect(Collectors.toSet());
 
         assertEquals(Collections.emptySet(), journeys);
     }
@@ -87,12 +87,12 @@ class TramRouteTestCacheIssue {
         //journeyRequest.setDiag(true);
 
         Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getInterchange(),
-                transportData.getFifthStation(), journeyRequest).collect(Collectors.toSet());
+                transportData.getFifthStation(), journeyRequest, () -> true).collect(Collectors.toSet());
         assertTrue(journeys.isEmpty());
 
         JourneyRequest journeyRequestB = createJourneyRequest(TramTime.of(8, 10), 3);
         journeys = calculator.calculateRoute(txn, transportData.getInterchange(),
-                transportData.getFifthStation(), journeyRequestB).collect(Collectors.toSet());
+                transportData.getFifthStation(), journeyRequestB, () -> true).collect(Collectors.toSet());
         assertFalse(journeys.isEmpty());
         journeys.forEach(journey-> assertEquals(1, journey.getStages().size()));
     }

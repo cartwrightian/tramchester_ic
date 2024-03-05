@@ -4,6 +4,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -55,6 +56,8 @@ class RouteCalculatorArriveByTest extends EasyMockSupport {
         Station start = TramStations.Bury.fake();
         Station destinationId = TramStations.Cornbrook.fake();
 
+        Running running = new IsRunning();
+
         Stream<Journey> journeyStream = Stream.empty();
 
         EnumSet<TransportMode> modes = TramsOnly;
@@ -65,15 +68,28 @@ class RouteCalculatorArriveByTest extends EasyMockSupport {
 
         JourneyRequest updatedWithComputedDepartTime = new JourneyRequest(localDate, requiredDepartTime, true,
                 5, Duration.ofMinutes(120), maxNumberOfJourneys, modes);
-        EasyMock.expect(routeCalculator.calculateRoute(txn, start, destinationId, updatedWithComputedDepartTime)).andReturn(journeyStream);
+        EasyMock.expect(routeCalculator.calculateRoute(txn, start, destinationId, updatedWithComputedDepartTime, running)).andReturn(journeyStream);
         EasyMock.expect(config.getInitialMaxWaitFor(DataSourceID.tfgm)).andReturn(Duration.ofMinutes(34));
 
         replayAll();
         JourneyRequest originalRequest = new JourneyRequest(localDate, arriveByTime, true, 5,
                 Duration.ofMinutes(120), maxNumberOfJourneys, modes);
-        Stream<Journey> result = routeCalculatorArriveBy.calculateRoute(txn, start, destinationId, originalRequest);
+        Stream<Journey> result = routeCalculatorArriveBy.calculateRoute(txn, start, destinationId, originalRequest, running);
         verifyAll();
         assertSame(journeyStream, result);
+    }
+
+    private static class IsRunning implements Running {
+
+        @Override
+        public boolean isRunning() {
+            return true;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return super.equals(obj);
+        }
     }
 
 }

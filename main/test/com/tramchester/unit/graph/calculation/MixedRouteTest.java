@@ -95,7 +95,7 @@ class MixedRouteTest {
     void shouldTestSimpleJourneyIsPossible() {
         JourneyRequest journeyRequest = createJourneyRequest(queryTime, 0);
         Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getFirst(),
-                transportData.getSecond(), journeyRequest).
+                transportData.getSecond(), journeyRequest, () -> true).
                 collect(Collectors.toSet());
         assertEquals(1, journeys.size());
         assertFirstAndLastForOneStage(journeys, FIRST_STATION, SECOND_STATION, 0, queryTime);
@@ -105,7 +105,7 @@ class MixedRouteTest {
     void shouldTestMultiStopJourneyIsPossible() {
         JourneyRequest journeyRequest = createJourneyRequest(queryTime, 0);
         Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getFirst(), transportData.getLast(),
-                journeyRequest).collect(Collectors.toSet());
+                journeyRequest, () -> true).collect(Collectors.toSet());
         assertEquals(1, journeys.size());
         assertFirstAndLastForOneStage(journeys, FIRST_STATION, LAST_STATION, 2, queryTime);
     }
@@ -120,7 +120,7 @@ class MixedRouteTest {
         JourneyRequest journeyRequest = createJourneyRequest(queryTime, 1);
 
         Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getFirst(),
-                transportData.getFourthStation(), journeyRequest).collect(Collectors.toSet());
+                transportData.getFourthStation(), journeyRequest, () -> true).collect(Collectors.toSet());
         assertFalse(journeys.isEmpty());
 
         journeys.forEach(journey -> {

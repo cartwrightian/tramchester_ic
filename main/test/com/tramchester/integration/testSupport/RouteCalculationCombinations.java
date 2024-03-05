@@ -5,6 +5,7 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.LocationIdPair;
 import com.tramchester.domain.StationIdPair;
+import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
@@ -61,8 +62,8 @@ public class RouteCalculationCombinations<T extends Location<T>> {
         return (stationGroupId, date) -> !closedStationRepository.isGroupClosed(stationGroupsRepository.getStationGroup(stationGroupId), date);
     }
 
-    public Optional<Journey> findJourneys(MutableGraphTransaction txn, IdFor<T> start, IdFor<T> dest, JourneyRequest journeyRequest) {
-        return calculator.calculateRoute(txn, locationRepository.getLocation(start), locationRepository.getLocation(dest), journeyRequest)
+    public Optional<Journey> findJourneys(MutableGraphTransaction txn, IdFor<T> start, IdFor<T> dest, JourneyRequest journeyRequest, Running running) {
+        return calculator.calculateRoute(txn, locationRepository.getLocation(start), locationRepository.getLocation(dest), journeyRequest, running)
                 .limit(1).
                 findAny();
     }
@@ -76,7 +77,9 @@ public class RouteCalculationCombinations<T extends Location<T>> {
         long openPairs = stationIdPairs.stream().filter(stationIdPair -> bothOpen(stationIdPair, journeyRequest)).count();
         assertNotEquals(0, openPairs);
 
-        CombinationResults<T> results = computeJourneys(stationIdPairs, journeyRequest);
+        Running running = () -> true;
+
+        CombinationResults<T> results = computeJourneys(stationIdPairs, journeyRequest, running);
         assertEquals(openPairs, results.size(), "Not enough results");
 
         // check all results present, collect failures into a list
@@ -106,7 +109,7 @@ public class RouteCalculationCombinations<T extends Location<T>> {
     }
 
     @NotNull
-    private CombinationResults<T> computeJourneys(final LocationIdPairSet<T> combinations, final JourneyRequest request) {
+    private CombinationResults<T> computeJourneys(final LocationIdPairSet<T> combinations, final JourneyRequest request, Running running) {
         final TramDate queryDate = request.getDate();
         final TramTime queryTime = request.getOriginalTime();
 
@@ -115,7 +118,7 @@ public class RouteCalculationCombinations<T extends Location<T>> {
                 filter(stationIdPair -> bothOpen(stationIdPair, request)).
                 map(stationIdPair -> {
                     try (final MutableGraphTransaction txn = database.beginTxMutable()) {
-                        final Optional<Journey> optionalJourney = findJourneys(txn, stationIdPair.getBeginId(), stationIdPair.getEndId(), request);
+                        final Optional<Journey> optionalJourney = findJourneys(txn, stationIdPair.getBeginId(), stationIdPair.getEndId(), request, running);
                         return new JourneyOrNot<T>(stationIdPair, queryDate, queryTime, optionalJourney);
                     }
                 });
