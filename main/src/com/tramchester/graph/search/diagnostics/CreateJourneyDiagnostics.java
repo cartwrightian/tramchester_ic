@@ -1,6 +1,7 @@
 package com.tramchester.graph.search.diagnostics;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.domain.LocationCollection;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
@@ -34,7 +35,7 @@ public class CreateJourneyDiagnostics {
         this.locationRepository = locationRepository;
     }
 
-    public JourneyDiagnostics recordFailedJourneys(final List<HeuristicsReason> reasons) {
+    public JourneyDiagnostics recordFailedJourneys(final List<HeuristicsReason> reasons, final LocationCollection destinations) {
         final DiagnosticTree tree = new DiagnosticTree();
 
         reasons.forEach(reason -> {
@@ -58,15 +59,20 @@ public class CreateJourneyDiagnostics {
 
         });
 
-        return createFrom(tree);
+        return createFrom(tree, destinations);
 
     }
 
-    private JourneyDiagnostics createFrom(final DiagnosticTree tree) {
+    private JourneyDiagnostics createFrom(final DiagnosticTree tree, LocationCollection destinations) {
         final AtomicInteger maxNodeReasons = new AtomicInteger(0);
         final AtomicInteger maxEdgeReasons = new AtomicInteger(0);
         final List<StationDiagnosticsDTO> dto = tree.visit(diagNode -> createLocationDiagnosticsDTO(diagNode, maxEdgeReasons, maxNodeReasons));
-        return new JourneyDiagnostics(dto, maxNodeReasons.get(), maxEdgeReasons.get());
+        final List<LocationRefWithPosition> destinationsDTOs = createDestinationDTOs(destinations);
+        return new JourneyDiagnostics(dto, destinationsDTOs, maxNodeReasons.get(), maxEdgeReasons.get());
+    }
+
+    private List<LocationRefWithPosition> createDestinationDTOs(LocationCollection destinations) {
+        return destinations.locationStream().map(LocationRefWithPosition::new).toList();
     }
 
     @NotNull

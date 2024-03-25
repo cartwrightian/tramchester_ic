@@ -20,11 +20,11 @@ import static com.tramchester.graph.GraphPropertyKey.*;
 public class HaveGraphProperties {
     private static final Logger logger = LoggerFactory.getLogger(HaveGraphProperties.class);
 
-    protected <C extends GraphProperty & CoreDomain & HasId<C>>  void set(C domainItem, Entity entity) {
+    protected <C extends GraphProperty & CoreDomain & HasId<C>>  void set(final C domainItem, final Entity entity) {
         entity.setProperty(domainItem.getProp().getText(), domainItem.getId().getGraphId());
     }
 
-    protected void setTime(TramTime tramTime, Entity entity) {
+    protected void setTime(final TramTime tramTime, final Entity entity) {
         entity.setProperty(TIME.getText(), tramTime.asLocalTime());
         if (tramTime.isNextDay()) {
             entity.setProperty(DAY_OFFSET.getText(), tramTime.isNextDay());
@@ -50,17 +50,17 @@ public class HaveGraphProperties {
         }
     }
 
-    protected IdFor<RouteStation> getRouteStationId(Entity entity) {
+    protected IdFor<RouteStation> getRouteStationId(final Entity entity) {
         String value = entity.getProperty(ROUTE_STATION_ID.getText()).toString();
         return RouteStationId.parse(value);
     }
 
-    protected Map<String, Object> getAllProperties(Entity entity) {
+    protected Map<String, Object> getAllProperties(final Entity entity) {
         return entity.getAllProperties();
     }
 
 
-    protected TramTime getTime(Entity entity) {
+    protected TramTime getTime(final Entity entity) {
         LocalTime localTime = (LocalTime) entity.getProperty(TIME.getText());
         boolean nextDay = entity.hasProperty(DAY_OFFSET.getText());
         if (nextDay) {
@@ -70,12 +70,12 @@ public class HaveGraphProperties {
     }
 
 
-    protected Object getProperty(GraphPropertyKey graphPropertyKey, Entity entity) {
+    protected Object getProperty(final GraphPropertyKey graphPropertyKey, final Entity entity) {
         return entity.getProperty(graphPropertyKey.getText());
     }
 
-    protected boolean hasProperty(GraphPropertyKey graphPropertyKey, Entity entity) {
-        return entity.hasProperty(graphPropertyKey.getText());
-    }
+//    protected boolean hasProperty(GraphPropertyKey graphPropertyKey, Entity entity) {
+//        return entity.hasProperty(graphPropertyKey.getText());
+//    }
 
 }

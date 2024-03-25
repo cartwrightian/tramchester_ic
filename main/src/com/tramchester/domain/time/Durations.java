@@ -24,6 +24,10 @@ public class Durations {
         return compare(LessThan, durationA, durationB);
     }
 
+    public static Duration of(int minutes, int seconds) {
+        return Duration.ofMinutes(minutes).plusSeconds(seconds);
+    }
+
     private interface ComparisonFunction {
 
         boolean compare(int result);

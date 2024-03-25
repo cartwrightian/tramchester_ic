@@ -272,7 +272,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         final TransportMode mode = routeStation.getRoute().getTransportMode();
         final GraphLabel modeLabel = GraphLabel.forMode(mode);
 
-        final Set<GraphLabel> labels = new HashSet<>(Arrays.asList(GraphLabel.ROUTE_STATION, modeLabel));
+        final EnumSet<GraphLabel> labels = EnumSet.of(GraphLabel.ROUTE_STATION, modeLabel);
 
         final MutableGraphNode routeStationNode = createGraphNode(tx, labels);
 

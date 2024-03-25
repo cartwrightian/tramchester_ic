@@ -1,6 +1,7 @@
 package com.tramchester.graph.search.diagnostics;
 
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.LocationCollection;
 import com.tramchester.domain.presentation.DTO.diagnostics.JourneyDiagnostics;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
@@ -66,9 +67,9 @@ public class ServiceReasons {
         nodeVisits = new HashMap<>();
     }
 
-    public void reportReasons(final GraphTransaction txn, final RouteCalculatorSupport.PathRequest pathRequest) {
+    public void reportReasons(final GraphTransaction txn, final RouteCalculatorSupport.PathRequest pathRequest, final LocationCollection destinations) {
         if (diagnosticsEnabled) {
-            final JourneyDiagnostics diagnostics = failedJourneyDiagnostics.recordFailedJourneys(reasons);
+            final JourneyDiagnostics diagnostics = failedJourneyDiagnostics.recordFailedJourneys(reasons, destinations);
             journeyRequest.injectDiag(diagnostics);
         }
 

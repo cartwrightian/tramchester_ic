@@ -28,6 +28,7 @@ import java.util.*;
 import static com.tramchester.graph.GraphPropertyKey.*;
 
 public class MutableGraphRelationship extends HaveGraphProperties implements GraphRelationship {
+
     private final Relationship relationship;
     private final GraphRelationshipId id;
 
@@ -138,7 +139,7 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
             return;
         }
 
-        String[] replacement = Arrays.copyOf(existing, existing.length + 1);
+        final String[] replacement = Arrays.copyOf(existing, existing.length + 1);
         replacement[existing.length] = text;
         Arrays.sort(existing);
         relationship.setProperty(property, replacement);

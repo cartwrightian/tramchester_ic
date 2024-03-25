@@ -158,7 +158,7 @@ public class StationGroupsGraphBuilder extends CreateNodesAndRelationships {
                 graphFilter.shouldIncludeRoutes(station.getDropoffRoutes());
     }
 
-    private MutableGraphNode createGroupedStationNodes(MutableGraphTransaction txn, StationGroup stationGroup) {
+    private MutableGraphNode createGroupedStationNodes(final MutableGraphTransaction txn, final StationGroup stationGroup) {
         final MutableGraphNode groupNode = createGraphNode(txn, GraphLabel.GROUPED);
         final IdFor<NPTGLocality> areaId = stationGroup.getLocalityId();
         groupNode.setAreaId(areaId);
@@ -179,6 +179,7 @@ public class StationGroupsGraphBuilder extends CreateNodesAndRelationships {
                         throw new RuntimeException("cannot find node for " + station);
                     }
 
+                    // note: Relationship code finds station group id from End Node
                     addGroupRelationshipTowardsContained(txn, groupNode, stationNode, walkingCost);
                     addContainedRelationshipTowardsGroup(txn, stationNode, groupNode, walkingCost);
         });

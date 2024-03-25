@@ -2,7 +2,14 @@ package com.tramchester.integration.graph.buses;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.domain.LocationSet;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.StationGroup;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.TransportRelationshipTypes;
+import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.ImmutableGraphNode;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.facade.MutableGraphTransaction;
@@ -10,10 +17,13 @@ import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.StationGroupsGraphBuilder;
 import com.tramchester.integration.testSupport.TestGroupType;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
+import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.testTags.BusTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.neo4j.graphdb.Direction;
 
@@ -25,6 +35,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.TransportRelationshipTypes.GROUPED_TO_GROUPED;
+import static com.tramchester.graph.TransportRelationshipTypes.GROUPED_TO_PARENT;
 import static org.junit.jupiter.api.Assertions.*;
 
 @BusTest
@@ -32,6 +43,7 @@ public class StationGroupsGraphBuilderTest {
     private static ComponentContainer componentContainer;
     private static IntegrationBusTestConfig testConfig;
     private static MutableGraphTransaction txn;
+    private StationGroupsRepository stationGroupsRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
@@ -46,6 +58,11 @@ public class StationGroupsGraphBuilderTest {
         txn = graphDatabase.beginTxMutable(Duration.ofMinutes(5));
     }
 
+    @BeforeEach
+    void onceBeforeEachTestRuns() {
+        stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
+    }
+
     @AfterAll
     static void OnceAfterAllTestsAreFinished() throws IOException {
         txn.close();
@@ -57,8 +74,9 @@ public class StationGroupsGraphBuilderTest {
         Stream<ImmutableGraphNode> groupNodes = txn.findNodes(GraphLabel.GROUPED);
         final Duration walkingDuration = testConfig.getWalkingDuration();
 
-
         Set<ImmutableGraphNode> toOthers = groupNodes.filter(node -> node.hasRelationship(Direction.OUTGOING, GROUPED_TO_GROUPED)).collect(Collectors.toSet());
+
+        assertFalse(toOthers.isEmpty());
 
         toOthers.forEach(node -> {
             List<ImmutableGraphRelationship> outbounds = node.getRelationships(txn, Direction.OUTGOING, GROUPED_TO_GROUPED).toList();
@@ -70,6 +88,46 @@ public class StationGroupsGraphBuilderTest {
 
         });
 
+    }
+
+    @Test
+    void shouldHaveSpecificGroupWithExpectedRelationships() {
+        KnownLocality bollington = KnownLocality.Bollington;
+        IdFor<StationGroup> stationGroupId = bollington.getId();
+
+        List<ImmutableGraphNode> nodes = txn.findNodes(GraphLabel.GROUPED).
+                filter(node -> node.getAreaId().equals(bollington.getAreaId())).toList();
+
+        assertEquals(1, nodes.size());
+
+        ImmutableGraphNode stationGroupNode = nodes.get(0);
+
+        assertEquals(stationGroupNode.getStationGroupId(), stationGroupId);
+
+        List<ImmutableGraphRelationship> childLinks = stationGroupNode.getRelationships(txn,
+                Direction.OUTGOING, TransportRelationshipTypes.GROUPED_TO_CHILD).toList();
+
+        StationGroup group = stationGroupsRepository.getStationGroup(stationGroupId);
+
+        LocationSet<Station> containedLocations = group.getAllContained();
+        IdSet<Station> containedIds = containedLocations.stream().collect(IdSet.collector());
+        assertFalse(containedIds.isEmpty());
+        // same number of child nodes as locations in the group
+        assertEquals(containedLocations.size(), childLinks.size());
+
+        List<GraphNode> childNodes = childLinks.stream().map(relationship -> relationship.getEndNode(txn)).toList();
+        IdSet<Station> childLocationIds = childNodes.stream().map(GraphNode::getStationId).collect(IdSet.idCollector());
+
+        assertEquals(containedIds, childLocationIds);
+
+        childNodes.forEach(childNode -> {
+            assertTrue(childNode.hasRelationship(Direction.OUTGOING, GROUPED_TO_PARENT), childNode.getStationId().toString());
+            ImmutableGraphRelationship toParent = childNode.getSingleRelationship(txn, GROUPED_TO_PARENT, Direction.OUTGOING);
+            GraphNode endNode = toParent.getEndNode(txn);
+            assertEquals(stationGroupNode.getId(), endNode.getId(), "wrong parent for " + childNode.getStationId());
+
+            assertEquals(stationGroupId, toParent.getStationGroupId(), "missing for " + childNode.getStationId());
+        });
     }
 
 }

@@ -63,7 +63,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         final StateBuilderParameters builderParameters = new StateBuilderParameters(pathRequest.getQueryDate(), pathRequest.getActualQueryTime(),
                 destinations, nodeContentsRepository, config, pathRequest.getRequestedModes());
 
-        TraversalStateFactory traversalStateFactory = new TraversalStateFactory(builderParameters);
+        final TraversalStateFactory traversalStateFactory = new TraversalStateFactory(builderParameters);
 
         final BranchOrderingPolicy selector = pathRequest.getSelector();
         final GraphNode startNode = pathRequest.getStartNode();
@@ -99,7 +99,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         //noinspection ResultOfMethodCallIgnored
         stream.onClose(() -> {
             if (fullLogging) {
-                reasons.reportReasons(txn, pathRequest);
+                reasons.reportReasons(txn, pathRequest, destinations);
                 previousVisits.reportStats();
             }
             //traversalState.dispose();

@@ -208,8 +208,8 @@ class BusRouteCalculatorTest {
     void shouldHaveAltrinchamToBollingtonReproIssue() {
         TramTime time = TramTime.of(10,37);
 
-        TramDate date = TramDate.of(2024,2,21);
-        JourneyRequest request = new JourneyRequest(date, time, false, MIN_CHANGES,
+        //TramDate date = TramDate.of(2024,2,21);
+        JourneyRequest request = new JourneyRequest(when, time, false, MIN_CHANGES,
                 Duration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, BusesOnly);
 
         request.setDiag(true);

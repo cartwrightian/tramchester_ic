@@ -1,7 +1,11 @@
 package com.tramchester.unit.graph.diagnostics;
 
 import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.LocationCollection;
+import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.places.Station;
+import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
 import com.tramchester.domain.presentation.DTO.diagnostics.JourneyDiagnostics;
 import com.tramchester.domain.presentation.DTO.diagnostics.StationDiagnosticsDTO;
 import com.tramchester.domain.reference.TransportMode;
@@ -68,6 +72,9 @@ public class ServiceReasonsTest extends EasyMockSupport {
         JourneyRequest journeyRequest = new JourneyRequest(TramDate.of(2024,5,30), time,
                 false, 3, Duration.ofHours(1), 1, TramsOnly);
 
+        Station dest = TramStations.Piccadilly.fake();
+        LocationCollection destinations = LocationSet.singleton(dest);
+
         journeyRequest.setDiag(true);
 
         serviceReasons = new ServiceReasons(journeyRequest, time, providesLocalNow, failedJourneyDiagnostics);
@@ -93,15 +100,16 @@ public class ServiceReasonsTest extends EasyMockSupport {
                 howIGotHere, 13);
 
         List<StationDiagnosticsDTO> dtos = new ArrayList<>();
-        JourneyDiagnostics someDiags = new JourneyDiagnostics(dtos, 1, 1);
+        List<LocationRefWithPosition> destinationDTOs = Arrays.asList(new LocationRefWithPosition(dest));
+        JourneyDiagnostics someDiags = new JourneyDiagnostics(dtos, destinationDTOs, 1, 1);
         List<HeuristicsReason> reasons = Arrays.asList(serviceReasonA, serviceReasonB);
-        EasyMock.expect(failedJourneyDiagnostics.recordFailedJourneys(reasons)).andReturn(someDiags);
+        EasyMock.expect(failedJourneyDiagnostics.recordFailedJourneys(reasons, destinations)).andReturn(someDiags);
 
         replayAll();
         serviceReasons.recordReason(serviceReasonA);
         serviceReasons.recordReason(serviceReasonB);
 
-        serviceReasons.reportReasons(txn, pathRequest);
+        serviceReasons.reportReasons(txn, pathRequest, destinations);
         verifyAll();
     }
 

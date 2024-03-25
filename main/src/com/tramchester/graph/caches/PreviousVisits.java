@@ -55,7 +55,8 @@ public class PreviousVisits implements ReportsCacheStats {
 
     // TODO Disable for depth first?
 
-    public void cacheVisitIfUseful(final HeuristicsReason reason, final GraphNode node, ImmutableJourneyState journeyState, final EnumSet<GraphLabel> labels) {
+    public void cacheVisitIfUseful(final HeuristicsReason reason, final GraphNode node, ImmutableJourneyState journeyState,
+                                   final EnumSet<GraphLabel> labels) {
         if (cachingDisabled) {
             return;
         }

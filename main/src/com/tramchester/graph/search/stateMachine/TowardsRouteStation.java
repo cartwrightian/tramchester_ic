@@ -25,7 +25,6 @@ public abstract class TowardsRouteStation<T extends RouteStationState> extends S
     protected filterByDestations<ImmutableGraphRelationship> getTowardsDestination(final GraphNode node, final GraphTransaction txn) {
         final Stream<ImmutableGraphRelationship> relationships = node.getRelationships(txn, OUTGOING, DEPART, INTERCHANGE_DEPART, DIVERSION_DEPART);
         return getTowardsDestination(relationships);
-        //return getTowardsDestination(Stream.concat(relationships, getActiveDiversions(node, txn)));
     }
 
     // TODO When to follow diversion departs? Should these be (also) INTERCHANGE_DEPART ?

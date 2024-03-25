@@ -161,7 +161,7 @@ class RouteCalculatorSubGraphTest {
         TramTime time = TramTime.of(23,53);
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 3,
                 maxJourneyDuration, 1, modes);
-        journeyRequest.setDiag(true);
+//        journeyRequest.setDiag(true);
         List<Journey> results = calculator.calculateRouteAsList(Cornbrook, Pomona, journeyRequest);
         assertFalse(results.isEmpty());
     }

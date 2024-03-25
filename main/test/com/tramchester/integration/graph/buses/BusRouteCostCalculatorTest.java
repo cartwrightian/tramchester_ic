@@ -7,6 +7,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.InvalidDurationException;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteCostCalculator;
@@ -25,10 +26,8 @@ import java.util.EnumSet;
 import java.util.function.BiFunction;
 
 import static com.tramchester.domain.reference.TransportMode.Bus;
-import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
 import static com.tramchester.testSupport.reference.BusStations.*;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 @BusTest
 class BusRouteCostCalculatorTest {
@@ -89,38 +88,38 @@ class BusRouteCostCalculatorTest {
 
     @Test
     void shouldFindCostsCorrectlyForAltyStockportComp() {
-        assertMinutesEquals(45, getCostBetween(average(), altrincham, stockport));
-        assertMinutesEquals(52, getCostBetween(average(), stockport, altrincham));
+        assertEquals(Durations.of(38,33), getCostBetween(average(), altrincham, stockport));
+        assertEquals(Durations.of(42,33), getCostBetween(average(), stockport, altrincham));
     }
 
     @Test
     void shouldFindCostsCorrectlyForAltyStockport() {
-        assertMinutesEquals(48, getCost(average(), StopAtAltrinchamInterchange, StockportNewbridgeLane));
-        assertMinutesEquals(54, getCost(average(), StockportNewbridgeLane, StopAtAltrinchamInterchange));
+        assertEquals(Durations.of(46, 30), getCost(average(), StopAtAltrinchamInterchange, StockportNewbridgeLane));
+        assertEquals(Durations.of(50,30), getCost(average(), StockportNewbridgeLane, StopAtAltrinchamInterchange));
     }
 
     @Test
     void shouldFindCostsCorrectlyForShudehillAltyComp() {
-        assertMinutesEquals(54, getCostBetween(average(), altrincham, shudehill));
-        assertMinutesEquals(58, getCostBetween(average(), shudehill, altrincham));
+        assertEquals(Durations.of(50,46), getCostBetween(average(), altrincham, shudehill));
+        assertEquals(Durations.of(51,36), getCostBetween(average(), shudehill, altrincham));
     }
 
     @Test
     void shouldFindCostsCorrectlyForShudehillAlty() {
-        assertMinutesEquals(55, getCost(average(), StopAtAltrinchamInterchange, StopAtShudehillInterchange));
-        assertMinutesEquals(58, getCost(average(), StopAtShudehillInterchange, StopAtAltrinchamInterchange));
+        assertEquals(Durations.of(51,46), getCost(average(), StopAtAltrinchamInterchange, StopAtShudehillInterchange));
+        assertEquals(Durations.of(51,51), getCost(average(), StopAtShudehillInterchange, StopAtAltrinchamInterchange));
     }
 
     @Test
     void shouldFindCostsCorrectlyForShudehillStockportComp() {
-        assertMinutesEquals(55, getCostBetween(average(), shudehill, stockport));
-        assertMinutesEquals(37, getCostBetween(average(), stockport, shudehill));
+        assertEquals(Durations.of(42,42), getCostBetween(average(), shudehill, stockport));
+        assertEquals(Durations.of(33,57), getCostBetween(average(), stockport, shudehill));
     }
 
     @Test
     void shouldFindCostsCorrectlyForShudehillStockport() {
-        assertMinutesEquals(60, getCost(average(), StopAtShudehillInterchange, StockportNewbridgeLane));
-        assertMinutesEquals(42, getCost(average(), StockportNewbridgeLane, StopAtShudehillInterchange));
+        assertEquals(Durations.of(50,35), getCost(average(), StopAtShudehillInterchange, StockportNewbridgeLane));
+        assertEquals(Durations.of(41,3), getCost(average(), StockportNewbridgeLane, StopAtShudehillInterchange));
     }
 
     private BiFunction<Location<?>, Location<?>, Duration> average() {

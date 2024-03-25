@@ -138,7 +138,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     }
 
     private HeuristicsReason doEvaluate(final Path thePath, final ImmutableJourneyState journeyState, final GraphNode nextNode,
-                                  final EnumSet<GraphLabel> nodeLabels, HowIGotHere howIGotHere) {
+                                  final EnumSet<GraphLabel> nodeLabels, final HowIGotHere howIGotHere) {
 
         final GraphNodeId nextNodeId = nextNode.getId();
 

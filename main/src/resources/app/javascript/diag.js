@@ -173,6 +173,24 @@ function addNodeToMap(node, app, maxNodeReasons, maxEdgeReasons) {
 
 }
 
+function addLocationToMap(location, app) {
+    const lat = location.latLong.lat;
+    const lon = location.latLong.lon;
+    const latLong = L.latLng(lat, lon);
+
+    const defaultRadius = 5;
+
+    const markerColour = "Red"
+
+    const marker = new L.circleMarker(latLong, 
+        { fill: true, fillColor: markerColour, fillOpacity: 0.8, title: location.name, radius: defaultRadius, color: markerColour });
+
+    const stationText = location.name + " '" + location.id + "<br>";
+    marker.bindTooltip(stationText);
+
+    app.stationLayerGroup.addLayer(marker);
+}
+
 function updateMapWithDiag(app, diagnostics) {
     if (diagnostics==null) {
         return;
@@ -183,6 +201,10 @@ function updateMapWithDiag(app, diagnostics) {
     const maxEdgeReasons = new Number(diagnostics.maxEdgeReasons);
     nodes.forEach(node => {
         addNodeToMap(node, app, maxNodeReasons, maxEdgeReasons)
+    })
+    const destinations = diagnostics.destinations;
+    destinations.forEach(dest => {
+        addLocationToMap(dest, app)
     })
 
 }

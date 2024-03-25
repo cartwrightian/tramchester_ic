@@ -58,73 +58,73 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
         return txn.wrapRelationshipMutable(relationshipTo);
     }
 
-    public void addLabel(Label label) {
+    public void addLabel(final Label label) {
         node.addLabel(label);
     }
 
-    public void setHourProp(Integer hour) {
+    public void setHourProp(final Integer hour) {
         node.setProperty(HOUR.getText(), hour);
     }
 
-    public void setTime(TramTime tramTime) {
+    public void setTime(final TramTime tramTime) {
         setTime(tramTime, node);
     }
 
-    public void set(Station station) {
+    public void set(final Station station) {
         set(station, node);
     }
 
-    public void set(Platform platform) {
+    public void set(final Platform platform) {
         set(platform, node);
     }
 
-    public void set(Route route) {
+    public void set(final Route route) {
         set(route, node);
     }
 
-    public void set(Service service) {
+    public void set(final Service service) {
         set(service, node);
     }
 
-    public void set(StationGroup stationGroup) {
+    public void set(final StationGroup stationGroup) {
         set(stationGroup, node);
     }
 
-    public void set(RouteStation routeStation) {
+    public void set(final RouteStation routeStation) {
         set(routeStation, node);
     }
 
-    public void setTransportMode(TransportMode first) {
+    public void setTransportMode(final TransportMode first) {
         node.setProperty(TRANSPORT_MODE.getText(), first.getNumber());
     }
 
-    public void set(DataSourceInfo nameAndVersion) {
+    public void set(final DataSourceInfo nameAndVersion) {
         DataSourceID sourceID = nameAndVersion.getID();
         node.setProperty(sourceID.name(), nameAndVersion.getVersion());
     }
 
-    public void setLatLong(LatLong latLong) {
+    public void setLatLong(final LatLong latLong) {
         node.setProperty(LATITUDE.getText(), latLong.getLat());
         node.setProperty(LONGITUDE.getText(), latLong.getLon());
     }
 
-    public void setWalkId(LatLong origin, UUID uid) {
+    public void setWalkId(final LatLong origin, final UUID uid) {
         node.setProperty(GraphPropertyKey.WALK_ID.getText(), origin.toString() + "_" + uid.toString());
     }
 
-    public void setPlatformNumber(Platform platform) {
+    public void setPlatformNumber(final Platform platform) {
         node.setProperty(PLATFORM_NUMBER.getText(), platform.getPlatformNumber());
     }
 
-    public void setSourceName(String sourceName) {
+    public void setSourceName(final String sourceName) {
         node.setProperty(SOURCE_NAME_PROP.getText(), sourceName);
     }
 
-    public void setAreaId(IdFor<NPTGLocality> localityId) {
+    public void setAreaId(final IdFor<NPTGLocality> localityId) {
         node.setProperty(AREA_ID.getText(), localityId.getGraphId());
     }
 
-    public void setTowards(IdFor<Station> stationId) {
+    public void setTowards(final IdFor<Station> stationId) {
         node.setProperty(TOWARDS_STATION_ID.getText(), stationId.getGraphId());
     }
 
@@ -165,13 +165,13 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
     }
 
     @Override
-    public boolean hasLabel(GraphLabel graphLabel) {
+    public boolean hasLabel(final GraphLabel graphLabel) {
         return node.hasLabel(graphLabel);
     }
 
     @Override
     public ImmutableGraphRelationship getSingleRelationship(MutableGraphTransaction txn, TransportRelationshipTypes transportRelationshipType, Direction direction) {
-        Relationship found = node.getSingleRelationship(transportRelationshipType, direction);
+        final Relationship found = node.getSingleRelationship(transportRelationshipType, direction);
         if (found==null) {
             return null;
         }
@@ -179,7 +179,7 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
     }
 
     public MutableGraphRelationship getSingleRelationshipMutable(MutableGraphTransaction txn, TransportRelationshipTypes transportRelationshipType, Direction direction) {
-        Relationship found = node.getSingleRelationship(transportRelationshipType, direction);
+        final Relationship found = node.getSingleRelationship(transportRelationshipType, direction);
         if (found==null) {
             return null;
         }
@@ -198,7 +198,7 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
         return getIdFor(Station.class, node);
     }
 
-    public void set(Trip trip) {
+    public void set(final Trip trip) {
         set(trip, node);
     }
 
@@ -207,7 +207,7 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
     }
 
     @Override
-    public Traverser getTraverserFor(TraversalDescription traversalDesc) {
+    public Traverser getTraverserFor(final TraversalDescription traversalDesc) {
         return traversalDesc.traverse(node);
     }
 

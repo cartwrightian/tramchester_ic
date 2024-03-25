@@ -39,26 +39,30 @@ public class GroupedStationState extends TraversalState {
             return TraversalStateType.GroupedStationState;
         }
 
-        public TraversalState fromChildStation(StationState stationState, JourneyStateUpdate journeyStateUpdate, GraphNode node, Duration cost, GraphTransaction txn) {
+        public TraversalState fromChildStation(StationState stationState, JourneyStateUpdate journeyStateUpdate,
+                                               GraphNode node, Duration cost, GraphTransaction txn) {
             final Stream<ImmutableGraphRelationship> relationships = filterExcludingEndNode(txn,
                     node.getRelationships(txn, Direction.OUTGOING, GROUPED_TO_CHILD, GROUPED_TO_GROUPED), stationState);
             return new GroupedStationState(stationState, journeyStateUpdate, relationships, cost, this, node);
         }
 
-        public TraversalState fromStart(NotStartedState notStartedState, GraphNode node, JourneyStateUpdate journeyStateUpdate, Duration cost, GraphTransaction txn) {
+        public TraversalState fromStart(NotStartedState notStartedState, GraphNode node, JourneyStateUpdate journeyStateUpdate,
+                                        Duration cost, GraphTransaction txn) {
             final Stream<ImmutableGraphRelationship> relationships = node.getRelationships(txn, Direction.OUTGOING, GROUPED_TO_CHILD, GROUPED_TO_GROUPED);
             return new GroupedStationState(notStartedState, journeyStateUpdate, relationships,
                     cost, this, node);
         }
 
-        public TraversalState fromGrouped(GroupedStationState parent, Duration cost, JourneyStateUpdate journeyStateUpdate, GraphNode node, GraphTransaction txn) {
+        public TraversalState fromGrouped(GroupedStationState parent, Duration cost, JourneyStateUpdate journeyStateUpdate,
+                                          GraphNode node, GraphTransaction txn) {
             final Stream<ImmutableGraphRelationship> relationships = filterExcludingEndNode(txn,
                     node.getRelationships(txn, Direction.OUTGOING, GROUPED_TO_CHILD, GROUPED_TO_GROUPED), parent);
             return new GroupedStationState(parent, journeyStateUpdate, relationships, cost, this, node);
         }
     }
 
-    private GroupedStationState(ImmutableTraversalState parent, final JourneyStateUpdate journeyStateUpdate, Stream<ImmutableGraphRelationship> relationships, Duration cost,
+    private GroupedStationState(ImmutableTraversalState parent, final JourneyStateUpdate journeyStateUpdate,
+                                Stream<ImmutableGraphRelationship> relationships, Duration cost,
                                 Towards<GroupedStationState> builder, GraphNode graphNode) {
         super(parent, relationships, cost, builder.getDestination(), graphNode);
         final IdFor<StationGroup> stationGroupdId = graphNode.getStationGroupId();

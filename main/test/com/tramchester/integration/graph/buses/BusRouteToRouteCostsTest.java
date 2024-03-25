@@ -109,7 +109,7 @@ public class BusRouteToRouteCostsTest {
         StationGroup dest = KnownLocality.Macclesfield.from(stationGroupsRepository);
 
         TimeRange range = TimeRange.of(TramTime.of(10,5), TramTime.of(14,53));
-        NumberOfChanges results = routeToRouteCosts.getNumberOfChanges(start, dest, TramDate.of(2024,1,29), range, modes);
+        NumberOfChanges results = routeToRouteCosts.getNumberOfChanges(start, dest, date, range, modes);
 
         assertEquals(0, results.getMin());
         assertEquals(2, results.getMax());
