@@ -33,7 +33,7 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
 
     private ImmutableGraphNode endNode;
 
-    MutableGraphRelationship(Relationship relationship, GraphRelationshipId id) {
+    MutableGraphRelationship(final Relationship relationship, final GraphRelationshipId id) {
         this.relationship = relationship;
         this.id = id;
     }
@@ -42,12 +42,12 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
         return id;
     }
 
-    public void setTransportMode(TransportMode transportMode) {
+    public void setTransportMode(final TransportMode transportMode) {
         relationship.setProperty(TRANSPORT_MODE.getText(), transportMode.getNumber());
     }
 
-    public void setCost(Duration cost) {
-        long seconds = cost.toSeconds();
+    public void setCost(final Duration cost) {
+        final long seconds = cost.toSeconds();
         relationship.setProperty(COST.getText(), seconds);
     }
 
@@ -56,15 +56,15 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
         return Duration.ofSeconds(seconds);
     }
 
-    public void setTime(TramTime tramTime) {
+    public void setTime(final TramTime tramTime) {
         setTime(tramTime, relationship);
     }
 
-    public void setHour(int hour) {
+    public void setHour(final int hour) {
         relationship.setProperty(HOUR.getText(), hour);
     }
 
-    public <C extends GraphProperty & CoreDomain & HasId<C>> void set(C domainItem) {
+    public <C extends GraphProperty & CoreDomain & HasId<C>> void set(final C domainItem) {
         super.set(domainItem, relationship);
     }
 
@@ -72,41 +72,41 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
         return getTime(relationship);
     }
 
-    public void setRouteStationId(IdFor<RouteStation> routeStationId) {
+    public void setRouteStationId(final IdFor<RouteStation> routeStationId) {
         relationship.setProperty(ROUTE_STATION_ID.getText(), routeStationId.getGraphId());
     }
 
-    public void setStopSeqNum(int sequenceNumber) {
+    public void setStopSeqNum(final int sequenceNumber) {
         relationship.setProperty(STOP_SEQ_NUM.getText(), sequenceNumber);
     }
 
-    public void setDateRange(DateRange range) {
+    public void setDateRange(final DateRange range) {
         setStartDate(range.getStartDate().toLocalDate());
         setEndDate(range.getEndDate().toLocalDate());
     }
 
     public DateRange getDateRange() {
-        LocalDate start = getStartDate();
-        LocalDate end = getEndDate();
+        final LocalDate start = getStartDate();
+        final LocalDate end = getEndDate();
         return new DateRange(TramDate.of(start), TramDate.of(end));
     }
 
-    public void setEndDate(LocalDate localDate) {
+    public void setEndDate(final LocalDate localDate) {
         relationship.setProperty(END_DATE.getText(), localDate);
     }
 
-    public void setStartDate(LocalDate localDate) {
+    public void setStartDate(final LocalDate localDate) {
         relationship.setProperty(START_DATE.getText(), localDate);
     }
 
     public void addTransportMode(final TransportMode mode) {
-        short modeNumber = mode.getNumber();
+        final short modeNumber = mode.getNumber();
         if (!(relationship.hasProperty(TRANSPORT_MODES.getText()))) {
             relationship.setProperty(TRANSPORT_MODES.getText(), new short[]{modeNumber});
             return;
         }
 
-        short[] existing = (short[]) relationship.getProperty(TRANSPORT_MODES.getText());
+        final short[] existing = (short[]) relationship.getProperty(TRANSPORT_MODES.getText());
         // note: not sorted, hence not binary search here
         for (short value : existing) {
             if (value == modeNumber) {
@@ -174,7 +174,6 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
         relationship.delete();
     }
 
-
     @Override
     public GraphNode getEndNode(final GraphTransaction txn) {
         if (endNode==null) {
@@ -185,6 +184,11 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
 
     public GraphNode getStartNode(GraphTransaction txn) {
         return txn.getStartNode(relationship);
+    }
+
+    @Override
+    public GraphNodeId getStartNodeId(final GraphTransaction txn) {
+        return getStartNode(txn).getId();
     }
 
     public EnumSet<TransportMode> getTransportModes() {
@@ -276,7 +280,7 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
     }
 
     @Override
-    public GraphNodeId getEndNodeId(GraphTransaction txn) {
+    public GraphNodeId getEndNodeId(final GraphTransaction txn) {
         return txn.createNodeId(relationship.getEndNode());
     }
 

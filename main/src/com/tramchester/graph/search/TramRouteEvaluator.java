@@ -103,12 +103,12 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
         final ImmutableJourneyState journeyState = state.getState();
 
-        final GraphNode nextNode = txn.fromEnd(path); // path.endNode();
+        final GraphNode nextNode = txn.fromEnd(path);
         final GraphRelationship last = txn.lastFrom(path);
 
         final EnumSet<GraphLabel> labels = nodeContentsRepository.getLabels(nextNode);
 
-        final HowIGotHere howIGotHere = new HowIGotHere(journeyState, nextNode, last);
+        final HowIGotHere howIGotHere = new HowIGotHere(journeyState, nextNode.getId(), getPreviousNodeSafe(last));
 
         // NOTE: This makes a significant impact on performance, without it algo explore the same
         // path again and again for the same time in the case where it is a valid time.
@@ -127,6 +127,14 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         previousVisits.cacheVisitIfUseful(heuristicsReason, nextNode, journeyState, labels);
 
         return result;
+    }
+
+
+    private GraphNodeId getPreviousNodeSafe(final GraphRelationship graphRelationship) {
+        if (graphRelationship==null) {
+            return null;
+        }
+        return graphRelationship.getStartNodeId(txn);
     }
 
     private HeuristicsReason doEvaluate(final Path thePath, final ImmutableJourneyState journeyState, final GraphNode nextNode,

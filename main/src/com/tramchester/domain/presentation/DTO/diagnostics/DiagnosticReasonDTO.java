@@ -1,6 +1,7 @@
 package com.tramchester.domain.presentation.DTO.diagnostics;
 
 import com.tramchester.graph.search.diagnostics.HeuristicsReason;
+import com.tramchester.graph.search.diagnostics.HowIGotHere;
 import com.tramchester.graph.search.diagnostics.ReasonCode;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateType;
 
@@ -11,17 +12,29 @@ public class DiagnosticReasonDTO {
     private final String text;
     private final boolean isValid;
     private final TraversalStateType stateType;
+    private final String beginId;
+    private final String endId;
 
     public DiagnosticReasonDTO(final HeuristicsReason heuristicsReason) {
         this(heuristicsReason.getReasonCode(), heuristicsReason.textForGraph(), heuristicsReason.isValid(),
-                heuristicsReason.getHowIGotHere().getTraversalStateType());
+                heuristicsReason.getHowIGotHere());
     }
 
-    public DiagnosticReasonDTO(ReasonCode code, String text, boolean isValid, TraversalStateType stateType) {
+    public DiagnosticReasonDTO(ReasonCode code, String text, boolean isValid, HowIGotHere howIGotHere) {
         this.code = code;
         this.text = text;
         this.isValid = isValid;
-        this.stateType = stateType;
+        this.stateType = howIGotHere.getTraversalStateType();
+        this.beginId = beginIdFrom(howIGotHere);
+        this.endId = howIGotHere.getEndNodeId().toString();
+    }
+
+    private String beginIdFrom(final HowIGotHere howIGotHere) {
+        if (howIGotHere.atStart()) {
+            return "START_ID";
+        } else {
+            return howIGotHere.getPreviousId().toString();
+        }
     }
 
     public ReasonCode getCode() {
@@ -51,5 +64,13 @@ public class DiagnosticReasonDTO {
 
     public TraversalStateType getStateType() {
         return stateType;
+    }
+
+    public String getBeginId() {
+        return beginId;
+    }
+
+    public String getEndId() {
+        return endId;
     }
 }

@@ -194,4 +194,9 @@ public class ImmutableGraphRelationship implements GraphRelationship {
     public DateRange getDateRange() {
         return underlying.getDateRange();
     }
+
+    @Override
+    public GraphNodeId getStartNodeId(GraphTransaction txn) {
+        return underlying.getStartNodeId(txn);
+    }
 }

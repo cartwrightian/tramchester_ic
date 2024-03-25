@@ -31,6 +31,11 @@ public interface GraphRelationship {
 
     GraphNode getStartNode(GraphTransaction txn);
 
+    GraphNodeId getStartNodeId(GraphTransaction txn);
+
+    GraphNodeId getEndNodeId(GraphTransaction txn);
+
+
     EnumSet<TransportMode> getTransportModes() ;
 
     TransportRelationshipTypes getType();
@@ -53,7 +58,6 @@ public interface GraphRelationship {
 
     IdFor<Station> getStationId();
 
-    GraphNodeId getEndNodeId(GraphTransaction txn);
 
     boolean hasProperty(GraphPropertyKey graphPropertyKey);
 
@@ -70,4 +74,5 @@ public interface GraphRelationship {
     boolean hasTripId(IdFor<Trip> tripId);
 
     DateRange getDateRange();
+
 }

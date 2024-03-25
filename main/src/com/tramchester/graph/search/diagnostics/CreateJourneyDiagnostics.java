@@ -9,6 +9,7 @@ import com.tramchester.domain.presentation.DTO.diagnostics.DiagnosticReasonDTO;
 import com.tramchester.domain.presentation.DTO.diagnostics.JourneyDiagnostics;
 import com.tramchester.domain.presentation.DTO.diagnostics.StationDiagnosticsDTO;
 import com.tramchester.domain.presentation.DTO.diagnostics.StationDiagnosticsLinkDTO;
+import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.repository.LocationRepository;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -40,11 +41,12 @@ public class CreateJourneyDiagnostics {
             final HowIGotHere howIGotHere = reason.getHowIGotHere();
             final IdFor<? extends Location<?>> locationId = howIGotHere.getApproxLocation();
             if (locationId.isValid()) {
-                final Node node = tree.addOrUpdateNode(locationId);
+                final GraphNodeId endNodeId = howIGotHere.getEndNodeId();
+                final DiagNode node = tree.addOrUpdateNode(locationId, endNodeId);
 
                 if (howIGotHere.hasTowardsId()) {
                     final IdFor<Station> towardsId = howIGotHere.getTowardsId();
-                    tree.updateRelationshipsFor(node, towardsId, reason);
+                    tree.updateRelationshipsFor(node, towardsId, reason, endNodeId);
                 } else {
                     node.addReason(reason);
                 }
@@ -63,27 +65,27 @@ public class CreateJourneyDiagnostics {
     private JourneyDiagnostics createFrom(final DiagnosticTree tree) {
         final AtomicInteger maxNodeReasons = new AtomicInteger(0);
         final AtomicInteger maxEdgeReasons = new AtomicInteger(0);
-        final List<StationDiagnosticsDTO> dto = tree.visit(node -> createLocationDiagnosticsDTO(node, maxEdgeReasons, maxNodeReasons));
+        final List<StationDiagnosticsDTO> dto = tree.visit(diagNode -> createLocationDiagnosticsDTO(diagNode, maxEdgeReasons, maxNodeReasons));
         return new JourneyDiagnostics(dto, maxNodeReasons.get(), maxEdgeReasons.get());
     }
 
     @NotNull
-    private StationDiagnosticsDTO createLocationDiagnosticsDTO(final Node node, final AtomicInteger maxEdgeReasons, final AtomicInteger maxNodeReasons) {
+    private StationDiagnosticsDTO createLocationDiagnosticsDTO(final DiagNode diagNode, final AtomicInteger maxEdgeReasons, final AtomicInteger maxNodeReasons) {
 
-        final int currentMaxReasonsForEdges = getMaxNumReasons(node.edges.values());
+        final int currentMaxReasonsForEdges = getMaxNumReasons(diagNode.edges.values());
         if (currentMaxReasonsForEdges > maxEdgeReasons.get()) {
             maxEdgeReasons.set(currentMaxReasonsForEdges);
         }
-        final Set<HeuristicsReason> heuristicsReasons = node.reasonCodes;
+        final Set<HeuristicsReason> heuristicsReasons = diagNode.reasonCodes;
         if (heuristicsReasons.size() > maxNodeReasons.get()) {
             maxNodeReasons.set(heuristicsReasons.size());
         }
 
-        final Location<?> location = locationRepository.getLocation(node.locationId);
+        final Location<?> location = locationRepository.getLocation(diagNode.locationId);
         final LocationRefWithPosition stationDto = new LocationRefWithPosition(location);
-        final List<StationDiagnosticsLinkDTO> links = node.visitEdges(this::createStationDiagLinkDTO);
+        final List<StationDiagnosticsLinkDTO> links = diagNode.visitEdges(this::createStationDiagLinkDTO);
 
-        return new StationDiagnosticsDTO(stationDto, convertReasons(heuristicsReasons), links, getCodes(heuristicsReasons));
+        return new StationDiagnosticsDTO(stationDto, convertReasons(heuristicsReasons), links, getCodes(heuristicsReasons), diagNode.associatedNodeIds);
     }
 
     private StationDiagnosticsLinkDTO createStationDiagLinkDTO(final Edge edge) {
@@ -183,6 +185,7 @@ public class CreateJourneyDiagnostics {
 
         final Optional<String> reduced = reasonsToConsolidate.stream().map(item -> " " + item.textForAttributeB()).reduce((s1, s2) -> s1 + s2);
         final String text = reduced.orElse("");
+
         return new HeuristicReasonWithAttributes<>(example.getReasonCode(), example.getHowIGotHere(), key, text, example.isValid(),
                 unused -> textForSharedKey, s -> s);
     }
@@ -199,57 +202,61 @@ public class CreateJourneyDiagnostics {
     private static DiagnosticReasonDTO createDiagnosticReasonDTO(final HeuristicsReason heuristicsReason) {
         if (heuristicsReason.getReasonCode()==ReasonCode.NotOnQueryDate) {
             return new DiagnosticReasonDTO(ReasonCode.NotOnQueryDate, "NotOnQueryDate", heuristicsReason.isValid(),
-                    heuristicsReason.getHowIGotHere().getTraversalStateType());
+                    heuristicsReason.getHowIGotHere());
         }
         if (heuristicsReason.getReasonCode()==ReasonCode.CachedNotOnQueryDate) {
             return new DiagnosticReasonDTO(ReasonCode.CachedNotOnQueryDate, "CachedNotOnQueryDate", heuristicsReason.isValid(),
-                    heuristicsReason.getHowIGotHere().getTraversalStateType());
+                    heuristicsReason.getHowIGotHere());
         }
         return new DiagnosticReasonDTO(heuristicsReason);
     }
 
     private class DiagnosticTree {
-        private final Map<IdFor<? extends Location<?>>, Node> nodes;
+        private final Map<IdFor<? extends Location<?>>, DiagNode> nodes;
 
         public DiagnosticTree() {
             nodes = new HashMap<>();
         }
 
-        public Node addOrUpdateNode(IdFor<? extends Location<?>> stationId) {
+        public DiagNode addOrUpdateNode(IdFor<? extends Location<?>> stationId, GraphNodeId nodeId) {
 
-            final Node node;
+            final DiagNode diagNode;
             if (!nodes.containsKey(stationId)) {
-                node = new Node(stationId);
-                nodes.put(stationId, node);
+                diagNode = new DiagNode(stationId);
+                nodes.put(stationId, diagNode);
             } else {
-                node = nodes.get(stationId);
+                diagNode = nodes.get(stationId);
             }
 
-            return node;
+            diagNode.addNodeId(nodeId);
+
+            return diagNode;
         }
 
-        public void updateRelationshipsFor(Node node, IdFor<Station> towardsId, HeuristicsReason reason) {
-            final Node towardsNode = addOrUpdateNode(towardsId);
+        public void updateRelationshipsFor(DiagNode node, IdFor<Station> towardsId, HeuristicsReason reason, GraphNodeId associatedGraphNodeId) {
+            final DiagNode towardsNode = addOrUpdateNode(towardsId, associatedGraphNodeId);
             node.addEdgeTowards(towardsId, towardsNode, reason);
         }
 
-        public <T> List<T> visit(Function<Node,T> visitor) {
+        public <T> List<T> visit(Function<DiagNode,T> visitor) {
             return nodes.values().stream().map(visitor).toList();
         }
     }
 
-    private class Node {
+    private class DiagNode {
         private final IdFor<? extends Location<?>> locationId;
         private final Map<IdFor<? extends Location<?>>, Edge> edges;
         private final Set<HeuristicsReason> reasonCodes;
+        private final Set<GraphNodeId> associatedNodeIds;
 
-        private Node(final IdFor<? extends Location<?>> locationId) {
+        private DiagNode(final IdFor<? extends Location<?>> locationId) {
             this.locationId = locationId;
             edges = new HashMap<>();
             reasonCodes = new HashSet<>();
+            associatedNodeIds = new HashSet<>();
         }
 
-        public void addEdgeTowards(IdFor<Station> towardsId, Node towardsNode, HeuristicsReason heuristicsReason) {
+        public void addEdgeTowards(IdFor<Station> towardsId, DiagNode towardsNode, HeuristicsReason heuristicsReason) {
             final Edge edge;
             if (edges.containsKey(towardsId)) {
                 edge = edges.get(towardsId);
@@ -268,18 +275,21 @@ public class CreateJourneyDiagnostics {
             return edges.values().stream().map(function).toList();
         }
 
+        public void addNodeId(final GraphNodeId nodeId) {
+            associatedNodeIds.add(nodeId);
+        }
     }
 
     private class Edge {
-        private final Node end;
+        private final DiagNode end;
         private final Set<HeuristicsReason> reasonCodes;
 
-        private Edge(Node end) {
+        private Edge(DiagNode end) {
             this.end = end;
             reasonCodes = new HashSet<>();
         }
 
-        public void addCode(HeuristicsReason heuristicsReason) {
+        public void addCode(final HeuristicsReason heuristicsReason) {
             reasonCodes.add(heuristicsReason);
         }
     }

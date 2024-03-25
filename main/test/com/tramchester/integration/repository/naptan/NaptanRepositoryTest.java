@@ -175,7 +175,7 @@ class NaptanRepositoryTest {
 
     @Test
     void shouldFindAllTestBusStations() {
-        for(BusStations station :BusStations.values()) {
+        for(BusStations station : BusStations.values()) {
             IdFor<Station> actoCode = station.getId();
             assertTrue(repository.containsActo(actoCode), "missing for " + station);
             NaptanRecord fromNaptan = repository.getForActo(actoCode);

@@ -92,7 +92,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         final NumberOfChanges numberOfChanges =  routeToRouteCosts.getNumberOfChanges(start, destination, journeyRequest);
 
         // route change calc issue, for media city to ashton line
-        // not clear if existing mechanism works now routes are bi-directional
+        // not clear if existing mechanism works now routes are bidirectional
         if (journeyRequest.getMaxChanges()>numberOfChanges.getMax()) {
             if (closedStationsRepository.hasClosuresOn(date)) {
                 logger.warn(format("Closures in effect today %s so over ride max changes", journeyRequest.getDate()));
@@ -171,7 +171,8 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
         final LowestCostsForDestRoutes lowestCostsForRoutes = routeToRouteCosts.getLowestCostCalculatorFor(destinations, journeyRequest);
-        final Duration maxJourneyDuration = getMaxDurationFor(journeyRequest);
+
+        final Duration maxJourneyDuration = journeyRequest.getMaxJourneyDuration();
 
         final IdSet<Station> closedStations = closedStationsRepository.getFullyClosedStationsFor(tramDate).stream().
                 map(ClosedStation::getStationId).collect(IdSet.idCollector());
@@ -225,7 +226,8 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
         final LowestCostsForDestRoutes lowestCostsForRoutes = routeToRouteCosts.getLowestCostCalculatorFor(destinations, journeyRequest);
-        final Duration maxJourneyDuration = getMaxDurationFor(journeyRequest);
+
+        final Duration maxJourneyDuration = journeyRequest.getMaxJourneyDuration();
 
         final IdSet<Station> closedStations = closedStationsRepository.getFullyClosedStationsFor(tramDate).stream().
                 map(ClosedStation::getStationId).collect(IdSet.idCollector());

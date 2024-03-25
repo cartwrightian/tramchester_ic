@@ -16,8 +16,10 @@ public enum BusStations implements FakeStation {
 
     StopAtAltrinchamInterchange("1800AMIC0C1", "Altrincham Interchange (Stand C), Altrincham",
             new LatLong(53.38745, -2.34771)),
-    StopAtHeatonLaneStockportBusStation("1800STIC011", "Stockport Heaton Lane Bus Station (Stand H1), Stockport",
-            new LatLong(53.41036253703,-2.16501729098)),
+
+//    StopAtHeatonLaneStockportBusStation("1800STIC011", "Stockport Heaton Lane Bus Station (Stand H1), Stockport",
+//            new LatLong(53.41036253703,-2.16501729098)),
+
     StopAtShudehillInterchange("1800SHIC0C1", "Shudehill Interchange (Stand C), Shudehill, Manchester City Centre",
             new LatLong(53.48557, -2.23827)),
     ManchesterAirportStation("1800MABS0E1", "Manchester Airport The Station (Stand E), Manchester Airport, Manchester",

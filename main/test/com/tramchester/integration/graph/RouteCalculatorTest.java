@@ -185,13 +185,13 @@ public class RouteCalculatorTest {
         });
     }
 
-    @Disabled("WIP")
+    @Disabled("expected to fail, diagnosing issue")
     @Test
     void shouldHaveLateNightBuryToAirportWithBrokenRailAtVictoria() {
-        TramDate date = TramDate.of(2024, 3, 5);
+        //TramDate date = TramDate.of(2024, 3, 5);
         TramTime time = TramTime.of(22,54);
 
-        JourneyRequest journeyRequest = new JourneyRequest(date, time, false, maxChanges,
+        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 3,
                 maxJourneyDuration, maxNumResults, requestedModes);
 
         List<Journey> journeys = calculator.calculateRouteAsList(Bury, ManAirport, journeyRequest);

@@ -66,14 +66,14 @@ public class ServiceReasons {
         nodeVisits = new HashMap<>();
     }
 
-    public void reportReasons(final GraphTransaction transaction, final RouteCalculatorSupport.PathRequest pathRequest) {
+    public void reportReasons(final GraphTransaction txn, final RouteCalculatorSupport.PathRequest pathRequest) {
         if (diagnosticsEnabled) {
-            JourneyDiagnostics diagnostics = failedJourneyDiagnostics.recordFailedJourneys(reasons);
+            final JourneyDiagnostics diagnostics = failedJourneyDiagnostics.recordFailedJourneys(reasons);
             journeyRequest.injectDiag(diagnostics);
         }
 
         if (!success.get() || diagnosticsEnabled) {
-            reportStats(transaction, pathRequest);
+            reportStats(txn, pathRequest);
         }
 
         reset();

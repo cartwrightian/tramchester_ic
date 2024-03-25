@@ -135,12 +135,12 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         path = createMock(Path.class);
         node = createMock(ImmutableGraphNode.class);
         lastRelationship = createMock(ImmutableGraphRelationship.class);
-//        lowestCostsForRoutes = createMock(LowestCostsForDestRoutes.class);
 
         final GraphNodeId nodeId = GraphNodeId.TestOnly(42L);
-        final GraphRelationshipId relationshipId = GraphRelationshipId.TestOnly(24L);
+        final GraphNodeId previousNodeId = GraphNodeId.TestOnly(21L);
+
         IdFor<Station> approxPosition = Shudehill.getId();
-        howIGotHere = new HowIGotHere(nodeId, relationshipId, TraversalStateType.MinuteState, approxPosition,
+        howIGotHere = new HowIGotHere(nodeId, previousNodeId, TraversalStateType.MinuteState, approxPosition,
                 TramStations.MarketStreet.getId());
 
         EasyMock.expect(node.getId()).andStubReturn(GraphNodeId.TestOnly(42L));
@@ -149,7 +149,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(txn.fromEnd(path)).andReturn(node);
         EasyMock.expect(txn.lastFrom(path)).andStubReturn(lastRelationship);
 
-        EasyMock.expect(lastRelationship.getId()).andStubReturn(GraphRelationshipId.TestOnly(24L));
+        EasyMock.expect(lastRelationship.getStartNodeId(txn)).andStubReturn(previousNodeId);
 
     }
 

@@ -193,23 +193,18 @@ public class RouteCalculatorSupport {
         }
     }
 
-    protected PreviousVisits createPreviousVisits(JourneyRequest journeyRequest) {
+    protected PreviousVisits createPreviousVisits(final JourneyRequest journeyRequest) {
         return new PreviousVisits(journeyRequest.getCachingDisabled());
     }
 
     @NotNull
-    protected ServiceReasons createServiceReasons(JourneyRequest journeyRequest) {
+    protected ServiceReasons createServiceReasons(final JourneyRequest journeyRequest) {
         return new ServiceReasons(journeyRequest, journeyRequest.getOriginalTime(), providesNow, failedJourneyDiagnostics);
     }
 
     @NotNull
     protected ServiceReasons createServiceReasons(final JourneyRequest journeyRequest, final PathRequest pathRequest) {
         return new ServiceReasons(journeyRequest, pathRequest.queryTime, providesNow, failedJourneyDiagnostics);
-    }
-
-    protected Duration getMaxDurationFor(JourneyRequest journeyRequest) {
-        return journeyRequest.getMaxJourneyDuration();
-
     }
 
     public PathRequest createPathRequest(final JourneyRequest journeyRequest, final NodeAndStation nodeAndStation, final int numChanges,

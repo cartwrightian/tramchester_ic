@@ -55,7 +55,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     }
 
     public Stream<Path> findPaths(final GraphTransaction txn, final RouteCalculatorSupport.PathRequest pathRequest,
-                                  final PreviousVisits previousSuccessfulVisit,
+                                  final PreviousVisits previousVisits,
                                   final ServiceReasons reasons, final LowestCostSeen lowestCostSeen,
                                   final Set<GraphNodeId> destinationNodeIds, final LocationCollection destinations, Running running) {
 
@@ -70,7 +70,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         final TramTime actualQueryTime = pathRequest.getActualQueryTime();
 
         final TramRouteEvaluator tramRouteEvaluator = new TramRouteEvaluator(pathRequest,
-                destinationNodeIds, nodeContentsRepository, reasons, previousSuccessfulVisit, lowestCostSeen, config,
+                destinationNodeIds, nodeContentsRepository, reasons, previousVisits, lowestCostSeen, config,
                 startNode.getId(), txn, running);
 
         final TraversalOps traversalOps = new TraversalOps(txn, nodeContentsRepository, tripRepository);
@@ -100,7 +100,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         stream.onClose(() -> {
             if (fullLogging) {
                 reasons.reportReasons(txn, pathRequest);
-                previousSuccessfulVisit.reportStats();
+                previousVisits.reportStats();
             }
             //traversalState.dispose();
         });

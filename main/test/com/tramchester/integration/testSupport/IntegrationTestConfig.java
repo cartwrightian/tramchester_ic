@@ -28,7 +28,7 @@ public abstract class IntegrationTestConfig extends TestConfig {
     static {
         Set<String> closed = Collections.singleton("9400ZZMAEXS");
         exchangeSquareBrokenRail = new StationClosuresConfig(closed, LocalDate.of(2024,2,12),
-            LocalDate.of(2024,3,14), false, Collections.singleton("9400ZZMAVIC"));
+            LocalDate.of(2024,4,14), false, Collections.singleton("9400ZZMAVIC"));
     }
 
     public static final List<StationClosures> CurrentClosures = Collections.singletonList(exchangeSquareBrokenRail);
