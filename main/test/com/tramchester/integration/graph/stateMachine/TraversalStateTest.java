@@ -3,7 +3,9 @@ package com.tramchester.integration.graph.stateMachine;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.*;
+import com.tramchester.domain.Platform;
+import com.tramchester.domain.Route;
+import com.tramchester.domain.Service;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
@@ -36,7 +38,6 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
 import java.time.Duration;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -95,9 +96,8 @@ public class TraversalStateTest extends EasyMockSupport {
 
     @Test
     void shouldHaveDestinationOutboundWhenAvailableOnTrip() {
-        LocationCollection endStations = new LocationSet<>(Collections.singletonList(cornbrook));
 
-        TowardsDestination towardsDestination = new TowardsDestination(endStations);
+        TowardsDestination towardsDestination = new TowardsDestination(cornbrook);
         StateBuilderParameters builderParameters = new StateBuilderParameters(when, time,
                 towardsDestination, nodeContentsRepository, config, TramsOnly);
 
@@ -135,9 +135,8 @@ public class TraversalStateTest extends EasyMockSupport {
 
     @Test
     void shouldHaveDestinationOutboundWhenAvailableEndTrip() {
-        LocationCollection endStations = new LocationSet<>(Collections.singletonList(cornbrook));
 
-        TowardsDestination towardsDestination = new TowardsDestination(endStations);
+        TowardsDestination towardsDestination = new TowardsDestination(cornbrook);
         StateBuilderParameters builderParameters = new StateBuilderParameters(when, time,
                 towardsDestination, nodeContentsRepository, config, TramsOnly);
 
@@ -176,9 +175,8 @@ public class TraversalStateTest extends EasyMockSupport {
     @Disabled("WIP")
     @Test
     void shouldHaveAllExpectedOutboundWhenDestNotAvailableOnTrip() {
-        LocationCollection endStations = new LocationSet<>(Collections.singletonList(Bury.from(stationRepository)));
 
-        TowardsDestination towardsDestination = new TowardsDestination(endStations);
+        TowardsDestination towardsDestination = new TowardsDestination(Bury.from(stationRepository));
         StateBuilderParameters builderParameters = new StateBuilderParameters(when, time,
                 towardsDestination, nodeContentsRepository, config, TramsOnly);
 

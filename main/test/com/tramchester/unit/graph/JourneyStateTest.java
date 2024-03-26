@@ -2,14 +2,12 @@ package com.tramchester.unit.graph;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
-import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.MutableStation;
-import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
@@ -55,15 +53,13 @@ class JourneyStateTest extends EasyMockSupport {
         station.addRoutePickUp(TestEnv.getTramTestRoute());
         station.addRoutePickUp(TestEnv.getTramTestRoute());
 
-        LocationSet<Station> destinations = LocationSet.singleton(station);
-
         TripRepository tripRepository = createMock(TripRepository.class);
         NodeContentsRepository nodeContentsRepository = createMock(NodeContentsRepository.class);
         final TramchesterConfig config = TestEnv.GET();
 
         queryTime = TramTime.of(9, 15);
 
-        TowardsDestination towardsDestination = new TowardsDestination(destinations);
+        TowardsDestination towardsDestination = new TowardsDestination(station);
         StateBuilderParameters builderParams = new StateBuilderParameters(queryDate, queryTime,
                 towardsDestination, nodeContentsRepository, config, TramsOnly);
         TraversalStateFactory traversalStateFactory = new TraversalStateFactory(builderParams);

@@ -84,8 +84,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         final GraphNode endNode = getLocationNodeSafe(txn, destination);
 
         // for walks we pass multiple destinations TODO check this is still the case
-        final MixedLocationSet destinations = MixedLocationSet.singleton(destination);
-        final TowardsDestination towardsDestination = new TowardsDestination(destinations);
+        final TowardsDestination towardsDestination = new TowardsDestination(destination);
 
         final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime());
 
@@ -141,8 +140,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         final InitialWalksFinished finished = new InitialWalksFinished(journeyRequest, stationWalks);
         final GraphNode endNode = getLocationNodeSafe(txn, destination);
-        final MixedLocationSet destinations = MixedLocationSet.singleton(destination);
-        final TowardsDestination towardsDestination = new TowardsDestination(destinations);
+        final TowardsDestination towardsDestination = new TowardsDestination(destination);
         final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime(), stationWalks);
 
         Duration maxInitialWait = getMaxInitialWaitFor(stationWalks, config);
