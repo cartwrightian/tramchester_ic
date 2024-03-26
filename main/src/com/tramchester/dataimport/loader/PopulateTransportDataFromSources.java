@@ -120,7 +120,7 @@ public class PopulateTransportDataFromSources implements TransportDataFactory {
 
         dataSource.closeAll();
 
-        entityFactory.logDiagnostics();
+        entityFactory.logDiagnostics(writeableTransportData);
 
         logger.info("Finishing Loading data for " + dataSourceInfo);
     }

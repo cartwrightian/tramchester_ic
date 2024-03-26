@@ -150,6 +150,11 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
     }
 
     @Override
+    public Stream<ImmutableGraphRelationship> getAllRelationships(final GraphTransaction txn, final Direction direction) {
+        return node.getRelationships(direction).stream().map(txn::wrapRelationship);
+    }
+
+    @Override
     public TransportMode getTransportMode() {
         short number = (short) super.getProperty(TRANSPORT_MODE, node);
         return TransportMode.fromNumber(number);

@@ -1,28 +1,28 @@
 package com.tramchester.graph.search.stateMachine;
 
+import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.ResourceIterable;
 import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.internal.helpers.collection.Iterables;
 
 import java.util.Collection;
 
-public class filterByDestations<T> implements ResourceIterable<T> {
+public class FilterByDestinations<T> implements ResourceIterable<T> {
 
     private final ResourceIterable<T> contained;
     private final boolean empty;
 
-    public static <T> filterByDestations<T> from(Collection<T> collection) {
-        return new filterByDestations<>(collection);
+    public static <T> FilterByDestinations<T> from(final Collection<T> collection) {
+        return new FilterByDestinations<>(collection);
     }
 
-    public filterByDestations(Collection<T> collection) {
+    public FilterByDestinations(final Collection<T> collection) {
         empty = collection.isEmpty();
         contained = Iterables.asResourceIterable(collection);
-
     }
 
     @Override
-    public ResourceIterator<T> iterator() {
+    public @NotNull ResourceIterator<T> iterator() {
         return contained.iterator();
     }
 

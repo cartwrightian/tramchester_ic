@@ -25,6 +25,8 @@ import java.util.Optional;
 
 public class IntegrationTramTestConfig extends IntegrationTestConfig {
 
+    public static final Duration MAX_INITIAL_WAIT = Duration.ofMinutes(13);
+
     public enum LiveData {
         Enabled, Disabled, EnabledWithSNS;
     }
@@ -73,7 +75,7 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
         Path downloadFolder = Path.of("data/tram");
         gtfsSourceConfig = new TFGMGTFSSourceTestConfig(GTFSTransportationType.tram,
                 TransportMode.Tram, AdditionalTramInterchanges.stations(), Collections.emptySet(), closedStations,
-                Duration.ofMinutes(13));
+                MAX_INITIAL_WAIT);
         remoteTFGMConfig = TFGMRemoteDataSourceConfig.createFor(downloadFolder);
         remoteDBSourceConfig = new DatabaseRemoteDataSourceConfig(Path.of("databases"));
 

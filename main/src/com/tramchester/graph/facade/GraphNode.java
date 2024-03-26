@@ -72,4 +72,5 @@ public interface GraphNode {
 
     Stream<ImmutableGraphRelationship> getRelationships(GraphTransaction txn, Direction direction, TransportRelationshipTypes... transportRelationshipTypes);
 
+    Stream<ImmutableGraphRelationship> getAllRelationships(GraphTransaction txn, Direction direction);
 }

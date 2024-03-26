@@ -4,7 +4,7 @@ import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.search.JourneyStateUpdate;
-import com.tramchester.graph.search.stateMachine.filterByDestations;
+import com.tramchester.graph.search.stateMachine.FilterByDestinations;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
 
@@ -41,7 +41,7 @@ public class WalkingState extends TraversalState {
         public TraversalState fromStart(final NotStartedState notStartedState, final GraphNode firstNode, final Duration cost, final GraphTransaction txn) {
             final Stream<ImmutableGraphRelationship> relationships = firstNode.getRelationships(txn, OUTGOING, WALKS_TO_STATION);
             final List<ImmutableGraphRelationship> needTwice = relationships.toList();
-            final filterByDestations<ImmutableGraphRelationship> towardsDest = super.getTowardsDestination(needTwice.stream());
+            final FilterByDestinations<ImmutableGraphRelationship> towardsDest = super.getTowardsDestination(needTwice.stream());
 
             // prioritise a direct walk from start if one is available
             if (towardsDest.isEmpty()) {

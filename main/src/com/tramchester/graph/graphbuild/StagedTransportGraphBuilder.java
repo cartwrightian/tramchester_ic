@@ -79,6 +79,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                                        @SuppressWarnings("unused") StationsAndLinksGraphBuilder.Ready stationAndLinksBuilt,
                                        @SuppressWarnings("unused") AddNeighboursGraphBuilder.Ready neighboursReady,
                                        @SuppressWarnings("unused") AddDiversionsForClosedGraphBuilder.Ready walksForClosedReady,
+                                       @SuppressWarnings("unused") StationGroupsGraphBuilder.Ready groupsReady,
                                        GraphDatabaseMetaInfo databaseMetaInfo, StopCallRepository stopCallRepository,
                                        StationsWithDiversionRepository stationsWithDiversionRepository) {
         super(graphDatabase, graphFilter, config, builderCache);

@@ -13,6 +13,7 @@ import com.tramchester.domain.transportStages.ConnectingStage;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
+import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
 import com.tramchester.graph.search.stateMachine.states.NotStartedState;
 import com.tramchester.graph.search.stateMachine.states.StateBuilderParameters;
@@ -61,7 +62,7 @@ public class MapPathToStagesViaStates implements PathToStages {
 
     @Override
     public List<TransportStage<?, ?>> mapDirect(final RouteCalculator.TimedPath timedPath, final JourneyRequest journeyRequest,
-                                                final LocationCollection endStations,
+                                                final LocationCollection destinations,
                                                 final GraphTransaction txn, boolean fullLogging) {
         final Path path = timedPath.path();
         final TramTime queryTime = timedPath.queryTime();
@@ -70,8 +71,9 @@ public class MapPathToStagesViaStates implements PathToStages {
                     path.length(), journeyRequest, queryTime, timedPath.numChanges()));
         }
 
+        TowardsDestination towardsDestination = new TowardsDestination(destinations);
         final StateBuilderParameters builderParameters = new StateBuilderParameters(journeyRequest.getDate(), timedPath.queryTime(),
-                endStations, nodeContentsRepository, config, journeyRequest.getRequestedModes());
+                destinations, towardsDestination, nodeContentsRepository, config, journeyRequest.getRequestedModes());
 
         final TraversalStateFactory stateFactory = new TraversalStateFactory(builderParameters);
 

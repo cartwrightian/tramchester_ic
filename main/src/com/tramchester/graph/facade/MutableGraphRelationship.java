@@ -315,18 +315,18 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
 
     @NotNull
     private String getExtraDiagnostics(TransportRelationshipTypes relationshipType) {
-        final String key;
+        final String extra;
         // TODO Include more types here, aids with debug etc
         if (relationshipType==TransportRelationshipTypes.TO_SERVICE) {
-            key = " serviceId=" + getServiceId().toString()
-                    + " routeId="+getRouteId();
+            extra = " serviceId=" + getServiceId().toString()
+                    + " routeId=" + getRouteId();
         }
         else if (relationshipType==TransportRelationshipTypes.INTERCHANGE_DEPART || relationshipType==TransportRelationshipTypes.DEPART) {
-            key = " routeStationId=" + getRouteStationId();
+            extra = " routeStationId=" + getRouteStationId();
         } else {
-            key = "";
+            extra = "";
         }
-        return key;
+        return extra;
     }
 
 

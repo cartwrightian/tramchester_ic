@@ -9,6 +9,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.search.stateMachine.RegistersStates;
+import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import com.tramchester.graph.search.stateMachine.states.StateBuilderParameters;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -44,8 +45,9 @@ class RegistersStatesTest {
     void beforeEachOfTheTestsRun() {
         NodeContentsRepository nodeContents = componentContainer.get(NodeContentsRepository.class);
         LocationCollection destinationIds = new LocationSet<>();
+        TowardsDestination towardsDestination = new TowardsDestination(destinationIds);
         factory = new TraversalStateFactory(new StateBuilderParameters(TestEnv.testDay(), TramTime.of(8,0),
-                destinationIds, nodeContents, config, EnumSet.of(TransportMode.Tram)));
+                destinationIds, towardsDestination, nodeContents, config, EnumSet.of(TransportMode.Tram)));
     }
 
     @Test

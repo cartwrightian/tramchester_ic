@@ -2,37 +2,38 @@ package com.tramchester.integration.repository;
 
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
-import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.StationClosures;
+import com.tramchester.domain.LocationSet;
+import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
-import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
-import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithNaptan;
+import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithGroupsEnabled;
 import com.tramchester.repository.StationGroupsRepository;
-import com.tramchester.testSupport.AdditionalTramInterchanges;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
-import org.junit.jupiter.api.*;
+import com.tramchester.testSupport.reference.KnownLocality;
+import com.tramchester.testSupport.reference.TramStations;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
-@Disabled("for tram stations none of the groups have more that one station")
 class StationGroupRepositoryTest {
 
     private static GuiceContainerDependencies componentContainer;
     private StationGroupsRepository stationGroupsRepository;
+    private StationRepository stationRepository;
+
+    // NOTE: currently (3/2024) most tram stations are not allocated to a local area in Naptan
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        final TramchesterConfig config = new TestConfigWithGroupsEnabledWithTram();
+        final TramchesterConfig config = new IntegrationTramTestConfigWithGroupsEnabled();
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
@@ -45,52 +46,46 @@ class StationGroupRepositoryTest {
     @BeforeEach
     void onceBeforeEachTestRuns() {
         stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
+        stationRepository = componentContainer.get(StationRepository.class);
     }
 
     @Test
     void shouldBeEnabled() {
         assertTrue(stationGroupsRepository.isEnabled());
+
+        Set<StationGroup> loaded = stationGroupsRepository.getStationGroupsFor(TransportMode.Tram);
+
+        assertEquals(17, loaded.size());
     }
 
     @Test
     void shouldHaveExpectedTramStationGroup() {
-        StationGroup found = stationGroupsRepository.getStationGroup(StationGroup.createId("940GZZMAALT"));
+        StationGroup found = stationGroupsRepository.getStationGroupForArea(KnownLocality.ManchesterCityCentre.getLocalityId());
 
-        // only load groups with more than one stop, for tram stops this is none at all
-        assertNull(found, stationGroupsRepository.getAllGroups().toString());
+        assertNotNull(found);
 
-//        assertEquals("Altrincham (Manchester Metrolink)", found.getName());
+        LocationSet<Station> locations = found.getAllContained();
+
+        assertEquals(7, locations.size(), HasId.asIds(locations));
+
+        assertTrue(locations.contains(TramStations.ExchangeSquare.from(stationRepository)));
+        assertTrue(locations.contains(TramStations.Shudehill.from(stationRepository)));
+        assertTrue(locations.contains(TramStations.Deansgate.from(stationRepository)));
+        assertTrue(locations.contains(TramStations.StPetersSquare.from(stationRepository)));
+        assertTrue(locations.contains(TramStations.Victoria.from(stationRepository)));
+        assertTrue(locations.contains(TramStations.MarketStreet.from(stationRepository)));
+        assertTrue(locations.contains(TramStations.Piccadilly.from(stationRepository)));
+
     }
 
     @Test
     void shouldFindGroupByName() {
-        StationGroup found = stationGroupsRepository.findByName("Altrincham (Manchester Metrolink)");
+        StationGroup found = stationGroupsRepository.findByName("Sale");
 
-        // only load groups with more than one stop, for tram stops this is none at all
-        assertNull(found);
+        assertNotNull(found);
 
-        //assertIdEquals("940GZZMAALT", found.getAreaId());
+        assertEquals(3, found.getAllContained().size());
     }
 
-    public static class TestConfigWithGroupsEnabledWithTram extends IntegrationTramTestConfigWithNaptan {
-
-        private final TFGMGTFSSourceTestConfig gtfsSourceConfig;
-
-        private TestConfigWithGroupsEnabledWithTram() {
-            super(EnumSet.of(TransportMode.Bus, TransportMode.Tram, TransportMode.Train));
-            List<StationClosures> closedStations = Collections.emptyList();
-            final Set<TransportMode> groupStationModes = Collections.singleton(TransportMode.Tram);
-
-            gtfsSourceConfig = new TFGMGTFSSourceTestConfig(GTFSTransportationType.tram,
-                    TransportMode.Tram, AdditionalTramInterchanges.stations(), groupStationModes, closedStations,
-                    Duration.ofMinutes(13));
-        }
-
-        @Override
-        protected List<GTFSSourceConfig> getDataSourceFORTESTING() {
-            return Collections.singletonList(gtfsSourceConfig);
-        }
-
-    }
 
 }

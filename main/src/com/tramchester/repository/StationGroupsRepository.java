@@ -85,7 +85,7 @@ public class StationGroupsRepository {
             if (!modesToGroupStations.isEmpty()) {
                 populateFor(dataSource, modesToGroupStations);
             } else {
-                logger.warn("Not adding " + dataSource.getName() + " since no composite station modes");
+                logger.warn("Not adding " + dataSource.getName() + " since no station group modes");
             }
         });
         String message = format("Loaded %s groups and %s names", stationGroupsByName.size(), stationGroups.size());
@@ -130,7 +130,11 @@ public class StationGroupsRepository {
                     stationsInArea.forEach(station ->  addStationGroup(item.getKey(), stationsInArea, groupedByAreaId));
                 });
 
-        logger.info("Created " + stationGroups.size() + " composite stations from " + groupedByAreaId.size());
+        if (stationGroups.isEmpty()) {
+            logger.warn("No station groups created from " + groupedByAreaId.size());
+        } else {
+            logger.info("Created " + stationGroups.size() + " grouped stations from " + groupedByAreaId.size());
+        }
     }
 
     private void addStationGroup(final IdFor<NPTGLocality> localityId, final Set<Station> stationsToGroup,

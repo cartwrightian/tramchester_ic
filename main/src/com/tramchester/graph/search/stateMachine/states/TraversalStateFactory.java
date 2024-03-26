@@ -17,7 +17,7 @@ public class TraversalStateFactory {
         createBuildersFor(builderParameters);
     }
 
-    private void createBuildersFor(StateBuilderParameters builderParameters) {
+    private void createBuildersFor(final StateBuilderParameters builderParameters) {
         logger.info("create builders for " + builderParameters);
 
         final FindStateAfterRouteStation findStateAfterRouteStation = new FindStateAfterRouteStation();

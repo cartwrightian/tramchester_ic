@@ -157,6 +157,10 @@ public class ImmutableGraphNode implements GraphNode {
         return underlying.getRelationships(txn, direction, transportRelationshipTypes);
     }
 
+    public Stream<ImmutableGraphRelationship> getAllRelationships(GraphTransaction txn, Direction direction) {
+        return underlying.getAllRelationships(txn, direction);
+    }
+
     @Override
     public TransportMode getTransportMode() {
         return underlying.getTransportMode();

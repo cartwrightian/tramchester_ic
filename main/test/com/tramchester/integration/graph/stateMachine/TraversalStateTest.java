@@ -20,6 +20,7 @@ import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.JourneyStateUpdate;
+import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
 import com.tramchester.graph.search.stateMachine.states.*;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -96,8 +97,9 @@ public class TraversalStateTest extends EasyMockSupport {
     void shouldHaveDestinationOutboundWhenAvailableOnTrip() {
         LocationCollection endStations = new LocationSet<>(Collections.singletonList(cornbrook));
 
+        TowardsDestination towardsDestination = new TowardsDestination(endStations);
         StateBuilderParameters builderParameters = new StateBuilderParameters(when, time,
-                endStations, nodeContentsRepository, config, TramsOnly);
+                endStations, towardsDestination, nodeContentsRepository, config, TramsOnly);
 
         TraversalStateFactory traversalStateFactory = new TraversalStateFactory(builderParameters);
 
@@ -131,13 +133,13 @@ public class TraversalStateTest extends EasyMockSupport {
         assertEquals(fromStation, platformIds);
     }
 
-
     @Test
     void shouldHaveDestinationOutboundWhenAvailableEndTrip() {
         LocationCollection endStations = new LocationSet<>(Collections.singletonList(cornbrook));
 
+        TowardsDestination towardsDestination = new TowardsDestination(endStations);
         StateBuilderParameters builderParameters = new StateBuilderParameters(when, time,
-                endStations, nodeContentsRepository, config, TramsOnly);
+                endStations, towardsDestination, nodeContentsRepository, config, TramsOnly);
 
         TraversalStateFactory traversalStateFactory = new TraversalStateFactory(builderParameters);
 
@@ -176,8 +178,9 @@ public class TraversalStateTest extends EasyMockSupport {
     void shouldHaveAllExpectedOutboundWhenDestNotAvailableOnTrip() {
         LocationCollection endStations = new LocationSet<>(Collections.singletonList(Bury.from(stationRepository)));
 
+        TowardsDestination towardsDestination = new TowardsDestination(endStations);
         StateBuilderParameters builderParameters = new StateBuilderParameters(when, time,
-                endStations, nodeContentsRepository, config, TramsOnly);
+                endStations, towardsDestination, nodeContentsRepository, config, TramsOnly);
 
         TraversalStateFactory traversalStateFactory = new TraversalStateFactory(builderParameters);
 

@@ -4,13 +4,14 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.databaseManagement.GraphDatabaseLifecycleManager;
-import com.tramchester.graph.facade.*;
+import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.GraphTransactionFactory;
+import com.tramchester.graph.facade.ImmutableGraphTransaction;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.repository.DataSourceRepository;
 import org.neo4j.graphalgo.EvaluationContext;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.event.DatabaseEventContext;
 import org.neo4j.graphdb.event.DatabaseEventListener;
@@ -24,7 +25,6 @@ import javax.inject.Inject;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 @LazySingleton
@@ -35,7 +35,6 @@ public class GraphDatabase implements DatabaseEventListener {
     private final DataSourceRepository dataSourceRepository;
     private final GraphDBConfig graphDBConfig;
     private final GraphDatabaseLifecycleManager lifecycleManager;
-//    private final GraphIdFactory graphIdFactory;
     private final TramchesterConfig tramchesterConfig;
     private boolean indexesOnline;
 
@@ -49,7 +48,6 @@ public class GraphDatabase implements DatabaseEventListener {
         this.tramchesterConfig = configuration;
         this.graphDBConfig = configuration.getGraphDBConfig();
         this.lifecycleManager = lifecycleManager;
-//        this.graphIdFactory = graphIdFactory;
         indexesOnline = false;
     }
 
@@ -167,34 +165,12 @@ public class GraphDatabase implements DatabaseEventListener {
                 )));
     }
 
-    @Deprecated
-    public Node createNode(Transaction tx, GraphLabel label) {
-        return tx.createNode(label);
-    }
-
-    @Deprecated
-    public Node createNode(Transaction tx, Set<GraphLabel> labels) {
-        GraphLabel[] toApply = new GraphLabel[labels.size()];
-        labels.toArray(toApply);
-        return tx.createNode(toApply);
-    }
-
-    @Deprecated
-    public Node findNode(Transaction tx, GraphLabel labels, String idField, String idValue) {
-        return tx.findNode(labels, idField, idValue);
-    }
-
     public boolean isAvailable(long timeoutMillis) {
         if (databaseService == null) {
             logger.error("Checking for DB available when not started, this is will likely be a bug");
             return false;
         }
         return databaseService.isAvailable(timeoutMillis);
-    }
-
-    @Deprecated
-    public ResourceIterator<Node> findNodes(Transaction tx, GraphLabel label) {
-        return tx.findNodes(label);
     }
 
     public EvaluationContext createContext(GraphTransaction txn) {

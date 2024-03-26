@@ -13,6 +13,7 @@ import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
+import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
 import com.tramchester.graph.search.stateMachine.states.*;
 import com.tramchester.repository.TripRepository;
@@ -60,8 +61,9 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
                                   final Set<GraphNodeId> destinationNodeIds, final LocationCollection destinations, Running running) {
 
 
+        TowardsDestination towardsDestination = new TowardsDestination(destinations);
         final StateBuilderParameters builderParameters = new StateBuilderParameters(pathRequest.getQueryDate(), pathRequest.getActualQueryTime(),
-                destinations, nodeContentsRepository, config, pathRequest.getRequestedModes());
+                destinations, towardsDestination, nodeContentsRepository, config, pathRequest.getRequestedModes());
 
         final TraversalStateFactory traversalStateFactory = new TraversalStateFactory(builderParameters);
 

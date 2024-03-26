@@ -13,6 +13,7 @@ import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
+import com.tramchester.repository.WriteableTransportData;
 
 import java.util.Optional;
 
@@ -96,6 +97,6 @@ public abstract class TransportEntityFactory {
 
     public abstract IdFor<Platform> getPlatformId(StopTimeData stopTimeData, Station station);
 
-    public abstract void logDiagnostics();
+    public abstract void logDiagnostics(WriteableTransportData writeableTransportData);
 
 }

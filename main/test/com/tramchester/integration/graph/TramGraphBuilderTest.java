@@ -26,7 +26,6 @@ import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
-import com.tramchester.testSupport.testTags.VictoriaCrackedRailTest;
 import org.assertj.core.util.Streams;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
@@ -207,12 +206,11 @@ class TramGraphBuilderTest {
                 + fromConfigAndDiscovered + " and DB " + fromDB);
     }
 
-    @VictoriaCrackedRailTest
     @Test
     void shouldHaveLinkRelationshipsCorrectForNonInterchange() {
-        Station exchangeSq = ExchangeSquare.from(stationRepository);
-        GraphNode exchangeSqNode = txn.findNode(exchangeSq);
-        Stream<ImmutableGraphRelationship> outboundLinks = exchangeSqNode.getRelationships(txn, Direction.OUTGOING, LINKED);
+        Station navigationRoad = NavigationRoad.from(stationRepository);
+        GraphNode node = txn.findNode(navigationRoad);
+        Stream<ImmutableGraphRelationship> outboundLinks = node.getRelationships(txn, Direction.OUTGOING, LINKED);
 
         List<ImmutableGraphRelationship> list = outboundLinks.toList();
         assertEquals(2, list.size());
@@ -221,9 +219,10 @@ class TramGraphBuilderTest {
                 map(graphRelationship -> graphRelationship.getEndNode(txn)).
                 map(GraphNode::getStationId).collect(Collectors.toSet());
 
-        assertTrue(destinations.contains(Victoria.getId()));
-        assertTrue(destinations.contains(StPetersSquare.getId()));
+        assertTrue(destinations.contains(Altrincham.getId()));
+        assertTrue(destinations.contains(Timperley.getId()));
     }
+
 
     @Test
     void shouldHaveCorrectOutboundsAtMediaCity() {

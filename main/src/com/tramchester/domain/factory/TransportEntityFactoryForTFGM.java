@@ -19,6 +19,7 @@ import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
+import com.tramchester.repository.WriteableTransportData;
 import com.tramchester.repository.naptan.NaptanRepository;
 import com.tramchester.repository.naptan.NaptanStopType;
 import org.jetbrains.annotations.NotNull;
@@ -98,8 +99,9 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
                 isCentral = naptanRecord.isLocalityCenter();
         } else {
             if (naptanEnabled) {
+                // might be missing if naptan only enabled for some transport modes, but no way to know station
+                // transport modes here
                 missingFromNaptan.add(stationId);
-//                logger.warn("No naptan record found for " + stationId);
             }
             isInterchange = false;
             areaId = NPTGLocality.InvalidId();
@@ -125,7 +127,7 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
                 getDataSourceId(), isInterchange, minChangeDuration, isCentral);
     }
 
-    boolean hasNaptan(String stationCode) {
+    boolean hasNaptan(final String stationCode) {
         if (naptanEnabled) {
             return naptanRepository.containsActo(Station.createId(stationCode));
         }
@@ -133,7 +135,7 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
     }
 
     @Override
-    public Optional<MutablePlatform> maybeCreatePlatform(StopData stopData, Station station) {
+    public Optional<MutablePlatform> maybeCreatePlatform(final StopData stopData, final Station station) {
 
         // TODO better way to do this
         if (!isMetrolinkTram(stopData)) {
@@ -141,9 +143,9 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
         }
 
         final String stopCode = stopData.getCode();
-        IdFor<Station> stationId = stopIdToStationId.get(stopData.getId());
+        final IdFor<Station> stationId = stopIdToStationId.get(stopData.getId());
 
-        PlatformId platformId = createPlatformId(stationId, stopCode);
+        final PlatformId platformId = createPlatformId(stationId, stopCode);
 
         final String platformNumber = platformId.getNumber();
 
@@ -163,7 +165,7 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
             // TODO Add logging if there is a significant diff in position data?
         }
 
-        String platformName = removeMetrolinkPostfix(cleanStationName(stopData));
+        final String platformName = removeMetrolinkPostfix(cleanStationName(stopData));
 
         final MutablePlatform platform = new MutablePlatform(platformId, station, platformName,
                 getDataSourceId(), platformNumber, areaId, latLong, gridPosition, station.isMarkedInterchange());
@@ -172,7 +174,7 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
     }
 
     @Override
-    public MutableTrip createTrip(TripData tripData, MutableService service, Route route, TransportMode transportMode) {
+    public MutableTrip createTrip(final TripData tripData, final MutableService service, final Route route, final TransportMode transportMode) {
         final String headSign = removeMetrolinkPostfix(tripData.getHeadsign());
         final MutableTrip trip = new MutableTrip(tripData.getTripId(), headSign, service, route, transportMode);
         service.addTrip(trip);
@@ -180,17 +182,21 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
     }
 
     @Override
-    public IdFor<Platform> getPlatformId(StopTimeData stopTimeData, Station station) {
-        String originalCode = originalCodeForStop.get(stopTimeData.getStopId()); // contains the platform suffix
+    public IdFor<Platform> getPlatformId(final StopTimeData stopTimeData, final Station station) {
+        final String originalCode = originalCodeForStop.get(stopTimeData.getStopId()); // contains the platform suffix
         return createPlatformId(station.getId(), originalCode);
     }
 
     @Override
-    public void logDiagnostics() {
-        if (!missingFromNaptan.isEmpty()) {
-            logger.warn("The following stations ids were not found in naptan " + missingFromNaptan);
+    public void logDiagnostics(final WriteableTransportData writeableTransportData) {
+        IdSet<Station> relevantMissing = missingFromNaptan.stream().
+                filter(writeableTransportData::hasStationId).
+                collect(IdSet.idCollector());
+        if (!relevantMissing.isEmpty()) {
+            logger.warn("The following stations ids were not found in naptan " + relevantMissing);
             missingFromNaptan.clear();
         }
+
     }
 
     public static PlatformId createPlatformId(IdFor<Station> stationId, final String fullCodeWithPlatformSuffix) {

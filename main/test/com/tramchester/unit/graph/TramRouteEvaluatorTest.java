@@ -31,6 +31,7 @@ import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.ServiceHeuristics;
 import com.tramchester.graph.search.TramRouteEvaluator;
 import com.tramchester.graph.search.diagnostics.*;
+import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
 import com.tramchester.graph.search.stateMachine.states.NotStartedState;
 import com.tramchester.graph.search.stateMachine.states.StateBuilderParameters;
@@ -157,8 +158,9 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     private NotStartedState getNotStartedState(GraphNode startNode) {
 
         TramDate queryDate = TestEnv.testDay();
+        TowardsDestination towardsDestination =  new TowardsDestination(destinationStations);
         StateBuilderParameters builderParams = new StateBuilderParameters(queryDate, queryTime, destinationStations,
-                contentsRepository, config, TramsOnly);
+                towardsDestination, contentsRepository, config, TramsOnly);
 
         TraversalStateFactory traversalStateFactory = new TraversalStateFactory(builderParams);
 

@@ -1,42 +1,37 @@
 package com.tramchester.graph.search.stateMachine.states;
 
-import com.tramchester.domain.LocationCollection;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.places.LocationId;
-import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.facade.*;
 import com.tramchester.graph.search.JourneyStateUpdate;
+import com.tramchester.graph.search.stateMachine.FilterByDestinations;
 import com.tramchester.graph.search.stateMachine.NodeId;
-import com.tramchester.graph.search.stateMachine.filterByDestations;
 import com.tramchester.graph.search.stateMachine.Towards;
+import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import org.neo4j.graphdb.Direction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.EnumSet;
-import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.tramchester.graph.TransportRelationshipTypes.*;
+import static com.tramchester.graph.TransportRelationshipTypes.DIVERSION;
 
 public abstract class StateBuilder<T extends TraversalState> implements Towards<T> {
     private static final Logger logger = LoggerFactory.getLogger(StateBuilder.class);
 
     private final TramDate queryDate;
-    private final LocationCollection destinationIds;
+    private final TowardsDestination towardsDestination;
     private final int queryHour;
     private final NodeContentsRepository nodeContents;
 
-    private static final EnumSet<TransportRelationshipTypes> haveStationId = EnumSet.of(LEAVE_PLATFORM, INTERCHANGE_DEPART,
-            DEPART, WALKS_TO_STATION, DIVERSION_DEPART);
+//    private static final EnumSet<TransportRelationshipTypes> haveStationId = EnumSet.of(LEAVE_PLATFORM, INTERCHANGE_DEPART,
+//            DEPART, WALKS_TO_STATION, DIVERSION_DEPART);
 
     protected StateBuilder(StateBuilderParameters parameters) {
         this.queryDate = parameters.queryDate();
-        this.destinationIds = parameters.destinationIds();
+        this.towardsDestination = parameters.towardsDestination();
         this.queryHour = parameters.queryHour();
         this.nodeContents = parameters.nodeContents();
     }
@@ -45,23 +40,24 @@ public abstract class StateBuilder<T extends TraversalState> implements Towards<
         return queryDate;
     }
 
-    public <R extends GraphRelationship> filterByDestations<R> getTowardsDestination(final Stream<R> outgoing) {
-        final List<R> filtered = outgoing.
-                filter(depart -> destinationIds.contains(getLocationIdFor(depart))).
-                collect(Collectors.toList());
-        return filterByDestations.from(filtered);
+    public <R extends GraphRelationship> FilterByDestinations<R> getTowardsDestination(final Stream<R> outgoing) {
+        return towardsDestination.getTowardsDestination(outgoing);
+//        final List<R> filtered = outgoing.
+//                filter(depart -> destinationIds.contains(getLocationIdFor(depart))).
+//                toList();
+//        return FilterByDestinations.from(filtered);
     }
 
-    private static LocationId getLocationIdFor(final GraphRelationship depart) {
-        final TransportRelationshipTypes departType = depart.getType();
-        if (haveStationId.contains(departType)) {
-            return new LocationId(depart.getStationId());
-        } else if (departType==GROUPED_TO_PARENT) {
-            return new LocationId(depart.getStationGroupId());
-        } else {
-            throw new RuntimeException("Unsupported relationship type " + departType);
-        }
-    }
+//    public static LocationId getLocationIdFor(final GraphRelationship depart) {
+//        final TransportRelationshipTypes departType = depart.getType();
+//        if (haveStationId.contains(departType)) {
+//            return new LocationId(depart.getStationId());
+//        } else if (departType==GROUPED_TO_PARENT) {
+//            return new LocationId(depart.getStationGroupId());
+//        } else {
+//            throw new RuntimeException("Unsupported relationship type " + departType);
+//        }
+//    }
 
     public Stream<ImmutableGraphRelationship> addValidDiversions(final GraphNode node, JourneyStateUpdate journeyStateUpdate, final GraphTransaction txn) {
 

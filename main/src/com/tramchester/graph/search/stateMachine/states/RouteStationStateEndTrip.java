@@ -7,7 +7,7 @@ import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.search.JourneyStateUpdate;
-import com.tramchester.graph.search.stateMachine.filterByDestations;
+import com.tramchester.graph.search.stateMachine.FilterByDestinations;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.TowardsRouteStation;
 
@@ -38,7 +38,7 @@ public class RouteStationStateEndTrip extends RouteStationState {
                                                         final boolean isInterchange, final Trip trip, final GraphTransaction txn) {
             final TransportMode transportMode = node.getTransportMode();
 
-            final filterByDestations<ImmutableGraphRelationship> towardsDestination = getTowardsDestination(node, txn);
+            final FilterByDestinations<ImmutableGraphRelationship> towardsDestination = getTowardsDestination(node, txn);
             if (!towardsDestination.isEmpty()) {
                 // we've nearly arrived
                 return new RouteStationStateEndTrip(journeyState, minuteState, towardsDestination.stream(), cost, transportMode, node, trip, this);
