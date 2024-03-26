@@ -154,10 +154,10 @@ public class RouteCalculatorSupport {
 
     @NotNull
     protected Journey createJourney(final JourneyRequest journeyRequest, final RouteCalculator.TimedPath path,
-                                    final LocationCollection destinations, final AtomicInteger journeyIndex,
+                                    TowardsDestination towardsDestination, final AtomicInteger journeyIndex,
                                     final GraphTransaction txn) {
 
-        final List<TransportStage<?, ?>> stages = pathToStages.mapDirect(path, journeyRequest, destinations, txn, fullLogging);
+        final List<TransportStage<?, ?>> stages = pathToStages.mapDirect(path, journeyRequest, towardsDestination, txn, fullLogging);
         final List<Location<?>> locationList = mapPathToLocations.mapToLocations(path.path(), txn);
 
         if (stages.isEmpty()) {

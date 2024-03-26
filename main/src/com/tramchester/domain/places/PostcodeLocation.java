@@ -1,9 +1,6 @@
 package com.tramchester.domain.places;
 
-import com.tramchester.domain.CoreDomain;
-import com.tramchester.domain.DataSourceID;
-import com.tramchester.domain.Platform;
-import com.tramchester.domain.Route;
+import com.tramchester.domain.*;
 import com.tramchester.domain.id.*;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
@@ -65,6 +62,16 @@ public class PostcodeLocation implements Location<PostcodeLocation>, CoreDomain,
             gridPosition = CoordinateTransforms.getGridPosition(latLong);
         }
         return gridPosition;
+    }
+
+    @Override
+    public boolean containsOthers() {
+        return false;
+    }
+
+    @Override
+    public LocationSet<Station> getAllContained() {
+        throw new RuntimeException("Not implemented");
     }
 
     @Override

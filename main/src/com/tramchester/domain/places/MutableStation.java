@@ -195,6 +195,15 @@ public class MutableStation implements Station {
         return isMarkedInterchange;
     }
 
+    @Override
+    public boolean containsOthers() {
+        return false;
+    }
+
+    @Override
+    public LocationSet<Station> getAllContained() {
+        throw new RuntimeException("Not implemented");
+    }
 
     @Override
     public Duration getMinChangeDuration() {

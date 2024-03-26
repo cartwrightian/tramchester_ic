@@ -1,6 +1,7 @@
 package com.tramchester.domain.places;
 
 import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.id.IdFor;
@@ -144,5 +145,15 @@ public class MyLocation implements Location<MyLocation> {
     @Deprecated
     public static boolean isUserLocation(String text) {
         return MY_LOCATION_PLACEHOLDER_ID.equals(text);
+    }
+
+    @Override
+    public boolean containsOthers() {
+        return false;
+    }
+
+    @Override
+    public LocationSet<Station> getAllContained() {
+        throw new RuntimeException("Not implemented");
     }
 }

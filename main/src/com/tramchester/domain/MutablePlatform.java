@@ -189,6 +189,16 @@ public class MutablePlatform implements Platform {
         return isMarkedInterchange;
     }
 
+    @Override
+    public boolean containsOthers() {
+        return false;
+    }
+
+    @Override
+    public LocationSet<Station> getAllContained() {
+        throw new RuntimeException("Not implemented");
+    }
+
     public void addRouteDropOff(Route route) {
         servesRoutesDropoff.add(route);
     }

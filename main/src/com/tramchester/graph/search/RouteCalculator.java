@@ -203,7 +203,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         final Stream<Journey> results = findShortestPath(txn, serviceReasons, singlePathRequest,
                         createPreviousVisits(journeyRequest), lowestCostSeen, destinations, towardsDestination, destinationNodeIds, running).
-                map(path -> createJourney(journeyRequest, path, destinations, journeyIndex, txn));
+                map(path -> createJourney(journeyRequest, path, towardsDestination, journeyIndex, txn));
 
         //noinspection ResultOfMethodCallIgnored
         results.onClose(() -> {
@@ -259,7 +259,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
                 flatMap(pathRequest -> findShortestPath(txn, createServiceReasons(journeyRequest, pathRequest), pathRequest,
                         createPreviousVisits(journeyRequest), lowestCostSeen, destinations, towardsDestination, destinationNodeIds,
                         running)).
-                map(path -> createJourney(journeyRequest, path, destinations, journeyIndex, txn));
+                map(path -> createJourney(journeyRequest, path, towardsDestination, journeyIndex, txn));
 
         //noinspection ResultOfMethodCallIgnored
         results.onClose(() -> {

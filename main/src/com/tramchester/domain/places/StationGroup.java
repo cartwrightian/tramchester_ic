@@ -63,8 +63,14 @@ public class StationGroup implements Location<StationGroup> {
         return StringIdFor.createId(text, StationGroup.class);
     }
 
+    @Override
     public LocationSet<Station> getAllContained() {
         return new LocationSet<>(groupedStations);
+    }
+
+    @Override
+    public boolean containsOthers() {
+        return !groupedStations.isEmpty();
     }
 
     @Override

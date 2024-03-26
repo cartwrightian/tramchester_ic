@@ -224,8 +224,27 @@ public class TowardsDestinationTest {
 
         results.forEach(relationship -> {
             GraphNode endNode = relationship.getEndNode(txn);
-            assertEquals(stationGroup.getId(), endNode.getStationGroupId());
+            IdFor<Station> endNodeStationId = endNode.getStationId();
+            Station endNodeStation = stationRepository.getStationById(endNodeStationId);
+            assertEquals(station.getLocalityId(), endNodeStation.getLocalityId());
         });
+    }
+
+    @Test
+    void shouldProvideOriginalDestinationsNotExpanded() {
+        Station station = StPetersSquare.from(stationRepository);
+
+        StationGroup stationGroup = getStationGroup(station);
+
+        TowardsDestination towardsDestination = new TowardsDestination(stationGroup);
+
+        LocationCollection results = towardsDestination.getDestinations();
+
+        assertEquals(1, results.size());
+
+        Location<?> result = results.locationStream().toList().get(0);
+
+        assertEquals(stationGroup, result);
     }
 
     @Test
