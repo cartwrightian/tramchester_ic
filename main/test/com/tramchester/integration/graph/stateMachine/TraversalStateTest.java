@@ -99,7 +99,7 @@ public class TraversalStateTest extends EasyMockSupport {
 
         TowardsDestination towardsDestination = new TowardsDestination(endStations);
         StateBuilderParameters builderParameters = new StateBuilderParameters(when, time,
-                endStations, towardsDestination, nodeContentsRepository, config, TramsOnly);
+                towardsDestination, nodeContentsRepository, config, TramsOnly);
 
         TraversalStateFactory traversalStateFactory = new TraversalStateFactory(builderParameters);
 
@@ -139,7 +139,7 @@ public class TraversalStateTest extends EasyMockSupport {
 
         TowardsDestination towardsDestination = new TowardsDestination(endStations);
         StateBuilderParameters builderParameters = new StateBuilderParameters(when, time,
-                endStations, towardsDestination, nodeContentsRepository, config, TramsOnly);
+                towardsDestination, nodeContentsRepository, config, TramsOnly);
 
         TraversalStateFactory traversalStateFactory = new TraversalStateFactory(builderParameters);
 
@@ -180,7 +180,7 @@ public class TraversalStateTest extends EasyMockSupport {
 
         TowardsDestination towardsDestination = new TowardsDestination(endStations);
         StateBuilderParameters builderParameters = new StateBuilderParameters(when, time,
-                endStations, towardsDestination, nodeContentsRepository, config, TramsOnly);
+                towardsDestination, nodeContentsRepository, config, TramsOnly);
 
         TraversalStateFactory traversalStateFactory = new TraversalStateFactory(builderParameters);
 

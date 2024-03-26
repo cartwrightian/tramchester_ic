@@ -23,6 +23,7 @@ import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.search.diagnostics.CreateJourneyDiagnostics;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
+import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import com.tramchester.repository.StationAvailabilityRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TripRepository;
@@ -133,8 +134,8 @@ public class RouteCalculatorSupport {
 
     public Stream<RouteCalculator.TimedPath> findShortestPath(final GraphTransaction txn, final ServiceReasons reasons, final PathRequest pathRequest,
                                                               final PreviousVisits previousSuccessfulVisit, final LowestCostSeen lowestCostSeen,
-                                                              final LocationCollection destinations, final Set<GraphNodeId> destinationNodeIds,
-                                                              final Running running) {
+                                                              final LocationCollection destinations, TowardsDestination towardsDestination,
+                                                              final Set<GraphNodeId> destinationNodeIds, final Running running) {
         if (fullLogging) {
             if (config.getDepthFirst()) {
                 logger.info("Depth first is enabled. Traverse for " + pathRequest);
@@ -147,7 +148,7 @@ public class RouteCalculatorSupport {
                 tripRepository, config, fullLogging);
 
         final Stream<Path> paths = tramNetworkTraverser.findPaths(txn, pathRequest, previousSuccessfulVisit, reasons, lowestCostSeen,
-                destinationNodeIds, destinations, running);
+                destinationNodeIds, destinations, towardsDestination, running);
         return paths.map(path -> new RouteCalculator.TimedPath(path, pathRequest));
     }
 

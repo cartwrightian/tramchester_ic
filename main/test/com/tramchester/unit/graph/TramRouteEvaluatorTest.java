@@ -159,7 +159,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         TramDate queryDate = TestEnv.testDay();
         TowardsDestination towardsDestination =  new TowardsDestination(destinationStations);
-        StateBuilderParameters builderParams = new StateBuilderParameters(queryDate, queryTime, destinationStations,
+        StateBuilderParameters builderParams = new StateBuilderParameters(queryDate, queryTime,
                 towardsDestination, contentsRepository, config, TramsOnly);
 
         TraversalStateFactory traversalStateFactory = new TraversalStateFactory(builderParams);

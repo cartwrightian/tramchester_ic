@@ -23,6 +23,7 @@ import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.search.diagnostics.CreateJourneyDiagnostics;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
 import com.tramchester.graph.search.selectors.BranchSelectorFactory;
+import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.RunningRoutesAndServices;
 import com.tramchester.repository.StationAvailabilityRepository;
@@ -83,12 +84,14 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         // TODO Compute over a range of times??
 
         final LocationSet<Station> destinations = destinationBox.getStations();
+        final Set<GraphNodeId> destinationNodeIds = getDestinationNodeIds(destinations);
+
+        final TowardsDestination towardsDestination = new TowardsDestination(destinations);
 
         final long maxNumberOfJourneys = journeyRequest.getMaxNumberOfJourneys();
 
         final JourneyConstraints journeyConstraints = createJourneyConstraints(destinations, journeyRequest);
 
-        final Set<GraphNodeId> destinationNodeIds = getDestinationNodeIds(destinations);
 
         // share selector across queries, to allow caching of station to station distances
         // TODO Optimise using box based distance calculation? -- avoid doing per station per box
@@ -124,7 +127,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
                         filter(item -> result.isRunning()).
                         flatMap(pathRequest -> findShortestPath(txn, serviceReasons, pathRequest, createPreviousVisits(journeyRequest),
-                                lowestCostSeenForBox, destinations, destinationNodeIds, result)).
+                                lowestCostSeenForBox, destinations, towardsDestination, destinationNodeIds, result)).
                         filter(item -> result.isRunning()).
                         map(timedPath -> createJourney(journeyRequest, timedPath, destinations, journeyIndex, txn));
 

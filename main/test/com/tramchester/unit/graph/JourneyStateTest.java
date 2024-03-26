@@ -64,7 +64,7 @@ class JourneyStateTest extends EasyMockSupport {
         queryTime = TramTime.of(9, 15);
 
         TowardsDestination towardsDestination = new TowardsDestination(destinations);
-        StateBuilderParameters builderParams = new StateBuilderParameters(queryDate, queryTime, destinations,
+        StateBuilderParameters builderParams = new StateBuilderParameters(queryDate, queryTime,
                 towardsDestination, nodeContentsRepository, config, TramsOnly);
         TraversalStateFactory traversalStateFactory = new TraversalStateFactory(builderParams);
 

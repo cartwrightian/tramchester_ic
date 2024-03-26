@@ -17,16 +17,16 @@ public class TowardsDestination {
     private static final EnumSet<TransportRelationshipTypes> haveStationId = EnumSet.of(LEAVE_PLATFORM, INTERCHANGE_DEPART,
             DEPART, WALKS_TO_STATION, DIVERSION_DEPART);
 
-    private final LocationCollection destinationIds;
+    private final LocationCollection destinations;
 
-    public TowardsDestination(LocationCollection destinationIds) {
-        this.destinationIds = destinationIds;
+    public TowardsDestination(LocationCollection destinations) {
+        this.destinations = destinations;
     }
 
 
     public <R extends GraphRelationship> FilterByDestinations<R> getTowardsDestination(final Stream<R> outgoing) {
         final List<R> filtered = outgoing.
-                filter(depart -> destinationIds.contains(getLocationIdFor(depart))).
+                filter(depart -> destinations.contains(getLocationIdFor(depart))).
                 toList();
         return FilterByDestinations.from(filtered);
     }
@@ -40,5 +40,9 @@ public class TowardsDestination {
         } else {
             throw new RuntimeException("Unsupported relationship type " + departType);
         }
+    }
+
+    public LocationCollection getDestinations() {
+        return destinations;
     }
 }

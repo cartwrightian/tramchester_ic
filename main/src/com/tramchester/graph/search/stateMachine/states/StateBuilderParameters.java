@@ -1,7 +1,6 @@
 package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.LocationCollection;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
@@ -16,7 +15,6 @@ import java.util.Objects;
 public final class StateBuilderParameters {
     private final TramDate queryDate;
     private final int queryHour;
-    private final LocationCollection destinationIds;
     private final TowardsDestination towardsDestination;
     private final NodeContentsRepository nodeContents;
     private final boolean depthFirst;
@@ -24,12 +22,10 @@ public final class StateBuilderParameters {
     private final TransportRelationshipTypes[] currentModes;
 
     public StateBuilderParameters(TramDate queryDate, TramTime queryTime,
-                                  LocationCollection destinationIds,
                                   TowardsDestination towardsDestination, NodeContentsRepository nodeContents,
                                   TramchesterConfig config, EnumSet<TransportMode> requestedModes) {
         this.queryDate = queryDate;
         this.queryHour = queryTime.getHourOfDay();
-        this.destinationIds = destinationIds;
         this.towardsDestination = towardsDestination;
         this.nodeContents = nodeContents;
         this.depthFirst = config.getDepthFirst();
@@ -44,10 +40,6 @@ public final class StateBuilderParameters {
     public int queryHour() {
         return queryHour;
     }
-
-//    public LocationCollection destinationIds() {
-//        return destinationIds;
-//    }
 
     public NodeContentsRepository nodeContents() {
         return nodeContents;
@@ -76,7 +68,6 @@ public final class StateBuilderParameters {
         var that = (StateBuilderParameters) obj;
         return Objects.equals(this.queryDate, that.queryDate) &&
                 this.queryHour == that.queryHour &&
-                Objects.equals(this.destinationIds, that.destinationIds) &&
                 Objects.equals(this.nodeContents, that.nodeContents) &&
                 this.depthFirst == that.depthFirst &&
                 this.interchangesOnly == that.interchangesOnly &&
@@ -85,7 +76,7 @@ public final class StateBuilderParameters {
 
     @Override
     public int hashCode() {
-        return Objects.hash(queryDate, queryHour, destinationIds, nodeContents, depthFirst, interchangesOnly, Arrays.hashCode(currentModes));
+        return Objects.hash(queryDate, queryHour, nodeContents, depthFirst, interchangesOnly, Arrays.hashCode(currentModes));
     }
 
     @Override
@@ -93,7 +84,6 @@ public final class StateBuilderParameters {
         return "StateBuilderParameters[" +
                 "queryDate=" + queryDate + ", " +
                 "queryHour=" + queryHour + ", " +
-                "destinationIds=" + destinationIds + ", " +
                 "nodeContents=" + nodeContents + ", " +
                 "depthFirst=" + depthFirst + ", " +
                 "interchangesOnly=" + interchangesOnly + ", " +

@@ -26,9 +26,6 @@ public abstract class StateBuilder<T extends TraversalState> implements Towards<
     private final int queryHour;
     private final NodeContentsRepository nodeContents;
 
-//    private static final EnumSet<TransportRelationshipTypes> haveStationId = EnumSet.of(LEAVE_PLATFORM, INTERCHANGE_DEPART,
-//            DEPART, WALKS_TO_STATION, DIVERSION_DEPART);
-
     protected StateBuilder(StateBuilderParameters parameters) {
         this.queryDate = parameters.queryDate();
         this.towardsDestination = parameters.towardsDestination();
@@ -42,22 +39,7 @@ public abstract class StateBuilder<T extends TraversalState> implements Towards<
 
     public <R extends GraphRelationship> FilterByDestinations<R> getTowardsDestination(final Stream<R> outgoing) {
         return towardsDestination.getTowardsDestination(outgoing);
-//        final List<R> filtered = outgoing.
-//                filter(depart -> destinationIds.contains(getLocationIdFor(depart))).
-//                toList();
-//        return FilterByDestinations.from(filtered);
     }
-
-//    public static LocationId getLocationIdFor(final GraphRelationship depart) {
-//        final TransportRelationshipTypes departType = depart.getType();
-//        if (haveStationId.contains(departType)) {
-//            return new LocationId(depart.getStationId());
-//        } else if (departType==GROUPED_TO_PARENT) {
-//            return new LocationId(depart.getStationGroupId());
-//        } else {
-//            throw new RuntimeException("Unsupported relationship type " + departType);
-//        }
-//    }
 
     public Stream<ImmutableGraphRelationship> addValidDiversions(final GraphNode node, JourneyStateUpdate journeyStateUpdate, final GraphTransaction txn) {
 

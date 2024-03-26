@@ -47,7 +47,7 @@ class RegistersStatesTest {
         LocationCollection destinationIds = new LocationSet<>();
         TowardsDestination towardsDestination = new TowardsDestination(destinationIds);
         factory = new TraversalStateFactory(new StateBuilderParameters(TestEnv.testDay(), TramTime.of(8,0),
-                destinationIds, towardsDestination, nodeContents, config, EnumSet.of(TransportMode.Tram)));
+                towardsDestination, nodeContents, config, EnumSet.of(TransportMode.Tram)));
     }
 
     @Test
