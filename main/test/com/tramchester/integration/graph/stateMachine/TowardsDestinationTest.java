@@ -37,10 +37,8 @@ import org.neo4j.graphdb.Direction;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class TowardsDestinationTest {
     private static GuiceContainerDependencies componentContainer;
@@ -150,8 +148,10 @@ public class TowardsDestinationTest {
 
         TowardsDestination towardsDestination = new TowardsDestination((station));
 
-        Stream<ImmutableGraphRelationship> departs = node.getRelationships(txn, OUTGOING, DEPART, INTERCHANGE_DEPART, DIVERSION_DEPART);
-        List<ImmutableGraphRelationship> results = towardsDestination.getTowardsDestination(departs).stream().toList();
+        FilterByDestinations<ImmutableGraphRelationship> towards = towardsDestination.fromRouteStation(txn, node);
+
+        assertFalse(towards.isEmpty());
+        List<ImmutableGraphRelationship> results = towards.stream().toList();
 
         // 2 platforms
         assertEquals(2, results.size());
@@ -175,14 +175,14 @@ public class TowardsDestinationTest {
 
         TowardsDestination towardsDestination = new TowardsDestination((Bury.from(stationRepository)));
 
-        Stream<ImmutableGraphRelationship> departs = node.getRelationships(txn, OUTGOING, DEPART, INTERCHANGE_DEPART, DIVERSION_DEPART);
-        List<ImmutableGraphRelationship> results = towardsDestination.getTowardsDestination(departs).stream().toList();
+        FilterByDestinations<ImmutableGraphRelationship> towards = towardsDestination.fromRouteStation(txn, node);
 
-        assertEquals(0, results.size());
+        assertTrue(towards.isEmpty());
+
     }
 
     @Test
-    void shouldFindRelationshipsTowardsDestinationGroup() {
+    void shouldFindRelationshipsTowardsDestinationGroupFromStation() {
         Station station = StPetersSquare.from(stationRepository);
 
         StationGroup stationGroup = getStationGroup(station);
@@ -191,13 +191,36 @@ public class TowardsDestinationTest {
 
         assertNotNull(node);
 
-        Stream<ImmutableGraphRelationship> relationships = node.getRelationships(txn, Direction.OUTGOING, TransportRelationshipTypes.GROUPED_TO_PARENT);
-
         TowardsDestination towardsDestination = new TowardsDestination((stationGroup));
 
-        FilterByDestinations<ImmutableGraphRelationship> results = towardsDestination.getTowardsDestination(relationships);
+        FilterByDestinations<ImmutableGraphRelationship> towards = towardsDestination.fromStation(txn, node);
 
-        assertFalse(results.isEmpty());
+        assertFalse(towards.isEmpty());
+
+        Stream<ImmutableGraphRelationship> results = towards.stream();
+
+        results.forEach(relationship -> {
+            GraphNode endNode = relationship.getEndNode(txn);
+            assertEquals(stationGroup.getId(), endNode.getStationGroupId());
+        });
+    }
+
+    @Test
+    void shouldFindRelationshipsTowardsDestinationGroupFromRouteStation() {
+        Station station = StPetersSquare.from(stationRepository);
+        Route route = tramRouteHelper.getOneRoute(KnownTramRoute.BuryManchesterAltrincham, when);
+
+        StationGroup stationGroup = getStationGroup(station);
+
+        @NotNull ImmutableGraphNode node = findRouteStation(station, route);
+
+        TowardsDestination towardsDestination = new TowardsDestination(stationGroup);
+
+        FilterByDestinations<ImmutableGraphRelationship> towards = towardsDestination.fromRouteStation(txn, node);
+
+        assertFalse(towards.isEmpty());
+
+        Stream<ImmutableGraphRelationship> results = towards.stream();
 
         results.forEach(relationship -> {
             GraphNode endNode = relationship.getEndNode(txn);
@@ -213,11 +236,9 @@ public class TowardsDestinationTest {
 
         assertNotNull(node);
 
-        Stream<ImmutableGraphRelationship> relationships = node.getRelationships(txn, Direction.OUTGOING, TransportRelationshipTypes.GROUPED_TO_PARENT);
-
         TowardsDestination towardsDestination = new TowardsDestination((Bury.from(stationRepository)));
 
-        FilterByDestinations<ImmutableGraphRelationship> results = towardsDestination.getTowardsDestination(relationships);
+        FilterByDestinations<ImmutableGraphRelationship> results = towardsDestination.fromStation(txn, node);
 
         assertTrue(results.isEmpty());
 

@@ -102,9 +102,9 @@ public class FindStateAfterRouteStation  {
                                                                                    final GraphNode node, final GraphTransaction txn,
                                                                                    boolean isPlatform) {
         if (isPlatform) {
-            return stateBuilder.getTowardsDestination(node.getRelationships(txn, OUTGOING, LEAVE_PLATFORM));
+            return stateBuilder.getTowardsDestinationFromPlatform(txn, node);
         } else {
-            return stateBuilder.getTowardsDestination(node.getRelationships(txn, OUTGOING, GROUPED_TO_PARENT));
+            return stateBuilder.getTowardsDestinationFromNonPlatformStation(txn, node);
         }
     }
 

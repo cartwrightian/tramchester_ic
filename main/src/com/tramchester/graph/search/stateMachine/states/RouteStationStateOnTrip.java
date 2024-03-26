@@ -49,7 +49,7 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
             return TraversalStateType.RouteStationStateOnTrip;
         }
 
-        public RouteStationStateOnTrip fromMinuteState(JourneyStateUpdate journeyState, final MinuteState minuteState,
+        public RouteStationStateOnTrip fromMinuteState(final JourneyStateUpdate journeyState, final MinuteState minuteState,
                                                        final GraphNode routeStationNode, final Duration cost, final boolean isInterchange,
                                                        final Trip trip, // TODO Remove this
                                                        final GraphTransaction txn) {

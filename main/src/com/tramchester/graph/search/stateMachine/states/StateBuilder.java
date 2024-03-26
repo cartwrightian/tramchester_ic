@@ -37,10 +37,6 @@ public abstract class StateBuilder<T extends TraversalState> implements Towards<
         return queryDate;
     }
 
-    public <R extends GraphRelationship> FilterByDestinations<R> getTowardsDestination(final Stream<R> outgoing) {
-        return towardsDestination.getTowardsDestination(outgoing);
-    }
-
     public Stream<ImmutableGraphRelationship> addValidDiversions(final GraphNode node, JourneyStateUpdate journeyStateUpdate, final GraphTransaction txn) {
 
         if (journeyStateUpdate.onDiversion()) {
@@ -70,5 +66,21 @@ public abstract class StateBuilder<T extends TraversalState> implements Towards<
                                                                                     final NodeId hasNodeId) {
         final GraphNodeId nodeId = hasNodeId.nodeId();
         return relationships.filter(relationship -> !relationship.getEndNodeId(txn).equals(nodeId));
+    }
+
+    protected FilterByDestinations<ImmutableGraphRelationship> getTowardsDestinationFromRouteStation(GraphNode node, GraphTransaction txn) {
+        return towardsDestination.fromRouteStation(txn, node);
+    }
+
+    public FilterByDestinations<ImmutableGraphRelationship> getTowardsDestinationFromPlatform(GraphTransaction txn, GraphNode node) {
+        return towardsDestination.fromPlatform(txn, node);
+    }
+
+    public FilterByDestinations<ImmutableGraphRelationship> getTowardsDestinationFromNonPlatformStation(GraphTransaction txn, GraphNode node) {
+        return towardsDestination.fromStation(txn, node);
+    }
+
+    protected FilterByDestinations<ImmutableGraphRelationship> getTowardsDestinationFromWalk(GraphTransaction txn, GraphNode node) {
+        return towardsDestination.fromWalk(txn, node);
     }
 }

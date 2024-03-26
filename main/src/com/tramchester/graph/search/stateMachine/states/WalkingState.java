@@ -9,7 +9,6 @@ import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
 
 import java.time.Duration;
-import java.util.List;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.TransportRelationshipTypes.WALKS_TO_STATION;
@@ -40,12 +39,12 @@ public class WalkingState extends TraversalState {
 
         public TraversalState fromStart(final NotStartedState notStartedState, final GraphNode firstNode, final Duration cost, final GraphTransaction txn) {
             final Stream<ImmutableGraphRelationship> relationships = firstNode.getRelationships(txn, OUTGOING, WALKS_TO_STATION);
-            final List<ImmutableGraphRelationship> needTwice = relationships.toList();
-            final FilterByDestinations<ImmutableGraphRelationship> towardsDest = super.getTowardsDestination(needTwice.stream());
+//            final List<ImmutableGraphRelationship> needTwice = relationships.toList();
+            final FilterByDestinations<ImmutableGraphRelationship> towardsDest = super.getTowardsDestinationFromWalk(txn, firstNode);
 
             // prioritise a direct walk from start if one is available
             if (towardsDest.isEmpty()) {
-                return new WalkingState(notStartedState, needTwice.stream(), cost, this, firstNode);
+                return new WalkingState(notStartedState, relationships, cost, this, firstNode);
             } else {
                 // direct
                 return new WalkingState(notStartedState, towardsDest.stream(), cost, this, firstNode);
