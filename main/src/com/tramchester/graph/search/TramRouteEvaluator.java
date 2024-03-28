@@ -219,11 +219,10 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
                 }
             }
 
-            // TODO useful? correct?
-//            final HeuristicsReason serviceReasonTripCheck = serviceHeuristics.checkNotBeenOnTripBefore(howIGotHere, nextNode, journeyState, reasons);
-//            if (!serviceReasonTripCheck.isValid()) {
-//                return serviceReasonTripCheck;
-//            }
+            final HeuristicsReason serviceReasonTripCheck = serviceHeuristics.checkNotBeenOnTripBefore(howIGotHere, nextNode, journeyState, reasons);
+            if (!serviceReasonTripCheck.isValid()) {
+                return serviceReasonTripCheck;
+            }
 
             final HeuristicsReason serviceReasonTimeCheck = serviceHeuristics.checkTime(howIGotHere, nextNode, visitingTime, reasons, timeToWait);
             if (!serviceReasonTimeCheck.isValid()) {
