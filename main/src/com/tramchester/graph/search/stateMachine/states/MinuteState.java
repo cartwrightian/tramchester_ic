@@ -8,6 +8,7 @@ import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.search.JourneyStateUpdate;
+import com.tramchester.graph.search.stateMachine.FilterRelationshipsByTripId;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
 
@@ -59,21 +60,18 @@ public class MinuteState extends TraversalState implements HasTowardsStationId {
         }
     }
 
-    private final Trip trip;
     private final IdFor<Station> towardsStationId;
 
     private MinuteState(final ImmutableTraversalState parent, final Stream<ImmutableGraphRelationship> relationships, GraphNode node,
                         final JourneyStateUpdate journeyState, IdFor<Station> towardsStationId, final Duration cost,
                         final Towards<MinuteState> builder) {
         super(parent, relationships, cost, builder.getDestination(), node);
-        this.trip = super.getTrip(journeyState.getCurrentTrip());
         this.towardsStationId = towardsStationId;
     }
 
     private static IdFor<Trip> getTrip(final GraphNode node) {
         if (!node.hasTripId()) {
             throw new RuntimeException("Missing trip id at " + node);
-//            return new InvalidId<>(Trip.class);
         }
         return node.getTripId();
     }
@@ -87,7 +85,8 @@ public class MinuteState extends TraversalState implements HasTowardsStationId {
     protected RouteStationStateOnTrip toRouteStationOnTrip(final RouteStationStateOnTrip.Builder towardsRouteStation, JourneyStateUpdate journeyState,
                                                            final GraphNode routeStationNode, final Duration cost, final boolean isInterchange) {
 
-        return towardsRouteStation.fromMinuteState(journeyState, this, routeStationNode, cost, isInterchange, trip, txn);
+        final FilterRelationshipsByTripId filterRelationshipsByTripId = new FilterRelationshipsByTripId(journeyState.getCurrentTrip());
+        return towardsRouteStation.fromMinuteState(journeyState, this, routeStationNode, cost, isInterchange, filterRelationshipsByTripId, txn);
     }
 
     @Override
@@ -95,13 +94,12 @@ public class MinuteState extends TraversalState implements HasTowardsStationId {
                                                              final JourneyStateUpdate journeyState, final GraphNode routeStationNode,
                                                              final Duration cost, final boolean isInterchange) {
 
-        return towardsEndTrip.fromMinuteState(journeyState, this, routeStationNode, cost, isInterchange, trip, txn);
+        return towardsEndTrip.fromMinuteState(journeyState, this, routeStationNode, cost, isInterchange, txn);
     }
 
     @Override
     public String toString() {
         return "MinuteState{" +
-                ", trip='" + trip.getId() + '\'' +
                 "} " + super.toString();
     }
 

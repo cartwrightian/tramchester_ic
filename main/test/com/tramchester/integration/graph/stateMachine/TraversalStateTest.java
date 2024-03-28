@@ -22,6 +22,7 @@ import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.JourneyStateUpdate;
+import com.tramchester.graph.search.stateMachine.FilterRelationshipsByTripId;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
 import com.tramchester.graph.search.stateMachine.states.*;
@@ -117,10 +118,11 @@ public class TraversalStateTest extends EasyMockSupport {
 
         boolean isInterchange = true;
         Trip trip = findATrip(route, TraffordBar.getId());
+        FilterRelationshipsByTripId filterByTrip = new FilterRelationshipsByTripId(trip.getId());
 
         replayAll();
         RouteStationStateOnTrip routeStationStateOnTrip = builder.fromMinuteState(updateState, minuteState, routeStationNode, cost, isInterchange,
-                trip,
+                filterByTrip,
                 txn);
         verifyAll();
 
@@ -160,7 +162,7 @@ public class TraversalStateTest extends EasyMockSupport {
         Trip trip = findATrip(route, TraffordBar.getId());
 
         replayAll();
-        RouteStationStateEndTrip routeStationStateOnTrip = builder.fromMinuteState(updateState, minuteState, routeStationNode, cost, isInterchange, trip, txn);
+        RouteStationStateEndTrip routeStationStateOnTrip = builder.fromMinuteState(updateState, minuteState, routeStationNode, cost, isInterchange, txn);
         verifyAll();
 
         List<ImmutableGraphRelationship> outbounds = routeStationStateOnTrip.getOutbounds(txn).toList();
@@ -174,7 +176,6 @@ public class TraversalStateTest extends EasyMockSupport {
         assertEquals(fromStation, platformIds);
     }
 
-    @Disabled("WIP")
     @Test
     void shouldHaveAllExpectedOutboundWhenDestNotAvailableOnTrip() {
 
@@ -201,10 +202,12 @@ public class TraversalStateTest extends EasyMockSupport {
 
         boolean isInterchange = true;
 
+        FilterRelationshipsByTripId filterByTrip = new FilterRelationshipsByTripId(trip.getId());
+
         replayAll();
         RouteStationStateOnTrip routeStationStateOnTrip = builder.fromMinuteState(updateState, minuteState, routeStationNode,
                 cost, isInterchange,
-                trip,
+                filterByTrip,
                 txn);
         verifyAll();
 

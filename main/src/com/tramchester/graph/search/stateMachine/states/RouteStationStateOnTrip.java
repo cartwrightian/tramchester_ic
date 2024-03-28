@@ -1,23 +1,18 @@
 package com.tramchester.graph.search.stateMachine.states;
 
-import com.tramchester.domain.Service;
 import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.*;
-import org.neo4j.graphdb.Direction;
 
 import java.time.Duration;
 import java.util.stream.Stream;
-
-import static com.tramchester.graph.TransportRelationshipTypes.TO_SERVICE;
 
 public class RouteStationStateOnTrip extends RouteStationState implements NodeId {
 
@@ -27,15 +22,10 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
     private final TransportMode transportMode;
     private final GraphNode routeStationNode;
 
-    private static final boolean STRICT_TRIP_FILTER = true;
-
     public static class Builder extends TowardsRouteStation<RouteStationStateOnTrip> {
-
-        private final NodeContentsRepository nodeContents;
 
         public Builder(StateBuilderParameters builderParameters) {
             super(builderParameters);
-            this.nodeContents = builderParameters.nodeContents();
         }
 
         @Override
@@ -50,7 +40,7 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
 
         public RouteStationStateOnTrip fromMinuteState(final JourneyStateUpdate journeyState, final MinuteState minuteState,
                                                        final GraphNode routeStationNode, final Duration cost, final boolean isInterchange,
-                                                       final Trip trip, // TODO Remove this
+                                                       final FilterRelationshipsByTripId filterRelationshipsByTripId, // TODO Remove this
                                                        final GraphTransaction txn) {
             // todo, use label and/or cache this - perf impact currently low
             final TransportMode transportMode = routeStationNode.getTransportMode();
@@ -64,14 +54,7 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
             }
 
             // outbound service relationships that continue the current trip
-
-            final Stream<ImmutableGraphRelationship> towardsServiceForTrip;
-            if (STRICT_TRIP_FILTER) {
-                FilterRelationshipsByTripId filterRelationshipsByTripId = new FilterRelationshipsByTripId(tripId);
-                towardsServiceForTrip = filterRelationshipsByTripId.apply(txn, routeStationNode);
-            } else {
-                towardsServiceForTrip = filterBySvc(routeStationNode.getRelationships(txn, Direction.OUTGOING, TO_SERVICE), trip, txn);
-            }
+            final Stream<ImmutableGraphRelationship> towardsServiceForTrip = filterRelationshipsByTripId.apply(txn, routeStationNode);
 
             // now add outgoing to platforms/stations
             final Stream<ImmutableGraphRelationship> outboundsToFollow = getOutboundsToFollow(routeStationNode, isInterchange, txn);
@@ -80,17 +63,6 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
             // explore routes including changes over continuing on possibly much longer trip
             final Stream<ImmutableGraphRelationship> relationships = Stream.concat(outboundsToFollow, towardsServiceForTrip);
             return new RouteStationStateOnTrip(journeyState, minuteState, relationships, cost, routeStationNode, tripId, transportMode, this);
-        }
-
-        private Stream<ImmutableGraphRelationship> filterBySvc(final Stream<ImmutableGraphRelationship> svcRelationships,
-                                                               final Trip trip, GraphTransaction txn) {
-            final IdFor<Service> currentSvcId = trip.getService().getId();
-            return svcRelationships.
-                    filter(relationship -> currentSvcId.equals(nodeContents.getServiceId(relationship.getEndNode(txn))));
-        }
-
-        private Stream<ImmutableGraphRelationship> filterByTripId(final Stream<ImmutableGraphRelationship> svcRelationships, final IdFor<Trip> tripId) {
-            return svcRelationships.filter(relationship -> relationship.hasTripIdInList(tripId));
         }
 
     }
@@ -126,7 +98,7 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
 
     private void leaveVehicle(final JourneyStateUpdate journeyState, final TransportMode transportMode, final String diag) {
         try {
-            journeyState.leave(tripId, transportMode, getTotalDuration(), routeStationNode);
+            journeyState.leave( transportMode, getTotalDuration(), routeStationNode);
         } catch (TramchesterException e) {
             throw new RuntimeException(diag, e);
         }

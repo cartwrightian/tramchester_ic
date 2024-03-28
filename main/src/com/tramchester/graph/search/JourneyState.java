@@ -152,16 +152,17 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     @Override
-    public void leave(final IdFor<Trip> tripId, final TransportMode mode, final Duration totalDuration, final GraphNode node) throws TramchesterException {
+    public void leave(final TransportMode mode, final Duration totalDuration, final GraphNode node) throws TramchesterException {
+        if (!currentTrip.isValid()) {
+            throw new TramchesterException("Trying to leave a trip, not on a trip");
+        }
         if (!coreState.modeEquals(mode)) {
             throw new TramchesterException("Not currently on " +mode+ " was " + coreState.currentMode);
         }
         leave(totalDuration);
-        tripsDone.add(tripId);
+        tripsDone.add(currentTrip);
         coreState.leaveVehicle();
-        if (!tripId.equals(currentTrip)) {
-            throw new RuntimeException("Left a trip that was never started, left " + tripId + " but was on " + currentTrip);
-        }
+
         currentTrip = Trip.InvalidId();
     }
 

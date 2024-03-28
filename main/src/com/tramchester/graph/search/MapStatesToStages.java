@@ -107,13 +107,16 @@ class MapStatesToStages implements JourneyStateUpdate {
     }
 
     @Override
-    public void leave(final IdFor<Trip> tripId, final TransportMode mode, final Duration totalCost, final GraphNode routeStationNode) {
+    public void leave(final TransportMode mode, final Duration totalCost, final GraphNode routeStationNode) {
         if (!onVehicle) {
             throw new RuntimeException("Not on vehicle");
         }
+        if (!currentTrip.isValid()) {
+            throw new RuntimeException("Not on a trip");
+        }
         onVehicle = false;
 
-        final VehicleStage vehicleStage = vehicleStagePending.createStage(routeStationNode, totalCost, tripId, mode);
+        final VehicleStage vehicleStage = vehicleStagePending.createStage(routeStationNode, totalCost, currentTrip, mode);
         stages.add(vehicleStage);
         if (logger.isDebugEnabled()) {
             logger.debug("Added " + vehicleStage);
