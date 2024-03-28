@@ -213,11 +213,11 @@ public class GraphPropsTest {
 
         relationship.addTripId(tripB);
 
-        assertTrue(relationship.hasTripId(tripB));
+        assertTrue(relationship.hasTripIdInList(tripB));
 
         relationship.addTripId(tripA);
 
-        assertTrue(relationship.hasTripId(tripA));
+        assertTrue(relationship.hasTripIdInList(tripA));
 
         IdSet<Trip> result = relationship.getTripIds();
 

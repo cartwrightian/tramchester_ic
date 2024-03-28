@@ -73,6 +73,10 @@ public class GraphDatabaseServiceFactory implements DatabaseEventListener {
 
     private void createManagementService() {
 
+        if (dbConfig.enableBolt()) {
+            logger.warn("neo4j bolt is enabled");
+        }
+
         try (Timing ignored = new Timing(logger, "DatabaseManagementService build")) {
             final long neo4jPagecacheMemory = ByteUnit.parse(dbConfig.getNeo4jPagecacheMemory());
             final long memoryTransactionGlobalMaxSize = ByteUnit.parse(dbConfig.getMemoryTransactionGlobalMaxSize());
@@ -99,10 +103,8 @@ public class GraphDatabaseServiceFactory implements DatabaseEventListener {
                     // operating in embedded mode
                     setConfig(HttpConnector.enabled, false).
                     setConfig(HttpsConnector.enabled, false).
-                    setConfig(BoltConnector.enabled, false).
+                    setConfig(BoltConnector.enabled, dbConfig.enableBolt()).
 
-                    // TODO no 4.2 version available?
-                    //setUserLogProvider(new Slf4jLogProvider()).
                     build();
         }
 

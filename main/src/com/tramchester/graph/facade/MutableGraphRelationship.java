@@ -157,7 +157,7 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
     }
 
     @Override
-    public boolean hasTripId(final IdFor<Trip> tripId) {
+    public boolean hasTripIdInList(final IdFor<Trip> tripId) {
         final String text = tripId.getGraphId();
 
         final String property = TRIP_ID_LIST.getText();

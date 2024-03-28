@@ -1,6 +1,5 @@
 package com.tramchester.graph.search.stateMachine.states;
 
-import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
@@ -48,7 +47,7 @@ public class MinuteState extends TraversalState implements HasTowardsStationId {
                 final Stream<ImmutableGraphRelationship> filterBySingleTripId = filterBySingleTripId(allOutboundForMode, existingTripId);
                 return new MinuteState(hourState, filterBySingleTripId, minuteNode, journeyState, towardsStationId, cost, this);
             } else {
-                // since at minute node now have specific tripId to use
+                // since at minute/trip node now have specific tripId to use
                 final IdFor<Trip> newTripId = getTrip(minuteNode);
                 journeyState.beginTrip(newTripId);
                 return new MinuteState(hourState, allOutboundForMode, minuteNode, journeyState, towardsStationId, cost, this);
@@ -77,14 +76,6 @@ public class MinuteState extends TraversalState implements HasTowardsStationId {
 //            return new InvalidId<>(Trip.class);
         }
         return node.getTripId();
-    }
-
-    public IdFor<Service> getServiceId() {
-        return trip.getService().getId();
-    }
-
-    public IdFor<Trip> getTripId() {
-        return trip.getId();
     }
 
     @Override

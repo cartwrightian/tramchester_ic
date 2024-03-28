@@ -3,7 +3,10 @@ package com.tramchester.graph.search.stateMachine.states;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.facade.*;
+import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphNodeId;
+import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.NodeId;
@@ -107,7 +110,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
             throw new RuntimeException("Not a station, unexpected multi-label condition: " + nodeLabels);
         }
 
-        final TraversalStateType nextType = getNextStateType(stateType, actualNodeType, hasPlatforms, node);
+        final TraversalStateType nextType = getNextStateType(stateType, actualNodeType, hasPlatforms, node, journeyState);
 
         return getTraversalState(nextType, node, journeyState, cost, isInterchange);
 
@@ -154,7 +157,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
     }
 
     private TraversalStateType getNextStateType(final TraversalStateType currentStateType, final GraphLabel graphLabel,
-                                                final boolean hasPlatforms, final GraphNode node) {
+                                                final boolean hasPlatforms, final GraphNode node, JourneyStateUpdate journeyState) {
         switch (graphLabel) {
             case MINUTE -> { return TraversalStateType.MinuteState; }
             case HOUR -> { return TraversalStateType.HourState; }
@@ -163,18 +166,22 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
             case SERVICE -> { return TraversalStateType.ServiceState; }
             case PLATFORM -> { return TraversalStateType.PlatformState; }
             case QUERY_NODE -> { return TraversalStateType.WalkingState; }
-            case ROUTE_STATION -> { return getRouteStationStateFor(currentStateType, node); }
+            case ROUTE_STATION -> { return getRouteStationStateFor(currentStateType, node, journeyState); }
             default -> throw new RuntimeException("Unexpected at " + this + " label:" + graphLabel);
         }
     }
 
-    private TraversalStateType getRouteStationStateFor(final TraversalStateType currentStateType, final GraphNode node) {
+    private TraversalStateType getRouteStationStateFor(final TraversalStateType currentStateType, final GraphNode routeStationNode,
+                                                       JourneyStateUpdate journeyState) {
         if (currentStateType==TraversalStateType.PlatformState || currentStateType==TraversalStateType.NoPlatformStationState) {
             return TraversalStateType.JustBoardedState;
         }
+
         if (currentStateType==TraversalStateType.MinuteState) {
-            final MinuteState minuteState = (MinuteState) this;
-            if (traversalOps.hasOutboundTripFor(node, minuteState.getTripId())) {
+
+            IdFor<Trip> tripId = journeyState.getCurrentTrip();
+
+            if (traversalOps.hasOutboundTripFor(routeStationNode, tripId)) {
                 return TraversalStateType.RouteStationStateOnTrip;
             } else {
                 return TraversalStateType.RouteStationStateEndTrip;

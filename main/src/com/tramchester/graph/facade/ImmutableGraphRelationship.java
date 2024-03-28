@@ -166,8 +166,8 @@ public class ImmutableGraphRelationship implements GraphRelationship {
     }
 
     @Override
-    public boolean hasTripId(final IdFor<Trip> tripId) {
-        return underlying.hasTripId(tripId);
+    public boolean hasTripIdInList(final IdFor<Trip> tripId) {
+        return underlying.hasTripIdInList(tripId);
     }
 
     @Override

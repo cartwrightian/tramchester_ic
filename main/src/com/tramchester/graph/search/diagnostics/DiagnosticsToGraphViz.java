@@ -7,9 +7,9 @@ import com.tramchester.domain.presentation.DTO.diagnostics.DiagnosticReasonDTO;
 import com.tramchester.domain.presentation.DTO.diagnostics.JourneyDiagnostics;
 import com.tramchester.domain.presentation.DTO.diagnostics.StationDiagnosticsDTO;
 import com.tramchester.domain.presentation.DTO.diagnostics.StationDiagnosticsLinkDTO;
+import org.apache.commons.lang3.tuple.Pair;
 
 import javax.inject.Inject;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -19,10 +19,17 @@ import static java.lang.String.format;
 @LazySingleton
 public class DiagnosticsToGraphViz {
 
-    private static final boolean includeAll = false;
+    private final HashSet<Pair<IdForDTO, String>> locationToNode;
+    private final HashSet<Pair<String, String>> reasonToReason;
+//    private final HashSet<Pair<GraphNodeId, IdForDTO>> graphNodeToLocation;
+    private final HashSet<Pair<String, String>> nodeToReason;
 
     @Inject
     public DiagnosticsToGraphViz() {
+        locationToNode = new HashSet<>();
+        reasonToReason = new HashSet<>();
+//        graphNodeToLocation = new HashSet<>();
+        nodeToReason = new HashSet<>();
     }
 
     public void appendTo(final StringBuilder builder, final JourneyDiagnostics diagnostics) {
@@ -38,42 +45,79 @@ public class DiagnosticsToGraphViz {
 
         LocationRefWithPosition begin = diagnostic.getBegin();
 
-        addNodeToDiagram(begin, diagnostic.getReasons(), builder, diagramState);
+        IdForDTO locationId = addNodeToDiagram(begin, diagnostic.getReasons(), builder, diagramState);
 
         List<StationDiagnosticsLinkDTO> links = diagnostic.getLinks();
 
         Set<String> seenGraphNodeId = new HashSet<>();
 
+//        IdForDTO beginLocationId = begin.getId();
         links.forEach(link -> {
+
             LocationRefWithPosition towards = link.getTowards();
 
-            builder.append(format("\"%s\"->\"%s\" [label=\"%s\"]", begin.getId(),
-                    towards.getId(), "link"));
+            builder.append(format("\"%s\"->\"%s\" [label=\"%s\"]\n", locationId,
+                    towards.getId(), "towards"));
 
             link.getReasons().forEach(reason -> {
-                builder.append(format("\"%s\"->\"%s\" [label=\"%s\"]", begin.getId(),
-                        reason.getBeginId(), "reason"));
+                final boolean valid = reason.isValid();
 
-                builder.append(format("\"%s\" [label=\"%s\"]", reason.getBeginId(), reason.getText()));
+                String beginNodeId = reason.getBeginId();
+                String endNodeId = reason.getEndId();
 
-                builder.append(format("\"%s\"->\"%s\" ", reason.getBeginId(),
-                        reason.getEndId()));
-                seenGraphNodeId.add(reason.getEndId());
+                String reasonNodeId = reason.getStateType().name() + "_" + endNodeId;
+
+                // location -> begin node
+                Pair<IdForDTO, String> locationToNodeKey = Pair.of(locationId, beginNodeId);
+                if (!locationToNode.contains(locationToNodeKey)) {
+                    builder.append(format("\"%s\"->\"%s\"\n", locationId, beginNodeId));
+                    locationToNode.add(locationToNodeKey);
+                }
+
+                String reasonLinkText = valid ? "yes" : "no";
+                String reasonColor = valid ? "green" : "red";
+
+                // begin node -> reason node
+                Pair<String, String> nodeToReasonKey = Pair.of(beginNodeId, reasonNodeId);
+                if (!nodeToReason.contains(nodeToReasonKey)) {
+                    builder.append(format("\"%s\"->\"%s\" [label=\"%s\" color=\"%s\"]\n", beginNodeId,
+                            reasonNodeId, reasonLinkText, reasonColor));
+                    nodeToReason.add(nodeToReasonKey);
+                }
+
+                String reasonShape = valid ? "oval" : "octagon";
+
+                builder.append(format("\"%s\" [label=\"%s\"] [shape=\"%s\" style=\"filled\" color=\"%s\"]\n",
+                        reasonNodeId, reason.getText(), reasonShape, reasonColor));
+
+//                Pair<String, String> reasonLinkKey = Pair.of(reasonNodeId, endNodeId);
+//                if (!reasonToReason.contains(reasonLinkKey)) {
+//                    builder.append(format("\"%s\"->\"%s\" [label=\"RR\"] \n", reasonNodeId, endNodeId));
+//                    reasonToReason.add(reasonLinkKey);
+//                }
+                seenGraphNodeId.add(endNodeId);
             });
+
+            // towards node
+            //addNodeToDiagram(towards, Collections.emptyList(), builder, diagramState);
 
 
 //            builder.append(format("\"%s\"->\"%s\" [label=\"%s\"]", begin.getId(),
 //                    towards.getId(), display(link.getReasons())));
-            addNodeToDiagram(towards, Collections.emptyList(), builder, diagramState);
+
         });
 
 
-        diagnostic.getAssociatedNodeIds().
-                stream().filter(graphNodeId -> seenGraphNodeId.contains(graphNodeId.toString())).
-                forEach(graphNodeId -> {
-            builder.append(format("\"%s\"->\"%s\" [label=\"%s\"]", graphNodeId,
-                    begin.getId(), "assoc"));
-        });
+//        diagnostic.getAssociatedNodeIds().
+//                stream().filter(graphNodeId -> seenGraphNodeId.contains(graphNodeId.toString())).
+//                forEach(graphNodeId -> {
+//                    Pair<GraphNodeId, IdForDTO> key = Pair.of(graphNodeId, beginLocationId);
+//                    if (!graphNodeToLocation.contains(key)) {
+//                        builder.append(format("\"%s\"->\"%s\" [label=\"%s\"]\n", graphNodeId,
+//                                beginLocationId, "assoc"));
+//                        graphNodeToLocation.add(key);
+//                    }
+//        });
 
     }
 
@@ -85,17 +129,26 @@ public class DiagnosticsToGraphViz {
         return builder.toString();
     }
 
-    private void addNodeToDiagram(final LocationRefWithPosition location, List<DiagnosticReasonDTO> reasons,
-                                  final StringBuilder builder, final DiagramState diagramState) {
+    private IdForDTO addNodeToDiagram(final LocationRefWithPosition location, List<DiagnosticReasonDTO> reasons,
+                                      final StringBuilder builder, final DiagramState diagramState) {
         final IdForDTO id = location.getId();
         final String name = location.getName();
+
+        final String nodeColor;
+        if (reasons.isEmpty()) {
+            nodeColor = "yellow";
+        } else {
+            boolean allInvalid = reasons.stream().noneMatch(DiagnosticReasonDTO::isValid);
+            nodeColor = allInvalid ? "red" : "white";
+        }
         if (!diagramState.stationDiagnostics.contains(location)) {
             diagramState.stationDiagnostics.add(location);
-            final StringBuilder label = new StringBuilder();
-            label.append("\n").append(id.getActualId()).append("\n").append(name).append("\n");
-            label.append(display(reasons));
-            builder.append(format("\"%s\" [label=\"%s\"] [shape=%s];\n", id, label, "hexagon"));
+            String label = "\n" + id.getActualId() + "\n" + name + "\n" +
+                    display(reasons);
+            builder.append(format("\"%s\" [label=\"%s\"] [shape=%s style=\"filled\" fillcolor=\"%s\"];\n", id, label,
+                    "hexagon", nodeColor));
         }
+        return id;
     }
 
 

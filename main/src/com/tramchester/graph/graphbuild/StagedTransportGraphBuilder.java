@@ -305,7 +305,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             svcNode = serviceNodeCache.getServiceNode(tx, route.getId(), service, beginId, nextStationId);
             existing = true;
         } else {
-            svcNode =  tx.createNode(GraphLabel.SERVICE); //createGraphNodeOld(tx, GraphLabel.SERVICE);
+            svcNode =  tx.createNode(GraphLabel.SERVICE);
             svcNode.set(service);
             svcNode.set(route);
 

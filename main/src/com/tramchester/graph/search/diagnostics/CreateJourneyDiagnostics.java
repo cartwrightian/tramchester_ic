@@ -116,7 +116,6 @@ public class CreateJourneyDiagnostics {
                 map(CreateJourneyDiagnostics::createDiagnosticReasonDTO).distinct().collect(Collectors.toList());
     }
 
-    // to keep things easy to understand and
     private Set<HeuristicsReason> consolidateCodes(final Set<HeuristicsReason> heuristicsReasons) {
         final Map<ReasonCode, Set<HeuristicsReason>> map = new HashMap<>();
 
@@ -156,7 +155,7 @@ public class CreateJourneyDiagnostics {
                 map(item -> " " + item).
                 reduce((s1, s2) -> s1 + s2);
 
-        HeuristicsReason example = reasons.get(0);
+        final HeuristicsReason example = reasons.get(0);
         return new HeuristicReasonWithAttribute<>(example.getReasonCode(), example.getHowIGotHere(), attributeValues.orElse(""), example.isValid(),
                 text -> text);
 

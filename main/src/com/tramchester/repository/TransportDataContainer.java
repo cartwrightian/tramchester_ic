@@ -428,7 +428,11 @@ public class TransportDataContainer implements TransportData, WriteableTransport
 
     @Override
     public Trip getTripById(IdFor<Trip> tripId) {
-        return trips.get(tripId);
+        if (tripId.isValid()) {
+            return trips.get(tripId);
+        } else {
+            throw new RuntimeException("Cannot get trip for invalid tripId " + tripId);
+        }
     }
 
     @Override

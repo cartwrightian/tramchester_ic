@@ -15,4 +15,6 @@ public interface GraphDBConfig {
     String getNeo4jPagecacheMemory();
 
     String getMemoryTransactionGlobalMaxSize();
+
+    Boolean enableBolt();
 }

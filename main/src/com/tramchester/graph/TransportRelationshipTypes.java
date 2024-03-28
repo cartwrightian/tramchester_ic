@@ -1,6 +1,7 @@
 package com.tramchester.graph;
 
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
 
@@ -100,6 +101,13 @@ public enum TransportRelationshipTypes implements RelationshipType {
             index++;
         }
         return results;
+    }
+
+    public static boolean goesTo(ImmutableGraphRelationship relationship) {
+        return switch (relationship.getType()) {
+            case TRAM_GOES_TO, BUS_GOES_TO, FERRY_GOES_TO, TRAIN_GOES_TO, SUBWAY_GOES_TO -> true;
+            default -> false;
+        };
     }
 }
 

@@ -48,6 +48,11 @@ public class GraphDBTestConfig implements GraphDBConfig {
         return "650m";
     }
 
+    @Override
+    public Boolean enableBolt() {
+        return false;
+    }
+
     private Path createGraphDatabasePath(TestGroupType group, TramchesterConfig config) {
         Set<DataSourceID> sourcesFromConfig = config.getRemoteDataSourceConfig().stream().
                 map(RemoteDataSourceConfig::getDataSourceId).

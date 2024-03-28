@@ -119,7 +119,9 @@ public class TraversalStateTest extends EasyMockSupport {
         Trip trip = findATrip(route, TraffordBar.getId());
 
         replayAll();
-        RouteStationStateOnTrip routeStationStateOnTrip = builder.fromMinuteState(updateState, minuteState, routeStationNode, cost, isInterchange, trip, txn);
+        RouteStationStateOnTrip routeStationStateOnTrip = builder.fromMinuteState(updateState, minuteState, routeStationNode, cost, isInterchange,
+                trip,
+                txn);
         verifyAll();
 
         List<ImmutableGraphRelationship> outbounds = routeStationStateOnTrip.getOutbounds(txn).toList();
@@ -201,7 +203,9 @@ public class TraversalStateTest extends EasyMockSupport {
 
         replayAll();
         RouteStationStateOnTrip routeStationStateOnTrip = builder.fromMinuteState(updateState, minuteState, routeStationNode,
-                cost, isInterchange, trip, txn);
+                cost, isInterchange,
+                trip,
+                txn);
         verifyAll();
 
         List<ImmutableGraphRelationship> outbounds = routeStationStateOnTrip.getOutbounds(txn).toList();
@@ -230,7 +234,7 @@ public class TraversalStateTest extends EasyMockSupport {
 
         ImmutableGraphRelationship towardsTrip = towardsService.get(0);
 
-        assertTrue(towardsTrip.hasTripId(trip.getId()));
+        assertTrue(towardsTrip.hasTripIdInList(trip.getId()));
     }
 
     private String displayAllProps(final List<ImmutableGraphRelationship> relationships) {

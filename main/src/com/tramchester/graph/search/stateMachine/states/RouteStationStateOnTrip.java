@@ -11,16 +11,13 @@ import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.search.JourneyStateUpdate;
-import com.tramchester.graph.search.stateMachine.NodeId;
-import com.tramchester.graph.search.stateMachine.FilterByDestinations;
-import com.tramchester.graph.search.stateMachine.RegistersFromState;
-import com.tramchester.graph.search.stateMachine.TowardsRouteStation;
+import com.tramchester.graph.search.stateMachine.*;
+import org.neo4j.graphdb.Direction;
 
 import java.time.Duration;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.TransportRelationshipTypes.TO_SERVICE;
-import static org.neo4j.graphdb.Direction.OUTGOING;
 
 public class RouteStationStateOnTrip extends RouteStationState implements NodeId {
 
@@ -56,6 +53,7 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
             // todo, use label and/or cache this - perf impact currently low
             final TransportMode transportMode = routeStationNode.getTransportMode();
             final IdFor<Trip> tripId = journeyState.getCurrentTrip();
+            FilterRelationshipsByTripId filterRelationshipsByTripId = new FilterRelationshipsByTripId(tripId);
 
             final FilterByDestinations<ImmutableGraphRelationship> towardsDestination = getTowardsDestination(routeStationNode, txn);
             if (!towardsDestination.isEmpty()) {
@@ -67,10 +65,9 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
             // outbound service relationships that continue the current trip
 
             final Stream<ImmutableGraphRelationship> towardsServiceForTrip = filterBySvc(
-                    routeStationNode.getRelationships(txn, OUTGOING, TO_SERVICE), trip, txn);
+                    routeStationNode.getRelationships(txn, Direction.OUTGOING, TO_SERVICE), trip, txn);
 
-//            final Stream<ImmutableGraphRelationship> towardsServiceForTrip = filterByTripId(
-//                    routeStationNode.getRelationships(txn, OUTGOING, TO_SERVICE), tripId);
+//            final Stream<ImmutableGraphRelationship> towardsServiceForTrip = filterRelationshipsByTripId.apply(txn, routeStationNode);
 
             // now add outgoing to platforms/stations
             final Stream<ImmutableGraphRelationship> outboundsToFollow = getOutboundsToFollow(routeStationNode, isInterchange, txn);
@@ -89,7 +86,7 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
         }
 
         private Stream<ImmutableGraphRelationship> filterByTripId(final Stream<ImmutableGraphRelationship> svcRelationships, final IdFor<Trip> tripId) {
-            return svcRelationships.filter(relationship -> relationship.hasTripId(tripId));
+            return svcRelationships.filter(relationship -> relationship.hasTripIdInList(tripId));
         }
 
     }

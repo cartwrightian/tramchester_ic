@@ -36,7 +36,7 @@ public class StationTime {
     @Override
     public String toString() {
         return "StationTime{" +
-                "station=" + station +
+                "station=" + station.getId() +
                 ", time=" + time +
                 '}';
     }

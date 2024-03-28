@@ -15,13 +15,16 @@ public class GraphDBAppConfig extends Configuration implements GraphDBConfig {
     private final String graphName;
     private final String neo4jPagecacheMemory;
     private final String memoryTransactionGlobalMaxSize;
+    private final Boolean enableBolt;
 
     public GraphDBAppConfig(@JsonProperty(value = "graphName", required = true) String graphName,
                             @JsonProperty(value = "neo4jPagecacheMemory", required = true) String neo4jPagecacheMemory,
-                            @JsonProperty(value = "memoryTransactionGlobalMaxSize", required = true) String memoryTransactionGlobalMaxSize) {
+                            @JsonProperty(value = "memoryTransactionGlobalMaxSize", required = true) String memoryTransactionGlobalMaxSize,
+                            @JsonProperty(value = "enableBolt", required = false, defaultValue = "false") Boolean enableBolt) {
         this.graphName = graphName;
         this.neo4jPagecacheMemory = neo4jPagecacheMemory;
         this.memoryTransactionGlobalMaxSize = memoryTransactionGlobalMaxSize;
+        this.enableBolt = enableBolt;
     }
 
     @Override
@@ -42,11 +45,17 @@ public class GraphDBAppConfig extends Configuration implements GraphDBConfig {
     }
 
     @Override
+    public Boolean enableBolt() {
+        return enableBolt;
+    }
+
+    @Override
     public String toString() {
         return "GraphDBAppConfig{" +
                 "graphName='" + graphName + '\'' +
                 ", neo4jPagecacheMemory='" + neo4jPagecacheMemory + '\'' +
                 ", memoryTransactionGlobalMaxSize='" + memoryTransactionGlobalMaxSize + '\'' +
-                '}';
+                ", enableBolt=" + enableBolt +
+                "} " + super.toString();
     }
 }

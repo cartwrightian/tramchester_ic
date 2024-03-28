@@ -2,12 +2,15 @@ package com.tramchester;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
@@ -22,6 +25,7 @@ import javax.inject.Inject;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -156,7 +160,7 @@ public class DiagramCreator {
             addNode(builder, startNode);
             addEdge(builder, awayFrom, createNodeId(startNode), createNodeId(rawEndNode), relationshipSeen);
 
-            if (relationshipType==TRAM_GOES_TO || relationshipType==BUS_GOES_TO || relationshipType==TRAIN_GOES_TO) {
+            if (TransportRelationshipTypes.goesTo(awayFrom)) {
                 if (!goesToRelationships.containsKey(awayFrom.getId())) {
                     goesToRelationships.put(awayFrom.getId(), awayFrom);
                 }
@@ -195,11 +199,12 @@ public class DiagramCreator {
                 getLabelFor(sourceNode), getShapeFor(sourceNode)));
     }
 
-    private String createNodeId(GraphNode sourceNode) {
-        return String.valueOf(sourceNode.getId());
+    private String createNodeId(GraphNode node) {
+        return node.getId().toString();
+        //return String.valueOf(node.getId());
     }
 
-    private String getShapeFor(GraphNode node) {
+    private String getShapeFor(final GraphNode node) {
         if (node.hasLabel(GraphLabel.PLATFORM)) {
             return "box";
         }
@@ -221,7 +226,7 @@ public class DiagramCreator {
         return "box";
     }
 
-    private String getLabelFor(GraphNode node) {
+    private String getLabelFor(final GraphNode node) {
         if (node.hasLabel(PLATFORM)) {
             return node.getPlatformId().getGraphId();
             //return node.getProperty(PLATFORM_ID.getText()).toString();
@@ -261,7 +266,7 @@ public class DiagramCreator {
         if (node.hasLabel(MINUTE)) {
             final TramTime time = node.getTime();
             String days = time.isNextDay() ? "+1" : "";
-            return format("%s:%s%s\n%s", time.getHourOfDay(), time.getMinuteOfHour(), days, node.getTripId().getGraphId());
+            return format("%s:%s\n%s", time.getHourOfDay(), time.getMinuteOfHour(), days);
         }
         if (node.hasLabel(GROUPED)) {
             //return getStationIdFrom(node.getNode());
@@ -278,11 +283,25 @@ public class DiagramCreator {
     }
 
     private String createShortForm(TransportRelationshipTypes relationshipType, GraphRelationship edge) {
-        String cost = "";
+        String text = "";
         if (hasCost(relationshipType)) {
-            cost = "("+ edge.getCost() + ")";
+            Duration cost = edge.getCost();
+            if (!cost.isZero()) {
+                text = "(" + edge.getCost() + ")";
+            }
         }
-        return getNameFor(relationshipType) + cost;
+        IdSet<Trip> tripIds = edge.getTripIds();
+        if (!tripIds.isEmpty()) {
+            if (!text.isEmpty()) {
+                text = text + System.lineSeparator();
+            }
+            text = text + tripIds;
+        } else {
+            if (edge.hasProperty(GraphPropertyKey.TRIP_ID)) {
+                text = text + edge.getTripId();
+            }
+        }
+        return getNameFor(relationshipType) + text;
     }
 
     @NotNull

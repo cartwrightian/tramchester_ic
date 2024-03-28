@@ -8,11 +8,14 @@ import com.tramchester.domain.Service;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.input.StopCall;
+import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
@@ -278,7 +281,154 @@ class TramGraphBuilderTest {
     }
 
     @Test
-    void shouldHaveCorrecRelationshipsForServicesAtCornbrook() {
+    void shouldHaveCorrectRelationshipsAtRouteStationsAlongTrip() {
+        Station start = Bury.from(stationRepository);
+        Station end = Altrincham.from(stationRepository);
+
+        List<Trip> callingTrips = transportData.getTripsFor(start, when).stream().
+                filter(trip -> trip.callsAt(end.getId())).
+                filter(trip -> trip.isAfter(start.getId(), end.getId()))
+                .toList();
+
+        assertFalse(callingTrips.isEmpty());
+
+        callingTrips.forEach(trip -> {
+            final Route route = trip.getRoute();
+            final StopCalls stopCalls = trip.getStopCalls();
+            final IdFor<Trip> tripId = trip.getId();
+
+            int startSeqNum = stopCalls.getStopFor(start.getId()).getGetSequenceNumber();
+            int endSeqNum = stopCalls.getStopFor(end.getId()).getGetSequenceNumber();
+            assertTrue(endSeqNum>startSeqNum, "sanity check");
+
+            for (int seqNum = startSeqNum; seqNum <= endSeqNum; seqNum++) {
+                StopCall stopCall = stopCalls.getStopBySequenceNumber(seqNum);
+
+                RouteStation routeStation = new RouteStation(stopCall.getStation(), route);
+                ImmutableGraphNode routeStationNode = txn.findNode(routeStation);
+                assertNotNull(routeStationNode,"route station node");
+
+                List<ImmutableGraphRelationship> inboundLinks = routeStationNode.getRelationships(txn, Direction.INCOMING, TRAM_GOES_TO).toList();
+                assertFalse(inboundLinks.isEmpty(), "inbound links");
+
+                List<ImmutableGraphRelationship> matchingRelationships = inboundLinks.stream().
+                        filter(relationship -> relationship.hasProperty(GraphPropertyKey.TRIP_ID)).
+                        filter(relationship -> relationship.getTripId().equals(tripId)).
+                        toList();
+
+                if (seqNum == 1) {
+                    assertTrue(matchingRelationships.isEmpty(),"trip inbound at start of trip");
+                } else {
+                    assertEquals(1, matchingRelationships.size(), "missing inbound for " + tripId + " at "
+                            + routeStation.getId() + " seq " + seqNum);
+                    ImmutableGraphRelationship relationship = matchingRelationships.get(0);
+
+                    GraphNode minuteNode = relationship.getStartNode(txn);
+                    assertEquals(tripId, minuteNode.getTripId(), "missing on minute node");
+                }
+            }
+        });
+    }
+
+    @Test
+    void shouldHaveCorrectServiceRelationshipsAtRouteStationsAlongTrip() {
+        Station start = Bury.from(stationRepository);
+        Station end = Altrincham.from(stationRepository);
+
+        List<Trip> callingTrips = transportData.getTripsFor(start, when).stream().
+                filter(trip -> trip.callsAt(end.getId())).
+                filter(trip -> trip.isAfter(start.getId(), end.getId()))
+                .toList();
+
+        assertFalse(callingTrips.isEmpty());
+
+        callingTrips.forEach(trip -> {
+            final Route route = trip.getRoute();
+            final StopCalls stopCalls = trip.getStopCalls();
+            final IdFor<Trip> tripId = trip.getId();
+
+            int startSeqNum = stopCalls.getStopFor(start.getId()).getGetSequenceNumber();
+            int endSeqNum = stopCalls.getStopFor(end.getId()).getGetSequenceNumber();
+            assertTrue(endSeqNum>startSeqNum, "sanity check");
+
+            for (int seqNum = startSeqNum; seqNum <= endSeqNum; seqNum++) {
+                StopCall stopCall = stopCalls.getStopBySequenceNumber(seqNum);
+
+                RouteStation routeStation = new RouteStation(stopCall.getStation(), route);
+                ImmutableGraphNode routeStationNode = txn.findNode(routeStation);
+                assertNotNull(routeStationNode,"route station node");
+
+                List<ImmutableGraphRelationship> toServices = routeStationNode.getRelationships(txn, Direction.OUTGOING, TO_SERVICE).toList();
+                assertFalse(toServices.isEmpty(), "to service links");
+
+                List<ImmutableGraphRelationship> toServicesForTrip = toServices.stream().filter(toService -> toService.hasTripIdInList(tripId)).toList();
+
+                if (seqNum!=endSeqNum) {
+
+                    assertEquals(1, toServicesForTrip.size(), "wrong number TO_SERVICE for " + tripId
+                            + " at " + routeStation + " seq " + seqNum);
+
+                    ImmutableGraphRelationship toService = toServicesForTrip.get(0);
+
+                    assertEquals(route.getId(), toService.getRouteId(), "route id");
+                    assertEquals(trip.getService().getId(), toService.getServiceId(), "service id");
+
+                    GraphNode serviceNode = toService.getEndNode(txn);
+                    assertEquals(route.getId(), serviceNode.getRouteId(), "route id");
+                    assertEquals(trip.getService().getId(), serviceNode.getServiceId(), "service id");
+                } else {
+                    assertTrue(toServicesForTrip.isEmpty());
+                }
+
+            }
+        });
+    }
+
+    @Test
+    void shouldHaveEndOfTripAtEndOfLineStation() {
+        Station bury = Bury.from(stationRepository);
+        Route buryToAlty = tramRouteHelper.getOneRoute(BuryManchesterAltrincham, when);
+
+        ImmutableGraphNode node = txn.findNode(new RouteStation(bury, buryToAlty));
+
+        List<ImmutableGraphRelationship> inboundRelationships = node.getRelationships(txn, Direction.INCOMING, TRAM_GOES_TO).toList();
+
+        assertFalse(inboundRelationships.isEmpty());
+
+        IdSet<Trip> uniqueTripIds = inboundRelationships.stream().
+                map(ImmutableGraphRelationship::getTripId).
+                collect(IdSet.idCollector());
+
+        assertEquals(uniqueTripIds.size(), inboundRelationships.size());
+
+        IdSet<Trip> terminateAtBury = uniqueTripIds.stream().
+                filter(tripId -> transportData.getTripById(tripId).lastStation().equals(bury.getId())).
+                collect(IdSet.idCollector());
+
+        assertEquals(uniqueTripIds.size(), terminateAtBury.size(), "duplication of inbound trip present");
+
+        // check minute nodes
+//        Set<GraphNodeId> minuteNodeIds = inboundRelationships.stream().
+//                map(relationship -> relationship.getStartNodeId(txn)).collect(Collectors.toSet());
+//
+//        assertEquals(-1, minuteNodeIds.size());
+
+        // check no "terminating" trips present on outbound service links
+        List<ImmutableGraphRelationship> outboundToSvc = node.getRelationships(txn, Direction.OUTGOING, TO_SERVICE).toList();
+
+        IdSet<Trip> outboundTripIds = outboundToSvc.stream().
+                flatMap(svcRelationship -> svcRelationship.getTripIds().stream()).
+                collect(IdSet.idCollector());
+
+        assertFalse(outboundTripIds.isEmpty());
+
+        outboundTripIds.forEach(outboundTripId -> {
+            assertFalse(uniqueTripIds.contains(outboundTripId), "unexpected outbound " + outboundTripIds);
+        });
+    }
+
+    @Test
+    void shouldHaveCorrectRelationshipsForServicesAtCornbrook() {
 
         Route route = tramRouteHelper.getOneRoute(BuryManchesterAltrincham, when);
 
@@ -331,6 +481,7 @@ class TramGraphBuilderTest {
         assertEquals(0, missing);
     }
 
+    @Disabled("no longer have tripid on time nodes")
     @Test
     void shouldHaveAllTimeNodesWithLTripId() {
         Stream<ImmutableGraphNode> timeNodes = txn.findNodes(GraphLabel.MINUTE);

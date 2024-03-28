@@ -21,6 +21,7 @@ graphDBConfig:
   graphName: databases/tramchester.db
   neo4jPagecacheMemory: 100m
   memoryTransactionGlobalMaxSize: 650m
+  enableBolt: ${ENABLE_BOLT:- false }
 distributionBucket: tramchesternewdist
 instanceDataUrl: http://169.254.169.254
 environmentName: ${PLACE}
