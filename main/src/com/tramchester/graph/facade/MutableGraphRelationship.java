@@ -65,6 +65,10 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
         relationship.setProperty(HOUR.getText(), hour);
     }
 
+    public int getHour() {
+        return (int) relationship.getProperty(HOUR.getText());
+    }
+
     public <C extends GraphProperty & CoreDomain & HasId<C>> void set(final C domainItem) {
         super.set(domainItem, relationship);
     }

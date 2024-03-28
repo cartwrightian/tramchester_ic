@@ -23,8 +23,10 @@ public interface GraphRelationship {
 
     GraphRelationshipId getId();
 
-    TramTime getTime() ;
-    
+    TramTime getTime();
+
+    int getHour();
+
     Duration getCost();
 
     GraphNode getEndNode(final GraphTransaction txn);

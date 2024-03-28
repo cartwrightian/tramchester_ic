@@ -219,7 +219,8 @@ public class MutableGraphTransaction implements GraphTransaction {
     }
 
     public GraphNodeId createNodeId(final Node endNode) {
-        return idFactory.getNodeIdFor(endNode.getElementId());
+        return idFactory.getIdFor(endNode);
+        //return idFactory.getNodeIdFor(endNode.getElementId());
     }
 
     @Override

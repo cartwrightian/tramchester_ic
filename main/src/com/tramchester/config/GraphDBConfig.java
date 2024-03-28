@@ -16,5 +16,5 @@ public interface GraphDBConfig {
 
     String getMemoryTransactionGlobalMaxSize();
 
-    Boolean enableBolt();
+    Boolean enableDiagnostics();
 }

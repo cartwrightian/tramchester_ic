@@ -61,6 +61,11 @@ public class ImmutableGraphRelationship implements GraphRelationship {
     }
 
     @Override
+    public int getHour() {
+        return underlying.getHour();
+    }
+
+    @Override
     public Duration getCost() {
         return underlying.getCost();
     }

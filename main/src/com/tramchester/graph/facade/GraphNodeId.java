@@ -1,22 +1,28 @@
 package com.tramchester.graph.facade;
 
+import com.tramchester.graph.graphbuild.GraphLabel;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 
+import java.util.EnumSet;
 import java.util.Objects;
 
 public class GraphNodeId {
     private final String internalId;
+    private final EnumSet<GraphLabel> labels;
     private final int hashCode;
 
-    GraphNodeId(String internalId) {
+    // NOTE: labels not provided unless DB diagnostics set to true
+
+    GraphNodeId(String internalId, EnumSet<GraphLabel> labels) {
         // todo performance, intern this id?
         this.internalId = internalId;
+        this.labels = labels;
         this.hashCode = Objects.hash(internalId);
     }
 
     public static GraphNodeId TestOnly(long l) {
-        return new GraphNodeId(Long.toString(l));
+        return new GraphNodeId(Long.toString(l), EnumSet.noneOf(GraphLabel.class));
     }
 
     @Override
@@ -35,11 +41,12 @@ public class GraphNodeId {
     @Override
     public String toString() {
         return "GraphNodeId{" +
-                "internalId=" + internalId +
+                "internalId='" + internalId + '\'' +
+                ", labels=" + labels +
                 '}';
     }
 
-    Node getNodeFrom(Transaction txn) {
+    Node getNodeFrom(final Transaction txn) {
         return txn.getNodeByElementId(internalId);
     }
 }

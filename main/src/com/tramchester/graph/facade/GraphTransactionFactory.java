@@ -1,5 +1,6 @@
 package com.tramchester.graph.facade;
 
+import com.tramchester.config.GraphDBConfig;
 import org.neo4j.graphdb.GraphDatabaseService;
 
 import java.time.Duration;
@@ -11,21 +12,21 @@ import java.util.concurrent.TimeUnit;
  */
 public class GraphTransactionFactory {
     private final GraphDatabaseService databaseService;
-//    private final GraphIdFactory graphIdFactory;
+    private final GraphDBConfig graphDBConfig;
 
-    public GraphTransactionFactory(GraphDatabaseService databaseService) {
+    public GraphTransactionFactory(GraphDatabaseService databaseService, GraphDBConfig graphDBConfig) {
         this.databaseService = databaseService;
-//        this.graphIdFactory = graphIdFactory;
+        this.graphDBConfig = graphDBConfig;
     }
 
-    public MutableGraphTransaction beginMutable(Duration timeout) {
+    public MutableGraphTransaction beginMutable(final Duration timeout) {
         // graph id factory scoped to transaction level to avoid memory usages issues
-        GraphIdFactory graphIdFactory = new GraphIdFactory();
+        final GraphIdFactory graphIdFactory = new GraphIdFactory(graphDBConfig);
         return new MutableGraphTransaction(databaseService.beginTx(timeout.toSeconds(), TimeUnit.SECONDS), graphIdFactory);
     }
 
-    public ImmutableGraphTransaction begin(Duration timeout) {
-        MutableGraphTransaction contained = beginMutable(timeout);
+    public ImmutableGraphTransaction begin(final Duration timeout) {
+        final MutableGraphTransaction contained = beginMutable(timeout);
         return new ImmutableGraphTransaction(contained);
     }
 }

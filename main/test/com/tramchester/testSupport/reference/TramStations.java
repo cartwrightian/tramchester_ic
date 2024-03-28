@@ -21,6 +21,7 @@ public enum TramStations implements FakeStation, HasId<Station> {
 
     Altrincham("9400ZZMAALT", "Altrincham", pos(53.38726, -2.34755)),
     Ashton("9400ZZMAAUL", "Ashton-Under-Lyne", pos(53.49035, -2.09798)),
+    Brooklands("9400ZZMABKS", "Brooklands", pos(53.41704,-2.32599)),
     ManAirport("9400ZZMAAIR", "Manchester Airport", pos(53.36541, -2.27222)),
     TraffordBar("9400ZZMATRA", "Trafford Bar", pos(53.46163, -2.27762)),
     VeloPark("9400ZZMAVPK", "Velopark", pos(53.48224, -2.1933)),

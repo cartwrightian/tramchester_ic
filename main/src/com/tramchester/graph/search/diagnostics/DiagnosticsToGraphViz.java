@@ -65,7 +65,7 @@ public class DiagnosticsToGraphViz {
                 String beginNodeId = reason.getBeginId();
                 String endNodeId = reason.getEndId();
 
-                String reasonNodeId = reason.getStateType().name() + "_" + endNodeId;
+                String reasonNodeId = reason.getStateType().name() + "_" + reason.getCode() + "_" + endNodeId;
 
                 // location -> begin node
                 Pair<IdForDTO, String> locationToNodeKey = Pair.of(locationId, beginNodeId);

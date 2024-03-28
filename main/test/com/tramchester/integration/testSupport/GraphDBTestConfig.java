@@ -49,7 +49,7 @@ public class GraphDBTestConfig implements GraphDBConfig {
     }
 
     @Override
-    public Boolean enableBolt() {
+    public Boolean enableDiagnostics() {
         return false;
     }
 

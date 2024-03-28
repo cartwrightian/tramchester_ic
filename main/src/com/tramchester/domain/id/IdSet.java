@@ -2,7 +2,6 @@ package com.tramchester.domain.id;
 
 
 import com.tramchester.domain.CoreDomain;
-import com.tramchester.domain.places.Station;
 import org.apache.commons.collections4.SetUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -214,7 +213,7 @@ public class IdSet<T extends CoreDomain> implements Iterable<IdFor<T>> {
         return new IdSet<>(newSet, false);
     }
 
-    public static IdSet<Station> intersection(IdSet<Station> setA, IdSet<Station> setB) {
+    public static <T extends CoreDomain> IdSet<T> intersection(IdSet<T> setA, IdSet<T> setB) {
         return new IdSet<>(SetUtils.intersection(setA.theSet, setB.theSet));
     }
 }

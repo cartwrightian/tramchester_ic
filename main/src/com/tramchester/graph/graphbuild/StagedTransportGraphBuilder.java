@@ -201,7 +201,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             final BatchTransactionStrategy transactionStrategy = new BatchTransactionStrategy(graphDatabase,100, agency.getId());
             getRoutesForAgency(agency).forEach(route -> {
                 transactionStrategy.routeBegin(route);
-                createMinuteNodesAndRecordUpdatesForTrips(transactionStrategy, route, agencyBuilderNodeCache, routeStationNodeCache);
+                createMinuteNodesAndRecordUpdatesForTrips(transactionStrategy, route, agencyBuilderNodeCache, routeStationNodeCache, agencyBuilderNodeCache);
                 transactionStrategy.routeDone();
             });
             transactionStrategy.close();
@@ -224,12 +224,13 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
     private void createMinuteNodesAndRecordUpdatesForTrips(final TransactionStrategy strategy, final Route route,
                                                            final HourNodeCache hourNodeCache,
-                                                           final RouteStationNodeCache routeStationNodeCache) {
+                                                           final RouteStationNodeCache routeStationNodeCache,
+                                                           ServiceNodeCache serviceNodeCache) {
         // time nodes and relationships for trips
         for (final Trip trip : route.getTrips()) {
             strategy.tripBegin(trip);
             final MutableGraphTransaction tx = strategy.currentTxn();
-            final Map<StationTime, MutableGraphNode> timeNodes = createMinuteNodes(tx, trip, hourNodeCache);
+            final Map<StationTime, MutableGraphNode> timeNodes = createMinuteNodes(tx, trip, hourNodeCache, serviceNodeCache);
             createTripRelationships(tx, route, trip, routeStationNodeCache, timeNodes);
             timeNodes.clear();
             strategy.tripDone();
@@ -277,12 +278,10 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                         final IdFor<Station> beginId = leg.getFirstStation().getId();
                         final IdFor<Station> endId = leg.getSecondStation().getId();
 
-                        final Service service = trip.getService();
                         final MutableGraphNode serviceNode = createServiceNodeAndRelationshipFromRouteStation(tx, route, trip,
                                 beginId, endId, routeStationNodeCache, serviceNodeCache);
 
-                        createHourNodeAndRelationshipFromService(tx, route.getId(), service,
-                                beginId, leg.getDepartureTime().getHourOfDay(), hourNodeCache, serviceNode);
+                        createHourNodeAndRelationshipFromService(tx, leg.getDepartureTime().getHourOfDay(), hourNodeCache, serviceNode);
                     }
                 });
         });
@@ -548,7 +547,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         goesToRelationship.setStopSeqNum(endStop.getGetSequenceNumber());
     }
 
-    private Map<StationTime, MutableGraphNode> createMinuteNodes(final MutableGraphTransaction tx, final Trip trip, final HourNodeCache hourNodeCache) {
+    private Map<StationTime, MutableGraphNode> createMinuteNodes(final MutableGraphTransaction tx, final Trip trip,
+                                                                 final HourNodeCache hourNodeCache, ServiceNodeCache serviceNodeCache) {
 
         final Map<StationTime, MutableGraphNode> timeNodes = new HashMap<>();
 
@@ -557,7 +557,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             if (includeBothStops(leg)) {
                 final Station start = leg.getFirstStation();
                 final TramTime departureTime = leg.getDepartureTime();
-                final MutableGraphNode timeNode = createTimeNodeAndRelationshipFromHour(tx, trip, start.getId(), departureTime, hourNodeCache);
+                final MutableGraphNode timeNode = createTimeNodeAndRelationshipFromHour(tx, trip, leg, departureTime,
+                        hourNodeCache, serviceNodeCache);
                 timeNodes.put(StationTime.of(start, departureTime), timeNode);
             }
         });
@@ -566,16 +567,21 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     }
 
     private MutableGraphNode createTimeNodeAndRelationshipFromHour(final MutableGraphTransaction tx, final Trip trip,
-                                                                   final IdFor<Station> startId,
+                                                                   final StopCalls.StopLeg leg,
                                                                    final TramTime departureTime,
-                                                                   final HourNodeCache hourNodeCache) {
+                                                                   final HourNodeCache hourNodeCache,
+                                                                   final ServiceNodeCache serviceNodeCache) {
 
         final MutableGraphNode timeNode = createGraphNode(tx, GraphLabel.MINUTE);
         timeNode.setTime(departureTime);
         timeNode.set(trip);
 
+        IdFor<Station> startId = leg.getFirstStation().getId();
+        IdFor<Station> endId = leg.getSecondStation().getId();
+
         // hour node -> time node
-        final MutableGraphNode hourNode = hourNodeCache.getHourNode(tx, trip.getRoute().getId(), trip.getService(), startId,
+        MutableGraphNode svcNode = serviceNodeCache.getServiceNode(tx, trip.getRoute().getId(), trip.getService(), startId, endId);
+        final MutableGraphNode hourNode = hourNodeCache.getHourNode(tx, svcNode.getId(),
                 departureTime.getHourOfDay());
         final MutableGraphRelationship fromPrevious = createRelationship(tx, hourNode, timeNode, TransportRelationshipTypes.TO_MINUTE);
         fromPrevious.setCost(Duration.ZERO);
@@ -585,15 +591,16 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         return timeNode;
     }
 
-    private void createHourNodeAndRelationshipFromService(final MutableGraphTransaction tx, final IdFor<Route> routeId, final Service service,
-                                                          final IdFor<Station> startId,
-                                                          final Integer hour, final HourNodeCache hourNodeCache, final MutableGraphNode serviceNode) {
+    private void createHourNodeAndRelationshipFromService(final MutableGraphTransaction tx, final int hour,
+                                                          final HourNodeCache hourNodeCache, final MutableGraphNode serviceNode) {
 
-        if (!hourNodeCache.hasHourNode(routeId, service, startId, hour)) {
+
+        // TODO THIS IS now ambiguous
+        if (!hourNodeCache.hasHourNode(serviceNode.getId(), hour)) {
             final MutableGraphNode hourNode = createGraphNode(tx, GraphLabel.HOUR);
             hourNode.setHourProp(hour);
             hourNode.addLabel(GraphLabel.getHourLabel(hour));
-            hourNodeCache.putHour(routeId, service, startId, hour, hourNode);
+            hourNodeCache.putHour(serviceNode.getId(), hour, hourNode);
 
             // service node -> time node
             final MutableGraphRelationship serviceNodeToHour = createRelationship(tx, serviceNode, hourNode, TransportRelationshipTypes.TO_HOUR);

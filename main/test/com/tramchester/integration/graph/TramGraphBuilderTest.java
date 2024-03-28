@@ -14,6 +14,8 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.TransportRelationshipTypes;
@@ -285,7 +287,7 @@ class TramGraphBuilderTest {
         Station start = Bury.from(stationRepository);
         Station end = Altrincham.from(stationRepository);
 
-        List<Trip> callingTrips = transportData.getTripsFor(start, when).stream().
+        List<Trip> callingTrips = transportData.getTripsCallingAt(start, when).stream().
                 filter(trip -> trip.callsAt(end.getId())).
                 filter(trip -> trip.isAfter(start.getId(), end.getId()))
                 .toList();
@@ -331,11 +333,222 @@ class TramGraphBuilderTest {
     }
 
     @Test
+    void shouldHaveExpectedRouteIdsForInboundAndOutboundAtRouteStation() {
+
+        Station station = Timperley.from(stationRepository);
+
+        final Set<Trip> callingTrips = transportData.getTripsCallingAt(station, when);
+
+        final Set<Route> callingRoutes = callingTrips.stream().map(Trip::getRoute).collect(Collectors.toSet());
+
+        // for end of line/route callingTrips.size() == terminateHere.size()
+
+        callingRoutes.forEach(route -> {
+            final RouteStation routeStation = new RouteStation(station, route);
+            ImmutableGraphNode routeStationNode = txn.findNode(routeStation);
+            assertNotNull(routeStationNode);
+
+            IdSet<Route> incomingRoutes = routeStationNode.getRelationships(txn, Direction.INCOMING, TRAM_GOES_TO).
+                    map(ImmutableGraphRelationship::getRouteId).
+                    collect(IdSet.idCollector());
+
+            assertEquals(1,incomingRoutes.size(), "Expected only " + route.getId() + " got " + incomingRoutes);
+            assertTrue(incomingRoutes.contains(route.getId()));
+
+            IdSet<Route> outgoingRoutes = routeStationNode.getRelationships(txn, Direction.OUTGOING, TO_SERVICE).
+                    map(ImmutableGraphRelationship::getRouteId).
+                    collect(IdSet.idCollector());
+
+            assertEquals(1,outgoingRoutes.size(), "Expected only " + route.getId() + " got " + outgoingRoutes);
+            assertTrue(outgoingRoutes.contains(route.getId()));
+        });
+    }
+
+    @Test
+    void shouldHaveOutboundServiceForEveryInboundTrip() {
+
+        transportData.getStations().forEach(station -> {
+            // NOTE: No date filtering
+            final Set<Trip> allCallingTrips = transportData.getTrips().stream().
+                    filter(trip -> trip.callsAt(station.getId())).
+                    collect(Collectors.toSet());
+
+            final Set<Route> callingRoutes = allCallingTrips.stream().map(Trip::getRoute).collect(Collectors.toSet());
+
+            // for end of line/route callingTrips.size() == terminateHere.size()
+
+            callingRoutes.forEach(route -> {
+                final RouteStation routeStation = new RouteStation(station, route);
+                ImmutableGraphNode routeStationNode = txn.findNode(routeStation);
+                assertNotNull(routeStationNode);
+
+                final Set<Trip> callingTrips = allCallingTrips.stream().
+                        filter(trip -> trip.getRoute().equals(route)).
+                        collect(Collectors.toSet());
+
+                final IdSet<Trip> terminateHere = callingTrips.stream().
+                        filter(trip -> trip.getRoute().equals(route)).
+                        filter(trip -> trip.lastStation().equals(station.getId())).
+                        collect(IdSet.collector());
+
+                final IdSet<Trip> startHere = callingTrips.stream().
+                        filter(trip -> trip.getRoute().equals(route)).
+                        filter(trip -> trip.firstStation().equals(station.getId())).
+                        collect(IdSet.collector());
+
+                IdSet<Trip> allNonTerminatedInboundTrips = routeStationNode.getRelationships(txn, Direction.INCOMING, TRAM_GOES_TO).
+                        map(ImmutableGraphRelationship::getTripId).
+                        filter(tripId -> !terminateHere.contains(tripId)).
+                        collect(IdSet.idCollector());
+
+                // will be empty at end of line
+                //assertFalse(allNonTerminatedInboundTrips.isEmpty());
+
+                boolean sanityCheck = allNonTerminatedInboundTrips.stream().
+                        map(tripId -> transportData.getTripById(tripId)).
+                        noneMatch(trip -> trip.lastStation().equals(station.getId()));
+
+                assertTrue(sanityCheck);
+
+                IdSet<Trip> allOutgoingTripsNotStartingHere = routeStationNode.getRelationships(txn, Direction.OUTGOING, TO_SERVICE).
+                        flatMap(relationship -> relationship.getTripIds().stream()).
+                        filter(tripId -> !startHere.contains(tripId)).
+                        collect(IdSet.idCollector());
+
+                // will be empty at end of line
+                //assertFalse(allOutgoingTripsNotStartingHere.isEmpty());
+
+                IdSet<Trip> disjunction = IdSet.disjunction(allNonTerminatedInboundTrips, allOutgoingTripsNotStartingHere);
+                assertTrue(disjunction.isEmpty(), disjunction.toString());
+            });
+        });
+
+    }
+
+
+    @Test
+    void shouldHaveExpectedServiceAndHourRelationshipsAtStation() {
+
+        // address issue created when moved to bi-direction routes, instead of single direction
+        // which led to service nodes having incorrect relationships with hour nodes
+
+        Station station = Brooklands.from(transportData);
+        int hour = 9;
+
+        IdFor<Station> stationId = station.getId();
+
+        Set<StopCall> towardsAlty = transportData.getTrips().stream().
+                filter(trip -> trip.callsAt(stationId)).
+                filter(trip -> trip.isAfter(stationId, Altrincham.getId())).
+                map(trip -> trip.getStopCalls().getStopFor(stationId)).collect(Collectors.toSet());
+
+        TimeRange range = TimeRange.of(TramTime.of(hour,0), TramTime.of(hour,59));
+        Set<StopCall> duringHour = towardsAlty.stream().filter(stopCall -> range.contains(stopCall.getDepartureTime())).collect(Collectors.toSet());
+
+        assertFalse(duringHour.isEmpty());
+
+        duringHour.forEach(stopCall -> {
+            Trip trip = stopCall.getTrip();
+            Route route = trip.getRoute();
+
+            RouteStation routeStation = new RouteStation(station, route);
+            ImmutableGraphNode routeStationNode = txn.findNode(routeStation);
+
+            assertNotNull(routeStationNode);
+
+            List<ImmutableGraphRelationship> toService = routeStationNode.getRelationships(txn, Direction.OUTGOING, TO_SERVICE).
+                    filter(relationship -> relationship.hasTripIdInList(trip.getId())).
+                    toList();
+
+            assertEquals(1, toService.size());
+
+            GraphNode serviceNode = toService.get(0).getEndNode(txn);
+
+            assertEquals(trip.getService().getId(), serviceNode.getServiceId());
+
+            List<ImmutableGraphRelationship> atHour = serviceNode.getRelationships(txn, Direction.OUTGOING, TO_HOUR).
+                    filter(relationship -> relationship.getHour() == hour).toList();
+
+            assertEquals(1, atHour.size(), "Did not find relationship for " + stopCall +
+                    " at service " + trip.getService().getId() + " for route " + trip.getRoute().getId());
+        });
+    }
+
+    @Test
+    void shouldHaveInboundAndOutboundTripsForNonTerminatingRouteStations() {
+        Station station = Brooklands.from(stationRepository);
+
+        Set<Trip> callingTrips = transportData.getTripsCallingAt(station, when);
+
+        Set<Route> callingRoutes = callingTrips.stream().map(Trip::getRoute).collect(Collectors.toSet());
+
+        callingRoutes.forEach(route -> {
+            final RouteStation routeStation = new RouteStation(station, route);
+            ImmutableGraphNode routeStationNode = txn.findNode(routeStation);
+            assertNotNull(routeStationNode);
+
+
+            final List<ImmutableGraphRelationship> toServices = routeStationNode.getRelationships(txn, Direction.OUTGOING, TO_SERVICE).
+                    filter(relationship -> relationship.getRouteId().equals(route.getId())).toList();
+            assertFalse(toServices.isEmpty());
+
+            IdSet<Service> uniqueServices = toServices.stream().map(ImmutableGraphRelationship::getServiceId).collect(IdSet.idCollector());
+
+            // Not useful, i.e. [3, 3, 4, 5, 5, 5] = {3,4,5}
+            // assertEquals(uniqueServices.size()*2, toServices.size());
+
+            uniqueServices.forEach(svcId -> {
+                final List<ImmutableGraphRelationship> relationshipsForSvc = toServices.stream().
+                        filter(relationship -> relationship.getServiceId().equals(svcId)).toList();
+
+                assertTrue(relationshipsForSvc.size()<3, "unexpected number of relationships for " + svcId);
+
+                // if 2 links to service then trips to each on must be unique
+                if (relationshipsForSvc.size()==2) {
+
+                    ImmutableGraphRelationship relationshipA = relationshipsForSvc.get(0);
+                    ImmutableGraphRelationship relationshipB = relationshipsForSvc.get(1);
+
+                    IdSet<Trip> tripsA = relationshipA.getTripIds();
+                    IdSet<Trip> tripsB = relationshipB.getTripIds();
+
+                    assertTrue(IdSet.intersection(tripsA, tripsB).isEmpty());
+                }
+                // if 1 link to a service then it only runs in one direction i.e. a late night service
+
+                final IdSet<Trip> fromMinuteTrips = routeStationNode.getRelationships(txn, Direction.INCOMING, TRAM_GOES_TO).
+                        filter(relationship -> relationship.getServiceId().equals(svcId)).
+                        map(ImmutableGraphRelationship::getTripId).
+                        collect(IdSet.idCollector());
+
+                assertFalse(fromMinuteTrips.isEmpty());
+
+                // should have a corresponding outgoing service (i.e. trip matches) for each inbound from a minute node
+                // in the case this is not the end of a line (TBC)
+                relationshipsForSvc.forEach(relationship -> {
+                    assertTrue(fromMinuteTrips.containsAll(relationship.getTripIds()),
+                            "service did not have a corresponding inbound " + relationship.getServiceId());
+
+                });
+
+                IdSet<Trip> outboundTripsForService = relationshipsForSvc.stream().
+                        flatMap(relationship -> relationship.getTripIds().stream()).
+                        collect(IdSet.idCollector());
+
+                assertFalse(outboundTripsForService.isEmpty());
+
+                assertEquals(fromMinuteTrips.size(), outboundTripsForService.size(), "mismatch on in/out trips for " + svcId);
+
+            });
+        });
+    }
+
+    @Test
     void shouldHaveCorrectServiceRelationshipsAtRouteStationsAlongTrip() {
         Station start = Bury.from(stationRepository);
         Station end = Altrincham.from(stationRepository);
 
-        List<Trip> callingTrips = transportData.getTripsFor(start, when).stream().
+        List<Trip> callingTrips = transportData.getTripsCallingAt(start, when).stream().
                 filter(trip -> trip.callsAt(end.getId())).
                 filter(trip -> trip.isAfter(start.getId(), end.getId()))
                 .toList();
@@ -361,7 +574,8 @@ class TramGraphBuilderTest {
                 List<ImmutableGraphRelationship> toServices = routeStationNode.getRelationships(txn, Direction.OUTGOING, TO_SERVICE).toList();
                 assertFalse(toServices.isEmpty(), "to service links");
 
-                List<ImmutableGraphRelationship> toServicesForTrip = toServices.stream().filter(toService -> toService.hasTripIdInList(tripId)).toList();
+                List<ImmutableGraphRelationship> toServicesForTrip = toServices.stream().
+                        filter(toService -> toService.hasTripIdInList(tripId)).toList();
 
                 if (seqNum!=endSeqNum) {
 

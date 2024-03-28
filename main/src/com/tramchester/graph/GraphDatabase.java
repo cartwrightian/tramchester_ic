@@ -58,7 +58,7 @@ public class GraphDatabase implements DatabaseEventListener {
             final Path dbPath = graphDBConfig.getDbPath();
             boolean fileExists = Files.exists(dbPath);
             databaseService = lifecycleManager.startDatabase(dataSourceRepository, dbPath, fileExists);
-            graphTransactionFactory = new GraphTransactionFactory(databaseService);
+            graphTransactionFactory = new GraphTransactionFactory(databaseService, graphDBConfig);
             logger.info("graph db started ");
         } else {
             logger.warn("Planning is disabled, not starting the graph database");
@@ -114,7 +114,7 @@ public class GraphDatabase implements DatabaseEventListener {
             MutableGraphTransaction tx = timed.transaction();
             Schema schema = tx.schema();
 
-            schema.indexFor(GraphLabel.STATION).on(GraphPropertyKey.ROUTE_ID.getText()).create();
+//            schema.indexFor(GraphLabel.STATION).on(GraphPropertyKey.ROUTE_ID.getText()).create();
             createUniqueIdConstraintFor(schema, GraphLabel.STATION, GraphPropertyKey.STATION_ID);
 
             createUniqueIdConstraintFor(schema, GraphLabel.ROUTE_STATION, GraphPropertyKey.ROUTE_STATION_ID);

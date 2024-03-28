@@ -12,5 +12,5 @@ import java.util.Set;
 public interface TripRepository {
     Set<Trip> getTrips();
     Trip getTripById(IdFor<Trip> tripId);
-    Set<Trip> getTripsFor(Station station, TramDate date);
+    Set<Trip> getTripsCallingAt(Station station, TramDate date);
 }

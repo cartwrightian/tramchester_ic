@@ -145,9 +145,10 @@ public class RouteCalculatorTest {
     @Test
     void shouldHaveSimpleJourneyOnTestDay() {
         final TramTime originalQueryTime = TramTime.of(9, 0);
-        JourneyRequest journeyRequest = new JourneyRequest(when.plusDays(1), originalQueryTime, false, 1,
+        JourneyRequest journeyRequest = new JourneyRequest(when, originalQueryTime, false, 1,
                 maxJourneyDuration, maxNumResults, requestedModes);
         journeyRequest.setDiag(true);
+        journeyRequest.setCachingDisabled(true);
         List<Journey> journeys = calculator.calculateRouteAsList(TraffordBar, Altrincham, journeyRequest);
         assertFalse(journeys.isEmpty());
     }

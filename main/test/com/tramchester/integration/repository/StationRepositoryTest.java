@@ -7,8 +7,10 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
@@ -16,8 +18,10 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.integration.testSupport.ConfigParameterResolver;
+import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
+import com.tramchester.repository.TripRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownLocality;
@@ -28,10 +32,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.time.Duration;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.CentralZoneStation.StPetersSquare;
@@ -49,6 +50,7 @@ public class StationRepositoryTest {
     private TramRouteHelper routeHelper;
     private TramDate when;
     private StationRepository stationRepository;
+    private InterchangeRepository interchangeRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun(TramchesterConfig tramchesterConfig) {
@@ -66,6 +68,7 @@ public class StationRepositoryTest {
         stationRepository = componentContainer.get(StationRepository.class);
         RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
         routeHelper = new TramRouteHelper(routeRepository);
+        interchangeRepository = componentContainer.get(InterchangeRepository.class);
 
         when = TestEnv.testDay();
     }
@@ -101,6 +104,41 @@ public class StationRepositoryTest {
         Set<Station> stations = stationRepository.getStations(EnumSet.of(Tram));
         Set<Station> noPlatforms = stations.stream().filter(station -> station.getPlatforms().isEmpty()).collect(Collectors.toSet());
         assertEquals(Collections.emptySet(),noPlatforms);
+    }
+
+    @Disabled("WIP - not clear if actually creates an issue")
+    @Test
+    void shouldCheckForTerminatingTripsAtNonInterchangeStations() {
+
+        // some trips end at non-interchange stations i.e. early morning, late night, return to depots
+
+        TripRepository repository = componentContainer.get(TripRepository.class);
+
+        Set<Trip> allTips = repository.getTrips();
+
+        List<Station> nonInterchanges = stationRepository.getAllStationStream().filter(station -> !interchangeRepository.isInterchange(station)).toList();
+
+        Set<Station> results = new HashSet<>();
+
+        nonInterchanges.forEach(station -> {
+            IdFor<Station> stationId = station.getId();
+
+            Set<Trip> tripsForStation = allTips.stream().
+                    filter(trip -> trip.callsAt(stationId)).
+                    collect(Collectors.toSet());
+
+            long passingThroughOnly = tripsForStation.stream().
+                    filter(trip -> !trip.firstStation().equals(stationId)).
+                    filter(trip -> !trip.lastStation().equals(stationId)).count();
+
+            List<Trip> terminatesHere = tripsForStation.stream().filter(trip -> trip.lastStation().equals(stationId)).toList();
+
+            if ((passingThroughOnly!=0) && !terminatesHere.isEmpty()) {
+                results.add(station);
+            }
+        });
+
+        assertTrue(results.isEmpty(), HasId.asIds(results));
     }
 
     @Test

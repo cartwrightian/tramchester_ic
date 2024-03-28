@@ -177,8 +177,6 @@ public class StopCalls {
         return parentTrip;
     }
 
-
-
     public static class StopLeg {
         private final StopCall first;
         private final StopCall second;

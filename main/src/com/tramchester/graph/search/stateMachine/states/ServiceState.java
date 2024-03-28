@@ -39,20 +39,22 @@ public class ServiceState extends TraversalState implements HasTowardsStationId 
             return TraversalStateType.ServiceState;
         }
 
-        public TraversalState fromRouteStation(final RouteStationStateOnTrip state, final GraphNode graphNode,
+        public TraversalState fromRouteStation(final RouteStationStateOnTrip state, final GraphNode serviceNode,
                                                final Duration cost, final GraphTransaction txn) {
-            final Stream<ImmutableGraphRelationship> hourRelationships = getHourRelationships(graphNode, txn);
-            return new ServiceState(state, hourRelationships, cost, this, graphNode, depthFirst,
+            final Stream<ImmutableGraphRelationship> hourRelationships = getHourRelationships(serviceNode, txn);
+            return new ServiceState(state, hourRelationships, cost, this, serviceNode, depthFirst,
                     super.getQueryHour());
         }
 
-        public TraversalState fromRouteStation(final JustBoardedState justBoarded, final GraphNode serviceNode, final Duration cost, final GraphTransaction txn) {
+        public TraversalState fromRouteStation(final JustBoardedState justBoarded, final GraphNode serviceNode,
+                                               final Duration cost, final GraphTransaction txn) {
             final Stream<ImmutableGraphRelationship> hourRelationships = getHourRelationships(serviceNode, txn);
-            return new ServiceState(justBoarded, hourRelationships, cost, this, serviceNode, depthFirst, super.getQueryHour());
+            return new ServiceState(justBoarded, hourRelationships, cost, this, serviceNode, depthFirst,
+                    super.getQueryHour());
         }
 
-        private Stream<ImmutableGraphRelationship> getHourRelationships(final GraphNode node, final GraphTransaction txn) {
-            return node.getRelationships(txn, OUTGOING, TO_HOUR);
+        private Stream<ImmutableGraphRelationship> getHourRelationships(final GraphNode serviceNode, final GraphTransaction txn) {
+            return serviceNode.getRelationships(txn, OUTGOING, TO_HOUR);
         }
 
     }
@@ -88,7 +90,7 @@ public class ServiceState extends TraversalState implements HasTowardsStationId 
         }
     }
 
-    private int hourFor(GraphNode endNode) {
+    private int hourFor(final GraphNode endNode) {
         return GraphLabel.getHourFrom(endNode.getLabels());
     }
 

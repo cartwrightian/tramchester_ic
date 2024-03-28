@@ -31,6 +31,7 @@ import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryCategory;
@@ -46,6 +47,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.CentralZoneStation.StPetersSquare;
 import static com.tramchester.domain.reference.CentralZoneStation.TraffordBar;
@@ -377,7 +379,7 @@ public class TransportDataFromFilesTramTest {
                 filter(date -> !date.isChristmasPeriod()).
                 flatMap(date -> transportData.getStations(EnumSet.of(Tram)).stream().map(station -> Pair.of(date, station))).
                 filter(pair -> !closedStationRepository.isClosed(pair.getRight(), pair.getLeft())).
-                filter(pair -> transportData.getTripsFor(pair.getRight(), pair.getLeft()).isEmpty()).
+                filter(pair -> transportData.getTripsCallingAt(pair.getRight(), pair.getLeft()).isEmpty()).
                 map(pair -> Pair.of(pair.getLeft(), pair.getRight().getId())).
                 collect(Collectors.toSet());
 
@@ -420,7 +422,7 @@ public class TransportDataFromFilesTramTest {
             transportData.getStations(EnumSet.of(Tram)).stream().
                     filter(station -> !closedStationRepository.isClosed(station, date)).
                     forEach(station -> {
-                        Set<Trip> trips = transportData.getTripsFor(station, date);
+                        Set<Trip> trips = transportData.getTripsCallingAt(station, date);
                         for (TramTime time : times) {
                             TimeRange range = TimeRange.of(time.minusMinutes(maxwait), time.plusMinutes(maxwait));
                             boolean calls = trips.stream().flatMap(trip -> trip.getStopCalls().stream()).
@@ -535,6 +537,34 @@ public class TransportDataFromFilesTramTest {
                 assertFalse(calendar.operatesOn(exceptionDate));
             }
         });
+    }
+
+    @Test
+    void shouldHaveEndOfLineStations() {
+
+        IdSet<Station> result = new IdSet<>();
+
+        transportData.getStations().forEach(station -> {
+            IdFor<Station> stationId = station.getId();
+            Set<Trip> all = transportData.getTrips().stream().filter(trip -> trip.callsAt(stationId)).collect(Collectors.toSet());
+
+            long passingThrough = all.stream().filter(trip -> !trip.firstStation().equals(stationId)).
+                    filter(trip -> !trip.lastStation().equals(stationId)).count();
+
+            if (passingThrough==0) {
+                result.add(stationId);
+            }
+        });
+
+        IdSet<Station> expected = Stream.of(Altrincham, EastDidsbury, ManAirport, Eccles, TraffordCentre, Bury, Rochdale, Ashton).
+                map(FakeStation::getId).collect(IdSet.idCollector());
+
+        // exchange square, due to broken rail diversion?
+        expected.add(ExchangeSquare.getId());
+
+        IdSet<Station> disjunction = IdSet.disjunction(expected, result);
+        assertTrue(disjunction.isEmpty(), disjunction.toString());
+
     }
 
     @Test

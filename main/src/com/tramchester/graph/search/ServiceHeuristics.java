@@ -134,8 +134,8 @@ public class ServiceHeuristics {
             return reasons.recordReason(HeuristicReasonsOK.HourOk(ReasonCode.HourOk, howIGotHere, currentTime, hourAtNode));
         }
 
-        final TimeRange hourRangeTommorow = TimeRange.of(TramTime.nextDay(hourAtNode, 0), TramTime.nextDay(hourAtNode, 59));
-        if (travelTimes.anyOverlap(hourRangeTommorow)) {
+        final TimeRange hourRangeTomorrow = TimeRange.of(TramTime.nextDay(hourAtNode, 0), TramTime.nextDay(hourAtNode, 59));
+        if (travelTimes.anyOverlap(hourRangeTomorrow)) {
             return reasons.recordReason(HeuristicReasonsOK.HourOk(ReasonCode.HourOk, howIGotHere, currentTime, hourAtNode));
         }
 

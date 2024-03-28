@@ -27,6 +27,8 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
     private final TransportMode transportMode;
     private final GraphNode routeStationNode;
 
+    private static final boolean STRICT_TRIP_FILTER = true;
+
     public static class Builder extends TowardsRouteStation<RouteStationStateOnTrip> {
 
         private final NodeContentsRepository nodeContents;
@@ -53,7 +55,6 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
             // todo, use label and/or cache this - perf impact currently low
             final TransportMode transportMode = routeStationNode.getTransportMode();
             final IdFor<Trip> tripId = journeyState.getCurrentTrip();
-            FilterRelationshipsByTripId filterRelationshipsByTripId = new FilterRelationshipsByTripId(tripId);
 
             final FilterByDestinations<ImmutableGraphRelationship> towardsDestination = getTowardsDestination(routeStationNode, txn);
             if (!towardsDestination.isEmpty()) {
@@ -64,10 +65,13 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
 
             // outbound service relationships that continue the current trip
 
-            final Stream<ImmutableGraphRelationship> towardsServiceForTrip = filterBySvc(
-                    routeStationNode.getRelationships(txn, Direction.OUTGOING, TO_SERVICE), trip, txn);
-
-//            final Stream<ImmutableGraphRelationship> towardsServiceForTrip = filterRelationshipsByTripId.apply(txn, routeStationNode);
+            final Stream<ImmutableGraphRelationship> towardsServiceForTrip;
+            if (STRICT_TRIP_FILTER) {
+                FilterRelationshipsByTripId filterRelationshipsByTripId = new FilterRelationshipsByTripId(tripId);
+                towardsServiceForTrip = filterRelationshipsByTripId.apply(txn, routeStationNode);
+            } else {
+                towardsServiceForTrip = filterBySvc(routeStationNode.getRelationships(txn, Direction.OUTGOING, TO_SERVICE), trip, txn);
+            }
 
             // now add outgoing to platforms/stations
             final Stream<ImmutableGraphRelationship> outboundsToFollow = getOutboundsToFollow(routeStationNode, isInterchange, txn);

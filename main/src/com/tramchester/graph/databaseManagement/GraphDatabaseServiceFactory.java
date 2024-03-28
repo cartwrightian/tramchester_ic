@@ -73,8 +73,8 @@ public class GraphDatabaseServiceFactory implements DatabaseEventListener {
 
     private void createManagementService() {
 
-        if (dbConfig.enableBolt()) {
-            logger.warn("neo4j bolt is enabled");
+        if (dbConfig.enableDiagnostics()) {
+            logger.warn("DB diagnostics enabled, neo4j bolt is enabled");
         }
 
         try (Timing ignored = new Timing(logger, "DatabaseManagementService build")) {
@@ -103,7 +103,7 @@ public class GraphDatabaseServiceFactory implements DatabaseEventListener {
                     // operating in embedded mode
                     setConfig(HttpConnector.enabled, false).
                     setConfig(HttpsConnector.enabled, false).
-                    setConfig(BoltConnector.enabled, dbConfig.enableBolt()).
+                    setConfig(BoltConnector.enabled, dbConfig.enableDiagnostics()).
 
                     build();
         }

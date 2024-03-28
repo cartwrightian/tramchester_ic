@@ -48,7 +48,7 @@ public class GraphDatabaseLifecycleManager {
 
         cleanDB = !fileExists;
         GraphDatabaseService databaseService = serviceFactory.create();
-        GraphTransactionFactory transactionFactory = new GraphTransactionFactory(databaseService);
+        GraphTransactionFactory transactionFactory = new GraphTransactionFactory(databaseService, graphDBConfig);
 
         if (fileExists && !storedVersions.upToDate(transactionFactory, dataSourceRepository)) {
             logger.warn("Graph is out of date, rebuild needed");

@@ -20,7 +20,7 @@ graphDBConfig:
   graphName: databases/buses.db
   neo4jPagecacheMemory: 300m
   memoryTransactionGlobalMaxSize: 650m
-  enableBolt: ${ENABLE_BOLT:- false }
+  enableDiagnostics: ${ENABLE_DB_DIAG:- false }
 distributionBucket: tramchesternewdist
 environmentName: ${PLACE}
 buildNumber: ${BUILD:- 0}
