@@ -91,6 +91,7 @@ class KnownTramRouteTest {
     }
 
     /// Note: START HERE when diagnosing
+    //  if route count correct then check dates, route might not be available on given dates
     @Test
     void shouldHaveCorrectLongNamesForKnownRoutesForDates() {
 

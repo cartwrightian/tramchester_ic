@@ -44,7 +44,7 @@ public enum KnownTramRoute {
         routes.add(PiccadillyBury);
         routes.add(PiccadillyAltrincham);
 
-        if (!date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
+        if (!(date.getDayOfWeek().equals(DayOfWeek.SUNDAY) || easter2024(date))) {
             // not documented anywhere, but does not appear any trams on this route on Sundays
             routes.add(BuryManchesterAltrincham);
         }
@@ -56,6 +56,20 @@ public enum KnownTramRoute {
         this.longName = longName;
         this.shortName = shortName;
         this.id = Route.createId(id);
+    }
+
+    // appears no services these days
+    static boolean easter2024(TramDate date) {
+        final TramDate goodFriday = TramDate.of(2024, 3, 29);
+        final TramDate easterMonday = TramDate.of(2024, 4, 1);
+
+        if (date.equals(goodFriday)) {
+            return true;
+        }
+        if (date.equals(easterMonday)) {
+            return true;
+        }
+        return false; // sundays already excluded
     }
 
     public static int numberOn(TramDate date) {
