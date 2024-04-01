@@ -1,10 +1,10 @@
 package com.tramchester.cloud;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
 import jakarta.inject.Inject;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.util.HashMap;
 import java.util.Map;
 

@@ -66,7 +66,7 @@ dependencies {
     implementation('com.netflix.governator:governator:1.17.13') {
         exclude group: 'org.slf4j', module: 'slf4j-api'
     }
-    implementation 'com.google.inject:guice:5.1.0'
+    implementation 'com.google.inject:guice:7.0.0'
     // note: exclude of org.glassfish.jersey.inject needed as it clashed with version in DropWizard causing a
     // failure to load the DynamicServiceLocator in glassfish
     implementation('org.neo4j:neo4j:5.18.1') {
@@ -101,9 +101,10 @@ dependencies {
     implementation("software.amazon.awssdk:sns:$awsSdkVersion")
     implementation("software.amazon.awssdk:sqs:$awsSdkVersion")
 
-    // todo replace with maintained version, but dependency on google juice version 7 and cxfCodeGen
-    implementation 'javax.annotation:javax.annotation-api:1.3.2',
-            'org.jetbrains:annotations:24.1.0'
+    // todo replace with maintained version, but dependency on cxfCodeGen
+    implementation 'javax.annotation:javax.annotation-api:1.3.2'
+
+    implementation  'org.jetbrains:annotations:24.1.0'
 
     implementation('org.geotools:gt-main:30.2',
             'org.geotools:gt-epsg-hsql:30.2')

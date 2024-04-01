@@ -5,12 +5,12 @@ import com.tramchester.config.DownloadedConfig;
 import com.tramchester.config.HasRemoteDataSourceConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.time.ProvidesNow;
-import jakarta.annotation.PostConstruct;
 import jakarta.inject.Inject;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.net.URI;
 import java.net.UnknownHostException;

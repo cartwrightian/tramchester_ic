@@ -4,13 +4,13 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.tramchester.dataimport.FetchDataFromUrl;
 import com.tramchester.dataimport.UnzipFetchedData;
-import com.tramchester.graph.AddNeighboursGraphBuilder;
+import com.tramchester.dataimport.loader.TransportDataFactory;
 import com.tramchester.graph.AddDiversionsForClosedGraphBuilder;
-import com.tramchester.graph.graphbuild.StationGroupsGraphBuilder;
+import com.tramchester.graph.AddNeighboursGraphBuilder;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
+import com.tramchester.graph.graphbuild.StationGroupsGraphBuilder;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
 import com.tramchester.repository.TransportData;
-import com.tramchester.dataimport.loader.TransportDataFactory;
 
 @SuppressWarnings("unused")
 public class GetReadyModule extends AbstractModule {
