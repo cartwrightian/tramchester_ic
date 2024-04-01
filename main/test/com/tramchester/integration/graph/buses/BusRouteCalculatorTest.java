@@ -212,7 +212,7 @@ class BusRouteCalculatorTest {
         JourneyRequest request = new JourneyRequest(when, time, false, MIN_CHANGES,
                 Duration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, BusesOnly);
 
-        request.setDiag(true);
+//        request.setDiag(true);
 
         List<Journey> results = calculator.calculateRouteAsList(KnownLocality.Altrincham, KnownLocality.Bollington, request);
         assertFalse(results.isEmpty());
@@ -228,7 +228,7 @@ class BusRouteCalculatorTest {
         JourneyRequest request = new JourneyRequest(date, time, false, MIN_CHANGES,
                 Duration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, BusesOnly);
 
-        request.setDiag(true);
+//        request.setDiag(true);
 
         List<Journey> results = calculator.calculateRouteAsList(KnownLocality.Altrincham, KnownLocality.ManchesterAirport, request);
         assertFalse(results.isEmpty());
@@ -250,9 +250,6 @@ class BusRouteCalculatorTest {
         TramTime time = TramTime.of(11, 30);
         JourneyRequest request = new JourneyRequest(when, time, false, 3,
                 Duration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, BusesOnly);
-
-        // todo remove this
-        request.setDiag(true);
 
         List<Journey> results = calculator.calculateRouteAsList(KnownLocality.Macclesfield, KnownLocality.Shudehill, request);
         assertFalse(results.isEmpty());

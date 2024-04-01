@@ -109,6 +109,12 @@ public class JourneyRequest {
         return this;
     }
 
+    @SuppressWarnings("unused")
+    public void setCachingDisabled(boolean flag) {
+        // aids with debugging and performance tuning
+        this.cachingDisabled = flag;
+    }
+
     public Duration getMaxJourneyDuration() {
         return maxJourneyDuration;
     }
@@ -173,8 +179,5 @@ public class JourneyRequest {
         return cachingDisabled;
     }
 
-    public void setCachingDisabled(boolean disabled) {
-        // aids with debugging and performance tuning
-        this.cachingDisabled = disabled;
-    }
+
 }
