@@ -80,7 +80,6 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     private ProvidesNow providesNow;
     private Duration maxInitialWait;
     private MutableGraphTransaction txn;
-    private GraphNode startNode;
     private LocationSet<Station> destinationStations;
     private TramTime queryTime;
 
@@ -123,7 +122,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         destinationNodeId = GraphNodeId.TestOnly(88L);
         startNodeId = GraphNodeId.TestOnly(128L);
-        startNode = createMock(GraphNode.class);
+        GraphNode startNode = createMock(GraphNode.class);
 
         long maxNumberOfJourneys = 2;
         queryTime = TramTime.of(8, 15);
@@ -258,9 +257,18 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     @Test
     void shouldStopIfNotRunning() {
 
-        resetAll();
+        final EnumSet<GraphLabel> labels = EnumSet.of(HOUR);
+        EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
+
         BranchState<JourneyState> branchState = new TestBranchState();
         EasyMock.expect(providesNow.getInstant()).andStubReturn(Instant.now());
+
+        JourneyState journeyState = createMock(JourneyState.class);
+        EasyMock.expect(journeyState.getTraversalStateType()).andStubReturn(TraversalStateType.PlatformState);
+        journeyState.approxPosition();
+        EasyMock.expectLastCall().andStubReturn(TramStations.ExchangeSquare.getId());
+
+        branchState.setState(journeyState);
 
         replayAll();
         TramRouteEvaluator evaluator = getEvaluatorForTest(destinationNodeId, false);

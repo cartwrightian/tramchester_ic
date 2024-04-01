@@ -81,10 +81,10 @@ public class PreviousVisits implements ReportsCacheStats {
             return;
         }
 
-        if (labels.contains(GraphLabel.ROUTE_STATION)) {
-            recordRouteStationVisitIfUseful(reason, id, journeyState);
-            return;
-        }
+//        if (labels.contains(GraphLabel.ROUTE_STATION)) {
+//            recordRouteStationVisitIfUseful(reason, id, journeyState);
+//            return;
+//        }
 
         if (labels.contains(GraphLabel.SERVICE)) {
             if (reasonCode == NotOnQueryDate) {
