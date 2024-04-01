@@ -7,7 +7,7 @@ import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.*;
 import com.tramchester.repository.postcodes.PostcodeRepository;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 @LazySingleton
 public class LocationRepository {

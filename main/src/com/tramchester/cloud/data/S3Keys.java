@@ -2,7 +2,7 @@ package com.tramchester.cloud.data;
 
 import com.tramchester.config.TramchesterConfig;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;

@@ -3,7 +3,7 @@ package com.tramchester.domain.time;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.places.StationWalk;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;

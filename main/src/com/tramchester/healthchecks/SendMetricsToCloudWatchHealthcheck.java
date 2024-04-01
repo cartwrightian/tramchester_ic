@@ -5,7 +5,7 @@ import com.tramchester.cloud.SendMetricsToCloudWatch;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.ServiceTimeLimits;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 @LazySingleton
 public class SendMetricsToCloudWatchHealthcheck extends TramchesterHealthCheck {

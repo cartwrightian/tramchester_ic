@@ -9,7 +9,7 @@ import com.tramchester.domain.presentation.DTO.diagnostics.StationDiagnosticsDTO
 import com.tramchester.domain.presentation.DTO.diagnostics.StationDiagnosticsLinkDTO;
 import org.apache.commons.lang3.tuple.Pair;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;

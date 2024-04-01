@@ -12,7 +12,7 @@ import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.presentation.StationNote;
 import tech.units.indriya.unit.Units;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;

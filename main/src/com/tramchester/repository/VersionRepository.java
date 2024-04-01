@@ -4,7 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.presentation.Version;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import static java.lang.String.format;
 

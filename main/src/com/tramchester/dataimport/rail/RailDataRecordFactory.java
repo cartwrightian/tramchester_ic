@@ -4,7 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.dataimport.rail.records.*;
 import com.tramchester.domain.time.ProvidesNow;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 @LazySingleton
 public class RailDataRecordFactory {

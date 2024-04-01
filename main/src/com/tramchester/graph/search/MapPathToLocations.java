@@ -12,7 +12,7 @@ import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
 import org.neo4j.graphdb.Path;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;

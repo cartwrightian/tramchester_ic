@@ -18,7 +18,7 @@ import software.amazon.awssdk.services.cloudwatch.model.StandardUnit;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.*;

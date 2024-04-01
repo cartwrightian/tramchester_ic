@@ -13,7 +13,7 @@ import tech.units.indriya.ComparableQuantity;
 import tech.units.indriya.quantity.Quantities;
 
 import javax.annotation.PostConstruct;
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import javax.measure.quantity.Speed;
 import java.time.Duration;
 import java.util.List;

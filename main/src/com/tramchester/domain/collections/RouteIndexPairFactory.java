@@ -3,7 +3,7 @@ package com.tramchester.domain.collections;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.repository.NumberOfRoutes;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
 

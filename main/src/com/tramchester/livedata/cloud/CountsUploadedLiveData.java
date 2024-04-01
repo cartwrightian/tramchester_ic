@@ -6,7 +6,7 @@ import com.tramchester.livedata.domain.DTO.archived.ArchivedStationDepartureInfo
 import com.tramchester.metrics.HasMetrics;
 import com.tramchester.metrics.RegistersMetrics;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.stream.Stream;

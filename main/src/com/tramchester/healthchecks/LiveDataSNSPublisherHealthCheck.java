@@ -4,7 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.ServiceTimeLimits;
 import com.tramchester.livedata.tfgm.LiveDataSNSPublisher;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 @LazySingleton
 public class LiveDataSNSPublisherHealthCheck extends TramchesterHealthCheck {

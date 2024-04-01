@@ -22,7 +22,7 @@ import software.amazon.awssdk.services.s3.model.*;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.io.*;
 import java.net.URI;
 import java.nio.file.Files;

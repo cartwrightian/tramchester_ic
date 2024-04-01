@@ -13,7 +13,7 @@ import com.tramchester.livedata.domain.DTO.archived.ArchivedStationDepartureInfo
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.util.Collections;
 import java.util.List;
 
