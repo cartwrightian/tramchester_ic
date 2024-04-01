@@ -117,7 +117,7 @@ dependencies {
             'org.junit.platform:junit-platform-launcher:1.10.2',
             'org.assertj:assertj-core:3.25.3',
             'org.easymock:easymock:5.2.0',
-            'org.seleniumhq.selenium:selenium-java:3.141.59',
+            'org.seleniumhq.selenium:selenium-java:4.19.1',
             'org.hamcrest:hamcrest:2.2'
 
     // cxf complains about missing conduit without this
