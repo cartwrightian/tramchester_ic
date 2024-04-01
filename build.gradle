@@ -101,7 +101,7 @@ dependencies {
     implementation("software.amazon.awssdk:sns:$awsSdkVersion")
     implementation("software.amazon.awssdk:sqs:$awsSdkVersion")
 
-    // todo replace with maintained version, but dependency on cxfCodeGen
+    // todo replace with jakarta version, but used by governator and cxf code gen
     implementation 'javax.annotation:javax.annotation-api:1.3.2'
 
     implementation  'org.jetbrains:annotations:24.1.0'
@@ -123,7 +123,7 @@ dependencies {
 
     // cxf complains about missing conduit without this
     cxfCodegen 'org.apache.cxf:cxf-rt-transports-http:4.0.4'
-    // needed for cxf gen'ed code, missing from cxfCodegen dependencies
+    // needed for cxf gen'ed code, missing from cxfCodegen dependencies?
     implementation 'jakarta.xml.ws:jakarta.xml.ws-api:4.0.1'
     // for running the cxf generated code,  provide implementation of the SPI jakarta.xml.ws.spi.Provider
     runtimeOnly 'com.sun.xml.ws:jaxws-rt:4.0.2'
@@ -157,7 +157,7 @@ sourceSets {
 }
 
 cxfCodegen {
-    cxfVersion = "4.0.3"
+    cxfVersion = "4.0.4"
 }
 
 tasks.register("railLiveDataCodeGen", Wsdl2Java) {
