@@ -5,19 +5,13 @@ import com.tramchester.graph.search.diagnostics.ReasonCode;
 import java.util.EnumSet;
 
 public class CommonDiagnosticsDTO {
-    private final boolean pathTooLong;
-    private final boolean arrived;
+    private final EnumSet<ReasonCode> codes;
 
-    public CommonDiagnosticsDTO(EnumSet<ReasonCode> codes) {
-        pathTooLong = codes.contains(ReasonCode.PathTooLong);
-        arrived = codes.contains(ReasonCode.Arrived);
+    public CommonDiagnosticsDTO(final EnumSet<ReasonCode> codes) {
+        this.codes = codes;
     }
 
-    public boolean isPathTooLong() {
-        return pathTooLong;
-    }
-
-    public boolean isArrived() {
-        return arrived;
+    public EnumSet<ReasonCode> getCodes() {
+        return codes;
     }
 }

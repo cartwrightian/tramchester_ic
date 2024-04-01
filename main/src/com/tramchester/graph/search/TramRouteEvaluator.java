@@ -96,11 +96,6 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     @Override
     public Evaluation evaluate(final Path path, final BranchState<JourneyState> state) {
 
-        if (!running.isRunning()) {
-            logger.debug("Requested to stop");
-            return Evaluation.EXCLUDE_AND_PRUNE;
-        }
-
         final ImmutableJourneyState journeyState = state.getState();
 
         final GraphNode nextNode = txn.fromEnd(path);
@@ -109,6 +104,12 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         final EnumSet<GraphLabel> labels = nodeContentsRepository.getLabels(nextNode);
 
         final HowIGotHere howIGotHere = new HowIGotHere(journeyState, nextNode.getId(), getPreviousNodeSafe(last));
+
+        if (!running.isRunning()) {
+            logger.debug("Requested to stop");
+            reasons.recordReason(HeuristicsReasons.SearchStopped(howIGotHere));
+            return Evaluation.EXCLUDE_AND_PRUNE;
+        }
 
         // NOTE: This makes a significant impact on performance, without it algo explore the same
         // path again and again for the same time in the case where it is a valid time.

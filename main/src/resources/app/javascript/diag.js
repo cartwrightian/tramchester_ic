@@ -138,11 +138,15 @@ function addLinks(node, layer, origin, maxEdgeReasons) {
 }
 
 function getColour(item, defaultColour) {
-    if (item.arrived) {
+    const codes = item.codes;
+    if (codes.includes("Arrived") || codes.includes("ArrivedMoreChanges") || codes.includes("ArrivedLater")) {
         return "green";
     }
-    if (item.pathTooLong) {
+    if (codes.includes("PathTooLong") || codes.includes("SearchStopped") || codes.includes("TookTooLong")) {
         return "red";
+    }
+    if (codes.includes("HigherCost")) {
+        return "yellow";
     }
     return defaultColour;
 }

@@ -35,6 +35,7 @@ public enum ReasonCode {
 //    TimedOut,
     TooManyRouteChangesRequired,
     TooManyInterchangesRequired,
+    SearchStopped, // search was stopped for some reason i.e. time out
 
 //    CachedUNKNOWN,
     CachedNotAtHour,
@@ -69,7 +70,7 @@ public enum ReasonCode {
                     AlreadyDeparted, StationClosed, TooManyNeighbourConnections, RouteNotOnQueryDate,
                     ExchangeNotReachable, TooManyRouteChangesRequired, TooManyInterchangesRequired, AlreadySeenStation,
                     TransportModeWrong, SameTrip, DestinationUnavailableAtTime, AlreadySeenTime,
-                    ArrivedMoreChanges, ArrivedLater
+                    ArrivedMoreChanges, ArrivedLater, SearchStopped
                     -> Evaluation.EXCLUDE_AND_PRUNE;
             case OnTram, OnBus, OnTrain, NotOnVehicle, PreviousCacheMiss, NumWalkingConnectionsOk,
                     NeighbourConnectionsOk, OnShip, OnSubway, OnWalk, CachedNotAtHour,

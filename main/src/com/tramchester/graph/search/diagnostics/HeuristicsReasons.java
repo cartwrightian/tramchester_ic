@@ -13,7 +13,6 @@ import java.time.Duration;
 
 public class HeuristicsReasons {
 
-
     private static class SameTrip extends HeuristicsReasonWithID<Trip> {
         private SameTrip(final IdFor<Trip> tripId, final HowIGotHere path) {
             super(ReasonCode.SameTrip, path, tripId, false);
@@ -42,9 +41,18 @@ public class HeuristicsReasons {
         }
     }
 
+    private static class SearchStopped extends HeuristicReasonWithValidity {
+        protected SearchStopped(HowIGotHere howIGotHere) {
+            super(ReasonCode.SearchStopped, howIGotHere,false);
+        }
+    }
+
     ///////////////////////////////////
     /// convenience methods
 
+    public static HeuristicsReason SearchStopped(HowIGotHere howIGotHere) {
+        return new SearchStopped(howIGotHere);
+    }
 
     public static HeuristicsReason DoesNotRunOnQueryDate(final HowIGotHere path, final IdFor<Service> nodeServiceId) {
         return new DoesNotRunOnQueryDate(path, nodeServiceId);

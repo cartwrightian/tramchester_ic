@@ -346,15 +346,15 @@ class BusRouteCalculatorTest {
     }
 
     @Test
-    void shouldReproIssueWithSlowPerformanceShudehillToBroadheathAsda() {
+    void shouldReproIssueWithSlowPerformanceShudehillToBroadheath() {
         int maxChanges = 3;
 
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(9,40),
                 false, maxChanges, maxJourneyDuration, 3, getRequestedModes());
 
-        StationGroup nearAsdaStops = KnownLocality.Broadheath.from(stationGroupsRepository);
+        StationGroup broadheath = KnownLocality.Broadheath.from(stationGroupsRepository);
 
-        List<Journey> journeys = calculator.calculateRouteAsList(shudehillLocality, nearAsdaStops, journeyRequest);
+        List<Journey> journeys = calculator.calculateRouteAsList(shudehillLocality, broadheath, journeyRequest);
         assertFalse(journeys.isEmpty());
     }
 
