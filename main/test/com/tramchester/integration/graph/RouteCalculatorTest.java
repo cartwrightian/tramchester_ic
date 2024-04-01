@@ -147,8 +147,10 @@ public class RouteCalculatorTest {
         final TramTime originalQueryTime = TramTime.of(9, 0);
         JourneyRequest journeyRequest = new JourneyRequest(when, originalQueryTime, false, 1,
                 maxJourneyDuration, maxNumResults, requestedModes);
-        journeyRequest.setDiag(true);
-        journeyRequest.setCachingDisabled(true);
+
+        //journeyRequest.setDiag(true);
+        //journeyRequest.setCachingDisabled(true);
+
         List<Journey> journeys = calculator.calculateRouteAsList(TraffordBar, Altrincham, journeyRequest);
         assertFalse(journeys.isEmpty());
     }

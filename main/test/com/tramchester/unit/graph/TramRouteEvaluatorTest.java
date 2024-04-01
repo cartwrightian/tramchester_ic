@@ -155,7 +155,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     }
 
     @NotNull
-    private NotStartedState getNotStartedState(GraphNode startNode) {
+    private NotStartedState getNotStartedState(final GraphNodeId startNodeId) {
 
         TramDate queryDate = TestEnv.testDay();
         TowardsDestination towardsDestination =  new TowardsDestination(destinationStations);
@@ -165,7 +165,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         TraversalStateFactory traversalStateFactory = new TraversalStateFactory(builderParams);
 
         final TraversalOps traversalOps = new TraversalOps(txn, contentsRepository, tripRepository);
-        return new NotStartedState(traversalOps, traversalStateFactory, startNode, txn);
+        return new NotStartedState(traversalOps, traversalStateFactory, startNodeId, txn);
     }
 
     @NotNull
@@ -348,7 +348,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         BranchState<JourneyState> state = new TestBranchState();
 
         TramTime time = TramTime.of(8, 15);
-        NotStartedState traversalState = getNotStartedState(startNode);
+        NotStartedState traversalState = getNotStartedState(startNodeId);
         final JourneyState journeyState = new JourneyState(time, traversalState);
         state.setState(journeyState);
 
@@ -373,7 +373,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         BranchState<JourneyState> state = new TestBranchState();
 
         TramTime time = TramTime.of(8, 15);
-        NotStartedState traversalState = getNotStartedState(startNode);
+        NotStartedState traversalState = getNotStartedState(startNodeId);
         final JourneyState journeyState = new JourneyState(time, traversalState);
         state.setState(journeyState);
 
@@ -398,7 +398,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         BranchState<JourneyState> branchState = new TestBranchState();
         TramTime time = TramTime.of(8, 15);
-        NotStartedState traversalState = getNotStartedState(startNode);
+        NotStartedState traversalState = getNotStartedState(startNodeId);
         final JourneyState journeyState = new JourneyState(time, traversalState);
         branchState.setState(journeyState);
 
@@ -449,7 +449,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(serviceHeuristics.checkServiceDateAndTime(node, howIGotHere, reasons, time, 13)).
                 andReturn(HeuristicsReasons.DoesNotRunOnQueryDate(howIGotHere, serviceId));
 
-        NotStartedState traversalState = getNotStartedState(startNode);
+        NotStartedState traversalState = getNotStartedState(startNodeId);
         final JourneyState journeyState = new JourneyState(time, traversalState);
         branchState.setState(journeyState);
 
@@ -533,7 +533,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
                 andStubReturn(createValidReason(TransportModeOk));
 
         TramTime time = TramTime.of(8, 15);
-        NotStartedState traversalState = getNotStartedState(startNode);
+        NotStartedState traversalState = getNotStartedState(startNodeId);
         JourneyState journeyState = new JourneyState(time, traversalState);
         journeyState.board(TransportMode.Tram, node, true);
         branchState.setState(journeyState);
@@ -580,7 +580,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
                 andStubReturn(createValidReason(TransportModeOk));
 
         TramTime time = TramTime.of(8, 15);
-        NotStartedState traversalState = getNotStartedState(startNode);
+        NotStartedState traversalState = getNotStartedState(startNodeId);
         JourneyState journeyState = new JourneyState(time, traversalState);
         journeyState.board(TransportMode.Bus, node, true);
         branchState.setState(journeyState);
@@ -637,7 +637,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(lastRelationship.isType(WALKS_TO_STATION)).andReturn(true);
 
         TramTime time = TramTime.of(8, 15);
-        NotStartedState traversalState = getNotStartedState(startNode);
+        NotStartedState traversalState = getNotStartedState(startNodeId);
         final JourneyState journeyState = new JourneyState(time, traversalState);
         branchState.setState(journeyState);
 
@@ -676,7 +676,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         final EnumSet<GraphLabel> labels = EnumSet.of(ROUTE_STATION);
         EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
 
-        NotStartedState traversalState = getNotStartedState(startNode);
+        NotStartedState traversalState = getNotStartedState(startNodeId);
         final JourneyState journeyState = new JourneyState(time, traversalState);
         branchState.setState(journeyState);
 
@@ -738,7 +738,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(serviceHeuristics.checkNumberChanges(0, howIGotHere, reasons)).
                 andStubReturn(HeuristicsReasons.TooManyChanges(howIGotHere, 5));
 
-        NotStartedState traversalState = getNotStartedState(startNode);
+        NotStartedState traversalState = getNotStartedState(startNodeId);
         final JourneyState journeyState = new JourneyState(time, traversalState);
         branchState.setState(journeyState);
 
@@ -778,7 +778,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         final EnumSet<GraphLabel> labels = EnumSet.of(HOUR);
         EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
 
-        NotStartedState traversalState = getNotStartedState(startNode);
+        NotStartedState traversalState = getNotStartedState(startNodeId);
         TramTime time = TramTime.of(8, 15);
 
         final JourneyState journeyState = new JourneyState(time, traversalState);
@@ -806,7 +806,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     void shouldExcludeIfServiceNotCorrectMinute() throws TramchesterException {
         BranchState<JourneyState> branchState = new TestBranchState();
 
-        NotStartedState traversalState = getNotStartedState(startNode);
+        NotStartedState traversalState = getNotStartedState(startNodeId);
         TramTime time = TramTime.of(8, 15);
         JourneyState journeyState = new JourneyState(time, traversalState);
 
@@ -853,7 +853,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         IdFor<Trip> tripId = MutableTrip.createId("tripId1");
 
-        NotStartedState traversalState = getNotStartedState(startNode);
+        NotStartedState traversalState = getNotStartedState(startNodeId);
         TramTime time = TramTime.of(8, 15);
         JourneyState journeyState = new JourneyState(time, traversalState);
 
@@ -916,7 +916,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
 
         TramTime time = TramTime.of(8, 15);
-        NotStartedState traversalState = getNotStartedState(startNode);
+        NotStartedState traversalState = getNotStartedState(startNodeId);
         final JourneyState journeyState = new JourneyState(time, traversalState);
         branchState.setState(journeyState);
 

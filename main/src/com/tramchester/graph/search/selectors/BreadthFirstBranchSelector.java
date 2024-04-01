@@ -51,7 +51,7 @@ public class BreadthFirstBranchSelector implements BranchSelector {
             return theQueue.poll();
         }
 
-        public void addBranch(TraversalBranch next) {
+        public void addBranch(final TraversalBranch next) {
             theQueue.add(next);
         }
 
@@ -62,6 +62,7 @@ public class BreadthFirstBranchSelector implements BranchSelector {
 
             @Override
             public int compare(final TraversalBranch branchA, final TraversalBranch branchB) {
+                // GraphState -> JourneyState -> TraversalState
                 final ImmutableJourneyState journeyStateA = (ImmutableJourneyState) branchA.state();
                 final ImmutableJourneyState journeyStateB = (ImmutableJourneyState) branchB.state();
 

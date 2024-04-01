@@ -21,7 +21,6 @@ public interface NodeContentsRepository  {
     IdFor<Trip> getTripId(GraphNode node);
 
     TramTime getTime(GraphNode node);
-//    int getHour(GraphNode node);
 
     IdFor<Trip> getTripId(GraphRelationship relationship);
     Duration getCost(GraphRelationship lastRelationship);

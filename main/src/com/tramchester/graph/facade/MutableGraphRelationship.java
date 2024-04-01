@@ -196,6 +196,11 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
         return getStartNode(txn).getId();
     }
 
+    @Override
+    public GraphNodeId getEndNodeId(final GraphTransaction txn) {
+        return getEndNode(txn).getId();
+    }
+
     public EnumSet<TransportMode> getTransportModes() {
         // todo can this be stored direct now?
         if (!relationship.hasProperty(TRANSPORT_MODES.getText())) {
@@ -282,11 +287,6 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
     @Override
     public IdFor<StationGroup> getStationGroupId() {
         return getIdFor(StationGroup.class, relationship.getEndNode());
-    }
-
-    @Override
-    public GraphNodeId getEndNodeId(final GraphTransaction txn) {
-        return txn.createNodeId(relationship.getEndNode());
     }
 
     Relationship getRelationship() {

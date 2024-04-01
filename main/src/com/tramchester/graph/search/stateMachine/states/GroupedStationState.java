@@ -64,7 +64,7 @@ public class GroupedStationState extends TraversalState {
     private GroupedStationState(ImmutableTraversalState parent, final JourneyStateUpdate journeyStateUpdate,
                                 Stream<ImmutableGraphRelationship> relationships, Duration cost,
                                 Towards<GroupedStationState> builder, GraphNode graphNode) {
-        super(parent, relationships, cost, builder.getDestination(), graphNode);
+        super(parent, relationships, cost, builder.getDestination(), graphNode.getId());
         final IdFor<StationGroup> stationGroupdId = graphNode.getStationGroupId();
         journeyStateUpdate.seenStationGroup(stationGroupdId);
     }

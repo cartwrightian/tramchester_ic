@@ -1,6 +1,7 @@
 package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
@@ -10,8 +11,8 @@ import java.time.Duration;
 public class NotStartedState extends TraversalState {
 
     public NotStartedState(final TraversalOps traversalOps, final TraversalStateFactory traversalStateFactory,
-                           final GraphNode graphNode, GraphTransaction txn) {
-        super(traversalOps, traversalStateFactory, TraversalStateType.NotStartedState, graphNode, txn);
+                           final GraphNodeId graphNodeId, GraphTransaction txn) {
+        super(traversalOps, traversalStateFactory, TraversalStateType.NotStartedState, graphNodeId, txn);
     }
 
     @Override

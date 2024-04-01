@@ -65,7 +65,7 @@ public class ServiceState extends TraversalState implements HasTowardsStationId 
 
     private ServiceState(final TraversalState parent, final Stream<ImmutableGraphRelationship> relationships,
                          final Duration cost, final Towards<ServiceState> builder, GraphNode serviceNode, boolean depthFirst, int queryHour) {
-        super(parent, relationships, cost, builder.getDestination(), serviceNode);
+        super(parent, relationships, cost, builder.getDestination(), serviceNode.getId());
         this.queryHour = queryHour;
         this.depthFirst = depthFirst;
         this.towardsStationId = serviceNode.getTowardsStationId();

@@ -13,6 +13,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
@@ -70,7 +71,9 @@ class JourneyStateTest extends EasyMockSupport {
         final TraversalOps traversalOps = new TraversalOps(txn, nodeContentsRepository, tripRepository
         );
 
-        traversalState = new NotStartedState(traversalOps, traversalStateFactory, node, txn);
+        GraphNodeId startNodeId = GraphNodeId.TestOnly(88842L);
+
+        traversalState = new NotStartedState(traversalOps, traversalStateFactory, startNodeId, txn);
     }
 
     @Test

@@ -14,7 +14,7 @@ public class GraphNodeId {
 
     // NOTE: labels not provided unless DB diagnostics set to true
 
-    GraphNodeId(String internalId, EnumSet<GraphLabel> labels) {
+    GraphNodeId(final String internalId, final EnumSet<GraphLabel> labels) {
         // todo performance, intern this id?
         this.internalId = internalId;
         this.labels = labels;
@@ -25,6 +25,7 @@ public class GraphNodeId {
         return new GraphNodeId(Long.toString(l), EnumSet.noneOf(GraphLabel.class));
     }
 
+    // note: the majority of time should be hitting: this == o
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

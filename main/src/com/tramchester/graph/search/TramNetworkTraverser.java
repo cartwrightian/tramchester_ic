@@ -76,7 +76,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         final TraversalOps traversalOps = new TraversalOps(txn, nodeContentsRepository, tripRepository);
 
         final NotStartedState traversalState = new NotStartedState(traversalOps, traversalStateFactory,
-                startNode, txn);
+                startNode.getId(), txn);
         final InitialBranchState<JourneyState> initialJourneyState = JourneyState.initialState(actualQueryTime, traversalState);
 
         if (fullLogging) {
@@ -114,10 +114,10 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     @Override
     public ResourceIterable<Relationship> expand(final Path path, final BranchState<JourneyState> graphState) {
         // GraphState -> JourneyState -> TraversalState
-        final ImmutableJourneyState currentState = graphState.getState();
-        final ImmutableTraversalState traversalState = currentState.getTraversalState();
+        final ImmutableJourneyState currentJourneyState = graphState.getState();
+        final ImmutableTraversalState currentTraversalState = currentJourneyState.getTraversalState();
 
-        final JourneyState journeyStateForChildren = JourneyState.fromPrevious(currentState);
+        final JourneyState journeyStateForChildren = JourneyState.fromPrevious(currentJourneyState);
 
         final GraphRelationship lastRelationship = txn.lastFrom(path);
 
@@ -126,7 +126,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
             cost = nodeContentsRepository.getCost(lastRelationship);
 
             if (Durations.greaterThan(cost, Duration.ZERO)) {
-                final Duration totalCost = currentState.getTotalDurationSoFar();
+                final Duration totalCost = currentJourneyState.getTotalDurationSoFar();
                 final Duration total = totalCost.plus(cost);
                 journeyStateForChildren.updateTotalCost(total);
             }
@@ -143,7 +143,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
 
         final EnumSet<GraphLabel> labels = nodeContentsRepository.getLabels(endPathNode);
 
-        final TraversalState traversalStateForChildren = traversalState.nextState(labels, endPathNode,
+        final ImmutableTraversalState traversalStateForChildren = currentTraversalState.nextState(labels, endPathNode,
                 journeyStateForChildren, cost);
 
         journeyStateForChildren.updateTraversalState(traversalStateForChildren);

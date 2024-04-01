@@ -53,7 +53,7 @@ public class DestinationState extends TraversalState
     }
 
     private DestinationState(TraversalState parent, Duration cost, GraphNode node, Towards<DestinationState> builder) {
-        super(parent, Stream.empty(), cost, builder.getDestination(), node);
+        super(parent, Stream.empty(), cost, builder.getDestination(), node.getId());
     }
 
     @Override

@@ -6,7 +6,6 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.geo.StationsBoxSimpleGrid;
 import com.tramchester.graph.search.ImmutableJourneyState;
 import com.tramchester.graph.search.JourneyState;
-import com.tramchester.graph.search.stateMachine.states.ImmutableTraversalState;
 import org.neo4j.graphdb.PathExpander;
 import org.neo4j.graphdb.traversal.BranchSelector;
 import org.neo4j.graphdb.traversal.TraversalBranch;
@@ -41,6 +40,7 @@ public class BreadthFirstBranchSelectorForGridSearch implements BranchSelector {
     }
 
     private static class TraversalBranchQueue {
+
         private final PriorityQueue<TraversalBranch> theQueue;
         private final Map<IdFor<Station>, StationsBoxSimpleGrid> stationToBox;
         private final StationsBoxSimpleGrid destination;
@@ -61,20 +61,21 @@ public class BreadthFirstBranchSelectorForGridSearch implements BranchSelector {
         }
 
         private class BranchComparator implements Comparator<TraversalBranch> {
+            // GraphState -> JourneyState -> TraversalState
 
             @Override
             public int compare(final TraversalBranch branchA, final TraversalBranch branchB) {
-                final ImmutableJourneyState stateA = (JourneyState) branchA.state();
-                final ImmutableJourneyState stateB = (JourneyState) branchB.state();
+                final ImmutableJourneyState journeyStateA = (JourneyState) branchA.state();
+                final ImmutableJourneyState journeyStateB = (JourneyState) branchB.state();
 
-                final ImmutableTraversalState traversalStateA = stateA.getTraversalState();
-                final ImmutableTraversalState traversalStateB = stateB.getTraversalState();
+//                final ImmutableTraversalState traversalStateA = journeyStateA.getTraversalState();
+//                final ImmutableTraversalState traversalStateB = journeyStateB.getTraversalState();
 
                 // only worth comparing on distance if not the same node
-                if (!traversalStateA.nodeId().equals(traversalStateB.nodeId())) {
-                    if(stateA.hasBegunJourney() && stateB.hasBegunJourney()) {
-                        final IdFor<? extends Location<?>> approxPositionA = stateA.approxPosition();
-                        final IdFor<? extends Location<?>> approxPositionB = stateB.approxPosition();
+                if (!journeyStateA.getNodeId().equals(journeyStateB.getNodeId())) {
+                    if(journeyStateA.hasBegunJourney() && journeyStateB.hasBegunJourney()) {
+                        final IdFor<? extends Location<?>> approxPositionA = journeyStateA.approxPosition();
+                        final IdFor<? extends Location<?>> approxPositionB = journeyStateB.approxPosition();
 
                         if (approxPositionA.getDomainType()== Station.class && approxPositionB.getDomainType()== Station.class) {
                             final StationsBoxSimpleGrid boxA = stationToBox.get(approxPositionA);
@@ -85,7 +86,7 @@ public class BreadthFirstBranchSelectorForGridSearch implements BranchSelector {
 
                     }
                 }
-                return stateA.getJourneyClock().compareTo(stateB.getJourneyClock());
+                return journeyStateA.getJourneyClock().compareTo(journeyStateB.getJourneyClock());
             }
 
             private int distance(final StationsBoxSimpleGrid current) {

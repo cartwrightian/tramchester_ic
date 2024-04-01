@@ -49,7 +49,10 @@ public class PreviousVisits implements ReportsCacheStats {
 
     @NotNull
     private <KEY, VALUE> Cache<KEY, VALUE> createCache(long maxCacheSize) {
-        return Caffeine.newBuilder().maximumSize(maxCacheSize).expireAfterAccess(CACHE_DURATION_MINS, TimeUnit.MINUTES).
+        // expireAfterWrite have better performance when lots of gets
+        return Caffeine.newBuilder().
+                maximumSize(maxCacheSize).
+                expireAfterWrite(CACHE_DURATION_MINS, TimeUnit.MINUTES).
                 recordStats().build();
     }
 

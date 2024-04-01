@@ -62,7 +62,7 @@ public class HourState extends TraversalState implements HasTowardsStationId {
 
     private HourState(final TraversalState parent, final Stream<ImmutableGraphRelationship> relationships,
                       final GraphNode node, IdFor<Station> towardsStationId, final Duration cost, final Towards<HourState> builder) {
-        super(parent, relationships, cost, builder.getDestination(), node);
+        super(parent, relationships, cost, builder.getDestination(), node.getId());
         this.towardsStationId = towardsStationId;
     }
 

@@ -39,8 +39,15 @@ public class MutableGraphTransaction implements GraphTransaction {
         txn.commit();
     }
 
-    public MutableGraphNode createNode(GraphLabel graphLabel) {
-        Node node = txn.createNode(graphLabel);
+    public MutableGraphNode createNode(final GraphLabel graphLabel) {
+        final Node node = txn.createNode(graphLabel);
+        return wrapNodeAsMutable(node);
+    }
+
+    public MutableGraphNode createNode(final EnumSet<GraphLabel> labels) {
+        final GraphLabel[] toApply = new GraphLabel[labels.size()];
+        labels.toArray(toApply);
+        final Node node = txn.createNode(toApply);
         return wrapNodeAsMutable(node);
     }
 
@@ -49,29 +56,22 @@ public class MutableGraphTransaction implements GraphTransaction {
     }
 
     @Override
-    public ImmutableGraphNode getNodeById(GraphNodeId nodeId) {
-        Node node = nodeId.getNodeFrom(txn);
+    public ImmutableGraphNode getNodeById(final GraphNodeId nodeId) {
+        final Node node = nodeId.getNodeFrom(txn);
         return wrapNodeAsImmutable(node);
     }
 
-    public MutableGraphNode getNodeByIdMutable(GraphNodeId nodeId) {
-        Node node = nodeId.getNodeFrom(txn);
+    public MutableGraphNode getNodeByIdMutable(final GraphNodeId nodeId) {
+        final Node node = nodeId.getNodeFrom(txn);
         return wrapNodeAsMutable(node);
     }
 
-    public ImmutableGraphRelationship getRelationshipById(GraphRelationshipId graphRelationshipId) {
-        Relationship relationship = graphRelationshipId.getRelationshipFrom(txn);
+    public ImmutableGraphRelationship getRelationshipById(final GraphRelationshipId graphRelationshipId) {
+        final Relationship relationship = graphRelationshipId.getRelationshipFrom(txn);
         if (relationship==null) {
             return null;
         }
         return wrapRelationship(relationship);
-    }
-
-    public MutableGraphNode createNode(Set<GraphLabel> labels) {
-        GraphLabel[] toApply = new GraphLabel[labels.size()];
-        labels.toArray(toApply);
-        Node node = txn.createNode(toApply);
-        return wrapNodeAsMutable(node);
     }
 
     @Override
@@ -84,15 +84,15 @@ public class MutableGraphTransaction implements GraphTransaction {
     }
 
     @Override
-    public boolean hasAnyMatching(GraphLabel label, String field, String value) {
+    public boolean hasAnyMatching(final GraphLabel label, final String field, final String value) {
         Node node = txn.findNode(label, field, value);
         return node != null;
     }
 
     @Override
-    public boolean hasAnyMatching(GraphLabel graphLabel) {
-        ResourceIterator<Node> found = txn.findNodes(graphLabel);
-        List<Node> nodes = found.stream().toList();
+    public boolean hasAnyMatching(final GraphLabel graphLabel) {
+        final ResourceIterator<Node> found = txn.findNodes(graphLabel);
+        final List<Node> nodes = found.stream().toList();
         return !nodes.isEmpty();
     }
 
@@ -112,8 +112,8 @@ public class MutableGraphTransaction implements GraphTransaction {
         return wrapNodeAsImmutable(node);
     }
 
-    private MutableGraphNode findNodeMutable(GraphLabel label, String key, String value) {
-        Node node = txn.findNode(label, key, value);
+    private MutableGraphNode findNodeMutable(final GraphLabel label, final String key, final String value) {
+        final Node node = txn.findNode(label, key, value);
         if (node==null) {
             return null;
         }
@@ -152,9 +152,9 @@ public class MutableGraphTransaction implements GraphTransaction {
         return routeStationNode.getRelationships(this, direction, TransportRelationshipTypes.forPlanning()).toList();
     }
 
-    public MutableGraphNode wrapNode(final Node endNode) {
-        final GraphNodeId graphNodeId = idFactory.getIdFor(endNode);
-        return new MutableGraphNode(endNode, graphNodeId);
+    public MutableGraphNode wrapNode(final Node node) {
+        final GraphNodeId graphNodeId = idFactory.getIdFor(node);
+        return new MutableGraphNode(node, graphNodeId);
     }
 
     public MutableGraphNode wrapNodeAsMutable(final Node endNode) {
@@ -220,7 +220,6 @@ public class MutableGraphTransaction implements GraphTransaction {
 
     public GraphNodeId createNodeId(final Node endNode) {
         return idFactory.getIdFor(endNode);
-        //return idFactory.getNodeIdFor(endNode.getElementId());
     }
 
     @Override

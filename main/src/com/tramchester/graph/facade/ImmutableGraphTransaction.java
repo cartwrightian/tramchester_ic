@@ -61,17 +61,17 @@ public class ImmutableGraphTransaction implements GraphTransaction  {
     }
 
     @Override
-    public Iterable<ImmutableGraphNode> iter(Iterable<Node> iterable) {
+    public Iterable<ImmutableGraphNode> iter(final Iterable<Node> iterable) {
         return underlying.iter(iterable);
     }
 
     @Override
-    public ImmutableGraphRelationship wrapRelationship(Relationship relationship) {
+    public ImmutableGraphRelationship wrapRelationship(final Relationship relationship) {
         return underlying.wrapRelationship(relationship);
     }
 
     @Override
-    public GraphNode wrapNode(Node node) {
+    public GraphNode wrapNode(final Node node) {
         return underlying.wrapNodeAsImmutable(node);
     }
 

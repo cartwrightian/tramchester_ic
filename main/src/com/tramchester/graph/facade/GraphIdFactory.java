@@ -9,13 +9,13 @@ import java.util.EnumSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-/// NOTE : TODO use a caffeine based cache?
+/// TODO use a caffeine based cache?
 public class GraphIdFactory {
     private final ConcurrentMap<String, GraphNodeId> nodeIds;
     private final ConcurrentMap<String, GraphRelationshipId> relationshipIds;
     private final boolean diagnostics;
 
-    public GraphIdFactory(GraphDBConfig graphDBConfig) {
+    public GraphIdFactory(final GraphDBConfig graphDBConfig) {
         nodeIds = new ConcurrentHashMap<>();
         relationshipIds = new ConcurrentHashMap<>();
         diagnostics = graphDBConfig.enableDiagnostics();
@@ -38,8 +38,4 @@ public class GraphIdFactory {
         return relationshipIds.computeIfAbsent(internalId, GraphRelationshipId::new);
     }
 
-    @Deprecated
-    GraphNodeId getNodeIdFor(final String legacyId) {
-        return nodeIds.computeIfAbsent(legacyId, internalId -> new GraphNodeId(internalId, EnumSet.noneOf(GraphLabel.class)));
-    }
 }

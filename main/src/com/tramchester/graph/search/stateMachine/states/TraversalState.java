@@ -18,6 +18,8 @@ import java.util.stream.Stream;
 
 public abstract class TraversalState extends EmptyTraversalState implements ImmutableTraversalState, NodeId {
 
+    // GraphState -> JourneyState -> TraversalState
+
     protected final TraversalStateFactory traversalStateFactory;
     private final TraversalOps traversalOps;
     protected final GraphTransaction txn;
@@ -25,18 +27,18 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
     private final Stream<ImmutableGraphRelationship> outbounds;
     private final Duration costForLastEdge;
     private final Duration parentCost;
-    private final GraphNode graphNode;
+    private final GraphNodeId graphNodeId;
 
-    // initial only
+    // initial only, at beginning of search
     protected TraversalState(final TraversalOps traversalOps, final TraversalStateFactory traversalStateFactory,
-                             final TraversalStateType stateType, final GraphNode graphNode,
+                             final TraversalStateType stateType, final GraphNodeId graphNodeId,
                              final GraphTransaction txn) {
         super(stateType);
         this.traversalOps = traversalOps;
         this.txn = txn;
         this.traversalStateFactory = traversalStateFactory;
 
-        this.graphNode = graphNode;
+        this.graphNodeId = graphNodeId;
         this.costForLastEdge = Duration.ZERO;
         this.parentCost = Duration.ZERO;
         this.outbounds = Stream.empty();
@@ -46,7 +48,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
     }
 
     protected TraversalState(final ImmutableTraversalState parent, final Stream<ImmutableGraphRelationship> outbounds, final Duration costForLastEdge,
-                             final TraversalStateType stateType, final GraphNode graphNode) {
+                             final TraversalStateType stateType, final GraphNodeId graphNodeId) {
         super(stateType);
         this.traversalOps = parent.getTraversalOps();
         this.txn = parent.getTransaction();
@@ -56,7 +58,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         this.costForLastEdge = costForLastEdge;
         this.parentCost = parent.getTotalDuration();
 
-        this.graphNode = graphNode;
+        this.graphNodeId = graphNodeId;
     }
 
     @Override
@@ -85,7 +87,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
 
     @Override
     public GraphNodeId nodeId() {
-        return graphNode.getId();
+        return graphNodeId;
     }
 
     public TraversalState nextState(final EnumSet<GraphLabel> nodeLabels, final GraphNode node,
@@ -216,7 +218,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
     public String toString() {
         return "TraversalState{" +
                 "costForLastEdge=" + costForLastEdge +
-                "nodeId=" + graphNode.getId() +
+                "nodeId=" + graphNodeId +
                 ", parentCost=" + parentCost + System.lineSeparator() +
                 '}';
     }

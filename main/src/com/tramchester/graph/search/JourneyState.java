@@ -24,17 +24,19 @@ import org.slf4j.LoggerFactory;
 import java.time.Duration;
 
 public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
+
+    // GraphState -> JourneyState -> TraversalState
+
     private static final Logger logger = LoggerFactory.getLogger(JourneyState.class);
 
     private final CoreState coreState;
-
     private Duration journeyOffset;
     private TramTime boardingTime;
-    private TraversalState traversalState;
+    private ImmutableTraversalState traversalState;
     private final IdSet<Trip> tripsDone;
     private IdFor<Trip> currentTrip;
 
-    public JourneyState(TramTime queryTime, TraversalState traversalState) {
+    public JourneyState(final TramTime queryTime, final TraversalState traversalState) {
         coreState = new CoreState(queryTime);
 
         this.traversalState = traversalState;
@@ -43,7 +45,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         currentTrip = Trip.InvalidId();
     }
 
-    public static JourneyState fromPrevious(ImmutableJourneyState previousState) {
+    public static JourneyState fromPrevious(final ImmutableJourneyState previousState) {
         return new JourneyState((JourneyState) previousState);
     }
 
@@ -75,8 +77,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         };
     }
 
-
-    public void updateTraversalState(final TraversalState traversalState) {
+    public void updateTraversalState(final ImmutableTraversalState traversalState) {
         this.traversalState = traversalState;
     }
 

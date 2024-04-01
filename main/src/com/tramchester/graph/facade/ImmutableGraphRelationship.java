@@ -29,7 +29,7 @@ import java.util.stream.Stream;
 public class ImmutableGraphRelationship implements GraphRelationship {
     private final MutableGraphRelationship underlying;
 
-    public ImmutableGraphRelationship(MutableGraphRelationship underlying) {
+    public ImmutableGraphRelationship(final MutableGraphRelationship underlying) {
         this.underlying = underlying;
     }
 
@@ -136,7 +136,7 @@ public class ImmutableGraphRelationship implements GraphRelationship {
     }
 
     @Override
-    public GraphNodeId getEndNodeId(GraphTransaction txn) {
+    public GraphNodeId getEndNodeId(final GraphTransaction txn) {
         return underlying.getEndNodeId(txn);
     }
 

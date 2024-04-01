@@ -52,7 +52,7 @@ public class LocationDistances {
             return find.orElse(Long.MAX_VALUE);
         }
 
-        public int compare(IdFor<? extends Location<?>> locationA, IdFor<? extends Location<?>> locationB) {
+        public int compare(final IdFor<? extends Location<?>> locationA, final IdFor<? extends Location<?>> locationB) {
             final long distanceA = toStation(locationA);
             final long distanceB = toStation(locationB);
 

@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
@@ -124,20 +125,27 @@ public class RouteCalculatorTestFacade {
     private static class TimesOutRunner implements Running {
         private final Instant creationTime;
         private final Duration timeout;
+        private final AtomicBoolean timedOut;
 
         private TimesOutRunner(Duration timeout) {
             this.timeout = timeout;
             this.creationTime = Instant.now();
+            timedOut = new AtomicBoolean(false);
         }
 
         @Override
         public boolean isRunning() {
+            if (timedOut.get()) {
+                return false;
+            }
+
             final Instant current = Instant.now();
             final Duration duration = Duration.between(creationTime, current);
 
             final boolean carryOn = duration.compareTo(timeout) < 0;
             if (!carryOn) {
                 logger.warn("Timeout signaled for " + duration);
+                timedOut.set(true);
             }
             return carryOn;
         }

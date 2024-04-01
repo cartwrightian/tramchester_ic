@@ -13,9 +13,7 @@ public abstract class RouteStationState extends TraversalState {
     protected RouteStationState(ImmutableTraversalState parent, Stream<ImmutableGraphRelationship> outbounds,
                                 JourneyStateUpdate journeyState,
                                 Duration costForLastEdge, TowardsRouteStation<?> builder, GraphNode graphNode) {
-        super(parent, outbounds, costForLastEdge, builder.getDestination(), graphNode);
+        super(parent, outbounds, costForLastEdge, builder.getDestination(), graphNode.getId());
         journeyState.seenRouteStation(graphNode.getStationId());
-
-
     }
 }

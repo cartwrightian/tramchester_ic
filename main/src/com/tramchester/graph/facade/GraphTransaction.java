@@ -19,6 +19,8 @@ public interface GraphTransaction extends AutoCloseable {
 
     GraphNode wrapNode(Node node);
 
+    GraphNodeId createNodeId(Node node);
+
     ImmutableGraphNode getNodeById(GraphNodeId nodeId);
 
     Stream<ImmutableGraphNode> findNodes(GraphLabel graphLabel);
@@ -42,8 +44,6 @@ public interface GraphTransaction extends AutoCloseable {
     ImmutableGraphRelationship lastFrom(Path path);
 
     ImmutableGraphNode fromStart(Path path);
-
-    GraphNodeId createNodeId(Node node);
 
     ImmutableGraphNode getStartNode(Relationship relationship);
 

@@ -35,7 +35,7 @@ public class ImmutableGraphNode implements GraphNode {
     private final IdCache<RouteStation> routeStationId;
     private final GraphNodeId nodeId;
 
-    public ImmutableGraphNode(MutableGraphNode underlying) {
+    ImmutableGraphNode(final MutableGraphNode underlying) {
         this.underlying = underlying;
         this.nodeId = underlying.getId();
         stationId = new IdCache<>(Station.class);
@@ -45,12 +45,12 @@ public class ImmutableGraphNode implements GraphNode {
     }
 
     public static WeightedPath findSinglePath(PathFinder<WeightedPath> finder, GraphNode startNode, GraphNode endNode) {
-        Node start = getNodeFor(startNode);
-        Node end = getNodeFor(endNode);
+        final Node start = getNodeFor(startNode);
+        final Node end = getNodeFor(endNode);
         return finder.findSinglePath(start, end);
     }
 
-    private static Node getNodeFor(GraphNode graphNode) {
+    private static Node getNodeFor(final GraphNode graphNode) {
         if (graphNode instanceof ImmutableGraphNode) {
             return ((ImmutableGraphNode)graphNode).getNode();
         }
@@ -82,7 +82,7 @@ public class ImmutableGraphNode implements GraphNode {
     }
 
     @Override
-    public boolean hasLabel(GraphLabel graphLabel) {
+    public boolean hasLabel(final GraphLabel graphLabel) {
         return underlying.hasLabel(graphLabel);
     }
 

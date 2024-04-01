@@ -80,7 +80,7 @@ public class MapPathToStagesViaStates implements PathToStages {
 
         final ImmutableGraphNode startOfPath = txn.fromStart(path);
 
-        final TraversalState initial = new NotStartedState(traversalOps, stateFactory, startOfPath, txn);
+        final TraversalState initial = new NotStartedState(traversalOps, stateFactory, startOfPath.getId(), txn);
 
         final PathMapper pathMapper = new PathMapper(path, txn);
 

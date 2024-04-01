@@ -55,8 +55,10 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
 
         long numberOfNodes = numberOfNodesAndRelationshipsRepository.numberOfNodes();
 
-        labelCache = Caffeine.newBuilder().maximumSize(numberOfNodes * 3).
-                expireAfterAccess(10, TimeUnit.MINUTES).
+        // expire after write gives significany perf improvement, less work to do with each get
+        labelCache = Caffeine.newBuilder().
+                maximumSize(numberOfNodes * 3).
+                expireAfterWrite(10, TimeUnit.MINUTES).
                 initialCapacity(40000).
                 recordStats().build();
 
@@ -88,7 +90,8 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
     private <K, V> Cache<K, V> createCache(String name, long maximumSize) {
         // TODO cache expiry time into Config
         logger.info("Create " + name + " max size " + maximumSize);
-        return Caffeine.newBuilder().maximumSize(maximumSize).expireAfterAccess(30, TimeUnit.MINUTES).
+        return Caffeine.newBuilder().maximumSize(maximumSize).
+                expireAfterWrite(30, TimeUnit.MINUTES).
                 recordStats().build();
     }
 
