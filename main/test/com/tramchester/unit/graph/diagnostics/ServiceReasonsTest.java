@@ -79,7 +79,7 @@ public class ServiceReasonsTest extends EasyMockSupport {
 
         serviceReasons = new ServiceReasons(journeyRequest, time, providesLocalNow, failedJourneyDiagnostics);
 
-        HowIGotHere howIGotHere = createMock(HowIGotHere.class);
+        final HowIGotHere howIGotHere = createMock(HowIGotHere.class);
 
         GraphNodeId nodeId = GraphNodeId.TestOnly(42);
         EasyMock.expect(howIGotHere.getEndNodeId()).andStubReturn(nodeId);
@@ -106,11 +106,17 @@ public class ServiceReasonsTest extends EasyMockSupport {
         EasyMock.expect(failedJourneyDiagnostics.recordFailedJourneys(reasons, destinations)).andReturn(someDiags);
 
         replayAll();
+        serviceReasons.recordVisit(howIGotHere);
         serviceReasons.recordReason(serviceReasonA);
         serviceReasons.recordReason(serviceReasonB);
+        Map<GraphNodeId, Integer> nodeVisits = serviceReasons.getNodeVisits();
 
         serviceReasons.reportReasons(txn, pathRequest, destinations);
         verifyAll();
+
+
+        assertEquals(1, nodeVisits.get(nodeId), nodeVisits.toString());
+
     }
 
     @Test
@@ -135,7 +141,6 @@ public class ServiceReasonsTest extends EasyMockSupport {
         HowIGotHere howIGotHereA = createMock(HowIGotHere.class);
         HowIGotHere howIGotHereB = createMock(HowIGotHere.class);
 
-//        Map<ReasonCode, Integer> reasons = serviceReasons.getReasons();
 
         GraphNodeId idA = GraphNodeId.TestOnly(42);
         GraphNodeId idB = GraphNodeId.TestOnly(98);
@@ -143,12 +148,10 @@ public class ServiceReasonsTest extends EasyMockSupport {
         EasyMock.expect(howIGotHereA.getEndNodeId()).andStubReturn(idA);
         EasyMock.expect(howIGotHereB.getEndNodeId()).andStubReturn(idB);
 
-
-//        assertFalse(reasons.containsKey(ReasonCode.TookTooLong));
-
         TramTime time = TramTime.of(18,35);
 
         replayAll();
+
         serviceReasons.recordReason(HeuristicsReasons.TookTooLong(time, howIGotHereA));
         serviceReasons.recordReason(HeuristicsReasons.TookTooLong(time, howIGotHereA));
         serviceReasons.recordReason(HeuristicsReasons.TookTooLong(time, howIGotHereA));
@@ -160,13 +163,6 @@ public class ServiceReasonsTest extends EasyMockSupport {
 
         assertEquals(3, reasons.get(ReasonCode.TookTooLong));
         assertEquals(1, reasons.get(ReasonCode.StationClosed));
-
-        Map<GraphNodeId, Integer> nodeVisits = serviceReasons.getNodeVisits();
-
-        assertEquals(2, nodeVisits.size());
-
-        assertEquals(3, nodeVisits.get(idA));
-        assertEquals(1, nodeVisits.get(idB));
 
         serviceReasons.logCounters();
 

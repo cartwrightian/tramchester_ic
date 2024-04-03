@@ -15,6 +15,7 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.NumberOfNodesAndRelationshipsRepository;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.facade.GraphNode;
@@ -62,10 +63,11 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
                            BetweenRoutesCostRepository routeToRouteCosts,
                            ClosedStationsRepository closedStationsRepository, RunningRoutesAndServices runningRoutesAndServices,
                            CacheMetrics cacheMetrics, BranchSelectorFactory branchSelectorFactory,
-                           StationAvailabilityRepository stationAvailabilityRepository, CreateJourneyDiagnostics failedJourneyDiagnostics) {
+                           StationAvailabilityRepository stationAvailabilityRepository, CreateJourneyDiagnostics failedJourneyDiagnostics,
+                           NumberOfNodesAndRelationshipsRepository countsNodes) {
         super(pathToStages, nodeOperations, graphDatabaseService,
                 providesNow, mapPathToLocations, transportData, config, transportData, routeToRouteCosts,
-                failedJourneyDiagnostics, stationAvailabilityRepository, true);
+                failedJourneyDiagnostics, stationAvailabilityRepository, true, countsNodes);
         this.config = config;
         this.createQueryTimes = createQueryTimes;
         this.closedStationsRepository = closedStationsRepository;

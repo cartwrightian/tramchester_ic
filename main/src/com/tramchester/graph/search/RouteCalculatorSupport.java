@@ -15,6 +15,7 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.NumberOfNodesAndRelationshipsRepository;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
@@ -58,6 +59,7 @@ public class RouteCalculatorSupport {
     private final CreateJourneyDiagnostics failedJourneyDiagnostics;
     private final StationAvailabilityRepository stationAvailabilityRepository;
     private final boolean fullLogging; // turn down logging for grid searches
+    private final NumberOfNodesAndRelationshipsRepository countsNodes;
 
     protected RouteCalculatorSupport(PathToStages pathToStages, NodeContentsRepository nodeContentsRepository,
                                      GraphDatabase graphDatabaseService,
@@ -65,7 +67,7 @@ public class RouteCalculatorSupport {
                                      StationRepository stationRepository, TramchesterConfig config, TripRepository tripRepository,
                                      BetweenRoutesCostRepository routeToRouteCosts,
                                      CreateJourneyDiagnostics failedJourneyDiagnostics, StationAvailabilityRepository stationAvailabilityRepository,
-                                     boolean fullLogging) {
+                                     boolean fullLogging, NumberOfNodesAndRelationshipsRepository countsNodes) {
         this.pathToStages = pathToStages;
         this.nodeContentsRepository = nodeContentsRepository;
         this.graphDatabaseService = graphDatabaseService;
@@ -78,6 +80,7 @@ public class RouteCalculatorSupport {
         this.failedJourneyDiagnostics = failedJourneyDiagnostics;
         this.stationAvailabilityRepository = stationAvailabilityRepository;
         this.fullLogging = fullLogging;
+        this.countsNodes = countsNodes;
     }
 
 
@@ -195,7 +198,8 @@ public class RouteCalculatorSupport {
     }
 
     protected PreviousVisits createPreviousVisits(final JourneyRequest journeyRequest) {
-        return new PreviousVisits(journeyRequest.getCachingDisabled());
+        boolean cacheDisabled = config.getDepthFirst() || journeyRequest.getCachingDisabled();
+        return new PreviousVisits(cacheDisabled, countsNodes);
     }
 
     @NotNull

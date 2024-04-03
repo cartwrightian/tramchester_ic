@@ -354,6 +354,11 @@ class BusRouteCalculatorTest {
 
         StationGroup broadheath = KnownLocality.Broadheath.from(stationGroupsRepository);
 
+        journeyRequest.setDiag(true);
+
+        // caching currently saves about 5 seconds out of 40 (Apr 2024)
+        //journeyRequest.setCachingDisabled(true);
+
         List<Journey> journeys = calculator.calculateRouteAsList(shudehillLocality, broadheath, journeyRequest);
         assertFalse(journeys.isEmpty());
     }

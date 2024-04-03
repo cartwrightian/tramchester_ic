@@ -80,6 +80,13 @@ public class ServiceReasons {
         reset();
     }
 
+
+    public void recordVisit(final HowIGotHere howIGotHere) {
+        if (diagnosticsEnabled) {
+            recordEndNodeVisit(howIGotHere);
+        }
+    }
+
     private void reset() {
         reasons.clear();
         reasonCodeStats.clear();
@@ -97,12 +104,17 @@ public class ServiceReasons {
 
         if (diagnosticsEnabled) {
             addReason(serviceReason);
-            recordEndNodeVisit(serviceReason.getHowIGotHere());
-        } else {
-            if (!serviceReason.isValid()) {
-                recordEndNodeVisit(serviceReason.getHowIGotHere());
-            }
         }
+
+        // was over-counting node visits
+//        if (diagnosticsEnabled) {
+//            addReason(serviceReason);
+//            recordEndNodeVisit(serviceReason.getHowIGotHere());
+//        } else {
+//            if (!serviceReason.isValid()) {
+//                recordEndNodeVisit(serviceReason.getHowIGotHere());
+//            }
+//        }
 
         incrementReasonCode(serviceReason.getReasonCode());
         return serviceReason;
@@ -185,17 +197,30 @@ public class ServiceReasons {
                 collect(Collectors.toSet());
 
         // Pair<Node, Number of Visits>
-        final Set<Pair<ImmutableGraphNode, Integer>> topVisits = nodeVisits.entrySet().stream().
+        final List<Pair<ImmutableGraphNode, Integer>> topVisits = nodeVisits.entrySet().stream().
                 filter(entry -> haveInvalidReasonCode.contains(entry.getKey())).
                 map(entry -> Pair.of(entry.getKey(), entry.getValue().get())).
-                //filter(entry -> entry.getValue() > THRESHHOLD_FOR_NUMBER_VISITS_DIAGS).
                 sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())).
                 limit(NUMBER_MOST_VISITED_NODES_TO_LOG).
                 map(entry -> Pair.of(txn.getNodeById(entry.getKey()), entry.getValue())).
-                collect(Collectors.toSet());
+                toList();
 
          topVisits.stream().map(pair -> Pair.of(nodeDetails(pair.getKey()), pair.getValue())).
                 forEach(entry -> logger.info("Visited " + entry.getKey() + " " + entry.getValue() + " times"));
+
+         topVisits.forEach(topVisit -> {
+             final GraphNodeId graphNodeId = topVisit.getKey().getId();
+             final List<ReasonCode> allReasonsForNode = reasons.stream().
+                     filter(reason -> reason.getHowIGotHere().getEndNodeId().equals(graphNodeId)).
+                     map(HeuristicsReason::getReasonCode).
+                     toList();
+
+             final Map<ReasonCode, Integer> countPerReason = allReasonsForNode.
+                     stream().collect(Collectors.toMap(reasonCode -> reasonCode, reason -> 1, Integer::sum));
+
+             logger.info("Reason codes counts for " + nodeDetails(topVisit.getKey()) + " " + countPerReason);
+
+         });
 
          topVisits.stream().map(Pair::getKey).forEach(this::reasonsAtNode);
 
@@ -275,11 +300,12 @@ public class ServiceReasons {
     }
 
     public Map<GraphNodeId, Integer> getNodeVisits() {
-        return nodeVisits.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, value -> value.getValue().get()));
-//        return new HashMap<>(nodeVisits);
+        return nodeVisits.entrySet().stream().
+                collect(Collectors.toMap(Map.Entry::getKey, value -> value.getValue().get()));
     }
 
     public boolean getDiagnosticsEnabled() {
         return diagnosticsEnabled;
     }
+
 }

@@ -105,6 +105,8 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
         final HowIGotHere howIGotHere = new HowIGotHere(journeyState, nextNode.getId(), getPreviousNodeSafe(last));
 
+        reasons.recordVisit(howIGotHere);
+
         if (!running.isRunning()) {
             logger.debug("Requested to stop");
             reasons.recordReason(HeuristicsReasons.SearchStopped(howIGotHere));
@@ -114,7 +116,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         // NOTE: This makes a significant impact on performance, without it algo explore the same
         // path again and again for the same time in the case where it is a valid time.
         final HeuristicsReason previousResult = previousVisits.getPreviousResult(journeyState, labels, howIGotHere);
-        boolean cacheHit = (previousResult.getReasonCode() != ReasonCode.PreviousCacheMiss);
+        final boolean cacheHit = (previousResult.getReasonCode() != ReasonCode.PreviousCacheMiss);
         if (cacheHit) {
             reasons.recordReason(HeuristicsReasons.Cached(previousResult, howIGotHere));
             return Evaluation.EXCLUDE_AND_PRUNE;

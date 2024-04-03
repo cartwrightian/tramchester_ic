@@ -9,7 +9,8 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.*;
+import com.tramchester.graph.NumberOfNodesAndRelationshipsRepository;
+import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphRelationship;
@@ -17,13 +18,13 @@ import com.tramchester.graph.facade.GraphRelationshipId;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.repository.ReportsCacheStats;
+import jakarta.inject.Inject;
 import org.apache.commons.lang3.tuple.Pair;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PreDestroy;
-import jakarta.inject.Inject;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -65,7 +66,7 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
         cacheMetrics.register(this);
     }
 
-    private Long numberFor(Set<TransportRelationshipTypes> types) {
+    private Long numberFor(final Set<TransportRelationshipTypes> types) {
         return types.stream().
                 map(numberOfNodesAndRelationshipsRepository::numberOf).
                 reduce(Long::sum).orElse(0L);

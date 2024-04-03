@@ -4,6 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
+import jakarta.inject.Inject;
 import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Result;
 import org.slf4j.Logger;
@@ -11,7 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import jakarta.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -90,14 +90,14 @@ class NumberOfNodesAndRelationshipsRepository {
         relationshipCounts.clear();
     }
 
-    public Long numberOf(GraphLabel label) {
+    public Long numberOf(final GraphLabel label) {
         if (!nodeCounts.containsKey(label)) {
             return 0L;
         }
         return nodeCounts.get(label);
     }
 
-    public long numberOf(TransportRelationshipTypes relationshipType) {
+    public long numberOf(final TransportRelationshipTypes relationshipType) {
         return relationshipCounts.get(relationshipType);
     }
 

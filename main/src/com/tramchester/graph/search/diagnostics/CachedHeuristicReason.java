@@ -41,6 +41,7 @@ public class CachedHeuristicReason extends HeuristicReasonWithValidity {
             case RouteNotOnQueryDate -> ReasonCode.CachedRouteNotOnQueryDate;
             case NotOnQueryDate -> ReasonCode.CachedNotOnQueryDate;
             case TooManyInterchangesRequired -> ReasonCode.CachedTooManyInterchangesRequired;
+            case AlreadySeenRouteStation -> ReasonCode.AlreadySeenRouteStation;
             default -> throw new RuntimeException("No cached reason code for " + code.name());
         };
     }

@@ -18,7 +18,7 @@ public enum ReasonCode {
     AlreadyDeparted,
     DestinationUnavailableAtTime,
     PathTooLong,
-    AlreadySeenStation,
+    AlreadySeenRouteStation,
     AlreadySeenTime,
     TransportModeWrong,
     HigherCost,
@@ -35,6 +35,7 @@ public enum ReasonCode {
 //    TimedOut,
     TooManyRouteChangesRequired,
     TooManyInterchangesRequired,
+
     SearchStopped, // search was stopped for some reason i.e. time out
 
 //    CachedUNKNOWN,
@@ -68,7 +69,7 @@ public enum ReasonCode {
             case HigherCost, ReturnedToStart, PathTooLong, TooManyChanges, TooManyWalkingConnections,
                     TookTooLong, ServiceNotRunningAtTime, NotAtHour, DoesNotOperateOnTime, NotOnQueryDate,
                     AlreadyDeparted, StationClosed, TooManyNeighbourConnections, RouteNotOnQueryDate,
-                    ExchangeNotReachable, TooManyRouteChangesRequired, TooManyInterchangesRequired, AlreadySeenStation,
+                    ExchangeNotReachable, TooManyRouteChangesRequired, TooManyInterchangesRequired, AlreadySeenRouteStation,
                     TransportModeWrong, SameTrip, DestinationUnavailableAtTime, AlreadySeenTime,
                     ArrivedMoreChanges, ArrivedLater, SearchStopped
                     -> Evaluation.EXCLUDE_AND_PRUNE;

@@ -50,6 +50,10 @@ public class HeuristicsReasons {
     ///////////////////////////////////
     /// convenience methods
 
+    public static HeuristicsReason AlreadySeenRouteStation(HowIGotHere howIGotHere) {
+        return new HeuristicReasonWithValidity(ReasonCode.AlreadySeenRouteStation, howIGotHere, false);
+    }
+
     public static HeuristicsReason SearchStopped(HowIGotHere howIGotHere) {
         return new SearchStopped(howIGotHere);
     }
