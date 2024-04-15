@@ -71,8 +71,8 @@ class StationGeographyResourceTest {
 
         List<StationToStationConnectionDTO> results = response.readEntity(new GenericType<>() {});
 
-        // Victoria broken rail 202 -> 199
-        assertEquals(199, results.size(), "count");
+        // Victoria broken rail 202 -> 200
+        assertEquals(200, results.size(), "count");
 
         StationToStationConnection.LinkType linkType = StationToStationConnection.LinkType.Linked;
 

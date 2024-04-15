@@ -65,8 +65,7 @@ class StationResourceTest {
 
         List<PlatformDTO> platforms = result.getPlatforms();
 
-        // Victoria broken rail 4->3
-        Assertions.assertEquals(3, platforms.size());
+        Assertions.assertEquals(4, platforms.size());
         List<String> platformIds = platforms.stream().
                 map(PlatformDTO::getId).
                 map(IdForDTO::getActualId).
@@ -75,8 +74,7 @@ class StationResourceTest {
         Assertions.assertTrue(platformIds.contains(stationId+"1"));
         Assertions.assertTrue(platformIds.contains(stationId+"2"));
 
-        // Victoria broken rail
-        //Assertions.assertTrue(platformIds.contains(stationId+"3"));
+        Assertions.assertTrue(platformIds.contains(stationId+"3"));
 
         Assertions.assertTrue(platformIds.contains(stationId+"4"));
 

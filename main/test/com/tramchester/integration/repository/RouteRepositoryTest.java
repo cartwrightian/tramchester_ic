@@ -67,7 +67,7 @@ public class RouteRepositoryTest {
     @Test
     void shouldGetRouteWithHeadsigns() {
         Route result = routeHelper.getOneRoute(EcclesManchesterAshtonUnderLyne, when);
-        assertEquals("Eccles - Manchester - Ashton Under Lyne", result.getName());
+        assertEquals("Eccles - Manchester - Ashton-Under-Lyne", result.getName());
         assertEquals(TestEnv.MetAgency(),result.getAgency());
         //assertTrue(IdForDTO.createFor(result).getActualId().startsWith("METLBLUE:I:"));
         assertTrue(TransportMode.isTram(result));

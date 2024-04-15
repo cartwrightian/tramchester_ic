@@ -26,6 +26,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.ConfigParameterResolver;
+import com.tramchester.integration.testSupport.IntegrationTestConfig;
 import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.TransportData;
@@ -106,14 +107,16 @@ public class TransportDataFromFilesTramTest {
         assertEquals(NUM_TFGM_TRAM_STATIONS, transportData.getStations(EnumSet.of(Tram)).size());
 
         // victoria cracked rail diversion
-        int expectedPlatforms = 199 - 2;
+        //int expectedPlatforms = 199 - 2;
+        int expectedPlatforms = 200;
         assertEquals(expectedPlatforms, transportData.getPlatforms(EnumSet.of(Tram)).size());
     }
 
     @Test
     void shouldRemindToCheckOnVictoriaCrackedRailSituation() {
         TramDate now = TramDate.from(TestEnv.LocalNow());
-        assertFalse(now.isAfter(TramDate.of(2024, 4,14)), "Check if the rail is fixed, works due 25/2/2024 according to tfgm");
+        assertFalse(now.isAfter(IntegrationTestConfig.exchangeSquareBrokenRail.getEnd()),
+                "Check if the rail is fixed, works due 25/2/2024 according to tfgm");
     }
 
     @Test

@@ -17,18 +17,18 @@ public enum KnownTramRoute {
 
     PiccadillyAltrincham("Purple Line", "Piccadilly - Altrincham", "1790"),
 
-    BuryManchesterAltrincham("Green Line", "Crumpsall - Manchester - Altrincham", "841"),
+    BuryManchesterAltrincham("Green Line", "Bury - Manchester - Altrincham", "841"),
 
-    EcclesManchesterAshtonUnderLyne("Blue Line", "Eccles - Manchester - Ashton Under Lyne", "1789"),
+    EcclesManchesterAshtonUnderLyne("Blue Line", "Eccles - Manchester - Ashton-Under-Lyne", "1789"),
 
     PiccadillyBury("Yellow Line", "Piccadilly - Bury", "844"),
 
     RochdaleShawandCromptonManchesterEastDidisbury("Pink Line",
-            "Rochdale - Shaw and Crompton - Manchester - East D", "1786"),
+            "Rochdale - Shaw and Crompton - East Didsbury", "1786"),
 
     VictoriaWythenshaweManchesterAirport("Navy Line", "Victoria - Wythenshawe - Manchester Airport", "848"),
 
-    CornbrookTheTraffordCentre("Red Line", "Deansgate Castlefield - The Trafford Centre", "849");
+    CornbrookTheTraffordCentre("Red Line", "Deansgate-Castlefield - The Trafford Centre", "849");
 
     private final String shortName;
     private final String longName;
@@ -44,7 +44,7 @@ public enum KnownTramRoute {
         routes.add(PiccadillyBury);
         routes.add(PiccadillyAltrincham);
 
-        if (!(date.getDayOfWeek().equals(DayOfWeek.SUNDAY) || easter2024(date))) {
+        if (!(date.getDayOfWeek().equals(DayOfWeek.SUNDAY))) {
             // not documented anywhere, but does not appear any trams on this route on Sundays
             routes.add(BuryManchesterAltrincham);
         }
@@ -56,20 +56,6 @@ public enum KnownTramRoute {
         this.longName = longName;
         this.shortName = shortName;
         this.id = Route.createId(id);
-    }
-
-    // appears no services these days
-    static boolean easter2024(TramDate date) {
-        final TramDate goodFriday = TramDate.of(2024, 3, 29);
-        final TramDate easterMonday = TramDate.of(2024, 4, 1);
-
-        if (date.equals(goodFriday)) {
-            return true;
-        }
-        if (date.equals(easterMonday)) {
-            return true;
-        }
-        return false; // sundays already excluded
     }
 
     public static int numberOn(TramDate date) {

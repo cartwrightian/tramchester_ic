@@ -190,15 +190,7 @@ public class TramDate implements Comparable<TramDate> {
         return toLocalDate().datesUntil(endDate.toLocalDate()).map(date -> new TramDate(date.toEpochDay()));
     }
 
-//    public Month getMonth() {
-//        return toLocalDate().getMonth();
-//    }
-//
-//    public int getDayOfMonth() {
-//        return toLocalDate().getDayOfMonth();
-//    }
-
-    public boolean isEqual(TramDate other) {
+    public boolean isEqual(final TramDate other) {
         return this.epochDays == other.epochDays;
     }
 

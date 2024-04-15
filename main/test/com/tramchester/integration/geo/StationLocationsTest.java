@@ -4,7 +4,6 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.LocationCollection;
-import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.NPTGLocality;
@@ -115,8 +114,7 @@ public class StationLocationsTest {
 
         Set<Platform> platforms = stPeters.getPlatforms();
 
-        // Victoria Broken Rail 4->3
-        assertEquals(3, platforms.size());
+        assertEquals(4, platforms.size());
 
         platforms.forEach(platform -> {
             IdFor<NPTGLocality> areaId = platform.getLocalityId();
