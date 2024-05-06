@@ -17,6 +17,7 @@ import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.JourneyPlannerResource;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.apache.commons.lang3.tuple.Triple;
@@ -243,9 +244,9 @@ public class JourneyPlannerResourceTest {
     void testAltyToManAirportHasRealisticTranferAtCornbrook() {
         TramDate nextSunday = TestEnv.nextSunday();
 
-//        if (nextSunday.isBefore(TestEnv.AirportLineClosed)) {
-//            nextSunday = TestEnv.AirportLineClosed.plusWeeks(1);
-//        }
+        if (KnownTramRoute.earlyMayBankHoliday(nextSunday)) {
+            nextSunday = nextSunday.plusWeeks(1);
+        }
 
         JourneyQueryDTO query = journeyPlanner.getQueryDTO(nextSunday, TramTime.of(11, 0),
                 Altrincham, ManAirport, false, 3);

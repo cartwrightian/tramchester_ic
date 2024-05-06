@@ -106,9 +106,8 @@ public class TransportDataFromFilesTramTest {
         assertEquals(1, transportData.getAgencies().stream().filter(agency -> agency.getTransportModes().contains(Tram)).count());
         assertEquals(NUM_TFGM_TRAM_STATIONS, transportData.getStations(EnumSet.of(Tram)).size());
 
-        // victoria cracked rail diversion
-        //int expectedPlatforms = 199 - 2;
-        int expectedPlatforms = 200;
+
+        int expectedPlatforms = 201;
         assertEquals(expectedPlatforms, transportData.getPlatforms(EnumSet.of(Tram)).size());
     }
 
@@ -563,7 +562,7 @@ public class TransportDataFromFilesTramTest {
                 map(FakeStation::getId).collect(IdSet.idCollector());
 
         // exchange square, due to broken rail diversion?
-        expected.add(ExchangeSquare.getId());
+        //expected.add(ExchangeSquare.getId());
 
         IdSet<Station> disjunction = IdSet.disjunction(expected, result);
         assertTrue(disjunction.isEmpty(), disjunction.toString());

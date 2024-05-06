@@ -81,7 +81,8 @@ class FindStationsByNumberLinksTramTest {
             Broadway.getId(),
             HarbourCity.getId(),
             //Piccadilly.getId(),
-            PiccadillyGardens.getId()
+            PiccadillyGardens.getId(),
+            Shudehill.getId()
             );
 
         IdSet<Station> expected = new IdSet<>(expectedList);

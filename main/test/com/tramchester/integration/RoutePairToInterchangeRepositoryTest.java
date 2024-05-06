@@ -28,8 +28,7 @@ import java.util.Set;
 import static com.tramchester.domain.reference.CentralZoneStation.*;
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(ConfigParameterResolver.class)
 @DualTest
@@ -102,8 +101,7 @@ public class RoutePairToInterchangeRepositoryTest {
 
         IdSet<Station> stationIds = interchanges.stream().map(InterchangeStation::getStation).collect(IdSet.collector());
 
-        // 5 -> 6
-        assertEquals(6, stationIds.size(), stationIds.toString());
+        assertEquals(7, stationIds.size(), stationIds.toString());
         assertTrue(stationIds.contains(StPetersSquare.getId()), stationIds.toString());
         assertTrue(stationIds.contains(Deansgate.getId()), stationIds.toString());
         assertTrue(stationIds.contains(Cornbrook.getId()), stationIds.toString());
@@ -112,6 +110,7 @@ public class RoutePairToInterchangeRepositoryTest {
         assertTrue(stationIds.contains(MarketStreet.getId()), stationIds.toString());
 
         assertTrue(stationIds.contains(Victoria.getId()), stationIds.toString());
+        assertTrue(stationIds.contains(Shudehill.getId()), stationIds.toString());
 
 
     }

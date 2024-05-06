@@ -196,15 +196,16 @@ public class StationRepositoryTest {
         assertTrue(station.hasDropoff());
         assertTrue(station.hasPickup());
 
-
-        EnumSet<KnownTramRoute> expected = EnumSet.of(BuryManchesterAltrincham, PiccadillyAltrincham, CornbrookTheTraffordCentre,
+        EnumSet<KnownTramRoute> expected = EnumSet.of(BuryManchesterAltrincham, PiccadillyAltrincham, PiccadillyAltrincham,
+                CornbrookTheTraffordCentre,
                 EcclesManchesterAshtonUnderLyne, VictoriaWythenshaweManchesterAirport, RochdaleShawandCromptonManchesterEastDidisbury);
 
         IdSet<Route> expectedIds = expected.stream().map(KnownTramRoute::getId).collect(IdSet.idCollector());
-
         IdSet<Route> pickups = station.getPickupRoutes().stream().collect(IdSet.collector());
-        assertEquals(expectedIds.size(), pickups.size());
-        assertTrue(pickups.containsAll(expectedIds));
+
+        IdSet<Route> mismatch = IdSet.disjunction(expectedIds, pickups);
+
+        assertEquals(IdSet.emptySet(), mismatch, "expected " + expectedIds + " found " + pickups);
 
         IdSet<Route> dropOffs = station.getDropoffRoutes().stream().collect(IdSet.collector());
         assertEquals(expectedIds.size(), dropOffs.size());

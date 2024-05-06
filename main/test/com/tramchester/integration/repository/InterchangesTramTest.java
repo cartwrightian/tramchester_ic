@@ -85,11 +85,12 @@ public class InterchangesTramTest {
 
         List<TramStations> tramStations = Arrays.asList(StWerburghsRoad, TraffordBar, Cornbrook, HarbourCity,
                 Pomona, Cornbrook, Deansgate, StPetersSquare,
-                PiccadillyGardens, Piccadilly, Victoria, MarketStreet, Broadway);
+                PiccadillyGardens, Piccadilly, Victoria, MarketStreet, Broadway, Shudehill);
 
         Set<Station> expected = tramStations.stream().map(item -> item.from(stationRepository)).collect(Collectors.toSet());
 
-        Set<Station> additional = AdditionalTramInterchanges.stations().stream().map(id -> stationRepository.getStationById(id)).collect(Collectors.toSet());
+        Set<Station> additional = AdditionalTramInterchanges.stations().
+                stream().map(id -> stationRepository.getStationById(id)).collect(Collectors.toSet());
         expected.addAll(additional);
 
         if (config.hasRailConfig()) {

@@ -85,9 +85,9 @@ class KnownTramRouteTest {
 
     @Test
     void shouldHaveExpectedNumberOfTramRoutes() {
-        Set<Route> loaded = routeRepository.getRoutesRunningOn(when);
+        final Set<Route> loaded = routeRepository.getRoutesRunningOn(when);
 
-        assertEquals(loaded.size(), KnownTramRoute.values().length);
+        assertEquals(loaded.size(), KnownTramRoute.getFor(when).size());
     }
 
     /// Note: START HERE when diagnosing
@@ -132,7 +132,8 @@ class KnownTramRouteTest {
         DateRange dateRange = DateRange.of(start, when);
 
         // returned for dates, and hence tested
-        Set<KnownTramRoute> returnedForDates = dateRange.stream().flatMap(date -> KnownTramRoute.getFor(date).stream()).collect(Collectors.toSet());
+        Set<KnownTramRoute> returnedForDates = dateRange.stream().
+                flatMap(date -> KnownTramRoute.getFor(date).stream()).collect(Collectors.toSet());
 
         Set<KnownTramRoute> all = EnumSet.allOf(KnownTramRoute.class);
 

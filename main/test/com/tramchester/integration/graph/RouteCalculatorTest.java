@@ -311,7 +311,8 @@ public class RouteCalculatorTest {
         assertFalse(journeys.isEmpty());
         journeys.forEach(journey -> {
             // direct, or change at shaw
-            assertTrue(journey.getStages().size()<=2, Integer.toString(journey.getStages().size()));
+            int numStages = journey.getStages().size();
+            assertTrue(numStages <=2, "too many stages " + numStages + " for " + journey + " at " + journeyRequest);
         });
     }
 
