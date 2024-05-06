@@ -44,13 +44,19 @@ class StationAdjacencyRepositoryTest {
     }
 
     @Test
-    void shouldGiveCorrectCostForAdjacency() {
+    void shouldGiveCorrectCostForAdjacencyAltyNavigationRoad() {
         assertMinutesEquals(3, getAdjacent(Altrincham, NavigationRoad));
-        assertMinutesEquals(3, getAdjacent(Altrincham, NavigationRoad));
-        assertMinutesEquals(4, getAdjacent(Cornbrook, Deansgate));
-        assertMinutesEquals(3, getAdjacent(Deansgate, Cornbrook));
-
         assertTrue(getAdjacent(NavigationRoad, Cornbrook).isNegative());
+    }
+
+    @Test
+    void shouldGiveCorrectCostForAdjacencyCornbrookDeansgate() {
+        assertMinutesEquals(4, getAdjacent(Cornbrook, Deansgate));
+    }
+
+    @Test
+    void shouldGiveCorrectCostForAdjacencyDeansgateCornbrook() {
+        assertMinutesEquals(3, getAdjacent(Deansgate, Cornbrook));
     }
 
     @Test
