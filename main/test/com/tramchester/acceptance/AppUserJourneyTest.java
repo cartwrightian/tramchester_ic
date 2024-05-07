@@ -435,19 +435,21 @@ public class AppUserJourneyTest extends UserJourneyTest {
         Stage secondStage = stages.get(1);
 
         Set<KnownTramRoute> routeNames = new HashSet<>(Arrays.asList(PiccadillyAltrincham, BuryManchesterAltrincham));
-        Set<String> headsigns = new HashSet<>(Arrays.asList(Piccadilly.getName(), Bury.getName(), "Bury via Market Street & Victoria"));
+        Set<String> firstStageHeadsigns = new HashSet<>(Arrays.asList(Piccadilly.getName(), Bury.getName(), "Bury via Market Street & Victoria"));
 
         TramTime firstDepartTime = firstResult.getDepartTime();
         validateAStage(firstStage, Collections.singleton(firstDepartTime), "Board Tram", Altrincham.getName(),
                 Collections.singletonList(1),
-                routeNames, headsigns, 7);
+                routeNames, firstStageHeadsigns, 7);
 
         // Too timetable dependent?
+        Set<String> secondStageHeadsigns = new HashSet<>(Arrays.asList(ManAirport.getName(), "Manchester Airport via Market Street & Wythenshawe"));
+
         Set<TramTime> validTimes = new HashSet<>(Arrays.asList(TramTime.of(10,37), TramTime.of(10,25)));
         validateAStage(secondStage, validTimes, "Change Tram", TraffordBar.getName(),
                 Arrays.asList(1,2),
                 Collections.singleton(KnownTramRoute.VictoriaWythenshaweManchesterAirport),
-                Collections.singleton(ManAirport.getName()), 17);
+                secondStageHeadsigns, 17);
 
         assertEquals(TraffordBar.getName(), secondStage.getActionStation());
         assertEquals("Change Tram", secondStage.getAction());
