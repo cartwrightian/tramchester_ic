@@ -6,6 +6,7 @@ import com.tramchester.acceptance.infra.ProvidesDriver;
 import com.tramchester.acceptance.infra.ProvidesFirefoxDriver;
 import com.tramchester.acceptance.pages.App.AppPage;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.TestInfo;
 
 import java.io.IOException;
@@ -49,20 +50,15 @@ public class UserJourneyTest {
 
     public static Stream<ProvidesDriver> getProviderCommon() {
 
+        // Headless Chrome on CI BOX is ignoring locale which breaks many acceptance tests
+        // https://bugs.chromium.org/p/chromium/issues/detail?id=755338
+
         List<String> names = new ArrayList<>();
         names.add("firefox");
-        if (!driverFactory.isGeoEnabled()) {
+        // chromedriver install is broken on circle ci 7/05/2024
+        if (!(driverFactory.isGeoEnabled() || TestEnv.isCircleci())) {
             names.add("chrome");
         }
-//        List<String> names;
-//        if (!TestEnv.isCircleci()) {
-//            names = Arrays.asList("chrome", "firefox");
-//        } else {
-//            // TODO - confirm this is still an issue
-//            // Headless Chrome on CI BOX is ignoring locale which breaks many acceptance tests
-//            // https://bugs.chromium.org/p/chromium/issues/detail?id=755338
-//            names = Collections.singletonList("firefox");
-//        }
         return names.stream().map(browserName -> driverFactory.get(browserName));
     }
 

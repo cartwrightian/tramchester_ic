@@ -83,7 +83,8 @@ jobs:
       ENV: Dev
     steps:
       - browser-tools/install-geckodriver
-      - browser-tools/install-chromedriver
+      # this is broken on circle ci as of 7/May/2024
+      #- browser-tools/install-chromedriver
       - checkout
       - restore_cache:
           keys:

@@ -49,7 +49,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
     // Needs correct locale settings, see .circleci/config.yml setupLocale target
     // NOTE: This controls localAcceptance only, for CI acceptance tests run against the deployed dev instance
 
-    // NOTE: to disable headless set env var DISABLE_HEADLESS=true
+    // NOTE: to disable headless set env var export DISABLE_HEADLESS=true
     // NOTE: to run against local server (but not start one) then set export SERVER_URL=http://localhost:8080
 
     public static final String configPath = "config/localAcceptance.yml";
