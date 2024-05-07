@@ -165,7 +165,9 @@ public class JourneyPlannerCookieTest {
 
     private Response getResponseForJourney(Location<?> start, Location<?> end, TramTime time, LocalDate date, List<Cookie> cookies) {
 
-        JourneyQueryDTO query = JourneyQueryDTO.create(date, time, start, end, false, 3, false);
+        JourneyQueryDTO query = JourneyQueryDTO.create(date, time, start, end, false, 2, false);
+
+        query.setMaxNumResults(2);
 
         return journeyPlanner.getResponse(false, cookies, query);
     }

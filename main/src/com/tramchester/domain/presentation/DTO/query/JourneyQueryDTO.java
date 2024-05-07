@@ -40,6 +40,10 @@ public class JourneyQueryDTO  {
     private int maxChanges;
 
     @JsonSetter(nulls = Nulls.SKIP)
+    @JsonProperty("maxNumResults")
+    private Integer maxNumResults;
+
+    @JsonSetter(nulls = Nulls.SKIP)
     @JsonProperty("modes")
     private Set<TransportMode> modes;
 
@@ -65,6 +69,7 @@ public class JourneyQueryDTO  {
         this.maxChanges = maxChanges;
         this.diagnostics = diagnostics;
         this.modes = Collections.emptySet();
+        this.maxNumResults = null;
     }
 
     public static JourneyQueryDTO create(LocalDate date, TramTime time, Location<?> start, Location<?> dest,
@@ -95,6 +100,7 @@ public class JourneyQueryDTO  {
                 ", destId=" + destId +
                 ", arriveBy=" + arriveBy +
                 ", maxChanges=" + maxChanges +
+                ", maxNumResults= " + maxNumResults +
                 ", modes=" + modes +
                 ", diagnostics=" + diagnostics +
                 '}';
@@ -137,6 +143,10 @@ public class JourneyQueryDTO  {
         return maxChanges;
     }
 
+    public Integer getMaxNumResults() {
+        return maxNumResults;
+    }
+
     @JsonIgnore
     public boolean valid() {
         return startId!=null && startType!=null && destId!=null && destType!=null && date!=null
@@ -156,5 +166,9 @@ public class JourneyQueryDTO  {
             return false;
         }
         return diagnostics;
+    }
+
+    public void setMaxNumResults(int value) {
+        maxNumResults = value;
     }
 }

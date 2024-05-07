@@ -148,6 +148,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         Duration maxInitialWait = getMaxInitialWaitFor(stationWalks, config);
 
         return getJourneyStream(txn, startOfWalkNode, endNode, towardsDestination, journeyRequest, queryTimes, numberOfChanges, maxInitialWait, running).
+                limit(journeyRequest.getMaxNumberOfJourneys()).
                 takeWhile(finished::notDoneYet);
     }
 

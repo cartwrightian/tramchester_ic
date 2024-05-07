@@ -226,7 +226,9 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         final TramTime queryTime = TramTime.ofHourMins(time);
         final Duration maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
 
-        return new JourneyRequest(date, queryTime, arriveBy, maxChanges, maxJourneyDuration,  config.getMaxNumResults(), modes);
+        int maxNumberResults = (query.getMaxNumResults()==null) ? config.getMaxNumResults() : query.getMaxNumResults();
+
+        return new JourneyRequest(date, queryTime, arriveBy, maxChanges, maxJourneyDuration,  maxNumberResults, modes);
     }
 
     private Response buildResponse(Response.ResponseBuilder responseBuilder, Location<?> start, Location<?> dest, Cookie cookie,
