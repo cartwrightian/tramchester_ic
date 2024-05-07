@@ -107,7 +107,7 @@ public class TransportDataFromFilesTramTest {
         assertEquals(NUM_TFGM_TRAM_STATIONS, transportData.getStations(EnumSet.of(Tram)).size());
 
 
-        int expectedPlatforms = 201;
+        int expectedPlatforms = 200;
         assertEquals(expectedPlatforms, transportData.getPlatforms(EnumSet.of(Tram)).size());
     }
 
@@ -236,7 +236,7 @@ public class TransportDataFromFilesTramTest {
                 map(routeStation -> Pair.of(routeStation.getStationId(), routeStation.getRoute().getName())).
                 collect(Collectors.toSet());
 
-        assertEquals(5, routeStationPairs.size(), routeStations.toString());
+        assertEquals(4, routeStationPairs.size(), routeStations.toString());
 
         Set<String> routeNames =
                 routeStations.stream().

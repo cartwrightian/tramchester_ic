@@ -101,7 +101,7 @@ public class RoutePairToInterchangeRepositoryTest {
 
         IdSet<Station> stationIds = interchanges.stream().map(InterchangeStation::getStation).collect(IdSet.collector());
 
-        assertEquals(7, stationIds.size(), stationIds.toString());
+        assertEquals(6, stationIds.size(), stationIds.toString());
         assertTrue(stationIds.contains(StPetersSquare.getId()), stationIds.toString());
         assertTrue(stationIds.contains(Deansgate.getId()), stationIds.toString());
         assertTrue(stationIds.contains(Cornbrook.getId()), stationIds.toString());
@@ -110,9 +110,6 @@ public class RoutePairToInterchangeRepositoryTest {
         assertTrue(stationIds.contains(MarketStreet.getId()), stationIds.toString());
 
         assertTrue(stationIds.contains(Victoria.getId()), stationIds.toString());
-        assertTrue(stationIds.contains(Shudehill.getId()), stationIds.toString());
-
-
     }
 
 

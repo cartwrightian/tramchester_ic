@@ -13,13 +13,14 @@ import com.tramchester.graph.FindStationsByNumberLinks;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.Interchanges;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.FakeStation;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -71,19 +72,16 @@ class FindStationsByNumberLinksTramTest {
 
         IdSet<Station> found = finder.atLeastNLinkedStations(TransportMode.Tram, threshhold);
 
-        List<IdFor<Station>> expectedList = Arrays.asList(StPetersSquare.getId(),
-            MarketStreet.getId(),
-            TraffordBar.getId(),
-            Cornbrook.getId(),
-            Victoria.getId(),
-            StWerburghsRoad.getId(),
-            Pomona.getId(),
-            Broadway.getId(),
-            HarbourCity.getId(),
-            //Piccadilly.getId(),
-            PiccadillyGardens.getId(),
-            Shudehill.getId()
-            );
+        List<IdFor<Station>> expectedList = Stream.of(StPetersSquare,
+            MarketStreet,
+            TraffordBar,
+            Cornbrook,
+            Victoria,
+            StWerburghsRoad,
+            Pomona,
+            Broadway,
+            HarbourCity,
+            PiccadillyGardens).map(FakeStation::getId).toList();
 
         IdSet<Station> expected = new IdSet<>(expectedList);
         IdSet<Station> diff = IdSet.disjunction(found, expected);

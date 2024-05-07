@@ -16,8 +16,6 @@ import java.util.Set;
  */
 public enum KnownTramRoute {
 
-    // currently in data with 2 ids, 842 and 1947
-    //PiccadillyAltrinchamOld("Purple Line", "Piccadilly - Altrincham", "842"),
     PiccadillyAltrincham("Purple Line", "Piccadilly - Altrincham", "1947"),
 
     BuryManchesterAltrincham("Green Line", "Bury - Manchester - Altrincham", "841"),
@@ -26,10 +24,10 @@ public enum KnownTramRoute {
     RochdaleShawandCromptonManchesterEastDidisbury("Pink Line",
             "Rochdale - Shaw and Crompton - East Didsbury", "1786"),
     VictoriaWythenshaweManchesterAirport("Navy Line", "Victoria - Wythenshawe - Manchester Airport", "848"),
-    CornbrookTheTraffordCentre("Red Line", "Deansgate-Castlefield - The Trafford Centre", "849"),
+    CornbrookTheTraffordCentre("Red Line", "Deansgate-Castlefield - The Trafford Centre", "849");
 
-    ReplacementBusOne("Replacement Bus 1", "Piccadilly - Queens Road", "1950"),
-    ReplacementBusTwo("Replacement Bus 2", "Central Park - Victoria", "1951");
+//    ReplacementBusOne("Replacement Bus 1", "Piccadilly - Queens Road", "1950"),
+//    ReplacementBusTwo("Replacement Bus 2", "Central Park - Victoria", "1951");
 
     private final String shortName;
     private final String longName;
@@ -54,8 +52,6 @@ public enum KnownTramRoute {
             if (!sunday) {
                 routes.add(PiccadillyAltrincham);
             }
-            routes.add(ReplacementBusOne);
-            routes.add(ReplacementBusTwo);
         } else {
             routes.add(PiccadillyAltrincham);
             if (!sunday) {
