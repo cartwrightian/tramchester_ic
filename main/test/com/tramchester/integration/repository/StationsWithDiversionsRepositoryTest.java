@@ -3,6 +3,7 @@ package com.tramchester.integration.repository;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.GTFSSourceConfig;
+import com.tramchester.config.StationClosuresConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.StationClosures;
@@ -19,6 +20,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -35,7 +38,13 @@ public class StationsWithDiversionsRepositoryTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        config = new IntegrationTramTestConfig();
+        Set<String> closed = Collections.singleton("9400ZZMAEXS");
+
+        StationClosuresConfig exchangeSquareBrokenRail = new StationClosuresConfig(closed, LocalDate.of(2024, 2, 12),
+                LocalDate.of(2024, 5, 7), false, Collections.singleton("9400ZZMAVIC"));
+        List<StationClosures> closures = Collections.singletonList(exchangeSquareBrokenRail);
+
+        config = new IntegrationTramTestConfig(closures, IntegrationTramTestConfig.Caching.Enabled);
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }

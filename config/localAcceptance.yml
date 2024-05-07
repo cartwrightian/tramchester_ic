@@ -38,12 +38,7 @@ gtfsSourceConfig:
     additionalInterchanges: [9400ZZMAGMX,9400ZZMAPIC]
     groupedStationModes: []
     addWalksForClosed: true
-    stationClosures:
-      - stations: [ "9400ZZMAEXS" ]
-        begin: 2024-02-12
-        end: 2024-05-07
-        fullyClosed: false
-        diversionsOnly: [ 9400ZZMAVIC ]
+    stationClosures: []
 remoteSources:
   - name: tfgm
     dataURL: ${TRAM_DATAURL:- https://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip}

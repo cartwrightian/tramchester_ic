@@ -2,7 +2,6 @@ package com.tramchester.integration.testSupport;
 
 import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
-import com.tramchester.config.StationClosuresConfig;
 import com.tramchester.domain.StationClosures;
 import com.tramchester.integration.testSupport.naptan.NaptanRemoteDataSourceTestConfig;
 import com.tramchester.integration.testSupport.nptg.NPTGDataSourceTestConfig;
@@ -12,8 +11,8 @@ import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;
 
 import java.nio.file.Path;
-import java.time.LocalDate;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
 
 public abstract class IntegrationTestConfig extends TestConfig {
 
@@ -23,16 +22,13 @@ public abstract class IntegrationTestConfig extends TestConfig {
 
     protected final RailRemoteDataSourceConfig railRemoteDataSource;
 
-    public static final StationClosures exchangeSquareBrokenRail;
+//    static {
+//        Set<String> closed = Collections.singleton("9400ZZMAEXS");
+//        exchangeSquareBrokenRail = new StationClosuresConfig(closed, LocalDate.of(2024,2,12),
+//            LocalDate.of(2024,5,7), false, Collections.singleton("9400ZZMAVIC"));
+//    }
 
-    static {
-        Set<String> closed = Collections.singleton("9400ZZMAEXS");
-        exchangeSquareBrokenRail = new StationClosuresConfig(closed, LocalDate.of(2024,2,12),
-            LocalDate.of(2024,5,7), false, Collections.singleton("9400ZZMAVIC"));
-    }
-
-    public static final List<StationClosures> CurrentClosures = Collections.singletonList(exchangeSquareBrokenRail);
-
+    public static final List<StationClosures> CurrentClosures = Collections.emptyList();
     private final TestGroupType testGroupType;
 
     protected IntegrationTestConfig(TestGroupType testGroupType) {

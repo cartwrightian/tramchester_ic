@@ -30,7 +30,6 @@ import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryCategory;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
-import com.tramchester.testSupport.testTags.VictoriaCrackedRailTest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -462,7 +461,6 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Rochdale, Bury);
     }
 
-    @VictoriaCrackedRailTest
     @Test
     void shouldReproIssueWithMediaCityTrams() {
 

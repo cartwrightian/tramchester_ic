@@ -398,7 +398,6 @@ def integrationTestConfiguration = {
         //excludeTags "liveData" // also goes away on occasion
         //excludeTags "dataExpiry" // can be useful to exclude when big changes to timetable are upcoming
         //excludeTags 'liveDataDueTrams' // tfgm api has know issue
-        excludeTags "VictoriaCrackedRail"
         excludeTags "postcode" // not needed for tram, but used by buses
         excludeTags "BusTest"
         excludeTags "TrainTest"
@@ -465,7 +464,6 @@ tasks.register('dataUpdated', Test) {
     outputs.upToDateWhen { false }
     useJUnitPlatform {
         includeTags "DataUpdateTest"
-        excludeTags "VictoriaCrackedRail"
     }
 }
 

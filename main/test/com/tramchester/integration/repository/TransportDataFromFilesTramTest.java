@@ -26,7 +26,6 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.ConfigParameterResolver;
-import com.tramchester.integration.testSupport.IntegrationTestConfig;
 import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.TransportData;
@@ -38,7 +37,6 @@ import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryCategory;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
-import com.tramchester.testSupport.testTags.VictoriaCrackedRailTest;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -109,13 +107,6 @@ public class TransportDataFromFilesTramTest {
 
         int expectedPlatforms = 200;
         assertEquals(expectedPlatforms, transportData.getPlatforms(EnumSet.of(Tram)).size());
-    }
-
-    @Test
-    void shouldRemindToCheckOnVictoriaCrackedRailSituation() {
-        TramDate now = TramDate.from(TestEnv.LocalNow());
-        assertFalse(now.isAfter(IntegrationTestConfig.exchangeSquareBrokenRail.getEnd()),
-                "Check if the rail is fixed, works due 25/2/2024 according to tfgm");
     }
 
     @Test
@@ -446,7 +437,6 @@ public class TransportDataFromFilesTramTest {
 
     }
 
-    @VictoriaCrackedRailTest
     @Test
     void shouldHavePlatformAndAreaForCityCenter() {
         IdFor<Platform> platformId = PlatformId.createId(StPetersSquare.getId(), "2");

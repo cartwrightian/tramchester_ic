@@ -16,7 +16,6 @@ import com.tramchester.integration.testSupport.StationClosuresConfigForTest;
 import com.tramchester.integration.testSupport.tram.IntegrationTramClosedStationsTestConfig;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.VictoriaCrackedRailTest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
@@ -92,15 +91,6 @@ class RouteCalculatorCloseStationsTest {
 
     private EnumSet<TransportMode> getRequestedModes() {
         return TramsOnly;
-    }
-
-    @VictoriaCrackedRailTest
-    @Test
-    void shouldFindRouteAroundClosedStation() {
-        JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
-                3, Duration.ofMinutes(120), 1, getRequestedModes());
-        List<Journey> result = calculator.calculateRouteAsList(MarketStreet, Victoria, journeyRequest);
-        assertFalse(result.isEmpty());
     }
 
     @Test
