@@ -200,7 +200,8 @@ public abstract class TestConfig extends AppConfiguration {
 
     @Override
     public String getEnvironmentName() {
-        return System.getenv("PLACE");
+        String place = System.getenv("PLACE");
+        return place==null ? "" : place;
     }
 
     @Override
