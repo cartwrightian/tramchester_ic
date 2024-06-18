@@ -182,7 +182,11 @@ public class TransportDataFromFilesTramTest {
 
     @Test
     void shouldGetRouteStationsForStationOnOneRoute() {
-        Set<RouteStation> routeStations = transportData.getRouteStationsFor(ManAirport.getId());
+        Set<RouteStation> routeStations = transportData.getRouteStationsFor(ManAirport.getId()).stream().
+            filter(routeStation -> routeStation.getRoute().isAvailableOn(when)).
+            collect(Collectors.toSet());
+
+        assertFalse(routeStations.isEmpty());
 
         Set<Pair<IdFor<Station>, String>> routeStationPairs = routeStations.stream().
                 map(routeStation -> Pair.of(routeStation.getStationId(), routeStation.getRoute().getName())).

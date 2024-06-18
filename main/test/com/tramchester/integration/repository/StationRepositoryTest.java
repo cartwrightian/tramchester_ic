@@ -201,13 +201,17 @@ public class StationRepositoryTest {
                 EcclesManchesterAshtonUnderLyne, VictoriaWythenshaweManchesterAirport, RochdaleShawandCromptonManchesterEastDidisbury);
 
         IdSet<Route> expectedIds = expected.stream().map(KnownTramRoute::getId).collect(IdSet.idCollector());
-        IdSet<Route> pickups = station.getPickupRoutes().stream().collect(IdSet.collector());
+        IdSet<Route> pickups = station.getPickupRoutes().stream().
+            filter(route -> route.isAvailableOn(when)).
+            collect(IdSet.collector());
 
         IdSet<Route> mismatch = IdSet.disjunction(expectedIds, pickups);
 
         assertEquals(IdSet.emptySet(), mismatch, "expected " + expectedIds + " found " + pickups);
 
-        IdSet<Route> dropOffs = station.getDropoffRoutes().stream().collect(IdSet.collector());
+        IdSet<Route> dropOffs = station.getDropoffRoutes().stream().
+            filter(route -> route.isAvailableOn(when)).
+            collect(IdSet.collector());
         assertEquals(expectedIds.size(), dropOffs.size());
         assertTrue(pickups.containsAll(dropOffs));
     }
@@ -219,11 +223,16 @@ public class StationRepositoryTest {
         assertTrue(station.hasDropoff());
         assertTrue(station.hasPickup());
 
-        IdSet<Route> pickups = station.getPickupRoutes().stream().collect(IdSet.collector());
+        IdSet<Route> pickups = station.getPickupRoutes().stream().
+            filter(route -> route.isAvailableOn(when)).
+            collect(IdSet.collector());
         assertEquals(1, pickups.size());
         assertTrue(pickups.contains(CornbrookTheTraffordCentre.getId()));
 
-        IdSet<Route> dropOffs = station.getDropoffRoutes().stream().collect(IdSet.collector());
+        IdSet<Route> dropOffs = station.getDropoffRoutes().stream().
+            filter(route -> route.isAvailableOn(when)).
+            collect(IdSet.collector());
+            
         assertEquals(1, dropOffs.size());
         assertTrue(pickups.contains(CornbrookTheTraffordCentre.getId()));
     }

@@ -26,9 +26,6 @@ public enum KnownTramRoute {
     VictoriaWythenshaweManchesterAirport("Navy Line", "Victoria - Wythenshawe - Manchester Airport", "848"),
     CornbrookTheTraffordCentre("Red Line", "Deansgate-Castlefield - The Trafford Centre", "849");
 
-//    ReplacementBusOne("Replacement Bus 1", "Piccadilly - Queens Road", "1950"),
-//    ReplacementBusTwo("Replacement Bus 2", "Central Park - Victoria", "1951");
-
     private final String shortName;
     private final String longName;
     private final IdFor<Route> id;
@@ -42,26 +39,14 @@ public enum KnownTramRoute {
         routes.add(EcclesManchesterAshtonUnderLyne);
         routes.add(PiccadillyBury);
 
-        boolean earlyMayBankHoliday = earlyMayBankHoliday(date);
         boolean sunday = date.getDayOfWeek().equals(DayOfWeek.SUNDAY);
-
-//        boolean afterRailFix = date.isAfter(TramDate.of(2024,5,6));
-//        KnownTramRoute piccadillyAltrincham = afterRailFix ? PiccadillyAltrincham : PiccadillyAltrinchamOld;
-
-        if (earlyMayBankHoliday) {
-            if (!sunday) {
-                routes.add(PiccadillyAltrincham);
-            }
-        } else {
-            routes.add(PiccadillyAltrincham);
-            if (!sunday) {
-                // not documented anywhere, but does not appear any trams on this route on Sundays
-                routes.add(BuryManchesterAltrincham);
-            }
+ 
+        routes.add(PiccadillyAltrincham);
+        if (!sunday) {
+            // not documented anywhere, but does not appear any trams on this route on Sundays
+            routes.add(BuryManchesterAltrincham);
         }
-
-
-
+        
         return routes;
     }
 
