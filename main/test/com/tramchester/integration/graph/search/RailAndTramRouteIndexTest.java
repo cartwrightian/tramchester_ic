@@ -21,7 +21,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.graph.search.routes.RouteIndex;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
-import com.tramchester.integration.testSupport.RailAndTramGreaterManchesterConfig;
+import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchesterConfig;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.FakeDataCache;
 import com.tramchester.testSupport.InMemoryDataCache;

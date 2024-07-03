@@ -5,7 +5,7 @@ import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.databaseManagement.GraphDatabaseLifecycleManager;
-import com.tramchester.integration.testSupport.IntegrationTestConfig;
+import com.tramchester.integration.testSupport.config.IntegrationTestConfig;
 import com.tramchester.integration.testSupport.TestGroupType;
 import com.tramchester.repository.DataSourceRepository;
 import org.easymock.EasyMock;

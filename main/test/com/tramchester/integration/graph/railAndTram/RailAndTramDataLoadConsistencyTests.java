@@ -13,7 +13,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.search.routes.RouteDateAndDayOverlap;
 import com.tramchester.graph.search.routes.RouteIndex;
-import com.tramchester.integration.testSupport.RailAndTramGreaterManchesterConfig;
+import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchesterConfig;
 import com.tramchester.repository.NumberOfRoutes;
 import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataContainer;

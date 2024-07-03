@@ -39,6 +39,7 @@ gtfsSourceConfig:
     groupedStationModes: []
     addWalksForClosed: true
     stationClosures: []
+    temporaryStationsWalks: []
 remoteSources:
   - name: tfgm
     dataURL: ${TRAM_DATAURL:- https://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip}

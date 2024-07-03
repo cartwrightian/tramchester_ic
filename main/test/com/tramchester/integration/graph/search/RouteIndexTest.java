@@ -13,7 +13,7 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.graph.search.routes.RouteIndex;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
-import com.tramchester.integration.testSupport.ConfigParameterResolver;
+import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.InMemoryDataCache;
 import com.tramchester.testSupport.TestEnv;

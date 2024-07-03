@@ -303,7 +303,7 @@ class RouteCalculatorSubGraphMediaCityTest {
 
             TFGMGTFSSourceTestConfig gtfsSourceConfig = new TFGMGTFSSourceTestConfig(GTFSTransportationType.tram,
                     Tram, additionalInterchanges, groupStationModes, IntegrationTramTestConfig.CurrentClosures,
-                    Duration.ofMinutes(45));
+                    Duration.ofMinutes(45), Collections.emptyList());
 
             return Collections.singletonList(gtfsSourceConfig);
         }

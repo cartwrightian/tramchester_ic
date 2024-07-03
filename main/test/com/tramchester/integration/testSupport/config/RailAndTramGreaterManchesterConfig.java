@@ -1,4 +1,4 @@
-package com.tramchester.integration.testSupport;
+package com.tramchester.integration.testSupport.config;
 
 import com.tramchester.config.NeighbourConfig;
 import com.tramchester.config.OpenLdbConfig;
@@ -15,7 +15,9 @@ import com.tramchester.testSupport.TestOpenLdbConfig;
 import com.tramchester.testSupport.reference.TramStations;
 
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.List;
 
 // NOTE: if rename this take care of names in build.gradle, for example on integrationGM target
 public class RailAndTramGreaterManchesterConfig extends IntegrationTramTestConfig {
@@ -27,7 +29,7 @@ public class RailAndTramGreaterManchesterConfig extends IntegrationTramTestConfi
 //    }
 
     public RailAndTramGreaterManchesterConfig() {
-        super(LiveData.Enabled, IntegrationTestConfig.CurrentClosures, Caching.Enabled);
+        super(LiveData.Enabled, IntegrationTestConfig.CurrentClosures, IntegrationTestConfig.CurrentStationWalks, Caching.Enabled);
     }
 
     @Override

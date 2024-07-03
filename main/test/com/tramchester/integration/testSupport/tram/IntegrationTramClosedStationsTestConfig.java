@@ -6,7 +6,6 @@ import java.util.List;
 
 public class IntegrationTramClosedStationsTestConfig extends IntegrationTramTestConfig {
 
-
     private final boolean planningEnabled;
 
     public IntegrationTramClosedStationsTestConfig(List<StationClosures> closures, boolean planningEnabled) {

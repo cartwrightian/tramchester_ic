@@ -1,4 +1,4 @@
-package com.tramchester.integration.testSupport;
+package com.tramchester.integration.testSupport.config;
 
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.NeighbourConfig;
@@ -32,7 +32,8 @@ public class IntegrationTramBusTestConfig extends IntegrationBusTestConfig {
         final Set<TransportMode> compositeStationModes = Collections.singleton(Bus);
 
         TFGMGTFSSourceTestConfig sourceTestConfig = new TFGMGTFSSourceTestConfig(TestEnv.tramAndBus,
-                modesWithPlatforms, AdditionalTramInterchanges.stations(), compositeStationModes, Collections.emptyList(), Duration.ofMinutes(13));
+                modesWithPlatforms, AdditionalTramInterchanges.stations(), compositeStationModes, Collections.emptyList(), Duration.ofMinutes(13),
+                Collections.emptyList());
 
         return Collections.singletonList(sourceTestConfig);
     }

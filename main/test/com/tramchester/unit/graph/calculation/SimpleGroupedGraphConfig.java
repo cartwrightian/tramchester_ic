@@ -28,7 +28,7 @@ public class SimpleGroupedGraphConfig extends UnitTestOfGraphConfig {
         final IdSet<Station> additionalInterchanges = IdSet.singleton(TramStations.Cornbrook.getId());
         TFGMGTFSSourceTestConfig tfgmTestDataSourceConfig = new TFGMGTFSSourceTestConfig(
                 GTFSTransportationType.tram, Tram, additionalInterchanges, compositeStationModes,
-                Collections.emptyList(), Duration.ofMinutes(13));
+                Collections.emptyList(), Duration.ofMinutes(13), Collections.emptyList());
         return Collections.singletonList(tfgmTestDataSourceConfig);
     }
 }

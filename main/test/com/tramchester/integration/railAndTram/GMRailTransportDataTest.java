@@ -10,7 +10,7 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.integration.testSupport.RailAndTramGreaterManchesterConfig;
+import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchesterConfig;
 import com.tramchester.integration.testSupport.rail.LoadRailServicesFromText;
 import com.tramchester.repository.TransportDataContainer;
 import com.tramchester.testSupport.TestEnv;

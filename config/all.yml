@@ -36,6 +36,7 @@ gtfsSourceConfig:
     addWalksForClosed: true
     markedInterchangesOnly: false
     initialWaitMinutes: 13
+    temporaryStationsWalks: []
 rail:
   dataPath: data/rail
   version: 285

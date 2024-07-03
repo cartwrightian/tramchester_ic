@@ -6,7 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.*;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.time.ProvidesNow;
-import com.tramchester.integration.testSupport.DatabaseRemoteDataSourceConfig;
+import com.tramchester.integration.testSupport.config.DatabaseRemoteDataSourceConfig;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;

@@ -6,7 +6,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.places.Station;
-import com.tramchester.integration.testSupport.AllModesTestConfig;
+import com.tramchester.integration.testSupport.config.AllModesTestConfig;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;

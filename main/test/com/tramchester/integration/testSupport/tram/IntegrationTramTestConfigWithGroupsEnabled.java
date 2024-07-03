@@ -24,7 +24,7 @@ public class IntegrationTramTestConfigWithGroupsEnabled extends IntegrationTramT
 
         overideTFGMTestConfig = new TFGMGTFSSourceTestConfig(GTFSTransportationType.tram,
                 TransportMode.Tram, AdditionalTramInterchanges.stations(), groupStationModes, closedStations,
-                IntegrationTramTestConfig.MAX_INITIAL_WAIT);
+                IntegrationTramTestConfig.MAX_INITIAL_WAIT, Collections.emptyList());
     }
 
     @Override

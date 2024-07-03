@@ -17,7 +17,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
-import com.tramchester.integration.testSupport.IntegrationTramBusTestConfig;
+import com.tramchester.integration.testSupport.config.IntegrationTramBusTestConfig;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.StationGroupsRepository;

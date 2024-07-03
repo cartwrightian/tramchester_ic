@@ -4,7 +4,7 @@ import com.thalesgroup.rtti._2017_10_01.ldb.types.ServiceItem;
 import com.thalesgroup.rtti._2017_10_01.ldb.types.StationBoard;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
-import com.tramchester.integration.testSupport.RailAndTramGreaterManchesterConfig;
+import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchesterConfig;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.livedata.openLdb.TrainDeparturesDataFetcher;
 import com.tramchester.repository.StationRepository;

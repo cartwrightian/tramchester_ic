@@ -1,6 +1,7 @@
-package com.tramchester.integration.testSupport;
+package com.tramchester.integration.testSupport.config;
 
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchesterConfig;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.testTags.DualTest;

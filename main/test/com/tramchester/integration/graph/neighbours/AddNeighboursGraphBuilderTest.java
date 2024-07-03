@@ -15,7 +15,7 @@ import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.graphbuild.StationGroupsGraphBuilder;
-import com.tramchester.integration.testSupport.IntegrationTramBusTestConfig;
+import com.tramchester.integration.testSupport.config.IntegrationTramBusTestConfig;
 import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;

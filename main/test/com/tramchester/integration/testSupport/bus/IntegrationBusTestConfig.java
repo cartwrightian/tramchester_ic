@@ -6,7 +6,7 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.integration.testSupport.IntegrationTestConfig;
+import com.tramchester.integration.testSupport.config.IntegrationTestConfig;
 import com.tramchester.integration.testSupport.TestGroupType;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.testSupport.TestEnv;
@@ -40,7 +40,8 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
         Duration maxInitialWait = Duration.ofMinutes(45);
         gtfsSourceConfig = new TFGMGTFSSourceTestConfig(
                 Collections.singleton(GTFSTransportationType.bus),
-                modesWithPlatforms, additionalInterchanges, groupedStationModes, Collections.emptyList(), maxInitialWait);
+                modesWithPlatforms, additionalInterchanges, groupedStationModes, Collections.emptyList(), maxInitialWait,
+                Collections.emptyList());
         remoteDataSourceConfig = TFGMRemoteDataSourceConfig.createFor(downloadFolder);
     }
 

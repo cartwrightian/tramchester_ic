@@ -3,7 +3,7 @@ package com.tramchester.integration.graph.databaseManagement;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.graph.databaseManagement.GraphDatabaseServiceFactory;
-import com.tramchester.integration.testSupport.IntegrationTestConfig;
+import com.tramchester.integration.testSupport.config.IntegrationTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.AfterAll;

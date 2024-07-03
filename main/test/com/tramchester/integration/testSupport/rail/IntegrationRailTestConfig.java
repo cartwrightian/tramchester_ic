@@ -5,7 +5,7 @@ import com.tramchester.config.OpenLdbConfig;
 import com.tramchester.config.RailConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.geo.BoundingBox;
-import com.tramchester.integration.testSupport.IntegrationTestConfig;
+import com.tramchester.integration.testSupport.config.IntegrationTestConfig;
 import com.tramchester.integration.testSupport.TestGroupType;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestOpenLdbConfig;

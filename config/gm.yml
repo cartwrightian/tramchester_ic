@@ -35,6 +35,7 @@ gtfsSourceConfig:
     groupedStationModes: []
     addWalksForClosed: true
     stationClosures: []
+    temporaryStationsWalks: []
 rail:
   dataPath: data/rail
   version: 928

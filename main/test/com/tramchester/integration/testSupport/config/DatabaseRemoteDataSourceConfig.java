@@ -1,4 +1,4 @@
-package com.tramchester.integration.testSupport;
+package com.tramchester.integration.testSupport.config;
 
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.domain.DataSourceID;

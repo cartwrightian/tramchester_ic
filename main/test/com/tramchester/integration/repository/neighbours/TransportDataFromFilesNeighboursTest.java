@@ -6,7 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
-import com.tramchester.integration.testSupport.IntegrationTramBusTestConfig;
+import com.tramchester.integration.testSupport.config.IntegrationTramBusTestConfig;
 import com.tramchester.repository.AgencyRepository;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;

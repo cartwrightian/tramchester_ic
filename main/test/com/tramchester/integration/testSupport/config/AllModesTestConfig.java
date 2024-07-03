@@ -1,10 +1,11 @@
-package com.tramchester.integration.testSupport;
+package com.tramchester.integration.testSupport.config;
 
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.RailConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.BoundingBox;
+import com.tramchester.integration.testSupport.TestGroupType;
 import com.tramchester.integration.testSupport.rail.RailRemoteDataSourceConfig;
 import com.tramchester.integration.testSupport.rail.TestRailConfig;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
@@ -37,7 +38,7 @@ public class AllModesTestConfig extends IntegrationTestConfig {
         Path dowloadFolder = Path.of("data/bus");
         final TFGMGTFSSourceTestConfig tfgmDataSource = new TFGMGTFSSourceTestConfig(TestEnv.tramAndBus,
                 modesWithPlatforms, AdditionalTramInterchanges.stations(), compositeStationModes, Collections.emptyList(),
-                Duration.ofMinutes(13));
+                Duration.ofMinutes(13), Collections.emptyList());
 
         remoteTfgmSourceConfig = TFGMRemoteDataSourceConfig.createFor(dowloadFolder);
         remoteDataRailConfig = new RailRemoteDataSourceConfig("data/rail");

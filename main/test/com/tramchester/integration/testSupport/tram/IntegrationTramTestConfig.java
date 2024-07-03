@@ -4,10 +4,11 @@ import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TfgmTramLiveDataConfig;
 import com.tramchester.domain.StationClosures;
+import com.tramchester.domain.TemporaryStationsWalk;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.integration.testSupport.DatabaseRemoteDataSourceConfig;
-import com.tramchester.integration.testSupport.IntegrationTestConfig;
+import com.tramchester.integration.testSupport.config.DatabaseRemoteDataSourceConfig;
+import com.tramchester.integration.testSupport.config.IntegrationTestConfig;
 import com.tramchester.integration.testSupport.TestGroupType;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.testSupport.AdditionalTramInterchanges;
@@ -27,8 +28,9 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
 
     public static final Duration MAX_INITIAL_WAIT = Duration.ofMinutes(13);
 
+
     public enum LiveData {
-        Enabled, Disabled, EnabledWithSNS;
+        Enabled, Disabled, EnabledWithSNS
     }
 
     public enum Caching {
@@ -45,29 +47,29 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
     private final Caching caching;
 
     public IntegrationTramTestConfig() {
-       this(LiveData.Disabled, IntegrationTestConfig.CurrentClosures, Caching.Enabled);
+       this(LiveData.Disabled, IntegrationTestConfig.CurrentClosures, IntegrationTestConfig.CurrentStationWalks, Caching.Enabled);
     }
 
     public IntegrationTramTestConfig(LiveData liveData) {
-        this(liveData, IntegrationTestConfig.CurrentClosures, Caching.Enabled);
+        this(liveData, IntegrationTestConfig.CurrentClosures, IntegrationTestConfig.CurrentStationWalks, Caching.Enabled);
     }
 
     public IntegrationTramTestConfig(LiveData liveData, Caching caching) {
-        this(liveData, IntegrationTestConfig.CurrentClosures, caching);
+        this(liveData, IntegrationTestConfig.CurrentClosures, IntegrationTestConfig.CurrentStationWalks, caching);
     }
 
-    public IntegrationTramTestConfig(List<StationClosures> closedStations) {
-        this(LiveData.Disabled, closedStations, Caching.Enabled);
+    public IntegrationTramTestConfig(final List<StationClosures> closedStations) {
+        this(LiveData.Disabled, closedStations, IntegrationTestConfig.CurrentStationWalks, Caching.Enabled);
     }
 
     public IntegrationTramTestConfig(List<StationClosures> closedStations, Caching caching) {
-        this(LiveData.Disabled, closedStations, caching);
+        this(LiveData.Disabled, closedStations, IntegrationTestConfig.CurrentStationWalks, caching);
         if (isGraphFiltered() && this.caching!=Caching.Disabled) {
             throw new RuntimeException("Misconfiguration, caching must be disabled if graph filtering is enabled");
         }
     }
 
-    protected IntegrationTramTestConfig(LiveData liveData, List<StationClosures> closedStations, Caching caching) {
+    protected IntegrationTramTestConfig(LiveData liveData, List<StationClosures> closedStations, List<TemporaryStationsWalk> tempWalks, Caching caching) {
         super(TestGroupType.integration);
         this.liveData = liveData;
         this.caching = caching;
@@ -75,7 +77,7 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
         Path downloadFolder = Path.of("data/tram");
         gtfsSourceConfig = new TFGMGTFSSourceTestConfig(GTFSTransportationType.tram,
                 TransportMode.Tram, AdditionalTramInterchanges.stations(), Collections.emptySet(), closedStations,
-                MAX_INITIAL_WAIT);
+                MAX_INITIAL_WAIT, tempWalks);
         remoteTFGMConfig = TFGMRemoteDataSourceConfig.createFor(downloadFolder);
         remoteDBSourceConfig = new DatabaseRemoteDataSourceConfig(Path.of("databases"));
 

@@ -6,7 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.StationToStationConnection;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Station;
-import com.tramchester.integration.testSupport.RailAndTramGreaterManchesterConfig;
+import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchesterConfig;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.repository.NeighboursRepository;
 import com.tramchester.repository.StationRepository;

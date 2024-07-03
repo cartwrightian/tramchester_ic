@@ -37,6 +37,7 @@ gtfsSourceConfig:
     groupedStationModes: [ Bus ]
     stationClosures: []
     addWalksForClosed: true
+    temporaryStationsWalks: []
 remoteSources:
   - name: tfgm
     dataURL: ${TRAM_DATAURL:- s3://tramchesternewdist/dist/${RELEASE_NUMBER}/tfgm_data.zip}

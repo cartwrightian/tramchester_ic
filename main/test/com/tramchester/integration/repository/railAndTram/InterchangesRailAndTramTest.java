@@ -10,7 +10,7 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.InterchangeType;
 import com.tramchester.domain.places.Station;
-import com.tramchester.integration.testSupport.RailAndTramGreaterManchesterConfig;
+import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchesterConfig;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.StationRepository;

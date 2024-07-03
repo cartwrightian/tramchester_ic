@@ -1,8 +1,10 @@
-package com.tramchester.integration.testSupport;
+package com.tramchester.integration.testSupport.config;
 
 import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.domain.StationClosures;
+import com.tramchester.domain.TemporaryStationsWalk;
+import com.tramchester.integration.testSupport.TestGroupType;
 import com.tramchester.integration.testSupport.naptan.NaptanRemoteDataSourceTestConfig;
 import com.tramchester.integration.testSupport.nptg.NPTGDataSourceTestConfig;
 import com.tramchester.integration.testSupport.postcodes.PostCodeDatasourceConfig;
@@ -29,6 +31,8 @@ public abstract class IntegrationTestConfig extends TestConfig {
 //    }
 
     public static final List<StationClosures> CurrentClosures = Collections.emptyList();
+    public static final List<TemporaryStationsWalk> CurrentStationWalks = Collections.emptyList();
+
     private final TestGroupType testGroupType;
 
     protected IntegrationTestConfig(TestGroupType testGroupType) {

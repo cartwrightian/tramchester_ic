@@ -21,7 +21,7 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.graph.filters.GraphFilterActive;
-import com.tramchester.integration.testSupport.ConfigParameterResolver;
+import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.integration.testSupport.OnlyIfModesExact;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.metrics.CacheMetrics;

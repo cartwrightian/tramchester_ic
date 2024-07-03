@@ -9,7 +9,7 @@ import com.tramchester.domain.StationClosures;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
-import com.tramchester.integration.testSupport.StationClosuresConfigForTest;
+import com.tramchester.integration.testSupport.config.StationClosuresConfigForTest;
 import com.tramchester.integration.testSupport.tram.IntegrationTramClosedStationsTestConfig;
 import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.StationRepository;

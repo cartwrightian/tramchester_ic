@@ -1,10 +1,11 @@
-package com.tramchester.integration.testSupport;
+package com.tramchester.integration.testSupport.config;
 
 import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.integration.testSupport.TestGroupType;
 
 import java.nio.file.Path;
 import java.util.Comparator;

@@ -16,7 +16,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.search.RouteCalculator;
-import com.tramchester.integration.testSupport.IntegrationTestConfig;
+import com.tramchester.integration.testSupport.config.IntegrationTestConfig;
 import com.tramchester.integration.testSupport.TestGroupType;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.repository.TransportData;
@@ -174,7 +174,7 @@ class MixedRouteTest {
 
             TFGMGTFSSourceTestConfig tfgmTestDataSourceConfig = new TFGMGTFSSourceTestConfig(
                     modes, modesWithPlatforms,
-                    IdSet.emptySet(), Collections.emptySet(), Collections.emptyList(), Duration.ofMinutes(13));
+                    IdSet.emptySet(), Collections.emptySet(), Collections.emptyList(), Duration.ofMinutes(13), Collections.emptyList());
             return Collections.singletonList(tfgmTestDataSourceConfig);
         }
 

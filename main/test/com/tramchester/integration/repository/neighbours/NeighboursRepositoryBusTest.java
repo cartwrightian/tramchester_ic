@@ -6,7 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
-import com.tramchester.integration.testSupport.IntegrationTramBusTestConfig;
+import com.tramchester.integration.testSupport.config.IntegrationTramBusTestConfig;
 import com.tramchester.repository.NeighboursRepository;
 import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;

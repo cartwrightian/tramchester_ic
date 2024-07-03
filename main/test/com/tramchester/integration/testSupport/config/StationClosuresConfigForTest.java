@@ -1,4 +1,4 @@
-package com.tramchester.integration.testSupport;
+package com.tramchester.integration.testSupport.config;
 
 import com.tramchester.domain.StationClosures;
 import com.tramchester.domain.dates.DateRange;

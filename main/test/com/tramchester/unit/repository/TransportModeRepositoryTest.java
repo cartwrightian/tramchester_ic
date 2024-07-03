@@ -2,6 +2,7 @@ package com.tramchester.unit.repository;
 
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.TemporaryStationsWalk;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
@@ -22,6 +23,7 @@ class TransportModeRepositoryTest {
 
     private final Set<TransportMode> modesWithPlatforms = Collections.singleton(TransportMode.Tram);
     private final IdSet<Station> additionalInterchanges = IdSet.emptySet();
+    private final List<TemporaryStationsWalk> temporaryStationWalks = Collections.emptyList();
 
     @Test
     void shouldHaveCorrectTransportModesSingle() {
@@ -61,14 +63,14 @@ class TransportModeRepositoryTest {
 
         List<GTFSSourceConfig> dataSources = new LinkedList<>();
         GTFSSourceConfig sourceA = new TFGMGTFSSourceTestConfig(configModesSourceA, modesWithPlatforms,
-                additionalInterchanges, Collections.emptySet(), Collections.emptyList(), Duration.ofMinutes(13));
+                additionalInterchanges, Collections.emptySet(), Collections.emptyList(), Duration.ofMinutes(13), temporaryStationWalks);
         dataSources.add(sourceA);
 
         Set<GTFSTransportationType> configModesSourceB = new HashSet<>();
         configModesSourceB.add(GTFSTransportationType.bus);
         configModesSourceB.add(GTFSTransportationType.train);
         GTFSSourceConfig sourceB = new TFGMGTFSSourceTestConfig(configModesSourceB, modesWithPlatforms,
-                additionalInterchanges, Collections.emptySet(), Collections.emptyList(), Duration.ofMinutes(13));
+                additionalInterchanges, Collections.emptySet(), Collections.emptyList(), Duration.ofMinutes(13), temporaryStationWalks);
         dataSources.add(sourceB);
 
         TramchesterConfig config = new ModeConfig(dataSources);
@@ -86,7 +88,7 @@ class TransportModeRepositoryTest {
     private TramchesterConfig createConfig(Set<GTFSTransportationType> configModes) {
         List<GTFSSourceConfig> dataSources = new LinkedList<>();
         GTFSSourceConfig tramConfig = new TFGMGTFSSourceTestConfig(configModes, modesWithPlatforms,
-                additionalInterchanges, Collections.emptySet(), Collections.emptyList(), Duration.ofMinutes(13));
+                additionalInterchanges, Collections.emptySet(), Collections.emptyList(), Duration.ofMinutes(13), temporaryStationWalks);
         dataSources.add(tramConfig);
         return new ModeConfig(dataSources);
     }

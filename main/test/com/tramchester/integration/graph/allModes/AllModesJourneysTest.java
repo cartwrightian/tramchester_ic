@@ -13,7 +13,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.facade.MutableGraphTransaction;
-import com.tramchester.integration.testSupport.AllModesTestConfig;
+import com.tramchester.integration.testSupport.config.AllModesTestConfig;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.repository.StationGroupsRepository;

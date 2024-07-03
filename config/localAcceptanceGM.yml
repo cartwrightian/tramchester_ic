@@ -29,6 +29,7 @@ gtfsSourceConfig:
     groupedStationModes: []
     stationClosures: []
     addWalksForClosed: true
+    temporaryStationsWalks: []
 remoteSources:
   - name: rail
     dataURL: ${RAIL_DATAURL:-s3://tramchesternewdist/railData/ttis928.zip}
