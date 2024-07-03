@@ -357,6 +357,7 @@ class ConfigMismatchTest {
             assertEquals(expectedDataSource.getAdditionalInterchanges(), dataSourceConfig.getAdditionalInterchanges(), "AdditionalInterchanges");
             if (checkClosures) {
                 assertEquals(expectedDataSource.getStationClosures(), dataSourceConfig.getStationClosures(), "station closures");
+                assertEquals(expectedDataSource.getTemporaryStationWalks(), dataSourceConfig.getTemporaryStationWalks(), "start walks");
             }
             assertEquals(expectedDataSource.getAddWalksForClosed(), dataSourceConfig.getAddWalksForClosed(), "AddWalksForClosed");
             assertEquals(expectedDataSource.getHasFeedInfo(), dataSourceConfig.getHasFeedInfo(), "feedinfo mismatch");

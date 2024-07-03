@@ -32,6 +32,7 @@ public enum GraphLabel implements Label {
     VERSION,
     NEIGHBOURS_ENABLED,
     WALK_FOR_CLOSED_ENABLED,
+    TEMP_WALKS_ADDED,
     COMPOSITES_ADDED,
 
     // Order for HOUR_N matters, used in sorting

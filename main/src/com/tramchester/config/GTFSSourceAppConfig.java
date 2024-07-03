@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.StationClosures;
-import com.tramchester.domain.TemporaryStationsWalk;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
@@ -32,7 +31,7 @@ public class GTFSSourceAppConfig extends Configuration implements GTFSSourceConf
     final private Set<String> additionalInterchanges;
     final private Set<TransportMode> groupedStationModes;
     final private List<StationClosures> closures;
-    final private List<TemporaryStationsWalk> temporaryStationsWalks;
+    final private List<TemporaryStationsWalkIds> temporaryStationsWalks;
     final private Boolean addWalksForClosed;
     final private Boolean markedInterchangesOnly;
     final private Integer initialWaitMinutes;
@@ -46,7 +45,7 @@ public class GTFSSourceAppConfig extends Configuration implements GTFSSourceConf
                                @JsonProperty(value = "additionalInterchanges", required = true) Set<String> additionalInterchanges,
                                @JsonProperty(value = "groupedStationModes", required = true) Set<TransportMode> groupedStationModes,
                                @JsonProperty(value = "stationClosures", required = true) List<StationClosures> closures,
-                               @JsonProperty(value = "temporaryStationsWalks", required = true) List<TemporaryStationsWalk> temporaryStationsWalks,
+                               @JsonProperty(value = "temporaryStationsWalks", required = true) List<TemporaryStationsWalkIds> temporaryStationsWalks,
                                @JsonProperty(value = "addWalksForClosed", required = true) Boolean addWalksForClosed,
                                @JsonProperty(value = "markedInterchangesOnly", required = true) Boolean markedInterchangesOnly,
                                @JsonProperty(value = "initialWaitMinutes", required = true)Integer initialWaitMinutes) {
@@ -111,7 +110,7 @@ public class GTFSSourceAppConfig extends Configuration implements GTFSSourceConf
     }
 
     @Override
-    public List<TemporaryStationsWalk> getTemporaryStationWalks() {
+    public List<TemporaryStationsWalkIds> getTemporaryStationWalks() {
         return temporaryStationsWalks;
     }
 

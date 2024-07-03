@@ -1,9 +1,7 @@
 package com.tramchester.integration.testSupport.config;
 
-import com.tramchester.config.GraphDBConfig;
-import com.tramchester.config.RemoteDataSourceConfig;
+import com.tramchester.config.*;
 import com.tramchester.domain.StationClosures;
-import com.tramchester.domain.TemporaryStationsWalk;
 import com.tramchester.integration.testSupport.TestGroupType;
 import com.tramchester.integration.testSupport.naptan.NaptanRemoteDataSourceTestConfig;
 import com.tramchester.integration.testSupport.nptg.NPTGDataSourceTestConfig;
@@ -13,6 +11,7 @@ import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;
 
 import java.nio.file.Path;
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
@@ -30,8 +29,16 @@ public abstract class IntegrationTestConfig extends TestConfig {
 //            LocalDate.of(2024,5,7), false, Collections.singleton("9400ZZMAVIC"));
 //    }
 
+    private static final TemporaryStationsWalkIdsConfig londonRoadClosure;
+
+    static {
+        StationPairConfig stationPair = new StationPairConfig("9400ZZMAPIC", "9400ZZMAPGD");
+        londonRoadClosure = new TemporaryStationsWalkIdsConfig(stationPair,
+                LocalDate.of(2024,6,22), LocalDate.of(2024, 7,9));
+    }
+
     public static final List<StationClosures> CurrentClosures = Collections.emptyList();
-    public static final List<TemporaryStationsWalk> CurrentStationWalks = Collections.emptyList();
+    public static final List<TemporaryStationsWalkIds> CurrentStationWalks = List.of(londonRoadClosure);
 
     private final TestGroupType testGroupType;
 

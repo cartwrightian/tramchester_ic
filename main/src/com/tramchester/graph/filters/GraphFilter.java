@@ -2,6 +2,7 @@ package com.tramchester.graph.filters;
 
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.StationPair;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.places.StationGroup;
@@ -30,4 +31,5 @@ public interface GraphFilter {
     boolean shouldInclude(StationGroup stationGroup);
     boolean shouldInclude(IdFor<Station> stationId);
 
+    boolean shouldInclude(StationPair stationPair);
 }

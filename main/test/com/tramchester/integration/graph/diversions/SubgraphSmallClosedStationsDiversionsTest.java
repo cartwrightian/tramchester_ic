@@ -16,6 +16,7 @@ import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.AddDiversionsForClosedGraphBuilder;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.StationsWithDiversion;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.*;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
@@ -353,12 +354,13 @@ class SubgraphSmallClosedStationsDiversionsTest {
         ClosedStationsRepository closedStationRepository = componentContainer.get(ClosedStationsRepository.class);
         StationsAndLinksGraphBuilder.Ready ready = componentContainer.get(StationsAndLinksGraphBuilder.Ready.class);
         Geography geography = componentContainer.get(Geography.class);
+        StationsWithDiversion stationsWithDiversions = componentContainer.get(StationsWithDiversion.class);
 
         AddDiversionsForClosedGraphBuilder again = new AddDiversionsForClosedGraphBuilder(database, graphFilter, closedStationRepository,
-                config, ready, geography, stationRepository);
+                config, ready, stationsWithDiversions, geography, stationRepository);
 
         again.start();
-        return again;
+        return stationsWithDiversions;
     }
 
     private static class SubgraphConfig extends IntegrationTramClosedStationsTestConfig {

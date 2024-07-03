@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.StationClosures;
-import com.tramchester.domain.TemporaryStationsWalk;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
@@ -59,5 +58,5 @@ public interface GTFSSourceConfig extends TransportDataSourceConfig {
 
     boolean getAddWalksForClosed();
 
-    List<TemporaryStationsWalk> getTemporaryStationWalks();
+    List<TemporaryStationsWalkIds> getTemporaryStationWalks();
 }

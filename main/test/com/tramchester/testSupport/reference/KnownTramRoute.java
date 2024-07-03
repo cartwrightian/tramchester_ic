@@ -16,15 +16,15 @@ import java.util.Set;
  */
 public enum KnownTramRoute {
 
-    PiccadillyAltrincham("Purple Line", "Piccadilly - Altrincham", "1947"),
+    PiccadillyAltrincham("Purple Line", "Piccadilly - Altrincham", "2122"),
 
-    BuryManchesterAltrincham("Green Line", "Bury - Manchester - Altrincham", "841"),
-    EcclesManchesterAshtonUnderLyne("Blue Line", "Eccles - Manchester - Ashton-Under-Lyne", "1789"),
-    PiccadillyBury("Yellow Line", "Piccadilly - Bury", "844"),
+    BuryManchesterAltrincham("Green Line", "Bury - Manchester - Altrincham", "2127"),
+    EcclesManchesterAshtonUnderLyne("Blue Line", "Eccles - Manchester - Ashton Under Lyne", "2119"),
+    PiccadillyBury("Yellow Line", "Piccadilly - Bury", "2125"),
     RochdaleShawandCromptonManchesterEastDidisbury("Pink Line",
-            "Rochdale - Shaw and Crompton - East Didsbury", "1786"),
-    VictoriaWythenshaweManchesterAirport("Navy Line", "Victoria - Wythenshawe - Manchester Airport", "848"),
-    CornbrookTheTraffordCentre("Red Line", "Deansgate-Castlefield - The Trafford Centre", "849");
+            "Rochdale - Manchester - East Didsbury", "2121"),
+    VictoriaWythenshaweManchesterAirport("Navy Line", "Victoria - Wythenshawe - Manchester Airport", "2120"),
+    CornbrookTheTraffordCentre("Red Line", "Deansgate-Castlefield - The Trafford Centre", "2126");
 
     private final String shortName;
     private final String longName;
@@ -32,16 +32,18 @@ public enum KnownTramRoute {
 
     public static Set<KnownTramRoute> getFor(final TramDate date) {
         EnumSet<KnownTramRoute> routes = EnumSet.noneOf(KnownTramRoute.class);
+        boolean sunday = date.getDayOfWeek().equals(DayOfWeek.SUNDAY);
 
         routes.add(VictoriaWythenshaweManchesterAirport);
-        routes.add(CornbrookTheTraffordCentre);
         routes.add(RochdaleShawandCromptonManchesterEastDidisbury);
+        routes.add(CornbrookTheTraffordCentre);
         routes.add(EcclesManchesterAshtonUnderLyne);
-        routes.add(PiccadillyBury);
 
-        boolean sunday = date.getDayOfWeek().equals(DayOfWeek.SUNDAY);
- 
-        routes.add(PiccadillyAltrincham);
+        if (!londonRoadTrackReplacement(date)) {
+            routes.add(PiccadillyBury);
+            routes.add(PiccadillyAltrincham);
+        }
+
         if (!sunday) {
             // not documented anywhere, but does not appear any trams on this route on Sundays
             routes.add(BuryManchesterAltrincham);
@@ -56,8 +58,8 @@ public enum KnownTramRoute {
         this.id = Route.createId(id);
     }
 
-    public static boolean earlyMayBankHoliday(TramDate date) {
-        DateRange range = new DateRange(TramDate.of(2024, 5, 5), TramDate.of(2024, 5, 6));
+    public static boolean londonRoadTrackReplacement(TramDate date) {
+        DateRange range = new DateRange(TramDate.of(2024, 6, 22), TramDate.of(2024, 7, 9));
         return range.contains(date);
     }
 

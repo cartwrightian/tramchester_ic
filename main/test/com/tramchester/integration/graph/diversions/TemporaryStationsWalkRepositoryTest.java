@@ -5,7 +5,8 @@ import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.StationPair;
-import com.tramchester.domain.TemporaryStationsWalk;
+import com.tramchester.domain.TemporaryStationWalk;
+import com.tramchester.config.TemporaryStationsWalkIds;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.integration.testSupport.config.TemporaryStationsWalkConfigForTest;
@@ -40,12 +41,12 @@ public class TemporaryStationsWalkRepositoryTest {
         stationIdPairA = new StationIdPair(TramStations.PiccadillyGardens.getId(), TramStations.Piccadilly.getId());
         StationIdPair stationIdPairB = new StationIdPair(TramStations.Altrincham.getId(), TramStations.NavigationRoad.getId());
 
-        TemporaryStationsWalk temporaryStationsWalkA = new TemporaryStationsWalkConfigForTest(stationIdPairA,
+        TemporaryStationsWalkIds temporaryStationsWalkA = new TemporaryStationsWalkConfigForTest(stationIdPairA,
                 DateRange.of(when.minusDays(3), when.plusDays(3)));
-        TemporaryStationsWalk temporaryStationsWalkB = new TemporaryStationsWalkConfigForTest(stationIdPairB,
+        TemporaryStationsWalkIds temporaryStationsWalkB = new TemporaryStationsWalkConfigForTest(stationIdPairB,
                 DateRange.of(when.minusWeeks(2), when.minusWeeks(1)));
 
-        List<TemporaryStationsWalk> walks = List.of(temporaryStationsWalkA, temporaryStationsWalkB);
+        List<TemporaryStationsWalkIds> walks = List.of(temporaryStationsWalkA, temporaryStationsWalkB);
 
         TramchesterConfig config = new IntegrationTramStationWalksTestConfig(walks);
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
@@ -60,13 +61,13 @@ public class TemporaryStationsWalkRepositoryTest {
 
     @Test
     void shouldGetCurrentWalks() {
-        Set<StationPair> walks = repository.getWalksBetweenFor(when);
+        Set<TemporaryStationWalk> walks = repository.getWalksBetweenFor(when);
 
         assertEquals(1, walks.size());
 
-        List<StationPair> results = new ArrayList<>(walks);
+        List<TemporaryStationWalk> results = new ArrayList<>(walks);
 
-        StationPair result = results.get(0);
+        StationPair result = results.get(0).getStationPair();
 
         StationPair stationPair = stationRepository.getStationPair(stationIdPairA);
 
@@ -76,7 +77,7 @@ public class TemporaryStationsWalkRepositoryTest {
 
     @Test
     void shouldGetNoWalksIfNotWithinRange() {
-        Set<StationPair> walks = repository.getWalksBetweenFor(when.plusWeeks(4));
+        Set<TemporaryStationWalk> walks = repository.getWalksBetweenFor(when.plusWeeks(4));
 
         assertEquals(0, walks.size());
     }

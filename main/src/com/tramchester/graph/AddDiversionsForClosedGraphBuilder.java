@@ -17,7 +17,7 @@ import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
 import com.tramchester.mappers.Geography;
 import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.repository.StationsWithDiversionRepository;
+import jakarta.inject.Inject;
 import org.apache.commons.lang3.tuple.Pair;
 import org.neo4j.graphdb.Direction;
 import org.slf4j.Logger;
@@ -25,9 +25,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import jakarta.inject.Inject;
 import java.time.Duration;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -37,7 +38,7 @@ import static com.tramchester.graph.TransportRelationshipTypes.DIVERSION;
 import static java.lang.String.format;
 
 @LazySingleton
-public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationships implements StationsWithDiversionRepository {
+public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationships  {
     private static final Logger logger = LoggerFactory.getLogger(AddDiversionsForClosedGraphBuilder.class);
 
     private final GraphDatabase database;
@@ -45,7 +46,7 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
     private final TramchesterConfig config;
     private final GraphFilter graphFilter;
     private final Geography geography;
-    private final StationsWithDiversions stationsWithDiversions;
+    private final StationsWithDiversion stationsWithDiversions;
     private final StationRepository stationRepository;
 
     @Inject
@@ -53,6 +54,7 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
                                               ClosedStationsRepository closedStationsRepository,
                                               TramchesterConfig config,
                                               @SuppressWarnings("unused") StationsAndLinksGraphBuilder.Ready ready,
+                                              StationsWithDiversion stationsWithDiversion,
                                               Geography geography, StationRepository stationRepository) {
         super(database);
         this.database = database;
@@ -62,8 +64,7 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
 
         this.geography = geography;
         this.stationRepository = stationRepository;
-
-        stationsWithDiversions = new StationsWithDiversions();
+        this.stationsWithDiversions = stationsWithDiversion;
     }
 
     @PostConstruct
@@ -298,50 +299,6 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
     private void setCommonProperties(final MutableGraphRelationship relationship, final Duration cost, final ClosedStation closure) {
         relationship.setCost(cost);
         relationship.setDateRange(closure.getDateRange());
-    }
-
-    @Override
-    public boolean hasDiversions(final Station station) {
-        return stationsWithDiversions.hasDiversions(station);
-    }
-
-    @Override
-    public Set<DateRange> getDateRangesFor(final Station station) {
-        return stationsWithDiversions.getDateRangesFor(station);
-    }
-
-    private static class StationsWithDiversions implements StationsWithDiversionRepository {
-
-        private final Map<Station, Set<DateRange>> diversions;
-
-        private StationsWithDiversions() {
-            diversions = new HashMap<>();
-        }
-
-        @Override
-        public boolean hasDiversions(final Station station) {
-            return diversions.containsKey(station);
-        }
-
-        @Override
-        public Set<DateRange> getDateRangesFor(final Station station) {
-            return diversions.get(station);
-        }
-
-        public void add(final Station station, final DateRange dateRange) {
-            if (!diversions.containsKey(station)) {
-                diversions.put(station, new HashSet<>());
-            }
-            diversions.get(station).add(dateRange);
-        }
-
-        public void close() {
-            diversions.clear();
-        }
-
-        public void add(final Station station, final Set<DateRange> ranges) {
-            diversions.put(station, new HashSet<>(ranges));
-        }
     }
 
     public static class Ready {

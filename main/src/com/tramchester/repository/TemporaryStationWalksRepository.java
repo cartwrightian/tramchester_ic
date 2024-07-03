@@ -2,15 +2,16 @@ package com.tramchester.repository;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.StationPair;
-import com.tramchester.domain.TemporaryStationsWalk;
+import com.tramchester.domain.TemporaryStationWalk;
+import com.tramchester.config.TemporaryStationsWalkIds;
 import com.tramchester.domain.dates.TramDate;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -22,7 +23,7 @@ public class TemporaryStationWalksRepository {
     private final TramchesterConfig config;
     private final StationRepository stationRepository;
 
-    private final Set<TemporaryStationsWalk> walks;
+    private final Set<TemporaryStationWalk> walks;
 
     @Inject
     public TemporaryStationWalksRepository(TramchesterConfig config, StationRepository stationRepository) {
@@ -35,8 +36,11 @@ public class TemporaryStationWalksRepository {
     public void start() {
         logger.info("starting");
         config.getGTFSDataSource().forEach(source -> {
-            final List<TemporaryStationsWalk> walksFromConfig = new ArrayList<>(source.getTemporaryStationWalks());
-            walks.addAll(walksFromConfig);
+            final List<TemporaryStationsWalkIds> walksFromConfig = source.getTemporaryStationWalks();
+
+            Set<TemporaryStationWalk> walksFromSource = walksFromConfig.stream().
+                    map(walkFromConfig -> resolveStations(walkFromConfig, source.getDataSourceId())).collect(Collectors.toSet());
+            walks.addAll(walksFromSource);
 
             if (walks.isEmpty()) {
                 logger.info("No closures for " + source.getName());
@@ -46,9 +50,18 @@ public class TemporaryStationWalksRepository {
         logger.info("Started");
     }
 
-    public Set<StationPair> getWalksBetweenFor(final TramDate date) {
+    private TemporaryStationWalk resolveStations(TemporaryStationsWalkIds temporaryStationWalkIds, DataSourceID dataSourceId) {
+        StationPair stationPair = stationRepository.getStationPair(temporaryStationWalkIds.getStationPair());
+        return new TemporaryStationWalk(stationPair, temporaryStationWalkIds.getDateRange(), dataSourceId);
+    }
+
+    public Set<TemporaryStationWalk> getWalksBetweenFor(final TramDate date) {
         return walks.stream().filter(walk -> walk.getDateRange().contains(date)).
-                map(walk -> stationRepository.getStationPair(walk.getStationPair())).
+                collect(Collectors.toSet());
+    }
+
+    public Set<TemporaryStationWalk> getTemporaryWalksFor(final DataSourceID dataSourceId) {
+        return walks.stream().filter(walk -> walk.getDataSourceID().equals(dataSourceId)).
                 collect(Collectors.toSet());
     }
 }

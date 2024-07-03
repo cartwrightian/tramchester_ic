@@ -20,6 +20,7 @@ import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
+import com.tramchester.testSupport.testTags.LondonRoadClosure;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -67,7 +68,7 @@ public class RouteRepositoryTest {
     @Test
     void shouldGetRouteWithHeadsigns() {
         Route result = routeHelper.getOneRoute(EcclesManchesterAshtonUnderLyne, when);
-        assertEquals("Eccles - Manchester - Ashton-Under-Lyne", result.getName());
+        assertEquals("Eccles - Manchester - Ashton Under Lyne", result.getName());
         assertEquals(TestEnv.MetAgency(),result.getAgency());
         //assertTrue(IdForDTO.createFor(result).getActualId().startsWith("METLBLUE:I:"));
         assertTrue(TransportMode.isTram(result));
@@ -177,6 +178,7 @@ public class RouteRepositoryTest {
 
     }
 
+    @LondonRoadClosure
     @Test
     void shouldReproIssueWithUnsymmetricDateOverlap() {
 
@@ -203,7 +205,8 @@ public class RouteRepositoryTest {
         Set<Route> cornbrookPickups = cornbrook.getPickupRoutes().stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
         Set<Route> cornbrookDropofss = cornbrook.getDropoffRoutes().stream().filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
 
-        int throughRoutes = 6; // might not match the map, which includes psuedo-routes that are made of trams running part of an existing route
+        // London Road Closure 6->5
+        int throughRoutes = 5; // might not match the map, which includes psuedo-routes that are made of trams running part of an existing route
         assertEquals(throughRoutes  , cornbrookPickups.size(), HasId.asIds(cornbrookPickups));
         assertEquals(throughRoutes , cornbrookDropofss.size(), HasId.asIds(cornbrookDropofss));
 

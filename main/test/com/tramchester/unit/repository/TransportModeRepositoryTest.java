@@ -2,7 +2,7 @@ package com.tramchester.unit.repository;
 
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.TemporaryStationsWalk;
+import com.tramchester.config.TemporaryStationsWalkIds;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
@@ -23,7 +23,7 @@ class TransportModeRepositoryTest {
 
     private final Set<TransportMode> modesWithPlatforms = Collections.singleton(TransportMode.Tram);
     private final IdSet<Station> additionalInterchanges = IdSet.emptySet();
-    private final List<TemporaryStationsWalk> temporaryStationWalks = Collections.emptyList();
+    private final List<TemporaryStationsWalkIds> temporaryStationWalks = Collections.emptyList();
 
     @Test
     void shouldHaveCorrectTransportModesSingle() {

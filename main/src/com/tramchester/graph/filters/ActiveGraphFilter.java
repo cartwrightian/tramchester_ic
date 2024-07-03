@@ -3,6 +3,7 @@ package com.tramchester.graph.filters;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.StationPair;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.StopCall;
@@ -101,6 +102,11 @@ public class ActiveGraphFilter implements GraphFilter, ConfigurableGraphFilter {
             return true;
         }
         return stationsIds.contains(stationId);
+    }
+
+    @Override
+    public boolean shouldInclude(final StationPair stationPair) {
+        return shouldInclude(stationPair.first()) && shouldInclude(stationPair.second());
     }
 
     @Override

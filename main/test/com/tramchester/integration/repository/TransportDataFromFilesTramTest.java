@@ -177,7 +177,8 @@ public class TransportDataFromFilesTramTest {
 
         Set<String> uniqueRouteNames = callingRoutes.stream().map(Route::getName).collect(Collectors.toSet());
 
-        assertEquals(2, uniqueRouteNames.size(), uniqueRouteNames.toString());
+        // London road closure 2 -> 1
+        assertEquals(1, uniqueRouteNames.size(), uniqueRouteNames.toString());
     }
 
     @Test
@@ -231,7 +232,8 @@ public class TransportDataFromFilesTramTest {
                 map(routeStation -> Pair.of(routeStation.getStationId(), routeStation.getRoute().getName())).
                 collect(Collectors.toSet());
 
-        assertEquals(4, routeStationPairs.size(), routeStations.toString());
+        // London Road Closure 4->3
+        assertEquals(3, routeStationPairs.size(), routeStations.toString());
 
         Set<String> routeNames =
                 routeStations.stream().
@@ -359,7 +361,7 @@ public class TransportDataFromFilesTramTest {
     @Test
     void shouldHaveTramServicesAvailableNDaysAhead() {
 
-        Set<TramDate> noServices = TestEnv.getUpcomingDates().
+        Set<TramDate> noServices = getUpcomingDates().
                 filter(date -> !date.isChristmasPeriod()).
                 filter(date -> transportData.getServicesOnDate(date).isEmpty()).
                 collect(Collectors.toSet());
@@ -372,7 +374,7 @@ public class TransportDataFromFilesTramTest {
     @Test
     void shouldHaveTripsOnDateForEachStation() {
 
-        Set<Pair<TramDate, IdFor<Station>>> missing = TestEnv.getUpcomingDates().
+        Set<Pair<TramDate, IdFor<Station>>> missing = getUpcomingDates().
                 filter(date -> !date.isChristmasPeriod()).
                 flatMap(date -> transportData.getStations(EnumSet.of(Tram)).stream().map(station -> Pair.of(date, station))).
                 filter(pair -> !closedStationRepository.isClosed(pair.getRight(), pair.getLeft())).
@@ -382,6 +384,11 @@ public class TransportDataFromFilesTramTest {
 
         assertTrue(missing.isEmpty(), "Got missing trips for " + missing);
 
+    }
+
+    private static Stream<TramDate> getUpcomingDates() {
+        // they seem to have put alty line closure in on 7/7 instead of 14/7 !?
+        return TestEnv.getUpcomingDates().filter(date -> !date.equals(TestEnv.WORKAROUND_WRONG_DATE_IN_TFGM_DATA));
     }
 
     @Test
@@ -415,7 +422,7 @@ public class TransportDataFromFilesTramTest {
 
         final Map<Pair<TramDate, TramTime>, IdSet<Station>> missing = new HashMap<>();
 
-        TestEnv.getUpcomingDates().filter(date -> !date.isChristmasPeriod()).forEach(date -> {
+        getUpcomingDates().filter(date -> !date.isChristmasPeriod()).forEach(date -> {
             transportData.getStations(EnumSet.of(Tram)).stream().
                     filter(station -> !closedStationRepository.isClosed(station, date)).
                     forEach(station -> {

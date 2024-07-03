@@ -26,12 +26,12 @@ import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.caching.*;
 import com.tramchester.metrics.Timing;
 import com.tramchester.repository.*;
+import jakarta.inject.Inject;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
-import jakarta.inject.Inject;
 import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -79,6 +79,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                                        @SuppressWarnings("unused") StationsAndLinksGraphBuilder.Ready stationAndLinksBuilt,
                                        @SuppressWarnings("unused") AddNeighboursGraphBuilder.Ready neighboursReady,
                                        @SuppressWarnings("unused") AddDiversionsForClosedGraphBuilder.Ready walksForClosedReady,
+                                       @SuppressWarnings("unused") AddTemporaryStationWalksGraphBuilder tempWalksReady,
                                        @SuppressWarnings("unused") StationGroupsGraphBuilder.Ready groupsReady,
                                        GraphDatabaseMetaInfo databaseMetaInfo, StopCallRepository stopCallRepository,
                                        StationsWithDiversionRepository stationsWithDiversionRepository) {

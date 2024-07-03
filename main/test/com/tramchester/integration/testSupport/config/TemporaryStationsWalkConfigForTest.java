@@ -1,12 +1,12 @@
 package com.tramchester.integration.testSupport.config;
 
 import com.tramchester.domain.StationIdPair;
-import com.tramchester.domain.TemporaryStationsWalk;
+import com.tramchester.config.TemporaryStationsWalkIds;
 import com.tramchester.domain.dates.DateRange;
 
 import java.util.Objects;
 
-public class TemporaryStationsWalkConfigForTest implements TemporaryStationsWalk {
+public class TemporaryStationsWalkConfigForTest implements TemporaryStationsWalkIds {
 
     private final StationIdPair stations;
     private final DateRange dateRange;

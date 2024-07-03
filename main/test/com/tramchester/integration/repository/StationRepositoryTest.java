@@ -196,11 +196,17 @@ public class StationRepositoryTest {
         assertTrue(station.hasDropoff());
         assertTrue(station.hasPickup());
 
-        EnumSet<KnownTramRoute> expected = EnumSet.of(BuryManchesterAltrincham, PiccadillyAltrincham, PiccadillyAltrincham,
+        Set<KnownTramRoute> expectRunningOnDate = getFor(when);
+
+        EnumSet<KnownTramRoute> expected = EnumSet.of(BuryManchesterAltrincham, PiccadillyAltrincham,
                 CornbrookTheTraffordCentre,
                 EcclesManchesterAshtonUnderLyne, VictoriaWythenshaweManchesterAirport, RochdaleShawandCromptonManchesterEastDidisbury);
 
-        IdSet<Route> expectedIds = expected.stream().map(KnownTramRoute::getId).collect(IdSet.idCollector());
+        IdSet<Route> expectedIds = expected.stream().
+                filter(expectRunningOnDate::contains).
+                map(KnownTramRoute::getId).
+                collect(IdSet.idCollector());
+
         IdSet<Route> pickups = station.getPickupRoutes().stream().
             filter(route -> route.isAvailableOn(when)).
             collect(IdSet.collector());

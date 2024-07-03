@@ -31,6 +31,7 @@ import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
+import com.tramchester.testSupport.testTags.LondonRoadClosure;
 import org.assertj.core.util.Streams;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
@@ -254,6 +255,7 @@ class TramGraphBuilderTest {
 
     }
 
+    @LondonRoadClosure
     @Test
     void shouldHaveCorrectOutboundsServiceAndTripAtCornbrook() {
 
@@ -714,6 +716,7 @@ class TramGraphBuilderTest {
         return outboundsFromRouteStation.stream().filter(relationship -> relationship.isType(TO_SERVICE)).toList();
     }
 
+    @LondonRoadClosure
     @Test
     void shouldHaveSameOutboundTripIdsForNeighbouringRouteStationWhenSameRouteAndSvc() {
         // outbound from manchester Timperley then Navigation Road
@@ -738,6 +741,7 @@ class TramGraphBuilderTest {
         assertEquals(svcOutboundsA.size(), svcOutboundsB.size(), "not same set of services");
 
         IdSet<Service> uniqueSvcIds = svcOutboundsA.stream().map(ImmutableGraphRelationship::getServiceId).collect(IdSet.idCollector());
+
         assertFalse(uniqueSvcIds.isEmpty());
 
         uniqueSvcIds.forEach(svcId -> {
@@ -745,13 +749,13 @@ class TramGraphBuilderTest {
             List<ImmutableGraphRelationship> fromA = svcOutboundsA.stream().
                     filter(svcOutbounds -> svcOutbounds.getServiceId().equals(svcId)).
                     filter(svcOutbound -> svcOutbound.getEndNode(txn).getTowardsStationId().equals(stationB.getId())).toList();
+            assertEquals(1, fromA.size(), "could not find " + svcId + " from A towards B " + uniqueSvcIds);
+
             // from B, excluding back towards A
             List<ImmutableGraphRelationship> fromB = svcOutboundsB.
                     stream().filter(svcOutbounds -> svcOutbounds.getServiceId().equals(svcId)).
                     filter(svcOutbound -> !svcOutbound.getEndNode(txn).getTowardsStationId().equals(stationA.getId())).toList();
-
-            assertEquals(1, fromA.size());
-            assertEquals(1, fromB.size());
+            assertEquals(1, fromB.size(), "could not find " + svcId + " from B towards A ");
 
             IdSet<Trip> tripsFromA = fromA.get(0).getTripIds();
             IdSet<Trip> tripsFromB = fromB.get(0).getTripIds();

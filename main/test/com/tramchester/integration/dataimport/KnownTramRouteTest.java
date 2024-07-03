@@ -129,7 +129,7 @@ class KnownTramRouteTest {
     void shouldNotHaveUnusedKnownTramRoutes() {
         TramDate start = TramDate.from(TestEnv.LocalNow());
 
-        DateRange dateRange = DateRange.of(start, when);
+        DateRange dateRange = DateRange.of(start, when.plusWeeks(2));
 
         // returned for dates, and hence tested
         Set<KnownTramRoute> returnedForDates = dateRange.stream().

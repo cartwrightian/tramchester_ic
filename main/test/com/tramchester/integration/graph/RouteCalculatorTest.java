@@ -42,9 +42,8 @@ import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.domain.time.Durations.greaterOrEquals;
-import static com.tramchester.testSupport.TestEnv.DAYS_AHEAD;
+import static com.tramchester.testSupport.TestEnv.*;
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
-import static com.tramchester.testSupport.TestEnv.avoidChristmasDate;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -656,11 +655,18 @@ public class RouteCalculatorTest {
     private void checkRouteNextNDays(TramStations start, TramStations dest, TramDate date, TramTime time, int numDays) {
         if (!dest.equals(start)) {
             for(int day = 0; day< numDays; day++) {
-                TramDate testDate = avoidChristmasDate(date.plusDays(day));
+                final TramDate testDate = avoidChristmasDate(date.plusDays(day));
                 JourneyRequest journeyRequest = standardJourneyRequest(testDate, time, maxNumResults);
-                assertGetAndCheckJourneys(journeyRequest, start, dest);
+                if (!testDate.equals(TestEnv.WORKAROUND_WRONG_DATE_IN_TFGM_DATA)) {
+                    assertGetAndCheckJourneys(journeyRequest, start, dest);
+                }
             }
         }
+    }
+
+    @Test
+    void reminderToRemoveWorkaround() {
+        assertTrue(WORKAROUND_WRONG_DATE_IN_TFGM_DATA.isAfter(when));
     }
 
     private void assertGetAndCheckJourneys(JourneyRequest journeyRequest, TramStations start, TramStations dest) {

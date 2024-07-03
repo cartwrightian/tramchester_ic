@@ -4,7 +4,7 @@ import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TfgmTramLiveDataConfig;
 import com.tramchester.domain.StationClosures;
-import com.tramchester.domain.TemporaryStationsWalk;
+import com.tramchester.config.TemporaryStationsWalkIds;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.config.DatabaseRemoteDataSourceConfig;
@@ -69,7 +69,7 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
         }
     }
 
-    protected IntegrationTramTestConfig(LiveData liveData, List<StationClosures> closedStations, List<TemporaryStationsWalk> tempWalks, Caching caching) {
+    protected IntegrationTramTestConfig(LiveData liveData, List<StationClosures> closedStations, List<TemporaryStationsWalkIds> tempWalks, Caching caching) {
         super(TestGroupType.integration);
         this.liveData = liveData;
         this.caching = caching;
