@@ -9,7 +9,7 @@ import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.id.LocationIdPairSet;
+import com.tramchester.domain.collections.LocationIdPairSet;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
@@ -22,6 +22,7 @@ import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.repository.*;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -70,6 +71,11 @@ public class RouteCalculationCombinations<T extends Location<T>> {
 
     public CombinationResults<T> validateAllHaveAtLeastOneJourney(final LocationIdPairSet<T> stationIdPairs,
                                                                              final JourneyRequest journeyRequest, final boolean check) {
+        return validateAllHaveAtLeastOneJourney(stationIdPairs, journeyRequest, check, GraphDatabase.DEFAULT_TXN_TIMEOUT);
+    }
+
+    public CombinationResults<T> validateAllHaveAtLeastOneJourney(final LocationIdPairSet<T> stationIdPairs,
+                                                                             final JourneyRequest journeyRequest, final boolean check, Duration timeout) {
 
         if (stationIdPairs.isEmpty()) {
             fail("no station pairs");
@@ -79,7 +85,7 @@ public class RouteCalculationCombinations<T extends Location<T>> {
 
         Running running = () -> true;
 
-        CombinationResults<T> results = computeJourneys(stationIdPairs, journeyRequest, running);
+        CombinationResults<T> results = computeJourneys(stationIdPairs, journeyRequest, running, timeout);
         assertEquals(openPairs, results.size(), "Not enough results");
 
         // check all results present, collect failures into a list
@@ -100,16 +106,20 @@ public class RouteCalculationCombinations<T extends Location<T>> {
     }
 
     public CombinationResults<T> getJourneysFor(final LocationIdPairSet<T> stationIdPairs, JourneyRequest journeyRequest) {
-        return validateAllHaveAtLeastOneJourney(stationIdPairs, journeyRequest, false);
+        return validateAllHaveAtLeastOneJourney(stationIdPairs, journeyRequest, false, GraphDatabase.DEFAULT_TXN_TIMEOUT);
+    }
+
+    public CombinationResults<T> getJourneysFor(final LocationIdPairSet<T> stationIdPairs, JourneyRequest journeyRequest, Duration timeout ) {
+        return validateAllHaveAtLeastOneJourney(stationIdPairs, journeyRequest, false, timeout);
     }
 
     @Deprecated
     public CombinationResults<T> validateAllHaveAtLeastOneJourney(LocationIdPairSet<T> stationIdPairs, JourneyRequest journeyRequest) {
-        return validateAllHaveAtLeastOneJourney(stationIdPairs, journeyRequest, true);
+        return validateAllHaveAtLeastOneJourney(stationIdPairs, journeyRequest, true, GraphDatabase.DEFAULT_TXN_TIMEOUT);
     }
 
     @NotNull
-    private CombinationResults<T> computeJourneys(final LocationIdPairSet<T> combinations, final JourneyRequest request, Running running) {
+    private CombinationResults<T> computeJourneys(final LocationIdPairSet<T> combinations, final JourneyRequest request, Running running, Duration timeout) {
         final TramDate queryDate = request.getDate();
         final TramTime queryTime = request.getOriginalTime();
 
@@ -117,7 +127,7 @@ public class RouteCalculationCombinations<T extends Location<T>> {
                 parallelStream().
                 filter(stationIdPair -> bothOpen(stationIdPair, request)).
                 map(stationIdPair -> {
-                    try (final MutableGraphTransaction txn = database.beginTxMutable()) {
+                    try (final MutableGraphTransaction txn = database.beginTxMutable(timeout)) {
                         final Optional<Journey> optionalJourney = findJourneys(txn, stationIdPair.getBeginId(), stationIdPair.getEndId(), request, running);
                         return new JourneyOrNot<T>(stationIdPair, queryDate, queryTime, optionalJourney);
                     }

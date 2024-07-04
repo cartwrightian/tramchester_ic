@@ -63,7 +63,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
     private final static TramDate when = TestEnv.testDay();
 
     private final static List<StationClosures> closedStations = List.of(
-            new StationClosuresConfigForTest(PiccadillyGardens, when, when.plusWeeks(1), false,
+            new StationClosuresConfigForTest(PiccadillyGardens, when.plusWeeks(1), when.plusWeeks(2), false,
                     Collections.emptySet()));
 
     private static final List<TramStations> centralStations = Arrays.asList(
@@ -169,7 +169,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
 
     @Test
     void shouldHaveCorrectDateRangesForDiversion() {
-        DateRange expected = DateRange.of(when, when.plusWeeks(1));
+        DateRange expected = DateRange.of(when.plusWeeks(1), when.plusWeeks(2));
 
         hasDateRange(MarketStreet.from(stationRepository), expected, diversionRepository);
         hasDateRange(StPetersSquare.from(stationRepository), expected, diversionRepository);
@@ -189,7 +189,8 @@ class SubgraphSmallClosedStationsDiversionsTest {
 
     private void hasDateRange(Station station, DateRange expected, StationsWithDiversionRepository repository) {
         final Set<DateRange> dateRanges = repository.getDateRangesFor(station);
-        assertEquals(1, dateRanges.size());
+        // can have overlap with station walks
+        //assertEquals(1, dateRanges.size());
         assertTrue(dateRanges.contains(expected));
     }
 
@@ -211,7 +212,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
 
     @Test
     void shouldHaveExpectedNeighboursForClosedPiccadillyGardens() {
-        TramDate date = when;
+        TramDate date = when.plusWeeks(1).plusDays(1);
         ClosedStationsRepository closedStationsRepository = componentContainer.get(ClosedStationsRepository.class);
 
         Station piccGardens = PiccadillyGardens.from(stationRepository);

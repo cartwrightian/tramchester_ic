@@ -17,6 +17,8 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.LondonRoadClosure;
+
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
@@ -231,14 +233,20 @@ class JourneyPlannerLocationResourceTest {
         return LocalDateTime.of(when.toLocalDate(), LocalTime.of(hour, minute));
     }
 
+    @LondonRoadClosure
     @Test
     void reproduceIssueNearAltyToAshton()  {
-        Set<JourneyDTO> journeys = validateJourneyFromLocation(nearAltrincham, TramStations.Ashton,
-                TramTime.of(19,47), false, when.plusWeeks(1));
+        JourneyQueryDTO query = journeyPlanner.getQueryDTO(when, TramTime.of(19,47), nearAltrincham.location(), 
+            TramStations.Ashton, false, 3);
+        
+        JourneyPlanRepresentation plan = journeyPlanner.getJourneyPlan(query);
+        Set<JourneyDTO> journeys = plan.getJourneys();
+
+        assertFalse(journeys.isEmpty(), "no journeys for " + query);
 
         Optional<JourneyDTO> find3Stage = journeys.stream().filter(journeyDTO -> journeyDTO.getStages().size() == 3).findFirst();
 
-        assertTrue(find3Stage.isPresent(), journeys.toString());
+        assertTrue(find3Stage.isPresent(), "No 3 stage journeys in " + journeys);
     }
 
     @Test
@@ -264,7 +272,7 @@ class JourneyPlannerLocationResourceTest {
         JourneyQueryDTO query = journeyPlanner.getQueryDTO(when, queryTime, start.location(), destination, arriveBy, 3);
 
         JourneyPlanRepresentation plan = journeyPlanner.getJourneyPlan(query);
-        return validateJourneyPresent(plan);
+        return validateJourneyPresent(plan, query);
     }
 
     private Set<JourneyDTO> validateJourneyToLocation(FakeStation start, KnownLocations destination, TramTime queryTime, boolean arriveBy) {
@@ -272,13 +280,13 @@ class JourneyPlannerLocationResourceTest {
         JourneyQueryDTO query = journeyPlanner.getQueryDTO(when, queryTime, start, destination.location(), arriveBy, 3);
 
         JourneyPlanRepresentation plan = journeyPlanner.getJourneyPlan(query);
-        return validateJourneyPresent(plan);
+        return validateJourneyPresent(plan, query);
     }
 
     @NotNull
-    private Set<JourneyDTO> validateJourneyPresent(JourneyPlanRepresentation plan) {
+    private Set<JourneyDTO> validateJourneyPresent(JourneyPlanRepresentation plan, JourneyQueryDTO query) {
         Set<JourneyDTO> journeys = plan.getJourneys();
-        assertFalse(journeys.isEmpty(), "no journeys");
+        assertFalse(journeys.isEmpty(), "no journeys for " + query);
 
         journeys.forEach(journeyDTO -> {
             List<SimpleStageDTO> stages = journeyDTO.getStages();

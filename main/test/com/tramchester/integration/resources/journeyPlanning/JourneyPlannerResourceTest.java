@@ -244,16 +244,17 @@ public class JourneyPlannerResourceTest {
 
     @Test
     void testAltyToManAirportHasRealisticTranferAtCornbrook() {
-        TramDate nextSunday = TestEnv.nextSunday();
+        // Clousures on alty line during July on Sunday
+        TramDate date = TestEnv.testDay(); // TestEnv.nextSunday();
 
-        JourneyQueryDTO query = journeyPlanner.getQueryDTO(nextSunday, TramTime.of(11, 0),
+        JourneyQueryDTO query = journeyPlanner.getQueryDTO(date, TramTime.of(11, 0),
                 Altrincham, ManAirport, false, 3);
 
         JourneyPlanRepresentation results = journeyPlanner.getJourneyPlan(query);
 
         Set<JourneyDTO> journeys = results.getJourneys();
 
-        assertFalse(journeys.isEmpty(), "no journeys");
+        assertFalse(journeys.isEmpty(), "no journeys for " + query);
         checkDepartsAfterPreviousArrival("Altrincham to airport at 11:43 sunday", journeys);
     }
 

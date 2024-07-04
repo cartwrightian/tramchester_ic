@@ -40,10 +40,13 @@ class RouteCalculatorCloseStationsTest {
     private final static TramDate when = TestEnv.testDay();
     private MutableGraphTransaction txn;
 
+    private final static TramDate begin = when.plusWeeks(1);
+    private final static TramDate end = when.plusWeeks(2);
+
     // see note below on DB deletion
     private final static List<StationClosures> closedStations = Arrays.asList(
-            new StationClosuresConfigForTest(Shudehill, when, when.plusWeeks(1), true, Collections.emptySet()),
-            new StationClosuresConfigForTest(PiccadillyGardens, when, when.plusWeeks(1), false, Collections.emptySet()));
+            new StationClosuresConfigForTest(Shudehill, begin, end, true, Collections.emptySet()),
+            new StationClosuresConfigForTest(PiccadillyGardens, begin, end, false, Collections.emptySet()));
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -75,7 +78,7 @@ class RouteCalculatorCloseStationsTest {
 
     @Test
     void shouldFindUnaffectedRouteNormally() {
-        JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
+        JourneyRequest journeyRequest = new JourneyRequest(begin, TramTime.of(8,0), false,
                 2, Duration.ofMinutes(120), 1, getRequestedModes());
         List<Journey> result = calculator.calculateRouteAsList(TramStations.Altrincham, TraffordBar, journeyRequest);
         assertFalse(result.isEmpty());
@@ -83,10 +86,10 @@ class RouteCalculatorCloseStationsTest {
 
     @Test
     void shouldHandlePartialClosure() {
-        JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
+        JourneyRequest journeyRequest = new JourneyRequest(begin.plusDays(1), TramTime.of(8,0), false,
                 3, Duration.ofMinutes(120), 1, getRequestedModes());
         List<Journey> result = calculator.calculateRouteAsList(Piccadilly, StPetersSquare, journeyRequest);
-        assertFalse(result.isEmpty());
+        assertFalse(result.isEmpty(), "no journey for " + journeyRequest);
     }
 
     private EnumSet<TransportMode> getRequestedModes() {
@@ -95,13 +98,13 @@ class RouteCalculatorCloseStationsTest {
 
     @Test
     void shouldNotFindRouteToClosedStationViaDirectTram() {
-        Set<Journey> singleStage = getSingleStageBuryToEccles(when);
+        Set<Journey> singleStage = getSingleStageBuryToEccles(begin);
         assertTrue(singleStage.isEmpty());
     }
 
     @Test
     void shouldFindRouteToClosedStationViaDirectTramWhenAfterClosurePeriod() {
-        TramDate travelDate = TestEnv.avoidChristmasDate(when.plusDays(10));
+        TramDate travelDate = TestEnv.avoidChristmasDate(end.plusDays(2));
 
         Set<Journey> singleStage = getSingleStageBuryToEccles(travelDate);
         assertFalse(singleStage.isEmpty());

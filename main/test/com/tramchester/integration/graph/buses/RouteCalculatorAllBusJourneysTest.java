@@ -6,7 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.LocationIdPair;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.LocationIdPairSet;
+import com.tramchester.domain.collections.LocationIdPairSet;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;

@@ -7,7 +7,7 @@ import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.id.LocationIdPairSet;
+import com.tramchester.domain.collections.LocationIdPairSet;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;

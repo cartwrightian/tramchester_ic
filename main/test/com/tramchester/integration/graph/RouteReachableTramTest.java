@@ -67,9 +67,11 @@ class RouteReachableTramTest {
 
         Set<String> names = results.stream().map(Route::getName).collect(Collectors.toSet());
 
-        assertEquals(2, names.size(), names.toString());
+        // LondonRoadClosure 2->1
+        assertEquals(1, names.size(), names.toString());
 
-        assertTrue(names.contains(PiccadillyAltrincham.longName()), names.toString());
+        // LondonRoadClosure
+       // assertTrue(names.contains(PiccadillyAltrincham.longName()), names.toString());
         assertTrue(names.contains(BuryManchesterAltrincham.longName()), names.toString());
     }
 

@@ -7,7 +7,7 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.LocationIdPairSet;
+import com.tramchester.domain.collections.LocationIdPairSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.Durations;
@@ -107,10 +107,10 @@ class RouteCalculatorKeyRoutesTest {
 
         for(int day = 0; day< TestEnv.DAYS_AHEAD; day++) {
             TramDate testDate = avoidChristmasDate(when.plusDays(day));
-            if (testDate.getDayOfWeek() != DayOfWeek.SUNDAY) {
-                JourneyRequest request = new JourneyRequest(testDate, TramTime.of(8, 5), false, 4,
+            if (shouldCheckDate(testDate)) {
+                JourneyRequest request = new JourneyRequest(testDate, TramTime.of(8, 5), false, 3,
                         maxJourneyDuration, 1, modes);
-                RouteCalculationCombinations.CombinationResults<Station> results = combinations.getJourneysFor(pairs, request);
+                RouteCalculationCombinations.CombinationResults<Station> results = combinations.getJourneysFor(pairs, request, Duration.ofMinutes(1));
                 LocationIdPairSet<Station> missingForDate = results.getMissing();
                 if (!missingForDate.isEmpty()) {
                     missing.put(testDate, missingForDate);
@@ -122,6 +122,11 @@ class RouteCalculatorKeyRoutesTest {
 
     }
 
+    private boolean shouldCheckDate(TramDate testDate) {
+        return testDate.getDayOfWeek() != DayOfWeek.SUNDAY && 
+            !testDate.equals(TestEnv.WORKAROUND_WRONG_DATE_IN_TFGM_DATA);
+    }
+
     @DataExpiryCategory
     @Test
     void shouldFindEndOfLinesToEndOfLinesInNDays() {
@@ -131,7 +136,7 @@ class RouteCalculatorKeyRoutesTest {
         TramDate testDate = avoidChristmasDate(when);
         JourneyRequest request = new JourneyRequest(testDate, TramTime.of(8,5), false, 4,
                 maxJourneyDuration, 1, modes);
-        RouteCalculationCombinations.CombinationResults<Station> results = combinations.getJourneysFor(pairs, request);
+        RouteCalculationCombinations.CombinationResults<Station> results = combinations.getJourneysFor(pairs, request, Duration.ofSeconds(30));
         validateFor(results);
     }
 

@@ -1,4 +1,4 @@
-package com.tramchester.domain.id;
+package com.tramchester.domain.collections;
 
 import com.tramchester.domain.LocationIdPair;
 import com.tramchester.domain.places.Location;
