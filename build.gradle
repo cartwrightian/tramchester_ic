@@ -404,6 +404,7 @@ def integrationTestConfiguration = {
         excludeTags "GMTest"
         excludeTags "LiveDataS3UploadTest"
         excludeTags "AWSMetricsTest"
+        excludeTags "LondonRoadClosure"
     }
     filter {
         includeTestsMatching "com.tramchester.integration.*"
@@ -464,6 +465,7 @@ tasks.register('dataUpdated', Test) {
     outputs.upToDateWhen { false }
     useJUnitPlatform {
         includeTags "DataUpdateTest"
+        excludeTags "LondonRoadClosure"
     }
 }
 
