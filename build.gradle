@@ -106,7 +106,7 @@ dependencies {
 
     implementation  'org.jetbrains:annotations:24.1.0'
 
-    implementation('org.geotools:gt-main:30.2',
+    implementation('org.geotools:gt-main:31.3',
             'org.geotools:gt-epsg-hsql:30.2')
     implementation('javax.measure:unit-api:2.2')
 
