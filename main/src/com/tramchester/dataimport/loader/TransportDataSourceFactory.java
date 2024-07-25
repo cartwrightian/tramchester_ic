@@ -10,16 +10,17 @@ import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.factory.TransportEntityFactory;
 import com.tramchester.domain.factory.TransportEntityFactoryForTFGM;
 import com.tramchester.repository.naptan.NaptanRepository;
+import jakarta.inject.Inject;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import jakarta.inject.Inject;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 @LazySingleton
@@ -101,6 +102,16 @@ public class TransportDataSourceFactory implements Iterable<TransportDataSource>
         } else {
             throw new RuntimeException("No entity factory is defined for " + sourceConfig.getName());
         }
+    }
+
+    // test support
+    public TransportDataSource getFor(final DataSourceID dataSourceID) {
+        Optional<TransportDataSource> maybe = transportDataSources.stream().
+                filter(dataSource -> dataSource.getDataSourceInfo().getID().equals(dataSourceID)).findFirst();
+        if (maybe.isEmpty()) {
+            throw new RuntimeException("Could not find data source for " + dataSourceID);
+        }
+        return maybe.get();
     }
 
     @NotNull

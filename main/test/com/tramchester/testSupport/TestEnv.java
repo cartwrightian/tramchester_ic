@@ -84,7 +84,7 @@ public class TestEnv {
             new HashSet<>(Arrays.asList(GTFSTransportationType.tram, GTFSTransportationType.bus));
 
     // wrong date currently in tfgm data for line closure, should be 14th July not 7th
-    public static final TramDate WORKAROUND_WRONG_DATE_IN_TFGM_DATA = TramDate.of(2024, 7, 7);
+//    public static final TramDate WORKAROUND_WRONG_DATE_IN_TFGM_DATA = TramDate.of(2024, 7, 7);
 
     // https://tfgm.com/23-april-airport-works
     //public static final TramDate AirportLineClosed =  TramDate.of(2023, 4,23);;

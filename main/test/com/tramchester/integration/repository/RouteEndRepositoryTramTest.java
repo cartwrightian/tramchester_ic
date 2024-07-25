@@ -50,7 +50,7 @@ class RouteEndRepositoryTramTest {
 
         assertTrue(results.contains(Victoria.getId()), results.toString());
         assertTrue(results.contains(Piccadilly.getId()), results.toString());
-        IdSet<Station> eolIds = EndOfTheLine.stream().map(TramStations::getId).collect(IdSet.idCollector());
+        IdSet<Station> eolIds = getEndOfTheLine().stream().map(TramStations::getId).collect(IdSet.idCollector());
         assertTrue(results.containsAll(eolIds));
 
         // TODO This code only used to test support

@@ -11,14 +11,13 @@ public class ClosedStation {
     private final Station station;
     private final DateRange dateRange;
     private final boolean fullyClosed;
-    private final Set<Station> nearbyOpenStations;
+    private final Set<Station> walkingDiversions;
 
     public ClosedStation(Station station, DateRange dateRange, boolean fullyClosed, Set<Station> nearbyOpenStations) {
-
         this.station = station;
         this.dateRange = dateRange;
         this.fullyClosed = fullyClosed;
-        this.nearbyOpenStations = nearbyOpenStations;
+        this.walkingDiversions = nearbyOpenStations;
     }
 
     public Station getStation() {
@@ -56,7 +55,7 @@ public class ClosedStation {
                 "station=" + station.getId() +
                 ", dateRange=" + dateRange +
                 ", fullyClosed=" + fullyClosed +
-                ", nearbyOpenStations=" + nearbyOpenStations +
+                ", nearbyOpenStations=" + walkingDiversions +
                 '}';
     }
 
@@ -65,6 +64,6 @@ public class ClosedStation {
      * Might have been provided by config.
      */
     public Set<Station> getNearbyLinkedStation() {
-        return nearbyOpenStations;
+        return walkingDiversions;
     }
 }

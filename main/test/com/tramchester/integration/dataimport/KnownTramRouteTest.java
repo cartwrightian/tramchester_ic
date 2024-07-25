@@ -13,6 +13,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
+import com.tramchester.testSupport.testTags.ShudehillMarketStreetClosedTestCategory;
 import org.apache.commons.collections4.SetUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
@@ -125,6 +126,7 @@ class KnownTramRouteTest {
         });
     }
 
+    @ShudehillMarketStreetClosedTestCategory
     @Test
     void shouldNotHaveUnusedKnownTramRoutes() {
         TramDate start = TramDate.from(TestEnv.LocalNow());
@@ -132,12 +134,12 @@ class KnownTramRouteTest {
         DateRange dateRange = DateRange.of(start, when.plusWeeks(2));
 
         // returned for dates, and hence tested
-        Set<KnownTramRoute> returnedForDates = dateRange.stream().
+        Set<KnownTramRoute> knownRoutesForDateRange = dateRange.stream().
                 flatMap(date -> KnownTramRoute.getFor(date).stream()).collect(Collectors.toSet());
 
         Set<KnownTramRoute> all = EnumSet.allOf(KnownTramRoute.class);
 
-        SetUtils.SetView<KnownTramRoute> diff = SetUtils.disjunction(returnedForDates, all);
+        SetUtils.SetView<KnownTramRoute> diff = SetUtils.disjunction(knownRoutesForDateRange, all);
 
         assertTrue(diff.isEmpty(), "Expected empty, are they still needed, got " + diff);
 

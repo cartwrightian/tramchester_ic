@@ -124,8 +124,7 @@ class RouteCalculatorKeyRoutesTest {
     }
 
     private boolean shouldCheckDate(TramDate testDate) {
-        return testDate.getDayOfWeek() != DayOfWeek.SUNDAY && 
-            !testDate.equals(TestEnv.WORKAROUND_WRONG_DATE_IN_TFGM_DATA);
+        return testDate.getDayOfWeek() != DayOfWeek.SUNDAY;
     }
 
     @DataExpiryCategory

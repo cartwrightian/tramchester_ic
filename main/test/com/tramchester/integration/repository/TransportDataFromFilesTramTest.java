@@ -37,6 +37,7 @@ import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryCategory;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
+import com.tramchester.testSupport.testTags.ShudehillMarketStreetClosedTestCategory;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -66,7 +67,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @DataUpdateTest
 public class TransportDataFromFilesTramTest {
 
-    public static final int NUM_TFGM_TRAM_STATIONS = 99; // summer closures of eccles line
+    public static final int NUM_TFGM_TRAM_STATIONS = 99;
     private static ComponentContainer componentContainer;
     private static TramchesterConfig config;
 
@@ -104,8 +105,7 @@ public class TransportDataFromFilesTramTest {
         assertEquals(1, transportData.getAgencies().stream().filter(agency -> agency.getTransportModes().contains(Tram)).count());
         assertEquals(NUM_TFGM_TRAM_STATIONS, transportData.getStations(EnumSet.of(Tram)).size());
 
-
-        int expectedPlatforms = 200;
+        int expectedPlatforms = 200 - 6; // 6 platforms close due to summer 2024 landslip and market street work
         assertEquals(expectedPlatforms, transportData.getPlatforms(EnumSet.of(Tram)).size());
     }
 
@@ -223,6 +223,7 @@ public class TransportDataFromFilesTramTest {
     }
 
 
+    @ShudehillMarketStreetClosedTestCategory
     @Test
     void shouldGetRouteStationsForStation() {
         Set<RouteStation> routeStations = transportData.getRouteStationsFor(Shudehill.getId());
@@ -333,7 +334,7 @@ public class TransportDataFromFilesTramTest {
 
     }
 
-    // to get diagnose issues with new GTFS data and no jounreys alty to Navigation Rd post midnight
+    // to get diagnose issues with new GTFS data and no journeys alty to Navigation Rd post midnight
     @Test
     void shouldHaveTripsFromAltrinchamPostMidnight() {
         Set<Trip> fromAlty = transportData.getTrips().stream().
@@ -354,7 +355,7 @@ public class TransportDataFromFilesTramTest {
         HasId<Station> navigationRd = NavigationRoad.from(transportData);
         Set<Trip> calls = atTime.stream().filter(trip -> trip.callsAt(navigationRd.getId())).collect(Collectors.toSet());
 
-        assertEquals(2, calls.size(), HasId.asIds(calls));
+        assertEquals(3, calls.size(), HasId.asIds(calls));
     }
 
     @DataExpiryCategory
@@ -387,8 +388,7 @@ public class TransportDataFromFilesTramTest {
     }
 
     private static Stream<TramDate> getUpcomingDates() {
-        // they seem to have put alty line closure in on 7/7 instead of 14/7 !?
-        return TestEnv.getUpcomingDates().filter(date -> !date.equals(TestEnv.WORKAROUND_WRONG_DATE_IN_TFGM_DATA));
+        return TestEnv.getUpcomingDates();
     }
 
     @Test
@@ -477,7 +477,7 @@ public class TransportDataFromFilesTramTest {
         List<Station> filteredStations = transportData.getStations(EnumSet.of(Tram)).stream()
                 .filter(TramStations::isEndOfLine).toList();
 
-        assertEquals(TramStations.EndOfTheLine.size(), filteredStations.size());
+        assertEquals(TramStations.getEndOfTheLine().size(), filteredStations.size());
     }
 
     @Test
@@ -547,26 +547,32 @@ public class TransportDataFromFilesTramTest {
 
         IdSet<Station> result = new IdSet<>();
 
-        transportData.getStations().forEach(station -> {
-            IdFor<Station> stationId = station.getId();
-            Set<Trip> all = transportData.getTrips().stream().filter(trip -> trip.callsAt(stationId)).collect(Collectors.toSet());
+        transportData.getStations().stream().
+                filter(station -> !closedStationRepository.isClosed(station.getId(), when)).
+                forEach(station -> {
+                    IdFor<Station> stationId = station.getId();
+                    Set<Trip> all = transportData.getTrips().stream().filter(trip -> trip.callsAt(stationId)).collect(Collectors.toSet());
 
-            long passingThrough = all.stream().filter(trip -> !trip.firstStation().equals(stationId)).
-                    filter(trip -> !trip.lastStation().equals(stationId)).count();
+                    long passingThrough = all.stream().filter(trip -> !trip.firstStation().equals(stationId)).
+                            filter(trip -> !trip.lastStation().equals(stationId)).count();
 
-            if (passingThrough==0) {
-                result.add(stationId);
-            }
+                    if (passingThrough==0) {
+                        result.add(stationId);
+                    }
         });
 
-        IdSet<Station> expected = Stream.of(Altrincham, EastDidsbury, ManAirport, Eccles, TraffordCentre, Bury, Rochdale, Ashton).
-                map(FakeStation::getId).collect(IdSet.idCollector());
+        //Stream.of(Altrincham, EastDidsbury, ManAirport, Eccles, TraffordCentre, Bury, Rochdale, Ashton).
+
+        IdSet<Station> expected = TramStations.getEndOfTheLine().stream().
+                map(FakeStation::getId).
+                filter(stationId -> !closedStationRepository.isClosed(stationId, when)).
+                collect(IdSet.idCollector());
 
         // exchange square, due to broken rail diversion?
         //expected.add(ExchangeSquare.getId());
 
         IdSet<Station> disjunction = IdSet.disjunction(expected, result);
-        assertTrue(disjunction.isEmpty(), disjunction.toString());
+        assertTrue(disjunction.isEmpty(), disjunction + " diff between expected " + expected + " and result " + result);
 
     }
 

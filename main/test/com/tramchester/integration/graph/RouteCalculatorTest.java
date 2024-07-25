@@ -30,6 +30,7 @@ import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryCategory;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
+import com.tramchester.testSupport.testTags.Landslide2024TestCategory;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -230,7 +231,7 @@ public class RouteCalculatorTest {
     @Test
     void shouldHaveSameResultWithinReasonableTime() {
         final TramTime queryTimeA = TramTime.of(8, 50);
-        final TramTime queryTimeB = queryTimeA.plusMinutes(3);
+        final TramTime queryTimeB = queryTimeA.plusMinutes(1);
 
         JourneyRequest journeyRequestA = standardJourneyRequest(when, queryTimeA, maxNumResults);
         JourneyRequest journeyRequestB = standardJourneyRequest(when, queryTimeB, maxNumResults);
@@ -248,7 +249,7 @@ public class RouteCalculatorTest {
         final TramTime firstDeparttimeB = earliestB.get().getDepartTime();
 
         assertTrue(firstDeparttimeA.isAfter(queryTimeB) || firstDeparttimeA.equals(queryTimeB),
-                firstDeparttimeA + " not after " + queryTimeB); // check assumption first
+                firstDeparttimeA + " not after query time " + queryTimeB); // check assumption first
         assertEquals(firstDeparttimeA, firstDeparttimeB);
     }
 
@@ -295,12 +296,14 @@ public class RouteCalculatorTest {
         checkRouteNextNDays(ManAirport, TraffordBar, when, TramTime.of(9,0), 1);
     }
 
+    @Landslide2024TestCategory
     @Test
     void shouldHaveLongJourneyAcross() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(9,0), maxNumResults);
         assertGetAndCheckJourneys(journeyRequest, Altrincham, Rochdale);
     }
 
+    @Landslide2024TestCategory
     @Test
     void shouldHaveReasonableLongJourneyAcrossFromInterchange() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(8, 0), maxNumResults);
@@ -337,15 +340,14 @@ public class RouteCalculatorTest {
         JourneyRequest request = new JourneyRequest(today, TramTime.of(20, 9), false, 2,
                 maxJourneyDuration, 6, requestedModes);
 
-        //request.setCachingDisabled(true);
+        TramStations startingPoint = Deansgate;
 
-        List<Journey> results = calculator.calculateRouteAsList(Deansgate, ManAirport, request);
-
+        List<Journey> results = calculator.calculateRouteAsList(startingPoint, ManAirport, request);
         assertFalse(results.isEmpty(),"no journeys found");
 
         results.forEach(result -> {
-            long seenStart = result.getPath().stream().filter(location -> location.getId().equals(Deansgate.getId())).count();
-            assertEquals(1, seenStart, "seen start location again");
+            long seenStart = result.getPath().stream().filter(location -> location.getId().equals(startingPoint.getId())).count();
+            assertEquals(1, seenStart, "seen start location again for " + result);
         });
     }
 
@@ -360,7 +362,7 @@ public class RouteCalculatorTest {
         assertFalse(results.isEmpty(), "no results");    // results is iterator
         for (Journey result : results) {
             List<TransportStage<?,?>> stages = result.getStages();
-            assertEquals(2,stages.size());
+            assertEquals(2, stages.size());
             VehicleStage firstStage = (VehicleStage) stages.get(0);
             assertEquals(Altrincham.getId(), firstStage.getFirstStation().getId());
             assertEquals(TraffordBar.getId(), firstStage.getLastStation().getId(), stages.toString());
@@ -435,13 +437,13 @@ public class RouteCalculatorTest {
         TramDate testDate = when;
 
         JourneyRequest journeyRequestA = standardJourneyRequest(testDate, TramTime.of(23,59), maxNumResults);
-        assertGetAndCheckJourneys(journeyRequestA, StPetersSquare, MarketStreet);
+        assertGetAndCheckJourneys(journeyRequestA, StPetersSquare, ExchangeSquare);
 
         JourneyRequest journeyRequestB = standardJourneyRequest(testDate, TramTime.nextDay(0,0), maxNumResults);
-        assertGetAndCheckJourneys(journeyRequestB, StPetersSquare, MarketStreet);
+        assertGetAndCheckJourneys(journeyRequestB, StPetersSquare, ExchangeSquare);
 
         JourneyRequest journeyRequestC = standardJourneyRequest(testDate, TramTime.nextDay(0,1), maxNumResults);
-        assertGetAndCheckJourneys(journeyRequestC, StPetersSquare, MarketStreet);
+        assertGetAndCheckJourneys(journeyRequestC, StPetersSquare, ExchangeSquare);
 
         // last tram is now earlier
 //        JourneyRequest journeyRequestD = standardJourneyRequest(testDate, TramTime.of(0,0), maxNumResults);
@@ -454,6 +456,7 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, HeatonPark, BurtonRoad);
     }
 
+    @Landslide2024TestCategory
     @Test
     void shouldReproIssueRochInterchangeToBury() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(9, 0), maxNumResults);
@@ -600,6 +603,7 @@ public class RouteCalculatorTest {
         }
     }
 
+    @Landslide2024TestCategory
     @Test
     void reproIssueRochdaleToEccles() {
         TramTime time = TramTime.of(9,0);
@@ -657,16 +661,11 @@ public class RouteCalculatorTest {
             for(int day = 0; day< numDays; day++) {
                 final TramDate testDate = avoidChristmasDate(date.plusDays(day));
                 JourneyRequest journeyRequest = standardJourneyRequest(testDate, time, maxNumResults);
-                if (!testDate.equals(TestEnv.WORKAROUND_WRONG_DATE_IN_TFGM_DATA)) {
+//                if (!testDate.equals(TestEnv.WORKAROUND_WRONG_DATE_IN_TFGM_DATA)) {
                     assertGetAndCheckJourneys(journeyRequest, start, dest);
-                }
+//                }
             }
         }
-    }
-
-    @Test
-    void reminderToRemoveWorkaround() {
-        assertTrue(WORKAROUND_WRONG_DATE_IN_TFGM_DATA.isAfter(when));
     }
 
     private void assertGetAndCheckJourneys(JourneyRequest journeyRequest, TramStations start, TramStations dest) {

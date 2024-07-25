@@ -84,7 +84,7 @@ public class RouteDataLoader {
     public static class ExcludedRoutes {
         private final IdSet<Route> excludedRouteIds;
 
-        private ExcludedRoutes() {
+        public ExcludedRoutes() {
             excludedRouteIds = new IdSet<>();
         }
 

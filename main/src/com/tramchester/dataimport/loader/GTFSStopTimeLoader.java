@@ -4,7 +4,10 @@ import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.domain.*;
 import com.tramchester.domain.factory.TransportEntityFactory;
-import com.tramchester.domain.id.*;
+import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdMap;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
@@ -19,7 +22,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
@@ -42,7 +47,8 @@ public class GTFSStopTimeLoader {
         final String sourceName = dataSourceConfig.getName();
         AtomicInteger invalidTimeCount = new AtomicInteger(0);
 
-        final StopTimeDataLoader stopTimeDataLoader = new StopTimeDataLoader(buildable, preloadStations, factory, dataSourceConfig, tripAndServices);
+        final StopTimeDataLoader stopTimeDataLoader = new StopTimeDataLoader(buildable, preloadStations, factory,
+                dataSourceConfig, tripAndServices);
 
         logger.info("Loading stop times for " + sourceName);
         stopTimes.
@@ -52,12 +58,47 @@ public class GTFSStopTimeLoader {
 
         stopTimeDataLoader.close();
 
+        addClosedStations(preloadStations);
+
         int count = invalidTimeCount.get();
         if (count >0) {
             logger.warn("Got " + count + " invalid stop times, each logged to debug. Likely due to the >24Hours issue");
         }
 
         return stopTimeDataLoader.getAddedServices();
+    }
+
+    private void addClosedStations(final PreloadedStationsAndPlatforms preloadStations) {
+        final List<StationClosures> stationClosures = dataSourceConfig.getStationClosures();
+        if (stationClosures.isEmpty()) {
+            logger.info("No station closures, no additional stations to add");
+            return;
+        }
+
+        final IdSet<Station> closedButNotLoaded = stationClosures.stream().
+                flatMap(closures -> closures.getStations().stream()).
+                filter(stationId -> !buildable.hasStationId(stationId)).
+                collect(IdSet.idCollector());
+
+        if (closedButNotLoaded.isEmpty()) {
+            logger.info("Station closures present but no additional stations to add");
+            return;
+        }
+
+        logger.warn("The following stations were marked closed but were not added as no calling trams " + closedButNotLoaded);
+
+        final Set<TransportMode> transportModes = dataSourceConfig.getTransportModes();
+
+        for (IdFor<Station> closedStationId : closedButNotLoaded) {
+            if (!preloadStations.hasId(closedStationId)) {
+                throw new RuntimeException("Missing closed station id in preloaded " + closedStationId);
+            }
+            MutableStation station = preloadStations.get(closedStationId);
+            transportModes.forEach(station::addMode);
+            buildable.addStation(station);
+            logger.info("Added closed station " + closedStationId);
+        }
+
     }
 
     private boolean isValid(StopTimeData stopTimeData, AtomicInteger invalidTimeCount) {
@@ -97,8 +138,7 @@ public class GTFSStopTimeLoader {
             stopTimesLoaded = new AtomicInteger();
         }
 
-        public void loadStopTimeData(StopTimeData stopTimeData) {
-            //final String stopId = stopTimeData.getStopId();
+        public void loadStopTimeData(final StopTimeData stopTimeData) {
             final IdFor<Station> stationId = factory.formStationId(stopTimeData);
             final IdFor<Trip> stopTripId = Trip.createId(stopTimeData.getTripId());
 
@@ -170,17 +210,17 @@ public class GTFSStopTimeLoader {
 
         private void addStationAndRouteStation(Route route, MutableStation station, StopTimeData stopTimeData) {
 
-            GTFSPickupDropoffType dropOffType = stopTimeData.getDropOffType();
+            final GTFSPickupDropoffType dropOffType = stopTimeData.getDropOffType();
             if (dropOffType.isDropOff()) {
                 station.addRouteDropOff(route);
             }
 
-            GTFSPickupDropoffType pickupType = stopTimeData.getPickupType();
+            final GTFSPickupDropoffType pickupType = stopTimeData.getPickupType();
             if (pickupType.isPickup()) {
                 station.addRoutePickUp(route);
             }
 
-            IdFor<Station> stationId = station.getId();
+            final IdFor<Station> stationId = station.getId();
             if (!buildable.hasStationId(stationId)) {
                 buildable.addStation(station);
                 if (!station.getLatLong().isValid()) {
@@ -194,7 +234,7 @@ public class GTFSStopTimeLoader {
             }
         }
 
-        private void addPlatformsForStation(Station station) {
+        private void addPlatformsForStation(final Station station) {
             station.getPlatforms().stream().
                     map(HasId::getId).
                     filter(platformId -> !buildable.hasPlatformId(platformId)).
@@ -210,14 +250,8 @@ public class GTFSStopTimeLoader {
 
                 IdFor<Platform> platformId = factory.getPlatformId(stopTimeData, station);
 
-//                String stopId = stopTimeData.getStopId();
-//
-//                IdFor<Platform> platformId = PlatformId.createId(station.getId(), stopId);
-
                 if (buildable.hasPlatformId(platformId)) {
                     MutablePlatform platform = buildable.getMutablePlatform(platformId);
-
-                    //Service service = trip.getService();
 
                     if (stopTimeData.getPickupType().isPickup()) {
                         platform.addRoutePickUp(route);

@@ -81,21 +81,28 @@ public class StationRepositoryTest {
 
         IdSet<Station> dropOffs = allStations.stream().filter(station -> station.servesRouteDropOff(buryToAlty)).collect(IdSet.collector());
 
-        // 24 -> 25
-        assertEquals(25, dropOffs.size(), dropOffs.toString());
+        // 25 -> 29
+        assertEquals(29, dropOffs.size(), dropOffs.toString());
         // in new data Bury is dropoff since no direction to routes....
         //assertFalse(dropOffs.contains(Bury.getId()));
         assertTrue(dropOffs.contains(Altrincham.getId()));
         assertTrue(dropOffs.contains(Cornbrook.getId()));
-        assertTrue(dropOffs.contains(Shudehill.getId()));
+
+        // shudehill market street closure 2024
+//        assertTrue(dropOffs.contains(Shudehill.getId()));
+        assertTrue(dropOffs.contains(ExchangeSquare.getId()));
 
         IdSet<Station> pickUps = allStations.stream().filter(station -> station.servesRoutePickup(buryToAlty)).collect(IdSet.collector());
 
-        assertEquals(25, pickUps.size(), pickUps.toString());
+        assertEquals(29, pickUps.size(), pickUps.toString());
         assertTrue(pickUps.contains(Bury.getId()));
         //assertFalse(pickUps.contains(Altrincham.getId()));
         assertTrue(pickUps.contains(Cornbrook.getId()));
-        assertTrue(pickUps.contains(Shudehill.getId()));
+
+        // shudehill market street closure 2024
+//        assertTrue(pickUps.contains(Shudehill.getId()));
+        assertTrue(pickUps.contains(ExchangeSquare.getId()));
+
 
     }
 

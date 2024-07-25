@@ -8,11 +8,12 @@ import com.tramchester.domain.dates.TramDate;
 import java.time.LocalDate;
 import java.util.Objects;
 
-// - stations:
-//     first: "9400ZZMAPIC"
-//     second: "9400ZZMAPGD"
-//   begin: 2024-06-22 
-//   end: 2024-07-09
+//     temporaryStationsWalks:
+//    - stations:
+//        first: "9400ZZMAPIC"
+//        second: "9400ZZMAPGD"
+//      begin: 2024-06-22
+//      end: 2024-07-09
 
 public class TemporaryStationsWalkIdsConfig implements TemporaryStationsWalkIds {
     private final StationPairConfig stationPair;

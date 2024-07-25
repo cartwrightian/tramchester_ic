@@ -16,15 +16,17 @@ import java.util.Set;
  */
 public enum KnownTramRoute {
 
-    PiccadillyAltrincham("Purple Line", "Piccadilly - Altrincham", "2122"),
+    // present in data but unused?
+    //ReplacementBusOldhamMumpsRochsdaleA("Replacement Bus Oldham Mumps - Rochdale", "Oldham Mumps - Rochdale","2178"),
+    ReplacementBusOldhamMumpsRochsdaleB("Replacement Bus Oldham Mumps - Rochdale", "Oldham Mumps - Rochdale","2177"),
 
-    BuryManchesterAltrincham("Green Line", "Bury - Manchester - Altrincham", "2127"),
+    PiccadillyAltrincham("Purple Line", "Etihad Campus - Piccadilly - Altrincham", "2173"),
+    BuryManchesterAltrincham("Green Line", "Bury - Manchester - Altrincham", "841"),
     EcclesManchesterAshtonUnderLyne("Blue Line", "Eccles - Manchester - Ashton Under Lyne", "2119"),
-    PiccadillyBury("Yellow Line", "Piccadilly - Bury", "2125"),
-    RochdaleShawandCromptonManchesterEastDidisbury("Pink Line",
-            "Rochdale - Manchester - East Didsbury", "2121"),
+    PiccadillyBury("Yellow Line", "Piccadilly - Bury", "844"),
+    RochdaleShawandCromptonManchesterEastDidisbury("Pink Line", "Oldham Mumps - Manchester - East Didsbury", "845"),
     VictoriaWythenshaweManchesterAirport("Navy Line", "Victoria - Wythenshawe - Manchester Airport", "2120"),
-    CornbrookTheTraffordCentre("Red Line", "Deansgate-Castlefield - The Trafford Centre", "2126");
+    CornbrookTheTraffordCentre("Red Line", "Deansgate-Castlefield - The Trafford Centre", "849");
 
     private final String shortName;
     private final String longName;
@@ -35,13 +37,18 @@ public enum KnownTramRoute {
         boolean sunday = date.getDayOfWeek().equals(DayOfWeek.SUNDAY);
 
         routes.add(VictoriaWythenshaweManchesterAirport);
-        routes.add(RochdaleShawandCromptonManchesterEastDidisbury);
         routes.add(CornbrookTheTraffordCentre);
         routes.add(EcclesManchesterAshtonUnderLyne);
+        routes.add(RochdaleShawandCromptonManchesterEastDidisbury);
 
-        if (!londonRoadTrackReplacement(date)) {
-            routes.add(PiccadillyBury);
+        if (!shudehillMarketStreetClosure(date)) {
             routes.add(PiccadillyAltrincham);
+            routes.add(PiccadillyBury);
+        }
+
+        if (replacementBusForLandslide(date)) {
+            //routes.add(ReplacementBusOldhamMumpsRochsdaleA);
+            routes.add(ReplacementBusOldhamMumpsRochsdaleB);
         }
 
         if (!sunday) {
@@ -52,14 +59,19 @@ public enum KnownTramRoute {
         return routes;
     }
 
+    private static boolean replacementBusForLandslide(TramDate date) {
+        final DateRange range = new DateRange(TramDate.of(2024, 7, 24), TramDate.of(2024, 10, 1));
+        return range.contains(date);
+    }
+
     KnownTramRoute(String shortName, String longName, String id) {
         this.longName = longName;
         this.shortName = shortName;
         this.id = Route.createId(id);
     }
 
-    public static boolean londonRoadTrackReplacement(TramDate date) {
-        DateRange range = new DateRange(TramDate.of(2024, 6, 22), TramDate.of(2024, 7, 9));
+    public static boolean shudehillMarketStreetClosure(TramDate date) {
+        final DateRange range = new DateRange(TramDate.of(2024, 7, 24), TramDate.of(2024, 8, 19));
         return range.contains(date);
     }
 

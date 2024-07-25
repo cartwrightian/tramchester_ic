@@ -1,6 +1,9 @@
 package com.tramchester.integration.testSupport.config;
 
-import com.tramchester.config.*;
+import com.tramchester.config.GraphDBConfig;
+import com.tramchester.config.RemoteDataSourceConfig;
+import com.tramchester.config.StationClosuresConfig;
+import com.tramchester.config.TemporaryStationsWalkIds;
 import com.tramchester.domain.StationClosures;
 import com.tramchester.integration.testSupport.TestGroupType;
 import com.tramchester.integration.testSupport.naptan.NaptanRemoteDataSourceTestConfig;
@@ -12,7 +15,9 @@ import com.tramchester.testSupport.TestEnv;
 
 import java.nio.file.Path;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 public abstract class IntegrationTestConfig extends TestConfig {
@@ -23,22 +28,27 @@ public abstract class IntegrationTestConfig extends TestConfig {
 
     protected final RailRemoteDataSourceConfig railRemoteDataSource;
 
-//    static {
-//        Set<String> closed = Collections.singleton("9400ZZMAEXS");
-//        exchangeSquareBrokenRail = new StationClosuresConfig(closed, LocalDate.of(2024,2,12),
-//            LocalDate.of(2024,5,7), false, Collections.singleton("9400ZZMAVIC"));
-//    }
-
-    private static final TemporaryStationsWalkIdsConfig londonRoadClosure;
+    private static final StationClosuresConfig shudehillClosed;
+    private static final StationClosuresConfig marketStreetClosed;
 
     static {
-        StationPairConfig stationPair = new StationPairConfig("9400ZZMAPIC", "9400ZZMAPGD");
-        londonRoadClosure = new TemporaryStationsWalkIdsConfig(stationPair,
-                LocalDate.of(2024,6,22), LocalDate.of(2024, 7,9));
+        final LocalDate begin = LocalDate.of(2024, 7, 24);
+        final LocalDate end = LocalDate.of(2024, 8, 19);
+        shudehillClosed = new StationClosuresConfig(Collections.singleton("9400ZZMASHU"),
+                begin, end, true, new HashSet<>(Arrays.asList("9400ZZMAVIC", "9400ZZMAEXS")));
+        marketStreetClosed = new StationClosuresConfig(Collections.singleton("9400ZZMAMKT"),
+                begin, end, true,
+                new HashSet<>(Arrays.asList("9400ZZMAPGD", "9400ZZMASTP")));
     }
 
-    public static final List<StationClosures> CurrentClosures = Collections.emptyList();
-    public static final List<TemporaryStationsWalkIds> CurrentStationWalks = List.of(londonRoadClosure);
+//    static {
+//        StationPairConfig stationPair = new StationPairConfig("9400ZZMAPIC", "9400ZZMAPGD");
+//        londonRoadClosure = new TemporaryStationsWalkIdsConfig(stationPair,
+//                LocalDate.of(2024,6,22), LocalDate.of(2024, 7,9));
+//    }
+
+    public static final List<StationClosures> CurrentClosures = Arrays.asList(shudehillClosed, marketStreetClosed);
+    public static final List<TemporaryStationsWalkIds> CurrentStationWalks = Collections.emptyList();
 
     private final TestGroupType testGroupType;
 

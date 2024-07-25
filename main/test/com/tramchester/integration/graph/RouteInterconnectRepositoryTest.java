@@ -27,7 +27,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
-import com.tramchester.testSupport.testTags.LondonRoadClosure;
+import com.tramchester.testSupport.testTags.ShudehillMarketStreetClosedTestCategory;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
@@ -109,7 +109,8 @@ public class RouteInterconnectRepositoryTest {
         PathResults results = repository.getInterchangesFor(indexPair, dateOverlaps, interchangeStation -> true);
 
         assertTrue(results.hasAny());
-        assertEquals(6, results.numberPossible(), results.toString());
+        // 6 ->5 during shudehill/market street closures
+        assertEquals(5, results.numberPossible(), results.toString());
 
         assertEquals(1, results.getDepth());
 
@@ -158,7 +159,7 @@ public class RouteInterconnectRepositoryTest {
 
     }
 
-    @LondonRoadClosure
+    @ShudehillMarketStreetClosedTestCategory
     @Test
     void shouldCheckFor2Changes() {
 
@@ -191,7 +192,9 @@ public class RouteInterconnectRepositoryTest {
 
         assertTrue(interchangeRepository.hasInterchangeFor(indexPair));
         Set<InterchangeStation> interchanges = interchangeRepository.getInterchangesFor(indexPair).collect(Collectors.toSet());
-        assertEquals(6, interchanges.size(), HasId.asIds(interchanges));
+
+        // 6 ->5 during shudehill/market street closures
+        assertEquals(5, interchanges.size(), HasId.asIds(interchanges));
 
         // unrealistic as would be 0 in code, direct via one interchange
         assertEquals(1, routeMatrix.getConnectionDepthFor(routeA, routeB));
@@ -220,7 +223,7 @@ public class RouteInterconnectRepositoryTest {
 
     }
 
-    @LondonRoadClosure
+    @ShudehillMarketStreetClosedTestCategory
     @Test
     void shouldHaveExpectedBacktrackFor2Changes() {
         Route routeA = routeHelper.getOneRoute(PiccadillyBury, date);
@@ -263,8 +266,7 @@ public class RouteInterconnectRepositoryTest {
         return converted.toString();
     }
 
-
-    @LondonRoadClosure
+    @ShudehillMarketStreetClosedTestCategory
     @Test
     void shouldCheckFor2ChangesFiltered() {
         Route routeA = routeHelper.getOneRoute(PiccadillyBury, date);

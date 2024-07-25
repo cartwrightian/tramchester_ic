@@ -39,6 +39,13 @@ public class StationClosuresConfig extends Configuration implements StationClosu
         this.end = end;
         this.fullyClosed = fullyClosed;
         this.diversionsOnly = diversionsOnly;
+        if (!validDates()) {
+            throw new RuntimeException("Invalid dates " + this);
+        }
+    }
+
+    private boolean validDates() {
+        return end.isAfter(begin) || end.equals(begin);
     }
 
 

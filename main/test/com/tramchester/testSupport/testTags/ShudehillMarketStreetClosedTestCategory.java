@@ -7,8 +7,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target({ ElementType.METHOD})
+@Target({ ElementType.METHOD , ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@Tag("LondonRoadClosure")
-public @interface LondonRoadClosure {
+@Tag("ShudehillMarketStreetClosed")
+public @interface ShudehillMarketStreetClosedTestCategory {
 }

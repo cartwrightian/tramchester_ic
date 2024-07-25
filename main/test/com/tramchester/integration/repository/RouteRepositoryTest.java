@@ -20,7 +20,7 @@ import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
-import com.tramchester.testSupport.testTags.LondonRoadClosure;
+import com.tramchester.testSupport.testTags.ShudehillMarketStreetClosedTestCategory;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -178,7 +178,7 @@ public class RouteRepositoryTest {
 
     }
 
-    @LondonRoadClosure
+    @ShudehillMarketStreetClosedTestCategory
     @Test
     void shouldReproIssueWithUnsymmetricDateOverlap() {
 

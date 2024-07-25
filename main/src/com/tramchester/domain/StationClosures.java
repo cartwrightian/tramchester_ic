@@ -17,5 +17,6 @@ public interface StationClosures {
 
     DateRange getDateRange();
 
+    // only add diversions for these stations, not automatically for all
     IdSet<Station> getDiversionsOnly();
 }

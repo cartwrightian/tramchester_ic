@@ -15,12 +15,12 @@ import com.tramchester.domain.places.StationGroup;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.filters.GraphFilter;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import jakarta.inject.Inject;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -90,7 +90,9 @@ public class ClosedStationsRepository {
 
             return new ClosedStation(station, dateRange, fullyClosed, nearbyOpenStations);
         } else {
-            Set<Station> diversions = diversionsOnly.stream().map(stationRepository::getStationById).collect(Collectors.toSet());
+            Set<Station> diversions = diversionsOnly.stream().
+                    map(stationRepository::getStationById).
+                    collect(Collectors.toSet());
             logger.info("Only adding diversions " + HasId.asIds(diversions) + " for closed station " + station.getId());
             return new ClosedStation(station, dateRange, fullyClosed, diversions);
         }
@@ -133,7 +135,7 @@ public class ClosedStationsRepository {
         return getClosures(date, true).findAny().isPresent() || getClosures(date, false).findAny().isPresent();
     }
 
-    public Set<ClosedStation> getClosedStationsFor(DataSourceID sourceId) {
+    public Set<ClosedStation> getClosedStationsFor(final DataSourceID sourceId) {
         return closed.stream().
                 filter(closedStation -> closedStation.getStation().getDataSourceID().equals(sourceId)).
                 collect(Collectors.toSet());

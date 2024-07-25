@@ -21,6 +21,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StationsWithDiversionRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.Landslide2024TestCategory;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Direction;
 
@@ -204,6 +205,7 @@ class ClosedStationsDiversionsTest {
         });
     }
 
+    @Landslide2024TestCategory
     @Test
     void shouldFindRouteAroundCloseBackOnToTramDifferentRochdale() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,

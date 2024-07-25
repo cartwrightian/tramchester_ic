@@ -31,7 +31,6 @@ public enum TramStations implements FakeStation, HasId<Station> {
     HoltTown("9400ZZMAHTN", "Holt Town", pos(53.4832, -2.21228)),
     Bury("9400ZZMABUR", "Bury", pos(53.59082, -2.29726)),
     EastDidsbury("9400ZZMAEDY", "East Didsbury", pos(53.41208, -2.21739)),
-    Rochdale("9400ZZMARIN", "Rochdale Town Centre", pos(53.61736, -2.15509)),
     Pomona("9400ZZMAPOM", "Pomona", pos(53.46521, -2.27791)),
     Deansgate("9400ZZMAGMX", "Deansgate-Castlefield", pos(53.47476, -2.25018)),
     Broadway("9400ZZMABWY", "Broadway", pos(53.47478, -2.29506)),
@@ -39,7 +38,6 @@ public enum TramStations implements FakeStation, HasId<Station> {
     ExchangeSquare("9400ZZMAEXS", "Exchange Square", pos(53.48439, -2.2427)),
     Victoria("9400ZZMAVIC", "Victoria", pos(53.48787, -2.24187)),
     NavigationRoad("9400ZZMANAV", "Navigation Road", pos(53.39589, -2.34331)),
-    ShawAndCrompton("9400ZZMASHA", "Shaw and Crompton", pos(53.5763, -2.08963)),
     HarbourCity("9400ZZMAHCY", "Harbour City", pos(53.47401, -2.29156264773)),
     StPetersSquare("9400ZZMASTP", "St Peter's Square", pos(53.47825, -2.24314)),
     MarketStreet("9400ZZMAMKT", "Market Street", pos(53.48192, -2.23883)),
@@ -53,7 +51,6 @@ public enum TramStations implements FakeStation, HasId<Station> {
     Anchorage("9400ZZMAANC", "Anchorage", pos(53.47425, -2.28607)),
     HeatonPark("9400ZZMAHEA", "Heaton Park", pos(53.53036, -2.26699)),
     BurtonRoad("9400ZZMABNR", "Burton Road", pos(53.42908, -2.24064)),
-    RochdaleRail("9400ZZMARRS", "Rochdale Railway Station", pos(53.61102, -2.15449)),
     OldTrafford("9400ZZMAOLD", "Old Trafford", pos(53.45634, -2.28496)),
     Wharfside("9400ZZMAWFS", "Wharfside", pos(53.46625, -2.28748)),
     PeelHall("9400ZZMAPLL", "Peel Hall", pos(53.37373, -2.25038)),
@@ -65,18 +62,12 @@ public enum TramStations implements FakeStation, HasId<Station> {
     Whitefield("9400ZZMAWFD", "Whitefield", pos(53.55113165424,-2.2951414371)),
     Langworthy("9400ZZMALWY", "Langworthy", pos(53.48061,-2.29618)),
     Weaste("9400ZZMAWST", "Weaste", pos(53.48236,-2.30736)),
-    Ladywell("9400ZZMALDY", "Ladywell", pos(53.48404,-2.32683));
-
-    // Langworthy, Weaste, Ladywell
-
-    public static final Set<TramStations> EndOfTheLine = new HashSet<>(Arrays.asList(Altrincham,
-            ManAirport,
-            Eccles,
-            EastDidsbury,
-            Ashton,
-            Rochdale,
-            Bury,
-            TraffordCentre));
+    Ladywell("9400ZZMALDY", "Ladywell", pos(53.48404,-2.32683)),
+    OldhamMumps("9400ZZMAOMP", "Oldham Mumps", pos(53.54245415127,-2.10345025085)),
+    // Landslide
+    RochdaleRail("9400ZZMARRS", "Rochdale Railway Station", pos(53.61102, -2.15449)),
+    Rochdale("9400ZZMARIN", "Rochdale Town Centre", pos(53.61736, -2.15509)),
+    ShawAndCrompton("9400ZZMASHA", "Shaw and Crompton", pos(53.5763, -2.08963));
 
     private final String id;
     private final String name;
@@ -88,8 +79,23 @@ public enum TramStations implements FakeStation, HasId<Station> {
         this.latlong = latlong;
     }
 
+    private static final Set<TramStations> EndOfTheLine = new HashSet<>(Arrays.asList(Altrincham,
+            ManAirport,
+            Eccles,
+            EastDidsbury,
+            Ashton,
+            Rochdale,
+            Bury,
+            TraffordCentre
+            //OldhamMumps // temp additional due to landslip 2024
+    ));
+
+    public static Set<TramStations> getEndOfTheLine() {
+        return EndOfTheLine;
+    }
+
     public static boolean isEndOfLine(Station station) {
-        return containedIn(station.getId(), EndOfTheLine);
+        return containedIn(station.getId(), getEndOfTheLine());
     }
 
     private static boolean containedIn(IdFor<Station> stationId, Set<TramStations> theSet) {
