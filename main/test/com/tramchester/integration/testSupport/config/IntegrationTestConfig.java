@@ -35,10 +35,9 @@ public abstract class IntegrationTestConfig extends TestConfig {
         final LocalDate begin = LocalDate.of(2024, 7, 24);
         final LocalDate end = LocalDate.of(2024, 8, 19);
         shudehillClosed = new StationClosuresConfig(Collections.singleton("9400ZZMASHU"),
-                begin, end, true, new HashSet<>(Arrays.asList("9400ZZMAVIC", "9400ZZMAEXS")));
+                begin, end, true, Collections.emptySet(), new HashSet<>(Arrays.asList("9400ZZMAVIC", "9400ZZMAEXS")));
         marketStreetClosed = new StationClosuresConfig(Collections.singleton("9400ZZMAMKT"),
-                begin, end, true,
-                new HashSet<>(Arrays.asList("9400ZZMAPGD", "9400ZZMASTP")));
+                begin, end, true, Collections.emptySet(), new HashSet<>(Arrays.asList("9400ZZMAPGD", "9400ZZMASTP")));
     }
 
 //    static {

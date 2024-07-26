@@ -19,7 +19,9 @@ import java.util.Set;
 //            begin: 2023-07-15
 //            end: 2023-09-20
 //            fullyClosed: true
-//            diversionsOnly: []
+//            diversionsAroundClosure: []
+//            diversionsToFromClosure: []
+// NOTE: final two optional, will be auto populated with nearby stations in ClosedStationRepository if not provided in config
 
 public class StationClosuresConfig extends Configuration implements StationClosures {
 
@@ -27,18 +29,21 @@ public class StationClosuresConfig extends Configuration implements StationClosu
     private final LocalDate begin;
     private final LocalDate end;
     private final Boolean fullyClosed;
-    private final Set<String> diversionsOnly;
+    private final Set<String> diversionsAroundClosure;
+    private final Set<String> diversionsToFromClosure;
 
     public StationClosuresConfig(@JsonProperty(value = "stations", required = true) Set<String> stationsText,
                                  @JsonProperty(value = "begin", required = true) LocalDate begin,
                                  @JsonProperty(value = "end", required = true) LocalDate end,
                                  @JsonProperty(value = "fullyClosed", required = true) Boolean fullyClosed,
-                                 @JsonProperty(value = "diversionsOnly", required = true) Set<String> diversionsOnly)  {
+                                 @JsonProperty(value = "diversionsAroundClosure", required = false) Set<String> diversionsAroundClosure,
+                                 @JsonProperty(value = "diversionsToFromClosure", required = false) Set<String> diversionsToFromClosure)  {
         this.stationsText = stationsText;
         this.begin = begin;
         this.end = end;
         this.fullyClosed = fullyClosed;
-        this.diversionsOnly = diversionsOnly;
+        this.diversionsAroundClosure = diversionsAroundClosure;
+        this.diversionsToFromClosure = diversionsToFromClosure;
         if (!validDates()) {
             throw new RuntimeException("Invalid dates " + this);
         }
@@ -76,9 +81,45 @@ public class StationClosuresConfig extends Configuration implements StationClosu
         return new DateRange(getBegin(), getEnd());
     }
 
+    @JsonIgnore
     @Override
-    public IdSet<Station> getDiversionsOnly() {
-        return diversionsOnly.stream().map(Station::createId).collect(IdSet.idCollector());
+    public boolean hasDiversionsAroundClosure() {
+        return diversionsAroundClosure!=null;
+    }
+
+    @Override
+    public IdSet<Station> getDiversionsAroundClosure() {
+        if (diversionsAroundClosure==null) {
+            throw new RuntimeException("Not set for diversionsAroundClosure");
+        }
+        return diversionsAroundClosure.stream().map(Station::createId).collect(IdSet.idCollector());
+    }
+
+    @JsonIgnore
+    @Override
+    public boolean hasDiversionsToFromClosure() {
+        return diversionsToFromClosure!=null;
+    }
+
+    @Override
+    public IdSet<Station> getDiversionsToFromClosure() {
+        if (diversionsToFromClosure==null) {
+            throw new RuntimeException("Not set for diversionsToFromClosure");
+        }
+        return diversionsToFromClosure.stream().map(Station::createId).collect(IdSet.idCollector());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        StationClosuresConfig that = (StationClosuresConfig) o;
+        return Objects.equals(stationsText, that.stationsText) && Objects.equals(begin, that.begin) && Objects.equals(end, that.end) && Objects.equals(fullyClosed, that.fullyClosed) && Objects.equals(diversionsAroundClosure, that.diversionsAroundClosure) && Objects.equals(diversionsToFromClosure, that.diversionsToFromClosure);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(stationsText, begin, end, fullyClosed, diversionsAroundClosure, diversionsToFromClosure);
     }
 
     @Override
@@ -88,20 +129,8 @@ public class StationClosuresConfig extends Configuration implements StationClosu
                 ", begin=" + begin +
                 ", end=" + end +
                 ", fullyClosed=" + fullyClosed +
-                ", diversionsOnly=" + diversionsOnly +
+                ", diversionsAroundClosure=" + diversionsAroundClosure +
+                ", diversionsToFromClosure=" + diversionsToFromClosure +
                 '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        StationClosuresConfig that = (StationClosuresConfig) o;
-        return Objects.equals(stationsText, that.stationsText) && Objects.equals(begin, that.begin) && Objects.equals(end, that.end) && Objects.equals(fullyClosed, that.fullyClosed) && Objects.equals(diversionsOnly, that.diversionsOnly);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(stationsText, begin, end, fullyClosed, diversionsOnly);
     }
 }

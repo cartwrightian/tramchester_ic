@@ -17,8 +17,8 @@ import java.util.Set;
 public enum KnownTramRoute {
 
     // present in data but unused?
-    //ReplacementBusOldhamMumpsRochsdaleA("Replacement Bus Oldham Mumps - Rochdale", "Oldham Mumps - Rochdale","2178"),
-    ReplacementBusOldhamMumpsRochsdaleB("Replacement Bus Oldham Mumps - Rochdale", "Oldham Mumps - Rochdale","2177"),
+    ReplacementBusOldhamMumpsRochsdale2178("Replacement Bus Oldham Mumps - Rochdale", "Oldham Mumps - Rochdale","2178"),
+    ReplacementBusOldhamMumpsRochsdale2177("Replacement Bus Oldham Mumps - Rochdale", "Oldham Mumps - Rochdale","2177"),
 
     PiccadillyAltrincham("Purple Line", "Etihad Campus - Piccadilly - Altrincham", "2173"),
     BuryManchesterAltrincham("Green Line", "Bury - Manchester - Altrincham", "841"),
@@ -48,13 +48,19 @@ public enum KnownTramRoute {
 
         if (replacementBusForLandslide(date)) {
             //routes.add(ReplacementBusOldhamMumpsRochsdaleA);
-            routes.add(ReplacementBusOldhamMumpsRochsdaleB);
+            if (date.isAfter(TramDate.of(2024,7,31))) {
+                routes.add(ReplacementBusOldhamMumpsRochsdale2178);
+            } else {
+                routes.add(ReplacementBusOldhamMumpsRochsdale2177);
+            }
         }
 
-        if (!sunday) {
-            // not documented anywhere, but does not appear any trams on this route on Sundays
-            routes.add(BuryManchesterAltrincham);
-        }
+        // running on sundays again? Maybe due to the other work going on in the network?
+        routes.add(BuryManchesterAltrincham);
+//        if (!sunday) {
+//            // not documented anywhere, but does not appear any trams on this route on Sundays
+//            routes.add(BuryManchesterAltrincham);
+//        }
         
         return routes;
     }

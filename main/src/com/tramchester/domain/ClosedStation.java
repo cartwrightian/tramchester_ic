@@ -1,6 +1,7 @@
 package com.tramchester.domain;
 
 import com.tramchester.domain.dates.DateRange;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 
@@ -11,13 +12,15 @@ public class ClosedStation {
     private final Station station;
     private final DateRange dateRange;
     private final boolean fullyClosed;
-    private final Set<Station> walkingDiversions;
+    private final Set<Station> diversionsAroundClosure;
+    private final Set<Station> diversionsToFromClosure;
 
-    public ClosedStation(Station station, DateRange dateRange, boolean fullyClosed, Set<Station> nearbyOpenStations) {
+    public ClosedStation(Station station, DateRange dateRange, boolean fullyClosed, Set<Station> diversionsAroundClosure, Set<Station> diversionsToFromClosure) {
         this.station = station;
         this.dateRange = dateRange;
         this.fullyClosed = fullyClosed;
-        this.walkingDiversions = nearbyOpenStations;
+        this.diversionsAroundClosure = diversionsAroundClosure;
+        this.diversionsToFromClosure = diversionsToFromClosure;
     }
 
     public Station getStation() {
@@ -46,7 +49,7 @@ public class ClosedStation {
 
     @Override
     public int hashCode() {
-        return Objects.hash(station, dateRange, fullyClosed);
+        return Objects.hash(station, dateRange, fullyClosed, diversionsAroundClosure, diversionsToFromClosure);
     }
 
     @Override
@@ -55,15 +58,22 @@ public class ClosedStation {
                 "station=" + station.getId() +
                 ", dateRange=" + dateRange +
                 ", fullyClosed=" + fullyClosed +
-                ", nearbyOpenStations=" + walkingDiversions +
+                ", diversionsAroundClosure=" + HasId.asIds(diversionsAroundClosure) +
+                ", diversionsToFromClosure=" + HasId.asIds(diversionsToFromClosure) +
                 '}';
     }
 
     /***
-     * @return Nearby stations that have a linked relationship with the closed station.
-     * Might have been provided by config.
+     * @return Stations that should be linked together to provide a diversion around the closure
      */
-    public Set<Station> getNearbyLinkedStation() {
-        return walkingDiversions;
+    public Set<Station> getDiversionAroundClosure() {
+        return diversionsAroundClosure;
+    }
+
+    /***
+     * @return stations that should to linked to/from the closure station to give an alternative path
+     */
+    public Set<Station> getDiversionToFromClosure() {
+        return diversionsToFromClosure;
     }
 }

@@ -15,14 +15,20 @@ public class StationClosuresConfigForTest implements StationClosures {
     private final TramDate begin;
     private final TramDate end;
     private final boolean fullyClosed;
-    private final Set<String> diversionOnly;
+    private final Set<String> diversionsAround;
+    private final Set<String> diversionsToFrom;
 
-    public StationClosuresConfigForTest(TramStations station, TramDate begin, TramDate end, boolean fullyClosed, Set<String> diversionOnly) {
+    public StationClosuresConfigForTest(TramStations station, TramDate begin, TramDate end, boolean fullyClosed, Set<String> diversionsAround, Set<String> diversionsToFrom) {
         this.station = station;
         this.begin = begin;
         this.end = end;
         this.fullyClosed = fullyClosed;
-        this.diversionOnly = diversionOnly;
+        this.diversionsAround = diversionsAround;
+        this.diversionsToFrom = diversionsToFrom;
+    }
+
+    public StationClosuresConfigForTest(TramStations tramStations, TramDate begin, TramDate end, boolean fullyClosed) {
+        this(tramStations, begin, end, fullyClosed, null, null);
     }
 
     @Override
@@ -51,7 +57,34 @@ public class StationClosuresConfigForTest implements StationClosures {
     }
 
     @Override
-    public IdSet<Station> getDiversionsOnly() {
-        return diversionOnly.stream().map(Station::createId).collect(IdSet.idCollector());
+    public boolean hasDiversionsAroundClosure() {
+        return diversionsAround!=null;
+    }
+
+    @Override
+    public IdSet<Station> getDiversionsAroundClosure() {
+        return diversionsAround.stream().map(Station::createId).collect(IdSet.idCollector());
+    }
+
+    @Override
+    public boolean hasDiversionsToFromClosure() {
+        return diversionsToFrom!=null;
+    }
+
+    @Override
+    public IdSet<Station> getDiversionsToFromClosure() {
+        return diversionsToFrom.stream().map(Station::createId).collect(IdSet.idCollector());
+    }
+
+    @Override
+    public String toString() {
+        return "StationClosuresConfigForTest{" +
+                "station=" + station +
+                ", begin=" + begin +
+                ", end=" + end +
+                ", fullyClosed=" + fullyClosed +
+                ", diversionsAround=" + diversionsAround +
+                ", diversionsToFrom=" + diversionsToFrom +
+                '}';
     }
 }

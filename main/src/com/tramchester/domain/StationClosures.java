@@ -1,5 +1,6 @@
 package com.tramchester.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.tramchester.config.StationClosuresConfig;
 import com.tramchester.domain.dates.TramDate;
@@ -17,6 +18,14 @@ public interface StationClosures {
 
     DateRange getDateRange();
 
-    // only add diversions for these stations, not automatically for all
-    IdSet<Station> getDiversionsOnly();
+    @JsonIgnore
+    boolean hasDiversionsAroundClosure();
+
+    // only add diversions for between these stations, not automatically for all
+    IdSet<Station> getDiversionsAroundClosure();
+
+    @JsonIgnore
+    boolean hasDiversionsToFromClosure();
+
+    IdSet<Station> getDiversionsToFromClosure();
 }

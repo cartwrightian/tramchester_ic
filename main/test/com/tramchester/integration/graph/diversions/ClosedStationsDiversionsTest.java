@@ -56,8 +56,7 @@ class ClosedStationsDiversionsTest {
     private MutableGraphTransaction txn;
 
     private final static List<StationClosures> closedStations = Collections.singletonList(
-            new StationClosuresConfigForTest(TramStations.StPetersSquare, when, when.plusWeeks(1),
-                    true, Collections.emptySet()));
+            new StationClosuresConfigForTest(TramStations.StPetersSquare, when, when.plusWeeks(1), true));
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {

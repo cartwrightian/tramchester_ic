@@ -31,7 +31,7 @@ public class StationResourceClosedStationTest {
     private static final TramStations closedStation = TramStations.StPetersSquare;
 
     private final static List<StationClosures> closedStations = Collections.singletonList(
-            new StationClosuresConfigForTest(closedStation, when, when.plusWeeks(1), false, Collections.emptySet()));
+            new StationClosuresConfigForTest(closedStation, when, when.plusWeeks(1), false));
 
     // NOTE: planning disabled here
     private static final AppConfiguration config = new IntegrationTramClosedStationsTestConfig(closedStations, false);

@@ -2,6 +2,7 @@ package com.tramchester.integration.graph.diversions;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.config.StationClosuresConfig;
 import com.tramchester.domain.ClosedStation;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.LocationSet;
@@ -45,12 +46,15 @@ public class ClosedStationsRepositoryTest {
         overlap = when.plusDays(3);
 
         Set<String> diversionOnly = Collections.emptySet();
-        StationClosuresConfigForTest closureA = new StationClosuresConfigForTest(StPetersSquare, when, when.plusWeeks(1), true, diversionOnly);
-        StationClosuresConfigForTest closureB = new StationClosuresConfigForTest(TraffordCentre, overlap, when.plusWeeks(2), false, diversionOnly);
+        StationClosuresConfigForTest closureA = new StationClosuresConfigForTest(StPetersSquare, when, when.plusWeeks(1), true);
+        StationClosuresConfigForTest closureB = new StationClosuresConfigForTest(TraffordCentre, overlap, when.plusWeeks(2), false, diversionOnly, Collections.emptySet());
         StationClosuresConfigForTest closureC = new StationClosuresConfigForTest(TramStations.ExchangeSquare, overlap, when.plusWeeks(3),
-                false, Collections.singleton("9400ZZMAVIC"));
+                false, Collections.singleton("9400ZZMAVIC"), Collections.emptySet());
 
-        List<StationClosures> closedStations = Arrays.asList(closureA, closureB, closureC);
+        // overlaps with A
+        StationClosuresConfigForTest closureD = new StationClosuresConfigForTest(PiccadillyGardens, when, when.plusWeeks(1), true);
+
+        List<StationClosures> closedStations = Arrays.asList(closureA, closureB, closureC, closureD);
 
         config = new IntegrationTramClosedStationsTestConfig(closedStations, true);
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
@@ -109,7 +113,7 @@ public class ClosedStationsRepositoryTest {
         assertEquals(1, closedIn3Weeks.size());
 
         ClosedStation closure = closedIn3Weeks.get(0);
-        List<Station> nearby = new ArrayList<>(closure.getNearbyLinkedStation());
+        List<Station> nearby = new ArrayList<>(closure.getDiversionAroundClosure());
 
         assertEquals(1, nearby.size());
 
@@ -128,9 +132,10 @@ public class ClosedStationsRepositoryTest {
     @Test
     void shouldHaveExpectedClosedStationsForFirstPeriod() {
         Set<ClosedStation> closed = closedStationsRepository.getFullyClosedStationsFor(when);
-        assertEquals(1, closed.size());
+        assertEquals(2, closed.size());
         IdSet<Station> ids = closed.stream().map(ClosedStation::getStation).collect(IdSet.collector());
         assertTrue(ids.contains(StPetersSquare.getId()));
+        assertTrue(ids.contains(PiccadillyGardens.getId()));
 
         Set<ClosedStation> closedLater = closedStationsRepository.getFullyClosedStationsFor(afterClosures);
         assertTrue(closedLater.isEmpty());
@@ -145,7 +150,7 @@ public class ClosedStationsRepositoryTest {
     @Test
     void shouldHaveExpectedClosedStationsForOverlap() {
         Set<ClosedStation> fullyClosed = closedStationsRepository.getFullyClosedStationsFor(overlap);
-        assertEquals(1, fullyClosed.size());
+        assertEquals(2, fullyClosed.size());
         IdSet<Station> ids = fullyClosed.stream().map(ClosedStation::getStation).collect(IdSet.collector());
         assertTrue(ids.contains(StPetersSquare.getId()));
     }
@@ -153,25 +158,32 @@ public class ClosedStationsRepositoryTest {
     @Test
     void shouldHaveClosedByDataSourceId() {
         Set<ClosedStation> closedStations = closedStationsRepository.getClosedStationsFor(DataSourceID.tfgm);
-        assertEquals(3, closedStations.size());
+        assertEquals(4, closedStations.size());
     }
 
     @Test
     void shouldHaveNearbyStationsForClosed() {
         List<ClosedStation> closedStations = new ArrayList<>(closedStationsRepository.getFullyClosedStationsFor(when.plusDays(1)));
-        assertEquals(1, closedStations.size());
+        assertEquals(2, closedStations.size());
 
         ClosedStation closedStation = closedStations.get(0);
         assertEquals(StPetersSquare.getId(), closedStation.getStation().getId());
 
-        IdSet<Station> availableStations = closedStation.getNearbyLinkedStation().stream().collect(IdSet.collector());
-        assertFalse(availableStations.isEmpty());
+        IdSet<Station> diversionsAround = closedStation.getDiversionAroundClosure().stream().collect(IdSet.collector());
+        assertFalse(diversionsAround.isEmpty());
 
-        assertTrue(availableStations.contains(Deansgate.getId()));
-        assertTrue(availableStations.contains(PiccadillyGardens.getId()));
-        assertTrue(availableStations.contains(MarketStreet.getId()));
+        assertTrue(diversionsAround.contains(Deansgate.getId()));
+        assertFalse(diversionsAround.contains(PiccadillyGardens.getId())); // overlap
+        assertFalse(diversionsAround.contains(ExchangeSquare.getId())); // overlap
 
+        IdSet<Station> diversionsToFrom = closedStation.getDiversionAroundClosure().stream().collect(IdSet.collector());
+        assertFalse(diversionsToFrom.isEmpty());
+
+        assertTrue(diversionsToFrom.contains(Deansgate.getId()));
+        assertFalse(diversionsToFrom.contains(PiccadillyGardens.getId())); // overlap
+        assertFalse(diversionsToFrom.contains(ExchangeSquare.getId())); // overlap
 
     }
+
 
 }

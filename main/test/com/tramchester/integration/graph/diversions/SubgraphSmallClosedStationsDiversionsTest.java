@@ -63,8 +63,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
     private final static TramDate when = TestEnv.testDay();
 
     private final static List<StationClosures> closedStations = List.of(
-            new StationClosuresConfigForTest(PiccadillyGardens, when.plusWeeks(1), when.plusWeeks(2), false,
-                    Collections.emptySet()));
+            new StationClosuresConfigForTest(PiccadillyGardens, when.plusWeeks(1), when.plusWeeks(2), false));
 
     private static final List<TramStations> centralStations = Arrays.asList(
             Cornbrook,
@@ -219,7 +218,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
         assertTrue(closedStationsRepository.isClosed(piccGardens, date));
         ClosedStation closed = closedStationsRepository.getClosedStation(piccGardens, date);
 
-        Set<Station> nearby = closed.getNearbyLinkedStation();
+        Set<Station> nearby = closed.getDiversionAroundClosure();
         assertEquals(7, nearby.size(), HasId.asIds(nearby));
         assertTrue(nearby.contains(Piccadilly.from(stationRepository)));
         assertTrue(nearby.contains(MarketStreet.from(stationRepository)));

@@ -38,13 +38,20 @@ gtfsSourceConfig:
     additionalInterchanges: [9400ZZMAGMX,9400ZZMAPIC]
     groupedStationModes: []
     addWalksForClosed: true
-    stationClosures: []
-    temporaryStationsWalks:
-    - stations:
-        first: "9400ZZMAPIC"
-        second: "9400ZZMAPGD"
-      begin: 2024-06-22 
-      end: 2024-07-09
+    stationClosures:
+      - stations: [ "9400ZZMASHU" ]
+        begin: 2024-07-24
+        end: 2024-08-19
+        fullyClosed: true
+        diversionsToFromClosure: [ "9400ZZMAEXS", "9400ZZMAVIC" ]
+        diversionsAroundClosure: []
+      - stations: [ "9400ZZMAMKT" ]
+        begin: 2024-07-24
+        end: 2024-08-19
+        fullyClosed: true
+        diversionsToFromClosure: [ "9400ZZMAPGD", "9400ZZMASTP" ]
+        diversionsAroundClosure: []
+    temporaryStationsWalks: []
 remoteSources:
   - name: tfgm
     dataURL: ${TRAM_DATAURL:- s3://tramchesternewdist/dist/${RELEASE_NUMBER}/tfgm_data.zip}

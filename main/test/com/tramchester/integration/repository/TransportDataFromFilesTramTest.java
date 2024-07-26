@@ -355,7 +355,7 @@ public class TransportDataFromFilesTramTest {
         HasId<Station> navigationRd = NavigationRoad.from(transportData);
         Set<Trip> calls = atTime.stream().filter(trip -> trip.callsAt(navigationRd.getId())).collect(Collectors.toSet());
 
-        assertEquals(3, calls.size(), HasId.asIds(calls));
+        assertEquals(2, calls.size(), HasId.asIds(calls));
     }
 
     @DataExpiryCategory

@@ -27,13 +27,13 @@ public class StationClosuresConfigTest {
     }
 
     @Test
-    void shouldParseYaml() throws JsonProcessingException {
+    void shouldParseYamlWithDiversionsAround() throws JsonProcessingException {
 
         String yaml = "stations: [ \"9400ZZMAECC\", \"9400ZZMALDY\", \"9400ZZMAWST\" ]\n" +
                 "begin: 2023-07-15\n" +
                 "end: 2023-09-20\n" +
                 "fullyClosed: true\n" +
-                "diversionsOnly: [ \"9400ZZMAVIC\" ]";
+                "diversionsAroundClosure: [ \"9400ZZMAVIC\" ]";
 
 
         StationClosuresConfig result = mapper.readValue(yaml, StationClosuresConfig.class);
@@ -47,7 +47,69 @@ public class StationClosuresConfigTest {
         assertEquals(TramDate.of(2023,7,15), result.getBegin());
         assertEquals(TramDate.of(2023,9,20), result.getEnd());
 
-        assertEquals(IdSet.singleton(TramStations.Victoria.getId()), result.getDiversionsOnly());
+        assertTrue(result.hasDiversionsAroundClosure());
+        assertEquals(IdSet.singleton(TramStations.Victoria.getId()), result.getDiversionsAroundClosure());
+
+        assertFalse(result.hasDiversionsToFromClosure());
+
+        assertTrue(result.isFullyClosed());
+
+    }
+
+    @Test
+    void shouldParseYamlWithDiversionsAroundAndToFrom() throws JsonProcessingException {
+
+        String yaml = "stations: [ \"9400ZZMAECC\", \"9400ZZMALDY\", \"9400ZZMAWST\" ]\n" +
+                "begin: 2023-07-15\n" +
+                "end: 2023-09-20\n" +
+                "fullyClosed: true\n" +
+                "diversionsToFromClosure: [ \"9400ZZMAMKT\" ]\n" +
+                "diversionsAroundClosure: [ \"9400ZZMAVIC\" ]";
+
+
+        StationClosuresConfig result = mapper.readValue(yaml, StationClosuresConfig.class);
+
+        IdSet<Station> stations = result.getStations();
+        assertEquals(3, stations.size());
+        assertTrue(stations.contains(TramStations.Eccles.getId()));
+        assertTrue(stations.contains(TramStations.Ladywell.getId()));
+        assertTrue(stations.contains(TramStations.Weaste.getId()));
+
+        assertEquals(TramDate.of(2023,7,15), result.getBegin());
+        assertEquals(TramDate.of(2023,9,20), result.getEnd());
+
+        assertTrue(result.hasDiversionsAroundClosure());
+        assertEquals(IdSet.singleton(TramStations.Victoria.getId()), result.getDiversionsAroundClosure());
+
+        assertTrue(result.hasDiversionsToFromClosure());
+        assertEquals(IdSet.singleton(TramStations.MarketStreet.getId()), result.getDiversionsToFromClosure());
+
+        assertTrue(result.isFullyClosed());
+
+    }
+
+    @Test
+    void shouldParseYamlWithNoDiversionsGiven() throws JsonProcessingException {
+
+        String yaml = "stations: [ \"9400ZZMAECC\", \"9400ZZMALDY\", \"9400ZZMAWST\" ]\n" +
+                "begin: 2023-07-15\n" +
+                "end: 2023-09-20\n" +
+                "fullyClosed: true";
+
+
+        StationClosuresConfig result = mapper.readValue(yaml, StationClosuresConfig.class);
+
+        IdSet<Station> stations = result.getStations();
+        assertEquals(3, stations.size());
+        assertTrue(stations.contains(TramStations.Eccles.getId()));
+        assertTrue(stations.contains(TramStations.Ladywell.getId()));
+        assertTrue(stations.contains(TramStations.Weaste.getId()));
+
+        assertEquals(TramDate.of(2023,7,15), result.getBegin());
+        assertEquals(TramDate.of(2023,9,20), result.getEnd());
+
+        assertFalse(result.hasDiversionsAroundClosure());
+        assertFalse(result.hasDiversionsToFromClosure());
 
         assertTrue(result.isFullyClosed());
 

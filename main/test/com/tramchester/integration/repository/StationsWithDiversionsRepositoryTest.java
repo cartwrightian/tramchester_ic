@@ -41,7 +41,7 @@ public class StationsWithDiversionsRepositoryTest {
         Set<String> closed = Collections.singleton("9400ZZMAEXS");
 
         StationClosuresConfig exchangeSquareBrokenRail = new StationClosuresConfig(closed, LocalDate.of(2024, 2, 12),
-                LocalDate.of(2024, 5, 7), false, Collections.singleton("9400ZZMAVIC"));
+                LocalDate.of(2024, 5, 7), false,  Collections.emptySet(), Collections.singleton("9400ZZMAVIC"));
         List<StationClosures> closures = Collections.singletonList(exchangeSquareBrokenRail);
 
         config = new IntegrationTramTestConfig(closures, IntegrationTramTestConfig.Caching.Enabled);
@@ -85,7 +85,7 @@ public class StationsWithDiversionsRepositoryTest {
         assertEquals(1, findStationClosed.size());
         StationClosures stationClosure = findStationClosed.get(0);
 
-        Set<Station> diversions = stationClosure.getDiversionsOnly().stream().map(id -> stationsRepository.getStationById(id)).collect(Collectors.toSet());
+        Set<Station> diversions = stationClosure.getDiversionsAroundClosure().stream().map(id -> stationsRepository.getStationById(id)).collect(Collectors.toSet());
 
         assertFalse(diversions.isEmpty());
 

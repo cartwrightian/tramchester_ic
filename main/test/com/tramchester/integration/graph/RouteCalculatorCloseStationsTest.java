@@ -45,8 +45,8 @@ class RouteCalculatorCloseStationsTest {
 
     // see note below on DB deletion
     private final static List<StationClosures> closedStations = Arrays.asList(
-            new StationClosuresConfigForTest(Shudehill, begin, end, true, Collections.emptySet()),
-            new StationClosuresConfigForTest(PiccadillyGardens, begin, end, false, Collections.emptySet()));
+            new StationClosuresConfigForTest(Shudehill, begin, end, true),
+            new StationClosuresConfigForTest(PiccadillyGardens, begin, end, false));
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
