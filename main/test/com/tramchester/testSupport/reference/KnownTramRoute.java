@@ -17,8 +17,8 @@ import java.util.Set;
 public enum KnownTramRoute {
 
     // present in data but unused?
-    ReplacementBusOldhamMumpsRochsdale2178("Replacement Bus Oldham Mumps - Rochdale", "Oldham Mumps - Rochdale","2178"),
-    ReplacementBusOldhamMumpsRochsdale2177("Replacement Bus Oldham Mumps - Rochdale", "Oldham Mumps - Rochdale","2177"),
+    ReplacementBusOldhamMumpsRochsdale2178("Pink Line Replacement Bus Oldham Mumps - Rochdale", "Oldham Mumps - Rochdale","2178"),
+    ReplacementBusOldhamMumpsRochsdale2177("Pink Line Replacement Bus Oldham Mumps - Rochdale", "Oldham Mumps - Rochdale","2177"),
 
     PiccadillyAltrincham("Purple Line", "Etihad Campus - Piccadilly - Altrincham", "2173"),
     BuryManchesterAltrincham("Green Line", "Bury - Manchester - Altrincham", "841"),
