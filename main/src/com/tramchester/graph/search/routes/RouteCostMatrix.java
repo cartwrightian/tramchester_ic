@@ -15,12 +15,12 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.NumberOfRoutes;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import jakarta.inject.Inject;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
@@ -359,7 +359,7 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
         }
 
 
-        public byte getDegree(RouteIndexPair routePair) {
+        public byte getDegree(final RouteIndexPair routePair) {
             if (routePair.isSame()) {
                 return 0;
             }

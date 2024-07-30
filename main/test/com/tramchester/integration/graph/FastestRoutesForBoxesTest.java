@@ -27,9 +27,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Array;
 import java.time.Duration;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -68,16 +68,21 @@ class FastestRoutesForBoxesTest {
         List<BoundingBoxWithStations> emptyGroup = grouped.stream().filter(group -> !group.hasStations()).collect(Collectors.toList());
         assertEquals(Collections.emptyList(),emptyGroup);
 
-        List<String> notInAGroupById =stationsRepo.getStations().stream().
+        Set<String> notInAGroupById =stationsRepo.getStations().stream().
                 filter(station -> !isPresentIn(grouped, station)).
                 map(Station::getName).
-                collect(Collectors.toList());
-        assertEquals(Collections.emptyList(), notInAGroupById);
+                collect(Collectors.toSet());
+
+        // summer 2024 closures
+//        assertEquals(Collections.emptyList(), notInAGroupById);
+        Set<String> expectedMissing = new HashSet<>(Arrays.asList(TramStations.Shudehill.getName(), TramStations.MarketStreet.getName()));
+        assertEquals(expectedMissing, notInAGroupById);
 
         List<String> notInAGroupByPosition = stationsRepo.getStations().stream().
                 filter(station -> !isPresentInByPos(grouped, station)).
                 map(Station::getName).
                 collect(Collectors.toList());
+
         assertEquals(Collections.emptyList(), notInAGroupByPosition);
     }
 

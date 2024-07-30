@@ -101,15 +101,18 @@ public class RoutePairToInterchangeRepositoryTest {
 
         IdSet<Station> stationIds = interchanges.stream().map(InterchangeStation::getStation).collect(IdSet.collector());
 
-        assertEquals(6, stationIds.size(), stationIds.toString());
+        // summer 2024 closures 6->5
+        assertEquals(5, stationIds.size(), stationIds.toString());
         assertTrue(stationIds.contains(StPetersSquare.getId()), stationIds.toString());
         assertTrue(stationIds.contains(Deansgate.getId()), stationIds.toString());
         assertTrue(stationIds.contains(Cornbrook.getId()), stationIds.toString());
         assertTrue(stationIds.contains(TraffordBar.getId()), stationIds.toString());
-        // some ashton to eccles trams seem to call at market street, maybe to/from depot??
-        assertTrue(stationIds.contains(MarketStreet.getId()), stationIds.toString());
 
         assertTrue(stationIds.contains(Victoria.getId()), stationIds.toString());
+
+        // Summer 2024 closure
+        // some ashton to eccles trams seem to call at market street, maybe to/from depot??
+        assertFalse(stationIds.contains(MarketStreet.getId()), stationIds.toString());
     }
 
 

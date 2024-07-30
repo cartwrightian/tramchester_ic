@@ -195,6 +195,17 @@ public class RouteRepositoryTest {
     }
 
     @Test
+    void shouldNotOverlapReplacementBusForLandslip2024() {
+        Route routeA = routeRepository.getRouteById(ReplacementBusOldhamMumpsRochsdale2177.getId());
+        Route routeB = routeRepository.getRouteById(ReplacementBusOldhamMumpsRochsdale2178.getId());
+
+        assertEquals(routeA.getShortName(), routeB.getShortName());
+
+        assertFalse(routeA.isDateOverlap(routeB));
+        assertFalse(routeB.isDateOverlap(routeA));
+    }
+
+    @Test
     void shouldHaveExpectedRoutesAtCornbrook() {
         TramRouteHelper tramRouteHelper = new TramRouteHelper(routeRepository);
 

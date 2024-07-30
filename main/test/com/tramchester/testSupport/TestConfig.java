@@ -113,8 +113,12 @@ public abstract class TestConfig extends AppConfiguration {
     }
 
     // see RouteCalculatorTest.shouldFindEndOfLinesToEndOfLines
+    // summer 2024 replacement bus
     @Override
-    public int getMaxJourneyDuration() { return 127; }
+    public int getMaxJourneyDuration() {
+        return 143;
+//        return 127;
+    }
 
     @Override
     public int getNumberQueries() { return 3; }

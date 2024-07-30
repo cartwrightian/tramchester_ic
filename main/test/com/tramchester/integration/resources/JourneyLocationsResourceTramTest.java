@@ -9,6 +9,7 @@ import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.presentation.Timestamped;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
@@ -62,7 +63,7 @@ class JourneyLocationsResourceTramTest {
 
         assertEquals(results.size(), typeCount);
 
-        Set<IdForDTO> expectedIds = stationRepository.getStations().stream().
+        Set<IdForDTO> expectedIds = stationRepository.getStationsServing(TransportMode.Tram).stream().
                 map(IdForDTO::createFor).
                 collect(Collectors.toSet());
 
@@ -127,9 +128,11 @@ class JourneyLocationsResourceTramTest {
 
         assertTrue(ids.contains(TramStations.PiccadillyGardens.getIdForDTO()));
         assertTrue(ids.contains(TramStations.StPetersSquare.getIdForDTO()));
-        assertTrue(ids.contains(TramStations.MarketStreet.getIdForDTO()));
         assertTrue(ids.contains(TramStations.ExchangeSquare.getIdForDTO()));
-        assertTrue(ids.contains(TramStations.Shudehill.getIdForDTO()));
+
+        // summer 2024 closures
+        assertFalse(ids.contains(TramStations.MarketStreet.getIdForDTO()));
+        assertFalse(ids.contains(TramStations.Shudehill.getIdForDTO()));
     }
 
     @Test

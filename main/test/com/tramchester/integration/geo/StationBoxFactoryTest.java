@@ -5,6 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.StationBoxFactory;
 import com.tramchester.geo.StationLocations;
@@ -71,7 +72,7 @@ public class StationBoxFactoryTest {
 
         final List<StationsBoxSimpleGrid> grouped = stationBoxFactory.getStationBoxes(gridSize, when);
 
-        Set<Station> allStations = stationRepository.getStations();
+        Set<Station> allStations = stationRepository.getStationsServing(TransportMode.Tram);
 
         for (Station station: allStations) {
             Optional<StationsBoxSimpleGrid> findDestBox = grouped.stream().filter(box -> box.getStations().contains(station)).findFirst();

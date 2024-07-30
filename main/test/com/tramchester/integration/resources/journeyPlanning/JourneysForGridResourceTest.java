@@ -59,13 +59,14 @@ class JourneysForGridResourceTest {
 
         maxChanges = 3;
         gridSize = 2000;
-        maxDuration = 40;
 
         App app =  appExtension.getApplication();
         GuiceContainerDependencies dependencies = app.getDependencies();
         stationLocations = dependencies.get(StationLocations.class);
         closedStationsRepository = dependencies.get(ClosedStationsRepository.class);
         stationRepository = dependencies.get(StationRepository.class);
+
+        maxDuration = appExtension.getConfiguration().getMaxJourneyDuration();
     }
 
     @Test
@@ -73,7 +74,7 @@ class JourneysForGridResourceTest {
         LatLong destPos = KnownLocations.nearStPetersSquare.latLong();
         Station destination = TramStations.StPetersSquare.from(stationRepository);
 
-        final int outOfRangeForDuration = 3;
+        final int outOfRangeForDuration = 0;
 
         IdForDTO destinationId = IdForDTO.createFor(destination);
         LocalDate departureDate = when.toLocalDate();
@@ -106,7 +107,7 @@ class JourneysForGridResourceTest {
         assertTrue(boxWithDest.getTopRight().getLon() >= destPos.getLon());
 
         List<BoxWithCostDTO> notDest = results.stream().filter(result -> result.getMinutes() > 0).toList();
-        notDest.forEach(boundingBoxWithCost -> assertTrue(boundingBoxWithCost.getMinutes()<=maxDuration));
+        notDest.forEach(boundingBoxWithCost -> assertTrue(boundingBoxWithCost.getMinutes()<=maxDuration, "failed for " + boundingBoxWithCost));
 
         List<BoxWithCostDTO> noResult = results.stream().filter(result -> result.getMinutes() < 0).toList();
         assertEquals(outOfRangeForDuration, noResult.size());

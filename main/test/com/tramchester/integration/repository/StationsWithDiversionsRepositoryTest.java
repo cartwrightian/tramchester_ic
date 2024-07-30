@@ -15,6 +15,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StationsWithDiversionRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.ShudehillMarketStreetClosedTestCategory;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -72,6 +73,7 @@ public class StationsWithDiversionsRepositoryTest {
         assertTrue(result);
     }
 
+    @ShudehillMarketStreetClosedTestCategory
     @Test
     void shouldHaveDiversionsMatchingConfig() {
         IdFor<Station> stationWithClosureId = TramStations.ExchangeSquare.getId();

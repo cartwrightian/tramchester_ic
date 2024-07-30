@@ -34,7 +34,6 @@ public enum KnownTramRoute {
 
     public static Set<KnownTramRoute> getFor(final TramDate date) {
         EnumSet<KnownTramRoute> routes = EnumSet.noneOf(KnownTramRoute.class);
-        boolean sunday = date.getDayOfWeek().equals(DayOfWeek.SUNDAY);
 
         routes.add(VictoriaWythenshaweManchesterAirport);
         routes.add(CornbrookTheTraffordCentre);
@@ -57,6 +56,7 @@ public enum KnownTramRoute {
 
         // running on sundays again? Maybe due to the other work going on in the network?
         routes.add(BuryManchesterAltrincham);
+//        boolean sunday = date.getDayOfWeek().equals(DayOfWeek.SUNDAY);
 //        if (!sunday) {
 //            // not documented anywhere, but does not appear any trams on this route on Sundays
 //            routes.add(BuryManchesterAltrincham);

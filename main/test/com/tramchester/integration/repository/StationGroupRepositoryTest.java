@@ -66,15 +66,18 @@ class StationGroupRepositoryTest {
 
         LocationSet<Station> locations = found.getAllContained();
 
-        assertEquals(7, locations.size(), HasId.asIds(locations));
+        assertEquals(5, locations.size(), HasId.asIds(locations));
 
         assertTrue(locations.contains(TramStations.ExchangeSquare.from(stationRepository)));
-        assertTrue(locations.contains(TramStations.Shudehill.from(stationRepository)));
         assertTrue(locations.contains(TramStations.Deansgate.from(stationRepository)));
         assertTrue(locations.contains(TramStations.StPetersSquare.from(stationRepository)));
         assertTrue(locations.contains(TramStations.Victoria.from(stationRepository)));
-        assertTrue(locations.contains(TramStations.MarketStreet.from(stationRepository)));
         assertTrue(locations.contains(TramStations.Piccadilly.from(stationRepository)));
+
+        // summer 2024 closures
+//        assertTrue(locations.contains(TramStations.MarketStreet.from(stationRepository)));
+//        assertTrue(locations.contains(TramStations.Shudehill.from(stationRepository)));
+
 
     }
 

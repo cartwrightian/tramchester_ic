@@ -13,6 +13,7 @@ import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.domain.presentation.DTO.RouteRefDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.RecentJourneys;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
@@ -97,7 +98,7 @@ class StationResourceTest {
 
         List<LocationRefDTO> results = result.readEntity(new GenericType<>() {});
 
-        Set<IdForDTO> expectedIds = stationRepository.getStations().stream().
+        Set<IdForDTO> expectedIds = stationRepository.getStationsServing(TransportMode.Tram).stream().
                 map(IdForDTO::createFor).
                 collect(Collectors.toSet());
 
@@ -135,7 +136,7 @@ class StationResourceTest {
 
         List<LocationDTO> results = response.readEntity(new GenericType<>() {});
 
-        assertEquals(stationRepository.getStations().size(), results.size());
+        assertEquals(stationRepository.getStationsServing(TransportMode.Tram).size(), results.size());
 
         Station stPeters = TramStations.StPetersSquare.from(stationRepository);
         IdForDTO expected = new IdForDTO(stPeters.getId());
@@ -188,9 +189,13 @@ class StationResourceTest {
 
         assertTrue(ids.contains(TramStations.PiccadillyGardens.getIdForDTO()));
         assertTrue(ids.contains(TramStations.StPetersSquare.getIdForDTO()));
-        assertTrue(ids.contains(TramStations.MarketStreet.getIdForDTO()));
         assertTrue(ids.contains(TramStations.ExchangeSquare.getIdForDTO()));
-        assertTrue(ids.contains(TramStations.Shudehill.getIdForDTO()));
+
+        // summer 2024 closures
+//        assertTrue(ids.contains(TramStations.Shudehill.getIdForDTO()));
+//        assertTrue(ids.contains(TramStations.MarketStreet.getIdForDTO()));
+        assertTrue(ids.contains(TramStations.Piccadilly.getIdForDTO()));
+        assertTrue(ids.contains(TramStations.Victoria.getIdForDTO()));
     }
 
     @Test
@@ -210,9 +215,14 @@ class StationResourceTest {
 
         assertTrue(ids.contains(TramStations.PiccadillyGardens.getIdForDTO()));
         assertTrue(ids.contains(TramStations.StPetersSquare.getIdForDTO()));
-        assertTrue(ids.contains(TramStations.MarketStreet.getIdForDTO()));
         assertTrue(ids.contains(TramStations.ExchangeSquare.getIdForDTO()));
-        assertTrue(ids.contains(TramStations.Shudehill.getIdForDTO()));
+
+        // summer 2024 closures
+//        assertTrue(ids.contains(TramStations.Shudehill.getIdForDTO()));
+//        assertTrue(ids.contains(TramStations.MarketStreet.getIdForDTO()));
+        assertTrue(ids.contains(TramStations.Piccadilly.getIdForDTO()));
+        assertTrue(ids.contains(TramStations.Victoria.getIdForDTO()));
+
     }
 
     @Test

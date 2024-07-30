@@ -65,8 +65,10 @@ class RouteCalculatorSubGraphMediaCityTest {
             HarbourCity,
             MediaCityUK,
             TraffordBar,
-            // Victoria Broken Rail
-            Shudehill, MarketStreet);
+            Victoria);
+//             Summer 2024 closures
+//            Shudehill, MarketStreet
+
     private MutableGraphTransaction txn;
 
     private Duration maxJourneyDuration;
@@ -132,6 +134,8 @@ class RouteCalculatorSubGraphMediaCityTest {
         validateAtLeastOneJourney(MediaCityUK, ExchangeSquare, TramTime.of(9,0), testSunday);
     }
 
+
+    @Disabled("WIP on victoria closure needing timing included")
     @Test
     void shouldHaveJourneyFromEveryStationToEveryOtherNDaysAhead() {
 

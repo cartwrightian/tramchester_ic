@@ -73,4 +73,11 @@ public class LocationIdPairSet<T extends Location<T>>  {
             }
         };
     }
+
+    @Override
+    public String toString() {
+        return "LocationIdPairSet{" +
+                "pairs=" + pairs +
+                '}';
+    }
 }

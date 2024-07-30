@@ -8,6 +8,7 @@ import com.tramchester.domain.*;
 import com.tramchester.domain.collections.IndexedBitSet;
 import com.tramchester.domain.collections.RouteIndexPair;
 import com.tramchester.domain.collections.RouteIndexPairFactory;
+import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
@@ -376,18 +377,25 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         private final RouteToRouteCosts routeToRouteCosts;
         private final RouteIndexPairFactory pairFactory;
         private final Set<Short> destinationIndexs;
+        private final Map<Short, DateRange> destinationRouteDateRange;
         private final StationAvailabilityFacade changeStationOperating;
         private final IndexedBitSet dateOverlaps;
 
         public LowestCostForDestinations(BetweenRoutesCostRepository routeToRouteCosts, RouteIndexPairFactory pairFactory,
-                                         Set<Route> destinations,
+                                         Set<Route> destinationRoutes,
                                          TramDate date, TimeRange time, EnumSet<TransportMode> requestedModes,
                                          StationAvailabilityRepository availabilityRepository) {
             this.routeToRouteCosts = (RouteToRouteCosts) routeToRouteCosts;
             this.pairFactory = pairFactory;
-            destinationIndexs = destinations.stream().
+            destinationIndexs = destinationRoutes.stream().
                     map(destination -> this.routeToRouteCosts.index.indexFor(destination.getId())).
                     collect(Collectors.toUnmodifiableSet());
+            destinationRouteDateRange = new HashMap<>();
+
+            destinationIndexs.forEach(routeIndex -> {
+                final DateRange dateRange = this.routeToRouteCosts.index.getRouteFor(routeIndex).getDateRange();
+                destinationRouteDateRange.put(routeIndex, dateRange);
+            });
 
             changeStationOperating = getAvailabilityFacade(availabilityRepository, date, time, requestedModes);
             dateOverlaps = ((RouteToRouteCosts) routeToRouteCosts).costs.createOverlapMatrixFor(date, requestedModes);
@@ -408,7 +416,10 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
             // note: IntStream uses int in implementation so avoids any boxing overhead, destinationIndexs are shorts
             // so should be safe
-            return destinationIndexs.stream().mapToInt(item -> item).
+            final DateRange startingRouteDateRange = startingRoute.getDateRange();
+            return destinationIndexs.stream().
+                    filter(index -> destinationRouteDateRange.get(index).overlapsWith(startingRouteDateRange)).
+                    mapToInt(item -> item).
                     map(indexOfDest -> routeToRouteCosts.getDepth(pairFactory.get(indexOfStart, (short)indexOfDest),
                             changeStationOperating, dateOverlaps)).
                     filter(result -> result != RouteCostMatrix.MAX_VALUE).

@@ -166,8 +166,11 @@ public class ClosedStationsRepositoryTest {
         List<ClosedStation> closedStations = new ArrayList<>(closedStationsRepository.getFullyClosedStationsFor(when.plusDays(1)));
         assertEquals(2, closedStations.size());
 
-        ClosedStation closedStation = closedStations.get(0);
-        assertEquals(StPetersSquare.getId(), closedStation.getStation().getId());
+        Optional<ClosedStation> maybeStPeters = closedStations.stream().
+                filter(closed -> closed.getStationId().equals(StPetersSquare.getId())).findFirst();
+        assertTrue(maybeStPeters.isPresent());
+
+        ClosedStation closedStation = maybeStPeters.get();
 
         IdSet<Station> diversionsAround = closedStation.getDiversionAroundClosure().stream().collect(IdSet.collector());
         assertFalse(diversionsAround.isEmpty());
