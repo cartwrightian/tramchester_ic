@@ -12,10 +12,7 @@ import com.tramchester.domain.dates.DateRange;
 public interface StationClosures {
 
     IdSet<Station> getStations();
-    TramDate getBegin();
-    TramDate getEnd();
     boolean isFullyClosed();
-
     DateRange getDateRange();
 
     @JsonIgnore

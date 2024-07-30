@@ -1,9 +1,6 @@
 package com.tramchester.integration.testSupport.config;
 
-import com.tramchester.config.GraphDBConfig;
-import com.tramchester.config.RemoteDataSourceConfig;
-import com.tramchester.config.StationClosuresConfig;
-import com.tramchester.config.TemporaryStationsWalkIds;
+import com.tramchester.config.*;
 import com.tramchester.domain.StationClosures;
 import com.tramchester.integration.testSupport.TestGroupType;
 import com.tramchester.integration.testSupport.naptan.NaptanRemoteDataSourceTestConfig;
@@ -34,10 +31,11 @@ public abstract class IntegrationTestConfig extends TestConfig {
     static {
         final LocalDate begin = LocalDate.of(2024, 7, 24);
         final LocalDate end = LocalDate.of(2024, 8, 19);
+        final DateRangeConfig dateRangeConfig = new DateRangeConfig(begin, end);
         shudehillClosed = new StationClosuresConfig(Collections.singleton("9400ZZMASHU"),
-                begin, end, true, Collections.emptySet(), new HashSet<>(Arrays.asList("9400ZZMAVIC", "9400ZZMAEXS")));
+                dateRangeConfig, true, Collections.emptySet(), new HashSet<>(Arrays.asList("9400ZZMAVIC", "9400ZZMAEXS")));
         marketStreetClosed = new StationClosuresConfig(Collections.singleton("9400ZZMAMKT"),
-                begin, end, true, Collections.emptySet(), new HashSet<>(Arrays.asList("9400ZZMAPGD", "9400ZZMASTP")));
+                dateRangeConfig, true, Collections.emptySet(), new HashSet<>(Arrays.asList("9400ZZMAPGD", "9400ZZMASTP")));
     }
 
 //    static {

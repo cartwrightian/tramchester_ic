@@ -32,7 +32,6 @@ public class ClosedStationsRepository {
     private static final Logger logger = LoggerFactory.getLogger(ClosedStationsRepository.class);
 
     private final Set<ClosedStation> closedStations;
-//    private final IdSet<Station> hasXAClosure;
     private final Map<IdFor<Station>, Set<DateRange>> closureDates;
     private final TramchesterConfig config;
     private final StationRepository stationRepository;
@@ -49,8 +48,6 @@ public class ClosedStationsRepository {
         this.filter = filter;
         closureDates = new HashMap<>();
         closedStations = new HashSet<>();
-//        closed = new HashSet<>();
-//        hasAClosure = new IdSet<>();
     }
 
     @PostConstruct
@@ -73,7 +70,7 @@ public class ClosedStationsRepository {
 
         // capture closed stations and date ranges
         closures.forEach(closure -> {
-            DateRange dateRange = closure.getDateRange();
+            final DateRange dateRange = closure.getDateRange();
             closure.getStations().forEach(stationId -> {
                 if (!closureDates.containsKey(stationId)) {
                     closureDates.put(stationId, new HashSet<>());
@@ -82,7 +79,7 @@ public class ClosedStationsRepository {
             });
         });
 
-        // details
+        // capture details of each closure
         closures.forEach(closure -> {
             final boolean needNearby = (!closure.hasDiversionsAroundClosure()) || (!closure.hasDiversionsToFromClosure());
             final Set<ClosedStation> toAdd = closure.getStations().stream().
@@ -101,8 +98,6 @@ public class ClosedStationsRepository {
         final Set<Station> nearbyOpenStations = needNearby ? getNearbyOpenStations(station, margin, dateRange) : Collections.emptySet();
 
         final boolean fullyClosed = closure.isFullyClosed();
-
-//        hasAClosure.add(stationId);
 
         final Set<Station> diversionsAround;
         if (closure.hasDiversionsAroundClosure()) {
@@ -125,7 +120,6 @@ public class ClosedStationsRepository {
         }
 
         return new ClosedStation(station, dateRange, fullyClosed, diversionsAround, diversionsToFrom);
-
     }
 
     private Set<Station> getStations(IdSet<Station> stationIds) {

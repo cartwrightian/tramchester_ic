@@ -26,6 +26,10 @@ public class TimeRange {
         end = tramTime;
     }
 
+    public static TimeRange AllDay() {
+        return new TimeRange(TramTime.of(0,0), TramTime.of(23,59));
+    }
+
     public void updateToInclude(final TramTime callingTime) {
         if (callingTime.isBefore(begin)) {
             begin = callingTime;

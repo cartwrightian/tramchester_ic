@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.tramchester.config.StationClosuresConfig;
+import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
@@ -30,11 +31,11 @@ public class StationClosuresConfigTest {
     void shouldParseYamlWithDiversionsAround() throws JsonProcessingException {
 
         String yaml = "stations: [ \"9400ZZMAECC\", \"9400ZZMALDY\", \"9400ZZMAWST\" ]\n" +
-                "begin: 2023-07-15\n" +
-                "end: 2023-09-20\n" +
+                "dateRange:\n" +
+                "   begin: 2023-07-15\n" +
+                "   end: 2023-09-20\n" +
                 "fullyClosed: true\n" +
                 "diversionsAroundClosure: [ \"9400ZZMAVIC\" ]";
-
 
         StationClosuresConfig result = mapper.readValue(yaml, StationClosuresConfig.class);
 
@@ -44,8 +45,9 @@ public class StationClosuresConfigTest {
         assertTrue(stations.contains(TramStations.Ladywell.getId()));
         assertTrue(stations.contains(TramStations.Weaste.getId()));
 
-        assertEquals(TramDate.of(2023,7,15), result.getBegin());
-        assertEquals(TramDate.of(2023,9,20), result.getEnd());
+        DateRange dateRange = result.getDateRange();
+        assertEquals(TramDate.of(2023,7,15), dateRange.getStartDate());
+        assertEquals(TramDate.of(2023,9,20), dateRange.getEndDate());
 
         assertTrue(result.hasDiversionsAroundClosure());
         assertEquals(IdSet.singleton(TramStations.Victoria.getId()), result.getDiversionsAroundClosure());
@@ -60,8 +62,9 @@ public class StationClosuresConfigTest {
     void shouldParseYamlWithDiversionsAroundAndToFrom() throws JsonProcessingException {
 
         String yaml = "stations: [ \"9400ZZMAECC\", \"9400ZZMALDY\", \"9400ZZMAWST\" ]\n" +
-                "begin: 2023-07-15\n" +
-                "end: 2023-09-20\n" +
+                "dateRange:\n" +
+                "   begin: 2023-07-15\n" +
+                "   end: 2023-09-20\n" +
                 "fullyClosed: true\n" +
                 "diversionsToFromClosure: [ \"9400ZZMAMKT\" ]\n" +
                 "diversionsAroundClosure: [ \"9400ZZMAVIC\" ]";
@@ -75,8 +78,9 @@ public class StationClosuresConfigTest {
         assertTrue(stations.contains(TramStations.Ladywell.getId()));
         assertTrue(stations.contains(TramStations.Weaste.getId()));
 
-        assertEquals(TramDate.of(2023,7,15), result.getBegin());
-        assertEquals(TramDate.of(2023,9,20), result.getEnd());
+        DateRange dateRange = result.getDateRange();
+        assertEquals(TramDate.of(2023,7,15), dateRange.getStartDate());
+        assertEquals(TramDate.of(2023,9,20), dateRange.getEndDate());
 
         assertTrue(result.hasDiversionsAroundClosure());
         assertEquals(IdSet.singleton(TramStations.Victoria.getId()), result.getDiversionsAroundClosure());
@@ -92,8 +96,9 @@ public class StationClosuresConfigTest {
     void shouldParseYamlWithNoDiversionsGiven() throws JsonProcessingException {
 
         String yaml = "stations: [ \"9400ZZMAECC\", \"9400ZZMALDY\", \"9400ZZMAWST\" ]\n" +
-                "begin: 2023-07-15\n" +
-                "end: 2023-09-20\n" +
+                "dateRange:\n" +
+                "   begin: 2023-07-15\n" +
+                "   end: 2023-09-20\n" +
                 "fullyClosed: true";
 
 
@@ -105,8 +110,9 @@ public class StationClosuresConfigTest {
         assertTrue(stations.contains(TramStations.Ladywell.getId()));
         assertTrue(stations.contains(TramStations.Weaste.getId()));
 
-        assertEquals(TramDate.of(2023,7,15), result.getBegin());
-        assertEquals(TramDate.of(2023,9,20), result.getEnd());
+        DateRange dateRange = result.getDateRange();
+        assertEquals(TramDate.of(2023,7,15), dateRange.getStartDate());
+        assertEquals(TramDate.of(2023,9,20), dateRange.getEndDate());
 
         assertFalse(result.hasDiversionsAroundClosure());
         assertFalse(result.hasDiversionsToFromClosure());

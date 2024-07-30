@@ -166,4 +166,16 @@ public class TimeRangeTest {
 
         assertEquals(TimeRange.of(earliest, latest), result);
     }
+
+    @Test
+    void shouldHaveAllDay() {
+        final TimeRange allDay = TimeRange.AllDay();
+
+        TramTime time = TramTime.of(0,1);
+
+        while(time.isBefore(TramTime.of(0,0))) {
+            assertTrue(allDay.contains(time), "Did not contain " + time);
+            time = time.plusMinutes(1);
+        }
+    }
 }

@@ -37,16 +37,6 @@ public class StationClosuresConfigForTest implements StationClosures {
     }
 
     @Override
-    public TramDate getBegin() {
-        return begin;
-    }
-
-    @Override
-    public TramDate getEnd() {
-        return end;
-    }
-
-    @Override
     public boolean isFullyClosed() {
         return fullyClosed;
     }

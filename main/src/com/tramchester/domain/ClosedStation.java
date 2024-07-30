@@ -15,7 +15,8 @@ public class ClosedStation {
     private final Set<Station> diversionsAroundClosure;
     private final Set<Station> diversionsToFromClosure;
 
-    public ClosedStation(Station station, DateRange dateRange, boolean fullyClosed, Set<Station> diversionsAroundClosure, Set<Station> diversionsToFromClosure) {
+    public ClosedStation(Station station, DateRange dateRange, boolean fullyClosed, Set<Station> diversionsAroundClosure,
+                         Set<Station> diversionsToFromClosure) {
         this.station = station;
         this.dateRange = dateRange;
         this.fullyClosed = fullyClosed;

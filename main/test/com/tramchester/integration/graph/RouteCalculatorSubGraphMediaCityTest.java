@@ -65,9 +65,10 @@ class RouteCalculatorSubGraphMediaCityTest {
             HarbourCity,
             MediaCityUK,
             TraffordBar,
-            Victoria);
-//             Summer 2024 closures
-//            Shudehill, MarketStreet
+            Victoria,
+            Shudehill,
+            MarketStreet
+    );
 
     private MutableGraphTransaction txn;
 
@@ -75,7 +76,6 @@ class RouteCalculatorSubGraphMediaCityTest {
     private RouteCalculationCombinations<Station> combinations;
     private StationRepository stationRepository;
     private ClosedStationsRepository closedStationRepository;
-    private TramDate badDate;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
@@ -111,8 +111,6 @@ class RouteCalculatorSubGraphMediaCityTest {
         calculator = new RouteCalculatorTestFacade(componentContainer, txn);
         closedStationRepository = componentContainer.get(ClosedStationsRepository.class);
 
-        // no journeys 16/4/2023 but nothing on website to explain why.....
-        badDate = TramDate.of(2023,4,16);
     }
 
     @AfterEach
@@ -126,22 +124,15 @@ class RouteCalculatorSubGraphMediaCityTest {
         validateAtLeastOneJourney(MediaCityUK, ExchangeSquare, TramTime.of(9,0), TestEnv.nextSaturday());
 
         TramDate testSunday = TestEnv.nextSunday();
-
-        if (testSunday.equals(badDate)) {
-            // no journeys 16/4/2023 but nothing on website to explain why.....
-            testSunday = testSunday.plusWeeks(1);
-        }
         validateAtLeastOneJourney(MediaCityUK, ExchangeSquare, TramTime.of(9,0), testSunday);
     }
 
 
-    @Disabled("WIP on victoria closure needing timing included")
     @Test
     void shouldHaveJourneyFromEveryStationToEveryOtherNDaysAhead() {
 
         List<Pair<TramDate, LocationIdPairSet<Station>>> failed = TestEnv.getUpcomingDates().
                 filter(date -> !date.isChristmasPeriod()).
-                filter(date -> !date.equals(badDate)).
                 map(date -> new JourneyRequest(date, TramTime.of(9, 0), false,
                         3, maxJourneyDuration, 1, getRequestedModes())).
                 map(journeyRequest -> Pair.of(journeyRequest.getDate(), getFailedPairedFor(journeyRequest))).
@@ -237,8 +228,8 @@ class RouteCalculatorSubGraphMediaCityTest {
         assertTrue(results.isEmpty(), results + " failed for " + journeyRequest);
     }
 
-    private LocationIdPairSet<Station> getFailedPairedFor(JourneyRequest journeyRequest) {
-        TramDate date = journeyRequest.getDate();
+    private LocationIdPairSet<Station> getFailedPairedFor(final JourneyRequest journeyRequest) {
+        final TramDate date = journeyRequest.getDate();
         Set<Station> stations = tramStations.stream().
                 map(tramStations -> tramStations.from(stationRepository)).
                 filter(station -> !closedStationRepository.isClosed(station, date)).

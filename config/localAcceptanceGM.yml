@@ -29,14 +29,16 @@ gtfsSourceConfig:
     groupedStationModes: []
     stationClosures:
       - stations: [ "9400ZZMASHU" ]
-        begin: 2024-07-24
-        end: 2024-08-19
+        dateRange:
+          begin: 2024-07-24
+          end: 2024-08-19
         fullyClosed: true
         diversionsAroundClosure: [ ]
         diversionsToFromClosure: [ "9400ZZMAEXS", "9400ZZMAVIC" ]
       - stations: [ "9400ZZMAMKT" ]
-        begin: 2024-07-24
-        end: 2024-08-19
+        dateRange:
+          begin: 2024-07-24
+          end: 2024-08-19
         fullyClosed: true
         diversionsAroundClosure: [ ]
         diversionsToFromClosure: [ "9400ZZMAPGD", "9400ZZMASTP" ]

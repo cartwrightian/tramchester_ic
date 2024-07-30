@@ -2,6 +2,7 @@ package com.tramchester.integration.repository;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.config.DateRangeConfig;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.StationClosuresConfig;
 import com.tramchester.config.TramchesterConfig;
@@ -41,8 +42,9 @@ public class StationsWithDiversionsRepositoryTest {
     static void onceBeforeAnyTestsRun() {
         Set<String> closed = Collections.singleton("9400ZZMAEXS");
 
-        StationClosuresConfig exchangeSquareBrokenRail = new StationClosuresConfig(closed, LocalDate.of(2024, 2, 12),
-                LocalDate.of(2024, 5, 7), false,  Collections.emptySet(), Collections.singleton("9400ZZMAVIC"));
+        DateRangeConfig dataRangeConfifg = new DateRangeConfig(LocalDate.of(2024, 2, 12),
+                LocalDate.of(2024, 5, 7));
+        StationClosuresConfig exchangeSquareBrokenRail = new StationClosuresConfig(closed, dataRangeConfifg, false,  Collections.emptySet(), Collections.singleton("9400ZZMAVIC"));
         List<StationClosures> closures = Collections.singletonList(exchangeSquareBrokenRail);
 
         config = new IntegrationTramTestConfig(closures, IntegrationTramTestConfig.Caching.Enabled);
