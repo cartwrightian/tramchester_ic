@@ -7,6 +7,7 @@ import com.tramchester.domain.ClosedStation;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.StationClosures;
+import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
@@ -46,13 +47,13 @@ public class ClosedStationsRepositoryTest {
         overlap = when.plusDays(3);
 
         Set<String> diversionOnly = Collections.emptySet();
-        StationClosuresConfigForTest closureA = new StationClosuresConfigForTest(StPetersSquare, when, when.plusWeeks(1), true);
-        StationClosuresConfigForTest closureB = new StationClosuresConfigForTest(TraffordCentre, overlap, when.plusWeeks(2), false, diversionOnly, Collections.emptySet());
-        StationClosuresConfigForTest closureC = new StationClosuresConfigForTest(TramStations.ExchangeSquare, overlap, when.plusWeeks(3),
+        StationClosuresConfigForTest closureA = new StationClosuresConfigForTest(StPetersSquare, new DateRange(when, when.plusWeeks(1)), true);
+        StationClosuresConfigForTest closureB = new StationClosuresConfigForTest(TraffordCentre, new DateRange(overlap, when.plusWeeks(2)), false, diversionOnly, Collections.emptySet());
+        StationClosuresConfigForTest closureC = new StationClosuresConfigForTest(TramStations.ExchangeSquare, new DateRange(overlap, when.plusWeeks(3)),
                 false, Collections.singleton("9400ZZMAVIC"), Collections.emptySet());
 
         // overlaps with A
-        StationClosuresConfigForTest closureD = new StationClosuresConfigForTest(PiccadillyGardens, when, when.plusWeeks(1), true);
+        StationClosuresConfigForTest closureD = new StationClosuresConfigForTest(PiccadillyGardens, new DateRange(when, when.plusWeeks(1)), true);
 
         List<StationClosures> closedStations = Arrays.asList(closureA, closureB, closureC, closureD);
 

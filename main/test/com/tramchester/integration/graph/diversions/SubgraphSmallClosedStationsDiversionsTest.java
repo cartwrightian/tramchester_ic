@@ -65,7 +65,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
     private final static TramDate when = TestEnv.testDay();
 
     private final static List<StationClosures> closedStations = List.of(
-            new StationClosuresConfigForTest(PiccadillyGardens, when.plusWeeks(1), when.plusWeeks(2), false));
+            new StationClosuresConfigForTest(PiccadillyGardens, new DateRange(when.plusWeeks(1), when.plusWeeks(2)), false));
 
     private static final List<TramStations> centralStations = Arrays.asList(
             Cornbrook,

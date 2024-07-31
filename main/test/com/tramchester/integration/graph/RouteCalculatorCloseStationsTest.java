@@ -6,6 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.StationClosures;
+import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
@@ -46,8 +47,8 @@ class RouteCalculatorCloseStationsTest {
 
     // see note below on DB deletion
     private final static List<StationClosures> closedStations = Arrays.asList(
-            new StationClosuresConfigForTest(Shudehill, begin, end, true),
-            new StationClosuresConfigForTest(PiccadillyGardens, begin, end, false));
+            new StationClosuresConfigForTest(Shudehill, new DateRange(begin, end), true),
+            new StationClosuresConfigForTest(PiccadillyGardens, new DateRange(begin, end), false));
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {

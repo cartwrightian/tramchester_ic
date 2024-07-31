@@ -6,6 +6,7 @@ import com.tramchester.domain.StationClosures;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.time.TimeRange;
 import io.dropwizard.core.Configuration;
 
 import java.util.Objects;
@@ -17,6 +18,9 @@ import java.util.Set;
 //            dateRange:
 //               begin: 2023-07-15
 //               end: 2023-09-20
+//            timeRange:
+//               begin: 00:15
+//               end: 10:35
 //            fullyClosed: true
 //            diversionsAroundClosure: []
 //            diversionsToFromClosure: []
@@ -26,17 +30,20 @@ public class StationClosuresConfig extends Configuration implements StationClosu
 
     private final Set<String> stationsText;
     private final DateRangeConfig dateRangeConfig;
+    private final TimeRangeConfig timeRangeConfig;
     private final Boolean fullyClosed;
     private final Set<String> diversionsAroundClosure;
     private final Set<String> diversionsToFromClosure;
 
     public StationClosuresConfig(@JsonProperty(value = "stations", required = true) Set<String> stationsText,
                                  @JsonProperty(value="dateRange", required = true) DateRangeConfig dateRangeConfig,
+                                 @JsonProperty(value="timeRange", required = false) TimeRangeConfig timeRangeConfig,
                                  @JsonProperty(value = "fullyClosed", required = true) Boolean fullyClosed,
                                  @JsonProperty(value = "diversionsAroundClosure", required = false) Set<String> diversionsAroundClosure,
                                  @JsonProperty(value = "diversionsToFromClosure", required = false) Set<String> diversionsToFromClosure)  {
         this.stationsText = stationsText;
         this.dateRangeConfig = dateRangeConfig;
+        this.timeRangeConfig = timeRangeConfig;
         this.fullyClosed = fullyClosed;
         this.diversionsAroundClosure = diversionsAroundClosure;
         this.diversionsToFromClosure = diversionsToFromClosure;
@@ -64,6 +71,11 @@ public class StationClosuresConfig extends Configuration implements StationClosu
     @Override
     public DateRange getDateRange() {
         return dateRangeConfig.getRange();
+    }
+
+    @Override
+    public boolean hasTimeRange() {
+        return timeRangeConfig!=null;
     }
 
     @JsonIgnore
@@ -106,11 +118,13 @@ public class StationClosuresConfig extends Configuration implements StationClosu
     }
 
     @Override
+    public TimeRange getTimeRange() {
+        return timeRangeConfig.getRange();
+    }
+
+    @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        StationClosuresConfig that = (StationClosuresConfig) o;
-        return Objects.equals(stationsText, that.stationsText) && Objects.equals(dateRangeConfig, that.dateRangeConfig) && Objects.equals(fullyClosed, that.fullyClosed) && Objects.equals(diversionsAroundClosure, that.diversionsAroundClosure) && Objects.equals(diversionsToFromClosure, that.diversionsToFromClosure);
+        return StationClosures.areEqual(this, o);
     }
 
     @Override

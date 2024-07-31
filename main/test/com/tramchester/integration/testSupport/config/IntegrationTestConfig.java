@@ -2,6 +2,8 @@ package com.tramchester.integration.testSupport.config;
 
 import com.tramchester.config.*;
 import com.tramchester.domain.StationClosures;
+import com.tramchester.domain.dates.DateRange;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.integration.testSupport.TestGroupType;
 import com.tramchester.integration.testSupport.naptan.NaptanRemoteDataSourceTestConfig;
 import com.tramchester.integration.testSupport.nptg.NPTGDataSourceTestConfig;
@@ -9,6 +11,7 @@ import com.tramchester.integration.testSupport.postcodes.PostCodeDatasourceConfi
 import com.tramchester.integration.testSupport.rail.RailRemoteDataSourceConfig;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.TramStations;
 
 import java.nio.file.Path;
 import java.time.LocalDate;
@@ -25,17 +28,22 @@ public abstract class IntegrationTestConfig extends TestConfig {
 
     protected final RailRemoteDataSourceConfig railRemoteDataSource;
 
-    private static final StationClosuresConfig shudehillClosed;
-    private static final StationClosuresConfig marketStreetClosed;
+    private static final StationClosures shudehillClosed;
+    private static final StationClosures marketStreetClosed;
 
     static {
-        final LocalDate begin = LocalDate.of(2024, 7, 24);
-        final LocalDate end = LocalDate.of(2024, 8, 19);
-        final DateRangeConfig dateRangeConfig = new DateRangeConfig(begin, end);
-        shudehillClosed = new StationClosuresConfig(Collections.singleton("9400ZZMASHU"),
-                dateRangeConfig, true, Collections.emptySet(), new HashSet<>(Arrays.asList("9400ZZMAVIC", "9400ZZMAEXS")));
-        marketStreetClosed = new StationClosuresConfig(Collections.singleton("9400ZZMAMKT"),
-                dateRangeConfig, true, Collections.emptySet(), new HashSet<>(Arrays.asList("9400ZZMAPGD", "9400ZZMASTP")));
+        final TramDate begin = TramDate.of(2024, 7, 24);
+        final TramDate end = TramDate.of(2024, 8, 19);
+        final DateRange dateRange = new DateRange(begin, end);
+
+        shudehillClosed = new StationClosuresConfigForTest(TramStations.Shudehill,
+                dateRange, true, Collections.emptySet(), new HashSet<>(Arrays.asList("9400ZZMAVIC", "9400ZZMAEXS")));
+        marketStreetClosed = new StationClosuresConfigForTest(TramStations.MarketStreet,
+                dateRange, true, Collections.emptySet(), new HashSet<>(Arrays.asList("9400ZZMAPGD", "9400ZZMASTP")));
+//        shudehillClosed = new StationClosuresConfig(Collections.singleton("9400ZZMASHU"),
+//                dateRangeConfig, null, true, Collections.emptySet(), new HashSet<>(Arrays.asList("9400ZZMAVIC", "9400ZZMAEXS")));
+//        marketStreetClosed = new StationClosuresConfig(Collections.singleton("9400ZZMAMKT"),
+//                dateRangeConfig, null, true, Collections.emptySet(), new HashSet<>(Arrays.asList("9400ZZMAPGD", "9400ZZMASTP")));
     }
 
 //    static {

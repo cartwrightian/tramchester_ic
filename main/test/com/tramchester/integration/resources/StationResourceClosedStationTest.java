@@ -3,6 +3,7 @@ package com.tramchester.integration.resources;
 import com.tramchester.App;
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.domain.StationClosures;
+import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.presentation.DTO.StationClosureDTO;
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
@@ -31,7 +32,7 @@ public class StationResourceClosedStationTest {
     private static final TramStations closedStation = TramStations.StPetersSquare;
 
     private final static List<StationClosures> closedStations = Collections.singletonList(
-            new StationClosuresConfigForTest(closedStation, when, when.plusWeeks(1), false));
+            new StationClosuresConfigForTest(closedStation, new DateRange(when, when.plusWeeks(1)), false));
 
     // NOTE: planning disabled here
     private static final AppConfiguration config = new IntegrationTramClosedStationsTestConfig(closedStations, false);

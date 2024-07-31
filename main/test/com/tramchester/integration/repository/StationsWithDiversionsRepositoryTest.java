@@ -44,7 +44,7 @@ public class StationsWithDiversionsRepositoryTest {
 
         DateRangeConfig dataRangeConfifg = new DateRangeConfig(LocalDate.of(2024, 2, 12),
                 LocalDate.of(2024, 5, 7));
-        StationClosuresConfig exchangeSquareBrokenRail = new StationClosuresConfig(closed, dataRangeConfifg, false,  Collections.emptySet(), Collections.singleton("9400ZZMAVIC"));
+        StationClosuresConfig exchangeSquareBrokenRail = new StationClosuresConfig(closed, dataRangeConfifg, null, false,  Collections.emptySet(), Collections.singleton("9400ZZMAVIC"));
         List<StationClosures> closures = Collections.singletonList(exchangeSquareBrokenRail);
 
         config = new IntegrationTramTestConfig(closures, IntegrationTramTestConfig.Caching.Enabled);

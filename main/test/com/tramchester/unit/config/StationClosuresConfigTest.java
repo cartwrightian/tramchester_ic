@@ -9,6 +9,8 @@ import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -101,6 +103,38 @@ public class StationClosuresConfigTest {
                 "   end: 2023-09-20\n" +
                 "fullyClosed: true";
 
+        StationClosuresConfig result = mapper.readValue(yaml, StationClosuresConfig.class);
+
+        IdSet<Station> stations = result.getStations();
+        assertEquals(3, stations.size());
+        assertTrue(stations.contains(TramStations.Eccles.getId()));
+        assertTrue(stations.contains(TramStations.Ladywell.getId()));
+        assertTrue(stations.contains(TramStations.Weaste.getId()));
+
+        DateRange dateRange = result.getDateRange();
+        assertEquals(TramDate.of(2023,7,15), dateRange.getStartDate());
+        assertEquals(TramDate.of(2023,9,20), dateRange.getEndDate());
+
+        assertFalse(result.hasTimeRange());
+
+        assertFalse(result.hasDiversionsAroundClosure());
+        assertFalse(result.hasDiversionsToFromClosure());
+
+        assertTrue(result.isFullyClosed());
+
+    }
+
+    @Test
+    void shouldParseYamlWithOptionalTimeRangeForClosure() throws JsonProcessingException {
+
+        String yaml = "stations: [ \"9400ZZMAECC\", \"9400ZZMALDY\", \"9400ZZMAWST\" ]\n" +
+                "dateRange:\n" +
+                "   begin: 2023-07-15\n" +
+                "   end: 2023-09-20\n" +
+                "timeRange:\n" +
+                "   begin: 00:01\n" +
+                "   end: 10:45\n" +
+                "fullyClosed: true";
 
         StationClosuresConfig result = mapper.readValue(yaml, StationClosuresConfig.class);
 
@@ -113,6 +147,11 @@ public class StationClosuresConfigTest {
         DateRange dateRange = result.getDateRange();
         assertEquals(TramDate.of(2023,7,15), dateRange.getStartDate());
         assertEquals(TramDate.of(2023,9,20), dateRange.getEndDate());
+
+        assertTrue(result.hasTimeRange());
+        TimeRange timeRange = result.getTimeRange();
+        assertEquals(TramTime.of(0,1), timeRange.getStart());
+        assertEquals(TramTime.of(10,45), timeRange.getEnd());
 
         assertFalse(result.hasDiversionsAroundClosure());
         assertFalse(result.hasDiversionsToFromClosure());

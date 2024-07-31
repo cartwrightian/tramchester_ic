@@ -36,6 +36,7 @@ public class ClosedStation {
         return dateRange;
     }
 
+    // TODO Is this still needed
     public boolean isFullyClosed() {
         return fullyClosed;
     }

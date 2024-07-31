@@ -133,4 +133,8 @@ public class TimeRange {
     public TramTime getEnd() {
         return end;
     }
+
+    public TramTime getStart() {
+        return begin;
+    }
 }
