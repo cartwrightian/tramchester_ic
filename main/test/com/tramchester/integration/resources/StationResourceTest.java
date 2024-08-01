@@ -187,15 +187,15 @@ class StationResourceTest {
                 map(LocationRefDTO::getId).
                 collect(Collectors.toSet());
 
-        assertTrue(ids.contains(TramStations.PiccadillyGardens.getIdForDTO()));
-        assertTrue(ids.contains(TramStations.StPetersSquare.getIdForDTO()));
-        assertTrue(ids.contains(TramStations.ExchangeSquare.getIdForDTO()));
+        assertTrue(ids.contains(TramStations.PiccadillyGardens.getIdForDTO()), ids.toString());
+        assertTrue(ids.contains(TramStations.StPetersSquare.getIdForDTO()), ids.toString());
+        assertTrue(ids.contains(TramStations.ExchangeSquare.getIdForDTO()), ids.toString());
 
         // summer 2024 closures
-//        assertTrue(ids.contains(TramStations.Shudehill.getIdForDTO()));
+        assertTrue(ids.contains(TramStations.Shudehill.getIdForDTO()));
 //        assertTrue(ids.contains(TramStations.MarketStreet.getIdForDTO()));
-        assertTrue(ids.contains(TramStations.Piccadilly.getIdForDTO()));
-        assertTrue(ids.contains(TramStations.Victoria.getIdForDTO()));
+        assertTrue(ids.contains(TramStations.Piccadilly.getIdForDTO()), ids.toString());
+//        assertTrue(ids.contains(TramStations.Victoria.getIdForDTO()), ids.toString());
     }
 
     @Test
@@ -213,15 +213,15 @@ class StationResourceTest {
                 map(LocationRefDTO::getId).
                 collect(Collectors.toSet());
 
-        assertTrue(ids.contains(TramStations.PiccadillyGardens.getIdForDTO()));
-        assertTrue(ids.contains(TramStations.StPetersSquare.getIdForDTO()));
-        assertTrue(ids.contains(TramStations.ExchangeSquare.getIdForDTO()));
+        assertTrue(ids.contains(TramStations.PiccadillyGardens.getIdForDTO()), ids.toString());
+        assertTrue(ids.contains(TramStations.StPetersSquare.getIdForDTO()), ids.toString());
+        assertTrue(ids.contains(TramStations.ExchangeSquare.getIdForDTO()), ids.toString());
 
         // summer 2024 closures
-//        assertTrue(ids.contains(TramStations.Shudehill.getIdForDTO()));
+        assertTrue(ids.contains(TramStations.Shudehill.getIdForDTO()));
 //        assertTrue(ids.contains(TramStations.MarketStreet.getIdForDTO()));
-        assertTrue(ids.contains(TramStations.Piccadilly.getIdForDTO()));
-        assertTrue(ids.contains(TramStations.Victoria.getIdForDTO()));
+        assertTrue(ids.contains(TramStations.Piccadilly.getIdForDTO()), ids.toString());
+//        assertTrue(ids.contains(TramStations.Victoria.getIdForDTO()), ids.toString());
 
     }
 

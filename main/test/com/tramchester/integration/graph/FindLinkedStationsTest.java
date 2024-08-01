@@ -52,8 +52,8 @@ class FindLinkedStationsTest {
     void shouldFindExpectedLinksBetweenStations() {
         Set<StationToStationConnection> results = findStationLinks.findLinkedFor(Tram);
 
-        // summer 2024 closures 202 -> 195
-        assertEquals(195, results.size());
+        // summer 2024 closures 202 -> 199
+        assertEquals(199, results.size());
 
         assertTrue(results.contains(createLink(StPetersSquare, PiccadillyGardens)));
 

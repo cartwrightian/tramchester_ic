@@ -25,7 +25,7 @@ public class PlatformMessageRepositoryTest {
 
     private PlatformMessageRepository messageRepo;
 
-    public static final TramStations StationWithNotes = TramStations.ShawAndCrompton; //  TramStations.ShawAndCrompton;
+    public static final TramStations StationWithNotes = TramStations.StPetersSquare;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {

@@ -71,8 +71,8 @@ class StationGeographyResourceTest {
 
         List<StationToStationConnectionDTO> results = response.readEntity(new GenericType<>() {});
 
-        // summer closures 2024 202->195
-        assertEquals(195, results.size(), "count incorrect " + results.size());
+        // summer closures 2024 202->199
+        assertEquals(199, results.size(), "count incorrect " + results.size());
 
         StationToStationConnection.LinkType linkType = StationToStationConnection.LinkType.Linked;
 

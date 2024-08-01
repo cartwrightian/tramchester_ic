@@ -66,7 +66,7 @@ class StationGroupRepositoryTest {
 
         LocationSet<Station> locations = found.getAllContained();
 
-        assertEquals(5, locations.size(), HasId.asIds(locations));
+        assertEquals(6, locations.size(), HasId.asIds(locations));
 
         assertTrue(locations.contains(TramStations.ExchangeSquare.from(stationRepository)));
         assertTrue(locations.contains(TramStations.Deansgate.from(stationRepository)));
@@ -76,8 +76,7 @@ class StationGroupRepositoryTest {
 
         // summer 2024 closures
 //        assertTrue(locations.contains(TramStations.MarketStreet.from(stationRepository)));
-//        assertTrue(locations.contains(TramStations.Shudehill.from(stationRepository)));
-
+        assertTrue(locations.contains(TramStations.Shudehill.from(stationRepository)));
 
     }
 

@@ -405,6 +405,7 @@ def integrationTestConfiguration = {
         excludeTags "LiveDataS3UploadTest"
         excludeTags "AWSMetricsTest"
         excludeTags "Landslide2024"
+        excludeTags "VictorialClosedAugust2024"
         excludeTags "ShudehillMarketStreetClosed"
     }
     filter {
@@ -467,6 +468,7 @@ tasks.register('dataUpdated', Test) {
     useJUnitPlatform {
         includeTags "DataUpdateTest"
         excludeTags "Landslide2024"
+        excludeTags "VictorialClosedAugust2024"
         excludeTags "ShudehillMarketStreetClosed"
     }
 }

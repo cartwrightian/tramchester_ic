@@ -29,6 +29,8 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.Landslide2024TestCategory;
+import com.tramchester.testSupport.testTags.VictorialClosedAugust2024;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
@@ -127,13 +129,29 @@ class RouteCalculatorSubGraphMediaCityTest {
         validateAtLeastOneJourney(MediaCityUK, ExchangeSquare, TramTime.of(9,0), testSunday);
     }
 
+    @VictorialClosedAugust2024
+    @Test
+    void shouldHaveJourneyFromEveryStationToEveryOtherNDaysAheadEarlyMorning() {
+
+        TramTime queryTime = TramTime.of(9, 0);
+        List<Pair<TramDate, LocationIdPairSet<Station>>> failed = TestEnv.getUpcomingDates().
+                filter(date -> !date.isChristmasPeriod()).
+                map(date -> new JourneyRequest(date, queryTime, false,
+                        3, maxJourneyDuration, 1, getRequestedModes())).
+                map(journeyRequest -> Pair.of(journeyRequest.getDate(), getFailedPairedFor(journeyRequest))).
+                filter(pair -> !pair.getRight().isEmpty()).
+                toList();
+
+        assertTrue(failed.isEmpty(), failed.toString());
+    }
 
     @Test
     void shouldHaveJourneyFromEveryStationToEveryOtherNDaysAhead() {
 
+        TramTime queryTime = TramTime.of(10, 30);
         List<Pair<TramDate, LocationIdPairSet<Station>>> failed = TestEnv.getUpcomingDates().
                 filter(date -> !date.isChristmasPeriod()).
-                map(date -> new JourneyRequest(date, TramTime.of(9, 0), false,
+                map(date -> new JourneyRequest(date, queryTime, false,
                         3, maxJourneyDuration, 1, getRequestedModes())).
                 map(journeyRequest -> Pair.of(journeyRequest.getDate(), getFailedPairedFor(journeyRequest))).
                 filter(pair -> !pair.getRight().isEmpty()).

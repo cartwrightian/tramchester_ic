@@ -88,7 +88,8 @@ public class InterchangesTramTest {
                 Piccadilly, Victoria,
 
                 // summer 2024 closures
-                //PiccadillyGardens, MarketStreet,
+                // MarketStreet,
+                PiccadillyGardens,
                 OldhamMumps,
 
                 Broadway);
