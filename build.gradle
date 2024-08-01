@@ -119,7 +119,7 @@ dependencies {
             'org.assertj:assertj-core:3.26.0',
             'org.easymock:easymock:5.3.0',
             'org.seleniumhq.selenium:selenium-java:3.141.59',
-            'org.hamcrest:hamcrest:2.2'
+            'org.hamcrest:hamcrest:3.0'
 
     // cxf complains about missing conduit without this
     cxfCodegen 'org.apache.cxf:cxf-rt-transports-http:4.0.4'
