@@ -126,7 +126,7 @@ dependencies {
     // needed for cxf gen'ed code, missing from cxfCodegen dependencies?
     implementation 'jakarta.xml.ws:jakarta.xml.ws-api:4.0.2'
     // for running the cxf generated code,  provide implementation of the SPI jakarta.xml.ws.spi.Provider
-    runtimeOnly 'com.sun.xml.ws:jaxws-rt:4.0.2'
+    runtimeOnly 'com.sun.xml.ws:jaxws-rt:4.0.3'
 
     // TODO Still needed? Workaround for issues running tests in intellij and glassfish DI, does not occur with running via gradle
     //testRuntimeOnly 'javax.servlet:javax.servlet-api:3.0.1'
