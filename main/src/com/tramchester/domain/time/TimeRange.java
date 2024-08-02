@@ -15,8 +15,8 @@ public interface TimeRange {
 
     TramTime getStart();
 
-    default boolean allDay() {
-        return false;
+    static TimeRange AllDay() {
+        return new TimeRangeAllDay();
     }
 
     static TimeRange coveringAllOf(Set<TimeRange> ranges) {
@@ -38,6 +38,8 @@ public interface TimeRange {
         }
         return TimeRangePartial.of(earliest, latest);
     }
+
+    boolean allDay();
 
     void updateToInclude(TramTime callingTime);
 

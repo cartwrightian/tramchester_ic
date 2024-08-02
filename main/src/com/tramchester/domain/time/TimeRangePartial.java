@@ -25,10 +25,6 @@ public class TimeRangePartial implements TimeRange {
         end = tramTime;
     }
 
-    public static TimeRange AllDay() {
-        return new TimeRangePartial(TramTime.of(0,0), TramTime.of(23,59));
-    }
-
     @Override
     public void updateToInclude(final TramTime callingTime) {
         if (callingTime.isBefore(begin)) {
@@ -104,19 +100,6 @@ public class TimeRangePartial implements TimeRange {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return allDay();
-        TimeRangePartial timeRange = (TimeRangePartial) o;
-        return Objects.equals(begin, timeRange.begin) && Objects.equals(end, timeRange.end);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(begin, end);
-    }
-
-    @Override
     public TramTime getEnd() {
         return end;
     }
@@ -126,4 +109,20 @@ public class TimeRangePartial implements TimeRange {
         return begin;
     }
 
+    @Override
+    public boolean allDay() {
+        return false;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TimeRangePartial that)) return false;
+        return Objects.equals(begin, that.begin) && Objects.equals(getEnd(), that.getEnd());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(begin, getEnd());
+    }
 }

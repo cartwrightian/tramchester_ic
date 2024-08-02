@@ -13,14 +13,14 @@ import java.util.Set;
 public class ClosedStation {
     private final Station station;
     private final DateRange dateRange;
-    private final TimeRange timeRange; // can be null
+    private final TimeRange timeRange;
     private final boolean fullyClosed;
     private final Set<Station> diversionsAroundClosure;
     private final Set<Station> diversionsToFromClosure;
 
     public ClosedStation(Station station, DateRange dateRange, boolean fullyClosed, Set<Station> diversionsAroundClosure,
                          Set<Station> diversionsToFromClosure) {
-        this(station, dateRange, null, fullyClosed, diversionsAroundClosure, diversionsToFromClosure);
+        this(station, dateRange, TimeRange.AllDay(), fullyClosed, diversionsAroundClosure, diversionsToFromClosure);
     }
 
     public ClosedStation(Station station, DateRange dateRange, TimeRange timeRange, boolean fullyClosed, Set<Station> diversionsAroundClosure,
@@ -64,10 +64,6 @@ public class ClosedStation {
         return diversionsToFromClosure;
     }
 
-    public boolean hasTimeRange() {
-        return timeRange!=null;
-    }
-
     public TimeRange getTimeRange() {
         return timeRange;
     }
@@ -81,7 +77,7 @@ public class ClosedStation {
 
     @Override
     public int hashCode() {
-        return Objects.hash(getStation(), getDateRange(), timeRange, isFullyClosed(), diversionsAroundClosure, diversionsToFromClosure);
+        return Objects.hash(getStation(), getDateRange(), getTimeRange(), isFullyClosed(), diversionsAroundClosure, diversionsToFromClosure);
     }
 
     @Override

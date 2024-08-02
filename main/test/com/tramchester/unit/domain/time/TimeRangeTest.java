@@ -170,10 +170,10 @@ public class TimeRangeTest {
 
     @Test
     void shouldHaveAllDay() {
-        final TimeRange allDay = TimeRangePartial.AllDay();
+        final TimeRange allDay = TimeRange.AllDay();
 
-        assertEquals(TramTime.of(0,0), allDay.getStart());
-        assertEquals(TramTime.of(23,59), allDay.getEnd());
+        assertEquals(TramTime.of(0,1), allDay.getStart());
+        assertEquals(TramTime.of(0,0), allDay.getEnd());
 
         TramTime time = TramTime.of(0,1);
 
@@ -185,7 +185,7 @@ public class TimeRangeTest {
 
     @Test
     void shouldHaveAllDayOverlaps() {
-        final TimeRange allDay = TimeRangePartial.AllDay();
+        final TimeRange allDay = TimeRange.AllDay();
 
         TramTime time = TramTime.of(0,1);
 

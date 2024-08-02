@@ -15,6 +15,25 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ClosedStationTest {
 
     @Test
+    void shouldCreateWithAllDayTimeRangeWhenNoneProvided() {
+        Station station = ExchangeSquare.fake();
+        DateRange dateRange = DateRange.of(TestEnv.testDay(), TestEnv.testDay().plusDays(3));
+        ClosedStation closedStation = new ClosedStation(station, dateRange, true, null, null);
+
+        assertTrue(closedStation.getTimeRange().allDay());
+    }
+
+    @Test
+    void shouldCreateWithTimeRange() {
+        Station station = ExchangeSquare.fake();
+        DateRange dateRange = DateRange.of(TestEnv.testDay(), TestEnv.testDay().plusDays(3));
+        TimeRange timeRange = TimeRangePartial.of(TramTime.of(9,45), TramTime.of(14,13));
+        ClosedStation closedStation = new ClosedStation(station, dateRange, timeRange, true, null, null);
+
+        assertFalse(closedStation.getTimeRange().allDay());
+    }
+
+    @Test
     void shouldHaveSameClosure() {
         Station station = ExchangeSquare.fake();
         DateRange dateRange = DateRange.of(TestEnv.testDay(), TestEnv.testDay().plusDays(3));
