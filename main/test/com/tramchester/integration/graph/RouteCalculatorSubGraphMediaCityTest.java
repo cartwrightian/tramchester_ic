@@ -13,6 +13,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.facade.MutableGraphTransaction;
@@ -29,7 +30,6 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.Landslide2024TestCategory;
 import com.tramchester.testSupport.testTags.VictorialClosedAugust2024;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -225,7 +225,7 @@ class RouteCalculatorSubGraphMediaCityTest {
 
         RouteToRouteCosts routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
 
-        TimeRange timeRange = TimeRange.of(TramTime.of(8,5), TramTime.of(8,30));
+        TimeRange timeRange = TimeRangePartial.of(TramTime.of(8,5), TramTime.of(8,30));
         NumberOfChanges results = routeToRouteCosts.getNumberOfChanges(salfordQuay, stPetersSquare, getRequestedModes(), when, timeRange);
 
         assertEquals(results.getMin(), 0);

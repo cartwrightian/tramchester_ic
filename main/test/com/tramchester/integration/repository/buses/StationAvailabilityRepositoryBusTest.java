@@ -11,6 +11,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.ClosedStationsRepository;
@@ -71,8 +72,8 @@ public class StationAvailabilityRepositoryBusTest {
 
         when = TestEnv.testDay();
         modes = BusesOnly;
-        morningRange = TimeRange.of(of(8, 45), of(10, 45));
-        eveningRange = TimeRange.of(of(20, 53), of(23, 53));
+        morningRange = TimeRangePartial.of(of(8, 45), of(10, 45));
+        eveningRange = TimeRangePartial.of(of(20, 53), of(23, 53));
     }
 
     @Test
@@ -86,7 +87,7 @@ public class StationAvailabilityRepositoryBusTest {
         boolean evening = availabilityRepository.isAvailable(stockport, when, eveningRange, modes);
         assertTrue(evening);
 
-        boolean lateAtNight = availabilityRepository.isAvailable(stockport, when, TimeRange.of(of(3,5), of(3,15)), modes);
+        boolean lateAtNight = availabilityRepository.isAvailable(stockport, when, TimeRangePartial.of(of(3,5), of(3,15)), modes);
         assertFalse(lateAtNight);
     }
 
@@ -141,7 +142,7 @@ public class StationAvailabilityRepositoryBusTest {
 
         StationGroup bollington = KnownLocality.Bollington.from(stationGroupRepository);
 
-        TimeRange timeRange = TimeRange.of(TramTime.of(2,0), TramTime.of(23,30));
+        TimeRange timeRange = TimeRangePartial.of(TramTime.of(2,0), TramTime.of(23,30));
         TramDate date = TramDate.of(2024, 3, 2);
         Set<Route> dropoffs = availabilityRepository.getDropoffRoutesFor(bollington, date, timeRange, modes);
         assertFalse(dropoffs.isEmpty());
@@ -156,11 +157,11 @@ public class StationAvailabilityRepositoryBusTest {
 
         long maxDuration = config.getMaxJourneyDuration();
 
-        TimeRange timeRange = TimeRange.of(TramTime.of(22, 50), Duration.ZERO, Duration.ofMinutes(maxDuration));
+        TimeRange timeRange = TimeRangePartial.of(TramTime.of(22, 50), Duration.ZERO, Duration.ofMinutes(maxDuration));
         Set<Route> results = availabilityRepository.getPickupRoutesFor(altrincham, when, timeRange, modes);
         assertFalse(results.isEmpty(), "for " + timeRange + " missing routes from " + altrincham);
 
-        TimeRange timeRangeCrossMidnight = TimeRange.of(TramTime.of(23, 59), Duration.ZERO, Duration.ofMinutes(maxDuration));
+        TimeRange timeRangeCrossMidnight = TimeRangePartial.of(TramTime.of(23, 59), Duration.ZERO, Duration.ofMinutes(maxDuration));
         Set<Route> overMidnightResults = availabilityRepository.getPickupRoutesFor(altrincham, when, timeRangeCrossMidnight, modes);
         assertFalse(overMidnightResults.isEmpty(), "for " + timeRangeCrossMidnight + " missing routes over mid-night from " + altrincham);
 
@@ -174,7 +175,7 @@ public class StationAvailabilityRepositoryBusTest {
 
         long maxDuration = config.getMaxJourneyDuration();
 
-        TimeRange timeRangeATMidnight = TimeRange.of(TramTime.of(0, 0), Duration.ZERO, Duration.ofMinutes(maxDuration));
+        TimeRange timeRangeATMidnight = TimeRangePartial.of(TramTime.of(0, 0), Duration.ZERO, Duration.ofMinutes(maxDuration));
         Set<Route> atMidnightResults = availabilityRepository.getPickupRoutesFor(altrincham, when, timeRangeATMidnight, modes);
         assertFalse(atMidnightResults.isEmpty(), "for " + timeRangeATMidnight + " missing routes over mid-night from " + altrincham.getId());
     }
@@ -190,7 +191,7 @@ public class StationAvailabilityRepositoryBusTest {
 
         TestEnv.getUpcomingDates().forEach(date -> {
 
-            TimeRange lateRange = TimeRange.of(latestHour, maxwait, maxwait);
+            TimeRange lateRange = TimeRangePartial.of(latestHour, maxwait, maxwait);
             Set<Station> notAvailableLate = stationRepository.getStations().stream().
                     filter(Location::isActive).
                     filter(station -> station.getTransportModes().contains(Tram)).
@@ -213,7 +214,7 @@ public class StationAvailabilityRepositoryBusTest {
 
         TestEnv.getUpcomingDates().forEach(date -> {
 
-            TimeRange earlyRange = TimeRange.of(earlistHour, maxwait, maxwait);
+            TimeRange earlyRange = TimeRangePartial.of(earlistHour, maxwait, maxwait);
             Set<Station> notAvailableEarly = stationRepository.getStations().stream().
                     filter(Location::isActive).
                     filter(station -> station.getTransportModes().contains(Tram)).

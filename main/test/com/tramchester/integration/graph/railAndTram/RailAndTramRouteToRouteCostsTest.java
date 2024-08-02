@@ -10,6 +10,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
 import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchesterConfig;
@@ -67,7 +68,7 @@ public class RailAndTramRouteToRouteCostsTest {
 
     @Test
     void shouldValidHopsBetweenTramAndRailLongRange() {
-        TimeRange timeRange = TimeRange.of(TramTime.of(8, 15), TramTime.of(22, 35));
+        TimeRange timeRange = TimeRangePartial.of(TramTime.of(8, 15), TramTime.of(22, 35));
 
         EnumSet<TransportMode> all = allTransportModes;
         NumberOfChanges result = routeToRouteCosts.getNumberOfChanges(tram(Bury), rail(Stockport),
@@ -79,7 +80,7 @@ public class RailAndTramRouteToRouteCostsTest {
 
     @Test
     void shouldValidHopsBetweenTramAndRailNeighbours() {
-        TimeRange timeRange = TimeRange.of(TramTime.of(8, 15), TramTime.of(22, 35));
+        TimeRange timeRange = TimeRangePartial.of(TramTime.of(8, 15), TramTime.of(22, 35));
 
         NumberOfChanges result = routeToRouteCosts.getNumberOfChanges(tram(Altrincham), rail(RailStationIds.Altrincham),
                 allTransportModes, date, timeRange);
@@ -90,7 +91,7 @@ public class RailAndTramRouteToRouteCostsTest {
 
     @Test
     void shouldValidHopsBetweenTramAndRailNeighbourThenTrain() {
-        TimeRange timeRange = TimeRange.of(TramTime.of(8, 15), TramTime.of(22, 35));
+        TimeRange timeRange = TimeRangePartial.of(TramTime.of(8, 15), TramTime.of(22, 35));
 
         NumberOfChanges result = routeToRouteCosts.getNumberOfChanges(tram(Altrincham), rail(Stockport),
                 allTransportModes, date, timeRange);
@@ -102,7 +103,7 @@ public class RailAndTramRouteToRouteCostsTest {
     @Disabled("Is this realistic? Trains only but start at a tram station")
     @Test
     void shouldValidHopsBetweenTramAndRailNeighbourThenTrainWhenOnlyTrainModeEnabled() {
-        TimeRange timeRange = TimeRange.of(TramTime.of(8, 15), TramTime.of(22, 35));
+        TimeRange timeRange = TimeRangePartial.of(TramTime.of(8, 15), TramTime.of(22, 35));
 
         NumberOfChanges result = routeToRouteCosts.getNumberOfChanges(tram(Altrincham), rail(Stockport),
                 EnumSet.of(Train), date, timeRange);
@@ -113,7 +114,7 @@ public class RailAndTramRouteToRouteCostsTest {
 
     @Test
     void shouldValidHopsBetweenTramAndRailShortRange() {
-        TimeRange timeRange = TimeRange.of(TramTime.of(8, 15), TramTime.of(22, 35));
+        TimeRange timeRange = TimeRangePartial.of(TramTime.of(8, 15), TramTime.of(22, 35));
 
         NumberOfChanges result = routeToRouteCosts.getNumberOfChanges(tram(Cornbrook), rail(RailStationIds.Altrincham),
                 allTransportModes, date, timeRange);
@@ -124,7 +125,7 @@ public class RailAndTramRouteToRouteCostsTest {
 
     @Test
     void shouldNotHaveHopsBetweenTramAndRailWhenTramOnly() {
-        TimeRange timeRange = TimeRange.of(TramTime.of(8, 15), TramTime.of(22, 35));
+        TimeRange timeRange = TimeRangePartial.of(TramTime.of(8, 15), TramTime.of(22, 35));
 
         EnumSet<TransportMode> preferredModes = EnumSet.of(Tram);
 
@@ -137,7 +138,7 @@ public class RailAndTramRouteToRouteCostsTest {
 
     @Test
     void shouldHaveCorrectHopsBetweenRailStationsOnly() {
-        TimeRange timeRange = TimeRange.of(TramTime.of(8, 15), TramTime.of(22, 35));
+        TimeRange timeRange = TimeRangePartial.of(TramTime.of(8, 15), TramTime.of(22, 35));
 
         EnumSet<TransportMode> preferredModes = EnumSet.of(Train);
         NumberOfChanges result = routeToRouteCosts.getNumberOfChanges(rail(ManchesterPiccadilly), rail(Stockport),
@@ -149,7 +150,7 @@ public class RailAndTramRouteToRouteCostsTest {
 
     @Test
     void shouldHaveCorrectHopsBetweenTramStationsOnly() {
-        TimeRange timeRange = TimeRange.of(TramTime.of(8, 15), TramTime.of(22, 35));
+        TimeRange timeRange = TimeRangePartial.of(TramTime.of(8, 15), TramTime.of(22, 35));
 
         NumberOfChanges result = routeToRouteCosts.getNumberOfChanges(tram(Cornbrook), tram(StPetersSquare),
                 allTransportModes, date, timeRange);
@@ -161,7 +162,7 @@ public class RailAndTramRouteToRouteCostsTest {
     @Test
     void shouldHaveOneChangeRochdaleToEccles() {
         // Rochdale, Eccles
-        TimeRange timeRange = TimeRange.of(TramTime.of(9,0), TramTime.of(10,0));
+        TimeRange timeRange = TimeRangePartial.of(TramTime.of(9,0), TramTime.of(10,0));
         Station rochdale = TramStations.Rochdale.from(stationRepository);
         Station eccles = TramStations.Eccles.from(stationRepository);
         NumberOfChanges changes = routeToRouteCosts.getNumberOfChanges(rochdale, eccles, TramsOnly, date, timeRange);
@@ -173,7 +174,7 @@ public class RailAndTramRouteToRouteCostsTest {
     @Test
     void shouldRHaveChangesBetweenLiverpoolAndCreweRoutes() {
         // repro issue in routecostmatric
-        TimeRange timeRange = TimeRange.of(TramTime.of(9,0), TramTime.of(10,0));
+        TimeRange timeRange = TimeRangePartial.of(TramTime.of(9,0), TramTime.of(10,0));
 
         Route routeA = railRouteHelper.getRoute(TrainOperatingCompanies.NT, RailStationIds.ManchesterVictoria, LiverpoolLimeStreet, 1);
         Route routeB = railRouteHelper.getRoute(TrainOperatingCompanies.NT, Crewe, ManchesterPiccadilly, 2);
@@ -189,7 +190,7 @@ public class RailAndTramRouteToRouteCostsTest {
     void shouldReproduceErrorWithPinkAndYellowRoutesTramOnly() {
         // error was due to handling of linked interchange stations in StationAvailabilityRepository
         // specifically because Victoria is linked to rail routes and is only place to change between pink/yellow route
-        TimeRange timeRange = TimeRange.of(TramTime.of(8, 45), TramTime.of(16, 45));
+        TimeRange timeRange = TimeRangePartial.of(TramTime.of(8, 45), TramTime.of(16, 45));
 
         RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
         TramRouteHelper tramRouteHelper = new TramRouteHelper(routeRepository);

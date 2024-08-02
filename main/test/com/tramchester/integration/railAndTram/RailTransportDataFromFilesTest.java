@@ -17,6 +17,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.integration.repository.TransportDataFromFilesTramTest;
@@ -305,7 +306,7 @@ public class RailTransportDataFromFilesTest {
         assertFalse(runningAfterDate.isEmpty(), "no running on " + when + " services " + servicesForRoutes);
 
         TramTime time = TramTime.of(23,20);
-        TimeRange timeRange = TimeRange.of(time, time.plusMinutes(60));
+        TimeRange timeRange = TimeRangePartial.of(time, time.plusMinutes(60));
 
         Set<Trip> matchingTrips = transportData.getTrips().stream().
                 filter(trip -> runningAfterDate.contains(trip.getService())).

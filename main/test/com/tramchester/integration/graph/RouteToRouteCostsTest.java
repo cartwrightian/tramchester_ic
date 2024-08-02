@@ -12,6 +12,7 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.search.LowestCostsForDestRoutes;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
@@ -82,7 +83,7 @@ public class RouteToRouteCostsTest {
         routeHelper = new TramRouteHelper(routeRepository);
 
         date = TestEnv.testDay();
-        timeRange = TimeRange.of(TramTime.of(7,45), TramTime.of(22,45));
+        timeRange = TimeRangePartial.of(TramTime.of(7,45), TramTime.of(22,45));
     }
 
     @Test
@@ -90,7 +91,7 @@ public class RouteToRouteCostsTest {
         Set<Route> routes = routeRepository.getRoutes(modes).stream().
                 filter(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
 
-        TimeRange timeRangeForOverlaps = TimeRange.of(TramTime.of(8, 45), TramTime.of(16, 45));
+        TimeRange timeRangeForOverlaps = TimeRangePartial.of(TramTime.of(8, 45), TramTime.of(16, 45));
 
         List<RoutePair> failed = new ArrayList<>();
 
@@ -135,7 +136,7 @@ public class RouteToRouteCostsTest {
         assertEquals(2, getMinCost(routesCostRepository.getNumberOfChanges(routeA, routeB, date, timeRange, modes)),
                 "wrong for " + routeA.getId() + " " + routeB.getId());
 
-        TimeRange outOfRange = TimeRange.of(TramTime.of(3,35), TramTime.of(3,45));
+        TimeRange outOfRange = TimeRangePartial.of(TramTime.of(3,35), TramTime.of(3,45));
         assertEquals(Integer.MAX_VALUE, getMinCost(routesCostRepository.getNumberOfChanges(routeB, routeA, date, outOfRange, modes)),
                 "wrong for " + routeB.getId() + " " + routeA.getId());
     }
@@ -238,7 +239,7 @@ public class RouteToRouteCostsTest {
         Station altrincham = Altrincham.from(stationRepository);
 
         long maxDuration = config.getMaxJourneyDuration();
-        TimeRange timeRange = TimeRange.of(TramTime.of(23,59), Duration.ZERO, Duration.ofMinutes(maxDuration));
+        TimeRange timeRange = TimeRangePartial.of(TramTime.of(23,59), Duration.ZERO, Duration.ofMinutes(maxDuration));
 
         Station navigationRoad = NavigationRoad.from(stationRepository);
 
@@ -252,7 +253,7 @@ public class RouteToRouteCostsTest {
         Station altrincham = Altrincham.from(stationRepository);
 
         long maxDuration = config.getMaxJourneyDuration();
-        TimeRange timeRange = TimeRange.of(TramTime.of(0,0), Duration.ZERO, Duration.ofMinutes(maxDuration));
+        TimeRange timeRange = TimeRangePartial.of(TramTime.of(0,0), Duration.ZERO, Duration.ofMinutes(maxDuration));
 
         Station navigationRoad = NavigationRoad.from(stationRepository);
 
@@ -267,7 +268,7 @@ public class RouteToRouteCostsTest {
         Station altrincham = Altrincham.from(stationRepository);
 
         long maxDuration = config.getMaxJourneyDuration();
-        TimeRange timeRange = TimeRange.of(TramTime.of(0,1), Duration.ZERO, Duration.ofMinutes(maxDuration));
+        TimeRange timeRange = TimeRangePartial.of(TramTime.of(0,1), Duration.ZERO, Duration.ofMinutes(maxDuration));
 
         Station navigationRoad = NavigationRoad.from(stationRepository);
 

@@ -5,6 +5,7 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TimeRangePartial;
 
 import java.util.Objects;
 import java.util.Set;
@@ -93,5 +94,12 @@ public class ClosedStation {
                 ", diversionsAroundClosure=" + HasId.asIds(diversionsAroundClosure) +
                 ", diversionsToFromClosure=" + HasId.asIds(diversionsToFromClosure) +
                 '}';
+    }
+
+    public boolean overlaps(final ClosedStation other) {
+        if (!other.dateRange.overlapsWith(dateRange)) {
+            return false;
+        }
+        return other.timeRange.anyOverlap(timeRange);
     }
 }

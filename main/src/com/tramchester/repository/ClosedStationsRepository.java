@@ -75,10 +75,27 @@ public class ClosedStationsRepository {
         // capture details of each closure
         closures.forEach(closure -> {
             final Set<ClosedStation> toAdd = closure.getStations().stream().
-                    map(stationId -> closedStationFactory.createClosedStation(closure, stationId,
+                    map(closedStationId -> closedStationFactory.createClosedStation(closure, closedStationId,
                             diversionStation -> shouldIncludeDiversion(diversionStation, closure.getDateRange()))).
                     collect(Collectors.toSet());
+            guardAgainstOverlap(toAdd);
             closedStations.addAll(toAdd);
+        });
+    }
+
+
+    private void guardAgainstOverlap(final Set<ClosedStation> toAdd) {
+        toAdd.forEach(toCheck -> {
+            final Station station = toCheck.getStation();
+            closedStations.stream().
+                    filter(closedStation -> closedStation.getStation().equals(station)).
+                    forEach(sameStationClosure -> {
+                        if (sameStationClosure.overlaps(toCheck)) {
+                            String msg = format("Cannot add closure for %s since closure %s overlaps with existing %s", station.getId(), sameStationClosure, toCheck);
+                            logger.error(msg);
+                            throw new RuntimeException(msg);
+                        }
+                    });
         });
     }
 
@@ -101,14 +118,6 @@ public class ClosedStationsRepository {
             return false;
         }
     }
-
-    //    private boolean openForRange(final IdFor<Station> stationId, final DateRange dateRange) {
-//        if (closureDates.containsKey(stationId)) {
-//            final Set<DateRange> closedRanges = closureDates.get(stationId);
-//            return closedRanges.stream().noneMatch(dateRange::overlapsWith);
-//        }
-//        return true;
-//    }
 
     @PreDestroy
     public void stop() {

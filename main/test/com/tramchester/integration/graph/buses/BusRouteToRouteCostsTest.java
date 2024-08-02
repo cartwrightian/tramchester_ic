@@ -10,6 +10,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
@@ -61,7 +62,7 @@ public class BusRouteToRouteCostsTest {
         stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
 
         date = TestEnv.testDay();
-        wholeDayRange = TimeRange.of(TramTime.of(4,45), TramTime.of(23,55));
+        wholeDayRange = TimeRangePartial.of(TramTime.of(4,45), TramTime.of(23,55));
         modes = BusesOnly;
     }
 
@@ -108,7 +109,7 @@ public class BusRouteToRouteCostsTest {
         StationGroup start = KnownLocality.Altrincham.from(stationGroupsRepository);
         StationGroup dest = KnownLocality.Macclesfield.from(stationGroupsRepository);
 
-        TimeRange range = TimeRange.of(TramTime.of(10,5), TramTime.of(14,53));
+        TimeRange range = TimeRangePartial.of(TramTime.of(10,5), TramTime.of(14,53));
         NumberOfChanges results = routeToRouteCosts.getNumberOfChanges(start, dest, date, range, modes);
 
         assertEquals(0, results.getMin());

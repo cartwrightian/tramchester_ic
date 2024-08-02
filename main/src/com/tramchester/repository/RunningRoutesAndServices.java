@@ -10,6 +10,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdMap;
 import com.tramchester.domain.time.CrossesDay;
 import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -177,13 +178,13 @@ public class RunningRoutesAndServices {
             final TramTime finishTime = service.getFinishTime();
             final TramTime startTime = service.getStartTime();
 
-            final TimeRange withinService = TimeRange.of(startTime, finishTime);
+            final TimeRange withinService = TimeRangePartial.of(startTime, finishTime);
             if (withinService.contains(time)) {
                 return true;
             }
 
             // check if within wait time
-            final TimeRange range = TimeRange.of(startTime, Duration.ofMinutes(maxWait), Duration.ZERO);
+            final TimeRange range = TimeRangePartial.of(startTime, Duration.ofMinutes(maxWait), Duration.ZERO);
             return range.contains(time);
         }
     }

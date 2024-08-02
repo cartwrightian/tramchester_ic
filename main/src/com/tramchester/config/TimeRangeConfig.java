@@ -2,6 +2,7 @@ package com.tramchester.config;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.mappers.serialisation.TramTimeJsonDeserializer;
 
@@ -24,6 +25,6 @@ public class TimeRangeConfig {
     }
 
     public TimeRange getRange() {
-        return new TimeRange(begin, end);
+        return TimeRangePartial.of(begin, end);
     }
 }

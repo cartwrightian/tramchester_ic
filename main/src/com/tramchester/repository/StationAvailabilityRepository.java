@@ -9,6 +9,7 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.*;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.filters.GraphFilterActive;
 import org.slf4j.Logger;
@@ -266,7 +267,7 @@ public class StationAvailabilityRepository {
         if (ranges.isEmpty()) {
             // likely down to closed station(s)
             logger.warn("Found no time range available for " + destinations + " (Closed stations?) Will use whole day");
-            return TimeRange.of(TramTime.of(0,1), TramTime.of(23,59));
+            return TimeRangePartial.of(TramTime.of(0,1), TramTime.of(23,59));
         } else {
             // now create timerange
             return TimeRange.coveringAllOf(ranges);

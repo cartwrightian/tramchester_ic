@@ -13,6 +13,7 @@ import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.facade.MutableGraphTransaction;
@@ -96,7 +97,7 @@ public class NeighbourJourneysTest {
 
         date = TestEnv.testDay();
 
-        timeRange = TimeRange.of(TramTime.of(8,15), TramTime.of(22,35));
+        timeRange = TimeRangePartial.of(TramTime.of(8,15), TramTime.of(22,35));
 
     }
 

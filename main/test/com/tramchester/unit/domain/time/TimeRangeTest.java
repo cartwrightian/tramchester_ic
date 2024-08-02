@@ -1,6 +1,7 @@
 package com.tramchester.unit.domain.time;
 
 import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
 import org.junit.jupiter.api.Test;
 
@@ -18,7 +19,7 @@ public class TimeRangeTest {
         TramTime timeA = TramTime.of(10,31);
         TramTime timeB = TramTime.of(15,56);
 
-        TimeRange range = new TimeRange(timeA, timeB);
+        TimeRange range = TimeRangePartial.of(timeA, timeB);
 
         assertTrue(range.contains(timeA));
         assertTrue(range.contains(timeB));
@@ -36,7 +37,7 @@ public class TimeRangeTest {
     void shouldHaveExpandingRange() {
         TramTime timeA = TramTime.of(9,42);
 
-        TimeRange range = TimeRange.of(timeA);
+        TimeRange range = TimeRangePartial.of(timeA);
 
         assertTrue(range.contains(timeA));
         assertFalse(range.contains(timeA.plusMinutes(30)));
@@ -54,7 +55,7 @@ public class TimeRangeTest {
     void shouldBehaveOverMidnightBasic() {
         TramTime time = TramTime.of(23,55);
 
-        TimeRange timeRange = TimeRange.of(time, Duration.ZERO, Duration.ofHours(2));
+        TimeRange timeRange = TimeRangePartial.of(time, Duration.ZERO, Duration.ofHours(2));
 
         assertTrue(timeRange.contains(TramTime.nextDay(1,15)), timeRange.toString());
         assertFalse(timeRange.contains(TramTime.of(1,15)), timeRange.toString());
@@ -64,13 +65,13 @@ public class TimeRangeTest {
     void shouldHaveAnyoverLap() {
         TramTime time = TramTime.of(12,55);
 
-        TimeRange timeRangeA = TimeRange.of(time, Duration.ofHours(2), Duration.ofHours(2));
-        TimeRange timeRangeB = TimeRange.of(time, Duration.ofHours(1), Duration.ofHours(1));
+        TimeRange timeRangeA = TimeRangePartial.of(time, Duration.ofHours(2), Duration.ofHours(2));
+        TimeRange timeRangeB = TimeRangePartial.of(time, Duration.ofHours(1), Duration.ofHours(1));
 
         assertTrue(timeRangeA.anyOverlap(timeRangeB));
         assertTrue(timeRangeB.anyOverlap(timeRangeA));
 
-        TimeRange timeRangeC = TimeRange.of(TramTime.of(22,0), Duration.ofHours(1), Duration.ofHours(1));
+        TimeRange timeRangeC = TimeRangePartial.of(TramTime.of(22,0), Duration.ofHours(1), Duration.ofHours(1));
 
         assertFalse(timeRangeA.anyOverlap(timeRangeC));
         assertFalse(timeRangeC.anyOverlap(timeRangeA));
@@ -82,12 +83,12 @@ public class TimeRangeTest {
         TramTime begin = TramTime.of(23,55);
         TramTime end = TramTime.nextDay(1,24);
 
-        TimeRange timeRange = TimeRange.of(begin, end);
+        TimeRange timeRange = TimeRangePartial.of(begin, end);
 
-        TimeRange beginOverlapsRange = TimeRange.of(TramTime.of(23, 56), Duration.ZERO, Duration.ofHours(2));
+        TimeRange beginOverlapsRange = TimeRangePartial.of(TramTime.of(23, 56), Duration.ZERO, Duration.ofHours(2));
         assertTrue(timeRange.anyOverlap(beginOverlapsRange));
 
-        TimeRange endOverlaps = TimeRange.of(begin, Duration.ofMinutes(30), Duration.ofMinutes(5));
+        TimeRange endOverlaps = TimeRangePartial.of(begin, Duration.ofMinutes(30), Duration.ofMinutes(5));
         assertTrue(timeRange.anyOverlap(endOverlaps));
 
     }
@@ -97,7 +98,7 @@ public class TimeRangeTest {
         TramTime begin = TramTime.of(23, 55);
         TramTime endInTheNextDay = TramTime.nextDay(1, 24);
 
-        TimeRange timeRange = TimeRange.of(begin, endInTheNextDay);
+        TimeRange timeRange = TimeRangePartial.of(begin, endInTheNextDay);
 
         assertTrue(timeRange.intoNextDay());
 
@@ -113,7 +114,7 @@ public class TimeRangeTest {
     void shouldReportNextDayCorrectlyWhenExactlyOnMidnight() {
         //begin=TramTime{h=21, m=56}, end=TramTime{d=1 h=0, m=0}}
 
-        TimeRange range = TimeRange.of(TramTime.of(21,56), TramTime.nextDay(0,0));
+        TimeRange range = TimeRangePartial.of(TramTime.of(21,56), TramTime.nextDay(0,0));
         assertTrue(range.intoNextDay());
     }
 
@@ -121,7 +122,7 @@ public class TimeRangeTest {
     void shouldBottomAtBeginingOfDay() {
         TramTime time = TramTime.of(0, 14);
 
-        TimeRange range = TimeRange.of(time, Duration.ofMinutes(20), Duration.ofMinutes(12));
+        TimeRange range = TimeRangePartial.of(time, Duration.ofMinutes(20), Duration.ofMinutes(12));
 
         assertTrue(range.contains(TramTime.of(0,0)));
         assertTrue(range.contains(TramTime.of(0,26)));
@@ -133,7 +134,7 @@ public class TimeRangeTest {
     void shouldBottomAtBeginingOfNextDay() {
         TramTime time = TramTime.nextDay(0, 14);
 
-        TimeRange range = TimeRange.of(time, Duration.ofMinutes(20), Duration.ofMinutes(12));
+        TimeRange range = TimeRangePartial.of(time, Duration.ofMinutes(20), Duration.ofMinutes(12));
 
         assertTrue(range.contains(TramTime.nextDay(0,0)));
         assertTrue(range.contains(TramTime.nextDay(0,26)));
@@ -146,7 +147,7 @@ public class TimeRangeTest {
     @Test
     void shouldHaveRangeCoveringAllOfSingle() {
 
-        TimeRange timeRange = TimeRange.of(TramTime.of(8,45), TramTime.of(9,55));
+        TimeRange timeRange = TimeRangePartial.of(TramTime.of(8,45), TramTime.of(9,55));
         TimeRange result = TimeRange.coveringAllOf(Collections.singleton(timeRange));
 
         assertEquals(timeRange, result);
@@ -158,23 +159,39 @@ public class TimeRangeTest {
         TramTime earliest = TramTime.of(8, 45);
         TramTime latest = TramTime.of(17, 15);
 
-        TimeRange timeRangeA = TimeRange.of(earliest, TramTime.of(9,55));
-        TimeRange timeRangeB = TimeRange.of(TramTime.of(9,15), TramTime.of(16,35));
-        TimeRange timeRangeC = TimeRange.of(TramTime.of(16,25), latest);
+        TimeRange timeRangeA = TimeRangePartial.of(earliest, TramTime.of(9,55));
+        TimeRange timeRangeB = TimeRangePartial.of(TramTime.of(9,15), TramTime.of(16,35));
+        TimeRange timeRangeC = TimeRangePartial.of(TramTime.of(16,25), latest);
 
         TimeRange result = TimeRange.coveringAllOf(new HashSet<>(Arrays.asList(timeRangeB, timeRangeA, timeRangeC)));
 
-        assertEquals(TimeRange.of(earliest, latest), result);
+        assertEquals(TimeRangePartial.of(earliest, latest), result);
     }
 
     @Test
     void shouldHaveAllDay() {
-        final TimeRange allDay = TimeRange.AllDay();
+        final TimeRange allDay = TimeRangePartial.AllDay();
+
+        assertEquals(TramTime.of(0,0), allDay.getStart());
+        assertEquals(TramTime.of(23,59), allDay.getEnd());
 
         TramTime time = TramTime.of(0,1);
 
         while(time.isBefore(TramTime.of(0,0))) {
             assertTrue(allDay.contains(time), "Did not contain " + time);
+            time = time.plusMinutes(1);
+        }
+    }
+
+    @Test
+    void shouldHaveAllDayOverlaps() {
+        final TimeRange allDay = TimeRangePartial.AllDay();
+
+        TramTime time = TramTime.of(0,1);
+
+        while(time.isBefore(TramTime.of(23,59))) {
+            TimeRange timeRange = TimeRangePartial.of(time, time.plusMinutes(1));
+            assertTrue(allDay.anyOverlap(timeRange), "Did not contain " + time);
             time = time.plusMinutes(1);
         }
     }

@@ -4,6 +4,7 @@ import com.tramchester.domain.closures.ClosedStation;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.Test;
@@ -27,7 +28,7 @@ public class ClosedStationTest {
     void shouldMatchIfTimeRangesAndDateRangesSame() {
         Station station = ExchangeSquare.fake();
         DateRange dateRange = DateRange.of(TestEnv.testDay(), TestEnv.testDay().plusDays(3));
-        TimeRange timeRange = TimeRange.of(TramTime.of(1,30), TramTime.of(2,30));
+        TimeRange timeRange = TimeRangePartial.of(TramTime.of(1,30), TramTime.of(2,30));
 
         ClosedStation closedStationA = new ClosedStation(station, dateRange, timeRange, true, null, null);
         ClosedStation closedStationB = new ClosedStation(station, dateRange, timeRange, true, null, null);
@@ -39,8 +40,8 @@ public class ClosedStationTest {
     void shouldNotMatchIfTimeRangesDifferent() {
         Station station = ExchangeSquare.fake();
         DateRange dateRange = DateRange.of(TestEnv.testDay(), TestEnv.testDay().plusDays(3));
-        TimeRange timeRangeA = TimeRange.of(TramTime.of(1,30), TramTime.of(2,30));
-        TimeRange timeRangeB = TimeRange.of(TramTime.of(15,30), TramTime.of(22,30));
+        TimeRange timeRangeA = TimeRangePartial.of(TramTime.of(1,30), TramTime.of(2,30));
+        TimeRange timeRangeB = TimeRangePartial.of(TramTime.of(15,30), TramTime.of(22,30));
 
         ClosedStation closedStationA = new ClosedStation(station, dateRange, timeRangeA, true, null, null);
         ClosedStation closedStationB = new ClosedStation(station, dateRange, timeRangeB, true, null, null);
@@ -59,4 +60,10 @@ public class ClosedStationTest {
 
         assertNotEquals(closedStationA, closedStationB);
     }
+
+//    @Test
+//    void shouldHaveExpectedOverlaps() {
+//        fail("todo");
+//    }
+
 }

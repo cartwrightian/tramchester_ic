@@ -15,6 +15,7 @@ import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphPropertyKey;
@@ -445,7 +446,7 @@ class TramGraphBuilderTest {
                 filter(trip -> trip.isAfter(stationId, Altrincham.getId())).
                 map(trip -> trip.getStopCalls().getStopFor(stationId)).collect(Collectors.toSet());
 
-        TimeRange range = TimeRange.of(TramTime.of(hour,0), TramTime.of(hour,59));
+        TimeRange range = TimeRangePartial.of(TramTime.of(hour,0), TramTime.of(hour,59));
         Set<StopCall> duringHour = towardsAlty.stream().filter(stopCall -> range.contains(stopCall.getDepartureTime())).collect(Collectors.toSet());
 
         assertFalse(duringHour.isEmpty());

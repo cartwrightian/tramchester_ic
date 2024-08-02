@@ -10,6 +10,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.facade.MutableGraphTransaction;
@@ -108,7 +109,7 @@ class SubGraphAroundKnutsfordRailTest {
         Station hale = Hale.from(stationRepository);
         Station knutsford = Knutsford.from(stationRepository);
 
-        TimeRange timeRange = TimeRange.of(tramTime, tramTime.plusMinutes(TestRailConfig.INITIAL_WAIT_MINS));
+        TimeRange timeRange = TimeRangePartial.of(tramTime, tramTime.plusMinutes(TestRailConfig.INITIAL_WAIT_MINS));
 
         EnumSet<TransportMode> transportModes = EnumSet.of(Train);
 
@@ -139,7 +140,7 @@ class SubGraphAroundKnutsfordRailTest {
 
     @Test
     void shouldHaveNoChangesBetweenAllStations() {
-        TimeRange timeRange = TimeRange.of(tramTime, tramTime.plusMinutes(TestRailConfig.INITIAL_WAIT_MINS));
+        TimeRange timeRange = TimeRangePartial.of(tramTime, tramTime.plusMinutes(TestRailConfig.INITIAL_WAIT_MINS));
         EnumSet<TransportMode> transportModes = EnumSet.of(Train);
 
         for (RailStationIds startId: stations) {

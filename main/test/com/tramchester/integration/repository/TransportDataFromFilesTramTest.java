@@ -24,6 +24,7 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.repository.ClosedStationsRepository;
@@ -344,7 +345,7 @@ public class TransportDataFromFilesTramTest {
 
         assertFalse(fromAlty.isEmpty());
 
-        TimeRange range = TimeRange.of(TramTime.of(0,1), Duration.ZERO, Duration.ofMinutes(config.getMaxWait()));
+        TimeRange range = TimeRangePartial.of(TramTime.of(0,1), Duration.ZERO, Duration.ofMinutes(config.getMaxWait()));
         TimeRange nextRange = range.transposeToNextDay();
 
         Set<Trip> atTime = fromAlty.stream().
@@ -428,7 +429,7 @@ public class TransportDataFromFilesTramTest {
                     forEach(station -> {
                         Set<Trip> trips = transportData.getTripsCallingAt(station, date);
                         for (TramTime time : times) {
-                            TimeRange range = TimeRange.of(time.minusMinutes(maxwait), time.plusMinutes(maxwait));
+                            TimeRange range = TimeRangePartial.of(time.minusMinutes(maxwait), time.plusMinutes(maxwait));
                             boolean calls = trips.stream().flatMap(trip -> trip.getStopCalls().stream()).
                                     filter(stopCall -> stopCall.getStation().equals(station)).
                                     anyMatch(stopCall -> range.contains(stopCall.getArrivalTime()));

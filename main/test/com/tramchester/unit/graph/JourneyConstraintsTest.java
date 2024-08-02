@@ -10,6 +10,7 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.search.JourneyConstraints;
 import com.tramchester.graph.search.LowestCostsForDestRoutes;
@@ -53,7 +54,7 @@ public class JourneyConstraintsTest extends EasyMockSupport {
         maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
         journeyConstraints = new JourneyConstraints(config, filterForDate,
                 closedStations, endStations, lowestCostForDest, maxJourneyDuration,
-                TimeRange.of(TramTime.of(8,0), TramTime.of(23,0)));
+                TimeRangePartial.of(TramTime.of(8,0), TramTime.of(23,0)));
     }
 
     @Test
@@ -81,7 +82,7 @@ public class JourneyConstraintsTest extends EasyMockSupport {
 
     @Test
     void shouldHaveTimesAvailableEarlyMorningFromPreviousDay() {
-        TimeRange timeRange = TimeRange.of(TramTime.of(16, 0), TramTime.nextDay(1, 5));
+        TimeRange timeRange = TimeRangePartial.of(TramTime.of(16, 0), TramTime.nextDay(1, 5));
 
         JourneyConstraints constraints = new JourneyConstraints(config, filterForDate,
                 new IdSet<>(), LocationSet.singleton(TramStations.Bury.fake()), lowestCostForDest, maxJourneyDuration,

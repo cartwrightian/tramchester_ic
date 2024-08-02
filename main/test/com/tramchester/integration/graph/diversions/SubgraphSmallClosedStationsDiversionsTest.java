@@ -12,6 +12,7 @@ import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
@@ -204,7 +205,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
         Location<?> start = StPetersSquare.from(stationRepository);
         Location<?> destination = Piccadilly.from(stationRepository);
 
-        TimeRange timeRange = TimeRange.of(TramTime.of(6,0), TramTime.of(23,55));
+        TimeRange timeRange = TimeRangePartial.of(TramTime.of(6,0), TramTime.of(23,55));
         EnumSet<TransportMode> mode = EnumSet.of(TransportMode.Tram);
 
         NumberOfChanges costs = routeToRouteCosts.getNumberOfChanges(start, destination, mode, when.plusDays(1), timeRange);

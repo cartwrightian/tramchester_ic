@@ -289,7 +289,6 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
             final MutableGraphNode firstNode = txn.findNodeMutable(first);
 
             Stream<ImmutableGraphRelationship> alreadyPresent = firstNode.getRelationships(txn, Direction.OUTGOING, DIVERSION);
-            guardNotOverlappingExisting(alreadyPresent,closure);
 
             final MutableGraphNode secondNode = txn.findNodeMutable(second);
 
@@ -306,16 +305,7 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
         return toLinkViaDiversion.size();
     }
 
-    // TODO Move this into ClosedStationRepository
-    private void guardNotOverlappingExisting(Stream<ImmutableGraphRelationship> alreadyPresent, ClosedStation closure) {
-        alreadyPresent.forEach(relationship -> {
-            if (relationship.getDateRange().overlapsWith(closure.getDateRange())) {
-                String msg = format("Existing DIVERSION relationship daterange %s overlaps with new closure %s", relationship.getDateRange(), closure.getDateRange());
-                logger.error(msg);
-                throw new RuntimeException(msg);
-            }
-        });
-    }
+
 
     private void setCommonProperties(final MutableGraphRelationship relationship, final Duration cost, final ClosedStation closure) {
         relationship.setCost(cost);

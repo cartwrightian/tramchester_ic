@@ -184,6 +184,7 @@ class StationLocationsTest extends EasyMockSupport {
         replayAll();
         stationLocations.start();
         BoundingBox area = stationLocations.getActiveStationBounds();
+        // todo use StationBoxFactory here
         Set<BoundingBox> found = stationLocations.createBoundingBoxesFor(gridSize).collect(Collectors.toSet());
         verifyAll();
 

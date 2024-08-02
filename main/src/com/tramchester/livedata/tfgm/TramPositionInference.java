@@ -9,6 +9,7 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.RouteReachable;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
@@ -88,7 +89,7 @@ public class TramPositionInference {
         TramDate date = TramDate.from(now);
 
         TramTime cutOff = currentTime.plus(costBetweenPair);
-        TimeRange timeRange = TimeRange.of(currentTime, cutOff);
+        TimeRange timeRange = TimeRangePartial.of(currentTime, cutOff);
 
         Set<UpcomingDeparture> dueTrams = getDueTrams(pair, date, timeRange);
 

@@ -8,6 +8,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocationsRepository;
@@ -69,7 +70,7 @@ public class DeparturesRepository {
 
     private boolean isTimely(final TramTime time, final UpcomingDeparture departure) {
         final Duration windowSize = getLiveDeparturesWindowFor(departure.getMode());
-        final TimeRange timeRange = TimeRange.of(time, windowSize, windowSize);
+        final TimeRange timeRange = TimeRangePartial.of(time, windowSize, windowSize);
         return timeRange.contains(departure.getWhen());
     }
 

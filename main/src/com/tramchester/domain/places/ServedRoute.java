@@ -6,6 +6,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
 import org.jetbrains.annotations.NotNull;
 
@@ -38,7 +39,7 @@ public class ServedRoute {
             if (timeWindows.containsKey(routeAndService)) {
                 timeWindows.get(routeAndService).updateToInclude(callingTime);
             } else {
-                timeWindows.put(routeAndService, new TimeRange(callingTime));
+                timeWindows.put(routeAndService, TimeRangePartial.of(callingTime));
             }
         }
 

@@ -4,6 +4,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.presentation.DTO.diagnostics.JourneyDiagnostics;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
 
 import java.time.Duration;
@@ -154,7 +155,7 @@ public class JourneyRequest {
     }
 
     public TimeRange getTimeRange() {
-        return TimeRange.of(originalQueryTime, Duration.ZERO, maxJourneyDuration);
+        return TimeRangePartial.of(originalQueryTime, Duration.ZERO, maxJourneyDuration);
     }
 
     public synchronized void injectDiag(final JourneyDiagnostics diagnostics) {
