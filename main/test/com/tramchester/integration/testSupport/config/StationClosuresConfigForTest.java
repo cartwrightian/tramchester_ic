@@ -5,7 +5,6 @@ import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TimeRange;
-import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.TramStations;
 
@@ -19,7 +18,7 @@ public class StationClosuresConfigForTest implements StationClosures {
     private final boolean fullyClosed;
     private final Set<TramStations> diversionsAround;
     private final Set<TramStations> diversionsToFrom;
-    private final TimeRangePartial timeRange;
+    private TimeRange timeRange;
 
     public StationClosuresConfigForTest(TramStations station, DateRange dateRange, boolean fullyClosed,
                                         Set<TramStations> diversionsAround, Set<TramStations> diversionsToFrom) {
@@ -100,5 +99,9 @@ public class StationClosuresConfigForTest implements StationClosures {
     @Override
     public int hashCode() {
         return Objects.hash(station, getDateRange(), isFullyClosed(), diversionsAround, diversionsToFrom, getTimeRange());
+    }
+
+    public void setTimeRange(TimeRange timeRange) {
+        this.timeRange = timeRange;
     }
 }

@@ -83,12 +83,9 @@ public class ClosedStationsRepositoryTest extends EasyMockSupport {
                 andReturn(new ClosedStation(Altrincham.fake(), dateRangeB, true, Collections.emptySet(), Collections.emptySet()));
 
         replayAll();
-        assertThrows(RuntimeException.class, new Executable() {
-            @Override
-            public void execute() throws Throwable {
-                ClosedStationsRepository anotherRepository = new ClosedStationsRepository(config, closeStationFactory, graphFilter);
-                anotherRepository.start();
-            }
+        assertThrows(RuntimeException.class, () -> {
+            ClosedStationsRepository anotherRepository = new ClosedStationsRepository(config, closeStationFactory, graphFilter);
+            anotherRepository.start();
         });
 //        verifyAll();
     }
