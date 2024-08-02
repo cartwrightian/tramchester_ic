@@ -41,6 +41,8 @@ public class ClosedStationTest {
         ClosedStation closedStationB = new ClosedStation(station, dateRange, true, null, null);
 
         assertEquals(closedStationA, closedStationB);
+
+        assertTrue(closedStationA.overlaps(closedStationB));
     }
 
     @Test
@@ -53,6 +55,35 @@ public class ClosedStationTest {
         ClosedStation closedStationB = new ClosedStation(station, dateRange, timeRange, true, null, null);
 
         assertEquals(closedStationA, closedStationB);
+        assertTrue(closedStationA.overlaps(closedStationB));
+    }
+
+    @Test
+    void shouldMatchIfDateRangesOverlap() {
+        Station station = ExchangeSquare.fake();
+        DateRange dateRangeA = DateRange.of(TestEnv.testDay(), TestEnv.testDay().plusWeeks(1));
+        DateRange dateRangeB = DateRange.of(TestEnv.testDay().plusDays(5), TestEnv.testDay().plusWeeks(2));
+
+        ClosedStation closedStationA = new ClosedStation(station, dateRangeA, true, null, null);
+        ClosedStation closedStationB = new ClosedStation(station, dateRangeB, true, null, null);
+
+        assertNotEquals(closedStationA, closedStationB);
+        assertTrue(closedStationA.overlaps(closedStationB));
+    }
+
+    @Test
+    void shouldMatchIfDateRangesAndTimesOverlap() {
+        Station station = ExchangeSquare.fake();
+        DateRange dateRangeA = DateRange.of(TestEnv.testDay(), TestEnv.testDay().plusWeeks(1));
+        DateRange dateRangeB = DateRange.of(TestEnv.testDay().plusDays(5), TestEnv.testDay().plusWeeks(2));
+        TimeRange timeRangeA = TimeRangePartial.of(TramTime.of(10,30), TramTime.of(16,30));
+        TimeRange timeRangeB = TimeRangePartial.of(TramTime.of(15,30), TramTime.of(22,30));
+
+        ClosedStation closedStationA = new ClosedStation(station, dateRangeA, timeRangeA,true, null, null);
+        ClosedStation closedStationB = new ClosedStation(station, dateRangeB, timeRangeB,true, null, null);
+
+        assertNotEquals(closedStationA, closedStationB);
+        assertTrue(closedStationA.overlaps(closedStationB));
     }
 
     @Test
@@ -66,6 +97,7 @@ public class ClosedStationTest {
         ClosedStation closedStationB = new ClosedStation(station, dateRange, timeRangeB, true, null, null);
 
         assertNotEquals(closedStationA, closedStationB);
+        assertFalse(closedStationA.overlaps(closedStationB));
     }
 
     @Test
@@ -78,6 +110,7 @@ public class ClosedStationTest {
         ClosedStation closedStationB = new ClosedStation(station, dateRangeB, true, null, null);
 
         assertNotEquals(closedStationA, closedStationB);
+        assertFalse(closedStationA.overlaps(closedStationB));
     }
 
 //    @Test

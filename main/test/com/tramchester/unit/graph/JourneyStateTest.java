@@ -68,8 +68,7 @@ class JourneyStateTest extends EasyMockSupport {
         MutableGraphTransaction txn = createMock(MutableGraphTransaction.class);
 
 
-        final TraversalOps traversalOps = new TraversalOps(txn, nodeContentsRepository, tripRepository
-        );
+        final TraversalOps traversalOps = new TraversalOps(txn, nodeContentsRepository, tripRepository);
 
         GraphNodeId startNodeId = GraphNodeId.TestOnly(88842L);
 
