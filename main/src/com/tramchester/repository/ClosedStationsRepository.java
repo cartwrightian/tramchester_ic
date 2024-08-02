@@ -3,17 +3,15 @@ package com.tramchester.repository;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
+import com.tramchester.domain.closures.ClosedStation;
+import com.tramchester.domain.closures.ClosedStationFactory;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
-import com.tramchester.geo.MarginInMeters;
-import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.filters.GraphFilter;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
@@ -34,18 +32,14 @@ public class ClosedStationsRepository {
     private final Set<ClosedStation> closedStations;
     private final Map<IdFor<Station>, Set<DateRange>> closureDates;
     private final TramchesterConfig config;
-    private final StationRepository stationRepository;
-    private final StationLocations stationLocations;
-    private final GraphFilter filter;
+    private final ClosedStationFactory closedStationFactory;
+    private final GraphFilter graphFilter;
 
     @Inject
-    public ClosedStationsRepository(TramchesterConfig config, StationRepository stationRepository, StationLocations stationLocations,
-                                    GraphFilter filter) {
+    public ClosedStationsRepository(TramchesterConfig config, ClosedStationFactory closedStationFactory, GraphFilter graphFilter) {
         this.config = config;
-        this.stationRepository = stationRepository;
-        this.stationLocations = stationLocations;
-
-        this.filter = filter;
+        this.closedStationFactory = closedStationFactory;
+        this.graphFilter = graphFilter;
         closureDates = new HashMap<>();
         closedStations = new HashSet<>();
     }
@@ -65,8 +59,7 @@ public class ClosedStationsRepository {
         logger.info("Started");
     }
 
-    private void captureClosedStationsFromConfig(final Set<StationClosures> closures) {
-        final MarginInMeters range = config.getWalkingDistanceRange();
+    public void captureClosedStationsFromConfig(final Set<StationClosures> closures) {
 
         // capture closed stations and date ranges
         closures.forEach(closure -> {
@@ -81,78 +74,45 @@ public class ClosedStationsRepository {
 
         // capture details of each closure
         closures.forEach(closure -> {
-            final boolean needNearby = (!closure.hasDiversionsAroundClosure()) || (!closure.hasDiversionsToFromClosure());
             final Set<ClosedStation> toAdd = closure.getStations().stream().
-                    map(stationId -> createClosedStation(closure, stationId, range, needNearby)).
+                    map(stationId -> closedStationFactory.createClosedStation(closure, stationId,
+                            diversionStation -> shouldIncludeDiversion(diversionStation, closure.getDateRange()))).
                     collect(Collectors.toSet());
             closedStations.addAll(toAdd);
         });
     }
 
-    private ClosedStation createClosedStation(StationClosures closure, IdFor<Station> stationId,
-                                              MarginInMeters margin, boolean needNearby) {
-        final Station station = stationRepository.getStationById(stationId);
-        final DateRange dateRange = closure.getDateRange();
-
-        // potentially expensive, only populate if needed
-        final Set<Station> nearbyOpenStations = needNearby ? getNearbyOpenStations(station, margin, dateRange) : Collections.emptySet();
-
-        final boolean fullyClosed = closure.isFullyClosed();
-
-        final Set<Station> diversionsAround;
-        if (closure.hasDiversionsAroundClosure()) {
-            final IdSet<Station> diversionsAroundClosure = closure.getDiversionsAroundClosure();
-            logger.info(format("Using config provided stations %s for diversions around closed station %s", diversionsAroundClosure, stationId));
-            diversionsAround = getStations(diversionsAroundClosure);
+    private boolean shouldIncludeDiversion(final Station diversionStation, final DateRange dateRange) {
+        if (graphFilter.shouldInclude(diversionStation)) {
+            final IdFor<Station> stationId = diversionStation.getId();
+            if (closureDates.containsKey(stationId)) {
+                // diversion station also has closures, make sure not closed on same dates
+                final Set<DateRange> closedRanges = closureDates.get(stationId);
+                boolean noOverlap = closedRanges.stream().noneMatch(dateRange::overlapsWith);
+                if (!noOverlap) {
+                    logger.debug(format("Diversion station %s has overlapping closures %s with %s",
+                            stationId, closedRanges, dateRange));
+                }
+                return noOverlap;
+            } else {
+                return true;
+            }
         } else {
-            logger.info(format("Using discovered nearby stations %s for diversions around closed station %s", HasId.asIds(nearbyOpenStations), stationId));
-            diversionsAround = nearbyOpenStations;
+            return false;
         }
-
-        final Set<Station> diversionsToFrom;
-        if (closure.hasDiversionsToFromClosure()) {
-            final IdSet<Station> diversionsToFromClosure = closure.getDiversionsToFromClosure();
-            logger.info(format("Using config provided stations %s for diversions to/from closed station %s", diversionsToFromClosure, stationId));
-            diversionsToFrom = getStations(diversionsToFromClosure);
-        } else {
-            logger.info(format("Using discovered nearby stations %s for diversions to/from closed station %s", HasId.asIds(nearbyOpenStations), stationId));
-            diversionsToFrom = nearbyOpenStations;
-        }
-
-        return new ClosedStation(station, dateRange, fullyClosed, diversionsAround, diversionsToFrom);
     }
 
-    private Set<Station> getStations(IdSet<Station> stationIds) {
-        return stationIds.stream().map(stationRepository::getStationById).collect(Collectors.toSet());
-    }
-
-    private Set<Station> getNearbyOpenStations(final Station station, final MarginInMeters range, final DateRange dateRange) {
-        final Stream<Station> withinRange = stationLocations.nearestStationsUnsorted(station, range);
-
-        final Set<Station> found = withinRange.
-                filter(filter::shouldInclude).
-                filter(nearby -> !nearby.equals(station)).
-                filter(nearby -> openForRange(nearby.getId(), dateRange)).
-                collect(Collectors.toSet());
-
-        logger.info("Found " + found.size() + " stations linked and within range of " + station.getId());
-
-        return found;
-    }
-
-    private boolean openForRange(final IdFor<Station> stationId, final DateRange dateRange) {
-        if (closureDates.containsKey(stationId)) {
-            final Set<DateRange> closedRanges = closureDates.get(stationId);
-            return closedRanges.stream().noneMatch(dateRange::overlapsWith);
-        }
-        return true;
-    }
+    //    private boolean openForRange(final IdFor<Station> stationId, final DateRange dateRange) {
+//        if (closureDates.containsKey(stationId)) {
+//            final Set<DateRange> closedRanges = closureDates.get(stationId);
+//            return closedRanges.stream().noneMatch(dateRange::overlapsWith);
+//        }
+//        return true;
+//    }
 
     @PreDestroy
     public void stop() {
         logger.info("Stopping");
-//        closed.clear();
-//        hasAClosure.clear();
         closureDates.clear();
         logger.info("Stopped");
     }
@@ -169,7 +129,6 @@ public class ClosedStationsRepository {
 
     public boolean hasClosuresOn(final TramDate date) {
         return closureDates.values().stream().flatMap(Collection::stream).anyMatch(dateRange -> dateRange.contains(date));
-//        return getClosures(date, true).findAny().isPresent() || getClosures(date, false).findAny().isPresent();
     }
 
     public Set<ClosedStation> getClosedStationsFor(final DataSourceID sourceId) {
@@ -213,9 +172,6 @@ public class ClosedStationsRepository {
 
         return forStation.stream().anyMatch(range -> range.contains(date));
 
-//        return closed.stream().
-//                filter(closedStation -> closedStation.getStationId().equals(stationId)).
-//                anyMatch(closedStation -> closedStation.getDateRange().contains(date));
     }
 
     public ClosedStation getClosedStation(final Location<?> location, final TramDate date) {
@@ -239,17 +195,6 @@ public class ClosedStationsRepository {
 
         return maybe.get();
     }
-
-//    public boolean isFullyClosed(Station station, TramDate date) {
-//        if (!hasClosuresOn(date)) {
-//            return false;
-//        }
-//        if (!hasAClosure.contains(station.getId())) {
-//            return false;
-//        }
-//        ClosedStation closedStation = getClosedStation(station, date);
-//        return closedStation.isFullyClosed();
-//    }
 
     public boolean anyStationOpen(final LocationSet<Station> locations, final TramDate date) {
         if (!hasClosuresOn(date)) {

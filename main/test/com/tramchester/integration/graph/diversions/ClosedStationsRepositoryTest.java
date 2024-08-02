@@ -2,8 +2,7 @@ package com.tramchester.integration.graph.diversions;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.config.StationClosuresConfig;
-import com.tramchester.domain.ClosedStation;
+import com.tramchester.domain.closures.ClosedStation;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.StationClosures;
@@ -46,14 +45,17 @@ public class ClosedStationsRepositoryTest {
         when = TestEnv.testDay();
         overlap = when.plusDays(3);
 
-        Set<String> diversionOnly = Collections.emptySet();
-        StationClosuresConfigForTest closureA = new StationClosuresConfigForTest(StPetersSquare, new DateRange(when, when.plusWeeks(1)), true);
-        StationClosuresConfigForTest closureB = new StationClosuresConfigForTest(TraffordCentre, new DateRange(overlap, when.plusWeeks(2)), false, diversionOnly, Collections.emptySet());
-        StationClosuresConfigForTest closureC = new StationClosuresConfigForTest(TramStations.ExchangeSquare, new DateRange(overlap, when.plusWeeks(3)),
-                false, Collections.singleton("9400ZZMAVIC"), Collections.emptySet());
+        Set<TramStations> diversionOnly = Collections.emptySet();
+        StationClosuresConfigForTest closureA = new StationClosuresConfigForTest(StPetersSquare, new DateRange(when, when.plusWeeks(1)),
+                true);
+        StationClosuresConfigForTest closureB = new StationClosuresConfigForTest(TraffordCentre, new DateRange(overlap, when.plusWeeks(2)),
+                false, diversionOnly, Collections.emptySet());
+        StationClosuresConfigForTest closureC = new StationClosuresConfigForTest(ExchangeSquare, new DateRange(overlap, when.plusWeeks(3)),
+                false, Collections.singleton(Victoria), Collections.emptySet());
 
         // overlaps with A
-        StationClosuresConfigForTest closureD = new StationClosuresConfigForTest(PiccadillyGardens, new DateRange(when, when.plusWeeks(1)), true);
+        StationClosuresConfigForTest closureD = new StationClosuresConfigForTest(PiccadillyGardens, new DateRange(when, when.plusWeeks(1)),
+                true);
 
         List<StationClosures> closedStations = Arrays.asList(closureA, closureB, closureC, closureD);
 
@@ -110,15 +112,16 @@ public class ClosedStationsRepositoryTest {
     @Test
     void shouldUseProvidedDiversions() {
         Set<ClosedStation> closed = closedStationsRepository.getClosedStationsFor(DataSourceID.tfgm);
-        List<ClosedStation> closedIn3Weeks = closed.stream().filter(closedStation -> closedStation.getDateRange().contains(when.plusWeeks(3))).toList();
+        List<ClosedStation> closedIn3Weeks = closed.stream().
+                filter(closedStation -> closedStation.getDateRange().contains(when.plusWeeks(3))).toList();
         assertEquals(1, closedIn3Weeks.size());
 
         ClosedStation closure = closedIn3Weeks.get(0);
-        List<Station> nearby = new ArrayList<>(closure.getDiversionAroundClosure());
 
-        assertEquals(1, nearby.size());
+        List<Station> aroundClosure = new ArrayList<>(closure.getDiversionAroundClosure());
+        assertEquals(1, aroundClosure.size());
 
-        Station divert = nearby.get(0);
+        Station divert = aroundClosure.get(0);
         assertEquals(TramStations.Victoria.getId(), divert.getId());
     }
 

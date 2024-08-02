@@ -1,9 +1,10 @@
-package com.tramchester.domain;
+package com.tramchester.domain.closures;
 
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.time.TimeRange;
 
 import java.util.Objects;
 import java.util.Set;
@@ -11,14 +12,21 @@ import java.util.Set;
 public class ClosedStation {
     private final Station station;
     private final DateRange dateRange;
+    private final TimeRange timeRange; // can be null
     private final boolean fullyClosed;
     private final Set<Station> diversionsAroundClosure;
     private final Set<Station> diversionsToFromClosure;
 
     public ClosedStation(Station station, DateRange dateRange, boolean fullyClosed, Set<Station> diversionsAroundClosure,
                          Set<Station> diversionsToFromClosure) {
+        this(station, dateRange, null, fullyClosed, diversionsAroundClosure, diversionsToFromClosure);
+    }
+
+    public ClosedStation(Station station, DateRange dateRange, TimeRange timeRange, boolean fullyClosed, Set<Station> diversionsAroundClosure,
+                         Set<Station> diversionsToFromClosure) {
         this.station = station;
         this.dateRange = dateRange;
+        this.timeRange = timeRange;
         this.fullyClosed = fullyClosed;
         this.diversionsAroundClosure = diversionsAroundClosure;
         this.diversionsToFromClosure = diversionsToFromClosure;
@@ -41,30 +49,6 @@ public class ClosedStation {
         return fullyClosed;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ClosedStation that = (ClosedStation) o;
-        return fullyClosed == that.fullyClosed && station.equals(that.station) && dateRange.equals(that.dateRange);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(station, dateRange, fullyClosed, diversionsAroundClosure, diversionsToFromClosure);
-    }
-
-    @Override
-    public String toString() {
-        return "ClosedStation{" +
-                "station=" + station.getId() +
-                ", dateRange=" + dateRange +
-                ", fullyClosed=" + fullyClosed +
-                ", diversionsAroundClosure=" + HasId.asIds(diversionsAroundClosure) +
-                ", diversionsToFromClosure=" + HasId.asIds(diversionsToFromClosure) +
-                '}';
-    }
-
     /***
      * @return Stations that should be linked together to provide a diversion around the closure
      */
@@ -77,5 +61,37 @@ public class ClosedStation {
      */
     public Set<Station> getDiversionToFromClosure() {
         return diversionsToFromClosure;
+    }
+
+    public boolean hasTimeRange() {
+        return timeRange!=null;
+    }
+
+    public TimeRange getTimeRange() {
+        return timeRange;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ClosedStation that)) return false;
+        return isFullyClosed() == that.isFullyClosed() && Objects.equals(getStation(), that.getStation()) && Objects.equals(getDateRange(), that.getDateRange()) && Objects.equals(getTimeRange(), that.getTimeRange()) && Objects.equals(diversionsAroundClosure, that.diversionsAroundClosure) && Objects.equals(diversionsToFromClosure, that.diversionsToFromClosure);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getStation(), getDateRange(), timeRange, isFullyClosed(), diversionsAroundClosure, diversionsToFromClosure);
+    }
+
+    @Override
+    public String toString() {
+        return "ClosedStation{" +
+                "station=" + station.getId() +
+                ", dateRange=" + dateRange +
+                ", timeRange=" + timeRange +
+                ", fullyClosed=" + fullyClosed +
+                ", diversionsAroundClosure=" + HasId.asIds(diversionsAroundClosure) +
+                ", diversionsToFromClosure=" + HasId.asIds(diversionsToFromClosure) +
+                '}';
     }
 }

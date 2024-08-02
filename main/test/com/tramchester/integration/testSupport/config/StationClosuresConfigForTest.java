@@ -1,12 +1,11 @@
 package com.tramchester.integration.testSupport.config;
 
-import com.tramchester.config.StationClosuresConfig;
 import com.tramchester.domain.StationClosures;
 import com.tramchester.domain.dates.DateRange;
-import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TimeRange;
+import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.TramStations;
 
 import java.util.Objects;
@@ -17,11 +16,12 @@ public class StationClosuresConfigForTest implements StationClosures {
     private final TramStations station;
     private final DateRange dateRange;
     private final boolean fullyClosed;
-    private final Set<String> diversionsAround;
-    private final Set<String> diversionsToFrom;
+    private final Set<TramStations> diversionsAround;
+    private final Set<TramStations> diversionsToFrom;
     private final TimeRange timeRange;
 
-    public StationClosuresConfigForTest(TramStations station, DateRange dateRange, boolean fullyClosed, Set<String> diversionsAround, Set<String> diversionsToFrom) {
+    public StationClosuresConfigForTest(TramStations station, DateRange dateRange, boolean fullyClosed,
+                                        Set<TramStations> diversionsAround, Set<TramStations> diversionsToFrom) {
         this.station = station;
         this.dateRange = dateRange;
         this.fullyClosed = fullyClosed;
@@ -66,7 +66,7 @@ public class StationClosuresConfigForTest implements StationClosures {
 
     @Override
     public IdSet<Station> getDiversionsAroundClosure() {
-        return diversionsAround.stream().map(Station::createId).collect(IdSet.idCollector());
+        return diversionsAround.stream().map(FakeStation::getId).collect(IdSet.idCollector());
     }
 
     @Override
@@ -76,7 +76,7 @@ public class StationClosuresConfigForTest implements StationClosures {
 
     @Override
     public IdSet<Station> getDiversionsToFromClosure() {
-        return diversionsToFrom.stream().map(Station::createId).collect(IdSet.idCollector());
+        return diversionsToFrom.stream().map(FakeStation::getId).collect(IdSet.idCollector());
     }
 
     @Override

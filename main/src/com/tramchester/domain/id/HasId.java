@@ -29,6 +29,10 @@ public interface HasId<DOMAINTYPE extends CoreDomain> {
 
     @NotNull
     static <T> String collectionToIdStringList(final Collection<T> items, final GetsId<T> getsId) {
+        if (items==null) {
+            return "[null]";
+        }
+
         final StringBuilder ids = new StringBuilder();
         ids.append("[");
         items.forEach(item -> ids.append(" '").append(getsId.asString(item)).append("'"));

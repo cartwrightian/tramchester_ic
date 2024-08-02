@@ -90,7 +90,7 @@ public class TimeRange {
     }
 
 
-    public boolean anyOverlap(TimeRange other) {
+    public boolean anyOverlap(final TimeRange other) {
         return contains(other.begin) || contains(other.end) || other.contains(begin) || other.contains(end);
     }
 

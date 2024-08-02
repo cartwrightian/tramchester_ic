@@ -20,6 +20,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
+import static com.tramchester.testSupport.reference.TramStations.*;
+
 public abstract class IntegrationTestConfig extends TestConfig {
 
     protected final NaptanRemoteDataSourceTestConfig remoteNaptanXMLConfig;
@@ -37,13 +39,9 @@ public abstract class IntegrationTestConfig extends TestConfig {
         final DateRange dateRange = new DateRange(begin, end);
 
         shudehillClosed = new StationClosuresConfigForTest(TramStations.Shudehill,
-                dateRange, true, Collections.emptySet(), new HashSet<>(Arrays.asList("9400ZZMAVIC", "9400ZZMAEXS")));
+                dateRange, true, Collections.emptySet(), new HashSet<>(Arrays.asList(Victoria, ExchangeSquare)));
         marketStreetClosed = new StationClosuresConfigForTest(TramStations.MarketStreet,
-                dateRange, true, Collections.emptySet(), new HashSet<>(Arrays.asList("9400ZZMAPGD", "9400ZZMASTP")));
-//        shudehillClosed = new StationClosuresConfig(Collections.singleton("9400ZZMASHU"),
-//                dateRangeConfig, null, true, Collections.emptySet(), new HashSet<>(Arrays.asList("9400ZZMAVIC", "9400ZZMAEXS")));
-//        marketStreetClosed = new StationClosuresConfig(Collections.singleton("9400ZZMAMKT"),
-//                dateRangeConfig, null, true, Collections.emptySet(), new HashSet<>(Arrays.asList("9400ZZMAPGD", "9400ZZMASTP")));
+                dateRange, true, Collections.emptySet(), new HashSet<>(Arrays.asList(PiccadillyGardens, StPetersSquare)));
     }
 
 //    static {

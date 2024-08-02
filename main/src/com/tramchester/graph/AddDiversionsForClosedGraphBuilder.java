@@ -3,7 +3,7 @@ package com.tramchester.graph;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.ClosedStation;
+import com.tramchester.domain.closures.ClosedStation;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
@@ -262,12 +262,6 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
 
         final Set<Station> stationsToLink = closure.getDiversionAroundClosure();
 
-//        final Set<Pair<Station, Station>> toLinkViaDiversion = nearbyStations.stream().
-//                flatMap(nearbyA -> nearbyStations.stream().map(nearbyB -> Pair.of(nearbyA, nearbyB))).
-//                filter(pair -> !pair.getLeft().equals(pair.getRight())).
-//                filter(pair -> range.within(geography.getDistanceBetweenInMeters(pair.getLeft(), pair.getRight()))).
-//                collect(Collectors.toSet());
-
         final Set<Pair<Station, Station>> toLinkViaDiversion = stationsToLink.stream().
             flatMap(nearbyA -> stationsToLink.stream().map(nearbyB -> Pair.of(nearbyA, nearbyB))).
             filter(pair -> !pair.getLeft().equals(pair.getRight())).
@@ -312,6 +306,7 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
         return toLinkViaDiversion.size();
     }
 
+    // TODO Move this into ClosedStationRepository
     private void guardNotOverlappingExisting(Stream<ImmutableGraphRelationship> alreadyPresent, ClosedStation closure) {
         alreadyPresent.forEach(relationship -> {
             if (relationship.getDateRange().overlapsWith(closure.getDateRange())) {
