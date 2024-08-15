@@ -25,6 +25,6 @@ public class TimeRangeConfig {
     }
 
     public TimeRange getRange() {
-        return TimeRangePartial.of(begin, end);
+        return TimeRange.of(begin, end);
     }
 }

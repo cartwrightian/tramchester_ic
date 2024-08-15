@@ -71,16 +71,15 @@ class StationGeographyResourceTest {
 
         List<StationToStationConnectionDTO> results = response.readEntity(new GenericType<>() {});
 
-        // summer closures 2024 202->199
-        assertEquals(199, results.size(), "count incorrect " + results.size());
+        assertEquals(205, results.size(), "count incorrect " + results.size());
 
         StationToStationConnection.LinkType linkType = StationToStationConnection.LinkType.Linked;
 
         assertTrue(results.contains(createLink(StPetersSquare, PiccadillyGardens, linkType)));
 
         // summer closures 2024 202->195
-//        assertTrue(results.contains(createLink(StPetersSquare, MarketStreet, linkType)));
-//        assertTrue(results.contains(createLink(MarketStreet, StPetersSquare, linkType)));
+        assertTrue(results.contains(createLink(StPetersSquare, MarketStreet, linkType)));
+        assertTrue(results.contains(createLink(MarketStreet, StPetersSquare, linkType)));
 
         assertTrue(results.contains(createLink(StPetersSquare, Deansgate, linkType)));
 

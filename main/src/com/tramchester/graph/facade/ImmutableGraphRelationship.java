@@ -3,6 +3,7 @@ package com.tramchester.graph.facade;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.dates.DateRange;
+import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
@@ -11,6 +12,7 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.TransportRelationshipTypes;
@@ -198,6 +200,26 @@ public class ImmutableGraphRelationship implements GraphRelationship {
     @Override
     public DateRange getDateRange() {
         return underlying.getDateRange();
+    }
+
+    @Override
+    public TimeRange getTimeRange() {
+        return underlying.getTimeRange();
+    }
+
+    @Override
+    public DateTimeRange getDateTimeRange() {
+        return underlying.getDateTimeRange();
+    }
+
+    @Override
+    public TramTime getStartTime() {
+        return underlying.getStartTime();
+    }
+
+    @Override
+    public TramTime getEndTime() {
+        return underlying.getEndTime();
     }
 
     @Override

@@ -5,8 +5,10 @@ import com.tramchester.domain.LocationCollection;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
+import com.tramchester.domain.closures.ClosedStation;
+import com.tramchester.domain.dates.DateRange;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
@@ -27,6 +29,7 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
@@ -44,7 +47,12 @@ public class JourneyConstraintsTest extends EasyMockSupport {
     void beforeEachTestRuns() {
         config = new TestConfigWithTramMode();
 
-        IdSet<Station> closedStations = IdSet.singleton(TramStations.Cornbrook.getId());
+        TramDate when = TestEnv.testDay();
+        DateRange dateRange = DateRange.of(when.plusWeeks(1), when.plusWeeks(2));
+        TimeRange timeRange = TimeRange.AllDay();
+
+        ClosedStation closedStation = new ClosedStation(TramStations.Shudehill.fake(), dateRange, timeRange, true, Collections.emptySet(), Collections.emptySet());
+        Set<ClosedStation> closedStations = Collections.singleton(closedStation);
 
         lowestCostForDest = createMock(LowestCostsForDestRoutes.class);
         filterForDate = createMock(RunningRoutesAndServices.FilterForDate.class);
@@ -85,7 +93,7 @@ public class JourneyConstraintsTest extends EasyMockSupport {
         TimeRange timeRange = TimeRangePartial.of(TramTime.of(16, 0), TramTime.nextDay(1, 5));
 
         JourneyConstraints constraints = new JourneyConstraints(config, filterForDate,
-                new IdSet<>(), LocationSet.singleton(TramStations.Bury.fake()), lowestCostForDest, maxJourneyDuration,
+                Collections.emptySet(), LocationSet.singleton(TramStations.Bury.fake()), lowestCostForDest, maxJourneyDuration,
                 timeRange);
 
         assertTrue(constraints.destinationsAvailable(TramTime.of(16,15)));
@@ -160,7 +168,7 @@ public class JourneyConstraintsTest extends EasyMockSupport {
     @Test
     void shouldCheckIfClosedStation() {
         Station stationA = TramStations.Anchorage.fake();
-        Station stationB = TramStations.Cornbrook.fake();
+        Station stationB = TramStations.Shudehill.fake();
 
         replayAll();
         assertFalse(journeyConstraints.isClosed(stationA));

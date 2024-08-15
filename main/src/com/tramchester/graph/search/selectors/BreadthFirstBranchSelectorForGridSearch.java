@@ -6,6 +6,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.geo.StationsBoxSimpleGrid;
 import com.tramchester.graph.search.ImmutableJourneyState;
 import com.tramchester.graph.search.JourneyState;
+import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.PathExpander;
 import org.neo4j.graphdb.traversal.BranchSelector;
 import org.neo4j.graphdb.traversal.TraversalBranch;
@@ -45,7 +46,7 @@ public class BreadthFirstBranchSelectorForGridSearch implements BranchSelector {
         private final Map<IdFor<Station>, StationsBoxSimpleGrid> stationToBox;
         private final StationsBoxSimpleGrid destination;
 
-        public TraversalBranchQueue(StationsBoxSimpleGrid destination, final List<StationsBoxSimpleGrid> startingBoxes) {
+        public TraversalBranchQueue(final StationsBoxSimpleGrid destination, final List<StationsBoxSimpleGrid> startingBoxes) {
             this.destination = destination;
             theQueue = new PriorityQueue<>(new BranchComparator());
             stationToBox = new HashMap<>();
@@ -68,18 +69,15 @@ public class BreadthFirstBranchSelectorForGridSearch implements BranchSelector {
                 final ImmutableJourneyState journeyStateA = (JourneyState) branchA.state();
                 final ImmutableJourneyState journeyStateB = (JourneyState) branchB.state();
 
-//                final ImmutableTraversalState traversalStateA = journeyStateA.getTraversalState();
-//                final ImmutableTraversalState traversalStateB = journeyStateB.getTraversalState();
-
                 // only worth comparing on distance if not the same node
                 if (!journeyStateA.getNodeId().equals(journeyStateB.getNodeId())) {
                     if(journeyStateA.hasBegunJourney() && journeyStateB.hasBegunJourney()) {
                         final IdFor<? extends Location<?>> approxPositionA = journeyStateA.approxPosition();
                         final IdFor<? extends Location<?>> approxPositionB = journeyStateB.approxPosition();
 
-                        if (approxPositionA.getDomainType()== Station.class && approxPositionB.getDomainType()== Station.class) {
-                            final StationsBoxSimpleGrid boxA = stationToBox.get(approxPositionA);
-                            final StationsBoxSimpleGrid boxB = stationToBox.get(approxPositionB);
+                        if (approxPositionA.getDomainType()==Station.class && approxPositionB.getDomainType()==Station.class) {
+                            final StationsBoxSimpleGrid boxA = getBoxForPosition(approxPositionA);
+                            final StationsBoxSimpleGrid boxB = getBoxForPosition(approxPositionB);
 
                             return Integer.compare(distance(boxA), distance(boxB));
                         }
@@ -89,9 +87,17 @@ public class BreadthFirstBranchSelectorForGridSearch implements BranchSelector {
                 return journeyStateA.getJourneyClock().compareTo(journeyStateB.getJourneyClock());
             }
 
-            private int distance(final StationsBoxSimpleGrid current) {
-                final int distX = Math.abs(current.getX() - destination.getX());
-                final int distY = Math.abs(current.getY() - destination.getY());
+            private @NotNull StationsBoxSimpleGrid getBoxForPosition(IdFor<? extends Location<?>> approxPositionA) {
+                final StationsBoxSimpleGrid box = stationToBox.get(approxPositionA);
+                if (box==null) {
+                    throw new RuntimeException("Cannot find box for " + approxPositionA);
+                }
+                return box;
+            }
+
+            private int distance(final StationsBoxSimpleGrid grid) {
+                final int distX = Math.abs(grid.getX() - destination.getX());
+                final int distY = Math.abs(grid.getY() - destination.getY());
                 return (distX*distX) + (distY*distY);
             }
 

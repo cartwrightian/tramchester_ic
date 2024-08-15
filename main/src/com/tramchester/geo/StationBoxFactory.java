@@ -12,6 +12,7 @@ import javax.annotation.PostConstruct;
 import jakarta.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @LazySingleton
 public class StationBoxFactory {
@@ -48,15 +49,18 @@ public class StationBoxFactory {
             int northing = bounds.getMinNorthings();
             for (int y = 0; y < maxY; y++) {
                 final BoundingBox box = new BoundingBox(eastings, northing, eastings+gridSizeInMeters, northing+gridSizeInMeters);
-                final LocationSet<Station> stations = stationLocations.getStationsWithin(box);
-                if (!stations.isEmpty()) {
-                    if (anyOpen(stations, date)) {
-                        final StationsBoxSimpleGrid stationBox = new StationsBoxSimpleGrid(x, y, box, stations);
-                        results.add(stationBox);
-                    } else {
-                        logger.info("Excluding " + box + " since no contained stations are open " + stations);
-                    }
+                final LocationSet<Station> openStations = stationLocations.getStationsWithin(box).
+                        stream().
+                        // excluding causes issues where diversions are in place for closed stations
+//                        filter(station -> !closedStationsRepository.isClosed(station, date)).
+                        collect(LocationSet.stationCollector());
+                if (!openStations.isEmpty()) {
+                    final StationsBoxSimpleGrid stationBox = new StationsBoxSimpleGrid(x, y, box, openStations);
+                    results.add(stationBox);
+                } else {
+                    logger.info("Excluding " + box + " since no contained stations are open ");
                 }
+
                 northing = northing + gridSizeInMeters;
             }
             eastings = eastings + gridSizeInMeters;

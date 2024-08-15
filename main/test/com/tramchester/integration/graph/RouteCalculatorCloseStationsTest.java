@@ -18,6 +18,7 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramClosedStation
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.Landslide2024TestCategory;
+import com.tramchester.testSupport.testTags.ShudehillMarketStreetClosedTestCategory;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
@@ -86,11 +87,13 @@ class RouteCalculatorCloseStationsTest {
         assertFalse(result.isEmpty());
     }
 
+    @ShudehillMarketStreetClosedTestCategory
     @Test
     void shouldHandlePartialClosure() {
+        // appears to be an issue with data more than 1 week out with missing routes for ExchangeSquare and other stations...
         JourneyRequest journeyRequest = new JourneyRequest(begin.plusDays(1), TramTime.of(8,0), false,
                 3, Duration.ofMinutes(120), 1, getRequestedModes());
-        List<Journey> result = calculator.calculateRouteAsList(Piccadilly, StPetersSquare, journeyRequest);
+        List<Journey> result = calculator.calculateRouteAsList(ExchangeSquare, StPetersSquare, journeyRequest);
         assertFalse(result.isEmpty(), "no journey for " + journeyRequest);
     }
 

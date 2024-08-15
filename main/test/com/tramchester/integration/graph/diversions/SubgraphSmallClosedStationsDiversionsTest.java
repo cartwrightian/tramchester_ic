@@ -6,6 +6,7 @@ import com.tramchester.DiagramCreator;
 import com.tramchester.domain.*;
 import com.tramchester.domain.closures.ClosedStation;
 import com.tramchester.domain.dates.DateRange;
+import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Location;
@@ -191,10 +192,12 @@ class SubgraphSmallClosedStationsDiversionsTest {
     }
 
     private void hasDateRange(Station station, DateRange expected, StationsWithDiversionRepository repository) {
-        final Set<DateRange> dateRanges = repository.getDateRangesFor(station);
-        // can have overlap with station walks
-        //assertEquals(1, dateRanges.size());
+        final Set<DateTimeRange> ranges = repository.getDateTimeRangesFor(station);
+
+        Set<DateRange> dateRanges = ranges.stream().map(DateTimeRange::getDateRange).collect(Collectors.toSet());
         assertTrue(dateRanges.contains(expected));
+
+        ranges.forEach(range -> assertTrue(range.getTimeRange().allDay(), "Expected all day time range for " + range));
     }
 
 
@@ -220,7 +223,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
 
         Station piccGardens = PiccadillyGardens.from(stationRepository);
         assertTrue(closedStationsRepository.isClosed(piccGardens, date));
-        ClosedStation closed = closedStationsRepository.getClosedStation(piccGardens, date);
+        ClosedStation closed = closedStationsRepository.getClosedStation(piccGardens, date, TimeRange.AllDay());
 
         Set<Station> nearby = closed.getDiversionAroundClosure();
         assertEquals(7, nearby.size(), HasId.asIds(nearby));

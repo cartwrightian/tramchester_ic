@@ -89,7 +89,7 @@ public class TramPositionInference {
         TramDate date = TramDate.from(now);
 
         TramTime cutOff = currentTime.plus(costBetweenPair);
-        TimeRange timeRange = TimeRangePartial.of(currentTime, cutOff);
+        TimeRange timeRange = TimeRange.of(currentTime, cutOff);
 
         Set<UpcomingDeparture> dueTrams = getDueTrams(pair, date, timeRange);
 

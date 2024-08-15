@@ -179,8 +179,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         final Duration maxJourneyDuration = journeyRequest.getMaxJourneyDuration();
 
-        final IdSet<Station> closedStations = closedStationsRepository.getFullyClosedStationsFor(tramDate).stream().
-                map(ClosedStation::getStationId).collect(IdSet.idCollector());
+        final Set<ClosedStation> closedStations = closedStationsRepository.getAnyWithClosure(tramDate);
 
         final TimeRange destinationsAvailable = super.getDestinationsAvailable(destinations, tramDate);
 
@@ -236,8 +235,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         final Duration maxJourneyDuration = journeyRequest.getMaxJourneyDuration();
 
-        final IdSet<Station> closedStations = closedStationsRepository.getFullyClosedStationsFor(tramDate).stream().
-                map(ClosedStation::getStationId).collect(IdSet.idCollector());
+        final Set<ClosedStation> closedStations = closedStationsRepository.getAnyWithClosure(tramDate);
 
         final TimeRange destinationsAvailable = super.getDestinationsAvailable(destinations, tramDate);
         final JourneyConstraints journeyConstraints = new JourneyConstraints(config, runningRoutesAndServices.getFor(tramDate),

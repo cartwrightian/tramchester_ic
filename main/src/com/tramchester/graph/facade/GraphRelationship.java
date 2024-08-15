@@ -3,6 +3,7 @@ package com.tramchester.graph.facade;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.dates.DateRange;
+import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
@@ -11,6 +12,7 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.TransportRelationshipTypes;
@@ -37,7 +39,6 @@ public interface GraphRelationship {
 
     GraphNodeId getEndNodeId(GraphTransaction txn);
 
-
     EnumSet<TransportMode> getTransportModes() ;
 
     TransportRelationshipTypes getType();
@@ -60,7 +61,6 @@ public interface GraphRelationship {
 
     IdFor<Station> getStationId();
 
-
     boolean hasProperty(GraphPropertyKey graphPropertyKey);
 
     int getStopSeqNumber();
@@ -77,4 +77,11 @@ public interface GraphRelationship {
 
     DateRange getDateRange();
 
+    TimeRange getTimeRange();
+
+    DateTimeRange getDateTimeRange();
+
+    TramTime getStartTime();
+
+    TramTime getEndTime();
 }

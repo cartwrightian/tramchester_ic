@@ -7,6 +7,7 @@ import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.dates.DateRange;
+import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.StopCalls;
@@ -461,8 +462,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         boardingDepartNodeCache.putDepart(boardingNode.getId(), routeStationNode.getId());
 
         if (departType.equals(DIVERSION_DEPART)) {
-            final Set<DateRange> ranges = stationsWithDiversionRepository.getDateRangesFor(station);
-            ranges.forEach(departRelationship::setDateRange);
+            final Set<DateTimeRange> ranges = stationsWithDiversionRepository.getDateTimeRangesFor(station);
+            ranges.forEach(departRelationship::setDateTimeRange);
         }
     }
 

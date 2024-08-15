@@ -11,6 +11,7 @@ import com.tramchester.geo.StationBoxFactory;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.geo.StationsBoxSimpleGrid;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
+import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
@@ -22,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -31,6 +33,7 @@ public class StationBoxFactoryTest {
     private StationLocations stationLocations;
     private TramDate when;
     private StationRepository stationRepository;
+    private ClosedStationsRepository closedStationRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -49,6 +52,7 @@ public class StationBoxFactoryTest {
         stationBoxFactory = componentContainer.get(StationBoxFactory.class);
         stationLocations = componentContainer.get(StationLocations.class);
         stationRepository = componentContainer.get(StationRepository.class);
+        closedStationRepository = componentContainer.get(ClosedStationsRepository.class);
         when = TestEnv.testDay();
     }
 
@@ -72,9 +76,11 @@ public class StationBoxFactoryTest {
 
         final List<StationsBoxSimpleGrid> grouped = stationBoxFactory.getStationBoxes(gridSize, when);
 
-        Set<Station> allStations = stationRepository.getStationsServing(TransportMode.Tram);
+        Set<Station> allStations = stationRepository.getStationsServing(TransportMode.Tram).
+                stream().filter(station -> !closedStationRepository.isClosed(station, when)).
+                collect(Collectors.toSet());
 
-        for (Station station: allStations) {
+        for (Station station : allStations) {
             Optional<StationsBoxSimpleGrid> findDestBox = grouped.stream().filter(box -> box.getStations().contains(station)).findFirst();
             assertTrue(findDestBox.isPresent(), "could not find a box containing " + station.getId());
         }

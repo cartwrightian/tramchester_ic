@@ -24,13 +24,6 @@ public class HaveGraphProperties {
         entity.setProperty(domainItem.getProp().getText(), domainItem.getId().getGraphId());
     }
 
-    protected void setTime(final TramTime tramTime, final Entity entity) {
-        entity.setProperty(TIME.getText(), tramTime.asLocalTime());
-        if (tramTime.isNextDay()) {
-            entity.setProperty(DAY_OFFSET.getText(), tramTime.isNextDay());
-        }
-    }
-
     protected <C extends CoreDomain> IdFor<C> getIdFor(final Class<C> klass, final Entity entity) {
         final GraphPropertyKey key = GraphPropertyKey.getFor(klass);
 
@@ -59,6 +52,12 @@ public class HaveGraphProperties {
         return entity.getAllProperties();
     }
 
+    protected void setTime(final TramTime tramTime, final Entity entity) {
+        entity.setProperty(TIME.getText(), tramTime.asLocalTime());
+        if (tramTime.isNextDay()) {
+            entity.setProperty(DAY_OFFSET.getText(), tramTime.isNextDay());
+        }
+    }
 
     protected TramTime getTime(final Entity entity) {
         LocalTime localTime = (LocalTime) entity.getProperty(TIME.getText());
@@ -73,9 +72,5 @@ public class HaveGraphProperties {
     protected Object getProperty(final GraphPropertyKey graphPropertyKey, final Entity entity) {
         return entity.getProperty(graphPropertyKey.getText());
     }
-
-//    protected boolean hasProperty(GraphPropertyKey graphPropertyKey, Entity entity) {
-//        return entity.hasProperty(graphPropertyKey.getText());
-//    }
 
 }

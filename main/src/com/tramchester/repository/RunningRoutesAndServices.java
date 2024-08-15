@@ -178,7 +178,7 @@ public class RunningRoutesAndServices {
             final TramTime finishTime = service.getFinishTime();
             final TramTime startTime = service.getStartTime();
 
-            final TimeRange withinService = TimeRangePartial.of(startTime, finishTime);
+            final TimeRange withinService = TimeRange.of(startTime, finishTime);
             if (withinService.contains(time)) {
                 return true;
             }

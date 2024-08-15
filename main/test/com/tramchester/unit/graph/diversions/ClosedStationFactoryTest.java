@@ -1,11 +1,11 @@
 package com.tramchester.unit.graph.diversions;
 
 import com.tramchester.config.AppConfiguration;
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.StationClosures;
 import com.tramchester.domain.closures.ClosedStation;
 import com.tramchester.domain.closures.ClosedStationFactory;
 import com.tramchester.domain.dates.DateRange;
+import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
@@ -15,7 +15,6 @@ import com.tramchester.integration.testSupport.config.StationClosuresConfigForTe
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
-import org.checkerframework.checker.units.qual.C;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,7 +24,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -66,9 +64,12 @@ public class ClosedStationFactoryTest extends EasyMockSupport {
         ClosedStation created = closedStationFactory.createClosedStation(closures, Bury.getId(), include);
         verifyAll();
 
+        DateTimeRange expected = DateTimeRange.of(dateRange, TimeRange.AllDay());
+
+
         assertEquals(Bury.getId(), created.getStationId());
-        assertEquals(dateRange, created.getDateRange());
-        assertTrue(created.getTimeRange().allDay());
+        assertEquals(expected, created.getDateTimeRange());
+        assertTrue(created.closedWholeDay());
 
         assertEquals(nearby, created.getDiversionAroundClosure());
         assertEquals(nearby, created.getDiversionToFromClosure());
@@ -95,8 +96,9 @@ public class ClosedStationFactoryTest extends EasyMockSupport {
         ClosedStation created = closedStationFactory.createClosedStation(closures, Bury.getId(), include);
         verifyAll();
 
-        assertEquals(dateRange, created.getDateRange());
-        assertEquals(timeRange, created.getTimeRange());
+        DateTimeRange expected = DateTimeRange.of(dateRange, timeRange);
+        assertEquals(expected, created.getDateTimeRange());
+
     }
 
     @Test
@@ -104,12 +106,7 @@ public class ClosedStationFactoryTest extends EasyMockSupport {
         DateRange dateRange = DateRange.of(TestEnv.testDay(), TestEnv.testDay().plusWeeks(1));
         StationClosures closures = new StationClosuresConfigForTest(Bury, dateRange, true);
 
-        ClosedStationFactory.ShouldIncludeStationInDiversions include = new ClosedStationFactory.ShouldIncludeStationInDiversions() {
-            @Override
-            public boolean include(Station diversionStation) {
-                return diversionStation.getId().equals(StPetersSquare.getId());
-            }
-        };
+        ClosedStationFactory.ShouldIncludeStationInDiversions include = diversionStation -> diversionStation.getId().equals(StPetersSquare.getId());
 
         EasyMock.expect(stationRepository.getStationById(Bury.getId())).andReturn(Bury.fake());
 
@@ -121,8 +118,10 @@ public class ClosedStationFactoryTest extends EasyMockSupport {
         ClosedStation created = closedStationFactory.createClosedStation(closures, Bury.getId(), include);
         verifyAll();
 
+        DateTimeRange expected = DateTimeRange.of(dateRange, TimeRange.AllDay());
+
         assertEquals(Bury.getId(), created.getStationId());
-        assertEquals(dateRange, created.getDateRange());
+        assertEquals(expected, created.getDateTimeRange());
 
         assertEquals(Collections.singleton(StPetersSquare.fake()), created.getDiversionAroundClosure());
         assertEquals(Collections.singleton(StPetersSquare.fake()), created.getDiversionToFromClosure());
@@ -150,7 +149,10 @@ public class ClosedStationFactoryTest extends EasyMockSupport {
         verifyAll();
 
         assertEquals(Bury.getId(), created.getStationId());
-        assertEquals(dateRange, created.getDateRange());
+
+        DateTimeRange expected = DateTimeRange.of(dateRange, TimeRange.AllDay());
+
+        assertEquals(expected, created.getDateTimeRange());
 
         assertEquals(Collections.singleton(NavigationRoad.fake()), created.getDiversionAroundClosure());
         assertEquals(Collections.singleton(ManAirport.fake()), created.getDiversionToFromClosure());

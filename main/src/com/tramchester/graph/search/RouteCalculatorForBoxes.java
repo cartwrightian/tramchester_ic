@@ -194,8 +194,8 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         final TimeRange destinationsAvailable = getDestinationsAvailable(destinations, date);
         final LowestCostsForDestRoutes lowestCostForDestinations = routeToRouteCosts.getLowestCostCalculatorFor(destinations, journeyRequest);
         final RunningRoutesAndServices.FilterForDate routeAndServicesFilter = runningRoutesAndService.getFor(date);
-        final IdSet<Station> closedStations = closedStationsRepository.getFullyClosedStationsFor(date).stream().
-                map(ClosedStation::getStationId).collect(IdSet.idCollector());
+
+        final Set<ClosedStation> closedStations = closedStationsRepository.getAnyWithClosure(date);
 
         return new JourneyConstraints(config, routeAndServicesFilter, closedStations,
                 destinations, lowestCostForDestinations, journeyRequest.getMaxJourneyDuration(), destinationsAvailable);

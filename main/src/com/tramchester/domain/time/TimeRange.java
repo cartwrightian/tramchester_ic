@@ -19,6 +19,10 @@ public interface TimeRange {
         return new TimeRangeAllDay();
     }
 
+    static TimeRange of(TramTime start, TramTime end) {
+        return TimeRangePartial.of(start, end);
+    }
+
     static TimeRange coveringAllOf(Set<TimeRange> ranges) {
         if (ranges.isEmpty()) {
             throw new RuntimeException("No time ranges supplied");
@@ -44,4 +48,6 @@ public interface TimeRange {
     void updateToInclude(TramTime callingTime);
 
     boolean contains(TramTime tramTime);
+
+    boolean fullyContains(TimeRange other);
 }

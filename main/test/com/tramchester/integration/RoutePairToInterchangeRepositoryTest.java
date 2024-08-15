@@ -5,10 +5,12 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.RoutePair;
+import com.tramchester.domain.StationPair;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.CentralZoneStation;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.search.routes.RoutePairToInterchangeRepository;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
@@ -24,6 +26,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.EnumSet;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.CentralZoneStation.*;
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
@@ -101,18 +105,17 @@ public class RoutePairToInterchangeRepositoryTest {
 
         IdSet<Station> stationIds = interchanges.stream().map(InterchangeStation::getStation).collect(IdSet.collector());
 
+        IdSet<Station> expected = Stream.of(StPetersSquare, Deansgate, Cornbrook, TraffordBar, Victoria, MarketStreet, Shudehill).
+                map(CentralZoneStation::getId).
+                collect(IdSet.idCollector());
+
         // summer 2024 closures 6->5
-        assertEquals(5, stationIds.size(), stationIds.toString());
-        assertTrue(stationIds.contains(StPetersSquare.getId()), stationIds.toString());
-        assertTrue(stationIds.contains(Deansgate.getId()), stationIds.toString());
-        assertTrue(stationIds.contains(Cornbrook.getId()), stationIds.toString());
-        assertTrue(stationIds.contains(TraffordBar.getId()), stationIds.toString());
+        assertEquals(7, stationIds.size(), stationIds.toString());
 
-        assertTrue(stationIds.contains(Victoria.getId()), stationIds.toString());
+        IdSet<Station> diff = IdSet.disjunction(expected, stationIds);
 
-        // Summer 2024 closure
-        // some ashton to eccles trams seem to call at market street, maybe to/from depot??
-        assertFalse(stationIds.contains(MarketStreet.getId()), stationIds.toString());
+        assertEquals(IdSet.emptySet(), diff, "mismatch between expected " + expected + " and " + stationIds);
+
     }
 
 

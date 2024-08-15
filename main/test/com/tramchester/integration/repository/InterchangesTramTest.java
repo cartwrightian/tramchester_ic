@@ -86,9 +86,7 @@ public class InterchangesTramTest {
         List<TramStations> tramStations = Arrays.asList(StWerburghsRoad, TraffordBar, Cornbrook, HarbourCity,
                 Pomona, Cornbrook, Deansgate, StPetersSquare,
                 Piccadilly, Victoria,
-
-                // summer 2024 closures
-                // MarketStreet,
+                MarketStreet, Shudehill,
                 PiccadillyGardens,
                 OldhamMumps,
 

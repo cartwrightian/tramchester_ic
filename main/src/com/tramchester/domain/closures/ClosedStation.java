@@ -1,19 +1,18 @@
 package com.tramchester.domain.closures;
 
 import com.tramchester.domain.dates.DateRange;
+import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TimeRange;
-import com.tramchester.domain.time.TimeRangePartial;
 
 import java.util.Objects;
 import java.util.Set;
 
 public class ClosedStation {
     private final Station station;
-    private final DateRange dateRange;
-    private final TimeRange timeRange;
+    private final DateTimeRange dateTimeRange;
     private final boolean fullyClosed;
     private final Set<Station> diversionsAroundClosure;
     private final Set<Station> diversionsToFromClosure;
@@ -26,8 +25,7 @@ public class ClosedStation {
     public ClosedStation(Station station, DateRange dateRange, TimeRange timeRange, boolean fullyClosed, Set<Station> diversionsAroundClosure,
                          Set<Station> diversionsToFromClosure) {
         this.station = station;
-        this.dateRange = dateRange;
-        this.timeRange = timeRange;
+        this.dateTimeRange = DateTimeRange.of(dateRange, timeRange);
         this.fullyClosed = fullyClosed;
         this.diversionsAroundClosure = diversionsAroundClosure;
         this.diversionsToFromClosure = diversionsToFromClosure;
@@ -39,10 +37,6 @@ public class ClosedStation {
 
     public IdFor<Station> getStationId() {
         return station.getId();
-    }
-
-    public DateRange getDateRange() {
-        return dateRange;
     }
 
     // TODO Is this still needed
@@ -64,28 +58,29 @@ public class ClosedStation {
         return diversionsToFromClosure;
     }
 
-    public TimeRange getTimeRange() {
-        return timeRange;
-    }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof ClosedStation that)) return false;
-        return isFullyClosed() == that.isFullyClosed() && Objects.equals(getStation(), that.getStation()) && Objects.equals(getDateRange(), that.getDateRange()) && Objects.equals(getTimeRange(), that.getTimeRange()) && Objects.equals(diversionsAroundClosure, that.diversionsAroundClosure) && Objects.equals(diversionsToFromClosure, that.diversionsToFromClosure);
+        return isFullyClosed() == that.isFullyClosed() && Objects.equals(getStation(), that.getStation()) && Objects.equals(getDateTimeRange(), that.getDateTimeRange())
+                && Objects.equals(diversionsAroundClosure, that.diversionsAroundClosure) && Objects.equals(diversionsToFromClosure, that.diversionsToFromClosure);
+    }
+
+    public DateTimeRange getDateTimeRange() {
+        return dateTimeRange;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getStation(), getDateRange(), getTimeRange(), isFullyClosed(), diversionsAroundClosure, diversionsToFromClosure);
+        return Objects.hash(getStation(), getDateTimeRange(), isFullyClosed(), diversionsAroundClosure, diversionsToFromClosure);
     }
 
     @Override
     public String toString() {
         return "ClosedStation{" +
                 "station=" + station.getId() +
-                ", dateRange=" + dateRange +
-                ", timeRange=" + timeRange +
+                ", dateTimeRange=" + dateTimeRange +
                 ", fullyClosed=" + fullyClosed +
                 ", diversionsAroundClosure=" + HasId.asIds(diversionsAroundClosure) +
                 ", diversionsToFromClosure=" + HasId.asIds(diversionsToFromClosure) +
@@ -93,9 +88,22 @@ public class ClosedStation {
     }
 
     public boolean overlaps(final ClosedStation other) {
-        if (!other.dateRange.overlapsWith(dateRange)) {
-            return false;
-        }
-        return other.timeRange.anyOverlap(timeRange);
+        return dateTimeRange.overlaps(other.dateTimeRange);
+    }
+
+    public boolean closedWholeDay() {
+        return dateTimeRange.allDay();
+    }
+
+    // TODO remove
+    @Deprecated
+    public DateRange getDateRange() {
+        return dateTimeRange.getDateRange();
+    }
+
+    // TODO remove
+    @Deprecated
+    public TimeRange getTimeRange() {
+        return dateTimeRange.getTimeRange();
     }
 }

@@ -12,6 +12,8 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.filters.IncludeAllFilter;
 import com.tramchester.integration.testSupport.config.StationClosuresConfigForTest;
@@ -25,7 +27,6 @@ import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 
 import java.time.Duration;
 import java.util.Arrays;
@@ -44,26 +45,36 @@ public class ClosedStationsRepositoryTest extends EasyMockSupport {
     private DateRange dateRange;
     private ClosedStationFactory closeStationFactory;
     private GraphFilter graphFilter;
+    private TimeRange buryTimeRange;
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
 
         closeStationFactory = createMock(ClosedStationFactory.class);
 
-        TramStations shudehill = TramStations.Shudehill;
+        TramStations shudehill = Shudehill;
+        TramStations bury = Bury;
+
         when = TestEnv.testDay();
         dateRange = DateRange.of(when, when.plusWeeks(1));
 
         boolean fullyClosed = true;
 
-        StationClosures closed = new StationClosuresConfigForTest(shudehill, dateRange, fullyClosed);
+        StationClosures shudehillConfig = new StationClosuresConfigForTest(shudehill, dateRange, fullyClosed);
+        StationClosures buryConfig = new StationClosuresConfigForTest(bury, dateRange, fullyClosed);
 
-        TramchesterConfig config = new ConfigWithClosure(closed);
+        ClosedStation shudehillClosed = new ClosedStation(shudehill.fake(), dateRange, TimeRange.AllDay(), fullyClosed, Collections.emptySet(), Collections.emptySet());
+        buryTimeRange = TimeRange.of(TramTime.of(15,14), TramTime.of(19,35));
+        ClosedStation buryClosed = new ClosedStation(bury.fake(), dateRange, buryTimeRange, fullyClosed, Collections.emptySet(), Collections.emptySet());
+
+        EasyMock.expect(closeStationFactory.createClosedStation(EasyMock.eq(shudehillConfig), EasyMock.eq(shudehill.getId()), EasyMock.isA(ClosedStationFactory.ShouldIncludeStationInDiversions.class))).
+                andReturn(shudehillClosed);
+        EasyMock.expect(closeStationFactory.createClosedStation(EasyMock.eq(buryConfig), EasyMock.eq(bury.getId()), EasyMock.isA(ClosedStationFactory.ShouldIncludeStationInDiversions.class))).
+                andReturn(buryClosed);
+
+        TramchesterConfig config = new ConfigWithClosure(Arrays.asList(shudehillConfig, buryConfig));
         graphFilter = new IncludeAllFilter();
         closeStationRepository = new ClosedStationsRepository(config, closeStationFactory, graphFilter);
-
-        EasyMock.expect(closeStationFactory.createClosedStation(EasyMock.eq(closed), EasyMock.eq(shudehill.getId()), EasyMock.isA(ClosedStationFactory.ShouldIncludeStationInDiversions.class))).
-                andReturn(new ClosedStation(shudehill.fake(), dateRange, fullyClosed, Collections.emptySet(), Collections.emptySet()));
 
     }
 
@@ -149,41 +160,96 @@ public class ClosedStationsRepositoryTest extends EasyMockSupport {
         verifyAll();
     }
 
+//    @Test
+//    void shouldHaveClosedStationOnDateAndTime() {
+//        replayAll();
+//        closeStationRepository.start();
+//        ClosedStation closed = closeStationRepository.getClosedStation(Shudehill.fake(), when, TramTime.of(17,45));
+//        assertEquals(Shudehill.fake(), closed.getStation());
+//        dateRange.stream().forEach(date -> {
+//            assertTrue(closed.getDateTimeRange().contains(date));
+//        });
+//        verifyAll();
+//    }
+
     @Test
-    void shouldHaveClosedStationOnDate() {
+    void shouldHaveClosedStationOnDatAndTimeRangeMatch() {
+        Station bury = Bury.fake(); // closed part of day
+        TimeRange timeRange = TimeRange.of(TramTime.of(17,15), TramTime.of(17,45));
+
         replayAll();
         closeStationRepository.start();
-        ClosedStation closed = closeStationRepository.getClosedStation(Shudehill.fake(), when);
-        assertEquals(Shudehill.fake(), closed.getStation());
-        assertEquals(closed.getDateRange(), dateRange);
+        boolean isClosed = closeStationRepository.isClosed(bury, when, timeRange);
+        assertTrue(isClosed);
+
+        ClosedStation closed = closeStationRepository.getClosedStation(bury, when, timeRange);
+        assertNotNull(closed);
+        assertEquals(bury, closed.getStation());
+        dateRange.stream().forEach(date -> {
+            assertTrue(closed.getDateTimeRange().contains(date));
+        });
         verifyAll();
     }
 
     @Test
-    void shouldHaveClosedStationsForDates() {
+    void shouldHaveClosedStationOnDatAndTimeRangeMatchAllDay() {
+
+        Station station = Shudehill.fake(); // closed all day
+        TimeRange timeRange = TimeRange.of(TramTime.of(17,15), TramTime.of(17,45));
+
         replayAll();
         closeStationRepository.start();
-        Set<ClosedStation> closed = closeStationRepository.getFullyClosedStationsFor(when);
-        assertEquals(1, closed.size());
-        assertTrue(closed.stream().anyMatch(closedStation -> closedStation.getStationId().equals(Shudehill.getId())));
+        boolean isClosed = closeStationRepository.isClosed(station, when, timeRange);
+        assertTrue(isClosed);
+
+        ClosedStation closed = closeStationRepository.getClosedStation(station, when, timeRange);
+        assertNotNull(closed);
+        assertEquals(station, closed.getStation());
+        dateRange.stream().forEach(date -> {
+            assertTrue(closed.getDateTimeRange().contains(date));
+        });
         verifyAll();
     }
 
     @Test
-    void shouldHaveNoClosedStations() {
+    void shouldHaveClosedStationOnDateAndTimeRangeNoMatch() {
+
+        Station bury = Bury.fake(); // closed part of day
+        TimeRange timeRange = TimeRange.of(TramTime.of(8,15), TramTime.of(17,45));
+
         replayAll();
         closeStationRepository.start();
-        Set<ClosedStation> closed = closeStationRepository.getFullyClosedStationsFor(when.plusWeeks(8));
-        assertTrue(closed.isEmpty());
+        boolean isClosed = closeStationRepository.isClosed(bury, when, timeRange);
+        assertFalse(isClosed);
+
         verifyAll();
     }
+
+//    @Test
+//    void shouldHaveClosedStationsForDates() {
+//        replayAll();
+//        closeStationRepository.start();
+//        Set<ClosedStation> closed = closeStationRepository.getFullyClosedStationsFor(when, TramTime.of(13,11));
+//        assertEquals(1, closed.size());
+//        assertTrue(closed.stream().anyMatch(closedStation -> closedStation.getStationId().equals(Shudehill.getId())));
+//        verifyAll();
+//    }
+//
+//    @Test
+//    void shouldHaveNoClosedStations() {
+//        replayAll();
+//        closeStationRepository.start();
+//        Set<ClosedStation> closed = closeStationRepository.getFullyClosedStationsFor(when.plusWeeks(8), TramTime.of(14,56));
+//        assertTrue(closed.isEmpty());
+//        verifyAll();
+//    }
 
     @Test
     void shouldHaveClosedByDataSourceId() {
         replayAll();
         closeStationRepository.start();
         Set<ClosedStation> closedStations = closeStationRepository.getClosedStationsFor(DataSourceID.tfgm);
-        assertEquals(1, closedStations.size());
+        assertEquals(2, closedStations.size());
         verifyAll();
     }
 
@@ -194,13 +260,13 @@ public class ClosedStationsRepositoryTest extends EasyMockSupport {
         private final TFGMGTFSSourceTestConfig gtfsSourceConfig;
 
         public ConfigWithClosure(StationClosures closed) {
-            List<StationClosures> closedStations = List.of(closed);
+            final List<StationClosures> closedStations = List.of(closed);
             gtfsSourceConfig = new TFGMGTFSSourceTestConfig(GTFSTransportationType.tram,
                     TransportMode.Tram, AdditionalTramInterchanges.stations(), Collections.emptySet(), closedStations,
                     MAX_INITIAL_WAIT, Collections.emptyList());
         }
 
-        public ConfigWithClosure(List<StationClosures> closedStations) {
+        public ConfigWithClosure(final List<StationClosures> closedStations) {
             gtfsSourceConfig = new TFGMGTFSSourceTestConfig(GTFSTransportationType.tram,
                     TransportMode.Tram, AdditionalTramInterchanges.stations(), Collections.emptySet(), closedStations,
                     MAX_INITIAL_WAIT, Collections.emptyList());

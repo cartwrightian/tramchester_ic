@@ -54,6 +54,11 @@ public class TimeRangeAllDay implements TimeRange {
     }
 
     @Override
+    public boolean fullyContains(TimeRange other) {
+        return true;
+    }
+
+    @Override
     public String toString() {
         return "TimeRangeAllDay{}";
     }

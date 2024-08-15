@@ -2,6 +2,8 @@ package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
+import com.tramchester.domain.closures.ClosedStation;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
@@ -14,6 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class JourneyConstraints {
 
@@ -33,16 +37,18 @@ public class JourneyConstraints {
     private final int maxPathLength;
     private final LocationCollection destinations;
     private final IdSet<Station> closedStationsIds;
+    private final Set<ClosedStation> closedStations;
     private final Duration maxJourneyDuration;
     private final int maxWalkingConnections;
     private final int maxNumberWalkingConnections;
     private final LowestCostsForDestRoutes lowestCostForDestinations;
 
     public JourneyConstraints(TramchesterConfig config, RunningRoutesAndServices.FilterForDate routesAndServicesFilter,
-                              IdSet<Station> closedStationsIds, LocationCollection destinations,
+                              Set<ClosedStation> closedStations, LocationCollection destinations,
                               LowestCostsForDestRoutes lowestCostForDestinations, Duration maxJourneyDuration,
                               TimeRange destinationsAvailable) {
         this.config = config;
+        this.closedStations = closedStations;
         this.lowestCostForDestinations = lowestCostForDestinations;
         this.routesAndServicesFilter = routesAndServicesFilter;
         this.destinationsAvailable = destinationsAvailable;
@@ -54,7 +60,7 @@ public class JourneyConstraints {
 
         this.maxNumberWalkingConnections = config.getMaxWalkingConnections();
 
-        this.closedStationsIds = closedStationsIds;
+        this.closedStationsIds = closedStations.stream().map(ClosedStation::getStationId).collect(IdSet.idCollector());
 
         if (!closedStationsIds.isEmpty()) {
             logger.info("Have closed stations " + closedStationsIds);
@@ -90,8 +96,14 @@ public class JourneyConstraints {
         return maxJourneyDuration;
     }
 
+    // TODO Only whole day for now
     public boolean isClosed(Station station) {
-        return closedStationsIds.contains(station.getId());
+        if (!closedStationsIds.contains(station.getId())) {
+            return false;
+        }
+        return closedStations.stream().
+                filter(closedStation -> closedStation.getStation().equals(station)).
+                allMatch(ClosedStation::closedWholeDay);
     }
 
     public int getMaxWalkingConnections() {

@@ -92,27 +92,27 @@ public class ClosedStationsRepositoryTest {
 
     @Test
     void shouldHaveExpectedClosedStationsForFirstPeriod() {
-        Set<ClosedStation> closed = closedStationsRepository.getFullyClosedStationsFor(when);
+        Set<ClosedStation> closed = closedStationsRepository.getAnyWithClosure(when);
         assertEquals(2, closed.size());
         IdSet<Station> ids = closed.stream().map(ClosedStation::getStation).collect(IdSet.collector());
         assertTrue(ids.contains(StPetersSquare.getId()));
         assertTrue(ids.contains(PiccadillyGardens.getId()));
 
-        Set<ClosedStation> closedLater = closedStationsRepository.getFullyClosedStationsFor(afterClosures);
+        Set<ClosedStation> closedLater = closedStationsRepository.getAnyWithClosure(afterClosures);
         assertTrue(closedLater.isEmpty());
     }
 
     @Test
     void shouldHaveExpectedClosedStationsForOverlap() {
-        Set<ClosedStation> fullyClosed = closedStationsRepository.getFullyClosedStationsFor(overlap);
-        assertEquals(2, fullyClosed.size());
+        Set<ClosedStation> fullyClosed = closedStationsRepository.getAnyWithClosure(overlap);
+        assertEquals(4, fullyClosed.size());
         IdSet<Station> ids = fullyClosed.stream().map(ClosedStation::getStation).collect(IdSet.collector());
         assertTrue(ids.contains(StPetersSquare.getId()));
     }
 
     @Test
     void shouldHaveNearbyStationsForClosed() {
-        List<ClosedStation> closedStations = new ArrayList<>(closedStationsRepository.getFullyClosedStationsFor(when.plusDays(1)));
+        List<ClosedStation> closedStations = new ArrayList<>(closedStationsRepository.getAnyWithClosure(when.plusDays(1)));
         assertEquals(2, closedStations.size());
 
         Optional<ClosedStation> maybeStPeters = closedStations.stream().

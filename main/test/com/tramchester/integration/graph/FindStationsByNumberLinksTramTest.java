@@ -73,7 +73,8 @@ class FindStationsByNumberLinksTramTest {
         IdSet<Station> found = finder.atLeastNLinkedStations(TransportMode.Tram, threshhold);
 
         List<IdFor<Station>> expectedList = Stream.of(StPetersSquare,
-//            MarketStreet, // summer 2024 closures
+            MarketStreet,
+            Shudehill,
             PiccadillyGardens,
                 OldhamMumps, // add for summer 2024 closures
             TraffordBar,

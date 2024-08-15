@@ -73,10 +73,7 @@ class FastestRoutesForBoxesTest {
                 map(Station::getName).
                 collect(Collectors.toSet());
 
-        // summer 2024 closures
-//        assertEquals(Collections.emptyList(), notInAGroupById);
-        Set<String> expectedMissing = Collections.singleton(TramStations.MarketStreet.getName());
-        assertEquals(expectedMissing, notInAGroupById);
+        assertTrue(notInAGroupById.isEmpty());
 
         List<String> notInAGroupByPosition = stationsRepo.getStations().stream().
                 filter(station -> !isPresentInByPos(grouped, station)).

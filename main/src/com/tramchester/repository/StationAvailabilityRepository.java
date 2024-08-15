@@ -187,7 +187,8 @@ public class StationAvailabilityRepository {
             return getPickupRoutesForGroup(stationGroup, date, timeRange, modes);
         }
         if (closedStationsRepository.isClosed(location, date)) {
-            final ClosedStation closedStation = closedStationsRepository.getClosedStation(location, date);
+            // include diversions around a close station
+            final ClosedStation closedStation = closedStationsRepository.getClosedStation(location, date, timeRange);
             return getPickupRoutesFor(closedStation, date, timeRange, modes);
         }
         if (!pickupsForLocation.containsKey(location)) {
@@ -207,8 +208,9 @@ public class StationAvailabilityRepository {
             final StationGroup stationGroup = (StationGroup) location;
             return getDropoffRoutesForGroup(stationGroup, date, timeRange, modes);
         }
-        if (closedStationsRepository.isClosed(location, date)) {
-            final ClosedStation closedStation = closedStationsRepository.getClosedStation(location, date);
+        if (closedStationsRepository.isClosed(location, date, timeRange)) {
+            final ClosedStation closedStation = closedStationsRepository.getClosedStation(location, date, timeRange);
+            // include diversions around closed station
             return getDropoffRoutesFor(closedStation, date,timeRange, modes);
         }
         if (!dropoffsForLocation.containsKey(location)) {
@@ -267,7 +269,7 @@ public class StationAvailabilityRepository {
         if (ranges.isEmpty()) {
             // likely down to closed station(s)
             logger.warn("Found no time range available for " + destinations + " (Closed stations?) Will use whole day");
-            return TimeRangePartial.of(TramTime.of(0,1), TramTime.of(23,59));
+            return TimeRange.of(TramTime.of(0,1), TramTime.of(23,59));
         } else {
             // now create timerange
             return TimeRange.coveringAllOf(ranges);

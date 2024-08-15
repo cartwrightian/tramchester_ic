@@ -52,12 +52,29 @@ public class TimeRangePartial implements TimeRange {
         return new TimeRangePartial(time);
     }
 
+    // TODO package private
     public static TimeRange of(TramTime first, TramTime second) {
         return new TimeRangePartial(first, second);
     }
 
     public boolean contains(TramTime time) {
         return time.between(begin, end);
+    }
+
+    @Override
+    public boolean fullyContains(final TimeRange other) {
+        if (other.allDay()) {
+            return false;
+        }
+        final TramTime otherBegin = other.getStart();
+        if (otherBegin.isBefore(begin) || otherBegin.isAfter(end)) {
+            return false;
+        }
+        TramTime otherEnd = other.getEnd();
+        if (otherEnd.isBefore(begin) || otherEnd.isAfter(end)) {
+            return false;
+        }
+        return true;
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.tramchester.graph;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.dates.DateRange;
+import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.places.Station;
 import com.tramchester.repository.StationsWithDiversionRepository;
 import jakarta.inject.Inject;
@@ -13,7 +14,7 @@ import java.util.Set;
 
 @LazySingleton
 public class StationsWithDiversion implements StationsWithDiversionRepository {
-    private final Map<Station, Set<DateRange>> diversions;
+    private final Map<Station, Set<DateTimeRange>> diversions;
 
     @Inject
     public StationsWithDiversion() {
@@ -26,30 +27,30 @@ public class StationsWithDiversion implements StationsWithDiversionRepository {
     }
 
     @Override
-    public Set<DateRange> getDateRangesFor(final Station station) {
+    public Set<DateTimeRange> getDateTimeRangesFor(Station station) {
         return diversions.get(station);
     }
 
-    public void add(final Station station, final DateRange dateRange) {
+    public void add(final Station station, final DateTimeRange dateTimeRange) {
         if (diversions.containsKey(station)) {
-            final Set<DateRange> currentRanges = diversions.get(station);
-            long overlaps = currentRanges.stream().filter(existing -> existing.overlapsWith(dateRange)).
-                    filter(existing -> !existing.equals(dateRange)).
+            final Set<DateTimeRange> currentRanges = diversions.get(station);
+            long overlaps = currentRanges.stream().filter(existing -> existing.overlaps(dateTimeRange)).
+                    filter(existing -> !existing.equals(dateTimeRange)).
                     count();
             if (overlaps>0) {
-                throw new RuntimeException("For Station " +station.getId()+ " found overlap between " + dateRange + " and existing " + currentRanges);
+                throw new RuntimeException("For Station " +station.getId()+ " found overlap between " + dateTimeRange + " and existing " + currentRanges);
             }
         } else {
             diversions.put(station, new HashSet<>());
         }
-        diversions.get(station).add(dateRange);
+        diversions.get(station).add(dateTimeRange);
     }
 
     public void close() {
         diversions.clear();
     }
 
-    public void add(final Station station, final Set<DateRange> ranges) {
+    public void set(final Station station, final Set<DateTimeRange> ranges) {
         diversions.put(station, new HashSet<>(ranges));
     }
 }

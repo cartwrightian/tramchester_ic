@@ -8,6 +8,7 @@ import com.tramchester.config.StationClosuresConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.StationClosures;
+import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
@@ -85,6 +86,8 @@ public class StationsWithDiversionsRepositoryTest {
         assertTrue(findSourceConfig.isPresent());
         List<StationClosures> allClosed = findSourceConfig.get().getStationClosures();
 
+        assertFalse(allClosed.isEmpty());
+
         List<StationClosures> findStationClosed = allClosed.stream().filter(closure -> closure.getStations().contains(stationWithClosureId)).toList();
         assertEquals(1, findStationClosed.size());
         StationClosures stationClosure = findStationClosed.get(0);
@@ -96,8 +99,10 @@ public class StationsWithDiversionsRepositoryTest {
         diversions.forEach(diversionStation ->
                 assertTrue(diversionRepository.hasDiversions(diversionStation), "missing for " + diversionStation.getId()));
 
+        DateTimeRange expectedRange = DateTimeRange.of(stationClosure.getDateRange(), stationClosure.getTimeRange());
+
         diversions.forEach(diversionStation ->
-                assertTrue(diversionRepository.getDateRangesFor(diversionStation).contains(stationClosure.getDateRange()),
+                assertTrue(diversionRepository.getDateTimeRangesFor(diversionStation).contains(expectedRange),
                         "wrong date rangee for " + diversionStation.getId()));
 
     }

@@ -130,8 +130,7 @@ class JourneyLocationsResourceTramTest {
         assertTrue(ids.contains(TramStations.StPetersSquare.getIdForDTO()));
         assertTrue(ids.contains(TramStations.ExchangeSquare.getIdForDTO()));
 
-        // summer 2024 closures
-        assertFalse(ids.contains(TramStations.MarketStreet.getIdForDTO()));
+        assertTrue(ids.contains(TramStations.MarketStreet.getIdForDTO()));
         assertTrue(ids.contains(TramStations.Shudehill.getIdForDTO()));
     }
 

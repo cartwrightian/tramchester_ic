@@ -195,4 +195,27 @@ public class TimeRangeTest {
             time = time.plusMinutes(1);
         }
     }
+
+    @Test
+    void shouldHaveCompletelyContained() {
+        TimeRange timeRangeA = TimeRangePartial.of(TramTime.of(8,30), TramTime.of(9,30));
+        TimeRange timeRangeB = TimeRangePartial.of(TramTime.of(8,45), TramTime.of(9, 15));
+        TimeRange timeRangeC = TimeRangePartial.of(TramTime.of(8,20), TramTime.of(9,15));
+        TimeRange timeRangeD = TimeRangePartial.of(TramTime.of(8,45), TramTime.of(9,35));
+        TimeRange timeRangeE = TimeRangePartial.of(TramTime.of(10,30), TramTime.of(11,30));
+
+        assertTrue(timeRangeA.fullyContains(timeRangeB));
+        assertFalse(timeRangeA.fullyContains(timeRangeC));
+        assertFalse(timeRangeA.fullyContains(timeRangeD));
+        assertFalse(timeRangeA.fullyContains(timeRangeE));
+    }
+
+    @Test
+    void shouldHaveCompletelyContainedAllDay() {
+        TimeRange allDay = TimeRange.AllDay();
+        TimeRange timeRangeA = TimeRangePartial.of(TramTime.of(8,30), TramTime.of(9,30));
+
+        assertTrue(allDay.fullyContains(timeRangeA));
+        assertFalse(timeRangeA.fullyContains(allDay));
+    }
 }

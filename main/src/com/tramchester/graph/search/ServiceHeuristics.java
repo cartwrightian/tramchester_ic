@@ -128,14 +128,14 @@ public class ServiceHeuristics {
 //            return reasons.recordReason(HeuristicsReasons.DestinationUnavailableAtTime(nodeTime, howIGotHere));
 //        }
 
-        final TimeRange travelTimes = TimeRangePartial.of(currentTime, currentTime.plusMinutes(maxWait));
+        final TimeRange travelTimes = TimeRange.of(currentTime, currentTime.plusMinutes(maxWait));
 
-        final TimeRange hourRangeToday = TimeRangePartial.of(TramTime.of(hourAtNode, 0), TramTime.of(hourAtNode, 59));
+        final TimeRange hourRangeToday = TimeRange.of(TramTime.of(hourAtNode, 0), TramTime.of(hourAtNode, 59));
         if (travelTimes.anyOverlap(hourRangeToday)) {
             return reasons.recordReason(HeuristicReasonsOK.HourOk(ReasonCode.HourOk, howIGotHere, currentTime, hourAtNode));
         }
 
-        final TimeRange hourRangeTomorrow = TimeRangePartial.of(TramTime.nextDay(hourAtNode, 0), TramTime.nextDay(hourAtNode, 59));
+        final TimeRange hourRangeTomorrow = TimeRange.of(TramTime.nextDay(hourAtNode, 0), TramTime.nextDay(hourAtNode, 59));
         if (travelTimes.anyOverlap(hourRangeTomorrow)) {
             return reasons.recordReason(HeuristicReasonsOK.HourOk(ReasonCode.HourOk, howIGotHere, currentTime, hourAtNode));
         }

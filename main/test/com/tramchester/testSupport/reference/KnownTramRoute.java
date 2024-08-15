@@ -18,7 +18,7 @@ public enum KnownTramRoute {
 
     // present in data but unused?
     ReplacementBusOldhamMumpsRochsdale2178("Pink Line Replacement Bus Oldham Mumps - Rochdale", "Oldham Mumps - Rochdale","2178"),
-    ReplacementBusOldhamMumpsRochsdale2177("Pink Line Replacement Bus Oldham Mumps - Rochdale", "Oldham Mumps - Rochdale","2177"),
+//    ReplacementBusOldhamMumpsRochsdale2177("Pink Line Replacement Bus Oldham Mumps - Rochdale", "Oldham Mumps - Rochdale","2177"),
     ReplacementBusPiccadillyVictoria("Piccadilly - Victoria Replacement Bus", "Piccadilly - Victoria", "844"),
 
     PiccadillyAltrincham("Purple Line", "Etihad Campus - Piccadilly - Altrincham", "2173"),
@@ -47,12 +47,7 @@ public enum KnownTramRoute {
         }
 
         if (replacementBusForLandslide(date)) {
-            //routes.add(ReplacementBusOldhamMumpsRochsdaleA);
-            if (date.isAfter(TramDate.of(2024,7,31))) {
-                routes.add(ReplacementBusOldhamMumpsRochsdale2178);
-            } else {
-                routes.add(ReplacementBusOldhamMumpsRochsdale2177);
-            }
+            routes.add(ReplacementBusOldhamMumpsRochsdale2178);
         }
         routes.add(ReplacementBusPiccadillyVictoria);
 

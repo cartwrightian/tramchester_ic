@@ -5,6 +5,7 @@ import com.tramchester.domain.GraphProperty;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.dates.DateRange;
+import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
@@ -14,6 +15,8 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.HaveGraphProperties;
@@ -23,6 +26,7 @@ import org.neo4j.graphdb.Relationship;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.*;
 
 import static com.tramchester.graph.GraphPropertyKey.*;
@@ -85,6 +89,14 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
         relationship.setProperty(STOP_SEQ_NUM.getText(), sequenceNumber);
     }
 
+    public void setDateTimeRange(DateTimeRange dateTimeRange) {
+        DateRange dateRange = dateTimeRange.getDateRange();
+        TimeRange timeRange = dateTimeRange.getTimeRange();
+
+        setDateRange(dateRange);
+        setTimeRange(timeRange);
+    }
+
     public void setDateRange(final DateRange range) {
         setStartDate(range.getStartDate().toLocalDate());
         setEndDate(range.getEndDate().toLocalDate());
@@ -94,6 +106,50 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
         final LocalDate start = getStartDate();
         final LocalDate end = getEndDate();
         return new DateRange(TramDate.of(start), TramDate.of(end));
+    }
+
+    public void setTimeRange(final TimeRange timeRange) {
+        if (timeRange.allDay()) {
+            relationship.setProperty(ALL_DAY.getText(), "");
+            relationship.removeProperty(START_TIME.getText());
+            relationship.removeProperty(END_TIME.getText());
+        } else {
+            setStartTime(timeRange.getStart());
+            setEndTime(timeRange.getEnd());
+            relationship.removeProperty(ALL_DAY.getText());
+        }
+    }
+
+    @Override
+    public TimeRange getTimeRange() {
+        if (relationship.hasProperty(ALL_DAY.getText())) {
+            return TimeRange.AllDay();
+        } else {
+            final TramTime start = getStartTime();
+            final TramTime end = getEndTime();
+            return TimeRange.of(start, end);
+        }
+    }
+
+    @Override
+    public DateTimeRange getDateTimeRange() {
+        final DateRange dateRange = getDateRange();
+        final TimeRange timeRange = getTimeRange();
+        return DateTimeRange.of(dateRange, timeRange);
+    }
+
+    public void setStartTime(final TramTime tramTime) {
+        if (tramTime.isNextDay()) {
+            throw new RuntimeException("Not supported for start time next");
+        }
+        relationship.setProperty(START_TIME.getText(), tramTime.asLocalTime());
+    }
+
+    public void setEndTime(final TramTime tramTime) {
+        if (tramTime.isNextDay()) {
+            throw new RuntimeException("Not supported for end time next");
+        }
+        relationship.setProperty(END_TIME.getText(), tramTime.asLocalTime());
     }
 
     public void setEndDate(final LocalDate localDate) {
@@ -262,6 +318,18 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
         return (LocalDate) relationship.getProperty(START_DATE.getText());
     }
 
+    @Override
+    public TramTime getStartTime() {
+        LocalTime localTime = (LocalTime) relationship.getProperty(START_TIME.getText());
+        return TramTime.ofHourMins(localTime);
+    }
+
+    @Override
+    public TramTime getEndTime() {
+        LocalTime localTime = (LocalTime) relationship.getProperty(END_TIME.getText());
+        return TramTime.ofHourMins(localTime);
+    }
+
     public IdFor<Station> getStationId() {
         return getIdFor(Station.class, relationship);
     }
@@ -332,6 +400,5 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
         }
         return extra;
     }
-
 
 }

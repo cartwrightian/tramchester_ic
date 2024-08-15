@@ -4,7 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.closures.ClosedStation;
-import com.tramchester.domain.dates.DateRange;
+import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.facade.*;
@@ -117,11 +117,11 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
 
         final Stream<ImmutableGraphRelationship> outgoingDiversion = node.getRelationships(txn, Direction.OUTGOING, DIVERSION);
 
-        final Set<DateRange> ranges = outgoingDiversion.map(ImmutableGraphRelationship::getDateRange).collect(Collectors.toSet());
+        final Set<DateTimeRange> ranges = outgoingDiversion.map(GraphRelationship::getDateTimeRange).collect(Collectors.toSet());
 
         logger.info("Recording diversion for " + stationId + " for " + ranges);
 
-        stationsWithDiversions.add(station, ranges);
+        stationsWithDiversions.set(station, ranges);
     }
 
     @PreDestroy
@@ -247,7 +247,7 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
             fromOther.set(closedStation);
 
             otherNode.addLabel(GraphLabel.HAS_DIVERSION);
-            stationsWithDiversions.add(otherStation, closure.getDateRange());
+            stationsWithDiversions.add(otherStation, closure.getDateTimeRange());
 
         });
     }
@@ -300,7 +300,7 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
         });
 
         // TODO Is this correct?
-        uniqueStations.forEach(station -> stationsWithDiversions.add(station, closure.getDateRange()));
+        uniqueStations.forEach(station -> stationsWithDiversions.add(station, closure.getDateTimeRange()));
 
         return toLinkViaDiversion.size();
     }
@@ -309,7 +309,8 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
 
     private void setCommonProperties(final MutableGraphRelationship relationship, final Duration cost, final ClosedStation closure) {
         relationship.setCost(cost);
-        relationship.setDateRange(closure.getDateRange());
+        //relationship.setDateRange(closure.getDateRange());
+        relationship.setDateTimeRange(closure.getDateTimeRange());
     }
 
     public static class Ready {

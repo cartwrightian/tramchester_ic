@@ -5,6 +5,7 @@ import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.TemporaryStationWalk;
 import com.tramchester.domain.dates.DateRange;
+import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.facade.*;
@@ -106,11 +107,11 @@ public class AddTemporaryStationWalksGraphBuilder extends CreateNodesAndRelation
 
         final Stream<ImmutableGraphRelationship> outgoingDiversion = node.getRelationships(txn, Direction.OUTGOING, DIVERSION);
 
-        final Set<DateRange> ranges = outgoingDiversion.map(ImmutableGraphRelationship::getDateRange).collect(Collectors.toSet());
+        final Set<DateTimeRange> ranges = outgoingDiversion.map(ImmutableGraphRelationship::getDateTimeRange).collect(Collectors.toSet());
 
         logger.info("Recording diversion for " + stationId + " for " + ranges);
 
-        stationsWithDiversions.add(station, ranges);
+        stationsWithDiversions.set(station, ranges);
     }
 
     @PreDestroy
@@ -200,8 +201,9 @@ public class AddTemporaryStationWalksGraphBuilder extends CreateNodesAndRelation
 
         firstNode.addLabel(GraphLabel.HAS_DIVERSION);
         secondNode.addLabel(GraphLabel.HAS_DIVERSION);
-        stationsWithDiversions.add(second, temporaryStationWalk.getDateRange());
-        stationsWithDiversions.add(first, temporaryStationWalk.getDateRange());
+        DateTimeRange dateTimeRange = DateTimeRange.of(temporaryStationWalk.getDateRange(), temporaryStationWalk.getTimeRange());
+        stationsWithDiversions.add(second, dateTimeRange);
+        stationsWithDiversions.add(first, dateTimeRange);
     }
 
     @NotNull
@@ -225,9 +227,10 @@ public class AddTemporaryStationWalksGraphBuilder extends CreateNodesAndRelation
         return stationsWithDiversions.hasDiversions(station);
     }
 
+
     @Override
-    public Set<DateRange> getDateRangesFor(final Station station) {
-        return stationsWithDiversions.getDateRangesFor(station);
+    public Set<DateTimeRange> getDateTimeRangesFor(final Station station) {
+        return stationsWithDiversions.getDateTimeRangesFor(station);
     }
 
 

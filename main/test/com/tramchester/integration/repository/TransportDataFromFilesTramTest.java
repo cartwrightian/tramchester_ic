@@ -106,7 +106,7 @@ public class TransportDataFromFilesTramTest {
         assertEquals(1, transportData.getAgencies().stream().filter(agency -> agency.getTransportModes().contains(Tram)).count());
         assertEquals(NUM_TFGM_TRAM_STATIONS, transportData.getStations(EnumSet.of(Tram)).size());
 
-        int expectedPlatforms = 200 - 4; // 4 platforms close due to summer 2024 landslip and market street work
+        int expectedPlatforms = 200 - 1; //
         assertEquals(expectedPlatforms, transportData.getPlatforms(EnumSet.of(Tram)).size());
     }
 
@@ -223,7 +223,6 @@ public class TransportDataFromFilesTramTest {
         assertTrue(noDropOffs.isEmpty(), noDropOffs.toString());
     }
 
-
     @ShudehillMarketStreetClosedTestCategory
     @Test
     void shouldGetRouteStationsForStation() {
@@ -234,7 +233,6 @@ public class TransportDataFromFilesTramTest {
                 map(routeStation -> Pair.of(routeStation.getStationId(), routeStation.getRoute().getName())).
                 collect(Collectors.toSet());
 
-        // London Road Closure 4->3
         assertEquals(3, routeStationPairs.size(), routeStations.toString());
 
         Set<String> routeNames =
@@ -379,7 +377,7 @@ public class TransportDataFromFilesTramTest {
         Set<Pair<TramDate, IdFor<Station>>> missing = getUpcomingDates().
                 filter(date -> !date.isChristmasPeriod()).
                 flatMap(date -> transportData.getStations(EnumSet.of(Tram)).stream().map(station -> Pair.of(date, station))).
-                filter(pair -> !closedStationRepository.isClosed(pair.getRight(), pair.getLeft())).
+                filter(pair -> isOpen(pair.getLeft(), pair.getRight())).
                 filter(pair -> transportData.getTripsCallingAt(pair.getRight(), pair.getLeft()).isEmpty()).
                 map(pair -> Pair.of(pair.getLeft(), pair.getRight().getId())).
                 collect(Collectors.toSet());
@@ -425,7 +423,7 @@ public class TransportDataFromFilesTramTest {
 
         getUpcomingDates().filter(date -> !date.isChristmasPeriod()).forEach(date -> {
             transportData.getStations(EnumSet.of(Tram)).stream().
-                    filter(station -> !closedStationRepository.isClosed(station, date)).
+                    filter(station -> isOpen(date, station)).
                     forEach(station -> {
                         Set<Trip> trips = transportData.getTripsCallingAt(station, date);
                         for (TramTime time : times) {
@@ -446,7 +444,6 @@ public class TransportDataFromFilesTramTest {
         });
 
         assertTrue(missing.isEmpty(), missing.toString());
-
     }
 
     @Test
@@ -632,6 +629,19 @@ public class TransportDataFromFilesTramTest {
         }
 
         System.out.printf("Total: %s ms Average: %s ms%n", total, total/count);
+    }
+
+
+    private boolean isOpen(final TramDate date, final Station station) {
+        // workaround timetable not updated yet for Shudehill and MarketStreet, shows still closed after meant to re-open....
+        final IdFor<Station> stationId = station.getId();
+        if (stationId.equals(Shudehill.getId()) || stationId.equals(MarketStreet.getId())) {
+            final DateRange missingFromTimetable = DateRange.of(TramDate.of(2024,8,20), TramDate.of(2024,8,22));
+            if (missingFromTimetable.contains(date)) {
+                return false;
+            }
+        }
+        return !closedStationRepository.isClosed(station, date);
     }
 
 }

@@ -7,11 +7,15 @@ import com.tramchester.domain.closures.ClosedStation;
 import com.tramchester.domain.closures.ClosedStationFactory;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.filters.GraphFilter;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
@@ -21,7 +25,6 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
@@ -60,6 +63,8 @@ public class ClosedStationsRepository {
     }
 
     public void captureClosedStationsFromConfig(final Set<StationClosures> closures) {
+
+        logger.info("Capturing closures from " + closures.size() + " config elements");
 
         // capture closed stations and date ranges
         closures.forEach(closure -> {
@@ -126,15 +131,12 @@ public class ClosedStationsRepository {
         logger.info("Stopped");
     }
 
-    public Set<ClosedStation> getFullyClosedStationsFor(final TramDate date) {
-        return getClosures(date, true).collect(Collectors.toSet());
-    }
-
-    private Stream<ClosedStation> getClosures(TramDate date, boolean fullyClosed) {
-        return closedStations.stream().
-                filter(closure -> closure.isFullyClosed() == fullyClosed).
-                filter(closure -> closure.getDateRange().contains(date));
-    }
+//    @Deprecated
+//    private Stream<ClosedStation> getClosures(TramDate date, TramTime time, boolean fullyClosed) {
+//        return closedStations.stream().
+//                filter(closure -> closure.isFullyClosed() == fullyClosed).
+//                filter(closure -> closure.getDateTimeRange().contains(date, time));
+//    }
 
     public boolean hasClosuresOn(final TramDate date) {
         return closureDates.values().stream().flatMap(Collection::stream).anyMatch(dateRange -> dateRange.contains(date));
@@ -146,17 +148,12 @@ public class ClosedStationsRepository {
                 collect(Collectors.toSet());
     }
 
-    public boolean isClosed(final Location<?> location, final TramDate date) {
-        return switch (location.getLocationType()) {
-            case Station -> isStationClosed((Station)location, date);
-            case StationGroup -> isGroupClosed((StationGroup)location, date);
-            case Platform -> isPlatformClosed((Platform)location, date);
-            case Postcode, MyLocation -> false;
-        };
-    }
-
     private boolean isPlatformClosed(Platform platform, TramDate date) {
         return isStationClosed(platform.getStation(), date);
+    }
+
+    private boolean isPlatformClosed(Platform platform, TramDate date, TimeRange timeRange) {
+        return isStationClosed(platform.getStation(), date, timeRange);
     }
 
     private boolean isStationClosed(Station station, TramDate date) {
@@ -167,33 +164,57 @@ public class ClosedStationsRepository {
         return allClosed(group.getAllContained(), date);
     }
 
+    public boolean isGroupClosed(final StationGroup group, final TramDate date, TimeRange timeRange) {
+        if (timeRange.allDay()) {
+            return allClosed(group.getAllContained(), date);
+        }
+        else {
+            return allClosed(group.getAllContained(), date, timeRange);
+        }
+    }
+
     public boolean allClosed(final LocationCollection locations, TramDate date) {
         return locations.locationStream().allMatch(location -> isClosed(location, date));
     }
 
-    public boolean isClosed(IdFor<Station> stationId, TramDate date) {
-        // todo maybe pre-compute by date as well?
-        if (!closureDates.containsKey(stationId)) {
-            return false;
-        }
-
-        final Set<DateRange> forStation = closureDates.get(stationId);
-
-        return forStation.stream().anyMatch(range -> range.contains(date));
-
+    private boolean allClosed(final LocationCollection locations, TramDate date, TimeRange tramRange) {
+        return locations.locationStream().allMatch(location -> isClosed(location, date, tramRange));
     }
 
-    public ClosedStation getClosedStation(final Location<?> location, final TramDate date) {
-        if (location.getLocationType()!=LocationType.Station) {
-            String msg = "Not a station " + location.getId();
-            logger.error(msg);
-            throw new RuntimeException(msg);
-        }
-        final Station station = (Station) location;
+//    /***
+//     * Can only have one closure per station per date currently, hence no time here
+//     * @param location must be a station
+//     * @param date the date we need to check
+//     * @return ClosedStation
+//     */
+//    @Deprecated
+//    public ClosedStation getClosedStation(final Location<?> location, final TramDate date, TramTime time) {
+//        guardForStationOnly(location);
+//        final Station station = (Station) location;
+//
+//        final Optional<ClosedStation> maybe = closedStations.stream().
+//                filter(closedStation -> closedStation.getStationId().equals(station.getId())).
+//                filter(closedStation -> closedStation.getDateTimeRange().contains(date, time)).
+//                findFirst();
+//
+//        if (maybe.isEmpty()) {
+//            String msg = station.getId() + " is not closed on " + date;
+//            logger.error(msg);
+//            throw new RuntimeException(msg);
+//        }
+//
+//        return maybe.get();
+//    }
 
+
+    public ClosedStation getClosedStation(final Location<?> location, final TramDate date, final TimeRange timeRange) {
+        guardForStationOnly(location);
+
+        final Station station = (Station) location;
         final Optional<ClosedStation> maybe = closedStations.stream().
+                filter(closedStation -> closedStation.getDateTimeRange().contains(date)).
                 filter(closedStation -> closedStation.getStationId().equals(station.getId())).
-                filter(closedStation -> closedStation.getDateRange().contains(date)).
+                filter(closedStation -> closedStation.getDateTimeRange().fullyContains(timeRange)).
                 findFirst();
 
         if (maybe.isEmpty()) {
@@ -203,6 +224,15 @@ public class ClosedStationsRepository {
         }
 
         return maybe.get();
+
+    }
+
+    private static void guardForStationOnly(Location<?> location) {
+        if (location.getLocationType()!=LocationType.Station) {
+            String msg = "Not a station " + location.getId() + " " + location.getLocationType();
+            logger.error(msg);
+            throw new RuntimeException(msg);
+        }
     }
 
     public boolean anyStationOpen(final LocationSet<Station> locations, final TramDate date) {
@@ -210,22 +240,95 @@ public class ClosedStationsRepository {
             return true;
         }
 
-        final Set<Station> haveAClosure = locations.stream().
-                filter(station -> closureDates.containsKey(station.getId())).
-                collect(Collectors.toSet());
+        final IdSet<Station> locationsWithAClosure = locations.stream().
+                map(HasId::getId).
+                filter(closureDates::containsKey).
+                collect(IdSet.idCollector());
 
-        if (haveAClosure.size() != locations.size()) {
+        if (locationsWithAClosure.size() != locations.size()) {
             return true;
         }
+        // ELSE all locations have a closure, so check if any of those are not all day long
 
-        // count have many closed are fully closed
-        long fullyClosedCount = haveAClosure.stream().
-                map(station -> getClosedStation(station, date)).
-                filter(ClosedStation::isFullyClosed).
-                count();
+        return closedStations.stream().
+                filter(closedStation -> locationsWithAClosure.contains(closedStation.getStationId())).
+                anyMatch(closedStation -> !closedStation.closedWholeDay());
 
-        // all fully closed
-        return fullyClosedCount!=haveAClosure.size();
+//        // count have many closed are fully closed
+//        long fullyClosedCount = locationsWithAClosure.stream().
+//                map(station -> getClosedStation(station, date)).
+//                filter(ClosedStation::isFullyClosed).
+//                count();
+//
+//        // all fully closed
+//        return fullyClosedCount!=locationsWithAClosure.size();
+
+    }
+
+    public Set<ClosedStation> getAnyWithClosure(final TramDate tramDate) {
+        final IdSet<Station> hasClosure = closureDates.entrySet().stream().
+                filter(entry -> entry.getValue().stream().anyMatch(range -> range.contains(tramDate))).
+                map(Map.Entry::getKey).
+                collect(IdSet.idCollector());
+
+       return closedStations.stream().
+                filter(closedStation -> hasClosure.contains(closedStation.getStationId())).
+                filter(closedStation -> closedStation.getDateTimeRange().contains(tramDate)).
+                collect(Collectors.toSet());
+    }
+
+
+    public boolean isClosed(Location<?> location, TramDate date, TimeRange timeRange) {
+        return switch (location.getLocationType()) {
+            case Station -> isStationClosed((Station)location, date, timeRange);
+            case StationGroup -> isGroupClosed((StationGroup)location, date, timeRange);
+            case Platform -> isPlatformClosed((Platform)location, date, timeRange);
+            case Postcode, MyLocation -> false;
+        };
+    }
+
+    public boolean isClosed(final Location<?> location, final TramDate date) {
+        return switch (location.getLocationType()) {
+            case Station -> isStationClosed((Station)location, date);
+            case StationGroup -> isGroupClosed((StationGroup)location, date);
+            case Platform -> isPlatformClosed((Platform)location, date);
+            case Postcode, MyLocation -> false;
+        };
+    }
+
+    private boolean isStationClosed(Station station, TramDate date, TimeRange timeRange) {
+        final boolean closedOnDay = isStationClosed(station, date);
+        if (!closedOnDay) {
+            return false;
+        }
+        // else we know station has a closure
+        if (timeRange.allDay()) {
+            return true;
+        }
+        // else we need to check if timeRange is fully enclosed by the closures in effect today
+        final List<ClosedStation> foundClosures = closedStations.stream().
+                filter(closedStation -> closedStation.getStation().equals(station)).
+                filter(closedStation -> closedStation.getDateTimeRange().contains(date)).
+                toList();
+
+        if (foundClosures.size()!=1) {
+            String msg = format("Got the wrong number of closures for %s on date %s, found %s", station.getId(), date, foundClosures);
+            logger.error(msg);
+            throw new RuntimeException(msg);
+        }
+
+        ClosedStation found = foundClosures.get(0);
+        return found.getDateTimeRange().fullyContains(timeRange);
+    }
+
+    public boolean isClosed(final IdFor<Station> stationId, final TramDate date) {
+        if (!closureDates.containsKey(stationId)) {
+            // none match
+            return false;
+        }
+
+        final Set<DateRange> forStation = closureDates.get(stationId);
+        return forStation.stream().anyMatch(range -> range.contains(date));
 
     }
 }
