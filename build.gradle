@@ -77,7 +77,7 @@ dependencies {
         exclude group: 'org.eclipse.jetty' }
     implementation 'com.github.cliftonlabs:json-simple:4.0.1',
             'commons-io:commons-io:2.16.1',
-            'commons-codec:commons-codec:1.17.0',
+            'commons-codec:commons-codec:1.17.1',
             'org.apache.commons:commons-collections4:4.4',
             'org.apache.commons:commons-compress:1.26.2',
             'com.github.ben-manes.caffeine:caffeine:3.1.8'
