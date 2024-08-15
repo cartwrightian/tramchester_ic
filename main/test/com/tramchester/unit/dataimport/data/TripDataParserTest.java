@@ -7,7 +7,7 @@ import com.tramchester.unit.dataimport.ParserTestCSVHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TripDataParserTest extends ParserTestCSVHelper<TripData> {
 
@@ -23,10 +23,10 @@ class TripDataParserTest extends ParserTestCSVHelper<TripData> {
         TripData tripData = parse("336,610,693_66,Bury,2140,1,,693_23");
                 //"MET:MET1:I:,Serv000001,Trip000001,Bury");
 
-        assertThat(tripData.getRouteId()).isEqualTo("336");
-        assertThat(tripData.getServiceId()).isEqualTo(Service.createId("610"));
-        assertThat(tripData.getTripId()).isEqualTo(Trip.createId("693_66"));
-        assertThat(tripData.getHeadsign()).isEqualTo("Bury");
+        assertEquals(tripData.getRouteId(), "336");
+        assertEquals(tripData.getServiceId(), Service.createId("610"));
+        assertEquals(tripData.getTripId(), Trip.createId("693_66"));
+        assertEquals(tripData.getHeadsign(), "Bury");
     }
 
 

@@ -5,9 +5,7 @@ import com.tramchester.unit.dataimport.ParserTestCSVHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class StopDataParserTest extends ParserTestCSVHelper<StopData> {
 
@@ -25,11 +23,11 @@ class StopDataParserTest extends ParserTestCSVHelper<StopData> {
         String tramStop = "123629,9400ZZMAWYT1,Wythenshawe Town Centre (Manchester Metrolink),,53.38006450285,-2.26366516426,,,,";
         StopData stopData = parse(tramStop);
 
-        assertThat(stopData.getId()).isEqualTo("123629");
-        assertThat(stopData.getCode()).isEqualTo("9400ZZMAWYT1");
-        assertThat(stopData.getName()).isEqualTo("Wythenshawe Town Centre (Manchester Metrolink)");
-        assertThat(stopData.getLatLong().getLat()).isEqualTo(53.38006450285);
-        assertThat(stopData.getLatLong().getLon()).isEqualTo(-2.26366516426);
+        assertEquals(stopData.getId() , "123629");
+        assertEquals(stopData.getCode() , "9400ZZMAWYT1");
+        assertEquals(stopData.getName() , "Wythenshawe Town Centre (Manchester Metrolink)");
+        assertEquals(stopData.getLatLong().getLat() , 53.38006450285);
+        assertEquals(stopData.getLatLong().getLon() , -2.26366516426);
     }
 
     @Test
@@ -38,11 +36,11 @@ class StopDataParserTest extends ParserTestCSVHelper<StopData> {
         String tfgmBusStop = "118916,1800NEH0341,Evesham Road,,53.534885,-2.187454,,,,";
         StopData stopData = parse(tfgmBusStop);
 
-        assertThat(stopData.getId()).isEqualTo("118916");
-        assertThat(stopData.getCode()).isEqualTo("1800NEH0341");
-        assertThat(stopData.getName()).isEqualTo("Evesham Road");
-        assertThat(stopData.getLatLong().getLat()).isEqualTo(53.534885);
-        assertThat(stopData.getLatLong().getLon()).isEqualTo(-2.187454);
+        assertEquals(stopData.getId() , "118916");
+        assertEquals(stopData.getCode() , "1800NEH0341");
+        assertEquals(stopData.getName() , "Evesham Road");
+        assertEquals(stopData.getLatLong().getLat() , 53.534885);
+        assertEquals(stopData.getLatLong().getLon() , -2.187454);
         assertTrue(stopData.getLatLong().isValid());
     }
 
@@ -50,9 +48,9 @@ class StopDataParserTest extends ParserTestCSVHelper<StopData> {
     void shouldParseTFGMBusStopInvalidPosition() {
         StopData stopData = parse("1800NEH0341,missing,Evesham Road,0.0,0.0");
 
-        assertThat(stopData.getId()).isEqualTo("1800NEH0341");
-        assertThat(stopData.getCode()).isEqualTo("missing");
-        assertThat(stopData.getName()).isEqualTo("Evesham Road");
+        assertEquals(stopData.getId() , "1800NEH0341");
+        assertEquals(stopData.getCode() , "missing");
+        assertEquals(stopData.getName() , "Evesham Road");
         assertFalse(stopData.getLatLong().isValid());
     }
 
@@ -67,10 +65,10 @@ class StopDataParserTest extends ParserTestCSVHelper<StopData> {
 
         StopData stopData = parse(trainStop);
 
-        assertThat(stopData.getId()).isEqualTo("HOP");
-        assertThat(stopData.getCode()).isEqualTo("HOPD");
-        assertThat(stopData.getName()).isEqualTo("Hope (Derbyshire)");
-        assertThat(stopData.getLatLong().getLat()).isEqualTo(53.34611);
-        assertThat(stopData.getLatLong().getLon()).isEqualTo(-1.72989);
+        assertEquals(stopData.getId() , "HOP");
+        assertEquals(stopData.getCode() , "HOPD");
+        assertEquals(stopData.getName() , "Hope (Derbyshire)");
+        assertEquals(stopData.getLatLong().getLat() , 53.34611);
+        assertEquals(stopData.getLatLong().getLon() , -1.72989);
     }
 }

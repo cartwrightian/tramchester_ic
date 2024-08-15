@@ -8,7 +8,7 @@ import com.tramchester.unit.dataimport.ParserTestCSVHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class RouteDataParserTest extends ParserTestCSVHelper<RouteData> {
 
@@ -23,10 +23,10 @@ class RouteDataParserTest extends ParserTestCSVHelper<RouteData> {
         RouteData result = parse("843,7778482,Blue Line,Eccles - Manchester - Ashton Under Lyne,,1,,,");
                 //parse("MET:MET4:I:,MET,MET4,Ashton-Under-Lyne - Manchester - Eccles,0");
 
-        assertThat(result.getAgencyId()).isEqualTo(MutableAgency.METL);
-        assertThat(result.getId()).isEqualTo("843"); //"MET:MET4:I:");
-        assertThat(result.getShortName()).isEqualTo("Blue Line"); //"MET4");
-        assertThat(result.getRouteType()).isEqualTo(GTFSTransportationType.subway);
+        assertEquals(result.getAgencyId(), MutableAgency.METL);
+        assertEquals(result.getId(), "843"); //"MET:MET4:I:");
+        assertEquals(result.getShortName(), "Blue Line"); //"MET4");
+        assertEquals(result.getRouteType(), GTFSTransportationType.subway);
     }
 
     @Test
@@ -34,11 +34,11 @@ class RouteDataParserTest extends ParserTestCSVHelper<RouteData> {
         RouteData result = parse("572,7778550,588,Leigh - Lowton,,3,,,");
                 //"JSC: 588:C:,JSC, 588,\"Leigh - Lowton, Scott Road\",3");
 
-        assertThat(result.getId()).isEqualTo("572");
-        assertThat(result.getShortName().trim()).isEqualTo("588");
-        assertThat(result.getLongName()).isEqualTo("Leigh - Lowton");
-        assertThat(result.getAgencyId()).isEqualTo(Agency.createId("7778550"));
-        assertThat(result.getRouteType()).isEqualTo(GTFSTransportationType.bus);
+        assertEquals(result.getId(), "572");
+        assertEquals(result.getShortName().trim(), "588");
+        assertEquals(result.getLongName(), "Leigh - Lowton");
+        assertEquals(result.getAgencyId(), Agency.createId("7778550"));
+        assertEquals(result.getRouteType(), GTFSTransportationType.bus);
     }
 
 }

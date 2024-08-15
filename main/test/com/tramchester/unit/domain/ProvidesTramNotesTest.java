@@ -26,11 +26,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 import static com.tramchester.testSupport.reference.TramStations.*;
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ProvidesTramNotesTest extends EasyMockSupport {
     private ProvidesTramNotes providesNotes;
@@ -68,7 +64,7 @@ class ProvidesTramNotesTest extends EasyMockSupport {
         List<Note> result = getNotesForStations(Collections.singleton(StPetersSquare.fake()), queryDate, queryTime);
         verifyAll();
 
-        assertThat(result, hasItem(new Note(ProvidesTramNotes.weekend, Note.NoteType.Weekend)));
+        assertTrue(result.contains(new Note(ProvidesTramNotes.weekend, Note.NoteType.Weekend)));
     }
 
     @Test
@@ -83,7 +79,7 @@ class ProvidesTramNotesTest extends EasyMockSupport {
         List<Note> result = getNotesForStations(Collections.singleton(StPetersSquare.fake()), queryDate, queryTime);
         verifyAll();
 
-        assertThat(result, hasItem(new Note(ProvidesTramNotes.weekend, Note.NoteType.Weekend)));
+        assertTrue(result.contains(new Note(ProvidesTramNotes.weekend, Note.NoteType.Weekend)));
     }
 
     @Test
@@ -98,7 +94,7 @@ class ProvidesTramNotesTest extends EasyMockSupport {
         List<Note> result = getNotesForStations(Collections.singleton(StPetersSquare.fake()), queryDate, queryTime);
         verifyAll();
 
-        assertThat(result, hasItem(new Note(ProvidesTramNotes.weekend, Note.NoteType.Weekend)));
+        assertTrue(result.contains(new Note(ProvidesTramNotes.weekend, Note.NoteType.Weekend)));
     }
 
     @Test
@@ -111,7 +107,7 @@ class ProvidesTramNotesTest extends EasyMockSupport {
         List<Note> result = getNotesForStations(Collections.emptySet(), queryDate, TramTime.of(11,22));
         verifyAll();
 
-        assertThat(result, not(hasItem(new Note(ProvidesTramNotes.weekend, Note.NoteType.Weekend))));
+        assertFalse(result.contains(new Note(ProvidesTramNotes.weekend, Note.NoteType.Weekend)));
     }
 
     @Test
@@ -149,12 +145,12 @@ class ProvidesTramNotesTest extends EasyMockSupport {
         replayAll();
 
         List<Note> result = getNotesForStations(stations, beforeChristmas, queryTime);
-        assertThat(result, not(hasItem(christmasNote)));
+        assertFalse(result.contains(christmasNote));
 
         for(int offset=1; offset<10; offset++) {
             TramDate queryDate = beforeChristmas.plusDays(offset);
             result = getNotesForStations(stations, queryDate, queryTime);
-            assertThat(queryDate.toString(), result, hasItem(christmasNote));
+            assertTrue(result.contains(christmasNote));
         }
 
 
@@ -162,7 +158,7 @@ class ProvidesTramNotesTest extends EasyMockSupport {
 
         verifyAll();
 
-        assertThat(result, not(hasItem(christmasNote)));
+        assertFalse(result.contains(christmasNote));
     }
 
     @Test
@@ -200,7 +196,7 @@ class ProvidesTramNotesTest extends EasyMockSupport {
 
         verifyAll();
 
-        assertThat(result, not(hasItem(christmasNote)));
+        assertFalse(result.contains(christmasNote));
     }
 
     @Test

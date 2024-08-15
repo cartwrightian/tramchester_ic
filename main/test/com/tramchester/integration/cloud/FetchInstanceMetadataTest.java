@@ -4,7 +4,7 @@ import com.tramchester.cloud.FetchInstanceMetadata;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 class FetchInstanceMetadataTest {
 
@@ -19,8 +19,8 @@ class FetchInstanceMetadataTest {
         String data = fetcher.getUserData();
         server.stopServer();
 
-        assertThat(data).isEqualTo("someSimpleMetaData");
-        assertThat(server.getCalledUrl()).isEqualTo("http://localhost:8080/latest/user-data");
+        assertEquals(data, "someSimpleMetaData");
+        assertEquals(server.getCalledUrl(), "http://localhost:8080/latest/user-data");
     }
 
     @Test
@@ -28,8 +28,8 @@ class FetchInstanceMetadataTest {
         FetchInstanceMetadata fetcher = new FetchInstanceMetadata(new ConfigWithMetaDataUrl("http://localhost:8080"));
 
         String result = fetcher.getUserData();
-        assertThat(result).isNotNull();
-        assertThat(result).isEmpty();
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
     }
 
     @Test
@@ -37,8 +37,8 @@ class FetchInstanceMetadataTest {
         FetchInstanceMetadata fetcher = new FetchInstanceMetadata(new ConfigWithMetaDataUrl(""));
 
         String result = fetcher.getUserData();
-        assertThat(result).isNotNull();
-        assertThat(result).isEmpty();
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
     }
 
     private static class ConfigWithMetaDataUrl extends IntegrationTramTestConfig {

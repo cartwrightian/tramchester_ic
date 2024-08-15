@@ -4,8 +4,8 @@ import com.tramchester.cloud.ConfigFromInstanceUserData;
 import com.tramchester.cloud.SignalToCloudformationReady;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SignalToCloudFormationReadyTest {
 
@@ -23,10 +23,10 @@ class SignalToCloudFormationReadyTest {
         stubbedServer.stopServer();
 
         String sentData = stubbedServer.getPutData();
-        assertThat(sentData).contains("\"Status\": \"SUCCESS\"");
-        assertThat(sentData).contains("\"Reason\": \"Web Server started\"");
+        assertTrue(sentData.contains("\"Status\": \"SUCCESS\""));
+        assertTrue(sentData.contains("\"Reason\": \"Web Server started\""));
 
-        assertThat(stubbedServer.getContentHeader()).isEmpty(); // aws requires this header is empty or not set
+        assertTrue(stubbedServer.getContentHeader().isEmpty()); // aws requires this header is empty or not set
     }
 
     @Test
@@ -42,7 +42,7 @@ class SignalToCloudFormationReadyTest {
         stubbedServer.stopServer();
 
         String sentData = stubbedServer.getPutData();
-        assertThat(sentData).isNull();
+        assertNull(sentData);
     }
 
     @Test
@@ -58,7 +58,7 @@ class SignalToCloudFormationReadyTest {
         stubbedServer.stopServer();
 
         String sentData = stubbedServer.getPutData();
-        assertThat(sentData).isNull();
+        assertNull(sentData);
 
     }
 }

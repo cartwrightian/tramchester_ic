@@ -8,7 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static com.tramchester.integration.testSupport.Assertions.assertIdEquals;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 class CalendarDataParserTest extends ParserTestCSVHelper<CalendarData> {
 
@@ -25,16 +25,16 @@ class CalendarDataParserTest extends ParserTestCSVHelper<CalendarData> {
 
         assertIdEquals("Serv000001", calendarData.getServiceId());
         //assertThat(calendarData.getServiceId().forDTO()).isEqualTo("Serv000001");
-        assertThat(calendarData.isMonday()).isEqualTo(true);
-        assertThat(calendarData.isTuesday()).isEqualTo(true);
-        assertThat(calendarData.isWednesday()).isEqualTo(true);
-        assertThat(calendarData.isThursday()).isEqualTo(true);
-        assertThat(calendarData.isFriday()).isEqualTo(true);
-        assertThat(calendarData.isSaturday()).isEqualTo(false);
-        assertThat(calendarData.isSunday()).isEqualTo(false);
+        assertTrue(calendarData.isMonday());
+        assertTrue(calendarData.isTuesday());
+        assertTrue(calendarData.isWednesday());
+        assertTrue(calendarData.isThursday());
+        assertTrue(calendarData.isFriday());
+        assertFalse(calendarData.isSaturday());
+        assertFalse(calendarData.isSunday());
         DateRange dateRange = calendarData.getDateRange();
-        assertThat(dateRange.getStartDate()).isEqualTo(TramDate.of(2014, 10, 20));
-        assertThat(dateRange.getEndDate()).isEqualTo(TramDate.of(2014, 12, 19));
+        assertEquals(dateRange.getStartDate(), TramDate.of(2014, 10, 20));
+        assertEquals(dateRange.getEndDate(), TramDate.of(2014, 12, 19));
     }
 
 

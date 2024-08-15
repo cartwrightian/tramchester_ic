@@ -7,9 +7,7 @@ import com.tramchester.unit.dataimport.ParserTestCSVHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class StopTimeDataParseTest extends ParserTestCSVHelper<StopTimeData> {
 
@@ -28,13 +26,13 @@ class StopTimeDataParseTest extends ParserTestCSVHelper<StopTimeData> {
 
         StopTimeData stopTimeData = parse(stop);
 
-        assertThat(stopTimeData.getTripId()).isEqualTo("1679_1");
-        assertThat(stopTimeData.getArrivalTime()).isEqualTo(TramTime.of(6, 41));
-        assertThat(stopTimeData.getDepartureTime()).isEqualTo(TramTime.of(6, 42));
-        assertThat(stopTimeData.getStopId()).isEqualTo("103701");
-        assertThat(stopTimeData.getStopSequence()).isEqualTo(1);
-        assertThat(stopTimeData.getPickupType()).isEqualTo(GTFSPickupDropoffType.Regular);
-        assertThat(stopTimeData.getDropOffType()).isEqualTo(GTFSPickupDropoffType.None);
+        assertEquals(stopTimeData.getTripId() , "1679_1");
+        assertEquals(stopTimeData.getArrivalTime() , TramTime.of(6, 41));
+        assertEquals(stopTimeData.getDepartureTime() , TramTime.of(6, 42));
+        assertEquals(stopTimeData.getStopId() , "103701");
+        assertEquals(stopTimeData.getStopSequence() , 1);
+        assertEquals(stopTimeData.getPickupType() , GTFSPickupDropoffType.Regular);
+        assertEquals(stopTimeData.getDropOffType() , GTFSPickupDropoffType.None);
 
         assertTrue(stopTimeData.isValid());
     }
@@ -46,11 +44,11 @@ class StopTimeDataParseTest extends ParserTestCSVHelper<StopTimeData> {
 
         StopTimeData stopTimeData = parse(stop);
 
-        assertThat(stopTimeData.getTripId()).isEqualTo("1679_1");
-        assertThat(stopTimeData.getArrivalTime()).isEqualTo(TramTime.of(6, 41));
-        assertThat(stopTimeData.getDepartureTime()).isEqualTo(TramTime.of(6, 42));
-        assertThat(stopTimeData.getStopId()).isEqualTo("103701");
-        assertThat(stopTimeData.getStopSequence()).isEqualTo(1);
+        assertEquals(stopTimeData.getTripId() , "1679_1");
+        assertEquals(stopTimeData.getArrivalTime() , TramTime.of(6, 41));
+        assertEquals(stopTimeData.getDepartureTime() , TramTime.of(6, 42));
+        assertEquals(stopTimeData.getStopId() , "103701");
+        assertEquals(stopTimeData.getStopSequence() , 1);
 
         assertTrue(stopTimeData.isValid());
 
@@ -80,8 +78,8 @@ class StopTimeDataParseTest extends ParserTestCSVHelper<StopTimeData> {
 
         StopTimeData stopTimeData = parse(stop);
 
-        assertThat(stopTimeData.getArrivalTime()).isEqualTo(TramTime.nextDay(0,0));
-        assertThat(stopTimeData.getDepartureTime()).isEqualTo(TramTime.nextDay(0,0));
+        assertEquals(stopTimeData.getArrivalTime() , TramTime.nextDay(0,0));
+        assertEquals(stopTimeData.getDepartureTime() , TramTime.nextDay(0,0));
 
         assertTrue(stopTimeData.isValid());
 
@@ -93,8 +91,8 @@ class StopTimeDataParseTest extends ParserTestCSVHelper<StopTimeData> {
 
         StopTimeData stopTimeData = parse(stop);
 
-        assertThat(stopTimeData.getArrivalTime()).isEqualTo(TramTime.nextDay(1,5));
-        assertThat(stopTimeData.getDepartureTime()).isEqualTo(TramTime.nextDay(1,7));
+        assertEquals(stopTimeData.getArrivalTime() , TramTime.nextDay(1,5));
+        assertEquals(stopTimeData.getDepartureTime() , TramTime.nextDay(1,7));
 
         assertTrue(stopTimeData.isValid());
 
