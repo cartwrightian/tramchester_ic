@@ -1,9 +1,17 @@
 package com.tramchester.domain.presentation.DTO;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.StationClosures;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TramTime;
+import com.tramchester.mappers.serialisation.TramTimeJsonDeserializer;
+import com.tramchester.mappers.serialisation.TramTimeJsonSerializer;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -13,16 +21,27 @@ public class StationClosureDTO {
     private LocalDate begin;
     private LocalDate end;
     private Boolean fullyClosed;
+    private Boolean allDay;
+    private TramTime beginTime;
+    private TramTime endTime;
 
-    public StationClosureDTO(DateRange dateRange, List<LocationRefDTO> refs, boolean fullyClosed) {
-        this(dateRange.getStartDate(), dateRange.getEndDate(), refs, fullyClosed);
+    public static StationClosureDTO from(StationClosures closure, List<LocationRefDTO> refs) {
+        TimeRange timeRange = closure.hasTimeRange() ? closure.getTimeRange() : TimeRange.AllDay();
+        DateRange dateRange = closure.getDateRange();
+        return new StationClosureDTO(dateRange.getStartDate(), dateRange.getEndDate(), timeRange.getStart(),
+                timeRange.getEnd(), timeRange.allDay(), refs, closure.isFullyClosed());
     }
 
-    private StationClosureDTO(TramDate begin, TramDate end, List<LocationRefDTO> stations, boolean fullyClosed) {
+    private StationClosureDTO(TramDate begin, TramDate end, TramTime beginTime, TramTime endTime, boolean allDay, List<LocationRefDTO> stations, boolean fullyClosed) {
         this.stations = stations;
         this.begin = begin.toLocalDate();
         this.end = end.toLocalDate();
         this.fullyClosed = fullyClosed;
+        this.allDay = allDay;
+        if (!this.allDay) {
+            this.beginTime = beginTime;
+            this.endTime = endTime;
+        }
     }
 
     @SuppressWarnings("unused")
@@ -46,5 +65,23 @@ public class StationClosureDTO {
 
     public Boolean getFullyClosed() {
         return fullyClosed;
+    }
+
+    public Boolean getAllDay() {
+        return allDay;
+    }
+
+    @JsonDeserialize(using = TramTimeJsonDeserializer.class)
+    @JsonSerialize(using = TramTimeJsonSerializer.class)
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    public TramTime getBeginTime() {
+        return beginTime;
+    }
+
+    @JsonDeserialize(using = TramTimeJsonDeserializer.class)
+    @JsonSerialize(using = TramTimeJsonSerializer.class)
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    public TramTime getEndTime() {
+        return endTime;
     }
 }

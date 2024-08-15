@@ -38,6 +38,13 @@ export default {
             } else {
                 return "between " + begin + " and " + end;
             }
+        },
+        displayTimes(closed) {
+            if (closed.allDay) {
+                return "All Day"
+            } else {
+                return "from " + closed.beginTime + " until " + closed.endTime;
+            }
         }
     },
     template: `
@@ -50,10 +57,10 @@ export default {
                     <ul id="ClosureList" class="Closures list-group list-group-flush">
                         <li v-for="closed in closures" id="ClosedItem">
                             <div v-if="closed.fullyClosed == true">
-                                {{displayStations(closed.stations)}} closed {{displayDates(closed.begin, closed.end)}}
+                                {{displayStations(closed.stations)}} closed {{displayDates(closed.begin, closed.end)}} {{displayTimes(closed)}}
                             </div>
                             <div v-else>
-                                {{displayStations(closed.stations)}} partially closed {{displayDates(closed.begin, closed.end)}}
+                                {{displayStations(closed.stations)}} partially closed {{displayDates(closed.begin, closed.end)}} {{displayTimes(closed)}}
                             </div>
                         </li>
                     </ul>

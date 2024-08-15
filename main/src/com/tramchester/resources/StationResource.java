@@ -4,6 +4,7 @@ import com.codahale.metrics.annotation.Timed;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.StationClosures;
 import com.tramchester.domain.UpdateRecentJourneys;
+import com.tramchester.domain.closures.ClosedStation;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
@@ -22,10 +23,7 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.mappers.RecentJourneysToLocations;
-import com.tramchester.repository.DataSourceRepository;
-import com.tramchester.repository.StationRepository;
-import com.tramchester.repository.StationRepositoryPublic;
-import com.tramchester.repository.TransportModeRepository;
+import com.tramchester.repository.*;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -61,6 +59,7 @@ public class StationResource extends UsesRecentCookie implements APIResource {
     private final TramchesterConfig config;
     private final TransportModeRepository transportModeRepository;
     private final RecentJourneysToLocations recentJourneysToStations;
+    private final ClosedStationsRepository closedStationsRepository;
 
     // TODO Remove unused methods
 
@@ -70,13 +69,13 @@ public class StationResource extends UsesRecentCookie implements APIResource {
                            ProvidesNow providesNow,
                            DataSourceRepository dataSourceRepository, StationLocations stationLocations,
                            DTOFactory DTOFactory,
-                           LocationDTOFactory locationDTOFactory, TramchesterConfig config, TransportModeRepository transportModeRepository, RecentJourneysToLocations recentJourneysToStations) {
+                           LocationDTOFactory locationDTOFactory, TramchesterConfig config, TransportModeRepository transportModeRepository, RecentJourneysToLocations recentJourneysToStations, ClosedStationsRepository closedStationsRepository) {
         super(updateRecentJourneys, providesNow);
         this.DTOFactory = DTOFactory;
         this.locationDTOFactory = locationDTOFactory;
         this.transportModeRepository = transportModeRepository;
         this.recentJourneysToStations = recentJourneysToStations;
-        logger.info("created");
+        this.closedStationsRepository = closedStationsRepository;
         this.stationRepository = stationRepository;
         this.dataSourceRepository = dataSourceRepository;
         this.stationLocations = stationLocations;
@@ -247,14 +246,17 @@ public class StationResource extends UsesRecentCookie implements APIResource {
         logger.info("Get closed stations " + closed);
 
         List<StationClosureDTO> dtos = closed.stream().
-                map(closure -> new StationClosureDTO(closure.getDateRange(), toRefs(closure.getStations()), closure.isFullyClosed())).
+                map(closure -> StationClosureDTO.from(closure, toRefs(closure.getStations()))).
                 collect(Collectors.toList());
+
+        logger.info("Returning " + dtos.size() + " closures");
 
         return Response.ok(dtos).build();
 
     }
 
-    private Set<StationClosures> getUpcomingClosuresFor(TramDate date) {
+    private Set<StationClosures> getUpcomingClosuresFor(final TramDate date) {
+
         return config.getGTFSDataSource().stream().
                 flatMap(dataSourceRepository -> dataSourceRepository.getStationClosures().stream()).
                 filter(closure -> date.isBefore(closure.getDateRange().getEndDate()) || date.equals(closure.getDateRange().getEndDate())).

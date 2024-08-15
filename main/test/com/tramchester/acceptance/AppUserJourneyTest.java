@@ -187,7 +187,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
         desiredJourney(appPage, Altrincham, Deansgate, when, TramTime.of(10,15), false);
         appPage.planAJourney();
 
-        int summer2024Closures = NUM_TFGM_TRAM_STATIONS - 2;
+//        int summer2024Closures = NUM_TFGM_TRAM_STATIONS - 2;
 
         assertTrue(appPage.resultsClickable(), "results clickable");
         assertTrue(appPage.searchEnabled());
@@ -203,7 +203,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
         List<String> remainingFromStops = appPage.getAllStopsFromStops();
         assertThat(remainingFromStops, not(contains(fromRecent)));
         // still displaying all stations
-        assertEquals(summer2024Closures-1,
+        assertEquals(NUM_TFGM_TRAM_STATIONS-1,
                 remainingFromStops.size()+fromRecent.size()); // less one as 'to' stop is excluded
 
         // check 'to' recents are set
@@ -211,7 +211,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
         assertThat(toRecent, hasItems(Altrincham.getName(), Deansgate.getName()));
         List<String> remainingToStops = appPage.getAllStopsToStops();
         assertThat(remainingToStops, not(contains(toRecent)));
-        assertEquals(summer2024Closures-1,
+        assertEquals(NUM_TFGM_TRAM_STATIONS-1,
                 remainingToStops.size()+toRecent.size()); // less one as 'from' stop is excluded
 
         // inputs still set

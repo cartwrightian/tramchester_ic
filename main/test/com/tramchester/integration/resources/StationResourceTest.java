@@ -3,14 +3,15 @@ package com.tramchester.integration.resources;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.App;
+import com.tramchester.GuiceContainerDependencies;
+import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.StationClosures;
+import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.Timestamped;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.presentation.DTO.LocationDTO;
-import com.tramchester.domain.presentation.DTO.LocationRefDTO;
-import com.tramchester.domain.presentation.DTO.PlatformDTO;
-import com.tramchester.domain.presentation.DTO.RouteRefDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.reference.TransportMode;
@@ -31,6 +32,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.Response;
+
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -45,11 +48,14 @@ class StationResourceTest {
 
     private final ObjectMapper mapper = new ObjectMapper();
     private StationRepository stationRepository;
+    private TramchesterConfig config;
 
     @BeforeEach
     void beforeEachTestRuns() {
         App app =  appExtension.getApplication();
-        stationRepository = app.getDependencies().get(StationRepository.class);
+        GuiceContainerDependencies dependencies = app.getDependencies();
+        stationRepository = dependencies.get(StationRepository.class);
+        config = dependencies.get(TramchesterConfig.class);
     }
 
     @Test
@@ -115,6 +121,36 @@ class StationResourceTest {
         for (int i = 0; i < sortedResults.size(); i++) {
             assertEquals(results.get(i), sortedResults.get(i), "not sorted");
         }
+
+    }
+
+    @Test
+    void shouldGetClosedStations() {
+        Response result = APIClient.getApiResponse(appExtension, "stations/closures");
+
+        assertEquals(200, result.getStatus());
+
+        List<StationClosureDTO> response = result.readEntity(new GenericType<>() {});
+
+        Set<StationClosures> expected = config.getGTFSDataSource().stream().
+                flatMap(source -> source.getStationClosures().stream()).
+                collect(Collectors.toSet());
+
+        // TODO going to need to move this into own test fixture with config for closed stations
+        assertFalse(expected.isEmpty());
+
+        assertEquals(expected.size(), response.size());
+
+        response.forEach(stationClosureDTO -> {
+            assertNotNull(stationClosureDTO.getAllDay());
+            assertTrue(stationClosureDTO.getAllDay());
+
+            assertNull(stationClosureDTO.getBeginTime());
+            assertNull(stationClosureDTO.getEndTime());
+
+            assertEquals(LocalDate.of(2024,7,24), stationClosureDTO.getBegin());
+            assertEquals(LocalDate.of(2024,8,19), stationClosureDTO.getEnd());
+        });
 
     }
 
