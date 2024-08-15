@@ -118,7 +118,7 @@ dependencies {
             'org.junit.platform:junit-platform-launcher:1.10.3', ///NOTE: issues with latest junit and latest launcher, don't play with dropwizard
             'org.easymock:easymock:5.4.0',
             'org.seleniumhq.selenium:selenium-java:3.141.59',
-            'org.hamcrest:hamcrest:2.2'
+            'org.hamcrest:hamcrest:3.0'
 
     // cxf complains about missing conduit without this
     cxfCodegen 'org.apache.cxf:cxf-rt-transports-http:4.0.5'
