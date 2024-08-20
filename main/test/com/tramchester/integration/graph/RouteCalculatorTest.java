@@ -43,7 +43,6 @@ import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.domain.time.Durations.greaterOrEquals;
-import static com.tramchester.testSupport.TestEnv.*;
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -156,18 +155,25 @@ public class RouteCalculatorTest {
 
     @Test
     void shouldHaveSimpleOneStopJourneyNextDays() {
-        checkRouteNextNDays(TraffordBar, Altrincham, when, TramTime.of(9,0), DAYS_AHEAD);
+        checkRouteNextNDays(TraffordBar, Altrincham, TramTime.of(9,0));
     }
 
     @Test
     void shouldHaveSimpleManyStopSameLineJourney() {
-        checkRouteNextNDays(Altrincham, Cornbrook, when, TramTime.of(9,0), DAYS_AHEAD);
+        checkRouteNextNDays(Altrincham, Cornbrook, TramTime.of(9,0));
+    }
+
+    @Test
+    void shouldRevisitUpcomingDaysInTestEnvAfterFriday23August() {
+        // seems to be problem with upcoming data from TFGM
+        TramDate tramDate = TramDate.from(TestEnv.LocalNow());
+        assertTrue(tramDate.isBefore(TramDate.of(2024,8, 22)), "Check TestEnv.DAYS_AHEAD, change back to 7 days");
     }
 
     @DataExpiryCategory
     @Test
     void shouldHaveSimpleManyStopJourneyViaInterchangeNDaysAhead() {
-        checkRouteNextNDays(StPetersSquare, ManAirport, when, TramTime.of(12,0), DAYS_AHEAD);
+        checkRouteNextNDays(StPetersSquare, ManAirport, TramTime.of(12,0));
     }
 
     @Test
@@ -293,7 +299,7 @@ public class RouteCalculatorTest {
     // over max wait, catch failure to accumulate journey times correctly
     @Test
     void shouldHaveSimpleButLongJoruneySameRoute() {
-        checkRouteNextNDays(ManAirport, TraffordBar, when, TramTime.of(9,0), 1);
+        checkRouteNextNDays(ManAirport, TraffordBar, TramTime.of(9,0));
     }
 
     @Landslide2024TestCategory
@@ -319,7 +325,7 @@ public class RouteCalculatorTest {
 
     @Test
     void shouldHaveSimpleManyStopJourneyStartAtInterchange() {
-        checkRouteNextNDays(Cornbrook, Bury, when, TramTime.of(9,0), 1);
+        checkRouteNextNDays(Cornbrook, Bury, TramTime.of(9,0));
     }
 
     @Test
@@ -656,14 +662,11 @@ public class RouteCalculatorTest {
         return new JourneyRequest(date, time, false, maxChanges, maxJourneyDuration, maxNumberJourneys, requestedModes);
     }
 
-    private void checkRouteNextNDays(TramStations start, TramStations dest, TramDate date, TramTime time, int numDays) {
+    private void checkRouteNextNDays(TramStations start, TramStations dest, TramTime time) {
         if (!dest.equals(start)) {
-            for(int day = 0; day< numDays; day++) {
-                final TramDate testDate = avoidChristmasDate(date.plusDays(day));
-                JourneyRequest journeyRequest = standardJourneyRequest(testDate, time, maxNumResults);
-//                if (!testDate.equals(TestEnv.WORKAROUND_WRONG_DATE_IN_TFGM_DATA)) {
-                    assertGetAndCheckJourneys(journeyRequest, start, dest);
-//                }
+            for(final TramDate testDate : TestEnv.daysAhead()) {
+                final JourneyRequest journeyRequest = standardJourneyRequest(testDate, time, maxNumResults);
+                assertGetAndCheckJourneys(journeyRequest, start, dest);
             }
         }
     }

@@ -81,29 +81,22 @@ public class StationRepositoryTest {
 
         IdSet<Station> dropOffs = allStations.stream().filter(station -> station.servesRouteDropOff(buryToAlty)).collect(IdSet.collector());
 
-        // 25 -> 29
-        assertEquals(29, dropOffs.size(), dropOffs.toString());
+        // 25
+        assertEquals(25, dropOffs.size(), dropOffs.toString());
         // in new data Bury is dropoff since no direction to routes....
-        //assertFalse(dropOffs.contains(Bury.getId()));
+//        assertFalse(dropOffs.contains(Bury.getId()));
         assertTrue(dropOffs.contains(Altrincham.getId()));
         assertTrue(dropOffs.contains(Cornbrook.getId()));
 
-        // shudehill market street closure 2024
-//        assertTrue(dropOffs.contains(Shudehill.getId()));
-        assertTrue(dropOffs.contains(ExchangeSquare.getId()));
+        assertTrue(dropOffs.contains(Shudehill.getId()));
 
         IdSet<Station> pickUps = allStations.stream().filter(station -> station.servesRoutePickup(buryToAlty)).collect(IdSet.collector());
 
-        assertEquals(29, pickUps.size(), pickUps.toString());
+        assertEquals(25, pickUps.size(), pickUps.toString());
         assertTrue(pickUps.contains(Bury.getId()));
-        //assertFalse(pickUps.contains(Altrincham.getId()));
         assertTrue(pickUps.contains(Cornbrook.getId()));
 
-        // shudehill market street closure 2024
-//        assertTrue(pickUps.contains(Shudehill.getId()));
-        assertTrue(pickUps.contains(ExchangeSquare.getId()));
-
-
+        assertTrue(pickUps.contains(Shudehill.getId()));
     }
 
     @Test
@@ -240,7 +233,7 @@ public class StationRepositoryTest {
             filter(route -> route.isAvailableOn(when)).
             collect(IdSet.collector());
         assertEquals(1, pickups.size());
-        assertTrue(pickups.contains(CornbrookTheTraffordCentre.getId()));
+        assertTrue(pickups.contains(CornbrookTheTraffordCentre.getId()), pickups.toString());
 
         IdSet<Route> dropOffs = station.getDropoffRoutes().stream().
             filter(route -> route.isAvailableOn(when)).

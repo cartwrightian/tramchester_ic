@@ -58,6 +58,8 @@ public class TestEnv {
     public static final String DISABLE_HEADLESS_ENV_VAR = "DISABLE_HEADLESS";
     public static final String CHROMEDRIVER_PATH_ENV_VAR = "CHROMEDRIVER_PATH";
 
+    // use helper methods that handle filtering (i.e. for christmas) and conversion to dates
+    @Deprecated
     public static final int DAYS_AHEAD = 7;
 
     private static final TramDate testDay;
@@ -82,12 +84,6 @@ public class TestEnv {
 
     public final static HashSet<GTFSTransportationType> tramAndBus =
             new HashSet<>(Arrays.asList(GTFSTransportationType.tram, GTFSTransportationType.bus));
-
-    // wrong date currently in tfgm data for line closure, should be 14th July not 7th
-//    public static final TramDate WORKAROUND_WRONG_DATE_IN_TFGM_DATA = TramDate.of(2024, 7, 7);
-
-    // https://tfgm.com/23-april-airport-works
-    //public static final TramDate AirportLineClosed =  TramDate.of(2023, 4,23);;
 
     public static AppConfiguration GET() {
         return new TestConfig() {
@@ -124,6 +120,41 @@ public class TestEnv {
         monday = getNextDate(DayOfWeek.MONDAY, today);
     }
 
+    public static List<TramDate> daysAhead() {
+        TramDate date = TramDate.of(LocalNow().toLocalDate()).plusDays(1);
+
+        final List<TramDate> dates= new ArrayList<>();
+        while (dates.size() <= TestEnv.DAYS_AHEAD) {
+            if (validTestDate(date)) {
+                dates.add(date);
+            }
+            date = date.plusDays(1);
+        }
+
+        return dates;
+    }
+
+    private static boolean validTestDate(final TramDate date) {
+        if (date.isChristmasPeriod()) {
+            return false;
+        }
+        final TramDate augustBankHols2024 = TramDate.of(2024,8,26);
+        return !date.equals(augustBankHols2024);
+    }
+
+    public static Stream<TramDate> getUpcomingDates() {
+        return daysAhead().stream();
+//        final TramDate baseDate = testDay();
+//        return DateRange.of(baseDate, baseDate.plusDays(DAYS_AHEAD)).stream();
+    }
+
+    public static TramDate avoidChristmasDate(TramDate date) {
+        while (date.isChristmasPeriod()) {
+            date = date.plusWeeks(1);
+        }
+        return date;
+    }
+
     public static TramDate nextSaturday() {
         return saturday;
     }
@@ -145,18 +176,6 @@ public class TestEnv {
             date = date.plusDays(1);
         }
         return avoidChristmasDate(date);
-    }
-
-    public static TramDate avoidChristmasDate(TramDate date) {
-        while (date.isChristmasPeriod()) {
-            date = date.plusWeeks(1);
-        }
-        return date;
-    }
-
-    public static Stream<TramDate> getUpcomingDates() {
-        TramDate baseDate = testDay();
-        return DateRange.of(baseDate, baseDate.plusDays(DAYS_AHEAD)).stream();
     }
 
     public static Route getTramTestRoute() {

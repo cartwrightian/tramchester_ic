@@ -72,7 +72,7 @@ dependencies {
     implementation('org.neo4j:neo4j:5.18.1') {
         // seem to cause issue with logging on every release, sigh
         exclude group: 'org.neo4j', module:'neo4j-slf4j-provider'
-        exclude group: 'org.glassfish.jersey.inject'   // , module: 'jersey-hk2'}
+        exclude group: 'org.glassfish.jersey.inject'
         exclude group: 'org.glassfish.jersey.containers', module: 'jersey-container-servlet'
         exclude group: 'org.eclipse.jetty' }
     implementation 'com.github.cliftonlabs:json-simple:4.0.1',
@@ -106,10 +106,11 @@ dependencies {
 
     implementation  'org.jetbrains:annotations:24.1.0'
 
-    implementation('org.geotools:gt-main:30.2',
-            'org.geotools:gt-epsg-hsql:30.2')
-    implementation('javax.measure:unit-api:2.2')
+    // note multiple incompatible forks of geotools see repo specified above and https://repo.osgeo.org/#browse/browse:release:org%2Fgeotools%2Fgt-main
+    implementation('org.geotools:gt-main:31.3',
+            'org.geotools:gt-epsg-hsql:31.3')
 
+    implementation('javax.measure:unit-api:2.2')
 
     implementation('org.roaringbitmap:RoaringBitmap:1.2.1')
 

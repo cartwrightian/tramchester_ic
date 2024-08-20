@@ -126,7 +126,6 @@ class KnownTramRouteTest {
         });
     }
 
-    @ShudehillMarketStreetClosedTestCategory
     @Test
     void shouldNotHaveUnusedKnownTramRoutes() {
         TramDate start = TramDate.from(TestEnv.LocalNow());

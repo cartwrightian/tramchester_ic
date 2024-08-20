@@ -101,12 +101,16 @@ public class TransportDataFromFilesTramTest {
 
     }
 
+    private static Stream<TramDate> getUpcomingDates() {
+        return TestEnv.getUpcomingDates();
+    }
+
     @Test
     void shouldHaveExpectedNumbersForTram() {
         assertEquals(1, transportData.getAgencies().stream().filter(agency -> agency.getTransportModes().contains(Tram)).count());
         assertEquals(NUM_TFGM_TRAM_STATIONS, transportData.getStations(EnumSet.of(Tram)).size());
 
-        int expectedPlatforms = 200 - 1; //
+        int expectedPlatforms = 200;
         assertEquals(expectedPlatforms, transportData.getPlatforms(EnumSet.of(Tram)).size());
     }
 
@@ -178,8 +182,7 @@ public class TransportDataFromFilesTramTest {
 
         Set<String> uniqueRouteNames = callingRoutes.stream().map(Route::getName).collect(Collectors.toSet());
 
-        // London road closure 2 -> 1
-        assertEquals(1, uniqueRouteNames.size(), uniqueRouteNames.toString());
+        assertEquals(2, uniqueRouteNames.size(), uniqueRouteNames.toString());
     }
 
     @Test
@@ -233,7 +236,7 @@ public class TransportDataFromFilesTramTest {
                 map(routeStation -> Pair.of(routeStation.getStationId(), routeStation.getRoute().getName())).
                 collect(Collectors.toSet());
 
-        assertEquals(3, routeStationPairs.size(), routeStations.toString());
+        assertEquals(4, routeStationPairs.size(), routeStations.toString());
 
         Set<String> routeNames =
                 routeStations.stream().
@@ -386,13 +389,8 @@ public class TransportDataFromFilesTramTest {
 
     }
 
-    private static Stream<TramDate> getUpcomingDates() {
-        return TestEnv.getUpcomingDates();
-    }
-
     @Test
     void shouldHaveServicesThatIncludeDateInRange() {
-        //TramDate date = TramDate.of(2022,11,21);
 
         Set<Service> allServices = transportData.getServices();
 
