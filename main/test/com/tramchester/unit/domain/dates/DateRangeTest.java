@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
@@ -133,6 +134,24 @@ public class DateRangeTest {
 
         assertEquals("DateRange{EMPTY}", range.toString());
 
+    }
+
+    @Test
+    void shouldHaveDateRangeFromCollection() {
+        TramDate start = TramDate.of(2024, 5, 10);
+        TramDate end = TramDate.of(2025, 6, 15);
+
+        DateRange dateRangeA = DateRange.from(Arrays.asList(start, end));
+        assertEquals(start, dateRangeA.getStartDate());
+        assertEquals(end, dateRangeA.getEndDate());
+
+        DateRange dateRangeB = DateRange.from(Arrays.asList(end, start));
+        assertEquals(start, dateRangeB.getStartDate());
+        assertEquals(end, dateRangeB.getEndDate());
+
+        DateRange dateRangeC = DateRange.from(Arrays.asList(end, TramDate.of(2024, 6, 1), start));
+        assertEquals(start, dateRangeC.getStartDate());
+        assertEquals(end, dateRangeC.getEndDate());
     }
 
     @Disabled("Performance testing only")

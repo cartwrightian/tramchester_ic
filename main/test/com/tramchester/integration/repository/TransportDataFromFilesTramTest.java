@@ -54,7 +54,6 @@ import static com.tramchester.domain.reference.CentralZoneStation.StPetersSquare
 import static com.tramchester.domain.reference.CentralZoneStation.TraffordBar;
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.integration.testSupport.Assertions.assertIdEquals;
-import static com.tramchester.testSupport.TestEnv.DAYS_AHEAD;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
@@ -293,10 +292,10 @@ public class TransportDataFromFilesTramTest {
     @Test
     void shouldHaveServiceEndDatesBeyondNextNDays() {
 
-        TramDate startDate = TramDate.from(TestEnv.LocalNow());
-        TramDate endDate = startDate.plusDays(DAYS_AHEAD);
+//        TramDate startDate = TramDate.from(TestEnv.LocalNow());
+//        TramDate endDate = startDate.plusDays(DAYS_AHEAD);
 
-        DateRange dateRange = DateRange.of(startDate, endDate);
+        DateRange dateRange = DateRange.from(TestEnv.daysAhead());
 
         Set<Service> services = transportData.getServices();
         Set<Service> expiringServices = services.stream().

@@ -9,7 +9,6 @@ import com.tramchester.config.TfgmTramLiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
 import com.tramchester.domain.*;
-import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.factory.TransportEntityFactoryForTFGM;
 import com.tramchester.domain.id.IdFor;
@@ -59,8 +58,7 @@ public class TestEnv {
     public static final String CHROMEDRIVER_PATH_ENV_VAR = "CHROMEDRIVER_PATH";
 
     // use helper methods that handle filtering (i.e. for christmas) and conversion to dates
-    @Deprecated
-    public static final int DAYS_AHEAD = 7;
+    private static final int DAYS_AHEAD = 7;
 
     private static final TramDate testDay;
     private static final TramDate saturday;
@@ -144,8 +142,6 @@ public class TestEnv {
 
     public static Stream<TramDate> getUpcomingDates() {
         return daysAhead().stream();
-//        final TramDate baseDate = testDay();
-//        return DateRange.of(baseDate, baseDate.plusDays(DAYS_AHEAD)).stream();
     }
 
     public static TramDate avoidChristmasDate(TramDate date) {

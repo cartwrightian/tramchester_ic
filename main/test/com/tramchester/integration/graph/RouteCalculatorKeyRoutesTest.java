@@ -97,7 +97,6 @@ class RouteCalculatorKeyRoutesTest {
         validateFor(results);
     }
 
-    @Disabled("WIP on why this is failing with timeout")
     @DataExpiryCategory
     @Test
     void shouldFindEndOfLinesToEndOfLinesNextNDays() {
@@ -106,18 +105,15 @@ class RouteCalculatorKeyRoutesTest {
 
         final Map<TramDate, LocationIdPairSet<Station>> missing = new HashMap<>();
 
-        for(int day = 0; day< TestEnv.DAYS_AHEAD; day++) {
-            TramDate testDate = avoidChristmasDate(when.plusDays(day));
-            if (shouldCheckDate(testDate)) {
-                JourneyRequest request = new JourneyRequest(testDate, TramTime.of(8, 5), false, 3,
-                        maxJourneyDuration, 1, modes);
-                RouteCalculationCombinations.CombinationResults<Station> results = combinations.getJourneysFor(pairs, request, Duration.ofMinutes(1));
-                LocationIdPairSet<Station> missingForDate = results.getMissing();
-                if (!missingForDate.isEmpty()) {
-                    missing.put(testDate, missingForDate);
-                }
+        TestEnv.daysAhead().stream().filter(this::shouldCheckDate).forEach(testDate -> {
+            JourneyRequest request = new JourneyRequest(testDate, TramTime.of(8, 5), false, 3,
+                    maxJourneyDuration, 1, modes);
+            RouteCalculationCombinations.CombinationResults<Station> results = combinations.getJourneysFor(pairs, request, Duration.ofMinutes(1));
+            LocationIdPairSet<Station> missingForDate = results.getMissing();
+            if (!missingForDate.isEmpty()) {
+                missing.put(testDate, missingForDate);
             }
-        }
+        });
 
         assertTrue(missing.isEmpty(), missing.toString());
 

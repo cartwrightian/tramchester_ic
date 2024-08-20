@@ -1,5 +1,7 @@
 package com.tramchester.domain.dates;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -21,6 +23,15 @@ public class DateRange {
 
     public static DateRange Empty() {
         return Empty;
+    }
+
+    public static DateRange from(final Collection<TramDate> dates) {
+        List<TramDate> sorted = dates.stream().sorted(TramDate::compareTo).toList();
+
+        TramDate first = sorted.get(0);
+        TramDate last = sorted.get(sorted.size()-1);
+
+        return new DateRange(first, last);
     }
 
     public boolean contains(final TramDate queryDate) {
