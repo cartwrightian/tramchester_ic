@@ -4,7 +4,6 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.TemporaryStationWalk;
-import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
@@ -26,7 +25,8 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.time.Duration;
-import java.util.*;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -130,7 +130,6 @@ public class AddTemporaryStationWalksGraphBuilder extends CreateNodesAndRelation
         walks.stream().
                 filter(walk -> graphFilter.shouldInclude(walk.getStationPair())).
                 forEach(this::createWalks);
-
     }
 
 
@@ -190,20 +189,20 @@ public class AddTemporaryStationWalksGraphBuilder extends CreateNodesAndRelation
 
         logger.info(format("Create walk to/from %s and %s cost %s", first.getId(), second.getId(), cost));
 
-        final MutableGraphRelationship fromClosed = createRelationship(txn, firstNode, secondNode, DIVERSION);
-        final MutableGraphRelationship fromOther = createRelationship(txn, secondNode, firstNode, DIVERSION);
+        final MutableGraphRelationship fromFirst = createRelationship(txn, firstNode, secondNode, DIVERSION);
+        final MutableGraphRelationship fromSecond = createRelationship(txn, secondNode, firstNode, DIVERSION);
 
-        setCommonProperties(fromClosed, cost, temporaryStationWalk);
-        setCommonProperties(fromOther, cost, temporaryStationWalk);
+        setCommonProperties(fromFirst, cost, temporaryStationWalk);
+        setCommonProperties(fromSecond, cost, temporaryStationWalk);
 
-        fromClosed.set(second);
-        fromOther.set(first);
+        fromFirst.set(second);
+        fromSecond.set(first);
 
         firstNode.addLabel(GraphLabel.HAS_DIVERSION);
         secondNode.addLabel(GraphLabel.HAS_DIVERSION);
-        DateTimeRange dateTimeRange = DateTimeRange.of(temporaryStationWalk.getDateRange(), temporaryStationWalk.getTimeRange());
-        stationsWithDiversions.add(second, dateTimeRange);
+        final DateTimeRange dateTimeRange = DateTimeRange.of(temporaryStationWalk.getDateRange(), temporaryStationWalk.getTimeRange());
         stationsWithDiversions.add(first, dateTimeRange);
+        stationsWithDiversions.add(second, dateTimeRange);
     }
 
     @NotNull

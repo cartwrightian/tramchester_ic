@@ -24,7 +24,6 @@ import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
-import com.tramchester.testSupport.testTags.ShudehillMarketStreetClosedTestCategory;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -115,7 +114,6 @@ public class RouteToRouteCostsTest {
         assertEquals(0, getMinCost(routesCostRepository.getNumberOfChanges(routeA, routeA, date, timeRange, modes)));
     }
 
-    @ShudehillMarketStreetClosedTestCategory
     @Test
     void shouldComputeCostsDifferentRoutesTwoChange() {
         Route routeA = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
@@ -127,7 +125,6 @@ public class RouteToRouteCostsTest {
                 "wrong for " + routeB.getId() + " " + routeA.getId());
     }
 
-    @ShudehillMarketStreetClosedTestCategory
     @Test
     void shouldFailIfOurOfTimeRangeDifferentRoutesTwoChange() {
         Route routeA = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
@@ -211,7 +208,6 @@ public class RouteToRouteCostsTest {
         assertEquals(0, getMinCost(result));
     }
 
-    @ShudehillMarketStreetClosedTestCategory
     @Test
     void shouldSortAsExpected() {
 

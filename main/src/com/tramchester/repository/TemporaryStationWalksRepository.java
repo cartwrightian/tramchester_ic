@@ -1,12 +1,11 @@
 package com.tramchester.repository;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.config.TemporaryStationsWalkIds;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.StationPair;
 import com.tramchester.domain.TemporaryStationWalk;
-import com.tramchester.config.TemporaryStationsWalkIds;
-import com.tramchester.domain.dates.TramDate;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,11 +52,6 @@ public class TemporaryStationWalksRepository {
     private TemporaryStationWalk resolveStations(TemporaryStationsWalkIds temporaryStationWalkIds, DataSourceID dataSourceId) {
         StationPair stationPair = stationRepository.getStationPair(temporaryStationWalkIds.getStationPair());
         return new TemporaryStationWalk(stationPair, temporaryStationWalkIds.getDateRange(), dataSourceId);
-    }
-
-    public Set<TemporaryStationWalk> getWalksBetweenFor(final TramDate date) {
-        return walks.stream().filter(walk -> walk.getDateRange().contains(date)).
-                collect(Collectors.toSet());
     }
 
     public Set<TemporaryStationWalk> getTemporaryWalksFor(final DataSourceID dataSourceId) {

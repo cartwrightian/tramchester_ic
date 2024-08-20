@@ -3,6 +3,7 @@ package com.tramchester.integration.graph.diversions;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.StationPair;
 import com.tramchester.domain.TemporaryStationWalk;
@@ -15,6 +16,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TemporaryStationWalksRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -61,7 +64,7 @@ public class TemporaryStationsWalkRepositoryTest {
 
     @Test
     void shouldGetCurrentWalks() {
-        Set<TemporaryStationWalk> walks = repository.getWalksBetweenFor(when);
+        Set<TemporaryStationWalk> walks = getWalksFOrDate(when);
 
         assertEquals(1, walks.size());
 
@@ -75,9 +78,21 @@ public class TemporaryStationsWalkRepositoryTest {
 
     }
 
+    private @NotNull Set<TemporaryStationWalk> getWalksFOrDate(TramDate date) {
+        return repository.getTemporaryWalksFor(DataSourceID.tfgm).stream().
+                filter(walk -> walk.getDateRange().contains(date)).collect(Collectors.toSet());
+    }
+
+    @Test
+    void shouldGetWalksForSource() {
+        Set<TemporaryStationWalk> walks = repository.getTemporaryWalksFor(DataSourceID.tfgm);
+
+        assertEquals(2, walks.size());
+    }
+
     @Test
     void shouldGetNoWalksIfNotWithinRange() {
-        Set<TemporaryStationWalk> walks = repository.getWalksBetweenFor(when.plusWeeks(4));
+        Set<TemporaryStationWalk> walks = getWalksFOrDate(when.plusWeeks(4));
 
         assertEquals(0, walks.size());
     }

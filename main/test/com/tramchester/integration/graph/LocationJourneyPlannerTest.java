@@ -22,7 +22,6 @@ import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.ShudehillMarketStreetClosedTestCategory;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
@@ -30,7 +29,6 @@ import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
 import static com.tramchester.testSupport.reference.KnownLocations.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -220,7 +218,6 @@ class LocationJourneyPlannerTest {
         });
     }
 
-    @ShudehillMarketStreetClosedTestCategory
     @Test
     void shouldFindJourneyWithWalkingDirectAtEndNearShudehill() {
         TramTime queryTime = TramTime.of(8, 30);

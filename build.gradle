@@ -406,7 +406,6 @@ def integrationTestConfiguration = {
         excludeTags "AWSMetricsTest"
         excludeTags "Landslide2024"
         excludeTags "VictorialClosedAugust2024"
-        excludeTags "ShudehillMarketStreetClosed"
     }
     filter {
         includeTestsMatching "com.tramchester.integration.*"

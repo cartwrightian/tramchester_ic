@@ -3,52 +3,59 @@ package com.tramchester.integration.repository;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.DateRangeConfig;
-import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.StationClosuresConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.StationClosures;
+import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.DateTimeRange;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.time.TimeRange;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StationsWithDiversionRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.ShudehillMarketStreetClosedTestCategory;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class StationsWithDiversionsRepositoryTest {
     private static ComponentContainer componentContainer;
-    private static TramchesterConfig config;
+    private static LocalDate begin;
+    private static LocalDate end;
 
     private StationsWithDiversionRepository diversionRepository;
     private StationRepository stationsRepository;
 
+    private static final TramStations withDiversion = TramStations.ExchangeSquare;
+
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        Set<String> closed = Collections.singleton("9400ZZMAEXS");
+        Set<String> closed = Collections.singleton(withDiversion.getRawId());
 
-        DateRangeConfig dataRangeConfifg = new DateRangeConfig(LocalDate.of(2024, 2, 12),
-                LocalDate.of(2024, 5, 7));
-        StationClosuresConfig exchangeSquareBrokenRail = new StationClosuresConfig(closed, dataRangeConfifg, null, false,  Collections.emptySet(), Collections.singleton("9400ZZMAVIC"));
-        List<StationClosures> closures = Collections.singletonList(exchangeSquareBrokenRail);
+        begin = LocalDate.of(2024, 2, 12);
+        end = LocalDate.of(2024, 5, 7);
+        DateRangeConfig dataRangeConfig = new DateRangeConfig(begin, end);
 
-        config = new IntegrationTramTestConfig(closures, IntegrationTramTestConfig.Caching.Enabled);
+        StationClosuresConfig exchangeSquareClosure = new StationClosuresConfig(closed, dataRangeConfig,
+                null, false,  Collections.emptySet(), Collections.singleton(TramStations.Victoria.getRawId()));
+
+        List<StationClosures> closures = Collections.singletonList(exchangeSquareClosure);
+
+        TramchesterConfig config = new IntegrationTramTestConfig(closures, IntegrationTramTestConfig.Caching.Enabled);
+
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
@@ -69,41 +76,24 @@ public class StationsWithDiversionsRepositoryTest {
     }
 
     @Test
-    void shouldHaveDiversionsForExchangeSquareBrokenRail() {
-        // todo once fixed will need to inject test closed station above
+    void shouldHaveDiversionAtVictoria() {
+        // NOTE: if intergation test config changes for closures need to cleanGraph
 
-        boolean result = diversionRepository.hasDiversions(TramStations.Victoria.from(stationsRepository));
-        assertTrue(result);
-    }
+        Station victoria = TramStations.Victoria.from(stationsRepository);
+        assertTrue(diversionRepository.hasDiversions(victoria));
 
-    @ShudehillMarketStreetClosedTestCategory
-    @Test
-    void shouldHaveDiversionsMatchingConfig() {
-        IdFor<Station> stationWithClosureId = TramStations.ExchangeSquare.getId();
+        List<DateTimeRange> ranges = new ArrayList<>(diversionRepository.getDateTimeRangesFor(victoria));
 
-        Optional<GTFSSourceConfig> findSourceConfig = config.getGTFSDataSource().stream().
-                filter(sourceConfig -> sourceConfig.getDataSourceId().equals(DataSourceID.tfgm)).findFirst();
-        assertTrue(findSourceConfig.isPresent());
-        List<StationClosures> allClosed = findSourceConfig.get().getStationClosures();
+        assertEquals(1, ranges.size());
 
-        assertFalse(allClosed.isEmpty());
+        DateTimeRange dateTimeRange = ranges.get(0);
 
-        List<StationClosures> findStationClosed = allClosed.stream().filter(closure -> closure.getStations().contains(stationWithClosureId)).toList();
-        assertEquals(1, findStationClosed.size());
-        StationClosures stationClosure = findStationClosed.get(0);
+        DateRange dateRange = dateTimeRange.getDateRange();
+        assertEquals(TramDate.of(begin), dateRange.getStartDate());
+        assertEquals(TramDate.of(end), dateRange.getEndDate());
+        assertEquals(TimeRange.AllDay(), dateTimeRange.getTimeRange());
 
-        Set<Station> diversions = stationClosure.getDiversionsAroundClosure().stream().map(id -> stationsRepository.getStationById(id)).collect(Collectors.toSet());
-
-        assertFalse(diversions.isEmpty());
-
-        diversions.forEach(diversionStation ->
-                assertTrue(diversionRepository.hasDiversions(diversionStation), "missing for " + diversionStation.getId()));
-
-        DateTimeRange expectedRange = DateTimeRange.of(stationClosure.getDateRange(), stationClosure.getTimeRange());
-
-        diversions.forEach(diversionStation ->
-                assertTrue(diversionRepository.getDateTimeRangesFor(diversionStation).contains(expectedRange),
-                        "wrong date rangee for " + diversionStation.getId()));
 
     }
+
 }

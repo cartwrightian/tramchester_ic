@@ -38,7 +38,6 @@ import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryCategory;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
-import com.tramchester.testSupport.testTags.ShudehillMarketStreetClosedTestCategory;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -225,7 +224,6 @@ public class TransportDataFromFilesTramTest {
         assertTrue(noDropOffs.isEmpty(), noDropOffs.toString());
     }
 
-    @ShudehillMarketStreetClosedTestCategory
     @Test
     void shouldGetRouteStationsForStation() {
         Set<RouteStation> routeStations = transportData.getRouteStationsFor(Shudehill.getId());

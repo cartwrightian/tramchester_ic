@@ -27,7 +27,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
-import com.tramchester.testSupport.testTags.ShudehillMarketStreetClosedTestCategory;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
@@ -158,7 +157,6 @@ public class RouteInterconnectRepositoryTest {
 
     }
 
-    @ShudehillMarketStreetClosedTestCategory
     @Test
     void shouldCheckFor2Changes() {
 
@@ -221,7 +219,6 @@ public class RouteInterconnectRepositoryTest {
 
     }
 
-    @ShudehillMarketStreetClosedTestCategory
     @Test
     void shouldHaveExpectedBacktrackFor2Changes() {
         Route routeA = routeHelper.getOneRoute(PiccadillyBury, date);
@@ -264,7 +261,6 @@ public class RouteInterconnectRepositoryTest {
         return converted.toString();
     }
 
-    @ShudehillMarketStreetClosedTestCategory
     @Test
     void shouldCheckFor2ChangesFiltered() {
         Route routeA = routeHelper.getOneRoute(PiccadillyBury, date);

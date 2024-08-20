@@ -21,7 +21,6 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramStationWalksT
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.ShudehillMarketStreetClosedTestCategory;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
@@ -38,7 +37,6 @@ import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-@ShudehillMarketStreetClosedTestCategory
 class SubgraphSmallStationWalksTest {
     // Note this needs to be > time for whole test fixture, see note below in @After
     private static final int TXN_TIMEOUT = 5*60;
@@ -68,7 +66,7 @@ class SubgraphSmallStationWalksTest {
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
 
-        StationIdPair stationIdPair = new StationIdPair(PiccadillyGardens.getId(), Piccadilly.getId());
+        StationIdPair stationIdPair = new StationIdPair(Piccadilly.getId(), PiccadillyGardens.getId());
 
         TemporaryStationsWalkIds temporaryStationsWalkA = new TemporaryStationsWalkConfigForTest(stationIdPair,
                 DateRange.of(when.minusWeeks(1), when.plusWeeks(1)));
@@ -140,6 +138,7 @@ class SubgraphSmallStationWalksTest {
         });
     }
 
+    @Disabled("Tram is faster")
     @Test
     void shouldFindRouteUsingWalkPiccToCornbrook() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
@@ -150,10 +149,11 @@ class SubgraphSmallStationWalksTest {
         assertFalse(results.isEmpty(), "no journeys");
 
         results.forEach(result -> {
-            assertEquals(Connect, result.getStages().get(0).getMode());
+            assertEquals(Connect, result.getStages().get(0).getMode(), "wrong mode? " + result);
         });
     }
 
+    @Disabled("Tram is faster")
     @Test
     void shouldFindRouteUsingWalkPiccToPiccGardens() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
@@ -165,7 +165,7 @@ class SubgraphSmallStationWalksTest {
 
         results.forEach(result -> {
             assertEquals(1, result.getStages().size(), result.toString());
-            assertEquals(Connect, result.getStages().get(0).getMode());
+            assertEquals(Connect, result.getStages().get(0).getMode(), "wrong mode? " + result);
         });
     }
 

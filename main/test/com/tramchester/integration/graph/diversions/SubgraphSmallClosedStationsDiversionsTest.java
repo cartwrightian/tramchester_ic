@@ -3,7 +3,10 @@ package com.tramchester.integration.graph.diversions;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.DiagramCreator;
-import com.tramchester.domain.*;
+import com.tramchester.domain.Journey;
+import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.NumberOfChanges;
+import com.tramchester.domain.StationClosures;
 import com.tramchester.domain.closures.ClosedStation;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.DateTimeRange;
@@ -37,7 +40,6 @@ import com.tramchester.repository.StationsWithDiversionRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.ShudehillMarketStreetClosedTestCategory;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Direction;
@@ -56,7 +58,6 @@ import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-@ShudehillMarketStreetClosedTestCategory
 class SubgraphSmallClosedStationsDiversionsTest {
     // Note this needs to be > time for whole test fixture, see note below in @After
     private static final int TXN_TIMEOUT = 5*60;

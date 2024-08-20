@@ -18,12 +18,14 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramClosedStation
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.Landslide2024TestCategory;
-import com.tramchester.testSupport.testTags.ShudehillMarketStreetClosedTestCategory;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
 import java.time.Duration;
-import java.util.*;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -87,7 +89,6 @@ class RouteCalculatorCloseStationsTest {
         assertFalse(result.isEmpty());
     }
 
-    @ShudehillMarketStreetClosedTestCategory
     @Test
     void shouldHandlePartialClosure() {
         // appears to be an issue with data more than 1 week out with missing routes for ExchangeSquare and other stations...

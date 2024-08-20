@@ -19,7 +19,6 @@ import com.tramchester.resources.JourneyPlannerResource;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.Landslide2024TestCategory;
-import com.tramchester.testSupport.testTags.ShudehillMarketStreetClosedTestCategory;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.apache.commons.lang3.tuple.Triple;
 import org.junit.jupiter.api.Assertions;
@@ -176,7 +175,6 @@ public class JourneyPlannerResourceTest {
         assertTrue(plan.getJourneys().isEmpty());
     }
 
-    @ShudehillMarketStreetClosedTestCategory
     @Test
     void shouldReproLateNightIssueShudehillToAltrincham() {
 
