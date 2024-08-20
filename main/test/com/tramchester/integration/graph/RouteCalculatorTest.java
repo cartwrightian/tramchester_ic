@@ -23,14 +23,13 @@ import com.tramchester.domain.transportStages.VehicleStage;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.search.diagnostics.ReasonCode;
-import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
+import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryCategory;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
-import com.tramchester.testSupport.testTags.Landslide2024TestCategory;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -302,14 +301,12 @@ public class RouteCalculatorTest {
         checkRouteNextNDays(ManAirport, TraffordBar, TramTime.of(9,0));
     }
 
-    @Landslide2024TestCategory
     @Test
     void shouldHaveLongJourneyAcross() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(9,0), maxNumResults);
         assertGetAndCheckJourneys(journeyRequest, Altrincham, Rochdale);
     }
 
-    @Landslide2024TestCategory
     @Test
     void shouldHaveReasonableLongJourneyAcrossFromInterchange() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(8, 0), maxNumResults);
@@ -462,7 +459,6 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, HeatonPark, BurtonRoad);
     }
 
-    @Landslide2024TestCategory
     @Test
     void shouldReproIssueRochInterchangeToBury() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(9, 0), maxNumResults);
@@ -609,7 +605,6 @@ public class RouteCalculatorTest {
         }
     }
 
-    @Landslide2024TestCategory
     @Test
     void reproIssueRochdaleToEccles() {
         TramTime time = TramTime.of(9,0);

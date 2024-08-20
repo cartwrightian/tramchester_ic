@@ -18,7 +18,6 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.JourneyPlannerResource;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.Landslide2024TestCategory;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.apache.commons.lang3.tuple.Triple;
 import org.junit.jupiter.api.Assertions;
@@ -259,7 +258,6 @@ public class JourneyPlannerResourceTest {
         checkDepartsAfterPreviousArrival("Altrincham to airport at 11:43 sunday", journeys);
     }
 
-    @Landslide2024TestCategory
     @Test
     void shouldFindRouteVicToShawAndCrompton() {
         validateAtLeastOneJourney(Victoria, ShawAndCrompton, when, TramTime.of(23,15));
@@ -275,7 +273,6 @@ public class JourneyPlannerResourceTest {
         validateAtLeastOneJourney(TraffordCentre, TraffordBar, when, TramTime.of(23,30));
     }
 
-    @Landslide2024TestCategory
     @Test
     void shouldFindEndOfDayThreeStageJourney() {
         validateAtLeastOneJourney(Altrincham, ShawAndCrompton, when, TramTime.of(22,45));

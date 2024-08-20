@@ -17,7 +17,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.Landslide2024TestCategory;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
@@ -28,7 +27,6 @@ import java.util.List;
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static java.lang.String.format;
 
-@Landslide2024TestCategory
 class RouteCalculatorSubGraphMonsallTest {
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;
@@ -91,20 +89,17 @@ class RouteCalculatorSubGraphMonsallTest {
                 when, 1);
     }
 
-    @Landslide2024TestCategory
     @Test
     void shouldHaveEndToEnd() {
         validateNumberOfStages(TramStations.EastDidsbury, TramStations.Rochdale, TramTime.of(8,0), when, 1);
     }
 
-    @Landslide2024TestCategory
     @Test
     void shouldHaveJourneysTerminationPointsToEndOfLine() {
         // many trams only run as far as Shaw
         validateNumberOfStages(TramStations.ShawAndCrompton, TramStations.Rochdale, TramTime.of(8,0), when, 1);
     }
 
-    @Landslide2024TestCategory
     @Test
     void shouldHaveSimpleOneStopJourney() {
         validateNumberOfStages(TramStations.RochdaleRail, TramStations.Rochdale, TramTime.of(8,0), when, 1);
