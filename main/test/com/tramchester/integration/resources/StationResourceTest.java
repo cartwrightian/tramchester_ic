@@ -27,6 +27,7 @@ import jakarta.ws.rs.core.Cookie;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -124,6 +125,7 @@ class StationResourceTest {
 
     }
 
+    @Disabled("Need a resource test where can inject closed station config")
     @Test
     void shouldGetClosedStations() {
         Response result = APIClient.getApiResponse(appExtension, "stations/closures");

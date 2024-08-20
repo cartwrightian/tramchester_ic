@@ -74,9 +74,7 @@ class FindStationsByNumberLinksTramTest {
 
         List<IdFor<Station>> expectedList = Stream.of(StPetersSquare,
             MarketStreet,
-            Shudehill,
             PiccadillyGardens,
-                OldhamMumps, // add for summer 2024 closures
             TraffordBar,
             Cornbrook,
             Victoria,

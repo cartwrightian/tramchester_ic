@@ -5,7 +5,6 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.RoutePair;
-import com.tramchester.domain.StationPair;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.InterchangeStation;
@@ -26,7 +25,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.EnumSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.CentralZoneStation.*;
@@ -105,12 +103,11 @@ public class RoutePairToInterchangeRepositoryTest {
 
         IdSet<Station> stationIds = interchanges.stream().map(InterchangeStation::getStation).collect(IdSet.collector());
 
-        IdSet<Station> expected = Stream.of(StPetersSquare, Deansgate, Cornbrook, TraffordBar, Victoria, MarketStreet, Shudehill).
+        IdSet<Station> expected = Stream.of(StPetersSquare, Deansgate, Cornbrook, TraffordBar, Victoria, MarketStreet).
                 map(CentralZoneStation::getId).
                 collect(IdSet.idCollector());
 
-        // summer 2024 closures 6->5
-        assertEquals(7, stationIds.size(), stationIds.toString());
+        assertEquals(6, stationIds.size(), stationIds.toString());
 
         IdSet<Station> diff = IdSet.disjunction(expected, stationIds);
 

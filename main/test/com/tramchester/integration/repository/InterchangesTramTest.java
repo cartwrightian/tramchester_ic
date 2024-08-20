@@ -86,10 +86,8 @@ public class InterchangesTramTest {
         List<TramStations> tramStations = Arrays.asList(StWerburghsRoad, TraffordBar, Cornbrook, HarbourCity,
                 Pomona, Cornbrook, Deansgate, StPetersSquare,
                 Piccadilly, Victoria,
-                MarketStreet, Shudehill,
+                MarketStreet,
                 PiccadillyGardens,
-                OldhamMumps,
-
                 Broadway);
 
         Set<Station> expected = tramStations.stream().map(item -> item.from(stationRepository)).collect(Collectors.toSet());

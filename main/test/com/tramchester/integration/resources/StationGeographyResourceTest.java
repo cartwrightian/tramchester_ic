@@ -71,7 +71,7 @@ class StationGeographyResourceTest {
 
         List<StationToStationConnectionDTO> results = response.readEntity(new GenericType<>() {});
 
-        assertEquals(205, results.size(), "count incorrect " + results.size());
+        assertEquals(202, results.size(), "count incorrect " + results.size());
 
         StationToStationConnection.LinkType linkType = StationToStationConnection.LinkType.Linked;
 
