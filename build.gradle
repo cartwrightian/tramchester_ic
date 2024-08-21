@@ -45,7 +45,7 @@ version = buildNumber
 ext {
     dropwizardVersion = '4.0.7'
     jacksonVersion = '2.17.2'
-    awsSdkVersion = '2.27.5'
+    awsSdkVersion = '2.27.8'
 }
 
 repositories {
@@ -79,7 +79,7 @@ dependencies {
             'commons-io:commons-io:2.16.1',
             'commons-codec:commons-codec:1.17.1',
             'org.apache.commons:commons-collections4:4.4',
-            'org.apache.commons:commons-compress:1.27.0',
+            'org.apache.commons:commons-compress:1.27.1',
             'com.github.ben-manes.caffeine:caffeine:3.1.8'
     implementation "com.fasterxml.jackson.core:jackson-core:$jacksonVersion",
             "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",
@@ -115,8 +115,8 @@ dependencies {
     implementation('org.roaringbitmap:RoaringBitmap:1.2.1')
 
     testImplementation("io.dropwizard:dropwizard-testing:$dropwizardVersion")
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.3',
-            'org.junit.platform:junit-platform-launcher:1.10.3', ///NOTE: issues with latest junit and latest launcher, don't play with dropwizard
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.3', // NOTE: issues with latest junit and latest launcher, don't play with dropwizard
+            'org.junit.platform:junit-platform-launcher:1.10.3', // NOTE: issues with latest junit and latest launcher, don't play with dropwizard
             'org.easymock:easymock:5.4.0',
             'org.seleniumhq.selenium:selenium-java:3.141.59',
             'org.hamcrest:hamcrest:3.0'
