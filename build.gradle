@@ -126,7 +126,7 @@ dependencies {
     // needed for cxf gen'ed code, missing from cxfCodegen dependencies?
     implementation 'jakarta.xml.ws:jakarta.xml.ws-api:4.0.2'
     // for running the cxf generated code,  provide implementation of the SPI jakarta.xml.ws.spi.Provider
-    runtimeOnly 'com.sun.xml.ws:jaxws-rt:4.0.2'
+    runtimeOnly 'com.sun.xml.ws:jaxws-rt:4.0.3'
 
     // TODO Still needed? Workaround for issues running tests in intellij and glassfish DI, does not occur with running via gradle
     //testRuntimeOnly 'javax.servlet:javax.servlet-api:3.0.1'
@@ -328,7 +328,7 @@ tasks.register('rail', JavaExec) {
     dependsOn 'webpack'
     mainClass = mainClassName
     classpath = sourceSets.main.runtimeClasspath
-    maxHeapSize = "3g"
+    maxHeapSize = "4g"
     args 'server', 'config/rail.yml'
 }
 
@@ -395,9 +395,9 @@ def integrationTestConfiguration = {
     maxHeapSize = "1750m"
     useJUnitPlatform {
         // excludeTags "liveDataMessages" // these go away periodically...
-        //excludeTags "liveData" // also goes away on occasion
-        //excludeTags "dataExpiry" // can be useful to exclude when big changes to timetable are upcoming
-        //excludeTags 'liveDataDueTrams' // tfgm api has know issue
+        // excludeTags "liveData" // also goes away on occasion
+        // excludeTags "dataExpiry" // can be useful to exclude when big changes to timetable are upcoming
+        // excludeTags 'liveDataDueTrams' // tfgm api has know issue
         excludeTags "postcode" // not needed for tram, but used by buses
         excludeTags "BusTest"
         excludeTags "TrainTest"
@@ -405,6 +405,21 @@ def integrationTestConfiguration = {
         excludeTags "LiveDataS3UploadTest"
         excludeTags "AWSMetricsTest"
     }
+    filter {
+        includeTestsMatching "com.tramchester.integration.*"
+    }
+    testLogging {
+        events "passed", "failed", "standardError"
+    }
+}
+
+def integrationRailConfig = {
+    minHeapSize = "1000m"
+    maxHeapSize = "8000m"
+//    useJUnitPlatform {
+//        includeTags "TrainTest"
+//    }
+    systemProperty("com.tramchester.config", "IntegrationRailTestConfig")
     filter {
         includeTestsMatching "com.tramchester.integration.*"
     }
@@ -463,10 +478,15 @@ tasks.register('dataUpdated', Test) {
     configure integrationTestConfiguration
     outputs.upToDateWhen { false }
     useJUnitPlatform {
-        includeTags "DataUpdateTest"
-        excludeTags "Landslide2024"
-        excludeTags "VictorialClosedAugust2024"
-        excludeTags "ShudehillMarketStreetClosed"
+        includeTags 'DataUpdateTest'
+    }
+}
+
+tasks.register('liveRailSmoke', Test) {
+    configure integrationRailConfig
+    outputs.upToDateWhen { false }
+    useJUnitPlatform {
+        includeTags 'TrainTest & TrainLiveData'
     }
 }
 
@@ -498,29 +518,19 @@ tasks.register('integrationBus', Test) {
     }
 }
 
-def integrationRailConfig = {
-    dependsOn 'compileJava'
-    minHeapSize = "1000m"
-    maxHeapSize = "8000m"
+tasks.register('integrationRail', Test) {
+    configure integrationRailConfig
     useJUnitPlatform {
         includeTags "TrainTest"
     }
-    systemProperty("com.tramchester.config", "IntegrationRailTestConfig")
-    filter {
-        includeTestsMatching "com.tramchester.integration.*"
-    }
-    testLogging {
-        exceptionFormat "full" // default is "short"
-        events "passed", "failed", "standardError" //, "standardOut"
-    }
-}
-
-tasks.register('integrationRail', Test) {
-    configure integrationRailConfig
 }
 
 tasks.register('integrationRailProfile', Test) {
+    dependsOn 'compileJava'
     configure integrationRailConfig
+    useJUnitPlatform {
+        includeTags "TrainTest"
+    }
     jvmArgs agentPath
 }
 
