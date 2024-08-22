@@ -27,7 +27,6 @@ import org.junit.jupiter.api.Test;
 import java.time.DayOfWeek;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -82,21 +81,23 @@ public class RunningRoutesAndServicesTest {
     @Test
     void shouldConsiderServicesFromDayBeforeIfTheyAreStillRunningTheFollowingDay() {
 
-        TramDate when = TestEnv.avoidChristmasDate(TestEnv.nextSaturday().minusDays(1));
+        List<Route> intoNextDay = transportData.getRoutes().stream().
+                filter(CrossesDay::intoNextDay).
+                filter(route -> threeConsecDays(route.getOperatingDays())).
+                toList();
+        assertFalse(intoNextDay.isEmpty(), "failed to find any route operating on three consecutive week days");
+
+        Route route = intoNextDay.get(0);
+
+        TramDate when = getMiddleOfThreeConsec(route);
+        assertNotNull(when, "failed to find any route operating on three consecutive dates");
 
         RunningRoutesAndServices.FilterForDate filter = runningRoutesAndServices.getFor(when);
 
-        // findFirst here means can be nondeterministic
-        Optional<Route> findRoute = transportData.getRoutes().stream().
-                filter(route -> route.getId().equals(KnownTramRoute.CornbrookTheTraffordCentre.getId())).
-                filter(CrossesDay::intoNextDay).findFirst();
-        assertTrue(findRoute.isPresent());
-
-        Route route = findRoute.get();
         IdFor<Route> routeId = route.getId();
 
         assertTrue(filter.isRouteRunning(routeId, false));
-        assertTrue(filter.isRouteRunning(routeId, true));
+        assertTrue(filter.isRouteRunning(routeId, true), route.getName() + " is not running the day after " + when);
 
         Set<Service> services = route.getServices();
 
@@ -113,6 +114,28 @@ public class RunningRoutesAndServicesTest {
 
         assertFalse(fromPreviousDay.isEmpty(), "no services from previous day " + HasId.asIds(allPreviousDay));
 
+    }
+
+    private TramDate getMiddleOfThreeConsec(final Route route) {
+        final DateRange range = route.getDateRange();
+        TramDate date = range.getStartDate();
+        while (range.contains(date)) {
+            final TramDate followingDay = date.plusDays(1);
+            if (route.isAvailableOn(date) && route.isAvailableOn(followingDay) && route.isAvailableOn(followingDay.plusDays(1))) {
+                return followingDay;
+            }
+            date = followingDay;
+        }
+        return null;
+    }
+
+    private boolean threeConsecDays(final EnumSet<DayOfWeek> days) {
+        for(DayOfWeek day : days) {
+            if (days.contains(day.plus(1)) && days.contains(day.plus(2))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Test

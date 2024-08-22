@@ -20,6 +20,7 @@ import com.tramchester.repository.AgencyRepository;
 import com.tramchester.repository.PlatformRepository;
 import com.tramchester.repository.StationRepository;
 import jakarta.inject.Inject;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -106,15 +107,19 @@ public class LiveDataParser {
     }
 
     public List<TramStationDepartureInfo> parse(String rawJson) {
-        List<TramStationDepartureInfo> result = new LinkedList<>();
+        return parse(rawJson, new MonitorParsingWithLogging());
+    }
 
-        JsonObject parsed = Jsoner.deserialize(rawJson, new JsonObject());
+    public List<TramStationDepartureInfo> parse(String rawJson, MonitorParsing monitorParsing) {
+        final List<TramStationDepartureInfo> result = new LinkedList<>();
+
+        final JsonObject parsed = Jsoner.deserialize(rawJson, new JsonObject());
         if (parsed.containsKey("value")) {
             JsonArray infoList = (JsonArray ) parsed.get("value");
 
             if (infoList!=null) {
                 for (Object anInfoList : infoList) {
-                    Optional<TramStationDepartureInfo> item = parseItem((JsonObject) anInfoList);
+                    Optional<TramStationDepartureInfo> item = parseItem((JsonObject) anInfoList, monitorParsing);
                     item.ifPresent(result::add);
                 }
             }
@@ -125,58 +130,65 @@ public class LiveDataParser {
         return result;
     }
 
-    private Optional<TramStationDepartureInfo> parseItem(JsonObject jsonObject) {
+    private Optional<TramStationDepartureInfo> parseItem(final JsonObject jsonObject, final MonitorParsing monitorParsing) {
         logger.debug(format("Parsing JSON '%s'", jsonObject));
+        monitorParsing.currentJson(jsonObject);
 
         final BigDecimal displayId = (BigDecimal) jsonObject.get("Id");
+        monitorParsing.currentDisplayId(displayId);
+        
         final String rawLine = (String) jsonObject.get("Line");
         final String atcoCode = (String) jsonObject.get("AtcoCode");
         final String message = (String) jsonObject.get("MessageBoard");
         final String dateString = (String) jsonObject.get("LastUpdated");
         final String rawDirection = (String)jsonObject.get("Direction");
-        LocalDateTime updateTime = getStationUpdateTime(dateString);
+        final LocalDateTime updateTime = getStationUpdateTime(dateString);
 
-        LineDirection direction = getDirection(rawDirection);
+        final LineDirection direction = getDirection(rawDirection);
         if (direction == Unknown) {
-            logger.warn("Display '" + displayId +"' Unable to map direction code name "+ rawDirection +
-                    " for JSON " + jsonObject);
+            monitorParsing.unknownDirection(rawDirection);
         }
 
         final Lines line = getLine(rawLine);
         if (line == Lines.UnknownLine) {
-            logger.warn("Display '" + displayId +"' Unable to map line name "+ rawLine +
-                    " for JSON " + jsonObject);
+            monitorParsing.unknownLine(rawLine);
         }
 
-        Optional<Station> maybeStation = getStationByAtcoCode(atcoCode);
+        final Optional<Station> maybeStation = getStationByAtcoCode(atcoCode);
         if (maybeStation.isEmpty()) {
-            logger.warn("Display '" + displayId + "' Unable to map atco code to station '"+ atcoCode + "' for JSON " + jsonObject);
+            monitorParsing.unknownStation(atcoCode);
             return Optional.empty();
         }
-        Station station = maybeStation.get();
+        final Station station = maybeStation.get();
 
-        TramStationDepartureInfo departureInfo = new TramStationDepartureInfo(displayId.toString(), line, direction,
+        final TramStationDepartureInfo departureInfo = new TramStationDepartureInfo(displayId.toString(), line, direction,
                 station, message, updateTime);
 
-        IdFor<Platform> platformId = TransportEntityFactoryForTFGM.createPlatformId(station.getId(), atcoCode); //PlatformId.createId(station, atcoCode);
+        final IdFor<Platform> platformId = getPlatformIdFor(station, atcoCode);
         if (platformRepository.hasPlatformId(platformId)) {
-            Platform platform = platformRepository.getPlatformById(platformId);
+            final Platform platform = platformRepository.getPlatformById(platformId);
             departureInfo.setStationPlatform(platform);
             if (!station.hasPlatform(platformId)) {
                 // NOTE: some single platform stations (i.e. navigation road) appear to have
                 // two platforms in the live data feed...but not in the station reference data
-                logger.info(format("Display '%s' Platform '%s' not in timetable data for station %s and Json %s",
-                        displayId, atcoCode, station.getId(), jsonObject));
-
+                monitorParsing.missingPlatform(station, atcoCode);
             }
         } else {
-            logger.warn("Did not find platform for '" + atcoCode + "' and Json " + jsonObject);
+            monitorParsing.missingPlatform(station, atcoCode);
         }
 
-        parseDueTrams(jsonObject, departureInfo);
+        parseDueTrams(jsonObject, departureInfo, monitorParsing);
 
         logger.debug("Parsed live data to " + departureInfo);
         return Optional.of(departureInfo);
+    }
+
+    private static @NotNull IdFor<Platform> getPlatformIdFor(final Station station, String atcoCode) {
+        if ("9400ZZMATRC1".equals(atcoCode)) {
+            // trafford park platform workaround
+            atcoCode = "9400ZZMATRC2";
+        }
+        return TransportEntityFactoryForTFGM.createPlatformId(station.getId(), atcoCode);
     }
 
     private Lines getLine(final String text) {
@@ -189,7 +201,7 @@ public class LiveDataParser {
         return Lines.UnknownLine;
     }
 
-    private LineDirection getDirection(String text) {
+    private LineDirection getDirection(final String text) {
         if (DIRECTION_BOTH.equals(text)) {
             return Both;
         }
@@ -202,14 +214,14 @@ public class LiveDataParser {
         return Unknown;
     }
 
-    private LocalDateTime getStationUpdateTime(String dateString) {
-        Instant instanceOfUpdate = Instant.from(ISO_INSTANT.parse(dateString));
+    private LocalDateTime getStationUpdateTime(final String dateString) {
+        final Instant instanceOfUpdate = Instant.from(ISO_INSTANT.parse(dateString));
+        final ZonedDateTime zonedDateTime = instanceOfUpdate.atZone(TramchesterConfig.TimeZoneId);
 
-        ZonedDateTime zonedDateTime = instanceOfUpdate.atZone(TramchesterConfig.TimeZoneId);
         LocalDateTime localDateTime = zonedDateTime.toLocalDateTime();
 
         // WORKAROUND - feed always contains 'Z' at end of date/time even though feed actually switches to BST
-        boolean dst = timeZone.inDaylightTime(Date.from(instanceOfUpdate));
+        final boolean dst = timeZone.inDaylightTime(Date.from(instanceOfUpdate));
         if (dst) {
             int seconds_offset = timeZone.getDSTSavings() / 1000;
             localDateTime = localDateTime.minusSeconds(seconds_offset);
@@ -218,19 +230,17 @@ public class LiveDataParser {
         return localDateTime;
     }
 
-    private void parseDueTrams(JsonObject jsonObject, TramStationDepartureInfo departureInfo) {
+    private void parseDueTrams(final JsonObject jsonObject, final TramStationDepartureInfo departureInfo, MonitorParsing monitorParsing) {
         for (int i = 0; i < MAX_DUE_TRAMS; i++) {
             final int index = i;
-            String destinationName = getNumberedField(jsonObject, "Dest", index);
+            final String destinationName = getNumberedField(jsonObject, "Dest", index);
             if (destinationName.isEmpty()) {
                 // likely not present in json
                 logger.debug("Skipping destination '" + destinationName + "' for " + jsonObject + " and index " + i);
             } else if (NotADestination.contains(destinationName)) {
-                if (!SEE_TRAM_FRONT.equals(destinationName)) {
-                    logger.info("Display '" + departureInfo.getDisplayId() + "' Skipping destination '" + destinationName + "' for " + jsonObject.toJson() + " and index " + i);
-                }
+                monitorParsing.tramNotInService(destinationName, index);
             } else {
-                Optional<Station> maybeDestStation;
+                final Optional<Station> maybeDestStation;
                 if (TERMINATES_HERE.equals(destinationName)) {
                     // replace "terminates here" with the station where this message is displayed
                     maybeDestStation = Optional.of(departureInfo.getStation());
@@ -240,17 +250,17 @@ public class LiveDataParser {
                 }
 
                 maybeDestStation.ifPresentOrElse(station -> {
-                            String status = getNumberedField(jsonObject, "Status", index);
-                            String waitString = getNumberedField(jsonObject, "Wait", index);
+                            final String status = getNumberedField(jsonObject, "Status", index);
+                            final String waitString = getNumberedField(jsonObject, "Wait", index);
                             int waitInMinutes = Integer.parseInt(waitString);
-                            String carriages = getNumberedField(jsonObject, "Carriages", index);
-                            LocalTime lastUpdate = departureInfo.getLastUpdate().toLocalTime();
-                            LocalDate date = departureInfo.getLastUpdate().toLocalDate();
-                            Station displayLocation = departureInfo.getStation();
+                            final String carriages = getNumberedField(jsonObject, "Carriages", index);
+                            final LocalTime lastUpdate = departureInfo.getLastUpdate().toLocalTime();
+                            final LocalDate date = departureInfo.getLastUpdate().toLocalDate();
+                            final Station displayLocation = departureInfo.getStation();
 
-                            TramTime when = TramTime.ofHourMins(lastUpdate.plusMinutes(waitInMinutes));
+                            final TramTime when = TramTime.ofHourMins(lastUpdate.plusMinutes(waitInMinutes));
 
-                            UpcomingDeparture dueTram = new UpcomingDeparture(date, displayLocation, station, status,
+                            final UpcomingDeparture dueTram = new UpcomingDeparture(date, displayLocation, station, status,
                                     when, carriages, agency, TransportMode.Tram);
                             if (departureInfo.hasStationPlatform()) {
                                 dueTram.setPlatform(departureInfo.getStationPlatform());
@@ -259,9 +269,7 @@ public class LiveDataParser {
 
                         },
 
-                        () -> logger.warn("Display id '" + departureInfo.getDisplayId() +
-                                "' Unable to match due tram destination '" + destinationName +
-                                "' index: " + index +" json '"+jsonObject+"'"));
+                        () -> monitorParsing.missingDestinationStation(destinationName, index));
             }
         }
     }
@@ -310,4 +318,76 @@ public class LiveDataParser {
         String destKey = format("%s%d", name, i);
         return (String) jsonObject.get(destKey);
     }
+
+    public interface MonitorParsing {
+        void currentJson(JsonObject jsonObject);
+        void currentDisplayId(BigDecimal displayId);
+        void unknownDirection(String rawDirection);
+        void unknownLine(String rawLine);
+        void unknownStation(String atcoCode);
+        void missingPlatform(Station station, String atcoCode);
+        void missingDestinationStation(String destinationName, int index);
+        void tramNotInService(String destinationName, int index);
+    }
+
+    private static class MonitorParsingWithLogging implements MonitorParsing {
+
+        private JsonObject jsonObject;
+        private BigDecimal displayId;
+        
+        @Override
+        public void currentJson(JsonObject jsonObject) {
+            this.jsonObject = jsonObject;
+        }
+
+        @Override
+        public void currentDisplayId(BigDecimal displayId) {
+            this.displayId = displayId;
+        }
+        
+        @Override
+        public void unknownDirection(String rawDirection) {
+            String text = "Unable to map direction code name'" + rawDirection + "'";
+            logWarning(text);
+        }
+
+        @Override
+        public void unknownLine(String rawLine) {
+            logWarning("Unable to map line name '" + rawLine + "'");
+        }
+
+        @Override
+        public void unknownStation(String atcoCode) {
+            logWarning("Unable to map atco code to station '" + atcoCode + "'");
+        }
+
+        @Override
+        public void missingPlatform(Station station, String atcoCode) {
+            logWarning(format("Platform '%s' not in timetable data for station %s", atcoCode, station.getId()));
+        }
+
+        @Override
+        public void missingDestinationStation(String destinationName, int index) {
+            logWarning("Unable to match due tram destination '" + destinationName + "' index: " + index);
+        }
+
+        @Override
+        public void tramNotInService(String destinationName, int index) {
+            logger.debug(prefix() + " Skipping destination '" + destinationName + " for index: " + index + postfix());
+
+        }
+
+        private void logWarning(String text) {
+            logger.warn(prefix() + text + postfix());
+        }
+
+        private @NotNull String prefix() {
+            return "Display '" + displayId + "' ";
+        }
+
+        private String postfix() {
+            return " for JSON '" + jsonObject + "'";
+        }
+    }
+
 }
