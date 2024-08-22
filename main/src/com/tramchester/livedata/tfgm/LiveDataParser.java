@@ -19,11 +19,11 @@ import com.tramchester.livedata.repository.StationByName;
 import com.tramchester.repository.AgencyRepository;
 import com.tramchester.repository.PlatformRepository;
 import com.tramchester.repository.StationRepository;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
-import jakarta.inject.Inject;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.time.*;
@@ -142,7 +142,7 @@ public class LiveDataParser {
                     " for JSON " + jsonObject);
         }
 
-        Lines line = getLine(rawLine);
+        final Lines line = getLine(rawLine);
         if (line == Lines.UnknownLine) {
             logger.warn("Display '" + displayId +"' Unable to map line name "+ rawLine +
                     " for JSON " + jsonObject);
@@ -179,8 +179,8 @@ public class LiveDataParser {
         return Optional.of(departureInfo);
     }
 
-    private Lines getLine(String text) {
-        Lines[] valid = Lines.values();
+    private Lines getLine(final String text) {
+        final Lines[] valid = Lines.values();
         for (Lines line : valid) {
             if (line.getName().equals(text)) {
                 return line;

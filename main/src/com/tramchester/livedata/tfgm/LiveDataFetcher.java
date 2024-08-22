@@ -37,7 +37,7 @@ public abstract class LiveDataFetcher {
         subscribers.clear();
     }
 
-    public void subscribe(ReceivesRawData receivesRawData) {
+    public void subscribe(final ReceivesRawData receivesRawData) {
         logger.info("Register " +receivesRawData.getClass());
         this.subscribers.add(receivesRawData);
     }

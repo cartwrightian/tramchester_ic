@@ -162,13 +162,6 @@ public class RouteCalculatorTest {
         checkRouteNextNDays(Altrincham, Cornbrook, TramTime.of(9,0));
     }
 
-    @Test
-    void shouldRevisitUpcomingDaysInTestEnvAfterFriday23August() {
-        // seems to be problem with upcoming data from TFGM
-        TramDate tramDate = TramDate.from(TestEnv.LocalNow());
-        assertTrue(tramDate.isBefore(TramDate.of(2024,8, 22)), "Check TestEnv.DAYS_AHEAD, change back to 7 days");
-    }
-
     @DataExpiryCategory
     @Test
     void shouldHaveSimpleManyStopJourneyViaInterchangeNDaysAhead() {

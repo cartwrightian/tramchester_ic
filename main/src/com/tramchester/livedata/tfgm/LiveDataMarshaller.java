@@ -5,13 +5,13 @@ import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.repository.LiveDataObserver;
+import jakarta.inject.Inject;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import jakarta.inject.Inject;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -60,7 +60,7 @@ public class LiveDataMarshaller implements LiveDataFetcher.ReceivesRawData {
         processRawData(text);
     }
 
-    private void processRawData(String payload) {
+    private void processRawData(final String payload) {
         final List<TramStationDepartureInfo> receivedInfos;
         if (payload.isEmpty()) {
             logger.warn("Empty payload");

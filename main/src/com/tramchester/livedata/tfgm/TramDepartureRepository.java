@@ -19,13 +19,13 @@ import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.metrics.HasMetrics;
 import com.tramchester.metrics.RegistersMetrics;
 import com.tramchester.repository.ReportsCacheStats;
+import jakarta.inject.Inject;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import jakarta.inject.Inject;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -55,14 +55,14 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, LiveDa
     private LocalDateTime lastRefresh;
 
     @Inject
-    public TramDepartureRepository(LiveDataMarshaller updater, ProvidesNow providesNow, CacheMetrics registory) {
+    public TramDepartureRepository(LiveDataMarshaller updater, ProvidesNow providesNow, CacheMetrics cacheMetrics) {
         this.updater = updater;
         this.providesNow = providesNow;
 
         dueTramsCache = Caffeine.newBuilder().maximumSize(STATION_INFO_CACHE_SIZE).
                 expireAfterWrite(TIME_LIMIT_MINS.getSeconds(), TimeUnit.SECONDS).recordStats().build();
 
-        registory.register(this);
+        cacheMetrics.register(this);
     }
 
     @PostConstruct

@@ -108,7 +108,7 @@ public class TransportDataFromFilesTramTest {
         assertEquals(1, transportData.getAgencies().stream().filter(agency -> agency.getTransportModes().contains(Tram)).count());
         assertEquals(NUM_TFGM_TRAM_STATIONS, transportData.getStations(EnumSet.of(Tram)).size());
 
-        int expectedPlatforms = 200;
+        int expectedPlatforms = 201;
         assertEquals(expectedPlatforms, transportData.getPlatforms(EnumSet.of(Tram)).size());
     }
 

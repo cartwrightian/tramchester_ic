@@ -29,13 +29,14 @@ public class PublishLiveDataToSNSCLI extends BaseCLI {
         Logger logger = LoggerFactory.getLogger(PublishLiveDataToSNSCLI.class);
 
         if (args.length != 2) {
-            throw new RuntimeException("Expected 1 arguments: <config filename>");
+            throw new RuntimeException("Expected 2 arguments: <config filename> <num msgs to send>");
         }
         Path configFile = Paths.get(args[0]).toAbsolutePath();
 
         int numberToSend = Integer.parseInt(args[1]);
 
         logger.info("Config from " + configFile);
+        logger.info("Number of messages to send " + numberToSend);
 
         PublishLiveDataToSNSCLI cli = new PublishLiveDataToSNSCLI(numberToSend);
 
