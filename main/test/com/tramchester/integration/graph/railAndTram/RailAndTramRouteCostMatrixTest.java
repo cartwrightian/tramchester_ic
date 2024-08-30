@@ -22,7 +22,6 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.RailRouteHelper;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.GMTest;
 import org.jetbrains.annotations.NotNull;
@@ -119,7 +118,7 @@ public class RailAndTramRouteCostMatrixTest {
     @Test
     void shouldHaveExpectedIndexWhereDirectTramInterchangePossible() {
         Route routeA = routeHelper.getOneRoute(BuryManchesterAltrincham, date);
-        Route routeB = routeHelper.getOneRoute(VictoriaWythenshaweManchesterAirport, date);
+        Route routeB = routeHelper.getOneRoute(VictoriaWythenshaweManchesterAirport_OLD, date);
 
         int depth = routeMatrix.getConnectionDepthFor(routeA, routeB);
         assertEquals(1, depth);
@@ -151,7 +150,7 @@ public class RailAndTramRouteCostMatrixTest {
 
     @Test
     void shouldHaveExpectedIndexWhereNoDirectInterchangePossible() {
-        Route routeA = routeHelper.getOneRoute(KnownTramRoute.PiccadillyBury, date);
+        Route routeA = routeHelper.getOneRoute(PiccadillyBury_OLD, date);
         Route routeB = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
 
         int depth = routeMatrix.getConnectionDepthFor(routeA, routeB);

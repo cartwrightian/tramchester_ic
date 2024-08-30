@@ -16,6 +16,7 @@ import com.tramchester.resources.RouteResource;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.PicGardensPartialClosure;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.Response;
@@ -29,7 +30,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.TestEnv.dateFormatDashes;
-import static com.tramchester.testSupport.reference.KnownTramRoute.VictoriaWythenshaweManchesterAirport;
+import static com.tramchester.testSupport.reference.KnownTramRoute.DeansgateCastlefieldManchesterAirport;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
@@ -62,6 +63,7 @@ class RouteResourceTest {
 
     }
 
+    @PicGardensPartialClosure
     @Test
     void shouldHaveExpectedFirstLastForAirportRoute() {
         IdForDTO manAirportIdForDTO = TramStations.ManAirport.getIdForDTO();
@@ -70,7 +72,7 @@ class RouteResourceTest {
         List<RouteDTO> routes = getRouteResponse();
 
         List<RouteDTO> airRoutes = routes.stream().
-                filter(routeDTO -> routeDTO.getRouteName().equals(VictoriaWythenshaweManchesterAirport.longName())).
+                filter(routeDTO -> routeDTO.getRouteName().equals(DeansgateCastlefieldManchesterAirport.longName())).
                 toList();
 
         assertEquals(1, airRoutes.size());

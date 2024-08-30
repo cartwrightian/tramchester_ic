@@ -27,9 +27,10 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Array;
 import java.time.Duration;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -68,12 +69,12 @@ class FastestRoutesForBoxesTest {
         List<BoundingBoxWithStations> emptyGroup = grouped.stream().filter(group -> !group.hasStations()).collect(Collectors.toList());
         assertEquals(Collections.emptyList(),emptyGroup);
 
-        Set<String> notInAGroupById =stationsRepo.getStations().stream().
+        Set<String> notInAGroupById =stationsRepo.getActiveStationStream().
                 filter(station -> !isPresentIn(grouped, station)).
                 map(Station::getName).
                 collect(Collectors.toSet());
 
-        assertTrue(notInAGroupById.isEmpty());
+        assertTrue(notInAGroupById.isEmpty(), notInAGroupById.toString());
 
         List<String> notInAGroupByPosition = stationsRepo.getStations().stream().
                 filter(station -> !isPresentInByPos(grouped, station)).

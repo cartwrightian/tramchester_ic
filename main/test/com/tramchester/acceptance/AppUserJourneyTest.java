@@ -35,8 +35,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.integration.repository.TransportDataFromFilesTramTest.NUM_TFGM_TRAM_STATIONS;
-import static com.tramchester.testSupport.reference.KnownTramRoute.BuryManchesterAltrincham;
-import static com.tramchester.testSupport.reference.KnownTramRoute.PiccadillyAltrincham;
+import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.not;
@@ -254,7 +253,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
         assertEquals(1, stages.size());
         Stage stage = stages.get(0);
 
-        Set<KnownTramRoute> expectedRoutes = EnumSet.of(BuryManchesterAltrincham, PiccadillyAltrincham);
+        Set<KnownTramRoute> expectedRoutes = EnumSet.of(BuryManchesterAltrincham, PiccadillyAltrincham_OLD);
         Set<String> headSigns = new HashSet<>(Arrays.asList(Bury.getName(), Piccadilly.getName(), "Bury via Market Street & Victoria"));
         Set<TramTime> departTimes = Collections.singleton(firstResult.getDepartTime());
         validateAStage(stage, departTimes, "Board Tram", Altrincham.getName(),
@@ -435,7 +434,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
         Stage firstStage = stages.get(0);
         Stage secondStage = stages.get(1);
 
-        Set<KnownTramRoute> routeNames = new HashSet<>(Arrays.asList(PiccadillyAltrincham, BuryManchesterAltrincham));
+        Set<KnownTramRoute> routeNames = new HashSet<>(Arrays.asList(PiccadillyAltrincham_OLD, BuryManchesterAltrincham));
         Set<String> firstStageHeadsigns = new HashSet<>(Arrays.asList(Piccadilly.getName(), Bury.getName(), "Bury via Market Street & Victoria"));
 
         TramTime firstDepartTime = firstResult.getDepartTime();
@@ -449,7 +448,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
         Set<TramTime> validTimes = new HashSet<>(Arrays.asList(TramTime.of(10,37), TramTime.of(10,25)));
         validateAStage(secondStage, validTimes, "Change Tram", TraffordBar.getName(),
                 Arrays.asList(1,2),
-                Collections.singleton(KnownTramRoute.VictoriaWythenshaweManchesterAirport),
+                Collections.singleton(DeansgateCastlefieldManchesterAirport),
                 secondStageHeadsigns, 17);
 
         assertEquals(TraffordBar.getName(), secondStage.getActionStation());

@@ -88,8 +88,7 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
         Platform platfromForThirdStation = TestEnv.findOnlyPlatform(thirdStation);
 
         TramStationDepartureInfo thirdStationInfo = new TramStationDepartureInfo("displayId3", Lines.Airport,
-        LineDirection.Incoming, thirdStation, "message 3", lastUpdate);
-        thirdStationInfo.setStationPlatform(platfromForThirdStation);
+        LineDirection.Incoming, thirdStation, "message 3", lastUpdate, platfromForThirdStation);
         infos.add(thirdStationInfo);
 
         EasyMock.expect(providesNow.getDateTime()).andStubReturn(lastUpdate);
@@ -211,10 +210,8 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
                                           String message,
                                           Station location, UpcomingDeparture upcomingDeparture) {
         TramStationDepartureInfo departureInfo = new TramStationDepartureInfo(displayId, Lines.Eccles,
-                LineDirection.Incoming, location, message, lastUpdate);
-        departureInfo.setStationPlatform(platform);
+                LineDirection.Incoming, location, message, lastUpdate, platform);
         departureInfo.addDueTram(upcomingDeparture);
-        departureInfo.setStationPlatform(platform);
 
         info.add(departureInfo);
 

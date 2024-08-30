@@ -1,5 +1,6 @@
 package com.tramchester.unit.repository;
 
+import com.tramchester.domain.Platform;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
@@ -97,9 +98,10 @@ public class LiveDataMarshallerTest extends EasyMockSupport {
     public static TramStationDepartureInfo createDepartureInfoWithDueTram(LocalDateTime lastUpdate,
                                                                           String displayId, String platformId, String message,
                                                                           Station station) {
+        Platform platform = TestEnv.createPlatformFor(station, platformId);
+
         TramStationDepartureInfo departureInfo = new TramStationDepartureInfo(displayId, Lines.Airport,
-                LineDirection.Incoming, station, message, lastUpdate);
-        departureInfo.setStationPlatform(TestEnv.createPlatformFor(station, platformId));
+                LineDirection.Incoming, station, message, lastUpdate, platform);
         UpcomingDeparture dueTram = new UpcomingDeparture(lastUpdate.toLocalDate(), station, Bury.fake(),
                 "Due", TramTime.ofHourMins(lastUpdate.toLocalTime()).plusMinutes(42), "Single",
                 TestEnv.MetAgency(), TransportMode.Tram);

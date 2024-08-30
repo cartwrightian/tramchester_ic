@@ -199,7 +199,7 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
 
     }
 
-    public static PlatformId createPlatformId(IdFor<Station> stationId, final String fullCodeWithPlatformSuffix) {
+    public static PlatformId createPlatformId(final IdFor<Station> stationId, final String fullCodeWithPlatformSuffix) {
 
         String remaining = StringIdFor.removeIdFrom(fullCodeWithPlatformSuffix, stationId);
         if (remaining.isEmpty()) {

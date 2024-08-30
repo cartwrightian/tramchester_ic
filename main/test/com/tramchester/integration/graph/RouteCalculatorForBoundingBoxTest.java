@@ -49,6 +49,7 @@ class RouteCalculatorForBoundingBoxTest {
     private StationLocations stationLocations;
     private StationRepository stationRepository;
     private StationBoxFactory stationBoxFactory;
+    private ClosedStationsRepository closedStationsRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -71,6 +72,7 @@ class RouteCalculatorForBoundingBoxTest {
         stationLocations = componentContainer.get(StationLocations.class);
         stationRepository = componentContainer.get(StationRepository.class);
         stationBoxFactory = componentContainer.get(StationBoxFactory.class);
+        closedStationsRepository = componentContainer.get(ClosedStationsRepository.class);
     }
 
     @AfterEach
@@ -88,6 +90,7 @@ class RouteCalculatorForBoundingBoxTest {
         Set<Station> allStations = stationRepository.getStations();
 
         Set<Station> missing = allStations.stream().
+                filter(station -> !closedStationsRepository.isClosed(station, when)).
                 filter(station -> boxes.stream().noneMatch(box -> box.getStations().contains(station))).
                 collect(Collectors.toSet());
 

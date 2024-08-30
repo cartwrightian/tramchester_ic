@@ -13,17 +13,19 @@ import java.util.Objects;
 import java.util.Set;
 
 // config example
-//    stationClosures:
-//            - stations: [ "9400ZZMAECC", "9400ZZMALDY", "9400ZZMAWST" ]
-//            dateRange:
-//               begin: 2023-07-15
-//               end: 2023-09-20
-//            timeRange:
-//               begin: 00:15
-//               end: 10:35
-//            fullyClosed: true
-//            diversionsAroundClosure: []
-//            diversionsToFromClosure: []
+/*
+    stationClosures:
+        - stations: [ "9400ZZMAECC", "9400ZZMALDY", "9400ZZMAWST" ]
+        dateRange:
+            begin: 2023-07-15
+            end: 2023-09-20
+        timeRange:
+            begin: 00:15
+            end: 10:35
+        fullyClosed: true
+        diversionsAroundClosure: []
+        diversionsToFromClosure: []
+ */
 // NOTE: final two optional, will be auto populated with nearby stations in ClosedStationRepository if not provided in config
 
 public class StationClosuresConfig extends Configuration implements StationClosures {

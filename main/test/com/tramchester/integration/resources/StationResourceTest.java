@@ -6,14 +6,13 @@ import com.tramchester.App;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.StationClosures;
-import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.presentation.DTO.*;
-import com.tramchester.domain.presentation.Timestamped;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.RecentJourneys;
+import com.tramchester.domain.presentation.Timestamped;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
@@ -24,15 +23,14 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import jakarta.ws.rs.core.Cookie;
+import jakarta.ws.rs.core.GenericType;
+import jakarta.ws.rs.core.Response;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
-import jakarta.ws.rs.core.GenericType;
-import jakarta.ws.rs.core.Response;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -225,7 +223,10 @@ class StationResourceTest {
                 map(LocationRefDTO::getId).
                 collect(Collectors.toSet());
 
-        assertTrue(ids.contains(TramStations.PiccadillyGardens.getIdForDTO()), ids.toString());
+        // picc gardens closure
+        assertFalse(ids.contains(TramStations.PiccadillyGardens.getIdForDTO()), ids.toString());
+        assertTrue(ids.contains(TramStations.Piccadilly.getIdForDTO()), ids.toString());
+
         assertTrue(ids.contains(TramStations.StPetersSquare.getIdForDTO()), ids.toString());
         assertTrue(ids.contains(TramStations.ExchangeSquare.getIdForDTO()), ids.toString());
 
@@ -248,7 +249,9 @@ class StationResourceTest {
                 map(LocationRefDTO::getId).
                 collect(Collectors.toSet());
 
-        assertTrue(ids.contains(TramStations.PiccadillyGardens.getIdForDTO()), ids.toString());
+        // picc gardens closure
+        assertFalse(ids.contains(TramStations.PiccadillyGardens.getIdForDTO()), ids.toString());
+
         assertTrue(ids.contains(TramStations.StPetersSquare.getIdForDTO()), ids.toString());
         assertTrue(ids.contains(TramStations.ExchangeSquare.getIdForDTO()), ids.toString());
 

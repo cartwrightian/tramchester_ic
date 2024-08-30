@@ -5,37 +5,28 @@ import com.github.cliftonlabs.json_simple.JsonObject;
 import com.github.cliftonlabs.json_simple.Jsoner;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.Agency;
-import com.tramchester.domain.MutableAgency;
-import com.tramchester.domain.Platform;
-import com.tramchester.domain.factory.TransportEntityFactoryForTFGM;
-import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.domain.liveUpdates.LineDirection;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.livedata.repository.StationByName;
-import com.tramchester.repository.AgencyRepository;
-import com.tramchester.repository.PlatformRepository;
-import com.tramchester.repository.StationRepository;
 import jakarta.inject.Inject;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.math.BigDecimal;
 import java.sql.Date;
-import java.time.*;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.*;
 
 import static com.tramchester.livedata.domain.liveUpdates.LineDirection.Both;
 import static com.tramchester.livedata.domain.liveUpdates.LineDirection.Unknown;
 import static java.lang.String.format;
 import static java.time.format.DateTimeFormatter.ISO_INSTANT;
-
-
 
 // TODO Split parse and create concerns here
 
@@ -52,26 +43,29 @@ public class LiveDataParser {
     private final TimeZone timeZone = TimeZone.getTimeZone(TramchesterConfig.TimeZoneId);
 
     private final StationByName stationByName;
-    private final StationRepository stationRepository;
-    private final PlatformRepository platformRepository;
-    private final AgencyRepository agencyRepository;
     private final Map<String, String> destinationNameMappings;
+
+    private final TramDepartureFactory departureFactory;
+
+    private final Set<String> mappingsUsed;
+    private final EnumSet<Lines> linesSeen;
 
     // live data api has limit in number of results
     private static final int MAX_DUE_TRAMS = 4;
-    private Agency agency;
 
     public enum LiveDataNamesMapping {
-        Firswood("Firswood", "Firswood Station"),
-        Ashton("Ashton","Ashton-Under-Lyne"),
-        DeansgateAliasA("Deansgate - Castlefield","Deansgate-Castlefield"),
-        DeansgateAliasB("Deansgate Castlefield","Deansgate-Castlefield"),
-        BessesOThBarns("Besses O’ Th’ Barn","Besses o'th'barn"),
-        NewtonHeathAndMoston("Newton Heath and Moston","Newton Heath & Moston"),
-        StWerburgsRoad("St Werburgh’s Road","St Werburgh's Road"),
-        Rochdale("Rochdale Stn", "Rochdale Railway Station"),
-        TraffordCentre("Trafford Centre", "The Trafford Centre"),
-        RochdaleCentre("Rochdale Ctr", "Rochdale Town Centre");
+        DeansgateAliasB("Deansgate Castlefield","Deansgate-Castlefield");
+
+// No longer in use?
+//        Firswood("Firswood", "Firswood Station"),
+//        Ashton("Ashton","Ashton-Under-Lyne"),
+//        DeansgateAliasA("Deansgate - Castlefield","Deansgate-Castlefield"),
+//        BessesOThBarns("Besses O’ Th’ Barn","Besses o'th'barn"),
+//        NewtonHeathAndMoston("Newton Heath and Moston","Newton Heath & Moston"),
+//        StWerburgsRoad("St Werburgh’s Road","St Werburgh's Road"),
+//        Rochdale("Rochdale Stn", "Rochdale Railway Station"),
+//        TraffordCentre("Trafford Centre", "The Trafford Centre"),
+//        RochdaleCentre("Rochdale Ctr", "Rochdale Town Centre");
 
         private final String from;
         private final String too;
@@ -87,30 +81,49 @@ public class LiveDataParser {
     }
 
     @Inject
-    public LiveDataParser(StationByName stationByName, StationRepository stationRepository,
-                          PlatformRepository platformRepository, AgencyRepository agencyRepository) {
+    public LiveDataParser(StationByName stationByName, TramDepartureFactory departureFactory) {
         this.stationByName = stationByName;
-        this.platformRepository = platformRepository;
-        this.stationRepository = stationRepository;
-        this.agencyRepository = agencyRepository;
+        this.departureFactory = departureFactory;
 
         destinationNameMappings = new HashMap<>();
+
+        mappingsUsed = new HashSet<>();
+        linesSeen = EnumSet.noneOf(Lines.class);
     }
 
     @PostConstruct
     public void start() {
         logger.info("starting");
-        List<LiveDataNamesMapping> referenceData = Arrays.asList(LiveDataNamesMapping.values());
-        referenceData.forEach(item -> destinationNameMappings.put(item.from, item.too));
-        agency = agencyRepository.get(MutableAgency.METL);
+        for(LiveDataNamesMapping item : LiveDataNamesMapping.values()) {
+            destinationNameMappings.put(item.from, item.too);
+        }
+
         logger.info("started");
     }
 
-    public List<TramStationDepartureInfo> parse(String rawJson) {
+    @PreDestroy
+    public void stop() {
+        final Set<String> unusedMappings = new HashSet<>(destinationNameMappings.keySet());
+        unusedMappings.removeAll(mappingsUsed);
+        if (!unusedMappings.isEmpty()) {
+            logger.warn("The following mappings were not used " + unusedMappings);
+        }
+
+        final EnumSet<Lines> unusedLines = EnumSet.allOf(Lines.class);
+        unusedLines.remove(Lines.UnknownLine);
+        unusedLines.removeAll(linesSeen);
+        if (!unusedMappings.isEmpty()) {
+            logger.warn("The following lines were not seen " + unusedLines);
+        }
+
+        logger.info("stopped");
+    }
+
+    public List<TramStationDepartureInfo> parse(final String rawJson) {
         return parse(rawJson, new MonitorParsingWithLogging());
     }
 
-    public List<TramStationDepartureInfo> parse(String rawJson, MonitorParsing monitorParsing) {
+    public List<TramStationDepartureInfo> parse(final String rawJson, final MonitorParsing monitorParsing) {
         final List<TramStationDepartureInfo> result = new LinkedList<>();
 
         final JsonObject parsed = Jsoner.deserialize(rawJson, new JsonObject());
@@ -150,45 +163,31 @@ public class LiveDataParser {
         }
 
         final Lines line = getLine(rawLine);
+        linesSeen.add(line);
         if (line == Lines.UnknownLine) {
             monitorParsing.unknownLine(rawLine);
         }
 
-        final Optional<Station> maybeStation = getStationByAtcoCode(atcoCode);
-        if (maybeStation.isEmpty()) {
+        final TramStationDepartureInfo departureInfo = departureFactory.createStationDeparture(displayId, line, direction,
+                atcoCode, message, updateTime);
+        if (departureInfo==null) {
             monitorParsing.unknownStation(atcoCode);
             return Optional.empty();
         }
-        final Station station = maybeStation.get();
 
-        final TramStationDepartureInfo departureInfo = new TramStationDepartureInfo(displayId.toString(), line, direction,
-                station, message, updateTime);
-
-        final IdFor<Platform> platformId = getPlatformIdFor(station, atcoCode);
-        if (platformRepository.hasPlatformId(platformId)) {
-            final Platform platform = platformRepository.getPlatformById(platformId);
-            departureInfo.setStationPlatform(platform);
-            if (!station.hasPlatform(platformId)) {
-                // NOTE: some single platform stations (i.e. navigation road) appear to have
-                // two platforms in the live data feed...but not in the station reference data
+        if (!departureInfo.hasStationPlatform()) {
+            monitorParsing.missingPlatform(departureInfo.getStation(), atcoCode);
+        } else {
+            Station station = departureInfo.getStation();
+            if (!station.hasPlatform(departureInfo.getStationPlatform().getId())) {
                 monitorParsing.missingPlatform(station, atcoCode);
             }
-        } else {
-            monitorParsing.missingPlatform(station, atcoCode);
         }
 
         parseDueTrams(jsonObject, departureInfo, monitorParsing);
 
         logger.debug("Parsed live data to " + departureInfo);
         return Optional.of(departureInfo);
-    }
-
-    private static @NotNull IdFor<Platform> getPlatformIdFor(final Station station, String atcoCode) {
-        if ("9400ZZMATRC1".equals(atcoCode)) {
-            // trafford park platform workaround
-            atcoCode = "9400ZZMATRC2";
-        }
-        return TransportEntityFactoryForTFGM.createPlatformId(station.getId(), atcoCode);
     }
 
     private Lines getLine(final String text) {
@@ -252,19 +251,11 @@ public class LiveDataParser {
                 maybeDestStation.ifPresentOrElse(station -> {
                             final String status = getNumberedField(jsonObject, "Status", index);
                             final String waitString = getNumberedField(jsonObject, "Wait", index);
-                            int waitInMinutes = Integer.parseInt(waitString);
+                            final int waitInMinutes = Integer.parseInt(waitString);
                             final String carriages = getNumberedField(jsonObject, "Carriages", index);
-                            final LocalTime lastUpdate = departureInfo.getLastUpdate().toLocalTime();
-                            final LocalDate date = departureInfo.getLastUpdate().toLocalDate();
-                            final Station displayLocation = departureInfo.getStation();
 
-                            final TramTime when = TramTime.ofHourMins(lastUpdate.plusMinutes(waitInMinutes));
+                            UpcomingDeparture dueTram = departureFactory.createDueTram(departureInfo, status, station, waitInMinutes, carriages);
 
-                            final UpcomingDeparture dueTram = new UpcomingDeparture(date, displayLocation, station, status,
-                                    when, carriages, agency, TransportMode.Tram);
-                            if (departureInfo.hasStationPlatform()) {
-                                dueTram.setPlatform(departureInfo.getStationPlatform());
-                            }
                             departureInfo.addDueTram(dueTram);
 
                         },
@@ -274,16 +265,7 @@ public class LiveDataParser {
         }
     }
 
-    private Optional<Station> getStationByAtcoCode(String atcoCode) {
-        IdFor<Station> stationId = TransportEntityFactoryForTFGM.getStationIdFor(atcoCode);
-        if (stationRepository.hasStationId(stationId)) {
-            return Optional.of(stationRepository.getStationById(stationId));
-        } else {
-            return Optional.empty();
-        }
-    }
-
-    private Optional<Station> getTramDestination(String name) {
+    private Optional<Station> getTramDestination(final String name) {
         if (name.isEmpty())
         {
             logger.warn("Got empty name");
@@ -294,20 +276,21 @@ public class LiveDataParser {
             return Optional.empty();
         }
 
-        String destinationName = mapLiveAPIToTimetableDataNames(name);
+        final String destinationName = mapLiveAPIToTimetableDataNames(name);
         return stationByName.getTramStationByName(destinationName);
     }
 
-    private String mapLiveAPIToTimetableDataNames(String destinationName) {
-        destinationName = destinationName.replace("Via", "via");
+    private String mapLiveAPIToTimetableDataNames(final String name) {
+        String destinationName = name.replace("Via", "via");
 
-        // assume station name is valid.....
-        int viaIndex = destinationName.indexOf(" via");
+        // 'X via Z' => 'X'
+        final int viaIndex = destinationName.indexOf(" via");
         if (viaIndex > 0) {
             destinationName = destinationName.substring(0, viaIndex);
         }
 
         if (destinationNameMappings.containsKey(destinationName)) {
+            mappingsUsed.add(destinationName);
             return destinationNameMappings.get(destinationName);
         }
 

@@ -4,6 +4,8 @@ import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TemporaryStationsWalkIds;
 import com.tramchester.domain.StationClosures;
+import com.tramchester.domain.dates.DateRange;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.integration.testSupport.TestGroupType;
 import com.tramchester.integration.testSupport.naptan.NaptanRemoteDataSourceTestConfig;
 import com.tramchester.integration.testSupport.nptg.NPTGDataSourceTestConfig;
@@ -11,6 +13,7 @@ import com.tramchester.integration.testSupport.postcodes.PostCodeDatasourceConfi
 import com.tramchester.integration.testSupport.rail.RailRemoteDataSourceConfig;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.TramStations;
 
 import java.nio.file.Path;
 import java.util.Collections;
@@ -24,7 +27,11 @@ public abstract class IntegrationTestConfig extends TestConfig {
 
     protected final RailRemoteDataSourceConfig railRemoteDataSource;
 
-    public static final List<StationClosures> CurrentClosures = Collections.emptyList();
+    public static final StationClosures PiccGardensPartialClosure = new StationClosuresConfigForTest(TramStations.PiccadillyGardens,
+            DateRange.of(TramDate.of(2024, 8,28), TestEnv.PicGardensClosureEnds), false,
+            Collections.emptySet(), Collections.emptySet());
+
+    public static final List<StationClosures> CurrentClosures = Collections.singletonList(PiccGardensPartialClosure);
     public static final List<TemporaryStationsWalkIds> CurrentStationWalks = Collections.emptyList();
 
     private final TestGroupType testGroupType;

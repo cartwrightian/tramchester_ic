@@ -10,19 +10,22 @@ import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.PlatformStopCall;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.places.*;
+import com.tramchester.domain.places.MutableStation;
+import com.tramchester.domain.places.NPTGLocality;
+import com.tramchester.domain.places.RouteStation;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataContainer;
 import com.tramchester.testSupport.TestEnv;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import jakarta.inject.Inject;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 
@@ -75,8 +78,8 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
 
         MutableRoute routeA = createTramRoute(CornbrookTheTraffordCentre);
         MutableRoute routeB = createTramRoute(RochdaleShawandCromptonManchesterEastDidisbury);
-        MutableRoute routeC = createTramRoute(EcclesManchesterAshtonUnderLyne);
-        MutableRoute routeD = createTramRoute(VictoriaWythenshaweManchesterAirport);
+        MutableRoute routeC = createTramRoute(EcclesManchesterAshtonUnderLyne_OLD);
+        MutableRoute routeD = createTramRoute(VictoriaWythenshaweManchesterAirport_OLD);
 
         agency.addRoute(routeA);
         agency.addRoute(routeB);

@@ -21,8 +21,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -37,7 +38,6 @@ class KnownTramRouteTest {
     private static ComponentContainer componentContainer;
     private RouteRepository routeRepository;
     private TramDate when;
-    private DateRange dateRange;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun(TramchesterConfig tramchesterConfig) {
@@ -53,14 +53,11 @@ class KnownTramRouteTest {
     @BeforeEach
     void setUp() {
         routeRepository = componentContainer.get(RouteRepository.class);
-
         when = TestEnv.testDay();
-        TramDate start = TramDate.from(TestEnv.LocalNow());
-        dateRange = DateRange.of(start, when);
     }
 
     private Stream<TramDate> getDateRange() {
-        return dateRange.stream().filter(date -> !date.isChristmasPeriod());
+        return TestEnv.getUpcomingDates();
     }
 
     @Test
@@ -112,7 +109,7 @@ class KnownTramRouteTest {
         // Assumes long name match, if this fails get shouldHaveCorrectLongNamesForKnownRoutesForDates working first
 
         getDateRange().forEach(date -> {
-            Set<Route> loadedRoutes = getLoadedTramRoutes(date).collect(Collectors.toSet());
+            final Set<Route> loadedRoutes = getLoadedTramRoutes(date).collect(Collectors.toSet());
             KnownTramRoute.getFor(date).forEach(knownTramRoute -> {
                 String prefix = "On " + date + " ";
                 List<Route> findLoadedFor = loadedRoutes.stream().
@@ -126,21 +123,44 @@ class KnownTramRouteTest {
     }
 
     @Test
-    void shouldNotHaveUnusedKnownTramRoutes() {
+    void shouldNotHaveUnknownTramRoutes() {
         TramDate start = TramDate.from(TestEnv.LocalNow());
 
-        DateRange dateRange = DateRange.of(start, when.plusWeeks(2));
+        DateRange dateRange = DateRange.of(start, when.plusWeeks(6));
 
-        // returned for dates, and hence tested
-        Set<KnownTramRoute> knownRoutesForDateRange = dateRange.stream().
-                flatMap(date -> KnownTramRoute.getFor(date).stream()).collect(Collectors.toSet());
+        Map<TramDate, Set<Route>> unknownForDate = new HashMap<>();
 
-        Set<KnownTramRoute> all = EnumSet.allOf(KnownTramRoute.class);
+        dateRange.stream().forEach(date -> {
+            final IdSet<Route> known = KnownTramRoute.getFor(date).stream().map(KnownTramRoute::getId).collect(IdSet.idCollector());
+            final Set<Route> unknown = getLoadedTramRoutes(date).filter(route -> !known.contains(route.getId())).collect(Collectors.toSet());
+            if (!unknown.isEmpty()) {
+                unknownForDate.put(date, unknown);
+            }
+        });
 
-        SetUtils.SetView<KnownTramRoute> diff = SetUtils.disjunction(knownRoutesForDateRange, all);
+        assertTrue(unknownForDate.isEmpty(), "Unknown loaded routes " + unknownForDate);
+    }
 
-        assertTrue(diff.isEmpty(), "Expected empty, are they still needed, got " + diff);
+    @Test
+    void shouldNotHaveUnusedKnownTramRoutesForDate() {
+        TramDate start = TramDate.from(TestEnv.LocalNow());
 
+        DateRange dateRange = DateRange.of(start, when.plusWeeks(6));
+
+        Map<TramDate, Set<KnownTramRoute>> unusedForDate = new HashMap<>();
+
+        dateRange.stream().forEach(date -> {
+            final IdSet<Route> loaded = getLoadedTramRoutes(date).collect(IdSet.collector());
+
+            final Set<KnownTramRoute> knownButUnused = KnownTramRoute.getFor(date).stream().
+                    filter(knownTramRoute -> !loaded.contains(knownTramRoute.getId())).
+                    collect(Collectors.toSet());
+            if (!knownButUnused.isEmpty()) {
+                unusedForDate.put(date, knownButUnused);
+            }
+        });
+
+        assertTrue(unusedForDate.isEmpty(), "Unused loaded routes " + unusedForDate);
     }
 
     @NotNull

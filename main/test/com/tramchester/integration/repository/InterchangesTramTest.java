@@ -15,6 +15,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.graph.railAndTram.TramTrainNeighboursAsInterchangesTest;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchesterConfig;
+import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
@@ -24,6 +25,7 @@ import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DualTest;
+import com.tramchester.testSupport.testTags.PicGardensPartialClosure;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIf;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,8 +38,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.CentralZoneStation.StWerbergsRoad;
-import static com.tramchester.testSupport.reference.KnownTramRoute.RochdaleShawandCromptonManchesterEastDidisbury;
-import static com.tramchester.testSupport.reference.KnownTramRoute.VictoriaWythenshaweManchesterAirport;
+import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -50,6 +51,7 @@ public class InterchangesTramTest {
     private StationRepository stationRepository;
     private RouteRepository routeRepository;
     private TramRouteHelper tramRouteHelper;
+    private ClosedStationsRepository closedStationsRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun(TramchesterConfig tramchesterConfig) {
@@ -68,7 +70,7 @@ public class InterchangesTramTest {
         stationRepository = componentContainer.get(StationRepository.class);
         routeRepository = componentContainer.get(RouteRepository.class);
         interchangeRepository = componentContainer.get(InterchangeRepository.class);
-
+        closedStationsRepository = componentContainer.get(ClosedStationsRepository.class);
         tramRouteHelper = new TramRouteHelper(routeRepository);
     }
 
@@ -80,17 +82,22 @@ public class InterchangesTramTest {
         }
     }
 
+    @PicGardensPartialClosure
     @Test
     void shouldHaveExpectedTramInterchanges() {
 
         List<TramStations> tramStations = Arrays.asList(StWerburghsRoad, TraffordBar, Cornbrook, HarbourCity,
-                Pomona, Cornbrook, Deansgate, StPetersSquare,
+                Pomona, Cornbrook, Deansgate,
+                StPetersSquare,
                 Piccadilly, Victoria,
                 MarketStreet,
-                PiccadillyGardens,
                 Broadway);
 
-        Set<Station> expected = tramStations.stream().map(item -> item.from(stationRepository)).collect(Collectors.toSet());
+        TramDate when = TestEnv.testDay();
+
+        Set<Station> expected = tramStations.stream().
+                filter(item -> closedStationsRepository.isClosed(item.getId(), when)).
+                map(item -> item.from(stationRepository)).collect(Collectors.toSet());
 
         Set<Station> additional = AdditionalTramInterchanges.stations().
                 stream().map(id -> stationRepository.getStationById(id)).collect(Collectors.toSet());
@@ -125,7 +132,7 @@ public class InterchangesTramTest {
         InterchangeStation interchange = interchangeRepository.getInterchange(stWerb);
         assertEquals(InterchangeType.NumberOfLinks, interchange.getType());
 
-        Route toAirport = tramRouteHelper.getOneRoute(VictoriaWythenshaweManchesterAirport, date);
+        Route toAirport = tramRouteHelper.getOneRoute(DeansgateCastlefieldManchesterAirport, date);
         assertTrue(interchange.getPickupRoutes().contains(toAirport));
 
         Route toEastDids = tramRouteHelper.getOneRoute(RochdaleShawandCromptonManchesterEastDidisbury, date);

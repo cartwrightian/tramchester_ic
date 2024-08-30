@@ -6,7 +6,6 @@ import com.tramchester.caching.DataCache;
 import com.tramchester.caching.FileDataCache;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.data.RoutePairInterconnectsData;
-import com.tramchester.domain.IdPair;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.RoutePair;
 import com.tramchester.domain.collections.IndexedBitSet;
@@ -27,7 +26,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
-import com.tramchester.testSupport.testTags.PicGardensPartialClosure;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
@@ -39,20 +37,18 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
-import static com.tramchester.testSupport.reference.TramStations.*;
+import static com.tramchester.testSupport.reference.TramStations.Deansgate;
 import static org.junit.jupiter.api.Assertions.*;
 
-@PicGardensPartialClosure
 @ExtendWith(ConfigParameterResolver.class)
 @DualTest
 @DataUpdateTest
-public class RouteInterconnectRepositoryTest {
+public class RouteInterconnectRepositoryPiccGardensPartialTest {
     private static ComponentContainer componentContainer;
 
     private TramRouteHelper routeHelper;
@@ -99,7 +95,7 @@ public class RouteInterconnectRepositoryTest {
     @Test
     void shouldHaveExpectedInterchangeForSimpleInterchange() {
         Route routeA = routeHelper.getOneRoute(BuryManchesterAltrincham, date);
-        Route routeB = routeHelper.getOneRoute(VictoriaWythenshaweManchesterAirport_OLD, date);
+        Route routeB = routeHelper.getOneRoute(DeansgateCastlefieldManchesterAirport, date);
 
         RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
 
@@ -110,7 +106,7 @@ public class RouteInterconnectRepositoryTest {
         PathResults results = repository.getInterchangesFor(indexPair, dateOverlaps, interchangeStation -> true);
 
         assertTrue(results.hasAny());
-        assertEquals(6, results.numberPossible(), results.toString());
+        assertEquals(3, results.numberPossible(), results.toString());
 
         assertEquals(1, results.getDepth());
 
@@ -119,7 +115,7 @@ public class RouteInterconnectRepositoryTest {
     @Test
     void shouldHaveExpectedInterchangeForSimpleInterchangeFiltered() {
         Route routeA = routeHelper.getOneRoute(BuryManchesterAltrincham, date);
-        Route routeB = routeHelper.getOneRoute(VictoriaWythenshaweManchesterAirport_OLD, date);
+        Route routeB = routeHelper.getOneRoute(DeansgateCastlefieldManchesterAirport, date);
 
         RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
 
@@ -127,7 +123,8 @@ public class RouteInterconnectRepositoryTest {
 
         assertNotEquals(0, dateOverlaps.numberOfBitsSet());
 
-        PathResults results = repository.getInterchangesFor(indexPair, dateOverlaps, interchangeStation -> interchangeStation.getStationId().equals(Victoria.getId()));
+        PathResults results = repository.
+                getInterchangesFor(indexPair, dateOverlaps, interchangeStation -> interchangeStation.getStationId().equals(Deansgate.getId()));
 
         assertTrue(results.hasAny());
         assertEquals(1, results.numberPossible(), results.toString());
@@ -162,37 +159,24 @@ public class RouteInterconnectRepositoryTest {
     @Test
     void shouldCheckFor2Changes() {
 
-        Route routeA = routeHelper.getOneRoute(PiccadillyBury_OLD, date);
+        Route routeA = routeHelper.getOneRoute(CrumpsallManchesterAshton, date);
         Route routeB = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
 
-        assertEquals(2, routeMatrix.getConnectionDepthFor(routeA, routeB));
+        // ought to be one, but likely due to depot trams is 1
+        assertEquals(1, routeMatrix.getConnectionDepthFor(routeA, routeB));
 
-        RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
-
-        // ignore data and mode here
-        IndexedBitSet dateOverlaps = routeMatrix.createOverlapMatrixFor(date, modes);
-        // 196 -> 49
-        assertEquals(49, dateOverlaps.numberOfBitsSet());
-
-        PathResults results = repository.getInterchangesFor(indexPair, dateOverlaps, interchangeStation -> true);
-
-        assertTrue(results.hasAny());
-
-        assertEquals(2, results.getDepth());
-
-        assertEquals(4, results.numberPossible(), results.toString()); // two sets of changes needed
     }
 
     @Test
     void shouldHaveExpectedBacktrackFor1Changes() {
         Route routeA = routeHelper.getOneRoute(BuryManchesterAltrincham, date);
-        Route routeB = routeHelper.getOneRoute(VictoriaWythenshaweManchesterAirport_OLD, date);
+        Route routeB = routeHelper.getOneRoute(DeansgateCastlefieldManchesterAirport, date);
         RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
 
         assertTrue(interchangeRepository.hasInterchangeFor(indexPair));
         Set<InterchangeStation> interchanges = interchangeRepository.getInterchangesFor(indexPair).collect(Collectors.toSet());
 
-        assertEquals(6, interchanges.size(), HasId.asIds(interchanges));
+        assertEquals(3, interchanges.size(), HasId.asIds(interchanges));
 
         // unrealistic as would be 0 in code, direct via one interchange
         assertEquals(1, routeMatrix.getConnectionDepthFor(routeA, routeB));
@@ -218,81 +202,6 @@ public class RouteInterconnectRepositoryTest {
                 collect(Collectors.toSet());
 
         assertTrue(wrongSecond.isEmpty(), wrongFirst.toString());
-
-    }
-
-    @Test
-    void shouldHaveExpectedBacktrackFor2Changes() {
-        Route routeA = routeHelper.getOneRoute(PiccadillyBury_OLD, date);
-        Route routeB = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
-        RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
-
-        assertFalse(interchangeRepository.hasInterchangeFor(indexPair));
-
-        assertEquals(2, routeMatrix.getConnectionDepthFor(routeA, routeB));
-
-        Set<Pair<RoutePair, RoutePair>> results = repository.getBackTracksFor(1, indexPair);
-
-        // all pairs should have interchanges
-        Set<Pair<RoutePair, RoutePair>> noInterchanges = results.stream().
-                map(pair -> Pair.of(routeIndex.getPairFor(pair.getLeft()), routeIndex.getPairFor(pair.getRight()))).
-                filter(pair -> !(interchangeRepository.hasInterchangeFor(pair.getLeft()) && interchangeRepository.hasInterchangeFor(pair.getRight()))).
-                map(pair -> Pair.of(routeIndex.getPairFor(pair.getLeft()), routeIndex.getPairFor(pair.getRight()))).
-                collect(Collectors.toSet());
-
-        assertTrue(noInterchanges.isEmpty(), toString(noInterchanges));
-
-        Set<Route> wrongFirst = results.stream().map(pair -> pair.getLeft().first()).
-                filter(first -> !first.equals(routeA)).
-                collect(Collectors.toSet());
-
-        assertTrue(wrongFirst.isEmpty(), wrongFirst.toString());
-
-        Set<Route> wrongSecond = results.stream().map(pair -> pair.getRight().second()).
-                filter(second -> !second.equals(routeB)).
-                collect(Collectors.toSet());
-
-        assertTrue(wrongSecond.isEmpty(), wrongFirst.toString());
-
-    }
-
-    private String toString(Set<Pair<RoutePair, RoutePair>> pairs) {
-        Set<Pair<IdPair<Route>, IdPair<Route>>> converted = pairs.stream().
-                map(pair -> Pair.of(pair.getLeft().getIds(), pair.getRight().getIds())).
-                collect(Collectors.toSet());
-        return converted.toString();
-    }
-
-    @Test
-    void shouldCheckFor2ChangesFiltered() {
-        Route routeA = routeHelper.getOneRoute(PiccadillyBury_OLD, date);
-        Route routeB = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
-        RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
-
-        IndexedBitSet dateOverlaps = routeMatrix.createOverlapMatrixFor(date, modes);
-
-        Function<InterchangeStation, Boolean> marketStreetOrCornbrook = interchangeStation -> interchangeStation.getStationId().equals(Cornbrook.getId()) ||
-                interchangeStation.getStationId().equals(MarketStreet.getId());
-
-        PathResults viaMarketStreetAndCornbook = repository.getInterchangesFor(indexPair, dateOverlaps, marketStreetOrCornbrook);
-
-        assertTrue(viaMarketStreetAndCornbook.hasAny());
-
-        PathResults.HasPathResults results = (PathResults.HasPathResults) viaMarketStreetAndCornbook;
-        assertNotNull(results);
-
-        Set<QueryPathsWithDepth.BothOf> parts = results.stream().map(path -> (QueryPathsWithDepth.BothOf)path).collect(Collectors.toSet());
-
-        assertFalse(parts.isEmpty());
-
-        parts.forEach(part -> {
-            QueryPathsWithDepth.QueryPath firstPath = part.getFirst();
-            assertTrue(firstPath.isValid(interchangeStation -> interchangeStation.getStationId().equals(MarketStreet.getId())), part.toString());
-            assertFalse(firstPath.isValid(interchangeStation -> interchangeStation.getStationId().equals(Cornbrook.getId())), part.toString());
-            QueryPathsWithDepth.QueryPath secondPath = part.getSecond();
-            assertTrue(secondPath.isValid(interchangeStation -> interchangeStation.getStationId().equals(Cornbrook.getId())), part.toString());
-            assertFalse(secondPath.isValid(interchangeStation -> interchangeStation.getStationId().equals(MarketStreet.getId())), part.toString());
-        });
 
     }
 

@@ -108,7 +108,8 @@ public class TransportDataFromFilesTramTest {
         assertEquals(1, transportData.getAgencies().stream().filter(agency -> agency.getTransportModes().contains(Tram)).count());
         assertEquals(NUM_TFGM_TRAM_STATIONS, transportData.getStations(EnumSet.of(Tram)).size());
 
-        int expectedPlatforms = 201;
+        // picc gardens closure 201 -> 197
+        int expectedPlatforms = 197;
         assertEquals(expectedPlatforms, transportData.getPlatforms(EnumSet.of(Tram)).size());
     }
 
@@ -156,13 +157,13 @@ public class TransportDataFromFilesTramTest {
         // cannot check for specific size as the way routes handled in tfgm gtfs feed can lead to duplicates
         //assertEquals(10, traffordBarRoutes.size());
 
-        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(PiccadillyAltrincham)));
+        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(PiccadillyAltrincham_OLD)));
 
         assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(RochdaleShawandCromptonManchesterEastDidisbury)));
 
-        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(VictoriaWythenshaweManchesterAirport)));
+        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(VictoriaWythenshaweManchesterAirport_OLD)));
 
-        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(EcclesManchesterAshtonUnderLyne)));
+        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(EcclesManchesterAshtonUnderLyne_OLD)));
 
         assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(BuryManchesterAltrincham)));
     }
@@ -180,7 +181,8 @@ public class TransportDataFromFilesTramTest {
 
         Set<String> uniqueRouteNames = callingRoutes.stream().map(Route::getName).collect(Collectors.toSet());
 
-        assertEquals(2, uniqueRouteNames.size(), uniqueRouteNames.toString());
+        // picc gardens 2024 2->1
+        assertEquals(1, uniqueRouteNames.size(), uniqueRouteNames.toString());
     }
 
     @Test
@@ -202,7 +204,8 @@ public class TransportDataFromFilesTramTest {
                         map(RouteStation::getRoute).
                         map(Route::getName).collect(Collectors.toSet());
 
-        assertTrue(routeNames.contains(VictoriaWythenshaweManchesterAirport.longName()), routeNames.toString());
+        // Picc gardens 2024
+        assertTrue(routeNames.contains(DeansgateCastlefieldManchesterAirport.longName()), routeNames.toString());
     }
 
     @Test
@@ -233,18 +236,19 @@ public class TransportDataFromFilesTramTest {
                 map(routeStation -> Pair.of(routeStation.getStationId(), routeStation.getRoute().getName())).
                 collect(Collectors.toSet());
 
-        assertEquals(4, routeStationPairs.size(), routeStations.toString());
+        // Pic Gardens 2024 4->2
+        assertEquals(2, routeStationPairs.size(), routeStations.toString());
 
         Set<String> routeNames =
                 routeStations.stream().
                         map(RouteStation::getRoute).
                         map(Route::getName).collect(Collectors.toSet());
 
-        assertTrue(routeNames.contains(VictoriaWythenshaweManchesterAirport.longName()), routeNames.toString());
+        assertTrue(routeNames.contains(CrumpsallManchesterAshton.longName()), routeNames.toString());
 
         assertTrue(routeNames.contains(BuryManchesterAltrincham.longName()), routeNames.toString());
 
-        assertTrue(routeNames.contains(PiccadillyBury.longName()), routeNames.toString());
+//        assertTrue(routeNames.contains(PiccadillyBury_OLD.longName()), routeNames.toString());
 
     }
 
@@ -422,7 +426,7 @@ public class TransportDataFromFilesTramTest {
                     forEach(station -> {
                         Set<Trip> trips = transportData.getTripsCallingAt(station, date);
                         for (TramTime time : times) {
-                            TimeRange range = TimeRangePartial.of(time.minusMinutes(maxwait), time.plusMinutes(maxwait));
+                            final TimeRange range = TimeRangePartial.of(time.minusMinutes(maxwait), time.plusMinutes(maxwait));
                             boolean calls = trips.stream().flatMap(trip -> trip.getStopCalls().stream()).
                                     filter(stopCall -> stopCall.getStation().equals(station)).
                                     anyMatch(stopCall -> range.contains(stopCall.getArrivalTime()));
@@ -573,7 +577,7 @@ public class TransportDataFromFilesTramTest {
     void shouldReproIssueAtMediaCityWithBranchAtCornbrook() {
         Set<Trip> allTrips = getTripsFor(transportData.getTrips(), Cornbrook);
 
-        Set<Route> routes = transportData.findRoutesByShortName(MutableAgency.METL, EcclesManchesterAshtonUnderLyne.shortName());
+        Set<Route> routes = transportData.findRoutesByShortName(MutableAgency.METL, EcclesManchesterAshtonUnderLyne_OLD.shortName());
 
         assertFalse(routes.isEmpty());
 
@@ -630,11 +634,9 @@ public class TransportDataFromFilesTramTest {
     private boolean isOpen(final TramDate date, final Station station) {
         // workaround timetable not updated yet for Shudehill and MarketStreet, shows still closed after meant to re-open....
         final IdFor<Station> stationId = station.getId();
-        if (stationId.equals(Shudehill.getId()) || stationId.equals(MarketStreet.getId())) {
-            final DateRange missingFromTimetable = DateRange.of(TramDate.of(2024,8,20), TramDate.of(2024,8,22));
-            if (missingFromTimetable.contains(date)) {
-                return false;
-            }
+        if (stationId.equals(PiccadillyGardens.getId())) {
+            if (!date.isAfter(TestEnv.PicGardensClosureEnds))
+            return false;
         }
         return !closedStationRepository.isClosed(station, date);
     }

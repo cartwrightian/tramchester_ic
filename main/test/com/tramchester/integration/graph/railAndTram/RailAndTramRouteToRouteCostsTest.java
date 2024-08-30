@@ -195,7 +195,7 @@ public class RailAndTramRouteToRouteCostsTest {
         RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
         TramRouteHelper tramRouteHelper = new TramRouteHelper(routeRepository);
 
-        Route yellowInbound = tramRouteHelper.getOneRoute(KnownTramRoute.PiccadillyBury, date);
+        Route yellowInbound = tramRouteHelper.getOneRoute(KnownTramRoute.PiccadillyBury_OLD, date);
         Route pinkOutbound = tramRouteHelper.getOneRoute(KnownTramRoute.RochdaleShawandCromptonManchesterEastDidisbury, date);
 
         NumberOfChanges routeToRouteResult = routeToRouteCosts.getNumberOfChanges(yellowInbound, pinkOutbound, date, timeRange, TramsOnly);

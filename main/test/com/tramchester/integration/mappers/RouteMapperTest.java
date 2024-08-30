@@ -18,8 +18,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static com.tramchester.testSupport.reference.KnownTramRoute.CornbrookTheTraffordCentre;
-import static com.tramchester.testSupport.reference.KnownTramRoute.VictoriaWythenshaweManchesterAirport;
+import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -52,12 +51,12 @@ class RouteMapperTest {
 
     @Test
     void shouldHaveWorkaroundForAirportRouteIdsTransposedInData() {
-        Route fromAirportRoute = tramRouteHelper.getOneRoute(VictoriaWythenshaweManchesterAirport, date);
+        Route fromAirportRoute = tramRouteHelper.getOneRoute(DeansgateCastlefieldManchesterAirport, date);
 
         List<Station> results = mapper.getStationsOn(fromAirportRoute, false, ManAirport.getId());
 
         assertEquals(ManAirport.getId(), results.get(0).getId());
-        assertEquals(Victoria.getId(), results.get(results.size()-1).getId());
+        assertEquals(Deansgate.getId(), results.get(results.size()-1).getId());
 
     }
 

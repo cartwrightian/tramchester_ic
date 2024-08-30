@@ -17,6 +17,7 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.testTags.DualTest;
+import com.tramchester.testSupport.testTags.PicGardensPartialClosure;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -73,10 +74,10 @@ public class RoutePairToInterchangeRepositoryTest {
 
     @Test
     void shouldGetExpectedSingleInterchangesBetweenRoutes() {
-        Route cornbrookToTraffordCenter = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
-        Route victoriaToAirport = routeHelper.getOneRoute(VictoriaWythenshaweManchesterAirport, date);
+        Route toTraffordCentre = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
+        Route toAirport = routeHelper.getOneRoute(DeansgateCastlefieldManchesterAirport, date);
 
-        RoutePair routeIndexPair = RoutePair.of(cornbrookToTraffordCenter, victoriaToAirport);
+        RoutePair routeIndexPair = RoutePair.of(toTraffordCentre, toAirport);
 
         assertTrue(repository.hasAnyInterchangesFor(routeIndexPair));
 
@@ -84,16 +85,16 @@ public class RoutePairToInterchangeRepositoryTest {
 
         IdSet<Station> stationIds = interchanges.stream().map(InterchangeStation::getStation).collect(IdSet.collector());
 
-        // 1 -> 2 with data changes
-        assertEquals(2, stationIds.size(), stationIds.toString());
+        assertEquals(1, stationIds.size(), stationIds.toString());
         assertTrue(stationIds.contains(Cornbrook.getId()), stationIds.toString());
-        assertTrue(stationIds.contains(Deansgate.getId()), stationIds.toString());
+//        assertTrue(stationIds.contains(Deansgate.getId()), stationIds.toString());
     }
 
+    @PicGardensPartialClosure
     @Test
     void shouldGetExpectedMultipleInterchangesBetweenRoutes() {
-        Route ashtonToEccles = routeHelper.getOneRoute(EcclesManchesterAshtonUnderLyne, date);
-        Route victoriaToAirport = routeHelper.getOneRoute(VictoriaWythenshaweManchesterAirport, date);
+        Route ashtonToEccles = routeHelper.getOneRoute(EcclesManchesterAshtonUnderLyne_OLD, date);
+        Route victoriaToAirport = routeHelper.getOneRoute(VictoriaWythenshaweManchesterAirport_OLD, date);
 
         RoutePair routeIndexPair = RoutePair.of(ashtonToEccles, victoriaToAirport);
 

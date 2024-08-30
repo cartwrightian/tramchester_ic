@@ -33,6 +33,7 @@ import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
+import com.tramchester.testSupport.testTags.PicGardensPartialClosure;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Direction;
@@ -47,8 +48,7 @@ import java.util.stream.Stream;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
-import static com.tramchester.testSupport.reference.KnownTramRoute.BuryManchesterAltrincham;
-import static com.tramchester.testSupport.reference.KnownTramRoute.EcclesManchesterAshtonUnderLyne;
+import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -79,7 +79,7 @@ class TramGraphBuilderTest {
 
         when = TestEnv.testDay();
 
-        tramRouteEcclesAshton = tramRouteHelper.getOneRoute(EcclesManchesterAshtonUnderLyne, when);
+        tramRouteEcclesAshton = tramRouteHelper.getOneRoute(CrumpsallManchesterAshton, when);
 
         stationRepository = componentContainer.get(StationRepository.class);
         serviceRepository = componentContainer.get(ServiceRepository.class);
@@ -231,6 +231,7 @@ class TramGraphBuilderTest {
     }
 
 
+    @PicGardensPartialClosure
     @Test
     void shouldHaveCorrectOutboundsAtMediaCity() {
 
@@ -800,14 +801,15 @@ class TramGraphBuilderTest {
 
     }
 
+    @PicGardensPartialClosure
     @Test
     void shouldHaveCorrectInboundsAtMediaCity() {
 
-        checkInboundConsistency(MediaCityUK, EcclesManchesterAshtonUnderLyne);
+        checkInboundConsistency(MediaCityUK, EcclesDeansgateCastlefield);
 
-        checkInboundConsistency(HarbourCity, EcclesManchesterAshtonUnderLyne);
+        checkInboundConsistency(HarbourCity, EcclesDeansgateCastlefield);
 
-        checkInboundConsistency(Broadway, EcclesManchesterAshtonUnderLyne);
+        checkInboundConsistency(Broadway, EcclesDeansgateCastlefield);
 
     }
 
@@ -818,9 +820,9 @@ class TramGraphBuilderTest {
 
         checkOutboundConsistency(Cornbrook, BuryManchesterAltrincham);
 
-        checkOutboundConsistency(MediaCityUK, EcclesManchesterAshtonUnderLyne);
+        checkOutboundConsistency(MediaCityUK, EcclesDeansgateCastlefield);
 
-        checkOutboundConsistency(HarbourCity, EcclesManchesterAshtonUnderLyne);
+        checkOutboundConsistency(HarbourCity, EcclesDeansgateCastlefield);
 
         // these two are not consistent because same svc can go different ways while still having same route code
         // i.e. service from harbour city can go to media city or to Broadway with same svc and route id

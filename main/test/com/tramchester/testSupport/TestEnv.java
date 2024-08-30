@@ -70,6 +70,8 @@ public class TestEnv {
     public static final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:00");
     public static final String BRISTOL_BUSSTOP_OCTOCODE = "0100BRP90268";
 
+    public static final TramDate PicGardensClosureEnds = TramDate.of(2024,9,16);
+
     private static final Agency MET = MutableAgency.build(DataSourceID.tfgm, MutableAgency.METL, "Metrolink");
 
     public static final Agency StagecoachManchester = MutableAgency.build(DataSourceID.tfgm, Agency.createId("7778462"),

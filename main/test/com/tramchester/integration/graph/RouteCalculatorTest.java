@@ -30,6 +30,7 @@ import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryCategory;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
+import com.tramchester.testSupport.testTags.PicGardensPartialClosure;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -108,7 +109,7 @@ public class RouteCalculatorTest {
                 3, maxJourneyDuration, 5, requestedModes);
 
         // todo added market street and shudehill
-        Set<String> expected = Stream.of(Cornbrook, StPetersSquare, Deansgate, Piccadilly, MarketStreet, Shudehill).
+        Set<String> expected = Stream.of(Cornbrook, StPetersSquare, Deansgate, Piccadilly, Victoria).
                 map(TramStations::getName).collect(Collectors.toSet());
 
         List<Journey> journeys = calculator.calculateRouteAsList(Altrincham, Ashton, journeyRequest);
@@ -397,12 +398,14 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequestB, Altrincham, OldTrafford);
     }
 
+    @PicGardensPartialClosure
     @Test
     void shouldHandleAtMidnightDirectCornbrookStPeters() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.nextDay(0,0), maxNumResults);
         assertGetAndCheckJourneys(journeyRequest, Cornbrook, StPetersSquare);
     }
 
+    @PicGardensPartialClosure
     @Test
     void shouldHandlePastMidnightDirectCornbrookStPeters() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.nextDay(0,1), maxNumResults);
@@ -504,8 +507,11 @@ public class RouteCalculatorTest {
 
     @Test
     void ShouldReproIssueWithSomeMediaCityJourneys() {
+
+        // picc gardens 2024
+        // max changes 1->2
         JourneyRequest request = new JourneyRequest(when, TramTime.of(8, 5), false,
-                1, maxJourneyDuration, 2, requestedModes);
+                2, maxJourneyDuration, 2, requestedModes);
 
         assertFalse(calculator.calculateRouteAsList(MediaCityUK, Etihad, request).isEmpty());
         assertFalse(calculator.calculateRouteAsList(MediaCityUK, Ashton, request).isEmpty());
@@ -534,6 +540,7 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Bury, Eccles);
     }
 
+    @PicGardensPartialClosure
     @Test
     void reproduceIssueEdgePerTrip() {
         // see also RouteCalculatorSubGraphTest

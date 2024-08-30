@@ -16,6 +16,7 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWit
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.PicGardensPartialClosure;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -108,11 +109,12 @@ public class StationLocationsTest {
         assertTrue(found.contains(station.getLocationId()));
     }
 
+    @PicGardensPartialClosure
     @Test
     void shouldHavePlatformsInAnArea() {
         Station stPeters = TramStations.StPetersSquare.from(stationRepository);
 
-        Set<Platform> platforms = stPeters.getPlatforms();
+        final Set<Platform> platforms = stPeters.getPlatforms();
 
         assertEquals(4, platforms.size());
 

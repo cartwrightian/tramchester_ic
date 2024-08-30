@@ -17,6 +17,7 @@ import com.tramchester.integration.testSupport.config.StationClosuresConfigForTe
 import com.tramchester.integration.testSupport.tram.IntegrationTramClosedStationsTestConfig;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.PicGardensPartialClosure;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
@@ -107,6 +108,7 @@ class RouteCalculatorCloseStationsTest {
         assertTrue(singleStage.isEmpty());
     }
 
+    @PicGardensPartialClosure
     @Test
     void shouldFindRouteToClosedStationViaDirectTramWhenAfterClosurePeriod() {
         TramDate travelDate = TestEnv.avoidChristmasDate(end.plusDays(2));

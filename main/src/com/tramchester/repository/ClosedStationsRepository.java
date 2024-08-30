@@ -15,7 +15,6 @@ import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.time.TimeRange;
-import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.filters.GraphFilter;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
@@ -130,13 +129,6 @@ public class ClosedStationsRepository {
         closureDates.clear();
         logger.info("Stopped");
     }
-
-//    @Deprecated
-//    private Stream<ClosedStation> getClosures(TramDate date, TramTime time, boolean fullyClosed) {
-//        return closedStations.stream().
-//                filter(closure -> closure.isFullyClosed() == fullyClosed).
-//                filter(closure -> closure.getDateTimeRange().contains(date, time));
-//    }
 
     public boolean hasClosuresOn(final TramDate date) {
         return closureDates.values().stream().flatMap(Collection::stream).anyMatch(dateRange -> dateRange.contains(date));

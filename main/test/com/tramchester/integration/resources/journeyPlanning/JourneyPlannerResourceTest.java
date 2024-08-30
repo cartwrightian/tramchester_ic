@@ -18,6 +18,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.JourneyPlannerResource;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.PicGardensPartialClosure;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.apache.commons.lang3.tuple.Triple;
 import org.junit.jupiter.api.Assertions;
@@ -187,6 +188,7 @@ public class JourneyPlannerResourceTest {
                 assertTrue(journeyDTO.getExpectedArrivalTime().isAfter(journeyDTO.getFirstDepartureTime())));
     }
 
+    @PicGardensPartialClosure
     @Test
     void shouldPlanSimpleJourneyFromAltyToAshton() {
 

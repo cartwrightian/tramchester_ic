@@ -72,9 +72,12 @@ class FindStationsByNumberLinksTramTest {
 
         IdSet<Station> found = finder.atLeastNLinkedStations(TransportMode.Tram, threshhold);
 
-        List<IdFor<Station>> expectedList = Stream.of(StPetersSquare,
-            MarketStreet,
-            PiccadillyGardens,
+        List<IdFor<Station>> expectedList = Stream.of(
+                // pic gardens partial closure
+//                StPetersSquare,
+//                PiccadillyGardens,
+
+                MarketStreet,
             TraffordBar,
             Cornbrook,
             Victoria,

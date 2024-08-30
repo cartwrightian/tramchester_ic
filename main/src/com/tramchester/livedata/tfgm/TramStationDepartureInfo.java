@@ -24,9 +24,13 @@ public class TramStationDepartureInfo {
     private final Station station;
     private final LineDirection direction;
 
-    // station code here is the actocode
     public TramStationDepartureInfo(String displayId, Lines line, LineDirection direction,
                                     Station station, String message, LocalDateTime lastUpdate) {
+        this(displayId, line, direction, station, message, lastUpdate, null);
+    }
+
+    public TramStationDepartureInfo(String displayId, Lines line, LineDirection direction,
+                                    Station station, String message, LocalDateTime lastUpdate, Platform platform) {
         this.displayId = displayId;
         this.line = line;
         this.direction = direction;
@@ -36,8 +40,8 @@ public class TramStationDepartureInfo {
         } else {
             this.message = message;
         }
-        this.stationPlatform = null;
         this.lastUpdate = lastUpdate;
+        this.stationPlatform = platform;
         dueTrams = new LinkedList<>();
     }
 
@@ -59,10 +63,6 @@ public class TramStationDepartureInfo {
 
     public boolean hasStationPlatform() {
         return stationPlatform!=null;
-    }
-
-    public void setStationPlatform(Platform stationPlatform) {
-        this.stationPlatform = stationPlatform;
     }
 
     public Platform getStationPlatform() {
@@ -119,9 +119,10 @@ public class TramStationDepartureInfo {
 
     @Override
     public String toString() {
+        String platformTxt = stationPlatform==null ? "null" : stationPlatform.getId().toString();
         return "StationDepartureInfo{" +
                 "line='" + line + '\'' +
-                ", stationPlatform='" + stationPlatform + '\'' +
+                ", stationPlatform='" + platformTxt + '\'' +
                 ", location='" + HasId.asId(station) + '\'' +
                 ", message='" + message + '\'' +
                 ", dueTrams=" + dueTrams +

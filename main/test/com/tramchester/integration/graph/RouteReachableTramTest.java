@@ -14,6 +14,7 @@ import com.tramchester.graph.RouteReachable;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.testTags.PicGardensPartialClosure;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,8 +26,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
-import static com.tramchester.testSupport.reference.KnownTramRoute.BuryManchesterAltrincham;
-import static com.tramchester.testSupport.reference.KnownTramRoute.PiccadillyAltrincham;
+import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.Altrincham;
 import static com.tramchester.testSupport.reference.TramStations.NavigationRoad;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -56,6 +56,7 @@ class RouteReachableTramTest {
         reachable = componentContainer.get(RouteReachable.class);
     }
 
+    @PicGardensPartialClosure
     @Test
     void shouldTestGetRoutesFromStartToNeighbour() {
 
@@ -70,7 +71,7 @@ class RouteReachableTramTest {
 
         assertEquals(2, names.size(), names.toString());
 
-        assertTrue(names.contains(PiccadillyAltrincham.longName()), names.toString());
+        assertTrue(names.contains(PiccadillyAltrincham_OLD.longName()), names.toString());
         assertTrue(names.contains(BuryManchesterAltrincham.longName()), names.toString());
     }
 

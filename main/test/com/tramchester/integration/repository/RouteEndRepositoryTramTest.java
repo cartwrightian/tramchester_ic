@@ -49,7 +49,7 @@ class RouteEndRepositoryTramTest {
         //assertTrue(results.contains(Cornbrook.getId()));
 
         assertTrue(results.contains(Victoria.getId()), results.toString());
-        assertTrue(results.contains(Piccadilly.getId()), results.toString());
+        assertTrue(results.contains(ManAirport.getId()), results.toString());
         IdSet<Station> eolIds = getEndOfTheLine().stream().map(TramStations::getId).collect(IdSet.idCollector());
         assertTrue(results.containsAll(eolIds));
 

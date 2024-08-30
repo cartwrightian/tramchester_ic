@@ -81,8 +81,7 @@ public class StationRepositoryTest {
 
         IdSet<Station> dropOffs = allStations.stream().filter(station -> station.servesRouteDropOff(buryToAlty)).collect(IdSet.collector());
 
-        // 25
-        assertEquals(25, dropOffs.size(), dropOffs.toString());
+        assertEquals(26, dropOffs.size(), dropOffs.toString());
         // in new data Bury is dropoff since no direction to routes....
 //        assertFalse(dropOffs.contains(Bury.getId()));
         assertTrue(dropOffs.contains(Altrincham.getId()));
@@ -92,7 +91,7 @@ public class StationRepositoryTest {
 
         IdSet<Station> pickUps = allStations.stream().filter(station -> station.servesRoutePickup(buryToAlty)).collect(IdSet.collector());
 
-        assertEquals(25, pickUps.size(), pickUps.toString());
+        assertEquals(26, pickUps.size(), pickUps.toString());
         assertTrue(pickUps.contains(Bury.getId()));
         assertTrue(pickUps.contains(Cornbrook.getId()));
 
@@ -196,14 +195,18 @@ public class StationRepositoryTest {
         assertTrue(station.hasDropoff());
         assertTrue(station.hasPickup());
 
-        Set<KnownTramRoute> expectRunningOnDate = getFor(when);
+//        Set<KnownTramRoute> expectRunningOnDate = getFor(when);
 
-        EnumSet<KnownTramRoute> expected = EnumSet.of(BuryManchesterAltrincham, PiccadillyAltrincham,
+        EnumSet<KnownTramRoute> expected = EnumSet.of(BuryManchesterAltrincham,
+                EcclesDeansgateCastlefield,
+                DeansgateCastlefieldManchesterAirport,
+//                VictoriaWythenshaweManchesterAirport,
+                CrumpsallManchesterAshton,
                 CornbrookTheTraffordCentre,
-                EcclesManchesterAshtonUnderLyne, VictoriaWythenshaweManchesterAirport, RochdaleShawandCromptonManchesterEastDidisbury);
+                RochdaleShawandCromptonManchesterEastDidisbury);
 
         IdSet<Route> expectedIds = expected.stream().
-                filter(expectRunningOnDate::contains).
+//                filter(expectRunningOnDate::contains).
                 map(KnownTramRoute::getId).
                 collect(IdSet.idCollector());
 

@@ -136,7 +136,6 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
     private void createWalksForClosed(final GTFSSourceConfig source) {
         logger.info("Add walks for closed stations for " + source.getName());
         final Set<ClosedStation> closedStations = closedStationsRepository.getClosedStationsFor(source.getDataSourceId());
-//        final IdSet<Station> closedStationIds = closedStations.stream().map(ClosedStation::getStationId).collect(IdSet.idCollector());
 
         if (closedStations.isEmpty()) {
             logger.warn("No station closures are given for " + source.getName());
@@ -145,7 +144,6 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
 
         closedStations.stream().
                 filter(closedStation -> graphFilter.shouldInclude(closedStation.getStation())).
-//                filter(closedStation -> closedStation.getStation().getGridPosition().isValid()).
             forEach(closedStation -> {
 
                 // TODO This excludes all stations with closures, more sophisticated would be to ID how/if closure
