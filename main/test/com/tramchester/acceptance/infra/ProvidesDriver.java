@@ -21,7 +21,6 @@ public abstract class ProvidesDriver {
 
     public abstract void init() throws IOException;
     public abstract AppPage getAppPage();
-//    public abstract void setStubbedLocation(LatLong place) throws IOException;
     protected abstract String getDriverName();
 
     private static final Path screenshotsDir = Path.of("build/reports/tests/screenshots/");

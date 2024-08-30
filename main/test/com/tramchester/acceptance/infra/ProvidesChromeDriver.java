@@ -61,10 +61,14 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
     private void setGeoLocation(boolean enableGeo, ChromeOptions chromeOptions) {
         int option = enableGeo ? 1 : 2;
         Map<String, Object> prefs = new HashMap<>();
+
+        // very old
         prefs.put("geolocation", option);  // older version of chrome
 
         // newer versions (>103 at least) need this
         prefs.put("googlegeolocationaccess.enabled", true);
+
+        // version 128 and later?
 
         chromeOptions.setExperimentalOption("prefs", prefs);
     }

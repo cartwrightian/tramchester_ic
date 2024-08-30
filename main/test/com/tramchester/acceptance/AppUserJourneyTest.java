@@ -202,7 +202,8 @@ public class AppUserJourneyTest extends UserJourneyTest {
         List<String> remainingFromStops = appPage.getAllStopsFromStops();
         assertThat(remainingFromStops, not(contains(fromRecent)));
         // still displaying all stations
-        assertEquals(NUM_TFGM_TRAM_STATIONS-1,
+        // -1 to -2 for picc gardens
+        assertEquals(NUM_TFGM_TRAM_STATIONS-2,
                 remainingFromStops.size()+fromRecent.size()); // less one as 'to' stop is excluded
 
         // check 'to' recents are set
@@ -210,11 +211,13 @@ public class AppUserJourneyTest extends UserJourneyTest {
         assertThat(toRecent, hasItems(Altrincham.getName(), Deansgate.getName()));
         List<String> remainingToStops = appPage.getAllStopsToStops();
         assertThat(remainingToStops, not(contains(toRecent)));
-        assertEquals(NUM_TFGM_TRAM_STATIONS-1,
+        // -1 to -2 for picc gardens
+        assertEquals(NUM_TFGM_TRAM_STATIONS-2,
                 remainingToStops.size()+toRecent.size()); // less one as 'from' stop is excluded
 
         // inputs still set
-        assertJourney(appPage, ExchangeSquare, PiccadillyGardens, "10:15", when, false);
+        // Picc Gradens closure
+        assertJourney(appPage, ExchangeSquare, Piccadilly, "10:15", when, false);
     }
 
     @ParameterizedTest(name = "{displayName} {arguments}")
@@ -445,7 +448,9 @@ public class AppUserJourneyTest extends UserJourneyTest {
         // Too timetable dependent?
         Set<String> secondStageHeadsigns = new HashSet<>(Arrays.asList(ManAirport.getName(), "Manchester Airport via Market Street & Wythenshawe"));
 
-        Set<TramTime> validTimes = new HashSet<>(Arrays.asList(TramTime.of(10,37), TramTime.of(10,25)));
+        Set<TramTime> validTimes = new HashSet<>(Arrays.asList(TramTime.of(10,37),
+                TramTime.of(10,29),
+                TramTime.of(10,25)));
         validateAStage(secondStage, validTimes, "Change Tram", TraffordBar.getName(),
                 Arrays.asList(1,2),
                 Collections.singleton(DeansgateCastlefieldManchesterAirport),

@@ -23,6 +23,7 @@ graphDBConfig:
   graphName: databases/tramchesterAcceptance.db
   neo4jPagecacheMemory: 100m
   memoryTransactionGlobalMaxSize: 650m
+  enableDiagnostics: false
 distributionBucket: tramchesternewdist
 environmentName: ${PLACE}
 buildNumber: ${BUILD:- 0}
