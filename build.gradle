@@ -398,6 +398,7 @@ def integrationTestConfiguration = {
         // excludeTags "liveData" // also goes away on occasion
         // excludeTags "dataExpiry" // can be useful to exclude when big changes to timetable are upcoming
         // excludeTags 'liveDataDueTrams' // tfgm api has know issue
+        excludeTags "PicGardensPartialClosure"
         excludeTags "postcode" // not needed for tram, but used by buses
         excludeTags "BusTest"
         excludeTags "TrainTest"
@@ -650,7 +651,7 @@ tasks.register('monitorLiveTramData', JavaExec) {
     dependsOn 'classes'
     mainClass = 'com.tramchester.deployment.cli.MonitorTramLiveData'
     classpath = sourceSets.main.runtimeClasspath
-    args 'config/local.yml', '10'
+    args 'config/local.yml', '50'
 }
 
 // gm here so include both sets of data
