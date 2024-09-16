@@ -16,6 +16,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -67,7 +69,8 @@ class UploadsLiveDataToS3Test extends EasyMockSupport {
         EasyMock.expect(clientForS3.itemExists("prefix","key")).andReturn(false);
         EasyMock.expect(mapper.map(dtos)).andReturn("someJson");
 
-        EasyMock.expect(clientForS3.upload("key", "someJson", lastUpdateTime)).andReturn(true);
+        ZonedDateTime zonedLastUpdatetime = ZonedDateTime.of(lastUpdateTime, ZoneOffset.UTC);
+        EasyMock.expect(clientForS3.upload("key", "someJson", zonedLastUpdatetime)).andReturn(true);
 
         replayAll();
         boolean result = uploadsLiveDataToS3.seenUpdate(liveData);

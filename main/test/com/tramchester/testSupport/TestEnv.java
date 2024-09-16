@@ -34,9 +34,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.DayOfWeek;
-import java.time.Duration;
-import java.time.LocalDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Stream;
@@ -70,7 +68,8 @@ public class TestEnv {
     public static final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:00");
     public static final String BRISTOL_BUSSTOP_OCTOCODE = "0100BRP90268";
 
-    public static final TramDate PicGardensClosureEnds = TramDate.of(2024,9,16);
+    // timetable data is out of sync with public data which is 6/Sept/2024
+    public static final TramDate PicGardensClosureEnds = TramDate.of(2024,9,24);
 
     private static final Agency MET = MutableAgency.build(DataSourceID.tfgm, MutableAgency.METL, "Metrolink");
 
@@ -110,6 +109,11 @@ public class TestEnv {
 
     public static LocalDateTime LocalNow() {
         return LocalDateTime.now(TestConfig.TimeZoneId);
+    }
+
+
+    public static ZonedDateTime UTCNow() {
+        return ZonedDateTime.now(ZoneOffset.UTC);
     }
 
     static {

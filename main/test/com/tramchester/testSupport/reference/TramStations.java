@@ -86,7 +86,8 @@ public enum TramStations implements FakeStation, HasId<Station> {
             Ashton,
             Rochdale,
             Bury,
-            TraffordCentre
+            TraffordCentre,
+            PiccadillyGardens // summer 2024, due to works?
             //OldhamMumps // temp additional due to landslip 2024
     ));
 

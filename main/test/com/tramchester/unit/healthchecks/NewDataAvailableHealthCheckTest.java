@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.URI;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 class NewDataAvailableHealthCheckTest extends EasyMockSupport {
     private URI expecteds3URI;
@@ -26,7 +26,7 @@ class NewDataAvailableHealthCheckTest extends EasyMockSupport {
     private HttpDownloadAndModTime httpDownloadAndModTime;
     private GetsFileModTime getsFileModTime;
     private NewDataAvailableHealthCheck healthCheck;
-    private LocalDateTime time;
+    private ZonedDateTime time;
     private RemoteDataSourceConfig dataSourceConfig;
     private S3DownloadAndModTime s3DownloadAndModTime;
 
@@ -43,7 +43,7 @@ class NewDataAvailableHealthCheckTest extends EasyMockSupport {
 
         healthCheck = new NewDataAvailableHealthCheck(dataSourceConfig, httpDownloadAndModTime, s3DownloadAndModTime,
                 getsFileModTime, serviceTimeLimits);
-        time = TestEnv.LocalNow();
+        time = TestEnv.UTCNow();
     }
 
     @Test

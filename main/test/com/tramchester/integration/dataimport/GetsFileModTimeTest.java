@@ -1,7 +1,6 @@
 package com.tramchester.integration.dataimport;
 
 import com.tramchester.config.DownloadedConfig;
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.GetsFileModTime;
 import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
@@ -13,8 +12,6 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 
@@ -23,20 +20,22 @@ import static org.junit.jupiter.api.Assertions.*;
 public class GetsFileModTimeTest extends EasyMockSupport {
 
     private GetsFileModTime getsFileModTime;
-    private LocalDateTime when;
+    private ZonedDateTime when;
     private Path tmpFile;
 
     @BeforeEach
     void onceBeforeEachTest() throws IOException {
-        when = TestEnv.LocalNow().truncatedTo(ChronoUnit.SECONDS);
+        when = TestEnv.UTCNow().truncatedTo(ChronoUnit.SECONDS);
 
-        ZoneOffset offset = TramchesterConfig.TimeZoneId.getRules().getOffset(when);
+        //ZoneOffset offset = TramchesterConfig.TimeZoneId.getRules().getOffset(when);
 
         getsFileModTime = new GetsFileModTime();
         tmpFile = Files.createTempFile("testing-", "only");
 
         // want to create time to be same as when....
-        tmpFile.toFile().setLastModified(when.toEpochSecond(offset)*1000);
+        tmpFile.toFile().setLastModified(when.toEpochSecond()*1000);
+        //tmpFile.toFile().setLastModified(when.toEpochSecond(offset)*1000);
+
 
     }
 
@@ -60,14 +59,14 @@ public class GetsFileModTimeTest extends EasyMockSupport {
         long millis = getEpochMilli(when);
         assertTrue(tmpFile.toFile().setLastModified(millis));
 
-        LocalDateTime result = getsFileModTime.getFor(tmpFile);
+        ZonedDateTime result = getsFileModTime.getFor(tmpFile);
         assertEquals(when, result);
     }
 
     @Test
     void shouldUpdate() {
 
-        LocalDateTime target = when.plusDays(1);
+        ZonedDateTime target = when.plusDays(1);
         long targetMillis = getEpochMilli(target);
 
         assertNotEquals(targetMillis, tmpFile.toFile().lastModified());
@@ -86,20 +85,21 @@ public class GetsFileModTimeTest extends EasyMockSupport {
         EasyMock.expect(config.getDownloadPath()).andReturn(tmpFile);
 
         replayAll();
-        LocalDateTime result = getsFileModTime.getFor(config);
+        ZonedDateTime result = getsFileModTime.getFor(config);
         verifyAll();
 
         assertEquals(when, result);
     }
 
     @Test void shouldGetForPath() {
-        LocalDateTime result = getsFileModTime.getFor(tmpFile);
+        ZonedDateTime result = getsFileModTime.getFor(tmpFile);
         assertEquals(when, result);
     }
 
-    private long getEpochMilli(LocalDateTime dateTime) {
-        ZonedDateTime zonedDateTime = dateTime.atZone(TramchesterConfig.TimeZoneId);
-        return zonedDateTime.toInstant().toEpochMilli();
+    private long getEpochMilli(ZonedDateTime dateTime) {
+        return dateTime.toInstant().toEpochMilli();
+//        ZonedDateTime zonedDateTime = dateTime.atZone(TramchesterConfig.TimeZoneId);
+//        return zonedDateTime.toInstant().toEpochMilli();
     }
 
 }

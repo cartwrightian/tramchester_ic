@@ -2,6 +2,9 @@ package com.tramchester.dataimport;
 
 import java.net.URI;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+
+import static java.time.ZoneOffset.UTC;
 
 public class URLStatus {
 
@@ -11,35 +14,36 @@ public class URLStatus {
     public static final int OK = 200;
     public static final int NOT_FOUND = 404;
 
+    public static final ZonedDateTime invalidTime = ZonedDateTime.of(LocalDateTime.MIN, UTC);
 
     private final String url;
     private final int responseCode;
-    private final LocalDateTime modTime;
+    private final ZonedDateTime modTime;
 
     public URLStatus(String url, int responseCode) {
-        this(url, responseCode, LocalDateTime.MIN);
+        this(url, responseCode, invalidTime);
     }
 
-    public URLStatus(String url, int responseCode, LocalDateTime modTime) {
+    public URLStatus(String url, int responseCode, ZonedDateTime modTime) {
         this.url = url;
         this.responseCode = responseCode;
         this.modTime = modTime;
     }
 
     public URLStatus(URI uri, int responseCode) {
-        this(uri, responseCode, LocalDateTime.MIN);
+        this(uri, responseCode, invalidTime);
     }
 
-    public URLStatus(URI uri, int responseCode, LocalDateTime modTime) {
+    public URLStatus(URI uri, int responseCode, ZonedDateTime modTime) {
         this(uri.toASCIIString(), responseCode, modTime);
     }
 
-    public LocalDateTime getModTime() {
+    public ZonedDateTime getModTime() {
         return modTime;
     }
 
     public boolean hasModTime() {
-        return !modTime.equals(LocalDateTime.MIN);
+        return !modTime.equals(invalidTime);
     }
 
     public boolean isOk() {

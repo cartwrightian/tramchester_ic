@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URI;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 public class NewDataAvailableHealthCheck extends TramchesterHealthCheck {
     private static final Logger logger = LoggerFactory.getLogger(NewDataAvailableHealthCheck.class);
@@ -30,10 +30,10 @@ public class NewDataAvailableHealthCheck extends TramchesterHealthCheck {
 
     @Override
     protected Result check() {
-        DownloadAndModTime downloadAndModTime;
 
         URI dataCheckUrl = URI.create(config.getDataCheckUrl());
 
+        final DownloadAndModTime downloadAndModTime;
         if (dataCheckUrl.getScheme().equals("s3")) {
             downloadAndModTime = s3DownloadAndModTime;
         } else {
@@ -41,7 +41,7 @@ public class NewDataAvailableHealthCheck extends TramchesterHealthCheck {
         }
 
         try {
-            LocalDateTime localFileModTime = getsFileModTime.getFor(config);
+            final ZonedDateTime localFileModTime = getsFileModTime.getFor(config);
 
             final URLStatus status = downloadAndModTime.getStatusFor(dataCheckUrl, localFileModTime, config.isMandatory());
 
@@ -51,14 +51,14 @@ public class NewDataAvailableHealthCheck extends TramchesterHealthCheck {
                 return Result.unhealthy(msg);
             }
 
-            LocalDateTime serverModTime = status.getModTime();
+            final ZonedDateTime serverModTime = status.getModTime();
 
-            String diag = String.format("Local zip mod time: %s Server mod time: %s Url: %s", localFileModTime, serverModTime, dataCheckUrl);
+            final String diag = String.format("Local zip mod time: %s Server mod time: %s Url: %s", localFileModTime, serverModTime, dataCheckUrl);
             if (serverModTime.isAfter(localFileModTime)) {
                 String msg = "Newer data is available " + diag;
                 logger.warn(msg);
                 return Result.unhealthy(msg);
-            } else if (serverModTime.equals(LocalDateTime.MIN)) {
+            } else if (serverModTime.equals(URLStatus.invalidTime)) {
                 String msg = "No mod time was available from server for " + dataCheckUrl;
                 logger.error(msg);
                 return Result.unhealthy(msg);

@@ -5,6 +5,9 @@ import com.tramchester.domain.dates.TramDate;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+
+import static java.time.ZoneOffset.UTC;
 
 public interface ProvidesNow {
     TramTime getNowHourMins();
@@ -14,5 +17,9 @@ public interface ProvidesNow {
 
     default TramDate getTramDate() {
         return TramDate.of(getDate());
+    }
+
+    default ZonedDateTime getZoneDateTimeUTC() {
+        return ZonedDateTime.now(UTC);
     }
 }

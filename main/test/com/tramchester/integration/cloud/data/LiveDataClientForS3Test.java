@@ -86,7 +86,7 @@ class LiveDataClientForS3Test {
     void shouldUploadOkIfBucketExist() throws IOException {
 
         String contents = "someJsonData";
-        boolean uploaded = liveDataClientForS3.upload(FULL_KEY, contents, TestEnv.LocalNow());
+        boolean uploaded = liveDataClientForS3.upload(FULL_KEY, contents, TestEnv.UTCNow());
         assertTrue(uploaded, "uploaded");
 
         ListObjectsRequest listRequest = ListObjectsRequest.builder().bucket(TEST_BUCKET_NAME).build();
@@ -114,7 +114,7 @@ class LiveDataClientForS3Test {
     void shouldReturnFalseIfNonExistentBucket() {
         LiveDataClientForS3 anotherClient = new LiveDataClientForS3(new NoSuchBucketExistsConfig(), clientForS3);
         anotherClient.start();
-        boolean uploaded = anotherClient.upload(FULL_KEY, "someText", TestEnv.LocalNow());
+        boolean uploaded = anotherClient.upload(FULL_KEY, "someText", TestEnv.UTCNow());
         anotherClient.stop();
         assertFalse(uploaded);
     }

@@ -6,7 +6,7 @@ import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.repository.TransportDataContainer;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.EnumSet;
 
 import static com.tramchester.domain.reference.TransportMode.Bus;
@@ -18,10 +18,10 @@ class TransportDataContainerTest {
     @Test
     void shouldHaveCorrectModTimeForTransportMode() {
         ProvidesLocalNow providesLocalNow = new ProvidesLocalNow();
-        LocalDateTime baseTime = providesLocalNow.getDateTime();
+        ZonedDateTime baseTime = providesLocalNow.getZoneDateTimeUTC();
 
-        LocalDateTime plusOneHour = baseTime.plusHours(1);
-        LocalDateTime minusOneHour = baseTime.minusHours(1);
+        ZonedDateTime plusOneHour = baseTime.plusHours(1);
+        ZonedDateTime minusOneHour = baseTime.minusHours(1);
 
         TransportDataContainer container = new TransportDataContainer(providesLocalNow, "local");
 

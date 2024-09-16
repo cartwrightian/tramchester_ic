@@ -15,13 +15,13 @@ import com.tramchester.geo.BoundingBox;
 import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.repository.TransportDataContainer;
 import com.tramchester.repository.WriteableTransportData;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
-import jakarta.inject.Inject;
 import java.nio.file.Path;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.stream.Stream;
 
 @LazySingleton
@@ -87,7 +87,7 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
         final Path downloadedZip = remoteDataRefreshed.fileFor(DataSourceID.rail);
 
         final GetsFileModTime fileModTime = new GetsFileModTime();
-        final LocalDateTime modTime = fileModTime.getFor(downloadedZip);
+        final ZonedDateTime modTime = fileModTime.getFor(downloadedZip);
         final DataSourceInfo dataSourceInfo = new DataSourceInfo(railConfig.getDataSourceId(),
                 railConfig.getVersion(), modTime, railConfig.getModes());
         logger.info("Generated  " + dataSourceInfo);

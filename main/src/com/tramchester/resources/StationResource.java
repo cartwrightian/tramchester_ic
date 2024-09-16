@@ -4,7 +4,6 @@ import com.codahale.metrics.annotation.Timed;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.StationClosures;
 import com.tramchester.domain.UpdateRecentJourneys;
-import com.tramchester.domain.closures.ClosedStation;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
@@ -23,22 +22,24 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.mappers.RecentJourneysToLocations;
-import com.tramchester.repository.*;
+import com.tramchester.repository.DataSourceRepository;
+import com.tramchester.repository.StationRepository;
+import com.tramchester.repository.StationRepositoryPublic;
+import com.tramchester.repository.TransportModeRepository;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.inject.Inject;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -59,7 +60,6 @@ public class StationResource extends UsesRecentCookie implements APIResource {
     private final TramchesterConfig config;
     private final TransportModeRepository transportModeRepository;
     private final RecentJourneysToLocations recentJourneysToStations;
-    private final ClosedStationsRepository closedStationsRepository;
 
     // TODO Remove unused methods
 
@@ -69,13 +69,13 @@ public class StationResource extends UsesRecentCookie implements APIResource {
                            ProvidesNow providesNow,
                            DataSourceRepository dataSourceRepository, StationLocations stationLocations,
                            DTOFactory DTOFactory,
-                           LocationDTOFactory locationDTOFactory, TramchesterConfig config, TransportModeRepository transportModeRepository, RecentJourneysToLocations recentJourneysToStations, ClosedStationsRepository closedStationsRepository) {
+                           LocationDTOFactory locationDTOFactory, TramchesterConfig config, TransportModeRepository transportModeRepository,
+                           RecentJourneysToLocations recentJourneysToStations) {
         super(updateRecentJourneys, providesNow);
         this.DTOFactory = DTOFactory;
         this.locationDTOFactory = locationDTOFactory;
         this.transportModeRepository = transportModeRepository;
         this.recentJourneysToStations = recentJourneysToStations;
-        this.closedStationsRepository = closedStationsRepository;
         this.stationRepository = stationRepository;
         this.dataSourceRepository = dataSourceRepository;
         this.stationLocations = stationLocations;
@@ -110,10 +110,10 @@ public class StationResource extends UsesRecentCookie implements APIResource {
         try {
             final TransportMode mode = TransportMode.valueOf(rawMode);
 
-            final LocalDateTime modTime = dataSourceRepository.getNewestModTimeFor(mode);
-            final Date date = Date.from(modTime.toInstant(ZoneOffset.UTC));
+            final ZonedDateTime dataModTime = dataSourceRepository.getNewestModTimeFor(mode);
+            final Date date = Date.from(dataModTime.toInstant());
 
-            Response.ResponseBuilder builder = request.evaluatePreconditions(date);
+            final Response.ResponseBuilder builder = request.evaluatePreconditions(date);
 
             if (builder==null) {
                 final Set<Station> matching = stationRepository.getStationsServing(mode);

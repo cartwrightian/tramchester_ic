@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @LazySingleton
 public class S3DownloadAndModTime implements DownloadAndModTime {
@@ -24,7 +25,7 @@ public class S3DownloadAndModTime implements DownloadAndModTime {
     }
 
     @Override
-    public URLStatus getStatusFor(URI url, LocalDateTime localModTime, boolean warnIfMissing) {
+    public URLStatus getStatusFor(URI url, ZonedDateTime localModTime, boolean warnIfMissing) {
         try {
             return new URLStatus(url, 200, s3Client.getModTimeFor(url));
         } catch (FileNotFoundException notFoundException) {
@@ -38,7 +39,7 @@ public class S3DownloadAndModTime implements DownloadAndModTime {
     }
 
     @Override
-    public URLStatus downloadTo(Path path, URI url, LocalDateTime localModTime) throws IOException {
+    public URLStatus downloadTo(Path path, URI url, ZonedDateTime localModTime) throws IOException {
         // there is no equivalent to if-modified-since so don't use localModTime here
         return s3Client.downloadTo(path, url);
     }

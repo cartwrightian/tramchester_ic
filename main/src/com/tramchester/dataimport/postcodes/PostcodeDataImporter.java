@@ -5,22 +5,22 @@ import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.dataimport.loader.files.TransportDataFromCSVFile;
 import com.tramchester.dataimport.GetsFileModTime;
 import com.tramchester.dataimport.UnzipFetchedData;
+import com.tramchester.dataimport.loader.files.TransportDataFromCSVFile;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -144,7 +144,7 @@ public class PostcodeDataImporter {
                 filter(postcode -> postcode.getGridPosition().isValid());
     }
 
-    public LocalDateTime getTargetFolderModTime() {
+    public ZonedDateTime getTargetFolderModTime() {
         RemoteDataSourceConfig dataSourceConfig = config.getDataRemoteSourceConfig(DataSourceID.postcode);
         return getsFileModTime.getFor(dataSourceConfig.getDataPath());
     }

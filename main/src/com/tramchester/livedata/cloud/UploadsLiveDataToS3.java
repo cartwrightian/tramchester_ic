@@ -5,17 +5,19 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.cloud.data.LiveDataClientForS3;
 import com.tramchester.cloud.data.S3Keys;
 import com.tramchester.cloud.data.StationDepartureMapper;
-import com.tramchester.livedata.tfgm.LiveDataMarshaller;
-import com.tramchester.livedata.tfgm.TramStationDepartureInfo;
 import com.tramchester.livedata.domain.DTO.StationDepartureInfoDTO;
 import com.tramchester.livedata.repository.LiveDataObserver;
+import com.tramchester.livedata.tfgm.LiveDataMarshaller;
+import com.tramchester.livedata.tfgm.TramStationDepartureInfo;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
-import jakarta.inject.Inject;
 import java.time.DateTimeException;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -50,7 +52,7 @@ public class UploadsLiveDataToS3 implements LiveDataObserver {
     }
 
     @Override
-    public boolean seenUpdate(List<TramStationDepartureInfo> stationDepartureInfos) {
+    public boolean seenUpdate(final List<TramStationDepartureInfo> stationDepartureInfos) {
         if (!s3.isEnabled()) {
             String message = "Should not have been called, s3 is disabled";
             logger.error(message);
@@ -62,7 +64,7 @@ public class UploadsLiveDataToS3 implements LiveDataObserver {
             return false;
         }
 
-        List<StationDepartureInfoDTO> dtoToUpload = stationDepartureInfos.stream().
+        final List<StationDepartureInfoDTO> dtoToUpload = stationDepartureInfos.stream().
                 filter(TramStationDepartureInfo::hasStationPlatform).
                 map(StationDepartureInfoDTO::new).
                 collect(Collectors.toList());
@@ -81,7 +83,9 @@ public class UploadsLiveDataToS3 implements LiveDataObserver {
             logger.info("Upload live data to S3");
             String json = mapper.map(dtoToUpload);
 
-            final boolean flag = s3.upload(key, json, timeStamp);
+            // TODO use UTC for keys as well
+            ZonedDateTime timestampUTC = ZonedDateTime.of(timeStamp, ZoneOffset.UTC);
+            final boolean flag = s3.upload(key, json, timestampUTC);
             if (flag) {
                 logger.info("Upload done");
             } else {
@@ -98,9 +102,9 @@ public class UploadsLiveDataToS3 implements LiveDataObserver {
     }
 
     // can't just use local now as won't be able to detect duplicate entries on S3
-    private LocalDateTime extractMostRecent(Collection<StationDepartureInfoDTO> liveData) {
+    private LocalDateTime extractMostRecent(final Collection<StationDepartureInfoDTO> liveData) {
         LocalDateTime latest = LocalDateTime.MIN;
-        for (StationDepartureInfoDTO info: liveData) {
+        for (final StationDepartureInfoDTO info: liveData) {
             if (info.getLastUpdate().isAfter(latest)) {
                 latest = info.getLastUpdate();
             }

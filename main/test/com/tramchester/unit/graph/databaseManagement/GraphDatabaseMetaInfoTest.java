@@ -1,10 +1,11 @@
 package com.tramchester.unit.graph.databaseManagement;
 
+import com.tramchester.dataimport.URLStatus;
 import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
 import com.tramchester.graph.facade.ImmutableGraphNode;
-import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.facade.MutableGraphNode;
+import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.repository.DataSourceRepository;
 import org.easymock.EasyMock;
@@ -13,7 +14,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.neo4j.graphdb.Node;
 
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -123,8 +123,8 @@ public class GraphDatabaseMetaInfoTest extends EasyMockSupport {
         MutableGraphNode graphNode = createMock(MutableGraphNode.class);
         EasyMock.expect(graphNode.getNode()).andStubReturn(node);
 
-        DataSourceInfo infoA = new DataSourceInfo(tfgm, "4.3", LocalDateTime.MAX, EnumSet.of(Tram));
-        DataSourceInfo infoB = new DataSourceInfo(naptanxml, "9.6", LocalDateTime.MIN, EnumSet.of(Bus));
+        DataSourceInfo infoA = new DataSourceInfo(tfgm, "4.3", URLStatus.invalidTime, EnumSet.of(Tram));
+        DataSourceInfo infoB = new DataSourceInfo(naptanxml, "9.6", URLStatus.invalidTime, EnumSet.of(Bus));
 
         Set<DataSourceInfo> sourceInfo = new HashSet<>(Arrays.asList(infoA, infoB));
 

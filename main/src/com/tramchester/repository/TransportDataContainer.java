@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -367,7 +368,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     }
 
     @Override
-    public LocalDateTime getNewestModTimeFor(TransportMode mode) {
+    public ZonedDateTime getNewestModTimeFor(final TransportMode mode) {
         return dataSourceInfos.getNewestModTimeFor(mode);
     }
 

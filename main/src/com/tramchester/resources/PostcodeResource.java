@@ -24,8 +24,8 @@ import jakarta.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -57,8 +57,12 @@ public class PostcodeResource implements APIResource, ExperimentalAPIMarker {
         logger.info("Get all postcodes");
 
         try {
-            LocalDateTime modTimeFromPostcodeImporter = importer.getTargetFolderModTime();
-            Date modtime = Date.from(modTimeFromPostcodeImporter.toInstant(ZoneOffset.UTC));
+            final ZonedDateTime modTimeFromPostcodeImporter = importer.getTargetFolderModTime();
+            final ZonedDateTime modTimeUTC = modTimeFromPostcodeImporter.withZoneSameLocal(ZoneOffset.UTC);
+
+            Date modtime = Date.from(modTimeUTC.toInstant());
+
+            logger.info(String.format("Mod time:%s UTC: %s Date: %s", modTimeFromPostcodeImporter, modTimeUTC, modtime));
 
             Response.ResponseBuilder builder = request.evaluatePreconditions(modtime);
 

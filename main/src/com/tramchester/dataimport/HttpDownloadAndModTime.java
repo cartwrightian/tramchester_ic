@@ -1,6 +1,5 @@
 package com.tramchester.dataimport;
 
-import com.tramchester.config.TramchesterConfig;
 import jakarta.ws.rs.HttpMethod;
 import org.eclipse.jetty.http.HttpHeader;
 import org.jetbrains.annotations.NotNull;
@@ -21,6 +20,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Path;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.zip.GZIPInputStream;
@@ -28,22 +28,27 @@ import java.util.zip.GZIPInputStream;
 import static jakarta.ws.rs.core.HttpHeaders.LAST_MODIFIED;
 import static jakarta.ws.rs.core.HttpHeaders.LOCATION;
 import static java.lang.String.format;
+import static java.time.ZoneOffset.UTC;
 
 public class HttpDownloadAndModTime implements DownloadAndModTime {
     private static final Logger logger = LoggerFactory.getLogger(HttpDownloadAndModTime.class);
 
-    final static String LAST_MOD_PATTERN = "EEE, dd MMM yyyy HH:mm:ss zzz";
+    public final static String LAST_MOD_PATTERN = "EEE, dd MMM yyyy HH:mm:ss zzz";
+    private final DateTimeFormatter formatter;
 
+    public HttpDownloadAndModTime() {
+        formatter = DateTimeFormatter.ofPattern(LAST_MOD_PATTERN, Locale.ENGLISH);
+    }
 
     @Override
-    public URLStatus getStatusFor(URI originalUrl, LocalDateTime localModTime, boolean warnIfMissing) throws IOException, InterruptedException {
+    public URLStatus getStatusFor(URI originalUrl, ZonedDateTime localModTime, boolean warnIfMissing) throws IOException, InterruptedException {
 
         // TODO some servers return 200 for HEAD but a redirect status for a GET
         // So cannot rely on using the HEAD request for getting final URL for a resource
-        HttpResponse<Void> response = fetchHeaders(originalUrl, localModTime, HttpMethod.HEAD, HttpResponse.BodyHandlers.discarding());
-        HttpHeaders headers = response.headers();
+        final HttpResponse<Void> response = fetchHeaders(originalUrl, localModTime, HttpMethod.HEAD, HttpResponse.BodyHandlers.discarding());
+        final HttpHeaders headers = response.headers();
 
-        Duration modDuration = getServerModMillis(response);
+        final Duration modDuration = getServerModMillis(response);
 
         int httpStatusCode = response.statusCode();
 
@@ -76,23 +81,23 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
         return createURLStatus(finalUrl, modDuration, httpStatusCode, redirect);
     }
 
-    private Duration getServerModMillis(HttpResponse<?> response) {
-        HttpHeaders headers = response.headers();
-        Optional<String> lastModifiedHeader = headers.firstValue(LAST_MODIFIED);
+    private Duration getServerModMillis(final HttpResponse<?> response) {
+        final HttpHeaders headers = response.headers();
+        final Optional<String> lastModifiedHeader = headers.firstValue(LAST_MODIFIED);
 
-        Duration serverMod = Duration.ZERO;
+        final Duration serverMod;
         if (lastModifiedHeader.isPresent()) {
             final String lastMod = lastModifiedHeader.get();
 
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(LAST_MOD_PATTERN);
-            LocalDateTime dateTime = LocalDateTime.parse(lastMod, formatter);
+            final ZonedDateTime zonedDateTime = parseModTime(lastMod);
 
-            // to seconds takes an int, millis a long
-            serverMod = Duration.ofMillis(dateTime.toEpochSecond(ZoneOffset.UTC) * 1000);
+            serverMod = Duration.ofMillis(zonedDateTime.toInstant().toEpochMilli());
 
-            logger.info("Mod time for " + response.uri() + " was " + dateTime + " " + serverMod + "ms status " + response.statusCode());
+            logger.info("Mod time for " + response.uri() + " was raw text:'" + lastMod + "' parsed:"
+                    + zonedDateTime + " " + serverMod + "ms status " + response.statusCode());
 
         } else {
+            serverMod = Duration.ZERO;
             logger.warn("No mod time header for " + response.uri() + " status " + response.statusCode());
             logger.info("Headers were: ");
             headers.map().forEach((head, contents) -> logger.info(head + ": " + contents));
@@ -100,18 +105,21 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
         return serverMod;
     }
 
-    private <T> HttpResponse<T> fetchHeaders(URI uri, LocalDateTime localLastMod, String method,
-                                             HttpResponse.BodyHandler<T> bodyHandler) throws IOException, InterruptedException {
+    public ZonedDateTime parseModTime(final String text) {
+        return ZonedDateTime.parse(text, formatter);
+    }
 
+    private <T> HttpResponse<T> fetchHeaders(final URI uri, final ZonedDateTime localLastMod, final String method,
+                                             final HttpResponse.BodyHandler<T> bodyHandler) throws IOException, InterruptedException {
 
-        HttpClient client = HttpClient.newBuilder().build();
-        HttpRequest.Builder httpRequestBuilder = HttpRequest.newBuilder().
+        final HttpClient client = HttpClient.newBuilder().build();
+        final HttpRequest.Builder httpRequestBuilder = HttpRequest.newBuilder().
                 uri(uri).
                 method(method, HttpRequest.BodyPublishers.noBody());
 
-        if (localLastMod != LocalDateTime.MIN) {
-            ZonedDateTime httpLocalModTime = localLastMod.atZone(ZoneId.of("Etc/UTC"));
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(LAST_MOD_PATTERN);
+        if (localLastMod != URLStatus.invalidTime) {
+            final ZonedDateTime httpLocalModTime = localLastMod.withZoneSameLocal(ZoneId.of("Etc/UTC"));
+
             final String headerIfModSince = formatter.format(httpLocalModTime);
 
             logger.info(format("Checking uri with %s : %s", HttpHeader.IF_MODIFIED_SINCE.name(), headerIfModSince));
@@ -138,7 +146,7 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
             result = new URLStatus(url, httpStatusCode);
 
         } else {
-            LocalDateTime modTime = getLocalDateTime(serverMod);
+            ZonedDateTime modTime = getAsUTCZone(serverMod);
             logger.debug(format("Mod time %s, status %s for %s", modTime, url, httpStatusCode));
             result = new URLStatus(url, httpStatusCode, modTime);
         }
@@ -151,12 +159,13 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
     }
 
     @NotNull
-    private LocalDateTime getLocalDateTime(Duration timeSinceEpoch) {
-        return LocalDateTime.ofInstant(Instant.ofEpochSecond(timeSinceEpoch.getSeconds()), TramchesterConfig.TimeZoneId);
+    private ZonedDateTime getAsUTCZone(final Duration timeSinceEpoch) {
+        final Instant instant = Instant.ofEpochSecond(timeSinceEpoch.getSeconds());
+        return ZonedDateTime.ofInstant(instant, UTC);
     }
 
     @Override
-    public URLStatus downloadTo(Path path, URI originalUrl, LocalDateTime existingLocalModTime) {
+    public URLStatus downloadTo(Path path, URI originalUrl, ZonedDateTime existingLocalModTime) {
 
         logger.info(format("Download from %s to %s", originalUrl, path.toAbsolutePath()));
 
@@ -219,7 +228,7 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
         }
 
         final String logSuffix = " for " + finalURL;
-        final LocalDateTime serverModDateTime = getLocalDateTime(serverModMillis);
+        final ZonedDateTime serverModDateTime = getAsUTCZone(serverModMillis);
         logger.info("Response last mod time is " + serverModMillis + " (" + serverModDateTime + ")");
         logger.info("Response content type '" + contentType + "'" + logSuffix);
         logger.info("Response encoding '" + encoding + "'" + logSuffix);
@@ -246,7 +255,7 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
             result = new URLStatus(finalURL, statusCode);
             logger.warn("Server mod time is zero, not updating local file mod time " + logSuffix);
         } else {
-            result = new URLStatus(finalURL, statusCode, getLocalDateTime(serverModMillis));
+            result = new URLStatus(finalURL, statusCode, getAsUTCZone(serverModMillis));
         }
 
         return result;

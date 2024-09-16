@@ -7,6 +7,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataexport.Zipper;
 import com.tramchester.dataimport.GetsFileModTime;
 import com.tramchester.dataimport.URLStatus;
+import jakarta.inject.Inject;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.jetbrains.annotations.NotNull;
@@ -22,7 +23,6 @@ import software.amazon.awssdk.services.s3.model.*;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import jakarta.inject.Inject;
 import java.io.*;
 import java.net.URI;
 import java.nio.file.Files;
@@ -31,11 +31,14 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
+import static java.time.ZoneOffset.UTC;
 
 @LazySingleton
 public class ClientForS3 {
@@ -46,6 +49,8 @@ public class ClientForS3 {
     private final Zipper zipper;
     protected S3Client s3Client;
     private MessageDigest messageDigest;
+
+    public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
     @Inject
     public ClientForS3(GetsFileModTime getsFileModTime, Zipper zipper) {
@@ -79,14 +84,14 @@ public class ClientForS3 {
         }
     }
 
-    public boolean upload(String bucket, String key, Path fileToUpload) {
+    public boolean upload(final String bucket, final String key, final Path fileToUpload) {
         logger.info(format("Uploading to bucket '%s' key '%s' file '%s'", bucket, key, fileToUpload.toAbsolutePath()));
         if (!isStarted()) {
             logger.error("Not started");
             return false;
         }
 
-        LocalDateTime fileModTime = getsFileModTime.getFor(fileToUpload);
+        ZonedDateTime fileModTime = getsFileModTime.getFor(fileToUpload);
 
         try {
             byte[] buffer = Files.readAllBytes(fileToUpload);
@@ -106,7 +111,7 @@ public class ClientForS3 {
             ByteArrayOutputStream outputStream = zipper.zip(original);
             byte[] buffer = outputStream.toByteArray();
             String localMd5 = Base64.encodeBase64String(messageDigest.digest(buffer));
-            LocalDateTime fileModTime = getsFileModTime.getFor(original);
+            ZonedDateTime fileModTime = getsFileModTime.getFor(original);
 
             // todo ideally pass in a stream to avoid having whole file in memory, but no way to do local MD5
             // if that is done.....
@@ -117,7 +122,7 @@ public class ClientForS3 {
         }
     }
 
-    public boolean upload(String bucket, String key, String text, LocalDateTime modTimeMetaData) {
+    public boolean upload(String bucket, String key, String text, ZonedDateTime modTimeMetaData) {
         if (!isStarted()) {
             logger.error("not started");
             return false;
@@ -141,14 +146,14 @@ public class ClientForS3 {
         return uploadToS3(bucket, key, localMd5, requestBody, modTimeMetaData);
     }
 
-    private boolean uploadToS3(String bucket, String key, String localMd5, RequestBody requestBody, LocalDateTime fileModTime) {
+    private boolean uploadToS3(String bucket, String key, String localMd5, RequestBody requestBody, ZonedDateTime fileModTime) {
         if (!isStarted()) {
             logger.error("No started, uploadToS3");
             return false;
         }
 
         Map<String, String> metaData= new HashMap<>();
-        String modTimeText = fileModTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        String modTimeText = fileModTime.format(DATE_TIME_FORMATTER);
         logger.info(format("Set %s to %s", ORIG_MOD_TIME_META_DATA_KEY, modTimeText));
         metaData.put(ORIG_MOD_TIME_META_DATA_KEY, modTimeText);
 
@@ -228,7 +233,7 @@ public class ClientForS3 {
     // NOTE: listing all buckets requires permissions beyond just the one bucket,
     // so here do an op on the bucket and catch exception instead
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    private boolean bucketExists(String bucket) {
+    private boolean bucketExists(final String bucket) {
         if (!isStarted()) {
             logger.error("not started, bucket exists");
             return false;
@@ -323,13 +328,13 @@ public class ClientForS3 {
         return s3Client != null;
     }
 
-    public LocalDateTime getModTimeFor(URI uri) throws FileNotFoundException {
+    public ZonedDateTime getModTimeFor(URI uri) throws FileNotFoundException {
         logger.info("Fetch Mod time for url " + uri);
         BucketKey bucketKey = BucketKey.convertFromURI(uri);
 
         if (!isStarted()) {
             logger.error("Not started");
-            return LocalDateTime.MIN;
+            return URLStatus.invalidTime;
         }
 
         try {
@@ -345,19 +350,32 @@ public class ClientForS3 {
         }
     }
 
-    private LocalDateTime overrideModTimeIfMetaData(ResponseFacade response, URI uri) {
+    private ZonedDateTime overrideModTimeIfMetaData(final ResponseFacade response, final URI uri) {
         if (response.hasMetadata()) {
-            Map<String, String> meta = response.metadata();
+            final Map<String, String> meta = response.metadata();
             if (meta.containsKey(ORIG_MOD_TIME_META_DATA_KEY)) {
-                String modTimeTxt = meta.get(ORIG_MOD_TIME_META_DATA_KEY);
-                logger.info("Metadata " + ORIG_MOD_TIME_META_DATA_KEY + " present with value " + modTimeTxt + " so using in preference to native S3 mod time for " + uri);
-                return LocalDateTime.parse(modTimeTxt, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+                final String modTimeTxt = meta.get(ORIG_MOD_TIME_META_DATA_KEY);
+                logger.info("Metadata " + ORIG_MOD_TIME_META_DATA_KEY + " present with value '" + modTimeTxt + "' so using in preference to native S3 mod time for " + uri);
+                return parseMetaDataDateTime(modTimeTxt);
             }
         }
 
         logger.warn("No " + ORIG_MOD_TIME_META_DATA_KEY + " is present, fall back to native S3 mod time for " + uri);
         Instant lastModified = response.lastModified();
-        return LocalDateTime.ofInstant(lastModified, TramchesterConfig.TimeZoneId);
+        return ZonedDateTime.ofInstant(lastModified, UTC);
+    }
+
+    private static @NotNull ZonedDateTime parseMetaDataDateTime(String modTimeTxt) {
+        try {
+            return ZonedDateTime.parse(modTimeTxt, DATE_TIME_FORMATTER);
+        }
+        catch (DateTimeParseException exception) {
+            logger.error("Unable to parse '" + modTimeTxt + "' so attempt fall back to previous format");
+            final LocalDateTime localTime = LocalDateTime.parse(modTimeTxt, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+            final ZonedDateTime zonedDateTime = localTime.atZone(TramchesterConfig.TimeZoneId).withZoneSameInstant(UTC);
+            logger.warn("Fall back to local time for '" + modTimeTxt + "' with local " + localTime + " result " + zonedDateTime);
+            return zonedDateTime;
+        }
     }
 
     private GetObjectRequest createRequestFor(BucketKey bucketKey) {
@@ -367,7 +385,7 @@ public class ClientForS3 {
                 build();
     }
 
-    public URLStatus downloadTo(Path path, URI uri) throws IOException {
+    public URLStatus downloadTo(final Path path, final URI uri) throws IOException {
         logger.info("Download for for url " + uri);
 
         if (!isStarted()) {
@@ -376,7 +394,7 @@ public class ClientForS3 {
             throw new RuntimeException(msg);
         }
 
-        BucketKey bucketKey = BucketKey.convertFromURI(uri);
+        final BucketKey bucketKey = BucketKey.convertFromURI(uri);
 
         if (!bucketKey.isValid()) {
             String msg = "Bucket provided in URI is not valid " + uri;
@@ -388,11 +406,11 @@ public class ClientForS3 {
         ResponseInputStream<GetObjectResponse> responseInputStream = s3Client.getObject(getObjectRequest);
 
         GetObjectResponse response = responseInputStream.response();
-        String remoteMD5 = getETagClean(response);
+        final String remoteMD5 = getETagClean(response);
 
         ResponseFacade responseFacade = createResponseFacade(response);
 
-        LocalDateTime modTime = overrideModTimeIfMetaData(responseFacade, uri);
+        final ZonedDateTime modTime = overrideModTimeIfMetaData(responseFacade, uri);
 
         File file = path.toFile();
         FileOutputStream output = new FileOutputStream(file);
@@ -404,7 +422,7 @@ public class ClientForS3 {
         getsFileModTime.update(path, modTime);
 
         InputStream writtenFile = new FileInputStream(file);
-        String localMd5 = DigestUtils.md5Hex(writtenFile);
+        final String localMd5 = DigestUtils.md5Hex(writtenFile);
         writtenFile.close();
 
         if (!localMd5.equals(remoteMD5)) {

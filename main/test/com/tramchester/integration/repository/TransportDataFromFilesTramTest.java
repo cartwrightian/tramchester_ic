@@ -569,7 +569,7 @@ public class TransportDataFromFilesTramTest {
         //expected.add(ExchangeSquare.getId());
 
         IdSet<Station> disjunction = IdSet.disjunction(expected, result);
-        assertTrue(disjunction.isEmpty(), disjunction + " diff between expected " + expected + " and result " + result);
+        assertTrue(disjunction.isEmpty(), disjunction + " diff between \n expected " + expected + " and \n result " + result);
 
     }
 
@@ -632,11 +632,11 @@ public class TransportDataFromFilesTramTest {
 
 
     private boolean isOpen(final TramDate date, final Station station) {
-        // workaround timetable not updated yet for Shudehill and MarketStreet, shows still closed after meant to re-open....
         final IdFor<Station> stationId = station.getId();
         if (stationId.equals(PiccadillyGardens.getId())) {
-            if (!date.isAfter(TestEnv.PicGardensClosureEnds))
-            return false;
+            if (!date.isAfter(TestEnv.PicGardensClosureEnds)) {
+                return false;
+            }
         }
         return !closedStationRepository.isClosed(station, date);
     }

@@ -9,14 +9,14 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.GetsFileModTime;
 import com.tramchester.dataimport.loader.files.TransportDataFromFileFactory;
 import com.tramchester.domain.DataSourceID;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import jakarta.inject.Inject;
 import java.nio.file.Path;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -90,7 +90,7 @@ public class TransportDataReaderFactory {
             this.getsFileModTime = getsFileModTime;
         }
 
-        LocalDateTime getModTime() {
+        ZonedDateTime getModTime() {
             return getsFileModTime.getFor(downloadConfig);
         }
     }

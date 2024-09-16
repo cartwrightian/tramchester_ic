@@ -5,14 +5,14 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.domain.reference.TransportMode;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Set;
 
 @ImplementedBy(TransportData.class)
 public interface DataSourceRepository {
     Set<DataSourceInfo> getDataSourceInfo();
 
-    LocalDateTime getNewestModTimeFor(TransportMode mode);
+    ZonedDateTime getNewestModTimeFor(TransportMode mode);
 
     boolean hasDataSourceInfo();
 

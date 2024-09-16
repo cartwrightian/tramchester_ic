@@ -11,8 +11,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.*;
+
+import static java.time.ZoneOffset.UTC;
 
 public class DataSourceInfoRepository {
     private static final Logger logger = LoggerFactory.getLogger(DataSourceInfoRepository.class);
@@ -33,15 +35,20 @@ public class DataSourceInfoRepository {
         this(new HashMap<>(), providesNow);
     }
 
-    public LocalDateTime getNewestModTimeFor(TransportMode mode) {
-        Optional<LocalDateTime> result = this.theMap.values().stream().
+    /***
+     * @param mode transport mode
+     * @return Time in UTC zone
+     */
+    public ZonedDateTime getNewestModTimeFor(final TransportMode mode) {
+        Optional<ZonedDateTime> result = theMap.values().stream().
                 filter(info -> info.getModes().contains(mode)).
-                map(DataSourceInfo::getLastModTime).max(Comparator.naturalOrder());
+                map(DataSourceInfo::getLastModTime).
+                max(Comparator.naturalOrder());
         if (result.isEmpty()) {
             logger.error("Cannot find latest mod time for transport mode " + mode);
-            return providesNow.getDateTime();
+            return ZonedDateTime.of(providesNow.getDateTime(), UTC);
         } else {
-            LocalDateTime localDateTime = result.get();
+            final ZonedDateTime localDateTime = result.get();
             logger.info("Newest mode time for " + mode.name() + " is " + localDateTime);
             return localDateTime;
         }
@@ -61,22 +68,22 @@ public class DataSourceInfoRepository {
 
     public DateRangeAndVersion getDateRangeAndVersionFor(DataSourceID dataSourceID, Set<ServiceCalendar> serviceCalendars) {
         DataSourceInfo dataSourceInfo = theMap.get(dataSourceID);
-        LocalDate expiryDate = findLastExpiryDate(dataSourceID, serviceCalendars);
-        return new RangeAndVersion(dataSourceInfo.getVersion(), dataSourceInfo.getLastModTime().toLocalDate(), expiryDate);
+        TramDate expiryDate = findLastExpiryDate(dataSourceID, serviceCalendars);
+        return new RangeAndVersion(dataSourceInfo.getVersion(), dataSourceInfo.getLastModTime().toLocalDate(), expiryDate.toLocalDate());
     }
 
-    private LocalDate findLastExpiryDate(DataSourceID dataSourceId, Set<ServiceCalendar> serviceCalendars) {
+    private TramDate findLastExpiryDate(final DataSourceID dataSourceId, final Set<ServiceCalendar> serviceCalendars) {
 
         if (serviceCalendars.isEmpty()) {
             logger.info("Found no services for " + dataSourceId);
         }
 
-        Optional<TramDate> last = serviceCalendars.stream().map(serviceCalendar -> serviceCalendar.getDateRange().getEndDate()).
+        final Optional<TramDate> last = serviceCalendars.stream().map(serviceCalendar -> serviceCalendar.getDateRange().getEndDate()).
                 max(TramDate::compareTo);
         if (last.isEmpty()) {
             throw new RuntimeException("Cannot compute expiry date for " + dataSourceId + " with calendaers " + serviceCalendars);
         }
-        return last.get().toLocalDate();
+        return last.get();
 
     }
 

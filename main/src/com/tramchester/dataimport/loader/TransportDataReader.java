@@ -11,7 +11,7 @@ import com.tramchester.domain.reference.GTFSTransportationType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.stream.Stream;
 
@@ -72,8 +72,8 @@ public class TransportDataReader {
     /// otherwise get invalid mod time
     public DataSourceInfo getDataSourceInfo() {
         DataSourceID dataSourceId = config.getDataSourceId();
-        LocalDateTime modTime = getsFileModTime.getModTime();
-        String version = modTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        ZonedDateTime modTime = getsFileModTime.getModTime();
+        String version = modTime.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
         DataSourceInfo dataSourceInfo = new DataSourceInfo(dataSourceId, version, modTime,
                 GTFSTransportationType.toTransportMode(config.getTransportGTFSModes()));
         logger.info("Create datasource info for " + config + " " + dataSourceInfo);

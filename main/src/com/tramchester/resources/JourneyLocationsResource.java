@@ -5,7 +5,10 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.UpdateRecentJourneys;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.places.*;
+import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.MyLocation;
+import com.tramchester.domain.places.Station;
+import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
 import com.tramchester.domain.presentation.DTO.factory.LocationDTOFactory;
@@ -23,15 +26,14 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.inject.Inject;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -85,8 +87,8 @@ public class JourneyLocationsResource extends UsesRecentCookie implements APIRes
         try {
             final TransportMode mode = TransportMode.valueOf(rawMode);
 
-            final LocalDateTime modTime = dataSourceRepository.getNewestModTimeFor(mode);
-            final Date date = Date.from(modTime.toInstant(ZoneOffset.UTC));
+            final ZonedDateTime modTime = dataSourceRepository.getNewestModTimeFor(mode);
+            final Date date = Date.from(modTime.toInstant());
 
             Response.ResponseBuilder builder = request.evaluatePreconditions(date);
 

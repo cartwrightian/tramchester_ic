@@ -159,7 +159,7 @@ class StationResourceTest {
         Response resultA = APIClient.getApiResponse(appExtension, "stations/mode/Tram");
         assertEquals(200, resultA.getStatus());
 
-        Date lastMod = resultA.getLastModified();
+        final Date lastMod = resultA.getLastModified();
 
         Response resultB = APIClient.getApiResponse(appExtension, "stations/mode/Tram", lastMod);
         assertEquals(304, resultB.getStatus());

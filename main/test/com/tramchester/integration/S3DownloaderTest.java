@@ -14,7 +14,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -60,13 +61,13 @@ public class S3DownloaderTest {
     void shouldDownloadSomething() throws IOException {
         URI url = URI.create(TestEnv.getBucketUrl()+"testing/ForTestSupport.txt");
 
-        LocalDateTime localModTime = LocalDateTime.MIN;
+        ZonedDateTime localModTime = URLStatus.invalidTime;
         URLStatus result = downloadAndModTime.getStatusFor(url, localModTime, true);
         assertTrue(result.isOk());
 
-        LocalDateTime modTime = result.getModTime();
-        assertTrue(modTime.isBefore(TestEnv.LocalNow()));
-        assertTrue(modTime.isAfter(LocalDateTime.of(2000,1,1,12,59,22)));
+        ZonedDateTime modTime = result.getModTime();
+        assertTrue(modTime.isBefore(TestEnv.UTCNow()));
+        assertTrue(modTime.isAfter(ZonedDateTime.of(2000,1,1,12,59,22,0,ZoneOffset.UTC)));
 
         downloadAndModTime.downloadTo(temporaryFile, url, localModTime);
 
@@ -77,7 +78,7 @@ public class S3DownloaderTest {
     @Test
     void shouldHaveExpectedStatusForMissingKey() {
         URI url = URI.create(TestEnv.getBucketUrl() + "SHOULDBEMISSING");
-        LocalDateTime localModTime = LocalDateTime.MIN;
+        ZonedDateTime localModTime = URLStatus.invalidTime;
         URLStatus result = downloadAndModTime.getStatusFor(url, localModTime, true);
         assertFalse(result.isOk());
 

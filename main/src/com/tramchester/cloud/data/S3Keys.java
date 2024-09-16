@@ -23,7 +23,7 @@ public class S3Keys {
         this.config = config;
     }
 
-    public String create(LocalDateTime timeStamp) {
+    public String create(final LocalDateTime timeStamp) {
         String environment = config.getLiveDataConfig().getS3Prefix();
 
         // TODO this ought to be UTC, not local
@@ -33,23 +33,23 @@ public class S3Keys {
         return format("%s/%s/%s", environment, date, time);
     }
 
-    public String createPrefix(LocalDate timeStamp) {
+    public String createPrefix(final LocalDate timeStamp) {
         String environment = config.getLiveDataConfig().getS3Prefix();
 
         // TODO this ought to be UTC, not local
         return format("%s/%s", environment, timeStamp.format(dateFormatter));
     }
 
-    public LocalDateTime parse(String key) throws S3KeyException {
-        String[] parts = key.split("/");
+    public LocalDateTime parse(final String key) throws S3KeyException {
+        final String[] parts = key.split("/");
 
         if (parts.length!=3) {
             throw new S3KeyException("Cannot parse key: " + key);
         }
 
         try {
-            LocalDate date = LocalDate.parse(parts[1], dateFormatter);
-            LocalTime time = LocalTime.parse(parts[2], timeFormatter);
+            final LocalDate date = LocalDate.parse(parts[1], dateFormatter);
+            final LocalTime time = LocalTime.parse(parts[2], timeFormatter);
             return LocalDateTime.of(date, time);
         }
         catch (DateTimeParseException inner) {

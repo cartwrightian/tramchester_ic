@@ -12,8 +12,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -21,11 +21,11 @@ class HttpDownloaderTest {
 
     private Path temporaryFile;
     private HttpDownloadAndModTime urlDownloader;
-    private LocalDateTime localModTime;
+    private ZonedDateTime localModTime;
 
     @BeforeEach
     void beforeEachTestRuns() {
-        localModTime = LocalDateTime.MIN;
+        localModTime = URLStatus.invalidTime;
         urlDownloader = new HttpDownloadAndModTime();
 
         temporaryFile = Paths.get(FileUtils.getTempDirectoryPath(), "downloadAFile");
@@ -49,9 +49,9 @@ class HttpDownloaderTest {
 
         URLStatus headStatus = urlDownloader.getStatusFor(url, localModTime, true);
         assertTrue(headStatus.isOk());
-        LocalDateTime modTime = headStatus.getModTime();
-        assertTrue(modTime.isBefore(TestEnv.LocalNow()));
-        assertTrue(modTime.isAfter(LocalDateTime.of(2000,1,1,12,59,22)), modTime.toString());
+        ZonedDateTime modTime = headStatus.getModTime();
+        assertTrue(modTime.isBefore(TestEnv.UTCNow()));
+        assertTrue(modTime.isAfter(ZonedDateTime.of(2000,1,1,12,59,22,0, ZoneOffset.UTC)), modTime.toString());
 
         URLStatus getStatus = urlDownloader.downloadTo(temporaryFile, url, modTime);
 
@@ -59,7 +59,7 @@ class HttpDownloaderTest {
 
         // looks like load balancing between servers can cause a few seconds diff here
         //assertEquals(headStatus.getModTime(), getStatus.getModTime());
-        long diff = headStatus.getModTime().toEpochSecond(ZoneOffset.UTC) - getStatus.getModTime().toEpochSecond(ZoneOffset.UTC);
+        long diff = headStatus.getModTime().toEpochSecond() - getStatus.getModTime().toEpochSecond();
         assertTrue(diff < 2000L, "mod time too far out of range" + diff);
 
         assertTrue(temporaryFile.toFile().exists());
@@ -91,7 +91,7 @@ class HttpDownloaderTest {
     void shouldHave404StatusForMissingDownload() {
         URI url = URI.create("http://www.google.com/nothere");
 
-        LocalDateTime modTime = LocalDateTime.MIN;
+        ZonedDateTime modTime = URLStatus.invalidTime;
         URLStatus getStatus = urlDownloader.downloadTo(temporaryFile, url, modTime);
 
         assertFalse(getStatus.isOk());

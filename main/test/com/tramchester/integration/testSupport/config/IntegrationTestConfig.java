@@ -28,7 +28,7 @@ public abstract class IntegrationTestConfig extends TestConfig {
     protected final RailRemoteDataSourceConfig railRemoteDataSource;
 
     public static final StationClosures PiccGardensPartialClosure = new StationClosuresConfigForTest(TramStations.PiccadillyGardens,
-            DateRange.of(TramDate.of(2024, 8,28), TestEnv.PicGardensClosureEnds), false,
+            DateRange.of(TramDate.of(2024, 8,28), TramDate.of(2024,9,16)), false,
             Collections.emptySet(), Collections.emptySet());
 
     public static final List<StationClosures> CurrentClosures = Collections.singletonList(PiccGardensPartialClosure);
