@@ -35,6 +35,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
+import org.glassfish.jersey.server.ContainerRequest;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -104,14 +105,16 @@ public class StationResource extends UsesRecentCookie implements APIResource {
     @Operation(description = "Get all stations for transport mode")
     @ApiResponse(content = @Content(array = @ArraySchema(uniqueItems = true, schema = @Schema(implementation = LocationRefDTO.class))))
     @CacheControl(maxAge = 1, maxAgeUnit = TimeUnit.HOURS, isPrivate = false)
-    public Response getByMode(@PathParam("mode") String rawMode, @Context Request request) {
+    public Response getByMode(@PathParam("mode") String rawMode, @Context ContainerRequest request) {
         logger.info("Get stations for transport mode: " + rawMode);
 
         try {
             final TransportMode mode = TransportMode.valueOf(rawMode);
 
             final ZonedDateTime dataModTime = dataSourceRepository.getNewestModTimeFor(mode);
-            final Date date = Date.from(dataModTime.toInstant());
+            final Date date = new Date(dataModTime.toInstant().toEpochMilli());
+
+            logger.debug("Evaluate preconditions for " + date + " " + request.getRequestHeader("If-Modified-Since"));
 
             final Response.ResponseBuilder builder = request.evaluatePreconditions(date);
 

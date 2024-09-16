@@ -11,11 +11,8 @@ import org.glassfish.jersey.client.ClientProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static java.lang.String.format;
 
@@ -24,6 +21,11 @@ public class APIClient {
     private static final Logger logger = LoggerFactory.getLogger(APIClient.class);
 
     private final Invocation.Builder builder;
+
+    private final TimeZone GMT_TIME_ZONE = TimeZone.getTimeZone("UTC");
+
+    private static final String RFC1123_DATE_FORMAT_PATTERN = "EEE, dd MMM yyyy HH:mm:ss zzz";
+
 
     private APIClient(IntegrationAppExtension appExtension, String endPoint) {
         final int TIMEOUT_MS = 20 * 1000;
@@ -43,8 +45,10 @@ public class APIClient {
         builder.cookie(cookie);
     }
 
-    private void setLastMod(Date currentLastMod) {
-        DateFormat format = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz");
+    private void setLastMod(final Date currentLastMod) {
+        // the locale here matters!
+        final SimpleDateFormat format = new SimpleDateFormat(RFC1123_DATE_FORMAT_PATTERN, Locale.US);
+        format.setTimeZone(GMT_TIME_ZONE);
         builder.header("If-Modified-Since", format.format(currentLastMod));
     }
 

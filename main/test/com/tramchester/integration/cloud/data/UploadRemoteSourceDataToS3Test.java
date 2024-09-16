@@ -25,9 +25,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
-import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -103,7 +102,7 @@ class UploadRemoteSourceDataToS3Test {
         final String text = "HereIsSomeTextForTheFile";
         Files.writeString( sourceFilePath, text);
 
-        LocalDateTime modTime = LocalDateTime.of(1975, 12, 30, 15, 35, 56);
+        ZonedDateTime modTime = ZonedDateTime.of(1975, 12, 30, 15, 35, 56, 0, ZoneOffset.UTC);
         long expectedMills = getEpochMilli(modTime);
         assertTrue(sourceFilePath.toFile().setLastModified(expectedMills));
 
@@ -119,7 +118,8 @@ class UploadRemoteSourceDataToS3Test {
         Map<String, String> meta = response.metadata();
         assertTrue(meta.containsKey(ClientForS3.ORIG_MOD_TIME_META_DATA_KEY));
         String dateAsText = meta.get(ClientForS3.ORIG_MOD_TIME_META_DATA_KEY);
-        LocalDateTime remoteModTime = LocalDateTime.parse(dateAsText, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+
+        ZonedDateTime remoteModTime = ZonedDateTime.parse(dateAsText, ClientForS3.DATE_TIME_FORMATTER);
         assertEquals(modTime, remoteModTime);
 
         GetObjectRequest getRequest = GetObjectRequest.builder().bucket(TEST_BUCKET_NAME).key(key).build();
@@ -163,9 +163,9 @@ class UploadRemoteSourceDataToS3Test {
         }
     }
 
-    private long getEpochMilli(LocalDateTime dateTime) {
-        ZonedDateTime zonedDateTime = dateTime.atZone(TramchesterConfig.TimeZoneId);
-        return zonedDateTime.toInstant().toEpochMilli();
+    private long getEpochMilli(ZonedDateTime dateTime) {
+//        ZonedDateTime zonedDateTime = dateTime.atZone(TramchesterConfig.TimeZoneId);
+        return dateTime.toInstant().toEpochMilli();
     }
 
     public static class DataSource extends RemoteDataSourceConfig {
