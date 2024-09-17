@@ -84,7 +84,7 @@ public class RouteCostMatrixTest {
         Route routeB = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
 
         int depth = routeMatrix.getConnectionDepthFor(routeA, routeB);
-        assertEquals(1, depth);
+        assertEquals(2, depth);
     }
 
     @Test

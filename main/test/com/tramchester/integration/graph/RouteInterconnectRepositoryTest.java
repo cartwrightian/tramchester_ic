@@ -27,7 +27,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
-import com.tramchester.testSupport.testTags.PicGardensPartialClosure;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
@@ -48,7 +47,6 @@ import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-@PicGardensPartialClosure
 @ExtendWith(ConfigParameterResolver.class)
 @DualTest
 @DataUpdateTest

@@ -81,20 +81,18 @@ public class StationRepositoryTest {
 
         IdSet<Station> dropOffs = allStations.stream().filter(station -> station.servesRouteDropOff(buryToAlty)).collect(IdSet.collector());
 
-        assertEquals(26, dropOffs.size(), dropOffs.toString());
+        assertEquals(25, dropOffs.size(), dropOffs.toString());
         // in new data Bury is dropoff since no direction to routes....
 //        assertFalse(dropOffs.contains(Bury.getId()));
         assertTrue(dropOffs.contains(Altrincham.getId()));
         assertTrue(dropOffs.contains(Cornbrook.getId()));
-
         assertTrue(dropOffs.contains(Shudehill.getId()));
 
         IdSet<Station> pickUps = allStations.stream().filter(station -> station.servesRoutePickup(buryToAlty)).collect(IdSet.collector());
 
-        assertEquals(26, pickUps.size(), pickUps.toString());
+        assertEquals(25, pickUps.size(), pickUps.toString());
         assertTrue(pickUps.contains(Bury.getId()));
         assertTrue(pickUps.contains(Cornbrook.getId()));
-
         assertTrue(pickUps.contains(Shudehill.getId()));
     }
 
@@ -195,18 +193,16 @@ public class StationRepositoryTest {
         assertTrue(station.hasDropoff());
         assertTrue(station.hasPickup());
 
-//        Set<KnownTramRoute> expectRunningOnDate = getFor(when);
-
-        EnumSet<KnownTramRoute> expected = EnumSet.of(BuryManchesterAltrincham,
+        EnumSet<KnownTramRoute> expected = EnumSet.of(
+                BuryManchesterAltrincham,
                 EcclesDeansgateCastlefield,
                 DeansgateCastlefieldManchesterAirport,
-//                VictoriaWythenshaweManchesterAirport,
-                CrumpsallManchesterAshton,
+//                CrumpsallManchesterAshton,
                 CornbrookTheTraffordCentre,
+                PiccadillyAltrincham_OLD,
                 RochdaleShawandCromptonManchesterEastDidisbury);
 
         IdSet<Route> expectedIds = expected.stream().
-//                filter(expectRunningOnDate::contains).
                 map(KnownTramRoute::getId).
                 collect(IdSet.idCollector());
 
@@ -216,7 +212,7 @@ public class StationRepositoryTest {
 
         IdSet<Route> mismatch = IdSet.disjunction(expectedIds, pickups);
 
-        assertEquals(IdSet.emptySet(), mismatch, "expected " + expectedIds + " found " + pickups);
+        assertEquals(IdSet.emptySet(), mismatch, "expected " + expectedIds + "\n found " + pickups);
 
         IdSet<Route> dropOffs = station.getDropoffRoutes().stream().
             filter(route -> route.isAvailableOn(when)).

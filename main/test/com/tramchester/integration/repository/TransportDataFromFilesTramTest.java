@@ -108,8 +108,7 @@ public class TransportDataFromFilesTramTest {
         assertEquals(1, transportData.getAgencies().stream().filter(agency -> agency.getTransportModes().contains(Tram)).count());
         assertEquals(NUM_TFGM_TRAM_STATIONS, transportData.getStations(EnumSet.of(Tram)).size());
 
-        // picc gardens closure 201 -> 197
-        int expectedPlatforms = 197;
+        int expectedPlatforms = 200;
         assertEquals(expectedPlatforms, transportData.getPlatforms(EnumSet.of(Tram)).size());
     }
 
@@ -181,8 +180,7 @@ public class TransportDataFromFilesTramTest {
 
         Set<String> uniqueRouteNames = callingRoutes.stream().map(Route::getName).collect(Collectors.toSet());
 
-        // picc gardens 2024 2->1
-        assertEquals(1, uniqueRouteNames.size(), uniqueRouteNames.toString());
+        assertEquals(2, uniqueRouteNames.size(), uniqueRouteNames.toString());
     }
 
     @Test
@@ -236,8 +234,7 @@ public class TransportDataFromFilesTramTest {
                 map(routeStation -> Pair.of(routeStation.getStationId(), routeStation.getRoute().getName())).
                 collect(Collectors.toSet());
 
-        // Pic Gardens 2024 4->2
-        assertEquals(2, routeStationPairs.size(), routeStations.toString());
+        assertEquals(4, routeStationPairs.size(), routeStations.toString());
 
         Set<String> routeNames =
                 routeStations.stream().
@@ -248,7 +245,7 @@ public class TransportDataFromFilesTramTest {
 
         assertTrue(routeNames.contains(BuryManchesterAltrincham.longName()), routeNames.toString());
 
-//        assertTrue(routeNames.contains(PiccadillyBury_OLD.longName()), routeNames.toString());
+        assertTrue(routeNames.contains(CrumpsallManchesterAshton.longName()), routeNames.toString());
 
     }
 
@@ -629,7 +626,6 @@ public class TransportDataFromFilesTramTest {
 
         System.out.printf("Total: %s ms Average: %s ms%n", total, total/count);
     }
-
 
     private boolean isOpen(final TramDate date, final Station station) {
         final IdFor<Station> stationId = station.getId();

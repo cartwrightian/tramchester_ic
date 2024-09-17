@@ -24,7 +24,6 @@ import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
-import com.tramchester.testSupport.testTags.PicGardensPartialClosure;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -110,7 +109,7 @@ public class RouteToRouteCostsTest {
 
     @Test
     void shouldComputeCostsSameRoute() {
-        Route routeA = routeHelper.getOneRoute(VictoriaWythenshaweManchesterAirport_OLD, date);
+        Route routeA = routeHelper.getOneRoute(DeansgateCastlefieldManchesterAirport, date);
 
         assertEquals(0, getMinCost(routesCostRepository.getNumberOfChanges(routeA, routeA, date, timeRange, modes)));
     }
@@ -118,18 +117,18 @@ public class RouteToRouteCostsTest {
     @Test
     void shouldComputeCostsDifferentRoutesTwoChange() {
         Route routeA = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
-        Route routeB = routeHelper.getOneRoute(PiccadillyBury_OLD, date);
+        Route routeB = routeHelper.getOneRoute(CrumpsallManchesterAshton, date);
 
-        assertEquals(1, getMinCost(routesCostRepository.getNumberOfChanges(routeA, routeB, date, timeRange, modes)),
+        assertEquals(2, getMinCost(routesCostRepository.getNumberOfChanges(routeA, routeB, date, timeRange, modes)),
                 "wrong for " + routeA.getId() + " " + routeB.getId());
-        assertEquals(1, getMinCost(routesCostRepository.getNumberOfChanges(routeB, routeA, date, timeRange, modes)),
+        assertEquals(2, getMinCost(routesCostRepository.getNumberOfChanges(routeB, routeA, date, timeRange, modes)),
                 "wrong for " + routeB.getId() + " " + routeA.getId());
     }
 
     @Test
     void shouldFailIfOurOfTimeRangeDifferentRoutesTwoChange() {
         Route routeA = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
-        Route routeB = routeHelper.getOneRoute(PiccadillyBury_OLD, date);
+        Route routeB = routeHelper.getOneRoute(PiccadillyAltrincham_OLD, date);
 
         assertEquals(1, getMinCost(routesCostRepository.getNumberOfChanges(routeA, routeB, date, timeRange, modes)),
                 "wrong for " + routeA.getId() + " " + routeB.getId());
@@ -142,7 +141,7 @@ public class RouteToRouteCostsTest {
     @Test
     void shouldComputeCostsDifferentRoutesOneChanges() {
         Route routeA = routeHelper.getOneRoute(BuryManchesterAltrincham, date);
-        Route routeB = routeHelper.getOneRoute(VictoriaWythenshaweManchesterAirport_OLD, date);
+        Route routeB = routeHelper.getOneRoute(DeansgateCastlefieldManchesterAirport, date);
 
         assertEquals(1, getMinCost(routesCostRepository.getNumberOfChanges(routeA, routeB, date, timeRange, modes)),
                 "wrong for " + routeA.getId() + " " + routeB.getId());
@@ -175,7 +174,7 @@ public class RouteToRouteCostsTest {
         Station end = TramStations.ManAirport.from(stationRepository);
         NumberOfChanges result = routesCostRepository.getNumberOfChanges(start, end, modes, date, timeRange);
 
-        assertEquals(1, getMinCost(result));
+        assertEquals(0, getMinCost(result));
     }
 
     @Test
@@ -193,7 +192,7 @@ public class RouteToRouteCostsTest {
     @Test
     void shouldFindMediaCityHops() {
         Station mediaCity = MediaCityUK.from(stationRepository);
-        Station ashton = Ashton.from(stationRepository);
+        Station ashton = ManAirport.from(stationRepository);
 
         NumberOfChanges result = routesCostRepository.getNumberOfChanges(mediaCity, ashton, modes, date, timeRange);
 
@@ -206,16 +205,15 @@ public class RouteToRouteCostsTest {
         Station end = TramStations.ManAirport.from(stationRepository);
         NumberOfChanges result = routesCostRepository.getNumberOfChanges(start, end, modes, date, timeRange);
 
-        assertEquals(1, getMinCost(result));
+        assertEquals(0, getMinCost(result));
     }
 
-    @PicGardensPartialClosure
     @Test
     void shouldSortAsExpected() {
 
         Route routeA = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
-        Route routeB = routeHelper.getOneRoute(VictoriaWythenshaweManchesterAirport_OLD, date);
-        Route routeC = routeHelper.getOneRoute(PiccadillyBury_OLD, date);
+        Route routeB = routeHelper.getOneRoute(DeansgateCastlefieldManchesterAirport, date);
+        Route routeC = routeHelper.getOneRoute(CrumpsallManchesterAshton, date);
 
         Station destination = TramStations.TraffordCentre.from(stationRepository);
         LowestCostsForDestRoutes sorts = routesCostRepository.getLowestCostCalcutatorFor(LocationSet.singleton(destination), date, timeRange, modes);

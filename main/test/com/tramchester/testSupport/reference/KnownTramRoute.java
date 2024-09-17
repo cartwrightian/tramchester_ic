@@ -5,6 +5,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.TransportMode;
 
+import java.time.DayOfWeek;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Optional;
@@ -18,24 +19,28 @@ import java.util.stream.Collectors;
 public enum KnownTramRoute {
 
     // Blue
-    EcclesDeansgateCastlefield("Blue Line", "Eccles - Deansgate-Castlefield", "2235"),
+    EcclesDeansgateCastlefield("Blue Line", "Eccles - Manchester - Ashton Under Lyne", "2119"),
+    @Deprecated
     EcclesManchesterAshtonUnderLyne_OLD("Blue Line", "Eccles - Manchester - Ashton Under Lyne", "2212"),
     // Green
     BuryManchesterAltrincham("Green Line", "Bury - Manchester - Altrincham", "841"),
-    BuryManchesterAltrincham_OLD("Green Line", "Bury - Manchester - Altrincham", "2214"),
+//    BuryManchesterAltrincham_OLD("Green Line", "Bury - Manchester - Altrincham", "2214"),
     // Navy
+    @Deprecated
     VictoriaWythenshaweManchesterAirport_OLD("Navy Line", "Victoria - Wythenshawe - Manchester Airport", "2215"),
     DeansgateCastlefieldManchesterAirport("Navy Line", "Deansgate-Castlefield - Manchester Airport", "2120"),
     // Pink
-    RochdaleShawandCromptonManchesterEastDidisbury("Pink Line", "Rochdale - Manchester - East Didsbury", "2222"),
+    RochdaleShawandCromptonManchesterEastDidisbury("Pink Line", "Rochdale - Manchester - East Didsbury", "845"),
     // Purple
-    PiccadillyAltrincham_OLD("Purple Line", "Etihad Campus - Piccadilly - Altrincham", "2218"),
+    PiccadillyAltrincham_OLD("Purple Line", "Etihad Campus - Piccadilly - Altrincham", "2173"),
     // Red
     CornbrookTheTraffordCentre("Red Line", "Cornbrook - The Trafford Centre", "849"),
+    @Deprecated
     DeansgateTheTraffordCentre_OLD("Red Line", "Deansgate - The Trafford Centre", "2219"),
     // Yellow
+    @Deprecated
     PiccadillyBury_OLD("Yellow Line", "Piccadilly - Bury", "2220"),
-    CrumpsallManchesterAshton("Yellow Line", "Crumpsall Bay - Manchester - Ashton Under Lyne", "2119")
+    CrumpsallManchesterAshton("Yellow Line", "Piccadilly - Victoria", "844")
     ;
 
     private final String shortName;
@@ -47,11 +52,14 @@ public enum KnownTramRoute {
 
         routes.add(EcclesDeansgateCastlefield);
         routes.add(CornbrookTheTraffordCentre);
-        routes.add(BuryManchesterAltrincham);
         routes.add(DeansgateCastlefieldManchesterAirport);
         routes.add(RochdaleShawandCromptonManchesterEastDidisbury);
         routes.add(CrumpsallManchesterAshton);
-        routes.add(BuryManchesterAltrincham);
+        routes.add(PiccadillyAltrincham_OLD);
+
+        if (date.getDayOfWeek() != DayOfWeek.SUNDAY) {
+            routes.add(BuryManchesterAltrincham);
+        }
 
         return routes;
     }
