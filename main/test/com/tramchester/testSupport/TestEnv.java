@@ -69,7 +69,7 @@ public class TestEnv {
     public static final String BRISTOL_BUSSTOP_OCTOCODE = "0100BRP90268";
 
     // timetable data is out of sync with public data which is 6/Sept/2024
-    public static final TramDate PicGardensClosureEnds = TramDate.of(2024,9,24);
+    public static final TramDate PicGardensClosureEnds = TramDate.of(2024,9,25);
 
     private static final Agency MET = MutableAgency.build(DataSourceID.tfgm, MutableAgency.METL, "Metrolink");
 
