@@ -78,8 +78,8 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
 
         MutableRoute routeA = createTramRoute(CornbrookTheTraffordCentre);
         MutableRoute routeB = createTramRoute(RochdaleShawandCromptonManchesterEastDidisbury);
-        MutableRoute routeC = createTramRoute(EcclesManchesterAshtonUnderLyne_OLD);
-        MutableRoute routeD = createTramRoute(VictoriaWythenshaweManchesterAirport_OLD);
+        MutableRoute routeC = createTramRoute(EcclesAshton);
+        MutableRoute routeD = createTramRoute(DeansgateCastlefieldManchesterAirport);
 
         agency.addRoute(routeA);
         agency.addRoute(routeB);

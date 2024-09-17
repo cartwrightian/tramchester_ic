@@ -17,7 +17,6 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.testTags.DualTest;
-import com.tramchester.testSupport.testTags.PicGardensPartialClosure;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,7 +30,8 @@ import java.util.stream.Stream;
 import static com.tramchester.domain.reference.CentralZoneStation.*;
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(ConfigParameterResolver.class)
 @DualTest
@@ -85,18 +85,17 @@ public class RoutePairToInterchangeRepositoryTest {
 
         IdSet<Station> stationIds = interchanges.stream().map(InterchangeStation::getStation).collect(IdSet.collector());
 
-        assertEquals(1, stationIds.size(), stationIds.toString());
+        assertEquals(2, stationIds.size(), stationIds.toString());
         assertTrue(stationIds.contains(Cornbrook.getId()), stationIds.toString());
-//        assertTrue(stationIds.contains(Deansgate.getId()), stationIds.toString());
+        assertTrue(stationIds.contains(Deansgate.getId()), stationIds.toString());
     }
 
-    @PicGardensPartialClosure
     @Test
     void shouldGetExpectedMultipleInterchangesBetweenRoutes() {
-        Route ashtonToEccles = routeHelper.getOneRoute(EcclesManchesterAshtonUnderLyne_OLD, date);
-        Route victoriaToAirport = routeHelper.getOneRoute(VictoriaWythenshaweManchesterAirport_OLD, date);
+        Route blueLine = routeHelper.getOneRoute(EcclesAshton, date);
+        Route navyLine = routeHelper.getOneRoute(DeansgateCastlefieldManchesterAirport, date);
 
-        RoutePair routeIndexPair = RoutePair.of(ashtonToEccles, victoriaToAirport);
+        RoutePair routeIndexPair = RoutePair.of(blueLine, navyLine);
 
         assertTrue(repository.hasAnyInterchangesFor(routeIndexPair));
 

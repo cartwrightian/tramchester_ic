@@ -233,7 +233,7 @@ public class StationAvailabilityRepositoryTest {
         Station victoria = Victoria.from(stationRepository);
         Set<Route> dropOffs = availabilityRepository.getDropoffRoutesFor(victoria, date, timeRange, TramsOnly);
 
-        Route yellowInbound = tramRouteHelper.getOneRoute(PiccadillyBury_OLD, date);
+        Route yellowInbound = tramRouteHelper.getOneRoute(PiccadillyVictoria, date);
         Route blueInbound = tramRouteHelper.getOneRoute(RochdaleShawandCromptonManchesterEastDidisbury, date);
         Route greenOutbound = tramRouteHelper.getOneRoute(BuryManchesterAltrincham, date);
 

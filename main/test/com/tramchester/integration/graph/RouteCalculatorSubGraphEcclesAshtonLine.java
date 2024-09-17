@@ -61,7 +61,7 @@ class RouteCalculatorSubGraphEcclesAshtonLine {
     }
 
     private static void configureFilter(ConfigurableGraphFilter graphFilter, TransportData transportData) {
-        Route route = tramRouteHelper.getOneRoute(KnownTramRoute.EcclesManchesterAshtonUnderLyne_OLD, when);
+        Route route = tramRouteHelper.getOneRoute(KnownTramRoute.EcclesAshton, when);
         graphFilter.addRoute(route.getId());
     }
 

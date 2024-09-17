@@ -20,7 +20,6 @@ import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
-import com.tramchester.testSupport.testTags.PicGardensPartialClosure;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -67,14 +66,13 @@ public class RouteRepositoryTest {
 
     @Test
     void shouldGetRouteWithHeadsigns() {
-        Route result = routeHelper.getOneRoute(EcclesManchesterAshtonUnderLyne_OLD, when);
-        assertEquals(EcclesDeansgateCastlefield.longName(), result.getName());
+        Route result = routeHelper.getOneRoute(EcclesAshton, when);
+        assertEquals(EcclesAshton.longName(), result.getName());
         assertEquals(TestEnv.MetAgency(),result.getAgency());
         //assertTrue(IdForDTO.createFor(result).getActualId().startsWith("METLBLUE:I:"));
         assertTrue(TransportMode.isTram(result));
     }
 
-    @PicGardensPartialClosure
     @Test
     void shouldHaveExpectedRoutesAtDeansgate() {
         // according to the map this should not be the case, but it does seem to be in the timetable
@@ -83,7 +81,7 @@ public class RouteRepositoryTest {
 
         Set<Route> pickups = deansgate.getPickupRoutes();
 
-        Route traffordCenterRoute = routeHelper.getOneRoute(DeansgateTheTraffordCentre_OLD, when);
+        Route traffordCenterRoute = routeHelper.getOneRoute(CornbrookTheTraffordCentre, when);
 
         assertTrue(pickups.contains(traffordCenterRoute), "Could not find " + traffordCenterRoute.getId()
                 + " in " + KnownTramRoute.find(pickups).toString());
@@ -93,7 +91,7 @@ public class RouteRepositoryTest {
     @Disabled("appear to be no longer present")
     @Test
     void extraRouteAtShudehillTowardsEcclesFromVictoria() {
-        Route towardsEcclesRoute = routeHelper.getOneRoute(EcclesManchesterAshtonUnderLyne_OLD, when);
+        Route towardsEcclesRoute = routeHelper.getOneRoute(EcclesAshton, when);
 
         List<Trip> ecclesTripsViaShudehill = towardsEcclesRoute.getTrips().stream().
                 filter(trip -> trip.getStopCalls().getFirstStop().getStationId().equals(Ashton.getId())).
@@ -110,7 +108,7 @@ public class RouteRepositoryTest {
     @Disabled("appear to be no longer present")
     @Test
     void extraRouteAtShudehillFromEcclesToVictoria() {
-        Route ecclesRoute = routeHelper.getOneRoute(EcclesManchesterAshtonUnderLyne_OLD, when);
+        Route ecclesRoute = routeHelper.getOneRoute(EcclesAshton, when);
 
         List<Trip> ecclesTripsViaShudehill = ecclesRoute.getTrips().stream().
                 filter(trip -> trip.getStopCalls().getFirstStop().getStationId().equals(Ashton.getId())).
@@ -185,7 +183,7 @@ public class RouteRepositoryTest {
 
         TramDate date =  when;
 
-        Route routeA = routeHelper.getOneRoute(PiccadillyBury_OLD, date);
+        Route routeA = routeHelper.getOneRoute(PiccadillyVictoria, date);
         Route routeB = routeHelper.getOneRoute(BuryManchesterAltrincham, date);
 
         assertTrue(routeA.isAvailableOn(date));
@@ -218,7 +216,7 @@ public class RouteRepositoryTest {
         assertTrue(cornbrookPickups.contains(buryToAlty));
         assertTrue(cornbrookDropofss.contains(buryToAlty));
 
-        Route toEccles = tramRouteHelper.getOneRoute(EcclesManchesterAshtonUnderLyne_OLD, when);
+        Route toEccles = tramRouteHelper.getOneRoute(EcclesAshton, when);
 
         assertTrue(cornbrookPickups.contains(toEccles));
         assertTrue(cornbrookDropofss.contains(toEccles));
@@ -227,7 +225,7 @@ public class RouteRepositoryTest {
 
         assertTrue(cornbrookPickups.contains(toTraffordCenter));
 
-        Route victoriaToAirport = tramRouteHelper.getOneRoute(VictoriaWythenshaweManchesterAirport_OLD, when);
+        Route victoriaToAirport = tramRouteHelper.getOneRoute(DeansgateCastlefieldManchesterAirport, when);
 
         assertTrue(cornbrookPickups.contains(victoriaToAirport));
         assertTrue(cornbrookDropofss.contains(victoriaToAirport));

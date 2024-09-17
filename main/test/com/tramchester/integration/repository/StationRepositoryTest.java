@@ -195,11 +195,11 @@ public class StationRepositoryTest {
 
         EnumSet<KnownTramRoute> expected = EnumSet.of(
                 BuryManchesterAltrincham,
-                EcclesDeansgateCastlefield,
+                EcclesAshton,
                 DeansgateCastlefieldManchesterAirport,
 //                CrumpsallManchesterAshton,
                 CornbrookTheTraffordCentre,
-                PiccadillyAltrincham_OLD,
+                EtihadPiccadillyAltrincham,
                 RochdaleShawandCromptonManchesterEastDidisbury);
 
         IdSet<Route> expectedIds = expected.stream().

@@ -97,7 +97,7 @@ public class RouteInterconnectRepositoryTest {
     @Test
     void shouldHaveExpectedInterchangeForSimpleInterchange() {
         Route routeA = routeHelper.getOneRoute(BuryManchesterAltrincham, date);
-        Route routeB = routeHelper.getOneRoute(VictoriaWythenshaweManchesterAirport_OLD, date);
+        Route routeB = routeHelper.getOneRoute(DeansgateCastlefieldManchesterAirport, date);
 
         RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
 
@@ -117,7 +117,7 @@ public class RouteInterconnectRepositoryTest {
     @Test
     void shouldHaveExpectedInterchangeForSimpleInterchangeFiltered() {
         Route routeA = routeHelper.getOneRoute(BuryManchesterAltrincham, date);
-        Route routeB = routeHelper.getOneRoute(VictoriaWythenshaweManchesterAirport_OLD, date);
+        Route routeB = routeHelper.getOneRoute(DeansgateCastlefieldManchesterAirport, date);
 
         RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
 
@@ -139,7 +139,7 @@ public class RouteInterconnectRepositoryTest {
 
         // use date where we can get routes
         Route routeA = routeHelper.getOneRoute(BuryManchesterAltrincham, date);
-        Route routeB = routeHelper.getOneRoute(VictoriaWythenshaweManchesterAirport_OLD, date);
+        Route routeB = routeHelper.getOneRoute(DeansgateCastlefieldManchesterAirport, date);
 
         RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
 
@@ -160,7 +160,7 @@ public class RouteInterconnectRepositoryTest {
     @Test
     void shouldCheckFor2Changes() {
 
-        Route routeA = routeHelper.getOneRoute(PiccadillyBury_OLD, date);
+        Route routeA = routeHelper.getOneRoute(PiccadillyVictoria, date);
         Route routeB = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
 
         assertEquals(2, routeMatrix.getConnectionDepthFor(routeA, routeB));
@@ -184,7 +184,7 @@ public class RouteInterconnectRepositoryTest {
     @Test
     void shouldHaveExpectedBacktrackFor1Changes() {
         Route routeA = routeHelper.getOneRoute(BuryManchesterAltrincham, date);
-        Route routeB = routeHelper.getOneRoute(VictoriaWythenshaweManchesterAirport_OLD, date);
+        Route routeB = routeHelper.getOneRoute(DeansgateCastlefieldManchesterAirport, date);
         RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
 
         assertTrue(interchangeRepository.hasInterchangeFor(indexPair));
@@ -221,7 +221,7 @@ public class RouteInterconnectRepositoryTest {
 
     @Test
     void shouldHaveExpectedBacktrackFor2Changes() {
-        Route routeA = routeHelper.getOneRoute(PiccadillyBury_OLD, date);
+        Route routeA = routeHelper.getOneRoute(PiccadillyVictoria, date);
         Route routeB = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
         RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
 
@@ -263,7 +263,7 @@ public class RouteInterconnectRepositoryTest {
 
     @Test
     void shouldCheckFor2ChangesFiltered() {
-        Route routeA = routeHelper.getOneRoute(PiccadillyBury_OLD, date);
+        Route routeA = routeHelper.getOneRoute(PiccadillyVictoria, date);
         Route routeB = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
         RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
 

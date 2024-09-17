@@ -79,7 +79,7 @@ class TramGraphBuilderTest {
 
         when = TestEnv.testDay();
 
-        tramRouteEcclesAshton = tramRouteHelper.getOneRoute(CrumpsallManchesterAshton, when);
+        tramRouteEcclesAshton = tramRouteHelper.getOneRoute(EcclesAshton, when);
 
         stationRepository = componentContainer.get(StationRepository.class);
         serviceRepository = componentContainer.get(ServiceRepository.class);
@@ -230,14 +230,14 @@ class TramGraphBuilderTest {
         assertTrue(destinations.contains(Timperley.getId()));
     }
 
-
-    @PicGardensPartialClosure
     @Test
     void shouldHaveCorrectOutboundsAtMediaCity() {
 
         Station mediaCityUK = MediaCityUK.from(stationRepository);
 
         RouteStation routeStationMediaCityA = stationRepository.getRouteStation(mediaCityUK, tramRouteEcclesAshton);
+
+        assertNotNull(routeStationMediaCityA);
         List<ImmutableGraphRelationship> outboundsFromRouteStation = txn.getRouteStationRelationships(routeStationMediaCityA, Direction.OUTGOING);
 
         IdSet<Service> graphSvcsFromRouteStations = outboundsFromRouteStation.stream().
@@ -805,11 +805,11 @@ class TramGraphBuilderTest {
     @Test
     void shouldHaveCorrectInboundsAtMediaCity() {
 
-        checkInboundConsistency(MediaCityUK, EcclesDeansgateCastlefield);
+        checkInboundConsistency(MediaCityUK, EcclesAshton);
 
-        checkInboundConsistency(HarbourCity, EcclesDeansgateCastlefield);
+        checkInboundConsistency(HarbourCity, EcclesAshton);
 
-        checkInboundConsistency(Broadway, EcclesDeansgateCastlefield);
+        checkInboundConsistency(Broadway, EcclesAshton);
 
     }
 
@@ -820,9 +820,9 @@ class TramGraphBuilderTest {
 
         checkOutboundConsistency(Cornbrook, BuryManchesterAltrincham);
 
-        checkOutboundConsistency(MediaCityUK, EcclesDeansgateCastlefield);
+        checkOutboundConsistency(MediaCityUK, EcclesAshton);
 
-        checkOutboundConsistency(HarbourCity, EcclesDeansgateCastlefield);
+        checkOutboundConsistency(HarbourCity, EcclesAshton);
 
         // these two are not consistent because same svc can go different ways while still having same route code
         // i.e. service from harbour city can go to media city or to Broadway with same svc and route id
@@ -929,15 +929,4 @@ class TramGraphBuilderTest {
         assertEquals(0, tripIdsFromFile.size());
     }
 
-    private String displayAllProps(final List<ImmutableGraphRelationship> relationships) {
-        StringBuilder stringBuilder = new StringBuilder();
-        relationships.forEach(relationship -> {
-            stringBuilder.
-                    append(relationship.getType()).append(" ").
-                    append(relationship.getId()).append(" ").
-                    append(relationship.getAllProperties()).append(" ").
-                    append(System.lineSeparator());
-        });
-        return stringBuilder.toString();
-    }
 }

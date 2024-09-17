@@ -71,7 +71,7 @@ class RouteReachableTramTest {
 
         assertEquals(2, names.size(), names.toString());
 
-        assertTrue(names.contains(PiccadillyAltrincham_OLD.longName()), names.toString());
+        assertTrue(names.contains(EtihadPiccadillyAltrincham.longName()), names.toString());
         assertTrue(names.contains(BuryManchesterAltrincham.longName()), names.toString());
     }
 

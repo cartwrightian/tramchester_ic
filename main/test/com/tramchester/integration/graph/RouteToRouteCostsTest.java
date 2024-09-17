@@ -117,7 +117,7 @@ public class RouteToRouteCostsTest {
     @Test
     void shouldComputeCostsDifferentRoutesTwoChange() {
         Route routeA = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
-        Route routeB = routeHelper.getOneRoute(CrumpsallManchesterAshton, date);
+        Route routeB = routeHelper.getOneRoute(PiccadillyVictoria, date);
 
         assertEquals(2, getMinCost(routesCostRepository.getNumberOfChanges(routeA, routeB, date, timeRange, modes)),
                 "wrong for " + routeA.getId() + " " + routeB.getId());
@@ -128,7 +128,7 @@ public class RouteToRouteCostsTest {
     @Test
     void shouldFailIfOurOfTimeRangeDifferentRoutesTwoChange() {
         Route routeA = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
-        Route routeB = routeHelper.getOneRoute(PiccadillyAltrincham_OLD, date);
+        Route routeB = routeHelper.getOneRoute(EtihadPiccadillyAltrincham, date);
 
         assertEquals(1, getMinCost(routesCostRepository.getNumberOfChanges(routeA, routeB, date, timeRange, modes)),
                 "wrong for " + routeA.getId() + " " + routeB.getId());
@@ -213,7 +213,7 @@ public class RouteToRouteCostsTest {
 
         Route routeA = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
         Route routeB = routeHelper.getOneRoute(DeansgateCastlefieldManchesterAirport, date);
-        Route routeC = routeHelper.getOneRoute(CrumpsallManchesterAshton, date);
+        Route routeC = routeHelper.getOneRoute(PiccadillyVictoria, date);
 
         Station destination = TramStations.TraffordCentre.from(stationRepository);
         LowestCostsForDestRoutes sorts = routesCostRepository.getLowestCostCalcutatorFor(LocationSet.singleton(destination), date, timeRange, modes);

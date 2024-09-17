@@ -156,13 +156,13 @@ public class TransportDataFromFilesTramTest {
         // cannot check for specific size as the way routes handled in tfgm gtfs feed can lead to duplicates
         //assertEquals(10, traffordBarRoutes.size());
 
-        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(PiccadillyAltrincham_OLD)));
+        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(EtihadPiccadillyAltrincham)));
 
         assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(RochdaleShawandCromptonManchesterEastDidisbury)));
 
-        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(VictoriaWythenshaweManchesterAirport_OLD)));
+        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(DeansgateCastlefieldManchesterAirport)));
 
-        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(EcclesManchesterAshtonUnderLyne_OLD)));
+        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(EcclesAshton)));
 
         assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(BuryManchesterAltrincham)));
     }
@@ -241,11 +241,11 @@ public class TransportDataFromFilesTramTest {
                         map(RouteStation::getRoute).
                         map(Route::getName).collect(Collectors.toSet());
 
-        assertTrue(routeNames.contains(CrumpsallManchesterAshton.longName()), routeNames.toString());
+        assertTrue(routeNames.contains(PiccadillyVictoria.longName()), routeNames.toString());
 
         assertTrue(routeNames.contains(BuryManchesterAltrincham.longName()), routeNames.toString());
 
-        assertTrue(routeNames.contains(CrumpsallManchesterAshton.longName()), routeNames.toString());
+        assertTrue(routeNames.contains(PiccadillyVictoria.longName()), routeNames.toString());
 
     }
 
@@ -574,7 +574,7 @@ public class TransportDataFromFilesTramTest {
     void shouldReproIssueAtMediaCityWithBranchAtCornbrook() {
         Set<Trip> allTrips = getTripsFor(transportData.getTrips(), Cornbrook);
 
-        Set<Route> routes = transportData.findRoutesByShortName(MutableAgency.METL, EcclesManchesterAshtonUnderLyne_OLD.shortName());
+        Set<Route> routes = transportData.findRoutesByShortName(MutableAgency.METL, EcclesAshton.shortName());
 
         assertFalse(routes.isEmpty());
 

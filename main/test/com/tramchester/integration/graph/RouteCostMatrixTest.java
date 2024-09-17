@@ -72,7 +72,7 @@ public class RouteCostMatrixTest {
     @Test
     void shouldHaveExpectedIndexWhereDirectInterchangePossible() {
         Route routeA = routeHelper.getOneRoute(BuryManchesterAltrincham, date);
-        Route routeB = routeHelper.getOneRoute(VictoriaWythenshaweManchesterAirport_OLD, date);
+        Route routeB = routeHelper.getOneRoute(DeansgateCastlefieldManchesterAirport, date);
 
         int depth = routeMatrix.getConnectionDepthFor(routeA, routeB);
         assertEquals(1, depth);
@@ -80,7 +80,7 @@ public class RouteCostMatrixTest {
 
     @Test
     void shouldHaveExpectedIndexWhereNoDirectInterchangePossible() {
-        Route routeA = routeHelper.getOneRoute(PiccadillyBury_OLD, date);
+        Route routeA = routeHelper.getOneRoute(PiccadillyVictoria, date);
         Route routeB = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
 
         int depth = routeMatrix.getConnectionDepthFor(routeA, routeB);
@@ -89,7 +89,7 @@ public class RouteCostMatrixTest {
 
     @Test
     void shouldHaveExpectedIndexForEcclesRouteOntoAltyRoute() {
-        Route routeA = routeHelper.getOneRoute(EcclesManchesterAshtonUnderLyne_OLD, date);
+        Route routeA = routeHelper.getOneRoute(EcclesAshton, date);
         Route routeB = routeHelper.getOneRoute(BuryManchesterAltrincham, date);
 
         int depth = routeMatrix.getConnectionDepthFor(routeA, routeB);
@@ -99,7 +99,7 @@ public class RouteCostMatrixTest {
     @Test
     void shouldHaveExpectedIndexForEcclesRouteFromAltyRoute() {
         Route routeA = routeHelper.getOneRoute(BuryManchesterAltrincham, date);
-        Route routeB = routeHelper.getOneRoute(VictoriaWythenshaweManchesterAirport_OLD, date);
+        Route routeB = routeHelper.getOneRoute(DeansgateCastlefieldManchesterAirport, date);
 
         int depth = routeMatrix.getConnectionDepthFor(routeA, routeB);
         assertEquals(1, depth);

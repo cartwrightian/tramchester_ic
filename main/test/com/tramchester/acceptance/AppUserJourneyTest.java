@@ -256,7 +256,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
         assertEquals(1, stages.size());
         Stage stage = stages.get(0);
 
-        Set<KnownTramRoute> expectedRoutes = EnumSet.of(BuryManchesterAltrincham, PiccadillyAltrincham_OLD);
+        Set<KnownTramRoute> expectedRoutes = EnumSet.of(BuryManchesterAltrincham, EtihadPiccadillyAltrincham);
         Set<String> headSigns = new HashSet<>(Arrays.asList(Bury.getName(), Piccadilly.getName(), "Bury via Market Street & Victoria"));
         Set<TramTime> departTimes = Collections.singleton(firstResult.getDepartTime());
         validateAStage(stage, departTimes, "Board Tram", Altrincham.getName(),
@@ -437,7 +437,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
         Stage firstStage = stages.get(0);
         Stage secondStage = stages.get(1);
 
-        Set<KnownTramRoute> routeNames = new HashSet<>(Arrays.asList(PiccadillyAltrincham_OLD, BuryManchesterAltrincham));
+        Set<KnownTramRoute> routeNames = new HashSet<>(Arrays.asList(EtihadPiccadillyAltrincham, BuryManchesterAltrincham));
         Set<String> firstStageHeadsigns = new HashSet<>(Arrays.asList(Piccadilly.getName(), Bury.getName(), "Bury via Market Street & Victoria"));
 
         TramTime firstDepartTime = firstResult.getDepartTime();
