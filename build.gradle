@@ -112,7 +112,7 @@ dependencies {
 
     implementation('javax.measure:unit-api:2.2')
 
-    implementation('org.roaringbitmap:RoaringBitmap:1.2.1')
+    implementation('org.roaringbitmap:RoaringBitmap:1.3.0')
 
     testImplementation("io.dropwizard:dropwizard-testing:$dropwizardVersion")
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.3', // NOTE: issues with latest junit and latest launcher, don't play with dropwizard
