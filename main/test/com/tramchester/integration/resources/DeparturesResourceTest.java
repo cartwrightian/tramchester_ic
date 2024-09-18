@@ -13,6 +13,7 @@ import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.APIClient;
+import com.tramchester.integration.testSupport.APIClientFactory;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
@@ -34,6 +35,7 @@ import com.tramchester.testSupport.testTags.LiveDataTestCategory;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import jakarta.ws.rs.core.Response;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -52,10 +54,16 @@ class DeparturesResourceTest {
 
     private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class,
             new ResourceTramTestConfig<>(DeparturesResource.class, IntegrationTramTestConfig.LiveData.Enabled));
+    private static APIClientFactory factory;
 
     private Station stationWithNotes;
     private Station stationWithDepartures;
     private PlatformMessageSource platformMessageSource;
+
+    @BeforeAll
+    public static void onceBeforeAll() {
+        factory = new APIClientFactory(appExtension);
+    }
 
     @BeforeEach
     void beforeEachTestRuns() {
@@ -263,7 +271,7 @@ class DeparturesResourceTest {
 
     @NotNull
     private Response getPostResponse(DeparturesQueryDTO queryDTO) {
-        Response response = APIClient.postAPIRequest(appExtension, "departures/location", queryDTO);
+        Response response = APIClient.postAPIRequest(factory, "departures/location", queryDTO);
         assertEquals(200, response.getStatus());
         return response;
     }

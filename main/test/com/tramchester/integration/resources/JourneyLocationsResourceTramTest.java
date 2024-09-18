@@ -11,6 +11,7 @@ import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.presentation.Timestamped;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.APIClient;
+import com.tramchester.integration.testSupport.APIClientFactory;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
 import com.tramchester.repository.StationRepository;
@@ -22,6 +23,7 @@ import jakarta.ws.rs.core.Cookie;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.Response;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,9 +41,15 @@ class JourneyLocationsResourceTramTest {
 
     private static final IntegrationAppExtension appExtension =
             new IntegrationAppExtension(App.class, new ResourceTramTestConfig<>(JourneyLocationsResource.class));
+    private static APIClientFactory factory;
 
     private final ObjectMapper mapper = new ObjectMapper();
     private StationRepository stationRepository;
+
+    @BeforeAll
+    public static void onceBeforeAll() {
+        factory = new APIClientFactory(appExtension);
+    }
 
     @BeforeEach
     void beforeEachTestRuns() {
@@ -51,7 +59,7 @@ class JourneyLocationsResourceTramTest {
 
     @Test
     void shouldGetTramStations() {
-        Response result = APIClient.getApiResponse(appExtension, "locations/mode/Tram");
+        Response result = APIClient.getApiResponse(factory, "locations/mode/Tram");
 
         assertEquals(200, result.getStatus());
 
@@ -85,18 +93,18 @@ class JourneyLocationsResourceTramTest {
 
     @Test
     void shouldGetTramStation304response() {
-        Response resultA = APIClient.getApiResponse(appExtension, "locations/mode/Tram");
+        Response resultA = APIClient.getApiResponse(factory, "locations/mode/Tram");
         assertEquals(200, resultA.getStatus());
 
         Date lastMod = resultA.getLastModified();
 
-        Response resultB = APIClient.getApiResponse(appExtension, "locations/mode/Tram", lastMod);
+        Response resultB = APIClient.getApiResponse(factory, "locations/mode/Tram", lastMod);
         assertEquals(304, resultB.getStatus());
     }
 
     @Test
     void shouldGetBusStations() {
-        Response result = APIClient.getApiResponse(appExtension, "locations/mode/Bus");
+        Response result = APIClient.getApiResponse(factory, "locations/mode/Bus");
 
         assertEquals(200, result.getStatus());
 
@@ -107,7 +115,7 @@ class JourneyLocationsResourceTramTest {
 
     @Test
     void should404ForUnknownMode() {
-        Response result = APIClient.getApiResponse(appExtension, "locations/mode/Jumping");
+        Response result = APIClient.getApiResponse(factory, "locations/mode/Jumping");
         assertEquals(404, result.getStatus());
     }
 
@@ -115,7 +123,7 @@ class JourneyLocationsResourceTramTest {
     void shouldGetNearestStationsWithModeGiven() {
 
         LatLong place = nearPiccGardens.latLong();
-        Response result = APIClient.getApiResponse(appExtension, String.format("locations/near/Tram?lat=%s&lon=%s",
+        Response result = APIClient.getApiResponse(factory, String.format("locations/near/Tram?lat=%s&lon=%s",
                 place.getLat(), place.getLon()));
         assertEquals(200, result.getStatus());
 
@@ -141,7 +149,7 @@ class JourneyLocationsResourceTramTest {
         Cookie cookie = createRecentsCookieFor(TramStations.Altrincham, TramStations.Bury, TramStations.ManAirport);
 
         // same mode, but tests list parsing
-        Response result = APIClient.getApiResponse(appExtension, "locations/recent?modes=Tram,Tram", List.of(cookie));
+        Response result = APIClient.getApiResponse(factory, "locations/recent?modes=Tram,Tram", List.of(cookie));
         assertEquals(200, result.getStatus());
 
         List<LocationRefDTO> stationDtos = result.readEntity(new GenericType<>() {});
@@ -169,7 +177,7 @@ class JourneyLocationsResourceTramTest {
         String encoded = URLEncoder.encode(exampleOfIssue, StandardCharsets.UTF_8);
         Cookie cookie = new Cookie("tramchesterRecent", encoded);
 
-        Response result = APIClient.getApiResponse(appExtension, "locations/recent?modes=Tram,Tram", List.of(cookie));
+        Response result = APIClient.getApiResponse(factory, "locations/recent?modes=Tram,Tram", List.of(cookie));
         assertEquals(200, result.getStatus());
 
         List<LocationRefDTO> stationDtos = result.readEntity(new GenericType<>() {});

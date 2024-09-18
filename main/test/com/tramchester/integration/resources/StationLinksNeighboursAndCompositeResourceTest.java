@@ -12,6 +12,7 @@ import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.domain.presentation.DTO.StationGroupDTO;
 import com.tramchester.domain.presentation.DTO.StationToStationConnectionDTO;
 import com.tramchester.integration.testSupport.APIClient;
+import com.tramchester.integration.testSupport.APIClientFactory;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.config.IntegrationTramBusTestConfig;
 import com.tramchester.repository.StationGroupsRepository;
@@ -44,6 +45,7 @@ class StationLinksNeighboursAndCompositeResourceTest {
 
     private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, configuration);
     private static GuiceContainerDependencies dependencies;
+    private static APIClientFactory factory;
 
     private StationGroup shudehillCentralBusStops;
     private IdForDTO shudehillTramId;
@@ -53,6 +55,7 @@ class StationLinksNeighboursAndCompositeResourceTest {
     public static void beforeAnyTestsRun() {
         App app = appExtension.getTestSupport().getApplication();
         dependencies = app.getDependencies();
+        factory = new APIClientFactory(appExtension);
     }
 
     @BeforeEach
@@ -122,7 +125,7 @@ class StationLinksNeighboursAndCompositeResourceTest {
                 map(IdForDTO::createFor).
                 collect(Collectors.toSet());
 
-        Response response = APIClient.getApiResponse(appExtension, "links/composites");
+        Response response = APIClient.getApiResponse(factory, "links/composites");
         assertEquals(200, response.getStatus(), "status");
 
         List<StationGroupDTO> groups = response.readEntity(new GenericType<>() {});
@@ -146,7 +149,7 @@ class StationLinksNeighboursAndCompositeResourceTest {
     @NotNull
     private List<StationToStationConnectionDTO> getLinks() {
 
-        Response response = APIClient.getApiResponse(appExtension, "geo/links");
+        Response response = APIClient.getApiResponse(factory, "geo/links");
         assertEquals(200, response.getStatus(), "status");
 
        return response.readEntity(new GenericType<>() {});

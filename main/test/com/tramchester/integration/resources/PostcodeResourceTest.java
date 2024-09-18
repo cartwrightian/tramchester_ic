@@ -9,6 +9,7 @@ import com.tramchester.domain.places.PostcodeLocation;
 import com.tramchester.domain.presentation.DTO.LocationDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.integration.testSupport.APIClient;
+import com.tramchester.integration.testSupport.APIClientFactory;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.tram.TramWithPostcodesEnabled;
 import com.tramchester.repository.postcodes.PostcodeRepository;
@@ -17,6 +18,7 @@ import com.tramchester.testSupport.testTags.PostcodeTest;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.Response;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -33,8 +35,14 @@ class PostcodeResourceTest {
 
     private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class,
             new PostcodesOnlyEnabledResourceConfig());
+    private static APIClientFactory factory;
 
     private final String endPoint = "postcodes";
+
+    @BeforeAll
+    public static void onceBeforeAll() {
+        factory = new APIClientFactory(appExtension);
+    }
 
     @Test
     void shouldGetLoadedPostcodes() {
@@ -44,7 +52,7 @@ class PostcodeResourceTest {
 
         PostcodeLocation expectedPostcode = postcodeRepository.getPostcode(PostcodeLocationId.create(TestPostcodes.postcodeForWythenshaweHosp()));
 
-        Response response = APIClient.getApiResponse(appExtension, endPoint);
+        Response response = APIClient.getApiResponse(factory, endPoint);
         assertEquals(200, response.getStatus(), response.toString());
 
         List<LocationDTO> results = response.readEntity(new GenericType<>(){});
@@ -69,12 +77,12 @@ class PostcodeResourceTest {
 
     @Test
     void shouldGetTramStation304response() {
-        Response resultA = APIClient.getApiResponse(appExtension, endPoint);
+        Response resultA = APIClient.getApiResponse(factory, endPoint);
         assertEquals(200, resultA.getStatus());
 
         Date lastMod = resultA.getLastModified();
 
-        Response resultB = APIClient.getApiResponse(appExtension, endPoint, lastMod);
+        Response resultB = APIClient.getApiResponse(factory, endPoint, lastMod);
         assertEquals(304, resultB.getStatus());
     }
 

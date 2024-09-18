@@ -11,6 +11,7 @@ import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.APIClient;
+import com.tramchester.integration.testSupport.APIClientFactory;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
@@ -21,6 +22,7 @@ import com.tramchester.resources.StationMessagesResource;
 import com.tramchester.testSupport.testTags.LiveDataMessagesCategory;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import jakarta.ws.rs.core.Response;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,8 +40,14 @@ class StationMessagesResourceTest {
 
     private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class,
             new ResourceTramTestConfig<>(StationMessagesResource.class, IntegrationTramTestConfig.LiveData.Enabled));
+    private static APIClientFactory factory;
 
     private Station stationWithNotes;
+
+    @BeforeAll
+    public static void onceBeforeAll() {
+        factory = new APIClientFactory(appExtension);
+    }
 
     @BeforeEach
     void beforeEachTestRuns() {
@@ -91,7 +99,7 @@ class StationMessagesResourceTest {
     }
 
     private Response getResponseForStation(Station station) {
-        return APIClient.getApiResponse(appExtension, "stationMessages/" + IdForDTO.createFor(station).getActualId());
+        return APIClient.getApiResponse(factory, "stationMessages/" + IdForDTO.createFor(station).getActualId());
     }
 
 

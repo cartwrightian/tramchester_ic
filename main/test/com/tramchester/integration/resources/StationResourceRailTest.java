@@ -10,6 +10,7 @@ import com.tramchester.domain.presentation.DTO.PlatformDTO;
 import com.tramchester.domain.presentation.DTO.RouteRefDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.integration.testSupport.APIClient;
+import com.tramchester.integration.testSupport.APIClientFactory;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.integration.testSupport.rail.ResourceRailTestConfig;
@@ -17,6 +18,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.StationResource;
 import com.tramchester.testSupport.testTags.TrainTest;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,8 +40,14 @@ class StationResourceRailTest {
 
     private static final IntegrationAppExtension appExtension =
             new IntegrationAppExtension(App.class, new ResourceRailTestConfig<>(StationResource.class));
+    private static APIClientFactory factory;
 
     private StationRepository stationRepo;
+
+    @BeforeAll
+    public static void onceBeforeAll() {
+        factory = new APIClientFactory(appExtension);
+    }
 
     @BeforeEach
     void beforeEachTestRuns() {
@@ -52,7 +60,7 @@ class StationResourceRailTest {
         IdForDTO stationId = RailStationIds.ManchesterPiccadilly.getIdDTO();
 
         String endPoint = "stations/" + stationId.getActualId();
-        Response response = APIClient.getApiResponse(appExtension, endPoint);
+        Response response = APIClient.getApiResponse(factory, endPoint);
         
         assertEquals(200,response.getStatus());
         LocationDTO result = response.readEntity(LocationDTO.class);
@@ -66,7 +74,7 @@ class StationResourceRailTest {
         List<String> platformIds = platforms.stream().
                 map(PlatformDTO::getId).
                 map(IdForDTO::getActualId).
-                collect(Collectors.toList());
+                toList();
 
         assertTrue(platformIds.contains(stationId.getActualId()+"1"), platformIds.toString());
         assertTrue(platformIds.contains(stationId.getActualId()+"13B"), platformIds.toString());
@@ -84,7 +92,7 @@ class StationResourceRailTest {
 
     @Test
     void shouldGetTrainStations() {
-        Response result = APIClient.getApiResponse(appExtension, "stations/mode/Train");
+        Response result = APIClient.getApiResponse(factory, "stations/mode/Train");
 
         assertEquals(200, result.getStatus());
 
@@ -98,7 +106,7 @@ class StationResourceRailTest {
 
         List<IdForDTO> resultIds = results.stream().
                 map(LocationRefDTO::getId).
-                collect(Collectors.toList());
+                toList();
 
         assertTrue(expectedIds.containsAll(resultIds));
 
@@ -114,7 +122,7 @@ class StationResourceRailTest {
     void shouldGetNearestTrainStations() {
 
         LatLong place = nearPiccGardens.latLong();
-        Response result = APIClient.getApiResponse(appExtension, String.format("stations/near?lat=%s&lon=%s",
+        Response result = APIClient.getApiResponse(factory, String.format("stations/near?lat=%s&lon=%s",
                 place.getLat(), place.getLon()));
         assertEquals(200, result.getStatus());
 

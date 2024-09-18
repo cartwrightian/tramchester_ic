@@ -15,6 +15,7 @@ import com.tramchester.domain.presentation.RecentJourneys;
 import com.tramchester.domain.presentation.Timestamped;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.APIClient;
+import com.tramchester.integration.testSupport.APIClientFactory;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
 import com.tramchester.repository.StationRepository;
@@ -26,10 +27,7 @@ import jakarta.ws.rs.core.Cookie;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.Response;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.time.LocalDate;
@@ -44,10 +42,16 @@ class StationResourceTest {
 
     private static final IntegrationAppExtension appExtension =
             new IntegrationAppExtension(App.class, new ResourceTramTestConfig<>(StationResource.class));
+    private static APIClientFactory factory;
 
     private final ObjectMapper mapper = new ObjectMapper();
     private StationRepository stationRepository;
     private TramchesterConfig config;
+
+    @BeforeAll
+    public static void onceBeforeAll() {
+        factory = new APIClientFactory(appExtension);
+    }
 
     @BeforeEach
     void beforeEachTestRuns() {
@@ -63,7 +67,7 @@ class StationResourceTest {
 
         String stationId = stPetersSquare.getRawId();
         String endPoint = "stations/" + stationId;
-        Response response = APIClient.getApiResponse(appExtension, endPoint);
+        Response response = APIClient.getApiResponse(factory, endPoint);
         Assertions.assertEquals(200,response.getStatus());
         LocationDTO result = response.readEntity(LocationDTO.class);
 
@@ -97,7 +101,7 @@ class StationResourceTest {
 
     @Test
     void shouldGetTramStations() {
-        Response result = APIClient.getApiResponse(appExtension, "stations/mode/Tram");
+        Response result = APIClient.getApiResponse(factory, "stations/mode/Tram");
 
         assertEquals(200, result.getStatus());
 
@@ -126,7 +130,7 @@ class StationResourceTest {
     @Disabled("Need a resource test where can inject closed station config")
     @Test
     void shouldGetClosedStations() {
-        Response result = APIClient.getApiResponse(appExtension, "stations/closures");
+        Response result = APIClient.getApiResponse(factory, "stations/closures");
 
         assertEquals(200, result.getStatus());
 
@@ -156,18 +160,18 @@ class StationResourceTest {
 
     @Test
     void shouldGetTramStation304response() {
-        Response resultA = APIClient.getApiResponse(appExtension, "stations/mode/Tram");
+        Response resultA = APIClient.getApiResponse(factory, "stations/mode/Tram");
         assertEquals(200, resultA.getStatus());
 
         final Date lastMod = resultA.getLastModified();
 
-        Response resultB = APIClient.getApiResponse(appExtension, "stations/mode/Tram", lastMod);
+        Response resultB = APIClient.getApiResponse(factory, "stations/mode/Tram", lastMod);
         assertEquals(304, resultB.getStatus());
     }
 
     @Test
     void shouldGetAllStationsWithDetails() {
-        Response response = APIClient.getApiResponse(appExtension, "stations/all");
+        Response response = APIClient.getApiResponse(factory, "stations/all");
         assertEquals(200, response.getStatus());
 
         List<LocationDTO> results = response.readEntity(new GenericType<>() {});
@@ -193,7 +197,7 @@ class StationResourceTest {
 
     @Test
     void shouldGetBusStations() {
-        Response result = APIClient.getApiResponse(appExtension, "stations/mode/Bus");
+        Response result = APIClient.getApiResponse(factory, "stations/mode/Bus");
 
         assertEquals(200, result.getStatus());
 
@@ -204,7 +208,7 @@ class StationResourceTest {
 
     @Test
     void should404ForUnknownMode() {
-        Response result = APIClient.getApiResponse(appExtension, "stations/mode/Jumping");
+        Response result = APIClient.getApiResponse(factory, "stations/mode/Jumping");
         assertEquals(404, result.getStatus());
     }
 
@@ -212,7 +216,7 @@ class StationResourceTest {
     void shouldGetNearestStationsNoModeGiven() {
 
         LatLong place = nearPiccGardens.latLong();
-        Response result = APIClient.getApiResponse(appExtension, String.format("stations/near?lat=%s&lon=%s",
+        Response result = APIClient.getApiResponse(factory, String.format("stations/near?lat=%s&lon=%s",
                 place.getLat(), place.getLon()));
         assertEquals(200, result.getStatus());
 
@@ -237,7 +241,7 @@ class StationResourceTest {
     void shouldGetNearestStationsWithModeGiven() {
 
         LatLong place = nearPiccGardens.latLong();
-        Response result = APIClient.getApiResponse(appExtension, String.format("stations/near/Tram?lat=%s&lon=%s",
+        Response result = APIClient.getApiResponse(factory, String.format("stations/near/Tram?lat=%s&lon=%s",
                 place.getLat(), place.getLon()));
         assertEquals(200, result.getStatus());
 
@@ -263,7 +267,7 @@ class StationResourceTest {
         Cookie cookie = createRecentsCookieFor(TramStations.Altrincham, TramStations.Bury, TramStations.ManAirport);
 
         // All
-        Response result = APIClient.getApiResponse(appExtension, "stations/recent", List.of(cookie));
+        Response result = APIClient.getApiResponse(factory, "stations/recent", List.of(cookie));
         assertEquals(200, result.getStatus());
 
         List<LocationRefDTO> stationDtos = result.readEntity(new GenericType<>() {});
@@ -284,7 +288,7 @@ class StationResourceTest {
         Cookie cookie = createRecentsCookieFor(TramStations.Altrincham, TramStations.Bury, TramStations.ManAirport);
 
         // same mode, but tests list parsing
-        Response result = APIClient.getApiResponse(appExtension, "stations/recent?modes=Tram,Tram", List.of(cookie));
+        Response result = APIClient.getApiResponse(factory, "stations/recent?modes=Tram,Tram", List.of(cookie));
         assertEquals(200, result.getStatus());
 
         List<LocationRefDTO> stationDtos = result.readEntity(new GenericType<>() {});

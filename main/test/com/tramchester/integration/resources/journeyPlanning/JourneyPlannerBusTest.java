@@ -16,6 +16,7 @@ import com.tramchester.domain.presentation.Timestamped;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.APIClient;
+import com.tramchester.integration.testSupport.APIClientFactory;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.JourneyResourceTestFacade;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
@@ -29,6 +30,7 @@ import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.NewCookie;
 import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -49,6 +51,7 @@ class JourneyPlannerBusTest {
 
     private static final IntegrationBusTestConfig configuration = new IntegrationBusTestConfig();
     private static final IntegrationAppExtension appExt = new IntegrationAppExtension(App.class, configuration);
+    private static APIClientFactory factory;
 
     private TramDate when;
     private JourneyResourceTestFacade journeyResourceTestFacade;
@@ -56,6 +59,11 @@ class JourneyPlannerBusTest {
     private StationGroup nearShudehillCentralStops;
     private ObjectMapper mapper;
     private StationGroupsRepository stationGroupRepository;
+
+    @BeforeAll
+    public static void onceBeforeAll() {
+        factory = new APIClientFactory(appExt);
+    }
 
     @BeforeEach
     void beforeEachTestRuns() {
@@ -75,7 +83,7 @@ class JourneyPlannerBusTest {
 
     @Test
     void shouldGetTransportModes() {
-        Response response = APIClient.getApiResponse(appExt, "version/modes");
+        Response response = APIClient.getApiResponse(factory, "version/modes");
         assertEquals(200, response.getStatus());
 
         ConfigDTO result = response.readEntity(new GenericType<>() {});

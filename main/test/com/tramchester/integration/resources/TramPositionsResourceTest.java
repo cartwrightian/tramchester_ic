@@ -1,7 +1,7 @@
 package com.tramchester.integration.resources;
 
 import com.tramchester.App;
-import com.tramchester.integration.testSupport.APIClient;
+import com.tramchester.integration.testSupport.APIClientFactory;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
@@ -12,6 +12,7 @@ import com.tramchester.testSupport.testTags.LiveDataDueTramCategory;
 import com.tramchester.testSupport.testTags.LiveDataTestCategory;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import jakarta.ws.rs.core.Response;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -27,16 +28,22 @@ class TramPositionsResourceTest {
 
     private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class,
             new ResourceTramTestConfig<>(TramPositionsResource.class, IntegrationTramTestConfig.LiveData.Enabled));
+    private static APIClientFactory factory;
+
+    @BeforeAll
+    public static void onceBeforeAll() {
+        factory = new APIClientFactory(appExtension);
+    }
 
     @LiveDataTestCategory
     @LiveDataDueTramCategory
     @Test
     void shouldGetSomePositionsFilteredByDefault() {
         String endPoint = "positions";
-        Response responce = APIClient.getApiResponse(appExtension, endPoint);
-        assertEquals(200, responce.getStatus());
+        Response response = factory.clientFor(endPoint).getApiResponse();
+        assertEquals(200, response.getStatus());
 
-        TramsPositionsDTO filtered = responce.readEntity(TramsPositionsDTO.class);
+        TramsPositionsDTO filtered = response.readEntity(TramsPositionsDTO.class);
 
         //assertFalse(filtered.getBuses());
 
@@ -68,10 +75,10 @@ class TramPositionsResourceTest {
     @Test
     void shouldGetSomePositionsUnfiltered() {
         String endPoint = "positions?unfiltered=true";
-        Response responce = APIClient.getApiResponse(appExtension, endPoint);
-        assertEquals(200, responce.getStatus());
+        Response response = factory.clientFor(endPoint).getApiResponse();
+        assertEquals(200, response.getStatus());
 
-        TramsPositionsDTO unfiltered = responce.readEntity(TramsPositionsDTO.class);
+        TramsPositionsDTO unfiltered = response.readEntity(TramsPositionsDTO.class);
 
         // should have some positions
         List<TramPositionDTO> positions = unfiltered.getPositionsList();

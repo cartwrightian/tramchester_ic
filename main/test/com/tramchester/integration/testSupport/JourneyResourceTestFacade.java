@@ -22,15 +22,15 @@ import java.util.List;
 
 public class JourneyResourceTestFacade {
 
-    private final IntegrationAppExtension appExtension;
     private final ParseJSONStream<JourneyDTO> parseStream;
     private final StationRepository stationRepository;
+    private final APIClientFactory factory;
 
     public JourneyResourceTestFacade(IntegrationAppExtension appExtension) {
-        this.appExtension = appExtension;
         App app =  appExtension.getApplication();
         stationRepository = app.getDependencies().get(StationRepository.class);
         parseStream = new ParseJSONStream<>(JourneyDTO.class);
+        factory = new APIClientFactory(appExtension);
     }
 
     @NotNull
@@ -76,8 +76,8 @@ public class JourneyResourceTestFacade {
     }
 
     public Response getResponse(boolean streamed, List<Cookie> cookies, JourneyQueryDTO query) {
-        String prefix = streamed ? "journey/streamed" : "journey";
-        return APIClient.postAPIRequest(appExtension, prefix, query, cookies);
+        final String endpoint = streamed ? "journey/streamed" : "journey";
+        return APIClient.postAPIRequest(factory, endpoint, query, cookies);
     }
 
 

@@ -8,6 +8,7 @@ import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.integration.testSupport.APIClient;
+import com.tramchester.integration.testSupport.APIClientFactory;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
 import com.tramchester.resources.FrequencyResource;
@@ -16,6 +17,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import jakarta.ws.rs.core.Response;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,10 +33,16 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(DropwizardExtensionsSupport.class)
 public class FrequencyResourceTest {
 
+    private static APIClientFactory factory;
     private ParseJSONStream<BoxWithFrequencyDTO> parseStream;
 
     private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class,
             new ResourceTramTestConfig<>(FrequencyResource.class));
+
+    @BeforeAll
+    public static void onceBeforeAll() {
+        factory = new APIClientFactory(appExtension);
+    }
 
     @BeforeEach
     public void beforeEachTest() {
@@ -53,7 +61,7 @@ public class FrequencyResourceTest {
                 gridSizeMeters, date.format(dateFormatDashes),
                 start.format(TestEnv.timeFormatter), end.format(TestEnv.timeFormatter));
 
-        Response response = APIClient.getApiResponse(appExtension, queryString);
+        Response response = APIClient.getApiResponse(factory, queryString);
         assertEquals(200, response.getStatus());
 
         InputStream inputStream = response.readEntity(InputStream.class);

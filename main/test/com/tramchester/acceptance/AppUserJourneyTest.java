@@ -6,6 +6,7 @@ import com.tramchester.acceptance.infra.ProvidesDriver;
 import com.tramchester.acceptance.pages.App.AppPage;
 import com.tramchester.acceptance.pages.App.Stage;
 import com.tramchester.acceptance.pages.App.TestResultSummaryRow;
+import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramTime;
@@ -34,7 +35,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.tramchester.integration.repository.TransportDataFromFilesTramTest.NUM_TFGM_TRAM_STATIONS;
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.hamcrest.CoreMatchers.hasItems;
@@ -79,8 +79,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
     @BeforeEach
     void beforeEachTestRuns() {
         url = appExtenstion.getUrl()+"/app/index.html";
-        // +1
-        when = TestEnv.testDay().toLocalDate().plusWeeks(1);
+        when = TestEnv.testDay().toLocalDate();
     }
 
     @AfterEach
@@ -181,18 +180,23 @@ public class AppUserJourneyTest extends UserJourneyTest {
     @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
     void shouldTravelAltyToBuryAndSetRecents(ProvidesDriver providesDriver) throws IOException {
+        FetchAllStationsFromAPI fetchAllStationsFromAPI = new FetchAllStationsFromAPI(appExtenstion);
+
+        List<LocationRefDTO> allStations = fetchAllStationsFromAPI.getStations();
+        assertFalse(allStations.isEmpty());
+        final int allStationsSize = allStations.size();
+
         AppPage appPage = prepare(providesDriver, url);
 
         desiredJourney(appPage, Altrincham, Deansgate, when, TramTime.of(10,15), false);
         appPage.planAJourney();
 
-//        int summer2024Closures = NUM_TFGM_TRAM_STATIONS - 2;
-
         assertTrue(appPage.resultsClickable(), "results clickable");
         assertTrue(appPage.searchEnabled());
 
-        // so above station in recents
-        appPage.setStart(ExchangeSquare); // so 'from' is available in the recents list
+        // change start, so previous start is now in recents
+        appPage.setStart(ExchangeSquare);
+        // change dest, so previous dest is now in recents
         appPage.setDest(TramStations.PiccadillyGardens); // so 'to' is available in the recents list
 
         // check 'from' recents are set
@@ -201,8 +205,9 @@ public class AppUserJourneyTest extends UserJourneyTest {
 
         List<String> remainingFromStops = appPage.getAllStopsFromStops();
         assertThat(remainingFromStops, not(contains(fromRecent)));
+
         // still displaying all stations
-        assertEquals(NUM_TFGM_TRAM_STATIONS-1,
+        assertEquals(allStationsSize -1,
                 remainingFromStops.size()+fromRecent.size()); // less one as 'to' stop is excluded
 
         // check 'to' recents are set
@@ -210,12 +215,10 @@ public class AppUserJourneyTest extends UserJourneyTest {
         assertThat(toRecent, hasItems(Altrincham.getName(), Deansgate.getName()));
         List<String> remainingToStops = appPage.getAllStopsToStops();
         assertThat(remainingToStops, not(contains(toRecent)));
-        assertEquals(NUM_TFGM_TRAM_STATIONS-1,
+        assertEquals(allStationsSize -1,
                 remainingToStops.size()+toRecent.size()); // less one as 'from' stop is excluded
 
-        // inputs still set
-        // Picc Gradens closure
-        assertJourney(appPage, ExchangeSquare, Piccadilly, "10:15", when, false);
+        assertJourney(appPage, ExchangeSquare, PiccadillyGardens, "10:15", when, false);
     }
 
     @ParameterizedTest(name = "{displayName} {arguments}")

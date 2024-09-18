@@ -8,6 +8,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.presentation.DTO.StationClosureDTO;
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.integration.testSupport.APIClient;
+import com.tramchester.integration.testSupport.APIClientFactory;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.config.StationClosuresConfigForTest;
 import com.tramchester.integration.testSupport.tram.IntegrationTramClosedStationsTestConfig;
@@ -41,7 +42,9 @@ public class StationResourceClosedStationTest {
 
     @Test
     void shouldGetClosedStations() {
-        Response result = APIClient.getApiResponse(appExtension, "stations/closures");
+        APIClientFactory factory = new APIClientFactory(appExtension);
+
+        Response result = APIClient.getApiResponse(factory, "stations/closures");
         assertEquals(200, result.getStatus());
 
         List<StationClosureDTO> results = result.readEntity(new GenericType<>() {});

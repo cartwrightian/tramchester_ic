@@ -19,26 +19,41 @@ import static java.lang.String.format;
 
 public class APIClient {
     private static final Logger logger = LoggerFactory.getLogger(APIClient.class);
+    private static final int TIMEOUT_MS = 20 * 1000;
 
     private final Invocation.Builder builder;
 
     private final TimeZone GMT_TIME_ZONE = TimeZone.getTimeZone("UTC");
 
     private static final String RFC1123_DATE_FORMAT_PATTERN = "EEE, dd MMM yyyy HH:mm:ss zzz";
+    private final String url;
 
-
-    private APIClient(IntegrationAppExtension appExtension, String endPoint) {
-        final int TIMEOUT_MS = 20 * 1000;
-
-        Client client = appExtension.client();
-
-        WebTarget target = client.target("http://localhost:" + appExtension.getLocalPort() + "/api/" + endPoint);
+    APIClient(Client client, String baseURL, String endPoint) {
+        this.url = baseURL + "/api/" + endPoint;
+        WebTarget target = client.target(url);
         target.property(ClientProperties.READ_TIMEOUT, TIMEOUT_MS);
 
         builder = target.request(MediaType.APPLICATION_JSON);
+    }
 
-        // https://github.com/dropwizard/dropwizard/issues/1116
-        // builder.property(ClientProperties.READ_TIMEOUT, TIMEOUT_MS);
+    public static Response getApiResponse(APIClientFactory factory, String endPoint) {
+        return factory.clientFor(endPoint).getApiResponse();
+    }
+
+    public static Response getApiResponse(APIClientFactory factory, String endPoint, Date lastMod) {
+        return factory.clientFor(endPoint).getApiResponse(lastMod);
+    }
+
+    public static Response getApiResponse(APIClientFactory factory, String endPoint, List<Cookie> cookies) {
+        return factory.clientFor(endPoint).getApiResponse(cookies);
+    }
+
+    public static <T> Response postAPIRequest(APIClientFactory factory, String endPoint, T payload, List<Cookie> cookies) {
+        return factory.clientFor(endPoint).postAPIRequest(payload, cookies);
+    }
+
+    public static <T> Response postAPIRequest(APIClientFactory factory, String endpoint, T payload) {
+        return factory.clientFor(endpoint).postAPIRequest(payload);
     }
 
     private void setCookie(Cookie cookie) {
@@ -60,38 +75,33 @@ public class APIClient {
         return builder.post(entity);
     }
 
-    public static Response getApiResponse(IntegrationAppExtension appExtension, String endPoint) {
-        //logger.info(format("GET from %s", endPoint));
-        return getApiResponse(appExtension, endPoint, Collections.emptyList());
+    public Response getApiResponse() {
+        return getApiResponse(Collections.emptyList());
     }
 
-    public static Response getApiResponse(IntegrationAppExtension appExtension, String endPoint, List<Cookie> cookieList) {
-        logger.info(format("GET from %s with cookies %s", endPoint, cookieList));
-        APIClient APIClient = new APIClient(appExtension, endPoint);
-        cookieList.forEach(APIClient::setCookie);
-        return APIClient.get();
+    public Response getApiResponse(List<Cookie> cookieList) {
+        logger.info(format("GET from %s with cookies %s", url, cookieList));
+        cookieList.forEach(this::setCookie);
+        return get();
     }
 
-    public static <T> Response postAPIRequest(IntegrationAppExtension appExtension, String endPoint, T payload, List<Cookie> cookies) {
-        logger.info(format("POST to %s with %s cookies %s", endPoint, payload, cookies));
-        APIClient APIClient = new APIClient(appExtension, endPoint);
-        cookies.forEach(APIClient::setCookie);
+    public <T> Response postAPIRequest(T payload, List<Cookie> cookies) {
+        logger.info(format("POST to %s with %s cookies %s", url, payload, cookies));
+        cookies.forEach(this::setCookie);
         Entity<T> entity = Entity.entity(payload, MediaType.APPLICATION_JSON_TYPE);
-        return APIClient.post(entity);
+        return post(entity);
     }
 
-    public static <T> Response postAPIRequest(IntegrationAppExtension appExtension, String endPoint, T payload) {
-        logger.info(format("POST to %s with %s no cookies", endPoint, payload));
-        APIClient APIClient = new APIClient(appExtension, endPoint);
+    public <T> Response postAPIRequest(T payload) {
+        logger.info(format("POST to %s with %s no cookies", url, payload));
         Entity<T> entity = Entity.entity(payload, MediaType.APPLICATION_JSON_TYPE);
-        return APIClient.post(entity);
+        return post(entity);
     }
 
-    public static Response getApiResponse(IntegrationAppExtension appExtension, String endPoint, Date lastMod) {
-        logger.info(format("GET from %s with last modified %s", endPoint, lastMod));
-        APIClient APIClient = new APIClient(appExtension, endPoint);
-        APIClient.setLastMod(lastMod);
-        return APIClient.get();
+    public Response getApiResponse(Date lastMod) {
+        logger.info(format("GET from %s with last modified %s", url, lastMod));
+        setLastMod(lastMod);
+        return get();
     }
 
 }

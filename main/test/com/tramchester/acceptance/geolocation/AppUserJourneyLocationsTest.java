@@ -63,8 +63,7 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
     @BeforeEach
     void beforeEachTestRuns() {
         url = testRule.getUrl()+"/app/index.html";
-        // +1
-        when = TestEnv.testDay().plusWeeks(1).toLocalDate();
+        when = TestEnv.testDay().toLocalDate();
     }
 
     @AfterEach
@@ -186,8 +185,6 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
     }
 
     private AppPage prepare(ProvidesDriver providesDriver) throws IOException {
-//        providesDriver.setStubbedLocation(nearAltrincham.latLong());
-
         return prepare(providesDriver, url);
     }
 

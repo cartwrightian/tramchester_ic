@@ -1,5 +1,6 @@
 package com.tramchester.acceptance.infra;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.testSupport.TestEnv;
 import io.dropwizard.core.Application;
@@ -35,6 +36,15 @@ public class AcceptanceAppExtenstion extends DropwizardAppExtension<AppConfigura
         if (localRun()) {
             // stop local server
             super.after();
+        }
+    }
+
+    @Override
+    public ObjectMapper getObjectMapper() {
+        if (localRun()) {
+            return super.getObjectMapper();
+        } else {
+            return new ObjectMapper();
         }
     }
 

@@ -3,11 +3,13 @@ package com.tramchester.integration.resources;
 import com.tramchester.App;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.integration.testSupport.APIClient;
+import com.tramchester.integration.testSupport.APIClientFactory;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.resources.InterchangeResource;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,8 +26,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class InterchangeResourceTest  {
     private static final IntegrationAppExtension appExtension =
             new IntegrationAppExtension(App.class, new ResourceTramTestConfig<>(InterchangeResource.class));
+    private static APIClientFactory factory;
 
     private InterchangeRepository interchangeRepository;
+
+    @BeforeAll
+    public static void onceBeforeAll() {
+        factory = new APIClientFactory(appExtension);
+    }
 
     @BeforeEach
     void beforeEachTestRuns() {
@@ -35,7 +43,7 @@ public class InterchangeResourceTest  {
 
     @Test
     void shouldGetInterchangeIds() {
-        Response result = APIClient.getApiResponse(appExtension, "interchanges/all");
+        Response result = APIClient.getApiResponse(factory, "interchanges/all");
 
         assertEquals(200, result.getStatus());
 

@@ -9,6 +9,7 @@ import com.tramchester.domain.presentation.DTO.RouteDTO;
 import com.tramchester.domain.presentation.DTO.RouteRefDTO;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.APIClient;
+import com.tramchester.integration.testSupport.APIClientFactory;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
 import com.tramchester.repository.RouteRepository;
@@ -20,6 +21,7 @@ import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.Response;
 import org.apache.commons.collections4.SetUtils;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,8 +39,14 @@ class RouteResourceTest {
 
     private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class,
             new ResourceTramTestConfig<>(RouteResource.class));
+    private static APIClientFactory factory;
 
     private RouteRepository routeRepository;
+
+    @BeforeAll
+    public static void onceBeforeAll() {
+        factory = new APIClientFactory(appExtension);
+    }
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
@@ -104,7 +112,7 @@ class RouteResourceTest {
 
         String queryString = String.format("routes/filtered?date=%s", date.format(dateFormatDashes));
 
-        Response result = APIClient.getApiResponse(appExtension, queryString);
+        Response result = APIClient.getApiResponse(factory, queryString);
         assertEquals(200, result.getStatus());
 
         List<RouteDTO> results = result.readEntity(new GenericType<>() {});
@@ -120,7 +128,7 @@ class RouteResourceTest {
     }
 
     private List<RouteDTO> getRouteResponse() {
-        Response result = APIClient.getApiResponse(appExtension, "routes");
+        Response result = APIClient.getApiResponse(factory, "routes");
         assertEquals(200, result.getStatus());
         return result.readEntity(new GenericType<>() {
         });

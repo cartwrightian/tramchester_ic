@@ -12,6 +12,7 @@ import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.integration.testSupport.APIClient;
+import com.tramchester.integration.testSupport.APIClientFactory;
 import com.tramchester.integration.testSupport.CookieSupport;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.bus.ResourceBusTestConfig;
@@ -24,6 +25,7 @@ import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import jakarta.ws.rs.core.Cookie;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.Response;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,9 +43,15 @@ class JourneyLocationsResourceBusTest {
 
     private static final IntegrationAppExtension appExtension =
             new IntegrationAppExtension(App.class, new ResourceBusTestConfig<>(JourneyLocationsResource.class));
+    private static APIClientFactory factory;
 
     private final ObjectMapper mapper = new ObjectMapper();
     private StationGroupsRepository stationGroupsRepository;
+
+    @BeforeAll
+    public static void onceBeforeAll() {
+        factory = new APIClientFactory(appExtension);
+    }
 
     @BeforeEach
     void beforeEachTestRuns() {
@@ -54,7 +62,7 @@ class JourneyLocationsResourceBusTest {
 
     @Test
     void shouldGetStationGroupsForBuses() {
-        Response result = APIClient.getApiResponse(appExtension, "locations/mode/Bus");
+        Response result = APIClient.getApiResponse(factory, "locations/mode/Bus");
 
         assertEquals(200, result.getStatus());
 
@@ -88,18 +96,18 @@ class JourneyLocationsResourceBusTest {
 
     @Test
     void shouldGetTramStation304response() {
-        Response resultA = APIClient.getApiResponse(appExtension, "locations/mode/Bus");
+        Response resultA = APIClient.getApiResponse(factory, "locations/mode/Bus");
         assertEquals(200, resultA.getStatus());
 
         Date lastMod = resultA.getLastModified();
 
-        Response resultB = APIClient.getApiResponse(appExtension, "locations/mode/Bus", lastMod);
+        Response resultB = APIClient.getApiResponse(factory, "locations/mode/Bus", lastMod);
         assertEquals(304, resultB.getStatus());
     }
 
     @Test
     void shouldGetTramStations() {
-        Response result = APIClient.getApiResponse(appExtension, "locations/mode/Tram");
+        Response result = APIClient.getApiResponse(factory, "locations/mode/Tram");
 
         assertEquals(200, result.getStatus());
 
@@ -110,7 +118,7 @@ class JourneyLocationsResourceBusTest {
 
     @Test
     void should404ForUnknownMode() {
-        Response result = APIClient.getApiResponse(appExtension, "locations/mode/Jumping");
+        Response result = APIClient.getApiResponse(factory, "locations/mode/Jumping");
         assertEquals(404, result.getStatus());
     }
 
@@ -118,7 +126,7 @@ class JourneyLocationsResourceBusTest {
     void shouldGetNearestStationsWithModeGiven() {
 
         LatLong place = nearPiccGardens.latLong();
-        Response result = APIClient.getApiResponse(appExtension, String.format("locations/near/Bus?lat=%s&lon=%s",
+        Response result = APIClient.getApiResponse(factory, String.format("locations/near/Bus?lat=%s&lon=%s",
                 place.getLat(), place.getLon()));
         assertEquals(200, result.getStatus());
 
@@ -146,7 +154,7 @@ class JourneyLocationsResourceBusTest {
 
         Cookie cookie = CookieSupport.createCookieFor(Stream.concat(groups, stations), mapper);
 
-        Response result = APIClient.getApiResponse(appExtension, "locations/recent?modes=Bus", List.of(cookie));
+        Response result = APIClient.getApiResponse(factory, "locations/recent?modes=Bus", List.of(cookie));
         assertEquals(200, result.getStatus());
 
         List<LocationRefDTO> locationDTOs = result.readEntity(new GenericType<>() {});
@@ -172,7 +180,7 @@ class JourneyLocationsResourceBusTest {
         Cookie cookie = CookieSupport.createCookieFor(groupStream, mapper);
 
         // same mode, but tests list parsing
-        Response result = APIClient.getApiResponse(appExtension, "locations/recent?modes=Bus", List.of(cookie));
+        Response result = APIClient.getApiResponse(factory, "locations/recent?modes=Bus", List.of(cookie));
         assertEquals(200, result.getStatus());
 
         List<LocationRefDTO> locationDTOs = result.readEntity(new GenericType<>() {});

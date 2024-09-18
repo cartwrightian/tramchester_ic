@@ -12,6 +12,7 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.BoundingBoxWithStations;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.integration.testSupport.APIClient;
+import com.tramchester.integration.testSupport.APIClientFactory;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
 import com.tramchester.repository.ClosedStationsRepository;
@@ -23,6 +24,7 @@ import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import jakarta.ws.rs.core.Response;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,6 +43,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class JourneysForGridResourceTest {
     private static final IntegrationAppExtension appExtension =
             new IntegrationAppExtension(App.class, new ResourceTramTestConfig<>(JourneysForGridResource.class));
+    private static APIClientFactory factory;
 
     private ParseJSONStream<BoxWithCostDTO> parseStream;
     private int maxChanges;
@@ -50,6 +53,11 @@ class JourneysForGridResourceTest {
     private StationRepository stationRepository;
     private ClosedStationsRepository closedStationsRepository;
     private TramDate when;
+
+    @BeforeAll
+    public static void onceBeforeAll() {
+        factory = new APIClientFactory(appExtension);
+    }
 
     @BeforeEach
     void beforeEachTestRuns() {
@@ -82,7 +90,7 @@ class JourneysForGridResourceTest {
         GridQueryDTO gridQueryDTO = new GridQueryDTO(destination.getLocationType(), destinationId, departureDate,
                 departureTime, maxDuration, maxChanges, gridSize);
 
-        Response response = APIClient.postAPIRequest(appExtension, "grid/chunked", gridQueryDTO);
+        Response response = APIClient.postAPIRequest(factory, "grid/chunked", gridQueryDTO);
 
         assertEquals(200, response.getStatus());
 

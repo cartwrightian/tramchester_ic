@@ -16,6 +16,7 @@ import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.integration.testSupport.APIClient;
+import com.tramchester.integration.testSupport.APIClientFactory;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
 import com.tramchester.integration.testSupport.naptan.ResourceTramTestConfigWithNaptan;
 import com.tramchester.repository.StationRepository;
@@ -45,6 +46,7 @@ class StationGeographyResourceTest {
             new ResourceTramTestConfigWithNaptan<>(StationGeographyResource.class));
 
     private static GuiceContainerDependencies dependencies;
+    private static APIClientFactory factory;
     private DTOFactory DTOFactory;
     private NPTGRepository nptgRepository;
 
@@ -52,6 +54,7 @@ class StationGeographyResourceTest {
     static void onceBeforeAnyTestsRun() {
         App app = appExtension.getTestSupport().getApplication();
         dependencies = app.getDependencies();
+        factory = new APIClientFactory(appExtension);
     }
 
     @BeforeEach
@@ -66,7 +69,7 @@ class StationGeographyResourceTest {
     void shouldGetStationLinks() {
         String endPoint = "geo/links";
 
-        Response response = APIClient.getApiResponse(appExtension, endPoint);
+        Response response = APIClient.getApiResponse(factory, endPoint);
         assertEquals(200, response.getStatus(), "status");
 
         List<StationToStationConnectionDTO> results = response.readEntity(new GenericType<>() {});
@@ -93,7 +96,7 @@ class StationGeographyResourceTest {
         Set<BoundingBox> quadrants = stationLocations.getQuadrants();
 
         String endPoint = "geo/quadrants";
-        Response response = APIClient.getApiResponse(appExtension, endPoint);
+        Response response = APIClient.getApiResponse(factory, endPoint);
         assertEquals(200, response.getStatus(), "status");
 
         List<BoxDTO> results = response.readEntity(new GenericType<>() {});
@@ -111,7 +114,7 @@ class StationGeographyResourceTest {
         TramchesterConfig config = dependencies.get(TramchesterConfig.class);
 
         String endPoint = "geo/bounds";
-        Response response = APIClient.getApiResponse(appExtension, endPoint);
+        Response response = APIClient.getApiResponse(factory, endPoint);
         assertEquals(200, response.getStatus(), "status");
 
         BoxDTO result = response.readEntity(BoxDTO.class);
@@ -128,7 +131,7 @@ class StationGeographyResourceTest {
 
         String endPoint = "geo/areas";
 
-        Response response = APIClient.getApiResponse(appExtension, endPoint);
+        Response response = APIClient.getApiResponse(factory, endPoint);
         assertEquals(200, response.getStatus(), "status");
 
         List<AreaBoundaryDTO> areas = response.readEntity(new GenericType<>() {});
