@@ -20,6 +20,14 @@ public class StationClosuresConfigForTest implements StationClosures {
     private final Set<TramStations> diversionsToFrom;
     private TimeRange timeRange;
 
+//      - stations: [ "9400ZZMAPGD" ]
+//    dateRange:
+//    begin: 2024-08-28
+//    end: 2024-09-16
+//    fullyClosed: false
+//    diversionsAroundClosure: []
+//    diversionsToFromClosure: []
+
     public StationClosuresConfigForTest(TramStations station, DateRange dateRange, boolean fullyClosed,
                                         Set<TramStations> diversionsAround, Set<TramStations> diversionsToFrom) {
         this.station = station;
