@@ -202,8 +202,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
         List<String> remainingFromStops = appPage.getAllStopsFromStops();
         assertThat(remainingFromStops, not(contains(fromRecent)));
         // still displaying all stations
-        // -1 to -2 for picc gardens
-        assertEquals(NUM_TFGM_TRAM_STATIONS-2,
+        assertEquals(NUM_TFGM_TRAM_STATIONS-1,
                 remainingFromStops.size()+fromRecent.size()); // less one as 'to' stop is excluded
 
         // check 'to' recents are set
