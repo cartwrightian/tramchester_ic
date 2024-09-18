@@ -8,13 +8,13 @@ import org.jetbrains.annotations.NotNull;
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedCondition;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.openqa.selenium.support.ui.ExpectedConditions.*;
 
@@ -276,11 +276,14 @@ public class AppPage extends Page {
         return getEnabledStopNames(elements, "stop");
     }
 
-    private List<String> getEnabledStopNames(WebElement groupElement, String className) {
-        List<WebElement> stopElements = groupElement.findElements(By.className(className));
-        return stopElements.stream().filter(WebElement::isEnabled)
-                .map(WebElement::getText).
-                map(String::trim).collect(Collectors.toList());
+    private List<String> getEnabledStopNames(WebElement groupElement, final String className) {
+        final By childLocator = By.className(className);
+        createWait().until(ExpectedConditions.presenceOfNestedElementLocatedBy(groupElement, childLocator));
+        final List<WebElement> stopElements = groupElement.findElements(childLocator);
+        return stopElements.stream().
+                filter(WebElement::isEnabled).
+                map(WebElement::getText).
+                map(String::trim).toList();
     }
 
     public boolean noResults() {
@@ -434,9 +437,9 @@ public class AppPage extends Page {
         }
     }
 
-    private List<String> getEnabledStopsByGroupName(String groupName, String className) {
-        By id = By.id(groupName);
-        WebElement groupElement = waitForClickableLocator(id);
+    private List<String> getEnabledStopsByGroupName(final String groupName, final String className) {
+        final By id = By.id(groupName);
+        final WebElement groupElement = waitForClickableLocator(id);
         return getEnabledStopNames(groupElement, className);
     }
 

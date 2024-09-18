@@ -1,23 +1,24 @@
 package com.tramchester.acceptance;
 
-import com.tramchester.config.AppConfiguration;
+import com.tramchester.acceptance.infra.AcceptanceAppExtenstion;
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
-import io.dropwizard.testing.junit5.DropwizardAppExtension;
+import com.tramchester.integration.testSupport.APIClientFactory;
+import jakarta.ws.rs.core.GenericType;
+import jakarta.ws.rs.core.Response;
 
 import java.util.List;
 
 public class FetchAllStationsFromAPI {
 
-    private final DropwizardAppExtension<AppConfiguration> appExtension;
+    private final APIClientFactory apiClientFactory;
 
-    public FetchAllStationsFromAPI(DropwizardAppExtension<AppConfiguration> appExtension) {
-        this.appExtension = appExtension;
+    public FetchAllStationsFromAPI(AcceptanceAppExtenstion appExtension) {
+        apiClientFactory = new APIClientFactory(appExtension);
     }
 
     public List<LocationRefDTO> getStations() {
-        throw new RuntimeException("TODO");
-//        Response result = APIClient.getApiResponse(appExtension, "stations/mode/Tram");
-//        List<LocationRefDTO> results = result.readEntity(new GenericType<>() {});
-//        return results;
+        Response result = apiClientFactory.clientFor("stations/mode/Tram").getApiResponse();
+
+        return result.readEntity(new GenericType<>() {});
     }
 }

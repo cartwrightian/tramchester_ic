@@ -1,10 +1,7 @@
 package com.tramchester.acceptance.infra;
 
 import com.tramchester.acceptance.pages.App.AppPage;
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.TakesScreenshot;
-import org.openqa.selenium.TimeoutException;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.slf4j.Logger;
@@ -15,6 +12,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Set;
 
 public abstract class ProvidesDriver {
     private static final Logger logger = LoggerFactory.getLogger(ProvidesDriver.class);
@@ -72,6 +70,10 @@ public abstract class ProvidesDriver {
 
     public void clearCookies() {
         getDriver().manage().deleteAllCookies();
+        Set<Cookie> cookies = getDriver().manage().getCookies();
+        if (!cookies.isEmpty()) {
+            throw new RuntimeException("Cookies still present " + cookies);
+        }
     }
 
 }
