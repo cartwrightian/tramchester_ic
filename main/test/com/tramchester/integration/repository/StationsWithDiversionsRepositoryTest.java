@@ -17,7 +17,6 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StationsWithDiversionRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.PicGardensPartialClosure;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,7 +31,6 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@PicGardensPartialClosure
 public class StationsWithDiversionsRepositoryTest {
     private static ComponentContainer componentContainer;
     private static LocalDate begin;
@@ -51,10 +49,10 @@ public class StationsWithDiversionsRepositoryTest {
         end = LocalDate.of(2024, 5, 7);
         DateRangeConfig dataRangeConfig = new DateRangeConfig(begin, end);
 
-        StationClosuresConfig exchangeSquareClosure = new StationClosuresConfig(closed, dataRangeConfig,
+        StationClosuresConfig closureConfig = new StationClosuresConfig(closed, dataRangeConfig,
                 null, false,  Collections.emptySet(), Collections.singleton(TramStations.Victoria.getRawId()));
 
-        List<StationClosures> closures = Collections.singletonList(exchangeSquareClosure);
+        List<StationClosures> closures = Collections.singletonList(closureConfig);
 
         TramchesterConfig config = new IntegrationTramTestConfig(closures, IntegrationTramTestConfig.Caching.Enabled);
 

@@ -13,7 +13,6 @@ public class AdditionalTramInterchanges {
         Piccadilly("9400ZZMAPIC"),
         Deansgate("9400ZZMAGMX");
         //MediacityUK("9400ZZMAMCU"),
-        //Piccadilly("9400ZZMAPIC");
 
         private final String stationId;
 

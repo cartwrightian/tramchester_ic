@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.CentralZoneStation.StWerbergsRoad;
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
@@ -86,8 +87,9 @@ public class InterchangesTramTest {
     @Test
     void shouldHaveExpectedTramInterchanges() {
 
-        List<TramStations> tramStations = Arrays.asList(StWerburghsRoad, TraffordBar, Cornbrook, HarbourCity,
+        Stream<TramStations> expectedTramStations = Stream.of(StWerburghsRoad, TraffordBar, Cornbrook, HarbourCity,
                 Pomona, Cornbrook, Deansgate,
+                PiccadillyGardens,
                 StPetersSquare,
                 Piccadilly, Victoria,
                 MarketStreet,
@@ -95,21 +97,21 @@ public class InterchangesTramTest {
 
         TramDate when = TestEnv.testDay();
 
-        Set<Station> expected = tramStations.stream().
-                filter(item -> closedStationsRepository.isClosed(item.getId(), when)).
+        Set<Station> expectedStations = expectedTramStations.
+                filter(item -> !closedStationsRepository.isClosed(item.getId(), when)).
                 map(item -> item.from(stationRepository)).collect(Collectors.toSet());
 
-        Set<Station> additional = AdditionalTramInterchanges.stations().
+        final Set<Station> additional = AdditionalTramInterchanges.stations().
                 stream().map(id -> stationRepository.getStationById(id)).collect(Collectors.toSet());
-        expected.addAll(additional);
+        expectedStations.addAll(additional);
 
         if (config.hasRailConfig()) {
-            List<TramStations> adjacentToRail = Arrays.asList(RochdaleRail, NavigationRoad, Eccles, Ashton, Altrincham, ManAirport, EastDidsbury);
-            Set<Station> forRail = adjacentToRail.stream().map(item -> item.from(stationRepository)).collect(Collectors.toSet());
-            expected.addAll(forRail);
+            final List<TramStations> adjacentToRail = Arrays.asList(RochdaleRail, NavigationRoad, Eccles, Ashton, Altrincham, ManAirport, EastDidsbury);
+            final Set<Station> forRail = adjacentToRail.stream().map(item -> item.from(stationRepository)).collect(Collectors.toSet());
+            expectedStations.addAll(forRail);
         }
 
-        Set<Station> missing = expected.stream().
+        Set<Station> missing = expectedStations.stream().
                 filter(station -> !interchangeRepository.isInterchange(station)).
                 collect(Collectors.toSet());
 
@@ -118,7 +120,7 @@ public class InterchangesTramTest {
         Set<Station> unexpected = interchangeRepository.getAllInterchanges().stream().
                 map(InterchangeStation::getStation).
                 filter(station -> station.getTransportModes().contains(TransportMode.Tram)).
-                filter(station -> !expected.contains(station)).
+                filter(station -> !expectedStations.contains(station)).
                 collect(Collectors.toSet());
 
         assertTrue(unexpected.isEmpty(), HasId.asIds(unexpected));

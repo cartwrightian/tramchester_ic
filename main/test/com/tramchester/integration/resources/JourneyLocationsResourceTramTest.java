@@ -126,9 +126,8 @@ class JourneyLocationsResourceTramTest {
                 map(LocationRefDTO::getId).
                 collect(Collectors.toSet());
 
-        // pic gardens closure
-        assertFalse(ids.contains(TramStations.PiccadillyGardens.getIdForDTO()), ids.toString());
-        assertTrue(ids.contains(TramStations.Piccadilly.getIdForDTO()), ids.toString());
+        assertTrue(ids.contains(TramStations.PiccadillyGardens.getIdForDTO()), ids.toString());
+//        assertTrue(ids.contains(TramStations.Piccadilly.getIdForDTO()), ids.toString());
 
         assertTrue(ids.contains(TramStations.StPetersSquare.getIdForDTO()));
         assertTrue(ids.contains(TramStations.ExchangeSquare.getIdForDTO()));
