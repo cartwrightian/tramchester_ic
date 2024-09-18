@@ -210,8 +210,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
         assertThat(toRecent, hasItems(Altrincham.getName(), Deansgate.getName()));
         List<String> remainingToStops = appPage.getAllStopsToStops();
         assertThat(remainingToStops, not(contains(toRecent)));
-        // -1 to -2 for picc gardens
-        assertEquals(NUM_TFGM_TRAM_STATIONS-2,
+        assertEquals(NUM_TFGM_TRAM_STATIONS-1,
                 remainingToStops.size()+toRecent.size()); // less one as 'from' stop is excluded
 
         // inputs still set
