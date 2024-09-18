@@ -117,6 +117,7 @@ class RouteCalculatorSubGraphEcclesAshtonLine {
 
     private static class SubgraphConfig extends IntegrationTramTestConfig {
         public SubgraphConfig() {
+            // TODO no closures, but is this correct?
             super(Collections.emptyList());
         }
     }

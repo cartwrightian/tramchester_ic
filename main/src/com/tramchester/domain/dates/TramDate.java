@@ -159,8 +159,8 @@ public class TramDate implements Comparable<TramDate> {
     }
 
     // supports deserialization
-    public static TramDate parse(String text) {
-        LocalDate date = LocalDate.parse(text);
+    public static TramDate parse(final String text) {
+        final LocalDate date = LocalDate.parse(text);
         return new TramDate(date.toEpochDay());
     }
 

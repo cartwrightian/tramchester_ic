@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.DateRangeConfig;
 import com.tramchester.config.StationClosuresConfig;
+import com.tramchester.config.TfgmTramLiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.StationClosures;
 import com.tramchester.domain.dates.DateRange;
@@ -12,7 +13,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
-import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
+import com.tramchester.integration.testSupport.tram.IntegrationTramClosedStationsTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StationsWithDiversionRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -43,18 +44,10 @@ public class StationsWithDiversionsRepositoryTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        Set<String> closed = Collections.singleton(withDiversion.getRawId());
-
         begin = LocalDate.of(2024, 2, 12);
         end = LocalDate.of(2024, 5, 7);
-        DateRangeConfig dataRangeConfig = new DateRangeConfig(begin, end);
 
-        StationClosuresConfig closureConfig = new StationClosuresConfig(closed, dataRangeConfig,
-                null, false,  Collections.emptySet(), Collections.singleton(TramStations.Victoria.getRawId()));
-
-        List<StationClosures> closures = Collections.singletonList(closureConfig);
-
-        TramchesterConfig config = new IntegrationTramTestConfig(closures, IntegrationTramTestConfig.Caching.Enabled);
+        TramchesterConfig config = new DiversionsConfig();
 
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
@@ -93,6 +86,33 @@ public class StationsWithDiversionsRepositoryTest {
         assertEquals(TramDate.of(end), dateRange.getEndDate());
         assertEquals(TimeRange.AllDay(), dateTimeRange.getTimeRange());
 
+
+    }
+
+    private static class DiversionsConfig extends IntegrationTramClosedStationsTestConfig {
+
+        public DiversionsConfig() {
+            this(getClosures());
+        }
+
+        public DiversionsConfig(List<StationClosures> closures) {
+            super(closures, true);
+        }
+
+        @Override
+        public TfgmTramLiveDataConfig getLiveDataConfig() {
+            return null;
+        }
+
+        private static List<StationClosures> getClosures() {
+            Set<String> closed = Collections.singleton(withDiversion.getRawId());
+            DateRangeConfig dataRangeConfig = new DateRangeConfig(begin, end);
+
+            StationClosuresConfig closureConfig = new StationClosuresConfig(closed, dataRangeConfig,
+                    null, false,  Collections.emptySet(), Collections.singleton(TramStations.Victoria.getRawId()));
+
+            return Collections.singletonList(closureConfig);
+        }
 
     }
 

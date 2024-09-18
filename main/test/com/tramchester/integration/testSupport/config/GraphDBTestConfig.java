@@ -1,17 +1,20 @@
 package com.tramchester.integration.testSupport.config;
 
+import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.StationClosures;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.TestGroupType;
+import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
-import java.util.Comparator;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TransportMode.Bus;
@@ -60,10 +63,11 @@ public class GraphDBTestConfig implements GraphDBConfig {
                 filter(dataSourceId -> dataSourceId !=DataSourceID.database).
                 collect(Collectors.toSet());
 
-        Set<TransportMode> groupedModesFromConfig = config.getGTFSDataSource().stream().
+        List<GTFSSourceConfig> gtfsDataSource = config.getGTFSDataSource();
+        Set<TransportMode> groupedModesFromConfig = gtfsDataSource.stream().
                 flatMap(gtfsSourceConfig -> gtfsSourceConfig.groupedStationModes().stream()).collect(Collectors.toSet());
 
-        boolean hasClosures = config.getGTFSDataSource().stream().anyMatch(gtfsSourceConfig -> !gtfsSourceConfig.getStationClosures().isEmpty());
+        boolean hasClosures = gtfsDataSource.stream().anyMatch(gtfsSourceConfig -> !gtfsSourceConfig.getStationClosures().isEmpty());
 
         String modes = modesFromConfig.isEmpty() ? "NoModesEnabled" : asText(modesFromConfig);
 
@@ -81,7 +85,7 @@ public class GraphDBTestConfig implements GraphDBConfig {
             dbName = dbName + "_withNeighbours";
         }
         if (hasClosures) {
-            dbName = dbName + "_withClosures";
+            dbName = dbName + closuresText(gtfsDataSource);
         }
         if (config.isGraphFiltered()) {
             // TODO proper naming
@@ -90,6 +94,33 @@ public class GraphDBTestConfig implements GraphDBConfig {
 
         Path containingFolder = Path.of("databases", subFolderName);
         return containingFolder.resolve(dbName + ".db");
+    }
+
+    private static @NotNull String closuresText(final List<GTFSSourceConfig> gtfsDataSource) {
+        // iff closures are in effect
+        // then....
+        final List<String> items = gtfsDataSource.stream().
+                flatMap(gtfsConfig -> gtfsConfig.getStationClosures().stream()).
+                map(GraphDBTestConfig::closuresText).toList();
+        StringBuilder result = new StringBuilder();
+        for(String text : items) {
+            if (!result.isEmpty()) {
+                result.append("_");
+            }
+            result.append(text);
+        }
+        return "_withClosures_"+result;
+    }
+
+    private static String closuresText(final StationClosures stationClosures) {
+
+        final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.BASIC_ISO_DATE;
+        final LocalDate startDate = stationClosures.getDateRange().getStartDate().toLocalDate();
+        final LocalDate endDate = stationClosures.getDateRange().getEndDate().toLocalDate();
+        final String ids = stationClosures.getStations().stream().
+                map(IdFor::getGraphId).
+                reduce("",(a, b) -> a + b);
+        return String.format("%s_%s_%s", dateTimeFormatter.format(startDate), dateTimeFormatter.format(endDate), ids);
     }
 
     // need consistent ordering here to prevent duplication

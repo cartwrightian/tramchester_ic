@@ -193,12 +193,19 @@ class RouteCalculatorSubGraphTest {
 
     private static class SubgraphConfig extends IntegrationTramTestConfig {
         public SubgraphConfig() {
-            super(Collections.emptyList(), Caching.Disabled);
+            // TODO no closures, but is this valid??
+            super(Collections.emptyList());
         }
 
         @Override
         public boolean isGraphFiltered() {
             return true;
+        }
+
+
+        @Override
+        public Path getCacheFolder() {
+            return TestEnv.CACHE_DIR.resolve("RouteCalculatorSubGraphTest");
         }
     }
 

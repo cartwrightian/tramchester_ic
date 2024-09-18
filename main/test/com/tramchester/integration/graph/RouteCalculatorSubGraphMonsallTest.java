@@ -20,6 +20,7 @@ import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
@@ -115,16 +116,22 @@ class RouteCalculatorSubGraphMonsallTest {
         journeys.forEach(journey -> Assertions.assertEquals(numStages, journey.getStages().size()));
     }
 
-
     private static class SubgraphConfig extends IntegrationTramTestConfig {
 
         public SubgraphConfig() {
-            super(Collections.emptyList(), Caching.Disabled);
+            // no closures
+            super(Collections.emptyList());
         }
 
         @Override
         public boolean isGraphFiltered() {
             return true;
+        }
+
+
+        @Override
+        public Path getCacheFolder() {
+            return TestEnv.CACHE_DIR.resolve("RouteCalculatorSubGraphMonsallTest");
         }
     }
 }

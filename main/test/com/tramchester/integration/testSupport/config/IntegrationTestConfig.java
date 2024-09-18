@@ -43,7 +43,6 @@ public abstract class IntegrationTestConfig extends TestConfig {
         remoteNPTGconfig = new NPTGDataSourceTestConfig();
         postCodeDatasourceConfig = new PostCodeDatasourceConfig();
         railRemoteDataSource = new RailRemoteDataSourceConfig("data/rail");
-
     }
 
     @Override
