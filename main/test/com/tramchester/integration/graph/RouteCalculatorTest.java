@@ -30,7 +30,6 @@ import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryCategory;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
-import com.tramchester.testSupport.testTags.PicGardensPartialClosure;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -398,14 +397,12 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequestB, Altrincham, OldTrafford);
     }
 
-    @PicGardensPartialClosure
     @Test
     void shouldHandleAtMidnightDirectCornbrookStPeters() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.nextDay(0,0), maxNumResults);
         assertGetAndCheckJourneys(journeyRequest, Cornbrook, StPetersSquare);
     }
 
-    @PicGardensPartialClosure
     @Test
     void shouldHandlePastMidnightDirectCornbrookStPeters() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.nextDay(0,1), maxNumResults);
@@ -540,7 +537,6 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Bury, Eccles);
     }
 
-    @PicGardensPartialClosure
     @Test
     void reproduceIssueEdgePerTrip() {
         // see also RouteCalculatorSubGraphTest

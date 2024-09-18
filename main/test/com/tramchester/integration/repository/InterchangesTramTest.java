@@ -25,7 +25,6 @@ import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DualTest;
-import com.tramchester.testSupport.testTags.PicGardensPartialClosure;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIf;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,7 +38,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.CentralZoneStation.StWerbergsRoad;
-import static com.tramchester.testSupport.reference.KnownTramRoute.*;
+import static com.tramchester.testSupport.reference.KnownTramRoute.DeansgateCastlefieldManchesterAirport;
+import static com.tramchester.testSupport.reference.KnownTramRoute.RochdaleShawandCromptonManchesterEastDidisbury;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -83,7 +83,6 @@ public class InterchangesTramTest {
         }
     }
 
-    @PicGardensPartialClosure
     @Test
     void shouldHaveExpectedTramInterchanges() {
 

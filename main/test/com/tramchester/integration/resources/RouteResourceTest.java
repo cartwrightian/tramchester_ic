@@ -16,7 +16,6 @@ import com.tramchester.resources.RouteResource;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.PicGardensPartialClosure;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.Response;
@@ -63,7 +62,6 @@ class RouteResourceTest {
 
     }
 
-    @PicGardensPartialClosure
     @Test
     void shouldHaveExpectedFirstLastForAirportRoute() {
         IdForDTO manAirportIdForDTO = TramStations.ManAirport.getIdForDTO();

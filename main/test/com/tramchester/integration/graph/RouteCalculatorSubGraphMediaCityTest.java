@@ -30,7 +30,6 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.PicGardensPartialClosure;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
@@ -47,7 +46,6 @@ import static com.tramchester.testSupport.reference.TramStations.*;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.*;
 
-@PicGardensPartialClosure
 class RouteCalculatorSubGraphMediaCityTest {
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;

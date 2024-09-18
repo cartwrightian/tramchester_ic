@@ -17,7 +17,6 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.PicGardensPartialClosure;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
@@ -201,7 +200,6 @@ class JourneyPlannerLocationResourceTest {
         assertEquals(getDateTimeFor(when, 22, 9), walkingStage.getFirstDepartureTime());
     }
 
-    @PicGardensPartialClosure
     @Test
     void shouldFindStationsNearPiccGardensWalkingOnly() {
         Set<JourneyDTO> journeys = validateJourneyFromLocation(nearPiccGardens, TramStations.PiccadillyGardens,
@@ -220,7 +218,6 @@ class JourneyPlannerLocationResourceTest {
         assertEquals(getDateTimeFor(when, 9, 2), stage.getExpectedArrivalTime());
     }
 
-    @PicGardensPartialClosure
     @Test
     void shouldFindStationsNearPiccGardensWalkingOnlyArriveBy() {
         TramTime queryTime = TramTime.of(9, 0);
