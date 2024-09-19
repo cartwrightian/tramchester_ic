@@ -23,10 +23,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.openqa.selenium.Cookie;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLDecoder;
+import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -89,8 +86,9 @@ public class AppUserJourneyTest extends UserJourneyTest {
     }
 
     @Test
-    void shouldHaveAPIAvailable() throws MalformedURLException {
-        final URL apiUrl = new URL(appExtenstion.getUrl()+"/api/datainfo");
+    void shouldHaveAPIAvailable() throws MalformedURLException, URISyntaxException {
+        URI uri = new URI(appExtenstion.getUrl() + "/api/datainfo");
+        final URL apiUrl = uri.toURL();
 
         // helps diagnosis of when the other tests are failing
         try {

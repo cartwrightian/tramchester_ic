@@ -7,7 +7,6 @@ import com.tramchester.testSupport.TestEnv;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.html5.Location;
-import org.openqa.selenium.remote.DesiredCapabilities;
 
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -24,7 +23,7 @@ import static org.openqa.selenium.chrome.ChromeDriverService.CHROME_DRIVER_VERBO
 
 public class ProvidesChromeDriver extends ProvidesDesktopDriver {
     public final static String Name = "chrome";
-    private final DesiredCapabilities capabilities;
+//    private final DesiredCapabilities capabilities;
     private final ChromeOptions chromeOptions;
     private final LatLong location;
 
@@ -39,19 +38,22 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
         }
         System.setProperty(CHROME_DRIVER_VERBOSE_LOG_PROPERTY,"false");
 
-        capabilities = createCapabilities();
+//        capabilities = createCapabilities();
         chromeOptions = new ChromeOptions();
 
         setGeoLocation(location.isValid(), chromeOptions);
         if (location.isValid()) {
+
             // geolocation fails on headless chrome, bug raised https://bugs.chromium.org/p/chromium/issues/detail?id=834808
-            chromeOptions.setHeadless(false);
+            //chromeOptions.setHeadless(false);
+
             // exception on set location otherwise
             chromeOptions.setExperimentalOption("w3c",false);
             //chromeOptions.setExperimentalOption("geolocation", true);
         } else {
             if (System.getenv(TestEnv.DISABLE_HEADLESS_ENV_VAR)==null) {
-                chromeOptions.setHeadless(true);
+                chromeOptions.addArguments("--headless=new");
+                //chromeOptions.setHeadless(true);
             }
         }
 
@@ -79,7 +81,7 @@ public class ProvidesChromeDriver extends ProvidesDesktopDriver {
         if (driver == null) {
 
             //chromeOptions.merge(capabilities);
-            capabilities.setCapability(ChromeOptions.CAPABILITY, chromeOptions);
+            //capabilities.setCapability(ChromeOptions.CAPABILITY, chromeOptions);
 
             ChromeDriver chromeDriver = new ChromeDriver(chromeOptions);
             chromeDriver.setLogLevel(Level.SEVERE);

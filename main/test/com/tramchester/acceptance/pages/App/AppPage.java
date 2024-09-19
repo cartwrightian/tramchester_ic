@@ -12,6 +12,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +30,7 @@ public class AppPage extends Page {
     public static final String COOKIE_AGREE_BUTTON = "cookieAgreeButton";
 
     private final ProvidesDateInput providesDateInput;
-    private final long timeoutInSeconds = 15;
+    private final Duration timeoutInSeconds = Duration.ofSeconds(15);
 
     private static final String DATE_OUTPUT = "date";
     public static final String FROM_STOP = "startStop";
@@ -217,7 +218,7 @@ public class AppPage extends Page {
     public List<TestResultSummaryRow> getResults() {
         final List<TestResultSummaryRow> results = new ArrayList<>();
         By resultsById = By.id(RESULTS);
-        WebElement resultsDiv = new WebDriverWait(driver, 10).
+        WebElement resultsDiv = new WebDriverWait(driver, Duration.ofSeconds(10)).
                 until(elementToBeClickable(resultsById));
 
         WebElement tableBody = resultsDiv.findElement(By.tagName("tbody"));
@@ -449,7 +450,7 @@ public class AppPage extends Page {
 
     public boolean waitForReady() {
         // geo loc on firefox can be slow even when stubbing location via a file....
-        WebDriverWait wait = new WebDriverWait(driver, 10);
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         By plan = By.id(PLAN);
         WebElement element = driver.findElement(plan);
 

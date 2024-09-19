@@ -5,20 +5,22 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.time.Duration;
+
 public class Page {
     protected final WebDriver driver;
-    private static final long timeOut = 4;
+    private static final Duration timeOut = Duration.ofSeconds(4);
 
     public Page(WebDriver driver) {
         this.driver = driver;
     }
 
-    protected WebElement waitForElement(String elementId, long timeoutInSeconds) {
-        return waitForElement(By.id(elementId), timeoutInSeconds);
+    protected WebElement waitForElement(String elementId, Duration timeout) {
+        return waitForElement(By.id(elementId), timeout);
     }
 
-    protected WebElement waitForElement(By select, long timeoutInSeconds) {
-        WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
+    protected WebElement waitForElement(By select, Duration timeout) {
+        WebDriverWait wait = new WebDriverWait(driver, timeout);
         wait.until(webDriver ->  driver.findElement(select));
         return driver.findElement(select);
     }
