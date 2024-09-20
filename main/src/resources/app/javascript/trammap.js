@@ -27,10 +27,6 @@ require("leaflet/dist/images/marker-shadow.png");
 import Routes from './components/Routes'
 import Footer from './components/Footer'
 
-// var width = 300;
-// var height = 300;
-// var margin = 60;
-
 function addStations() {
     mapApp.routes.forEach(route => {
         var stationIcon = L.divIcon({className: 'station-icon '+ Routes.classForRoute(route), iconSize:[12,12]});

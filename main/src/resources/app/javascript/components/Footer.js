@@ -19,9 +19,6 @@ export default {
         });
     },
     methods: {
-        // showDisclaimer(){
-        //     //this.$emit('disclaimer-clicked')
-        // },
         showDisclaimer() {
             this.disclaimerDialog = true
         },

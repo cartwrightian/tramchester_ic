@@ -335,13 +335,10 @@ function queryServerForJourneysPost(app, startStop, endStop, queryTime, queryDat
         postcodesEnabled: false,
         beta: false,
         timeModal: false, // todo still used?
-        cookieDialog: false,
-        // disclaimerDialog: false
+        cookieDialog: false
     }
     return data;
 }
-
-// var app = new Vue({
 
 const app = createApp({
         data:  data,
@@ -386,12 +383,6 @@ const app = createApp({
                 this.$cookies.set("tramchesterVisited", cookie, "128d", "/", null, false, "Strict");
                 app.cookieDialog = false
             },
-            // showDisclaimer() {
-            //     app.disclaimerDialog = true
-            // },
-            // dismissDisclaimer() {
-            //     app.disclaimerDialog = false
-            // },
             timeToNow() {
                 app.time = getCurrentTime();
             },
