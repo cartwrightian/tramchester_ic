@@ -7,12 +7,12 @@ module.exports = (env) => {
   mode: env.environment === 'Dev' ? 'development' : 'production',
   entry:  env.environment === 'Dev' ? {
     main: './main/src/resources/app/javascript/journeyplan.js',
-    diag: './main/src/resources/app/javascript/diag.js',
-    trammap: './main/src/resources/app/javascript/trammap.js',
-    traveltimes: './main/src/resources/app/javascript/traveltimes.js',
-    routemap: './main/src/resources/app/javascript/routemap.js',
-    linksmap: './main/src/resources/app/javascript/linksmap.js',
-    frequency: './main/src/resources/app/javascript/frequency.js'
+    // diag: './main/src/resources/app/javascript/diag.js',
+    // trammap: './main/src/resources/app/javascript/trammap.js',
+    // traveltimes: './main/src/resources/app/javascript/traveltimes.js',
+    // routemap: './main/src/resources/app/javascript/routemap.js',
+    // linksmap: './main/src/resources/app/javascript/linksmap.js',
+    // frequency: './main/src/resources/app/javascript/frequency.js'
   } : {
     main: './main/src/resources/app/javascript/journeyplan.js'
   },
@@ -26,7 +26,7 @@ module.exports = (env) => {
   },
   resolve: {
     alias: {
-      vue: 'vue/dist/vue.min.js'
+      vue: 'vue/dist/vue.esm-bundler.js'
     }
   },
   module:{

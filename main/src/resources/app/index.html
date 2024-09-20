@@ -3,7 +3,6 @@
 <head>
      <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
      <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css" rel="stylesheet">
-     <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
     <title>Tramchester</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 </head>
@@ -12,157 +11,163 @@
 <div id="journeyplan">
     <v-app>
         <v-main>
-    <form @submit="plan" class="tramchesterApp">
-        <v-container id="startAndEnd" class="ml-2">
-            <v-row >
-                <v-col class="pl-0">
-                    <div id="selectStart">
-                        <location-selection :disabled='!ready' :name="'start'" v-model="startStop" :other="endStop" :modes="selectedModes"
-                            :geo="havePos" :stops="stops">
-                        </location-selection>
-                    </div>
-                </v-col>
-            </v-row>
-            <v-row>
-                <v-col class="pl-0">
-                    <div id="selectEnd">
-                        <location-selection :disabled='!ready' :name="'destination'" v-model="endStop"  :other="startStop" :modes="selectedModes"
-                        :geo="havePos" :stops="stops" >
-                    </location-selection>
-                    </div>
-                </v-col>
-                <v-col class="text-left">
-                    <v-btn @click="swap" outlined>&#8645;</v-btn>
-                </v-col>
-            </v-row>
-            <v-row>
-                <v-col class="pl-0 col-md-auto">
-                    <label for="arriveBy">arrive by</label>
-                    <input type="checkbox" id="arriveBy" v-model="arriveBy">
-                </v-col>
-                <v-col class="col-md-auto">     
-                    <input type="time" id="time" v-model="time"/>
-                </v-col>
-                <v-col>
-                    <v-btn id="nowButton" color="secondary" small @click="timeToNow()">Now</v-btn>
-                </v-col>
-            </v-row>
-            <v-row>
-                <v-col class="pl-0 col-md-auto">
-                    <input type="date" id="date" v-model="date"/>
-                </v-col>
-                <v-col class="pl-0">
-                    <v-btn id="todayButton" small color="secondary" @click="dateToNow()">Today</v-btn>
-                    <input type="hidden" id="hiddendate" v-model="date"></input>
-                </v-col>
-            </v-row>
-            <v-row v-if="selectModesEnabled">
-                <v-col class="pl-0">
-                    <v-select v-model="selectedModes" :items="modes" multiple density="compact">
-                    </v-select>
-                </v-col>
-                <v-col>
-                    <label for="maxChanges">max changes:</label>
-                    <input type="number" name="max changes" min="1" max="8" id="maxChanges" v-model="maxChanges"> 
-                </v-col>
-            </v-row>
-            <v-row>
-                <v-col class="pl-0" class="text-left">
-                    <v-btn :disabled='!ready' id="plan" type="submit" color="primary">
-                        Plan
-                        <v-progress-circular
-                            v-if="searchInProgress"
-                            id="spinner"
-                            indeterminate
-                            color="primary"
-                            ></v-progress-circular>
-                    </v-btn>
-                    <v-btn :disabled='!havePos' id="liveTrams" v-if="havePos" color="primary" @click="queryNearbyTrams">
-                        Nearby
-                        <v-progress-circular
-                            v-if="liveInProgress"
-                            id="nearbySpinner"
-                            indeterminate
-                            color="primary"
-                            ></v-progress-circular>
-                    </v-btn>
-                </v-col>
-            </v-row>
-    </v-container>
-    </form>
+            <v-container id="startAndEnd" class="ml-2">
+                <form @submit="plan" class="tramchesterApp">
+                    <v-row >
+                        <v-col class="pl-0">
+                            <div id="selectStart">
+                                <location-selection :disabled='!ready' :name="'start'" v-model="startStop" :other="endStop" :modes="selectedModes"
+                                    :geo="havePos" :stops="stops">
+                                </location-selection>
+                            </div>
+                        </v-col>
+                    </v-row>
+                    <v-row>
+                        <v-col class="pl-0">
+                            <div id="selectEnd">
+                                <location-selection :disabled='!ready' :name="'destination'" v-model="endStop"  :other="startStop" :modes="selectedModes"
+                                :geo="havePos" :stops="stops" >
+                            </location-selection>
+                            </div>
+                        </v-col>
+                        <v-col >
+                            <v-btn @click="swap" outlined>&#8645;</v-btn>
+                        </v-col>
+                        <v-spacer></v-spacer>
+                    </v-row>
+                    <v-row>
+                        <v-col class="pl-0">    
+                            <div>
+                                <input type="time" id="time" v-model="time" class="pr-2"/>
+                                <input type="checkbox" id="arriveBy" v-model="arriveBy" class="pl-2">
+                                <label for="arriveBy" class="pl-1">arrive</label>
+                            </div> 
+                        </v-col>
+                        <v-col>
+                            <v-btn id="nowButton" color="secondary" small @click="timeToNow()">Now</v-btn>
+                        </v-col>
+                        <v-spacer></v-spacer>
+                    </v-row>
+                    <v-row>
+                        <v-col class="pl-0">
+                            <input type="date" id="date" v-model="date"/>
+                        </v-col>
+                        <v-col>
+                            <v-btn id="todayButton" small color="secondary" @click="dateToNow()">Today</v-btn>
+                            <input type="hidden" id="hiddendate" v-model="date"></input>
+                        </v-col>
+                        <v-spacer></v-spacer>
+                    </v-row>
+                    <v-row v-if="selectModesEnabled">
+                        <v-col class="pl-0">
+                            <v-select v-model="selectedModes" :items="modes" multiple density="compact">
+                            </v-select>
+                        </v-col>
+                        <v-col>
+                            <label for="maxChanges">max changes:</label>
+                            <input type="number" name="max changes" min="1" max="8" id="maxChanges" v-model="maxChanges"> 
+                        </v-col>
+                        <v-spacer></v-spacer>
+                    </v-row>
+                    <v-row>
+                        <v-col class="pl-0">
+                            <v-btn :disabled='!ready' id="plan" type="submit" color="primary" class="me-2">
+                                Plan
+                                <v-progress-circular
+                                    v-if="searchInProgress"
+                                    id="spinner"
+                                    indeterminate
+                                    color="primary"
+                                    ></v-progress-circular>
+                            </v-btn>
+                            <v-btn :disabled='!havePos' id="liveTrams" v-if="havePos" color="primary" @click="queryNearbyTrams">
+                                Nearby
+                                <v-progress-circular
+                                    v-if="liveInProgress"
+                                    id="nearbySpinner"
+                                    indeterminate
+                                    color="primary"
+                                    ></v-progress-circular>
+                            </v-btn>
+                        </v-col>
+                        <v-spacer></v-spacer>
+                    </v-row>
+                </form>
 
-    <v-card id="networkError" selectable v-if="networkError" class="mt-2 ml-0 mr-0">
-        <v-card-title>Network Error</v-card-title>
-        <v-card-text>
-            Unable to commmunicate with server, please check your network connection and try again
-        </v-card-text>
-    </v-card>
+                <v-card id="networkError" selectable v-if="networkError" class="mt-2 ml-0 mr-0">
+                    <v-card-title>Network Error</v-card-title>
+                    <v-card-text>
+                        Unable to commmunicate with server, please check your network connection and try again
+                    </v-card-text>
+                </v-card>
 
-    <div id="outputs" class="ml-0 mr-0">
-        <notes :receivednotes="notes"></notes>
-        <closures></closures>
-        <live-departures :livedataresponse="liveDepartureResponse"></live-departures>
-        <journeys :journeysresponse="journeys" :numjourneystodisplay="numberJourneysToDisplay" 
-            v-on:earlier-tram="changeTime" v-on:later-tram="changeTime"></journeys>
-    </div>
+                <div id="outputs" class="ml-0 mr-0">
+                    <notes :receivednotes="notes"></notes>
+                    <closures></closures>
+                    <live-departures :livedataresponse="liveDepartureResponse"></live-departures>
+                    <journeys :journeysresponse="journeys" :numjourneystodisplay="numberJourneysToDisplay" 
+                        v-on:earlier-tram="changeTime" v-on:later-tram="changeTime"></journeys>
+                </div>
 
-    </v-main>
+            </v-container>
 
-    <v-dialog v-model="disclaimerDialog" width="auto">
-        <v-card  id="modaldisclaimer">
-          <v-card-item>
-              <v-card-title>Disclaimer</v-card-title>
-          </v-card-item>
-          <v-card-text class="model-body">
-                <p>Whilst every effort has been made to ensure that the contents of this website are correct,
-                    the maintainer does not guarantee and makes no warranty, express or implied, as to
-                    the quality, accuracy, completeness, timeliness, appropriateness, or suitability of the
-                    information we provide on this website.</p>
+        </v-main>
 
-                <p>The maintainer also takes no responsibility for the accuracy of information contained on
-                    external sources linked to this site.</p>
+        <v-dialog v-model="disclaimerDialog" width="auto">
+            <v-card  id="modaldisclaimer">
+            <v-card-item>
+                <v-card-title>Disclaimer</v-card-title>
+            </v-card-item>
+            <v-card-text class="model-body">
+                    <p>Whilst every effort has been made to ensure that the contents of this website are correct,
+                        the maintainer does not guarantee and makes no warranty, express or implied, as to
+                        the quality, accuracy, completeness, timeliness, appropriateness, or suitability of the
+                        information we provide on this website.</p>
 
-                <p>The maintainer assumes no obligation to update the information and the information may
-                    be changed from time to time without notice.</p>
+                    <p>The maintainer also takes no responsibility for the accuracy of information contained on
+                        external sources linked to this site.</p>
 
-                <p>To the extent permitted by law the maintainer expressly disclaims all liability for any direct,
-                    indirect or consequential loss or damage occasioned from the use or inability to use this
-                    websites, whether directly or indirectly resulting from inaccuracies, defects, viruses, errors -
-                    whether typographical or otherwise, omissions, out of date information or otherwise.</p>
+                    <p>The maintainer assumes no obligation to update the information and the information may
+                        be changed from time to time without notice.</p>
 
-                <p>Accessing and using the website and the downloading of material from the site (if
-                    applicable) is done entirely at the user's own risk. The user will be entirely responsible for
-                    any resulting damage to software or computer systems and/or any resulting loss of data.</p>
-          </v-card-text>
-          <v-card-actions>
-            <v-btn id="disclaimerAgreeButton" @click="dismissDisclaimer()">Ok</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
+                    <p>To the extent permitted by law the maintainer expressly disclaims all liability for any direct,
+                        indirect or consequential loss or damage occasioned from the use or inability to use this
+                        websites, whether directly or indirectly resulting from inaccuracies, defects, viruses, errors -
+                        whether typographical or otherwise, omissions, out of date information or otherwise.</p>
 
-    <v-dialog v-model="cookieDialog" width="auto">
-      <v-card id ="modal-cookieConsent">
-        <v-card-item>
-            <v-card-title>Cookies</v-card-title>
-            <v-card-subtitle>
-                Welcome to Tramchester, a quick and easy way to plan your travel in Manchester by Metrolink tram.
-            </v-card-subtitle>
-        </v-card-item>
-        <v-card-text>
-            Tramchester uses <b>cookies</b> to store information in your browser about previous usages and recent journeys.
-        </v-card-text>
-        <v-card-actions>
-          <v-btn id="cookieAgreeButton" @click="setCookie()">I agree</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+                    <p>Accessing and using the website and the downloading of material from the site (if
+                        applicable) is done entirely at the user's own risk. The user will be entirely responsible for
+                        any resulting damage to software or computer systems and/or any resulting loss of data.</p>
+            </v-card-text>
+            <v-card-actions>
+                <v-btn id="disclaimerAgreeButton" @click="dismissDisclaimer()">Ok</v-btn>
+            </v-card-actions>
+            </v-card>
+        </v-dialog>
 
-    <v-footer>
-        <app-footer v-bind:feedinfo="feedinfo" v-on:disclaimer-clicked="showDisclaimer" v-bind:havepos="havePos" 
-            v-on:network-error="networkErrorOccured()"></app-footer>
-    </v-footer>
+        <v-dialog v-model="cookieDialog" width="auto">
+            <v-card id ="modal-cookieConsent">
+                <v-card-item>
+                    <v-card-title>Cookies</v-card-title>
+                    <v-card-subtitle>
+                        Welcome to Tramchester, a quick and easy way to plan your travel in Manchester by Metrolink tram.
+                    </v-card-subtitle>
+                </v-card-item>
+                <v-card-text>
+                    Tramchester uses <b>cookies</b> to store information in your browser about previous usages and recent journeys.
+                </v-card-text>
+                <v-card-actions>
+                <v-btn id="cookieAgreeButton" @click="setCookie()">I agree</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
 
-</v-app>
+        <v-footer>
+            <app-footer v-bind:feedinfo="feedinfo" v-on:disclaimer-clicked="showDisclaimer" v-bind:havepos="havePos" 
+                v-on:network-error="networkErrorOccured()"></app-footer>
+        </v-footer>
+
+    </v-app>
 
 </div> <!-- end of app -->
 

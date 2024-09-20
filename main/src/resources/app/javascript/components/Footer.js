@@ -43,7 +43,7 @@ export default {
                     </v-col>
                 </v-row>
                 <v-row justify="center" no-gutters>
-                    <v-col id="copyright">&copy; 2016-2023 ThoughtWorks Ltd. & Ian Cartwright 2023</v-col>
+                    <v-col id="copyright">&copy; 2016-2023 ThoughtWorks Ltd. & Ian Cartwright 2023-2024</v-col>
                 </v-row>
                 <v-row justify="center" no-gutters>
                     <v-col id="license">
@@ -60,7 +60,7 @@ export default {
                     </v-col>
                 </v-row>
             </v-container>
-        <v-card>
+        </v-card>
     </div>
     `
 }

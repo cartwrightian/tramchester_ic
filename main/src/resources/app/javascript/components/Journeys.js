@@ -74,25 +74,25 @@ export default {
         return {
             currentPage: 1,
             headers: [
-                {value: 'data-table-expand', text:'' },
-                {value:'journey.firstDepartureTimeAsDate',text:'Depart', sortable:true, sort: (a,b) => { return timeSort(a,b) } },
-                {value:'journey.begin',text:'From', sortable:true}, 
-                {value:'journey.expectedArrivalTimeAsDate',text:'Arrive', sortable:true, sort: (a,b) => { return timeSort(a,b) } }, 
-                {value:'journey.changeStations', text:'Change' }
+                {key: 'data-table-expand', title:'' },
+                {key: 'journey.firstDepartureTimeAsDate',title:'Depart', sortable:true, sort: (a,b) => { return timeSort(a,b) } },
+                {key: 'journey.begin', title:'From', sortable:true}, 
+                {key: 'journey.expectedArrivalTimeAsDate', title:'Arrive', sortable:true, sort: (a,b) => { return timeSort(a,b) } }, 
+                {key: 'journey.changeStations', title:'Change' }
                 ],
             stageHeaders : [
-                { value: 'firstDepartureTime', text: '' , sortable:false }, 
-                { value: 'action', text: '' , sortable:false }, 
-                { value: 'actionStation', text: 'Station' , sortable:false }, 
-                { value: 'platform.platformNumber', text: 'Plat', sortable:false }, 
-                { value: 'headSign', text: 'Headsign' , sortable:false }, 
-                { value: 'route', text: 'Line' , sortable:false } , 
-                { value: 'passedStops', text: 'Stops', sortable:false  }, 
-                { value: 'expectedArrivalTime', text: 'Arrive' , sortable:false } 
+                { key: 'firstDepartureTime', title: '' , sortable:false }, 
+                { key: 'action', title: '' , sortable:false }, 
+                { key: 'actionStation', title: 'Station' , sortable:false }, 
+                { key: 'platform.platformNumber', title: 'Plat', sortable:false }, 
+                { key: 'headSign', title: 'Headsign' , sortable:false }, 
+                { key: 'route', title: 'Line' , sortable:false } , 
+                { key: 'passedStops', title: 'Stops', sortable:false  }, 
+                { key: 'expectedArrivalTime', title: 'Arrive' , sortable:false } 
                 ],
 
             expanded: [],
-            sortBy: "journey.expectedArrivalTimeAsDate"
+            sortBy: [{ key: 'journey.expectedArrivalTimeAsDate', order: 'asc'}]
         }
       },
     props: ['journeysresponse','numjourneystodisplay'],
@@ -143,8 +143,9 @@ export default {
             const newDepartTime = toHourAndMins(newTime); 
             this.$emit('later-tram', newDepartTime);
         }, 
-        stageRowClass(item) {
-            return "stageSummary"
+        getStageRowProps(row) {
+           //return "stageSummary"
+           return { class: 'stageSummary' }
         },
         dateTimeFormatter(item, index) {
             const queryDate = this.journeysresponse[index].journey.queryDateAsDate;
@@ -227,12 +228,11 @@ export default {
                     :mobile-breakpoint="0"
                     :headers="headers"
                     :items="journeys"
-                    item-key="journey.index"
-                    single-expand=true
-                    :expanded.sync="expanded"
+                    item-value="journey.index"
+                    v-model:expanded="expanded"
                     show-expand=true
                     dense
-                    :sort-by.sync="sortBy"
+                    v-model:sort-by="sortBy"
                     hide-default-footer
                     class="elevation-1 journeys-table">
                         <template v-slot:item.journey.firstDepartureTimeAsDate="{ item, index }">
@@ -247,11 +247,11 @@ export default {
                         <template v-slot:item.journey.changeStations="{ item, index }">
                             <div class="changes">{{ changesFormatter(item.journey.changeStations, index) }}</div>
                         </template>
-                        <template v-slot:expanded-item="{ headers, item, index }">
-                            <td :colspan="headers.length">
+                        <template v-slot:expanded-row="{ columns, item, index }">
+                            <td :colspan="columns.length">
                                 <v-data-table :items=item.journey.stages :headers="stageHeaders" 
                                 :mobile-breakpoint="0"
-                                id="stages" :item-class="stageRowClass"
+                                id="stages" :row-props="getStageRowProps"
                                 dense
                                 hide-default-footer>
                                     <template v-slot:item.firstDepartureTime="{ item }">

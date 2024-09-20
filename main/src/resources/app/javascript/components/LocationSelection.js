@@ -35,18 +35,17 @@ export default {
     },
     /// NOTE: don't camel case these, browser will treat them as all lowercase....
     // TODO Add whether selection is for a dropoff or a pickup
-    props: ['value','other','name','modes','stops','geo','disabled'], 
+    props: ['modelValue','other','name','modes','stops','geo','disabled'], 
     data: function () {
         return {
-            //current: this.value
             currentId: null
         }
     },
     watch: {
-        value() {
+        modelValue() {
             // so the swap button works as we don't bind the prop value to the native component, but bind currentId instead
-            if (this.value!=null) {
-                this.currentId = this.value.id;
+            if (this.modelValue!=null) {
+                this.currentId = this.modelValue.id;
             }
         }
     },
@@ -56,12 +55,14 @@ export default {
             if (option.className=='MyLocation') {
                 const myLocation = this.stops.currentLocation[0];
                 this.currentId = myLocation.id;
-                this.$emit('input', myLocation);
+                // this.$emit('input', myLocation);
+                this.$emit('update:modelValue', myLocation);
             } else {
                 const stopId = event.target.value;
                 this.currentId = stopId;
                 const toSend = getStop(stopId, this);
-                this.$emit('input', toSend);
+                // this.$emit('input', toSend);
+                this.$emit('update:modelValue', toSend);
             }
         },
         changedValue(event) {

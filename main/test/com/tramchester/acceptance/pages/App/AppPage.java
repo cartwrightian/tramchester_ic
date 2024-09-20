@@ -371,30 +371,16 @@ public class AppPage extends Page {
     }
 
     private boolean waitForModalToClose(By byId) {
-        WebElement diag = driver.findElement(byId);
-        createWait().until(webDriver -> !diag.isDisplayed());
-        return !diag.isDisplayed();
+        List<WebElement> elements = driver.findElements(byId);
+        if (elements.isEmpty()) {
+            return true;
+        }
+        if (elements.size()!=1) {
+            throw new RuntimeException("UNexpected number of elements " + elements);
+        }
+        WebElement diag = elements.get(0);
+        return createWait().until(ExpectedConditions.invisibilityOf(diag));
 
-//        int pauseMs = 400;
-//
-//        long count = (timeoutInSeconds*1000) / pauseMs;
-//        try {
-//            while(true) {
-//                // will throw once element good
-//                if (count--<0) {
-//                    return false;
-//                }
-//                WebElement dialog = driver.findElement(byId);
-//                if (!dialog.isDisplayed()) {
-//                    return true;
-//                }
-//                Thread.sleep(pauseMs);
-//            }
-//        } catch (InterruptedException e) {
-//           return false;
-//        } catch (NoSuchElementException expected) {
-//            return true;
-//        }
     }
 
     private boolean waitForCondition(ExpectedCondition<?> expectedCondition) {
@@ -407,12 +393,15 @@ public class AppPage extends Page {
     }
 
     private void okToModal(By locator, String buttonId) {
-        WebElement diag = driver.findElement(locator);
-        WebElement button = diag.findElement(By.id(buttonId)); // diag.findElement(By.tagName("button"));
+        WebElement modelDialogue = driver.findElement(locator);
+        WebElement button = modelDialogue.findElement(By.id(buttonId));
         createWait().until(webDriver -> button.isDisplayed());
         createWait().until(webDriver -> button.isEnabled());
         moveToElement(button).click().perform();
-        createWait().until(webDriver -> !diag.isDisplayed());
+        if (modelDialogue.isDisplayed()) {
+            //createWait().until(webDriver -> !modelDialogue.isEnabled());
+            createWait().until(ExpectedConditions.invisibilityOf(modelDialogue));
+        }
     }
 
     public void selectNow() {

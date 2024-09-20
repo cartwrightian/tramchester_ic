@@ -8,11 +8,11 @@ export default {
             page: 1,
             headers: [
                 // {value:'transportMode', text:'', sortable: true},
-                {value:'from.name', text:'From', sortable:true},
-                {value:'dueTimeAsDate', text:'Time', sortable: true, width: '1px'}, 
-                {value:'carriages', text:''},
-                {value:'status', text:'Status'},
-                {value:'destination.name', text:'Towards', sortable:true}
+                {key:'from.name', title:'From', sortable:true},
+                {key:'dueTimeAsDate', title:'Time', sortable: true, width: '1px'}, 
+                {key:'carriages', title:''},
+                {key:'status', title:'Status'},
+                {key:'destination.name', title:'Towards', sortable:true}
             ],
             sortBy: [{ key: 'dueTimeAsDate', order: 'asc' }]
         }
@@ -48,7 +48,7 @@ export default {
                 <v-data-table id="departures"
                     :mobile-breakpoint="0"
                     :items="localDueTrams"
-                    :page.sync="page"
+                    v-model:page="page"
                     :items-per-page="itemsPerPage"
                     :headers="headers" 
                     dense
@@ -74,8 +74,7 @@ export default {
             </v-card-text>
         </v-card>
 
-    <v-container>
-
+    </v-container>
 
     `
 }

@@ -1,15 +1,25 @@
 
 const axios = require('axios');
 
-import Vue from 'vue'
+// import Vue from 'vue'
+import { createApp, ref } from 'vue'
 
 import vueCookies from 'vue-cookies'
 
-Vue.use(vueCookies)
+import 'vuetify/styles'
+import * as components from 'vuetify/components'
+import * as directives from 'vuetify/directives'
+import { createVuetify } from 'vuetify'
+
+// below
+//Vue.use(vueCookies)
 
 require('file-loader?name=[name].[ext]!../index.html');
 
-import vuetify from './plugins/vuetify' // from file in plugins dir
+// import vuetify from './plugins/vuetify' // from file in plugins dir
+
+const vuetify = createVuetify({components, directives})
+
 import '@mdi/font/css/materialdesignicons.css'
 
 import './../css/tramchester.css'
@@ -299,42 +309,49 @@ function queryServerForJourneysPost(app, startStop, endStop, queryTime, queryDat
 
  }
 
- var data = {
-    ready: false,                   // ready to respond
-    stops: {
-        allStops: null,        // (station) id->station
-        nearestStops: [],
-        recentStops: [],
-        currentLocation: []
-    },
-    startStop: null,
-    endStop: null,
-    arriveBy: false,
-    time: getCurrentTime(),
-    date: getCurrentDate(),
-    maxChanges: 3,                  // todo from server side
-    journeys: null,
-    notes: [],
-    liveDepartureResponse: null,
-    feedinfo: [],
-    modes: [],
-    selectedModes: [],
-    numberJourneysToDisplay: 0,
-    searchInProgress: false,    // searching for routes
-    liveInProgress: false,      // looking for live data
-    networkError: false,        // network error on either query
-    hasGeo: false,
-    location: null,             // gps locatiion, set if hasGeo
-    myLocation: null,           // represents a stop for Current Location, set if hasGeo
-    postcodesEnabled: false,
-    beta: false,
-    timeModal: false, // todo still used?
-    cookieDialog: false,
-    disclaimerDialog: false
+ function data() {
+
+    var data = {
+        ready: false,                   // ready to respond
+        stops: {
+            allStops: null,        // (station) id->station
+            nearestStops: [],
+            recentStops: [],
+            currentLocation: []
+        },
+        startStop: null,
+        endStop: null,
+        arriveBy: false,
+        time: getCurrentTime(),
+        date: getCurrentDate(),
+        maxChanges: 3,                  // todo from server side
+        journeys: null,
+        notes: [],
+        liveDepartureResponse: null,
+        feedinfo: [],
+        modes: [],
+        selectedModes: [],
+        numberJourneysToDisplay: 0,
+        searchInProgress: false,    // searching for routes
+        liveInProgress: false,      // looking for live data
+        networkError: false,        // network error on either query
+        hasGeo: false,
+        location: null,             // gps locatiion, set if hasGeo
+        myLocation: null,           // represents a stop for Current Location, set if hasGeo
+        postcodesEnabled: false,
+        beta: false,
+        timeModal: false, // todo still used?
+        cookieDialog: false,
+        disclaimerDialog: false
+    }
+    return data;
 }
 
-var app = new Vue({
-        vuetify,
+// var app = new Vue({
+
+const app = createApp({
+        // below in use now
+        // vuetify,
         data:  data,
         components: {
             'notes' : Notes,
@@ -423,7 +440,7 @@ var app = new Vue({
                 return selectModesEnabled(this);
             }
         }
-    }).$mount('#journeyplan')
+    }).use(vuetify).use(vueCookies).mount('#journeyplan')
 
 
 
