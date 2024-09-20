@@ -1,15 +1,20 @@
 
 const axios = require('axios');
 
-import Vue from 'vue'
+import { createApp, ref } from 'vue'
 
 var L = require('leaflet');
 import 'leaflet-arrowheads'
 
-
 require('file-loader?name=[name].[ext]!../diag.html');
 
-import vuetify from './plugins/vuetify' // from file in plugins dir
+import 'vuetify/styles'
+import * as components from 'vuetify/components'
+import * as directives from 'vuetify/directives'
+import { createVuetify } from 'vuetify'
+
+const vuetify = createVuetify({components, directives})
+
 import '@mdi/font/css/materialdesignicons.css'
 
 import 'leaflet/dist/leaflet.css'
@@ -259,39 +264,41 @@ function queryServerForJourneysPost(app, startStop, endStop, queryTime, queryDat
 
  }
 
- var data = {
-    ready: false,                   // ready to respond
-    stops: {
-        allStops: null,        // (station) id->station
-        nearestStops: [],
-        recentStops: [],
-        currentLocation: []
-    },
-    startStop: null,
-    endStop: null,
-    arriveBy: false,
-    time: getCurrentTime(),
-    date: getCurrentDate(),
-    maxChanges: 3,                  // todo from server side
-    journeys: null,
-    notes: [],
-    modes: [],
-    selectedModes: [],
-    numberJourneysToDisplay: 0,
-    searchInProgress: false,    // searching for routes
-    networkError: false,        // network error on either query
-    myLocation: null,           // represents a stop for Current Location, set if hasGeo
-    beta: false,
-    timeModal: false, // todo still used?
-    map: null,
-    bounds: null,
-    areas: null,
-    stationLayerGroup: null,
-    edgesLayerGroup: null
-}
+ function data() {
+        var data = {
+            ready: false,                   // ready to respond
+            stops: {
+                allStops: null,        // (station) id->station
+                nearestStops: [],
+                recentStops: [],
+                currentLocation: []
+            },
+            startStop: null,
+            endStop: null,
+            arriveBy: false,
+            time: getCurrentTime(),
+            date: getCurrentDate(),
+            maxChanges: 3,                  // todo from server side
+            journeys: null,
+            notes: [],
+            modes: [],
+            selectedModes: [],
+            numberJourneysToDisplay: 0,
+            searchInProgress: false,    // searching for routes
+            networkError: false,        // network error on either query
+            myLocation: null,           // represents a stop for Current Location, set if hasGeo
+            beta: false,
+            timeModal: false, // todo still used?
+            map: null,
+            bounds: null,
+            areas: null,
+            stationLayerGroup: null,
+            edgesLayerGroup: null
+        }
+        return data;
+ }
 
-var app = new Vue({
-        vuetify,
+const app = createApp({
         data:  data,
         components: {
             'notes' : Notes,
@@ -418,7 +425,7 @@ var app = new Vue({
                 return selectModesEnabled(this);
             }
         }
-    }).$mount('#journeyplan')
+    }).use(vuetify).mount('#journeyplan')
 
 
 

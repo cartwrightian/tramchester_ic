@@ -7,7 +7,7 @@ module.exports = (env) => {
   mode: env.environment === 'Dev' ? 'development' : 'production',
   entry:  env.environment === 'Dev' ? {
     main: './main/src/resources/app/javascript/journeyplan.js',
-    // diag: './main/src/resources/app/javascript/diag.js',
+    diag: './main/src/resources/app/javascript/diag.js',
     // trammap: './main/src/resources/app/javascript/trammap.js',
     // traveltimes: './main/src/resources/app/javascript/traveltimes.js',
     // routemap: './main/src/resources/app/javascript/routemap.js',

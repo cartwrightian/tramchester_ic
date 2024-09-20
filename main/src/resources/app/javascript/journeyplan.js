@@ -1,7 +1,6 @@
 
 const axios = require('axios');
 
-// import Vue from 'vue'
 import { createApp, ref } from 'vue'
 
 import vueCookies from 'vue-cookies'
@@ -11,12 +10,7 @@ import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import { createVuetify } from 'vuetify'
 
-// below
-//Vue.use(vueCookies)
-
 require('file-loader?name=[name].[ext]!../index.html');
-
-// import vuetify from './plugins/vuetify' // from file in plugins dir
 
 const vuetify = createVuetify({components, directives})
 
