@@ -1,8 +1,15 @@
 
 const axios = require('axios');
 
-var Vue = require('vue');
-Vue.use(require('vue-cookies'));
+import { createApp, ref } from 'vue'
+
+import vueCookies from 'vue-cookies'
+
+import 'vuetify/styles'
+import * as components from 'vuetify/components'
+import * as directives from 'vuetify/directives'
+import { createVuetify } from 'vuetify'
+const vuetify = createVuetify({components, directives})
 
 var L = require('leaflet');
 require('leaflet-arrowheads')
@@ -13,17 +20,16 @@ require('file-loader?name=[name].[ext]!../trammap.html');
 import 'leaflet/dist/leaflet.css'
 import './../css/tramchester.css'
 
-import Routes from './components/Routes';
-
 L.Icon.Default.imagePath = '/app/dist/images/';
 require("leaflet/dist/images/marker-icon-2x.png");
 require("leaflet/dist/images/marker-shadow.png");
 
-import Footer from './components/Footer';
+import Routes from './components/Routes'
+import Footer from './components/Footer'
 
-var width = 300;
-var height = 300;
-var margin = 60;
+// var width = 300;
+// var height = 300;
+// var margin = 60;
 
 function addStations() {
     mapApp.routes.forEach(route => {
@@ -103,8 +109,7 @@ function getTramTitle(tram, position) {
     }
 }
 
-var mapApp = new Vue({
-    el: '#tramMap',
+const mapApp = createApp({
     components: {
         'app-footer' : Footer
     },
@@ -166,6 +171,6 @@ var mapApp = new Vue({
             return false; // needed for display in footer
         }
     }
-});
+}).use(vueCookies).use(vuetify).mount('#tramMap');
 
 

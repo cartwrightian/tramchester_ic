@@ -3,7 +3,8 @@ const axios = require('axios');
 export default { 
     data: function() {
         return {
-            buildnumber: []
+            buildnumber: [], 
+            disclaimerDialog: false
         }
     },
     props: ['havepos','feedinfo'],
@@ -18,9 +19,15 @@ export default {
         });
     },
     methods: {
-        showDisclaimer(){
-            this.$emit('disclaimer-clicked')
-        }
+        // showDisclaimer(){
+        //     //this.$emit('disclaimer-clicked')
+        // },
+        showDisclaimer() {
+            this.disclaimerDialog = true
+        },
+        dismissDisclaimer() {
+            this.disclaimerDialog = false
+        },
     },
     template: `
     <div id="footer">
@@ -61,6 +68,37 @@ export default {
                 </v-row>
             </v-container>
         </v-card>
+        <v-dialog v-model="disclaimerDialog" width="auto">
+            <v-card  id="modaldisclaimer">
+            <v-card-item>
+                <v-card-title>Disclaimer</v-card-title>
+            </v-card-item>
+            <v-card-text class="model-body">
+                    <p>Whilst every effort has been made to ensure that the contents of this website are correct,
+                        the maintainer does not guarantee and makes no warranty, express or implied, as to
+                        the quality, accuracy, completeness, timeliness, appropriateness, or suitability of the
+                        information we provide on this website.</p>
+
+                    <p>The maintainer also takes no responsibility for the accuracy of information contained on
+                        external sources linked to this site.</p>
+
+                    <p>The maintainer assumes no obligation to update the information and the information may
+                        be changed from time to time without notice.</p>
+
+                    <p>To the extent permitted by law the maintainer expressly disclaims all liability for any direct,
+                        indirect or consequential loss or damage occasioned from the use or inability to use this
+                        websites, whether directly or indirectly resulting from inaccuracies, defects, viruses, errors -
+                        whether typographical or otherwise, omissions, out of date information or otherwise.</p>
+
+                    <p>Accessing and using the website and the downloading of material from the site (if
+                        applicable) is done entirely at the user's own risk. The user will be entirely responsible for
+                        any resulting damage to software or computer systems and/or any resulting loss of data.</p>
+            </v-card-text>
+            <v-card-actions>
+                <v-btn id="disclaimerAgreeButton" @click="dismissDisclaimer()">Ok</v-btn>
+            </v-card-actions>
+            </v-card>
+        </v-dialog>
     </div>
     `
 }

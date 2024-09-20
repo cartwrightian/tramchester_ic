@@ -8,21 +8,21 @@ import vueCookies from 'vue-cookies'
 import 'vuetify/styles'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
-import { createVuetify } from 'vuetify'
 
 require('file-loader?name=[name].[ext]!../index.html');
 
+import { createVuetify } from 'vuetify'
 const vuetify = createVuetify({components, directives})
 
 import '@mdi/font/css/materialdesignicons.css'
 
 import './../css/tramchester.css'
 
-import Notes from "./components/Notes";
-import Journeys from './components/Journeys';
-import Footer from './components/Footer';
+import Notes from "./components/Notes"
+import Journeys from './components/Journeys'
+import Footer from './components/Footer'
 import LiveDepartures from './components/LiveDepatures'
-import LocationSelection from './components/LocationSelection';
+import LocationSelection from './components/LocationSelection'
 import Closures from './components/Closures'
 
 function getNow() {
@@ -336,7 +336,7 @@ function queryServerForJourneysPost(app, startStop, endStop, queryTime, queryDat
         beta: false,
         timeModal: false, // todo still used?
         cookieDialog: false,
-        disclaimerDialog: false
+        // disclaimerDialog: false
     }
     return data;
 }
@@ -344,8 +344,6 @@ function queryServerForJourneysPost(app, startStop, endStop, queryTime, queryDat
 // var app = new Vue({
 
 const app = createApp({
-        // below in use now
-        // vuetify,
         data:  data,
         components: {
             'notes' : Notes,
@@ -388,12 +386,12 @@ const app = createApp({
                 this.$cookies.set("tramchesterVisited", cookie, "128d", "/", null, false, "Strict");
                 app.cookieDialog = false
             },
-            showDisclaimer() {
-                app.disclaimerDialog = true
-            },
-            dismissDisclaimer() {
-                app.disclaimerDialog = false
-            },
+            // showDisclaimer() {
+            //     app.disclaimerDialog = true
+            // },
+            // dismissDisclaimer() {
+            //     app.disclaimerDialog = false
+            // },
             timeToNow() {
                 app.time = getCurrentTime();
             },
