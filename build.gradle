@@ -107,8 +107,8 @@ dependencies {
     implementation  'org.jetbrains:annotations:24.1.0'
 
     // note multiple incompatible forks of geotools see repo specified above and https://repo.osgeo.org/#browse/browse:release:org%2Fgeotools%2Fgt-main
-    implementation('org.geotools:gt-main:31.3',
-            'org.geotools:gt-epsg-hsql:31.3')
+    implementation('org.geotools:gt-main:32.0',
+            'org.geotools:gt-epsg-hsql:32.0')
 
     implementation('javax.measure:unit-api:2.2')
 
