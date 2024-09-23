@@ -12,7 +12,7 @@ module.exports = (env) => {
     traveltimes: './main/src/resources/app/javascript/traveltimes.js',
     routemap: './main/src/resources/app/javascript/routemap.js',
     linksmap: './main/src/resources/app/javascript/linksmap.js',
-    // frequency: './main/src/resources/app/javascript/frequency.js'
+    frequency: './main/src/resources/app/javascript/frequency.js'
   } : {
     main: './main/src/resources/app/javascript/journeyplan.js'
   },

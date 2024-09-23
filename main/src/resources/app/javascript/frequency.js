@@ -1,7 +1,15 @@
 
 const axios = require('axios');
 
-var Vue = require('vue');
+import { createApp, ref } from 'vue'
+
+import vueCookies from 'vue-cookies'
+
+import 'vuetify/styles'
+import * as components from 'vuetify/components'
+import * as directives from 'vuetify/directives'
+import { createVuetify } from 'vuetify'
+const vuetify = createVuetify({components, directives})
 
 // todo oboe is unmainted
 var oboe = require('oboe');
@@ -13,14 +21,13 @@ require('file-loader?name=[name].[ext]!../frequency.html');
 import 'leaflet/dist/leaflet.css'
 import './../css/tramchester.css'
 
-import vuetify from './plugins/vuetify' // from file in plugins dir
-
 L.Icon.Default.imagePath = '/app/dist/images/';
 require("leaflet/dist/images/marker-icon-2x.png");
 require("leaflet/dist/images/marker-shadow.png");
 
 import Footer from './components/Footer';
 import Routes from './components/Routes';
+import Header from './components/Header';
 
 function getCurrentDate() {
     const now = new Date().toISOString();
@@ -84,11 +91,12 @@ function queryForFrequencies(gridSize, date, startTime, endTime) {
     mapApp.frequencyLayer.addTo(mapApp.map);
 }
 
-var mapApp = new Vue({
-    vuetify,
+var mapApp = createApp({
+    //vuetify,
     // el: '#frequencymap',
     components: {
         'app-footer': Footer,
+        'app-header' : Header
     },
     data() {
         return {
@@ -156,7 +164,7 @@ var mapApp = new Vue({
             return false; // needed for display in footer
         }
     }
-}).$mount('#frequencymap');
+}).use(vueCookies).use(vuetify).mount('#frequencymap');
 
 
 function getFrequencies(searchParams) {

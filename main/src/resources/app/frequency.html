@@ -7,8 +7,8 @@
 </head>
 
     <body>
-        <h1 class="tramchesterHeading">Experimental Stop Freqency Map</h1>
         <div id="frequencymap" class="tramchesterApp">
+            <app-header header="Experimental Freqency Map"></app-header>
             <v-app>
                 <v-main>
                     <v-container id="startAndEnd">
@@ -18,7 +18,7 @@
                             </v-col>          
                             <v-col>
                                 <div class="mb-2"><div>Hours: {{ hours[0] }} to {{ hours[1] }}</div>
-                                <v-range-slider v-model="hours" :min="0" :max="24" strict></v-range-slider>
+                                <v-range-slider v-model="hours" :min="0" :max="24" strict step="1"></v-range-slider>
                                 <input type="date" id="date" v-model="date" 
                                         label-calendar="TravelDateCalendar" required></input>
                                 <v-btn color="secondary" small id="todayButton" @click="dateToNow()">Today</v-btn>
@@ -27,6 +27,10 @@
                         </v-row>
                     </v-container>
                 </v-main>
+                <v-footer app="true">
+                    <app-footer v-bind:feedinfo="feedinfo" v-on:disclaimer-clicked="showDisclaimer" v-bind:havepos="havePos" 
+                        v-on:network-error="networkErrorOccured()"></app-footer>
+                </v-footer>
             </v-app>
 
    
