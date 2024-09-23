@@ -9,7 +9,7 @@ module.exports = (env) => {
     main: './main/src/resources/app/javascript/journeyplan.js',
     diag: './main/src/resources/app/javascript/diag.js',
     trammap: './main/src/resources/app/javascript/trammap.js',
-    // traveltimes: './main/src/resources/app/javascript/traveltimes.js',
+    traveltimes: './main/src/resources/app/javascript/traveltimes.js',
     // routemap: './main/src/resources/app/javascript/routemap.js',
     // linksmap: './main/src/resources/app/javascript/linksmap.js',
     // frequency: './main/src/resources/app/javascript/frequency.js'

@@ -1,17 +1,19 @@
-
-const axios = require('axios');
-
-import Vue from 'vue'
+import { createApp, ref } from 'vue'
 
 import vueCookies from 'vue-cookies'
 
-Vue.use(vueCookies)
+import 'vuetify/styles'
+import * as components from 'vuetify/components'
+import * as directives from 'vuetify/directives'
+import { createVuetify } from 'vuetify'
+const vuetify = createVuetify({components, directives})
+
+const axios = require('axios');
 
 var L = require('leaflet');
 
 require('file-loader?name=[name].[ext]!../traveltimes.html');
 
-import vuetify from './plugins/vuetify' // from file in plugins dir
 import '@mdi/font/css/materialdesignicons.css'
 
 import 'leaflet/dist/leaflet.css'
@@ -22,6 +24,7 @@ require("leaflet/dist/images/marker-icon-2x.png");
 require("leaflet/dist/images/marker-shadow.png");
 
 import Footer from './components/Footer';
+import Header from './components/Header';
 import Routes from './components/Routes';
 
 function getCurrentDate() {
@@ -186,33 +189,39 @@ async function getStationsFromServer(app) {
     app.networkError = false;
  }
 
- var data = {
-    modes: [],
-    allStops: [],
-    map: null,
-    grid: null,
-    date: getCurrentDate(),
-    destination: null,
-    journeyLayer: null,
-    costsLayer: null,
-    networkError: false,
-    routes: [],
-    maxChanges: 2,
-    maxDuration: 60,
-    time: "09:30",
-    abortController: null,
-    feedinfo: []
- }
+ function data() {
+    return {
+        modes: [],
+        allStops: [],
+        map: null,
+        grid: null,
+        date: getCurrentDate(),
+        destination: null,
+        journeyLayer: null,
+        costsLayer: null,
+        networkError: false,
+        routes: [],
+        maxChanges: 2,
+        maxDuration: 60,
+        time: "09:30",
+        abortController: null,
+        feedinfo: []
+    }
+}
 
-var mapApp = new Vue({
+var mapApp = createApp({
     vuetify,
     components: {
-        'app-footer' : Footer
+        'app-footer' : Footer,
+        'app-header' : Header
     },
     data: data,
     methods: {
         networkErrorOccured() {
             app.networkError = true;
+        },
+        displayStop(stop) {
+            return { title: stop.name }
         },
         draw() {
             Routes.findAndSetMapBounds(mapApp.map, mapApp.routes);
@@ -275,7 +284,7 @@ var mapApp = new Vue({
             return false; // needed for display in footer
         }
     }
-}).$mount('#tramMap')
+}).use(vueCookies).use(vuetify).mount('#tramMap')
 
 
 

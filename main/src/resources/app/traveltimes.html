@@ -3,64 +3,65 @@
 <head>
     <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
    <title>Tramchester - Experimental journey time map</title>
    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 </head>
 
 <body>
-    <h1 class="tramchesterHeading">Tramchester - Experimental journey time map</h1>
     <div id="tramMap">
+        <app-header header="Experimental Travel Time Map"></app-header>
         <v-app>
             <v-main>
                 <v-container id="startAndEnd" class="ml-2">
                     <form @submit="compute">
                         <v-row >
-                            <v-col class="pl-0 col-md-auto">
-                                <select :id="destination" v-model="destination" required>
-                                    <option :value="null" selected>Please select destination</option>
-                                    <option class="stop" v-for="stop in allStops" :value="stop" 
-                                        :key="stop.id">{{stop.name}}</option>
-                                </select>
+                            <v-col class="pl-0">
+                                <v-select :id="destination" v-model="destination" required :items="allStops" :item-props="displayStop"  density="compact">
+                                </v-select>
                             </v-col>
-                            <v-col class="pl-0 col-md-auto">     
+                            <v-col class="pl-0">     
                                 <input type="time" id="time" v-model="time"/>
                             </v-col>
-                            <v-col class="pl-0 col-md-auto">
-                                <label for="maxChanges">changes:</label>
-                                <input type="number" name="max changes" min="0" max="5" 
-                                    id="maxChanges" v-model="maxChanges" size="4"> 
+                            <v-col class="pl-0">
+                                <div class="d-flex flex-row">
+                                    <label for="maxChanges">changes:</label>
+                                    <input type="number" name="max changes" min="0" max="5" 
+                                        id="maxChanges" v-model="maxChanges" size="4"> 
+                                </div>
                             </v-col>
-                            <v-col class="pl-0 col-md-auto">
-                                <label for="maxDuration">duration:</label>
-                                <input type="number" name="max duration" min="15" max="120" 
-                                    id="maxDuration" v-model="maxDuration" size="4"> 
+                            <v-col class="pl-0">
+                                <div class="d-flex flex-row">
+                                    <label for="maxDuration">duration:</label>
+                                    <input type="number" name="max duration" min="15" max="120" 
+                                        id="maxDuration" v-model="maxDuration" size="4"> 
+                                </div>
                             </v-col>
-                            <v-col class="pl-0 col-md-auto">
+                            <v-col class="pl-0">
                                 <input type="date" id="date" v-model="date"/>
                             </v-col>
-                            <v-col class="pl-0 col-md-auto">
-                                <v-btn id="todayButton" small color="secondary" @click="dateToNow()">Today</v-btn>
+                            <v-col>
+                                <div class="d-flex flex-row">
+                                    <v-btn id="todayButton" small color="secondary" @click="dateToNow()">Today</v-btn>
+                                    <v-btn id="drawButton" small color="primary"  type="submit">Compute</v-btn>
+                                    <v-btn id="cancelButton" small color="secondary" @click="cancel()">Cancel</v-btn>
+                                </div>
                             </v-col>
-                            <v-col class="pl-0 col-md-auto">
-                                <v-btn id="drawButton" small color="primary"  type="submit">Compute</v-btn>
-                            </v-col>
-                            <v-col class="pl-0 col-md-auto">
-                                <v-btn id="cancelButton" small color="secondary" @click="cancel()">Cancel</v-btn>
-                            </v-col>
+                            <v-spacer></v-spacer>
                         </v-row>
                     </form>
+                    <v-row >
+                        <v-col class="pl-0">
+                            <div id="leafletMap"></div>
+                        </v-col>
+                    </v-row>
                 </v-container>
-                <div id="leafletMap"></div>
             </v-main>
+            <v-footer>
+                <app-footer v-bind:feedinfo="feedinfo" v-on:disclaimer-clicked="showDisclaimer" v-bind:havepos="havePos" 
+                    v-on:network-error="networkErrorOccured()"></app-footer>
+            </v-footer>
         </v-app>
 
-        <!-- TODO
-        <v-footer>
-            <app-footer v-bind:feedinfo="feedinfo" v-on:disclaimer-clicked="showDisclaimer" v-bind:havepos="havePos" 
-                v-on:network-error="networkErrorOccured()"></app-footer>
-        </v-footer>
-        -->
     </div>
 
 
