@@ -1,7 +1,15 @@
 
 const axios = require('axios');
 
-var Vue = require('vue');
+import { createApp, ref } from 'vue'
+
+import vueCookies from 'vue-cookies'
+
+import 'vuetify/styles'
+import * as components from 'vuetify/components'
+import * as directives from 'vuetify/directives'
+import { createVuetify } from 'vuetify'
+const vuetify = createVuetify({components, directives})
 
 var L = require('leaflet');
 
@@ -17,16 +25,17 @@ require("leaflet/dist/images/marker-shadow.png");
 
 import Routes from './components/Routes';
 import Footer from './components/Footer';
+import Header from './components/Header';
 
 function getCurrentDate() {
     const now = new Date().toISOString();
     return now.substr(0,  now.indexOf("T")); // iso-8601 date part only as YYYY-MM-DD
 }
 
-var mapApp = new Vue({
-    el: '#routeMap',
+var mapApp = createApp({
     components: {
-        'app-footer' : Footer
+        'app-footer' : Footer,
+        'app-header' : Header
     },
     data() {
         return {
@@ -41,16 +50,13 @@ var mapApp = new Vue({
         }
     },
     methods: {
-        networkErrorOccured() {
-            app.networkError = true;
-        },
         update() {
             mapApp.map.removeLayer(mapApp.routesLayer);
             mapApp.map.removeLayer(mapApp.stationsLayer);
             getRoutes(mapApp);
         },
         draw() {
-            //getRoutes(mapApp);
+            //getRoutes(mapApp); done by callers
             Routes.findAndSetMapBounds(mapApp.map, mapApp.routes);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -81,7 +87,7 @@ var mapApp = new Vue({
             return false; // needed for display in footer
         }
     }
-});
+}).use(vueCookies).use(vuetify).mount('#routeMap');
 
 
 function getRoutes(mapApp) {

@@ -7,33 +7,35 @@
 </head>
 
 <body>
-<div id="routeMap" ><h1>Experimental Route map</h1>
-    <div class="container" id="startAndEnd">
-        <div class="row">
-            <div class="col">
-                <div id="leafletMap"></div>                        
-            </div>
-            <div class="col">
-            
-                <div class="mb-2"> 
-                    <input type="date" id="date" v-model="date" 
-                        label-calendar="TravelDateCalendar" required></input>
-                    <button class="button" id="todayButton" variant="info" @click="dateToNow()">Today</button>
-                </div>
+    <div id="routeMap">
+        <app-header header="Experimental Route Map"></app-header>
+        <v-app>
+            <v-main>
+                <v-container class="ml-2">
+                    <v-row>
+                        <v-col>
+                            <input type="date" id="date" v-model="date" required></input>
+                            <v-btn id="todayButton" @click="dateToNow()">Today</v-btn>
+                            <v-btn id="drawMap" @click="update()">Draw</v-btn>  
+                        </v-col>
+                    </v-row>
+                    <v-row>
+                        <v-col>
+                            <div id="leafletMap"></div>
+                        </v-col>
+                    </v-row>
+                </v-container>
+            </v-main>
 
-                <div>
-                    <button class="button" id="drawMap" variant="primary" @click="update()">Draw</button>  
-                </div>
-            </div>
-        </div>
+            <v-footer>
+                <app-footer v-bind:feedinfo="feedinfo" v-on:disclaimer-clicked="showDisclaimer" v-bind:havepos="havePos" 
+                    v-on:network-error="networkErrorOccured()"></app-footer>
+            </v-footer>
+        </v-app>
     </div>
 
-    <app-footer v-bind:feedinfo="feedinfo" v-bind:havepos="havePos" v-on:network-error="networkErrorOccured()">
-    </app-footer>
 
-</div>
-
-<script src="/app/routemap.js"></script>
+    <script src="/app/routemap.js"></script>
 
 </body>
 </html>

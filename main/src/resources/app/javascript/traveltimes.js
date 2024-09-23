@@ -217,9 +217,6 @@ var mapApp = createApp({
     },
     data: data,
     methods: {
-        networkErrorOccured() {
-            app.networkError = true;
-        },
         displayStop(stop) {
             return { title: stop.name }
         },
