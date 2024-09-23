@@ -1,30 +1,32 @@
 package com.tramchester.integration.network;
 
+import com.tramchester.testSupport.TestEnv;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
 import java.io.IOException;
 import java.net.Socket;
 import java.net.URI;
-import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class ConnectivityTest {
 
     // Here to assist in diagnosing connectivity issues on the CI machines
 
+    @EnabledIfEnvironmentVariable(named = TestEnv.SERVER_URL_ENV_VAR, matches = ".*")
     @Test
     void checkCanReachDevServer() {
-        Optional<String> maybeUrl = Optional.ofNullable(System.getenv("SERVER_URL"));
 
-        if (maybeUrl.isEmpty()) {
-            return;
-        }
+        String serverURL = System.getenv(TestEnv.SERVER_URL_ENV_VAR);
+        assertNotNull(serverURL);
 
-        URI uri = URI.create(maybeUrl.get());
+        URI uri = URI.create(serverURL);
         String host = uri.getHost();
 
         boolean reachable = isReachable(host, 443);
-        Assertions.assertTrue(reachable);
+        Assertions.assertTrue(reachable, "Could not reach " + serverURL + " from " + TestEnv.SERVER_URL_ENV_VAR);
     }
 
     @Test
@@ -33,7 +35,7 @@ class ConnectivityTest {
         Assertions.assertTrue(reachable);
     }
 
-    private boolean isReachable(String host, int port) {
+    private boolean isReachable(final String host, int port) {
         boolean opened = false;
         try {
             Socket socket = new Socket(host, port);

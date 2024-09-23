@@ -21,6 +21,7 @@ import './../css/tramchester.css'
 import Notes from "./components/Notes"
 import Journeys from './components/Journeys'
 import Footer from './components/Footer'
+import Header from './components/Header';
 import LiveDepartures from './components/LiveDepatures'
 import LocationSelection from './components/LocationSelection'
 import Closures from './components/Closures'
@@ -349,6 +350,7 @@ const app = createApp({
             'live-departures' : LiveDepartures,
             'location-selection': LocationSelection,
             'closures' : Closures,
+            'app-header' : Header
         },
         methods: {
             plan(event){
@@ -378,11 +380,6 @@ const app = createApp({
                 queryServerForJourneysPost(app, this.startStop, this.endStop, this.time,
                     this.date, this.arriveBy, this.maxChanges);
             },
-            setCookie() {
-                var cookie = { 'visited' : true };
-                this.$cookies.set("tramchesterVisited", cookie, "128d", "/", null, false, "Strict");
-                app.cookieDialog = false
-            },
             timeToNow() {
                 app.time = getCurrentTime();
             },
@@ -396,10 +393,6 @@ const app = createApp({
             }
         },
         mounted () {
-            var cookie = this.$cookies.get("tramchesterVisited");
-            if (cookie==null) {
-                this.cookieDialog = true
-            }
             getFeedinfo(this);
             let urlParams = new URLSearchParams(window.location.search);
             let betaRaw = urlParams.get('beta');

@@ -26,6 +26,7 @@ require("leaflet/dist/images/marker-shadow.png");
 
 import Routes from './components/Routes'
 import Footer from './components/Footer'
+import Header from './components/Header';
 
 function addStations() {
     mapApp.routes.forEach(route => {
@@ -107,7 +108,8 @@ function getTramTitle(tram, position) {
 
 const mapApp = createApp({
     components: {
-        'app-footer' : Footer
+        'app-footer' : Footer,
+        'app-header' : Header
     },
     data() {
         return {
