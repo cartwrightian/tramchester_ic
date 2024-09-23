@@ -1,7 +1,15 @@
 
 const axios = require('axios');
 
-var Vue = require('vue');
+import { createApp, ref } from 'vue'
+
+import vueCookies from 'vue-cookies'
+
+import 'vuetify/styles'
+import * as components from 'vuetify/components'
+import * as directives from 'vuetify/directives'
+import { createVuetify } from 'vuetify'
+const vuetify = createVuetify({components, directives})
 
 var L = require('leaflet');
 import 'leaflet-arrowheads'
@@ -16,6 +24,7 @@ require("leaflet/dist/images/marker-icon-2x.png");
 require("leaflet/dist/images/marker-shadow.png");
 
 import Footer from './components/Footer';
+import Header from './components/Header';
 
 function getColourFor(station) {
     const modes = station.transportModes;
@@ -84,10 +93,11 @@ function createPolyForArea(area, colour) {
     return polygon;
 }
 
-var mapApp = new Vue({
-    el: '#routeMap',
+var mapApp = createApp({
+    //el: '#routeMap',
     components: {
-        'app-footer' : Footer
+        'app-footer' : Footer,
+        'app-header' : Header
     },
     data() {
         return {
@@ -262,7 +272,7 @@ var mapApp = new Vue({
             return false; // needed for display in footer
         }
     }
-});
+}).use(vueCookies).use(vuetify).mount('#linksMap');
 
 
 

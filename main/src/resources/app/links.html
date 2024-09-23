@@ -7,10 +7,30 @@
 </head>
 
 <body>
-<div id="linksMap" ><h1>Experimental Stations map</h1>
+<div id="linksMap" >
+    <app-header header="Experimental Station Map"></app-header>
+        <v-app>
+            <v-main>
+                <v-container class="ml-2">
+                    <v-row>
+                        <v-col>
+                            <div id="leafletMap"></div>
+                        </v-col>
+                    </v-row>
+                </v-container>
+            </v-main>
+
+            <v-footer>
+                <app-footer v-bind:feedinfo="feedinfo" v-on:disclaimer-clicked="showDisclaimer" v-bind:havepos="havePos" 
+                    v-on:network-error="networkErrorOccured()"></app-footer>
+            </v-footer>
+        </v-app>
+
+        <!--
     <div id="leafletMap" style="height: 1000px" class="w-75"></div>
     <app-footer v-bind:feedinfo="feedinfo" v-bind:havepos="havePos" v-on:network-error="networkErrorOccured()">
     </app-footer>
+    -->
 </div>
 
 <script src="/app/linksmap.js"></script>
