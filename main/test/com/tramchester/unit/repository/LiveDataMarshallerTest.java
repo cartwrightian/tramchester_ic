@@ -100,7 +100,7 @@ public class LiveDataMarshallerTest extends EasyMockSupport {
                                                                           Station station) {
         Platform platform = TestEnv.createPlatformFor(station, platformId);
 
-        TramStationDepartureInfo departureInfo = new TramStationDepartureInfo(displayId, Lines.Airport,
+        TramStationDepartureInfo departureInfo = new TramStationDepartureInfo(displayId, OverheadDisplayLines.Airport,
                 LineDirection.Incoming, station, message, lastUpdate, platform);
         UpcomingDeparture dueTram = new UpcomingDeparture(lastUpdate.toLocalDate(), station, Bury.fake(),
                 "Due", TramTime.ofHourMins(lastUpdate.toLocalTime()).plusMinutes(42), "Single",

@@ -10,7 +10,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.domain.liveUpdates.LineDirection;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.livedata.repository.StationByName;
-import com.tramchester.livedata.tfgm.Lines;
+import com.tramchester.livedata.tfgm.OverheadDisplayLines;
 import com.tramchester.livedata.tfgm.LiveDataParser;
 import com.tramchester.livedata.tfgm.TramDepartureFactory;
 import com.tramchester.livedata.tfgm.TramStationDepartureInfo;
@@ -76,7 +76,7 @@ class LiveDataParserTest extends EasyMockSupport {
                         }""", i, i);
             message.append(line);
             LocalDateTime expectedDateTime = LocalDateTime.of(2017, 11, 29, i, 45);
-            TramStationDepartureInfo dep = setExpectationsForDeparture(i, Lines.Eccles, LineDirection.Incoming, "Test.", MediaCityUK, expectedDateTime, "2", mediaCityPlatform);
+            TramStationDepartureInfo dep = setExpectationsForDeparture(i, OverheadDisplayLines.Eccles, LineDirection.Incoming, "Test.", MediaCityUK, expectedDateTime, "2", mediaCityPlatform);
             expectDueTram(dep, Piccadilly, 1, "Due", "Single", mediaCityPlatform);
         }
         message.append(footer);
@@ -112,7 +112,7 @@ class LiveDataParserTest extends EasyMockSupport {
         expectationByName(Deansgate);
 
         LocalDateTime dateTimeA = LocalDateTime.of(2017, 11, 29, 11,45);
-        TramStationDepartureInfo depA = setExpectationsForDeparture(1, Lines.Eccles, LineDirection.Incoming, msg, MediaCityUK, dateTimeA, "2", mediaCityPlatform);
+        TramStationDepartureInfo depA = setExpectationsForDeparture(1, OverheadDisplayLines.Eccles, LineDirection.Incoming, msg, MediaCityUK, dateTimeA, "2", mediaCityPlatform);
 
         expectDueTram(depA, Piccadilly, 1, "Due", "Single", mediaCityPlatform);
 
@@ -169,13 +169,13 @@ class LiveDataParserTest extends EasyMockSupport {
         expectationByName(Deansgate);
 
         LocalDateTime dateTimeA = LocalDateTime.of(2017, 11, 29, 11,45);
-        TramStationDepartureInfo depA = setExpectationsForDeparture(1, Lines.Eccles, LineDirection.Incoming, msgA, MediaCityUK, dateTimeA, "2", mediaCityPlatform);
+        TramStationDepartureInfo depA = setExpectationsForDeparture(1, OverheadDisplayLines.Eccles, LineDirection.Incoming, msgA, MediaCityUK, dateTimeA, "2", mediaCityPlatform);
 
         expectDueTram(depA, Piccadilly, 1, "Due", "Single", mediaCityPlatform);
         expectDueTram(depA, Piccadilly, 12, "Due", "Single", mediaCityPlatform);
 
         LocalDateTime dateTimeB = LocalDateTime.of(2017,6,29,13,55);
-        TramStationDepartureInfo depB = setExpectationsForDeparture(234, Lines.Airport, LineDirection.Incoming, msgB, ManAirport, dateTimeB, "1", null);
+        TramStationDepartureInfo depB = setExpectationsForDeparture(234, OverheadDisplayLines.Airport, LineDirection.Incoming, msgB, ManAirport, dateTimeB, "1", null);
 
         expectDueTram(depB, Deansgate, 5, "Due", "Single", null);
         expectDueTram(depB, Altrincham, 17, "Delay", "Double", null);
@@ -187,7 +187,7 @@ class LiveDataParserTest extends EasyMockSupport {
 
         TramStationDepartureInfo departureInfoA = info.get(0);
         assertEquals("1", departureInfoA.getDisplayId());
-        assertEquals(Lines.Eccles, departureInfoA.getLine());
+        assertEquals(OverheadDisplayLines.Eccles, departureInfoA.getLine());
         assertTrue(departureInfoA.hasStationPlatform());
         assertEquals(mediaCityPlatform, departureInfoA.getStationPlatform());
         assertEquals(MediaCityUK.getId(), departureInfoA.getStation().getId());
@@ -214,7 +214,7 @@ class LiveDataParserTest extends EasyMockSupport {
         assertFalse(departureInfoB.hasStationPlatform());
         assertEquals("234", departureInfoB.getDisplayId());
 
-        assertEquals(Lines.Airport, departureInfoB.getLine());
+        assertEquals(OverheadDisplayLines.Airport, departureInfoB.getLine());
         ZonedDateTime expectedDateB = ZonedDateTime.of(LocalDateTime.of(2017, 6, 29, 13, 55), TramchesterConfig.TimeZoneId);
         assertEquals(expectedDateB.toLocalDateTime(), departureInfoB.getLastUpdate());
         assertEquals(LineDirection.Incoming, departureInfoB.getDirection());
@@ -262,12 +262,12 @@ class LiveDataParserTest extends EasyMockSupport {
         Platform navRoadPlatform1 = TestEnv.findOnlyPlatform(navRaod);
 
         LocalDateTime dateTimeA = LocalDateTime.of(2017, 11, 29, 11,45);
-        TramStationDepartureInfo depA = setExpectationsForDeparture(1, Lines.Altrincham, LineDirection.Incoming, msgA, NavigationRoad,
+        TramStationDepartureInfo depA = setExpectationsForDeparture(1, OverheadDisplayLines.Altrincham, LineDirection.Incoming, msgA, NavigationRoad,
                 dateTimeA, "1", navRoadPlatform1);
         expectDueTram(depA, Piccadilly, 1, "Due", "Single", navRoadPlatform1);
 
         LocalDateTime dateTimeB = LocalDateTime.of(2017,6,29,13,55);
-        TramStationDepartureInfo depB = setExpectationsForDeparture(234, Lines.Altrincham, LineDirection.Outgoing, msgB, NavigationRoad,
+        TramStationDepartureInfo depB = setExpectationsForDeparture(234, OverheadDisplayLines.Altrincham, LineDirection.Outgoing, msgB, NavigationRoad,
                 dateTimeB, "2", null);
         expectDueTram(depB, Altrincham, 5, "Due", "Single", null);
 
@@ -315,12 +315,12 @@ class LiveDataParserTest extends EasyMockSupport {
         expectationByName(Deansgate);
 
         LocalDateTime dateTimeA = LocalDateTime.of(2017, 11, 29, 11,45);
-        TramStationDepartureInfo depA = setExpectationsForDeparture(1, Lines.Eccles, LineDirection.Incoming, "message A", MediaCityUK, dateTimeA, "2", mediaCityPlatform);
+        TramStationDepartureInfo depA = setExpectationsForDeparture(1, OverheadDisplayLines.Eccles, LineDirection.Incoming, "message A", MediaCityUK, dateTimeA, "2", mediaCityPlatform);
 
         expectDueTram(depA, Piccadilly, 12, "Due", "Single", null);
 
         LocalDateTime dateTimeB = LocalDateTime.of(2017,6,29,13,55);
-        TramStationDepartureInfo depB = setExpectationsForDeparture(234, Lines.Airport, LineDirection.Incoming, "message B", ManAirport, dateTimeB, "1", null);
+        TramStationDepartureInfo depB = setExpectationsForDeparture(234, OverheadDisplayLines.Airport, LineDirection.Incoming, "message B", ManAirport, dateTimeB, "1", null);
 
         expectDueTram(depB, Deansgate, 5, "Due", "Single", null);
 
@@ -356,7 +356,7 @@ class LiveDataParserTest extends EasyMockSupport {
         expectationByName(Deansgate);
 
         LocalDateTime dateTimeA = LocalDateTime.of(2017, 11, 29, 11,45);
-        TramStationDepartureInfo dep = setExpectationsForDeparture(1, Lines.Eccles, LineDirection.Incoming, "message A", MediaCityUK, dateTimeA, "2", mediaCityPlatform);
+        TramStationDepartureInfo dep = setExpectationsForDeparture(1, OverheadDisplayLines.Eccles, LineDirection.Incoming, "message A", MediaCityUK, dateTimeA, "2", mediaCityPlatform);
 
         expectDueTram(dep, Piccadilly, 12, "Due", "Single", mediaCityPlatform);
 
@@ -394,8 +394,8 @@ class LiveDataParserTest extends EasyMockSupport {
         LocalDateTime dateTimeA = LocalDateTime.of(2017, 11, 29, 11,45);
         LocalDateTime dateTimeB = LocalDateTime.of(2017,6,29,13,55);
 
-        setExpectationsForDeparture(1, Lines.Eccles, LineDirection.Both, "message A", MediaCityUK, dateTimeA, "2", mediaCityPlatform);
-        setExpectationsForDeparture(234, Lines.Airport, LineDirection.Both, "message B", ManAirport, dateTimeB, "1", null);
+        setExpectationsForDeparture(1, OverheadDisplayLines.Eccles, LineDirection.Both, "message A", MediaCityUK, dateTimeA, "2", mediaCityPlatform);
+        setExpectationsForDeparture(234, OverheadDisplayLines.Airport, LineDirection.Both, "message B", ManAirport, dateTimeB, "1", null);
 
         List<TramStationDepartureInfo> info = doParsing(exampleData);
 
@@ -422,7 +422,7 @@ class LiveDataParserTest extends EasyMockSupport {
 
         LocalDateTime dateTimeA = LocalDateTime.of(2017, 11, 29, 11,45);
 
-        TramStationDepartureInfo dep = setExpectationsForDeparture(1, Lines.Eccles, LineDirection.Incoming, "message A", MediaCityUK, dateTimeA, "2", mediaCityPlatform);
+        TramStationDepartureInfo dep = setExpectationsForDeparture(1, OverheadDisplayLines.Eccles, LineDirection.Incoming, "message A", MediaCityUK, dateTimeA, "2", mediaCityPlatform);
 
         expectDueTram(dep, Piccadilly, 1, "Due", "Single", mediaCityPlatform);
 
@@ -456,7 +456,7 @@ class LiveDataParserTest extends EasyMockSupport {
 
         LocalDateTime dateTimeB = LocalDateTime.of(2017,6,29,13,55);
 
-        TramStationDepartureInfo dep = setExpectationsForDeparture(234, Lines.Airport, LineDirection.Incoming, "message B", ManAirport, dateTimeB, "1", null);
+        TramStationDepartureInfo dep = setExpectationsForDeparture(234, OverheadDisplayLines.Airport, LineDirection.Incoming, "message B", ManAirport, dateTimeB, "1", null);
         expectDueTram(dep, Deansgate, 5, "Due", "Single", null);
         expectDueTram(dep, Deansgate, 17, "Due", "Single", null);
 
@@ -486,7 +486,7 @@ class LiveDataParserTest extends EasyMockSupport {
         return info;
     }
 
-    private TramStationDepartureInfo setExpectationsForDeparture(int displayId, Lines line, LineDirection direction, String message,
+    private TramStationDepartureInfo setExpectationsForDeparture(int displayId, OverheadDisplayLines line, LineDirection direction, String message,
                                                                  TramStations tramStation, LocalDateTime dateTime, String platformNumber, Platform platform) {
 
         TramStationDepartureInfo departureInfo = new TramStationDepartureInfo(Integer.toString(displayId), line, direction, tramStation.fake(),

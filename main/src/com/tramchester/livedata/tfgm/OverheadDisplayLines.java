@@ -1,7 +1,7 @@
 package com.tramchester.livedata.tfgm;
 
 // Live data lines are not same as timetable routes, see also Mapper
-public enum Lines {
+public enum OverheadDisplayLines {
     Altrincham("Altrincham"),
     Airport("Airport"),
     Bury("Bury"),
@@ -14,7 +14,7 @@ public enum Lines {
 
     private final String name;
 
-    Lines(String name) {
+    OverheadDisplayLines(String name) {
         this.name = name;
     }
 

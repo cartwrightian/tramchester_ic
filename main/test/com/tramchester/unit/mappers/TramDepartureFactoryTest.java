@@ -7,7 +7,7 @@ import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
 import com.tramchester.livedata.domain.liveUpdates.LineDirection;
-import com.tramchester.livedata.tfgm.Lines;
+import com.tramchester.livedata.tfgm.OverheadDisplayLines;
 import com.tramchester.livedata.tfgm.TramDepartureFactory;
 import com.tramchester.livedata.tfgm.TramStationDepartureInfo;
 import com.tramchester.repository.AgencyRepository;
@@ -45,7 +45,7 @@ public class TramDepartureFactoryTest extends EasyMockSupport {
         EasyMock.expect(stationRepository.hasStationId(Station.createId("wrongActo"))).andReturn(false);
 
         replayAll();
-        TramStationDepartureInfo result = tramDepartureFactory.createStationDeparture(BigDecimal.valueOf(42), Lines.Altrincham, LineDirection.Outgoing,
+        TramStationDepartureInfo result = tramDepartureFactory.createStationDeparture(BigDecimal.valueOf(42), OverheadDisplayLines.Altrincham, LineDirection.Outgoing,
                 "wrongActo", "platform message", TestEnv.LocalNow());
         verifyAll();
 
@@ -70,14 +70,14 @@ public class TramDepartureFactoryTest extends EasyMockSupport {
         EasyMock.expect(platformRepository.getPlatformById(platformId)).andReturn(airportPlatform);
 
         replayAll();
-        TramStationDepartureInfo result = tramDepartureFactory.createStationDeparture(BigDecimal.valueOf(42), Lines.Altrincham, LineDirection.Outgoing,
+        TramStationDepartureInfo result = tramDepartureFactory.createStationDeparture(BigDecimal.valueOf(42), OverheadDisplayLines.Altrincham, LineDirection.Outgoing,
                 TramStations.ManAirport.getRawId()+"2", "platform message", updateTime);
         verifyAll();
 
         assertNotNull(result);
         assertEquals("42", result.getDisplayId());
         assertEquals(stationId, result.getStation().getId());
-        assertEquals(Lines.Altrincham, result.getLine());
+        assertEquals(OverheadDisplayLines.Altrincham, result.getLine());
         assertEquals(LineDirection.Outgoing, result.getDirection());
         assertEquals(updateTime , result.getLastUpdate());
         assertEquals("platform message", result.getMessage());
@@ -94,7 +94,7 @@ public class TramDepartureFactoryTest extends EasyMockSupport {
         EasyMock.expect(platformRepository.hasPlatformId(platformId)).andReturn(false);
 
         replayAll();
-        TramStationDepartureInfo result = tramDepartureFactory.createStationDeparture(BigDecimal.valueOf(42), Lines.Altrincham, LineDirection.Outgoing,
+        TramStationDepartureInfo result = tramDepartureFactory.createStationDeparture(BigDecimal.valueOf(42), OverheadDisplayLines.Altrincham, LineDirection.Outgoing,
                 TramStations.ManAirport.getRawId()+"9", "platform message", TestEnv.LocalNow());
         verifyAll();
 

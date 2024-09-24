@@ -15,7 +15,7 @@ public class TramStationDepartureInfo {
 
     private static final String NO_MESSAGE = "<no message>";
 
-    private final Lines line;
+    private final OverheadDisplayLines line;
     private Platform stationPlatform;
     private final String message;
     private final List<UpcomingDeparture> dueTrams;
@@ -24,12 +24,12 @@ public class TramStationDepartureInfo {
     private final Station station;
     private final LineDirection direction;
 
-    public TramStationDepartureInfo(String displayId, Lines line, LineDirection direction,
+    public TramStationDepartureInfo(String displayId, OverheadDisplayLines line, LineDirection direction,
                                     Station station, String message, LocalDateTime lastUpdate) {
         this(displayId, line, direction, station, message, lastUpdate, null);
     }
 
-    public TramStationDepartureInfo(String displayId, Lines line, LineDirection direction,
+    public TramStationDepartureInfo(String displayId, OverheadDisplayLines line, LineDirection direction,
                                     Station station, String message, LocalDateTime lastUpdate, Platform platform) {
         this.displayId = displayId;
         this.line = line;
@@ -53,7 +53,7 @@ public class TramStationDepartureInfo {
         return message.startsWith("^F0Next");
     }
 
-    public Lines getLine() {
+    public OverheadDisplayLines getLine() {
         return line;
     }
 

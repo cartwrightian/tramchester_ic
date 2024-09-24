@@ -10,7 +10,7 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.domain.liveUpdates.LineDirection;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
-import com.tramchester.livedata.tfgm.Lines;
+import com.tramchester.livedata.tfgm.OverheadDisplayLines;
 import com.tramchester.livedata.tfgm.LiveDataMarshaller;
 import com.tramchester.livedata.tfgm.TramDepartureRepository;
 import com.tramchester.livedata.tfgm.TramStationDepartureInfo;
@@ -87,7 +87,7 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
                 DataSourceID.unknown, NPTGLocality.InvalidId());
         Platform platfromForThirdStation = TestEnv.findOnlyPlatform(thirdStation);
 
-        TramStationDepartureInfo thirdStationInfo = new TramStationDepartureInfo("displayId3", Lines.Airport,
+        TramStationDepartureInfo thirdStationInfo = new TramStationDepartureInfo("displayId3", OverheadDisplayLines.Airport,
         LineDirection.Incoming, thirdStation, "message 3", lastUpdate, platfromForThirdStation);
         infos.add(thirdStationInfo);
 
@@ -209,7 +209,7 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
                                           String displayId, Platform platform,
                                           String message,
                                           Station location, UpcomingDeparture upcomingDeparture) {
-        TramStationDepartureInfo departureInfo = new TramStationDepartureInfo(displayId, Lines.Eccles,
+        TramStationDepartureInfo departureInfo = new TramStationDepartureInfo(displayId, OverheadDisplayLines.Eccles,
                 LineDirection.Incoming, location, message, lastUpdate, platform);
         departureInfo.addDueTram(upcomingDeparture);
 

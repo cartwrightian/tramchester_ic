@@ -7,7 +7,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.places.Station;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
-import com.tramchester.livedata.tfgm.Lines;
+import com.tramchester.livedata.tfgm.OverheadDisplayLines;
 import com.tramchester.livedata.tfgm.TramStationDepartureInfo;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.livedata.tfgm.LiveDataHTTPFetcher;
@@ -88,7 +88,7 @@ class LiveDataHTTPFetcherTest {
 
         // this assert will fail if run at certain times of day....
         // assertTrue(aDisplay.getDueTrams().size()>0);
-        assertNotEquals(Lines.UnknownLine, display.getLine());
+        assertNotEquals(OverheadDisplayLines.UnknownLine, display.getLine());
         LocalDateTime when = display.getLastUpdate();
         Assertions.assertEquals(TestEnv.LocalNow().getDayOfMonth(),when.getDayOfMonth());
     }
@@ -140,9 +140,9 @@ class LiveDataHTTPFetcherTest {
     void shouldMapAllLinesCorrectly() {
         List<TramStationDepartureInfo> departureInfos = parser.parse(payload);
 
-        Set<Lines> uniqueLines = departureInfos.stream().map(TramStationDepartureInfo::getLine).collect(Collectors.toSet());
+        Set<OverheadDisplayLines> uniqueLines = departureInfos.stream().map(TramStationDepartureInfo::getLine).collect(Collectors.toSet());
 
-        assertFalse(uniqueLines.contains(Lines.UnknownLine));
+        assertFalse(uniqueLines.contains(OverheadDisplayLines.UnknownLine));
 
         assertEquals(8, uniqueLines.size());
     }

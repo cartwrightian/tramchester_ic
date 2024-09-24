@@ -48,7 +48,7 @@ public class LiveDataParser {
     private final TramDepartureFactory departureFactory;
 
     private final Set<String> mappingsUsed;
-    private final EnumSet<Lines> linesSeen;
+    private final EnumSet<OverheadDisplayLines> linesSeen;
 
     // live data api has limit in number of results
     private static final int MAX_DUE_TRAMS = 4;
@@ -88,7 +88,7 @@ public class LiveDataParser {
         destinationNameMappings = new HashMap<>();
 
         mappingsUsed = new HashSet<>();
-        linesSeen = EnumSet.noneOf(Lines.class);
+        linesSeen = EnumSet.noneOf(OverheadDisplayLines.class);
     }
 
     @PostConstruct
@@ -109,8 +109,8 @@ public class LiveDataParser {
             logger.warn("The following mappings were not used " + unusedMappings);
         }
 
-        final EnumSet<Lines> unusedLines = EnumSet.allOf(Lines.class);
-        unusedLines.remove(Lines.UnknownLine);
+        final EnumSet<OverheadDisplayLines> unusedLines = EnumSet.allOf(OverheadDisplayLines.class);
+        unusedLines.remove(OverheadDisplayLines.UnknownLine);
         unusedLines.removeAll(linesSeen);
         if (!unusedMappings.isEmpty()) {
             logger.warn("The following lines were not seen " + unusedLines);
@@ -162,9 +162,9 @@ public class LiveDataParser {
             monitorParsing.unknownDirection(rawDirection);
         }
 
-        final Lines line = getLine(rawLine);
+        final OverheadDisplayLines line = getLine(rawLine);
         linesSeen.add(line);
-        if (line == Lines.UnknownLine) {
+        if (line == OverheadDisplayLines.UnknownLine) {
             monitorParsing.unknownLine(rawLine);
         }
 
@@ -190,14 +190,14 @@ public class LiveDataParser {
         return Optional.of(departureInfo);
     }
 
-    private Lines getLine(final String text) {
-        final Lines[] valid = Lines.values();
-        for (Lines line : valid) {
+    private OverheadDisplayLines getLine(final String text) {
+        final OverheadDisplayLines[] valid = OverheadDisplayLines.values();
+        for (OverheadDisplayLines line : valid) {
             if (line.getName().equals(text)) {
                 return line;
             }
         }
-        return Lines.UnknownLine;
+        return OverheadDisplayLines.UnknownLine;
     }
 
     private LineDirection getDirection(final String text) {

@@ -11,7 +11,7 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.domain.liveUpdates.LineDirection;
 import com.tramchester.livedata.domain.liveUpdates.PlatformMessage;
-import com.tramchester.livedata.tfgm.Lines;
+import com.tramchester.livedata.tfgm.OverheadDisplayLines;
 import com.tramchester.livedata.tfgm.LiveDataMarshaller;
 import com.tramchester.livedata.tfgm.PlatformMessageRepository;
 import com.tramchester.livedata.tfgm.TramStationDepartureInfo;
@@ -67,12 +67,12 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
 
         EasyMock.expect(config.liveTfgmTramDataEnabled()).andStubReturn(true);
 
-        TramStationDepartureInfo departureInfoA = new TramStationDepartureInfo("yyy", Lines.Eccles,
+        TramStationDepartureInfo departureInfoA = new TramStationDepartureInfo("yyy", OverheadDisplayLines.Eccles,
                 LineDirection.Incoming, station, "some message", lastUpdate, platform);
 
 
         Station altrincham = Altrincham.fake();
-        TramStationDepartureInfo departureInfoB = new TramStationDepartureInfo("yyy", Lines.Eccles,
+        TramStationDepartureInfo departureInfoB = new TramStationDepartureInfo("yyy", OverheadDisplayLines.Eccles,
                 LineDirection.Incoming, altrincham,
                 "some different message", lastUpdate, TestEnv.createPlatformFor(altrincham, "someOther"));
         infos.add(departureInfoA);
@@ -117,7 +117,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
 
         EasyMock.expect(config.liveTfgmTramDataEnabled()).andReturn(true);
 
-        TramStationDepartureInfo departureInfo = new TramStationDepartureInfo("yyy", Lines.Eccles,
+        TramStationDepartureInfo departureInfo = new TramStationDepartureInfo("yyy", OverheadDisplayLines.Eccles,
                 LineDirection.Incoming, station, "<no message>", lastUpdate, platform);
         infos.add(departureInfo);
 
@@ -136,7 +136,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         List<TramStationDepartureInfo> infos = new LinkedList<>();
 
         EasyMock.expect(config.liveTfgmTramDataEnabled()).andReturn(true);
-        TramStationDepartureInfo departureInfo = new TramStationDepartureInfo("yyy", Lines.Eccles,
+        TramStationDepartureInfo departureInfo = new TramStationDepartureInfo("yyy", OverheadDisplayLines.Eccles,
                 LineDirection.Incoming, station, "", lastUpdate, platform);
         infos.add(departureInfo);
 
@@ -165,7 +165,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
 
         EasyMock.expect(config.liveTfgmTramDataEnabled()).andStubReturn(true);
 
-        TramStationDepartureInfo departureInfo = new TramStationDepartureInfo("yyy", Lines.Eccles,
+        TramStationDepartureInfo departureInfo = new TramStationDepartureInfo("yyy", OverheadDisplayLines.Eccles,
                 LineDirection.Incoming, station, "some msg", lastUpdate, platform);
         infos.add(departureInfo);
 
@@ -187,7 +187,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         List<TramStationDepartureInfo> infos = new LinkedList<>();
         EasyMock.expect(config.liveTfgmTramDataEnabled()).andStubReturn(true);
 
-        TramStationDepartureInfo departureInfo = new TramStationDepartureInfo("yyy", Lines.Eccles,
+        TramStationDepartureInfo departureInfo = new TramStationDepartureInfo("yyy", OverheadDisplayLines.Eccles,
                 LineDirection.Incoming, station, "some msg", lastUpdate.minusMinutes(30), platform);
         infos.add(departureInfo);
 
@@ -209,9 +209,9 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
 
         EasyMock.expect(config.liveTfgmTramDataEnabled()).andStubReturn(true);
 
-        TramStationDepartureInfo departureInfoA = new TramStationDepartureInfo("123", Lines.Eccles,
+        TramStationDepartureInfo departureInfoA = new TramStationDepartureInfo("123", OverheadDisplayLines.Eccles,
                 LineDirection.Incoming, station, "some message", lastUpdate, platform);
-        TramStationDepartureInfo departureInfoB = new TramStationDepartureInfo("456", Lines.Eccles,
+        TramStationDepartureInfo departureInfoB = new TramStationDepartureInfo("456", OverheadDisplayLines.Eccles,
                 LineDirection.Incoming, station, "some other message", lastUpdate, platform);
 
         infos.add(departureInfoA);
@@ -236,9 +236,9 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         List<TramStationDepartureInfo> infos = new LinkedList<>();
         EasyMock.expect(config.liveTfgmTramDataEnabled()).andStubReturn(true);
 
-        TramStationDepartureInfo departureInfoA = new TramStationDepartureInfo("123", Lines.Eccles,
+        TramStationDepartureInfo departureInfoA = new TramStationDepartureInfo("123", OverheadDisplayLines.Eccles,
                 LineDirection.Incoming, station, "some message", lastUpdate, platform);
-        TramStationDepartureInfo departureInfoB = new TramStationDepartureInfo("456", Lines.Airport,
+        TramStationDepartureInfo departureInfoB = new TramStationDepartureInfo("456", OverheadDisplayLines.Airport,
                 LineDirection.Incoming, station, "", lastUpdate, platform);
         infos.add(departureInfoA);
         infos.add(departureInfoB);

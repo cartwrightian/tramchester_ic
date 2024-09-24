@@ -47,13 +47,13 @@ public class TramDepartureFactory {
         agency = agencyRepository.get(MutableAgency.METL);
     }
 
-    public TramStationDepartureInfo createStationDeparture(BigDecimal displayId, Lines line, LineDirection direction, String atcoCode, String message,
+    public TramStationDepartureInfo createStationDeparture(BigDecimal displayId, OverheadDisplayLines line, LineDirection direction, String atcoCode, String message,
                                                            LocalDateTime updateTime) {
         final Optional<Station> maybeStation = getStationByAtcoCode(atcoCode);
         return maybeStation.map(station -> createWithPlatform(displayId, line, direction, message, updateTime, station, atcoCode)).orElse(null);
     }
 
-    private TramStationDepartureInfo createWithPlatform(BigDecimal displayId, Lines line, LineDirection direction, final String message,
+    private TramStationDepartureInfo createWithPlatform(BigDecimal displayId, OverheadDisplayLines line, LineDirection direction, final String message,
                                                         LocalDateTime updateTime, Station station, String atcoCode) {
         Platform platform = getPlatform(station, atcoCode);
         if (platform!=null) {
