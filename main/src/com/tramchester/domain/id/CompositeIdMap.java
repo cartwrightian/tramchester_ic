@@ -33,7 +33,7 @@ public class CompositeIdMap<S extends HasId<S> & CoreDomain, T extends S> implem
         theMap.clear();
     }
 
-    public boolean hasId(IdFor<S> id) {
+    public boolean hasId(final IdFor<S> id) {
         return theMap.containsKey(id);
     }
 

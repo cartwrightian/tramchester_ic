@@ -29,6 +29,8 @@ import java.util.Optional;
 @LazySingleton
 public class TramDepartureFactory {
     private static final Logger logger = LoggerFactory.getLogger(TramDepartureFactory.class);
+    public static final String TRAFFORD_CENTER_PLATFORM1 = "9400ZZMATRC1";
+    public static final String TRAFFORD_CENTER_PLATFORM2 = "9400ZZMATRC2";
 
     private final AgencyRepository agencyRepository;
     private final StationRepositoryPublic stationRepository;
@@ -47,14 +49,15 @@ public class TramDepartureFactory {
         agency = agencyRepository.get(MutableAgency.METL);
     }
 
-    public TramStationDepartureInfo createStationDeparture(BigDecimal displayId, OverheadDisplayLines line, LineDirection direction, String atcoCode, String message,
-                                                           LocalDateTime updateTime) {
+    public TramStationDepartureInfo createStationDeparture(BigDecimal displayId, OverheadDisplayLines line, LineDirection direction,
+                                                           String atcoCode, String message, LocalDateTime updateTime) {
         final Optional<Station> maybeStation = getStationByAtcoCode(atcoCode);
         return maybeStation.map(station -> createWithPlatform(displayId, line, direction, message, updateTime, station, atcoCode)).orElse(null);
     }
 
-    private TramStationDepartureInfo createWithPlatform(BigDecimal displayId, OverheadDisplayLines line, LineDirection direction, final String message,
-                                                        LocalDateTime updateTime, Station station, String atcoCode) {
+    private TramStationDepartureInfo createWithPlatform(BigDecimal displayId, OverheadDisplayLines line, LineDirection direction,
+                                                        final String message, LocalDateTime updateTime, Station station,
+                                                        final String atcoCode) {
         Platform platform = getPlatform(station, atcoCode);
         if (platform!=null) {
             return new TramStationDepartureInfo(displayId.toString(), line, direction, station, message, updateTime, platform);
@@ -63,7 +66,7 @@ public class TramDepartureFactory {
         }
     }
 
-    private Platform getPlatform(Station station, String atcoCode) {
+    private Platform getPlatform(Station station, final String atcoCode) {
 
         final IdFor<Platform> platformId = getPlatformIdFor(station, atcoCode);
         if (platformRepository.hasPlatformId(platformId)) {
@@ -84,10 +87,11 @@ public class TramDepartureFactory {
         }
     }
 
-    private IdFor<Platform> getPlatformIdFor(final Station station, String atcoCode) {
-        if ("9400ZZMATRC1".equals(atcoCode)) {
+    private IdFor<Platform> getPlatformIdFor(final Station station, final String atcoCode) {
+        // TODO Log if this workaround is in use
+        if (TRAFFORD_CENTER_PLATFORM1.equals(atcoCode)) {
             // trafford park platform workaround
-            atcoCode = "9400ZZMATRC2";
+            return TransportEntityFactoryForTFGM.createPlatformId(station.getId(), TRAFFORD_CENTER_PLATFORM2);
         }
         return TransportEntityFactoryForTFGM.createPlatformId(station.getId(), atcoCode);
     }

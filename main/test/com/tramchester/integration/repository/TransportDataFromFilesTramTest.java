@@ -27,6 +27,7 @@ import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
+import com.tramchester.livedata.tfgm.TramDepartureFactory;
 import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.TransportData;
@@ -604,6 +605,21 @@ public class TransportDataFromFilesTramTest {
 
         assertTrue(onTimeTrips>0);
 
+    }
+
+    @Test
+    void shouldHaveExpectedTraffordParkPlatformsForLiveDataWorkaround() {
+
+        Station traffordPark = TraffordCentre.from(transportData);
+        List<Platform> traffordCentrePlatforms = new ArrayList<>(traffordPark.getPlatforms());
+        assertEquals(1, traffordCentrePlatforms.size(), HasId.asIds(traffordCentrePlatforms));
+
+        Platform platform = traffordCentrePlatforms.get(0);
+        assertEquals("2", platform.getPlatformNumber());
+
+        assertTrue(transportData.hasPlatformId(platform.getId()), "expected present in timetable");
+
+        assertEquals(TramDepartureFactory.TRAFFORD_CENTER_PLATFORM2, platform.getId().getGraphId());
     }
 
     @Disabled("Performance tests")

@@ -15,7 +15,6 @@ import com.tramchester.domain.time.ProvidesNow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -276,14 +275,13 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     }
 
     @Override
-    public Set<Platform> getPlatforms(EnumSet<TransportMode> modes) {
+    public Set<Platform> getPlatforms(final EnumSet<TransportMode> modes) {
         return platforms.getValuesStream().
                 filter(platform -> TransportMode.intersects(modes, platform.getTransportModes())).collect(Collectors.toSet());
-        //return Collections.unmodifiableSet(platforms.getValues());
     }
 
     @Override
-    public boolean hasPlatformId(IdFor<Platform> id) {
+    public boolean hasPlatformId(final IdFor<Platform> id) {
         return platforms.hasId(id);
     }
 

@@ -16,13 +16,14 @@ public class TramStationDepartureInfo {
     private static final String NO_MESSAGE = "<no message>";
 
     private final OverheadDisplayLines line;
-    private Platform stationPlatform;
+    private final LineDirection direction;
+
+    private final Platform stationPlatform;
     private final String message;
     private final List<UpcomingDeparture> dueTrams;
     private final LocalDateTime lastUpdate;
     private final String displayId;
     private final Station station;
-    private final LineDirection direction;
 
     public TramStationDepartureInfo(String displayId, OverheadDisplayLines line, LineDirection direction,
                                     Station station, String message, LocalDateTime lastUpdate) {

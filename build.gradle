@@ -650,7 +650,7 @@ tasks.register('monitorLiveTramData', JavaExec) {
     dependsOn 'classes'
     mainClass = 'com.tramchester.deployment.cli.MonitorTramLiveData'
     classpath = sourceSets.main.runtimeClasspath
-    args 'config/local.yml', '50'
+    args 'config/local.yml', '2'
 }
 
 // gm here so include both sets of data

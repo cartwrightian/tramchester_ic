@@ -20,6 +20,7 @@ import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.metrics.HasMetrics;
 import com.tramchester.metrics.RegistersMetrics;
 import com.tramchester.repository.ReportsCacheStats;
+import jakarta.inject.Inject;
 import org.apache.commons.lang3.tuple.Pair;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jetbrains.annotations.NotNull;
@@ -28,7 +29,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import jakarta.inject.Inject;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
@@ -107,12 +107,12 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
         return entries;
     }
 
-    private void consumeDepartInfo(List<TramStationDepartureInfo> departureInfos) {
+    private void consumeDepartInfo(final List<TramStationDepartureInfo> departureInfos) {
         IdSet<Platform> platformsSeen = new IdSet<>();
         int emptyMessages = 0;
         int noTrams = 0;
 
-        for (TramStationDepartureInfo departureInfo : departureInfos) {
+        for (final TramStationDepartureInfo departureInfo : departureInfos) {
             if (departureInfo.hasStationPlatform()) {
                 if (!updateCacheFor(departureInfo, platformsSeen)) {
                     emptyMessages = emptyMessages + 1;
