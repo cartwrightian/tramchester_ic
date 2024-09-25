@@ -23,7 +23,7 @@
     "leaflet": "^1.9.1",
     "leaflet-arrowheads": "^1.4.0",
     "leaflet-polylineoffset": "^1.1.1",
-    "oboe": "^2.1.5",
+    "oboe": "^2.1.7",
     "serialize-javascript": "^6.0.2",
     "vue": "^3.5.8",
     "vue-cookies": "^1.8.4",
