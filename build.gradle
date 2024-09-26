@@ -104,7 +104,7 @@ dependencies {
     // todo replace with jakarta version, but used by governator and cxf code gen
     implementation 'javax.annotation:javax.annotation-api:1.3.2'
 
-    implementation  'org.jetbrains:annotations:24.1.0'
+    implementation  'org.jetbrains:annotations:25.0.0'
 
     // note multiple incompatible forks of geotools see repo specified above and https://repo.osgeo.org/#browse/browse:release:org%2Fgeotools%2Fgt-main
     implementation('org.geotools:gt-main:32.0',
