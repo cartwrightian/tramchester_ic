@@ -62,11 +62,13 @@ class RouteResourceTest {
         List<RouteDTO> routeDTOS = getRouteResponse(); // uses current date server side
         routeDTOS.forEach(route -> assertFalse(route.getStations().isEmpty(), "Route no stations "+route.getRouteName()));
 
-        Set<String> namesFromDTO = routeDTOS.stream().map(RouteRefDTO::getRouteName).collect(Collectors.toSet());
-        Set<String> expectedNames = KnownTramRoute.getFor(today).stream().map(KnownTramRoute::longName).collect(Collectors.toSet());
+        Set<IdForDTO> namesFromDTO = routeDTOS.stream().map(RouteRefDTO::getRouteID).collect(Collectors.toSet());
+        Set<IdForDTO> expectedNames = KnownTramRoute.getFor(today).stream().
+                map(KnownTramRoute::dtoId).
+                collect(Collectors.toSet());
 
-        Set<String> namesMismatch = SetUtils.disjunction(namesFromDTO, expectedNames);
-        assertTrue(namesMismatch.isEmpty());
+        Set<IdForDTO> mismatch = SetUtils.disjunction(namesFromDTO, expectedNames);
+        assertTrue(mismatch.isEmpty(), mismatch.toString());
 
     }
 
@@ -78,7 +80,7 @@ class RouteResourceTest {
         List<RouteDTO> routes = getRouteResponse();
 
         List<RouteDTO> airRoutes = routes.stream().
-                filter(routeDTO -> routeDTO.getRouteName().equals(DeansgateCastlefieldManchesterAirport.longName())).
+                filter(routeDTO -> routeDTO.getRouteID().equals(DeansgateCastlefieldManchesterAirport.dtoId())).
                 toList();
 
         assertEquals(1, airRoutes.size());

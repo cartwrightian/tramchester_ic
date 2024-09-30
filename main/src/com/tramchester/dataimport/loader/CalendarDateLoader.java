@@ -35,23 +35,24 @@ public class CalendarDateLoader {
     }
 
     public void load(Stream<CalendarDateData> calendarsDates, IdMap<Service> services) {
-        TramDateSet noServices = TramDateSet.of(gtfsSourceConfig.getNoServices());
+        final TramDateSet noServices = TramDateSet.of(gtfsSourceConfig.getNoServices());
+
         logger.info("Loading calendar dates "+ services.size() +" services with no services on " + noServices);
         IdSet<Service> missingCalendarDates = new IdSet<>();
         AtomicInteger countCalendarDates = new AtomicInteger(0);
 
-        calendarsDates.forEach(excpetionDate -> {
-            IdFor<Service> serviceId = excpetionDate.getServiceId();
-            MutableService service = buildable.getMutableService(serviceId);
+        calendarsDates.forEach(exceptionDate -> {
+            final IdFor<Service> serviceId = exceptionDate.getServiceId();
+            final MutableService service = buildable.getMutableService(serviceId);
             if (service != null) {
                 if (service.hasCalendar()) {
                     countCalendarDates.getAndIncrement();
-                    addException(excpetionDate, service.getMutableCalendar(), serviceId, noServices);
+                    addException(exceptionDate, service.getMutableCalendar(), serviceId, noServices);
                 } else {
                     // this now seems common, so no warning
                     //logger.warn("Missing calendar for service " + service.getId() + " so add exception only calendar");
                     service.setCalendar(new MutableExceptionsOnlyServiceCalendar());
-                    addException(excpetionDate, service.getMutableCalendar(), serviceId, noServices);
+                    addException(exceptionDate, service.getMutableCalendar(), serviceId, noServices);
                     missingCalendarDates.add(serviceId);
                 }
             } else  {
@@ -86,8 +87,8 @@ public class CalendarDateLoader {
     }
 
     private void addException(CalendarDateData date, MutableServiceCalendar calendar, IdFor<Service> serviceId, TramDateSet noServices) {
-        int exceptionType = date.getExceptionType();
-        TramDate exceptionDate = date.getDate();
+        final int exceptionType = date.getExceptionType();
+        final TramDate exceptionDate = date.getDate();
         if (exceptionType == CalendarDateData.ADDED) {
             if (!noServices.contains(exceptionDate)) {
                 calendar.includeExtraDate(exceptionDate);

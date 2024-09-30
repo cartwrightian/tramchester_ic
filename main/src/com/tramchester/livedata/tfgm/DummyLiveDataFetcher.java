@@ -10,4 +10,9 @@ public class DummyLiveDataFetcher extends LiveDataFetcher {
         logger.error("getData() called for dummy implementation, check for live data being enabled in the caller!");
         return "";
     }
+
+    @Override
+    boolean isEnabled() {
+        return false;
+    }
 }

@@ -12,7 +12,7 @@ public interface ServiceCalendar {
 
     /***
      * Range of dates (from data source) given for this service. NOTE: service might not actually operate on
-     * any of these dates depending on removed, additional and operatingdays
+     * any of these dates depending on removed, additional and operating days
      * @return range for calendar
      */
     DateRange getDateRange();
@@ -37,4 +37,6 @@ public interface ServiceCalendar {
     long numberDaysOperating();
 
     DaysBitmap getDaysBitmap();
+
+    boolean hasAddition();
 }

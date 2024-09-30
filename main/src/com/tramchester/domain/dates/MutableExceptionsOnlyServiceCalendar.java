@@ -121,6 +121,11 @@ public class MutableExceptionsOnlyServiceCalendar implements MutableServiceCalen
     }
 
     @Override
+    public boolean hasAddition() {
+        return !additional.isEmpty();
+    }
+
+    @Override
     public String toString() {
         return "MutableExceptionsOnlyServiceCalendar{" +
                 "additional=" + additional +

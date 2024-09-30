@@ -42,6 +42,10 @@ public class IdForDTO {
         return new IdForDTO(hasId.getId());
     }
 
+    public static IdForDTO createFor(IdFor<?> id) {
+        return new IdForDTO(id);
+    }
+
     /***
      * Pseudo id for locations
      * TODO should this be the MyLocationId?

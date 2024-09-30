@@ -3,16 +3,20 @@ package com.tramchester.deployment.cli;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.config.TfgmTramLiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.Platform;
+import com.tramchester.domain.Route;
+import com.tramchester.domain.StationPair;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.places.Station;
-import com.tramchester.livedata.domain.liveUpdates.LineDirection;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.livedata.tfgm.LiveDataFetcher;
 import com.tramchester.livedata.tfgm.LiveDataMarshaller;
-import com.tramchester.livedata.tfgm.OverheadDisplayLines;
 import com.tramchester.livedata.tfgm.TramStationDepartureInfo;
+import com.tramchester.mappers.LiveTramDataToCallingPoints;
 import io.dropwizard.configuration.ConfigurationException;
+import org.apache.commons.collections4.SetUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +25,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
+import java.util.stream.Collectors;
 
 /***
  * Tool to assist with understanding how the line data Line, Direction, DisplayID and destinations
@@ -74,12 +79,14 @@ public class MonitorTramLiveData extends BaseCLI {
 
         final LiveDataMarshaller marshaller = dependencies.get(LiveDataMarshaller.class);
         final LiveDataFetcher fetcher = dependencies.get(LiveDataFetcher.class);
+        final LiveTramDataToCallingPoints liveTramDataToCallingPoints = dependencies.get(LiveTramDataToCallingPoints.class);
         final CountDownLatch latch = new CountDownLatch(numberToReceive);
 
         RecordDisplayInfo recordDisplayInfo = new RecordDisplayInfo(logger);
 
         marshaller.addSubscriber(updates -> {
-            recordDisplayInfo.record(updates);
+//            recordDisplayInfo.record(updates);
+            liveTramDataToCallingPoints.map(updates);
             latch.countDown();
             logger.info("Received " + updates.size() + " updates");
             return true;
@@ -114,84 +121,113 @@ public class MonitorTramLiveData extends BaseCLI {
 
     private static class RecordDisplayInfo {
         private final Logger logger;
-        private final Map<String, RecordedDisplayInfo> displayInfos;
-        private final Map<LineAndDirection, IdSet<Station>> destinations;
 
         RecordDisplayInfo(Logger logger) {
             this.logger = logger;
-            displayInfos = new HashMap<>();
-            destinations = new HashMap<>();
         }
 
         public void record(List<TramStationDepartureInfo> updates) {
-            updates.forEach(this::record);
+            Set<StationPair> allAmbiguousRoutings = updates.stream().
+                    flatMap(update -> record(update).stream()).
+                    collect(Collectors.toSet());
+
+            if (!allAmbiguousRoutings.isEmpty()) {
+                logger.error("Found:" + allAmbiguousRoutings.size() + " Ambiguous between " + HasId.asIds(allAmbiguousRoutings));
+
+                IdSet<Station> ambiguousStarts = allAmbiguousRoutings.stream().map(StationPair::getBegin).collect(IdSet.collector());
+                IdSet<Station> ambiguousEnds = allAmbiguousRoutings.stream().map(StationPair::getEnd).collect(IdSet.collector());
+
+                logger.info("Starts: " +ambiguousStarts.size() + " " + ambiguousStarts);
+                logger.info("Ends:" + ambiguousEnds.size() + " " + ambiguousEnds);
+            }
         }
 
-        private void record(TramStationDepartureInfo update) {
-            String displayId = update.getDisplayId();
-            LineAndDirection lineAndDirection = new LineAndDirection(update.getLine(), update.getDirection());
-            RecordedDisplayInfo recordedDisplayInfo = new RecordedDisplayInfo(update.getStation().getId(), lineAndDirection);
-            if (!displayInfos.containsKey(displayId)) {
-                displayInfos.put(displayId, recordedDisplayInfo);
+        private Set<StationPair> record(TramStationDepartureInfo update) {
+            Station displayStation = update.getStation();
+
+            return update.getDueTrams().stream().
+                    map(UpcomingDeparture::getDestination).
+                    filter(dest -> !dest.equals(displayStation)).
+                    filter(dest -> ambiguousRoutingBetween(update, dest)).
+                    map(dest -> StationPair.of(update.getStation(), dest)).
+                    collect(Collectors.toSet());
+
+        }
+
+        /**
+         * @param tramStationDepartureInfo the live display information
+         * @param destination the destination of the due tram
+         * @return true if ambiguous
+         */
+        private boolean ambiguousRoutingBetween(TramStationDepartureInfo tramStationDepartureInfo, Station destination) {
+            Station displayStation = tramStationDepartureInfo.getStation();
+
+            final Set<Route> pickups;
+            if (tramStationDepartureInfo.hasStationPlatform()) {
+                final Platform platform = tramStationDepartureInfo.getStationPlatform();
+                pickups = platform.getPickupRoutes();
             } else {
-                RecordedDisplayInfo existing = displayInfos.get(displayId);
-                if (!recordedDisplayInfo.equals(existing)) {
-                    logger.warn("Mismatch for display " + displayId + " between " + existing + " and " + recordedDisplayInfo);
-                }
+                pickups = displayStation.getPickupRoutes();
             }
 
-            if (!destinations.containsKey(lineAndDirection)) {
-                destinations.put(lineAndDirection, new IdSet<>());
+            Set<Route> dropoffs = destination.getDropoffRoutes();
+
+            SetUtils.SetView<Route> overlap = SetUtils.union(pickups, dropoffs);
+
+            String suffix = " between " + displayStation.getId() + " and " + destination.getId();
+
+            if (overlap.isEmpty()) {
+                logger.error("No overlap " + suffix);
+                return false;
             }
-            IdSet<Station> tramDestinations = update.getDueTrams().stream().map(UpcomingDeparture::getDestination).collect(IdSet.collector());
-            destinations.get(lineAndDirection).addAll(tramDestinations);
+
+            if (overlap.size()==1) {
+                logger.debug("Only one route (" + HasId.asIds(overlap) + ") " + suffix);
+                return false;
+            }
+
+            // appears this does not happen when we have more than one route....
+            boolean sameCallingPoints = sameCallingPoints(overlap, displayStation, destination);
+            if (sameCallingPoints) {
+                logger.info("Same calling points for routes " + HasId.asIds(overlap) + suffix);
+            }
+            return !sameCallingPoints;
+        }
+
+        private boolean sameCallingPoints(SetUtils.SetView<Route> overlap, Station start, Station end) {
+            Set<List<Station>> allCallingPoints = new HashSet<>();
+            for(Route route : overlap) {
+                route.getTrips().forEach(trip -> {
+                    if (trip.callsAt(start.getId()) && trip.callsAt(end.getId())) {
+                        List<Station> callingPoints = new ArrayList<>();
+                        final StopCalls stopCalls = trip.getStopCalls();
+                        final int firstIndex = stopCalls.getStopFor(start.getId()).getGetSequenceNumber();
+                        final int lastIndex = stopCalls.getStopFor(end.getId()).getGetSequenceNumber();
+                        for (int i = firstIndex; i <= lastIndex; i++) {
+                            callingPoints.add(stopCalls.getStopBySequenceNumber(i).getStation());
+                        }
+                        allCallingPoints.add(callingPoints);
+                    }
+                });
+            }
+
+            boolean sameCallingPoints = allCallingPoints.size() == 1;
+            if (sameCallingPoints) {
+                // unambiguous
+                // seems this  not happen, if multiple routes we always end up with an ambiguous set of calling points
+                logger.info("Unambiguous calling points between " + start.getId() + " and " + end.getId()
+                        + " for routes " + HasId.asIds(overlap));
+            } else {
+                logger.error("Ambiguous calling points between " + start.getId() + " and " + end.getId()
+                        + " for routes " + HasId.asIds(overlap));
+            }
+
+            return sameCallingPoints;
         }
 
         public void logResults() {
-            logger.info("Results");
-            displayInfos.entrySet().forEach(entry -> {
-                logger.info(entry.getKey() + " -> " + entry.getValue());
-            });
-            destinations.entrySet().forEach(entry -> {
-                logger.info(entry.getKey() + " -> " + entry.getValue());
-            });
+
         }
-    }
-
-    private record LineAndDirection(OverheadDisplayLines line, LineDirection direction) {
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof LineAndDirection that)) return false;
-            return direction == that.direction && line == that.line;
-        }
-
-        @Override
-        public String toString() {
-            return "{" +
-                    "line=" + line +
-                    ", direction=" + direction +
-                    '}';
-        }
-    }
-
-    private record RecordedDisplayInfo(IdFor<Station> id, LineAndDirection lineAndDirection) {
-
-        @Override
-        public String toString() {
-            return "RecordedDisplayInfo{" +
-                    "id=" + id +
-                    ", lineAndDirection=" + lineAndDirection +
-                    '}';
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof RecordedDisplayInfo that)) return false;
-            return Objects.equals(id, that.id) && lineAndDirection == that.lineAndDirection;
-        }
-
     }
 
 }

@@ -25,4 +25,9 @@ public class LiveDataFileFetcher extends LiveDataFetcher {
         }
         return "";
     }
+
+    @Override
+    boolean isEnabled() {
+        return true;
+    }
 }

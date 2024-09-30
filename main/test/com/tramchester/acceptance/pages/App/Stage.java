@@ -13,22 +13,22 @@ public class Stage {
     }
 
     public TramTime getDepartTime() {
-        String fieldText = getFieldText("departTime");
+        String fieldText = getFieldTextByClassId("departTime");
         fieldText = fieldText.replace(" +1d","+24").trim();
 
         return TramTime.parse(fieldText);
     }
 
     public String getAction() {
-        return getFieldText("action");
+        return getFieldTextByClassId("action");
     }
 
     public String getActionStation() {
-        return getFieldText("actionStation");
+        return getFieldTextByClassId("actionStation");
     }
 
     public int getPlatform() {
-        String platform = getFieldText("platform");
+        String platform = getFieldTextByClassId("platform");
         if (platform.isEmpty()) {
             return -1;
         }
@@ -36,18 +36,18 @@ public class Stage {
     }
 
     public String getHeadsign() {
-        return getFieldText("headsign");
+        return getFieldTextByClassId("headsign");
     }
 
     public String getRouteName() {
-        return getFieldText("lineClass");
+        return getFieldTextByClassId("lineClass");
     }
 
     public int getPassedStops() {
-        return Integer.parseInt(getFieldText("passedStops"));
+        return Integer.parseInt(getFieldTextByClassId("passedStops"));
     }
 
-    private String getFieldText(String fieldName) {
+    private String getFieldTextByClassId(String fieldName) {
         return row.findElement(By.className(fieldName)).getText();
     }
 }

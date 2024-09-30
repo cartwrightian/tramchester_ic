@@ -198,13 +198,13 @@ public class TransportDataFromFilesTramTest {
 
         assertEquals(1, routeStationPairs.size(), routeStationPairs.toString());
 
-        Set<String> routeNames =
+        IdSet<Route> routeIds =
                 routeStations.stream().
                         map(RouteStation::getRoute).
-                        map(Route::getName).collect(Collectors.toSet());
+                        collect(IdSet.collector());
 
         // Picc gardens 2024
-        assertTrue(routeNames.contains(DeansgateCastlefieldManchesterAirport.longName()), routeNames.toString());
+        assertTrue(routeIds.contains(DeansgateCastlefieldManchesterAirport.getId()), routeIds.toString());
     }
 
     @Test
@@ -237,16 +237,16 @@ public class TransportDataFromFilesTramTest {
 
         assertEquals(4, routeStationPairs.size(), routeStations.toString());
 
-        Set<String> routeNames =
+        IdSet<Route> routeIds =
                 routeStations.stream().
                         map(RouteStation::getRoute).
-                        map(Route::getName).collect(Collectors.toSet());
+                        collect(IdSet.collector());
 
-        assertTrue(routeNames.contains(PiccadillyVictoria.longName()), routeNames.toString());
+        assertTrue(routeIds.contains(PiccadillyVictoria.getId()), routeIds.toString());
 
-        assertTrue(routeNames.contains(BuryManchesterAltrincham.longName()), routeNames.toString());
+        assertTrue(routeIds.contains(BuryManchesterAltrincham.getId()), routeIds.toString());
 
-        assertTrue(routeNames.contains(PiccadillyVictoria.longName()), routeNames.toString());
+        assertTrue(routeIds.contains(PiccadillyVictoria.getId()), routeIds.toString());
 
     }
 
@@ -418,7 +418,9 @@ public class TransportDataFromFilesTramTest {
 
         final Map<Pair<TramDate, TramTime>, IdSet<Station>> missing = new HashMap<>();
 
-        getUpcomingDates().filter(date -> !date.isChristmasPeriod()).forEach(date -> {
+        getUpcomingDates().filter(date -> !date.isChristmasPeriod()).
+                filter(date -> !TestEnv.cornbrookClosed.contains(date)).
+                forEach(date -> {
             transportData.getStations(EnumSet.of(Tram)).stream().
                     filter(station -> isOpen(date, station)).
                     forEach(station -> {
@@ -441,6 +443,12 @@ public class TransportDataFromFilesTramTest {
         });
 
         assertTrue(missing.isEmpty(), missing.toString());
+    }
+    
+    @Test
+    void shouldRemoveCornbrookClosureDates() {
+        TramDate today = TramDate.from(TestEnv.LocalNow());
+        assertFalse(today.isAfter(TestEnv.cornbrookClosed.getEndDate()));
     }
 
     @Test

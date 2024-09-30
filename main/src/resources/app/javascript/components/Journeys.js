@@ -144,7 +144,6 @@ export default {
             this.$emit('later-tram', newDepartTime);
         }, 
         getStageRowProps(row) {
-           //return "stageSummary"
            return { class: 'stageSummary' }
         },
         dateTimeFormatter(item, index) {

@@ -587,7 +587,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
     public static void validateAStage(Stage stage, Set<TramTime> departTimes, String action, String actionStation, List<Integer> platforms,
                                       Set<KnownTramRoute> expectedRoutes, Set<String> headsigns, int passedStops) {
 
-        Set<String> expectedRoutesNames = expectedRoutes.stream().map(KnownTramRoute::longName).collect(Collectors.toSet());
+        Set<String> expectedRoutesNames = expectedRoutes.stream().map(KnownTramRoute::shortName).collect(Collectors.toSet());
 
         assertTrue(departTimes.stream().allMatch(TramTime::isValid),"departTime not valid");
 

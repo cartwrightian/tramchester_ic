@@ -9,6 +9,7 @@ import com.tramchester.config.TfgmTramLiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
 import com.tramchester.domain.*;
+import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.factory.TransportEntityFactoryForTFGM;
 import com.tramchester.domain.id.IdFor;
@@ -92,6 +93,8 @@ public class TestEnv {
             }
         };
     }
+
+    public static final DateRange cornbrookClosed = new DateRange(TramDate.of(2024,10,5), TramDate.of(2024, 10,6));
 
     public static TramchesterConfig GET(TfgmTramLiveDataConfig testLiveDataConfig) {
         return new TestConfig() {

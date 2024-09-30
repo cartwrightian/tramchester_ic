@@ -6,6 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.StationPair;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
@@ -21,8 +22,6 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.KnownTramRoute.BuryManchesterAltrincham;
@@ -66,12 +65,12 @@ class RouteReachableTramTest {
         TimeRange timeRange = TimeRangePartial.of(TramTime.of(8,30), Duration.ofMinutes(30), Duration.ofMinutes(30));
         List<Route> results = reachable.getRoutesFromStartToNeighbour(StationPair.of(start, next), when, timeRange, TramsOnly);
 
-        Set<String> names = results.stream().map(Route::getName).collect(Collectors.toSet());
+        IdSet<Route> routeIds = results.stream().collect(IdSet.collector());
 
-        assertEquals(2, names.size(), names.toString());
+        assertEquals(2, routeIds.size(), routeIds.toString());
 
-        assertTrue(names.contains(EtihadPiccadillyAltrincham.longName()), names.toString());
-        assertTrue(names.contains(BuryManchesterAltrincham.longName()), names.toString());
+        assertTrue(routeIds.contains(EtihadPiccadillyAltrincham.getId()), routeIds.toString());
+        assertTrue(routeIds.contains(BuryManchesterAltrincham.getId()), routeIds.toString());
     }
 
 

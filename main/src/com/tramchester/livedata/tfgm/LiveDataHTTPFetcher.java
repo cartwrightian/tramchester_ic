@@ -7,6 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import jakarta.inject.Inject;
+
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -28,6 +30,12 @@ public class LiveDataHTTPFetcher extends LiveDataFetcher {
         this.config = config.getLiveDataConfig();
     }
 
+    @PostConstruct
+    public void start() {
+        logger.info("Starting for " + config);
+    }
+
+    // NOTE For testing - wire up for periodic fetching is the Main, it will not happen on it's own
     @Override
     public String getData() {
 
@@ -63,6 +71,12 @@ public class LiveDataHTTPFetcher extends LiveDataFetcher {
         }
 
         return "";
+    }
+
+    @Override
+    boolean isEnabled() {
+        // TODO Check for DataURL presence?
+        return true;
     }
 
 }

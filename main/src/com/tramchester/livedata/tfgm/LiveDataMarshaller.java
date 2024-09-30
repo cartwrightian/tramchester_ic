@@ -45,8 +45,15 @@ public class LiveDataMarshaller implements LiveDataFetcher.ReceivesRawData {
     @PostConstruct
     public void start() {
         logger.info("starting");
-        fetcher.subscribe(this);
-        logger.info("started");
+        if (fetcher.isEnabled()) {
+            fetcher.subscribe(this);
+            logger.info("started");
+        } else {
+            String message = "LiveDataFetcher is disabled, not subscribing. Is live data disabled?";
+            logger.error(message);
+            // todo throw here?
+            //throw new RuntimeException(message);
+        }
     }
 
     @PreDestroy

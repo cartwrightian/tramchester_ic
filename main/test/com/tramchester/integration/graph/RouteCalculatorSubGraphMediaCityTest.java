@@ -134,6 +134,7 @@ class RouteCalculatorSubGraphMediaCityTest {
         TramTime queryTime = TramTime.of(9, 0);
         List<Pair<TramDate, LocationIdPairSet<Station>>> failed = TestEnv.getUpcomingDates().
                 filter(date -> !date.isChristmasPeriod()).
+                filter(date -> !TestEnv.cornbrookClosed.contains(date)).
                 map(date -> new JourneyRequest(date, queryTime, false,
                         3, maxJourneyDuration, 1, getRequestedModes())).
                 map(journeyRequest -> Pair.of(journeyRequest.getDate(), getFailedPairedFor(journeyRequest))).

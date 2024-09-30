@@ -1,6 +1,5 @@
 package com.tramchester.integration.repository;
 
-import com.google.common.collect.Sets;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.config.TramchesterConfig;
@@ -8,6 +7,7 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.RoutePair;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
@@ -67,7 +67,7 @@ public class RouteRepositoryTest {
     @Test
     void shouldGetRouteWithHeadsigns() {
         Route result = routeHelper.getOneRoute(EcclesAshton, when);
-        assertEquals(EcclesAshton.longName(), result.getName());
+        assertEquals(EcclesAshton.getId(), result.getId());
         assertEquals(TestEnv.MetAgency(),result.getAgency());
         //assertTrue(IdForDTO.createFor(result).getActualId().startsWith("METLBLUE:I:"));
         assertTrue(TransportMode.isTram(result));
@@ -143,19 +143,20 @@ public class RouteRepositoryTest {
 
     @Test
     void shouldHaveExpectedNumberOfTramRoutesRunning() {
-        Set<String> running = routeRepository.getRoutesRunningOn(when).stream().
+        IdSet<Route> running = routeRepository.getRoutesRunningOn(when).stream().
                 filter(route -> route.getTransportMode()==Tram).
-                map(Route::getName).collect(Collectors.toSet());
+                collect(IdSet.collector());
 
-        Set<String> knownTramRoutes = getFor(when).stream().map(KnownTramRoute::longName).collect(Collectors.toSet());
+        IdSet<Route> knownTramRoutes = getFor(when).stream().map(KnownTramRoute::getId).collect(IdSet.idCollector());
 
-        Sets.SetView<String> diffA = Sets.difference(running, knownTramRoutes);
+        IdSet<Route> diffA = IdSet.disjunction(running, knownTramRoutes);
         assertTrue(diffA.isEmpty(), diffA.toString());
 
-        Sets.SetView<String> diffB = Sets.difference(knownTramRoutes, running);
-        assertTrue(diffB.isEmpty(), diffB.toString());
-
         assertEquals(knownTramRoutes.size(), running.size());
+
+//        Sets.SetView<String> diffB = Sets.difference(knownTramRoutes, running);
+//        assertTrue(diffB.isEmpty(), diffB.toString());
+
     }
 
     @Test
@@ -231,6 +232,5 @@ public class RouteRepositoryTest {
         assertTrue(cornbrookDropofss.contains(victoriaToAirport));
 
     }
-
 
 }

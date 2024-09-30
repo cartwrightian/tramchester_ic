@@ -32,14 +32,20 @@ public abstract class LiveDataFetcher {
     }
 
     abstract String getData();
+    abstract boolean isEnabled();
 
     protected void stop() {
         subscribers.clear();
     }
 
     public void subscribe(final ReceivesRawData receivesRawData) {
-        logger.info("Register " +receivesRawData.getClass());
-        this.subscribers.add(receivesRawData);
+        if (isEnabled()) {
+            logger.info("Register " + receivesRawData.getClass());
+            subscribers.add(receivesRawData);
+        } else {
+            // todo runtime exception?
+            logger.error("NOT ENABLED, ignoring subscription request");
+        }
     }
 
     public interface ReceivesRawData {

@@ -6,6 +6,7 @@ import com.tramchester.domain.collections.DomainPair;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
+import java.util.Set;
 
 public interface HasId<DOMAINTYPE extends CoreDomain> {
 
@@ -17,6 +18,10 @@ public interface HasId<DOMAINTYPE extends CoreDomain> {
 
     static <P extends DomainPair<?>> String asIds(final P pair) {
         return "(" + pair.first().getId() + ", " + pair.second().getId() + ")";
+    }
+
+    static <P extends DomainPair<?>> String asIds(final Set<P> pairs) {
+        return collectionToIdStringList(pairs, pair -> pair.getIds().toString());
     }
 
     static String asIds(final IdMap<?> idMap) {

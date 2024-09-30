@@ -15,7 +15,7 @@ public class AggregateServiceCalendar implements ServiceCalendar {
     private final Collection<ServiceCalendar> sources;
 //    private final TramDateSet additional;
 //    private final TramDateSet removed;
-
+    private boolean hasAdditional;
     private final boolean cancelled;
     private final DateRange aggregatedRange;
 
@@ -34,10 +34,13 @@ public class AggregateServiceCalendar implements ServiceCalendar {
 
         days = createDaysBitset(aggregatedRange);
 
+        hasAdditional = false;
+
 //        TramDateSet allExcluded = new TramDateSet();
         calendars.forEach(calendar -> {
             setDaysFor(calendar);
             aggregatedDays.addAll(calendar.getOperatingDays());
+            hasAdditional = hasAdditional || calendar.hasAddition();
 //            additional.addAll(calendar.getAdditions());
 //            allExcluded.addAll(calendar.getRemoved());
         });
@@ -167,6 +170,11 @@ public class AggregateServiceCalendar implements ServiceCalendar {
     @Override
     public DaysBitmap getDaysBitmap() {
         return days;
+    }
+
+    @Override
+    public boolean hasAddition() {
+        return hasAdditional;
     }
 
     @Override

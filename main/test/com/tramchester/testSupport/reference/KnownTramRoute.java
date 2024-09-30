@@ -3,9 +3,9 @@ package com.tramchester.testSupport.reference;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.reference.TransportMode;
 
-import java.time.DayOfWeek;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Optional;
@@ -42,14 +42,18 @@ public enum KnownTramRoute {
 
         routes.add(EcclesAshton);
         routes.add(CornbrookTheTraffordCentre);
-        routes.add(DeansgateCastlefieldManchesterAirport);
+
+//        if (!cornbrookClosure(date)) {
+            routes.add(DeansgateCastlefieldManchesterAirport);
+//        }
         routes.add(RochdaleShawandCromptonManchesterEastDidisbury);
         routes.add(PiccadillyVictoria);
         routes.add(EtihadPiccadillyAltrincham);
 
-        if (date.getDayOfWeek() != DayOfWeek.SUNDAY) {
-            routes.add(BuryManchesterAltrincham);
-        }
+        routes.add(BuryManchesterAltrincham);
+//        if (date.getDayOfWeek() != DayOfWeek.SUNDAY) {
+//            routes.add(BuryManchesterAltrincham);
+//        }
 
         return routes;
     }
@@ -83,18 +87,26 @@ public enum KnownTramRoute {
     public TransportMode mode() { return TransportMode.Tram; }
 
     /**
-     * use with care for tfgm, is duplicated and needs to be combined with RouteDirection
      * @return short name for a route
      */
     public String shortName() {
         return shortName;
     }
 
+    /**
+     * Should not use, seems to change frequency, prefer ID
+     * @return long name, matching tfgm
+     */
+    @Deprecated
     public String longName() {
         return longName;
     }
 
     public IdFor<Route> getId() {
         return id;
+    }
+
+    public IdForDTO dtoId() {
+        return IdForDTO.createFor(id);
     }
 }

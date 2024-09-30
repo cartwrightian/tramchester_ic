@@ -138,6 +138,11 @@ public class MutableNormalServiceCalendar implements MutableServiceCalendar {
     }
 
     @Override
+    public boolean hasAddition() {
+        return !this.additional.isEmpty();
+    }
+
+    @Override
     public boolean anyDateOverlaps(ServiceCalendar otherCalendar) {
         if (otherCalendar==null) {
             throw new RuntimeException("otherCalendar was null");
