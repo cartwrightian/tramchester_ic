@@ -187,11 +187,12 @@ export default {
             return platform.platformNumber;
         },
         routeFormatter(route) {
-            if (route.transportMode==='Train') {
-                return route.shortName;
-            } else {
-                return route.routeName;
-            }
+            return route.shortName;
+            // if (route.transportMode==='Train') {
+            //     return route.shortName;
+            // } else {
+            //     return route.routeName;
+            // }
         },
         routeClass(route) {
             const prefix = 'RouteClass';

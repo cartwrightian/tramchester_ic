@@ -444,7 +444,7 @@ public class TransportDataFromFilesTramTest {
 
         assertTrue(missing.isEmpty(), missing.toString());
     }
-    
+
     @Test
     void shouldRemoveCornbrookClosureDates() {
         TramDate today = TramDate.from(TestEnv.LocalNow());
