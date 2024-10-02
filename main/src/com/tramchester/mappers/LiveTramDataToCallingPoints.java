@@ -8,21 +8,30 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
+import com.tramchester.livedata.repository.DeparturesRepository;
 import com.tramchester.livedata.tfgm.TramStationDepartureInfo;
+import jakarta.inject.Inject;
 import org.apache.commons.collections4.SetUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.time.LocalDate;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @LazySingleton
 public class LiveTramDataToCallingPoints {
     private static final Logger logger = LoggerFactory.getLogger(LiveTramDataToCallingPoints.class);
+
+    private final DeparturesRepository departuresRepository;
+
+    @Inject
+    public LiveTramDataToCallingPoints(DeparturesRepository departuresRepository) {
+        this.departuresRepository = departuresRepository;
+    }
 
     public Set<StationPair> map(final List<TramStationDepartureInfo> updates) {
         logger.info("Received " + updates.size() + " departure updates");
@@ -126,4 +135,26 @@ public class LiveTramDataToCallingPoints {
         return sameCallingPoints;
     }
 
+    public List<UpcomingDeparture> nextTramFor(final StationPair journeyBeginAndEnd, LocalDate date, TramTime time, EnumSet<TransportMode> modes) {
+
+        Station journeyStart = journeyBeginAndEnd.getBegin();
+        Station journeyDest = journeyBeginAndEnd.getEnd();
+
+        List<UpcomingDeparture> departures = departuresRepository.getDueForLocation(journeyStart, date, time, modes);
+
+        logger.info("Found " + departures.size() + " departures for " + journeyStart.getId());
+
+        // quick win
+        List<UpcomingDeparture> quickWin = departures.stream().filter(departure -> departure.getDestination().equals(journeyDest)).toList();
+
+        if (!quickWin.isEmpty()) {
+            logger.info("Quick win Found trams " + quickWin.size() + " with matching destination " + journeyDest.getId());
+            return quickWin;
+        }
+
+        
+
+        throw new RuntimeException("Not implemented yet");
+        //return Collections.emptyList();
+    }
 }

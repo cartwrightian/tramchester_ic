@@ -242,8 +242,6 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, LiveDa
         return getNumStationsWithTrams(providesNow.getDateTime());
     }
 
-
-
     private static class PlatformDueTrams {
         private final Platform stationPlatform;
         private final List<UpcomingDeparture> dueTrams;
