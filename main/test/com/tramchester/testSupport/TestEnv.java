@@ -155,7 +155,7 @@ public class TestEnv {
     }
 
     public static TramDate avoidChristmasDate(TramDate date) {
-        while (date.isChristmasPeriod()) {
+        while (date.isChristmasPeriod() || EcclesLinesClosed.contains(date)) {
             date = date.plusWeeks(1);
         }
         return date;

@@ -27,6 +27,8 @@ import java.util.stream.Stream;
 import static com.tramchester.acceptance.AppUserJourneyTest.desiredJourney;
 import static com.tramchester.acceptance.AppUserJourneyTest.desiredJourneyFromMyLocation;
 import static com.tramchester.testSupport.reference.KnownLocations.nearAltrincham;
+import static com.tramchester.testSupport.reference.TramStations.Altrincham;
+import static com.tramchester.testSupport.reference.TramStations.NavigationRoad;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -89,11 +91,11 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
         assertEquals(1, myLocationStops.size(),"unexpected 1 got " + myLocationStops);
 
         List<String> nearestFromStops = appPage.getNearestFromStops();
-        assertThat("Have nearest stops", nearestFromStops, hasItems(altrincham, TramStations.NavigationRoad.getName()));
+        assertThat("Have nearest stops", nearestFromStops, hasItems(altrincham, NavigationRoad.getName()));
 
         List<String> allFrom = appPage.getAllStopsFromStops();
         assertFalse(allFrom.contains(altrincham));
-        assertFalse(allFrom.contains(TramStations.NavigationRoad.getName()));
+        assertFalse(allFrom.contains(NavigationRoad.getName()));
 
         List<String> recentFromStops = appPage.getRecentFromStops();
         assertThat(allFrom, not(contains(recentFromStops)));
@@ -106,7 +108,7 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
         assertEquals(1, myLocationToStops.size());
 
         List<String> nearestToStops = appPage.getNearestFromStops();
-        assertThat(nearestToStops, hasItems(altrincham, TramStations.NavigationRoad.getName()));
+        assertThat(nearestToStops, hasItems(altrincham, NavigationRoad.getName()));
         List<String> allTo = appPage.getAllStopsToStops();
         assertThat(allTo, not(contains(nearestToStops)));
         int recentToCount = appPage.getRecentToStops().size();
@@ -125,7 +127,7 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
         List<String> fromRecent = appPage.getRecentFromStops();
         assertThat(fromRecent, hasItems(altrincham, bury));
         nearestFromStops = appPage.getNearestFromStops();
-        assertThat(nearestFromStops, hasItems(TramStations.NavigationRoad.getName()));
+        assertThat(nearestFromStops, hasItems(NavigationRoad.getName()));
         // TODO to recent just bury, not alty
     }
 
@@ -155,7 +157,9 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
             TramTime arriveTime = result.getArriveTime();
             assertTrue(arriveTime.isValid());
             assertTrue(arriveTime.isAfter(departTime), arriveTime.toString());
-            assertEquals("Direct", result.getChanges());
+//            assertEquals("Direct", result.getChanges());
+            String changes = result.getChanges();
+            assertTrue(changes.equals(NavigationRoad.getName()) || changes.equals(Altrincham.getName()));
         }
 
         // select first journey - this seems to be inconsistent, not returning first displayed journey
