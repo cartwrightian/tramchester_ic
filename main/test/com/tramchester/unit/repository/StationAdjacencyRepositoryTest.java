@@ -1,9 +1,11 @@
 package com.tramchester.unit.repository;
 
 import com.tramchester.domain.StationPair;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesLocalNow;
-import com.tramchester.domain.time.ProvidesNow;
+import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.repository.TramStationAdjacenyRepository;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
@@ -22,18 +24,18 @@ class StationAdjacencyRepositoryTest {
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
-        ProvidesNow providesNow = new ProvidesLocalNow();
+        ProvidesLocalNow providesNow = new ProvidesLocalNow();
 
         TramTransportDataForTestFactory dataForTestProvider = new TramTransportDataForTestFactory(providesNow);
         dataForTestProvider.start();
         transportDataSource = dataForTestProvider.getTestData();
 
         repository = new TramStationAdjacenyRepository(transportDataSource, new GraphFilterActive(false));
-        repository.start();
     }
 
     @Test
     void shouldGiveCorrectCostForAdjaceny() {
+
         assertMinutesEquals(11, getAdjacent(transportDataSource.getFirst(), transportDataSource.getSecond()));
         assertMinutesEquals(9, getAdjacent(transportDataSource.getSecond(), transportDataSource.getInterchange()));
 
@@ -41,6 +43,9 @@ class StationAdjacencyRepositoryTest {
     }
 
     private Duration getAdjacent(Station first, Station second) {
-        return repository.getAdjacent(StationPair.of(first, second));
+        // date and timerange here need to line up with TramTransportDataForTestFactory
+        TimeRange timeRange = TimeRange.of(TramTime.of(6,0), TramTime.of(13,0));
+        TramDate date = TramTransportDataForTestFactory.getValidDate();
+        return repository.getAdjacent(StationPair.of(first, second), date, timeRange);
     }
  }

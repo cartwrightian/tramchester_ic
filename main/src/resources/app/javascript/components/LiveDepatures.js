@@ -37,6 +37,13 @@ export default {
     methods: {
         dueTimeFormatter(value) {
             return value.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+        },
+        rowFormater(item) {
+            if (item.item.matchesJourney) {
+                return { class: 'font-weight-bold' }
+            } else {
+                return {  }
+            }
         }
     },
     template: `
@@ -48,6 +55,7 @@ export default {
                 <v-data-table id="departures"
                     :mobile-breakpoint="0"
                     :items="localDueTrams"
+                    :row-props="rowFormater"
                     v-model:page="page"
                     :items-per-page="itemsPerPage"
                     :headers="headers" 

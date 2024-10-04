@@ -3,13 +3,15 @@ package com.tramchester.integration.mappers;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.domain.StationPair;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
+import com.tramchester.livedata.repository.DeparturesRepository;
 import com.tramchester.livedata.tfgm.LiveDataFetcher;
 import com.tramchester.livedata.tfgm.LiveDataMarshaller;
-import com.tramchester.mappers.LiveTramDataToCallingPoints;
+import com.tramchester.mappers.MatchLiveTramToJourneyDestination;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
@@ -28,14 +30,15 @@ import static com.tramchester.domain.reference.TransportMode.Tram;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-@Disabled("WIP")
-public class LiveTramDataToCallingPointsTest {
+@Disabled("WIP and need to find way to make reliable")
+public class MatchLiveTramToJourneyDestinationTest {
 
     private static GuiceContainerDependencies componentContainer;
-    private LiveTramDataToCallingPoints toCallingPoints;
+    private MatchLiveTramToJourneyDestination matchToJourneyDest;
     private StationRepository stationRepository;
     private LiveDataMarshaller liveDataMarshaller;
     private LiveDataFetcher fetcher;
+    private DeparturesRepository departuresRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -47,8 +50,9 @@ public class LiveTramDataToCallingPointsTest {
     @BeforeEach
     void onceBeforeEachTestRuns() {
         stationRepository = componentContainer.get(StationRepository.class);
-        toCallingPoints = componentContainer.get(LiveTramDataToCallingPoints.class);
+        matchToJourneyDest = componentContainer.get(MatchLiveTramToJourneyDestination.class);
         liveDataMarshaller = componentContainer.get(LiveDataMarshaller.class);
+        departuresRepository = componentContainer.get(DeparturesRepository.class);
         fetcher = componentContainer.get(LiveDataFetcher.class);
     }
 
@@ -59,7 +63,7 @@ public class LiveTramDataToCallingPointsTest {
 
         StationPair journeyStations = StationPair.of(journeyStart, journeyDestination);
 
-        List<UpcomingDeparture> trams = getUpcomingDepartures(journeyStations);
+        List<UpcomingDeparture> trams = getMatchingDepartures(journeyStations);
 
         assertFalse(trams.isEmpty());
     }
@@ -72,7 +76,7 @@ public class LiveTramDataToCallingPointsTest {
 
         StationPair journeyStations = StationPair.of(journeyStart, journeyDestination);
 
-        List<UpcomingDeparture> trams = getUpcomingDepartures(journeyStations);
+        List<UpcomingDeparture> trams = getMatchingDepartures(journeyStations);
 
         assertFalse(trams.isEmpty());
 
@@ -82,7 +86,7 @@ public class LiveTramDataToCallingPointsTest {
 
     }
 
-    private List<UpcomingDeparture> getUpcomingDepartures(StationPair journeyStations) {
+    private List<UpcomingDeparture> getMatchingDepartures(final StationPair journeyStations) {
         final CountDownLatch latch = new CountDownLatch(1);
 
         // need to wait until we have some live data
@@ -98,11 +102,15 @@ public class LiveTramDataToCallingPointsTest {
             fail(e);
         }
 
-        LocalDateTime localDateTime = TestEnv.LocalNow();
-        TramTime currentTime = TramTime.of(localDateTime.getHour(), localDateTime.getMinute());
+        IdSet<Station> journeyDestinations = IdSet.singleton(journeyStations.getEnd().getId());
 
-        List<UpcomingDeparture> trams = toCallingPoints.nextTramFor(journeyStations, localDateTime.toLocalDate(), currentTime, EnumSet.of(Tram));
-        return trams;
+        LocalDateTime now = TestEnv.LocalNow();
+        TramTime time = TramTime.ofHourMins(now.toLocalTime());
+        final List<UpcomingDeparture> departures = departuresRepository.getDueForLocation(journeyStations.getBegin(), now.toLocalDate(), time, EnumSet.of(Tram));
+
+        return departures.stream().
+                filter(departure -> matchToJourneyDest.matchesJourneyDestination(departure, journeyDestinations)).toList();
+
     }
 
 

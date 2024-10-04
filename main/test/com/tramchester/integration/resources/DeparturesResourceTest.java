@@ -59,6 +59,7 @@ class DeparturesResourceTest {
     private Station stationWithNotes;
     private Station stationWithDepartures;
     private PlatformMessageSource platformMessageSource;
+    private Station destinationForDueTram;
 
     @BeforeAll
     public static void onceBeforeAll() {
@@ -88,7 +89,10 @@ class DeparturesResourceTest {
         Optional<UpcomingDeparture> searchForDueTrams = stationRepository.getAllStationStream().
                 flatMap(station -> dueTramsSource.forStation(station).stream()).
                 findAny();
-        searchForDueTrams.ifPresent(dueTram -> stationWithDepartures = dueTram.getDisplayLocation());
+        searchForDueTrams.ifPresent(dueTram -> {
+            stationWithDepartures = dueTram.getDisplayLocation();
+            destinationForDueTram = dueTram.getDestination();
+        });
     }
 
     @Test
@@ -161,6 +165,34 @@ class DeparturesResourceTest {
 
     @Test
     @LiveDataTestCategory
+    void shouldGetDueTramsForStationWithinQuerytimeNowAndDestinationMatching() {
+        Station station = stationWithDepartures;
+
+        LocalTime now = TestEnv.LocalNow().toLocalTime();
+        SortedSet<DepartureDTO> departures = getDeparturesForStation(station, now, destinationForDueTram);
+        assertFalse(departures.isEmpty(), "no due trams at " + station);
+        departures.forEach(depart -> assertEquals(new LocationRefDTO(station), depart.getFrom()));
+
+        Optional<DepartureDTO> towardsDestination = departures.stream().filter(DepartureDTO::getMatchesJourney).findAny();
+        assertTrue(towardsDestination.isPresent(), "no tram towards " + destinationForDueTram.getId() + " from " + station.getId());
+    }
+
+    @Test
+    @LiveDataTestCategory
+    void shouldGetDueTramsForLocationWithinQuerytimeNowAndDestinationMatching() {
+        LatLong location = stationWithDepartures.getLatLong();
+
+        LocalTime now = TestEnv.LocalNow().toLocalTime();
+        SortedSet<DepartureDTO> departures = getDeparturesForLatlongTime(location, now, destinationForDueTram);
+        assertFalse(departures.isEmpty(), "no due trams at " + location);
+
+        Optional<DepartureDTO> towardsDestination = departures.stream().filter(DepartureDTO::getMatchesJourney).findAny();
+        assertTrue(towardsDestination.isPresent(), "no tram towards " + destinationForDueTram.getId() + " from close to " + stationWithDepartures.getId());
+    }
+
+
+    @Test
+    @LiveDataTestCategory
     void shouldGetDueTramsForStationWithQuerytimePast() {
         LocalTime queryTime = TestEnv.LocalNow().toLocalTime().minusMinutes(120);
 
@@ -177,7 +209,6 @@ class DeparturesResourceTest {
 
         assertTrue(departures.isEmpty());
     }
-
 
     @Test
     @LiveDataTestCategory
@@ -239,19 +270,31 @@ class DeparturesResourceTest {
     }
 
     private SortedSet<DepartureDTO> getDeparturesForLatlongTime(LatLong where, LocalTime queryTime) {
-
         DeparturesQueryDTO queryDTO = getQueryDTO(where);
-        queryDTO.setTime(queryTime);
+        return getDepartureDTOS(queryTime, queryDTO);
+    }
 
-        Response response = getPostResponse(queryDTO);
-
-        DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
-        return departureList.getDepartures();
+    private SortedSet<DepartureDTO> getDeparturesForLatlongTime(LatLong location, LocalTime time, Station journeyDestination) {
+        DeparturesQueryDTO queryDTO = getQueryDTO(location);
+        IdForDTO idForDTO = IdForDTO.createFor(journeyDestination);
+        queryDTO.setFirstDestIds(Collections.singleton(idForDTO));
+        return getDepartureDTOS(time, queryDTO);
     }
 
     private SortedSet<DepartureDTO> getDeparturesForStation(Station station, LocalTime queryTime) {
         DeparturesQueryDTO queryDTO = getQueryDTO(station);
-        queryDTO.setTime(queryTime);
+        return getDepartureDTOS(queryTime, queryDTO);
+    }
+
+    private SortedSet<DepartureDTO> getDeparturesForStation(Station displayStation, LocalTime time, Station journeyDestination) {
+        DeparturesQueryDTO queryDTO = getQueryDTO(displayStation);
+        IdForDTO idForDTO = IdForDTO.createFor(journeyDestination);
+        queryDTO.setFirstDestIds(Collections.singleton(idForDTO));
+        return getDepartureDTOS(time, queryDTO);
+    }
+
+    private SortedSet<DepartureDTO> getDepartureDTOS(LocalTime time, DeparturesQueryDTO queryDTO) {
+        queryDTO.setTime(time);
 
         Response response = getPostResponse(queryDTO);
 
@@ -277,13 +320,12 @@ class DeparturesResourceTest {
     }
 
     @NotNull
-    private DeparturesQueryDTO getQueryDTO(Station station) {
-        return new DeparturesQueryDTO(LocationType.Station, IdForDTO.createFor(station));
+    private DeparturesQueryDTO getQueryDTO(Station displayLocation) {
+        return new DeparturesQueryDTO(LocationType.Station, IdForDTO.createFor(displayLocation));
     }
 
     @NotNull
     private DeparturesQueryDTO getQueryDTO(LatLong where) {
-        //String latLong = String.format("%s,%s", where.getLat(), where.getLon());
         return new DeparturesQueryDTO(LocationType.MyLocation, IdForDTO.createFor(where));
     }
 

@@ -6,6 +6,7 @@ import com.google.inject.Inject;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdForDTO;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.Station;
@@ -22,6 +23,7 @@ import com.tramchester.livedata.repository.DeparturesRepository;
 import com.tramchester.livedata.repository.ProvidesNotes;
 import com.tramchester.livedata.tfgm.ProvidesTramNotes;
 import com.tramchester.repository.LocationRepository;
+import com.tramchester.repository.StationRepository;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -49,18 +51,20 @@ public class DeparturesResource extends TransportResource implements APIResource
     private static final Logger logger = LoggerFactory.getLogger(DeparturesResource.class);
 
     private final LocationRepository locationRepository;
+    private final StationRepository stationRepository;
     private final DeparturesMapper departuresMapper;
     private final DeparturesRepository departuresRepository;
     private final ProvidesNotes providesNotes;
     private final TramchesterConfig config;
 
     @Inject
-    public DeparturesResource(LocationRepository locationRepository,
+    public DeparturesResource(LocationRepository locationRepository, StationRepository stationRepository,
                               DeparturesMapper departuresMapper, DeparturesRepository departuresRepository,
                               ProvidesTramNotes providesNotes,
                               ProvidesNow providesNow, TramchesterConfig config) {
         super(providesNow);
         this.locationRepository = locationRepository;
+        this.stationRepository = stationRepository;
         this.departuresMapper = departuresMapper;
         this.departuresRepository = departuresRepository;
         this.providesNotes = providesNotes;
@@ -111,11 +115,35 @@ public class DeparturesResource extends TransportResource implements APIResource
         if (dueTrams.isEmpty()) {
             logger.warn("Departures list empty for " + location.getId() + " at " + queryTime);
         }
-        final SortedSet<DepartureDTO> departs = new TreeSet<>(departuresMapper.mapToDTO(dueTrams, providesNow.getDateTime()));
+
+        final SortedSet<DepartureDTO> departs;
+        departs = getDepartureDTOS(departuresQuery, dueTrams);
 
         final List<Note> notes = getNotes(notesFor, dueTrams, queryDate, queryTime, location);
 
         return Response.ok(new DepartureListDTO(departs, notes)).build();
+    }
+
+    private @NotNull SortedSet<DepartureDTO> getDepartureDTOS(DeparturesQueryDTO departuresQuery, List<UpcomingDeparture> dueTrams) {
+        // TODO Enable for production
+        if (departuresQuery.hasFirstDestId() && config.getEnvironmentName().equals("Dev")) {
+            final IdSet<Station> journeyFirstDestinationIds = getStationIds(departuresQuery.getFirstDestIds());
+
+            if (!journeyFirstDestinationIds.isEmpty()) {
+                logger.info("Fetching due trams and checking for destinations " + journeyFirstDestinationIds);
+                return new TreeSet<>(departuresMapper.mapToDTO(dueTrams, providesNow.getDateTime(), journeyFirstDestinationIds));
+            }
+        }
+        logger.info("Fetching due trams, not checking for tram destinations");
+        return new TreeSet<>(departuresMapper.mapToDTO(dueTrams, providesNow.getDateTime()));
+    }
+
+    private IdSet<Station> getStationIds(Set<IdForDTO> firstDestIds) {
+        IdSet<Station> result = firstDestIds.stream().map(Station::createId).filter(stationRepository::hasStationId).collect(IdSet.idCollector());
+        if (result.size()!=firstDestIds.size()) {
+            logger.warn("Unable to map all firstDestIds " + firstDestIds + " to station ids, only got " + result);
+        }
+        return result;
     }
 
     @NotNull

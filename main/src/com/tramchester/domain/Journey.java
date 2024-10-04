@@ -3,16 +3,16 @@ package com.tramchester.domain;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Location;
+import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.tramchester.domain.reference.TransportMode.Walk;
 
 public class Journey implements Iterable<TransportStage<?,?>> {
 
@@ -94,7 +94,7 @@ public class Journey implements Iterable<TransportStage<?,?>> {
     }
 
     public boolean firstStageIsWalk() {
-        return getFirstStageMode()==TransportMode.Walk;
+        return getFirstStageMode()== Walk;
     }
 
     public boolean firstStageIsConnect() {
@@ -128,13 +128,27 @@ public class Journey implements Iterable<TransportStage<?,?>> {
     }
 
     public List<Location<?>> getChangeStations() {
-        List<Location<?>> result = new ArrayList<>();
-
+        // count any change of transport mode as a change station
         if (isDirect()) {
-            return result;
+            TransportStage<?, ?> firstStage = stages.get(0);
+
+            final Location<?> changeStation;
+            if (firstStage.getMode() == Walk) {
+                // walking stage, either to/from a location - we want the actual station here
+                if (firstStage.getFirstStation().getLocationType()==LocationType.Station) {
+                    changeStation = firstStage.getFirstStation();
+                } else {
+                    changeStation = firstStage.getLastStation();
+                }
+                return Collections.singletonList(changeStation);
+            } else {
+                return Collections.emptyList();
+            }
         }
 
-        for(int index = 1; index< stages.size(); index++) {
+        List<Location<?>> result = new ArrayList<>();
+
+        for(int index = 1; index < stages.size(); index++) {
             result.add(stages.get(index).getFirstStation());
         }
 

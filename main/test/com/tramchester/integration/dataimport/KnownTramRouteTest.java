@@ -144,16 +144,18 @@ class KnownTramRouteTest {
 
         SortedMap<TramDate, Set<KnownTramRoute>> unusedForDate = new TreeMap<>();
 
-        dateRange.stream().forEach(date -> {
-            final IdSet<Route> loaded = getLoadedTramRoutes(date).collect(IdSet.collector());
+        dateRange.stream().
+                filter(date -> !TestEnv.EcclesLinesClosed.contains(date)).
+                forEach(date -> {
+                    final IdSet<Route> loaded = getLoadedTramRoutes(date).collect(IdSet.collector());
 
-            final Set<KnownTramRoute> knownButUnused = KnownTramRoute.getFor(date).stream().
-                    filter(knownTramRoute -> !loaded.contains(knownTramRoute.getId())).
-                    collect(Collectors.toSet());
-            if (!knownButUnused.isEmpty()) {
-                unusedForDate.put(date, knownButUnused);
-            }
-        });
+                    final Set<KnownTramRoute> knownButUnused = KnownTramRoute.getFor(date).stream().
+                            filter(knownTramRoute -> !loaded.contains(knownTramRoute.getId())).
+                            collect(Collectors.toSet());
+                    if (!knownButUnused.isEmpty()) {
+                        unusedForDate.put(date, knownButUnused);
+                    }
+                });
 
         assertTrue(unusedForDate.isEmpty(), "For dates " + unusedForDate.keySet() + "\n Have unused loaded routes " + unusedForDate);
     }

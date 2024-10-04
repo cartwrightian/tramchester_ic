@@ -2,21 +2,21 @@ package com.tramchester.repository;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.StationPair;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.input.StopCalls;
-import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TimeRange;
 import com.tramchester.graph.filters.GraphFilterActive;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import jakarta.inject.Inject;
 import java.time.Duration;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Supports tram position inference
@@ -28,51 +28,64 @@ public class TramStationAdjacenyRepository  {
 
     private static final Logger logger = LoggerFactory.getLogger(TramStationAdjacenyRepository.class);
 
-    private final Map<StationPair, Duration> matrix;
-    private final TransportData transportData;
+    private final TripRepository tripRepository;
     private final GraphFilterActive graphFilter;
 
     @Inject
-    public TramStationAdjacenyRepository(TransportData transportData, GraphFilterActive graphFilter) {
-        this.transportData = transportData;
+    public TramStationAdjacenyRepository(TripRepository tripRepository, GraphFilterActive graphFilter) {
+        this.tripRepository = tripRepository;
         this.graphFilter = graphFilter;
-        matrix = new HashMap<>();
-    }
-
-    @PostConstruct
-    public void start() {
-        logger.info("Build adjacency matrix");
-        Collection<Trip> trips = transportData.getTrips();
-        trips.stream().filter(TransportMode::isTram).forEach(trip -> {
-            StopCalls stops = trip.getStopCalls();
-            stops.getLegs(graphFilter.isActive()).forEach(leg -> {
-                StationPair pair = StationPair.of(leg);
-                if (!matrix.containsKey(pair)) {
-                    matrix.put(pair, leg.getCost());
-                }
-            });
-        });
-        logger.info("Finished building adjacency matrix");
-    }
-
-    @PreDestroy
-    public void dispose() {
-        matrix.clear();
     }
 
     //
-    // Distance between two adjacent stations, or -1 if not next to each other
+    // Distance between two adjacent stations, or negative Duration -999 if not next to each other
     //
-    public Duration getAdjacent(StationPair id) {
-        //StationPair id = StationPair.of(firstStation, secondStation);
-        if (matrix.containsKey(id)) {
-            return matrix.get(id);
+    public Duration getAdjacent(final StationPair stationPair, final TramDate date, final TimeRange timeRange) {
+        final Station begin = stationPair.getBegin();
+        final Station end = stationPair.getEnd();
+
+        List<StopCalls.StopLeg> legs = tripRepository.getTrips().stream().
+                filter(TransportMode::isTram).
+                filter(trip -> trip.operatesOn(date)).
+                filter(trip -> trip.callsAt(begin.getId()) && trip.callsAt(end.getId())).
+                flatMap(trip -> trip.getStopCalls().getLegs(graphFilter.isActive()).stream()).toList();
+
+        if (legs.isEmpty()) {
+            logger.warn("Failed to find legs between " + stationPair + " for " + date + " and " + timeRange);
         }
-        return Duration.ofMinutes(-999);
+
+        List<Duration> costs = legs.stream().filter(leg -> leg.getFirstStation().equals(begin) && leg.getSecondStation().equals(end)).
+                filter(leg -> timeRange.contains(leg.getDepartureTime())).
+                map(StopCalls.StopLeg::getCost).
+                toList();
+
+        if (costs.isEmpty()) {
+            logger.warn("Failed to find costs between " + stationPair + " for " + date + " and " + timeRange);
+            return Duration.ofMinutes(-999);
+        }
+
+        Set<Duration> unique = new HashSet<>(costs);
+
+        if (unique.size()==1) {
+            return costs.get(0);
+        }
+
+        logger.warn("Ambiguous cost between " + stationPair + " costs: " + costs + " for " + date + " and " + timeRange);
+        long sum = costs.stream().mapToLong(Duration::getSeconds).sum();
+        long average = Math.floorDiv(sum, costs.size());
+        return Duration.ofSeconds(average);
+
     }
 
-    public Set<StationPair> getTramStationParis() {
-        return matrix.keySet();
+    public Set<StationPair> getTramStationParis(final TramDate date) {
+
+        return tripRepository.getTrips().stream().
+                filter(TransportMode::isTram).
+                filter(trip -> trip.operatesOn(date)).
+                flatMap(trip -> trip.getStopCalls().getLegs(graphFilter.isActive()).stream()).
+                map(StationPair::of).
+                collect(Collectors.toSet());
+
     }
 
 }

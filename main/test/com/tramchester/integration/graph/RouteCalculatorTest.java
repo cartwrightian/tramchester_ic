@@ -121,6 +121,10 @@ public class RouteCalculatorTest {
             String interchange = firstStage.getLastStation().getName();
             indexes.add(journey.getJourneyIndex());
             assertTrue(expected.contains(interchange), interchange + " not in " + expected);
+
+            List<Location<?>> changeStations = journey.getChangeStations();
+            assertEquals(1, changeStations.size());
+            assertTrue(expected.contains(changeStations.get(0).getName()));
         });
 
         assertEquals(journeys.size(), indexes.size());
@@ -192,6 +196,7 @@ public class RouteCalculatorTest {
             assertEquals(9, callingPoints.size());
             assertEquals(NavigationRoad.getId(), callingPoints.get(0).getStationId());
             assertEquals(Cornbrook.getId(), callingPoints.get(8).getStationId());
+            assertTrue(journey.getChangeStations().isEmpty());
         });
     }
 

@@ -2,6 +2,7 @@ package com.tramchester.integration.livedata;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.StationPair;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesLocalNow;
@@ -55,8 +56,10 @@ class TramPositionInferenceTest {
         TramStationAdjacenyRepository adjacenyMatrix = componentContainer.get(TramStationAdjacenyRepository.class);
         TramDepartureRepository departureRepository = componentContainer.get(TramDepartureRepository.class);
         ClosedStationsRepository stationClosures = componentContainer.get(ClosedStationsRepository.class);
+        TramchesterConfig config = componentContainer.get(TramchesterConfig.class);
 
-        positionInference = new TramPositionInference(departureRepository, adjacenyMatrix, routeReachable, stationClosures);
+        positionInference = new TramPositionInference(departureRepository, adjacenyMatrix, routeReachable,
+                stationClosures, config);
         stationRepository = componentContainer.get(StationRepository.class);
 
         dateTime = providesLocalNow.getDateTime();

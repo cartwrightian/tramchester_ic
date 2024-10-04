@@ -34,6 +34,10 @@ public class DeparturesQueryDTO {
     @JsonProperty("notesFor")
     private Set<IdForDTO> notesFor;
 
+    @JsonSetter(nulls = Nulls.SKIP)
+    @JsonProperty("firstDestIds")
+    private Set<IdForDTO> firstDestIds;
+
     public DeparturesQueryDTO(LocationType locationType, IdForDTO locationId) {
         this.locationType = locationType;
         this.locationId = locationId;
@@ -85,14 +89,30 @@ public class DeparturesQueryDTO {
         return notesFor;
     }
 
+    public Set<IdForDTO> getFirstDestIds() {
+        return firstDestIds;
+    }
+
+    public void setFirstDestIds(Set<IdForDTO> firstDestIds) {
+        this.firstDestIds = firstDestIds;
+    }
+
     @Override
     public String toString() {
         return "DeparturesQueryDTO{" +
                 "time=" + time +
                 ", locationType=" + locationType +
-                ", locationId='" + locationId + '\'' +
+                ", locationId=" + locationId +
                 ", modes=" + modes +
                 ", notesFor=" + notesFor +
+                ", firstDestId=" + firstDestIds +
                 '}';
+    }
+
+    public boolean hasFirstDestId() {
+        if (firstDestIds==null) {
+            return false;
+        }
+        return !firstDestIds.isEmpty();
     }
 }

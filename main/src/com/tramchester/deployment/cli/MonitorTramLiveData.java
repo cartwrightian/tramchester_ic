@@ -14,7 +14,7 @@ import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.livedata.tfgm.LiveDataFetcher;
 import com.tramchester.livedata.tfgm.LiveDataMarshaller;
 import com.tramchester.livedata.tfgm.TramStationDepartureInfo;
-import com.tramchester.mappers.LiveTramDataToCallingPoints;
+import com.tramchester.mappers.MatchLiveTramToJourneyDestination;
 import io.dropwizard.configuration.ConfigurationException;
 import org.apache.commons.collections4.SetUtils;
 import org.slf4j.Logger;
@@ -79,14 +79,14 @@ public class MonitorTramLiveData extends BaseCLI {
 
         final LiveDataMarshaller marshaller = dependencies.get(LiveDataMarshaller.class);
         final LiveDataFetcher fetcher = dependencies.get(LiveDataFetcher.class);
-        final LiveTramDataToCallingPoints liveTramDataToCallingPoints = dependencies.get(LiveTramDataToCallingPoints.class);
+        final MatchLiveTramToJourneyDestination matchLiveTramToJourneyDestination = dependencies.get(MatchLiveTramToJourneyDestination.class);
         final CountDownLatch latch = new CountDownLatch(numberToReceive);
 
         RecordDisplayInfo recordDisplayInfo = new RecordDisplayInfo(logger);
 
         marshaller.addSubscriber(updates -> {
 //            recordDisplayInfo.record(updates);
-            liveTramDataToCallingPoints.map(updates);
+//            liveTramDataToCallingPoints.map(updates);
             latch.countDown();
             logger.info("Received " + updates.size() + " updates");
             return true;

@@ -32,7 +32,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
-import static com.tramchester.testSupport.reference.TramStations.PiccadillyGardens;
 import static com.tramchester.testSupport.reference.TramStations.StPetersSquare;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -92,7 +91,7 @@ class RouteCalculatorForBoundingBoxTest {
 
         Set<Station> missing = allStations.stream().
                 filter(station -> !closedStationsRepository.isClosed(station, when)).
-                filter(this::workAroundTimetableShowingPiccGardensClosed).
+//                filter(this::workAroundTimetableShowingPiccGardensClosed).
                 filter(station -> boxes.stream().noneMatch(box -> box.getStations().contains(station))).
                 collect(Collectors.toSet());
 
@@ -101,12 +100,12 @@ class RouteCalculatorForBoundingBoxTest {
         assertTrue(missing.isEmpty(), HasId.asIds(missing));
     }
 
-    private boolean workAroundTimetableShowingPiccGardensClosed(final Station station) {
-        if (when.isAfter(TestEnv.PicGardensClosureEnds)) {
-            return true;
-        }
-        return !station.getId().equals(PiccadillyGardens.getId());
-    }
+//    private boolean workAroundTimetableShowingPiccGardensClosed(final Station station) {
+//        if (when.isAfter(TestEnv.PicGardensClosureEnds)) {
+//            return true;
+//        }
+//        return !station.getId().equals(PiccadillyGardens.getId());
+//    }
 
     @Test
     void shouldFindJourneysForBoundedBoxStations() throws InterruptedException {

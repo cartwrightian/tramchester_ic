@@ -24,6 +24,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.CornbrookClosure2024;
 import com.tramchester.testSupport.testTags.DualTest;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.DisabledIf;
@@ -83,6 +84,7 @@ public class InterchangesTramTest {
         }
     }
 
+    @CornbrookClosure2024
     @Test
     void shouldHaveExpectedTramInterchanges() {
 

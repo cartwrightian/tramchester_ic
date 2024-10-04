@@ -20,6 +20,7 @@ import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.testTags.CornbrookClosure2024;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
@@ -166,6 +167,7 @@ class RouteCalculatorSubGraphTest {
         assertFalse(results.isEmpty());
     }
 
+    @CornbrookClosure2024
     @Test
     void shouldHaveSimpleOneStopJourneyAtWeekend() {
         List<Journey> results = getJourneys(Cornbrook, Pomona, TestEnv.nextSaturday(), 1);

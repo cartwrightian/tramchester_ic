@@ -9,7 +9,6 @@ import com.tramchester.livedata.tfgm.TramStationDepartureInfo;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @SuppressWarnings("unused")
 public class StationDepartureInfoDTO  {
@@ -51,7 +50,7 @@ public class StationDepartureInfoDTO  {
 
     private static List<DepartureDTO> mapDueTrams(List<UpcomingDeparture> dueTrams, LocalDateTime lastUpdated) {
         return dueTrams.stream().map(dueTram ->
-                new DepartureDTO(dueTram.getDisplayLocation(), dueTram, lastUpdated)).collect(Collectors.toList());
+                new DepartureDTO(dueTram.getDisplayLocation(), dueTram, lastUpdated, false)).toList();
     }
 
     public String getLineName() {

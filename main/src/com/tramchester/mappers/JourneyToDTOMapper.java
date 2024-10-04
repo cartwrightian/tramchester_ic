@@ -49,8 +49,6 @@ public class JourneyToDTOMapper {
         final TramTime queryTime = journey.getQueryTime();
 
         for(final TransportStage<?,?> rawStage : rawJourneyStages) {
-            // performance on grids
-            //logger.info("Adding stage " + rawStage);
             final TravelAction action = decideTravelAction(stages, rawStage);
             final SimpleStageDTO stageDTO = stageFactory.build(rawStage, action, queryDate);
             stages.add(stageDTO);

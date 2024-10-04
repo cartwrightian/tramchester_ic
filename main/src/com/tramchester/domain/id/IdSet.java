@@ -63,9 +63,6 @@ public class IdSet<T extends CoreDomain> implements Iterable<IdFor<T>> {
         return new IdSet<>(other.theSet);
     }
 
-
-
-
     public IdSet<T> addAll(IdSet<T> other) {
         theSet.addAll(other.theSet);
         return this;

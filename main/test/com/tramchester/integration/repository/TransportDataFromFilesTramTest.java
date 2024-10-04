@@ -378,6 +378,7 @@ public class TransportDataFromFilesTramTest {
 
         Set<Pair<TramDate, IdFor<Station>>> missing = getUpcomingDates().
                 filter(date -> !date.isChristmasPeriod()).
+                filter(date -> !TestEnv.EcclesLinesClosed.contains(date)).
                 flatMap(date -> transportData.getStations(EnumSet.of(Tram)).stream().map(station -> Pair.of(date, station))).
                 filter(pair -> isOpen(pair.getLeft(), pair.getRight())).
                 filter(pair -> transportData.getTripsCallingAt(pair.getRight(), pair.getLeft()).isEmpty()).
@@ -386,6 +387,12 @@ public class TransportDataFromFilesTramTest {
 
         assertTrue(missing.isEmpty(), "Got missing trips for " + missing);
 
+    }
+
+    @Test
+    void shouldRememberToRemoveWorkaroundsAfterCornbrookClosureIsDone() {
+        TramDate today = TramDate.of(TestEnv.LocalNow().toLocalDate());
+        assertFalse(today.isAfter(TestEnv.EcclesLinesClosed.getEndDate()));
     }
 
     @Test
@@ -652,12 +659,12 @@ public class TransportDataFromFilesTramTest {
     }
 
     private boolean isOpen(final TramDate date, final Station station) {
-        final IdFor<Station> stationId = station.getId();
-        if (stationId.equals(PiccadillyGardens.getId())) {
-            if (!date.isAfter(TestEnv.PicGardensClosureEnds)) {
-                return false;
-            }
-        }
+//        final IdFor<Station> stationId = station.getId();
+//        if (stationId.equals(PiccadillyGardens.getId())) {
+//            if (!date.isAfter(TestEnv.PicGardensClosureEnds)) {
+//                return false;
+//            }
+//        }
         return !closedStationRepository.isClosed(station, date);
     }
 

@@ -8,7 +8,6 @@ import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -20,6 +19,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import static com.tramchester.testSupport.reference.TramStations.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 class DepartureDTOTest {
 
@@ -39,15 +39,16 @@ class DepartureDTOTest {
     void shouldCreateFromDueTramAndLocation() {
 
         UpcomingDeparture dueTram = getDueTram(updateTime, TramStations.Bury, 42);
-        DepartureDTO departureDTO = new DepartureDTO(StPetersSquare.fake(), dueTram, now);
+        DepartureDTO departureDTO = new DepartureDTO(StPetersSquare.fake(), dueTram, now, true);
 
-        Assertions.assertEquals(StPetersSquare.getIdForDTO(), departureDTO.getFrom().getId());
-        Assertions.assertEquals(Bury.getIdForDTO(), departureDTO.getDestination().getId());
-        Assertions.assertEquals("status", departureDTO.getStatus());
-        Assertions.assertEquals("carriages", departureDTO.getCarriages());
+        assertEquals(StPetersSquare.getIdForDTO(), departureDTO.getFrom().getId());
+        assertEquals(Bury.getIdForDTO(), departureDTO.getDestination().getId());
+        assertEquals("status", departureDTO.getStatus());
+        assertEquals("carriages", departureDTO.getCarriages());
         LocalDateTime when = departureDTO.getDueTime();
-        Assertions.assertEquals(updateTime.plusMinutes(42).truncatedTo(ChronoUnit.MINUTES), when.toLocalTime());
-        Assertions.assertEquals(updateDate, when.toLocalDate());
+        assertEquals(updateTime.plusMinutes(42).truncatedTo(ChronoUnit.MINUTES), when.toLocalTime());
+        assertEquals(updateDate, when.toLocalDate());
+        assertTrue(departureDTO.getMatchesJourney());
     }
 
     @Test
@@ -55,11 +56,11 @@ class DepartureDTOTest {
 
         Station stPetersSquare = StPetersSquare.fake();
         DepartureDTO departureDTOA = new DepartureDTO(stPetersSquare,
-                getDueTram(updateTime, TramStations.Deansgate, 5), now);
+                getDueTram(updateTime, TramStations.Deansgate, 5), now, false);
         DepartureDTO departureDTOB = new DepartureDTO(stPetersSquare,
-                getDueTram(updateTime, TramStations.Bury, 3), now);
+                getDueTram(updateTime, TramStations.Bury, 3), now, false);
         DepartureDTO departureDTOC = new DepartureDTO(stPetersSquare,
-                getDueTram(updateTime, TramStations.Piccadilly, 12), now);
+                getDueTram(updateTime, TramStations.Piccadilly, 12), now, false);
 
         Set<DepartureDTO> list = new TreeSet<>();
         list.add(departureDTOA);
@@ -67,9 +68,9 @@ class DepartureDTOTest {
         list.add(departureDTOC);
 
         DepartureDTO[] elements = list.toArray(new DepartureDTO[3]);
-        Assertions.assertEquals(Bury.getIdForDTO(), elements[0].getDestination().getId());
-        Assertions.assertEquals(Deansgate.getIdForDTO(), elements[1].getDestination().getId());
-        Assertions.assertEquals(Piccadilly.getIdForDTO(), elements[2].getDestination().getId());
+        assertEquals(Bury.getIdForDTO(), elements[0].getDestination().getId());
+        assertEquals(Deansgate.getIdForDTO(), elements[1].getDestination().getId());
+        assertEquals(Piccadilly.getIdForDTO(), elements[2].getDestination().getId());
     }
 
     @NotNull

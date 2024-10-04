@@ -56,6 +56,9 @@ public class TestEnv {
     public static final String DISABLE_HEADLESS_ENV_VAR = "DISABLE_HEADLESS";
     public static final String CHROMEDRIVER_PATH_ENV_VAR = "CHROMEDRIVER_PATH";
 
+    // 204 -> 214 for replacement bus while cornbrook closed
+    public static final int NumberOfStationLinks = 214;
+
     // use helper methods that handle filtering (i.e. for christmas) and conversion to dates
     private static final int DAYS_AHEAD = 7;
 
@@ -69,8 +72,7 @@ public class TestEnv {
     public static final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:00");
     public static final String BRISTOL_BUSSTOP_OCTOCODE = "0100BRP90268";
 
-    // timetable data is out of sync with public data which is 6/Sept/2024
-    public static final TramDate PicGardensClosureEnds = TramDate.of(2024,9,25);
+    public static final DateRange EcclesLinesClosed = DateRange.of(TramDate.of(2024,10,5), TramDate.of(2024, 10, 6));
 
     private static final Agency MET = MutableAgency.build(DataSourceID.tfgm, MutableAgency.METL, "Metrolink");
 
@@ -145,8 +147,7 @@ public class TestEnv {
         if (date.isChristmasPeriod()) {
             return false;
         }
-        final TramDate augustBankHols2024 = TramDate.of(2024,8,26);
-        return !date.equals(augustBankHols2024);
+        return !EcclesLinesClosed.contains(date);
     }
 
     public static Stream<TramDate> getUpcomingDates() {

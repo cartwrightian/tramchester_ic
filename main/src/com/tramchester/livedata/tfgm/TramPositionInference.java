@@ -1,6 +1,7 @@
 package com.tramchester.livedata.tfgm;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.StationPair;
@@ -9,16 +10,15 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
-import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.RouteReachable;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.TramStationAdjacenyRepository;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.inject.Inject;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -39,14 +39,16 @@ public class TramPositionInference {
     private final TramStationAdjacenyRepository adjacenyRepository;
     private final RouteReachable routeReachable;
     private final ClosedStationsRepository closedStationsRepository;
+    private final TramchesterConfig tramchesterConfig;
 
     @Inject
     public TramPositionInference(TramDepartureRepository departureRepository, TramStationAdjacenyRepository adjacenyRepository,
-                                 RouteReachable routeReachable, ClosedStationsRepository closedStationsRepository) {
+                                 RouteReachable routeReachable, ClosedStationsRepository closedStationsRepository, TramchesterConfig tramchesterConfig) {
         this.departureRepository = departureRepository;
         this.adjacenyRepository = adjacenyRepository;
         this.routeReachable = routeReachable;
         this.closedStationsRepository = closedStationsRepository;
+        this.tramchesterConfig = tramchesterConfig;
     }
 
     /***
@@ -60,7 +62,7 @@ public class TramPositionInference {
 
         TramDate date = TramDate.from(localDateTime);
         logger.info("Infer tram positions for whole network");
-        Set<StationPair> pairs = adjacenyRepository.getTramStationParis();
+        Set<StationPair> pairs = adjacenyRepository.getTramStationParis(date);
         List<TramPosition> results = pairs.stream().
                 filter(stationPair -> !closedStationsRepository.isClosed(stationPair.getEnd(), date) &&
                                 !closedStationsRepository.isClosed(stationPair.getBegin(), date)).
@@ -79,14 +81,16 @@ public class TramPositionInference {
     }
 
     public TramPosition findBetween(StationPair pair, LocalDateTime now) {
-        Duration costBetweenPair = adjacenyRepository.getAdjacent(pair);
+        final int maxWait = tramchesterConfig.getMaxWait();
+
+        final TramTime currentTime = TramTime.ofHourMins(now.toLocalTime());
+        final TramDate date = TramDate.from(now);
+        final TimeRange range= TimeRange.of(currentTime, currentTime.plusMinutes(maxWait));
+        Duration costBetweenPair = adjacenyRepository.getAdjacent(pair, TramDate.of(now.toLocalDate()), range);
         if (costBetweenPair.isNegative()) {
             logger.warn(format("Not adjacent %s", pair));
             return new TramPosition(pair, Collections.emptySet(), costBetweenPair);
         }
-
-        TramTime currentTime = TramTime.ofHourMins(now.toLocalTime());
-        TramDate date = TramDate.from(now);
 
         TramTime cutOff = currentTime.plus(costBetweenPair);
         TimeRange timeRange = TimeRange.of(currentTime, cutOff);

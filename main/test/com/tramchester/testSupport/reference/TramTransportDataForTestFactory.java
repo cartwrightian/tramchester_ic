@@ -30,8 +30,7 @@ import java.time.DayOfWeek;
 import java.time.LocalTime;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
-import static com.tramchester.domain.time.TramTime.of;
-import static com.tramchester.domain.time.TramTime.ofHourMins;
+import static com.tramchester.domain.time.TramTime.*;
 import static com.tramchester.testSupport.reference.KnownLocations.*;
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramTransportDataForTestFactory.TramTransportDataForTest.INTERCHANGE;
@@ -45,9 +44,21 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
 
     private final DataSourceID dataSourceID = DataSourceID.tfgm;
 
+    public final static TramDate startDate = TramDate.of(2014, 2, 10);
+    public final static TramDate endDate = TramDate.of(2020, 8, 15);
+    private static final DayOfWeek dayOfWeek = DayOfWeek.MONDAY;
+
     @Inject
     public TramTransportDataForTestFactory(ProvidesNow providesNow) {
         container = new TramTransportDataForTest(providesNow);
+    }
+
+    public static TramDate getValidDate() {
+        TramDate validDate = startDate;
+        while(validDate.getDayOfWeek()!=dayOfWeek) {
+            validDate = validDate.plusDays(1);
+        }
+        return validDate;
     }
 
     @PostConstruct
@@ -93,13 +104,10 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         MutableService serviceC = new MutableService(TramTransportDataForTest.serviceCId, dataSourceID);
         MutableService serviceD = new MutableService(TramTransportDataForTest.serviceDId, dataSourceID);
 
-        TramDate startDate = TramDate.of(2014, 2, 10);
-        TramDate endDate = TramDate.of(2020, 8, 15);
-
-        MutableNormalServiceCalendar serviceCalendarA = new MutableNormalServiceCalendar(startDate, endDate, DayOfWeek.MONDAY);
-        MutableNormalServiceCalendar serviceCalendarB = new MutableNormalServiceCalendar(startDate, endDate, DayOfWeek.MONDAY);
-        MutableNormalServiceCalendar serviceCalendarC = new MutableNormalServiceCalendar(startDate, endDate,DayOfWeek.MONDAY);
-        MutableNormalServiceCalendar serviceCalendarD = new MutableNormalServiceCalendar(startDate, endDate,DayOfWeek.MONDAY);
+        MutableNormalServiceCalendar serviceCalendarA = new MutableNormalServiceCalendar(startDate, endDate, dayOfWeek);
+        MutableNormalServiceCalendar serviceCalendarB = new MutableNormalServiceCalendar(startDate, endDate, dayOfWeek);
+        MutableNormalServiceCalendar serviceCalendarC = new MutableNormalServiceCalendar(startDate, endDate, dayOfWeek);
+        MutableNormalServiceCalendar serviceCalendarD = new MutableNormalServiceCalendar(startDate, endDate, dayOfWeek);
 
         serviceA.setCalendar(serviceCalendarA);
         serviceB.setCalendar(serviceCalendarB);

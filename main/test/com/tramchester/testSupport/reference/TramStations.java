@@ -87,8 +87,6 @@ public enum TramStations implements FakeStation, HasId<Station> {
             Rochdale,
             Bury,
             TraffordCentre
-//            PiccadillyGardens // summer 2024, due to works?
-            //OldhamMumps // temp additional due to landslip 2024
     ));
 
     public static Set<TramStations> getEndOfTheLine() {
@@ -145,8 +143,8 @@ public enum TramStations implements FakeStation, HasId<Station> {
         return mutableStation;
     }
 
-    public Station fakeWithPlatform(String platformNumber, LatLong latLong, DataSourceID dataSourceID,
-                                    IdFor<NPTGLocality> localityCode) {
+    public Station fakeWithPlatform(final String platformNumber, final LatLong latLong, final DataSourceID dataSourceID,
+                                    final IdFor<NPTGLocality> localityCode) {
         MutableStation station = createMutable();
         PlatformId platformId = PlatformId.createId(station, platformNumber);
         final Platform platform = MutablePlatform.buildForTFGMTram(platformId, station,
@@ -154,5 +152,11 @@ public enum TramStations implements FakeStation, HasId<Station> {
         station.addPlatform(platform);
         station.addMode(TransportMode.Tram);
         return station;
+    }
+
+    public Station fake(KnownTramRoute knownTramRoute) {
+        MutableStation mutableStation = createMutable();
+        mutableStation.addRouteDropOff(knownTramRoute.fake());
+        return mutableStation;
     }
 }

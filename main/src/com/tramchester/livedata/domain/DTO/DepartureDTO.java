@@ -28,25 +28,27 @@ public class DepartureDTO implements Comparable<DepartureDTO> {
     private String carriages;
     private String status;
     private LocalDateTime dueTime;
+    private boolean matchesJourney;
 
     @JsonIgnore
     private LocalDateTime lastUpdated;
 
-    public DepartureDTO(Location<?> start, UpcomingDeparture upcomingDeparture, LocalDateTime updateTime) {
+    public DepartureDTO(Location<?> start, UpcomingDeparture upcomingDeparture, LocalDateTime updateTime, boolean matchesJourney) {
         this(upcomingDeparture.getMode(),
                 new LocationRefDTO(start), new LocationRefDTO(upcomingDeparture.getDestination()),
                 upcomingDeparture.getCarriages(), upcomingDeparture.getStatus(),
-                upcomingDeparture.getWhen().toDate(updateTime.toLocalDate()), updateTime);
+                upcomingDeparture.getWhen().toDate(updateTime.toLocalDate()), updateTime, matchesJourney);
     }
 
     private DepartureDTO(TransportMode mode, LocationRefDTO from, LocationRefDTO destination, String carriages, String status, LocalDateTime dueTime,
-                         LocalDateTime lastUpdated) {
+                         LocalDateTime lastUpdated, boolean matchesJourney) {
         this.transportMode = mode;
         this.from = from;
         this.destination = destination;
         this.carriages = carriages;
         this.status = status;
         this.dueTime = dueTime;
+        this.matchesJourney = matchesJourney;
         this.lastUpdated = lastUpdated;
     }
 
@@ -79,6 +81,10 @@ public class DepartureDTO implements Comparable<DepartureDTO> {
         return transportMode;
     }
 
+    public boolean getMatchesJourney() {
+        return matchesJourney;
+    }
+
     @Override
     public int compareTo(DepartureDTO other) {
         if (dueTime.equals(other.dueTime)) {
@@ -98,6 +104,7 @@ public class DepartureDTO implements Comparable<DepartureDTO> {
                 ", carriages='" + carriages + '\'' +
                 ", status='" + status + '\'' +
                 ", dueTime=" + dueTime +
+                ", matchesJourney=" + matchesJourney +
                 ", lastUpdated=" + lastUpdated +
                 '}';
     }
@@ -109,12 +116,13 @@ public class DepartureDTO implements Comparable<DepartureDTO> {
         DepartureDTO that = (DepartureDTO) o;
         return transportMode == that.transportMode && from.equals(that.from) && destination.equals(that.destination)
                 && carriages.equals(that.carriages) && status.equals(that.status)
+                && (matchesJourney==that.matchesJourney)
                 && dueTime.equals(that.dueTime) && lastUpdated.equals(that.lastUpdated);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(transportMode, from, destination, carriages, status, dueTime, lastUpdated);
+        return Objects.hash(transportMode, from, destination, carriages, status, dueTime, lastUpdated, matchesJourney);
     }
 
     @JsonProperty(value = "wait", access = JsonProperty.Access.READ_ONLY)

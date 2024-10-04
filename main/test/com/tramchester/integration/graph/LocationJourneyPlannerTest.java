@@ -5,6 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.Location;
@@ -28,6 +29,7 @@ import org.junit.jupiter.api.*;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.reference.KnownLocations.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
@@ -93,6 +95,11 @@ class LocationJourneyPlannerTest {
             WalkingToStationStage first = (WalkingToStationStage) stages.get(0);
             assertEquals(nearPiccGardens.latLong(), first.getFirstStation().getLatLong());
             assertEquals(PiccadillyGardens.getId(), first.getLastStation().getId());
+
+            List<Location<?>> changes = journey.getChangeStations();
+            assertEquals(1, changes.size());
+            Set<String> names = changes.stream().map(Location::getName).collect(Collectors.toSet());
+            assertTrue(names.contains(PiccadillyGardens.getName()), "could not find in " + names);
         });
 
         unsortedResults.forEach(journey -> {
@@ -152,6 +159,33 @@ class LocationJourneyPlannerTest {
         assertEquals(new IdForDTO("53.387483,-2.351463"), IdForDTO.createFor(walkStage.getLastStation()));
         assertEquals(nearAltrincham.latLong(), walkStage.getLastStation().getLatLong());
         assertEquals(walkChangeStation.getId(), walkStage.getActionStation().getId());
+
+        List<Location<?>> changes = firstJourney.getChangeStations();
+        assertEquals(1, changes.size());
+        Location<?> change = changes.get(0);
+        assertEquals(walkChangeStation.getId(), change.getId());
+    }
+
+    @Test
+    void shouldHaveExpectedChangeStationsWhenTwoStageBeginWithWalk() {
+        final JourneyRequest request = new JourneyRequest(date, TramTime.of(8, 0), false,
+                3, maxJourneyDuration, 1, getRequestedModes());
+
+        Set<Journey> journeySet = planner.quickestRouteForLocation(nearAltrincham, ManAirport, request, 3);
+
+        List<String> possibleStarts = Arrays.asList(Altrincham.getName(), NavigationRoad.getName());
+
+        assertFalse(journeySet.isEmpty(), "no journeys found for " + request);
+
+        journeySet.forEach(journey -> {
+            assertEquals(3, journey.getStages().size());
+            List<Location<?>> changes = journey.getChangeStations();
+            assertEquals(2, changes.size(), "wrong number of changes " + HasId.asIds(changes));
+            Set<String> names = changes.stream().map(Location::getName).collect(Collectors.toSet());
+            boolean hasExpectedStart = names.stream().anyMatch(possibleStarts::contains);
+            assertTrue(hasExpectedStart, "Mismatch between " + names );
+        });
+
     }
 
     @Test

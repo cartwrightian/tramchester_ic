@@ -1,11 +1,14 @@
 package com.tramchester.testSupport.reference;
 
+import com.tramchester.domain.MutableRoute;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.testSupport.TestEnv;
 
+import java.time.DayOfWeek;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Optional;
@@ -31,7 +34,13 @@ public enum KnownTramRoute {
     // Red
     CornbrookTheTraffordCentre("Red Line", "Cornbrook - The Trafford Centre", "849"),
     // Yellow
-    PiccadillyVictoria("Yellow Line", "Piccadilly - Victoria", "844");
+    PiccadillyVictoria("Yellow Line", "Piccadilly - Victoria", "844"),
+
+    // cornbrook / eccles line closure changes
+    BuryManchester("Yellow Line", "Bury - Manchester", "2358"),
+    ReplacementBus1("Replacement Bus 1", "Firswood - Victoria", "2359"),
+    ReplacementBus2("Replacement Bus 2", "Trafford - Piccadilly", "2360"),
+    ReplacementBus3("Replacement Bus 3", "Eccles - Piccadilly", "2361");
 
     private final String shortName;
     private final String longName;
@@ -40,20 +49,27 @@ public enum KnownTramRoute {
     public static Set<KnownTramRoute> getFor(final TramDate date) {
         EnumSet<KnownTramRoute> routes = EnumSet.noneOf(KnownTramRoute.class);
 
-        routes.add(EcclesAshton);
+        if (TestEnv.EcclesLinesClosed.contains(date)) {
+            routes.add(BuryManchester);
+            routes.add(ReplacementBus1);
+            routes.add(ReplacementBus2);
+            routes.add(ReplacementBus3);
+        } else {
+            routes.add(PiccadillyVictoria);
+            routes.add(EcclesAshton);
+            if (date.isAfter(TramDate.of(2024, 10,19))) {
+                if (date.getDayOfWeek()!= DayOfWeek.SUNDAY) {
+                    routes.add(BuryManchesterAltrincham);
+                }
+            } else {
+                routes.add(BuryManchesterAltrincham);
+            }
+        }
+
         routes.add(CornbrookTheTraffordCentre);
-
-//        if (!cornbrookClosure(date)) {
-            routes.add(DeansgateCastlefieldManchesterAirport);
-//        }
+        routes.add(DeansgateCastlefieldManchesterAirport);
         routes.add(RochdaleShawandCromptonManchesterEastDidisbury);
-        routes.add(PiccadillyVictoria);
         routes.add(EtihadPiccadillyAltrincham);
-
-        routes.add(BuryManchesterAltrincham);
-//        if (date.getDayOfWeek() != DayOfWeek.SUNDAY) {
-//            routes.add(BuryManchesterAltrincham);
-//        }
 
         return routes;
     }
@@ -108,5 +124,9 @@ public enum KnownTramRoute {
 
     public IdForDTO dtoId() {
         return IdForDTO.createFor(id);
+    }
+
+    public Route fake() {
+        return new MutableRoute(id, shortName, longName, TestEnv.MetAgency(), TransportMode.Tram);
     }
 }
