@@ -125,17 +125,20 @@ public class DeparturesResource extends TransportResource implements APIResource
     }
 
     private @NotNull SortedSet<DepartureDTO> getDepartureDTOS(DeparturesQueryDTO departuresQuery, List<UpcomingDeparture> dueTrams) {
-        final IdSet<Station> journeyFirstDestinationIds = getStationIds(departuresQuery.getFirstDestIds());
 
-        if (!journeyFirstDestinationIds.isEmpty()) {
-            logger.info("Fetching due trams and checking for destinations " + journeyFirstDestinationIds);
-            return new TreeSet<>(departuresMapper.mapToDTO(dueTrams, providesNow.getDateTime(), journeyFirstDestinationIds));
+        if (departuresQuery.hasFirstDestId()) {
+            final IdSet<Station> journeyFirstDestinationIds = getStationIds(departuresQuery.getFirstDestIds());
+            if (!journeyFirstDestinationIds.isEmpty()) {
+                logger.info("Fetching due trams and checking for destinations " + journeyFirstDestinationIds);
+                return new TreeSet<>(departuresMapper.mapToDTO(dueTrams, providesNow.getDateTime(), journeyFirstDestinationIds));
             }
+        }
+
         logger.info("Fetching due trams, not checking for tram destinations");
         return new TreeSet<>(departuresMapper.mapToDTO(dueTrams, providesNow.getDateTime()));
     }
 
-    private IdSet<Station> getStationIds(Set<IdForDTO> firstDestIds) {
+    private IdSet<Station> getStationIds(final Set<IdForDTO> firstDestIds) {
         IdSet<Station> result = firstDestIds.stream().map(Station::createId).filter(stationRepository::hasStationId).collect(IdSet.idCollector());
         if (result.size()!=firstDestIds.size()) {
             logger.warn("Unable to map all firstDestIds " + firstDestIds + " to station ids, only got " + result);
