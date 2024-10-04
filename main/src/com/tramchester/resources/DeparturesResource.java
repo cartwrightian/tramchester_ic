@@ -125,15 +125,12 @@ public class DeparturesResource extends TransportResource implements APIResource
     }
 
     private @NotNull SortedSet<DepartureDTO> getDepartureDTOS(DeparturesQueryDTO departuresQuery, List<UpcomingDeparture> dueTrams) {
-        // TODO Enable for production
-        if (departuresQuery.hasFirstDestId() && config.getEnvironmentName().equals("Dev")) {
-            final IdSet<Station> journeyFirstDestinationIds = getStationIds(departuresQuery.getFirstDestIds());
+        final IdSet<Station> journeyFirstDestinationIds = getStationIds(departuresQuery.getFirstDestIds());
 
-            if (!journeyFirstDestinationIds.isEmpty()) {
-                logger.info("Fetching due trams and checking for destinations " + journeyFirstDestinationIds);
-                return new TreeSet<>(departuresMapper.mapToDTO(dueTrams, providesNow.getDateTime(), journeyFirstDestinationIds));
+        if (!journeyFirstDestinationIds.isEmpty()) {
+            logger.info("Fetching due trams and checking for destinations " + journeyFirstDestinationIds);
+            return new TreeSet<>(departuresMapper.mapToDTO(dueTrams, providesNow.getDateTime(), journeyFirstDestinationIds));
             }
-        }
         logger.info("Fetching due trams, not checking for tram destinations");
         return new TreeSet<>(departuresMapper.mapToDTO(dueTrams, providesNow.getDateTime()));
     }
