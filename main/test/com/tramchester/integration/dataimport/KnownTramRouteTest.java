@@ -145,7 +145,6 @@ class KnownTramRouteTest {
         SortedMap<TramDate, Set<KnownTramRoute>> unusedForDate = new TreeMap<>();
 
         dateRange.stream().
-                filter(date -> !TestEnv.EcclesLinesClosed.contains(date)).
                 forEach(date -> {
                     final IdSet<Route> loaded = getLoadedTramRoutes(date).collect(IdSet.collector());
 

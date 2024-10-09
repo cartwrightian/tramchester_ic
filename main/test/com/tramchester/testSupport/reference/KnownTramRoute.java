@@ -49,21 +49,14 @@ public enum KnownTramRoute {
     public static Set<KnownTramRoute> getFor(final TramDate date) {
         EnumSet<KnownTramRoute> routes = EnumSet.noneOf(KnownTramRoute.class);
 
-        if (TestEnv.EcclesLinesClosed.contains(date)) {
-            routes.add(BuryManchester);
-            routes.add(ReplacementBus1);
-            routes.add(ReplacementBus2);
-            routes.add(ReplacementBus3);
-        } else {
-            routes.add(PiccadillyVictoria);
-            routes.add(EcclesAshton);
-            if (date.isAfter(TramDate.of(2024, 10,19))) {
-                if (date.getDayOfWeek()!= DayOfWeek.SUNDAY) {
-                    routes.add(BuryManchesterAltrincham);
-                }
-            } else {
+        routes.add(PiccadillyVictoria);
+        routes.add(EcclesAshton);
+        if (date.isAfter(TramDate.of(2024, 10,19))) {
+            if (date.getDayOfWeek()!= DayOfWeek.SUNDAY) {
                 routes.add(BuryManchesterAltrincham);
             }
+        } else {
+            routes.add(BuryManchesterAltrincham);
         }
 
         routes.add(CornbrookTheTraffordCentre);

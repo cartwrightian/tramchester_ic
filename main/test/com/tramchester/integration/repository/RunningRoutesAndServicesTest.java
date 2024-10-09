@@ -18,7 +18,6 @@ import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
-import com.tramchester.testSupport.testTags.CornbrookClosure2024;
 import org.apache.commons.collections4.SetUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -154,7 +153,6 @@ public class RunningRoutesAndServicesTest {
 
     }
 
-    @CornbrookClosure2024
     @Test
     void shouldTakeAccountOfCrossingIntoNextDayForRunningServices() {
         // need to find service running mon to fri and one running saturday

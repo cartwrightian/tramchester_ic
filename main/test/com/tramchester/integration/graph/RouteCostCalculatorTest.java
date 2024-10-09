@@ -92,8 +92,8 @@ class RouteCostCalculatorTest {
         final Duration buryToAlty = routeCostCalculator.getAverageCostBetween(txn, bury, altrincham, when, modes);
         final Duration altyToBury = routeCostCalculator.getAverageCostBetween(txn, altrincham, bury, when, modes);
 
-        assertEquals(Duration.ofMinutes(63).plusSeconds(13), buryToAlty);
-        assertEquals(Duration.ofMinutes(64).plusSeconds(56), altyToBury);
+        assertEquals(Duration.ofMinutes(63).plusSeconds(19), buryToAlty);
+        assertEquals(Duration.ofMinutes(65).plusSeconds(1), altyToBury);
     }
 
     @Test

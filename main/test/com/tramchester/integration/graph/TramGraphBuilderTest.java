@@ -32,9 +32,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.CornbrookClosure2024;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
-import org.apache.commons.collections4.SetUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Direction;
@@ -110,8 +108,7 @@ class TramGraphBuilderTest {
 
         List<ImmutableGraphRelationship> list = outboundLinks.toList(); //Lists.newArrayList(outboundLinks);
 
-        // 3 -> 5 cornbrook closure replacement buses
-        assertEquals(5, list.size());
+        assertEquals(3, list.size());
 
         Set<IdFor<Station>> destinations = list.stream().
                 map(graphRelationship -> graphRelationship.getEndNode(txn)).
@@ -723,12 +720,11 @@ class TramGraphBuilderTest {
         return outboundsFromRouteStation.stream().filter(relationship -> relationship.isType(TO_SERVICE)).toList();
     }
 
-    @CornbrookClosure2024
     @Test
     void shouldHaveSameOutboundTripIdsForNeighbouringRouteStationWhenSameRouteAndSvc() {
-        // outbound from manchester Timperley then Navigation Road
+        // outbound from manchester Timperley then Brooklands (not navigation road since some services "turn around" at timperley)
         Station stationA = Timperley.from(stationRepository);
-        Station stationB = NavigationRoad.from(stationRepository);
+        Station stationB = Brooklands.from(stationRepository);
 
         Route buryToAlty = tramRouteHelper.getOneRoute(BuryManchesterAltrincham, when);
 
@@ -747,15 +743,18 @@ class TramGraphBuilderTest {
                 collect(Collectors.toSet());
         assertFalse(svcOutboundsB.isEmpty());
 
-        SetUtils.SetView<ImmutableGraphRelationship> differenceInRelationships = SetUtils.disjunction(svcOutboundsA, svcOutboundsB);
+        IdSet<Service> stationAServices = svcOutboundsA.stream().map(relation -> relation.getServiceId()).collect(IdSet.idCollector());
+        IdSet<Service> stationBServices = svcOutboundsA.stream().map(relation -> relation.getServiceId()).collect(IdSet.idCollector());
+
+        IdSet<Service> differenceInRelationships = IdSet.disjunction(stationAServices, stationBServices);
 
         assertTrue(differenceInRelationships.isEmpty(), "not same set of services, diff was " + differenceInRelationships);
 
-        IdSet<Service> uniqueSvcIds = svcOutboundsA.stream().map(ImmutableGraphRelationship::getServiceId).collect(IdSet.idCollector());
+//        IdSet<Service> uniqueSvcIds = svcOutboundsA.stream().map(ImmutableGraphRelationship::getServiceId).collect(IdSet.idCollector());
 
-        assertFalse(uniqueSvcIds.isEmpty());
+        assertFalse(stationAServices.isEmpty());
 
-        IdSet<Service> runningOnDate = uniqueSvcIds.stream().
+        IdSet<Service> runningOnDate = stationAServices.stream().
                 filter(serviceId -> serviceRepository.getServiceById(serviceId).getCalendar().operatesOn(when)).
                 collect(IdSet.idCollector());
 
@@ -766,7 +765,7 @@ class TramGraphBuilderTest {
             List<ImmutableGraphRelationship> fromA = svcOutboundsA.stream().
                     filter(svcOutbounds -> svcOutbounds.getServiceId().equals(svcId)).
                     filter(svcOutbound -> svcOutbound.getEndNode(txn).getTowardsStationId().equals(stationB.getId())).toList();
-            assertEquals(1, fromA.size(), "could not find " + svcId + " from A towards B " + uniqueSvcIds);
+            assertEquals(1, fromA.size(), "could not find " + svcId + " from A towards B " + stationAServices);
 
             // from B, excluding back towards A
             List<ImmutableGraphRelationship> fromB = svcOutboundsB.

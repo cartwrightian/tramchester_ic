@@ -14,7 +14,6 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.Interchanges;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.FakeStation;
-import com.tramchester.testSupport.testTags.CornbrookClosure2024;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,7 +51,6 @@ class FindStationsByNumberLinksTramTest {
         finder = componentContainer.get(FindStationsByNumberLinks.class);
     }
 
-    @CornbrookClosure2024
     @Test
     void shouldNotDuplciateWithConfig() {
         List<GTFSSourceConfig> dataSources = config.getGTFSDataSource();
@@ -70,7 +68,6 @@ class FindStationsByNumberLinksTramTest {
                 " \nstations with links were " + stationWithLinks);
     }
 
-    @CornbrookClosure2024
     @Test
     void shouldIdInterchangePointsLinked() {
 

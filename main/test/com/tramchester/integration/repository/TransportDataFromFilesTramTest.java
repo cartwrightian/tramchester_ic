@@ -378,7 +378,6 @@ public class TransportDataFromFilesTramTest {
 
         Set<Pair<TramDate, IdFor<Station>>> missing = getUpcomingDates().
                 filter(date -> !date.isChristmasPeriod()).
-                filter(date -> !TestEnv.EcclesLinesClosed.contains(date)).
                 flatMap(date -> transportData.getStations(EnumSet.of(Tram)).stream().map(station -> Pair.of(date, station))).
                 filter(pair -> isOpen(pair.getLeft(), pair.getRight())).
                 filter(pair -> transportData.getTripsCallingAt(pair.getRight(), pair.getLeft()).isEmpty()).
@@ -387,12 +386,6 @@ public class TransportDataFromFilesTramTest {
 
         assertTrue(missing.isEmpty(), "Got missing trips for " + missing);
 
-    }
-
-    @Test
-    void shouldRememberToRemoveWorkaroundsAfterCornbrookClosureIsDone() {
-        TramDate today = TramDate.of(TestEnv.LocalNow().toLocalDate());
-        assertFalse(today.isAfter(TestEnv.EcclesLinesClosed.getEndDate()));
     }
 
     @Test
@@ -450,12 +443,6 @@ public class TransportDataFromFilesTramTest {
         });
 
         assertTrue(missing.isEmpty(), missing.toString());
-    }
-
-    @Test
-    void shouldRemoveCornbrookClosureDates() {
-        TramDate today = TramDate.from(TestEnv.LocalNow());
-        assertFalse(today.isAfter(TestEnv.cornbrookClosed.getEndDate()));
     }
 
     @Test
