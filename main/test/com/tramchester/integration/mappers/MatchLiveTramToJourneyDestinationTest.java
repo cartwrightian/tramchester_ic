@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -30,7 +31,7 @@ import static com.tramchester.domain.reference.TransportMode.Tram;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-@Disabled("WIP and need to find way to make reliable")
+@Disabled("WIP and need to find way to make reliable, dependent on departures being at certain locations")
 public class MatchLiveTramToJourneyDestinationTest {
 
     private static GuiceContainerDependencies componentContainer;
@@ -63,9 +64,38 @@ public class MatchLiveTramToJourneyDestinationTest {
 
         StationPair journeyStations = StationPair.of(journeyStart, journeyDestination);
 
-        List<UpcomingDeparture> trams = getMatchingDepartures(journeyStations);
+        List<UpcomingDeparture> all = getAllDepartures(journeyStations);
+
+        IdSet<Station> journeyDestinations = IdSet.singleton(journeyDestination.getId());
+        List<UpcomingDeparture> trams = all.stream().
+                filter(departure -> matchToJourneyDest.matchesJourneyDestination(departure, journeyDestinations)).toList();
 
         assertFalse(trams.isEmpty());
+    }
+
+    @Test
+    void shouldHaveTramsGoingFromCityCentreToAltrincham() {
+
+        Station journeyStart = TramStations.Shudehill.from(stationRepository);
+        Station journeyDestination = TramStations.Altrincham.from(stationRepository);
+
+        StationPair journeyStations = StationPair.of(journeyStart, journeyDestination);
+
+        List<UpcomingDeparture> all = getAllDepartures(journeyStations);
+
+        IdSet<Station> journeyDestinations = IdSet.singleton(journeyDestination.getId());
+
+        assertFalse(all.isEmpty());
+
+        List<UpcomingDeparture> matched = new ArrayList<>();
+        all.forEach(tram -> {
+            if (matchToJourneyDest.matchesJourneyDestination(tram, journeyDestinations)) {
+                matched.add(tram);
+                assertEquals(TramStations.Altrincham.getId(), tram.getDestination().getId(), "departure was " + tram);
+            }
+        });
+        assertFalse(matched.isEmpty());
+
     }
 
     @Test
@@ -76,7 +106,11 @@ public class MatchLiveTramToJourneyDestinationTest {
 
         StationPair journeyStations = StationPair.of(journeyStart, journeyDestination);
 
-        List<UpcomingDeparture> trams = getMatchingDepartures(journeyStations);
+        List<UpcomingDeparture> all = getAllDepartures(journeyStations);
+
+        IdSet<Station> journeyDestinations = IdSet.singleton(journeyDestination.getId());
+        List<UpcomingDeparture> trams = all.stream().
+                filter(departure -> matchToJourneyDest.matchesJourneyDestination(departure, journeyDestinations)).toList();
 
         assertFalse(trams.isEmpty());
 
@@ -86,7 +120,7 @@ public class MatchLiveTramToJourneyDestinationTest {
 
     }
 
-    private List<UpcomingDeparture> getMatchingDepartures(final StationPair journeyStations) {
+    private List<UpcomingDeparture> getAllDepartures(final StationPair journeyStations) {
         final CountDownLatch latch = new CountDownLatch(1);
 
         // need to wait until we have some live data
@@ -106,10 +140,8 @@ public class MatchLiveTramToJourneyDestinationTest {
 
         LocalDateTime now = TestEnv.LocalNow();
         TramTime time = TramTime.ofHourMins(now.toLocalTime());
-        final List<UpcomingDeparture> departures = departuresRepository.getDueForLocation(journeyStations.getBegin(), now.toLocalDate(), time, EnumSet.of(Tram));
+        return departuresRepository.getDueForLocation(journeyStations.getBegin(), now.toLocalDate(), time, EnumSet.of(Tram));
 
-        return departures.stream().
-                filter(departure -> matchToJourneyDest.matchesJourneyDestination(departure, journeyDestinations)).toList();
 
     }
 

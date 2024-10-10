@@ -68,4 +68,15 @@ public class StopOrderCheckerTest {
 
         assertFalse(result);
     }
+
+    @Test
+    void shouldNotMatchShudehillPicadillyAltrincham() {
+        Station begin = Shudehill.from(stationRepository);
+        Station middle = Piccadilly.from(stationRepository);
+        Station end = Altrincham.from(stationRepository);
+
+        boolean result = stopOrderChecker.check(when, begin, middle, end);
+
+        assertFalse(result);
+    }
 }

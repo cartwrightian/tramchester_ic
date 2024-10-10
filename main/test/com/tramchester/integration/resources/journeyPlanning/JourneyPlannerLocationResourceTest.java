@@ -3,6 +3,7 @@ package com.tramchester.integration.resources.journeyPlanning;
 import com.tramchester.App;
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.presentation.DTO.ChangeStationRefWithPosition;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
 import com.tramchester.domain.presentation.DTO.SimpleStageDTO;
@@ -135,6 +136,29 @@ class JourneyPlannerLocationResourceTest {
     }
 
     @Test
+    void shouldPlanRouteStartingInAWalk() {
+        final TramTime queryTime = TramTime.of(20, 9);
+        Set<JourneyDTO> journeys = validateJourneyFromLocation(nearAltrincham, Deansgate, queryTime, false, when);
+
+        journeys.forEach(journeyDTO -> {
+            assertTrue(journeyDTO.getFirstDepartureTime().isAfter(queryTime.toDate(when)));
+
+            List<SimpleStageDTO> stages = journeyDTO.getStages();
+
+            assertEquals(2, stages.size(), stages.toString());
+            assertEquals(TransportMode.Walk, stages.get(0).getMode());
+            assertEquals(TransportMode.Tram, stages.get(1).getMode());
+
+            List<ChangeStationRefWithPosition> changeStations = journeyDTO.getChangeStations();
+            assertEquals(1, changeStations.size());
+
+            ChangeStationRefWithPosition changeStation = changeStations.get(0);
+            assertEquals(TransportMode.Walk, changeStation.getFromMode());
+
+        });
+    }
+
+    @Test
     void shouldPlanRouteEndingInAWalk() {
         final TramTime queryTime = TramTime.of(20, 9);
         Set<JourneyDTO> journeys = validateJourneyToLocation(Deansgate, nearAltrincham, queryTime, false);
@@ -147,10 +171,15 @@ class JourneyPlannerLocationResourceTest {
             assertEquals(2, stages.size(), stages.toString());
             assertEquals(TransportMode.Tram, stages.get(0).getMode());
 
-            int lastIndex = stages.size()-1;
-            assertEquals(TransportMode.Walk, stages.get(lastIndex).getMode());
-            SimpleStageDTO walkingStage = stages.get(lastIndex);
+            assertEquals(TransportMode.Walk, stages.get(1).getMode());
+            SimpleStageDTO walkingStage = stages.get(1);
             assertEquals(nearAltrincham.latLong(), walkingStage.getLastStation().getLatLong());
+
+            List<ChangeStationRefWithPosition> changeStations = journeyDTO.getChangeStations();
+            assertEquals(1, changeStations.size());
+
+            ChangeStationRefWithPosition changeStation = changeStations.get(0);
+            assertEquals(TransportMode.Tram, changeStation.getFromMode());
         });
     }
 

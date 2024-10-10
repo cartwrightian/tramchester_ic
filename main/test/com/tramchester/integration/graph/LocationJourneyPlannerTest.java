@@ -8,6 +8,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdForDTO;
+import com.tramchester.domain.places.ChangeLocation;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.TransportStage;
@@ -96,10 +97,11 @@ class LocationJourneyPlannerTest {
             assertEquals(nearPiccGardens.latLong(), first.getFirstStation().getLatLong());
             assertEquals(PiccadillyGardens.getId(), first.getLastStation().getId());
 
-            List<Location<?>> changes = journey.getChangeStations();
+            List<ChangeLocation<?>> changes = journey.getChangeStations();
             assertEquals(1, changes.size());
-            Set<String> names = changes.stream().map(Location::getName).collect(Collectors.toSet());
+            Set<String> names = changes.stream().map(changeLocation -> changeLocation.location().getName()).collect(Collectors.toSet());
             assertTrue(names.contains(PiccadillyGardens.getName()), "could not find in " + names);
+            assertEquals(TransportMode.Walk, changes.get(0).fromMode());
         });
 
         unsortedResults.forEach(journey -> {
@@ -160,10 +162,11 @@ class LocationJourneyPlannerTest {
         assertEquals(nearAltrincham.latLong(), walkStage.getLastStation().getLatLong());
         assertEquals(walkChangeStation.getId(), walkStage.getActionStation().getId());
 
-        List<Location<?>> changes = firstJourney.getChangeStations();
+        List<ChangeLocation<?>> changes = firstJourney.getChangeStations();
         assertEquals(1, changes.size());
-        Location<?> change = changes.get(0);
-        assertEquals(walkChangeStation.getId(), change.getId());
+        ChangeLocation<?> change = changes.get(0);
+        assertEquals(walkChangeStation.getId(), change.location().getId());
+        assertEquals(TransportMode.Tram, change.fromMode());
     }
 
     @Test
@@ -179,9 +182,9 @@ class LocationJourneyPlannerTest {
 
         journeySet.forEach(journey -> {
             assertEquals(3, journey.getStages().size());
-            List<Location<?>> changes = journey.getChangeStations();
+            List<ChangeLocation<?>> changes = journey.getChangeStations();
             assertEquals(2, changes.size(), "wrong number of changes " + HasId.asIds(changes));
-            Set<String> names = changes.stream().map(Location::getName).collect(Collectors.toSet());
+            Set<String> names = changes.stream().map(changeLocation -> changeLocation.location().getName()).collect(Collectors.toSet());
             boolean hasExpectedStart = names.stream().anyMatch(possibleStarts::contains);
             assertTrue(hasExpectedStart, "Mismatch between " + names );
         });
@@ -295,6 +298,13 @@ class LocationJourneyPlannerTest {
         List<IdFor<Station>> nearStationIds = Arrays.asList(Shudehill.getId(), ExchangeSquare.getId());
         assertTrue(nearStationIds.contains(stages.get(lastStageIndex-1).getLastStation().getId()));
         assertTrue(nearStationIds.contains(stages.get(lastStageIndex).getFirstStation().getId()));
+
+        List<ChangeLocation<?>> changeStations = lowestCostJourney.getChangeStations();
+        assertEquals(1, changeStations.size());
+
+        ChangeLocation<?> changeStation = changeStations.get(0);
+        assertTrue(nearStationIds.contains(changeStation.getId()), changeStation.toString());
+        assertEquals(TransportMode.Tram, changeStation.fromMode(), changeStation.toString());
     }
 
     @Test
@@ -334,6 +344,16 @@ class LocationJourneyPlannerTest {
         final TramTime actualDepartTime = earliestJourney.getDepartTime();
         assertTrue(actualDepartTime.isAfter(queryTime), actualDepartTime.toString());
         assertTrue(actualDepartTime.isAfter(earliestDepart) || actualDepartTime.equals(earliestDepart));
+
+        List<ChangeLocation<?>> changeStations = earliestJourney.getChangeStations();
+        assertEquals(1, changeStations.size());
+        ChangeLocation<?> changeStation = changeStations.get(0);
+
+        List<IdFor<Station>> expectedIds = Arrays.asList(NavigationRoad.getId(), Altrincham.getId());
+
+        assertTrue(expectedIds.contains(changeStation.getId()));
+        assertEquals(TransportMode.Walk, changeStation.fromMode());
+
     }
 
     @Test

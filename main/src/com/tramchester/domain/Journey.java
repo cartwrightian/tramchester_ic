@@ -2,6 +2,7 @@ package com.tramchester.domain;
 
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.places.ChangeLocation;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.presentation.TransportStage;
@@ -12,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.domain.reference.TransportMode.Walk;
 
 public class Journey implements Iterable<TransportStage<?,?>> {
@@ -127,18 +129,20 @@ public class Journey implements Iterable<TransportStage<?,?>> {
         return requestedNumberChanges;
     }
 
-    public List<Location<?>> getChangeStations() {
+    public List<ChangeLocation<?>> getChangeStations() {
         // count any change of transport mode as a change station
         if (isDirect()) {
             TransportStage<?, ?> firstStage = stages.get(0);
 
-            final Location<?> changeStation;
+            final ChangeLocation<?> changeStation;
             if (firstStage.getMode() == Walk) {
                 // walking stage, either to/from a location - we want the actual station here
-                if (firstStage.getFirstStation().getLocationType()==LocationType.Station) {
-                    changeStation = firstStage.getFirstStation();
+                final Location<?> firstStation = firstStage.getFirstStation();
+                final TransportMode mode = firstStage.getMode();
+                if (firstStation.getLocationType()==LocationType.Station) {
+                    changeStation = new ChangeLocation<>(firstStation, mode);
                 } else {
-                    changeStation = firstStage.getLastStation();
+                    changeStation = new ChangeLocation<>(firstStage.getLastStation(), mode);
                 }
                 return Collections.singletonList(changeStation);
             } else {
@@ -146,10 +150,25 @@ public class Journey implements Iterable<TransportStage<?,?>> {
             }
         }
 
-        List<Location<?>> result = new ArrayList<>();
+        List<ChangeLocation<?>> result = new ArrayList<>();
 
-        for(int index = 1; index < stages.size(); index++) {
-            result.add(stages.get(index).getFirstStation());
+        final int size = stages.size();
+        final int lastIndex = size-1;
+
+        for (int index = 1; index < size; index++) {
+            TransportStage<?, ?> transportStage = stages.get(index);
+            final TransportMode actualMode = transportStage.getMode();
+            final TransportMode mode;
+            if (index==lastIndex) {
+                if (actualMode==Walk) {
+                    mode = Tram;
+                } else {
+                    mode = actualMode;
+                }
+            } else {
+                mode = actualMode;
+            }
+            result.add(new ChangeLocation<>(transportStage.getFirstStation(), mode));
         }
 
         return result;

@@ -19,7 +19,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
-import java.util.List;
 
 import static com.tramchester.testSupport.reference.KnownTramRoute.BuryManchesterAltrincham;
 import static com.tramchester.testSupport.reference.TramStations.*;
@@ -104,14 +103,11 @@ public class MatchLiveTramToJourneyDestinationTest extends EasyMockSupport {
 
         UpcomingDeparture tram = createDueTramFor(begin, TramStations.Piccadilly.fake(KnownTramRoute.EtihadPiccadillyAltrincham));
 
-        List<UpcomingDeparture> trams = List.of(tram);
-//        EasyMock.expect(departuresRepository.getDueForLocation(begin, date, time, modes)).andReturn(trams);
         EasyMock.expect(stationRepository.getStationById(destination.getId())).andReturn(destination);
 
         replayAll();
         boolean matches = matchLiveTramToJourneyDestination.matchesJourneyDestination(tram, IdSet.singleton(destination.getId()));
 
-//        List<UpcomingDeparture> results = matchLiveTramToJourneyDestination.nextTramFor(StationPair.of(begin, destination), date, time, modes);
         verifyAll();
 
         assertFalse(matches);

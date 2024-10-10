@@ -32,9 +32,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.reference.TramStations.*;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.collection.IsIn.oneOf;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
@@ -229,15 +226,25 @@ public class JourneyPlannerResourceTest {
             String platformNumber = secondStagePlatform.getPlatformNumber();
             assertTrue("123".contains(platformNumber), "unexpected platform number, got " + platformNumber);
 
-            // multiple possible places to change depending on timetable etc
-            LocationRefDTO secondStagePlatformStation = secondStagePlatform.getStation();
-            assertThat(secondStagePlatformStation.getName(), is(oneOf(
+            List<String> expectedSecondStationNames = Arrays.asList(
                     Cornbrook.getName(),
                     Deansgate.getName(),
                     Piccadilly.getName(),
-                    StPetersSquare.getName())));
+                    StPetersSquare.getName());
+
+            // multiple possible places to change depending on timetable etc
+            LocationRefDTO secondStagePlatformStation = secondStagePlatform.getStation();
+            assertTrue(expectedSecondStationNames.contains(secondStagePlatformStation.getName()),
+                    "did not expect " + secondStagePlatformStation.getName());
 
             assertTrue(platformIds.contains(secondStagePlatform.getId()), stategOnePlatform.getId() + " not in " + platformIds);
+
+            List<ChangeStationRefWithPosition> changeStations = journey.getChangeStations();
+            assertEquals(1, changeStations.size());
+            ChangeStationRefWithPosition changeStation = changeStations.get(0);
+            assertTrue(expectedSecondStationNames.contains(changeStation.getName()), "did not expect " + changeStation.getName());
+            assertEquals(TransportMode.Tram, changeStation.getFromMode());
+
         });
 
     }

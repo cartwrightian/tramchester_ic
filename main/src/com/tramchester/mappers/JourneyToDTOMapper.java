@@ -3,7 +3,9 @@ package com.tramchester.mappers;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.places.ChangeLocation;
 import com.tramchester.domain.places.Location;
+import com.tramchester.domain.presentation.DTO.ChangeStationRefWithPosition;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
 import com.tramchester.domain.presentation.DTO.SimpleStageDTO;
@@ -14,10 +16,10 @@ import com.tramchester.domain.presentation.TravelAction;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.WalkingStage;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.inject.Inject;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,7 +60,7 @@ public class JourneyToDTOMapper {
 
         final LocationRefWithPosition destination = stationDTOFactory.createLocationRefWithPosition(journey.getDestination());
 
-        final List<LocationRefWithPosition> changeStations = toLocationRefWithPosition(journey.getChangeStations());
+        final List<ChangeStationRefWithPosition> changeStations = toChangeStationRefWithPosition(journey.getChangeStations());
 
         final List<LocationRefWithPosition> path = toLocationRefWithPosition(journey.getPath());
 
@@ -68,6 +70,11 @@ public class JourneyToDTOMapper {
                 journey.getArrivalTime().toDate(date), journey.getDepartTime().toDate(date),
                 changeStations, queryTime,
                 path, date, journey.getJourneyIndex());
+    }
+
+    private List<ChangeStationRefWithPosition> toChangeStationRefWithPosition(List<ChangeLocation<?>> changeStations) {
+        return changeStations.stream().
+                map(changeLocation -> new ChangeStationRefWithPosition(changeLocation.location(), changeLocation.fromMode())).toList();
     }
 
     private List<LocationRefWithPosition> toLocationRefWithPosition(final List<Location<?>> locations) {

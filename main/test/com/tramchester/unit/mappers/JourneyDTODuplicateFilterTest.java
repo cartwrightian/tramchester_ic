@@ -1,10 +1,8 @@
 package com.tramchester.unit.mappers;
 
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.presentation.DTO.JourneyDTO;
-import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
-import com.tramchester.domain.presentation.DTO.SimpleStageDTO;
-import com.tramchester.domain.presentation.DTO.VehicleStageDTO;
+import com.tramchester.domain.presentation.DTO.*;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.mappers.JourneyDTODuplicateFilter;
 import com.tramchester.testSupport.TestEnv;
@@ -34,7 +32,7 @@ class JourneyDTODuplicateFilterTest {
     @Test
     void shouldFilterOutIfSameTimesStopsAndChanges() {
 
-        List<LocationRefWithPosition> changeStations = Collections.singletonList(getStationRef(Deansgate));
+        List<ChangeStationRefWithPosition> changeStations = Collections.singletonList(getChangeStationRef(Deansgate));
         List<LocationRefWithPosition> path = Arrays.asList(getStationRef(Ashton), getStationRef(Deansgate),
                 getStationRef(NavigationRoad));
 
@@ -50,8 +48,8 @@ class JourneyDTODuplicateFilterTest {
     @Test
     void shouldFilterOutIfSameTimesStopsAndDiffChanges() {
 
-        List<LocationRefWithPosition> changeStationsA = Collections.singletonList(getStationRef(Deansgate));
-        List<LocationRefWithPosition> changeStationsB = Collections.singletonList(getStationRef(TraffordBar));
+        List<ChangeStationRefWithPosition> changeStationsA = Collections.singletonList(getChangeStationRef(Deansgate));
+        List<ChangeStationRefWithPosition> changeStationsB = Collections.singletonList(getChangeStationRef(TraffordBar));
 
         List<LocationRefWithPosition> path = Arrays.asList(getStationRef(Ashton), getStationRef(Deansgate),
                 getStationRef(NavigationRoad));
@@ -68,7 +66,7 @@ class JourneyDTODuplicateFilterTest {
     @Test
     void shouldNotFilterOutIfDiffDepartTimes() {
 
-        List<LocationRefWithPosition> changeStations = Collections.singletonList(getStationRef(Deansgate));
+        List<ChangeStationRefWithPosition> changeStations = Collections.singletonList(getChangeStationRef(Deansgate));
 
         List<LocationRefWithPosition> path = Arrays.asList(getStationRef(Ashton), getStationRef(Deansgate),
                 getStationRef(NavigationRoad));
@@ -85,7 +83,7 @@ class JourneyDTODuplicateFilterTest {
     @Test
     void shouldNotFilterOutIfDiffDuration() {
 
-        List<LocationRefWithPosition> changeStations = Collections.singletonList(getStationRef(Deansgate));
+        List<ChangeStationRefWithPosition> changeStations = Collections.singletonList(getChangeStationRef(Deansgate));
 
         List<LocationRefWithPosition> path = Arrays.asList(getStationRef(Ashton), getStationRef(Deansgate),
                 getStationRef(NavigationRoad));
@@ -102,7 +100,7 @@ class JourneyDTODuplicateFilterTest {
     @Test
     void shouldNotFilterOutIfSDiffPath() {
 
-        List<LocationRefWithPosition> changeStations = Collections.singletonList(getStationRef(Deansgate));
+        List<ChangeStationRefWithPosition> changeStations = Collections.singletonList(getChangeStationRef(Deansgate));
 
         List<LocationRefWithPosition> pathA = Arrays.asList(getStationRef(Ashton), getStationRef(Deansgate),
                 getStationRef(NavigationRoad));
@@ -118,7 +116,7 @@ class JourneyDTODuplicateFilterTest {
         assertEquals(2, results.size());
     }
 
-    private JourneyDTO createJourneyFor(TramTime departTime, int duration, List<LocationRefWithPosition> changeStations,
+    private JourneyDTO createJourneyFor(TramTime departTime, int duration, List<ChangeStationRefWithPosition> changeStations,
                                         List<LocationRefWithPosition> path, int journeyIndex) {
         LocationRefWithPosition begin = getStationRef(Ashton);
         VehicleStageDTO stageA = new VehicleStageDTO();
@@ -136,5 +134,9 @@ class JourneyDTODuplicateFilterTest {
 
     private LocationRefWithPosition getStationRef(TramStations tramStations) {
         return new LocationRefWithPosition(tramStations.fake());
+    }
+
+    private ChangeStationRefWithPosition getChangeStationRef(TramStations tramStations) {
+        return new ChangeStationRefWithPosition(tramStations.fake(), TransportMode.Tram);
     }
 }

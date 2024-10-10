@@ -124,7 +124,7 @@ class DeparturesResourceTest {
     @LiveDataDueTramCategory
     void shouldHaveMessagesForSpecificStation() {
 
-        DeparturesQueryDTO queryDTO = getQueryDTO(stationWithNotes);
+        DeparturesQueryDTO queryDTO = new DeparturesQueryDTO(LocationType.Station, IdForDTO.createFor(stationWithNotes));
         queryDTO.setNotesFor(Collections.singleton(IdForDTO.createFor(stationWithNotes)));
         Response response = getPostResponse(queryDTO);
         assertEquals(200, response.getStatus());
@@ -141,7 +141,7 @@ class DeparturesResourceTest {
     void shouldHaveNoMessagesForNoneExistentStation() {
         IdForDTO invalidStation = BusStations.KnutsfordStationStand3.getIdForDTO();
 
-        DeparturesQueryDTO queryDTO = getQueryDTO(stationWithNotes);
+        DeparturesQueryDTO queryDTO = new DeparturesQueryDTO(LocationType.Station, IdForDTO.createFor(stationWithNotes));
         queryDTO.setNotesFor(Collections.singleton(invalidStation));
         Response response = getPostResponse(queryDTO);
         assertEquals(200, response.getStatus());
@@ -179,7 +179,7 @@ class DeparturesResourceTest {
 
     @Test
     @LiveDataTestCategory
-    void shouldGetDueTramsForLocationWithinQuerytimeNowAndDestinationMatching() {
+    void shouldGetDueTramsForLocationWithinQueryTimeNowAndDestinationMatching() {
         LatLong location = stationWithDepartures.getLatLong();
 
         LocalTime now = TestEnv.LocalNow().toLocalTime();
@@ -270,24 +270,24 @@ class DeparturesResourceTest {
     }
 
     private SortedSet<DepartureDTO> getDeparturesForLatlongTime(LatLong where, LocalTime queryTime) {
-        DeparturesQueryDTO queryDTO = getQueryDTO(where);
+        DeparturesQueryDTO queryDTO = new DeparturesQueryDTO(LocationType.MyLocation, IdForDTO.createFor(where));
         return getDepartureDTOS(queryTime, queryDTO);
     }
 
-    private SortedSet<DepartureDTO> getDeparturesForLatlongTime(LatLong location, LocalTime time, Station journeyDestination) {
-        DeparturesQueryDTO queryDTO = getQueryDTO(location);
-        IdForDTO idForDTO = IdForDTO.createFor(journeyDestination);
-        queryDTO.setFirstDestIds(Collections.singleton(idForDTO));
+    private SortedSet<DepartureDTO> getDeparturesForLatlongTime(LatLong journeyStart, LocalTime time, Station journeyDestination) {
+        DeparturesQueryDTO queryDTO = new DeparturesQueryDTO(LocationType.MyLocation, IdForDTO.createFor(journeyStart));
+        IdForDTO destId = IdForDTO.createFor(journeyDestination);
+        queryDTO.setFirstDestIds(Collections.singleton(destId));
         return getDepartureDTOS(time, queryDTO);
     }
 
     private SortedSet<DepartureDTO> getDeparturesForStation(Station station, LocalTime queryTime) {
-        DeparturesQueryDTO queryDTO = getQueryDTO(station);
+        DeparturesQueryDTO queryDTO = new DeparturesQueryDTO(LocationType.Station, IdForDTO.createFor(station));
         return getDepartureDTOS(queryTime, queryDTO);
     }
 
     private SortedSet<DepartureDTO> getDeparturesForStation(Station displayStation, LocalTime time, Station journeyDestination) {
-        DeparturesQueryDTO queryDTO = getQueryDTO(displayStation);
+        DeparturesQueryDTO queryDTO = new DeparturesQueryDTO(LocationType.Station, IdForDTO.createFor(displayStation));
         IdForDTO idForDTO = IdForDTO.createFor(journeyDestination);
         queryDTO.setFirstDestIds(Collections.singleton(idForDTO));
         return getDepartureDTOS(time, queryDTO);
@@ -303,12 +303,12 @@ class DeparturesResourceTest {
     }
 
     private Response getResponseForStation(Station station) {
-        DeparturesQueryDTO queryDTO = getQueryDTO(station);
+        DeparturesQueryDTO queryDTO = new DeparturesQueryDTO(LocationType.Station, IdForDTO.createFor(station));
         return getPostResponse(queryDTO);
     }
 
     private Response getResponseForLocation(LatLong where) {
-        DeparturesQueryDTO queryDTO = getQueryDTO(where);
+        DeparturesQueryDTO queryDTO = new DeparturesQueryDTO(LocationType.MyLocation, IdForDTO.createFor(where));
         return getPostResponse(queryDTO);
     }
 
@@ -317,16 +317,6 @@ class DeparturesResourceTest {
         Response response = APIClient.postAPIRequest(factory, "departures/location", queryDTO);
         assertEquals(200, response.getStatus());
         return response;
-    }
-
-    @NotNull
-    private DeparturesQueryDTO getQueryDTO(Station displayLocation) {
-        return new DeparturesQueryDTO(LocationType.Station, IdForDTO.createFor(displayLocation));
-    }
-
-    @NotNull
-    private DeparturesQueryDTO getQueryDTO(LatLong where) {
-        return new DeparturesQueryDTO(LocationType.MyLocation, IdForDTO.createFor(where));
     }
 
 

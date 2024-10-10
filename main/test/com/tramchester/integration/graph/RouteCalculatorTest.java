@@ -9,6 +9,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.input.StopCall;
+import com.tramchester.domain.places.ChangeLocation;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.Station;
@@ -122,9 +123,9 @@ public class RouteCalculatorTest {
             indexes.add(journey.getJourneyIndex());
             assertTrue(expected.contains(interchange), interchange + " not in " + expected);
 
-            List<Location<?>> changeStations = journey.getChangeStations();
+            List<ChangeLocation<?>> changeStations = journey.getChangeStations();
             assertEquals(1, changeStations.size());
-            assertTrue(expected.contains(changeStations.get(0).getName()));
+            assertTrue(expected.contains(changeStations.get(0).location().getName()));
         });
 
         assertEquals(journeys.size(), indexes.size());

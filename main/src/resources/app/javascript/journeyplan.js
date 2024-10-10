@@ -64,7 +64,7 @@ function getCallingStationsFrom(journeys) {
         const journey = journeyPlan.journey;
         const changes = journey.changeStations;
         changes.forEach(change => {
-            if (change.locationType=='Station') {
+            if (change.locationType=='Station' && change.fromMode=='Tram') {
                 stations.add(change.id);
             }
         })

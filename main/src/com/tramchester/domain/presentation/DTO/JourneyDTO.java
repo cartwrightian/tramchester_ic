@@ -25,7 +25,7 @@ public class JourneyDTO {
     private List<SimpleStageDTO> stages;
     private LocalDateTime expectedArrivalTime; // needed to handle 'next day' results
     private LocalDateTime firstDepartureTime;  // needed to handle 'next day' results
-    private List<LocationRefWithPosition> changeStations;
+    private List<ChangeStationRefWithPosition> changeStations;
     private TramTime queryTime;
     private List<LocationRefWithPosition> path;
     private LocalDate queryDate;
@@ -35,10 +35,11 @@ public class JourneyDTO {
         // Deserialization
     }
 
+    @Deprecated
     public JourneyDTO(LocationRefWithPosition begin, LocationRefWithPosition destination,
                       List<SimpleStageDTO> stages,
                       LocalDateTime expectedArrivalTime, LocalDateTime firstDepartureTime,
-                      List<LocationRefWithPosition> changeStations, TramTime queryTime,
+                      List<ChangeStationRefWithPosition> changeStations, TramTime queryTime,
                       List<LocationRefWithPosition> path, TramDate queryDate, int index) {
         this(begin, destination, stages, expectedArrivalTime, firstDepartureTime, changeStations, queryTime,
                 path, queryDate.toLocalDate(), index);
@@ -46,7 +47,7 @@ public class JourneyDTO {
 
     public JourneyDTO(LocationRefWithPosition begin, LocationRefWithPosition destination, List<SimpleStageDTO> stages,
                       LocalDateTime expectedArrivalTime, LocalDateTime firstDepartureTime,
-                      List<LocationRefWithPosition> changeStations, TramTime queryTime,
+                      List<ChangeStationRefWithPosition> changeStations, TramTime queryTime,
                       List<LocationRefWithPosition> path, LocalDate queryDate, int index) {
         this.begin = begin;
         this.destination = destination;
@@ -80,7 +81,7 @@ public class JourneyDTO {
 
     public LocationRefDTO getDestination() { return destination; }
 
-    public List<LocationRefWithPosition> getChangeStations() {
+    public List<ChangeStationRefWithPosition> getChangeStations() {
         return changeStations;
     }
 
