@@ -120,6 +120,9 @@ class RouteCalculatorKeyRoutesTest {
     }
 
     private boolean shouldCheckDate(TramDate testDate) {
+        if (TestEnv.RochdaleLineWorks.contains(testDate)) {
+            return false;
+        }
         return testDate.getDayOfWeek() != DayOfWeek.SUNDAY;
     }
 

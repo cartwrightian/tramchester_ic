@@ -41,6 +41,7 @@ import java.util.*;
 import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.*;
+import static com.tramchester.testSupport.reference.TramStations.Rochdale;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -56,11 +57,12 @@ public class TestEnv {
     public static final String DISABLE_HEADLESS_ENV_VAR = "DISABLE_HEADLESS";
     public static final String CHROMEDRIVER_PATH_ENV_VAR = "CHROMEDRIVER_PATH";
 
-    // 204 -> 214 for replacement bus while cornbrook closed
     public static final int NumberOfStationLinks = 202;
 
-    // use helper methods that handle filtering (i.e. for christmas) and conversion to dates
+    // use helper methods that handle filtering (i.e. for Christmas) and conversion to dates
     private static final int DAYS_AHEAD = 7;
+
+    public static final DateRange RochdaleLineWorks = DateRange.of(TramDate.of(2024,10,19), TramDate.of(2024,10,31));
 
     private static final TramDate testDay;
     private static final TramDate saturday;
@@ -127,6 +129,13 @@ public class TestEnv {
         saturday = getNextDate(DayOfWeek.SATURDAY, today);
         sunday = getNextDate(DayOfWeek.SUNDAY, today);
         monday = getNextDate(DayOfWeek.MONDAY, today);
+    }
+
+    public static boolean RochdaleClosed(final Station station, final TramDate date) {
+        if (station.getId().equals(Rochdale.getId())) {
+            return TestEnv.RochdaleLineWorks.contains(date);
+        }
+        return false;
     }
 
     public static List<TramDate> daysAhead() {
