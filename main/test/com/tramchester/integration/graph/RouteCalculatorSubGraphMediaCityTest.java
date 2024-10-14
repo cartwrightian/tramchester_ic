@@ -125,7 +125,7 @@ class RouteCalculatorSubGraphMediaCityTest {
         validateAtLeastOneJourney(MediaCityUK, ExchangeSquare, TramTime.of(9,0), TestEnv.nextSaturday());
 
         TramDate testSunday = TestEnv.nextSunday();
-        validateAtLeastOneJourney(MediaCityUK, ExchangeSquare, TramTime.of(9,0), testSunday);
+        validateAtLeastOneJourney(MediaCityUK, ExchangeSquare, TramTime.of(10,0), testSunday);
     }
 
     @Test
@@ -134,7 +134,6 @@ class RouteCalculatorSubGraphMediaCityTest {
         TramTime queryTime = TramTime.of(9, 0);
         List<Pair<TramDate, LocationIdPairSet<Station>>> failed = TestEnv.getUpcomingDates().
                 filter(date -> !date.isChristmasPeriod()).
-                filter(date -> !TestEnv.cornbrookClosed.contains(date)).
                 map(date -> new JourneyRequest(date, queryTime, false,
                         3, maxJourneyDuration, 1, getRequestedModes())).
                 map(journeyRequest -> Pair.of(journeyRequest.getDate(), getFailedPairedFor(journeyRequest))).

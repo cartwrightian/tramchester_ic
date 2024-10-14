@@ -390,7 +390,7 @@ public class TransportDataFromFilesTramTest {
 
     private Stream<Station> getStations(final TramDate date) {
         return transportData.getStations(EnumSet.of(Tram)).stream().
-                filter(station -> !TestEnv.RochdaleClosed(station, date));
+                filter(station -> !TestEnv.UpcomingClosures(station, date));
     }
 
     @Test
@@ -424,7 +424,7 @@ public class TransportDataFromFilesTramTest {
         final Map<Pair<TramDate, TramTime>, IdSet<Station>> missing = new HashMap<>();
 
         getUpcomingDates().filter(date -> !date.isChristmasPeriod()).
-                filter(date -> !TestEnv.cornbrookClosed.contains(date)).
+                filter(date -> !TestEnv.Closures20October2024.equals(date)).
                 forEach(date -> {
             transportData.getStations(EnumSet.of(Tram)).stream().
                     filter(station -> isOpen(date, station)).
@@ -651,7 +651,7 @@ public class TransportDataFromFilesTramTest {
     }
 
     private boolean isOpen(final TramDate date, final Station station) {
-        return ! (closedStationRepository.isClosed(station, date) || TestEnv.RochdaleClosed(station, date));
+        return ! (closedStationRepository.isClosed(station, date) || TestEnv.UpcomingClosures(station, date));
     }
 
 }

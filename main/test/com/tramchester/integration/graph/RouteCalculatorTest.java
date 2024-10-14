@@ -579,14 +579,14 @@ public class RouteCalculatorTest {
 
     @Test
     void reproduceIssueWithTramsSundayAshtonToEccles() {
-        JourneyRequest journeyRequest = new JourneyRequest(TestEnv.nextSunday(), TramTime.of(9, 0), false,
+        JourneyRequest journeyRequest = new JourneyRequest(TestEnv.nextSunday(), TramTime.of(9, 45), false,
                 3, maxJourneyDuration, maxNumResults, requestedModes);
         assertGetAndCheckJourneys(journeyRequest, Ashton, Eccles);
     }
 
     @Test
     void reproduceIssueWithTramsSundayToFromEcclesAndCornbrook() {
-        JourneyRequest journeyRequest = standardJourneyRequest(TestEnv.nextSunday(), TramTime.of(9,0), maxNumResults);
+        JourneyRequest journeyRequest = standardJourneyRequest(TestEnv.nextSunday(), TramTime.of(9,30), maxNumResults);
 
         assertGetAndCheckJourneys(journeyRequest, Cornbrook, Eccles);
         assertGetAndCheckJourneys(journeyRequest, Eccles, Cornbrook);

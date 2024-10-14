@@ -13,6 +13,7 @@ import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.factory.TransportEntityFactoryForTFGM;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.input.PlatformStopCall;
 import com.tramchester.domain.input.Trip;
@@ -63,6 +64,11 @@ public class TestEnv {
     private static final int DAYS_AHEAD = 7;
 
     public static final DateRange RochdaleLineWorks = DateRange.of(TramDate.of(2024,10,19), TramDate.of(2024,10,31));
+    public static final IdSet<Station> buryLine20October2024 = Stream.of("9400ZZMAHEA", "9400ZZMARAD", "9400ZZMABUR",
+                    "9400ZZMAWFD", "9400ZZMABOW", "9400ZZMABOB", "9400ZZMAPWC")
+            .map(Station::createId).collect(IdSet.idCollector());
+
+    public static final TramDate Closures20October2024 = TramDate.of(2024,10,20);
 
     private static final TramDate testDay;
     private static final TramDate saturday;
@@ -73,8 +79,6 @@ public class TestEnv {
     public static final Path LiveDataExampleFile = Paths.get("data","test","liveDataSample.json");
     public static final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:00");
     public static final String BRISTOL_BUSSTOP_OCTOCODE = "0100BRP90268";
-
-//    public static final DateRange EcclesLinesClosed = DateRange.of(TramDate.of(2024,10,5), TramDate.of(2024, 10, 6));
 
     private static final Agency MET = MutableAgency.build(DataSourceID.tfgm, MutableAgency.METL, "Metrolink");
 
@@ -98,7 +102,7 @@ public class TestEnv {
         };
     }
 
-    public static final DateRange cornbrookClosed = new DateRange(TramDate.of(2024,10,5), TramDate.of(2024, 10,6));
+//    public static final DateRange cornbrookClosed = new DateRange(TramDate.of(2024,10,5), TramDate.of(2024, 10,6));
 
     public static TramchesterConfig GET(TfgmTramLiveDataConfig testLiveDataConfig) {
         return new TestConfig() {
@@ -131,9 +135,12 @@ public class TestEnv {
         monday = getNextDate(DayOfWeek.MONDAY, today);
     }
 
-    public static boolean RochdaleClosed(final Station station, final TramDate date) {
+    public static boolean UpcomingClosures(final Station station, final TramDate date) {
         if (station.getId().equals(Rochdale.getId())) {
             return TestEnv.RochdaleLineWorks.contains(date);
+        }
+        if (date.equals(Closures20October2024)) {
+            return buryLine20October2024.contains(station.getId());
         }
         return false;
     }
@@ -153,6 +160,9 @@ public class TestEnv {
     }
 
     private static boolean validTestDate(final TramDate date) {
+        if (date.equals(Closures20October2024)) {
+            return false;
+        }
         return !date.isChristmasPeriod();
 //        return !EcclesLinesClosed.contains(date);
     }
