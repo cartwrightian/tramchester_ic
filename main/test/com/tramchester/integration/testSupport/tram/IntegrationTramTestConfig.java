@@ -28,7 +28,6 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
 
     public static final Duration MAX_INITIAL_WAIT = Duration.ofMinutes(13);
 
-
     public enum LiveData {
         Enabled, Disabled, EnabledWithSNS
     }

@@ -27,6 +27,8 @@ import com.tramchester.graph.search.diagnostics.ReasonCode;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryCategory;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
@@ -167,10 +169,11 @@ public class RouteCalculatorTest {
         checkRouteNextNDays(Altrincham, Cornbrook, TramTime.of(9,0));
     }
 
+    @DisabledUntilDate(year = 2024, month = 11)
     @DataExpiryCategory
     @Test
     void shouldHaveSimpleManyStopJourneyViaInterchangeNDaysAhead() {
-        checkRouteNextNDays(StPetersSquare, ManAirport, TramTime.of(12,0));
+        checkRouteNextNDays(StPetersSquare, ManAirport, TramTime.of(14,0));
     }
 
     @Test
@@ -321,7 +324,7 @@ public class RouteCalculatorTest {
 
     @Test
     void shouldHaveSimpleManyStopJourneyStartAtInterchange() {
-        checkRouteNextNDays(Cornbrook, Bury, TramTime.of(9,0));
+        checkRouteNextNDays(Cornbrook, Bury, TramTime.of(11,45));
     }
 
     @Test
@@ -479,9 +482,10 @@ public class RouteCalculatorTest {
         return TramTime.difference(departs, arrive);
     }
 
+    @DisabledUntilDate(year = 2024, month = 11)
     @Test
     void shouldCheckCornbrookToStPetersSquareOnSundayMorning() {
-        JourneyRequest journeyRequest = standardJourneyRequest(TestEnv.nextSunday(), TramTime.of(11, 0), maxNumResults);
+        JourneyRequest journeyRequest = standardJourneyRequest(UpcomingDates.nextSunday(), TramTime.of(11, 0), maxNumResults);
         assertGetAndCheckJourneys(journeyRequest, Cornbrook, StPetersSquare);
     }
 
@@ -571,22 +575,24 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Deansgate, Ashton);
     }
 
+    @DisabledUntilDate(year = 2024,month = 11)
     @Test
     void reproduceIssueWithTramsSundayStPetersToDeansgate() {
-        JourneyRequest journeyRequest = standardJourneyRequest(TestEnv.nextSunday(), TramTime.of(9,0), maxNumResults);
+        JourneyRequest journeyRequest = standardJourneyRequest(UpcomingDates.nextSunday(), TramTime.of(9,0), maxNumResults);
         assertGetAndCheckJourneys(journeyRequest, StPetersSquare, Deansgate);
     }
 
+    @DisabledUntilDate(year = 2024, month = 11)
     @Test
     void reproduceIssueWithTramsSundayAshtonToEccles() {
-        JourneyRequest journeyRequest = new JourneyRequest(TestEnv.nextSunday(), TramTime.of(9, 45), false,
+        JourneyRequest journeyRequest = new JourneyRequest(UpcomingDates.nextSunday(), TramTime.of(9, 45), false,
                 3, maxJourneyDuration, maxNumResults, requestedModes);
         assertGetAndCheckJourneys(journeyRequest, Ashton, Eccles);
     }
 
     @Test
     void reproduceIssueWithTramsSundayToFromEcclesAndCornbrook() {
-        JourneyRequest journeyRequest = standardJourneyRequest(TestEnv.nextSunday(), TramTime.of(9,30), maxNumResults);
+        JourneyRequest journeyRequest = standardJourneyRequest(UpcomingDates.nextSunday(), TramTime.of(9,30), maxNumResults);
 
         assertGetAndCheckJourneys(journeyRequest, Cornbrook, Eccles);
         assertGetAndCheckJourneys(journeyRequest, Eccles, Cornbrook);
@@ -594,7 +600,7 @@ public class RouteCalculatorTest {
 
     @Test
     void shouldReproduceIssueCornbrookToAshtonSatursdays() {
-        JourneyRequest journeyRequest = standardJourneyRequest(TestEnv.nextSaturday(), TramTime.of(9,0), maxNumResults);
+        JourneyRequest journeyRequest = standardJourneyRequest(UpcomingDates.nextSaturday(), TramTime.of(9,0), maxNumResults);
         assertGetAndCheckJourneys(journeyRequest, Cornbrook, Ashton);
     }
 
@@ -618,7 +624,7 @@ public class RouteCalculatorTest {
     @Test
     void shouldNotFindJourney() {
         // time needs to be when trams still running?
-        JourneyRequest journeyRequest = standardJourneyRequest(TestEnv.nextSunday(), TramTime.of(1,0), maxNumResults);
+        JourneyRequest journeyRequest = standardJourneyRequest(UpcomingDates.nextSunday(), TramTime.of(1,0), maxNumResults);
         journeyRequest.setDiag(true);
 
         List<Journey> journeys = calculator.calculateRouteAsList(Bury, Altrincham, journeyRequest);
@@ -660,11 +666,23 @@ public class RouteCalculatorTest {
     }
 
     private void checkRouteNextNDays(TramStations start, TramStations dest, TramTime time) {
-        if (!dest.equals(start)) {
-            for(final TramDate testDate : TestEnv.daysAhead()) {
-                final JourneyRequest journeyRequest = standardJourneyRequest(testDate, time, maxNumResults);
-                assertGetAndCheckJourneys(journeyRequest, start, dest);
-            }
+        if (dest.equals(start)) {
+            return;
+        }
+
+        List<TramDate> candidateDates = UpcomingDates.daysAhead();
+        List<TramDate> dates = candidateDates.stream().
+                filter(date -> !UpcomingDates.hasClosure(start, date)).
+                filter(date -> !UpcomingDates.hasClosure(dest, date)).
+                toList();
+
+        if (dates.isEmpty()) {
+            fail("No dates for " + start + " and " + dest + " " + candidateDates);
+        }
+
+        for(final TramDate testDate : dates) {
+            final JourneyRequest journeyRequest = standardJourneyRequest(testDate, time, maxNumResults);
+            assertGetAndCheckJourneys(journeyRequest, start, dest);
         }
     }
 

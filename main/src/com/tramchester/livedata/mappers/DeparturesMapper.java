@@ -1,6 +1,7 @@
 package com.tramchester.livedata.mappers;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.livedata.domain.DTO.DepartureDTO;
@@ -24,14 +25,16 @@ public class DeparturesMapper {
         this.matchLiveTramToJourneyDestination = matchLiveTramToJourneyDestination;
     }
 
-    public Set<DepartureDTO> mapToDTO(Collection<UpcomingDeparture> dueTrams, LocalDateTime lastUpdate, IdSet<Station> journeyDestinations) {
+    public Set<DepartureDTO> mapToDTO(Collection<UpcomingDeparture> dueTrams, LocalDateTime lastUpdate, IdSet<Station> journeyDestinations,
+                                      IdFor<Station> finalStation) {
         return dueTrams.stream().
-                    map(dueTram -> getDepartureDTO(lastUpdate, dueTram, journeyDestinations))
+                    map(dueTram -> getDepartureDTO(lastUpdate, dueTram, journeyDestinations, finalStation))
                     .collect(Collectors.toSet());
     }
 
-    private DepartureDTO getDepartureDTO(LocalDateTime lastUpdate, UpcomingDeparture dueTram, IdSet<Station> journeyDestinations) {
-        boolean matchesJourney = matchLiveTramToJourneyDestination.matchesJourneyDestination(dueTram, journeyDestinations);
+    private DepartureDTO getDepartureDTO(LocalDateTime lastUpdate, UpcomingDeparture dueTram, IdSet<Station> initialJourneyDestinations,
+                                      IdFor<Station> finalStation) {
+        boolean matchesJourney = matchLiveTramToJourneyDestination.matchesJourneyDestination(dueTram, initialJourneyDestinations, finalStation);
         return new DepartureDTO(dueTram.getDisplayLocation(), dueTram, lastUpdate, matchesJourney);
     }
 

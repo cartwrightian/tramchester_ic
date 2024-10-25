@@ -68,7 +68,7 @@ public class MatchLiveTramToJourneyDestinationTest {
 
         IdSet<Station> journeyDestinations = IdSet.singleton(journeyDestination.getId());
         List<UpcomingDeparture> trams = all.stream().
-                filter(departure -> matchToJourneyDest.matchesJourneyDestination(departure, journeyDestinations)).toList();
+                filter(departure -> matchToJourneyDest.matchesJourneyDestination(departure, journeyDestinations, journeyDestination.getId())).toList();
 
         assertFalse(trams.isEmpty());
     }
@@ -89,7 +89,7 @@ public class MatchLiveTramToJourneyDestinationTest {
 
         List<UpcomingDeparture> matched = new ArrayList<>();
         all.forEach(tram -> {
-            if (matchToJourneyDest.matchesJourneyDestination(tram, journeyDestinations)) {
+            if (matchToJourneyDest.matchesJourneyDestination(tram, journeyDestinations, journeyDestination.getId())) {
                 matched.add(tram);
                 assertEquals(TramStations.Altrincham.getId(), tram.getDestination().getId(), "departure was " + tram);
             }
@@ -110,7 +110,7 @@ public class MatchLiveTramToJourneyDestinationTest {
 
         IdSet<Station> journeyDestinations = IdSet.singleton(journeyDestination.getId());
         List<UpcomingDeparture> trams = all.stream().
-                filter(departure -> matchToJourneyDest.matchesJourneyDestination(departure, journeyDestinations)).toList();
+                filter(departure -> matchToJourneyDest.matchesJourneyDestination(departure, journeyDestinations, journeyDestination.getId())).toList();
 
         assertFalse(trams.isEmpty());
 

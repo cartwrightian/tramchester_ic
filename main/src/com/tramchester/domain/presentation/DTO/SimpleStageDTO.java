@@ -1,6 +1,7 @@
 package com.tramchester.domain.presentation.DTO;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.dates.TramDate;
@@ -106,6 +107,7 @@ public class SimpleStageDTO {
         return action;
     }
 
+    @JsonIgnore
     public boolean getHasPlatform() {
         return false;
     }

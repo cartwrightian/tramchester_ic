@@ -278,6 +278,7 @@ class DeparturesResourceTest {
         DeparturesQueryDTO queryDTO = new DeparturesQueryDTO(LocationType.MyLocation, IdForDTO.createFor(journeyStart));
         IdForDTO destId = IdForDTO.createFor(journeyDestination);
         queryDTO.setFirstDestIds(Collections.singleton(destId));
+        queryDTO.setFinalStationId(destId);
         return getDepartureDTOS(time, queryDTO);
     }
 
@@ -290,6 +291,7 @@ class DeparturesResourceTest {
         DeparturesQueryDTO queryDTO = new DeparturesQueryDTO(LocationType.Station, IdForDTO.createFor(displayStation));
         IdForDTO idForDTO = IdForDTO.createFor(journeyDestination);
         queryDTO.setFirstDestIds(Collections.singleton(idForDTO));
+        queryDTO.setFinalStationId(idForDTO);
         return getDepartureDTOS(time, queryDTO);
     }
 

@@ -1,6 +1,7 @@
 package com.tramchester.unit.mappers;
 
 import com.tramchester.domain.Agency;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -78,11 +79,12 @@ class DeparturesMapperTest extends EasyMockSupport {
         Collection<UpcomingDeparture> dueTrams = Collections.singletonList(
                 dueTram);
 
+        IdFor<Station> finalStation = PiccadillyGardens.getId();
         IdSet<Station> journeyDestinations = IdSet.singleton(PiccadillyGardens.getId());
-        EasyMock.expect(matchLiveTramToJourneyDestination.matchesJourneyDestination(dueTram, journeyDestinations)).andReturn(true);
+        EasyMock.expect(matchLiveTramToJourneyDestination.matchesJourneyDestination(dueTram, journeyDestinations, finalStation)).andReturn(true);
 
         replayAll();
-        Set<DepartureDTO> results = mapper.mapToDTO(dueTrams, lastUpdated, journeyDestinations);
+        Set<DepartureDTO> results = mapper.mapToDTO(dueTrams, lastUpdated, journeyDestinations, finalStation);
         verifyAll();
 
         List<DepartureDTO> list = new LinkedList<>(results);
@@ -102,10 +104,11 @@ class DeparturesMapperTest extends EasyMockSupport {
 
         IdSet<Station> journeyDestinations = IdSet.singleton(Bury.getId());
 
-        EasyMock.expect(matchLiveTramToJourneyDestination.matchesJourneyDestination(dueTram, journeyDestinations)).andReturn(false);
+        IdFor<Station> finalStation = Bury.getId();
+        EasyMock.expect(matchLiveTramToJourneyDestination.matchesJourneyDestination(dueTram, journeyDestinations, finalStation)).andReturn(false);
 
         replayAll();
-        Set<DepartureDTO> results = mapper.mapToDTO(dueTrams, lastUpdated, journeyDestinations);
+        Set<DepartureDTO> results = mapper.mapToDTO(dueTrams, lastUpdated, journeyDestinations, finalStation);
         verifyAll();
 
         List<DepartureDTO> list = new LinkedList<>(results);

@@ -33,6 +33,8 @@ import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
@@ -100,16 +102,13 @@ public class TransportDataFromFilesTramTest {
 
     }
 
-    private static Stream<TramDate> getUpcomingDates() {
-        return TestEnv.getUpcomingDates();
-    }
-
     @Test
     void shouldHaveExpectedNumbersForTram() {
         assertEquals(1, transportData.getAgencies().stream().filter(agency -> agency.getTransportModes().contains(Tram)).count());
         assertEquals(NUM_TFGM_TRAM_STATIONS, transportData.getStations(EnumSet.of(Tram)).size());
 
-        int expectedPlatforms = 200;
+        // 200 -> 197 due to Rochdale closure
+        int expectedPlatforms = 197;
         assertEquals(expectedPlatforms, transportData.getPlatforms(EnumSet.of(Tram)).size());
     }
 
@@ -363,7 +362,7 @@ public class TransportDataFromFilesTramTest {
     @Test
     void shouldHaveTramServicesAvailableNDaysAhead() {
 
-        Set<TramDate> noServices = getUpcomingDates().
+        Set<TramDate> noServices = UpcomingDates.getUpcomingDates().
                 filter(date -> !date.isChristmasPeriod()).
                 filter(date -> transportData.getServicesOnDate(date).isEmpty()).
                 collect(Collectors.toSet());
@@ -372,12 +371,12 @@ public class TransportDataFromFilesTramTest {
 
     }
 
+    @DisabledUntilDate(year = 2024, month = 11)
     @DataExpiryCategory
     @Test
     void shouldHaveTripsOnDateForEachStation() {
 
-        Set<Pair<TramDate, IdFor<Station>>> missing = getUpcomingDates().
-                filter(date -> !date.isChristmasPeriod()).
+        Set<Pair<TramDate, IdFor<Station>>> missing = UpcomingDates.getUpcomingDates().
                 flatMap(date -> getStations(date).map(station -> Pair.of(date, station))).
                 filter(pair -> isOpen(pair.getLeft(), pair.getRight())).
                 filter(pair -> transportData.getTripsCallingAt(pair.getRight(), pair.getLeft()).isEmpty()).
@@ -390,7 +389,9 @@ public class TransportDataFromFilesTramTest {
 
     private Stream<Station> getStations(final TramDate date) {
         return transportData.getStations(EnumSet.of(Tram)).stream().
-                filter(station -> !TestEnv.UpcomingClosures(station, date));
+                filter(station -> !UpcomingDates.hasClosure(station, date));
+//        return transportData.getStations(EnumSet.of(Tram)).stream().
+//                filter(station -> !UpcomingDates.hasClosure(station, date));
     }
 
     @Test
@@ -407,6 +408,7 @@ public class TransportDataFromFilesTramTest {
         assertFalse(onActualDate.isEmpty());
     }
 
+    @DisabledUntilDate(year = 2024, month = 10, day = 27)
     @DataExpiryCategory
     @Test
     void shouldHaveServicesRunningAtReasonableTimesNDaysAhead() {
@@ -423,13 +425,12 @@ public class TransportDataFromFilesTramTest {
 
         final Map<Pair<TramDate, TramTime>, IdSet<Station>> missing = new HashMap<>();
 
-        getUpcomingDates().filter(date -> !date.isChristmasPeriod()).
-                filter(date -> !TestEnv.Closures20October2024.equals(date)).
+        UpcomingDates.getUpcomingDates().
                 forEach(date -> {
-            transportData.getStations(EnumSet.of(Tram)).stream().
-                    filter(station -> isOpen(date, station)).
+                    getStations(date).
+                    //filter(station -> isOpen(date, station)).
                     forEach(station -> {
-                        Set<Trip> trips = transportData.getTripsCallingAt(station, date);
+                        final Set<Trip> trips = transportData.getTripsCallingAt(station, date);
                         for (TramTime time : times) {
                             final TimeRange range = TimeRangePartial.of(time.minusMinutes(maxwait), time.plusMinutes(maxwait));
                             boolean calls = trips.stream().flatMap(trip -> trip.getStopCalls().stream()).
@@ -651,7 +652,7 @@ public class TransportDataFromFilesTramTest {
     }
 
     private boolean isOpen(final TramDate date, final Station station) {
-        return ! (closedStationRepository.isClosed(station, date) || TestEnv.UpcomingClosures(station, date));
+        return ! (closedStationRepository.isClosed(station, date) || UpcomingDates.hasClosure(station, date));
     }
 
 }

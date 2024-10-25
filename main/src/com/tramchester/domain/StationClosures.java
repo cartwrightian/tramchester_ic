@@ -31,26 +31,35 @@ public interface StationClosures {
             return false;
         }
         StationClosures b = (StationClosures) other;
-        boolean same = a.getStations().equals(b.getStations()) &&
+        boolean requiredFieldsSame = a.getStations().equals(b.getStations()) &&
                 (a.isFullyClosed()==b.isFullyClosed()) &&
-                (a.getDateRange().equals(b.getDateRange()) &&
-                (a.hasTimeRange()==b.hasTimeRange()) &&
-                (a.hasDiversionsAroundClosure() == b.hasDiversionsAroundClosure()) &&
-                (a.hasDiversionsToFromClosure() == b.hasDiversionsToFromClosure()));
-        if (!same) {
+                (a.getDateRange().equals(b.getDateRange()));
+//                (a.hasTimeRange()==b.hasTimeRange()) &&
+//                (a.hasDiversionsAroundClosure() == b.hasDiversionsAroundClosure()) &&
+//                (a.hasDiversionsToFromClosure() == b.hasDiversionsToFromClosure()));
+        if (!requiredFieldsSame) {
             return false;
         }
         if (a.hasTimeRange()) {
+            if (!b.hasTimeRange()) {
+                return false;
+            }
             if (!a.getTimeRange().equals(b.getTimeRange())) {
                 return false;
             }
         }
         if (a.hasDiversionsToFromClosure()) {
+            if (!b.hasDiversionsToFromClosure()) {
+                return false;
+            }
             if (!a.getDiversionsToFromClosure().equals(b.getDiversionsToFromClosure())) {
                 return false;
             }
         }
         if (a.hasDiversionsAroundClosure()) {
+            if (!b.hasDiversionsAroundClosure()) {
+                return false;
+            }
             if (!a.getDiversionsAroundClosure().equals(b.getDiversionsAroundClosure())) {
                 return false;
             }

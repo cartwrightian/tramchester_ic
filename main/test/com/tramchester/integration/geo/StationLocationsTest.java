@@ -5,7 +5,9 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.LocationCollection;
 import com.tramchester.domain.Platform;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -13,6 +15,7 @@ import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithNaptan;
+import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
@@ -33,6 +36,7 @@ public class StationLocationsTest {
     private static TramchesterConfig config;
     private StationLocations locations;
     private StationRepository stationRepository;
+    private ClosedStationsRepository closedStationsRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -50,6 +54,7 @@ public class StationLocationsTest {
     void beforeEachTestRuns() {
         stationRepository = componentContainer.get(StationRepository.class);
         locations = componentContainer.get(StationLocations.class);
+        closedStationsRepository = componentContainer.get(ClosedStationsRepository.class);
     }
 
     @Test
@@ -59,8 +64,14 @@ public class StationLocationsTest {
         Set<Station> allStations = stationRepository.getStations();
         BoundingBox stationBounds = locations.getActiveStationBounds();
 
-        allStations.forEach(station -> assertTrue(stationBounds.contained(station.getGridPosition()),
-                station.getId().toString()));
+        TramDate date = TestEnv.testDay();
+
+        IdSet<Station> missing = allStations.stream().
+                filter(station -> !closedStationsRepository.isClosed(station, date)).
+                filter(station -> !stationBounds.contained(station.getGridPosition())).
+                collect(IdSet.collector());
+
+        assertTrue(missing.isEmpty(), missing.toString());
     }
 
     @Test
@@ -135,7 +146,8 @@ public class StationLocationsTest {
         assertEquals(376979, box.getMinEastings());
         assertEquals(385427, box.getMinNorthings());
         assertEquals(394169, box.getMaxEasting());
-        assertEquals(413431, box.getMaxNorthings());
+        // Rochdale Town Centre closed 413431 -> 412992
+        assertEquals(412992, box.getMaxNorthings());
 
     }
 

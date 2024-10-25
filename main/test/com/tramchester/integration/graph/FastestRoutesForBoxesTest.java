@@ -18,6 +18,7 @@ import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.search.FastestRoutesForBoxes;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
+import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownLocations;
@@ -64,6 +65,7 @@ class FastestRoutesForBoxesTest {
     void checkGroupStationsAsExpectedForRealData() {
         StationLocations stationLocations = componentContainer.get(StationLocations.class);
         StationRepository stationsRepo = componentContainer.get(StationRepository.class);
+        ClosedStationsRepository closedStationsRepository = componentContainer.get(ClosedStationsRepository.class);
 
         List<BoundingBoxWithStations> grouped = stationLocations.getStationsInGrids(2000).collect(Collectors.toList());
         List<BoundingBoxWithStations> emptyGroup = grouped.stream().filter(group -> !group.hasStations()).collect(Collectors.toList());
@@ -78,6 +80,7 @@ class FastestRoutesForBoxesTest {
 
         List<String> notInAGroupByPosition = stationsRepo.getStations().stream().
                 filter(station -> !isPresentInByPos(grouped, station)).
+                filter(station -> !closedStationsRepository.isClosed(station, TestEnv.testDay())).
                 map(Station::getName).
                 collect(Collectors.toList());
 

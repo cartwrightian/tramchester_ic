@@ -115,7 +115,7 @@ class JourneysForGridResourceTest {
         assertTrue(boxWithDest.getTopRight().getLon() >= destPos.getLon());
 
         List<BoxWithCostDTO> notDest = results.stream().filter(result -> result.getMinutes() > 0).toList();
-        notDest.forEach(boundingBoxWithCost -> assertTrue(boundingBoxWithCost.getMinutes()<=maxDuration, "failed for " + boundingBoxWithCost));
+        notDest.forEach(boundingBoxWithCost -> assertTrue(boundingBoxWithCost.getMinutes()<=maxDuration, boundingBoxWithCost.getMinutes() + " more than " + maxDuration + " failed for " + boundingBoxWithCost));
 
         List<BoxWithCostDTO> noResult = results.stream().filter(result -> result.getMinutes() < 0).toList();
         assertEquals(outOfRangeForDuration, noResult.size());

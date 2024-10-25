@@ -93,9 +93,9 @@ public class StationClosuresConfigForTest implements StationClosures {
                 "station=" + station.getId() +
                 ", dateRange=" + dateRange +
                 ", fullyClosed=" + fullyClosed +
+                ", timeRange=" + timeRange +
                 ", diversionsAround=" + diversionsAround +
                 ", diversionsToFrom=" + diversionsToFrom +
-                ", timeRange=" + timeRange +
                 '}';
     }
 

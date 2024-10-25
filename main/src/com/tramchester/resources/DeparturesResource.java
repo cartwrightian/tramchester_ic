@@ -5,6 +5,7 @@ import com.codahale.metrics.annotation.Timed;
 import com.google.inject.Inject;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Location;
@@ -126,16 +127,30 @@ public class DeparturesResource extends TransportResource implements APIResource
 
     private @NotNull SortedSet<DepartureDTO> getDepartureDTOS(DeparturesQueryDTO departuresQuery, List<UpcomingDeparture> dueTrams) {
 
-        if (departuresQuery.hasFirstDestId()) {
+        if (departuresQuery.hasDestinationsIds()) {
             final IdSet<Station> journeyFirstDestinationIds = getStationIds(departuresQuery.getFirstDestIds());
+            final IdFor<Station> finalStationId = getFinalStationId(departuresQuery.getFinalStationId());
             if (!journeyFirstDestinationIds.isEmpty()) {
-                logger.info("Fetching due trams and checking for destinations " + journeyFirstDestinationIds);
-                return new TreeSet<>(departuresMapper.mapToDTO(dueTrams, providesNow.getDateTime(), journeyFirstDestinationIds));
+                logger.info("Fetching due trams and checking for initial destinations " + journeyFirstDestinationIds +
+                        " and final station " + finalStationId);
+                return new TreeSet<>(departuresMapper.mapToDTO(dueTrams, providesNow.getDateTime(), journeyFirstDestinationIds, finalStationId));
             }
         }
 
         logger.info("Fetching due trams, not checking for tram destinations");
         return new TreeSet<>(departuresMapper.mapToDTO(dueTrams, providesNow.getDateTime()));
+    }
+
+    private IdFor<Station> getFinalStationId(IdForDTO finalStationId) {
+        final Location<?> location = locationRepository.getLocation(LocationType.Station, finalStationId);
+        if (location.getLocationType()==LocationType.Station) {
+            final Location<Station> station = (Location<Station>) location;
+            return station.getId();
+        } else {
+            String message = "Location was not a station " + location;
+            logger.error(message);
+            throw new RuntimeException(message);
+        }
     }
 
     private IdSet<Station> getStationIds(final Set<IdForDTO> firstDestIds) {

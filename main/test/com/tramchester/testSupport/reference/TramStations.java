@@ -84,9 +84,10 @@ public enum TramStations implements FakeStation, HasId<Station> {
             Eccles,
             EastDidsbury,
             Ashton,
-            Rochdale,
+            //Rochdale,
             Bury,
-            TraffordCentre
+            TraffordCentre,
+            RochdaleRail // while rochdale town centre closed
     ));
 
     public static Set<TramStations> getEndOfTheLine() {
@@ -154,9 +155,11 @@ public enum TramStations implements FakeStation, HasId<Station> {
         return station;
     }
 
-    public Station fake(KnownTramRoute knownTramRoute) {
+    public Station fake(KnownTramRoute... knownTramRoutes) {
         MutableStation mutableStation = createMutable();
-        mutableStation.addRouteDropOff(knownTramRoute.fake());
+        for (KnownTramRoute route : knownTramRoutes) {
+            mutableStation.addRouteDropOff(route.fake());
+        }
         return mutableStation;
     }
 }

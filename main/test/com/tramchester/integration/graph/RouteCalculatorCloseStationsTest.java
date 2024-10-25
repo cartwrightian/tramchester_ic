@@ -16,6 +16,7 @@ import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.config.StationClosuresConfigForTest;
 import com.tramchester.integration.testSupport.tram.IntegrationTramClosedStationsTestConfig;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.reference.TramStations;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
@@ -109,7 +110,7 @@ class RouteCalculatorCloseStationsTest {
 
     @Test
     void shouldFindRouteToClosedStationViaDirectTramWhenAfterClosurePeriod() {
-        TramDate travelDate = TestEnv.avoidChristmasDate(end.plusDays(2));
+        TramDate travelDate = UpcomingDates.avoidChristmasDate(end.plusDays(2));
 
         Set<Journey> singleStage = getSingleStageBuryToEccles(travelDate);
         assertFalse(singleStage.isEmpty());

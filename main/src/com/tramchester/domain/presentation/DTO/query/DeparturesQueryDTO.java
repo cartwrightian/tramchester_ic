@@ -1,9 +1,6 @@
 package com.tramchester.domain.presentation.DTO.query;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.fasterxml.jackson.annotation.Nulls;
+import com.fasterxml.jackson.annotation.*;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.reference.TransportMode;
@@ -25,6 +22,10 @@ public class DeparturesQueryDTO {
 
     @JsonProperty("locationId")
     private IdForDTO locationId;
+
+    @JsonSetter(nulls = Nulls.SKIP)
+    @JsonProperty("finalStationId")
+    private IdForDTO finalStationId;
 
     @JsonSetter(nulls = Nulls.SKIP)
     @JsonProperty("modes")
@@ -103,16 +104,27 @@ public class DeparturesQueryDTO {
                 "time=" + time +
                 ", locationType=" + locationType +
                 ", locationId=" + locationId +
+                ", finalStationId=" + finalStationId +
                 ", modes=" + modes +
                 ", notesFor=" + notesFor +
                 ", firstDestId=" + firstDestIds +
                 '}';
     }
 
-    public boolean hasFirstDestId() {
+    @JsonIgnore
+    public boolean hasDestinationsIds() {
         if (firstDestIds==null) {
             return false;
         }
-        return !firstDestIds.isEmpty();
+        return finalStationId != null;
+//        return !firstDestIds.isEmpty();
+    }
+
+    public IdForDTO getFinalStationId() {
+        return finalStationId;
+    }
+
+    public void setFinalStationId(IdForDTO finalStationId) {
+        this.finalStationId = finalStationId;
     }
 }

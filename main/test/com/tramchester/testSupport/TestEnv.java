@@ -9,11 +9,9 @@ import com.tramchester.config.TfgmTramLiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
 import com.tramchester.domain.*;
-import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.factory.TransportEntityFactoryForTFGM;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.input.PlatformStopCall;
 import com.tramchester.domain.input.Trip;
@@ -42,7 +40,6 @@ import java.util.*;
 import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.*;
-import static com.tramchester.testSupport.reference.TramStations.Rochdale;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -58,22 +55,11 @@ public class TestEnv {
     public static final String DISABLE_HEADLESS_ENV_VAR = "DISABLE_HEADLESS";
     public static final String CHROMEDRIVER_PATH_ENV_VAR = "CHROMEDRIVER_PATH";
 
-    public static final int NumberOfStationLinks = 202;
+    // 202 -> 200 rochdale closed
+    public static final int NumberOfStationLinks = 200;
 
-    // use helper methods that handle filtering (i.e. for Christmas) and conversion to dates
-    private static final int DAYS_AHEAD = 7;
-
-    public static final DateRange RochdaleLineWorks = DateRange.of(TramDate.of(2024,10,19), TramDate.of(2024,10,31));
-    public static final IdSet<Station> buryLine20October2024 = Stream.of("9400ZZMAHEA", "9400ZZMARAD", "9400ZZMABUR",
-                    "9400ZZMAWFD", "9400ZZMABOW", "9400ZZMABOB", "9400ZZMAPWC")
-            .map(Station::createId).collect(IdSet.idCollector());
-
-    public static final TramDate Closures20October2024 = TramDate.of(2024,10,20);
 
     private static final TramDate testDay;
-    private static final TramDate saturday;
-    private static final TramDate sunday;
-    private static final TramDate monday;
 
     public static final DateTimeFormatter dateFormatDashes = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     public static final Path LiveDataExampleFile = Paths.get("data","test","liveDataSample.json");
@@ -129,76 +115,11 @@ public class TestEnv {
 
     static {
         TramDate today = TramDate.from(LocalNow());
-        testDay = getNextDate(DayOfWeek.THURSDAY, today);
-        saturday = getNextDate(DayOfWeek.SATURDAY, today);
-        sunday = getNextDate(DayOfWeek.SUNDAY, today);
-        monday = getNextDate(DayOfWeek.MONDAY, today);
-    }
-
-    public static boolean UpcomingClosures(final Station station, final TramDate date) {
-        if (station.getId().equals(Rochdale.getId())) {
-            return TestEnv.RochdaleLineWorks.contains(date);
-        }
-        if (date.equals(Closures20October2024)) {
-            return buryLine20October2024.contains(station.getId());
-        }
-        return false;
-    }
-
-    public static List<TramDate> daysAhead() {
-        TramDate date = TramDate.of(LocalNow().toLocalDate()).plusDays(1);
-
-        final List<TramDate> dates= new ArrayList<>();
-        while (dates.size() <= TestEnv.DAYS_AHEAD) {
-            if (validTestDate(date)) {
-                dates.add(date);
-            }
-            date = date.plusDays(1);
-        }
-
-        return dates;
-    }
-
-    private static boolean validTestDate(final TramDate date) {
-        if (date.equals(Closures20October2024)) {
-            return false;
-        }
-        return !date.isChristmasPeriod();
-//        return !EcclesLinesClosed.contains(date);
-    }
-
-    public static Stream<TramDate> getUpcomingDates() {
-        return daysAhead().stream();
-    }
-
-    public static TramDate avoidChristmasDate(TramDate date) {
-        while (date.isChristmasPeriod()) {
-            date = date.plusWeeks(1);
-        }
-        return date;
-    }
-
-    public static TramDate nextSaturday() {
-        return saturday;
-    }
-
-    public static TramDate nextSunday() {
-        return sunday;
+        testDay = UpcomingDates.getNextDate(DayOfWeek.THURSDAY, today);
     }
 
     public static TramDate testDay() {
         return testDay;
-    }
-
-    public static TramDate nextMonday() {
-        return monday;
-    }
-
-    private static TramDate getNextDate(DayOfWeek dayOfWeek, TramDate date) {
-        while (date.getDayOfWeek() != dayOfWeek) {
-            date = date.plusDays(1);
-        }
-        return avoidChristmasDate(date);
     }
 
     public static Route getTramTestRoute() {
@@ -403,6 +324,35 @@ public class TestEnv {
             return "Dev";
         }
         return text;
+    }
+
+    @Deprecated
+    public static TramDate nextSunday() {
+        return UpcomingDates.nextSunday();
+    }
+
+    @Deprecated
+    public static TramDate nextSaturday() {
+        return UpcomingDates.nextSaturday();
+    }
+
+    @Deprecated
+    public static Collection<TramDate> daysAhead() {
+        return UpcomingDates.daysAhead();
+    }
+
+    @Deprecated
+    public static boolean UpcomingClosures(Station station, TramDate date) {
+        return UpcomingDates.hasClosure(station,date);
+    }
+
+    @Deprecated
+    public static Stream<TramDate> getUpcomingDates() {
+        return UpcomingDates.getUpcomingDates();
+    }
+
+    public static TramDate nextMonday() {
+        return UpcomingDates.nextMonday();
     }
 
     public static class Modes {

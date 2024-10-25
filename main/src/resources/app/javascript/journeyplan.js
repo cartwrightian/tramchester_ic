@@ -101,7 +101,7 @@ function getLocationType(stop) {
     }
 }
 
-function queryLiveData(app, noteStations) {
+function queryLiveData(app, callingStations) {
 
     var modes;
     var startLocationType = getLocationType(app.startStop);
@@ -124,9 +124,11 @@ function queryLiveData(app, noteStations) {
         startLocationId = app.startStop.id;
     }
 
-    var getNotesFor = noteStations.slice();
+    // locations we should request notes for
+    var getNotesFor = callingStations.slice();
     getNotesFor.push(startLocationId);
 
+    // change to be change stations
     const firstDestinations = getFirstDestinationsFor(app)
 
     const query = {
@@ -137,7 +139,6 @@ function queryLiveData(app, noteStations) {
         notesFor: getNotesFor,
         modes: modes,
         firstDestIds: firstDestinations
-
     }
 
     axios.post( '/api/departures/location', query, { timeout: 11000 }).

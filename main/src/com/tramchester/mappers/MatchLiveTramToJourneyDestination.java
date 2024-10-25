@@ -3,6 +3,7 @@ package com.tramchester.mappers;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
@@ -27,32 +28,69 @@ public class MatchLiveTramToJourneyDestination {
         this.stopOrderChecker = stopOrderChecker;
     }
 
-    public boolean matchesJourneyDestination(UpcomingDeparture dueTram, IdSet<Station> journeyDestinationsIds) {
+    public boolean matchesJourneyDestination(UpcomingDeparture dueTram, IdSet<Station> originalInitialDestinations,
+                                             IdFor<Station> finalStationId) {
+
+        // TODO Make sure finalStationId isn't in initialStationIds
+        final IdSet<Station> initialStationIds;
+        if (originalInitialDestinations.contains(finalStationId)) {
+            logger.warn("initial destinations " + originalInitialDestinations + " incorrectly contains "
+                    + finalStationId + " so removing");
+            initialStationIds = IdSet.copy(originalInitialDestinations);
+            initialStationIds.remove(finalStationId);
+        } else {
+            initialStationIds = originalInitialDestinations;
+        }
+
         Station dueTramDestination = dueTram.getDestination();
-        if (journeyDestinationsIds.contains(dueTramDestination.getId())) {
-            // quick win, tram is going to the journey destination
+        if (finalStationId.equals(dueTramDestination.getId())) {
+            // quick win, tram is going to our final destination
             return true;
         }
-        final Set<Station> journeyDestinations = journeyDestinationsIds.stream().map(stationRepository::getStationById).collect(Collectors.toSet());
-        final IdSet<Route> dropOffsAtDest = getDropoffsFor(journeyDestinations);
+
+        final Station displayLocation = dueTram.getDisplayLocation();
+        final TramDate date = TramDate.of(dueTram.getDate());
+
+        final Station finalStation = stationRepository.getStationById(finalStationId);
+        final IdSet<Route> finalStationDropOffs = finalStation.getDropoffRoutes().stream().collect(IdSet.collector());
+        if (anyRouteOverlap(dueTram, finalStationDropOffs)) {
+            boolean callsAtDest = stopOrderChecker.check(date, displayLocation, finalStation, dueTramDestination) ||
+                    stopOrderChecker.check(date, displayLocation, dueTramDestination, finalStation);
+            if (callsAtDest) {
+                return true; // else check on initial destinations
+            }
+        }
+
+        // match on calling stations?
+        final Set<Station> initialStations = initialStationIds.stream().
+                 map(stationRepository::getStationById).collect(Collectors.toSet());
+        final IdSet<Route> dropOffsAtDest = getDropoffsFor(initialStations);
 
         if (anyRouteOverlap(dueTram, dropOffsAtDest)) {
             // now need to check direction, is the due tram destination in the same direction as the journey destination?
-            final TramDate date = TramDate.of(dueTram.getDate());
 
-            boolean callsAt = journeyDestinations.stream().
-                    anyMatch(journeyDest -> stopOrderChecker.check(date, dueTram.getDisplayLocation(), journeyDest, dueTramDestination));
+//            final boolean callsAt = initialStations.stream().
+//                    anyMatch(journeyDest -> stopOrderChecker.check(date, dueTram.getDisplayLocation(), journeyDest, dueTramDestination));
+            Set<Station> intermediates = initialStations.stream().
+                    filter(initialStation -> stopOrderChecker.check(date, displayLocation, initialStation, dueTramDestination)).
+                    collect(Collectors.toSet());
 
-            if (callsAt) {
-                return true;
+            if (!intermediates.isEmpty()) {
+
+                // check if due tram is going in wrong direction
+                boolean correctDir = stopOrderChecker.check(date, displayLocation, finalStation, dueTramDestination) ||
+                        stopOrderChecker.check(date, displayLocation, dueTramDestination, finalStation);
+                if (correctDir) {
+                    return true;
+                }
             }
 
             // due tram is going towards our destination, it's on the way
-            return journeyDestinations.stream().
-                    anyMatch(journeyDest -> stopOrderChecker.check(date, dueTram.getDisplayLocation(), dueTramDestination, journeyDest));
+            return initialStations.stream().
+                    anyMatch(journeyDest -> stopOrderChecker.check(date, displayLocation, dueTramDestination, journeyDest));
         }
         // todo into debug
-        logger.info("Did not match due tram " + dueTram + " with any of " + journeyDestinations);
+        logger.info("Did not match due tram " + dueTram + " with any of " + initialStationIds + " or " + finalStationId);
         return false;
 
     }

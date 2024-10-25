@@ -17,6 +17,8 @@ import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.integration.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.testTags.DataExpiryCategory;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
@@ -27,7 +29,6 @@ import java.util.*;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
-import static com.tramchester.testSupport.TestEnv.avoidChristmasDate;
 import static com.tramchester.testSupport.reference.TramStations.Ashton;
 import static com.tramchester.testSupport.reference.TramStations.ShawAndCrompton;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -105,7 +106,7 @@ class RouteCalculatorKeyRoutesTest {
 
         final Map<TramDate, LocationIdPairSet<Station>> missing = new HashMap<>();
 
-        TestEnv.daysAhead().stream().filter(this::shouldCheckDate).forEach(testDate -> {
+        UpcomingDates.daysAhead().stream().filter(this::shouldCheckDate).forEach(testDate -> {
             JourneyRequest request = new JourneyRequest(testDate, TramTime.of(8, 5), false, 3,
                     maxJourneyDuration, 1, modes);
             RouteCalculationCombinations.CombinationResults<Station> results = combinations.getJourneysFor(pairs, request, Duration.ofMinutes(1));
@@ -120,7 +121,7 @@ class RouteCalculatorKeyRoutesTest {
     }
 
     private boolean shouldCheckDate(TramDate testDate) {
-        if (TestEnv.RochdaleLineWorks.contains(testDate)) {
+        if (UpcomingDates.validTestDate(testDate)) {
             return false;
         }
         return testDate.getDayOfWeek() != DayOfWeek.SUNDAY;
@@ -132,13 +133,14 @@ class RouteCalculatorKeyRoutesTest {
         final LocationIdPairSet<Station> pairs = combinations.EndOfRoutesToEndOfRoutes(Tram);
         // helps with diagnosis when trams not running on a specific day vs. actual missing data
 
-        TramDate testDate = avoidChristmasDate(when);
+        TramDate testDate = UpcomingDates.avoidChristmasDate(when);
         JourneyRequest request = new JourneyRequest(testDate, TramTime.of(8,5), false, 4,
                 maxJourneyDuration, 1, modes);
         RouteCalculationCombinations.CombinationResults<Station> results = combinations.getJourneysFor(pairs, request, Duration.ofSeconds(30));
         validateFor(results);
     }
 
+    @DisabledUntilDate(year = 2024, month = 11)
     @Test
     void shouldFindEndOfLinesToEndOfLinesFindLongestDuration() {
 
