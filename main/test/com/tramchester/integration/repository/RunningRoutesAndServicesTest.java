@@ -17,6 +17,7 @@ import com.tramchester.repository.RunningRoutesAndServices;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import org.apache.commons.collections4.SetUtils;
 import org.junit.jupiter.api.AfterAll;
@@ -161,7 +162,7 @@ public class RunningRoutesAndServicesTest {
 
         TramDate testDay = TestEnv.nextMonday();
 
-        while (christmasWeek(testDay)) {
+        while (christmasWeek(testDay) || testDay.isBefore(UpcomingDates.fullNetworkCloseDown)) {
             testDay = testDay.plusWeeks(1);
         }
 
@@ -196,9 +197,9 @@ public class RunningRoutesAndServicesTest {
         // a range capturing all the dates for the weekday services
         DateRange weekdayDateRange = new DateRange(weekdayServicesBegin, weekdayServicesEnd);
 
-        // double check contains range does contain next tuesday
-        assertTrue(weekdayDateRange.contains(nextTuesday));
-        assertTrue(weekdayDateRange.contains(friday));
+        // double check contains range does contain next tuesday & friday
+        assertTrue(weekdayDateRange.contains(nextTuesday), weekdayDateRange + " not contain " + nextTuesday);
+        assertTrue(weekdayDateRange.contains(friday), weekdayDateRange + " not contain " + friday.toString());
 
         RunningRoutesAndServices.FilterForDate filterForNextFriday = runningRoutesAndServices.getFor(friday);
 

@@ -11,6 +11,9 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.presentation.DTO.JourneyDTO;
+import com.tramchester.domain.presentation.DTO.LocationRefDTO;
+import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
 import com.tramchester.domain.presentation.DTO.query.DeparturesQueryDTO;
 import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.reference.TransportMode;
@@ -118,39 +121,73 @@ public class DeparturesResource extends TransportResource implements APIResource
         }
 
         final SortedSet<DepartureDTO> departs;
-        departs = getDepartureDTOS(departuresQuery, dueTrams);
+        departs = mapToDTOs(departuresQuery, dueTrams);
 
         final List<Note> notes = getNotes(notesFor, dueTrams, queryDate, queryTime, location);
 
         return Response.ok(new DepartureListDTO(departs, notes)).build();
     }
 
-    private @NotNull SortedSet<DepartureDTO> getDepartureDTOS(DeparturesQueryDTO departuresQuery, List<UpcomingDeparture> dueTrams) {
+    private @NotNull SortedSet<DepartureDTO> mapToDTOs(final DeparturesQueryDTO departuresQuery, final List<UpcomingDeparture> dueTrams) {
 
-        if (departuresQuery.hasDestinationsIds()) {
-            final IdSet<Station> journeyFirstDestinationIds = getStationIds(departuresQuery.getFirstDestIds());
-            final IdFor<Station> finalStationId = getFinalStationId(departuresQuery.getFinalStationId());
-            if (!journeyFirstDestinationIds.isEmpty()) {
+        if (departuresQuery.hasJourneys()) {
+            List<JourneyDTO> journeys = departuresQuery.getJourneys();
+            final IdSet<Station> journeyFirstDestinationIds = getFirstDestIds(journeys);
+            final IdFor<Station> finalStationId = getFinalStationId(journeys);
+            //if (!journeyFirstDestinationIds.isEmpty()) {
                 logger.info("Fetching due trams and checking for initial destinations " + journeyFirstDestinationIds +
                         " and final station " + finalStationId);
                 return new TreeSet<>(departuresMapper.mapToDTO(dueTrams, providesNow.getDateTime(), journeyFirstDestinationIds, finalStationId));
-            }
-        }
+            //}
+        } else {
 
-        logger.info("Fetching due trams, not checking for tram destinations");
-        return new TreeSet<>(departuresMapper.mapToDTO(dueTrams, providesNow.getDateTime()));
+            logger.info("Mapping due trams, not checking for tram destinations");
+            return new TreeSet<>(departuresMapper.mapToDTO(dueTrams, providesNow.getDateTime()));
+        }
     }
 
-    private IdFor<Station> getFinalStationId(IdForDTO finalStationId) {
-        final Location<?> location = locationRepository.getLocation(LocationType.Station, finalStationId);
-        if (location.getLocationType()==LocationType.Station) {
-            final Location<Station> station = (Location<Station>) location;
-            return station.getId();
-        } else {
-            String message = "Location was not a station " + location;
-            logger.error(message);
-            throw new RuntimeException(message);
+    private IdSet<Station> getFirstDestIds(final List<JourneyDTO> journeys) {
+        return journeys.stream().
+                flatMap(journeyDTO -> journeyDTO.getChangeStations().stream()).
+                filter(ref -> ref.getLocationType()==LocationType.Station).
+                map(LocationRefDTO::getId).
+                map(id -> Station.createId(id.getActualId())).collect(IdSet.idCollector());
+    }
+
+    private IdFor<Station> getFinalStationId(final List<JourneyDTO> journeyDTOS) {
+        IdSet<Station> unique = journeyDTOS.stream().
+                map(JourneyDTO::getPath).
+                map(this::lastStationIn).
+                map(LocationRefDTO::getId).
+                map(Station::createId).
+                collect(IdSet.idCollector());
+
+        List<IdFor<Station>> stations = unique.toList();
+
+        if (stations.isEmpty()) {
+            logger.error("Could not find any final destinations from journeys " + journeyDTOS);
+            return IdFor.invalid(Station.class);
         }
+
+        if (stations.size()==1) {
+            return stations.get(0);
+        }
+
+        // TODO is it ok just pick one?
+        String msg = "Found multiple final stations for " + journeyDTOS;
+        logger.error(msg);
+        throw new RuntimeException(msg);
+
+    }
+
+    private LocationRefWithPosition lastStationIn(List<LocationRefWithPosition> path) {
+        for (int i = path.size()-1; i >= 0; i--) {
+            final LocationRefWithPosition location = path.get(i);
+            if (location.getLocationType()==LocationType.Station) {
+                return location;
+            }
+        }
+        throw new RuntimeException("Failed to find a stations in " + path);
     }
 
     private IdSet<Station> getStationIds(final Set<IdForDTO> firstDestIds) {

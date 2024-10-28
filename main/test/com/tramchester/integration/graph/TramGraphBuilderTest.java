@@ -743,35 +743,39 @@ class TramGraphBuilderTest {
                 collect(Collectors.toSet());
         assertFalse(svcOutboundsB.isEmpty());
 
-        IdSet<Service> stationAServices = svcOutboundsA.stream().map(relation -> relation.getServiceId()).collect(IdSet.idCollector());
-        IdSet<Service> stationBServices = svcOutboundsA.stream().map(relation -> relation.getServiceId()).collect(IdSet.idCollector());
+        IdSet<Service> stationAServices = svcOutboundsA.stream().map(ImmutableGraphRelationship::getServiceId).collect(IdSet.idCollector());
+        IdSet<Service> stationBServices = svcOutboundsA.stream().map(ImmutableGraphRelationship::getServiceId).collect(IdSet.idCollector());
 
         IdSet<Service> differenceInRelationships = IdSet.disjunction(stationAServices, stationBServices);
 
         assertTrue(differenceInRelationships.isEmpty(), "not same set of services, diff was " + differenceInRelationships);
 
-//        IdSet<Service> uniqueSvcIds = svcOutboundsA.stream().map(ImmutableGraphRelationship::getServiceId).collect(IdSet.idCollector());
-
         assertFalse(stationAServices.isEmpty());
 
-        IdSet<Service> runningOnDate = stationAServices.stream().
-                filter(serviceId -> serviceRepository.getServiceById(serviceId).getCalendar().operatesOn(when)).
-                collect(IdSet.idCollector());
+        // NOTE: Late night services can terminate in unexpected places...
+        IdSet<Service> stationAServicesForDate = stationAServices.stream().
+                map(serviceId -> serviceRepository.getServiceById(serviceId)).
+                filter(service -> service.getCalendar().operatesOn(when)).
+                filter(service -> service.getFinishTime().isBefore(TramTime.of(23,0))).
+                collect(IdSet.collector());
 
-        assertFalse(runningOnDate.isEmpty());
+        assertFalse(stationAServicesForDate.isEmpty());
 
-        runningOnDate.forEach(svcId -> {
+        stationAServicesForDate.forEach(svcId -> {
+
             // from A towards B only
             List<ImmutableGraphRelationship> fromA = svcOutboundsA.stream().
-                    filter(svcOutbounds -> svcOutbounds.getServiceId().equals(svcId)).
-                    filter(svcOutbound -> svcOutbound.getEndNode(txn).getTowardsStationId().equals(stationB.getId())).toList();
-            assertEquals(1, fromA.size(), "could not find " + svcId + " from A towards B " + stationAServices);
+                    filter(svcOutbound -> svcOutbound.getEndNode(txn).getTowardsStationId().equals(stationB.getId())).
+                    filter(svcOutbound -> svcOutbound.getServiceId().equals(svcId)).toList();
+            assertEquals(1, fromA.size(), "On " + when +" could not find " + svcId + " from A towards B " + stationAServicesForDate);
 
             // from B, excluding back towards A
-            List<ImmutableGraphRelationship> fromB = svcOutboundsB.
-                    stream().filter(svcOutbounds -> svcOutbounds.getServiceId().equals(svcId)).
-                    filter(svcOutbound -> !svcOutbound.getEndNode(txn).getTowardsStationId().equals(stationA.getId())).toList();
-            assertEquals(1, fromB.size(), "could not find " + svcId + " from B towards A ");
+            List<ImmutableGraphRelationship> fromB = svcOutboundsB.stream().
+                    filter(svcOutbound -> !svcOutbound.getEndNode(txn).getTowardsStationId().equals(stationA.getId())).
+                    filter(svcOutbounds -> svcOutbounds.getServiceId().equals(svcId)).toList();
+            assertEquals(1, fromB.size(), "On " + when +" could not find " + svcId + " from B towards A " + stationAServicesForDate);
+
+//            assertTrue(fromA || fromB, serviceRepository.getServiceById(svcId).toString());
 
             IdSet<Trip> tripsFromA = fromA.get(0).getTripIds();
             IdSet<Trip> tripsFromB = fromB.get(0).getTripIds();

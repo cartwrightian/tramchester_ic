@@ -84,10 +84,10 @@ public enum TramStations implements FakeStation, HasId<Station> {
             Eccles,
             EastDidsbury,
             Ashton,
-            //Rochdale,
+            Rochdale,
             Bury,
-            TraffordCentre,
-            RochdaleRail // while rochdale town centre closed
+            TraffordCentre
+//            RochdaleRail // while rochdale town centre closed
     ));
 
     public static Set<TramStations> getEndOfTheLine() {

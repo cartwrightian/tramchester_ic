@@ -5,14 +5,13 @@ import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.repository.ClosedStationsRepository;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
-import jakarta.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @LazySingleton
 public class StationBoxFactory {
@@ -51,14 +50,14 @@ public class StationBoxFactory {
                 final BoundingBox box = new BoundingBox(eastings, northing, eastings+gridSizeInMeters, northing+gridSizeInMeters);
                 final LocationSet<Station> openStations = stationLocations.getStationsWithin(box).
                         stream().
-                        // excluding causes issues where diversions are in place for closed stations
-//                        filter(station -> !closedStationsRepository.isClosed(station, date)).
                         collect(LocationSet.stationCollector());
+                // excluding causes issues where diversions are in place for closed stations
+//                        filter(station -> !closedStationsRepository.isClosed(station, date)).
                 if (!openStations.isEmpty()) {
                     final StationsBoxSimpleGrid stationBox = new StationsBoxSimpleGrid(x, y, box, openStations);
                     results.add(stationBox);
                 } else {
-                    logger.info("Excluding " + box + " since no contained stations are open ");
+                    logger.info("Excluding " + box + " since no contained stations");
                 }
 
                 northing = northing + gridSizeInMeters;

@@ -81,19 +81,23 @@ public class StationRepositoryTest {
 
         IdSet<Station> dropOffs = allStations.stream().filter(station -> station.servesRouteDropOff(buryToAlty)).collect(IdSet.collector());
 
-        assertEquals(25, dropOffs.size(), dropOffs.toString());
-        // in new data Bury is dropoff since no direction to routes....
-//        assertFalse(dropOffs.contains(Bury.getId()));
+        // 25->30 for data during closures and disruptions, presumably because route starting elsewhere during the disruption
+        int expectedNumStations = 30;
+
+        assertEquals(expectedNumStations, dropOffs.size(), dropOffs.toString());
+
         assertTrue(dropOffs.contains(Altrincham.getId()));
         assertTrue(dropOffs.contains(Cornbrook.getId()));
         assertTrue(dropOffs.contains(Shudehill.getId()));
+        assertTrue(dropOffs.contains(Bury.getId()));
 
         IdSet<Station> pickUps = allStations.stream().filter(station -> station.servesRoutePickup(buryToAlty)).collect(IdSet.collector());
 
-        assertEquals(25, pickUps.size(), pickUps.toString());
+        assertEquals(expectedNumStations, pickUps.size(), pickUps.toString());
         assertTrue(pickUps.contains(Bury.getId()));
         assertTrue(pickUps.contains(Cornbrook.getId()));
         assertTrue(pickUps.contains(Shudehill.getId()));
+        assertTrue(pickUps.contains(Altrincham.getId()));
     }
 
     @Test

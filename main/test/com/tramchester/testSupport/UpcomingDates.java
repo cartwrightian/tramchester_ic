@@ -25,12 +25,16 @@ public class UpcomingDates {
     // use helper methods that handle filtering (i.e. for Christmas) and conversion to dates
     static final int DAYS_AHEAD = 7;
 
+    // the official dates seem wrong, or the published timetable is wrong....meant to finish 31/10 but no trams in
+    // time table until 8/11
     private static final DateRange rochdaleLineWorks = DateRange.of(TramDate.of(2024,10,19),
-            TramDate.of(2024,11,5));
+            TramDate.of(2024,11,8));
+
+   public static final DateRange TfgmDataError = DateRange.of(TramDate.of(2024,11,4), TramDate.of(2024,11,5));
 
     private static final TramDate deansgateWorks27thOctober = TramDate.of(2024,10,27);
 
-    private static final TramDate fullNetworkCloseDown = TramDate.of(2024,11,3);
+    public static final TramDate fullNetworkCloseDown = TramDate.of(2024,11,3);
 
     static {
         TramDate today = TramDate.from(TestEnv.LocalNow());
@@ -59,6 +63,9 @@ public class UpcomingDates {
 
     public static boolean validTestDate(final TramDate date) {
         if (date.equals(deansgateWorks27thOctober)) {
+            return false;
+        }
+        if (TfgmDataError.contains(date)) {
             return false;
         }
         return !date.isChristmasPeriod();

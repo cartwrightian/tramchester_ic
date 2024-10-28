@@ -7,15 +7,15 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.UpcomingDates;
 
-import java.time.DayOfWeek;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
+/*
  * see also TramRouteHelper
  * Note: these are validated against tfgm data as part of Integration tests
  */
@@ -34,13 +34,15 @@ public enum KnownTramRoute {
     // Red
     CornbrookTheTraffordCentre("Red Line", "Cornbrook - The Trafford Centre", "849"),
     // Yellow
-    PiccadillyVictoria("Yellow Line", "Piccadilly - Victoria", "844"),
+    PiccadillyVictoria("Yellow Line", "Piccadilly - Victoria", "844");
+
+
 
     // cornbrook / eccles line closure changes
-    BuryManchester("Yellow Line", "Bury - Manchester", "2358"),
-    ReplacementBus1("Replacement Bus 1", "Firswood - Victoria", "2359"),
-    ReplacementBus2("Replacement Bus 2", "Trafford - Piccadilly", "2360"),
-    ReplacementBus3("Replacement Bus 3", "Eccles - Piccadilly", "2361");
+//    BuryManchester("Yellow Line", "Bury - Manchester", "2358"),
+//    ReplacementBus1("Replacement Bus 1", "Firswood - Victoria", "2359"),
+//    ReplacementBus2("Replacement Bus 2", "Trafford - Piccadilly", "2360"),
+//    ReplacementBus3("Replacement Bus 3", "Eccles - Piccadilly", "2361");
 
     private final String shortName;
     private final String longName;
@@ -49,16 +51,18 @@ public enum KnownTramRoute {
     public static Set<KnownTramRoute> getFor(final TramDate date) {
         EnumSet<KnownTramRoute> routes = EnumSet.noneOf(KnownTramRoute.class);
 
-        routes.add(PiccadillyVictoria);
-        routes.add(EcclesAshton);
-        if (date.isAfter(TramDate.of(2024, 10,19))) {
-            if (date.getDayOfWeek()!= DayOfWeek.SUNDAY) {
-                routes.add(BuryManchesterAltrincham);
-            }
-        } else {
-            routes.add(BuryManchesterAltrincham);
+        routes.add(BuryManchesterAltrincham);
+
+        if (UpcomingDates.TfgmDataError.contains(date)) {
+            return routes;
         }
 
+        if (!UpcomingDates.fullNetworkCloseDown.equals(date)) {
+            routes.add(PiccadillyVictoria);
+
+        }
+
+        routes.add(EcclesAshton);
         routes.add(CornbrookTheTraffordCentre);
         routes.add(DeansgateCastlefieldManchesterAirport);
         routes.add(RochdaleShawandCromptonManchesterEastDidisbury);

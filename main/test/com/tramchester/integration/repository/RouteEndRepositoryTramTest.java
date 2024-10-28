@@ -51,7 +51,7 @@ class RouteEndRepositoryTramTest {
         assertTrue(results.contains(ManAirport.getId()), results.toString());
 
         // rochdale closed
-        assertFalse(results.contains(Rochdale.getId()));
+        assertTrue(results.contains(Rochdale.getId()));
 
         IdSet<Station> missing = getEndOfTheLine().stream().map(TramStations::getId).
                 filter(this::workaroundPiccGardensStillClosedInTimetable).

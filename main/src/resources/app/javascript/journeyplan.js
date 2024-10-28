@@ -73,6 +73,30 @@ function getCallingStationsFrom(journeys) {
     return Array.from(stations);
 }
 
+function getLastStationId(app) {
+
+    if (app.journeys==null) {
+        return ""
+    }
+
+    var stations = new Set();
+
+    app.journeys.forEach(journeyPlan => {
+        const journey = journeyPlan.journey;
+        const dest = journey.destination;
+        if (dest.locationType=="Station") {
+            stations.add(dest.id);
+        }
+    })
+
+    if (stations.length==1) {
+        return stations.pop();
+    }
+
+    return "";
+
+}
+
 function getFirstDestinationsFor(app) {
 
     if (app.journeys==null) {
@@ -128,8 +152,12 @@ function queryLiveData(app, callingStations) {
     var getNotesFor = callingStations.slice();
     getNotesFor.push(startLocationId);
 
-    // change to be change stations
-    const firstDestinations = getFirstDestinationsFor(app)
+    var journeyList;
+    if (app.journeys==null) {
+        journeyList = []
+    } else {
+        journeyList = app.journeys;
+    }
 
     const query = {
         time: app.time,
@@ -138,7 +166,7 @@ function queryLiveData(app, callingStations) {
         notes: true,
         notesFor: getNotesFor,
         modes: modes,
-        firstDestIds: firstDestinations
+        journeys: journeyList
     }
 
     axios.post( '/api/departures/location', query, { timeout: 11000 }).

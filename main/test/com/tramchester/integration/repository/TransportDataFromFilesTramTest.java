@@ -108,7 +108,7 @@ public class TransportDataFromFilesTramTest {
         assertEquals(NUM_TFGM_TRAM_STATIONS, transportData.getStations(EnumSet.of(Tram)).size());
 
         // 200 -> 197 due to Rochdale closure
-        int expectedPlatforms = 197;
+        int expectedPlatforms = 200;
         assertEquals(expectedPlatforms, transportData.getPlatforms(EnumSet.of(Tram)).size());
     }
 
@@ -390,8 +390,6 @@ public class TransportDataFromFilesTramTest {
     private Stream<Station> getStations(final TramDate date) {
         return transportData.getStations(EnumSet.of(Tram)).stream().
                 filter(station -> !UpcomingDates.hasClosure(station, date));
-//        return transportData.getStations(EnumSet.of(Tram)).stream().
-//                filter(station -> !UpcomingDates.hasClosure(station, date));
     }
 
     @Test
@@ -406,6 +404,12 @@ public class TransportDataFromFilesTramTest {
         Set<Service> onActualDate = includeDate.stream().filter(service -> service.getCalendar().operatesOn(when)).collect(Collectors.toSet());
 
         assertFalse(onActualDate.isEmpty());
+    }
+
+    @DisabledUntilDate(year = 2024, month = 11, day = 4)
+    @Test
+    void shouldRemoveWorkarounds() {
+        fail("remove workarounds for network closures");
     }
 
     @DisabledUntilDate(year = 2024, month = 10, day = 27)
@@ -426,27 +430,25 @@ public class TransportDataFromFilesTramTest {
         final Map<Pair<TramDate, TramTime>, IdSet<Station>> missing = new HashMap<>();
 
         UpcomingDates.getUpcomingDates().
-                forEach(date -> {
-                    getStations(date).
-                    //filter(station -> isOpen(date, station)).
-                    forEach(station -> {
-                        final Set<Trip> trips = transportData.getTripsCallingAt(station, date);
-                        for (TramTime time : times) {
-                            final TimeRange range = TimeRangePartial.of(time.minusMinutes(maxwait), time.plusMinutes(maxwait));
-                            boolean calls = trips.stream().flatMap(trip -> trip.getStopCalls().stream()).
-                                    filter(stopCall -> stopCall.getStation().equals(station)).
-                                    anyMatch(stopCall -> range.contains(stopCall.getArrivalTime()));
-                            if (!calls) {
-                                Pair<TramDate, TramTime> key = Pair.of(date, time);
-                                if (!missing.containsKey(key)) {
-                                    missing.put(key, new IdSet<>());
-                                }
-                                missing.get(key).add(station.getId());
+                filter(date -> !UpcomingDates.fullNetworkCloseDown.equals(date)).
+                forEach(date -> getStations(date).
+                forEach(station -> {
+                    final Set<Trip> trips = transportData.getTripsCallingAt(station, date);
+                    for (final TramTime time : times) {
+                        final TimeRange range = TimeRangePartial.of(time.minusMinutes(maxwait), time.plusMinutes(maxwait));
+                        boolean calls = trips.stream().flatMap(trip -> trip.getStopCalls().stream()).
+                                filter(stopCall -> stopCall.getStation().equals(station)).
+                                anyMatch(stopCall -> range.contains(stopCall.getArrivalTime()));
+                        if (!calls) {
+                            Pair<TramDate, TramTime> key = Pair.of(date, time);
+                            if (!missing.containsKey(key)) {
+                                missing.put(key, new IdSet<>());
                             }
-
+                            missing.get(key).add(station.getId());
                         }
-                    });
-        });
+
+                    }
+                }));
 
         assertTrue(missing.isEmpty(), missing.toString());
     }
@@ -564,15 +566,10 @@ public class TransportDataFromFilesTramTest {
                     }
         });
 
-        //Stream.of(Altrincham, EastDidsbury, ManAirport, Eccles, TraffordCentre, Bury, Rochdale, Ashton).
-
         IdSet<Station> expected = TramStations.getEndOfTheLine().stream().
                 map(FakeStation::getId).
                 filter(stationId -> !closedStationRepository.isClosed(stationId, when)).
                 collect(IdSet.idCollector());
-
-        // exchange square, due to broken rail diversion?
-        //expected.add(ExchangeSquare.getId());
 
         IdSet<Station> disjunction = IdSet.disjunction(expected, result);
         assertTrue(disjunction.isEmpty(), disjunction + " diff between \n expected " + expected + " and \n result " + result);

@@ -146,8 +146,7 @@ public class StationLocationsTest {
         assertEquals(376979, box.getMinEastings());
         assertEquals(385427, box.getMinNorthings());
         assertEquals(394169, box.getMaxEasting());
-        // Rochdale Town Centre closed 413431 -> 412992
-        assertEquals(412992, box.getMaxNorthings());
+        assertEquals(413431, box.getMaxNorthings());
 
     }
 

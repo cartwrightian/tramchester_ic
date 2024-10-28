@@ -44,6 +44,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.domain.reference.TransportMode.Walk;
 import static com.tramchester.domain.time.Durations.greaterOrEquals;
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
@@ -161,12 +162,12 @@ public class RouteCalculatorTest {
 
     @Test
     void shouldHaveSimpleOneStopJourneyNextDays() {
-        checkRouteNextNDays(TraffordBar, Altrincham, TramTime.of(9,0));
+        checkRouteNextNDays(TraffordBar, Altrincham, TramTime.of(15,0));
     }
 
     @Test
     void shouldHaveSimpleManyStopSameLineJourney() {
-        checkRouteNextNDays(Altrincham, Cornbrook, TramTime.of(9,0));
+        checkRouteNextNDays(Altrincham, Cornbrook, TramTime.of(15,0));
     }
 
     @DisabledUntilDate(year = 2024, month = 11)
@@ -300,7 +301,7 @@ public class RouteCalculatorTest {
     // over max wait, catch failure to accumulate journey times correctly
     @Test
     void shouldHaveSimpleButLongJoruneySameRoute() {
-        checkRouteNextNDays(ManAirport, TraffordBar, TramTime.of(9,0));
+        checkRouteNextNDays(ManAirport, TraffordBar, TramTime.of(15,0));
     }
 
     @Test
@@ -319,6 +320,18 @@ public class RouteCalculatorTest {
             // direct, or change at shaw
             int numStages = journey.getStages().size();
             assertTrue(numStages <=2, "too many stages " + numStages + " for " + journey + " at " + journeyRequest);
+        });
+    }
+
+    @Test
+    void shouldReproIssueWithWalkWhenRochdaleClosed() {
+        TramDate date = TramDate.of(2024, 10, 28);
+        JourneyRequest journeyRequest = standardJourneyRequest(date, TramTime.of(20,15), maxNumResults);
+        List<Journey> results = calculator.calculateRouteAsList(ExchangeSquare, Altrincham, journeyRequest);
+        assertFalse(results.isEmpty());
+        results.forEach(journey -> {
+            long walks = journey.getStages().stream().filter(stage -> stage.getMode() == Walk).count();
+            assertEquals(0, walks, "unexpected walk");
         });
     }
 

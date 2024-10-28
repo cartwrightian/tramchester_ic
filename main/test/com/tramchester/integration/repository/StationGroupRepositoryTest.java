@@ -55,8 +55,7 @@ class StationGroupRepositoryTest {
 
         Set<StationGroup> loaded = stationGroupsRepository.getStationGroupsFor(TransportMode.Tram);
 
-        // rochdale closure 17 -> 16
-        assertEquals(16, loaded.size());
+        assertEquals(17, loaded.size());
     }
 
     @Test

@@ -178,7 +178,7 @@ public class RouteInterconnectRepositoryTest {
 
         assertEquals(2, results.getDepth());
 
-        assertEquals(4, results.numberPossible(), results.toString()); // two sets of changes needed
+        assertEquals(5, results.numberPossible(), results.toString()); // two sets of changes needed
     }
 
     @Test

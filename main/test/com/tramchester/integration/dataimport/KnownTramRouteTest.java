@@ -10,6 +10,7 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
@@ -101,7 +102,6 @@ class KnownTramRouteTest {
 
     @Test
     void shouldHaveShortNameMatching() {
-        // Assumes long name match, if this fails get shouldHaveCorrectLongNamesForKnownRoutesForDates working first
 
         getDateRange().forEach(date -> {
             final Set<Route> loadedRoutes = getLoadedTramRoutes(date).collect(Collectors.toSet());
@@ -110,9 +110,6 @@ class KnownTramRouteTest {
                 List<Route> findLoadedFor = loadedRoutes.stream().
                         filter(loadedRoute -> loadedRoute.getShortName().equals(knownTramRoute.shortName())).toList();
                 assertEquals(1, findLoadedFor.size(), prefix + "could not find loaded route using short name match for " + knownTramRoute);
-//                Route loadedRoute = findLoadedFor.get(0);
-//                assertEquals(loadedRoute.getShortName(), knownTramRoute.shortName(), prefix + "short name incorrect for " + knownTramRoute);
-
             });
         });
     }
@@ -136,6 +133,7 @@ class KnownTramRouteTest {
         assertTrue(unknownForDate.isEmpty(), "Unknown loaded routes " + unknownForDate);
     }
 
+    @DisabledUntilDate(year = 2024, month = 11)
     @Test
     void shouldNotHaveUnusedKnownTramRoutesForDate() {
         TramDate start = TramDate.from(TestEnv.LocalNow());

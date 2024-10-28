@@ -1,6 +1,7 @@
 package com.tramchester.integration.testSupport;
 
 import com.tramchester.App;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
@@ -29,6 +30,10 @@ public class JourneyResourceTestFacade {
     public JourneyResourceTestFacade(IntegrationAppExtension appExtension) {
         App app =  appExtension.getApplication();
         stationRepository = app.getDependencies().get(StationRepository.class);
+        TramchesterConfig config = app.getDependencies().get(TramchesterConfig.class);
+        if (!config.getPlanningEnabled()) {
+            throw new RuntimeException("Planning is not enabled!");
+        }
         parseStream = new ParseJSONStream<>(JourneyDTO.class);
         factory = new APIClientFactory(appExtension);
     }

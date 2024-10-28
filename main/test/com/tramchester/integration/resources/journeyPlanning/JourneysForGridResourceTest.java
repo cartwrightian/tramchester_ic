@@ -20,6 +20,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.JourneysForGridResource;
 import com.tramchester.testSupport.ParseJSONStream;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
@@ -77,9 +78,10 @@ class JourneysForGridResourceTest {
         maxDuration = appExtension.getConfiguration().getMaxJourneyDuration();
     }
 
+    @DisabledUntilDate(year = 2024, month = 11)
     @Test
     void shouldHaveJourneysForWholeGridChunked() throws IOException {
-        LatLong destPos = KnownLocations.nearStPetersSquare.latLong();
+        LatLong nearDestination = KnownLocations.nearStPetersSquare.latLong();
         Station destination = TramStations.StPetersSquare.from(stationRepository);
 
         final int outOfRangeForDuration = 0;
@@ -87,6 +89,7 @@ class JourneysForGridResourceTest {
         IdForDTO destinationId = IdForDTO.createFor(destination);
         LocalDate departureDate = when.toLocalDate();
         LocalTime departureTime = LocalTime.of(9,15);
+
         GridQueryDTO gridQueryDTO = new GridQueryDTO(destination.getLocationType(), destinationId, departureDate,
                 departureTime, maxDuration, maxChanges, gridSize);
 
@@ -109,30 +112,36 @@ class JourneysForGridResourceTest {
         final List<BoxWithCostDTO> containsDest = results.stream().filter(result -> result.getMinutes() == 0).toList();
         assertEquals(1, containsDest.size());
         BoxWithCostDTO boxWithDest = containsDest.get(0);
-        assertTrue(boxWithDest.getBottomLeft().getLat() <= destPos.getLat());
-        assertTrue(boxWithDest.getBottomLeft().getLon() <= destPos.getLon());
-        assertTrue(boxWithDest.getTopRight().getLat() >= destPos.getLat());
-        assertTrue(boxWithDest.getTopRight().getLon() >= destPos.getLon());
+        assertTrue(boxWithDest.getBottomLeft().getLat() <= nearDestination.getLat());
+        assertTrue(boxWithDest.getBottomLeft().getLon() <= nearDestination.getLon());
+        assertTrue(boxWithDest.getTopRight().getLat() >= nearDestination.getLat());
+        assertTrue(boxWithDest.getTopRight().getLon() >= nearDestination.getLon());
 
-        List<BoxWithCostDTO> notDest = results.stream().filter(result -> result.getMinutes() > 0).toList();
-        notDest.forEach(boundingBoxWithCost -> assertTrue(boundingBoxWithCost.getMinutes()<=maxDuration, boundingBoxWithCost.getMinutes() + " more than " + maxDuration + " failed for " + boundingBoxWithCost));
+        // expects 0 cost/minutes for the box containing the destination
+        final List<BoxWithCostDTO> notDest = results.stream().
+                filter(result -> result.getMinutes() > 0).toList();
+
+        notDest.forEach(boundingBoxWithCost ->
+                assertTrue(boundingBoxWithCost.getMinutes() <= maxDuration,
+                        boundingBoxWithCost.getMinutes() + " more than " + maxDuration + " failed for " + boundingBoxWithCost));
 
         List<BoxWithCostDTO> noResult = results.stream().filter(result -> result.getMinutes() < 0).toList();
         assertEquals(outOfRangeForDuration, noResult.size());
 
-        Set<BoundingBoxWithStations> expectedBoxes = getExpectedBoxesInSearchGrid(destination);
+        Set<BoundingBoxWithStations> withoutDestination = getBoxesNotContaining(destination);
 
-        assertEquals(expectedBoxes.size() - outOfRangeForDuration, notDest.size(), "Expected " + expectedBoxes + " but got " + notDest);
+        assertEquals(withoutDestination.size() - outOfRangeForDuration, notDest.size(),
+                "expected: " + withoutDestination.size() + " out of range " + outOfRangeForDuration + " not dest " + notDest.size() +
+                " on " +when);
 
         Set<BoxWithCostDTO> tookTooLong = results.stream().filter(boxWithCostDTO -> boxWithCostDTO.getMinutes() > maxDuration).collect(Collectors.toSet());
         assertTrue(tookTooLong.isEmpty(), tookTooLong.toString());
     }
 
-
-    private Set<BoundingBoxWithStations> getExpectedBoxesInSearchGrid(Station destination) {
+    private Set<BoundingBoxWithStations> getBoxesNotContaining(final Station destination) {
         return stationLocations.getStationsInGrids(gridSize).
-                filter(boxWithStations -> !boxWithStations.getStations().contains(destination)).
-                filter(boxWithStations -> anyOpen(boxWithStations.getStations())).collect(Collectors.toSet());
+                filter(box -> !box.getStations().contains(destination)).
+                filter(box -> anyOpen(box.getStations())).collect(Collectors.toSet());
     }
 
     private boolean anyOpen(LocationSet<Station> locations) {

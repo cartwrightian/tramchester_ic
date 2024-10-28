@@ -14,8 +14,12 @@ public class ResourceTramTestConfig<T extends APIResource>  extends IntegrationT
     }
 
     public ResourceTramTestConfig(Class<T> resourceClass, LiveData liveDataEnabled) {
-        super(liveDataEnabled);
-        planningEnabled = GraphDatabaseDependencyMarker.class.isAssignableFrom(resourceClass);
+        this(liveDataEnabled, GraphDatabaseDependencyMarker.class.isAssignableFrom(resourceClass));
+    }
+
+    public ResourceTramTestConfig(LiveData liveData, boolean journeyPlanningEnabled) {
+        super(liveData);
+        this.planningEnabled = journeyPlanningEnabled;
     }
 
     @Override

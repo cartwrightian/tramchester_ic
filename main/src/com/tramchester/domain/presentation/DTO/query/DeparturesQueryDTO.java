@@ -1,14 +1,16 @@
 package com.tramchester.domain.presentation.DTO.query;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.fasterxml.jackson.annotation.Nulls;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.LocationType;
+import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.reference.TransportMode;
 
 import java.time.LocalTime;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.Set;
+import java.util.*;
 
 @JsonTypeName("DeparturesQuery")
 public class DeparturesQueryDTO {
@@ -24,10 +26,6 @@ public class DeparturesQueryDTO {
     private IdForDTO locationId;
 
     @JsonSetter(nulls = Nulls.SKIP)
-    @JsonProperty("finalStationId")
-    private IdForDTO finalStationId;
-
-    @JsonSetter(nulls = Nulls.SKIP)
     @JsonProperty("modes")
     private Set<TransportMode> modes;
 
@@ -35,9 +33,9 @@ public class DeparturesQueryDTO {
     @JsonProperty("notesFor")
     private Set<IdForDTO> notesFor;
 
-    @JsonSetter(nulls = Nulls.SKIP)
-    @JsonProperty("firstDestIds")
-    private Set<IdForDTO> firstDestIds;
+    @JsonSetter(nulls = Nulls.AS_EMPTY)
+    @JsonProperty("journeys")
+    private List<JourneyDTO> journeys;
 
     public DeparturesQueryDTO(LocationType locationType, IdForDTO locationId) {
         this.locationType = locationType;
@@ -90,41 +88,27 @@ public class DeparturesQueryDTO {
         return notesFor;
     }
 
-    public Set<IdForDTO> getFirstDestIds() {
-        return firstDestIds;
-    }
-
-    public void setFirstDestIds(Set<IdForDTO> firstDestIds) {
-        this.firstDestIds = firstDestIds;
-    }
-
     @Override
     public String toString() {
         return "DeparturesQueryDTO{" +
                 "time=" + time +
                 ", locationType=" + locationType +
                 ", locationId=" + locationId +
-                ", finalStationId=" + finalStationId +
+                ", finalStationId=" + journeys +
                 ", modes=" + modes +
                 ", notesFor=" + notesFor +
-                ", firstDestId=" + firstDestIds +
                 '}';
     }
 
-    @JsonIgnore
-    public boolean hasDestinationsIds() {
-        if (firstDestIds==null) {
-            return false;
-        }
-        return finalStationId != null;
-//        return !firstDestIds.isEmpty();
+    public boolean hasJourneys() {
+        return !journeys.isEmpty();
     }
 
-    public IdForDTO getFinalStationId() {
-        return finalStationId;
+    public List<JourneyDTO> getJourneys() {
+        return journeys;
     }
 
-    public void setFinalStationId(IdForDTO finalStationId) {
-        this.finalStationId = finalStationId;
+    public void setJourneys(Collection<JourneyDTO> journeys) {
+        this.journeys = new ArrayList<>(journeys);
     }
 }

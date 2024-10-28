@@ -14,12 +14,12 @@ import com.tramchester.mappers.Geography;
 import com.tramchester.repository.PlatformRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.naptan.NaptanRepository;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import jakarta.inject.Inject;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -229,7 +229,7 @@ public class StationLocations implements StationLocationsRepository {
             throw new RuntimeException("Invalid grid size of " + gridSize);
         }
 
-        logger.info("Getting groupded stations for grid size " + gridSize);
+        logger.info("creating boxes for grid size " + gridSize);
 
         return createBoundingBoxesFor(gridSize).
                 map(box -> new BoundingBoxWithStations(box, getStationsWithin(box))).
