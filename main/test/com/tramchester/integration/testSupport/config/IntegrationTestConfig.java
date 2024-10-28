@@ -31,7 +31,7 @@ public abstract class IntegrationTestConfig extends TestConfig {
 
     private static final StationClosures rochdaleTownCentre = new StationClosuresConfigForTest(TramStations.Rochdale,
             DateRange.of(TramDate.of(2024, 10, 19), TramDate.of(2024, 10, 31)),
-            true
+            true, Collections.emptySet(), Collections.singleton(TramStations.RochdaleRail)
             );
     public static final List<StationClosures> CurrentClosures = Collections.singletonList(rochdaleTownCentre);
     public static final List<TemporaryStationsWalkIds> CurrentStationWalks = Collections.emptyList();

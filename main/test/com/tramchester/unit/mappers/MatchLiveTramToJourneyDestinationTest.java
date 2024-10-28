@@ -10,17 +10,14 @@ import com.tramchester.mappers.MatchLiveTramToJourneyDestination;
 import com.tramchester.mappers.StopOrderChecker;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.TramStations;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
-import java.util.stream.Stream;
 
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
@@ -53,8 +50,30 @@ public class MatchLiveTramToJourneyDestinationTest extends EasyMockSupport {
         UpcomingDeparture tram = createDueTramFor(journeyBegin, Altrincham.fake());
 
         replayAll();
-        boolean matches = matchLiveTramToJourneyDestination.matchesJourneyDestination(tram, IdSet.singleton(journeyEnd.getId()),
+        boolean matches = matchLiveTramToJourneyDestination.matchesJourneyDestination(tram, IdSet.emptySet(),
                 journeyEnd.getId());
+
+        verifyAll();
+
+        assertTrue(matches);
+    }
+
+    @Test
+    void shouldFindDueTramWhenJourneyDestinationTowards() {
+
+        Station journeyBegin = StPetersSquare.fake(BuryManchesterAltrincham);
+        Station journeyEnd = Altrincham.fake(BuryManchesterAltrincham);
+        Station tramDest = Timperley.fake(BuryManchesterAltrincham);
+
+        UpcomingDeparture tram = createDueTramFor(journeyBegin, tramDest);
+
+        EasyMock.expect(stationRepository.getStationById(journeyEnd.getId())).andReturn(journeyEnd);
+
+        EasyMock.expect(stopOrderChecker.check(TramDate.of(date), journeyBegin, journeyEnd, tramDest)).andReturn(false);
+        EasyMock.expect(stopOrderChecker.check(TramDate.of(date), journeyBegin, tramDest, journeyEnd)).andReturn(true);
+
+        replayAll();
+        boolean matches = matchLiveTramToJourneyDestination.matchesJourneyDestination(tram, IdSet.emptySet(), journeyEnd.getId());
 
         verifyAll();
 
@@ -73,68 +92,72 @@ public class MatchLiveTramToJourneyDestinationTest extends EasyMockSupport {
         EasyMock.expect(stopOrderChecker.check(TramDate.of(date), Cornbrook.fake(), Deansgate.fake(), Bury.fake())).andReturn(true);
 
         replayAll();
-        boolean matches = matchLiveTramToJourneyDestination.matchesJourneyDestination(tram,
-                IdSet.singleton(destination.getId()), destination.getId());
+        boolean matches = matchLiveTramToJourneyDestination.matchesJourneyDestination(tram, IdSet.emptySet(), destination.getId());
         verifyAll();
 
         assertTrue(matches);
     }
 
-    @Disabled("WIP")
     @Test
-    void shouldFilterOutTramsMatchingInitialDestinationsButInWrongDirectionForDestination() {
+    void shouldFindDueTramWhenChangeStationAvailableRouteChanges() {
 
-        // Altrincham is the final destination
-        // Shudehill -> Piccadilly tram due
-        // For city centre walking find Market Street, Piccadilly, Piccadilly Gardens, and Shudehill as nearest stations
-        // Piccadilly matches the due tram BUT tram is going in opposite direction from final desired desintation
+        Station begin = StPetersSquare.fake(BuryManchesterAltrincham);
+        Station change = Cornbrook.fake(BuryManchesterAltrincham, CornbrookTheTraffordCentre);
+        Station destination = TraffordCentre.fake(CornbrookTheTraffordCentre);
+        Station tramDestination = Altrincham.fake(BuryManchesterAltrincham);
 
-        Station piccadilly = Piccadilly.fake(PiccadillyVictoria, EtihadPiccadillyAltrincham);
-        UpcomingDeparture dueTram = createDueTramFor(Shudehill.fake(), piccadilly);
+        UpcomingDeparture tram = createDueTramFor(begin, tramDestination);
 
-        IdSet<Station> initialDests = Stream.of(Piccadilly, MarketStreet, PiccadillyGardens).
-            map(FakeStation::getId).collect(IdSet.idCollector());
+        EasyMock.expect(stationRepository.getStationById(destination.getId())).andReturn(destination);
+        EasyMock.expect(stationRepository.getStationById(change.getId())).andReturn(change);
 
-        EasyMock.expect(stationRepository.getStationById(Altrincham.getId())).andReturn(Altrincham.fake(BuryManchesterAltrincham, EtihadPiccadillyAltrincham));
-        EasyMock.expect(stationRepository.getStationById(MarketStreet.getId())).andReturn(MarketStreet.fake(PiccadillyVictoria, EtihadPiccadillyAltrincham, BuryManchesterAltrincham));
-        EasyMock.expect(stationRepository.getStationById(PiccadillyGardens.getId())).andReturn(PiccadillyGardens.fake(PiccadillyVictoria, EtihadPiccadillyAltrincham));
-        EasyMock.expect(stationRepository.getStationById(Piccadilly.getId())).andReturn(piccadilly);
-
-        EasyMock.expect(stopOrderChecker.check(TramDate.of(date), Shudehill.fake(), PiccadillyGardens.fake(), Piccadilly.fake())).andReturn(true);
-        EasyMock.expect(stopOrderChecker.check(TramDate.of(date), Shudehill.fake(), MarketStreet.fake(), Piccadilly.fake())).andReturn(true);
-        EasyMock.expect(stopOrderChecker.check(TramDate.of(date), Shudehill.fake(), Piccadilly.fake(), Piccadilly.fake())).andReturn(true);
-
-        EasyMock.expect(stopOrderChecker.check(TramDate.of(date), Shudehill.fake(), Altrincham.fake(), piccadilly)).andStubReturn(false);
-        EasyMock.expect(stopOrderChecker.check(TramDate.of(date), Shudehill.fake(), piccadilly, Altrincham.fake())).andStubReturn(false);
-
-//        EasyMock.expect(stopOrderChecker.check(TramDate.of(date), Shudehill.fake(), PiccadillyGardens.fake(), Altrincham.fake())).andReturn(false);
-//        EasyMock.expect(stopOrderChecker.check(TramDate.of(date), Shudehill.fake(), MarketStreet.fake(), Altrincham.fake())).andReturn(true);
+        EasyMock.expect(stopOrderChecker.check(TramDate.of(date), begin, change, tramDestination)).andReturn(true);
 
         replayAll();
-        boolean matches = matchLiveTramToJourneyDestination.matchesJourneyDestination(dueTram, initialDests, Altrincham.getId());
+        boolean matches = matchLiveTramToJourneyDestination.matchesJourneyDestination(tram, IdSet.singleton(change.getId()), destination.getId());
+        verifyAll();
+
+        assertTrue(matches);
+    }
+
+    @Test
+    void shouldFindDueTramWhenChangeStationDoesNotMatchRoute() {
+
+        Station begin = StPetersSquare.fake(BuryManchesterAltrincham);
+        Station change = Cornbrook.fake(CornbrookTheTraffordCentre); // removed alty route so no match
+        Station destination = TraffordCentre.fake(CornbrookTheTraffordCentre);
+        Station tramDestination = Altrincham.fake(BuryManchesterAltrincham);
+
+        UpcomingDeparture tram = createDueTramFor(begin, tramDestination);
+
+        EasyMock.expect(stationRepository.getStationById(destination.getId())).andReturn(destination);
+        EasyMock.expect(stationRepository.getStationById(change.getId())).andReturn(change);
+
+        replayAll();
+        boolean matches = matchLiveTramToJourneyDestination.matchesJourneyDestination(tram, IdSet.singleton(change.getId()), destination.getId());
         verifyAll();
 
         assertFalse(matches);
     }
 
-    @Disabled("WIP")
     @Test
-    void shouldNotDueTramWhenJourneyAllRoutesCallAtDestinationButDirectionIncorrect() {
+    void shouldFindDueTramWhenChangeStationMatchRouteButWrongDirection() {
 
-        Station begin = StPetersSquare.fake();
-        Station destination = Altrincham.fake(BuryManchesterAltrincham);
+        Station begin = StPetersSquare.fake(BuryManchesterAltrincham);
+        Station change = Cornbrook.fake(CornbrookTheTraffordCentre, BuryManchesterAltrincham);
+        Station destination = TraffordCentre.fake(CornbrookTheTraffordCentre);
+        Station tramDestination = Bury.fake(BuryManchesterAltrincham);
 
-        UpcomingDeparture tram = createDueTramFor(begin, Victoria.fake(BuryManchesterAltrincham));
+        UpcomingDeparture tram = createDueTramFor(begin, tramDestination);
 
         EasyMock.expect(stationRepository.getStationById(destination.getId())).andReturn(destination);
+        EasyMock.expect(stationRepository.getStationById(change.getId())).andReturn(change);
 
-//        EasyMock.expect(stopOrderChecker.check(TramDate.of(date), StPetersSquare.fake(), Victoria.fake(), Altrincham.fake())).andReturn(false);
-        EasyMock.expect(stopOrderChecker.check(TramDate.of(date), StPetersSquare.fake(), Altrincham.fake(), Victoria.fake())).andReturn(false);
-//        EasyMock.expect(stopOrderChecker.check(TramDate.of(date), StPetersSquare.fake(), Victoria.fake(), Altrincham.fake())).andReturn(false);
+        EasyMock.expect(stopOrderChecker.check(TramDate.of(date), begin, change, tramDestination)).andReturn(false);
+        EasyMock.expect(stopOrderChecker.check(TramDate.of(date), begin, tramDestination, change)).andReturn(false);
 
         replayAll();
-        boolean matches = matchLiveTramToJourneyDestination.matchesJourneyDestination(tram, IdSet.singleton(destination.getId()),
-                destination.getId());
+        boolean matches = matchLiveTramToJourneyDestination.matchesJourneyDestination(tram, IdSet.singleton(change.getId()), destination.getId());
         verifyAll();
 
         assertFalse(matches);
@@ -151,7 +174,7 @@ public class MatchLiveTramToJourneyDestinationTest extends EasyMockSupport {
         EasyMock.expect(stationRepository.getStationById(destination.getId())).andReturn(destination);
 
         replayAll();
-        boolean matches = matchLiveTramToJourneyDestination.matchesJourneyDestination(tram, IdSet.singleton(destination.getId()),
+        boolean matches = matchLiveTramToJourneyDestination.matchesJourneyDestination(tram, IdSet.emptySet(),
                 destination.getId());
 
         verifyAll();

@@ -20,10 +20,12 @@ public interface StationClosures {
 
     @JsonIgnore
     boolean hasDiversionsAroundClosure();
+
     IdSet<Station> getDiversionsAroundClosure();
 
     @JsonIgnore
     boolean hasDiversionsToFromClosure();
+
     IdSet<Station> getDiversionsToFromClosure();
 
     static boolean areEqual(StationClosures a, Object other) {

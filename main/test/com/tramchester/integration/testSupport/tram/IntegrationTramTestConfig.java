@@ -36,7 +36,6 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
         Enabled, Disabled
     }
 
-//    private static final String DB_NAME = "int_test_tram.db";
     public static final Path TRAM_INTEGRATION_CACHE_PATH = TestEnv.CACHE_DIR.resolve("tramIntegration");
 
     private final GTFSSourceConfig gtfsSourceConfig;

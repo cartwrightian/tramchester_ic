@@ -39,7 +39,14 @@ gtfsSourceConfig:
     additionalInterchanges: [9400ZZMAGMX,9400ZZMAPIC]
     groupedStationModes: []
     addWalksForClosed: true
-    stationClosures: []
+    stationClosures:
+      - stations: [ "9400ZZMARIN" ]
+        dateRange:
+          begin: 2024-10-19
+          end: 2024-10-31
+        fullyClosed: true
+        diversionsAroundClosure: [ ]
+        diversionsToFromClosure: [ "9400ZZMARRS" ]
     temporaryStationsWalks: [ ]
 remoteSources:
   - name: tfgm
@@ -78,7 +85,7 @@ planningEnabled: true
 maxWait: 25
 maxNumberResults: 5
 depthFirst: true
-maxJourneyDuration:  143
+maxJourneyDuration:  155
 numberQueries: 3
 queryInterval: 10
 maxWalkingConnections: 3

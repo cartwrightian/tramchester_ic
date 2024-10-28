@@ -5,15 +5,11 @@ import com.codahale.metrics.annotation.Timed;
 import com.google.inject.Inject;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdForDTO;
-import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
-import com.tramchester.domain.presentation.DTO.LocationRefDTO;
-import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
 import com.tramchester.domain.presentation.DTO.query.DeparturesQueryDTO;
 import com.tramchester.domain.presentation.Note;
 import com.tramchester.domain.reference.TransportMode;
@@ -27,7 +23,6 @@ import com.tramchester.livedata.repository.DeparturesRepository;
 import com.tramchester.livedata.repository.ProvidesNotes;
 import com.tramchester.livedata.tfgm.ProvidesTramNotes;
 import com.tramchester.repository.LocationRepository;
-import com.tramchester.repository.StationRepository;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -55,20 +50,18 @@ public class DeparturesResource extends TransportResource implements APIResource
     private static final Logger logger = LoggerFactory.getLogger(DeparturesResource.class);
 
     private final LocationRepository locationRepository;
-    private final StationRepository stationRepository;
     private final DeparturesMapper departuresMapper;
     private final DeparturesRepository departuresRepository;
     private final ProvidesNotes providesNotes;
     private final TramchesterConfig config;
 
     @Inject
-    public DeparturesResource(LocationRepository locationRepository, StationRepository stationRepository,
+    public DeparturesResource(LocationRepository locationRepository,
                               DeparturesMapper departuresMapper, DeparturesRepository departuresRepository,
                               ProvidesTramNotes providesNotes,
                               ProvidesNow providesNow, TramchesterConfig config) {
         super(providesNow);
         this.locationRepository = locationRepository;
-        this.stationRepository = stationRepository;
         this.departuresMapper = departuresMapper;
         this.departuresRepository = departuresRepository;
         this.providesNotes = providesNotes;
@@ -107,7 +100,7 @@ public class DeparturesResource extends TransportResource implements APIResource
             queryTime = providesNow.getNowHourMins();
         }
 
-        Set<IdForDTO> notesFor = departuresQuery.getNotesFor() == null ? Collections.emptySet() : departuresQuery.getNotesFor();
+        final Set<IdForDTO> notesFor = departuresQuery.getNotesFor() == null ? Collections.emptySet() : departuresQuery.getNotesFor();
 
         EnumSet<TransportMode> modes = departuresQuery.getModes();
         if (modes.isEmpty()) {
@@ -130,77 +123,30 @@ public class DeparturesResource extends TransportResource implements APIResource
 
     private @NotNull SortedSet<DepartureDTO> mapToDTOs(final DeparturesQueryDTO departuresQuery, final List<UpcomingDeparture> dueTrams) {
 
+        final LocalDateTime currentTime = providesNow.getDateTime();
+
         if (departuresQuery.hasJourneys()) {
             List<JourneyDTO> journeys = departuresQuery.getJourneys();
-            final IdSet<Station> journeyFirstDestinationIds = getFirstDestIds(journeys);
-            final IdFor<Station> finalStationId = getFinalStationId(journeys);
-            //if (!journeyFirstDestinationIds.isEmpty()) {
-                logger.info("Fetching due trams and checking for initial destinations " + journeyFirstDestinationIds +
-                        " and final station " + finalStationId);
-                return new TreeSet<>(departuresMapper.mapToDTO(dueTrams, providesNow.getDateTime(), journeyFirstDestinationIds, finalStationId));
-            //}
+            logger.info("Fetching due trams corresponding to supplied journey");
+            return new TreeSet<>(departuresMapper.mapToDTO(dueTrams, currentTime, journeys));
         } else {
 
             logger.info("Mapping due trams, not checking for tram destinations");
-            return new TreeSet<>(departuresMapper.mapToDTO(dueTrams, providesNow.getDateTime()));
+            return new TreeSet<>(departuresMapper.mapToDTO(dueTrams, currentTime));
         }
     }
 
-    private IdSet<Station> getFirstDestIds(final List<JourneyDTO> journeys) {
-        return journeys.stream().
-                flatMap(journeyDTO -> journeyDTO.getChangeStations().stream()).
-                filter(ref -> ref.getLocationType()==LocationType.Station).
-                map(LocationRefDTO::getId).
-                map(id -> Station.createId(id.getActualId())).collect(IdSet.idCollector());
-    }
-
-    private IdFor<Station> getFinalStationId(final List<JourneyDTO> journeyDTOS) {
-        IdSet<Station> unique = journeyDTOS.stream().
-                map(JourneyDTO::getPath).
-                map(this::lastStationIn).
-                map(LocationRefDTO::getId).
-                map(Station::createId).
-                collect(IdSet.idCollector());
-
-        List<IdFor<Station>> stations = unique.toList();
-
-        if (stations.isEmpty()) {
-            logger.error("Could not find any final destinations from journeys " + journeyDTOS);
-            return IdFor.invalid(Station.class);
-        }
-
-        if (stations.size()==1) {
-            return stations.get(0);
-        }
-
-        // TODO is it ok just pick one?
-        String msg = "Found multiple final stations for " + journeyDTOS;
-        logger.error(msg);
-        throw new RuntimeException(msg);
-
-    }
-
-    private LocationRefWithPosition lastStationIn(List<LocationRefWithPosition> path) {
-        for (int i = path.size()-1; i >= 0; i--) {
-            final LocationRefWithPosition location = path.get(i);
-            if (location.getLocationType()==LocationType.Station) {
-                return location;
-            }
-        }
-        throw new RuntimeException("Failed to find a stations in " + path);
-    }
-
-    private IdSet<Station> getStationIds(final Set<IdForDTO> firstDestIds) {
-        IdSet<Station> result = firstDestIds.stream().map(Station::createId).filter(stationRepository::hasStationId).collect(IdSet.idCollector());
-        if (result.size()!=firstDestIds.size()) {
-            logger.warn("Unable to map all firstDestIds " + firstDestIds + " to station ids, only got " + result);
-        }
-        return result;
-    }
+//    private IdSet<Station> getStationIds(final Set<IdForDTO> firstDestIds) {
+//        IdSet<Station> result = firstDestIds.stream().map(Station::createId).filter(stationRepository::hasStationId).collect(IdSet.idCollector());
+//        if (result.size()!=firstDestIds.size()) {
+//            logger.warn("Unable to map all firstDestIds " + firstDestIds + " to station ids, only got " + result);
+//        }
+//        return result;
+//    }
 
     @NotNull
     private List<Note> getNotes(Set<IdForDTO> notesFor, List<UpcomingDeparture> dueTrams, TramDate queryDate, TramTime queryTime, Location<?> location) {
-        Set<Station> stations = getStationsToQueryForNotes(notesFor, dueTrams);
+        final Set<Station> stations = getStationsToQueryForNotes(notesFor, dueTrams);
         final List<Note> notes = providesNotes.createNotesForStations(stations, queryDate, queryTime);
         if (notes.isEmpty()) {
             logger.warn("Notes empty for " + location.getId() + " at " + queryTime);
