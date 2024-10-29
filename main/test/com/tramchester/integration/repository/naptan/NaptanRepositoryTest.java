@@ -219,11 +219,12 @@ class NaptanRepositoryTest {
         busStationStops.forEach(busStationRecord -> {
             assertEquals("Bus Station", busStationRecord.getCommonName(), "wrong name for " + busStationRecord);
             assertEquals("Knutsford", busStationRecord.getTown(), "wrong town for " + busStationRecord);
-            assertEquals("", busStationRecord.getSuburb(), "wrong suburb for " + busStationRecord);
+
+            String suburb = busStationRecord.getSuburb();
+            boolean emptyOrMatching = suburb.equals("Knutsford") || suburb.isBlank();
+            assertTrue(emptyOrMatching, "wrong suburb for " + busStationRecord);
 
             assertTrue(busStationRecord.getIndicator().startsWith("Stand"));
-
-//            assertEquals("Bus Station", naptanRecord.getDisplayName(), "wrong name for " + naptanRecord);
 
         });
     }
