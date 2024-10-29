@@ -18,7 +18,6 @@ import jakarta.ws.rs.core.Response;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-
 @DataUpdateTest
 @ExtendWith(DropwizardExtensionsSupport.class)
 public class DataVersionResourceTest {
