@@ -28,7 +28,7 @@ public class UpcomingDates {
     // the official dates seem wrong, or the published timetable is wrong....meant to finish 31/10 but no trams in
     // time table until 8/11
     private static final DateRange rochdaleLineWorks = DateRange.of(TramDate.of(2024,10,19),
-            TramDate.of(2024,11,8));
+            TramDate.of(2024,11,7));
 
    public static final DateRange TfgmDataError = DateRange.of(TramDate.of(2024,11,4), TramDate.of(2024,11,5));
 
