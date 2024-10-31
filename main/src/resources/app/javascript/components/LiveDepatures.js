@@ -7,7 +7,6 @@ export default {
             itemsPerPage: 5,
             page: 1,
             headers: [
-                // {value:'transportMode', text:'', sortable: true},
                 {key:'from.name', title:'From', sortable:true},
                 {key:'dueTimeAsDate', title:'Time', sortable: true, width: '1px'}, 
                 {key:'carriages', title:''},

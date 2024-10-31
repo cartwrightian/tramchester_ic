@@ -325,7 +325,7 @@ public class RouteCalculatorTest {
 
     @Test
     void shouldReproIssueWithWalkWhenRochdaleClosed() {
-        TramDate date = TramDate.of(2024, 10, 28);
+        TramDate date = TramDate.of(2024, 10, 31);
         JourneyRequest journeyRequest = standardJourneyRequest(date, TramTime.of(20,15), maxNumResults);
         List<Journey> results = calculator.calculateRouteAsList(ExchangeSquare, Altrincham, journeyRequest);
         assertFalse(results.isEmpty());

@@ -36,14 +36,6 @@ public enum KnownTramRoute {
     // Yellow
     PiccadillyVictoria("Yellow Line", "Piccadilly - Victoria", "844");
 
-
-
-    // cornbrook / eccles line closure changes
-//    BuryManchester("Yellow Line", "Bury - Manchester", "2358"),
-//    ReplacementBus1("Replacement Bus 1", "Firswood - Victoria", "2359"),
-//    ReplacementBus2("Replacement Bus 2", "Trafford - Piccadilly", "2360"),
-//    ReplacementBus3("Replacement Bus 3", "Eccles - Piccadilly", "2361");
-
     private final String shortName;
     private final String longName;
     private final IdFor<Route> id;
@@ -53,13 +45,8 @@ public enum KnownTramRoute {
 
         routes.add(BuryManchesterAltrincham);
 
-        if (UpcomingDates.TfgmDataError.contains(date)) {
-            return routes;
-        }
-
         if (!UpcomingDates.fullNetworkCloseDown.equals(date)) {
             routes.add(PiccadillyVictoria);
-
         }
 
         routes.add(EcclesAshton);

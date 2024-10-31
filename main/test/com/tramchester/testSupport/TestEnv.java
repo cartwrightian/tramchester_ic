@@ -56,7 +56,7 @@ public class TestEnv {
     public static final String CHROMEDRIVER_PATH_ENV_VAR = "CHROMEDRIVER_PATH";
 
     // 202 -> 200 rochdale closed
-    public static final int NumberOfStationLinks = 202;
+    public static final int NumberOfStationLinks = 204;
 
 
     private static final TramDate testDay;

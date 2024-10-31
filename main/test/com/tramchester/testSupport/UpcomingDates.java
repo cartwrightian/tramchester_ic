@@ -26,11 +26,9 @@ public class UpcomingDates {
     static final int DAYS_AHEAD = 7;
 
     // the official dates seem wrong, or the published timetable is wrong....meant to finish 31/10 but no trams in
-    // time table until 8/11
+    // timetable until 8/11
     private static final DateRange rochdaleLineWorks = DateRange.of(TramDate.of(2024,10,19),
             TramDate.of(2024,11,7));
-
-   public static final DateRange TfgmDataError = DateRange.of(TramDate.of(2024,11,4), TramDate.of(2024,11,5));
 
     private static final TramDate deansgateWorks27thOctober = TramDate.of(2024,10,27);
 
@@ -65,9 +63,9 @@ public class UpcomingDates {
         if (date.equals(deansgateWorks27thOctober)) {
             return false;
         }
-        if (TfgmDataError.contains(date)) {
-            return false;
-        }
+//        if (TfgmDataError.contains(date)) {
+//            return false;
+//        }
         return !date.isChristmasPeriod();
     }
 

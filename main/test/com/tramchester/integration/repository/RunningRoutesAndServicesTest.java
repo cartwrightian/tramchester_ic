@@ -160,7 +160,8 @@ public class RunningRoutesAndServicesTest {
         final EnumSet<DayOfWeek> weekdays = EnumSet.of(MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY);
         final EnumSet<DayOfWeek> saturdays = EnumSet.of(SATURDAY);
 
-        TramDate testDay = TestEnv.nextMonday();
+        // plusWeeks(1) due to network closures early nov 2024
+        TramDate testDay = TestEnv.nextMonday().plusWeeks(1);
 
         while (christmasWeek(testDay) || testDay.isBefore(UpcomingDates.fullNetworkCloseDown)) {
             testDay = testDay.plusWeeks(1);

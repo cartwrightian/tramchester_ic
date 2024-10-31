@@ -10,6 +10,7 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
@@ -52,7 +53,7 @@ class KnownTramRouteTest {
     }
 
     private Stream<TramDate> getDateRange() {
-        return TestEnv.getUpcomingDates();
+        return UpcomingDates.getUpcomingDates();
     }
 
     @Test
@@ -120,17 +121,17 @@ class KnownTramRouteTest {
 
         DateRange dateRange = DateRange.of(start, when.plusWeeks(6));
 
-        Map<TramDate, IdSet<Route>> unknownForDate = new HashMap<>();
+        Map<TramDate, IdSet<Route>> unexpectedLoadedForDate = new HashMap<>();
 
         dateRange.stream().forEach(date -> {
             final IdSet<Route> known = KnownTramRoute.getFor(date).stream().map(KnownTramRoute::getId).collect(IdSet.idCollector());
-            final Set<Route> unknown = getLoadedTramRoutes(date).filter(route -> !known.contains(route.getId())).collect(Collectors.toSet());
-            if (!unknown.isEmpty()) {
-                unknownForDate.put(date, unknown.stream().collect(IdSet.collector()));
+            final Set<Route> loadedRoutes = getLoadedTramRoutes(date).filter(route -> !known.contains(route.getId())).collect(Collectors.toSet());
+            if (!loadedRoutes.isEmpty()) {
+                unexpectedLoadedForDate.put(date, loadedRoutes.stream().collect(IdSet.collector()));
             }
         });
 
-        assertTrue(unknownForDate.isEmpty(), "Unknown loaded routes " + unknownForDate);
+        assertTrue(unexpectedLoadedForDate.isEmpty(), "Mismatch on known routes, loaded routes were: " + unexpectedLoadedForDate);
     }
 
     @DisabledUntilDate(year = 2024, month = 11)
