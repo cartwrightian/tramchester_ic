@@ -46,7 +46,7 @@ public class RedirectToAppFilter implements Filter {
             boolean forwardedSecure = isForwardedSecure(httpServletRequest);
             String redirection = getRedirectURL(url, forwardedSecure);
 
-            logger.info(format("Redirect from %s to %s", url, redirection));
+            logger.debug(format("Redirect from %s to %s", url, redirection));
             servletResponse.sendRedirect(redirection);
             return;
         }
@@ -55,12 +55,12 @@ public class RedirectToAppFilter implements Filter {
     }
 
     @NotNull
-    private String getRedirectURL(URL url, boolean forwardedSecure) throws MalformedURLException {
-        String redirection;
-        String protocol = url.getProtocol().toLowerCase();
+    private String getRedirectURL(final URL url, final boolean forwardedSecure) throws MalformedURLException {
+        final String redirection;
+        final String protocol = url.getProtocol().toLowerCase();
 
         if (forwardedSecure && "http".equals(protocol)) {
-            URL secureURL = new URL(url.toString().replace(protocol, "https"));
+            final URL secureURL = new URL(url.toString().replace(protocol, "https"));
             redirection = secureURL + "app";
         } else {
             redirection = url + "app";
@@ -68,9 +68,9 @@ public class RedirectToAppFilter implements Filter {
         return redirection;
     }
 
-    private boolean isForwardedSecure(HttpServletRequest httpServletRequest) {
-        String header = httpServletRequest.getHeader(X_FORWARDED_PROTO); // https is terminated by the ELB
-        return header != null && "https".equalsIgnoreCase(header);
+    private boolean isForwardedSecure(final HttpServletRequest httpServletRequest) {
+        final String header = httpServletRequest.getHeader(X_FORWARDED_PROTO); // https is terminated by the ELB
+        return "https".equalsIgnoreCase(header);
     }
 
 }
