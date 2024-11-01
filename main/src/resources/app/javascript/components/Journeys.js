@@ -75,10 +75,10 @@ export default {
             currentPage: 1,
             headers: [
                 {key: 'data-table-expand', title:'' },
-                {key: 'journey.firstDepartureTimeAsDate',title:'Depart', sortable:true, sort: (a,b) => { return timeSort(a,b) } },
-                {key: 'journey.begin', title:'From', sortable:true}, 
-                {key: 'journey.expectedArrivalTimeAsDate', title:'Arrive', sortable:true, sort: (a,b) => { return timeSort(a,b) } }, 
-                {key: 'journey.changeStations', title:'Change' }
+                {key: 'journey.firstDepartureTimeAsDate',title:'Depart', sortable:true, sort: (a,b) => { return timeSort(a,b) }, align: 'start' },
+                {key: 'journey.begin', title:'From', sortable:true, align: 'start'}, 
+                {key: 'journey.expectedArrivalTimeAsDate', title:'Arrive', sortable:true, sort: (a,b) => { return timeSort(a,b) }, align: 'start' }, 
+                {key: 'journey.changeStations', title:'Change', align: 'start' }
                 ],
             stageHeaders : [
                 { key: 'firstDepartureTime', title: '' , sortable:false }, 

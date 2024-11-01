@@ -138,14 +138,14 @@
     }
 }
   
-/* 
+
 .journeys-table {
     table {
         tr {
-        td {
-            padding: 4px !important;
-        }
+            th, td {
+                padding: 4px !important;
+            }
         }
     }
-} */
+}
 
