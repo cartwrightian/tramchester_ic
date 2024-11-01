@@ -132,18 +132,19 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
         }
     }
 
-    private boolean updateCacheFor(TramStationDepartureInfo departureInfo, IdSet<Platform> platformsSeenForUpdate) {
-
+    private boolean updateCacheFor(final TramStationDepartureInfo departureInfo, final IdSet<Platform> platformsSeenForUpdate) {
 
         final Platform stationPlatform = departureInfo.getStationPlatform();
-        IdFor<Platform> platformId = stationPlatform.getId();
+        final IdFor<Platform> platformId = stationPlatform.getId();
         if (platformsSeenForUpdate.contains(platformId)) {
             if (!departureInfo.getMessage().isEmpty()) {
-                PlatformMessage current = messageCache.getIfPresent(platformId);
+                final PlatformMessage current = messageCache.getIfPresent(platformId);
                 if (current!=null) {
-                    String currentMessage = current.getMessage();
+                    // todo have multiple messages per platform? This means displays at that platform are showing
+                    // different information. This does happen occasionally.....
+                    final String currentMessage = current.getMessage();
                     if (!departureInfo.getMessage().equals(currentMessage)) {
-                        logger.warn("Mutiple messages for " + platformId + " displayId: " + departureInfo.getDisplayId() +
+                        logger.warn("Multiple messages for " + platformId + " displayId: " + departureInfo.getDisplayId() +
                                 " Received: '" + departureInfo.getMessage() + "' was '" + currentMessage + "' displayId: "
                                 + current.getDisplayId());
                     }

@@ -17,7 +17,7 @@ public abstract class LiveDataFetcher {
     }
 
     public void fetch() {
-        logger.info("Fetch data");
+        logger.debug("Fetch data");
 
         final String data = getData();
         if (data.isEmpty()) {
