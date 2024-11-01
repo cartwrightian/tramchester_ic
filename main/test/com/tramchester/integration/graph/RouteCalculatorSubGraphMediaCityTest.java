@@ -30,7 +30,6 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.TramStations;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -121,7 +120,6 @@ class RouteCalculatorSubGraphMediaCityTest {
         txn.close();
     }
 
-    @DisabledUntilDate(year = 2024, month = 11)
     @Test
     void shouldHaveMediaCityToExchangeSquare() {
         TramDate nextSaturday = UpcomingDates.nextSaturday();
@@ -132,12 +130,12 @@ class RouteCalculatorSubGraphMediaCityTest {
         validateAtLeastOneJourney(MediaCityUK, ExchangeSquare, TramTime.of(10,0), testSunday);
     }
 
-    @DisabledUntilDate(year = 2024, month = 11)
     @Test
     void shouldHaveJourneyFromEveryStationToEveryOtherNDaysAheadEarlyMorning() {
 
         TramTime queryTime = TramTime.of(9, 0);
         List<Pair<TramDate, LocationIdPairSet<Station>>> failed = UpcomingDates.getUpcomingDates().
+                filter(date -> !date.equals(UpcomingDates.fullNetworkCloseDown)).
                 map(date -> new JourneyRequest(date, queryTime, false,
                         3, maxJourneyDuration, 1, getRequestedModes())).
                 map(journeyRequest -> Pair.of(journeyRequest.getDate(), getFailedPairedFor(journeyRequest))).
@@ -147,12 +145,12 @@ class RouteCalculatorSubGraphMediaCityTest {
         assertTrue(failed.isEmpty(), failed.toString());
     }
 
-    @DisabledUntilDate(year = 2024, month = 11)
     @Test
     void shouldHaveJourneyFromEveryStationToEveryOtherNDaysAhead() {
 
         TramTime queryTime = TramTime.of(10, 30);
         List<Pair<TramDate, LocationIdPairSet<Station>>> failed = UpcomingDates.getUpcomingDates().
+                filter(date -> !date.equals(UpcomingDates.fullNetworkCloseDown)).
                 map(date -> new JourneyRequest(date, queryTime, false,
                         3, maxJourneyDuration, 1, getRequestedModes())).
                 map(journeyRequest -> Pair.of(journeyRequest.getDate(), getFailedPairedFor(journeyRequest))).

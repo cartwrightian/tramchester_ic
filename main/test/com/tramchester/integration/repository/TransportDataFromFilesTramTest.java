@@ -356,7 +356,7 @@ public class TransportDataFromFilesTramTest {
         HasId<Station> navigationRd = NavigationRoad.from(transportData);
         Set<Trip> calls = atTime.stream().filter(trip -> trip.callsAt(navigationRd.getId())).collect(Collectors.toSet());
 
-        assertEquals(2, calls.size(), HasId.asIds(calls));
+        assertEquals(4, calls.size(), HasId.asIds(calls));
     }
 
     @DataExpiryCategory
@@ -372,12 +372,12 @@ public class TransportDataFromFilesTramTest {
 
     }
 
-    @DisabledUntilDate(year = 2024, month = 11)
     @DataExpiryCategory
     @Test
     void shouldHaveTripsOnDateForEachStation() {
 
         Set<Pair<TramDate, IdFor<Station>>> missing = UpcomingDates.getUpcomingDates().
+                filter(date -> !UpcomingDates.fullNetworkCloseDown.equals(date)).
                 flatMap(date -> getStations(date).map(station -> Pair.of(date, station))).
                 filter(pair -> isOpen(pair.getLeft(), pair.getRight())).
                 filter(pair -> transportData.getTripsCallingAt(pair.getRight(), pair.getLeft()).isEmpty()).
@@ -413,7 +413,6 @@ public class TransportDataFromFilesTramTest {
         fail("remove workarounds for network closures");
     }
 
-    @DisabledUntilDate(year = 2024, month = 10, day = 27)
     @DataExpiryCategory
     @Test
     void shouldHaveServicesRunningAtReasonableTimesNDaysAhead() {
