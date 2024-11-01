@@ -102,10 +102,13 @@ public class DeparturesResource extends TransportResource implements APIResource
 
         final Set<IdForDTO> notesFor = departuresQuery.getNotesFor() == null ? Collections.emptySet() : departuresQuery.getNotesFor();
 
-        EnumSet<TransportMode> modes = departuresQuery.getModes();
-        if (modes.isEmpty()) {
+        final EnumSet<TransportMode> modesFromQuery = departuresQuery.getModes();
+        final EnumSet<TransportMode> modes;
+        if (modesFromQuery.isEmpty()) {
             logger.warn("modes not supplied, fall back to all configured modes");
             modes = config.getTransportModes();
+        } else {
+            modes = modesFromQuery;
         }
 
         final List<UpcomingDeparture> dueTrams = departuresRepository.getDueForLocation(location, dateTime.toLocalDate(), queryTime, modes);
@@ -135,14 +138,6 @@ public class DeparturesResource extends TransportResource implements APIResource
             return new TreeSet<>(departuresMapper.mapToDTO(dueTrams, currentTime));
         }
     }
-
-//    private IdSet<Station> getStationIds(final Set<IdForDTO> firstDestIds) {
-//        IdSet<Station> result = firstDestIds.stream().map(Station::createId).filter(stationRepository::hasStationId).collect(IdSet.idCollector());
-//        if (result.size()!=firstDestIds.size()) {
-//            logger.warn("Unable to map all firstDestIds " + firstDestIds + " to station ids, only got " + result);
-//        }
-//        return result;
-//    }
 
     @NotNull
     private List<Note> getNotes(Set<IdForDTO> notesFor, List<UpcomingDeparture> dueTrams, TramDate queryDate, TramTime queryTime, Location<?> location) {

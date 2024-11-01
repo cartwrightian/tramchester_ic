@@ -73,50 +73,6 @@ function getCallingStationsFrom(journeys) {
     return Array.from(stations);
 }
 
-function getLastStationId(app) {
-
-    if (app.journeys==null) {
-        return ""
-    }
-
-    var stations = new Set();
-
-    app.journeys.forEach(journeyPlan => {
-        const journey = journeyPlan.journey;
-        const dest = journey.destination;
-        if (dest.locationType=="Station") {
-            stations.add(dest.id);
-        }
-    })
-
-    if (stations.length==1) {
-        return stations.pop();
-    }
-
-    return "";
-
-}
-
-function getFirstDestinationsFor(app) {
-
-    if (app.journeys==null) {
-        return [];
-    }
-
-    var stations = new Set();
-
-    app.journeys.forEach(journeyPlan => {
-        const journey = journeyPlan.journey;
-        const stages = journey.stages;
-        if (stages.length>1) {
-            journey.changeStations.forEach(changeStation => stations.add(changeStation.id))
-        } 
-        stations.add(journey.destination.id)
-        
-    })
-    return Array.from(stations);
-}
-
 function getLocationType(stop) {
     if (stop==null) {
        return app.myLocation.locationType;
