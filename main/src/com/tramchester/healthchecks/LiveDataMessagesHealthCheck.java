@@ -9,11 +9,11 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.livedata.tfgm.PlatformMessageRepository;
 import com.tramchester.repository.StationRepository;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
-import jakarta.inject.Inject;
 import java.time.LocalDateTime;
 
 import static java.lang.String.format;
@@ -56,7 +56,7 @@ public class LiveDataMessagesHealthCheck extends TramchesterHealthCheck {
 
     @Override
     public Result check() {
-        logger.info("Checking live data health");
+        logger.debug("Checking live data health");
         int entries = repository.numberOfEntries();
 
         if (entries==0) {

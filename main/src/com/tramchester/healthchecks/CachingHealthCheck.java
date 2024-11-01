@@ -49,7 +49,7 @@ public class CachingHealthCheck extends TramchesterHealthCheck {
             Duration since = Duration.between(lastCheck, currentTime);
             //if (since.compareTo(cacheDuration)<0) {
             if (Durations.lessThan(since, cacheDuration)) {
-                logger.info("Using cached result for " + containedCheck.getName());
+                logger.debug("Using cached result for " + containedCheck.getName());
                return result;
             }
         }

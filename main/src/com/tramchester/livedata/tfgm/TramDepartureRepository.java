@@ -119,7 +119,7 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, LiveDa
         if (existingEntry!=null) {
             newDepartureInfo.getDueTrams().forEach(dueTram -> {
                 if (!existingEntry.hasDueTram(dueTram)) {
-                    logger.info(format("Additional due tram '%s' seen for platform id '%s'", dueTram, platformId));
+                    logger.debug(format("Additional due tram '%s' seen for platform id '%s'", dueTram, platformId));
                     existingEntry.addDueTram(dueTram);
                 }
             });

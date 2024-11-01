@@ -17,7 +17,7 @@ public class LiveDataJobHealthCheck extends HealthCheck {
 
     @Override
     protected Result check() {
-        logger.info("Live data job check");
+        logger.debug("Live data job check");
         if (liveDataFuture.isDone()) {
             logger.error("Live data job is done");
             return Result.unhealthy("Live data job is done");
