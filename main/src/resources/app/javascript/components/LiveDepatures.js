@@ -7,11 +7,11 @@ export default {
             itemsPerPage: 5,
             page: 1,
             headers: [
-                {key:'from.name', title:'From', sortable:true},
-                {key:'dueTimeAsDate', title:'Time', sortable: true, width: '1px'}, 
+                {key:'from.name', title:'From', sortable:true, align: 'start'},
+                {key:'dueTimeAsDate', title:'Time', sortable: true, width: '1px', align: 'start'}, 
                 {key:'carriages', title:''},
-                {key:'status', title:'Status'},
-                {key:'destination.name', title:'Towards', sortable:true}
+                {key:'status', title:'Status',align: 'start'},
+                {key:'destination.name', title:'Towards', sortable:true,align:'start'}
             ],
             sortBy: [{ key: 'dueTimeAsDate', order: 'asc' }]
         }

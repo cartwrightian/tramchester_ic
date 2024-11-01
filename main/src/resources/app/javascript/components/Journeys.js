@@ -85,8 +85,7 @@ export default {
                 { key: 'action', title: '' , sortable:false }, 
                 { key: 'actionStation', title: 'Station' , sortable:false }, 
                 { key: 'platform.platformNumber', title: 'Plat', sortable:false }, 
-                { key: 'headSign', title: 'Headsign' , sortable:false }, 
-                { key: 'route', title: 'Line' , sortable:false } , 
+                { key: 'headSign', title: 'Toward' , sortable:false }, 
                 { key: 'passedStops', title: 'Stops', sortable:false  }, 
                 { key: 'expectedArrivalTime', title: 'Arrive' , sortable:false } 
                 ],

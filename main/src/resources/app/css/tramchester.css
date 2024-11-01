@@ -128,18 +128,24 @@
     border: 1px solid lightcoral;
 }
 
-.v-data-table tr td {
-    font-size: 12px !important;
+.live-departures-table {
+    table {
+      tr {
+        th, td {
+          padding: 3px !important;
+        }
+      }
+    }
 }
-
-.v-data-table .v-data-table-header tr th {
-    font-size: 10px !important;
-}
-
-/* .live-departures-table  {
-    table-layout : fixed;
+  
+/* 
+.journeys-table {
+    table {
+        tr {
+        td {
+            padding: 4px !important;
+        }
+        }
+    }
 } */
 
-/* .journeys-table  {
-    table-layout : fixed;
-} */
