@@ -54,7 +54,8 @@ public class LiveDataParser {
     private static final int MAX_DUE_TRAMS = 4;
 
     public enum LiveDataNamesMapping {
-        DeansgateAliasB("Deansgate Castlefield","Deansgate-Castlefield");
+        DeansgateAliasB("Deansgate Castlefield","Deansgate-Castlefield"),
+        Firswood("Firswood", "Firswood Station");
 
 // No longer in use?
 //        Firswood("Firswood", "Firswood Station"),
