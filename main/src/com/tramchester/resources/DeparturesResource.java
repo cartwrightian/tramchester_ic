@@ -121,7 +121,7 @@ public class DeparturesResource extends TransportResource implements APIResource
 
         final List<Note> notes = getNotes(notesFor, dueTrams, queryDate, queryTime, location);
 
-        return Response.ok(new DepartureListDTO(departs, notes)).build();
+        return Response.ok(new DepartureListDTO(departs, notes, departuresQuery.hasJourneys())).build();
     }
 
     private @NotNull SortedSet<DepartureDTO> mapToDTOs(final DeparturesQueryDTO departuresQuery, final List<UpcomingDeparture> dueTrams) {

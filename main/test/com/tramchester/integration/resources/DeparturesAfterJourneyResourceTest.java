@@ -134,6 +134,29 @@ class DeparturesAfterJourneyResourceTest {
 
     @Test
     @LiveDataTestCategory
+    void shouldGetDueTramsWithIsForJourneyFlagSet() {
+        Station station = stationWithDepartures;
+
+        DeparturesQueryDTO queryDTO = new DeparturesQueryDTO(station.getLocationType(), IdForDTO.createFor(station));
+
+        JourneyQueryDTO journeyQueryDto = journeyPlanner.getQueryDTO(queryDate, time, station,
+                destinationForDueTram, false, 3);
+        JourneyPlanRepresentation plan = journeyPlanner.getJourneyPlan(journeyQueryDto);
+
+        assertFalse(plan.getJourneys().isEmpty(), "could find journey from " + ((Location<?>) station).getId() + " to " + destinationForDueTram.getId());
+
+        queryDTO.setJourneys(plan.getJourneys());
+
+        Response response = getPostResponse(queryDTO);
+
+        DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
+
+        assertTrue(departureList.isForJourney());
+
+    }
+
+    @Test
+    @LiveDataTestCategory
     void shouldGetDueTramsForLocationWithinQueryTimeNowAndDestinationMatching() {
         LatLong latLong = stationWithDepartures.getLatLong();
 

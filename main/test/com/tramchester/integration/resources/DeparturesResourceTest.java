@@ -118,6 +118,8 @@ class DeparturesResourceTest {
         DepartureListDTO departureList = response.readEntity(DepartureListDTO.class);
 
         assertFalse(departureList.getNotes().isEmpty(), "no notes found for " + stationWithNotes.getName());
+
+        assertFalse(departureList.isForJourney());
     }
 
     @Test
@@ -246,7 +248,6 @@ class DeparturesResourceTest {
         DeparturesQueryDTO queryDTO = new DeparturesQueryDTO(LocationType.MyLocation, IdForDTO.createFor(where));
         return getDepartureDTOS(queryTime, queryDTO);
     }
-
 
     private SortedSet<DepartureDTO> getDeparturesForStation(Station station, LocalTime queryTime) {
         DeparturesQueryDTO queryDTO = new DeparturesQueryDTO(LocationType.Station, IdForDTO.createFor(station));
