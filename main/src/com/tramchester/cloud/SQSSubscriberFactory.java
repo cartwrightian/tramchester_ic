@@ -3,6 +3,7 @@ package com.tramchester.cloud;
 import com.github.cliftonlabs.json_simple.JsonObject;
 import com.github.cliftonlabs.json_simple.Jsoner;
 import com.netflix.governator.guice.lazy.LazySingleton;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
@@ -11,11 +12,13 @@ import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.*;
 
 import javax.annotation.PostConstruct;
-import jakarta.inject.Inject;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import static java.lang.String.format;
 import static java.time.format.DateTimeFormatter.ISO_INSTANT;
@@ -125,7 +128,7 @@ public class SQSSubscriberFactory {
         }
 
         private List<Message> receiveMessageBatch(final int maxNumber, Duration timeout) {
-            logger.info(format("Receive messages max:%s timeout: %s", maxNumber, timeout));
+            logger.debug(format("Receive messages max:%s timeout: %s", maxNumber, timeout));
             final List<Message> buffer = new LinkedList<>();
             LocalDateTime stopTime = LocalDateTime.now().plus(timeout);
             int countDown = maxNumber;
@@ -195,7 +198,7 @@ public class SQSSubscriberFactory {
             if (sorted.isEmpty()) {
                 logger.warn("No messages remaining after sorting");
             } else {
-                logger.info("Successful got target message");
+                logger.debug("Successful got target message");
             }
             return extractPayloadFrom(sorted.get(0));
         }

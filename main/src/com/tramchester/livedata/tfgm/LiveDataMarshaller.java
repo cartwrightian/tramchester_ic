@@ -77,7 +77,7 @@ public class LiveDataMarshaller implements LiveDataFetcher.ReceivesRawData {
         }
 
         int received = receivedInfos.size();
-        logger.info(format("Received %s updates", received));
+        logger.debug(format("Received %s updates", received));
 
         List<TramStationDepartureInfo> fresh = filterForFreshness(receivedInfos);
         int freshCount = fresh.size();

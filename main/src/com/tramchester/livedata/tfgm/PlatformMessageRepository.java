@@ -97,7 +97,7 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
         if (!isEnabled()) {
             logger.error("Unexpected call of updateCache since live data is disabled");
         }
-        logger.info("Updating cache");
+        logger.debug("Updating cache");
         consumeDepartInfo(departureInfos);
         messageCache.cleanUp();
         lastRefresh = providesNow.getTramDate();
