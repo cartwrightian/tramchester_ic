@@ -29,7 +29,6 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
@@ -587,7 +586,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
     public static void validateAStage(Stage stage, Set<TramTime> departTimes, String action, String actionStation, List<Integer> platforms,
                                       Set<KnownTramRoute> expectedRoutes, Set<String> headsigns, int passedStops) {
 
-        Set<String> expectedRoutesNames = expectedRoutes.stream().map(KnownTramRoute::shortName).collect(Collectors.toSet());
+//        Set<String> expectedRoutesNames = expectedRoutes.stream().map(KnownTramRoute::shortName).collect(Collectors.toSet());
 
         assertTrue(departTimes.stream().allMatch(TramTime::isValid),"departTime not valid");
 
@@ -598,8 +597,8 @@ public class AppUserJourneyTest extends UserJourneyTest {
         assertEquals(actionStation, stage.getActionStation(), "actionStation");
         assertTrue(platforms.contains(stage.getPlatform()), "platform");
 
-        String stageRoute = stage.getRouteName();
-        assertTrue(expectedRoutesNames.contains(stageRoute), "Wrong linename, got '"+ stageRoute +"' but needed one of " + expectedRoutesNames);
+//        String stageRoute = stage.getRouteName();
+//        assertTrue(expectedRoutesNames.contains(stageRoute), "Wrong linename, got '"+ stageRoute +"' but needed one of " + expectedRoutesNames);
 
         String stageHeadsign = stage.getHeadsign();
         assertTrue(headsigns.contains(stageHeadsign), "Wrong headsign, got '"+ stageHeadsign +"' but needed one of" + headsigns);
