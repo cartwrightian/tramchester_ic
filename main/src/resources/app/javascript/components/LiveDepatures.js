@@ -1,3 +1,4 @@
+import { nextTick } from "vue";
 
 
 export default { 
@@ -6,12 +7,14 @@ export default {
         return {
             itemsPerPage: 5,
             page: 1,
+            journeyOnlySearch: "0", // must be a string, silently ignored otherwise
             headers: [
                 {key:'from.name', title:'From', sortable:true, align: 'start'},
                 {key:'dueTimeAsDate', title:'Time', sortable: true, width: '1px', align: 'start'}, 
                 {key:'carriages', title:''},
-                {key:'status', title:'Status',align: 'start'},
-                {key:'destination.name', title:'Towards', sortable:true,align:'start'}
+                {key:'status', title:'Status', lign: 'start'},
+                {key:'destination.name', title:'Towards', sortable:true,align:'start'},
+                {key:'matchesJourney', title:'', align: ' d-none'} // hides the column
             ],
             sortBy: [{ key: 'dueTimeAsDate', order: 'asc' }]
         }
@@ -29,9 +32,12 @@ export default {
             }
             return this.livedataresponse.departures.length==0;
         },
-         pageCount () {
+         pageCount: function() {
              return Math.ceil(this.localDueTrams.length / this.itemsPerPage)
            },
+        currentJourneyTicked: function() {
+            return this.journeyOnlySearch=="1";
+        }
     },
     methods: {
         dueTimeFormatter(value) {
@@ -43,15 +49,41 @@ export default {
             } else {
                 return {  }
             }
+        },
+        forJourneyFilter(value, query, item) {
+            if (query=="0") {
+                return true;
+            }
+            return item.columns.matchesJourney;
+        },
+        forJourneyAvailable() {
+            if (this.livedataresponse==null) {
+                return false;
+            } 
+            return this.livedataresponse.forJourney;
+        },
+        toggleJourneyOnly() {
+            // note: has to be a string otherwise search is silently ignored by the table
+            if (this.journeyOnlySearch=="0") {
+                this.journeyOnlySearch="1";
+            } else {
+                this.journeyOnlySearch="0";
+            }
+            //this.$nextTick();
         }
     },
     template: `
     <v-container id="departuesView">
 
         <div id="departuresTable" v-if="localDueTrams.length>0">
+            <v-checkbox @click="toggleJourneyOnly" v-if="forJourneyAvailable()" label="For Journey" :model="currentJourneyTicked"></v-checkbox>
             <v-card>
-                <v-card-title>Live Departures</v-card-title>
+                    <v-card-title>
+                        Live Departures
+                    </v-card-title>
                 <v-data-table id="departures"
+                    :search="journeyOnlySearch"
+                    :custom-filter="forJourneyFilter"
                     :mobile-breakpoint="0"
                     :items="localDueTrams"
                     :row-props="rowFormater"
@@ -67,7 +99,6 @@ export default {
                     </template>
                 </v-data-table>
             </v-card>
-
         </div>
 
         <div class="text-center pt-2" v-if="localDueTrams.length>0">
