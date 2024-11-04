@@ -34,7 +34,7 @@ public class RedirectToAppFilter implements Filter {
         if (userAgent==null) {
             logger.warn("Got null user agent, request from " + request.getRemoteAddr());
         } else if (userAgent.startsWith(ELB_HEALTH_CHECKER)) {
-            logger.info("Response OK to " + ELB_HEALTH_CHECKER);
+            logger.debug("Response OK to " + ELB_HEALTH_CHECKER);
             servletResponse.setStatus(SC_OK);
             return;
         }

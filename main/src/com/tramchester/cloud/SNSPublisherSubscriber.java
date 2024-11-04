@@ -1,6 +1,7 @@
 package com.tramchester.cloud;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
@@ -9,7 +10,6 @@ import software.amazon.awssdk.services.sns.SnsClient;
 import software.amazon.awssdk.services.sns.model.*;
 
 import javax.annotation.PostConstruct;
-import jakarta.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -81,12 +81,10 @@ public class SNSPublisherSubscriber {
             CreateTopicResponse result = snsClient.createTopic(createTopicRequest);
 
             topicMap.put(requestedTopic, result.topicArn());
+            logger.info(format("added topic: %s arn: %s", requestedTopic, result.topicArn()));
         }
 
-        String topicArn = topicMap.get(requestedTopic);
-
-        logger.info(format("topic: %s arn: %s", requestedTopic, topicArn));
-        return topicArn;
+        return topicMap.get(requestedTopic);
     }
 
     public String getTopicUrnFor(String topicName) {
