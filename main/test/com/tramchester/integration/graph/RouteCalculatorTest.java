@@ -303,7 +303,6 @@ public class RouteCalculatorTest {
         checkRouteNextNDays(ManAirport, TraffordBar, TramTime.of(15,0));
     }
 
-    @DisabledUntilDate(year = 2024, month = 11)
     @Test
     void shouldHaveLongJourneyAcross() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(9,0), maxNumResults);
@@ -474,7 +473,6 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, HeatonPark, BurtonRoad);
     }
 
-    @DisabledUntilDate(year = 2024, month = 11)
     @Test
     void shouldReproIssueRochTownCentreToBury() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(9, 0), maxNumResults);

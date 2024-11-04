@@ -20,7 +20,6 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.JourneysForGridResource;
 import com.tramchester.testSupport.ParseJSONStream;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
@@ -78,7 +77,6 @@ class JourneysForGridResourceTest {
         maxDuration = appExtension.getConfiguration().getMaxJourneyDuration();
     }
 
-    @DisabledUntilDate(year = 2024, month = 11)
     @Test
     void shouldHaveJourneysForWholeGridChunked() throws IOException {
         LatLong nearDestination = KnownLocations.nearStPetersSquare.latLong();
