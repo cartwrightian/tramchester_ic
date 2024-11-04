@@ -1,6 +1,7 @@
 package com.tramchester.unit.domain;
 
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.UpcomingDates;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -15,8 +16,8 @@ class GenerateExampleDatesTest {
         Assertions.assertNotEquals(DayOfWeek.SUNDAY, TestEnv.testDay().getDayOfWeek());
         Assertions.assertNotEquals(DayOfWeek.MONDAY, TestEnv.testDay().getDayOfWeek());
 
-        Assertions.assertEquals(DayOfWeek.MONDAY, TestEnv.nextMonday().getDayOfWeek());
-        Assertions.assertEquals(DayOfWeek.SATURDAY, TestEnv.nextSaturday().getDayOfWeek());
-        Assertions.assertEquals(DayOfWeek.SUNDAY, TestEnv.nextSunday().getDayOfWeek());
+        Assertions.assertEquals(DayOfWeek.MONDAY, UpcomingDates.nextMonday().getDayOfWeek());
+        Assertions.assertEquals(DayOfWeek.SATURDAY, UpcomingDates.nextSaturday().getDayOfWeek());
+        Assertions.assertEquals(DayOfWeek.SUNDAY, UpcomingDates.nextSunday().getDayOfWeek());
     }
 }

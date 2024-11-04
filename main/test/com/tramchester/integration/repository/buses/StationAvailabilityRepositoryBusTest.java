@@ -19,6 +19,7 @@ import com.tramchester.repository.StationAvailabilityRepository;
 import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.testTags.BusTest;
 import com.tramchester.testSupport.testTags.DataExpiryCategory;
@@ -189,7 +190,7 @@ public class StationAvailabilityRepositoryBusTest {
 
         Duration maxwait = Duration.ofMinutes(config.getMaxWait());
 
-        TestEnv.getUpcomingDates().forEach(date -> {
+        UpcomingDates.getUpcomingDates().forEach(date -> {
 
             TimeRange lateRange = TimeRangePartial.of(latestHour, maxwait, maxwait);
             Set<Station> notAvailableLate = stationRepository.getStations().stream().
@@ -212,7 +213,7 @@ public class StationAvailabilityRepositoryBusTest {
 
         Duration maxwait = Duration.ofMinutes(config.getMaxWait());
 
-        TestEnv.getUpcomingDates().forEach(date -> {
+        UpcomingDates.getUpcomingDates().forEach(date -> {
 
             TimeRange earlyRange = TimeRangePartial.of(earlistHour, maxwait, maxwait);
             Set<Station> notAvailableEarly = stationRepository.getStations().stream().

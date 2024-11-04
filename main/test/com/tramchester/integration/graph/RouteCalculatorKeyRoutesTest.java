@@ -6,8 +6,8 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.StationIdPair;
-import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.collections.LocationIdPairSet;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.Durations;
@@ -18,7 +18,6 @@ import com.tramchester.integration.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.testTags.DataExpiryCategory;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
@@ -140,7 +139,6 @@ class RouteCalculatorKeyRoutesTest {
         validateFor(results);
     }
 
-    @DisabledUntilDate(year = 2024, month = 11)
     @Test
     void shouldFindEndOfLinesToEndOfLinesFindLongestDuration() {
 

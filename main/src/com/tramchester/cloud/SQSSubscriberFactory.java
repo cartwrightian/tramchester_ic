@@ -49,7 +49,7 @@ public class SQSSubscriberFactory {
      * @param retentionPeriodSeconds lifetime of messages in the queue
      * @return the subscriber
      */
-    public SQSSubscriber getFor(String queueName, String topicName, long retentionPeriodSeconds) {
+    public SQSSubscriber getFor(final String queueName, final String topicName, final long retentionPeriodSeconds) {
         logger.info(format("Get subscriber for queue %s and topic %s retention %s ", queueName, topicName, retentionPeriodSeconds));
 
         if (topicName==null) {
@@ -59,14 +59,14 @@ public class SQSSubscriberFactory {
             throw new RuntimeException("Empty topic");
         }
 
-        String queueUrl = createQueueIfNeeded(queueName, retentionPeriodSeconds);
+        final String queueUrl = createQueueIfNeeded(queueName, retentionPeriodSeconds);
 
         if (queueUrl.isEmpty()) {
             logger.error("Unable to get queue URL for " + queueName);
             return null;
         }
 
-        String topicARN = snsPublisherSubscrinber.getTopicUrnFor(topicName);
+        final String topicARN = snsPublisherSubscrinber.getTopicUrnFor(topicName);
 
         if (topicARN.isEmpty()) {
             logger.error("Unable to get topic");
@@ -79,7 +79,7 @@ public class SQSSubscriberFactory {
 
             subscriber.updatePolicyFor();
 
-            String queueArn = subscriber.getARN();
+            final String queueArn = subscriber.getARN();
             snsPublisherSubscrinber.subscribeQueueTo(topicARN, queueArn);
 
             return subscriber;
@@ -129,11 +129,12 @@ public class SQSSubscriberFactory {
 
         private List<Message> receiveMessageBatch(final int maxNumber, Duration timeout) {
             logger.debug(format("Receive messages max:%s timeout: %s", maxNumber, timeout));
-            final List<Message> buffer = new LinkedList<>();
-            LocalDateTime stopTime = LocalDateTime.now().plus(timeout);
-            int countDown = maxNumber;
-            Integer timeoutLong = Math.toIntExact(timeout.getSeconds());
 
+            final List<Message> buffer = new LinkedList<>();
+            final LocalDateTime stopTime = LocalDateTime.now().plus(timeout);
+            final Integer timeoutLong = Math.toIntExact(timeout.getSeconds());
+
+            int countDown = maxNumber;
             while(countDown>0 && LocalDateTime.now().isBefore(stopTime)) {
                 ReceiveMessageRequest receiveMsgReq = ReceiveMessageRequest.builder().
                         queueUrl(queueUrl).
@@ -173,14 +174,14 @@ public class SQSSubscriberFactory {
             }
 
             // only process and delete one message at a time due to way rest of live data works
-            String text = extractRequiredBody(msgs);
+            final String text = extractRequiredBody(msgs);
 
             deleteMessages(msgs);
 
             return text;
         }
 
-        private String extractRequiredBody(List<Message> msgs) {
+        private String extractRequiredBody(final List<Message> msgs) {
             // discard if not SNS or if not expected topic
             List<JsonObject> parsedMessages = msgs.stream().
                     map(msg -> Jsoner.deserialize(msg.body(), new JsonObject())).

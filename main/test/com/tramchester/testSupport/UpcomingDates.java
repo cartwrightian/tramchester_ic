@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static com.tramchester.testSupport.reference.TramStations.Bury;
 import static com.tramchester.testSupport.reference.TramStations.Rochdale;
 
 public class UpcomingDates {
@@ -32,7 +31,7 @@ public class UpcomingDates {
 
     private static final TramDate deansgateWorks27thOctober = TramDate.of(2024,10,27);
 
-    public static final TramDate fullNetworkCloseDown = TramDate.of(2024,11,3);
+    public static final TramDate RemembranceSundayClosures = TramDate.of(2024, 11, 10);
 
     static {
         TramDate today = TramDate.from(TestEnv.LocalNow());
@@ -48,9 +47,6 @@ public class UpcomingDates {
     private static boolean hasClosure(IdFor<Station> stationId, TramDate date) {
         if (stationId.equals(Rochdale.getId())) {
             return rochdaleLineWorks.contains(date);
-        }
-        if (stationId.equals(Bury.getId())) {
-            return date.equals(fullNetworkCloseDown);
         }
         return false;
     }

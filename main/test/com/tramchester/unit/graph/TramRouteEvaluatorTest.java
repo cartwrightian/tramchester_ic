@@ -41,6 +41,7 @@ import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.repository.TripRepository;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.reference.TramStations;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
@@ -128,7 +129,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         long maxNumberOfJourneys = 2;
         queryTime = TramTime.of(8, 15);
         JourneyRequest journeyRequest = new JourneyRequest(
-                TestEnv.nextSaturday(), queryTime, false,
+                UpcomingDates.nextSaturday(), queryTime, false,
                 3, Duration.ofMinutes(config.getMaxJourneyDuration()), maxNumberOfJourneys, TramsOnly);
         reasons = new ServiceReasons(journeyRequest, queryTime, providesNow, failedJourneyDiagnostics);
 

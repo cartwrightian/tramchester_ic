@@ -17,7 +17,6 @@ import com.tramchester.repository.RunningRoutesAndServices;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import org.apache.commons.collections4.SetUtils;
 import org.junit.jupiter.api.AfterAll;
@@ -163,7 +162,7 @@ public class RunningRoutesAndServicesTest {
         // plusWeeks(1) due to network closures early nov 2024
         TramDate testDay = TestEnv.nextMonday().plusWeeks(1);
 
-        while (christmasWeek(testDay) || testDay.isBefore(UpcomingDates.fullNetworkCloseDown)) {
+        while (christmasWeek(testDay)) {
             testDay = testDay.plusWeeks(1);
         }
 

@@ -12,6 +12,7 @@ import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.resources.DataVersionResourceTest;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.SmokeTest;
@@ -474,7 +475,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
         TramTime time = TramTime.of(10,15);
 
         AppPage appPage = prepare(providesDriver, url);
-        LocalDate aSaturday = TestEnv.nextSaturday().toLocalDate();
+        LocalDate aSaturday = UpcomingDates.nextSaturday().toLocalDate();
 
         desiredJourney(appPage, altrincham, deansgate, aSaturday, time, false);
         appPage.planAJourney();

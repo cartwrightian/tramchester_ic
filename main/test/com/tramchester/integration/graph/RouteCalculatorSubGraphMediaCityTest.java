@@ -30,6 +30,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.AdditionalTramInterchanges;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.TramStations;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -121,11 +122,15 @@ class RouteCalculatorSubGraphMediaCityTest {
     }
 
     @Test
-    void shouldHaveMediaCityToExchangeSquare() {
+    void shouldHaveMediaCityToExchangeSquareSaturday() {
         TramDate nextSaturday = UpcomingDates.nextSaturday();
         validateAtLeastOneJourney(MediaCityUK, Cornbrook, TramTime.of(9,0), nextSaturday);
         validateAtLeastOneJourney(MediaCityUK, ExchangeSquare, TramTime.of(9,0), nextSaturday);
+    }
 
+    @DisabledUntilDate(year = 2024, month = 11, day = 11)
+    @Test
+    void shouldHaveMediaCityToExchangeSquareSunday() {
         TramDate testSunday = UpcomingDates.nextSunday();
         validateAtLeastOneJourney(MediaCityUK, ExchangeSquare, TramTime.of(10,0), testSunday);
     }
@@ -135,7 +140,7 @@ class RouteCalculatorSubGraphMediaCityTest {
 
         TramTime queryTime = TramTime.of(9, 0);
         List<Pair<TramDate, LocationIdPairSet<Station>>> failed = UpcomingDates.getUpcomingDates().
-                filter(date -> !date.equals(UpcomingDates.fullNetworkCloseDown)).
+                filter(date -> !date.equals(UpcomingDates.RemembranceSundayClosures)).
                 map(date -> new JourneyRequest(date, queryTime, false,
                         3, maxJourneyDuration, 1, getRequestedModes())).
                 map(journeyRequest -> Pair.of(journeyRequest.getDate(), getFailedPairedFor(journeyRequest))).
@@ -150,7 +155,7 @@ class RouteCalculatorSubGraphMediaCityTest {
 
         TramTime queryTime = TramTime.of(10, 30);
         List<Pair<TramDate, LocationIdPairSet<Station>>> failed = UpcomingDates.getUpcomingDates().
-                filter(date -> !date.equals(UpcomingDates.fullNetworkCloseDown)).
+                filter(date -> !date.equals(UpcomingDates.RemembranceSundayClosures)).
                 map(date -> new JourneyRequest(date, queryTime, false,
                         3, maxJourneyDuration, 1, getRequestedModes())).
                 map(journeyRequest -> Pair.of(journeyRequest.getDate(), getFailedPairedFor(journeyRequest))).

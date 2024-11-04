@@ -17,6 +17,7 @@ import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.*;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.testTags.BusTest;
@@ -162,7 +163,7 @@ public class StationAvailabilityRepositoryForBusesTest {
 
         Duration maxwait = Duration.ofMinutes(config.getMaxWait());
 
-        TestEnv.getUpcomingDates().forEach(date -> {
+        UpcomingDates.getUpcomingDates().forEach(date -> {
 
             TimeRange lateRange = TimeRangePartial.of(latestHour, maxwait, maxwait);
             Set<Station> notAvailableLate = stationRepository.getStations().stream().
@@ -184,7 +185,7 @@ public class StationAvailabilityRepositoryForBusesTest {
 
         Duration maxwait = Duration.ofMinutes(config.getMaxWait());
 
-        TestEnv.getUpcomingDates().forEach(date -> {
+        UpcomingDates.getUpcomingDates().forEach(date -> {
 
             TimeRange earlyRange = TimeRangePartial.of(earlistHour, maxwait, maxwait);
             Set<Station> notAvailableEarly = stationRepository.getStations().stream().

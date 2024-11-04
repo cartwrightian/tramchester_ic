@@ -2,6 +2,7 @@ package com.tramchester.unit.domain;
 
 import com.tramchester.domain.dates.*;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.UpcomingDates;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -110,8 +111,8 @@ class MutableNormalServiceCalendarTest {
         }
 
         Assertions.assertFalse(serviceCalendar.operatesOn(testDay.plusWeeks(offset)));
-        assertTrue(serviceCalendar.operatesOn(TestEnv.nextSaturday().plusWeeks(offset)));
-        assertTrue(serviceCalendar.operatesOn(TestEnv.nextSunday().plusWeeks(offset)));
+        assertTrue(serviceCalendar.operatesOn(UpcomingDates.nextSaturday().plusWeeks(offset)));
+        assertTrue(serviceCalendar.operatesOn(UpcomingDates.nextSunday().plusWeeks(offset)));
     }
 
     @Test

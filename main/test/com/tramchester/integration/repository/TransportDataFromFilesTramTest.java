@@ -34,7 +34,6 @@ import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
@@ -252,7 +251,7 @@ public class TransportDataFromFilesTramTest {
 
     @Test
     void shouldGetServicesByDate() {
-        TramDate nextSaturday = TestEnv.nextSaturday();
+        TramDate nextSaturday = UpcomingDates.nextSaturday();
         Set<Service> results = transportData.getServicesOnDate(nextSaturday);
 
         assertFalse(results.isEmpty(), "no services next saturday");
@@ -275,7 +274,7 @@ public class TransportDataFromFilesTramTest {
 
     @Test
     void shouldHaveSundayServicesFromCornbrook() {
-        TramDate nextSunday = TestEnv.nextSunday();
+        TramDate nextSunday = UpcomingDates.nextSunday();
 
         Set<Service> sundayServices = transportData.getServicesOnDate(nextSunday);
 
@@ -295,7 +294,7 @@ public class TransportDataFromFilesTramTest {
 //        TramDate startDate = TramDate.from(TestEnv.LocalNow());
 //        TramDate endDate = startDate.plusDays(DAYS_AHEAD);
 
-        DateRange dateRange = DateRange.from(TestEnv.daysAhead());
+        DateRange dateRange = DateRange.from(UpcomingDates.daysAhead());
 
         Set<Service> services = transportData.getServices();
         Set<Service> expiringServices = services.stream().
@@ -377,7 +376,7 @@ public class TransportDataFromFilesTramTest {
     void shouldHaveTripsOnDateForEachStation() {
 
         Set<Pair<TramDate, IdFor<Station>>> missing = UpcomingDates.getUpcomingDates().
-                filter(date -> !UpcomingDates.fullNetworkCloseDown.equals(date)).
+                filter(date -> !UpcomingDates.RemembranceSundayClosures.equals(date)).
                 flatMap(date -> getStations(date).map(station -> Pair.of(date, station))).
                 filter(pair -> isOpen(pair.getLeft(), pair.getRight())).
                 filter(pair -> transportData.getTripsCallingAt(pair.getRight(), pair.getLeft()).isEmpty()).
@@ -407,12 +406,6 @@ public class TransportDataFromFilesTramTest {
         assertFalse(onActualDate.isEmpty());
     }
 
-    @DisabledUntilDate(year = 2024, month = 11, day = 4)
-    @Test
-    void shouldRemoveWorkarounds() {
-        fail("remove workarounds for network closures");
-    }
-
     @DataExpiryCategory
     @Test
     void shouldHaveServicesRunningAtReasonableTimesNDaysAhead() {
@@ -430,7 +423,7 @@ public class TransportDataFromFilesTramTest {
         final Map<Pair<TramDate, TramTime>, IdSet<Station>> missing = new HashMap<>();
 
         UpcomingDates.getUpcomingDates().
-                filter(date -> !UpcomingDates.fullNetworkCloseDown.equals(date)).
+                filter(date -> !UpcomingDates.RemembranceSundayClosures.equals(date)).
                 forEach(date -> getStations(date).
                 forEach(station -> {
                     final Set<Trip> trips = transportData.getTripsCallingAt(station, date);

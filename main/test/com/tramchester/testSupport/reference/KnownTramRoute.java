@@ -7,7 +7,6 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.UpcomingDates;
 
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -45,9 +44,7 @@ public enum KnownTramRoute {
 
         routes.add(BuryManchesterAltrincham);
 
-        if (!UpcomingDates.fullNetworkCloseDown.equals(date)) {
-            routes.add(PiccadillyVictoria);
-        }
+        routes.add(PiccadillyVictoria);
 
         routes.add(EcclesAshton);
         routes.add(CornbrookTheTraffordCentre);

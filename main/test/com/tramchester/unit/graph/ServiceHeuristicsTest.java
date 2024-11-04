@@ -22,6 +22,7 @@ import com.tramchester.graph.search.diagnostics.*;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.reference.TramStations;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
@@ -83,7 +84,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
 
     @NotNull
     private JourneyRequest getJourneyRequest(TramTime queryTime) {
-        return new JourneyRequest(TestEnv.nextSaturday(), queryTime, false,
+        return new JourneyRequest(UpcomingDates.nextSaturday(), queryTime, false,
                 MAX_NUM_CHANGES, maxJourneyDuration, maxNumberOfJourneys, getRequestedModes());
     }
 
@@ -507,7 +508,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
     @Test
     void shouldCheckMaximumDurationCorrectly() {
         TramTime queryTime = TramTime.of(11,20);
-        JourneyRequest journeyRequest = new JourneyRequest(TestEnv.nextSaturday(), queryTime,
+        JourneyRequest journeyRequest = new JourneyRequest(UpcomingDates.nextSaturday(), queryTime,
                 false, 3, maxJourneyDuration, maxNumberOfJourneys, getRequestedModes());
         ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, failedJourneyDiagnostics);
 
@@ -530,7 +531,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
     @Test
     void shouldCheckChangeLimit() {
         TramTime queryTime = TramTime.of(11,20);
-        JourneyRequest journeyRequest = new JourneyRequest(TestEnv.nextSaturday(), queryTime,
+        JourneyRequest journeyRequest = new JourneyRequest(UpcomingDates.nextSaturday(), queryTime,
                 false, 2, Duration.ofMinutes(160), maxNumberOfJourneys, getRequestedModes());
         ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, failedJourneyDiagnostics);
 
@@ -551,7 +552,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
     @Test
     void shouldCheckReachableForRouteStation() {
         TramTime queryTime = TramTime.of(11,20);
-        JourneyRequest journeyRequest = new JourneyRequest(TestEnv.nextSaturday(), queryTime,
+        JourneyRequest journeyRequest = new JourneyRequest(UpcomingDates.nextSaturday(), queryTime,
                 false, 2, Duration.ofMinutes(160), maxNumberOfJourneys, getRequestedModes());
         ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, failedJourneyDiagnostics);
 
@@ -594,7 +595,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
     @Test
     void shouldCheckMaximumDurationCorrectlyAcrossMidnight() {
         TramTime queryTime = TramTime.of(23,20);
-        JourneyRequest journeyRequest = new JourneyRequest(TestEnv.nextSaturday(), queryTime,
+        JourneyRequest journeyRequest = new JourneyRequest(UpcomingDates.nextSaturday(), queryTime,
                 false, 3, maxJourneyDuration, maxNumberOfJourneys, getRequestedModes());
         ServiceReasons reasons = new ServiceReasons(journeyRequest, queryTime, providesLocalNow, failedJourneyDiagnostics);
         EasyMock.expect(journeyConstraints.getFewestChangesCalculator()).andReturn(fewestHopsForRoutes);

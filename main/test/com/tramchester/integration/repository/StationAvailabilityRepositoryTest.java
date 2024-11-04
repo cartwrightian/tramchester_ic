@@ -20,6 +20,7 @@ import com.tramchester.repository.StationAvailabilityRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.testTags.DataExpiryCategory;
 import com.tramchester.testSupport.testTags.DualTest;
 import com.tramchester.testSupport.testTags.GMTest;
@@ -169,7 +170,7 @@ public class StationAvailabilityRepositoryTest {
 
         Duration maxwait = Duration.ofMinutes(config.getMaxWait());
 
-        TestEnv.getUpcomingDates().forEach(date -> {
+        UpcomingDates.getUpcomingDates().forEach(date -> {
 
             TimeRange lateRange = TimeRangePartial.of(latestHour, maxwait, maxwait);
             Set<Station> notAvailableLate = stationRepository.getStations().stream().

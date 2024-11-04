@@ -13,9 +13,11 @@ import com.tramchester.graph.FindStationsByNumberLinks;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.Interchanges;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.FakeStation;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -49,8 +51,6 @@ class FindStationsByNumberLinksTramTest {
         finder = componentContainer.get(FindStationsByNumberLinks.class);
     }
 
-    // todo more of a warning of un-needed config
-    @DisabledUntilDate(year = 2024, month = 11, day = 4)
     @Test
     void shouldNotDuplicateWithConfig() {
         List<GTFSSourceConfig> dataSources = config.getGTFSDataSource();

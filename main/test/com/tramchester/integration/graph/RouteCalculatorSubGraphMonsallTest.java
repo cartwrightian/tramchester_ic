@@ -15,7 +15,6 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.*;
@@ -91,20 +90,17 @@ class RouteCalculatorSubGraphMonsallTest {
                 when, 1);
     }
 
-    @DisabledUntilDate(year = 2024, month = 11)
     @Test
     void shouldHaveEndToEnd() {
         validateNumberOfStages(TramStations.EastDidsbury, TramStations.Rochdale, TramTime.of(8,0), when, 1);
     }
 
-    @DisabledUntilDate(year = 2024, month = 11)
     @Test
     void shouldHaveJourneysTerminationPointsToEndOfLine() {
         // many trams only run as far as Shaw
         validateNumberOfStages(TramStations.ShawAndCrompton, TramStations.Rochdale, TramTime.of(8,0), when, 1);
     }
 
-    @DisabledUntilDate(year = 2024, month = 11)
     @Test
     void shouldHaveSimpleOneStopJourney() {
         validateNumberOfStages(TramStations.RochdaleRail, TramStations.Rochdale, TramTime.of(8,0), when, 1);

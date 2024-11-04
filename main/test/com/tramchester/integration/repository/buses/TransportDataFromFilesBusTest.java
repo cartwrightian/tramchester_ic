@@ -24,6 +24,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.testTags.BusTest;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
@@ -151,7 +152,7 @@ class TransportDataFromFilesBusTest {
 
     @Test
     void shouldGetServicesByDate() {
-        TramDate nextSaturday = TestEnv.nextSaturday();
+        TramDate nextSaturday = UpcomingDates.nextSaturday();
         Set<Service> results = transportData.getServicesOnDate(nextSaturday);
 
         assertFalse(results.isEmpty());
