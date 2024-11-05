@@ -34,13 +34,13 @@ public class SNSPublisherSubscriber {
         logger.info("started");
     }
 
-    public boolean send(String topic, String text) {
-        String arn = createTopicIfRequire(topic);
+    public boolean send(final String topic, final String text) {
+        final String arn = createTopicIfRequire(topic);
         return publish(arn, text);
     }
 
-    private boolean publish(String arn, String text) {
-        PublishRequest publishRequest = PublishRequest.builder().topicArn(arn).message(text).build();
+    private boolean publish(final String arn, final String text) {
+        final PublishRequest publishRequest = PublishRequest.builder().topicArn(arn).message(text).build();
 
         try {
             PublishResponse result = snsClient.publish(publishRequest);
@@ -54,7 +54,7 @@ public class SNSPublisherSubscriber {
 
     }
 
-    public void subscribeQueueTo(String topicARN, String queueARN) {
+    public void subscribeQueueTo(final String topicARN, final String queueARN) {
 
         SubscribeRequest subscribeRequest = SubscribeRequest.builder().
                 topicArn(topicARN).
@@ -65,13 +65,13 @@ public class SNSPublisherSubscriber {
 
         SubscribeResponse result = snsClient.subscribe(subscribeRequest);
 
-        String subscriptionArn = result.subscriptionArn();
+        final String subscriptionArn = result.subscriptionArn();
 
         logger.info(format("Subscribed queue %s to sns topic %s with subscription %s", queueARN, topicARN, subscriptionArn ));
 
     }
 
-    private String createTopicIfRequire(String requestedTopic) {
+    private String createTopicIfRequire(final String requestedTopic) {
         if (!topicMap.containsKey(requestedTopic)) {
             logger.debug("need to fetch/create topic for " + requestedTopic);
             CreateTopicRequest createTopicRequest = CreateTopicRequest.builder().
@@ -87,7 +87,7 @@ public class SNSPublisherSubscriber {
         return topicMap.get(requestedTopic);
     }
 
-    public String getTopicUrnFor(String topicName) {
+    public String getTopicUrnFor(final String topicName) {
         try {
             return createTopicIfRequire(topicName);
         }

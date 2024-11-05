@@ -4,11 +4,11 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.cloud.SNSPublisherSubscriber;
 import com.tramchester.config.TfgmTramLiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
-import jakarta.inject.Inject;
 
 import static java.lang.String.format;
 
@@ -59,7 +59,7 @@ public class LiveDataSNSPublisher implements LiveDataFetcher.ReceivesRawData {
             return;
         }
 
-        logger.info("Publishing live data to SNS on topic " + snsTopic);
+        logger.debug("Publishing live data to SNS on topic " + snsTopic);
         lastSendOk = snsPublisher.send(snsTopic, text);
         if (!lastSendOk) {
             logger.error(format("Failed to publish live data on topic %s, check logs", snsTopic));
