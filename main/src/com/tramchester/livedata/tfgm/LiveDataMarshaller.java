@@ -76,60 +76,48 @@ public class LiveDataMarshaller implements LiveDataFetcher.ReceivesRawData {
             receivedInfos = parser.parse(payload);
         }
 
-        int received = receivedInfos.size();
+        final int received = receivedInfos.size();
         logger.debug(format("Received %s updates", received));
 
-        List<TramStationDepartureInfo> fresh = filterForFreshness(receivedInfos);
-        int freshCount = fresh.size();
-        String msg = freshCount + " of received " + received + " are fresh";
-        if (freshCount > 0) {
-            logger.info(msg);
-        } else {
-            logger.error(msg);
+        final FreshAndStale freshAndStale = filterForFreshness(receivedInfos);
+
+        freshAndStale.logResults();
+
+        if (freshAndStale.hasAnyFresh()) {
+            invokeObservers(freshAndStale.getFresh());
         }
 
-        if (!fresh.isEmpty()) {
-            invokeObservers(fresh);
-        }
-
-        fresh.clear();
+        freshAndStale.clear();
         receivedInfos.clear();
     }
 
     @NotNull
-    private List<TramStationDepartureInfo> filterForFreshness(List<TramStationDepartureInfo> receivedInfos) {
-        TramTime now = providesNow.getNowHourMins();
-        LocalDate date = providesNow.getDate();
-        int stale = 0;
+    private FreshAndStale filterForFreshness(final List<TramStationDepartureInfo> receivedInfos) {
+        final TramTime now = providesNow.getNowHourMins();
+        final LocalDate date = providesNow.getDate();
 
-        List<TramStationDepartureInfo> fresh = new ArrayList<>();
+        FreshAndStale freshAndStale = new FreshAndStale();
+
         for (TramStationDepartureInfo departureInfo : receivedInfos) {
             if (isTimely(departureInfo, date, now)) {
-                fresh.add(departureInfo);
+                freshAndStale.addFresh(departureInfo);
             } else {
-                stale = stale + 1;
-                logger.warn("Received stale departure info " + departureInfo);
+                freshAndStale.addStale(departureInfo);
             }
         }
-        if (stale >0) {
-            logger.warn("Received " + stale + " stale messages out of " + receivedInfos.size());
-        }
-        if (fresh.isEmpty()) {
-            logger.warn("Got zero fresh messages");
-        }
-        return fresh;
+        return freshAndStale;
     }
 
-    private boolean isTimely(TramStationDepartureInfo newDepartureInfo, LocalDate date, TramTime now) {
-        LocalDate updateDate = newDepartureInfo.getLastUpdate().toLocalDate();
+    private boolean isTimely(final TramStationDepartureInfo newDepartureInfo, final LocalDate date, final TramTime now) {
+        final LocalDate updateDate = newDepartureInfo.getLastUpdate().toLocalDate();
         if (!updateDate.equals(date)) {
-            logger.info("Received invalid update, date was " + updateDate);
+            logger.warn("Received invalid update, date was " + updateDate);
             return false;
         }
-        TramTime updateTime = TramTime.ofHourMins(newDepartureInfo.getLastUpdate().toLocalTime());
 
+        final TramTime updateTime = TramTime.ofHourMins(newDepartureInfo.getLastUpdate().toLocalTime());
         if (Durations.greaterThan(TramTime.difference(now, updateTime), TIME_LIMIT)) {
-            logger.info(format("Received out of date update. Local Now: %s Update: %s ", providesNow.getNowHourMins(), updateTime));
+            //logger.info(format("Received out of date update. Local Now: %s Update: %s ", providesNow.getNowHourMins(), updateTime));
             return false;
         }
 
@@ -148,6 +136,60 @@ public class LiveDataMarshaller implements LiveDataFetcher.ReceivesRawData {
     public void addSubscriber(LiveDataObserver observer) {
         logger.info("Add subscriber " + observer.getClass().getSimpleName());
         observers.add(observer);
+    }
+
+    private static class FreshAndStale {
+        public static final int REPORTING_THRESHOLD = 10;
+        private final List<TramStationDepartureInfo> fresh;
+        private final List<TramStationDepartureInfo> stale;
+
+        private FreshAndStale() {
+            fresh = new ArrayList<>();
+            stale = new ArrayList<>();
+        }
+
+        public void addFresh(TramStationDepartureInfo departureInfo) {
+            fresh.add(departureInfo);
+        }
+
+        public void addStale(TramStationDepartureInfo departureInfo) {
+            stale.add(departureInfo);
+        }
+
+        public void clear() {
+            fresh.clear();
+            stale.clear();
+        }
+
+        public boolean hasAnyFresh() {
+            return !fresh.isEmpty();
+        }
+
+        public List<TramStationDepartureInfo> getFresh() {
+            return fresh;
+        }
+
+        public void logResults() {
+            if (fresh.isEmpty()) {
+                logger.error("No fresh results received, all " + stale.size() + " were stale");
+                return;
+            }
+            if (stale.isEmpty()) {
+                return;
+            }
+            if (stale.size()< REPORTING_THRESHOLD) {
+                logStaleResults();
+            } else {
+                logger.error("More than " + REPORTING_THRESHOLD + " results were stale");
+            }
+        }
+
+        private void logStaleResults() {
+            List<String> ids = stale.stream().
+                    map(departInfo -> "station:" + departInfo.getStation().getId() + " displayId:"+departInfo.getDisplayId())
+                    .toList();
+            logger.warn("The following stations have stale departure information " + ids);
+        }
     }
 
 

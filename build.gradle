@@ -394,16 +394,16 @@ def integrationTestConfiguration = {
     minHeapSize = "1000m"
     maxHeapSize = "1750m"
     useJUnitPlatform {
-        // excludeTags "liveDataMessages" // these go away periodically...
-        // excludeTags "liveData" // also goes away on occasion
-        // excludeTags "dataExpiry" // can be useful to exclude when big changes to timetable are upcoming
-        // excludeTags 'liveDataDueTrams' // tfgm api has know issue
+        excludeTags "liveDataMessages" // exclude these when tfgm api is missing messages
+        excludeTags 'liveDataDueTrams' // exclude these when tfgm api is missing due trams
+//         excludeTags "liveData" // also goes away on occasion
+//         excludeTags "dataExpiry" // can be useful to exclude when big changes to timetable are upcoming
         excludeTags "postcode" // not needed for tram, but used by buses
         excludeTags "BusTest"
         excludeTags "TrainTest"
         excludeTags "GMTest"
-        excludeTags "LiveDataS3UploadTest"
-        excludeTags "AWSMetricsTest"
+        excludeTags "LiveDataS3UploadTest" // currently disabled
+        excludeTags "AWSMetricsTest" // currently disabled
     }
     filter {
         includeTestsMatching "com.tramchester.integration.*"
