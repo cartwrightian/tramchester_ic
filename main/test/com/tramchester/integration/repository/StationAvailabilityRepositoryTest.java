@@ -21,7 +21,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.testSupport.testTags.DataExpiryCategory;
+import com.tramchester.testSupport.testTags.DataExpiryTest;
 import com.tramchester.testSupport.testTags.DualTest;
 import com.tramchester.testSupport.testTags.GMTest;
 import org.junit.jupiter.api.AfterAll;
@@ -119,7 +119,7 @@ public class StationAvailabilityRepositoryTest {
 
     }
 
-    @DataExpiryCategory
+    @DataExpiryTest
     @Test
     void shouldHaveExpectedRoutesAvailableForDatesAndTimeRangesOverMidnight() {
         Station altrincham = Altrincham.from(stationRepository);
@@ -136,7 +136,7 @@ public class StationAvailabilityRepositoryTest {
 
     }
 
-    @DataExpiryCategory
+    @DataExpiryTest
     @Test
     void shouldHaveExpectedRoutesAvailableForDatesAndTimeRangesAfterMidnight() {
         Station altrincham = Altrincham.from(stationRepository);
@@ -148,7 +148,7 @@ public class StationAvailabilityRepositoryTest {
         assertFalse(atMidnightResults.isEmpty(), "for " + timeRangeATMidnight + " missing routes over mid-night from " + altrincham.getId());
     }
 
-    @DataExpiryCategory
+    @DataExpiryTest
     @Test
     void shouldHaveExpectedRoutesAvailableForDatesAndTimeRanges() {
 
@@ -163,7 +163,7 @@ public class StationAvailabilityRepositoryTest {
                 timeRange + " missing routes from " + altrincham.getId() + " got " + HasId.asIds(results));
     }
 
-    @DataExpiryCategory
+    @DataExpiryTest
     @Test
     void shouldHaveServicesAvailableAtExpectedLateTimeRangeNDaysAhead() {
         TramTime latestHour = TramTime.of(23,0);
@@ -185,7 +185,7 @@ public class StationAvailabilityRepositoryTest {
         });
     }
 
-    @DataExpiryCategory
+    @DataExpiryTest
     @Test
     void shouldHaveServicesAvailableAtExpectedEarlyTimeRangeNDaysAhead() {
         TramTime earlistHour = TramTime.of(7,0);

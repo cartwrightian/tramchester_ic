@@ -19,7 +19,7 @@ import com.tramchester.livedata.domain.liveUpdates.PlatformMessage;
 import com.tramchester.livedata.repository.PlatformMessageSource;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.StationMessagesResource;
-import com.tramchester.testSupport.testTags.LiveDataMessagesCategory;
+import com.tramchester.testSupport.testTags.LiveDataMessagesTest;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.BeforeAll;
@@ -71,7 +71,7 @@ class StationMessagesResourceTest {
     }
 
     @Test
-    @LiveDataMessagesCategory
+    @LiveDataMessagesTest
     void shouldHaveMessagesForStation() {
         assertNotNull(stationWithNotes, "No station with notes");
         Response response = getResponseForStation(stationWithNotes);

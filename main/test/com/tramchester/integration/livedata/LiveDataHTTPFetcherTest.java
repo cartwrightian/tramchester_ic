@@ -15,8 +15,8 @@ import com.tramchester.livedata.tfgm.LiveDataParser;
 import com.tramchester.livedata.repository.StationByName;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.testTags.LiveDataMessagesCategory;
-import com.tramchester.testSupport.testTags.LiveDataTestCategory;
+import com.tramchester.testSupport.testTags.LiveDataMessagesTest;
+import com.tramchester.testSupport.testTags.LiveDataInfraTest;
 import org.junit.jupiter.api.*;
 
 import java.time.LocalDateTime;
@@ -66,14 +66,14 @@ class LiveDataHTTPFetcherTest {
     }
 
     @Test
-    @LiveDataTestCategory
+    @LiveDataInfraTest
     void shouldFetchSomethingFromTFGM() {
         assertNotNull(payload);
         assertFalse(payload.isEmpty());
     }
 
     @Test
-    @LiveDataMessagesCategory
+    @LiveDataMessagesTest
     void shouldFetchValidDataFromTFGMAPI() {
         List<TramStationDepartureInfo> departureInfos = parser.parse(payload);
 
@@ -94,7 +94,7 @@ class LiveDataHTTPFetcherTest {
     }
 
     @Test
-    @LiveDataTestCategory
+    @LiveDataInfraTest
     void shouldHaveCrosscheckOnLiveDateDestinations() {
         List<TramStationDepartureInfo> departureInfos = parser.parse(payload);
 
@@ -112,7 +112,7 @@ class LiveDataHTTPFetcherTest {
     }
 
     @Test
-    @LiveDataTestCategory
+    @LiveDataInfraTest
     @Disabled("Part of spike on character set encoding issue for live api")
     void checkCharacterEncodingOnResponse()  {
         String rawJSON = fetcher.getData();
@@ -136,11 +136,13 @@ class LiveDataHTTPFetcherTest {
     }
 
     @Test
-    @LiveDataTestCategory
+    @LiveDataInfraTest
     void shouldMapAllLinesCorrectly() {
         List<TramStationDepartureInfo> departureInfos = parser.parse(payload);
 
         Set<OverheadDisplayLines> uniqueLines = departureInfos.stream().map(TramStationDepartureInfo::getLine).collect(Collectors.toSet());
+
+        assertFalse(uniqueLines.isEmpty());
 
         assertFalse(uniqueLines.contains(OverheadDisplayLines.UnknownLine));
 

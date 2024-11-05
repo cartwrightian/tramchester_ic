@@ -19,9 +19,8 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TramStationAdjacenyRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.LiveDataDueTramCategory;
-import com.tramchester.testSupport.testTags.LiveDataMessagesCategory;
-import com.tramchester.testSupport.testTags.LiveDataTestCategory;
+import com.tramchester.testSupport.testTags.LiveDataDueTramsTest;
+import com.tramchester.testSupport.testTags.LiveDataMessagesTest;
 import org.junit.jupiter.api.*;
 
 import java.time.Duration;
@@ -73,14 +72,14 @@ class TramPositionInferenceTest {
     }
 
     @Test
-    @LiveDataMessagesCategory
+    @LiveDataMessagesTest
     void needApiKeyPresentToFetchData() {
         assertNotNull(testConfig.getLiveDataConfig().getDataSubscriptionKey(), "subscription key null");
         assertFalse(testConfig.getLiveDataConfig().getDataSubscriptionKey().isEmpty(), "no subscription key present");
     }
 
     @Test
-    @LiveDataMessagesCategory
+    @LiveDataMessagesTest
     @Disabled("needs a tram in the right place at the right time")
     void shouldInferTramPosition() {
         // NOTE: costs are not symmetric between two stations, i.e. one direction might cost more than the other
@@ -111,8 +110,7 @@ class TramPositionInferenceTest {
     }
 
     @Test
-    @LiveDataTestCategory
-    @LiveDataDueTramCategory
+    @LiveDataDueTramsTest
     void shouldHaveSomeTramsPresentInNetwork() {
         List<TramPosition> tramPositions = positionInference.inferWholeNetwork(dateTime);
 

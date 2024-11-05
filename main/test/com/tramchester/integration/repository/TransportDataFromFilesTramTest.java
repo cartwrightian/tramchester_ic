@@ -37,7 +37,7 @@ import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.DataExpiryCategory;
+import com.tramchester.testSupport.testTags.DataExpiryTest;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
 import org.apache.commons.lang3.tuple.Pair;
@@ -287,7 +287,7 @@ public class TransportDataFromFilesTramTest {
         assertFalse(sundayTrips.isEmpty());
     }
 
-    @DataExpiryCategory
+    @DataExpiryTest
     @Test
     void shouldHaveServiceEndDatesBeyondNextNDays() {
 
@@ -358,7 +358,7 @@ public class TransportDataFromFilesTramTest {
         assertEquals(4, calls.size(), HasId.asIds(calls));
     }
 
-    @DataExpiryCategory
+    @DataExpiryTest
     @Test
     void shouldHaveTramServicesAvailableNDaysAhead() {
 
@@ -371,7 +371,7 @@ public class TransportDataFromFilesTramTest {
 
     }
 
-    @DataExpiryCategory
+    @DataExpiryTest
     @Test
     void shouldHaveTripsOnDateForEachStation() {
 
@@ -406,7 +406,7 @@ public class TransportDataFromFilesTramTest {
         assertFalse(onActualDate.isEmpty());
     }
 
-    @DataExpiryCategory
+    @DataExpiryTest
     @Test
     void shouldHaveServicesRunningAtReasonableTimesNDaysAhead() {
 

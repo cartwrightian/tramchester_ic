@@ -10,6 +10,6 @@ import java.lang.annotation.Target;
 @Target({ ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Tag("dataExpiry")
-public @interface DataExpiryCategory {
+public @interface DataExpiryTest {
     // NOTE: this tests fail if data expires within 7 days
 }

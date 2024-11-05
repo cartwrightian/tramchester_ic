@@ -9,7 +9,7 @@ import com.tramchester.livedata.tfgm.LiveDataFetcher;
 import com.tramchester.livedata.tfgm.TramDepartureRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.testTags.LiveDataDueTramCategory;
+import com.tramchester.testSupport.testTags.LiveDataDueTramsTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,7 +20,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@LiveDataDueTramCategory
+@LiveDataDueTramsTest
 public class TramDeparturesRepositoryTest {
 
     private static GuiceContainerDependencies componentContainer;

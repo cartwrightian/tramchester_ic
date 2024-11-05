@@ -29,8 +29,8 @@ import com.tramchester.resources.DeparturesResource;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.LiveDataDueTramCategory;
-import com.tramchester.testSupport.testTags.LiveDataMessagesCategory;
+import com.tramchester.testSupport.testTags.LiveDataDueTramsTest;
+import com.tramchester.testSupport.testTags.LiveDataMessagesTest;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import jakarta.ws.rs.core.Response;
 import org.jetbrains.annotations.NotNull;
@@ -96,19 +96,19 @@ class DeparturesResourceTest {
     }
 
     @Test
-    @LiveDataMessagesCategory
+    @LiveDataMessagesTest
     void shouldHaveAStationWithAMessage() {
         assertNotNull(stationWithNotes, "No station with notes");
     }
 
     @Test
-    @LiveDataDueTramCategory
+    @LiveDataDueTramsTest
     void shouldHaveAStationWithDepartures() {
         assertNotNull(stationWithDepartures);
     }
 
     @Test
-    @LiveDataMessagesCategory
+    @LiveDataMessagesTest
     void shouldHaveMessagesForStationWithNotes() {
         assertNotNull(stationWithNotes, "No station with notes");
         Response response = getResponseForStation(stationWithNotes);
@@ -121,7 +121,7 @@ class DeparturesResourceTest {
     }
 
     @Test
-    @LiveDataMessagesCategory
+    @LiveDataMessagesTest
     void shouldHaveMessagesForSpecificStation() {
 
         DeparturesQueryDTO queryDTO = new DeparturesQueryDTO(LocationType.Station, IdForDTO.createFor(stationWithNotes));
@@ -136,7 +136,7 @@ class DeparturesResourceTest {
     }
 
     @Test
-    @LiveDataMessagesCategory
+    @LiveDataMessagesTest
     void shouldHaveNoMessagesForNoneExistentStation() {
         IdForDTO invalidStation = BusStations.KnutsfordStationStand3.getIdForDTO();
 
@@ -152,7 +152,7 @@ class DeparturesResourceTest {
     }
 
     @Test
-    @LiveDataDueTramCategory
+    @LiveDataDueTramsTest
     void shouldGetDueTramsForStationWithinQuerytimeNow() {
         Station station = stationWithDepartures;
 
@@ -163,7 +163,7 @@ class DeparturesResourceTest {
     }
 
     @Test
-    @LiveDataDueTramCategory
+    @LiveDataDueTramsTest
     void shouldGetDueTramsForStationWithQuerytimePast() {
         LocalTime queryTime = TestEnv.LocalNow().toLocalTime().minusMinutes(120);
 
@@ -172,7 +172,7 @@ class DeparturesResourceTest {
     }
 
     @Test
-    @LiveDataDueTramCategory
+    @LiveDataDueTramsTest
     void shouldGetDueTramsForStationWithQuerytimeFuture() {
         LocalTime queryTime = TestEnv.LocalNow().toLocalTime().plusMinutes(120);
 
@@ -182,7 +182,7 @@ class DeparturesResourceTest {
     }
 
     @Test
-    @LiveDataDueTramCategory
+    @LiveDataDueTramsTest
     void shouldGetNearbyDeparturesQuerytimeNow() {
         LatLong where = nearAltrinchamInterchange.latLong();
         LocalTime queryTime = TestEnv.LocalNow().toLocalTime();
@@ -191,7 +191,7 @@ class DeparturesResourceTest {
     }
 
     @Test
-    @LiveDataDueTramCategory
+    @LiveDataDueTramsTest
     void shouldGetNearbyDeparturesQuerytimeFuture() {
         LatLong latLong = new LatLong(53.4804263d, -2.2392436d);
         LocalTime queryTime = TestEnv.LocalNow().toLocalTime().plusMinutes(120);
@@ -200,7 +200,7 @@ class DeparturesResourceTest {
     }
 
     @Test
-    @LiveDataDueTramCategory
+    @LiveDataDueTramsTest
     void shouldGetNearbyDeparturesQuerytimePast() {
         LatLong latLong = new LatLong(53.4804263d, -2.2392436d);
         LocalTime queryTime = TestEnv.LocalNow().toLocalTime().minusMinutes(120);
@@ -211,7 +211,7 @@ class DeparturesResourceTest {
     }
 
     @Test
-    @LiveDataDueTramCategory
+    @LiveDataDueTramsTest
     void shouldNotGetNearbyIfOutsideOfThreshold() {
         LatLong where = nearAltrinchamInterchange.latLong();
 

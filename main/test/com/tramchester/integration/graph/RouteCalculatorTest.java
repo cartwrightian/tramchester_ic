@@ -30,7 +30,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.DataExpiryCategory;
+import com.tramchester.testSupport.testTags.DataExpiryTest;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
 import org.jetbrains.annotations.NotNull;
@@ -170,7 +170,7 @@ public class RouteCalculatorTest {
         checkRouteNextNDays(Altrincham, Cornbrook, TramTime.of(15,0));
     }
 
-    @DataExpiryCategory
+    @DataExpiryTest
     @Test
     void shouldHaveSimpleManyStopJourneyViaInterchangeNDaysAhead() {
         checkRouteNextNDays(StPetersSquare, ManAirport, TramTime.of(14,0));

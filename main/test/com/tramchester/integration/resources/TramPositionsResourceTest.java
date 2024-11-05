@@ -8,8 +8,7 @@ import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
 import com.tramchester.livedata.domain.DTO.TramPositionDTO;
 import com.tramchester.livedata.domain.DTO.TramsPositionsDTO;
 import com.tramchester.resources.TramPositionsResource;
-import com.tramchester.testSupport.testTags.LiveDataDueTramCategory;
-import com.tramchester.testSupport.testTags.LiveDataTestCategory;
+import com.tramchester.testSupport.testTags.LiveDataDueTramsTest;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.BeforeAll;
@@ -35,8 +34,7 @@ class TramPositionsResourceTest {
         factory = new APIClientFactory(appExtension);
     }
 
-    @LiveDataTestCategory
-    @LiveDataDueTramCategory
+    @LiveDataDueTramsTest
     @Test
     void shouldGetSomePositionsFilteredByDefault() {
         String endPoint = "positions";
@@ -70,8 +68,7 @@ class TramPositionsResourceTest {
         assertEquals(0, departingTrams);
     }
 
-    @LiveDataTestCategory
-    @LiveDataDueTramCategory
+    @LiveDataDueTramsTest
     @Test
     void shouldGetSomePositionsUnfiltered() {
         String endPoint = "positions?unfiltered=true";

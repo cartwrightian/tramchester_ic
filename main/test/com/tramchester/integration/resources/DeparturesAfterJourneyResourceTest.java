@@ -28,8 +28,8 @@ import com.tramchester.livedata.repository.PlatformMessageSource;
 import com.tramchester.livedata.repository.UpcomingDeparturesSource;
 import com.tramchester.livedata.tfgm.TramDepartureRepository;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.testSupport.testTags.LiveDataDueTramCategory;
-import com.tramchester.testSupport.testTags.LiveDataMessagesCategory;
+import com.tramchester.testSupport.testTags.LiveDataDueTramsTest;
+import com.tramchester.testSupport.testTags.LiveDataMessagesTest;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import jakarta.ws.rs.core.Response;
 import org.jetbrains.annotations.NotNull;
@@ -101,19 +101,19 @@ class DeparturesAfterJourneyResourceTest {
     }
 
     @Test
-    @LiveDataMessagesCategory
+    @LiveDataMessagesTest
     void shouldHaveAStationWithAMessage() {
         assertNotNull(stationWithNotes, "No station with notes");
     }
 
     @Test
-    @LiveDataDueTramCategory
+    @LiveDataDueTramsTest
     void shouldHaveAStationWithDepartures() {
         assertNotNull(stationWithDepartures);
     }
 
     @Test
-    @LiveDataDueTramCategory
+    @LiveDataDueTramsTest
     void shouldGetDueTramsWithCorrectDueTramsHighlighted() {
         Station station = stationWithDepartures;
 
@@ -133,7 +133,7 @@ class DeparturesAfterJourneyResourceTest {
     }
 
     @Test
-    @LiveDataDueTramCategory
+    @LiveDataDueTramsTest
     void shouldGetDueTramsWithIsForJourneyFlagSet() {
         Station station = stationWithDepartures;
 
@@ -156,7 +156,7 @@ class DeparturesAfterJourneyResourceTest {
     }
 
     @Test
-    @LiveDataDueTramCategory
+    @LiveDataDueTramsTest
     void shouldGetDueTramsForLocationWithinQueryTimeNowAndDestinationMatching() {
         LatLong latLong = stationWithDepartures.getLatLong();
 

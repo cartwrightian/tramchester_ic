@@ -21,7 +21,7 @@ import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.testTags.BusTest;
-import com.tramchester.testSupport.testTags.DataExpiryCategory;
+import com.tramchester.testSupport.testTags.DataExpiryTest;
 import org.junit.jupiter.api.*;
 
 import java.time.Duration;
@@ -105,7 +105,7 @@ public class StationAvailabilityRepositoryForBusesTest {
 
     }
 
-    @DataExpiryCategory
+    @DataExpiryTest
     @Test
     void shouldHaveExpectedRoutesAvailableForDatesAndTimeRangesOverMidnight() {
         StationGroup shudeHillInterchange = stationGroupsRepository.getStationGroup(KnownLocality.Shudehill.getId());
@@ -129,7 +129,7 @@ public class StationAvailabilityRepositoryForBusesTest {
 
     }
 
-    @DataExpiryCategory
+    @DataExpiryTest
     @Test
     void shouldHaveExpectedRoutesAvailableForDatesAndTimeRangesAfterMidnight() {
         StationGroup shudeHillInterchange = stationGroupsRepository.getStationGroup(KnownLocality.Shudehill.getId());
@@ -141,7 +141,7 @@ public class StationAvailabilityRepositoryForBusesTest {
         assertFalse(atMidnightResults.isEmpty(), "for " + timeRangeATMidnight + " missing routes over mid-night from " + shudeHillInterchange.getId());
     }
 
-    @DataExpiryCategory
+    @DataExpiryTest
     @Test
     void shouldHaveExpectedRoutesAvailableForDatesAndTimeRanges() {
 
@@ -156,7 +156,7 @@ public class StationAvailabilityRepositoryForBusesTest {
                 timeRange + " missing routes from " + station.getId() + " got " + HasId.asIds(results));
     }
 
-    @DataExpiryCategory
+    @DataExpiryTest
     @Test
     void shouldHaveServicesAvailableAtExpectedLateTimeRangeNDaysAhead() {
         TramTime latestHour = TramTime.of(23,0);
@@ -178,7 +178,7 @@ public class StationAvailabilityRepositoryForBusesTest {
         });
     }
 
-    @DataExpiryCategory
+    @DataExpiryTest
     @Test
     void shouldHaveServicesAvailableAtExpectedEarlyTimeRangeNDaysAhead() {
         TramTime earlistHour = TramTime.of(7,0);

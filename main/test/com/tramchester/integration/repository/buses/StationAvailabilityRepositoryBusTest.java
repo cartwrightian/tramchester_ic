@@ -22,7 +22,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.testTags.BusTest;
-import com.tramchester.testSupport.testTags.DataExpiryCategory;
+import com.tramchester.testSupport.testTags.DataExpiryTest;
 import org.junit.jupiter.api.*;
 
 import java.time.Duration;
@@ -151,7 +151,7 @@ public class StationAvailabilityRepositoryBusTest {
 
 
     @Disabled("to convert to bus")
-    @DataExpiryCategory
+    @DataExpiryTest
     @Test
     void shouldHaveExpectedRoutesAvailableForDatesAndTimeRangesOverMidnight() {
         Station altrincham = Altrincham.from(stationRepository);
@@ -169,7 +169,7 @@ public class StationAvailabilityRepositoryBusTest {
     }
 
     @Disabled("to convert to bus")
-    @DataExpiryCategory
+    @DataExpiryTest
     @Test
     void shouldHaveExpectedRoutesAvailableForDatesAndTimeRangesAfterMidnight() {
         Station altrincham = Altrincham.from(stationRepository);
@@ -183,7 +183,7 @@ public class StationAvailabilityRepositoryBusTest {
 
 
     @Disabled("to convert to bus")
-    @DataExpiryCategory
+    @DataExpiryTest
     @Test
     void shouldHaveServicesAvailableAtExpectedLateTimeRangeNDaysAhead() {
         TramTime latestHour = TramTime.of(23,0);
@@ -206,7 +206,7 @@ public class StationAvailabilityRepositoryBusTest {
     }
 
     @Disabled("to convert to bus")
-    @DataExpiryCategory
+    @DataExpiryTest
     @Test
     void shouldHaveServicesAvailableAtExpectedEarlyTimeRangeNDaysAhead() {
         TramTime earlistHour = TramTime.of(7,0);

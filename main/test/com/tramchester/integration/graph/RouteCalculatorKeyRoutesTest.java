@@ -18,7 +18,7 @@ import com.tramchester.integration.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.testSupport.testTags.DataExpiryCategory;
+import com.tramchester.testSupport.testTags.DataExpiryTest;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
 
@@ -97,7 +97,7 @@ class RouteCalculatorKeyRoutesTest {
         validateFor(results);
     }
 
-    @DataExpiryCategory
+    @DataExpiryTest
     @Test
     void shouldFindEndOfLinesToEndOfLinesNextNDays() {
 
@@ -126,7 +126,7 @@ class RouteCalculatorKeyRoutesTest {
         return testDate.getDayOfWeek() != DayOfWeek.SUNDAY;
     }
 
-    @DataExpiryCategory
+    @DataExpiryTest
     @Test
     void shouldFindEndOfLinesToEndOfLinesInNDays() {
         final LocationIdPairSet<Station> pairs = combinations.EndOfRoutesToEndOfRoutes(Tram);

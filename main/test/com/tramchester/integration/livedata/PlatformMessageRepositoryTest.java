@@ -9,7 +9,7 @@ import com.tramchester.livedata.tfgm.LiveDataFetcher;
 import com.tramchester.livedata.tfgm.PlatformMessageRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.LiveDataMessagesCategory;
+import com.tramchester.testSupport.testTags.LiveDataMessagesTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,7 +51,7 @@ public class PlatformMessageRepositoryTest {
     }
 
     @Test
-    @LiveDataMessagesCategory
+    @LiveDataMessagesTest
     void findAtleastOneStationWithNotes() {
         assertNotEquals(messageRepo.numberOfEntries(), 0);
 
@@ -61,7 +61,7 @@ public class PlatformMessageRepositoryTest {
     }
 
     @Test
-    @LiveDataMessagesCategory
+    @LiveDataMessagesTest
     void shouldHaveMessagesForTestStation() {
         Set<Station> stations = messageRepo.getStationsWithMessages(TestEnv.LocalNow().toLocalTime());
 

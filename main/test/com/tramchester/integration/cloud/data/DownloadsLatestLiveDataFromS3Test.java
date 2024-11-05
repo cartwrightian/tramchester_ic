@@ -10,7 +10,6 @@ import com.tramchester.livedata.domain.DTO.archived.ArchivedStationDepartureInfo
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestTramLiveDataConfig;
 import com.tramchester.testSupport.testTags.LiveDataS3UploadTest;
-import com.tramchester.testSupport.testTags.LiveDataTestCategory;
 import com.tramchester.testSupport.testTags.S3Test;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -49,7 +48,6 @@ class DownloadsLatestLiveDataFromS3Test {
         downloader = componentContainer.get(DownloadsLiveDataFromS3.class);
     }
 
-    @LiveDataTestCategory
     @Test
     void shouldDownloadNewestData() {
         LocalDateTime start = TestEnv.LocalNow().minusHours(1);
