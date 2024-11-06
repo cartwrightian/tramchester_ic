@@ -111,7 +111,7 @@ public class LiveDataMarshaller implements LiveDataFetcher.ReceivesRawData {
     private boolean isTimely(final TramStationDepartureInfo newDepartureInfo, final LocalDate date, final TramTime now) {
         final LocalDate updateDate = newDepartureInfo.getLastUpdate().toLocalDate();
         if (!updateDate.equals(date)) {
-            logger.warn("Received invalid update, date was " + updateDate);
+            //logger.warn("Received invalid update, date was " + updateDate);
             return false;
         }
 
