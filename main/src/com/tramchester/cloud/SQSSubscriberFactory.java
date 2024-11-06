@@ -127,7 +127,7 @@ public class SQSSubscriberFactory {
             this.topicARN = topicARN;
         }
 
-        private List<Message> receiveMessageBatch(final int maxNumber, Duration timeout) {
+        private List<Message> receiveMessageBatch(final int maxNumber, final Duration timeout) {
             logger.debug(format("Receive messages max:%s timeout: %s", maxNumber, timeout));
 
             final List<Message> buffer = new LinkedList<>();
@@ -142,10 +142,10 @@ public class SQSSubscriberFactory {
                         maxNumberOfMessages(10). // 10 is the max
                         build();
 
-                ReceiveMessageResponse receiveResult = sqsClient.receiveMessage(receiveMsgReq);
+                final ReceiveMessageResponse receiveResult = sqsClient.receiveMessage(receiveMsgReq);
 
                 if (receiveResult.hasMessages()) {
-                    List<Message> messages = receiveResult.messages();
+                    final List<Message> messages = receiveResult.messages();
                     buffer.addAll(messages);
                     countDown = countDown - messages.size();
                 }
@@ -156,7 +156,7 @@ public class SQSSubscriberFactory {
 
         @Override
         public String receiveMessage() {
-            List<Message> msgs;
+            final List<Message> msgs;
 
             try {
                 msgs = receiveMessageBatch(100, Duration.ofSeconds(5));
@@ -170,18 +170,19 @@ public class SQSSubscriberFactory {
                 logger.info("No messages received for " + queueUrl);
                 return "";
             } else {
-                logger.info(format("queue %s received %s messages", queueUrl, msgs.size()));
+                final List<String> ids = msgs.stream().map(Message::messageId).toList();
+                logger.info(format("queue %s received %s messages ids %s", queueUrl, msgs.size(), ids));
             }
 
             // only process and delete one message at a time due to way rest of live data works
-            final String text = extractRequiredBody(msgs);
+            final String text = extractMostUpToDateMessageBody(msgs);
 
             deleteMessages(msgs);
 
             return text;
         }
 
-        private String extractRequiredBody(final List<Message> msgs) {
+        private String extractMostUpToDateMessageBody(final List<Message> msgs) {
             // discard if not SNS or if not expected topic
             List<JsonObject> parsedMessages = msgs.stream().
                     map(msg -> Jsoner.deserialize(msg.body(), new JsonObject())).
@@ -195,12 +196,15 @@ public class SQSSubscriberFactory {
                 logger.warn("No messages parsed successfully");
                 return "";
             }
+
             List<JsonObject> sorted = parsedMessages.stream().sorted(this::compare).toList();
             if (sorted.isEmpty()) {
                 logger.warn("No messages remaining after sorting");
             } else {
                 logger.debug("Successful got target message");
             }
+            // TODO Just used the first one here, so cope with mismatch in pub/sub cadence.....
+            // but should we log this as might indicate an issue?
             return extractPayloadFrom(sorted.get(0));
         }
 
@@ -219,10 +223,10 @@ public class SQSSubscriberFactory {
             return attributesResult.attributes().get(QueueAttributeName.QUEUE_ARN);
         }
 
-        private void deleteMessages(List<Message> messages) {
+        private void deleteMessages(final List<Message> messages) {
 
             try {
-                List<DeleteMessageBatchRequestEntry> entries = messages.stream().
+                final List<DeleteMessageBatchRequestEntry> entries = messages.stream().
                         map(msg -> DeleteMessageBatchRequestEntry.builder().id(msg.messageId()).build()).
                         toList();
                 DeleteMessageBatchRequest batchRequest = DeleteMessageBatchRequest.builder().queueUrl(queueUrl).entries(entries).build();

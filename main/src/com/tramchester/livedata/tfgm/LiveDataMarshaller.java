@@ -14,10 +14,8 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.time.Duration;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.lang.String.format;
 
@@ -93,35 +91,9 @@ public class LiveDataMarshaller implements LiveDataFetcher.ReceivesRawData {
 
     @NotNull
     private FreshAndStale filterForFreshness(final List<TramStationDepartureInfo> receivedInfos) {
-        final TramTime now = providesNow.getNowHourMins();
-        final LocalDate date = providesNow.getDate();
-
-        FreshAndStale freshAndStale = new FreshAndStale();
-
-        for (TramStationDepartureInfo departureInfo : receivedInfos) {
-            if (isTimely(departureInfo, date, now)) {
-                freshAndStale.addFresh(departureInfo);
-            } else {
-                freshAndStale.addStale(departureInfo);
-            }
-        }
+        FreshAndStale freshAndStale = new FreshAndStale(providesNow);
+        freshAndStale.addDepartures(receivedInfos);
         return freshAndStale;
-    }
-
-    private boolean isTimely(final TramStationDepartureInfo newDepartureInfo, final LocalDate date, final TramTime now) {
-        final LocalDate updateDate = newDepartureInfo.getLastUpdate().toLocalDate();
-        if (!updateDate.equals(date)) {
-            //logger.warn("Received invalid update, date was " + updateDate);
-            return false;
-        }
-
-        final TramTime updateTime = TramTime.ofHourMins(newDepartureInfo.getLastUpdate().toLocalTime());
-        if (Durations.greaterThan(TramTime.difference(now, updateTime), TIME_LIMIT)) {
-            //logger.info(format("Received out of date update. Local Now: %s Update: %s ", providesNow.getNowHourMins(), updateTime));
-            return false;
-        }
-
-        return true;
     }
 
     private void invokeObservers(List<TramStationDepartureInfo> receivedInfos) {
@@ -139,20 +111,29 @@ public class LiveDataMarshaller implements LiveDataFetcher.ReceivesRawData {
     }
 
     private static class FreshAndStale {
+
+        enum Timely {
+            OnTime,
+            TimeExpired,
+            DateExpried
+        }
+
         public static final int REPORTING_THRESHOLD = 10;
         private final List<TramStationDepartureInfo> fresh;
         private final List<TramStationDepartureInfo> stale;
+        private final ProvidesNow providesNow;
 
-        private FreshAndStale() {
+        private FreshAndStale(ProvidesNow providesNow) {
+            this.providesNow = providesNow;
             fresh = new ArrayList<>();
             stale = new ArrayList<>();
         }
 
-        public void addFresh(TramStationDepartureInfo departureInfo) {
+        private void addFresh(TramStationDepartureInfo departureInfo) {
             fresh.add(departureInfo);
         }
 
-        public void addStale(TramStationDepartureInfo departureInfo) {
+        private void addStale(TramStationDepartureInfo departureInfo) {
             stale.add(departureInfo);
         }
 
@@ -167,6 +148,20 @@ public class LiveDataMarshaller implements LiveDataFetcher.ReceivesRawData {
 
         public List<TramStationDepartureInfo> getFresh() {
             return fresh;
+        }
+
+        private Timely isTimely(final TramStationDepartureInfo newDepartureInfo, final LocalDate date, final TramTime now) {
+            final LocalDate updateDate = newDepartureInfo.getLastUpdate().toLocalDate();
+            if (!updateDate.equals(date)) {
+                return Timely.DateExpried;
+            }
+
+            final TramTime updateTime = TramTime.ofHourMins(newDepartureInfo.getLastUpdate().toLocalTime());
+            if (Durations.greaterThan(TramTime.difference(now, updateTime), TIME_LIMIT)) {
+                return Timely.TimeExpired;
+            }
+
+            return Timely.OnTime;
         }
 
         public void logResults() {
@@ -189,6 +184,36 @@ public class LiveDataMarshaller implements LiveDataFetcher.ReceivesRawData {
                     map(departInfo -> "station:" + departInfo.getStation().getId() + " displayId:"+departInfo.getDisplayId())
                     .toList();
             logger.warn("The following stations have stale departure information " + ids);
+        }
+
+        public void addDepartures(final List<TramStationDepartureInfo> receivedInfos) {
+            final Map<Timely, AtomicInteger> counters = new HashMap<>();
+            for(final Timely counter : Timely.values()) {
+                counters.put(counter, new AtomicInteger(0));
+            }
+            boolean haveProblems = false;
+
+            final TramTime now = providesNow.getNowHourMins();
+            final LocalDate date = providesNow.getDate();
+
+            for (final TramStationDepartureInfo departureInfo : receivedInfos) {
+                final Timely timely = isTimely(departureInfo, date, now);
+                if (timely==Timely.OnTime) {
+                    addFresh(departureInfo);
+                } else {
+                    haveProblems = true;
+                    addStale(departureInfo);
+                }
+                counters.get(timely).getAndIncrement();
+            }
+
+            if (haveProblems) {
+                final StringBuilder msgForCounters = new StringBuilder();
+                for (Timely timely : Timely.values()) {
+                    msgForCounters.append(" ").append(timely.name()).append(":").append(counters.get(timely).get());
+                }
+                logger.warn(msgForCounters.toString());
+            }
         }
     }
 

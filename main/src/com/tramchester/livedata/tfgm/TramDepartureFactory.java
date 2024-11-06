@@ -52,27 +52,27 @@ public class TramDepartureFactory {
     public TramStationDepartureInfo createStationDeparture(BigDecimal displayId, OverheadDisplayLines line, LineDirection direction,
                                                            String atcoCode, String message, LocalDateTime updateTime) {
         final Optional<Station> maybeStation = getStationByAtcoCode(atcoCode);
-        return maybeStation.map(station -> createWithPlatform(displayId, line, direction, message, updateTime, station, atcoCode)).orElse(null);
+        return maybeStation.map(station -> createDepartureInfo(displayId, line, direction, message, updateTime, station, atcoCode)).orElse(null);
     }
 
-    private TramStationDepartureInfo createWithPlatform(BigDecimal displayId, OverheadDisplayLines line, LineDirection direction,
-                                                        final String message, LocalDateTime updateTime, Station station,
-                                                        final String atcoCode) {
-        Platform platform = getPlatform(station, atcoCode);
-        if (platform!=null) {
-            return new TramStationDepartureInfo(displayId.toString(), line, direction, station, message, updateTime, platform);
-        } else {
+    private TramStationDepartureInfo createDepartureInfo(BigDecimal displayId, OverheadDisplayLines line, LineDirection direction,
+                                                         final String message, LocalDateTime updateTime, Station station,
+                                                         final String atcoCode) {
+        final Platform platform = getPlatform(station, atcoCode);
+        if (platform == null) {
             return new TramStationDepartureInfo(displayId.toString(), line, direction, station, message, updateTime);
+        } else {
+            return new TramStationDepartureInfo(displayId.toString(), line, direction, station, message, updateTime, platform);
         }
     }
 
-    private Platform getPlatform(Station station, final String atcoCode) {
+    private Platform getPlatform(final Station station, final String atcoCode) {
 
         final IdFor<Platform> platformId = getPlatformIdFor(station, atcoCode);
         if (platformRepository.hasPlatformId(platformId)) {
             return platformRepository.getPlatformById(platformId);
         } else {
-            logger.warn("Could not find platform for " + atcoCode);
+            logger.debug("Could not find platform for " + atcoCode);
             return null;
         }
     }

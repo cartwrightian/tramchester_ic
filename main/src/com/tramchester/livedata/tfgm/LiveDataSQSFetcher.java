@@ -58,7 +58,7 @@ public class LiveDataSQSFetcher extends LiveDataFetcher {
         }
     }
 
-    public String getTopicFrom(URI uri) {
+    public String getTopicFrom(final URI uri) {
         final String scheme = uri.getScheme();
         final String text = uri.toString();
 
@@ -73,7 +73,7 @@ public class LiveDataSQSFetcher extends LiveDataFetcher {
             return "";
         }
 
-        String text = sqsSubscriber.receiveMessage();
+        final String text = sqsSubscriber.receiveMessage();
         logger.info("Received message of size " + text.length());
         return text;
     }

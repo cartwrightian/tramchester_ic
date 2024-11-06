@@ -347,7 +347,8 @@ public class LiveDataParser {
 
         @Override
         public void missingPlatform(Station station, String atcoCode) {
-            logWarning(format("Platform '%s' not in timetable data for station %s", atcoCode, station.getId()));
+            // a missing platform does not matter if we found the station ok
+            logger.debug(format("Platform '%s' not in timetable data for station %s", atcoCode, station.getId()));
         }
 
         @Override
