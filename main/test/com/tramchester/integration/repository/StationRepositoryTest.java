@@ -81,8 +81,7 @@ public class StationRepositoryTest {
 
         IdSet<Station> dropOffs = allStations.stream().filter(station -> station.servesRouteDropOff(buryToAlty)).collect(IdSet.collector());
 
-        // 25->30 for data during closures and disruptions, presumably because route starting elsewhere during the disruption
-        int expectedNumStations = 30;
+        int expectedNumStations = 25;
 
         assertEquals(expectedNumStations, dropOffs.size(), dropOffs.toString());
 
