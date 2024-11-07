@@ -1,5 +1,5 @@
 #!/bin/bash
 logger tramchester initial updates/installs
-yum install -y java-17-amazon-corretto-devel
+yum install -y java-21-amazon-corretto-devel
 yum install -y jq
 yum install -y amazon-cloudwatch-agent

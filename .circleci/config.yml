@@ -8,7 +8,7 @@ orbs:
 jobs:
   build:
     docker:
-      - image: cimg/openjdk:17.0
+      - image: cimg/openjdk:21.0
     resource_class: medium
     working_directory: ~/repo
     environment:
@@ -36,7 +36,7 @@ jobs:
             - ~/.gradle
   integration:
     docker:
-      - image: cimg/openjdk:17.0-node
+      - image: cimg/openjdk:21.0-node
     resource_class: medium
     working_directory: ~/repo
     environment:
@@ -68,7 +68,7 @@ jobs:
             - node_modules
   acceptance:
     docker:
-      - image: cimg/openjdk:17.0-browsers
+      - image: cimg/openjdk:21.0-browsers
     resource_class: medium
     working_directory: ~/repo
 
@@ -139,7 +139,7 @@ jobs:
           path: ~/logs
   deployProd:
     docker:
-      - image: cimg/openjdk:17.0
+      - image: cimg/openjdk:21.0
     working_directory: ~/repo
     environment:
       RELEASE_NUMBER: << pipeline.number >>
