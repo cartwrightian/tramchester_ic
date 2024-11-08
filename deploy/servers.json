@@ -8,7 +8,7 @@
 	"webSubnetA":{ "Type":"String", "Description":"::subnetA" },
 	"webSg":{ "Type":"String", "Description":"::instancesSecurityGroup" },
 	"webServerName":{ "Type":"String", "Default":"tramchesterWeb" },
-	"ami":{ "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>", "Default" : "/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-arm64-gp2" },
+	"ami":{ "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>", "Default" : "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-arm64" },
 	"baseUrl":{ "Type":"String", "Default":"https://s3-eu-west-1.amazonaws.com" },
 	"bucketName":{"Type":"String", "Default":"tramchesternewdist"},
 	"bootstrapCloudInit":{"Type":"String", "Default":"cloudInitAWSLinux.txt"},

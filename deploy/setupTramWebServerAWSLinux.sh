@@ -6,8 +6,13 @@ logger -s Begin setup of tramchester server
 
 export USERDATA=http://169.254.169.254/latest/user-data
 
-userText=/tmp/userdata.txt
-wget -nv $USERDATA -O "$userText"
+userText=$HOME/userdata.txt
+
+# does not work for IMDSv2
+#wget -nv $USERDATA -O "$userText"
+
+TOKEN=`curl --silent -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"`
+curl --silent -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/user-data > "$userText"
 
 export S3URL=https://s3-eu-west-1.amazonaws.com
 

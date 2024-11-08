@@ -10,14 +10,22 @@ import java.io.BufferedReader;
 import java.io.IOException;
 
 public class StubbedAWSServer  {
+    public static final String ACCESS_TOKEN_HEADER = "X-aws-ec2-metadata-token-ttl-seconds";
+
     private String metadata;
     private String calledUrl;
     private String postedData;
     private Server server;
     private final Handler handler;
     private String contentHeader;
+    private final String metaDataAccessToken;
 
     public StubbedAWSServer() {
+        this("");
+    }
+
+    public StubbedAWSServer(String metaDataAccessToken) {
+        this.metaDataAccessToken = metaDataAccessToken;
         handler = new Handler();
     }
 
@@ -58,17 +66,49 @@ public class StubbedAWSServer  {
             calledUrl = request.getRequestURL().toString();
             contentHeader = request.getHeader("Content-Type");
             if (request.getMethod().equals("GET")) {
-                response.setContentType("text/html;charset=utf-8");
-                response.setStatus(HttpServletResponse.SC_OK);
-                response.getWriter().write(metadata);
-                baseRequest.setHandled(true);
+                processGet(baseRequest, response);
             } else if (request.getMethod().equals("PUT")) {
-                response.setStatus(HttpServletResponse.SC_OK);
+                processPut(baseRequest, response);
+            }
+        }
+
+        private void processPut(Request request, HttpServletResponse response) throws IOException {
+            final String metaDataAccessTokenRequest = request.getHeader(ACCESS_TOKEN_HEADER);
+            if (metaDataAccessTokenRequest!=null) {
+                if (metaDataAccessToken.isEmpty()) {
+                    throw new RuntimeException(ACCESS_TOKEN_HEADER + " was set but no token is set");
+                }
+                response.getWriter().write(metaDataAccessToken);
+                postedData = metaDataAccessTokenRequest;
+            } else {
                 BufferedReader reader = request.getReader();
                 StringBuilder incoming = new StringBuilder();
                 reader.lines().forEach(incoming::append);
                 postedData = incoming.toString();
             }
+            response.setStatus(HttpServletResponse.SC_OK);
+            request.setHandled(true);
+        }
+
+        private void processGet(Request baseRequest, HttpServletResponse response) throws IOException {
+            response.setContentType("text/html;charset=utf-8");
+
+            if (!metaDataAccessToken.isEmpty()) {
+                final String token = baseRequest.getHeader("X-aws-ec2-metadata-token");
+                if (token==null) {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    baseRequest.setHandled(true);
+                    return;
+                }
+                if (!token.equals(metaDataAccessToken)) {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    baseRequest.setHandled(true);
+                    return;
+                }
+            }
+            response.setStatus(HttpServletResponse.SC_OK);
+            response.getWriter().write(metadata);
+            baseRequest.setHandled(true);
         }
     }
 

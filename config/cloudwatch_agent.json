@@ -46,6 +46,12 @@
             "log_group_name": "syslog",
             "log_stream_name": "PREFIX",
             "timezone": "UTC"
+          },
+          {
+            "file_path": "/var/log/cloud-init-output.log",
+            "log_group_name": "cloudinit",
+            "log_stream_name": "PREFIX",
+            "timezone": "UTC"
           }
         ]
       }

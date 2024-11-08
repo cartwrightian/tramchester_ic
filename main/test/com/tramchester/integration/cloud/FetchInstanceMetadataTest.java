@@ -24,6 +24,22 @@ class FetchInstanceMetadataTest {
     }
 
     @Test
+    void shouldFetchInstanceMetadataWhenTokenRequired() throws Exception {
+
+        FetchInstanceMetadata fetcher = new FetchInstanceMetadata(new ConfigWithMetaDataUrl("http://localhost:8080"));
+
+        StubbedAWSServer server = new StubbedAWSServer("TOKEN123");
+        server.run("someSimpleMetaData");
+
+        String data = fetcher.getUserData();
+        server.stopServer();
+
+        assertEquals("21600", server.getPutData());
+        assertEquals(data, "someSimpleMetaData");
+        assertEquals(server.getCalledUrl(), "http://localhost:8080/latest/user-data");
+    }
+
+    @Test
     void shouldReturnEmptyIfNoMetaDataAvailable() {
         FetchInstanceMetadata fetcher = new FetchInstanceMetadata(new ConfigWithMetaDataUrl("http://localhost:8080"));
 
