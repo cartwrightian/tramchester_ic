@@ -56,7 +56,8 @@ public class LiveDataParser {
     public enum LiveDataNamesMapping {
         DeansgateAliasB("Deansgate Castlefield","Deansgate-Castlefield"),
         Firswood("Firswood", "Firswood Station"),
-        AshtonViaMediaCity("Ashton via MCUK", "Ashton-Under-Lyne");
+        AshtonViaMediaCity("Ashton via MCUK", "Ashton-Under-Lyne"),
+        RochdaleStn("Rochdale Stn", "Rochdale Railway Station");
 
 // No longer in use?
 //        Firswood("Firswood", "Firswood Station"),
@@ -65,7 +66,6 @@ public class LiveDataParser {
 //        BessesOThBarns("Besses O’ Th’ Barn","Besses o'th'barn"),
 //        NewtonHeathAndMoston("Newton Heath and Moston","Newton Heath & Moston"),
 //        StWerburgsRoad("St Werburgh’s Road","St Werburgh's Road"),
-//        Rochdale("Rochdale Stn", "Rochdale Railway Station"),
 //        TraffordCentre("Trafford Centre", "The Trafford Centre"),
 //        RochdaleCentre("Rochdale Ctr", "Rochdale Town Centre");
 
