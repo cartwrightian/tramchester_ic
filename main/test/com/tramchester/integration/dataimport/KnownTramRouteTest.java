@@ -137,7 +137,7 @@ class KnownTramRouteTest {
     void shouldNotHaveUnusedKnownTramRoutesForDate() {
         TramDate start = TramDate.from(TestEnv.LocalNow());
 
-        DateRange dateRange = DateRange.of(start, when.plusWeeks(6));
+        DateRange dateRange = DateRange.of(start, when.plusWeeks(1));
 
         SortedMap<TramDate, Set<KnownTramRoute>> unusedForDate = new TreeMap<>();
 

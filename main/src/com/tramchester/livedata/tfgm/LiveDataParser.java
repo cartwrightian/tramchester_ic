@@ -55,7 +55,8 @@ public class LiveDataParser {
 
     public enum LiveDataNamesMapping {
         DeansgateAliasB("Deansgate Castlefield","Deansgate-Castlefield"),
-        Firswood("Firswood", "Firswood Station");
+        Firswood("Firswood", "Firswood Station"),
+        AshtonViaMediaCity("Ashton via MCUK", "Ashton-Under-Lyne");
 
 // No longer in use?
 //        Firswood("Firswood", "Firswood Station"),
