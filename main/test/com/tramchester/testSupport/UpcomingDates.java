@@ -31,7 +31,8 @@ public class UpcomingDates {
 
     private static final TramDate deansgateWorks27thOctober = TramDate.of(2024,10,27);
 
-    public static final TramDate RemembranceSundayClosures = TramDate.of(2024, 11, 10);
+    //public static final TramDate RemembranceSundayClosures = TramDate.of(2024, 11, 10);
+    public static final TramDate VictoriaLineWorks = TramDate.of(2024, 11, 17);
 
     static {
         TramDate today = TramDate.from(TestEnv.LocalNow());

@@ -376,7 +376,7 @@ public class TransportDataFromFilesTramTest {
     void shouldHaveTripsOnDateForEachStation() {
 
         Set<Pair<TramDate, IdFor<Station>>> missing = UpcomingDates.getUpcomingDates().
-                filter(date -> !UpcomingDates.RemembranceSundayClosures.equals(date)).
+                filter(date -> !UpcomingDates.VictoriaLineWorks.equals(date)).
                 flatMap(date -> getStations(date).map(station -> Pair.of(date, station))).
                 filter(pair -> isOpen(pair.getLeft(), pair.getRight())).
                 filter(pair -> transportData.getTripsCallingAt(pair.getRight(), pair.getLeft()).isEmpty()).
@@ -423,7 +423,7 @@ public class TransportDataFromFilesTramTest {
         final Map<Pair<TramDate, TramTime>, IdSet<Station>> missing = new HashMap<>();
 
         UpcomingDates.getUpcomingDates().
-                filter(date -> !UpcomingDates.RemembranceSundayClosures.equals(date)).
+                filter(date -> !UpcomingDates.VictoriaLineWorks.equals(date)).
                 forEach(date -> getStations(date).
                 forEach(station -> {
                     final Set<Trip> trips = transportData.getTripsCallingAt(station, date);
