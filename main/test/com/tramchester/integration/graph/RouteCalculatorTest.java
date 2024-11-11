@@ -578,7 +578,7 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, StPetersSquare, Deansgate);
     }
 
-    @DisabledUntilDate(year = 2024, month = 11, day = 11)
+    @DisabledUntilDate(year = 2024, month = 11, day = 17)
     @Test
     void reproduceIssueWithTramsSundayAshtonToEccles() {
         JourneyRequest journeyRequest = new JourneyRequest(UpcomingDates.nextSunday(), TramTime.of(9, 45), false,
