@@ -156,6 +156,22 @@ class RedirectHttpFilterTest extends EasyMockSupport {
     }
 
     @Test
+    void shouldCopeWithInvalidAddress() throws IOException, ServletException {
+        HttpServletRequest request = createMock(HttpServletRequest.class);
+        HttpServletResponse response = createMock(HttpServletResponse.class);
+        FilterChain chain = createMock(FilterChain.class);
+
+        EasyMock.expect(request.getHeader("X-Forwarded-Proto")).andReturn("http");
+        EasyMock.expect(request.getRequestURL()).andReturn(new StringBuffer("http://18.200.64.82/hello.world"));
+        response.sendError(HttpServletResponse.SC_BAD_GATEWAY);
+        EasyMock.expectLastCall();
+
+        replayAll();
+        filter.doFilter(request, response, chain);
+        verifyAll();
+    }
+
+    @Test
     void shouldNotFilterIfCHeaderIsMissing() throws IOException, ServletException {
         HttpServletRequest request = createMock(HttpServletRequest.class);
         HttpServletResponse response = createMock(HttpServletResponse.class);
