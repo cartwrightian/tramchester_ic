@@ -45,22 +45,31 @@ public class RedirectToHttpsUsingELBProtoHeader implements Filter {
         final HttpServletResponse httpServletResponse = (HttpServletResponse) response;
 
         final String xForwardHeader = httpServletRequest.getHeader(X_FORWARDED_PROTO); // https is terminated by the ELB
-        final String rawUrl = httpServletRequest.getRequestURL().toString();
+        final String dangerousRawURL = httpServletRequest.getRequestURL().toString();
+
+        final URL url;
+        try {
+            url = new URI(dangerousRawURL).toURL();
+        } catch(URISyntaxException unableToParse) {
+            // not logging url here, unsafe
+            logger.error("Unable to parse the URL", unableToParse);
+            httpServletResponse.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
 
         try {
 
             if (xForwardHeader != null) {
                 if ("http".equalsIgnoreCase(xForwardHeader)) {
-                    URL url = new URI(rawUrl).toURL();
 
-                    logger.info("Found http in " +X_FORWARDED_PROTO+ " need to redirect to https for " + url);
+                    logger.info("Found http in " + X_FORWARDED_PROTO+ " need to redirect to https for " + url.getHost());
 
-                    final URL location = mapUrl(url);
+                    //final URL location = mapUrl(url);
 
-                    if (isValid(location)) {
-                        httpServletResponse.sendRedirect(location.toExternalForm());
+                    if (isValid(url)) {
+                        httpServletResponse.sendRedirect(url.toExternalForm());
                     } else {
-                        logger.warn("Unrecognised host, respond with bad gateway for " + url);
+                        logger.warn("Unrecognised host, respond with bad gateway for " + url.getHost());
                         httpServletResponse.sendError(HttpServletResponse.SC_BAD_GATEWAY);
                     }
 
@@ -68,13 +77,9 @@ public class RedirectToHttpsUsingELBProtoHeader implements Filter {
                 }
             }
         }
-        catch(URISyntaxException unableToParse) {
-            logger.error("Unable to parse the URL, send server error. Url: " + rawUrl, unableToParse);
-            httpServletResponse.sendError(HttpServletResponse.SC_BAD_REQUEST);
-            return;
-        }
+
         catch (MalformedURLException malformedURLException) {
-            logger.error("Unable to map URL, send server error. Url: " + rawUrl, malformedURLException);
+            logger.error("Unable to map URL, send server error. Url: " + url.getHost(), malformedURLException);
             httpServletResponse.sendError(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
@@ -88,11 +93,11 @@ public class RedirectToHttpsUsingELBProtoHeader implements Filter {
 
     public URL mapUrl(URL originalURL) throws MalformedURLException {
         // Note: only called on initial redirection
-        logger.debug("Mapping url "+originalURL);
+        logger.debug("Mapping url host:"+originalURL.getHost() + "  path:'" + originalURL.getFile() +"'");
 
         //String result = "https"+ originalURL.substring(4);
 
-        String host = originalURL.getHost();
+        final String host = originalURL.getHost();
         String redirectHost = host;
 
         for (String unsecure: unsecureHosts) {
@@ -105,9 +110,11 @@ public class RedirectToHttpsUsingELBProtoHeader implements Filter {
         URL newUrl = new URL("https", redirectHost, originalURL.getPort(), originalURL.getFile());
 
         if (!host.equals(redirectHost)) {
-            logger.info(format("Mapped URL %s to %s", originalURL, newUrl));
+            logger.info(format("Mapped URL '%s' '%s' '%s' to %s", originalURL.getHost(), originalURL.getPort(),
+                    originalURL.getFile(), newUrl));
         } else {
-            logger.info("No mapping of host, change to https " + originalURL);
+            logger.info("No mapping of host, change to https for '" + originalURL.getHost() + "' '" +  originalURL.getPort(),
+                    originalURL.getFile() + "'");
         }
 
         return newUrl;

@@ -39,14 +39,14 @@ public class RedirectToAppFilter implements Filter {
             return;
         }
 
-        String location = httpServletRequest.getRequestURL().toString().toLowerCase();
-        URL url = new URL(location);
+        final String unsafeOriginal = httpServletRequest.getRequestURL().toString().toLowerCase();
+        final URL url = new URL(unsafeOriginal);
 
         if (url.getPath().equals("/")) {
             boolean forwardedSecure = isForwardedSecure(httpServletRequest);
             String redirection = getRedirectURL(url, forwardedSecure);
 
-            logger.debug(format("Redirect from %s to %s", url, redirection));
+            logger.debug(format("Redirect from %s to %s", url.getHost(), redirection));
             servletResponse.sendRedirect(redirection);
             return;
         }

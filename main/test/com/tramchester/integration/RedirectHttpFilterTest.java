@@ -87,7 +87,7 @@ class RedirectHttpFilterTest extends EasyMockSupport {
     }
 
     @Test
-    void shouldBadGatewayIfBadUrl() throws IOException, ServletException {
+    void shouldBadGatewayIfInvalidUrl() throws IOException, ServletException {
         String original = "xzy://somethingOdd_here";
 
         HttpServletRequest request = createMock(HttpServletRequest.class);
@@ -97,6 +97,24 @@ class RedirectHttpFilterTest extends EasyMockSupport {
         EasyMock.expect(request.getHeader("X-Forwarded-Proto")).andReturn("http");
         EasyMock.expect(request.getRequestURL()).andReturn(new StringBuffer(original));
         response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+        EasyMock.expectLastCall();
+
+        replayAll();
+        filter.doFilter(request, response, chain);
+        verifyAll();
+    }
+
+    @Test
+    void shouldBadGatewayIfAttackURL() throws IOException, ServletException {
+        String original = "http://18.200.64.82/hello.world";
+
+        HttpServletRequest request = createMock(HttpServletRequest.class);
+        HttpServletResponse response = createMock(HttpServletResponse.class);
+        FilterChain chain = createMock(FilterChain.class);
+
+        EasyMock.expect(request.getHeader("X-Forwarded-Proto")).andReturn("http");
+        EasyMock.expect(request.getRequestURL()).andReturn(new StringBuffer(original));
+        response.sendError(HttpServletResponse.SC_BAD_GATEWAY);
         EasyMock.expectLastCall();
 
         replayAll();
