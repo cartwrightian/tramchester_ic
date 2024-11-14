@@ -11,8 +11,10 @@ userText=$HOME/userdata.txt
 # does not work for IMDSv2
 #wget -nv $USERDATA -O "$userText"
 
-TOKEN=`curl --silent -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"`
-curl --silent -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/user-data > "$userText"
+if [ ! -f "$userText" ]; then
+  TOKEN=`curl --silent -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"`
+  curl --silent -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/user-data > "$userText"
+fi
 
 export S3URL=https://s3-eu-west-1.amazonaws.com
 
@@ -48,25 +50,27 @@ target=tramchester-$BUILD
 distUrl=$ARTIFACTSURL/$target.zip
 dist=$(basename "$distUrl")
 
-logger -s Get "$distUrl"
-wget -nv "$distUrl" -O "$dist"
-unzip "$dist" || (logger -s Could not unzip from "$dist" from "$distUrl" && exit)
+if [ ! -f "$dist" ]; then
+  logger -s Get "$distUrl"
+  wget -nv "$distUrl" -O "$dist"
+  unzip "$dist" || (logger -s Could not unzip from "$dist" from "$distUrl" && exit)
 
-# fix ownership
-chown -R ec2-user .
+  # fix ownership
+  chown -R ec2-user .
 
-# cloudwatch logs agent
-logger -s set up amazon cloudwatch logs agent new
-sed -i.orig "s/PREFIX/web_${PLACE}_${BUILD}/" $target/config/cloudwatch_agent.json
-sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:$target/config/cloudwatch_agent.json -s
-logger -s cloud watch agent configured
+  # cloudwatch logs agent
+  logger -s set up amazon cloudwatch logs agent new
+  sed -i.orig "s/PREFIX/web_${PLACE}_${BUILD}/" $target/config/cloudwatch_agent.json
+  sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:$target/config/cloudwatch_agent.json -s
+  logger -s cloud watch agent configured
+fi
 
 # start
 logger -s invoke start script
 export RAIL_WSDL=$target/config/OpenLDBWS.wsdl
 export RELEASE_NUMBER="$BUILD"
 logger Start tramchester for $PLACE
-export JAVA_OPTS="-Xmx1550m"
+export JAVA_OPTS="-Xmx850m"
 sudo -E -u ec2-user bash ./$target/bin/start.sh &
 
 logger -s Finish Web bootstrap script for "$BUILD" and "$PLACE"

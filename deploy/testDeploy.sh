@@ -1,14 +1,12 @@
 #!/bin/bash
 
-# extract from instance user data
-export PLACE=Dev
 export BUILD=0
 export BUCKET=tramchesternewdist
-#export TFGMAPIKEY=$(grep TFGMAPIKEY "$userText" | cut -d = -f 2-)
 
 export ARTIFACTSURL=s3://$BUCKET/dist/$BUILD
 
-echo  Set up Web server Bucket: "$BUCKET" Build: "$BUILD" Url: "$ARTIFACTSURL" Env: "$PLACE"
+echo  Set up Web server Bucket: "$BUCKET" Build: "$BUILD" Url: "$ARTIFACTSURL"
+
 
 mkdir -p server
 cd server || (echo Could not cd to server && exit)

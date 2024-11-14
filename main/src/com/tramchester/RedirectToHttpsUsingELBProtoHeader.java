@@ -68,7 +68,7 @@ public class RedirectToHttpsUsingELBProtoHeader implements Filter {
                     if (isValidHost(location)) {
                         httpServletResponse.sendRedirect(location.toExternalForm());
                     } else {
-                        logger.warn("Unrecognised host, respond with bad gateway for " + originalURL.getHost());
+                        logger.warn("Unrecognised host, respond with bad gateway for remote host" + request.getRemoteHost());
                         httpServletResponse.sendError(HttpServletResponse.SC_BAD_GATEWAY);
                     }
 
