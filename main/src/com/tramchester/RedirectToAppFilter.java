@@ -9,6 +9,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 import static com.tramchester.RedirectToHttpsUsingELBProtoHeader.X_FORWARDED_PROTO;
@@ -40,13 +42,22 @@ public class RedirectToAppFilter implements Filter {
         }
 
         final String unsafeOriginal = httpServletRequest.getRequestURL().toString().toLowerCase();
-        final URL url = new URL(unsafeOriginal);
 
-        if (url.getPath().equals("/")) {
+        final URI originalURL;
+        try {
+            originalURL = new URI(unsafeOriginal);
+        } catch(URISyntaxException unableToParse) {
+            // not logging url here, unsafe
+            logger.error("Unable to parse the URL", unableToParse);
+            servletResponse.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+
+        if (originalURL.getPath().equals("/")) {
             boolean forwardedSecure = isForwardedSecure(httpServletRequest);
-            String redirection = getRedirectURL(url, forwardedSecure);
+            String redirection = getRedirectURL(originalURL, forwardedSecure);
 
-            logger.debug(format("Redirect from %s to %s", url.getHost(), redirection));
+            logger.debug(format("Redirect from %s to %s", originalURL.getHost(), redirection));
             servletResponse.sendRedirect(redirection);
             return;
         }
@@ -55,9 +66,9 @@ public class RedirectToAppFilter implements Filter {
     }
 
     @NotNull
-    private String getRedirectURL(final URL url, final boolean forwardedSecure) throws MalformedURLException {
+    private String getRedirectURL(final URI url, final boolean forwardedSecure) throws MalformedURLException {
         final String redirection;
-        final String protocol = url.getProtocol().toLowerCase();
+        final String protocol = url.getScheme().toLowerCase();
 
         if (forwardedSecure && "http".equals(protocol)) {
             final URL secureURL = new URL(url.toString().replace(protocol, "https"));

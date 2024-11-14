@@ -58,7 +58,6 @@ public class RedirectToHttpsUsingELBProtoHeader implements Filter {
         }
 
         try {
-
             if (xForwardHeader != null) {
                 if ("http".equalsIgnoreCase(xForwardHeader)) {
 

@@ -43,13 +43,13 @@ public class LiveDataHTTPFetcher extends LiveDataFetcher {
                 connectTimeout(Duration.ofMillis(CONNECT_TIMEOUT_MS)).
                 build();
 
-        String configLiveDataUrl = config.getDataUrl();
+        final String configLiveDataUrl = config.getDataUrl();
         String liveDataSubscriptionKey = config.getDataSubscriptionKey();
         if (liveDataSubscriptionKey == null) {
             liveDataSubscriptionKey = "";
         }
 
-        URI uri = URI.create(configLiveDataUrl);
+        final URI uri = URI.create(configLiveDataUrl);
         HttpRequest get = HttpRequest.newBuilder().
                 uri(uri).
                 setHeader("Ocp-Apim-Subscription-Key", liveDataSubscriptionKey).
@@ -58,7 +58,7 @@ public class LiveDataHTTPFetcher extends LiveDataFetcher {
         try {
             logger.debug("Get live tram data from " + uri);
             HttpResponse<String> response = httpClient.send(get, HttpResponse.BodyHandlers.ofString());
-            int statusCode = response.statusCode();
+            final int statusCode = response.statusCode();
             if (statusCode == 200) {
                 logger.info(format("Get from %s response status is %s size is %s", uri, statusCode, response.body().length()));
                 return response.body();
@@ -66,8 +66,8 @@ public class LiveDataHTTPFetcher extends LiveDataFetcher {
                 logger.error(format("Got unexpected status code %s from uri %s", statusCode, uri));
             }
 
-        } catch (IOException | InterruptedException e) {
-            logger.error("Caught exception while attempt to get live data from " + uri, e);
+        } catch (IOException | InterruptedException exception) {
+            logger.error("Caught exception while attempt to get live data from " + uri, exception);
         }
 
         return "";

@@ -2,17 +2,16 @@ package com.tramchester.testSupport;
 
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.config.GTFSSourceConfig;
-import com.tramchester.config.TfgmTramLiveDataConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
+import com.tramchester.config.TfgmTramLiveDataConfig;
 import com.tramchester.geo.BoundingBox;
-
 import io.dropwizard.core.server.DefaultServerFactory;
 import io.dropwizard.core.server.ServerFactory;
 import io.dropwizard.jetty.GzipHandlerFactory;
 import io.dropwizard.util.DataSize;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
-
 import jakarta.validation.Valid;
+
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
@@ -43,6 +42,10 @@ public abstract class TestConfig extends AppConfiguration {
         gzip.setExcludedPaths(Collections.singleton("/api/grid/chunked"));
 
         factory.setGzipFilterFactory(gzip);
+
+        // disables request logging
+//        LogbackAccessRequestLogFactory requestLogFactory = (LogbackAccessRequestLogFactory) factory.getRequestLogFactory();
+//        requestLogFactory.setAppenders(Collections.emptyList());
 
         return factory;
     }

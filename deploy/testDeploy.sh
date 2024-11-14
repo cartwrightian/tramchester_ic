@@ -29,6 +29,5 @@ export RAIL_WSDL=$target/config/OpenLDBWS.wsdl
 export RELEASE_NUMBER="$BUILD"
 echo Start tramchester
 export JAVA_OPTS="-Xmx1550m"
-bash ./$target/bin/start.sh &
+bash ./$target/bin/start.sh
 
-echo -s Finish Web bootstrap script for "$BUILD" and "$PLACE"

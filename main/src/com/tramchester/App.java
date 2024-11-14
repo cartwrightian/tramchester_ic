@@ -208,7 +208,11 @@ public class App extends Application<AppConfiguration>  {
                        }
                    }
                }
-                                                           });
+        });
+
+        RejectInvalidEncodingFilter rejectInvalidEncodingFilter = new RejectInvalidEncodingFilter();
+        applicationContext.addFilter(new FilterHolder(rejectInvalidEncodingFilter), "/*", EnumSet.of(DispatcherType.REQUEST));
+
         if (configuration.redirectToSecure()) {
             logger.info("Add ELB header redirect");
             // Redirect http -> https based on header set by ELB
@@ -321,13 +325,17 @@ public class App extends Application<AppConfiguration>  {
 
         // refresh live data job
         final int initialDelay = 10;
+        final long refreshPeriodSeconds = configuration.getRefreshPeriodSeconds();
+        logger.info("Scheduling live data refresh with initial delay " + initialDelay + " and refresh " +
+                refreshPeriodSeconds + " seconds");
+
         final ScheduledFuture<?> liveDataFuture = executor.scheduleAtFixedRate(() -> {
             try {
                 fetchData.fetch();
-            } catch (Exception exeception) {
-                logger.error("Unable to refresh live data", exeception);
+            } catch (Exception exception) {
+                logger.error("Unable to refresh live data", exception);
             }
-        }, initialDelay, configuration.getRefreshPeriodSeconds(), TimeUnit.SECONDS);
+        }, initialDelay, refreshPeriodSeconds, TimeUnit.SECONDS);
 
         environment.healthChecks().register("liveDataJobCheck", new LiveDataJobHealthCheck(liveDataFuture));
 
