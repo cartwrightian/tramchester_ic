@@ -114,6 +114,7 @@ class RedirectHttpFilterTest extends EasyMockSupport {
 
         EasyMock.expect(request.getHeader("X-Forwarded-Proto")).andReturn("http");
         EasyMock.expect(request.getRequestURL()).andReturn(new StringBuffer(original));
+        EasyMock.expect(request.getRemoteHost()).andReturn("remotehost");
         response.sendError(HttpServletResponse.SC_BAD_GATEWAY);
         EasyMock.expectLastCall();
 
@@ -132,6 +133,7 @@ class RedirectHttpFilterTest extends EasyMockSupport {
 
         EasyMock.expect(request.getHeader("X-Forwarded-Proto")).andReturn("http");
         EasyMock.expect(request.getRequestURL()).andReturn(new StringBuffer(original));
+        EasyMock.expect(request.getRemoteHost()).andReturn("remotehost");
         response.sendError(HttpServletResponse.SC_BAD_GATEWAY);
         EasyMock.expectLastCall();
 
@@ -163,6 +165,7 @@ class RedirectHttpFilterTest extends EasyMockSupport {
 
         EasyMock.expect(request.getHeader("X-Forwarded-Proto")).andReturn("http");
         EasyMock.expect(request.getRequestURL()).andReturn(new StringBuffer("http://18.200.64.82/hello.world"));
+        EasyMock.expect(request.getRemoteHost()).andReturn("remotehost");
         response.sendError(HttpServletResponse.SC_BAD_GATEWAY);
         EasyMock.expectLastCall();
 
