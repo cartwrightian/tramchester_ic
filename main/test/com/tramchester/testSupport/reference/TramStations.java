@@ -157,7 +157,7 @@ public enum TramStations implements FakeStation, HasId<Station> {
         private final Set<KnownTramRoute> fakeRoutes;
         private final TramStations tramStation;
 
-        public FakeStationBuilder(TramStations tramStation) {
+        public FakeStationBuilder(final TramStations tramStation) {
             this.tramStation = tramStation;
             fakeDropOffPlatforms = new HashMap<>();
             fakeRoutes = new HashSet<>();
@@ -191,6 +191,7 @@ public enum TramStations implements FakeStation, HasId<Station> {
 
             platforms.forEach(station::addPlatform);
             routes.forEach(station::addRouteDropOff);
+            
             return station;
         }
 

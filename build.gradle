@@ -395,8 +395,8 @@ def integrationTestConfiguration = {
     maxHeapSize = "1750m"
     useJUnitPlatform {
         //         excludeTags "dataExpiry" // can be useful to exclude when big changes to timetable are upcoming
-        excludeTags "liveDataMessages" // exclude these when tfgm api is missing messages
-        excludeTags 'liveDataDueTrams' // exclude these when tfgm api is missing due trams
+//        excludeTags "liveDataMessages" // exclude these when tfgm api is missing messages
+//        excludeTags 'liveDataDueTrams' // exclude these when tfgm api is missing due trams
 //         excludeTags "liveDataInfra" // exclude tests that rely on the tfgm api being available,
 //         will also need to exclude all other live data tests
         excludeTags "postcode" // not needed for tram, but used by buses
