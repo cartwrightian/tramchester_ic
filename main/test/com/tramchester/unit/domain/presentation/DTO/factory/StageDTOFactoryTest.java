@@ -9,14 +9,12 @@ import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.MyLocation;
-import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
 import com.tramchester.domain.presentation.DTO.SimpleStageDTO;
 import com.tramchester.domain.presentation.DTO.VehicleStageDTO;
 import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
 import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
-import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.presentation.TravelAction;
 import com.tramchester.domain.reference.TransportMode;
@@ -99,8 +97,7 @@ class StageDTOFactoryTest extends EasyMockSupport {
 
         List<Integer> stopCallIndexes = Arrays.asList(1,2,3,4);
 
-        Station firstStation = MarketStreet.fakeWithPlatform("platFormId",
-                new LatLong(1, 1), DataSourceID.unknown, NPTGLocality.InvalidId());
+        Station firstStation = MarketStreet.fakeWithPlatform(1);
 
         VehicleStage vehicleStage = new VehicleStage(firstStation, testRoute,
                 TransportMode.Tram, trip, TramTime.of(0, 0), Bury.fake(),

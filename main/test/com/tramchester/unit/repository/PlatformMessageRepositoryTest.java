@@ -1,18 +1,16 @@
 package com.tramchester.unit.repository;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.PlatformId;
-import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.domain.liveUpdates.LineDirection;
 import com.tramchester.livedata.domain.liveUpdates.PlatformMessage;
-import com.tramchester.livedata.tfgm.OverheadDisplayLines;
 import com.tramchester.livedata.tfgm.LiveDataMarshaller;
+import com.tramchester.livedata.tfgm.OverheadDisplayLines;
 import com.tramchester.livedata.tfgm.PlatformMessageRepository;
 import com.tramchester.livedata.tfgm.TramStationDepartureInfo;
 import com.tramchester.metrics.CacheMetrics;
@@ -31,7 +29,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.tramchester.testSupport.reference.TramStations.*;
+import static com.tramchester.testSupport.reference.TramStations.Altrincham;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -56,8 +54,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         LocalDate today = TestEnv.LocalNow().toLocalDate();
         lastUpdate = LocalDateTime.of(today, LocalTime.of(15,42));
 
-        station = TramStations.Shudehill.fakeWithPlatform("someId1", Shudehill.getLatLong(),
-                DataSourceID.unknown, NPTGLocality.InvalidId());
+        station = TramStations.Shudehill.fakeWithPlatform(1);
         platform = TestEnv.findOnlyPlatform(station);
     }
 
@@ -104,8 +101,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         assertEquals("some message", stationMessages.get(0).getMessage());
 
 //        final Platform platform = MutablePlatform.buildForTFGMTram("XXXX", "platform name", Ashton.getLatLong(), DataSourceID.unknown, IdFor.invalid());
-        Station otherStation = TramStations.Ashton.fakeWithPlatform("XXXX", Ashton.getLatLong(),
-                DataSourceID.unknown, NPTGLocality.InvalidId());
+        Station otherStation = TramStations.Ashton.fakeWithPlatform(1);
 
         List<PlatformMessage> noStationMsg = repository.messagesFor(otherStation, date, updateTime);
         assertTrue(noStationMsg.isEmpty());

@@ -1,10 +1,8 @@
 package com.tramchester.unit.mappers;
 
-import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.PlatformId;
-import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
 import com.tramchester.livedata.domain.liveUpdates.LineDirection;
 import com.tramchester.livedata.tfgm.OverheadDisplayLines;
@@ -56,8 +54,7 @@ public class TramDepartureFactoryTest extends EasyMockSupport {
     void shouldHaveCreateWithPlatform() {
         LocalDateTime updateTime = TestEnv.LocalNow();
 
-        Station airport = ManAirport.fakeWithPlatform("2", ManAirport.getLatLong(), DataSourceID.unknown,
-                NPTGLocality.InvalidId());
+        Station airport = ManAirport.fakeWithPlatform(2);
 
         Platform airportPlatform = TestEnv.findOnlyPlatform(airport);
 

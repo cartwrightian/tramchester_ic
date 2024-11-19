@@ -1,17 +1,15 @@
 package com.tramchester.unit.repository;
 
 import com.tramchester.domain.Agency;
-import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Platform;
-import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.domain.liveUpdates.LineDirection;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
-import com.tramchester.livedata.tfgm.OverheadDisplayLines;
 import com.tramchester.livedata.tfgm.LiveDataMarshaller;
+import com.tramchester.livedata.tfgm.OverheadDisplayLines;
 import com.tramchester.livedata.tfgm.TramDepartureRepository;
 import com.tramchester.livedata.tfgm.TramStationDepartureInfo;
 import com.tramchester.metrics.CacheMetrics;
@@ -55,8 +53,7 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
         date = today;
         lastUpdate = LocalDateTime.of(today, LocalTime.of(15,42));
 
-        station = Shudehill.fakeWithPlatform("someId1", Shudehill.getLatLong(),
-                DataSourceID.unknown, NPTGLocality.InvalidId());
+        station = Shudehill.fakeWithPlatform(1);
         platform = TestEnv.findOnlyPlatform(station);
 
         expectedDue = TramTime.ofHourMins(lastUpdate.toLocalTime().plusMinutes(42));
@@ -73,8 +70,7 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
                 "message 1", station, dueTram);
 
         // second station, has due tram
-        Station secondStation = Altrincham.fakeWithPlatform("a1", Altrincham.getLatLong(), DataSourceID.unknown,
-                NPTGLocality.InvalidId());
+        Station secondStation = Altrincham.fakeWithPlatform(1);
         Platform platfromForSecondStation = TestEnv.findOnlyPlatform(secondStation);
 
         UpcomingDeparture dueTramOther = new UpcomingDeparture(date, secondStation, ManAirport.fake(), "Due",
@@ -83,8 +79,7 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
                 "message 2", secondStation, dueTramOther);
 
         // third, no due trams
-        Station thirdStation = TraffordCentre.fakeWithPlatform("b2", TraffordCentre.getLatLong(),
-                DataSourceID.unknown, NPTGLocality.InvalidId());
+        Station thirdStation = TraffordCentre.fakeWithPlatform(2);
         Platform platfromForThirdStation = TestEnv.findOnlyPlatform(thirdStation);
 
         TramStationDepartureInfo thirdStationInfo = new TramStationDepartureInfo("displayId3", OverheadDisplayLines.Airport,
@@ -112,8 +107,7 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
         addStationInfoWithDueTram(infos, lastUpdate, "displayId", platform,
                 "some message", station, dueTram);
 
-        Station otherStation = Altrincham.fakeWithPlatform("other1", Altrincham.getLatLong(),
-                DataSourceID.unknown, NPTGLocality.InvalidId());
+        Station otherStation = Altrincham.fakeWithPlatform(1);
         Platform otherPlatform = TestEnv.findOnlyPlatform(otherStation);
 
                 Station destinationManAirport = ManAirport.fake();

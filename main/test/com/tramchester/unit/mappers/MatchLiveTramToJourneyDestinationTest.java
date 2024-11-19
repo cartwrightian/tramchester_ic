@@ -102,7 +102,7 @@ public class MatchLiveTramToJourneyDestinationTest extends EasyMockSupport {
     void shouldFindDueTramWhenChangeStationAvailableRouteChanges() {
 
         Station begin = StPetersSquare.fake(BuryManchesterAltrincham);
-        Station change = Cornbrook.fake(BuryManchesterAltrincham, CornbrookTheTraffordCentre);
+        Station change = Cornbrook.faker().dropOff(BuryManchesterAltrincham).dropOff(CornbrookTheTraffordCentre).build();
         Station destination = TraffordCentre.fake(CornbrookTheTraffordCentre);
         Station tramDestination = Altrincham.fake(BuryManchesterAltrincham);
 
@@ -144,7 +144,7 @@ public class MatchLiveTramToJourneyDestinationTest extends EasyMockSupport {
     void shouldFindDueTramWhenChangeStationMatchRouteButWrongDirection() {
 
         Station begin = StPetersSquare.fake(BuryManchesterAltrincham);
-        Station change = Cornbrook.fake(CornbrookTheTraffordCentre, BuryManchesterAltrincham);
+        Station change = Cornbrook.faker().dropOff(CornbrookTheTraffordCentre).dropOff(BuryManchesterAltrincham).build();
         Station destination = TraffordCentre.fake(CornbrookTheTraffordCentre);
         Station tramDestination = Bury.fake(BuryManchesterAltrincham);
 

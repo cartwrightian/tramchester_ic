@@ -2,7 +2,10 @@ package com.tramchester.unit.graph;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.domain.*;
+import com.tramchester.domain.Agency;
+import com.tramchester.domain.MutableRoute;
+import com.tramchester.domain.Platform;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.dates.TramDate;
@@ -29,7 +32,6 @@ import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UnitTestOfGraphConfig;
-import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
 import org.jetbrains.annotations.NotNull;
@@ -392,8 +394,7 @@ public class GraphPropsTest {
     void shouldSetPlatformId() {
 
         IdFor<NPTGLocality> areaId = NPTGLocality.createId("areaId");
-        Station station = TramStations.PiccadillyGardens.fakeWithPlatform("2", KnownLocations.nearPiccGardens.latLong(),
-                DataSourceID.tfgm, areaId);
+        Station station = TramStations.PiccadillyGardens.fakeWithPlatform(2);
 
         List<Platform> platforms = new ArrayList<>(station.getPlatforms());
         Platform platform = platforms.get(0);

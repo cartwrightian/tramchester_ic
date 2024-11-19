@@ -16,7 +16,6 @@ import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.TramStationAdjacenyRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownTramRoute;
-import com.tramchester.testSupport.reference.TramStations;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
@@ -66,15 +65,13 @@ public class TramPositionInferenceTest  extends EasyMockSupport {
         startTime = TramTime.ofHourMins(dateTime.toLocalTime());
 
         tramRoute = BuryManchesterAltrincham;
-        begin = TramStations.Builder(StPetersSquare).addRoute(tramRoute).addDropOffPlatform(1, tramRoute).build();
-        end = TramStations.Builder(Deansgate).addRoute(tramRoute).addDropOffPlatform(1, tramRoute).build();
+        begin = StPetersSquare.faker().dropOff(tramRoute).dropOffPlatform(1, tramRoute).build();
+        end = Deansgate.faker().dropOff(tramRoute).dropOffPlatform(1, tramRoute).build();
 
         pair = StationPair.of(begin, end);
         timeRange = TimeRange.of(startTime, startTime.plusMinutes(config.getMaxWait()));
 
         endPlatform = end.getPlatforms().stream().findFirst().get();
-
-
     }
 
     @Test

@@ -10,6 +10,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.NPTGLocality;
@@ -179,7 +180,7 @@ public class StationRepositoryTest {
         assertTrue(maybePlatformOne.isPresent());
 
         Platform platformOne = maybePlatformOne.get();
-        final IdFor<Platform> expectedId = Altrincham.createIdFor("1");
+        final IdFor<Platform> expectedId = PlatformId.createId(Altrincham.getId(), "1");
 
         assertEquals(expectedId, platformOne.getId());
         assertEquals( "1", platformOne.getPlatformNumber());

@@ -1,17 +1,15 @@
 package com.tramchester.unit.mappers;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Platform;
-import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.domain.liveUpdates.LineDirection;
 import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.livedata.repository.StationByName;
-import com.tramchester.livedata.tfgm.OverheadDisplayLines;
 import com.tramchester.livedata.tfgm.LiveDataParser;
+import com.tramchester.livedata.tfgm.OverheadDisplayLines;
 import com.tramchester.livedata.tfgm.TramDepartureFactory;
 import com.tramchester.livedata.tfgm.TramStationDepartureInfo;
 import com.tramchester.testSupport.TestEnv;
@@ -41,8 +39,7 @@ class LiveDataParserTest extends EasyMockSupport {
     void beforeEachTestRuns() {
         stationByName = createStrictMock(StationByName.class);
 
-        Station mediaCity = MediaCityUK.fakeWithPlatform("2", MediaCityUK.getLatLong(),
-                DataSourceID.unknown, NPTGLocality.InvalidId());
+        Station mediaCity = MediaCityUK.fakeWithPlatform(2);
 
         mediaCityPlatform = TestEnv.findOnlyPlatform(mediaCity);
         departureFactory = createMock(TramDepartureFactory.class);
@@ -256,8 +253,7 @@ class LiveDataParserTest extends EasyMockSupport {
         expectationByName(Altrincham);
         expectationByName(Piccadilly);
 
-        Station navRaod = NavigationRoad.fakeWithPlatform("1", NavigationRoad.getLatLong(),
-                DataSourceID.unknown, NPTGLocality.InvalidId());
+        Station navRaod = NavigationRoad.fakeWithPlatform(1);
 
         Platform navRoadPlatform1 = TestEnv.findOnlyPlatform(navRaod);
 

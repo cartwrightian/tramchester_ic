@@ -12,12 +12,9 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
-import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public enum TramStations implements FakeStation, HasId<Station> {
@@ -125,20 +122,6 @@ public enum TramStations implements FakeStation, HasId<Station> {
         return latlong;
     }
 
-    public IdFor<Platform> createIdFor(String platformNumber) {
-        return PlatformId.createId(getId(), platformNumber);
-    }
-
-    @Override
-    public Station fake() {
-        return createMutable();
-    }
-
-    @Override
-    public IdForDTO getIdForDTO() {
-        return new IdForDTO(id);
-    }
-
     @NotNull
     private MutableStation createMutable() {
         GridPosition grid = CoordinateTransforms.getGridPosition(latlong);
@@ -147,73 +130,76 @@ public enum TramStations implements FakeStation, HasId<Station> {
         return mutableStation;
     }
 
-    // use builder
-    @Deprecated
-    public Station fakeWithPlatform(final String platformNumber, final LatLong latLong, final DataSourceID dataSourceID,
-                                    final IdFor<NPTGLocality> localityCode) {
-        MutableStation station = createMutable();
-
-        PlatformId platformId = PlatformId.createId(station, platformNumber);
-        final Platform platform = MutablePlatform.buildForTFGMTram(platformId, station,
-                latLong, dataSourceID, localityCode);
-        station.addPlatform(platform);
-
-        return station;
+    @Override
+    public IdForDTO getIdForDTO() {
+        return new IdForDTO(id);
     }
 
-    // use builder
-    @Deprecated
-    public Station fake(KnownTramRoute... knownTramRoutes) {
-        MutableStation mutableStation = createMutable();
-        for (final KnownTramRoute route : knownTramRoutes) {
-            mutableStation.addRouteDropOff(route.fake());
-        }
-        return mutableStation;
+    @Override
+    public Station fake() {
+        return faker().build();
     }
 
-    public static FakeStationBuilder Builder(TramStations tramStation) {
-        return new FakeStationBuilder(tramStation);
+    public Station fakeWithPlatform(final int platformNumber) {
+        return faker().platform(platformNumber).build();
+    }
+
+    public Station fake(final KnownTramRoute knownTramRoute) {
+        return faker().dropOff(knownTramRoute).build();
+    }
+
+    public FakeStationBuilder faker() {
+        return new FakeStationBuilder(this);
     }
 
     public static class FakeStationBuilder {
-        private final Set<Pair<Integer, KnownTramRoute>> fakePlatforms;
+        private final Map<Integer, KnownTramRoute> fakeDropOffPlatforms;
         private final Set<KnownTramRoute> fakeRoutes;
         private final TramStations tramStation;
 
         public FakeStationBuilder(TramStations tramStation) {
             this.tramStation = tramStation;
-            fakePlatforms = new HashSet<>();
+            fakeDropOffPlatforms = new HashMap<>();
             fakeRoutes = new HashSet<>();
         }
 
-        public FakeStationBuilder addRoute(KnownTramRoute knownTramRoute) {
+        public FakeStationBuilder dropOff(final KnownTramRoute knownTramRoute) {
             fakeRoutes.add(knownTramRoute);
             return this;
         }
 
-        public FakeStationBuilder addDropOffPlatform(int platformNumber, KnownTramRoute route) {
-            fakePlatforms.add(Pair.of(platformNumber, route));
+        public FakeStationBuilder platform(final int platformNumber) {
+            fakeDropOffPlatforms.put(platformNumber, KnownTramRoute.BuryManchesterAltrincham);
+            return this;
+        }
+
+        public FakeStationBuilder dropOffPlatform(final int platformNumber, final KnownTramRoute route) {
+            if (fakeDropOffPlatforms.containsKey(platformNumber)) {
+                throw new RuntimeException("Platform " + platformNumber + " already seen for route " + fakeDropOffPlatforms.get(platformNumber));
+            }
+            fakeDropOffPlatforms.put(platformNumber, route);
             return this;
         }
 
         public Station build() {
-            MutableStation station = tramStation.createMutable();
+            final MutableStation station = tramStation.createMutable();
 
-            Set<Route> routes = fakeRoutes.stream().map(KnownTramRoute::fake).collect(Collectors.toSet());
-            Set<Platform> platforms = fakePlatforms.stream().map(pair -> createPlatform(station, pair)).collect(Collectors.toSet());
+            final Set<Route> routes = fakeRoutes.stream().map(KnownTramRoute::fake).collect(Collectors.toSet());
+            final Set<Platform> platforms = fakeDropOffPlatforms.entrySet().stream().
+                    map(entry -> createPlatform(station, entry.getKey()).addRouteDropOff(entry.getValue().fake())).
+                    collect(Collectors.toSet());
 
             platforms.forEach(station::addPlatform);
             routes.forEach(station::addRouteDropOff);
             return station;
         }
 
-        private Platform createPlatform(Station station, Pair<Integer, KnownTramRoute> pair) {
-            PlatformId platformId = PlatformId.createId(station, pair.getKey().toString());
-            MutablePlatform platform = MutablePlatform.buildForTFGMTram(platformId, station,
+        private MutablePlatform createPlatform(final Station station, Integer platformNumber) {
+            final PlatformId platformId = PlatformId.createId(station, platformNumber.toString());
+            return MutablePlatform.buildForTFGMTram(platformId, station,
                     station.getLatLong(), station.getDataSourceID(), station.getLocalityId());
-            platform.addRouteDropOff(pair.getValue().fake());
-            return platform;
         }
+
     }
 
     public class FakeTramStaton extends MutableStation {

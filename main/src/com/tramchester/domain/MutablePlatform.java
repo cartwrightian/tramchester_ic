@@ -199,8 +199,9 @@ public class MutablePlatform implements Platform {
         throw new RuntimeException("Not implemented");
     }
 
-    public void addRouteDropOff(Route route) {
+    public MutablePlatform addRouteDropOff(final Route route) {
         servesRoutesDropoff.add(route);
+        return this;
     }
 
     public void addRoutePickUp(Route route) {

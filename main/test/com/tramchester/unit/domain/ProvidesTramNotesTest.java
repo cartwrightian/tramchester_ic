@@ -1,9 +1,7 @@
 package com.tramchester.unit.domain;
 
-import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
@@ -281,7 +279,7 @@ class ProvidesTramNotesTest extends EasyMockSupport {
 
     private PlatformMessage createPlatformMessage(LocalDateTime lastUpdate, TramStations tramStation, String message) {
 
-        Station station = tramStation.fakeWithPlatform("1", tramStation.getLatLong(), DataSourceID.unknown, NPTGLocality.InvalidId());
+        Station station = tramStation.fakeWithPlatform(1);
 
         Platform platform = TestEnv.findOnlyPlatform(station);
         return new PlatformMessage(platform, message, lastUpdate, station, "displayId");
