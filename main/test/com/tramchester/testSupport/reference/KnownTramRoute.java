@@ -7,6 +7,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.UpcomingDates;
 
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -33,7 +34,9 @@ public enum KnownTramRoute {
     // Red
     CornbrookTheTraffordCentre("Red Line", "Cornbrook - The Trafford Centre", "849"),
     // Yellow
-    PiccadillyVictoria("Yellow Line", "Piccadilly - Victoria", "844");
+    PiccadillyVictoria("Yellow Line", "Piccadilly - Victoria", "844"),
+
+    ReplacementBusCrumpsallPiccadilly("Replacement Bus 1", "Replacement Bus Crumpsall - Piccadilly", "2462");
 
     private final String shortName;
     private final String longName;
@@ -42,7 +45,11 @@ public enum KnownTramRoute {
     public static Set<KnownTramRoute> getFor(final TramDate date) {
         EnumSet<KnownTramRoute> routes = EnumSet.noneOf(KnownTramRoute.class);
 
-        routes.add(BuryManchesterAltrincham);
+        if (date.equals(UpcomingDates.VictoriaLineWorks)) {
+            routes.add(ReplacementBusCrumpsallPiccadilly);
+        } else {
+            routes.add(BuryManchesterAltrincham);
+        }
 
         routes.add(PiccadillyVictoria);
 

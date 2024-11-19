@@ -440,13 +440,13 @@ public class RouteCalculatorTest {
         TramDate testDate = when;
 
         JourneyRequest journeyRequestA = standardJourneyRequest(testDate, TramTime.of(23,59), maxNumResults);
-        assertGetAndCheckJourneys(journeyRequestA, StPetersSquare, ExchangeSquare);
+        assertGetAndCheckJourneys(journeyRequestA, StPetersSquare, Victoria);
 
         JourneyRequest journeyRequestB = standardJourneyRequest(testDate, TramTime.nextDay(0,0), maxNumResults);
-        assertGetAndCheckJourneys(journeyRequestB, StPetersSquare, ExchangeSquare);
+        assertGetAndCheckJourneys(journeyRequestB, StPetersSquare, Victoria);
 
         JourneyRequest journeyRequestC = standardJourneyRequest(testDate, TramTime.nextDay(0,1), maxNumResults);
-        assertGetAndCheckJourneys(journeyRequestC, StPetersSquare, ExchangeSquare);
+        assertGetAndCheckJourneys(journeyRequestC, StPetersSquare, Victoria);
 
         // last tram is now earlier
 //        JourneyRequest journeyRequestD = standardJourneyRequest(testDate, TramTime.of(0,0), maxNumResults);

@@ -233,8 +233,7 @@ public class TransportDataFromFilesTramTest {
                 map(routeStation -> Pair.of(routeStation.getStationId(), routeStation.getRoute().getName())).
                 collect(Collectors.toSet());
 
-        // 4 -> 6 due to closures?
-        assertEquals(6, routeStationPairs.size(), routeStations.toString());
+        assertEquals(4, routeStationPairs.size(), routeStations.toString());
 
         IdSet<Route> routeIds =
                 routeStations.stream().
@@ -355,7 +354,8 @@ public class TransportDataFromFilesTramTest {
         HasId<Station> navigationRd = NavigationRoad.from(transportData);
         Set<Trip> calls = atTime.stream().filter(trip -> trip.callsAt(navigationRd.getId())).collect(Collectors.toSet());
 
-        assertEquals(4, calls.size(), HasId.asIds(calls));
+        // 4 -> 2 for new timetable data 18/11
+        assertEquals(2, calls.size(), HasId.asIds(calls));
     }
 
     @DataExpiryTest

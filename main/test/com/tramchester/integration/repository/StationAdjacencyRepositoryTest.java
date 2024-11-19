@@ -3,6 +3,7 @@ package com.tramchester.integration.repository;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.StationPair;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
@@ -11,10 +12,12 @@ import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.TramStationAdjacenyRepository;
-import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -30,7 +33,6 @@ class StationAdjacencyRepositoryTest {
     private static ComponentContainer componentContainer;
 
     private TramStationAdjacenyRepository repository;
-    private TransportData transportDataSource;
     private TramDate date;
     private TimeRange timeRange;
 
@@ -47,7 +49,6 @@ class StationAdjacencyRepositoryTest {
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
-        transportDataSource = componentContainer.get(TransportData.class);
         repository = componentContainer.get(TramStationAdjacenyRepository.class);
         TramchesterConfig config = componentContainer.get(TramchesterConfig.class);
 
@@ -65,7 +66,7 @@ class StationAdjacencyRepositoryTest {
 
     @Test
     void shouldGiveCorrectCostForAdjacencyCornbrookDeansgate() {
-        assertEquals(Duration.ofMinutes(4), getAdjacent(Cornbrook, Deansgate));
+        assertEquals(Duration.ofMinutes(3).plusSeconds(52), getAdjacent(Cornbrook, Deansgate));
     }
 
     @Test
@@ -86,9 +87,11 @@ class StationAdjacencyRepositoryTest {
     }
 
     private Duration getAdjacent(TramStations first, TramStations second) {
-        StationPair pair = StationPair.of(transportDataSource.getStationById(first.getId()),
-                transportDataSource.getStationById(second.getId()));
+//        StationPair pair = StationPair.of(transportDataSource.getStationById(first.getId()),
+//                transportDataSource.getStationById(second.getId()));
 
-        return repository.getAdjacent(pair, date, timeRange);
+        StationIdPair stationIdPair = StationIdPair.of(first.getId(), second.getId());
+
+        return repository.getAdjacent(stationIdPair, date, timeRange);
     }
 }

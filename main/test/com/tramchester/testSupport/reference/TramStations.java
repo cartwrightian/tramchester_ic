@@ -3,6 +3,7 @@ package com.tramchester.testSupport.reference;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.MutablePlatform;
 import com.tramchester.domain.Platform;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.id.*;
 import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.NPTGLocality;
@@ -11,11 +12,13 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
+import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public enum TramStations implements FakeStation, HasId<Station> {
 
@@ -139,27 +142,90 @@ public enum TramStations implements FakeStation, HasId<Station> {
     @NotNull
     private MutableStation createMutable() {
         GridPosition grid = CoordinateTransforms.getGridPosition(latlong);
-        MutableStation mutableStation = new MutableStation(getId(), NPTGLocality.InvalidId(), name, latlong, grid, DataSourceID.tfgm, true);
+        MutableStation mutableStation = new FakeTramStaton(getId(), NPTGLocality.InvalidId(), name, latlong, grid, DataSourceID.tfgm, true);
         mutableStation.addMode(TransportMode.Tram);
         return mutableStation;
     }
 
+    // use builder
+    @Deprecated
     public Station fakeWithPlatform(final String platformNumber, final LatLong latLong, final DataSourceID dataSourceID,
                                     final IdFor<NPTGLocality> localityCode) {
         MutableStation station = createMutable();
+
         PlatformId platformId = PlatformId.createId(station, platformNumber);
         final Platform platform = MutablePlatform.buildForTFGMTram(platformId, station,
                 latLong, dataSourceID, localityCode);
         station.addPlatform(platform);
-        station.addMode(TransportMode.Tram);
+
         return station;
     }
 
+    // use builder
+    @Deprecated
     public Station fake(KnownTramRoute... knownTramRoutes) {
         MutableStation mutableStation = createMutable();
-        for (KnownTramRoute route : knownTramRoutes) {
+        for (final KnownTramRoute route : knownTramRoutes) {
             mutableStation.addRouteDropOff(route.fake());
         }
         return mutableStation;
+    }
+
+    public static FakeStationBuilder Builder(TramStations tramStation) {
+        return new FakeStationBuilder(tramStation);
+    }
+
+    public static class FakeStationBuilder {
+        private final Set<Pair<Integer, KnownTramRoute>> fakePlatforms;
+        private final Set<KnownTramRoute> fakeRoutes;
+        private final TramStations tramStation;
+
+        public FakeStationBuilder(TramStations tramStation) {
+            this.tramStation = tramStation;
+            fakePlatforms = new HashSet<>();
+            fakeRoutes = new HashSet<>();
+        }
+
+        public FakeStationBuilder addRoute(KnownTramRoute knownTramRoute) {
+            fakeRoutes.add(knownTramRoute);
+            return this;
+        }
+
+        public FakeStationBuilder addDropOffPlatform(int platformNumber, KnownTramRoute route) {
+            fakePlatforms.add(Pair.of(platformNumber, route));
+            return this;
+        }
+
+        public Station build() {
+            MutableStation station = tramStation.createMutable();
+
+            Set<Route> routes = fakeRoutes.stream().map(KnownTramRoute::fake).collect(Collectors.toSet());
+            Set<Platform> platforms = fakePlatforms.stream().map(pair -> createPlatform(station, pair)).collect(Collectors.toSet());
+
+            platforms.forEach(station::addPlatform);
+            routes.forEach(station::addRouteDropOff);
+            return station;
+        }
+
+        private Platform createPlatform(Station station, Pair<Integer, KnownTramRoute> pair) {
+            PlatformId platformId = PlatformId.createId(station, pair.getKey().toString());
+            MutablePlatform platform = MutablePlatform.buildForTFGMTram(platformId, station,
+                    station.getLatLong(), station.getDataSourceID(), station.getLocalityId());
+            platform.addRouteDropOff(pair.getValue().fake());
+            return platform;
+        }
+    }
+
+    public class FakeTramStaton extends MutableStation {
+
+        public FakeTramStaton(IdFor<Station> id, IdFor<NPTGLocality> localityId, String stationName, LatLong latLong,
+                              GridPosition gridPosition, DataSourceID dataSourceID, boolean isCentral) {
+            super(id, localityId, stationName, latLong, gridPosition, dataSourceID, isCentral);
+        }
+
+//        @Override
+//        public boolean servesMode(TransportMode mode) {
+//            return mode.equals(TransportMode.Tram);
+//        }
     }
 }

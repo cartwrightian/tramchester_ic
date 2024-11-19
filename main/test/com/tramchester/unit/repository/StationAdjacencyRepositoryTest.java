@@ -1,6 +1,6 @@
 package com.tramchester.unit.repository;
 
-import com.tramchester.domain.StationPair;
+import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesLocalNow;
@@ -46,6 +46,6 @@ class StationAdjacencyRepositoryTest {
         // date and timerange here need to line up with TramTransportDataForTestFactory
         TimeRange timeRange = TimeRange.of(TramTime.of(6,0), TramTime.of(13,0));
         TramDate date = TramTransportDataForTestFactory.getValidDate();
-        return repository.getAdjacent(StationPair.of(first, second), date, timeRange);
+        return repository.getAdjacent(StationIdPair.of(first.getId(), second.getId()), date, timeRange);
     }
  }

@@ -60,7 +60,7 @@ public class MutablePlatform implements Platform {
      * @param localityId the nptg locality code
      * @return Platform for testing only
      */
-    public static Platform buildForTFGMTram(PlatformId id, Station station, LatLong latLong, DataSourceID dataSourceId,
+    public static MutablePlatform buildForTFGMTram(PlatformId id, Station station, LatLong latLong, DataSourceID dataSourceId,
                                             IdFor<NPTGLocality> localityId) {
         String platformNumber = id.getNumber();
         GridPosition gridPosition = CoordinateTransforms.getGridPosition(latLong);

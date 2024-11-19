@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -80,22 +81,24 @@ public class TramPositionInference {
         return results;
     }
 
-    public TramPosition findBetween(StationPair pair, LocalDateTime now) {
-        final int maxWait = tramchesterConfig.getMaxWait();
+    public TramPosition findBetween(StationPair pair, LocalDateTime localDateTime) {
 
-        final TramTime currentTime = TramTime.ofHourMins(now.toLocalTime());
-        final TramDate date = TramDate.from(now);
+        final TramTime currentTime = TramTime.ofHourMins(localDateTime.toLocalTime());
+        final TramDate date = TramDate.from(localDateTime);
+
+        final int maxWait = tramchesterConfig.getMaxWait();
         final TimeRange range= TimeRange.of(currentTime, currentTime.plusMinutes(maxWait));
-        Duration costBetweenPair = adjacenyRepository.getAdjacent(pair, TramDate.of(now.toLocalDate()), range);
+
+        final Duration costBetweenPair = adjacenyRepository.getAdjacent(pair.getStationIds(), date, range);
         if (costBetweenPair.isNegative()) {
             logger.warn(format("Not adjacent %s", pair));
             return new TramPosition(pair, Collections.emptySet(), costBetweenPair);
         }
 
-        TramTime cutOff = currentTime.plus(costBetweenPair);
-        TimeRange timeRange = TimeRange.of(currentTime, cutOff);
+        final TramTime cutOff = nearestMinuteAdd(currentTime, costBetweenPair);
+        final TimeRange timeRange = TimeRange.of(currentTime, cutOff);
 
-        Set<UpcomingDeparture> dueTrams = getDueTrams(pair, date, timeRange);
+        final Set<UpcomingDeparture> dueTrams = getDueTrams(pair, date, timeRange);
 
         // todo is this additional step still needed?
         Set<UpcomingDeparture> dueToday = dueTrams.stream().
@@ -107,39 +110,57 @@ public class TramPositionInference {
         return new TramPosition(pair, dueToday, costBetweenPair);
     }
 
+    private TramTime nearestMinuteAdd(final TramTime time, final Duration duration) {
+        Duration truncated = duration.truncatedTo(ChronoUnit.MINUTES);
+
+        final Duration delta = duration.minus(truncated);
+
+        if (delta.getSeconds()>=30) {
+            truncated = truncated.plusMinutes(1);
+        }
+
+        return time.plus(truncated);
+    }
+
     private Set<UpcomingDeparture> getDueTrams(StationPair pair, TramDate date, TimeRange timeRange) {
-        Station neighbour = pair.getEnd();
+        final Station neighbour = pair.getEnd();
 
         if (!pair.bothServeMode(TransportMode.Tram)) {
             logger.info(format("Not both tram stations %s", pair));
             return Collections.emptySet();
         }
 
-        List<UpcomingDeparture> neighbourDepartures = departureRepository.forStation(neighbour);
+        final List<UpcomingDeparture> neighbourDepartures = departureRepository.forStation(neighbour);
 
         if (neighbourDepartures.isEmpty()) {
             logger.debug("No departures from neighbour " + neighbour.getId());
             return Collections.emptySet();
         }
 
-        List<Route> routesBetween = routeReachable.getRoutesFromStartToNeighbour(pair, date, timeRange, EnumSet.of(TransportMode.Tram));
+        final List<Route> routesBetween = routeReachable.getRoutesFromStartToNeighbour(pair, date, timeRange, EnumSet.of(TransportMode.Tram));
 
         if (routesBetween.isEmpty()) {
             logger.warn("No active routes between " + pair);
             return Collections.emptySet();
         }
 
-        Set<Platform> platforms = routesBetween.stream().
+        final Set<Platform> platforms = routesBetween.stream().
                 flatMap(route -> neighbour.getPlatformsForRoute(route).stream()).
                 collect(Collectors.toSet());
 
-        Set<UpcomingDeparture> departures = neighbourDepartures.stream().
+        if (platforms.isEmpty()) {
+            logger.warn("Did not find any platforms at " + neighbour.getId() + " for route(s) " + HasId.asIds(routesBetween));
+            return Collections.emptySet();
+        }
+
+        final Set<UpcomingDeparture> departures = neighbourDepartures.stream().
                 filter(UpcomingDeparture::hasPlatform).
                 filter(departure -> platforms.contains(departure.getPlatform())).
                 collect(Collectors.toSet());
 
         if (departures.isEmpty()) {
-            logger.warn("Unable to find departure information for " + HasId.asIds(neighbour.getPlatforms()) + " from " + neighbourDepartures);
+            logger.warn("Unable to find departure information for platforms " + HasId.asIds(neighbour.getPlatforms())
+                    + " from " + neighbourDepartures);
             return Collections.emptySet();
         }
 

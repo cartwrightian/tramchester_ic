@@ -90,8 +90,10 @@ public class InterchangesTramTest {
                 Pomona, Cornbrook, Deansgate,
                 PiccadillyGardens,
                 StPetersSquare,
-                Piccadilly, Victoria,
+                Piccadilly,
+                Victoria,
                 MarketStreet,
+                Shudehill, // during victoria works only?
                 Broadway);
 
         TramDate when = TestEnv.testDay();

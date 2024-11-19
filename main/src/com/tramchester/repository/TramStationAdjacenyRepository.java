@@ -1,8 +1,10 @@
 package com.tramchester.repository;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.StationPair;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -40,21 +42,21 @@ public class TramStationAdjacenyRepository  {
     //
     // Distance between two adjacent stations, or negative Duration -999 if not next to each other
     //
-    public Duration getAdjacent(final StationPair stationPair, final TramDate date, final TimeRange timeRange) {
-        final Station begin = stationPair.getBegin();
-        final Station end = stationPair.getEnd();
+    public Duration getAdjacent(final StationIdPair stationPair, final TramDate date, final TimeRange timeRange) {
+        final IdFor<Station> begin = stationPair.getBeginId();
+        final IdFor<Station> end = stationPair.getEndId();
 
-        List<StopCalls.StopLeg> legs = tripRepository.getTrips().stream().
+        final List<StopCalls.StopLeg> legs = tripRepository.getTrips().stream().
                 filter(TransportMode::isTram).
                 filter(trip -> trip.operatesOn(date)).
-                filter(trip -> trip.callsAt(begin.getId()) && trip.callsAt(end.getId())).
+                filter(trip -> trip.callsAt(begin) && trip.callsAt(end)).
                 flatMap(trip -> trip.getStopCalls().getLegs(graphFilter.isActive()).stream()).toList();
 
         if (legs.isEmpty()) {
             logger.warn("Failed to find legs between " + stationPair + " for " + date + " and " + timeRange);
         }
 
-        List<Duration> costs = legs.stream().filter(leg -> leg.getFirstStation().equals(begin) && leg.getSecondStation().equals(end)).
+        final List<Duration> costs = legs.stream().filter(leg -> leg.getStations().equals(stationPair)).
                 filter(leg -> timeRange.contains(leg.getDepartureTime())).
                 map(StopCalls.StopLeg::getCost).
                 toList();
@@ -64,15 +66,15 @@ public class TramStationAdjacenyRepository  {
             return Duration.ofMinutes(-999);
         }
 
-        Set<Duration> unique = new HashSet<>(costs);
+        final Set<Duration> unique = new HashSet<>(costs);
 
         if (unique.size()==1) {
             return costs.get(0);
         }
 
         logger.warn("Ambiguous cost between " + stationPair + " costs: " + costs + " for " + date + " and " + timeRange);
-        long sum = costs.stream().mapToLong(Duration::getSeconds).sum();
-        long average = Math.floorDiv(sum, costs.size());
+        final long sum = costs.stream().mapToLong(Duration::getSeconds).sum();
+        final long average = Math.floorDiv(sum, costs.size());
         return Duration.ofSeconds(average);
 
     }
