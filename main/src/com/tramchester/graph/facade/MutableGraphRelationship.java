@@ -16,7 +16,6 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
-import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.HaveGraphProperties;
@@ -35,6 +34,8 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
 
     private final Relationship relationship;
     private final GraphRelationshipId id;
+
+    private static final String tripIdProperty = TRIP_ID_LIST.getText();
 
     private ImmutableGraphNode endNode;
 
@@ -183,17 +184,12 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
 
     public void addTripId(final IdFor<Trip> tripId) {
         final String text = tripId.getGraphId();
-        final String property = TRIP_ID_LIST.getText();
-        if (!(relationship.hasProperty(property))) {
-            relationship.setProperty(property, new String[]{text});
+        if (!(relationship.hasProperty(tripIdProperty))) {
+            relationship.setProperty(tripIdProperty, new String[]{text});
             return;
         }
 
-        final String[] existing = (String[]) relationship.getProperty(property);
-//        final int index = Arrays.binarySearch(existing, text);
-//        if (index>=0) {
-//            return;
-//        }
+        final String[] existing = getTripIdProperty();
         final List<String> existingList = Arrays.asList(existing);
         if (existingList.contains(text)) {
             return;
@@ -202,16 +198,15 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
         final String[] replacement = Arrays.copyOf(existing, existing.length + 1);
         replacement[existing.length] = text;
         Arrays.sort(existing);
-        relationship.setProperty(property, replacement);
+        relationship.setProperty(tripIdProperty, replacement);
     }
 
 
     public IdSet<Trip> getTripIds() {
-        final String property = TRIP_ID_LIST.getText();
-        if (!relationship.hasProperty(property)) {
+        if (!relationship.hasProperty(tripIdProperty)) {
             return IdSet.emptySet();
         }
-        final String[] existing = (String[]) relationship.getProperty(property);
+        final String[] existing = getTripIdProperty();
 
         return Arrays.stream(existing).map(Trip::createId).collect(IdSet.idCollector());
     }
@@ -220,15 +215,18 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
     public boolean hasTripIdInList(final IdFor<Trip> tripId) {
         final String text = tripId.getGraphId();
 
-        final String property = TRIP_ID_LIST.getText();
-        if (!relationship.hasProperty(property)) {
+        if (!relationship.hasProperty(tripIdProperty)) {
             throw new RuntimeException("Unexpected for this relationship " + this);
         }
-        final String[] existing = (String[]) relationship.getProperty(property);
+        final String[] existing = getTripIdProperty();
         // NOTE: assumed sorted
 //        return (Arrays.binarySearch(existing, text)>=0);
         final List<String> existingList = Arrays.asList(existing);
         return existingList.contains(text);
+    }
+
+    private String[] getTripIdProperty() {
+        return (String[]) relationship.getProperty(tripIdProperty);
     }
 
     public void delete() {
@@ -243,7 +241,7 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
         return endNode;
     }
 
-    public GraphNode getStartNode(GraphTransaction txn) {
+    public GraphNode getStartNode(final GraphTransaction txn) {
         return txn.getStartNode(relationship);
     }
 
@@ -263,7 +261,7 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
             return EnumSet.noneOf(TransportMode.class);
         }
 
-        short[] existing = (short[]) relationship.getProperty(TRANSPORT_MODES.getText());
+        final short[] existing = (short[]) relationship.getProperty(TRANSPORT_MODES.getText());
         return TransportMode.fromNumbers(existing);
     }
 
@@ -320,13 +318,13 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
 
     @Override
     public TramTime getStartTime() {
-        LocalTime localTime = (LocalTime) relationship.getProperty(START_TIME.getText());
+        final LocalTime localTime = (LocalTime) relationship.getProperty(START_TIME.getText());
         return TramTime.ofHourMins(localTime);
     }
 
     @Override
     public TramTime getEndTime() {
-        LocalTime localTime = (LocalTime) relationship.getProperty(END_TIME.getText());
+        final LocalTime localTime = (LocalTime) relationship.getProperty(END_TIME.getText());
         return TramTime.ofHourMins(localTime);
     }
 
@@ -376,7 +374,7 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
 
     @Override
     public String toString() {
-        TransportRelationshipTypes relationshipType = getType();
+        final TransportRelationshipTypes relationshipType = getType();
         final String key = getExtraDiagnostics(relationshipType);
         return "MutableGraphRelationship{" +
                 "type=" + relationshipType +

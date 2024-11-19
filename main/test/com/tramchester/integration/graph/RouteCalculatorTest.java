@@ -120,14 +120,14 @@ public class RouteCalculatorTest {
         Set<Integer> indexes = new HashSet<>();
 
         journeys.forEach(journey -> {
-            TransportStage<?, ?> firstStage = journey.getStages().get(0);
+            TransportStage<?, ?> firstStage = journey.getStages().getFirst();
             String interchange = firstStage.getLastStation().getName();
             indexes.add(journey.getJourneyIndex());
             assertTrue(expected.contains(interchange), interchange + " not in " + expected);
 
             List<ChangeLocation<?>> changeStations = journey.getChangeStations();
             assertEquals(1, changeStations.size());
-            assertTrue(expected.contains(changeStations.get(0).location().getName()));
+            assertTrue(expected.contains(changeStations.getFirst().location().getName()));
         });
 
         assertEquals(journeys.size(), indexes.size());
@@ -187,17 +187,18 @@ public class RouteCalculatorTest {
             List<Location<?>> pathCallingPoints = journey.getPath();
 
             assertEquals(11, pathCallingPoints.size());
-            assertEquals(Altrincham.getId(), pathCallingPoints.get(0).getId());
-            assertEquals(LocationType.Station, pathCallingPoints.get(0).getLocationType());
+            Location<?> firstCallingPoint = pathCallingPoints.getFirst();
+            assertEquals(Altrincham.getId(), firstCallingPoint.getId());
+            assertEquals(LocationType.Station, firstCallingPoint.getLocationType());
             assertEquals(Deansgate.getId(), pathCallingPoints.get(10).getId());
 
             List<TransportStage<?, ?>> stages = journey.getStages();
             assertEquals(1, stages.size(), "wrong number stages " + stages);
-            TransportStage<?, ?> stage = stages.get(0);
+            TransportStage<?, ?> stage = stages.getFirst();
             assertEquals(9, stage.getPassedStopsCount());
             List<StopCall> callingPoints = stage.getCallingPoints();
             assertEquals(9, callingPoints.size());
-            assertEquals(NavigationRoad.getId(), callingPoints.get(0).getStationId());
+            assertEquals(NavigationRoad.getId(), callingPoints.getFirst().getStationId());
             assertEquals(Cornbrook.getId(), callingPoints.get(8).getStationId());
             assertTrue(journey.getChangeStations().isEmpty());
         });
@@ -366,13 +367,13 @@ public class RouteCalculatorTest {
         for (Journey result : results) {
             List<TransportStage<?,?>> stages = result.getStages();
             assertEquals(2, stages.size());
-            VehicleStage firstStage = (VehicleStage) stages.get(0);
+            VehicleStage firstStage = (VehicleStage) stages.getFirst();
             assertEquals(Altrincham.getId(), firstStage.getFirstStation().getId());
             assertEquals(TraffordBar.getId(), firstStage.getLastStation().getId(), stages.toString());
             assertEquals(Tram, firstStage.getMode());
             assertEquals(7, firstStage.getPassedStopsCount());
 
-            VehicleStage finalStage = (VehicleStage) stages.get(stages.size()-1);
+            VehicleStage finalStage = (VehicleStage) stages.getLast();
             //assertEquals(Stations.TraffordBar, secondStage.getFirstStation()); // THIS CAN CHANGE
             assertEquals(ManAirport.getId(), finalStage.getLastStation().getId());
             assertEquals(Tram, finalStage.getMode());
@@ -642,7 +643,7 @@ public class RouteCalculatorTest {
         List<StationDiagnosticsLinkDTO> links = bury.getLinks();
         assertEquals(1, links.size());
 
-        StationDiagnosticsLinkDTO stationDiagnosticsLinkDTO = links.get(0);
+        StationDiagnosticsLinkDTO stationDiagnosticsLinkDTO = links.getFirst();
         IdFor<Station> radcliffeId = Station.createId("9400ZZMARAD");
         assertEquals(new IdForDTO(radcliffeId), stationDiagnosticsLinkDTO.getTowards().getId());
 
@@ -706,18 +707,18 @@ public class RouteCalculatorTest {
         return journeys;
     }
 
-    private List<TramTime> checkRangeOfTimes(TramStations start, TramStations dest) {
+    private List<TramTime> checkRangeOfTimes(final TramStations start, final TramStations dest) {
 
         // TODO lockdown services after 6.10
+        final List<TramTime> missing = new LinkedList<>();
+        final int latestHour = 23;
         int minsOffset = 10;
-        List<TramTime> missing = new LinkedList<>();
-        int latestHour = 23;
         for (int hour = 7; hour < latestHour; hour++) {
             for (int minutes = minsOffset; minutes < 59; minutes=minutes+ maxChanges) {
-                TramTime time = TramTime.of(hour, minutes);
-                JourneyRequest journeyRequest = new JourneyRequest(when, time, false, maxChanges,
+                final TramTime time = TramTime.of(hour, minutes);
+                final JourneyRequest journeyRequest = new JourneyRequest(when, time, false, maxChanges,
                         maxJourneyDuration, 1, requestedModes);
-                List<Journey> journeys = calculator.calculateRouteAsList(start, dest, journeyRequest);
+                final List<Journey> journeys = calculator.calculateRouteAsList(start, dest, journeyRequest);
                 if (journeys.isEmpty()) {
                     missing.add(time);
                 }

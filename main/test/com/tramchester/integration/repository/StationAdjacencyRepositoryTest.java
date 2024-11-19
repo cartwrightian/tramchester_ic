@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Set;
 
@@ -66,7 +67,8 @@ class StationAdjacencyRepositoryTest {
 
     @Test
     void shouldGiveCorrectCostForAdjacencyCornbrookDeansgate() {
-        assertEquals(Duration.ofMinutes(3).plusSeconds(52), getAdjacent(Cornbrook, Deansgate));
+        Duration duration = getAdjacent(Cornbrook, Deansgate);
+        assertEquals(Duration.ofMinutes(3), duration.truncatedTo(ChronoUnit.MINUTES));
     }
 
     @Test

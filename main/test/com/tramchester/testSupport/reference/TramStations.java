@@ -191,7 +191,7 @@ public enum TramStations implements FakeStation, HasId<Station> {
 
             platforms.forEach(station::addPlatform);
             routes.forEach(station::addRouteDropOff);
-            
+
             return station;
         }
 
