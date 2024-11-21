@@ -242,7 +242,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
 
         TramTime previous = queryTime;
         for (TestResultSummaryRow result : results) {
-            TramTime currentArrivalTime = result.getArriveTime();
+            final TramTime currentArrivalTime = result.getArriveTime();
             assertTrue(currentArrivalTime.isAfter(previous) || currentArrivalTime.equals(previous),
                     "arrival time order for " + result + " previous: " + previous);
             assertTrue(currentArrivalTime.isValid());

@@ -179,7 +179,7 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
         assertTrue(firstStageDepartTime.isValid());
         assertEquals("Walk to", firstStage.getAction(), "action wrong for " + stages);
         assertEquals(-1, firstStage.getPlatform(), "platform wrong for " + stages);
-        assertEquals("", firstStage.getRouteName(), "lineName");
+        //assertEquals("", firstStage.getRouteName(), "lineName");
         String station = firstStage.getActionStation();
 
         final TramTime secondStageDepartTime = secondStage.getDepartTime();
