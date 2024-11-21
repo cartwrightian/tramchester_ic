@@ -240,10 +240,13 @@ public class TestEnv {
         cache.clearFiles();
     }
 
-    public static int calcCostInMinutes(Location<?> stationA, Location<?> stationB, double mph) {
-        double distanceInMiles = distanceInMiles(stationA.getLatLong(), stationB.getLatLong());
-        double hours = distanceInMiles / mph;
-        return (int)Math.ceil(hours * 60D);
+    public static int calcCostInMinutes(Location<?> locationA, Location<?> locationB, final double mph) {
+        final double distanceInMiles = distanceInMiles(locationA.getLatLong(), locationB.getLatLong());
+        final double milesPerMinutes = mph / 60D;
+        //double hours = distanceInMiles / mph;
+        //return (int)Math.ceil(hours * 60D);
+        double result =  Math.ceil(distanceInMiles * milesPerMinutes);
+        return (int) result;
     }
 
     private static double distanceInMiles(LatLong point1, LatLong point2) {

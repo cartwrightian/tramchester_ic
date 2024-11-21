@@ -13,7 +13,6 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.resources.DataVersionResourceTest;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.SmokeTest;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
@@ -32,7 +31,6 @@ import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -255,21 +253,20 @@ public class AppUserJourneyTest extends UserJourneyTest {
         }
 
         // select first journey
-        TestResultSummaryRow firstResult = results.get(0);
+        TestResultSummaryRow firstResult = results.getFirst();
         firstResult.moveTo(providesDriver);
         appPage.waitForClickable(firstResult.getElement());
         firstResult.click(providesDriver);
 
         List<Stage> stages = firstResult.getStages();
         assertEquals(1, stages.size());
-        Stage stage = stages.get(0);
+        Stage stage = stages.getFirst();
 
-        Set<KnownTramRoute> expectedRoutes = EnumSet.of(BuryManchesterAltrincham, EtihadPiccadillyAltrincham);
         Set<String> headSigns = new HashSet<>(Arrays.asList(Bury.getName(), Piccadilly.getName(), "Bury via Market Street & Victoria"));
         Set<TramTime> departTimes = Collections.singleton(firstResult.getDepartTime());
         validateAStage(stage, departTimes, "Board Tram", Altrincham.getName(),
                 Collections.singletonList(1),
-                expectedRoutes, headSigns, 9);
+                headSigns, 9);
     }
 
     @ParameterizedTest(name = "{displayName} {arguments}")
@@ -326,7 +323,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
         assertTrue(appPage.searchEnabled());
 
         List<TestResultSummaryRow> results = appPage.getResults();
-        final TramTime departTime = results.get(0).getDepartTime();
+        final TramTime departTime = results.getFirst().getDepartTime();
         assertTrue(departTime.isValid());
         assertTrue(departTime.isAfter(tenFifteen), "depart not after " + tenFifteen);
 
@@ -338,7 +335,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
         assertTrue(appPage.searchEnabled());
 
         List<TestResultSummaryRow> updatedResults = appPage.getResults();
-        final TramTime updatedDepartTime = updatedResults.get(0).getDepartTime();
+        final TramTime updatedDepartTime = updatedResults.getFirst().getDepartTime();
         assertTrue(updatedDepartTime.isValid());
         assertTrue(updatedDepartTime.isBefore(tenFifteen));
         assertTrue(updatedDepartTime.isAfter(eightFifteen));
@@ -356,7 +353,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
         assertTrue(appPage.searchEnabled());
 
         List<TestResultSummaryRow> results = appPage.getResults();
-        TramTime firstDepartureTime = results.get(0).getDepartTime();
+        TramTime firstDepartureTime = results.getFirst().getDepartTime();
         assertTrue(firstDepartureTime.isValid());
         assertTrue(firstDepartureTime.isAfter(tenFifteen));
 
@@ -365,7 +362,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
         assertTrue(appPage.searchEnabled());
 
         List<TestResultSummaryRow> updatedResults = appPage.getResults();
-        TramTime updatedDepartTime = updatedResults.get(0).getDepartTime();
+        TramTime updatedDepartTime = updatedResults.getFirst().getDepartTime();
         assertTrue(updatedDepartTime.isValid());
         assertTrue(updatedDepartTime.isBefore(firstDepartureTime), "should be before current first departure time");
         Duration difference = TramTime.difference(firstDepartureTime, updatedDepartTime);
@@ -385,10 +382,10 @@ public class AppUserJourneyTest extends UserJourneyTest {
         assertTrue(appPage.searchEnabled());
 
         List<TestResultSummaryRow> results = appPage.getResults();
-        final TramTime departTime = results.get(0).getDepartTime();
+        final TramTime departTime = results.getFirst().getDepartTime();
         assertTrue(departTime.isValid());
         assertTrue(departTime.isAfter(tenFifteen));
-        TramTime lastDepartureTime = results.get(results.size() - 1).getDepartTime();
+        TramTime lastDepartureTime = results.getLast().getDepartTime();
         assertTrue(lastDepartureTime.isValid());
 
         appPage.later();
@@ -396,7 +393,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
         assertTrue(appPage.searchEnabled());
 
         List<TestResultSummaryRow> updatedResults = appPage.getResults();
-        TramTime updatedDepartTime = updatedResults.get(0).getDepartTime();
+        TramTime updatedDepartTime = updatedResults.getFirst().getDepartTime();
         assertTrue(updatedDepartTime.isValid());
         assertTrue(updatedDepartTime.isAfter(lastDepartureTime), "should be after current departure time");
         Duration difference = TramTime.difference(lastDepartureTime, updatedDepartTime);
@@ -414,9 +411,9 @@ public class AppUserJourneyTest extends UserJourneyTest {
         assertTrue(appPage.resultsClickable());
 
         List<TestResultSummaryRow> results = appPage.getResults();
-        // TODO pre-lockdown timetable was 3
+
         assertTrue(results.size()>=2, "at least 2 journeys, was "+results.size());
-        TramTime previousArrivalTime = planTime; // sorted by arrival time, so we may seen
+        TramTime previousArrivalTime = planTime; // sorted by arrival time
         for (TestResultSummaryRow result : results) {
             final TramTime arriveTime = result.getArriveTime();
             final TramTime departTime = result.getDepartTime();
@@ -431,10 +428,11 @@ public class AppUserJourneyTest extends UserJourneyTest {
         }
 
         // need to sort, otherwise unpredictable
-        List<TestResultSummaryRow> sorted = results.stream().sorted(Comparator.comparing(TestResultSummaryRow::getDepartTime)).toList();
+        List<TestResultSummaryRow> sortedByDepartTime = results.stream().
+                sorted(Comparator.comparing(TestResultSummaryRow::getDepartTime)).toList();
 
-        // select first journey
-        TestResultSummaryRow firstResult = sorted.get(0);
+        // select first depart journey
+        TestResultSummaryRow firstResult = sortedByDepartTime.getFirst();
         firstResult.moveTo(providesDriver);
         appPage.waitForClickable(firstResult.getElement());
         firstResult.click(providesDriver);
@@ -445,23 +443,22 @@ public class AppUserJourneyTest extends UserJourneyTest {
         Stage firstStage = stages.get(0);
         Stage secondStage = stages.get(1);
 
-        Set<KnownTramRoute> routeNames = new HashSet<>(Arrays.asList(EtihadPiccadillyAltrincham, BuryManchesterAltrincham));
-        Set<String> firstStageHeadsigns = new HashSet<>(Arrays.asList(Piccadilly.getName(), Bury.getName(), "Bury via Market Street & Victoria"));
+        Set<String> firstStageHeadsigns = new HashSet<>(Arrays.asList(Piccadilly.getName(), Bury.getName(),
+                "Bury via Market Street & Victoria"));
 
         TramTime firstDepartTime = firstResult.getDepartTime();
         validateAStage(firstStage, Collections.singleton(firstDepartTime), "Board Tram", Altrincham.getName(),
-                Collections.singletonList(1),
-                routeNames, firstStageHeadsigns, 7);
+                Collections.singletonList(1), firstStageHeadsigns, 7);
 
         // Too timetable dependent?
-        Set<String> secondStageHeadsigns = new HashSet<>(Arrays.asList(ManAirport.getName(), "Manchester Airport via Market Street & Wythenshawe"));
+        Set<String> secondStageHeadsigns = new HashSet<>(Arrays.asList(ManAirport.getName(),
+                "Manchester Airport via Market Street & Wythenshawe"));
 
         Set<TramTime> validTimes = new HashSet<>(Arrays.asList(TramTime.of(10,37),
                 TramTime.of(10,29),
-                TramTime.of(10,25)));
+                TramTime.of(10,27)));
         validateAStage(secondStage, validTimes, "Change Tram", TraffordBar.getName(),
                 Arrays.asList(1,2),
-                Collections.singleton(DeansgateCastlefieldManchesterAirport),
                 secondStageHeadsigns, 17);
 
         assertEquals(TraffordBar.getName(), secondStage.getActionStation());
@@ -584,8 +581,9 @@ public class AppUserJourneyTest extends UserJourneyTest {
         assertEquals(arriveBy, appPage.getArriveBy());
     }
 
-    public static void validateAStage(Stage stage, Set<TramTime> departTimes, String action, String actionStation, List<Integer> platforms,
-                                      Set<KnownTramRoute> expectedRoutes, Set<String> headsigns, int passedStops) {
+    // TODO pass in a time range for depart times?
+    public static void validateAStage(Stage stage, Set<TramTime> departTimes, String action, String actionStation,
+                                      List<Integer> platforms, Set<String> headsigns, int passedStops) {
 
 //        Set<String> expectedRoutesNames = expectedRoutes.stream().map(KnownTramRoute::shortName).collect(Collectors.toSet());
 

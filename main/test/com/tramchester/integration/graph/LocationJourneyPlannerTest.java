@@ -325,11 +325,10 @@ class LocationJourneyPlannerTest {
         final TramTime queryTime = TramTime.of(10, 15);
 
         final double walkingMPH = testConfig.getWalkingMPH();
-        int toNavigation = TestEnv.calcCostInMinutes(nearAltrincham.location(), NavigationRoad.from(stationRepository), walkingMPH);
-        int toAltrincham = TestEnv.calcCostInMinutes(nearAltrincham.location(), Altrincham.from(stationRepository), walkingMPH);
+//        int toNavigation = TestEnv.calcCostInMinutes(nearAltrincham.location(), NavigationRoad.from(stationRepository), walkingMPH);
+//        int toAltrincham = TestEnv.calcCostInMinutes(nearAltrincham.location(), Altrincham.from(stationRepository), walkingMPH);
 
-        int lowestCost = Math.min(toAltrincham, toNavigation);
-        TramTime earliestDepart = queryTime.plusMinutes(lowestCost);
+//        int lowestCost = Math.min(toAltrincham, toNavigation);
 
         final JourneyRequest request = new JourneyRequest(when, queryTime,
                 false, 1, maxJourneyDuration, maxNumberOfJourneys, getRequestedModes());
@@ -340,19 +339,26 @@ class LocationJourneyPlannerTest {
         List<Journey> sorted = unsorted.stream().
                 sorted(Comparator.comparing(Journey::getDepartTime)).toList();
 
-        Journey earliestJourney = sorted.get(0);
+        Journey earliestJourney = sorted.getFirst();
         final TramTime actualDepartTime = earliestJourney.getDepartTime();
         assertTrue(actualDepartTime.isAfter(queryTime), actualDepartTime.toString());
-        assertTrue(actualDepartTime.isAfter(earliestDepart) || actualDepartTime.equals(earliestDepart));
 
         List<ChangeLocation<?>> changeStations = earliestJourney.getChangeStations();
         assertEquals(1, changeStations.size());
-        ChangeLocation<?> changeStation = changeStations.get(0);
+
+        final ChangeLocation<?> firstChange = changeStations.getFirst();
 
         List<IdFor<Station>> expectedIds = Arrays.asList(NavigationRoad.getId(), Altrincham.getId());
+        assertTrue(expectedIds.contains(firstChange.getId()));
+        assertEquals(TransportMode.Walk, firstChange.fromMode());
 
-        assertTrue(expectedIds.contains(changeStation.getId()));
-        assertEquals(TransportMode.Walk, changeStation.fromMode());
+        // based on the first station calc the earliest time we should suggest
+        final int walkingCost = TestEnv.calcCostInMinutes(nearAltrincham.location(), firstChange.location(), walkingMPH);
+        TramTime earliestDepart = queryTime.plusMinutes(walkingCost);
+
+        assertTrue(actualDepartTime.isAfter(earliestDepart) || actualDepartTime.equals(earliestDepart),
+                "problem with depart time " + actualDepartTime + " with earliest depart " + earliestDepart + " and first station "
+                    +firstChange.location().getId());
 
     }
 
