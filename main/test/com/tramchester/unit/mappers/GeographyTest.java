@@ -49,7 +49,11 @@ public class GeographyTest {
 
         Quantity<Time> result = geography.getWalkingTime(BetweenStPeterSqAndPiccGardens);
 
-        assertEquals(expected, Math.ceil(result.to(MINUTE).getValue().doubleValue()));
+        Number minutes = result.to(MINUTE).getValue();
+
+        assertEquals(6, expected, "earth quake??");
+        assertEquals(expected, Math.ceil(minutes.doubleValue()));
+
     }
 
     @Test

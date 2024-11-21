@@ -324,12 +324,6 @@ class LocationJourneyPlannerTest {
 
         final TramTime queryTime = TramTime.of(10, 15);
 
-        final double walkingMPH = testConfig.getWalkingMPH();
-//        int toNavigation = TestEnv.calcCostInMinutes(nearAltrincham.location(), NavigationRoad.from(stationRepository), walkingMPH);
-//        int toAltrincham = TestEnv.calcCostInMinutes(nearAltrincham.location(), Altrincham.from(stationRepository), walkingMPH);
-
-//        int lowestCost = Math.min(toAltrincham, toNavigation);
-
         final JourneyRequest request = new JourneyRequest(when, queryTime,
                 false, 1, maxJourneyDuration, maxNumberOfJourneys, getRequestedModes());
 
@@ -352,7 +346,9 @@ class LocationJourneyPlannerTest {
         assertTrue(expectedIds.contains(firstChange.getId()));
         assertEquals(TransportMode.Walk, firstChange.fromMode());
 
-        // based on the first station calc the earliest time we should suggest
+        // based on the first station calc the earliest time we can actually suggest
+        final double walkingMPH = testConfig.getWalkingMPH();
+
         final int walkingCost = TestEnv.calcCostInMinutes(nearAltrincham.location(), firstChange.location(), walkingMPH);
         TramTime earliestDepart = queryTime.plusMinutes(walkingCost);
 

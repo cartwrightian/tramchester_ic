@@ -242,28 +242,26 @@ public class TestEnv {
 
     public static int calcCostInMinutes(Location<?> locationA, Location<?> locationB, final double mph) {
         final double distanceInMiles = distanceInMiles(locationA.getLatLong(), locationB.getLatLong());
-        final double milesPerMinutes = mph / 60D;
-        //double hours = distanceInMiles / mph;
-        //return (int)Math.ceil(hours * 60D);
-        double result =  Math.ceil(distanceInMiles * milesPerMinutes);
-        return (int) result;
+        final double hours = distanceInMiles / mph;
+        final double minutes = hours * 60D;
+        return (int) Math.ceil(minutes);
     }
 
-    private static double distanceInMiles(LatLong point1, LatLong point2) {
+    private static double distanceInMiles(final LatLong point1, final LatLong point2) {
 
         final double EARTH_RADIUS = 3958.75;
 
-        double lat1 = point1.getLat();
-        double lat2 = point2.getLat();
-        double diffLat = Math.toRadians(lat2-lat1);
-        double diffLong = Math.toRadians(point2.getLon()-point1.getLon());
-        double sineDiffLat = Math.sin(diffLat / 2D);
-        double sineDiffLong = Math.sin(diffLong / 2D);
+        final double lat1 = point1.getLat();
+        final double lat2 = point2.getLat();
+        final double diffLat = Math.toRadians(lat2-lat1);
+        final double diffLong = Math.toRadians(point2.getLon()-point1.getLon());
+        final double sineDiffLat = Math.sin(diffLat / 2D);
+        final double sineDiffLong = Math.sin(diffLong / 2D);
 
-        double a = Math.pow(sineDiffLat, 2) + Math.pow(sineDiffLong, 2)
+        final double a = Math.pow(sineDiffLat, 2) + Math.pow(sineDiffLong, 2)
                 * Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2));
 
-        double fractionOfRadius = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        final double fractionOfRadius = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         return EARTH_RADIUS * fractionOfRadius;
     }
 

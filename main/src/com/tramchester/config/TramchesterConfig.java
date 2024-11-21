@@ -31,7 +31,7 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
 
     public static final String DateTimeFormatForJson = "yyyy-MM-dd'T'HH:mm:ss";
 
-    private final static double KILO_PER_MILE = 1.609344D;
+    public final static double KILO_PER_MILE = 1.609344D;
 
     private final Map<DataSourceID, TransportDataSourceConfig> dataSources;
 
@@ -229,7 +229,8 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
     public abstract boolean isGraphFiltered();
 
     public ComparableQuantity<Speed> getWalkingSpeed() {
-        final double metersPerSecond = (getWalkingMPH() * KILO_PER_MILE * 1000) / 3600D;
+        final double kilometers = getWalkingMPH() * KILO_PER_MILE;
+        final double metersPerSecond = (kilometers * 1000) / 3600D;
         return Quantities.getQuantity(metersPerSecond, METRE_PER_SECOND);
     }
 
