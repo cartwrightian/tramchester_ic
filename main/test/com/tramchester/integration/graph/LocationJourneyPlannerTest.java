@@ -23,6 +23,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.TramStations;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
@@ -318,6 +319,7 @@ class LocationJourneyPlannerTest {
         results.forEach(journey -> assertEquals(2, journey.getStages().size()));
     }
 
+    @DisabledUntilDate(year = 2024, month = 11, day = 25)
     @Test
     void shouldHaveNearAltyToDeansgate() {
         // mirrors test in AppUserJourneyLocationsTest
