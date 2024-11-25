@@ -33,7 +33,9 @@ public class DisabledUntilDateTest {
 
         Set<Method> all = getExpired(App.class.getPackageName(), today);
 
-        Set<Method> expired = all.stream().filter(method -> !method.getDeclaringClass().equals(this.getClass())).collect(Collectors.toSet());
+        List<Method> expired = all.stream().
+                filter(method -> !method.getDeclaringClass().equals(this.getClass())).
+                toList();
 
         assertTrue(expired.isEmpty(), getNames(expired).toString());
     }
