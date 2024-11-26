@@ -13,6 +13,7 @@ import org.reflections.util.ConfigurationBuilder;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -37,7 +38,7 @@ public class DisabledUntilDateTest {
                 filter(method -> !method.getDeclaringClass().equals(this.getClass())).
                 toList();
 
-        assertTrue(expired.isEmpty(), getNames(expired).toString());
+        assertEquals(Collections.emptyList(), expired, getNames(expired).toString());
     }
 
     private List<String> getNames(Collection<Method> methods) {

@@ -22,10 +22,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.testSupport.reference.KnownLocations.nearAltrincham;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static tech.units.indriya.unit.Units.METRE;
-import static tech.units.indriya.unit.Units.MINUTE;
+import static com.tramchester.testSupport.reference.TramStations.Altrincham;
+import static org.junit.jupiter.api.Assertions.*;
+import static tech.units.indriya.unit.Units.*;
 
 public class GeographyTest {
     private Geography geography;
@@ -45,14 +44,33 @@ public class GeographyTest {
         Location<?> start = TramStations.StPetersSquare.fake();
         Location<?> end = TramStations.PiccadillyGardens.fake();
 
-        int expected = TestEnv.calcCostInMinutes(start, end, config.getWalkingMPH());
+        Duration expected = TestEnv.calcCostInMinutes(start, end, config.getWalkingMPH());
 
         Quantity<Time> result = geography.getWalkingTime(BetweenStPeterSqAndPiccGardens);
 
-        Number minutes = result.to(MINUTE).getValue();
+        Number seconds = result.to(SECOND).getValue();
 
-        assertEquals(6, expected, "earth quake??");
-        assertEquals(expected, Math.ceil(minutes.doubleValue()));
+        assertEquals(Duration.ofMinutes(5).plusSeconds(45), expected, "earth quake??");
+
+        long diff = Math.abs(seconds.longValue() - expected.toSeconds());
+
+        assertTrue(diff<2, seconds + " and " + expected + " too far apart");
+
+    }
+
+    @Test
+    void shouldReproIssueOnDistanceMismatch() {
+        Location<?> start = nearAltrincham.location();
+        Location<?> end = Altrincham.fake();
+
+        Duration result = geography.getWalkingDuration(start, end);
+
+        Duration expected = TestEnv.calcCostInMinutes(start, end, config.getWalkingMPH());
+
+        long diff = Math.abs(result.toSeconds() - expected.toSeconds());
+
+        assertTrue(diff < 5L, expected + " and " + result + " too far apart");
+        //assertEquals(expected, result, expected + " and " + result + " need to match");
 
     }
 
@@ -82,7 +100,7 @@ public class GeographyTest {
 
     @Test
     void shouldGetNearToLocationSorted() {
-        Station stationA = TramStations.Altrincham.fake();
+        Station stationA = Altrincham.fake();
         Station stationB = TramStations.PiccadillyGardens.fake();
         Station stationC = TramStations.Shudehill.fake();
 
@@ -101,7 +119,7 @@ public class GeographyTest {
 
     @Test
     void shouldGetBoundary() {
-        Station stationA = TramStations.Altrincham.fake();
+        Station stationA = Altrincham.fake();
         Station stationB = TramStations.PiccadillyGardens.fake();
         Station stationC = TramStations.Shudehill.fake();
 

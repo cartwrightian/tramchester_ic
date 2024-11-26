@@ -240,11 +240,11 @@ public class TestEnv {
         cache.clearFiles();
     }
 
-    public static int calcCostInMinutes(Location<?> locationA, Location<?> locationB, final double mph) {
+    public static Duration calcCostInMinutes(Location<?> locationA, Location<?> locationB, final double mph) {
         final double distanceInMiles = distanceInMiles(locationA.getLatLong(), locationB.getLatLong());
         final double hours = distanceInMiles / mph;
-        final double minutes = hours * 60D;
-        return (int) Math.ceil(minutes);
+        final double seconds = hours * 3600D;
+        return Duration.ofSeconds((long) Math.ceil(seconds));
     }
 
     private static double distanceInMiles(final LatLong point1, final LatLong point2) {
