@@ -38,6 +38,15 @@ Links
 
 [TFGM GTFS Data Set](https://www.data.gov.uk/dataset/c3ca6469-7955-4a57-8bfc-58ef2361b797/gm-public-transport-schedules-gtfs-dataset) on data.gov.uk
 
+Notes
+-----
+Fox fix issue with missing cert for tfgm data download
+
+> openssl s_client -connect odata.tfgm.com:443 | openssl x509 -out tfgm.cert
+
+> keytool -import -alias tfgm -file ./tfgm.cert -keystore $JAVA_HOME/lib/security/cacerts
+
+Might need sudo depending on JAVA_HOME location.
 
 
 
