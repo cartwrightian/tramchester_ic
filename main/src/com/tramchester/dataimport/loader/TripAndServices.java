@@ -34,28 +34,29 @@ public class TripAndServices {
         loadedTrips.clear();
     }
 
-    public boolean hasId(IdFor<Trip> id) {
+    public boolean hasId(final IdFor<Trip> id) {
         return trips.hasId(id);
     }
 
-    public MutableTrip getTrip(IdFor<Trip> id) {
+    public MutableTrip getTrip(final IdFor<Trip> id) {
         return trips.get(id);
     }
 
-    public MutableService getService(IdFor<Service> id) {
+    public MutableService getService(final IdFor<Service> id) {
         return services.get(id);
     }
 
-    public MutableService getOrCreateService(IdFor<Service> serviceId) {
+    public MutableService getOrCreateService(final IdFor<Service> serviceId) {
         return services.getOrAdd(serviceId, () -> factory.createService(serviceId));
     }
 
-    public void createTripIfMissing(IdFor<Trip> tripId, TripData tripData, MutableService service, Route route, TransportMode transportMode) {
+    public void createTripIfMissing(final IdFor<Trip> tripId, final TripData tripData, final MutableService service,
+                                    final Route route, final TransportMode transportMode) {
         trips.getOrAdd(tripId, () -> factory.createTrip(tripData, service, route, transportMode));
         loadedTrips.add(tripId.getGraphId());
     }
 
-    public boolean hasId(String tripId) {
+    public boolean hasId(final String tripId) {
         return loadedTrips.contains(tripId);
     }
 }

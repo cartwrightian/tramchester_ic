@@ -36,16 +36,19 @@ public class GTFSStopTimeLoader {
     private final WriteableTransportData buildable;
     private final TransportEntityFactory factory;
     private final GTFSSourceConfig dataSourceConfig;
+    private final boolean debugEnabled;
 
     public GTFSStopTimeLoader(WriteableTransportData buildable, TransportEntityFactory factory, GTFSSourceConfig dataSourceConfig) {
         this.buildable = buildable;
         this.factory = factory;
         this.dataSourceConfig = dataSourceConfig;
+        debugEnabled = logger.isDebugEnabled();
     }
 
-    public IdMap<Service> load(Stream<StopTimeData> stopTimes, PreloadedStationsAndPlatforms preloadStations, TripAndServices tripAndServices) {
+    public IdMap<Service> load(final Stream<StopTimeData> stopTimes, final PreloadedStationsAndPlatforms preloadStations,
+                               final TripAndServices tripAndServices) {
         final String sourceName = dataSourceConfig.getName();
-        AtomicInteger invalidTimeCount = new AtomicInteger(0);
+        final AtomicInteger invalidTimeCount = new AtomicInteger(0);
 
         final StopTimeDataLoader stopTimeDataLoader = new StopTimeDataLoader(buildable, preloadStations, factory,
                 dataSourceConfig, tripAndServices);
@@ -60,7 +63,7 @@ public class GTFSStopTimeLoader {
 
         addClosedStations(preloadStations);
 
-        int count = invalidTimeCount.get();
+        final int count = invalidTimeCount.get();
         if (count >0) {
             logger.warn("Got " + count + " invalid stop times, each logged to debug. Likely due to the >24Hours issue");
         }
@@ -101,12 +104,14 @@ public class GTFSStopTimeLoader {
 
     }
 
-    private boolean isValid(StopTimeData stopTimeData, AtomicInteger invalidTimeCount) {
+    private boolean isValid(final StopTimeData stopTimeData, final AtomicInteger invalidTimeCount) {
         if (stopTimeData.isValid()) {
             return true;
         }
         invalidTimeCount.incrementAndGet();
-        logger.debug("StopTimeData is invalid: " + stopTimeData);
+        if (debugEnabled) {
+            logger.debug("StopTimeData is invalid: " + stopTimeData);
+        }
         return false;
     }
 
@@ -162,7 +167,7 @@ public class GTFSStopTimeLoader {
             } else {
                 excludedStations.add(stationId);
                 if (tripAndServices.hasId(stopTripId)) {
-                    MutableTrip trip = tripAndServices.getTrip(stopTripId);
+                    final MutableTrip trip = tripAndServices.getTrip(stopTripId);
                     trip.setFiltered(true);
                 } else {
                     logger.warn(format("No trip %s for filtered stopcall %s", stopTripId, stationId));

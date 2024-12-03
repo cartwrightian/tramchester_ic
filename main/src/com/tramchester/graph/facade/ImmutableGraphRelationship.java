@@ -174,6 +174,7 @@ public class ImmutableGraphRelationship implements GraphRelationship {
 
     @Override
     public boolean hasTripIdInList(final IdFor<Trip> tripId) {
+        // todo cache?
         return underlying.hasTripIdInList(tripId);
     }
 

@@ -469,7 +469,7 @@ public class TramTime implements Comparable<TramTime> {
             }
 
             if (length > 5) {
-                CharSequence suffix = text.subSequence(length - 3, length);
+                final CharSequence suffix = text.subSequence(length - 3, length);
                 if (suffix.equals(nextDaySuffix)) {
                     offsetDays = 1;
                 }

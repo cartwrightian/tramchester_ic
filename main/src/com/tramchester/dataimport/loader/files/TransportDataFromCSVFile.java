@@ -23,15 +23,15 @@ public class TransportDataFromCSVFile<T,R extends T> implements TransportDataFro
     private final Path filePath;
     private final ObjectReader reader;
 
-    public TransportDataFromCSVFile(Path filePath, Class<R> readerType, CsvMapper mapper) {
+    public TransportDataFromCSVFile(final Path filePath, final Class<R> readerType, final CsvMapper mapper) {
         this(filePath, readerType, Collections.emptyList(), mapper);
     }
 
-    public TransportDataFromCSVFile(Path filePath, Class<R> readerType, String cvsHeader, CsvMapper mapper) {
+    public TransportDataFromCSVFile(final Path filePath, final Class<R> readerType, final String cvsHeader, final CsvMapper mapper) {
         this(filePath, readerType, Arrays.asList(cvsHeader.split(",")), mapper);
     }
 
-    private TransportDataFromCSVFile(Path filePath, Class<R> readerType, List<String> columns, CsvMapper mapper) {
+    private TransportDataFromCSVFile(final Path filePath, final Class<R> readerType, final List<String> columns, final CsvMapper mapper) {
 
         // TODO Set file encoding explicitly here?
 
@@ -41,14 +41,15 @@ public class TransportDataFromCSVFile<T,R extends T> implements TransportDataFro
         if (columns.isEmpty()) {
             schema = CsvSchema.emptySchema().withHeader();
         } else {
-            CsvSchema.Builder builder = CsvSchema.builder();
+            final CsvSchema.Builder builder = CsvSchema.builder();
             columns.forEach(builder::addColumn);
             schema = builder.build();
         }
 
-        // set-up a reader ahead of time, helps with performance
+        // create a reader ahead of time, helps with performance
         reader = mapper.readerFor(readerType).
                 with(schema).
+                //without(CsvParser.Feature.TRIM_SPACES). // default
                 without(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     }
 
@@ -69,8 +70,8 @@ public class TransportDataFromCSVFile<T,R extends T> implements TransportDataFro
     public Stream<T> load(final Reader in) {
 
         try {
-            // ObjectReader has own buffer, using a BufferedReader is marginally slower...
-            // final BufferedReader bufferedReader = new BufferedReader(in);
+            // there is a text buffer inside CsvDecoder
+            //final BufferedReader bufferedReader = new BufferedReader(in);
 
             final MappingIterator<T> readerIter = reader.readValues(in);
 

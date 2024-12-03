@@ -12,12 +12,12 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataContainer;
 import com.tramchester.repository.WriteableTransportData;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import jakarta.inject.Inject;
 import java.util.Optional;
 
 import static java.lang.String.format;
@@ -73,10 +73,10 @@ public class PopulateTransportDataFromSources implements TransportDataFactory {
         return dataContainer;
     }
 
-    private void load(TransportDataSource dataSource, WriteableTransportData writeableTransportData) {
-        DataSourceInfo dataSourceInfo = dataSource.getDataSourceInfo();
+    private void load(final TransportDataSource dataSource, final WriteableTransportData writeableTransportData) {
+        final DataSourceInfo dataSourceInfo = dataSource.getDataSourceInfo();
 
-        GTFSSourceConfig sourceConfig = dataSource.getConfig();
+        final GTFSSourceConfig sourceConfig = dataSource.getConfig();
 
         logger.info("Loading data for " + dataSourceInfo);
 
@@ -85,22 +85,22 @@ public class PopulateTransportDataFromSources implements TransportDataFactory {
         final TransportEntityFactory entityFactory = dataSource.getEntityFactory();
 
         // create loaders
-        StopDataLoader stopDataLoader = new StopDataLoader(entityFactory, tramchesterConfig);
-        AgencyDataLoader agencyDataLoader = new AgencyDataLoader(dataSourceInfo, entityFactory);
-        RouteDataLoader routeDataLoader = new RouteDataLoader(writeableTransportData, sourceConfig, entityFactory);
-        TripLoader tripLoader = new TripLoader(writeableTransportData, entityFactory);
-        GTFSStopTimeLoader stopTimeLoader = new GTFSStopTimeLoader(writeableTransportData, entityFactory, sourceConfig);
-        CalendarLoader calendarLoader = new CalendarLoader(writeableTransportData, entityFactory);
-        CalendarDateLoader calendarDateLoader = new CalendarDateLoader(writeableTransportData, providesNow, sourceConfig);
+        final StopDataLoader stopDataLoader = new StopDataLoader(entityFactory, tramchesterConfig);
+        final AgencyDataLoader agencyDataLoader = new AgencyDataLoader(dataSourceInfo, entityFactory);
+        final RouteDataLoader routeDataLoader = new RouteDataLoader(writeableTransportData, sourceConfig, entityFactory);
+        final TripLoader tripLoader = new TripLoader(writeableTransportData, entityFactory);
+        final GTFSStopTimeLoader stopTimeLoader = new GTFSStopTimeLoader(writeableTransportData, entityFactory, sourceConfig);
+        final CalendarLoader calendarLoader = new CalendarLoader(writeableTransportData, entityFactory);
+        final CalendarDateLoader calendarDateLoader = new CalendarDateLoader(writeableTransportData, providesNow, sourceConfig);
 
-        PreloadedStationsAndPlatforms interimStations = stopDataLoader.load(dataSource.getStops());
-        CompositeIdMap<Agency, MutableAgency> interimAgencies = agencyDataLoader.load(dataSource.getAgencies());
-        RouteDataLoader.ExcludedRoutes excludedRoutes = routeDataLoader.load(dataSource.getRoutes(), interimAgencies);
+        final PreloadedStationsAndPlatforms interimStations = stopDataLoader.load(dataSource.getStops());
+        final CompositeIdMap<Agency, MutableAgency> interimAgencies = agencyDataLoader.load(dataSource.getAgencies());
+        final RouteDataLoader.ExcludedRoutes excludedRoutes = routeDataLoader.load(dataSource.getRoutes(), interimAgencies);
 
         interimAgencies.clear();
 
-        TripAndServices interimTripsAndServices = tripLoader.load(dataSource.getTrips(), excludedRoutes);
-        IdMap<Service> interimServices = stopTimeLoader.load(dataSource.getStopTimes(), interimStations, interimTripsAndServices);
+        final TripAndServices interimTripsAndServices = tripLoader.load(dataSource.getTrips(), excludedRoutes);
+        final IdMap<Service> interimServices = stopTimeLoader.load(dataSource.getStopTimes(), interimStations, interimTripsAndServices);
 
         excludedRoutes.clear();
         interimStations.clear();

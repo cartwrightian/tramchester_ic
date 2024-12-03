@@ -15,12 +15,11 @@ public class FilterRelationshipsByTripId {
 
     private final IdFor<Trip> tripId;
 
-    public FilterRelationshipsByTripId(IdFor<Trip> tripId) {
-
+    public FilterRelationshipsByTripId(final IdFor<Trip> tripId) {
         this.tripId = tripId;
     }
 
-    public Stream<ImmutableGraphRelationship> apply(GraphTransaction txn, GraphNode node) {
+    public Stream<ImmutableGraphRelationship> apply(final GraphTransaction txn, final GraphNode node) {
         return node.getRelationships(txn, OUTGOING, TO_SERVICE).
                 filter(relationship -> relationship.hasTripIdInList(tripId));
     }

@@ -4,7 +4,6 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.dataimport.UnzipFetchedData;
 import com.tramchester.dataimport.loader.*;
-import com.tramchester.dataimport.rail.RailTransportDataFromFiles;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.MutableAgency;
@@ -61,11 +60,11 @@ public class GTFSStopTimeLoaderTest {
 
         // routes
         RouteDataLoader routeDataLoader = new RouteDataLoader(buildable, dataSource.getConfig(), entityFactory);
-        routeDataLoader.load(dataSource.getRoutes(), interimAgencies);
+        RouteDataLoader.ExcludedRoutes excludedRoutes = routeDataLoader.load(dataSource.getRoutes(), interimAgencies);
 
         // trips
         TripLoader tripLoader = new TripLoader(buildable, entityFactory);
-        RouteDataLoader.ExcludedRoutes excludedRoutes = new RouteDataLoader.ExcludedRoutes();
+        //RouteDataLoader.ExcludedRoutes excludedRoutes = new RouteDataLoader.ExcludedRoutes();
         TripAndServices tripsAndServices = tripLoader.load(dataSource.getTrips(), excludedRoutes);
 
         // stops
@@ -82,29 +81,51 @@ public class GTFSStopTimeLoaderTest {
 
     }
 
-    @Disabled("perf testing only, not working")
+    @Disabled("perf testing only")
     @Test
     public void shouldDoMultipleLoadsForPerformanceTestingOnly() {
 
-        NaptanRepository naptanRepository = componentContainer.get(NaptanRepository.class);
-        UnzipFetchedData.Ready dataReady = componentContainer.get(UnzipFetchedData.class).getReady();
-        ProvidesNow providesNow= componentContainer.get(ProvidesNow.class);
+        ProvidesNow providesNow = componentContainer.get(ProvidesNow.class);
         TransportDataReaderFactory readerFactory = componentContainer.get(TransportDataReaderFactory.class);
+        NaptanRepository naptanRepository = componentContainer.get(NaptanRepository.class);
+        UnzipFetchedData unzipFetchedData = componentContainer.get(UnzipFetchedData.class);
 
-        RailTransportDataFromFiles loadsRail = componentContainer.get(RailTransportDataFromFiles.class); // disabled for tram
-        DirectDataSourceFactory directDataSourceFactory = new DirectDataSourceFactory(loadsRail);
+        UnzipFetchedData.Ready ready = unzipFetchedData.getReady();
+        TransportDataSourceFactory dataSourceFactory = new TransportDataSourceFactory(readerFactory, naptanRepository, ready);
+        TransportDataContainer buildable = new TransportDataContainer(providesNow, "testSourceName");
 
-        TransportDataSourceFactory transportDataSourceFactory = new TransportDataSourceFactory(readerFactory, naptanRepository, dataReady);
 
-        for (int i = 0; i < 20; i++) {
-            PopulateTransportDataFromSources populateTransportDataFromSources =
-                    new PopulateTransportDataFromSources(transportDataSourceFactory, directDataSourceFactory, config, providesNow);
-            transportDataSourceFactory.start();
-            populateTransportDataFromSources.start();
-            populateTransportDataFromSources.getData(); // load the data
-            populateTransportDataFromSources.stop();
-            transportDataSourceFactory.stop();
+        dataSourceFactory.start();
+        TransportDataSource dataSource = dataSourceFactory.getFor(DataSourceID.tfgm);
+
+        TransportEntityFactory entityFactory = dataSource.getEntityFactory() ;
+
+        AgencyDataLoader agencyDataLoader = new AgencyDataLoader(dataSource.getDataSourceInfo(), entityFactory);
+        CompositeIdMap<Agency, MutableAgency> interimAgencies = agencyDataLoader.load(dataSource.getAgencies());
+
+        RouteDataLoader routeDataLoader = new RouteDataLoader(buildable, dataSource.getConfig(), entityFactory);
+        RouteDataLoader.ExcludedRoutes excludedRoutes = routeDataLoader.load(dataSource.getRoutes(), interimAgencies);
+
+        TripLoader tripLoader = new TripLoader(buildable, entityFactory);
+        TripAndServices tripsAndServices = tripLoader.load(dataSource.getTrips(), excludedRoutes);
+
+        StopDataLoader stopDataLoader = new StopDataLoader(entityFactory, config);
+        PreloadedStationsAndPlatforms preloaded = stopDataLoader.load(dataSource.getStops());
+        dataSourceFactory.stop();
+
+        // stop times are the slowest by far
+        for (int i = 0; i < 10; i++) {
+            buildable.dispose();
+            dataSourceFactory.start();
+            dataSource = dataSourceFactory.getFor(DataSourceID.tfgm);
+            entityFactory = dataSource.getEntityFactory() ;
+
+            GTFSStopTimeLoader loader = new GTFSStopTimeLoader(buildable, entityFactory, dataSource.getConfig());
+            loader.load(dataSource.getStopTimes(), preloaded, tripsAndServices);
+
+            dataSourceFactory.stop();
         }
+
     }
 
 }

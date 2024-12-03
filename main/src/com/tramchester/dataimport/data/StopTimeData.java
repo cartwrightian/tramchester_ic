@@ -26,13 +26,13 @@ public class StopTimeData {
     private TramTime parsedDepartureTime = null;
 
     @JsonCreator
-    private StopTimeData(@JsonProperty("trip_id") String tripId,
-                         @JsonProperty("arrival_time") String arrivalTime,
-                         @JsonProperty("departure_time") String departureTime,
-                         @JsonProperty("stop_id") String stopId,
-                         @JsonProperty("stop_sequence") int stopSequence,
-                         @JsonProperty("pickup_type") String pickupType,
-                         @JsonProperty("drop_off_type") String dropOffType) {
+    private StopTimeData(@JsonProperty("trip_id") final String tripId,
+                         @JsonProperty("arrival_time") final String arrivalTime,
+                         @JsonProperty("departure_time") final String departureTime,
+                         @JsonProperty("stop_id") final String stopId,
+                         @JsonProperty("stop_sequence") final int stopSequence,
+                         @JsonProperty("pickup_type") final String pickupType,
+                         @JsonProperty("drop_off_type") final String dropOffType) {
 
         this.tripId = tripId;
         this.stopId = stopId;
@@ -45,8 +45,8 @@ public class StopTimeData {
 
     }
 
-    private String padIfNeeded(String text) {
-        int indexOfFirstDivider = text.indexOf(':');
+    private String padIfNeeded(final String text) {
+        final int indexOfFirstDivider = text.indexOf(':');
         if (indexOfFirstDivider==2) {
             return text;
         }

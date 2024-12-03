@@ -22,15 +22,15 @@ public class TransportDataFromFileFactory {
         this.mapper = mapper;
     }
 
-    public <T> TransportDataFromCSVFile<T,T> getLoaderFor(TransportDataReader.InputFiles inputfileType, Class<T> targetType) {
-        Path filePath = formPath(inputfileType);
+    public <T> TransportDataFromCSVFile<T,T> getLoaderFor(final TransportDataReader.InputFiles inputFileType, final Class<T> targetType) {
+        final Path filePath = formPath(inputFileType);
 
         logger.info(format("Create TransportDataFromCSVFile for %s from file %s", targetType.getSimpleName(), filePath));
         return new TransportDataFromCSVFile<>(filePath, targetType, mapper);
     }
 
-    private Path formPath(TransportDataReader.InputFiles theType) {
-        String filename = theType.name() + extension;
+    private Path formPath(final TransportDataReader.InputFiles theType) {
+        final String filename = theType.name() + extension;
         return path.resolve(filename);
     }
 }

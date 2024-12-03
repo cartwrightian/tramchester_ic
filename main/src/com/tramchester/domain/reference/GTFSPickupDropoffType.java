@@ -1,37 +1,22 @@
 package com.tramchester.domain.reference;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public enum GTFSPickupDropoffType {
-    Regular("0"), // OR empty string
-    None("1"),
-    Phone("2"),
-    Driver("3");
+    Regular, // OR empty string
+    None,
+    Phone,
+    Driver;
 
-    private static final Map<String, GTFSPickupDropoffType> textMap;
-
-    static {
-        textMap = new HashMap<>();
-        textMap.put("", Regular);
-        GTFSPickupDropoffType[] valid = GTFSPickupDropoffType.values();
-        for (GTFSPickupDropoffType value : valid) {
-            textMap.put(value.getText(), value);
+    public static GTFSPickupDropoffType fromString(final String text) {
+        if (text.isEmpty()) {
+            return Regular;
         }
-    }
-
-    private final String text;
-
-    GTFSPickupDropoffType(String text) {
-        this.text = text;
-    }
-
-    public static GTFSPickupDropoffType fromString(String pickupType) {
-        return textMap.get(pickupType);
-    }
-
-    public String getText() {
-        return text;
+        return switch (text) {
+            case "0" -> Regular;
+            case "1" -> None;
+            case "2" -> Phone;
+            case "3" -> Driver;
+            default -> throw new RuntimeException("Unrecognised '" + text + "'");
+        };
     }
 
     public boolean isPickup() {
