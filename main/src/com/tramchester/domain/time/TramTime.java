@@ -65,7 +65,7 @@ public class TramTime implements Comparable<TramTime> {
     }
 
     public static TramTime invalid() {
-        return Factory.Invalid();
+        return Factory.invalidTime;
     }
 
     /***
@@ -91,7 +91,7 @@ public class TramTime implements Comparable<TramTime> {
     }
 
     public boolean isValid() {
-        return this != Factory.Invalid();
+        return this != Factory.invalidTime;
     }
 
     public static TramTime of(int hours, int minutes) {
@@ -458,7 +458,7 @@ public class TramTime implements Comparable<TramTime> {
         private TramTime parse(final CharSequence text) {
 
             if (text.isEmpty()) {
-                return TramTime.invalid();
+                return invalidTime;
             }
 
             int offsetDays = 0;
@@ -552,8 +552,8 @@ public class TramTime implements Comparable<TramTime> {
 
         }
 
-        public static TramTime Invalid() {
-            return invalidTime;
-        }
+//        public static TramTime Invalid() {
+//            return invalidTime;
+//        }
     }
 }

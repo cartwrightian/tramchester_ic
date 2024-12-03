@@ -29,13 +29,13 @@ public class TransportDataSourceFactory implements Iterable<TransportDataSource>
 
     private final List<TransportDataSource> transportDataSources;
     private final TransportDataReaderFactory readerFactory;
-    private final NaptanRepository naptanRespository;
+    private final NaptanRepository naptanRepository;
 
     @Inject
     public TransportDataSourceFactory(TransportDataReaderFactory readerFactory, NaptanRepository naptanRepository,
                                       @SuppressWarnings("unused") UnzipFetchedData.Ready dataIsDownloadedAndUnzipped) {
         this.readerFactory = readerFactory;
-        this.naptanRespository = naptanRepository;
+        this.naptanRepository = naptanRepository;
         transportDataSources = new ArrayList<>();
     }
 
@@ -98,7 +98,7 @@ public class TransportDataSourceFactory implements Iterable<TransportDataSource>
     private TransportEntityFactory getEntityFactoryFor(final GTFSSourceConfig sourceConfig) {
         final DataSourceID sourceID = DataSourceID.valueOf(sourceConfig.getName());
         if (DataSourceID.tfgm == sourceID) {
-            return new TransportEntityFactoryForTFGM(naptanRespository);
+            return new TransportEntityFactoryForTFGM(naptanRepository);
         } else {
             throw new RuntimeException("No entity factory is defined for " + sourceConfig.getName());
         }

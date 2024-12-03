@@ -1,6 +1,5 @@
 package com.tramchester.dataimport.data;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
@@ -13,36 +12,28 @@ public class StopTimeData {
 
     // trip_id,arrival_time,departure_time,stop_id,stop_sequence,pickup_type,drop_off_type
 
-    private final String tripId;
-    private final String arrivalTime ;
-    private final String departureTime;
-    private final String stopId;
-    private final int stopSequence;
-    private final String pickupType;
-    private final String dropOffType;
-
     // when dealing with millions of rows parsing of times became a bottleneck, so cache results
     private TramTime parsedArrivalTime = null;
     private TramTime parsedDepartureTime = null;
 
-    @JsonCreator
-    private StopTimeData(@JsonProperty("trip_id") final String tripId,
-                         @JsonProperty("arrival_time") final String arrivalTime,
-                         @JsonProperty("departure_time") final String departureTime,
-                         @JsonProperty("stop_id") final String stopId,
-                         @JsonProperty("stop_sequence") final int stopSequence,
-                         @JsonProperty("pickup_type") final String pickupType,
-                         @JsonProperty("drop_off_type") final String dropOffType) {
+    @JsonProperty("trip_id")
+    private String tripId;
+    @JsonProperty("arrival_time")
+    private String arrivalTime;
+    @JsonProperty("departure_time")
+    private String departureTime;
+    @JsonProperty("stop_id")
+    private String stopId;
+    @JsonProperty("stop_sequence")
+    private int stopSequence;
+    @JsonProperty("pickup_type")
+    private String pickupType;
+    @JsonProperty("drop_off_type")
+    private String dropOffType;
 
-        this.tripId = tripId;
-        this.stopId = stopId;
-
-        this.arrivalTime = padIfNeeded(arrivalTime);
-        this.departureTime = padIfNeeded(departureTime);
-        this.stopSequence = stopSequence;
-        this.pickupType = pickupType;
-        this.dropOffType = dropOffType;
-
+    public StopTimeData() {
+        // faster for AfterBurner in Mapper as will use code gen, see
+        // TransportDataReaderFactory and https://github.com/FasterXML/jackson-modules-base/tree/2.19/afterburner
     }
 
     private String padIfNeeded(final String text) {
@@ -78,14 +69,14 @@ public class StopTimeData {
 
     public TramTime getArrivalTime() {
         if (parsedArrivalTime==null) {
-            parsedArrivalTime = TramTime.parse(arrivalTime);
+            parsedArrivalTime = TramTime.parse(padIfNeeded(arrivalTime));
         }
         return parsedArrivalTime;
     }
 
     public TramTime getDepartureTime() {
         if (parsedDepartureTime==null) {
-            parsedDepartureTime = TramTime.parse(departureTime);
+            parsedDepartureTime = TramTime.parse(padIfNeeded(departureTime));
         }
         return parsedDepartureTime;
     }

@@ -114,7 +114,7 @@ public class GTFSStopTimeLoaderTest {
         dataSourceFactory.stop();
 
         // stop times are the slowest by far
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 50; i++) {
             buildable.dispose();
             dataSourceFactory.start();
             dataSource = dataSourceFactory.getFor(DataSourceID.tfgm);

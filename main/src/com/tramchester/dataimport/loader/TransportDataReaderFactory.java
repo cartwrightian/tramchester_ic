@@ -1,7 +1,7 @@
 package com.tramchester.dataimport.loader;
 
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
-import com.fasterxml.jackson.module.blackbird.BlackbirdModule;
+import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.DownloadedConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
@@ -33,7 +33,7 @@ public class TransportDataReaderFactory {
     public TransportDataReaderFactory(TramchesterConfig tramchesterConfig, GetsFileModTime getsFileModTime) {
         this.getsFileModTime = getsFileModTime;
         this.mapper = CsvMapper.builder().
-                addModule(new BlackbirdModule()).
+                addModule(new AfterburnerModule()).
                 build();
         dataReaders = new ArrayList<>();
         this.tramchesterConfig = tramchesterConfig;
