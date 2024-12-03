@@ -27,8 +27,9 @@ def environment = System.getenv("ENV") ?: "Dev"
 def isWindows = System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')
 
 // NOTE: TestEnv also depends on the environment
-
-def agentPath = '-agentpath:/home/ianc/dev/tools/visualvm_217/visualvm/lib/deployed/jdk16/linux-amd64/libprofilerinterface.so=/home/ianc/dev/tools/visualvm_217/visualvm/lib,5140'
+// this profiling set upis only useful when doing full profiling, not sampling, in visualvm
+def visualVMPath = System.getenv("VISUAL_VM")
+def agentPath = "-agentpath:$visualVMPath/visualvm/lib/deployed/jdk16/mac/libprofilerinterface.jnilib=$visualVMPath/visualvm/lib,5140"
 
 def s3prefix = 'dist/' + buildNumber
 def prodConfig = 'config/local.yml'
@@ -340,15 +341,6 @@ tasks.register('gm', JavaExec) {
     args 'server', 'config/gm.yml'
 }
 
-tasks.register('gmProfile', JavaExec) {
-    dependsOn 'webpack'
-    mainClass = mainClassName
-    classpath = sourceSets.main.runtimeClasspath
-    maxHeapSize = "1g"
-    jvmArgs agentPath
-    args 'server', 'config/gm.yml'
-}
-
 tasks.register('all', JavaExec) {
     dependsOn 'webpack'
     mainClass = mainClassName
@@ -524,15 +516,6 @@ tasks.register('integrationRail', Test) {
     useJUnitPlatform {
         includeTags "TrainTest"
     }
-}
-
-tasks.register('integrationRailProfile', Test) {
-    dependsOn 'compileJava'
-    configure integrationRailConfig
-    useJUnitPlatform {
-        includeTags "TrainTest"
-    }
-    jvmArgs agentPath
 }
 
 tasks.register('graphTests', Test) {
