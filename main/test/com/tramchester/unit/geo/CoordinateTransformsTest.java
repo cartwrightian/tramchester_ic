@@ -122,12 +122,14 @@ class CoordinateTransformsTest {
     @Test
     void shouldHaveSameConversionFromGridAsNaptan() {
 
-        LatLong result = CoordinateTransforms.getLatLong(MaccTheTowersFromNaptan);
+        GridPosition gridPosition = MaccTheTowersFromNaptan;
 
-        BusStations macclesfieldTheTowers = BusStations.MacclesfieldTheTowers;
+        LatLong result = CoordinateTransforms.getLatLong(gridPosition);
 
-        assertEquals(macclesfieldTheTowers.getLatLong().getLon(), result.getLon(), DELTA);
-        assertEquals(macclesfieldTheTowers.getLatLong().getLat(), result.getLat(), DELTA);
+        LatLong macclesfieldTheTowers = BusStations.MacclesfieldTheTowers.getLatLong();
+
+        assertEquals(macclesfieldTheTowers.getLon(), result.getLon(), DELTA);
+        assertEquals(macclesfieldTheTowers.getLat(), result.getLat(), DELTA);
 
     }
 

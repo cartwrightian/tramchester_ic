@@ -76,8 +76,8 @@ class FindStationsByNumberLinksTramTest {
         List<IdFor<Station>> expectedList = Stream.of(
                 StPetersSquare,
                 PiccadillyGardens,
-                //Piccadilly, // picc gone and shudehill added during replacement buses for vict closures
-                Shudehill,
+                //Piccadilly,
+                //Shudehill,
                 MarketStreet,
             TraffordBar,
             Cornbrook,

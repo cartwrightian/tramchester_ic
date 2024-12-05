@@ -108,9 +108,8 @@ public class RouteInterconnectRepositoryTest {
         PathResults results = repository.getInterchangesFor(indexPair, dateOverlaps, interchangeStation -> true);
 
         assertTrue(results.hasAny());
-        // 6->7 replacement bus
-        assertEquals(7, results.numberPossible(), results.toString());
 
+        assertEquals(6, results.numberPossible(), results.toString());
         assertEquals(1, results.getDepth());
 
     }
@@ -179,8 +178,7 @@ public class RouteInterconnectRepositoryTest {
 
         assertEquals(2, results.getDepth()); // two sets of changes needed
 
-        // 3->4 replacement bus for vict closures
-        assertEquals(4, results.numberPossible(), results.toString());
+        assertEquals(3, results.numberPossible(), results.toString());
     }
 
     @Test
@@ -192,8 +190,7 @@ public class RouteInterconnectRepositoryTest {
         assertTrue(interchangeRepository.hasInterchangeFor(indexPair));
         Set<InterchangeStation> interchanges = interchangeRepository.getInterchangesFor(indexPair).collect(Collectors.toSet());
 
-        // 6->7 replacement bus for victoria line closures
-        assertEquals(7, interchanges.size(), HasId.asIds(interchanges));
+        assertEquals(6, interchanges.size(), HasId.asIds(interchanges));
 
         // unrealistic as would be 0 in code, direct via one interchange
         assertEquals(1, routeMatrix.getConnectionDepthFor(routeA, routeB));

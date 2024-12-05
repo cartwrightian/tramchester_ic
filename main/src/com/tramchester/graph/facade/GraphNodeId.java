@@ -21,16 +21,16 @@ public class GraphNodeId {
         this.hashCode = Objects.hash(internalId);
     }
 
-    public static GraphNodeId TestOnly(long l) {
+    public static GraphNodeId TestOnly(final long l) {
         return new GraphNodeId(Long.toString(l), EnumSet.noneOf(GraphLabel.class));
     }
 
     // note: the majority of time should be hitting: this == o
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        GraphNodeId that = (GraphNodeId) o;
+        final GraphNodeId that = (GraphNodeId) o;
         return internalId.equals(that.internalId);
     }
 

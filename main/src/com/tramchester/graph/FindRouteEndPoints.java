@@ -61,7 +61,7 @@ public class FindRouteEndPoints {
     }
 
     @NotNull
-    private IdSet<RouteStation> getIdFors(TransportMode mode, String query) {
+    private IdSet<RouteStation> getIdFors(final TransportMode mode, final String query) {
         logger.debug("Query: '" + query + '"');
 
         Map<String, Object> params = new HashMap<>();
@@ -69,7 +69,7 @@ public class FindRouteEndPoints {
 
         IdSet<RouteStation> stationIds = new IdSet<>();
         try (MutableGraphTransaction txn  = graphDatabase.beginTxMutable()) {
-            Result result = txn.execute(query, params);
+            final Result result = txn.execute(query, params);
             while (result.hasNext()) {
                 Map<String, Object> row = result.next();
                 String text = (String) row.get("route_station_id");

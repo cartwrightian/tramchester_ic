@@ -7,8 +7,8 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.UpcomingDates;
 
+import java.time.DayOfWeek;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Optional;
@@ -34,9 +34,9 @@ public enum KnownTramRoute {
     // Red
     CornbrookTheTraffordCentre("Red Line", "Cornbrook - The Trafford Centre", "849"),
     // Yellow
-    PiccadillyVictoria("Yellow Line", "Piccadilly - Victoria", "844"),
+    PiccadillyVictoria("Yellow Line", "Piccadilly - Victoria", "844");
 
-    ReplacementBusCrumpsallPiccadilly("Replacement Bus 1", "Replacement Bus Crumpsall - Piccadilly", "2462");
+    //ReplacementBusCrumpsallPiccadilly("Replacement Bus 1", "Replacement Bus Crumpsall - Piccadilly", "2462");
 
     private final String shortName;
     private final String longName;
@@ -45,14 +45,11 @@ public enum KnownTramRoute {
     public static Set<KnownTramRoute> getFor(final TramDate date) {
         EnumSet<KnownTramRoute> routes = EnumSet.noneOf(KnownTramRoute.class);
 
-        if (date.equals(UpcomingDates.VictoriaLineWorks)) {
-            routes.add(ReplacementBusCrumpsallPiccadilly);
-        } else {
+        if (!date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
             routes.add(BuryManchesterAltrincham);
         }
 
         routes.add(PiccadillyVictoria);
-
         routes.add(EcclesAshton);
         routes.add(CornbrookTheTraffordCentre);
         routes.add(DeansgateCastlefieldManchesterAirport);

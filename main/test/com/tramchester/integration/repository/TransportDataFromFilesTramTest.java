@@ -233,7 +233,7 @@ public class TransportDataFromFilesTramTest {
                 map(routeStation -> Pair.of(routeStation.getStationId(), routeStation.getRoute().getName())).
                 collect(Collectors.toSet());
 
-        assertEquals(4, routeStationPairs.size(), routeStations.toString());
+        assertEquals(5, routeStationPairs.size(), routeStations.toString());
 
         IdSet<Route> routeIds =
                 routeStations.stream().
@@ -375,7 +375,6 @@ public class TransportDataFromFilesTramTest {
     void shouldHaveTripsOnDateForEachStation() {
 
         Set<Pair<TramDate, IdFor<Station>>> missing = UpcomingDates.getUpcomingDates().
-                filter(date -> !UpcomingDates.VictoriaLineWorks.equals(date)).
                 flatMap(date -> getStations(date).map(station -> Pair.of(date, station))).
                 filter(pair -> isOpen(pair.getLeft(), pair.getRight())).
                 filter(pair -> transportData.getTripsCallingAt(pair.getRight(), pair.getLeft()).isEmpty()).
@@ -412,7 +411,7 @@ public class TransportDataFromFilesTramTest {
         int latestHour = 23;
         int earliestHour = 7;
 
-        List<TramTime> times = IntStream.range(earliestHour, latestHour).boxed().
+        final List<TramTime> times = IntStream.range(earliestHour, latestHour).boxed().
                 map(hour -> TramTime.of(hour, 0)).
                 sorted().
                 toList();
@@ -422,11 +421,11 @@ public class TransportDataFromFilesTramTest {
         final Map<Pair<TramDate, TramTime>, IdSet<Station>> missing = new HashMap<>();
 
         UpcomingDates.getUpcomingDates().
-                filter(date -> !UpcomingDates.VictoriaLineWorks.equals(date)).
                 forEach(date -> getStations(date).
                 forEach(station -> {
                     final Set<Trip> trips = transportData.getTripsCallingAt(station, date);
-                    for (final TramTime time : times) {
+                    final List<TramTime> timesToCheck = getTimesFor(times, station, date);
+                    for (final TramTime time : timesToCheck) {
                         final TimeRange range = TimeRangePartial.of(time.minusMinutes(maxwait), time.plusMinutes(maxwait));
                         boolean calls = trips.stream().flatMap(trip -> trip.getStopCalls().stream()).
                                 filter(stopCall -> stopCall.getStation().equals(station)).
@@ -443,6 +442,17 @@ public class TransportDataFromFilesTramTest {
                 }));
 
         assertTrue(missing.isEmpty(), missing.toString());
+    }
+
+    private List<TramTime> getTimesFor(final List<TramTime> times, final Station station, final TramDate date) {
+        if (station.getId().equals(ExchangeSquare.getId())) {
+            if (date.equals(UpcomingDates.ChristmasParadeDate)) {
+                return times.stream().
+                        filter(time -> !UpcomingDates.ChristmasParadeTiming.contains(time)).
+                        toList();
+            }
+        }
+        return times;
     }
 
     @Test

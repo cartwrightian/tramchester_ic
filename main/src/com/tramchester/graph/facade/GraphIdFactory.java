@@ -26,6 +26,7 @@ public class GraphIdFactory {
 
         final EnumSet<GraphLabel> labels;
         if (diagnostics) {
+            // add labels to id to aid in diagnostics
             labels = GraphLabel.from(node.getLabels());
         } else {
             labels = EnumSet.noneOf(GraphLabel.class);

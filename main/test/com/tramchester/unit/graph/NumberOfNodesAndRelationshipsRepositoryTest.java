@@ -69,7 +69,7 @@ class NumberOfNodesAndRelationshipsRepositoryTest {
     }
 
     @Test
-    void shouldHaveCorrectNumberOfRelationsBoardDepartandTravel() {
+    void shouldHaveCorrectNumberOfRelationsBoardDepartAndTravel() {
 
         assertEquals(8, repository.numberOf(TransportRelationshipTypes.TRAM_GOES_TO));
 

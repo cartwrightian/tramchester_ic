@@ -5,14 +5,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.geo.CoordinateTransforms;
 import org.geotools.api.geometry.Position;
 import org.geotools.api.referencing.FactoryException;
-import org.geotools.api.referencing.crs.CRSAuthorityFactory;
 import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.cs.AxisDirection;
 import org.geotools.api.referencing.operation.CoordinateOperation;
 import org.geotools.api.referencing.operation.TransformException;
 import org.geotools.geometry.Position2D;
-import org.geotools.referencing.ReferencingFactoryFinder;
+import org.geotools.referencing.CRS;
 import org.geotools.referencing.operation.DefaultCoordinateOperationFactory;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -28,14 +29,17 @@ class LatLongTest {
     private static CoordinateReferenceSystem nationalGridRefSys;
     private static CoordinateReferenceSystem latLongRef;
     private static final ObjectMapper mapper = JsonMapper.builder().addModule(new AfterburnerModule()).build();
+    private static boolean lonFirst;
+    private static boolean eastingFirst;
 
     @BeforeAll
     static void onceBeforeAllTests() throws FactoryException {
-        CRSAuthorityFactory authorityFactory = ReferencingFactoryFinder.getCRSAuthorityFactory("EPSG", null);
 
-        nationalGridRefSys = authorityFactory.createCoordinateReferenceSystem("27700");
-        latLongRef = authorityFactory.createCoordinateReferenceSystem("4326");
+        nationalGridRefSys = CRS.decode(CoordinateTransforms.NATION_GRID_EPSG);
+        latLongRef = CRS.decode(CoordinateTransforms.WGS84_LATLONG_EPGS);
 
+        eastingFirst = (nationalGridRefSys.getCoordinateSystem().getAxis(0).getDirection().equals(AxisDirection.EAST));
+        lonFirst = (latLongRef.getCoordinateSystem().getAxis(0).getDirection().equals(AxisDirection.EAST));
     }
 
     @Test
@@ -79,7 +83,12 @@ class LatLongTest {
         int easting = 433931;
         int northing = 338207;
 
-        Position eastNorth = new Position2D(easting, northing);
+        final Position eastNorth;
+        if (eastingFirst) {
+            eastNorth = new Position2D(easting, northing);
+        } else {
+            eastNorth = new Position2D(northing, easting);
+        }
 
         CoordinateOperation operation = new DefaultCoordinateOperationFactory().createOperation(nationalGridRefSys, latLongRef);
         Position latLong = operation.getMathTransform().transform(eastNorth, null);
@@ -87,9 +96,10 @@ class LatLongTest {
         double expectedLat = 52.940190;
         double expectedLon = -1.4965572;
 
-        assertEquals(expectedLat, latLong.getOrdinate(0), DELTA);
-        assertEquals(expectedLon, latLong.getOrdinate(1), DELTA);
-
+        int lonDimension = lonFirst ? 0 : 1;
+        int latDimension = lonFirst ? 1 : 0;
+        assertEquals(expectedLat, latLong.getOrdinate(latDimension), DELTA);
+        assertEquals(expectedLon, latLong.getOrdinate(lonDimension), DELTA);
     }
 
     @Test
@@ -104,7 +114,12 @@ class LatLongTest {
         double lat = 52.940190;
         double lon = -1.4965572;
 
-        Position latLong = new Position2D(lat, lon);
+        final Position latLong;
+        if (lonFirst) {
+            latLong = new Position2D(lon, lat);
+        } else {
+            latLong = new Position2D(lat, lon);
+        }
 
         CoordinateOperation operation = new DefaultCoordinateOperationFactory().createOperation(latLongRef, nationalGridRefSys);
         Position nationalGrid = operation.getMathTransform().transform(latLong, null);
@@ -112,8 +127,11 @@ class LatLongTest {
         long expectedEasting = 433931;
         long expectedNorthing = 338207;
 
-        long easting = Math.round(nationalGrid.getOrdinate(0));
-        long northing = Math.round(nationalGrid.getOrdinate(1));
+        int eastDim = eastingFirst ? 0 : 1;
+        int northDim = eastingFirst ? 1 : 0;
+
+        long easting = Math.round(nationalGrid.getOrdinate(eastDim));
+        long northing = Math.round(nationalGrid.getOrdinate(northDim));
 
         assertEquals(expectedEasting, easting);
         assertEquals(expectedNorthing, northing);

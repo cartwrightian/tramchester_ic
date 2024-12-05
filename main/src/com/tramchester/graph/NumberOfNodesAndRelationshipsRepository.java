@@ -43,10 +43,11 @@ class NumberOfNodesAndRelationshipsRepository {
     }
 
     private void countRelationships() {
+        // note cypher does not allow parameters for labels
         try (MutableGraphTransaction txn = graphDatabase.beginTxMutable()) {
             for (final TransportRelationshipTypes relationshipType : TransportRelationshipTypes.values()) {
-                final long count = getCountFromQuery(txn,
-                        "MATCH ()-[relationship:" + relationshipType.name() + "]->() " + "RETURN count(*) as count");
+                final String query = "MATCH ()-[relationship:" + relationshipType.name() + "]->() " + "RETURN count(relationship) as count";
+                final long count = getCountFromQuery(txn, query);
                 relationshipCounts.put(relationshipType, count);
                 if (count>0) {
                     logger.info(count + " relationships of type " + relationshipType.name());
@@ -56,10 +57,11 @@ class NumberOfNodesAndRelationshipsRepository {
     }
 
     private void countNodeNumbers() {
+        // note cypher does not allow parameters for labels
         try (MutableGraphTransaction txn = graphDatabase.beginTxMutable()) {
             for (final GraphLabel label : GraphLabel.values()) {
-                final long count = getCountFromQuery(txn,
-                        "MATCH (node:" + label.name() + ") " + "RETURN count(*) as count");
+                final String query = "MATCH (node:" + label.name() + ") " + "RETURN count(node) as count";
+                final long count = getCountFromQuery(txn, query);
                 nodeCounts.put(label, count);
                 if (count>0) {
                     logger.info(count + " nodes of type " + label.name());

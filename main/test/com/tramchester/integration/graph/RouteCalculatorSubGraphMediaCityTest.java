@@ -138,7 +138,6 @@ class RouteCalculatorSubGraphMediaCityTest {
 
         TramTime queryTime = TramTime.of(9, 0);
         List<Pair<TramDate, LocationIdPairSet<Station>>> failed = UpcomingDates.getUpcomingDates().
-                filter(date -> !date.equals(UpcomingDates.VictoriaLineWorks)).
                 map(date -> new JourneyRequest(date, queryTime, false,
                         3, maxJourneyDuration, 1, getRequestedModes())).
                 map(journeyRequest -> Pair.of(journeyRequest.getDate(), getFailedPairedFor(journeyRequest))).
@@ -153,7 +152,6 @@ class RouteCalculatorSubGraphMediaCityTest {
 
         TramTime queryTime = TramTime.of(10, 30);
         List<Pair<TramDate, LocationIdPairSet<Station>>> failed = UpcomingDates.getUpcomingDates().
-                filter(date -> !date.equals(UpcomingDates.VictoriaLineWorks)).
                 map(date -> new JourneyRequest(date, queryTime, false,
                         3, maxJourneyDuration, 1, getRequestedModes())).
                 map(journeyRequest -> Pair.of(journeyRequest.getDate(), getFailedPairedFor(journeyRequest))).

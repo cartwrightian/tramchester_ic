@@ -103,7 +103,7 @@ public class RoutePairToInterchangeRepositoryTest {
 
         IdSet<Station> stationIds = interchanges.stream().map(InterchangeStation::getStation).collect(IdSet.collector());
 
-        IdSet<Station> expected = Stream.of(StPetersSquare, Deansgate, Cornbrook, TraffordBar, Victoria, MarketStreet, Shudehill).
+        IdSet<Station> expected = Stream.of(StPetersSquare, Deansgate, Cornbrook, TraffordBar, Victoria, MarketStreet).
                 map(CentralZoneStation::getId).
                 collect(IdSet.idCollector());
 

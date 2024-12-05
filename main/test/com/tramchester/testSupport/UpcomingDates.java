@@ -1,9 +1,10 @@
 package com.tramchester.testSupport;
 
-import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.reference.TramStations;
 
 import java.time.DayOfWeek;
@@ -11,28 +12,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static com.tramchester.testSupport.reference.TramStations.Rochdale;
-
 public class UpcomingDates {
 
     private static final TramDate sunday;
     private static final TramDate saturday;
     private static final TramDate monday;
 
-//    private static final Set<DateRange> closures = new HashSet<>();
-
     // use helper methods that handle filtering (i.e. for Christmas) and conversion to dates
     static final int DAYS_AHEAD = 7;
 
-    // the official dates seem wrong, or the published timetable is wrong....meant to finish 31/10 but no trams in
-    // timetable until 8/11
-    private static final DateRange rochdaleLineWorks = DateRange.of(TramDate.of(2024,10,19),
-            TramDate.of(2024,11,7));
 
-    private static final TramDate deansgateWorks27thOctober = TramDate.of(2024,10,27);
+    public static TramDate ChristmasParadeDate = TramDate.of(2024, 12, 8);
+    public static TimeRange ChristmasParadeTiming = TimeRange.of(TramTime.of(12,0),
+            TramTime.of(14,30));
 
-    //public static final TramDate RemembranceSundayClosures = TramDate.of(2024, 11, 10);
-    public static final TramDate VictoriaLineWorks = TramDate.of(2024, 11, 24);
 
     static {
         TramDate today = TramDate.from(TestEnv.LocalNow());
@@ -46,9 +39,6 @@ public class UpcomingDates {
     }
 
     private static boolean hasClosure(IdFor<Station> stationId, TramDate date) {
-        if (stationId.equals(Rochdale.getId())) {
-            return rochdaleLineWorks.contains(date);
-        }
         return false;
     }
 
@@ -57,12 +47,6 @@ public class UpcomingDates {
     }
 
     public static boolean validTestDate(final TramDate date) {
-        if (date.equals(deansgateWorks27thOctober)) {
-            return false;
-        }
-//        if (TfgmDataError.contains(date)) {
-//            return false;
-//        }
         return !date.isChristmasPeriod();
     }
 

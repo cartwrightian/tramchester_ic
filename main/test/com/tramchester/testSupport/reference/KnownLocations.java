@@ -21,9 +21,11 @@ public enum KnownLocations implements HasGridPosition {
     atRoundthornTram(53.389264, -2.2971255);
 
     private final LatLong latLong;
+    private final GridPosition gridPosition;
 
     KnownLocations(double lat, double lon) {
         latLong = new LatLong(lat,lon);
+        gridPosition = CoordinateTransforms.getGridPosition(latLong);
     }
 
     public MyLocation location() {
@@ -35,11 +37,12 @@ public enum KnownLocations implements HasGridPosition {
     }
 
     public GridPosition grid() {
-        return CoordinateTransforms.getGridPosition(latLong);
+        return gridPosition;
+//        return CoordinateTransforms.getGridPosition(latLong);
     }
 
     @Override
     public GridPosition getGridPosition() {
-        return grid();
+        return gridPosition;
     }
 }
