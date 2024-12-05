@@ -110,7 +110,7 @@ dependencies {
 
     // note multiple incompatible forks of geotools see repo specified above and https://repo.osgeo.org/#browse/browse:release:org%2Fgeotools%2Fgt-main
     // gt-epsg-hsql: hsql backed slow, gt-epsg-wkt property file backed faster
-    implementation('org.geotools:gt-main:32.0', 'org.geotools:gt-epsg-wkt:32.0')
+    implementation('org.geotools:gt-main:32.1', 'org.geotools:gt-epsg-wkt:32.1')
 
     implementation('javax.measure:unit-api:2.2')
 
