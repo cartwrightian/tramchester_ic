@@ -14,7 +14,8 @@ idea{
     }
 }
 
-import com.mgd.core.gradle.*
+
+import com.mgd.core.gradle.S3Upload
 import io.mateo.cxf.codegen.wsdl2java.Wsdl2Java
 
 mainClassName = 'com.tramchester.App'
@@ -108,8 +109,8 @@ dependencies {
     implementation  'org.jetbrains:annotations:26.0.1'
 
     // note multiple incompatible forks of geotools see repo specified above and https://repo.osgeo.org/#browse/browse:release:org%2Fgeotools%2Fgt-main
-    implementation('org.geotools:gt-main:32.0',
-            'org.geotools:gt-epsg-hsql:32.0')
+    // gt-epsg-hsql: hsql backed slow, gt-epsg-wkt property file backed faster
+    implementation('org.geotools:gt-main:32.0', 'org.geotools:gt-epsg-wkt:32.0')
 
     implementation('javax.measure:unit-api:2.2')
 
@@ -366,6 +367,15 @@ tasks.register('unit', Test) {
     }
 }
 
+tasks.register('profileTest', Test) {
+    dependsOn 'compileJava'
+    useJUnitPlatform()
+    jvmArgs agentPath
+    filter {
+        includeTestsMatching "com.tramchester.unit.graph.NumberOfNodesAndRelationshipsRepositoryTest"
+    }
+}
+
 tasks.register('liveMessages', Test) {
     dependsOn 'compileJava'
     useJUnitPlatform {
@@ -431,6 +441,8 @@ tasks.register('integrationProfile', Test) {
     configure integrationTestConfiguration
     jvmArgs agentPath
 }
+
+
 
 tasks.register('integrationGM', Test) {
     dependsOn 'compileJava'
