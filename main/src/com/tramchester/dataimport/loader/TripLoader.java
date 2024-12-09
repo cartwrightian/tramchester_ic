@@ -30,9 +30,9 @@ public class TripLoader {
         this.factory = factory;
     }
 
-    public TripAndServices load(final Stream<TripData> tripDataStream, final RouteDataLoader.ExcludedRoutes excludedRoutes) {
+    public PreloadTripAndServices load(final Stream<TripData> tripDataStream, final RouteDataLoader.ExcludedRoutes excludedRoutes) {
         logger.info("Loading trips");
-        final TripAndServices results = new TripAndServices(factory);
+        final PreloadTripAndServices results = new PreloadTripAndServices(factory);
         final Map<IdFor<Route>, IdSet<Trip>> missingRoutes = new HashMap<>();
         final AtomicInteger count = new AtomicInteger();
 

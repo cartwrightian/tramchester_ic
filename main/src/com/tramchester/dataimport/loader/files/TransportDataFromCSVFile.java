@@ -23,8 +23,8 @@ import java.util.stream.StreamSupport;
 public class TransportDataFromCSVFile<T,R extends T> implements TransportDataFromFile<T> {
     private static final Logger logger = LoggerFactory.getLogger(TransportDataFromCSVFile.class);
 
-    private final Path filePath;
-    private final ObjectReader reader;
+    protected final Path filePath;
+    private final ObjectReader objectReader;
 
     public TransportDataFromCSVFile(final Path filePath, final Class<R> readerType, final CsvMapper mapper) {
         this(filePath, readerType, Collections.emptyList(), mapper);
@@ -34,7 +34,8 @@ public class TransportDataFromCSVFile<T,R extends T> implements TransportDataFro
         this(filePath, readerType, Arrays.asList(cvsHeader.split(",")), mapper);
     }
 
-    private TransportDataFromCSVFile(final Path filePath, final Class<R> readerType, final List<String> columns, final CsvMapper mapper) {
+    private TransportDataFromCSVFile(final Path filePath, final Class<R> readerType, final List<String> columns,
+                                     final CsvMapper mapper) {
 
         // TODO Set file encoding explicitly here?
 
@@ -50,7 +51,7 @@ public class TransportDataFromCSVFile<T,R extends T> implements TransportDataFro
         }
 
         // create a reader ahead of time, helps with performance
-        reader = mapper.readerFor(readerType).
+        objectReader = mapper.readerFor(readerType).
                 with(schema).
                 //without(CsvParser.Feature.TRIM_SPACES). // default
                 without(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
@@ -61,7 +62,7 @@ public class TransportDataFromCSVFile<T,R extends T> implements TransportDataFro
         try {
             final Reader reader = new FileReader(filePath.toString());
             return load(reader);
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             String msg = "Unable to load from file " + filePath;
             logger.error(msg, e);
             throw new RuntimeException(msg, e);
@@ -74,9 +75,8 @@ public class TransportDataFromCSVFile<T,R extends T> implements TransportDataFro
 
         try {
             // there is a text buffer inside CsvDecoder
-            //final BufferedReader bufferedReader = new BufferedReader(in);
 
-            final MappingIterator<T> readerIter = reader.readValues(in);
+            final MappingIterator<T> readerIter = objectReader.readValues(in);
 
             final Iterable<T> iterable = () -> readerIter;
             return StreamSupport.stream(iterable.spliterator(), false);

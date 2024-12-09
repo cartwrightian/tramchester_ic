@@ -65,7 +65,7 @@ public class GTFSStopTimeLoaderTest {
         // trips
         TripLoader tripLoader = new TripLoader(buildable, entityFactory);
         //RouteDataLoader.ExcludedRoutes excludedRoutes = new RouteDataLoader.ExcludedRoutes();
-        TripAndServices tripsAndServices = tripLoader.load(dataSource.getTrips(), excludedRoutes);
+        PreloadTripAndServices tripsAndServices = tripLoader.load(dataSource.getTrips(), excludedRoutes);
 
         // stops
         StopDataLoader stopDataLoader = new StopDataLoader(entityFactory, config);
@@ -107,7 +107,7 @@ public class GTFSStopTimeLoaderTest {
         RouteDataLoader.ExcludedRoutes excludedRoutes = routeDataLoader.load(dataSource.getRoutes(), interimAgencies);
 
         TripLoader tripLoader = new TripLoader(buildable, entityFactory);
-        TripAndServices tripsAndServices = tripLoader.load(dataSource.getTrips(), excludedRoutes);
+        PreloadTripAndServices tripsAndServices = tripLoader.load(dataSource.getTrips(), excludedRoutes);
 
         StopDataLoader stopDataLoader = new StopDataLoader(entityFactory, config);
         PreloadedStationsAndPlatforms preloaded = stopDataLoader.load(dataSource.getStops());

@@ -112,7 +112,8 @@ class PostcodeBoundingBoxsTest {
 
         // check file on disc is as expected
         assertTrue(Files.exists(hintsFile), "cache file missing " + hintsFile);
-        TransportDataFromCSVFile<PostcodeHintData, PostcodeHintData> loader = new TransportDataFromCSVFile<>(hintsFile, PostcodeHintData.class, mapper);
+        TransportDataFromCSVFile<PostcodeHintData, PostcodeHintData> loader = new TransportDataFromCSVFile<>(hintsFile,
+                PostcodeHintData.class, mapper);
         List<PostcodeHintData> loadedFromFile = loader.load().toList();
         assertEquals(1, loadedFromFile.size());
         PostcodeHintData hintData = loadedFromFile.get(0);

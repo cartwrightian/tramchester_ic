@@ -130,7 +130,7 @@ public class TripRepositoryTest {
         assertTrue(missing.isEmpty(), "Got missing trips for " + missing);
 
     }
-
+    
     @DataExpiryTest
     @Test
     void shouldHaveServicesRunningAtReasonableTimesNDaysAhead() {
@@ -208,7 +208,7 @@ public class TripRepositoryTest {
         assertTrue(onTimeTrips>0);
 
     }
-    
+
     @Test
     void shouldHaveSundayTripsFromCornbrook() {
         ServiceRepository serviceRepository = componentContainer.get(ServiceRepository.class);

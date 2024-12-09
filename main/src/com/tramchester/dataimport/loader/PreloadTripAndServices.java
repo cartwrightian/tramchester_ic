@@ -14,14 +14,14 @@ import com.tramchester.domain.reference.TransportMode;
 import java.util.HashSet;
 import java.util.Set;
 
-public class TripAndServices {
+public class PreloadTripAndServices implements ChecksForTripId {
     private final CompositeIdMap<Service, MutableService> services;
     private final CompositeIdMap<Trip, MutableTrip> trips;
     private final Set<String> loadedTrips; // for performance during StopTime load, significant
 
     private final TransportEntityFactory factory;
 
-    public TripAndServices(TransportEntityFactory factory) {
+    public PreloadTripAndServices(TransportEntityFactory factory) {
         this.factory = factory;
         services = new CompositeIdMap<>();
         trips = new CompositeIdMap<>();

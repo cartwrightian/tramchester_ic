@@ -3,10 +3,8 @@ package com.tramchester.dataimport.loader;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.dataimport.UnzipFetchedData;
-import com.tramchester.dataimport.data.*;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.DataSourceInfo;
-import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.factory.TransportEntityFactory;
 import com.tramchester.domain.factory.TransportEntityFactoryForTFGM;
 import com.tramchester.repository.naptan.NaptanRepository;
@@ -21,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 @LazySingleton
 public class TransportDataSourceFactory implements Iterable<TransportDataSource> {
@@ -58,29 +55,31 @@ public class TransportDataSourceFactory implements Iterable<TransportDataSource>
         transportDataReaders.forEach(transportDataReader -> {
             GTFSSourceConfig sourceConfig = transportDataReader.getConfig();
 
-            final Stream<FeedInfo> feedInfoData;
-            if (sourceConfig.getHasFeedInfo()) {
-                feedInfoData = transportDataReader.getFeedInfo();
-            } else {
-                feedInfoData = Stream.empty();
-            }
-
-            final Stream<StopData> stopData = transportDataReader.getStops();
-            final Stream<RouteData> routeData = transportDataReader.getRoutes();
-            final Stream<TripData> tripData = transportDataReader.getTrips();
-            final Stream<StopTimeData> stopTimeData = transportDataReader.getStopTimes();
-            final Stream<CalendarData> calendarData = transportDataReader.getCalendar();
-            final Stream<CalendarDateData> calendarsDates = transportDataReader.getCalendarDates();
-            final Stream<AgencyData> agencyData = transportDataReader.getAgencies();
+//            final Stream<FeedInfo> feedInfoData;
+//            if (sourceConfig.getHasFeedInfo()) {
+//                feedInfoData = transportDataReader.getFeedInfo();
+//            } else {
+//                feedInfoData = Stream.empty();
+//            }
+//
+//            final Stream<StopData> stopData = transportDataReader.getStops();
+//            final Stream<RouteData> routeData = transportDataReader.getRoutes();
+//            final Stream<TripData> tripData = transportDataReader.getTrips();
+//            final Stream<StopTimeData> stopTimeData = transportDataReader.getStopTimes();
+//            final Stream<CalendarData> calendarData = transportDataReader.getCalendar();
+//            final Stream<CalendarDateData> calendarsDates = transportDataReader.getCalendarDates();
+//            final Stream<AgencyData> agencyData = transportDataReader.getAgencies();
 
             final TransportEntityFactory entityFactory = getEntityFactoryFor(sourceConfig);
 
             final DataSourceInfo dataSourceInfo = transportDataReader.getDataSourceInfo();
 
-            final TransportDataSource transportDataSource =
-                    new TransportDataSource(dataSourceInfo,
-                            agencyData, stopData, routeData, tripData,
-                            stopTimeData, calendarData, feedInfoData, calendarsDates, sourceConfig, entityFactory);
+            final TransportDataSource transportDataSource = new TransportDataSource(dataSourceInfo, transportDataReader, sourceConfig, entityFactory);
+
+//            final TransportDataSource transportDataSource =
+//                    new TransportDataSource(dataSourceInfo,
+//                            agencyData, stopData, routeData, tripData,
+//                            stopTimeData, calendarData, feedInfoData, calendarsDates, sourceConfig, entityFactory);
 
             transportDataSources.add(transportDataSource);
 

@@ -99,7 +99,7 @@ public class PopulateTransportDataFromSources implements TransportDataFactory {
 
         interimAgencies.clear();
 
-        final TripAndServices interimTripsAndServices = tripLoader.load(dataSource.getTrips(), excludedRoutes);
+        final PreloadTripAndServices interimTripsAndServices = tripLoader.load(dataSource.getTrips(), excludedRoutes);
         final IdMap<Service> interimServices = stopTimeLoader.load(dataSource.getStopTimes(), interimStations, interimTripsAndServices);
 
         excludedRoutes.clear();

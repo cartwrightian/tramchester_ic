@@ -46,7 +46,7 @@ public class GTFSStopTimeLoader {
     }
 
     public IdMap<Service> load(final Stream<StopTimeData> stopTimes, final PreloadedStationsAndPlatforms preloadStations,
-                               final TripAndServices tripAndServices) {
+                               final PreloadTripAndServices tripAndServices) {
         final String sourceName = dataSourceConfig.getName();
         final AtomicInteger invalidTimeCount = new AtomicInteger(0);
 
@@ -127,10 +127,10 @@ public class GTFSStopTimeLoader {
         private final PreloadedStationsAndPlatforms preloadStations;
         private final TransportEntityFactory factory;
         private final GTFSSourceConfig dataSourceConfig;
-        private final TripAndServices tripAndServices;
+        private final PreloadTripAndServices tripAndServices;
 
         public StopTimeDataLoader(WriteableTransportData buildable, PreloadedStationsAndPlatforms preloadStations,
-                                  TransportEntityFactory factory, GTFSSourceConfig dataSourceConfig, TripAndServices tripAndServices) {
+                                  TransportEntityFactory factory, GTFSSourceConfig dataSourceConfig, PreloadTripAndServices tripAndServices) {
             this.buildable = buildable;
             this.preloadStations = preloadStations;
             this.factory = factory;

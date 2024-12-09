@@ -21,7 +21,8 @@ class PostcodeDataParserTest  {
 
         // NOTE: no headers in postcode data csvs
         CsvMapper mapper = CsvMapper.builder().build();
-        dataDataLoader = new TransportDataFromCSVFile<>(Paths.get("unused"), PostcodeData.class, PostcodeData.CVS_HEADER, mapper);
+        dataDataLoader = new TransportDataFromCSVFile<>(Paths.get("unused"), PostcodeData.class, PostcodeData.CVS_HEADER,
+                mapper);
 
     }
 

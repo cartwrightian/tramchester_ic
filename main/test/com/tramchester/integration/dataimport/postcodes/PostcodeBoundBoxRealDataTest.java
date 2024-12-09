@@ -162,7 +162,8 @@ public class PostcodeBoundBoxRealDataTest {
     }
 
     private Set<PostcodeData> getPostcodeData(Path file) {
-        TransportDataFromCSVFile<PostcodeData, PostcodeData> loader = new TransportDataFromCSVFile<>(file, PostcodeData.class, PostcodeData.CVS_HEADER, mapper);
+        TransportDataFromCSVFile<PostcodeData, PostcodeData> loader = new TransportDataFromCSVFile<>(file, PostcodeData.class,
+                PostcodeData.CVS_HEADER, mapper);
         return loader.load().collect(Collectors.toSet());
     }
 
