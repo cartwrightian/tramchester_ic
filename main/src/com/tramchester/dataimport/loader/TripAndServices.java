@@ -17,7 +17,7 @@ import java.util.Set;
 public class TripAndServices {
     private final CompositeIdMap<Service, MutableService> services;
     private final CompositeIdMap<Trip, MutableTrip> trips;
-    private final Set<String> loadedTrips;
+    private final Set<String> loadedTrips; // for performance during StopTime load, significant
 
     private final TransportEntityFactory factory;
 

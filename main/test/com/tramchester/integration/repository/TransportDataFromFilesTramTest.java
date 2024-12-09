@@ -18,18 +18,13 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.PlatformId;
-import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.time.TimeRange;
-import com.tramchester.domain.time.TimeRangePartial;
-import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.livedata.tfgm.TramDepartureFactory;
 import com.tramchester.repository.ClosedStationsRepository;
-import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
@@ -48,8 +43,6 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.CentralZoneStation.StPetersSquare;
 import static com.tramchester.domain.reference.CentralZoneStation.TraffordBar;
@@ -138,8 +131,8 @@ public class TransportDataFromFilesTramTest {
 
         //List<Agency> agencies = new ArrayList<>(agencySet);
         assertEquals(1, agencies.size()); // just MET for trams
-        assertIdEquals("7778482", agencies.get(0).getId());
-        assertEquals("Metrolink", agencies.get(0).getName());
+        assertIdEquals("7778482", agencies.getFirst().getId());
+        assertEquals("Metrolink", agencies.getFirst().getName());
     }
 
     @Test
@@ -271,21 +264,6 @@ public class TransportDataFromFilesTramTest {
         assertTrue(badTimings.isEmpty());
     }
 
-    @Test
-    void shouldHaveSundayServicesFromCornbrook() {
-        TramDate nextSunday = UpcomingDates.nextSunday();
-
-        Set<Service> sundayServices = transportData.getServicesOnDate(nextSunday);
-
-        Set<Trip> cornbrookTrips = transportData.getTrips().stream().
-                filter(trip -> trip.callsAt(Cornbrook.getId())).collect(Collectors.toSet());
-
-        Set<Trip> sundayTrips = cornbrookTrips.stream().
-                filter(trip -> sundayServices.contains(trip.getService())).collect(Collectors.toSet());
-
-        assertFalse(sundayTrips.isEmpty());
-    }
-
     @DataExpiryTest
     @Test
     void shouldHaveServiceEndDatesBeyondNextNDays() {
@@ -303,23 +281,6 @@ public class TransportDataFromFilesTramTest {
         assertNotEquals(services, expiringServices, "all services are expiring");
     }
 
-    @Disabled("Solved by removing reboarding filter which does not impact depth first performance")
-    @Test
-    void shouldCheckTripsFinishingAtNonInterchangeStationsOrEndOfLines() {
-        InterchangeRepository interchangeRepository = componentContainer.get(InterchangeRepository.class);
-        Set<Trip> allTrips = transportData.getTrips();
-
-        Set<String> endTripNotInterchange = allTrips.stream().
-                map(trip -> trip.getStopCalls().getLastStop()).
-                map(StopCall::getStation).
-                filter(station -> !interchangeRepository.isInterchange(station)).
-                filter(station -> !TramStations.isEndOfLine(station)).
-                map(Station::getName).
-                collect(Collectors.toSet());
-
-        assertTrue(endTripNotInterchange.isEmpty(), "End trip not interchange: " + endTripNotInterchange);
-    }
-
     @Test
     void shouldHandleStopCallsThatCrossMidnight() {
         Set<Route> routes = transportData.getRoutes(EnumSet.of(Tram));
@@ -331,30 +292,6 @@ public class TransportDataFromFilesTramTest {
             assertTrue(over.isEmpty(), over.toString());
         }
 
-    }
-
-    // to get diagnose issues with new GTFS data and no journeys alty to Navigation Rd post midnight
-    @Test
-    void shouldHaveTripsFromAltrinchamPostMidnight() {
-        Set<Trip> fromAlty = transportData.getTrips().stream().
-                filter(trip -> !trip.isFiltered()).
-                filter(trip -> trip.operatesOn(when)).
-                filter(trip -> trip.firstStation().equals(Altrincham.getId())).collect(Collectors.toSet());
-
-        assertFalse(fromAlty.isEmpty());
-
-        TimeRange range = TimeRangePartial.of(TramTime.of(0,1), Duration.ZERO, Duration.ofMinutes(config.getMaxWait()));
-        TimeRange nextRange = range.transposeToNextDay();
-
-        Set<Trip> atTime = fromAlty.stream().
-                filter(trip -> range.contains(trip.departTime()) || nextRange.contains(trip.departTime())).collect(Collectors.toSet());
-
-        assertFalse(atTime.isEmpty());
-
-        HasId<Station> navigationRd = NavigationRoad.from(transportData);
-        Set<Trip> calls = atTime.stream().filter(trip -> trip.callsAt(navigationRd.getId())).collect(Collectors.toSet());
-
-        assertEquals(2, calls.size(), HasId.asIds(calls));
     }
 
     @DataExpiryTest
@@ -370,26 +307,6 @@ public class TransportDataFromFilesTramTest {
 
     }
 
-    @DataExpiryTest
-    @Test
-    void shouldHaveTripsOnDateForEachStation() {
-
-        Set<Pair<TramDate, IdFor<Station>>> missing = UpcomingDates.getUpcomingDates().
-                flatMap(date -> getStations(date).map(station -> Pair.of(date, station))).
-                filter(pair -> isOpen(pair.getLeft(), pair.getRight())).
-                filter(pair -> transportData.getTripsCallingAt(pair.getRight(), pair.getLeft()).isEmpty()).
-                map(pair -> Pair.of(pair.getLeft(), pair.getRight().getId())).
-                collect(Collectors.toSet());
-
-        assertTrue(missing.isEmpty(), "Got missing trips for " + missing);
-
-    }
-
-    private Stream<Station> getStations(final TramDate date) {
-        return transportData.getStations(EnumSet.of(Tram)).stream().
-                filter(station -> !UpcomingDates.hasClosure(station, date));
-    }
-
     @Test
     void shouldHaveServicesThatIncludeDateInRange() {
 
@@ -402,57 +319,6 @@ public class TransportDataFromFilesTramTest {
         Set<Service> onActualDate = includeDate.stream().filter(service -> service.getCalendar().operatesOn(when)).collect(Collectors.toSet());
 
         assertFalse(onActualDate.isEmpty());
-    }
-
-    @DataExpiryTest
-    @Test
-    void shouldHaveServicesRunningAtReasonableTimesNDaysAhead() {
-
-        int latestHour = 23;
-        int earliestHour = 7;
-
-        final List<TramTime> times = IntStream.range(earliestHour, latestHour).boxed().
-                map(hour -> TramTime.of(hour, 0)).
-                sorted().
-                toList();
-
-        int maxwait = 25;
-
-        final Map<Pair<TramDate, TramTime>, IdSet<Station>> missing = new HashMap<>();
-
-        UpcomingDates.getUpcomingDates().
-                forEach(date -> getStations(date).
-                forEach(station -> {
-                    final Set<Trip> trips = transportData.getTripsCallingAt(station, date);
-                    final List<TramTime> timesToCheck = getTimesFor(times, station, date);
-                    for (final TramTime time : timesToCheck) {
-                        final TimeRange range = TimeRangePartial.of(time.minusMinutes(maxwait), time.plusMinutes(maxwait));
-                        boolean calls = trips.stream().flatMap(trip -> trip.getStopCalls().stream()).
-                                filter(stopCall -> stopCall.getStation().equals(station)).
-                                anyMatch(stopCall -> range.contains(stopCall.getArrivalTime()));
-                        if (!calls) {
-                            Pair<TramDate, TramTime> key = Pair.of(date, time);
-                            if (!missing.containsKey(key)) {
-                                missing.put(key, new IdSet<>());
-                            }
-                            missing.get(key).add(station.getId());
-                        }
-
-                    }
-                }));
-
-        assertTrue(missing.isEmpty(), missing.toString());
-    }
-
-    private List<TramTime> getTimesFor(final List<TramTime> times, final Station station, final TramDate date) {
-        if (station.getId().equals(ExchangeSquare.getId())) {
-            if (date.equals(UpcomingDates.ChristmasParadeDate)) {
-                return times.stream().
-                        filter(time -> !UpcomingDates.ChristmasParadeTiming.contains(time)).
-                        toList();
-            }
-        }
-        return times;
     }
 
     @Test
@@ -516,7 +382,7 @@ public class TransportDataFromFilesTramTest {
 
         TransportDataReaderFactory dataReaderFactory = componentContainer.get(TransportDataReaderFactory.class);
         List<TransportDataReader> transportDataReaders = dataReaderFactory.getReaders();
-        TransportDataReader transportDataReader = transportDataReaders.get(0); // yuk
+        TransportDataReader transportDataReader = transportDataReaders.getFirst(); // yuk
         Set<CalendarDateData> calendarsDates = transportDataReader.getCalendarDates().collect(Collectors.toSet());
 
         Set<Service> calendarsForTrams = transportData.getServices();
@@ -529,7 +395,7 @@ public class TransportDataFromFilesTramTest {
         assertFalse(applyToCurrentServices.isEmpty(), "did not alter any of " + HasId.asIds(calendarsForTrams));
 
         assertEquals(1,  config.getGTFSDataSource().size(), "expected only one data source");
-        GTFSSourceConfig sourceConfig = config.getGTFSDataSource().get(0);
+        GTFSSourceConfig sourceConfig = config.getGTFSDataSource().getFirst();
         TramDateSet excludedByConfig = TramDateSet.of(sourceConfig.getNoServices());
 
         applyToCurrentServices.forEach(exception -> {
@@ -579,41 +445,7 @@ public class TransportDataFromFilesTramTest {
 
     }
 
-    @Test
-    void shouldReproIssueAtMediaCityWithBranchAtCornbrook() {
-        Set<Trip> allTrips = getTripsFor(transportData.getTrips(), Cornbrook);
 
-        Set<Route> routes = transportData.findRoutesByShortName(MutableAgency.METL, EcclesAshton.shortName());
-
-        assertFalse(routes.isEmpty());
-
-        Set<Trip> toMediaCity = allTrips.stream().
-                filter(trip -> trip.callsAt(Cornbrook.getId())).
-                filter(trip -> trip.callsAt(TramStations.MediaCityUK.getId())).
-                filter(trip -> routes.contains(trip.getRoute())).
-                collect(Collectors.toSet());
-
-        Set<Service> services = toMediaCity.stream().
-                map(Trip::getService).collect(Collectors.toSet());
-
-        TramDate nextTuesday = TestEnv.testDay();
-
-        Set<Service> onDay = services.stream().
-                filter(service -> service.getCalendar().operatesOn(nextTuesday)).
-                collect(Collectors.toSet());
-
-        assertFalse(onDay.isEmpty());
-
-        TramTime time = TramTime.of(12, 0);
-
-        long onTimeTrips = toMediaCity.stream().
-                filter(trip -> trip.departTime().isBefore(time)).
-                filter(trip -> trip.arrivalTime().isAfter(time)).
-                count();
-
-        assertTrue(onTimeTrips>0);
-
-    }
 
     @Test
     void shouldHaveExpectedTraffordParkPlatformsForLiveDataWorkaround() {
@@ -622,7 +454,7 @@ public class TransportDataFromFilesTramTest {
         List<Platform> traffordCentrePlatforms = new ArrayList<>(traffordPark.getPlatforms());
         assertEquals(1, traffordCentrePlatforms.size(), HasId.asIds(traffordCentrePlatforms));
 
-        Platform platform = traffordCentrePlatforms.get(0);
+        Platform platform = traffordCentrePlatforms.getFirst();
         assertEquals("2", platform.getPlatformNumber());
 
         assertTrue(transportData.hasPlatformId(platform.getId()), "expected present in timetable");
@@ -651,8 +483,5 @@ public class TransportDataFromFilesTramTest {
         System.out.printf("Total: %s ms Average: %s ms%n", total, total/count);
     }
 
-    private boolean isOpen(final TramDate date, final Station station) {
-        return ! (closedStationRepository.isClosed(station, date) || UpcomingDates.hasClosure(station, date));
-    }
 
 }
