@@ -160,7 +160,7 @@ public class GTFSStopTimeLoader {
                     logger.error(format("Platform mismatch, Skipping. Station %s has platforms but route %s does not for stop time %s",
                             station.getId(), route.getId(), stopTimeData));
                 } else {
-                    Service added = addStopTimeData(stopTimeData, trip, station, route);
+                    final Service added = addStopTimeData(stopTimeData, trip, station, route);
                     addedServices.add(added);
                     stopTimesLoaded.getAndIncrement();
                 }
@@ -176,8 +176,8 @@ public class GTFSStopTimeLoader {
         }
 
         @NotNull
-        private Route getRouteFrom(MutableTrip trip) {
-            Route route = trip.getRoute();
+        private Route getRouteFrom(final MutableTrip trip) {
+            final Route route = trip.getRoute();
 
             if (route == null) {
                 throw new RuntimeException("Null route for " + trip.getId());
@@ -185,18 +185,19 @@ public class GTFSStopTimeLoader {
             return route;
         }
 
-        private boolean expectedPlatformsForRoute(Route route) {
+        private boolean expectedPlatformsForRoute(final Route route) {
             return dataSourceConfig.getTransportModesWithPlatforms().contains(route.getTransportMode());
         }
 
-        private Service addStopTimeData(StopTimeData stopTimeData, MutableTrip trip, MutableStation station, Route route) {
+        private Service addStopTimeData(final StopTimeData stopTimeData, final MutableTrip trip,
+                                        final MutableStation station, final Route route) {
 
             final MutableService service = tripAndServices.getService(trip.getService().getId());
 
             addStationAndRouteStation(route, station, stopTimeData);
             addPlatformsForStation(station);
 
-            StopCall stopCall = createStopCall(stopTimeData, route, trip, station);
+            final StopCall stopCall = createStopCall(stopTimeData, route, trip, station);
 
             trip.addStop(stopCall);
 
@@ -247,16 +248,16 @@ public class GTFSStopTimeLoader {
                     forEach(buildable::addPlatform);
         }
 
-        private StopCall createStopCall(StopTimeData stopTimeData, Route route, Trip trip, Station station) {
-            TransportMode transportMode = route.getTransportMode();
+        private StopCall createStopCall(final StopTimeData stopTimeData, final Route route, final Trip trip, final Station station) {
+            final TransportMode transportMode = route.getTransportMode();
 
             // this is tfgm specific
             if (dataSourceConfig.getTransportModesWithPlatforms().contains(transportMode)) {
 
-                IdFor<Platform> platformId = factory.getPlatformId(stopTimeData, station);
+                final IdFor<Platform> platformId = factory.getPlatformId(stopTimeData, station);
 
                 if (buildable.hasPlatformId(platformId)) {
-                    MutablePlatform platform = buildable.getMutablePlatform(platformId);
+                    final MutablePlatform platform = buildable.getMutablePlatform(platformId);
 
                     if (stopTimeData.getPickupType().isPickup()) {
                         platform.addRoutePickUp(route);
@@ -267,7 +268,7 @@ public class GTFSStopTimeLoader {
 
                     return factory.createPlatformStopCall(trip, platform, station, stopTimeData);
                 } else {
-                    IdFor<Route> routeId = route.getId();
+                    final IdFor<Route> routeId = route.getId();
                     logger.error("Missing platform " + platformId + " For transport mode " + transportMode + " and route " + routeId);
                     return factory.createNoPlatformStopCall(trip, station, stopTimeData);
                 }
@@ -300,7 +301,7 @@ public class GTFSStopTimeLoader {
                 missingPlatforms = new HashMap<>();
             }
 
-            public void record(IdFor<Station> stationId, IdFor<Trip> stopTripId) {
+            public void record(final IdFor<Station> stationId, final IdFor<Trip> stopTripId) {
                 if (!missingPlatforms.containsKey(stationId)) {
                     missingPlatforms.put(stationId, new IdSet<>());
                 }

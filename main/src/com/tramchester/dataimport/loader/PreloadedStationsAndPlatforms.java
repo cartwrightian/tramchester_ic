@@ -22,7 +22,7 @@ public class PreloadedStationsAndPlatforms {
         this.factory = factory;
     }
 
-    public boolean hasId(IdFor<Station> stationId) {
+    public boolean hasId(final IdFor<Station> stationId) {
         return stations.hasId(stationId);
     }
 
@@ -34,7 +34,7 @@ public class PreloadedStationsAndPlatforms {
         stations.clear();
     }
 
-    public MutableStation get(IdFor<Station> stationId) {
+    public MutableStation get(final IdFor<Station> stationId) {
         return stations.get(stationId);
     }
 
@@ -51,10 +51,10 @@ public class PreloadedStationsAndPlatforms {
         stations.add(mutableStation);
     }
 
-    public void updateStation(IdFor<Station> stationId, StopData stopData) {
+    public void updateStation(final IdFor<Station> stationId, final StopData stopData) {
         final MutableStation station = stations.get(stationId);
 
-        Optional<MutablePlatform> possiblePlatform = factory.maybeCreatePlatform(stopData, station);
+        final Optional<MutablePlatform> possiblePlatform = factory.maybeCreatePlatform(stopData, station);
 
         possiblePlatform.ifPresent(platform -> {
             platforms.add(platform);
@@ -62,7 +62,7 @@ public class PreloadedStationsAndPlatforms {
         });
     }
 
-    public MutablePlatform getPlatform(IdFor<Platform> id) {
+    public MutablePlatform getPlatform(final IdFor<Platform> id) {
         return platforms.get(id);
     }
 }

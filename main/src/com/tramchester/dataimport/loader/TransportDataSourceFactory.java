@@ -56,11 +56,13 @@ public class TransportDataSourceFactory implements Iterable<TransportDataSource>
         // streams, so no data read yet
 
         transportDataReaders.forEach(transportDataReader -> {
-            Stream<FeedInfo> feedInfoData = Stream.empty();
             GTFSSourceConfig sourceConfig = transportDataReader.getConfig();
 
+            final Stream<FeedInfo> feedInfoData;
             if (sourceConfig.getHasFeedInfo()) {
                 feedInfoData = transportDataReader.getFeedInfo();
+            } else {
+                feedInfoData = Stream.empty();
             }
 
             final Stream<StopData> stopData = transportDataReader.getStops();
@@ -75,7 +77,7 @@ public class TransportDataSourceFactory implements Iterable<TransportDataSource>
 
             final DataSourceInfo dataSourceInfo = transportDataReader.getDataSourceInfo();
 
-            TransportDataSource transportDataSource =
+            final TransportDataSource transportDataSource =
                     new TransportDataSource(dataSourceInfo,
                             agencyData, stopData, routeData, tripData,
                             stopTimeData, calendarData, feedInfoData, calendarsDates, sourceConfig, entityFactory);

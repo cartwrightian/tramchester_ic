@@ -63,16 +63,16 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
     }
 
     @Override
-    public MutableRoute createRoute(GTFSTransportationType routeType, RouteData routeData, MutableAgency agency) {
+    public MutableRoute createRoute(final GTFSTransportationType routeType, final RouteData routeData, final MutableAgency agency) {
 
-        IdFor<Route> routeId = getCorrectIdFor(routeData);
+        final IdFor<Route> routeId = getCorrectIdFor(routeData);
 
-        String routeName = routeData.getLongName();
+        final String routeName = routeData.getLongName();
         return new MutableRoute(routeId, routeData.getShortName().trim(), routeName, agency,
                 GTFSTransportationType.toTransportMode(routeType));
     }
 
-    private IdFor<Route> getCorrectIdFor(RouteData routeData) {
+    private IdFor<Route> getCorrectIdFor(final RouteData routeData) {
         final String idText = routeData.getId();
         return Route.createId(idText);
     }
@@ -201,7 +201,7 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
 
     public static PlatformId createPlatformId(final IdFor<Station> stationId, final String fullCodeWithPlatformSuffix) {
 
-        String remaining = StringIdFor.removeIdFrom(fullCodeWithPlatformSuffix, stationId);
+        final String remaining = StringIdFor.removeIdFrom(fullCodeWithPlatformSuffix, stationId);
         if (remaining.isEmpty()) {
             throw new RuntimeException("Resulting platform number is empty for " + stationId + " and " + fullCodeWithPlatformSuffix);
         }
@@ -225,38 +225,38 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
     }
 
     @Override
-    public IdFor<Station> formStationId(StopData stopData) {
-        String stopId = stopData.getId();
-        String stopCode = stopData.getCode();
+    public IdFor<Station> formStationId(final StopData stopData) {
+        final String stopId = stopData.getId();
+        final String stopCode = stopData.getCode();
 
-        IdFor<Station> stationId = getStationIdFor(stopCode);
+        final IdFor<Station> stationId = getStationIdFor(stopCode);
         stopIdToStationId.put(stopId, stationId);
         originalCodeForStop.put(stopId, stopCode);
         return stationId;
     }
 
     @Override
-    public IdFor<Station> formStationId(StopTimeData stopTimeData) {
+    public IdFor<Station> formStationId(final StopTimeData stopTimeData) {
         return stopIdToStationId.get(stopTimeData.getStopId());
     }
 
     @NotNull
-    public static IdFor<Station> getStationIdFor(String stationCode) {
+    public static IdFor<Station> getStationIdFor(final String stationCode) {
         if (stationCode.startsWith(METROLINK_ID_PREFIX)) {
             // metrolink platform ids include platform as final digit, remove to give id of station itself
-            int index = stationCode.length()-1;
+            final int index = stationCode.length()-1;
             return Station.createId(stationCode.substring(0,index));
         }
         return Station.createId(stationCode);
     }
 
-    private boolean isMetrolinkTram(StopData stopData) {
+    private boolean isMetrolinkTram(final StopData stopData) {
         return stopData.getCode().startsWith(METROLINK_ID_PREFIX);
     }
 
     // TODO Consolidate handling of various TFGM mappings and monitor if still needed
     // spelt different ways within data
-    private String workAroundName(String name) {
+    private String workAroundName(final String name) {
         if ("St Peters Square".equals(name)) {
             return "St Peter's Square";
         }
@@ -264,9 +264,9 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
     }
 
     @Override
-    public GTFSTransportationType getRouteType(RouteData routeData, IdFor<Agency> agencyId) {
-        GTFSTransportationType routeType = routeData.getRouteType();
-        boolean isMetrolink = Agency.IsMetrolink(agencyId);
+    public GTFSTransportationType getRouteType(final RouteData routeData, final IdFor<Agency> agencyId) {
+        final GTFSTransportationType routeType = routeData.getRouteType();
+        final boolean isMetrolink = Agency.IsMetrolink(agencyId);
 
         // NOTE: this data issue has been reported to TFGM
         if (isMetrolink && routeType!=GTFSTransportationType.tram) {

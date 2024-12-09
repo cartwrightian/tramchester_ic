@@ -28,7 +28,7 @@ public class StopDataLoader {
 
     public PreloadedStationsAndPlatforms load(final Stream<StopData> stops) {
         logger.info("Loading stops within bounds");
-        BoundingBox bounds = config.getBounds();
+        final BoundingBox bounds = config.getBounds();
 
         final PreloadedStationsAndPlatforms allStations = new PreloadedStationsAndPlatforms(factory);
 
@@ -51,16 +51,16 @@ public class StopDataLoader {
             }
         });
         logger.info("Pre Loaded " + allStations.size() + " stations ");
-        int countExcluded = excluded.get();
+        final int countExcluded = excluded.get();
         if (countExcluded>0) {
             logger.warn("Excluded " + countExcluded + " stations as out of bounds");
         }
         return allStations;
     }
 
-    private void preLoadStation(PreloadedStationsAndPlatforms allStations, StopData stopData, TransportEntityFactory factory) {
+    private void preLoadStation(final PreloadedStationsAndPlatforms allStations, final StopData stopData, final TransportEntityFactory factory) {
 
-        IdFor<Station> stationId = factory.formStationId(stopData);
+        final IdFor<Station> stationId = factory.formStationId(stopData);
 
         if (allStations.hasId(stationId)) {
             allStations.updateStation(stationId, stopData);
