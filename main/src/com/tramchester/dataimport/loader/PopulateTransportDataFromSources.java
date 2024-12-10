@@ -3,6 +3,7 @@ package com.tramchester.dataimport.loader;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.domain.*;
 import com.tramchester.domain.factory.TransportEntityFactory;
 import com.tramchester.domain.id.CompositeIdMap;
@@ -19,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
@@ -100,7 +102,8 @@ public class PopulateTransportDataFromSources implements TransportDataFactory {
         interimAgencies.clear();
 
         final PreloadTripAndServices interimTripsAndServices = tripLoader.load(dataSource.getTrips(), excludedRoutes);
-        final IdMap<Service> interimServices = stopTimeLoader.load(dataSource.getStopTimes(), interimStations, interimTripsAndServices);
+        final Stream<StopTimeData> stopTimes = dataSource.getStopTimesFiltered(interimTripsAndServices);
+        final IdMap<Service> interimServices = stopTimeLoader.load(stopTimes, interimStations, interimTripsAndServices);
 
         excludedRoutes.clear();
         interimStations.clear();
@@ -117,8 +120,6 @@ public class PopulateTransportDataFromSources implements TransportDataFactory {
                 forEach(svc -> logger.warn(format("source %s Service %s has missing calendar", dataSourceInfo, svc.getId()))
         );
         reportZeroDaysServices(writeableTransportData);
-
-        dataSource.closeAll();
 
         entityFactory.logDiagnostics(writeableTransportData);
 

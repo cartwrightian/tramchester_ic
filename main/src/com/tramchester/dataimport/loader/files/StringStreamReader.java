@@ -50,11 +50,6 @@ public class StringStreamReader extends Reader {
         }
         return new StringReader(builder.toString());
 
-//            if (iterator.hasNext()) {
-//                return new StringReader(iterator.next() + lineSeparator);
-//            } else {
-//                return null;
-//            }
     }
 
     @Override

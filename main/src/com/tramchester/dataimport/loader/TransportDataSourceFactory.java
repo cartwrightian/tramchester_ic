@@ -55,31 +55,11 @@ public class TransportDataSourceFactory implements Iterable<TransportDataSource>
         transportDataReaders.forEach(transportDataReader -> {
             GTFSSourceConfig sourceConfig = transportDataReader.getConfig();
 
-//            final Stream<FeedInfo> feedInfoData;
-//            if (sourceConfig.getHasFeedInfo()) {
-//                feedInfoData = transportDataReader.getFeedInfo();
-//            } else {
-//                feedInfoData = Stream.empty();
-//            }
-//
-//            final Stream<StopData> stopData = transportDataReader.getStops();
-//            final Stream<RouteData> routeData = transportDataReader.getRoutes();
-//            final Stream<TripData> tripData = transportDataReader.getTrips();
-//            final Stream<StopTimeData> stopTimeData = transportDataReader.getStopTimes();
-//            final Stream<CalendarData> calendarData = transportDataReader.getCalendar();
-//            final Stream<CalendarDateData> calendarsDates = transportDataReader.getCalendarDates();
-//            final Stream<AgencyData> agencyData = transportDataReader.getAgencies();
-
             final TransportEntityFactory entityFactory = getEntityFactoryFor(sourceConfig);
 
             final DataSourceInfo dataSourceInfo = transportDataReader.getDataSourceInfo();
 
             final TransportDataSource transportDataSource = new TransportDataSource(dataSourceInfo, transportDataReader, sourceConfig, entityFactory);
-
-//            final TransportDataSource transportDataSource =
-//                    new TransportDataSource(dataSourceInfo,
-//                            agencyData, stopData, routeData, tripData,
-//                            stopTimeData, calendarData, feedInfoData, calendarsDates, sourceConfig, entityFactory);
 
             transportDataSources.add(transportDataSource);
 
@@ -91,7 +71,6 @@ public class TransportDataSourceFactory implements Iterable<TransportDataSource>
     @PreDestroy
     public void stop() {
         logger.info("Stopping");
-        transportDataSources.forEach(TransportDataSource::closeAll);
         transportDataSources.clear();
         logger.info("Stopped");
     }

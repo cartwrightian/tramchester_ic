@@ -3,6 +3,7 @@ package com.tramchester.dataimport.loader;
 
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.dataimport.data.*;
+import com.tramchester.dataimport.loader.files.TransportDataFromCSVFile;
 import com.tramchester.dataimport.loader.files.TransportDataFromFileFactory;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.DataSourceInfo;
@@ -46,6 +47,10 @@ public class TransportDataReader {
 
     public Stream<StopTimeData> getStopTimes() {
         return factory.getLoaderFor(InputFiles.stop_times, StopTimeData.class).load();
+    }
+
+    public Stream<StopTimeData> getStopTimes(TransportDataFromCSVFile.ReaderFactory readerFactory) {
+        return factory.getLoaderFor(InputFiles.stop_times, StopTimeData.class).load(readerFactory);
     }
 
     public Stream<TripData> getTrips() {

@@ -57,6 +57,17 @@ public class TransportDataFromCSVFile<T,R extends T> implements TransportDataFro
                 without(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     }
 
+    public Stream<T> load(ReaderFactory readerFactory) {
+        try {
+            final Reader reader = readerFactory.getReaderFor(filePath);
+            return load(reader);
+        } catch (IOException e) {
+            String msg = "Unable to load from file " + filePath;
+            logger.error(msg, e);
+            throw new RuntimeException(msg, e);
+        }
+    }
+
     @Override
     public Stream<T> load() {
         try {
@@ -69,7 +80,6 @@ public class TransportDataFromCSVFile<T,R extends T> implements TransportDataFro
         }
     }
 
-    // public, test support inject of reader
     @Override
     public Stream<T> load(final Reader in) {
 
@@ -90,6 +100,10 @@ public class TransportDataFromCSVFile<T,R extends T> implements TransportDataFro
             return Stream.empty();
         }
 
+    }
+
+    public interface ReaderFactory {
+        Reader getReaderFor(Path filePath) throws IOException;
     }
 
 }

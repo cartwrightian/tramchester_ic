@@ -2,48 +2,26 @@ package com.tramchester.dataimport.loader;
 
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.dataimport.data.*;
+import com.tramchester.dataimport.loader.files.StringStreamReader;
+import com.tramchester.dataimport.loader.files.TransportDataFromCSVFile;
 import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.factory.TransportEntityFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.jetbrains.annotations.NotNull;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.nio.file.Path;
 import java.util.stream.Stream;
 
 public class TransportDataSource {
-    private static final Logger logger = LoggerFactory.getLogger(TransportDataSource.class);
-
-//    private final Stream<StopData> stops;
-//    private final Stream<RouteData> routes;
-//    private final Stream<TripData> trips;
-//    private final Stream<StopTimeData> stopTimes;
-//    private final Stream<CalendarData> calendars;
-//    private final Stream<CalendarDateData> calendarsDates;
-//    private final Stream<AgencyData> agencies;
-//    private final Stream<FeedInfo> feedInfo;
 
     private final TransportDataReader transportDataReader;
     private final GTFSSourceConfig config;
     final private DataSourceInfo dataSourceInfo;
     final private TransportEntityFactory entityFactory;
-
-//    public TransportDataSource(DataSourceInfo dataSourceInfo, Stream<AgencyData> agencies, Stream<StopData> stops,
-//                               Stream<RouteData> routes, Stream<TripData> trips, Stream<StopTimeData> stopTimes,
-//                               Stream<CalendarData> calendars,
-//                               Stream<FeedInfo> feedInfo, Stream<CalendarDateData> calendarsDates,
-//                               GTFSSourceConfig config, TransportEntityFactory entityFactory) {
-//        this.dataSourceInfo = dataSourceInfo;
-//        this.agencies = agencies;
-//        this.stops = stops;
-//        this.routes = routes;
-//        this.trips = trips;
-//        this.stopTimes = stopTimes;
-//        this.calendars = calendars;
-//        this.feedInfo = feedInfo;
-//        this.calendarsDates = calendarsDates;
-//        this.config = config;
-//        this.entityFactory = entityFactory;
-//    }
 
     public TransportDataSource(DataSourceInfo dataSourceInfo, TransportDataReader transportDataReader, GTFSSourceConfig config,
                                TransportEntityFactory entityFactory) {
@@ -51,20 +29,6 @@ public class TransportDataSource {
         this.transportDataReader = transportDataReader;
         this.config = config;
         this.entityFactory = entityFactory;
-    }
-
-    @Deprecated
-    public void closeAll() {
-        logger.info("Close all");
-//        stops.close();
-//        routes.close();
-//        trips.close();
-//        stopTimes.close();
-//        calendars.close();
-//        feedInfo.close();
-//        calendarsDates.close();
-//        agencies.close();
-        logger.info("Closed");
     }
 
     // TODO Move update/create of data source info
@@ -115,4 +79,52 @@ public class TransportDataSource {
     public Stream<CalendarDateData> getCalendarsDates() {
         return transportDataReader.getCalendarDates();
     }
+
+    public Stream<StopTimeData> getStopTimesFiltered(final ChecksForTripId checksForTripId) {
+        final TransportDataFromCSVFile.ReaderFactory readerFactory = new StopTimeFilteredReader(checksForTripId);
+
+        return transportDataReader.getStopTimes(readerFactory);
+    }
+
+    private static class StopTimeFilteredReader implements TransportDataFromCSVFile.ReaderFactory {
+
+        private final ChecksForTripId checksForTripId;
+
+        public StopTimeFilteredReader(ChecksForTripId checksForTripId) {
+            this.checksForTripId = checksForTripId;
+        }
+
+        @Override
+        public Reader getReaderFor(final Path filePath) throws IOException {
+            final Reader reader = new FileReader(filePath.toString());
+            return createReaderFor(reader);
+        }
+
+        private @NotNull StringStreamReader createReaderFor(final Reader reader) throws IOException {
+            final BufferedReader bufferedReader = new BufferedReader(reader);
+
+            final String header = bufferedReader.readLine();
+            final int firstDelimit = header.indexOf(',');
+            final String column = header.substring(0, firstDelimit);
+
+            if (!"trip_id".equals(column)) {
+                // todo instead flag a warning and continue
+                throw new RuntimeException("Mismatch on column " + column);
+            }
+
+            Stream<String> headerStream = Stream.of(header);
+
+            Stream<String> filteredLines = bufferedReader.lines().filter(this::matches);
+
+            return new StringStreamReader(Stream.concat(headerStream, filteredLines));
+        }
+
+        private boolean matches(final String line) {
+            final int firstDelimit = line.indexOf(',');
+            final String column = line.substring(0, firstDelimit);
+            return checksForTripId.hasId(column);
+        }
+    }
+
+
 }
