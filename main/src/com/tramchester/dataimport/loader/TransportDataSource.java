@@ -7,7 +7,8 @@ import com.tramchester.dataimport.loader.files.TransportDataFromCSVFile;
 import com.tramchester.domain.DataSourceInfo;
 import com.tramchester.domain.FeedInfo;
 import com.tramchester.domain.factory.TransportEntityFactory;
-import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -17,6 +18,7 @@ import java.nio.file.Path;
 import java.util.stream.Stream;
 
 public class TransportDataSource {
+    private static final Logger logger = LoggerFactory.getLogger(TransportDataSource.class);
 
     private final TransportDataReader transportDataReader;
     private final GTFSSourceConfig config;
@@ -86,7 +88,7 @@ public class TransportDataSource {
         return transportDataReader.getStopTimes(readerFactory);
     }
 
-    private static class StopTimeFilteredReader implements TransportDataFromCSVFile.ReaderFactory {
+    public static class StopTimeFilteredReader implements TransportDataFromCSVFile.ReaderFactory {
 
         private final ChecksForTripId checksForTripId;
 
@@ -97,10 +99,17 @@ public class TransportDataSource {
         @Override
         public Reader getReaderFor(final Path filePath) throws IOException {
             final Reader reader = new FileReader(filePath.toString());
-            return createReaderFor(reader);
+            StringStreamReader filteredReader = createReaderFor(reader);
+            if (filteredReader==null) {
+                logger.warn("Not using filtered reader, revert to file reader for " + filePath);
+                return reader;
+            } else {
+                logger.info("Using filtered reader for " + filePath);
+                return filteredReader;
+            }
         }
 
-        private @NotNull StringStreamReader createReaderFor(final Reader reader) throws IOException {
+        private StringStreamReader createReaderFor(final Reader reader) throws IOException {
             final BufferedReader bufferedReader = new BufferedReader(reader);
 
             final String header = bufferedReader.readLine();
@@ -108,13 +117,13 @@ public class TransportDataSource {
             final String column = header.substring(0, firstDelimit);
 
             if (!"trip_id".equals(column)) {
-                // todo instead flag a warning and continue
-                throw new RuntimeException("Mismatch on column " + column);
+                logger.error("Did not find trip_id column in expected place, got " + column);
+                return null;
             }
 
-            Stream<String> headerStream = Stream.of(header);
+            final Stream<String> headerStream = Stream.of(header);
 
-            Stream<String> filteredLines = bufferedReader.lines().filter(this::matches);
+            final Stream<String> filteredLines = bufferedReader.lines().filter(this::matches);
 
             return new StringStreamReader(Stream.concat(headerStream, filteredLines));
         }
