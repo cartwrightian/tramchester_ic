@@ -174,7 +174,8 @@ public class ImmutableGraphRelationship implements GraphRelationship {
 
     @Override
     public boolean hasTripIdInList(final IdFor<Trip> tripId) {
-        // todo cache?
+        // caching here seemed to have minimal impact, likely not seeing repeat calls for the same trip ID
+//        return tripIdPresent.getOrPopulate(tripId, unused -> underlying.hasTripIdInList(tripId));
         return underlying.hasTripIdInList(tripId);
     }
 
