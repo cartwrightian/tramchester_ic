@@ -83,8 +83,6 @@ class RouteCalculatorAllTramJourneysTest {
                 filter(dest -> !combinations.betweenInterchanges(start, dest)).
                 map(dest -> LocationIdPair.of(start, dest))).
                 filter(pair -> !pair.same()).
-                // was here to avoid duplication....
-                //filter(pair -> !combinations.betweenEndsOfRoute(pair)).
                 collect(LocationIdPairSet.collector());
 
         RouteCalculationCombinations.CombinationResults<Station> results = combinations.getJourneysFor(stationIdPairs, journeyRequest);
