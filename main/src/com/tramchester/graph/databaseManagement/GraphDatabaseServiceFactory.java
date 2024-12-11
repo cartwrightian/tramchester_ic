@@ -5,6 +5,7 @@ import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.metrics.Timing;
+import jakarta.inject.Inject;
 import org.neo4j.configuration.GraphDatabaseSettings;
 import org.neo4j.configuration.connectors.BoltConnector;
 import org.neo4j.configuration.connectors.HttpConnector;
@@ -20,7 +21,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import jakarta.inject.Inject;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -86,6 +86,8 @@ public class GraphDatabaseServiceFactory implements DatabaseEventListener {
 
 //                    setConfig(GraphDatabaseSettings.track_query_allocation, false).
 //                    setConfig(GraphDatabaseSettings.store_internal_log_level, Level.WARN ).
+                    //setConfig(GraphDatabaseSettings.keep_logical_logs, "keep_none").
+                    setConfig(GraphDatabaseSettings.debug_log_enabled, false).
 
                     // see https://neo4j.com/docs/operations-manual/current/performance/memory-configuration/#heap-sizing
                     setConfig(GraphDatabaseSettings.pagecache_memory, neo4jPagecacheMemory).
@@ -93,7 +95,7 @@ public class GraphDatabaseServiceFactory implements DatabaseEventListener {
                     setConfig(GraphDatabaseSettings.memory_transaction_global_max_size, memoryTransactionGlobalMaxSize).
 
                     // txn logs, no need to save beyond current one
-                    setConfig(GraphDatabaseSettings.keep_logical_logs, "false").
+                    setConfig(GraphDatabaseSettings.keep_logical_logs, "keep_none").
 
                     // perf test, made little difference
                     //setConfig(GraphDatabaseSettings.pagecache_buffered_flush_enabled, true).
