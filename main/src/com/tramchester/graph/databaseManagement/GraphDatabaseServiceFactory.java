@@ -16,6 +16,7 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.event.DatabaseEventContext;
 import org.neo4j.graphdb.event.DatabaseEventListener;
 import org.neo4j.io.ByteUnit;
+import org.neo4j.logging.LogProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,17 +78,17 @@ public class GraphDatabaseServiceFactory implements DatabaseEventListener {
             logger.warn("DB diagnostics enabled, neo4j bolt is enabled");
         }
 
+        final LogProvider logProvider = new SLF4JLogProvider();
+
         try (Timing ignored = new Timing(logger, "DatabaseManagementService build")) {
             final long neo4jPagecacheMemory = ByteUnit.parse(dbConfig.getNeo4jPagecacheMemory());
             final long memoryTransactionGlobalMaxSize = ByteUnit.parse(dbConfig.getMemoryTransactionGlobalMaxSize());
             managementServiceImpl = new DatabaseManagementServiceBuilder( graphFile ).
 
-            // TODO need to bring this back somehow, memory usage has crept up without it
-
+                    setUserLogProvider(logProvider).
 //                    setConfig(GraphDatabaseSettings.track_query_allocation, false).
 //                    setConfig(GraphDatabaseSettings.store_internal_log_level, Level.WARN ).
-                    //setConfig(GraphDatabaseSettings.keep_logical_logs, "keep_none").
-                    setConfig(GraphDatabaseSettings.debug_log_enabled, false).
+                    setConfig(GraphDatabaseSettings.debug_log_enabled, true).
 
                     // see https://neo4j.com/docs/operations-manual/current/performance/memory-configuration/#heap-sizing
                     setConfig(GraphDatabaseSettings.pagecache_memory, neo4jPagecacheMemory).
