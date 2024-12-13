@@ -82,8 +82,6 @@ class KnownTramRouteTest {
         assertEquals(loaded.size(), KnownTramRoute.getFor(when).size());
     }
 
-    /// Note: START HERE when diagnosing
-    //  if route count correct then check dates, route might not be available on given dates
     @Disabled("Seem to be changing names frequently in source data")
     @Test
     void shouldHaveCorrectLongNamesForKnownRoutesForDates() {
@@ -139,9 +137,11 @@ class KnownTramRouteTest {
 
         DateRange dateRange = DateRange.of(start, when.plusWeeks(1));
 
+
         SortedMap<TramDate, Set<KnownTramRoute>> unusedForDate = new TreeMap<>();
 
         dateRange.stream().
+                filter(date -> !(UpcomingDates.isChristmasDay(date) || UpcomingDates.isBoxingDay(date))).
                 forEach(date -> {
                     final IdSet<Route> loaded = getLoadedTramRoutes(date).collect(IdSet.collector());
 

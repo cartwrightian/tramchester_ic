@@ -55,7 +55,6 @@ public class GraphDatabaseServiceFactory implements DatabaseEventListener {
             throw new RuntimeException(msg);
         }
         logger.info("DBName : '"+ dbName + "' Path:'" + graphFile.toString() +"'");
-        //createManagementService(); - slow, only do when needed
         logger.info("started");
     }
 
@@ -85,10 +84,11 @@ public class GraphDatabaseServiceFactory implements DatabaseEventListener {
             final long memoryTransactionGlobalMaxSize = ByteUnit.parse(dbConfig.getMemoryTransactionGlobalMaxSize());
             managementServiceImpl = new DatabaseManagementServiceBuilder( graphFile ).
 
+                    setConfig(GraphDatabaseSettings.udc_enabled, false).
                     setUserLogProvider(logProvider).
-//                    setConfig(GraphDatabaseSettings.track_query_allocation, false).
-//                    setConfig(GraphDatabaseSettings.store_internal_log_level, Level.WARN ).
-                    setConfig(GraphDatabaseSettings.debug_log_enabled, true).
+
+                    // defaults
+                    //setConfig(GraphDatabaseSettings.debug_log_enabled, true).
 
                     // see https://neo4j.com/docs/operations-manual/current/performance/memory-configuration/#heap-sizing
                     setConfig(GraphDatabaseSettings.pagecache_memory, neo4jPagecacheMemory).
@@ -108,10 +108,13 @@ public class GraphDatabaseServiceFactory implements DatabaseEventListener {
                     setConfig(HttpsConnector.enabled, false).
                     setConfig(BoltConnector.enabled, dbConfig.enableDiagnostics()).
 
+                    addDatabaseListener(this).
+                    // this starts/created the DB
                     build();
         }
 
-        managementServiceImpl.registerDatabaseEventListener(this);
+        // has to be done in the builder above
+        //managementServiceImpl.registerDatabaseEventListener(this);
     }
 
     private DatabaseManagementService getManagementService() {
@@ -133,7 +136,8 @@ public class GraphDatabaseServiceFactory implements DatabaseEventListener {
             logger.error("Attempt to shutdown when DatabaseManagementService already stopped");
         } else {
             logger.info("Stopping DatabaseManagementService");
-            managementServiceImpl.unregisterDatabaseEventListener(this);
+            // don't remove as will not get shutdown events etc.
+            //managementServiceImpl.unregisterDatabaseEventListener(this);
             managementServiceImpl.shutdown();
             managementServiceImpl = null;
         }

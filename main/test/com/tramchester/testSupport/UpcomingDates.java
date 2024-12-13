@@ -8,6 +8,8 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.reference.TramStations;
 
 import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -101,4 +103,13 @@ public class UpcomingDates {
     }
 
 
+    public static boolean isChristmasDay(TramDate date) {
+        LocalDate localDate = date.toLocalDate();
+        return localDate.getMonth().equals(Month.DECEMBER) && localDate.getDayOfMonth()==25;
+    }
+
+    public static boolean isBoxingDay(TramDate date) {
+        LocalDate localDate = date.toLocalDate();
+        return localDate.getMonth().equals(Month.DECEMBER) && localDate.getDayOfMonth()==26;
+    }
 }

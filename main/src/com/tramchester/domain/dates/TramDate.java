@@ -199,9 +199,9 @@ public class TramDate implements Comparable<TramDate> {
     }
 
     public boolean isChristmasPeriod() {
-        LocalDate date = LocalDate.ofEpochDay(epochDays);
-        Month month = date.getMonth();
-        int day = date.getDayOfMonth();
+        final LocalDate date = toLocalDate();
+        final Month month = date.getMonth();
+        final int day = date.getDayOfMonth();
 
         if (month==Month.DECEMBER && day>23) {
             return true;
