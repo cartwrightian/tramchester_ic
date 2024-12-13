@@ -124,7 +124,7 @@ dependencies {
             'org.hamcrest:hamcrest:3.0'
 
     // cxf complains about missing conduit without this
-    cxfCodegen 'org.apache.cxf:cxf-rt-transports-http:4.0.5'
+    cxfCodegen 'org.apache.cxf:cxf-rt-transports-http:4.1.0'
     // needed for cxf gen'ed code, missing from cxfCodegen dependencies?
     implementation 'jakarta.xml.ws:jakarta.xml.ws-api:4.0.2'
     // for running the cxf generated code,  provide implementation of the SPI jakarta.xml.ws.spi.Provider
