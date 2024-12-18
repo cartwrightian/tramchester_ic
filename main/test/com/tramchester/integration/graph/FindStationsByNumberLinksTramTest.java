@@ -51,12 +51,16 @@ class FindStationsByNumberLinksTramTest {
         finder = componentContainer.get(FindStationsByNumberLinks.class);
     }
 
+    /**
+     * @see com.tramchester.testSupport.AdditionalTramInterchanges
+     */
     @Test
     void shouldNotDuplicateWithConfig() {
+
         List<GTFSSourceConfig> dataSources = config.getGTFSDataSource();
         assertEquals(1, dataSources.size());
 
-        GTFSSourceConfig dataSource = dataSources.get(0);
+        GTFSSourceConfig dataSource = dataSources.getFirst();
         assertEquals(DataSourceID.tfgm, dataSource.getDataSourceId());
         IdSet<Station> additionalInterchanges = dataSource.getAdditionalInterchanges();
 
@@ -76,7 +80,7 @@ class FindStationsByNumberLinksTramTest {
         List<IdFor<Station>> expectedList = Stream.of(
                 StPetersSquare,
                 PiccadillyGardens,
-                //Piccadilly,
+                Piccadilly,
                 //Shudehill,
                 MarketStreet,
             TraffordBar,

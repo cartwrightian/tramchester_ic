@@ -8,7 +8,6 @@ import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.testSupport.TestEnv;
 
-import java.time.DayOfWeek;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Optional;
@@ -45,9 +44,11 @@ public enum KnownTramRoute {
     public static Set<KnownTramRoute> getFor(final TramDate date) {
         EnumSet<KnownTramRoute> routes = EnumSet.noneOf(KnownTramRoute.class);
 
-        if (!date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
-            routes.add(BuryManchesterAltrincham);
-        }
+//        if (!date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
+//            routes.add(BuryManchesterAltrincham);
+//        }
+
+        routes.add(BuryManchesterAltrincham);
 
         routes.add(PiccadillyVictoria);
         routes.add(EcclesAshton);
