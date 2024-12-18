@@ -38,9 +38,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.util.Collection;
-import java.util.Optional;
-import java.util.SortedSet;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -91,13 +89,19 @@ class DeparturesAfterJourneyResourceTest {
 
         UpcomingDeparturesSource dueTramsSource = dependencies.get(TramDepartureRepository.class);
 
-        Optional<UpcomingDeparture> searchForDueTrams = stationRepository.getAllStationStream().
-                flatMap(station -> dueTramsSource.forStation(station).stream()).
-                findAny();
-        searchForDueTrams.ifPresent(dueTram -> {
-            stationWithDepartures = dueTram.getDisplayLocation();
-            destinationForDueTram = dueTram.getDestination();
+        // station with most departures
+        Optional<List<UpcomingDeparture>> findMostDepartures = stationRepository.getAllStationStream().
+                map(dueTramsSource::forStation).max(Comparator.comparingInt(List::size));
+
+        // sort by last dep time, trying to avoid potential race condition, see note below
+        findMostDepartures.ifPresent(upcomingDepartures -> {
+            Optional<UpcomingDeparture> lastDep = upcomingDepartures.stream().max(Comparator.comparing(UpcomingDeparture::getWhen));
+            lastDep.ifPresent(dueTram -> {
+                stationWithDepartures = dueTram.getDisplayLocation();
+                destinationForDueTram = dueTram.getDestination();
+            });
         });
+
     }
 
     @Test
@@ -122,10 +126,12 @@ class DeparturesAfterJourneyResourceTest {
 
         departures.forEach(depart -> assertEquals(new LocationRefDTO(station), depart.getFrom()));
 
-        IdForDTO departureID = IdForDTO.createFor(destinationForDueTram.getId());
-        boolean haveTowardsDest = departures.stream().anyMatch(departureDTO -> departureDTO.getDestination().getId().equals(departureID));
+        // NOTE:  potential race condition here if the departure in the initial query has 'departed' by the
+        // time we do the second query here. Very small window but it could happen.
+        IdForDTO tramDestinationExpected = IdForDTO.createFor(destinationForDueTram.getId());
+        boolean haveTowardsDest = departures.stream().anyMatch(departureDTO -> departureDTO.getDestination().getId().equals(tramDestinationExpected));
 
-        assertTrue(haveTowardsDest, "Did not find " + departureID + " in " + departures);
+        assertTrue(haveTowardsDest, "Did not find " + tramDestinationExpected + " in " + departures);
 
         Optional<DepartureDTO> towardsDestination = departures.stream().filter(DepartureDTO::getMatchesJourney).findAny();
         assertTrue(towardsDestination.isPresent(), "no tram flagged as matching journey to " + destinationForDueTram.getId() + " from " + station.getId()
