@@ -14,6 +14,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static java.time.DayOfWeek.SUNDAY;
+
 /*
  * see also TramRouteHelper
  * Note: these are validated against tfgm data as part of Integration tests
@@ -44,11 +46,13 @@ public enum KnownTramRoute {
     public static Set<KnownTramRoute> getFor(final TramDate date) {
         EnumSet<KnownTramRoute> routes = EnumSet.noneOf(KnownTramRoute.class);
 
-//        if (!date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
-//            routes.add(BuryManchesterAltrincham);
-//        }
-
-        routes.add(BuryManchesterAltrincham);
+        if (date.isAfter(TramDate.of(2025,1,1))) {
+            if (!date.getDayOfWeek().equals(SUNDAY)) {
+                routes.add(BuryManchesterAltrincham);
+            }
+        } else {
+            routes.add(BuryManchesterAltrincham);
+        }
 
         routes.add(PiccadillyVictoria);
         routes.add(EcclesAshton);
