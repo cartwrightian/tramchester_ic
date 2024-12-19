@@ -2,16 +2,20 @@ package com.tramchester.graph.search;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.*;
+import com.tramchester.domain.Journey;
+import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.LocationCollection;
+import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.closures.ClosedStation;
 import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Location;
-import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.domain.time.*;
+import com.tramchester.domain.time.CreateQueryTimes;
+import com.tramchester.domain.time.ProvidesNow;
+import com.tramchester.domain.time.TimeRange;
+import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.NumberOfNodesAndRelationshipsRepository;
 import com.tramchester.graph.caches.LowestCostSeen;
@@ -28,12 +32,12 @@ import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.RunningRoutesAndServices;
 import com.tramchester.repository.StationAvailabilityRepository;
 import com.tramchester.repository.TransportData;
+import jakarta.inject.Inject;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.traversal.BranchOrderingPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.inject.Inject;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -96,6 +100,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         // not clear if existing mechanism works now routes are bidirectional
         if (journeyRequest.getMaxChanges()>numberOfChanges.getMax()) {
             if (closedStationsRepository.hasClosuresOn(date)) {
+                // TODO Ideally would compute this number, not just default to the max which has performance implications
                 logger.warn(format("Closures in effect today %s so over ride max changes", journeyRequest.getDate()));
                 numberOfChanges.overrideMax(journeyRequest.getMaxChanges());
             }
