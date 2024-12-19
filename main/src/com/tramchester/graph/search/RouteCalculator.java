@@ -98,17 +98,20 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         // route change calc issue, for media city to ashton line
         // not clear if existing mechanism works now routes are bidirectional
-        if (journeyRequest.getMaxChanges()>numberOfChanges.getMax()) {
-            if (closedStationsRepository.hasClosuresOn(date)) {
-                // TODO Ideally would compute this number, not just default to the max which has performance implications
-                logger.warn(format("Closures in effect today %s so over ride max changes", journeyRequest.getDate()));
-                numberOfChanges.overrideMax(journeyRequest.getMaxChanges());
-            }
-            else {
-                logger.warn(format("Computed max changes (%s) is less than requested number of changes (%s)",
-                        numberOfChanges.getMax(), journeyRequest.getMaxChanges()));
-                // TODO needed due to route change calc issue
-                numberOfChanges.overrideMax(journeyRequest.getMaxChanges());
+        if (journeyRequest.getMaxChanges().isUseComputed()) {
+            logger.warn("Using computed max/min changes");
+        } else {
+            if (journeyRequest.getMaxChanges().get() > numberOfChanges.getMax()) {
+                if (closedStationsRepository.hasClosuresOn(date)) {
+                    // TODO Ideally would compute this number, not just default to the max which has performance implications
+                    logger.warn(format("Closures in effect today %s so over ride max changes", journeyRequest.getDate()));
+                    numberOfChanges.overrideMax(journeyRequest.getMaxChanges());
+                } else {
+                    logger.warn(format("Computed max changes (%s) is less than requested number of changes (%s)",
+                            numberOfChanges.getMax(), journeyRequest.getMaxChanges()));
+                    // TODO needed due to route change calc issue
+                    numberOfChanges.overrideMax(journeyRequest.getMaxChanges());
+                }
             }
         }
 
@@ -201,7 +204,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         final AtomicInteger journeyIndex = new AtomicInteger(0);
 
         final PathRequest singlePathRequest = createPathRequest(startNode, tramDate, journeyRequest.getOriginalTime(), journeyRequest.getRequestedModes(),
-                journeyRequest.getMaxChanges(),
+                journeyRequest.getMaxChanges().get(),
                 journeyConstraints, maxInitialWait, selector);
 
         final ServiceReasons serviceReasons = createServiceReasons(journeyRequest, singlePathRequest);

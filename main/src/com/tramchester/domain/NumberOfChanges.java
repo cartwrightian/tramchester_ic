@@ -29,11 +29,18 @@ public class NumberOfChanges {
                 '}';
     }
 
+    @Deprecated
     public void overrideMax(int maxChanges) {
         max = maxChanges;
+    }
+
+    public void overrideMax(JourneyRequest.MaxNumberOfChanges maxChanges) {
+        max = maxChanges.get();
     }
 
     public boolean isNone() {
         return min==Integer.MAX_VALUE;
     }
+
+
 }

@@ -13,7 +13,6 @@ import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TimeRange;
-import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.NumberOfNodesAndRelationshipsRepository;
@@ -110,25 +109,29 @@ public class RouteCalculatorSupport {
 
     @NotNull
     protected Stream<Integer> numChangesRange(final JourneyRequest journeyRequest, final NumberOfChanges computedChanges) {
-        final int requestedMaxChanges = journeyRequest.getMaxChanges();
+        final JourneyRequest.MaxNumberOfChanges requestedMaxChanges = journeyRequest.getMaxChanges();
 
-        final int computedMaxChanges = computedChanges.getMax();
         final int computedMinChanges = computedChanges.getMin();
+        final int computedMaxChanges = computedChanges.getMax();
+
+        if (requestedMaxChanges.isUseComputed()) {
+            return IntStream.of(computedMinChanges, computedMaxChanges).boxed();
+        }
 
         if (fullLogging) {
-            if (requestedMaxChanges < computedMinChanges) {
+            if (requestedMaxChanges.get() < computedMinChanges) {
                 logger.error(format("Requested max changes (%s) is less than computed minimum changes (%s) needed",
                         requestedMaxChanges, computedMaxChanges));
             }
 
-            if (computedMaxChanges > requestedMaxChanges) {
+            if (computedMaxChanges > requestedMaxChanges.get()) {
                 logger.info(format("Will exclude some routes, requests changes %s is less then computed max changes %s",
                         requestedMaxChanges, computedMaxChanges));
             }
         }
 
-        final int max = Math.min(computedMaxChanges, requestedMaxChanges);
-        final int min = Math.min(computedMinChanges, requestedMaxChanges);
+        final int max = Math.min(computedMaxChanges, requestedMaxChanges.get());
+        final int min = Math.min(computedMinChanges, requestedMaxChanges.get());
 
         if (fullLogging) {
             logger.info("Will check journey from " + min + " to " + max + " changes. Computed was " + computedChanges);

@@ -9,6 +9,7 @@ import com.tramchester.domain.time.TramTime;
 
 import java.time.Duration;
 import java.util.EnumSet;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -16,7 +17,7 @@ public class JourneyRequest {
     private final TramDate date;
     private final TramTime originalQueryTime;
     private final boolean arriveBy;
-    private final int maxChanges;
+    private final MaxNumberOfChanges maxChanges;
     private final UUID uid;
     private final Duration maxJourneyDuration;
     private final long maxNumberOfJourneys;
@@ -30,7 +31,13 @@ public class JourneyRequest {
     private final AtomicBoolean diagnosticsReceived;
     private JourneyDiagnostics journeyDiagnostics;
 
+    @Deprecated
     public JourneyRequest(TramDate date, TramTime originalQueryTime, boolean arriveBy, int maxChanges,
+                          Duration maxJourneyDuration, long maxNumberOfJourneys, EnumSet<TransportMode> requestedModes) {
+        this(date, originalQueryTime, arriveBy, new MaxNumberOfChanges(maxChanges), maxJourneyDuration, maxNumberOfJourneys, requestedModes);
+    }
+
+    public JourneyRequest(TramDate date, TramTime originalQueryTime, boolean arriveBy, MaxNumberOfChanges maxChanges,
                           Duration maxJourneyDuration, long maxNumberOfJourneys, EnumSet<TransportMode> requestedModes) {
         this.date = date;
         this.originalQueryTime = originalQueryTime;
@@ -70,7 +77,7 @@ public class JourneyRequest {
         return arriveBy;
     }
 
-    public int getMaxChanges() {
+    public MaxNumberOfChanges getMaxChanges() {
         return maxChanges;
     }
 
@@ -94,7 +101,7 @@ public class JourneyRequest {
         int result = date.hashCode();
         result = 31 * result + originalQueryTime.hashCode();
         result = 31 * result + (arriveBy ? 1 : 0);
-        result = 31 * result + maxChanges;
+        result = 31 * result + maxChanges.hashCode();
         result = 31 * result + maxJourneyDuration.hashCode();
         result = 31 * result + (int) (maxNumberOfJourneys ^ (maxNumberOfJourneys >>> 32));
         return result;
@@ -178,6 +185,54 @@ public class JourneyRequest {
 
     public boolean getCachingDisabled() {
         return cachingDisabled;
+    }
+
+    public static class MaxNumberOfChanges {
+
+        private final int maxChanges;
+
+        public MaxNumberOfChanges(int maxChanges) {
+
+            this.maxChanges = maxChanges;
+        }
+
+        public static MaxNumberOfChanges of(int number) {
+            return new MaxNumberOfChanges(number);
+        }
+
+        public int get() {
+            if (maxChanges<0) {
+                throw new RuntimeException("Called for " + maxChanges);
+            }
+            return maxChanges;
+        }
+
+        public boolean isUseComputed() {
+            return maxChanges==-1;
+        }
+
+        @Override
+        public String toString() {
+            if (maxChanges==-1) {
+                return "MaxNumberOfChanges{" +
+                        "maxChanges=USE_COMPUTED}";
+            }
+            return "MaxNumberOfChanges{" +
+                    "maxChanges=" + maxChanges +
+                    '}';
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof MaxNumberOfChanges that)) return false;
+            return maxChanges == that.maxChanges;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(maxChanges);
+        }
     }
 
 
