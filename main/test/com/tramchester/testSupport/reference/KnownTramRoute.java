@@ -37,8 +37,6 @@ public enum KnownTramRoute {
     // Yellow
     PiccadillyVictoria("Yellow Line", "Piccadilly - Victoria", "844");
 
-    //ReplacementBusCrumpsallPiccadilly("Replacement Bus 1", "Replacement Bus Crumpsall - Piccadilly", "2462");
-
     private final String shortName;
     private final String longName;
     private final IdFor<Route> id;

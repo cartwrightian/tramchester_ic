@@ -200,6 +200,10 @@ public class JourneyRequest {
             return new MaxNumberOfChanges(number);
         }
 
+        public static MaxNumberOfChanges UseComputed() {
+            return new MaxNumberOfChanges(-1);
+        }
+
         public int get() {
             if (maxChanges<0) {
                 throw new RuntimeException("Called for " + maxChanges);

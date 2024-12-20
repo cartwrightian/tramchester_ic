@@ -24,10 +24,7 @@ import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.time.Duration;
@@ -197,6 +194,15 @@ public class RouteToRouteCostsTest {
         NumberOfChanges result = routesCostRepository.getNumberOfChanges(mediaCity, ashton, modes, date, timeRange);
 
         assertEquals(1, getMinCost(result));
+    }
+
+    @Disabled("WIP")
+    @Test
+    void shouldFindMediaCityToAshtonReproIssueWithCommutedChangesFindingNoResults() {
+        NumberOfChanges result = routesCostRepository.getNumberOfChanges(MediaCityUK.from(stationRepository),
+                Ashton.from(stationRepository), modes, date, timeRange);
+
+        assertEquals(1, result.getMin());
     }
 
     @Test

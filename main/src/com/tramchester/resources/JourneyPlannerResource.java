@@ -228,7 +228,8 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
 
         int maxNumberResults = (query.getMaxNumResults()==null) ? config.getMaxNumResults() : query.getMaxNumResults();
 
-        return new JourneyRequest(date, queryTime, arriveBy, maxChanges, maxJourneyDuration,  maxNumberResults, modes);
+        return new JourneyRequest(date, queryTime, arriveBy, JourneyRequest.MaxNumberOfChanges.of(maxChanges),
+                maxJourneyDuration,  maxNumberResults, modes);
     }
 
     private Response buildResponse(Response.ResponseBuilder responseBuilder, Location<?> start, Location<?> dest, Cookie cookie,

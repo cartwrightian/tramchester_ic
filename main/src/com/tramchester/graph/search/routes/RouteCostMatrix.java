@@ -219,7 +219,7 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
     // enabled by the previous degree. For example if degree 1 has: R1->R2 at IntA and R2->R3 at IntB then
     // at degree 2 we have: R1->R3
     // implementation uses a bitmap to do this computation quickly row by row
-    private void addConnectionsFor(RouteDateAndDayOverlap routeDateAndDayOverlap, byte currentDegree) {
+    private void addConnectionsFor(final RouteDateAndDayOverlap routeDateAndDayOverlap, final byte currentDegree) {
         final Instant startTime = Instant.now();
         final int nextDegree = currentDegree + 1;
 
@@ -264,16 +264,16 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
         return result;
     }
 
-    public int getConnectionDepthFor(Route routeA, Route routeB) {
-        RouteIndexPair routePair = routeIndex.getPairFor(RoutePair.of(routeA, routeB));
+    public int getConnectionDepthFor(final Route routeA, final Route routeB) {
+        final RouteIndexPair routePair = routeIndex.getPairFor(RoutePair.of(routeA, routeB));
         return getDegree(routePair);
     }
 
-    public ImmutableIndexedBitSet getCostsPerDegree(int degree) {
+    public ImmutableIndexedBitSet getCostsPerDegree(final int degree) {
         return costsPerDegree.getDegree(degree);
     }
 
-    public ImmutableIndexedBitSet getDegree(int currentDegree) {
+    public ImmutableIndexedBitSet getDegree(final int currentDegree) {
         return costsPerDegree.getDegree(currentDegree);
     }
 
@@ -320,14 +320,14 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
         }
 
         @Override
-        public void cacheTo(HasDataSaver<CostsPerDegreeData> hasDataSaver) {
+        public void cacheTo(final HasDataSaver<CostsPerDegreeData> hasDataSaver) {
             try (HasDataSaver.ClosableDataSaver<CostsPerDegreeData> saver = hasDataSaver.get()) {
                 for (int depth = 0; depth < MAX_DEPTH; depth++) {
-                    IndexedBitSet bitSet = bitSets[depth];
+                    final IndexedBitSet bitSet = bitSets[depth];
                     for (int routeIndex = 0; routeIndex < numRoutes; routeIndex++) {
                         SimpleImmutableBitmap bitmapForRow = bitSet.getBitSetForRow(routeIndex);
                         if (bitmapForRow.cardinality() > 0) {
-                            List<Short> bitsSetForRow = bitmapForRow.getBitIndexes().collect(Collectors.toList());
+                            final List<Short> bitsSetForRow = bitmapForRow.getBitIndexes().collect(Collectors.toList());
                             CostsPerDegreeData item = new CostsPerDegreeData(depth, routeIndex, bitsSetForRow);
                             saver.write(item);
                         }
@@ -345,8 +345,8 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
         }
 
         @Override
-        public void loadFrom(Stream<CostsPerDegreeData> stream) {
-            AtomicInteger counter = new AtomicInteger(0);
+        public void loadFrom(final Stream<CostsPerDegreeData> stream) {
+            final AtomicInteger counter = new AtomicInteger(0);
             stream.forEach(item -> {
                 counter.getAndIncrement();
                 final int index = item.getIndex();

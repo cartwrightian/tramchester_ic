@@ -80,8 +80,9 @@ public class JourneysForGridResource implements APIResource, GraphDatabaseDepend
         // todo into parameters
         final EnumSet<TransportMode> allModes = config.getTransportModes();
 
+        int maxChanges = gridQueryDTO.getMaxChanges();
         final JourneyRequest journeyRequest = new JourneyRequest(date, departureTime,
-                false, gridQueryDTO.getMaxChanges(), maxDuration, maxNumberOfJourneys, allModes);
+                false, JourneyRequest.MaxNumberOfChanges.of(maxChanges), maxDuration, maxNumberOfJourneys, allModes);
         journeyRequest.setWarnIfNoResults(false);
 
         final Location<?> destination = locationRepository.getLocation(gridQueryDTO.getDestType(), gridQueryDTO.getDestId());

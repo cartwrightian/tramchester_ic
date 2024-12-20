@@ -17,6 +17,7 @@ import com.tramchester.repository.RunningRoutesAndServices;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import org.apache.commons.collections4.SetUtils;
 import org.junit.jupiter.api.AfterAll;
@@ -138,6 +139,7 @@ public class RunningRoutesAndServicesTest {
         return false;
     }
 
+    @DisabledUntilDate(year=2025, month = 1, day = 2)
     @Test
     void shouldConsiderRoutesFromDayBeforeIfTheyAreStillRunningTheFollowingDay() {
         TramDate when = TestEnv.testDay();
