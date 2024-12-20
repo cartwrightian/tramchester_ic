@@ -4,16 +4,17 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.*;
+import com.tramchester.domain.Journey;
+import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.JourneysForBox;
+import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.closures.ClosedStation;
 import com.tramchester.domain.collections.RequestStopStream;
 import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TimeRange;
-import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.geo.BoundingBoxWithStations;
 import com.tramchester.geo.StationsBoxSimpleGrid;
 import com.tramchester.graph.GraphDatabase;
@@ -31,12 +32,12 @@ import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.RunningRoutesAndServices;
 import com.tramchester.repository.StationAvailabilityRepository;
 import com.tramchester.repository.TransportData;
+import jakarta.inject.Inject;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.traversal.BranchOrderingPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.inject.Inject;
 import java.time.Duration;
 import java.util.List;
 import java.util.Set;
@@ -168,7 +169,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
     private class ChangesForDestinations {
         private final LocationSet<Station> destinations;
         private final JourneyRequest journeyRequest;
-        private final Cache<BoundingBoxWithStations, NumberOfChanges> cache;
+        private final Cache<BoundingBoxWithStations, Integer> cache;
 
         private ChangesForDestinations(LocationSet<Station> destinations, JourneyRequest journeyRequest) {
             this.destinations = destinations;
@@ -177,11 +178,11 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         }
 
         public Stream<Integer> getNumberOfChangesRange(final BoundingBoxWithStations box) {
-            final NumberOfChanges numberChanges = cache.get(box, theBox -> computeNumberOfChanges(box));
-            return numChangesRange(journeyRequest, numberChanges);
+            final int possibleMinChanges = cache.get(box, theBox -> computeNumberOfChanges(box));
+            return numChangesRange(journeyRequest, possibleMinChanges);
         }
 
-        private NumberOfChanges computeNumberOfChanges(BoundingBoxWithStations box) {
+        private int computeNumberOfChanges(BoundingBoxWithStations box) {
             return routeToRouteCosts.getNumberOfChanges(box.getStations(), destinations, journeyRequest);
         }
 

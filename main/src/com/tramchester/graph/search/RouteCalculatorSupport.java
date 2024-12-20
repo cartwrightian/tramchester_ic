@@ -4,7 +4,6 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.LocationCollection;
-import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Location;
@@ -108,35 +107,35 @@ public class RouteCalculatorSupport {
     }
 
     @NotNull
-    protected Stream<Integer> numChangesRange(final JourneyRequest journeyRequest, final NumberOfChanges computedChanges) {
+    protected Stream<Integer> numChangesRange(final JourneyRequest journeyRequest, final int computedMinChanges) {
         final JourneyRequest.MaxNumberOfChanges requestedMaxChanges = journeyRequest.getMaxChanges();
 
-        final int computedMinChanges = computedChanges.getMin();
-        final int computedMaxChanges = computedChanges.getMax();
+//        final int computedMinChanges = computedChanges.getMin(); // safe
+//        final int computedMaxChanges = computedChanges.getMax(); // unsafe
 
-        if (requestedMaxChanges.isUseComputed()) {
-            return IntStream.of(computedMinChanges, computedMaxChanges).boxed();
-        }
+//        if (requestedMaxChanges.isUseComputed()) {
+//            return IntStream.of(computedMinChanges, computedMaxChanges).boxed();
+//        }
 
         if (fullLogging) {
             if (requestedMaxChanges.get() < computedMinChanges) {
                 logger.error(format("Requested max changes (%s) is less than computed minimum changes (%s) needed",
-                        requestedMaxChanges, computedMaxChanges));
+                        requestedMaxChanges, computedMinChanges));
             }
 
-            if (computedMaxChanges > requestedMaxChanges.get()) {
-                logger.info(format("Will exclude some routes, requests changes %s is less then computed max changes %s",
-                        requestedMaxChanges, computedMaxChanges));
-            }
+//            if (computedMaxChanges > requestedMaxChanges.get()) {
+//                logger.info(format("Will exclude some routes, requests changes %s is less then computed max changes %s",
+//                        requestedMaxChanges, computedMaxChanges));
+//            }
         }
 
-        final int max = Math.min(computedMaxChanges, requestedMaxChanges.get());
-        final int min = Math.min(computedMinChanges, requestedMaxChanges.get());
+        final int max = requestedMaxChanges.get(); //Math.min(computedMaxChanges, requestedMaxChanges.get());
+        //final int min = Math.min(computedMinChanges, requestedMaxChanges.get());
 
         if (fullLogging) {
-            logger.info("Will check journey from " + min + " to " + max + " changes. Computed was " + computedChanges);
+            logger.info("Will check journey from " + computedMinChanges + " to " + max + " changes.");
         }
-        return IntStream.rangeClosed(min, max).boxed();
+        return IntStream.rangeClosed(computedMinChanges, max).boxed();
     }
 
     public Stream<RouteCalculator.TimedPath> findShortestPath(final GraphTransaction txn, final ServiceReasons reasons, final PathRequest pathRequest,

@@ -4,7 +4,6 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.LocationSet;
-import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
@@ -79,7 +78,7 @@ public class BusRouteToRouteCostsTest {
         StationGroup end = KnownLocality.Stockport.from(stationGroupsRepository);
 
         // one for the temp stockport bus station, was zero, seems direct alty buses terminating somewhere else
-        assertEquals(0, routeToRouteCosts.getNumberOfChanges(start, end, date, wholeDayRange, modes).getMin());
+        assertEquals(0, routeToRouteCosts.getPossibleMinChanges(start, end, date, wholeDayRange, modes));
     }
 
     @Test
@@ -87,9 +86,8 @@ public class BusRouteToRouteCostsTest {
         StationGroup start = KnownLocality.Altrincham.from(stationGroupsRepository);
         StationGroup end = Shudehill.from(stationGroupsRepository);
 
-        NumberOfChanges numberOfChanges = routeToRouteCosts.getNumberOfChanges(start, end, date, wholeDayRange, modes);
-        assertEquals(1, numberOfChanges.getMin());
-        assertEquals(3, numberOfChanges.getMax());
+        int numberOfChanges = routeToRouteCosts.getPossibleMinChanges(start, end, date, wholeDayRange, modes);
+        assertEquals(1, numberOfChanges);
     }
 
     @Test
@@ -97,11 +95,10 @@ public class BusRouteToRouteCostsTest {
         Station start = stationRepository.getStationById(BusStations.KnutsfordStationStand3.getId());
         StationGroup end = Shudehill.from(stationGroupsRepository);
 
-        NumberOfChanges numberOfChanges = routeToRouteCosts.getNumberOfChanges(LocationSet.singleton(start),
+        int numberOfChanges = routeToRouteCosts.getPossibleMinChanges(LocationSet.singleton(start),
                 end.getAllContained(), date, wholeDayRange, modes);
 
-        assertEquals(2, numberOfChanges.getMin());
-        assertEquals(3, numberOfChanges.getMax());
+        assertEquals(2, numberOfChanges);
     }
 
     @Test
@@ -110,10 +107,9 @@ public class BusRouteToRouteCostsTest {
         StationGroup dest = KnownLocality.Macclesfield.from(stationGroupsRepository);
 
         TimeRange range = TimeRangePartial.of(TramTime.of(10,5), TramTime.of(14,53));
-        NumberOfChanges results = routeToRouteCosts.getNumberOfChanges(start, dest, date, range, modes);
+        int results = routeToRouteCosts.getPossibleMinChanges(start, dest, date, range, modes);
 
-        assertEquals(0, results.getMin());
-        assertEquals(2, results.getMax());
+        assertEquals(0, results);
     }
 
     @Test
@@ -123,10 +119,9 @@ public class BusRouteToRouteCostsTest {
         for(KnownLocality begin : greaterManchester) {
             for(KnownLocality end : greaterManchester) {
                 if (begin!=end) {
-                    NumberOfChanges results = routeToRouteCosts.getNumberOfChanges(begin.from(stationGroupsRepository),
+                    int results = routeToRouteCosts.getPossibleMinChanges(begin.from(stationGroupsRepository),
                             end.from(stationGroupsRepository), date, wholeDayRange, modes);
-                    assertTrue(results.getMin()<=KnownLocality.MIN_CHANGES, "failed for " + begin + " " + end);
-                    assertTrue(results.getMax()<=4, "failed for " + begin + " " + end);
+                    assertTrue(results<=KnownLocality.MIN_CHANGES, "failed for " + begin + " " + end);
                 }
             }
         }

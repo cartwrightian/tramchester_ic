@@ -5,7 +5,6 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.DiagramCreator;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
-import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.StationClosures;
 import com.tramchester.domain.closures.ClosedStation;
 import com.tramchester.domain.dates.DateRange;
@@ -212,9 +211,9 @@ class SubgraphSmallClosedStationsDiversionsTest {
         TimeRange timeRange = TimeRangePartial.of(TramTime.of(6,0), TramTime.of(23,55));
         EnumSet<TransportMode> mode = EnumSet.of(TransportMode.Tram);
 
-        NumberOfChanges costs = routeToRouteCosts.getNumberOfChanges(start, destination, mode, when.plusDays(1), timeRange);
+        int costs = routeToRouteCosts.getPossibleMinChanges(start, destination, mode, when.plusDays(1), timeRange);
 
-        assertEquals(0, costs.getMin());
+        assertEquals(0, costs);
     }
 
     @Test

@@ -88,31 +88,31 @@ public class RouteToRouteCostsRailTest {
 
     @Test
     void shouldGetNumberOfRouteHopsBetweenStockportAndManPicc() {
-        assertEquals(0, routeToRouteCosts.getNumberOfChanges(stockport, manPicc, TRAIN, date, timeRange).getMin());
+        assertEquals(0, routeToRouteCosts.getPossibleMinChanges(stockport, manPicc, TRAIN, date, timeRange));
     }
 
     @Test
     void shouldHaveExpectedNumberHopsChangesManToStockport() {
-        assertEquals(0, routeToRouteCosts.getNumberOfChanges(manPicc, stockport, TRAIN, date, timeRange).getMin());
+        assertEquals(0, routeToRouteCosts.getPossibleMinChanges(manPicc, stockport, TRAIN, date, timeRange));
     }
 
     @Test
     void shouldGetNumberOfRouteHopsBetweenManPiccAndLondonEustom() {
-        assertEquals(0, routeToRouteCosts.getNumberOfChanges(manPicc, londonEuston, TRAIN, date, timeRange).getMin());
+        assertEquals(0, routeToRouteCosts.getPossibleMinChanges(manPicc, londonEuston, TRAIN, date, timeRange));
     }
 
     @Disabled("Performance testing")
     @Test
     void shouldGetNumberOfRouteHopsBetweenManPiccAndLondonEustomPerformanceTesting() {
         for (int i = 0; i < 20; i++) {
-            routeToRouteCosts.getNumberOfChanges(manPicc, londonEuston, TRAIN, date, timeRange);
+            routeToRouteCosts.getPossibleMinChanges(manPicc, londonEuston, TRAIN, date, timeRange);
         }
     }
 
     @Test
     void shouldGetNumberOfRouteHopsBetweenAltrinchamAndLondonEuston() {
         Station altrincham = stationRepository.getStationById(Altrincham.getId());
-        assertEquals(1, routeToRouteCosts.getNumberOfChanges(altrincham, londonEuston, TRAIN, date, timeRange).getMin());
+        assertEquals(1, routeToRouteCosts.getPossibleMinChanges(altrincham, londonEuston, TRAIN, date, timeRange));
     }
 
     @Test
@@ -121,9 +121,9 @@ public class RouteToRouteCostsRailTest {
         Station navigationRaod = stationRepository.getStationById(NavigationRaod.getId());
         Station stockport = stationRepository.getStationById(Stockport.getId());
 
-        assertEquals(0, routeToRouteCosts.getNumberOfChanges(altrincham, navigationRaod, TRAIN, date, timeRange).getMin());
-        assertEquals(0, routeToRouteCosts.getNumberOfChanges(navigationRaod, stockport, TRAIN, date, timeRange).getMin());
-        assertEquals(0, routeToRouteCosts.getNumberOfChanges(altrincham, stockport, TRAIN, date, timeRange).getMin());
+        assertEquals(0, routeToRouteCosts.getPossibleMinChanges(altrincham, navigationRaod, TRAIN, date, timeRange));
+        assertEquals(0, routeToRouteCosts.getPossibleMinChanges(navigationRaod, stockport, TRAIN, date, timeRange));
+        assertEquals(0, routeToRouteCosts.getPossibleMinChanges(altrincham, stockport, TRAIN, date, timeRange));
 
     }
 
@@ -131,7 +131,7 @@ public class RouteToRouteCostsRailTest {
     void shouldGetNumberOfChangesKnutsfordToDover() {
         Station knutsford = stationRepository.getStationById(Knutsford.getId());
         Station other = stationRepository.getStationById(Dover.getId());
-        assertEquals(3, routeToRouteCosts.getNumberOfChanges(knutsford, other, TRAIN, date, timeRange).getMin());
+        assertEquals(3, routeToRouteCosts.getPossibleMinChanges(knutsford, other, TRAIN, date, timeRange));
     }
 
     @Disabled("spike only")

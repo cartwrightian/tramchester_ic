@@ -5,7 +5,6 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.LocationCollection;
-import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.closures.ClosedStation;
 import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.dates.TramDate;
@@ -94,26 +93,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         final TramDate date = journeyRequest.getDate();
 
-        final NumberOfChanges numberOfChanges =  routeToRouteCosts.getNumberOfChanges(start, destination, journeyRequest);
-
-        // route change calc issue, for media city to ashton line
-        // not clear if existing mechanism works now routes are bidirectional
-        if (journeyRequest.getMaxChanges().isUseComputed()) {
-            logger.warn("Using computed max/min changes");
-        } else {
-            if (journeyRequest.getMaxChanges().get() > numberOfChanges.getMax()) {
-                if (closedStationsRepository.hasClosuresOn(date)) {
-                    // TODO Ideally would compute this number, not just default to the max which has performance implications
-                    logger.warn(format("Closures in effect today %s so over ride max changes", journeyRequest.getDate()));
-                    numberOfChanges.overrideMax(journeyRequest.getMaxChanges());
-                } else {
-                    logger.warn(format("Computed max changes (%s) is less than requested number of changes (%s)",
-                            numberOfChanges.getMax(), journeyRequest.getMaxChanges()));
-                    // TODO needed due to route change calc issue
-                    numberOfChanges.overrideMax(journeyRequest.getMaxChanges());
-                }
-            }
-        }
+        final int numberOfChanges = getPossibleMinNumberOfChanges(start, destination, journeyRequest, date);
 
         final Duration maxInitialWait = getMaxInitialWaitFor(start, config);
 
@@ -128,9 +108,39 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         }
     }
 
+    private int getPossibleMinNumberOfChanges(final Location<?> start, final Location<?> destination, final JourneyRequest journeyRequest, final TramDate date) {
+        /*
+         * Route change calc issue: for example media city is on the Eccles route but trams terminate at Etihad or
+         * don't go on towards Eccles depending on the time of day
+         * SO only use the possible min value for number of changes, no way to safely compute a max number
+         */
+
+        // TODO Closure handling??
+
+        return routeToRouteCosts.getNumberOfChanges(start, destination, journeyRequest);
+
+//        if (requestedMax.isUseComputed()) {
+//            logger.warn("Using computed max/min changes");
+//        } else {
+//            if (requestedMax.get() > result.getMax()) {
+//                if (closedStationsRepository.hasClosuresOn(date)) {
+//                    // TODO Ideally would compute this number, not just default to the max which has performance implications
+//                    logger.warn(format("Closures in effect today %s so over ride max changes", journeyRequest.getDate()));
+//                    result.overrideMax(requestedMax);
+//                } else {
+//                    logger.warn(format("Computed max changes (%s) is less than requested number of changes (%s)",
+//                            result.getMax(), requestedMax));
+//                    // TODO needed due to route change calc issue
+//                    result.overrideMax(requestedMax);
+//                }
+//            }
+//        }
+//        return result;
+    }
+
     @Override
     public Stream<Journey> calculateRouteWalkAtEnd(GraphTransaction txn, Location<?> start, GraphNode endOfWalk, LocationCollection destinations,
-                                                   JourneyRequest journeyRequest, NumberOfChanges numberOfChanges, Running running)
+                                                   JourneyRequest journeyRequest, int numberOfChanges, Running running)
     {
         GraphNode startNode = getLocationNodeSafe(txn, start);
         final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime());
@@ -144,7 +154,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
     @Override
     public Stream<Journey> calculateRouteWalkAtStart(GraphTransaction txn, Set<StationWalk> stationWalks, GraphNode startOfWalkNode, Location<?> destination,
-                                                     JourneyRequest journeyRequest, NumberOfChanges numberOfChanges, Running running) {
+                                                     JourneyRequest journeyRequest, int numberOfChanges, Running running) {
 
         final InitialWalksFinished finished = new InitialWalksFinished(journeyRequest, stationWalks);
         final GraphNode endNode = getLocationNodeSafe(txn, destination);
@@ -161,7 +171,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
     @Override
     public Stream<Journey> calculateRouteWalkAtStartAndEnd(GraphTransaction txn, Set<StationWalk> stationWalks, GraphNode startNode, GraphNode endNode,
                                                            LocationCollection destinations, JourneyRequest journeyRequest,
-                                                           NumberOfChanges numberOfChanges, Running running) {
+                                                           int numberOfChanges, Running running) {
 
         final InitialWalksFinished finished = new InitialWalksFinished(journeyRequest, stationWalks);
         final TowardsDestination towardsDestination = new TowardsDestination(destinations);
@@ -222,12 +232,14 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         return results;
     }
 
-    private Stream<Journey> getJourneyStream(final GraphTransaction txn, final GraphNode startNode, final GraphNode endNode, TowardsDestination towardsDestination, final JourneyRequest journeyRequest,
-                                             final List<TramTime> queryTimes, final NumberOfChanges numberOfChanges,
+    private Stream<Journey> getJourneyStream(final GraphTransaction txn, final GraphNode startNode, final GraphNode endNode,
+                                             TowardsDestination towardsDestination, final JourneyRequest journeyRequest,
+                                             final List<TramTime> queryTimes, final int possibleMinNumChanges,
                                              final Duration maxInitialWait, Running running) {
 
-        if (numberOfChanges.getMin()==Integer.MAX_VALUE) {
+        if (possibleMinNumChanges==Integer.MAX_VALUE) {
             logger.error(format("Computed min number of changes is MAX_VALUE, journey %s is not possible?", journeyRequest));
+            // todo fall back to requested max changes in journeyRequest ?
             return Stream.empty();
         }
 
@@ -259,7 +271,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         final AtomicInteger journeyIndex = new AtomicInteger(0);
 
-        final Stream<Journey> results = numChangesRange(journeyRequest, numberOfChanges).
+        final Stream<Journey> results = numChangesRange(journeyRequest, possibleMinNumChanges).
                 flatMap(numChanges -> queryTimes.stream().
                         map(queryTime -> createPathRequest(startNode, tramDate, queryTime, requestedModes, numChanges,
                                 journeyConstraints, maxInitialWait, selector))).

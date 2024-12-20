@@ -31,7 +31,6 @@ public class JourneyRequest {
     private final AtomicBoolean diagnosticsReceived;
     private JourneyDiagnostics journeyDiagnostics;
 
-    @Deprecated
     public JourneyRequest(TramDate date, TramTime originalQueryTime, boolean arriveBy, int maxChanges,
                           Duration maxJourneyDuration, long maxNumberOfJourneys, EnumSet<TransportMode> requestedModes) {
         this(date, originalQueryTime, arriveBy, new MaxNumberOfChanges(maxChanges), maxJourneyDuration, maxNumberOfJourneys, requestedModes);
@@ -192,7 +191,9 @@ public class JourneyRequest {
         private final int maxChanges;
 
         public MaxNumberOfChanges(int maxChanges) {
-
+            if (maxChanges<0) {
+                throw new RuntimeException("Negative max number of changes " + maxChanges);
+            }
             this.maxChanges = maxChanges;
         }
 
@@ -200,27 +201,16 @@ public class JourneyRequest {
             return new MaxNumberOfChanges(number);
         }
 
-        public static MaxNumberOfChanges UseComputed() {
-            return new MaxNumberOfChanges(-1);
-        }
-
         public int get() {
-            if (maxChanges<0) {
-                throw new RuntimeException("Called for " + maxChanges);
-            }
             return maxChanges;
         }
 
-        public boolean isUseComputed() {
-            return maxChanges==-1;
-        }
+//        public boolean isUseComputed() {
+//            return maxChanges==-1;
+//        }
 
         @Override
         public String toString() {
-            if (maxChanges==-1) {
-                return "MaxNumberOfChanges{" +
-                        "maxChanges=USE_COMPUTED}";
-            }
             return "MaxNumberOfChanges{" +
                     "maxChanges=" + maxChanges +
                     '}';

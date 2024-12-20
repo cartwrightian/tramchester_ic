@@ -5,7 +5,6 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.DiagramCreator;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
-import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -113,11 +112,11 @@ class SubGraphAroundKnutsfordRailTest {
 
         EnumSet<TransportMode> transportModes = EnumSet.of(Train);
 
-        NumberOfChanges haleKnutsford = routeToRouteCosts.getNumberOfChanges(hale, knutsford, transportModes, when, timeRange);
-        assertEquals(0, haleKnutsford.getMin(), "expected no changes");
+        int haleKnutsford = routeToRouteCosts.getPossibleMinChanges(hale, knutsford, transportModes, when, timeRange);
+        assertEquals(0, haleKnutsford, "expected no changes");
 
-        NumberOfChanges knutsfordToHale = routeToRouteCosts.getNumberOfChanges(knutsford, hale, transportModes, when, timeRange);
-        assertEquals(0, knutsfordToHale.getMin(), "expected no changes");
+        int knutsfordToHale = routeToRouteCosts.getPossibleMinChanges(knutsford, hale, transportModes, when, timeRange);
+        assertEquals(0, knutsfordToHale, "expected no changes");
 
         Duration maxJourneyDuration = Duration.ofMinutes(60);
         validateAtLeastOneJourney(Hale, Knutsford, maxJourneyDuration);
@@ -146,10 +145,10 @@ class SubGraphAroundKnutsfordRailTest {
         for (RailStationIds startId: stations) {
             for (RailStationIds destinationId: stations) {
                 if (!startId.equals(destinationId)) {
-                    NumberOfChanges numberOfChanges = routeToRouteCosts.getNumberOfChanges(startId.from(stationRepository),
+                    int numberOfChanges = routeToRouteCosts.getPossibleMinChanges(startId.from(stationRepository),
                             destinationId.from(stationRepository),
                             transportModes, when, timeRange);
-                    assertEquals(0, numberOfChanges.getMin());
+                    assertEquals(0, numberOfChanges);
                 }
             }
         }

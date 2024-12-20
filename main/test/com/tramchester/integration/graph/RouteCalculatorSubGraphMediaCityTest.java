@@ -228,9 +228,9 @@ class RouteCalculatorSubGraphMediaCityTest {
         RouteToRouteCosts routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
 
         TimeRange timeRange = TimeRangePartial.of(TramTime.of(8,5), TramTime.of(8,30));
-        NumberOfChanges results = routeToRouteCosts.getNumberOfChanges(salfordQuay, stPetersSquare, getRequestedModes(), when, timeRange);
+        int results = routeToRouteCosts.getPossibleMinChanges(salfordQuay, stPetersSquare, getRequestedModes(), when, timeRange);
 
-        assertEquals(results.getMin(), 0);
+        assertEquals(results, 0);
     }
 
     @Test

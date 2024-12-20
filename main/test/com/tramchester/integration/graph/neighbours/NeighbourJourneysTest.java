@@ -6,7 +6,6 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.LocationSet;
-import com.tramchester.domain.NumberOfChanges;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationGroup;
@@ -18,8 +17,8 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
-import com.tramchester.integration.testSupport.config.IntegrationTramBusTestConfig;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
+import com.tramchester.integration.testSupport.config.IntegrationTramBusTestConfig;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
@@ -115,13 +114,11 @@ public class NeighbourJourneysTest {
     @Test
     void shouldHaveCorrectRouteToRouteHopsWhenNeighbours() {
 
-        NumberOfChanges busToTramHops = routeToRouteCosts.getNumberOfChanges(shudehillBusStop, shudehillTram, modes, date, timeRange);
-        assertEquals(1, busToTramHops.getMin());
-        assertEquals(1, busToTramHops.getMax());
+        int busToTramHops = routeToRouteCosts.getPossibleMinChanges(shudehillBusStop, shudehillTram, modes, date, timeRange);
+        assertEquals(1, busToTramHops);
 
-        NumberOfChanges tramToBusHops = routeToRouteCosts.getNumberOfChanges(shudehillTram, shudehillBusStop, modes, date, timeRange);
-        assertEquals(1, tramToBusHops.getMin());
-        assertEquals(1, tramToBusHops.getMax());
+        int tramToBusHops = routeToRouteCosts.getPossibleMinChanges(shudehillTram, shudehillBusStop, modes, date, timeRange);
+        assertEquals(1, tramToBusHops);
     }
 
     @Test
@@ -132,31 +129,27 @@ public class NeighbourJourneysTest {
         LocationSet<Station> buses = new LocationSet<>(Arrays.asList(KnutsfordStationStand3.from(stationRepository), StockportNewbridgeLane.from(stationRepository)));
 
 
-        NumberOfChanges busToTramHops = routeToRouteCosts.getNumberOfChanges(buses, trams, date, timeRange, modes);
-        assertEquals(1, busToTramHops.getMin());
-        assertEquals(2, busToTramHops.getMax());
+        int busToTramHops = routeToRouteCosts.getPossibleMinChanges(buses, trams, date, timeRange, modes);
+        assertEquals(1, busToTramHops);
 
-        NumberOfChanges tramToBusHops = routeToRouteCosts.getNumberOfChanges(trams, buses, date, timeRange, modes);
-        assertEquals(1, tramToBusHops.getMin());
-        assertEquals(2, tramToBusHops.getMax());
+        int tramToBusHops = routeToRouteCosts.getPossibleMinChanges(trams, buses, date, timeRange, modes);
+        assertEquals(1, tramToBusHops);
 
         // now add neighbouring stops
         trams.add(shudehillTram);
         buses.add(shudehillBusStop);
 
-        busToTramHops = routeToRouteCosts.getNumberOfChanges(buses, trams, date, timeRange, modes);
-        assertEquals(1, busToTramHops.getMin());
-        assertEquals(1, busToTramHops.getMax());
+        busToTramHops = routeToRouteCosts.getPossibleMinChanges(buses, trams, date, timeRange, modes);
+        assertEquals(1, busToTramHops);
 
-        tramToBusHops = routeToRouteCosts.getNumberOfChanges(trams, buses, date, timeRange, modes);
-        assertEquals(1, tramToBusHops.getMin());
-        assertEquals(1, tramToBusHops.getMax());
+        tramToBusHops = routeToRouteCosts.getPossibleMinChanges(trams, buses, date, timeRange, modes);
+        assertEquals(1, tramToBusHops);
     }
 
     @Test
     void shouldFindMaxRouteHopsBetweenModes() {
-        NumberOfChanges hops = routeToRouteCosts.getNumberOfChanges(shudehillTram, shudehillBusStop, modes, date, timeRange);
-        assertEquals(1, hops.getMax());
+        int hops = routeToRouteCosts.getPossibleMinChanges(shudehillTram, shudehillBusStop, modes, date, timeRange);
+        assertEquals(1, hops);
     }
 
     @Test

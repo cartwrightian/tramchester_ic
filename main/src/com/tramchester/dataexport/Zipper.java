@@ -1,7 +1,7 @@
 package com.tramchester.dataexport;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import org.apache.commons.compress.utils.IOUtils;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

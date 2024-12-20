@@ -184,7 +184,7 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
         return bitSet.isSet(pair);
     }
 
-    private void populateCosts(RouteDateAndDayOverlap routeDateAndDayOverlap) {
+    private void populateCosts(final RouteDateAndDayOverlap routeDateAndDayOverlap) {
         final int size = numRoutes;
         final int fullyConnected = size * size;
 

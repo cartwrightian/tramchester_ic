@@ -54,13 +54,13 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
 
     @Override
     public Stream<Journey> calculateRouteWalkAtEnd(GraphTransaction txn, Location<?> start, GraphNode endOfWalk, LocationCollection destStations,
-                                                   JourneyRequest journeyRequest, NumberOfChanges numberOfChanges, Running running) {
+                                                   JourneyRequest journeyRequest, int possibleMinChanges, Running running) {
         try {
             Duration costToDest = costCalculator.getAverageCostBetween(txn, start, endOfWalk, journeyRequest.getDate(), journeyRequest.getRequestedModes());
             Duration maxInitialWait = RouteCalculatorSupport.getMaxInitialWaitFor(start, config);
             JourneyRequest departureTime = calcDepartTime(journeyRequest, costToDest, maxInitialWait);
             logger.info(format("Plan journey, arrive by %s so depart by %s", journeyRequest, departureTime));
-            return routeCalculator.calculateRouteWalkAtEnd(txn, start, endOfWalk, destStations, departureTime, numberOfChanges, running);
+            return routeCalculator.calculateRouteWalkAtEnd(txn, start, endOfWalk, destStations, departureTime, possibleMinChanges, running);
         } catch (InvalidDurationException invalidDurationException) {
             logger.error("Unable to compute cost from %s to node %s for %s".formatted(start.getId(), endOfWalk.getId(), journeyRequest),
                     invalidDurationException);
@@ -70,13 +70,13 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
 
     @Override
     public Stream<Journey> calculateRouteWalkAtStart(GraphTransaction txn, Set<StationWalk> stationWalks, GraphNode origin, Location<?> destination,
-                                                     JourneyRequest journeyRequest, NumberOfChanges numberOfChanges, Running running) {
+                                                     JourneyRequest journeyRequest, int possibleMinChanges, Running running) {
         try {
             Duration costToDest = costCalculator.getAverageCostBetween(txn, origin, destination, journeyRequest.getDate(), journeyRequest.getRequestedModes());
             Duration maxInitialWait = RouteCalculatorSupport.getMaxInitialWaitFor(stationWalks, config);
             JourneyRequest departureTime = calcDepartTime(journeyRequest, costToDest, maxInitialWait);
             logger.info(format("Plan journey, arrive by %s so depart by %s", journeyRequest, departureTime));
-            return routeCalculator.calculateRouteWalkAtStart(txn, stationWalks, origin, destination, departureTime, numberOfChanges, running);
+            return routeCalculator.calculateRouteWalkAtStart(txn, stationWalks, origin, destination, departureTime, possibleMinChanges, running);
         } catch (InvalidDurationException invalidDurationException) {
             logger.error("Unable to compute cost from node %s to %s for %s".formatted(origin.getId(), destination.getId(), journeyRequest),
                     invalidDurationException);
@@ -87,13 +87,13 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
     @Override
     public Stream<Journey> calculateRouteWalkAtStartAndEnd(GraphTransaction txn, Set<StationWalk> stationWalks, GraphNode startNode,
                                                            GraphNode endNode, LocationCollection destinationStations,
-                                                           JourneyRequest journeyRequest, NumberOfChanges numberOfChanges, Running running) {
+                                                           JourneyRequest journeyRequest, int possibleMinChanges, Running running) {
         try {
             Duration costToDest = costCalculator.getAverageCostBetween(txn, startNode, endNode, journeyRequest.getDate(), journeyRequest.getRequestedModes());
             Duration maxInitialWait = RouteCalculatorSupport.getMaxInitialWaitFor(stationWalks, config);
             JourneyRequest departureTime = calcDepartTime(journeyRequest, costToDest, maxInitialWait);
             logger.info(format("Plan journey, arrive by %s so depart by %s", journeyRequest, departureTime));
-            return routeCalculator.calculateRouteWalkAtStartAndEnd(txn, stationWalks, startNode, endNode, destinationStations, departureTime, numberOfChanges, running);
+            return routeCalculator.calculateRouteWalkAtStartAndEnd(txn, stationWalks, startNode, endNode, destinationStations, departureTime, possibleMinChanges, running);
         } catch (InvalidDurationException invalidDurationException) {
             logger.error("Unable to compute cost from node %s to node %s [walks:%s] for %s".formatted(
                     startNode.getId(), endNode.getId(), stationWalks, journeyRequest), invalidDurationException);

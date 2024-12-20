@@ -114,7 +114,7 @@ public class LocationJourneyPlanner {
         final MutableGraphNode startOfWalkNode = nodesAndRelationships.createWalkingNode(start, journeyRequest);
         nodesAndRelationships.createWalksToStart(startOfWalkNode, walksToStart);
 
-        final NumberOfChanges numberOfChanges = findNumberChangesWalkAtStart(walksToStart, destination, journeyRequest);
+        final int numberOfChanges = findNumberChangesWalkAtStart(walksToStart, destination, journeyRequest);
         final Stream<Journey> journeys;
         Running running = () -> true;
         if (journeyRequest.getArriveBy()) {
@@ -159,7 +159,7 @@ public class LocationJourneyPlanner {
 
         final LocationSet<Station> destinationStations = walksToDest.stream().map(StationWalk::getStation).collect(LocationSet.stationCollector());
 
-        final NumberOfChanges numberOfChanges = findNumberChangesWalkAtEnd(start, walksToDest, journeyRequest);
+        final int numberOfChanges = findNumberChangesWalkAtEnd(start, walksToDest, journeyRequest);
 
         Stream<Journey> journeys;
         Running running = () -> true;
@@ -195,7 +195,7 @@ public class LocationJourneyPlanner {
         LocationSet<Station> destinationStations = walksToDest.stream().
                 map(StationWalk::getStation).collect(LocationSet.stationCollector());
 
-        NumberOfChanges numberOfChanges = findNumberChangesWalksStartAndEnd(walksAtStart, walksToDest, journeyRequest);
+        int numberOfChanges = findNumberChangesWalksStartAndEnd(walksAtStart, walksToDest, journeyRequest);
 
         /// CALC
         Stream<Journey> journeys;
@@ -231,17 +231,17 @@ public class LocationJourneyPlanner {
         return stationWalks;
     }
 
-    private NumberOfChanges findNumberChangesWalkAtEnd(Location<?> start, Set<StationWalk> walksToDest, JourneyRequest journeyRequest) {
+    private int findNumberChangesWalkAtEnd(Location<?> start, Set<StationWalk> walksToDest, JourneyRequest journeyRequest) {
         final LocationSet<Station> destinations = walksToDest.stream().map(StationWalk::getStation).collect(LocationSet.stationCollector());
-        return routeToRouteCosts.getNumberOfChanges(start, destinations, journeyRequest);
+        return  routeToRouteCosts.getNumberOfChanges(start, destinations, journeyRequest);
     }
 
-    private NumberOfChanges findNumberChangesWalkAtStart(Set<StationWalk> walksToStart, Location<?> destination, JourneyRequest journeyRequest) {
+    private int findNumberChangesWalkAtStart(Set<StationWalk> walksToStart, Location<?> destination, JourneyRequest journeyRequest) {
         final LocationSet<Station> starts = walksToStart.stream().map(StationWalk::getStation).collect(LocationSet.stationCollector());
         return routeToRouteCosts.getNumberOfChanges(starts, destination, journeyRequest);
     }
 
-    private NumberOfChanges findNumberChangesWalksStartAndEnd(Set<StationWalk> walksAtStart, Set<StationWalk> walksToDest, JourneyRequest journeyRequest) {
+    private int findNumberChangesWalksStartAndEnd(Set<StationWalk> walksAtStart, Set<StationWalk> walksToDest, JourneyRequest journeyRequest) {
         final LocationSet<Station> destinations = walksToDest.stream().map(StationWalk::getStation).collect(LocationSet.stationCollector());
         final LocationSet<Station> starts = walksAtStart.stream().map(StationWalk::getStation).collect(LocationSet.stationCollector());
         return routeToRouteCosts.getNumberOfChanges(starts, destinations, journeyRequest);

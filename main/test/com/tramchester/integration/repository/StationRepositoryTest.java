@@ -226,7 +226,7 @@ public class StationRepositoryTest {
     }
 
     @Test
-    void shouldHaveExpectedPickupAndDropoffForStationOne() {
+    void shouldHaveExpectedPickupAndDropoffForOneStation() {
         Station station = TraffordCentre.from(stationRepository);
 
         assertTrue(station.hasDropoff());
@@ -244,6 +244,20 @@ public class StationRepositoryTest {
             
         assertEquals(1, dropOffs.size());
         assertTrue(pickups.contains(CornbrookTheTraffordCentre.getId()));
+    }
+
+    @Test
+    void shouldHaveExpectedPickupAndDropOffsForMediaCity() {
+        // seen issues
+        Station mediaCity = MediaCityUK.from(stationRepository);
+
+        IdSet<Route> dropOffs = mediaCity.getDropoffRoutes().stream().collect(IdSet.collector());
+        assertEquals(1, dropOffs.size(), dropOffs.toString());
+        assertTrue(dropOffs.contains(EcclesAshton.getId()));
+
+        IdSet<Route> pickUps = mediaCity.getDropoffRoutes().stream().collect(IdSet.collector());
+        assertEquals(1, pickUps.size(), pickUps.toString());
+        assertTrue(pickUps.contains(EcclesAshton.getId()));
     }
 
     @Test

@@ -16,12 +16,12 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.repository.RouteRepository;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import jakarta.inject.Inject;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -93,9 +93,9 @@ public class RouteIndex extends ComponentThatCaches<RouteIndexData, RouteIndex.R
         return routeIndexes.getPairFor(indexPair);
     }
 
-    public RouteIndexPair getPairFor(RoutePair routePair) {
-        short a = indexFor(routePair.first().getId());
-        short b = indexFor(routePair.second().getId());
+    public RouteIndexPair getPairFor(final RoutePair routePair) {
+        final short a = indexFor(routePair.first().getId());
+        final short b = indexFor(routePair.second().getId());
         return pairFactory.get(a, b);
     }
 

@@ -125,44 +125,44 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         return costs.numberOfBitsSet();
     }
 
-    public NumberOfChanges getNumberOfChanges(StationGroup start, StationGroup end, TramDate date, TimeRange time,
-                                              EnumSet<TransportMode> modes) {
-        return getNumberOfChanges(start.getAllContained(), end.getAllContained(), date, time, modes);
+    public int getPossibleMinChanges(StationGroup start, StationGroup end, TramDate date, TimeRange time,
+                                     EnumSet<TransportMode> modes) {
+        return getPossibleMinChanges(start.getAllContained(), end.getAllContained(), date, time, modes);
     }
 
     @Override
-    public NumberOfChanges getNumberOfChanges(StationGroup start, StationGroup end, JourneyRequest journeyRequest) {
-        return getNumberOfChanges(start, end, journeyRequest.getDate(), journeyRequest.getTimeRange(),
+    public int getNumberOfChanges(StationGroup start, StationGroup end, JourneyRequest journeyRequest) {
+        return getPossibleMinChanges(start, end, journeyRequest.getDate(), journeyRequest.getTimeRange(),
                 journeyRequest.getRequestedModes());
     }
 
     @Override
-    public NumberOfChanges getNumberOfChanges(LocationSet<Station> starts, LocationSet<Station> destinations,
+    public int getNumberOfChanges(LocationSet<Station> starts, LocationSet<Station> destinations,
                                               JourneyRequest journeyRequest) {
-        return getNumberOfChanges(starts, destinations, journeyRequest.getDate(), journeyRequest.getTimeRange(),
+        return getPossibleMinChanges(starts, destinations, journeyRequest.getDate(), journeyRequest.getTimeRange(),
                 journeyRequest.getRequestedModes());
     }
 
-    public NumberOfChanges getNumberOfChanges(final LocationSet<Station> starts, final LocationSet<Station> destinations,
-                                              final TramDate date, final TimeRange timeRange,
-                                              final EnumSet<TransportMode> requestedModes) {
+    public int getPossibleMinChanges(final LocationSet<Station> starts, final LocationSet<Station> destinations,
+                                     final TramDate date, final TimeRange timeRange,
+                                     final EnumSet<TransportMode> requestedModes) {
 
         final Set<Route> startRoutes = pickupRoutesFor(starts, date, timeRange, requestedModes);
         if (startRoutes.isEmpty()) {
             logger.warn(format("start stations %s not available at %s and %s ", HasId.asIds(starts), date, timeRange));
-            return NumberOfChanges.None();
+            return Integer.MAX_VALUE;
         }
 
         final Set<Route> endRoutes = dropoffRoutesFor(destinations, date, timeRange, requestedModes);
         if (endRoutes.isEmpty()) {
             logger.warn(format("destination stations %s not available at %s and %s ", HasId.asIds(starts), date, timeRange));
-            return NumberOfChanges.None();
+            return Integer.MAX_VALUE;
         }
 
         final StationAvailabilityFacade availabilityFacade = getAvailabilityFacade(availabilityRepository, date, timeRange, requestedModes);
 
         if (neighboursRepository.areNeighbours(starts, destinations)) {
-            return new NumberOfChanges(1, 1);
+            return 0;
         }
         // todo account for closures, or covered by fact a set of locations is available here?
         return getNumberOfHops(startRoutes, endRoutes, date, availabilityFacade, 0, requestedModes);
@@ -176,13 +176,13 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     @Override
-    public NumberOfChanges getNumberOfChanges(final Location<?> start, final Location<?> destination, final JourneyRequest journeyRequest) {
-        return getNumberOfChanges(start, destination, journeyRequest.getRequestedModes(), journeyRequest.getDate(),
+    public int getNumberOfChanges(final Location<?> start, final Location<?> destination, final JourneyRequest journeyRequest) {
+        return getPossibleMinChanges(start, destination, journeyRequest.getRequestedModes(), journeyRequest.getDate(),
                 journeyRequest.getTimeRange());
     }
 
     @Override
-    public NumberOfChanges getNumberOfChanges(final Location<?> start, final LocationSet<Station> destinations,
+    public int getNumberOfChanges(final Location<?> start, final LocationSet<Station> destinations,
                                               final JourneyRequest journeyRequest) {
         final TramDate date = journeyRequest.getDate();
         final TimeRange timeRange = journeyRequest.getTimeRange();
@@ -199,7 +199,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     @Override
-    public NumberOfChanges getNumberOfChanges(final LocationSet<Station> starts, final Location<?> destination,
+    public int getNumberOfChanges(final LocationSet<Station> starts, final Location<?> destination,
                                               final JourneyRequest journeyRequest) {
         final TramDate date = journeyRequest.getDate();
         final TimeRange timeRange = journeyRequest.getTimeRange();
@@ -214,8 +214,8 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         return getNumberOfHops(pickupRoutes, dropoffRoutes, date, availabilityFacade, closureOffset, preferredModes);
     }
 
-    public NumberOfChanges getNumberOfChanges(final Location<?> startLocation, final Location<?> destLocation,
-                                              final EnumSet<TransportMode> preferredModes, final TramDate date, final TimeRange timeRange) {
+    public int getPossibleMinChanges(final Location<?> startLocation, final Location<?> destLocation,
+                                     final EnumSet<TransportMode> preferredModes, final TramDate date, final TimeRange timeRange) {
 
         if (preferredModes.isEmpty()) {
             throw new RuntimeException("Must provide preferredModes");
@@ -225,7 +225,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         // might miss a direct walk incorrectly at the start
         if (neighboursRepository.areNeighbours(startLocation, destLocation)) {
             logger.info(format("Number of changes set to 1 since %s and %s are neighbours", startLocation.getId(), destLocation.getId()));
-            return new NumberOfChanges(1, 1);
+            return 0;
         }
 
         final int closureOffset = getClosureOffset(startLocation, destLocation, date);
@@ -248,12 +248,12 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         if (pickupRoutes.isEmpty()) {
             logger.warn(format("start location %s has no matching pick-up routes for %s %s %s",
                     startLocation.getId(), date, timeRange, preferredModes));
-            return NumberOfChanges.None();
+            return Integer.MAX_VALUE;
         }
         if (dropoffRoutes.isEmpty()) {
             logger.warn(format("destination location %s has no matching drop-off routes for %s %s %s",
                     destLocation.getId(), date, timeRange, preferredModes));
-            return NumberOfChanges.None();
+            return Integer.MAX_VALUE;
         }
 
         return getNumberOfHops(pickupRoutes, dropoffRoutes, date, changeStationOperating, closureOffset, preferredModes);
@@ -274,8 +274,8 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         return (startClosed?1:0) + (destClosed?1:0);
     }
 
-    public NumberOfChanges getNumberOfChanges(final Route routeA, final Route routeB, final TramDate date,
-                                              final TimeRange timeRange, final EnumSet<TransportMode> requestedModes) {
+    public int getPossibleMinChanges(final Route routeA, final Route routeB, final TramDate date,
+                                     final TimeRange timeRange, final EnumSet<TransportMode> requestedModes) {
         final StationAvailabilityFacade interchangesOperating = getAvailabilityFacade(availabilityRepository, date,
                 timeRange, requestedModes);
         return getNumberOfHops(Collections.singleton(routeA), Collections.singleton(routeB), date,
@@ -298,8 +298,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
                 requestedModes, availabilityRepository);
     }
 
-    @NotNull
-    private NumberOfChanges getNumberOfHops(final Set<Route> startRoutes, final Set<Route> destinationRoutes, final TramDate date,
+    private int getNumberOfHops(final Set<Route> startRoutes, final Set<Route> destinationRoutes, final TramDate date,
                                             final StationAvailabilityFacade interchangesOperating,
                                             final int closureOffset, final EnumSet<TransportMode> requestedModes) {
         if (logger.isDebugEnabled()) {
@@ -310,6 +309,8 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         final IndexedBitSet dateAndModeOverlaps = costs.createOverlapMatrixFor(date, requestedModes);
 
         final Set<RoutePair> routePairs = getRoutePairs(startRoutes, destinationRoutes);
+
+        // TODO If fail to find min then use Max from the journey request to make sure we honour that request??
 
         final Set<Integer> numberOfChangesForRoutes = routePairs.stream().
                 map(pair -> getNumberChangesFor(pair, date, interchangesOperating, dateAndModeOverlaps)).
@@ -325,34 +326,34 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             minHops = minHops + closureOffset;
         }
 
-        int maxHops = maxHops(numberOfChangesForRoutes);
-        if (maxHops > maxDepth) {
-            logger.error(format("Unexpected result for max hops %s greater than max depth %s, for %s to %s, change cache %s",
-                    maxHops, maxDepth, HasId.asIds(startRoutes), HasId.asIds(destinationRoutes), interchangesOperating));
-        } else {
-            maxHops = maxHops + closureOffset;
-        }
-
-        final NumberOfChanges numberOfChanges = new NumberOfChanges(minHops, maxHops);
+//        int maxHops = maxHops(numberOfChangesForRoutes);
+//        if (maxHops > maxDepth) {
+//            logger.error(format("Unexpected result for max hops %s greater than max depth %s, for %s to %s, change cache %s",
+//                    maxHops, maxDepth, HasId.asIds(startRoutes), HasId.asIds(destinationRoutes), interchangesOperating));
+//        } else {
+//            maxHops = maxHops + closureOffset;
+//        }
+//
+//        final NumberOfChanges numberOfChanges = new NumberOfChanges(minHops, maxHops);
         if (logger.isDebugEnabled()) {
-            logger.debug(format("Computed number of changes from %s to %s on %s as %s",
-                    HasId.asIds(startRoutes), HasId.asIds(destinationRoutes), date, numberOfChanges));
+            logger.debug(format("Computed min number of changes from %s to %s on %s as %s",
+                    HasId.asIds(startRoutes), HasId.asIds(destinationRoutes), date, minHops));
             interchangesOperating.reportStats();
         }
 
-        return numberOfChanges;
+        return minHops;
     }
 
-    private int maxHops(final Set<Integer> numberOfChangesForRoutes) {
-        final Optional<Integer> query = numberOfChangesForRoutes.stream().
-                filter(result -> result != Integer.MAX_VALUE).
-                max(Integer::compare);
-
-        if (query.isEmpty()) {
-            logger.warn("No maxHops found from " + numberOfChangesForRoutes);
-        }
-        return query.orElse(Integer.MAX_VALUE);
-    }
+//    private int maxHops(final Set<Integer> numberOfChangesForRoutes) {
+//        final Optional<Integer> query = numberOfChangesForRoutes.stream().
+//                filter(result -> result != Integer.MAX_VALUE).
+//                max(Integer::compare);
+//
+//        if (query.isEmpty()) {
+//            logger.warn("No maxHops found from " + numberOfChangesForRoutes);
+//        }
+//        return query.orElse(Integer.MAX_VALUE);
+//    }
 
     private int minHops(final Set<Integer> numberOfChangesForRoutes) {
         final Optional<Integer> query = numberOfChangesForRoutes.stream().
