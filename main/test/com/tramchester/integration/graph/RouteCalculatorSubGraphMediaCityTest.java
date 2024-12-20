@@ -19,6 +19,7 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
+import com.tramchester.integration.testSupport.LocationIdsAndNames;
 import com.tramchester.integration.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
@@ -137,11 +138,11 @@ class RouteCalculatorSubGraphMediaCityTest {
     void shouldHaveJourneyFromEveryStationToEveryOtherNDaysAheadEarlyMorning() {
 
         TramTime queryTime = TramTime.of(9, 0);
-        List<Pair<TramDate, LocationIdPairSet<Station>>> failed = UpcomingDates.getUpcomingDates().
+        List<Pair<TramDate, LocationIdsAndNames<Station>>> failed = UpcomingDates.getUpcomingDates().
                 map(date -> new JourneyRequest(date, queryTime, false,
                         3, maxJourneyDuration, 1, getRequestedModes())).
                 map(journeyRequest -> Pair.of(journeyRequest.getDate(), getFailedPairedFor(journeyRequest))).
-                filter(pair -> !pair.getRight().isEmpty()).
+                filter(collection -> !collection.getRight().isEmpty()).
                 toList();
 
         assertTrue(failed.isEmpty(), failed.toString());
@@ -151,7 +152,7 @@ class RouteCalculatorSubGraphMediaCityTest {
     void shouldHaveJourneyFromEveryStationToEveryOtherNDaysAhead() {
 
         TramTime queryTime = TramTime.of(10, 30);
-        List<Pair<TramDate, LocationIdPairSet<Station>>> failed = UpcomingDates.getUpcomingDates().
+        List<Pair<TramDate, LocationIdsAndNames<Station>>> failed = UpcomingDates.getUpcomingDates().
                 map(date -> new JourneyRequest(date, queryTime, false,
                         3, maxJourneyDuration, 1, getRequestedModes())).
                 map(journeyRequest -> Pair.of(journeyRequest.getDate(), getFailedPairedFor(journeyRequest))).
@@ -243,11 +244,11 @@ class RouteCalculatorSubGraphMediaCityTest {
                 Duration.ofMinutes(config.getMaxJourneyDuration()), 1, getRequestedModes());
 
         // pairs of stations to check
-        LocationIdPairSet<Station> results = getFailedPairedFor(journeyRequest);
+        LocationIdsAndNames<Station> results = getFailedPairedFor(journeyRequest);
         assertTrue(results.isEmpty(), results + " failed for " + journeyRequest);
     }
 
-    private LocationIdPairSet<Station> getFailedPairedFor(final JourneyRequest journeyRequest) {
+    private LocationIdsAndNames<Station> getFailedPairedFor(final JourneyRequest journeyRequest) {
         final TramDate date = journeyRequest.getDate();
         Set<Station> stations = tramStations.stream().
                 filter(station -> !UpcomingDates.hasClosure(station, date)).

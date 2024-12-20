@@ -14,6 +14,7 @@ import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.integration.testSupport.LocationIdsAndNames;
 import com.tramchester.integration.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.TestEnv;
@@ -103,13 +104,13 @@ class RouteCalculatorKeyRoutesTest {
 
         final LocationIdPairSet<Station> pairs = combinations.EndOfRoutesToEndOfRoutes(Tram);
 
-        final Map<TramDate, LocationIdPairSet<Station>> missing = new HashMap<>();
+        final Map<TramDate, LocationIdsAndNames<Station>> missing = new HashMap<>();
 
         UpcomingDates.daysAhead().stream().filter(this::shouldCheckDate).forEach(testDate -> {
             JourneyRequest request = new JourneyRequest(testDate, TramTime.of(8, 5), false, 3,
                     maxJourneyDuration, 1, modes);
             RouteCalculationCombinations.CombinationResults<Station> results = combinations.getJourneysFor(pairs, request, Duration.ofMinutes(1));
-            LocationIdPairSet<Station> missingForDate = results.getMissing();
+            LocationIdsAndNames<Station> missingForDate = results.getMissing();
             if (!missingForDate.isEmpty()) {
                 missing.put(testDate, missingForDate);
             }
@@ -157,7 +158,8 @@ class RouteCalculatorKeyRoutesTest {
         assertTrue(max.isPresent());
         Duration longest = max.get();
 
-        assertTrue(Durations.greaterOrEquals(maxJourneyDuration, longest), "longest was " + longest + " more than config: " + maxJourneyDuration);
+        assertTrue(Durations.greaterOrEquals(maxJourneyDuration, longest), "longest was " + longest + " more than config: "
+                + maxJourneyDuration);
     }
 
     @Disabled("used for diagnosing specific issue")
@@ -174,15 +176,17 @@ class RouteCalculatorKeyRoutesTest {
         TramTime queryTime = TramTime.of(8,0);
 
         Optional<Pair<StationIdPair, RouteCalculationCombinations.JourneyOrNot<Station>>> failed = stationIdPairs.parallelStream().
-                map(requested -> {
+                map(stationIdPair -> {
                     try (MutableGraphTransaction txn = database.beginTxMutable()) {
                         JourneyRequest journeyRequest = new JourneyRequest(queryDate, queryTime, false,
                                 3, maxJourneyDuration, 1, modes);
-                        Optional<Journey> optionalJourney = combinations.findJourneys(txn, requested.getBeginId(), requested.getEndId(),
+                        Optional<Journey> optionalJourney = combinations.findJourneys(txn, stationIdPair.getBeginId(), stationIdPair.getEndId(),
                                 journeyRequest, () -> true);
                         RouteCalculationCombinations.JourneyOrNot<Station> journeyOrNot =
-                                new RouteCalculationCombinations.JourneyOrNot<>(requested, queryDate, queryTime, optionalJourney);
-                        return Pair.of(requested, journeyOrNot);
+                                combinations.createResult(stationIdPair, queryDate, queryTime, optionalJourney);
+//                        RouteCalculationCombinations.JourneyOrNot<Station> journeyOrNot =
+//                                new RouteCalculationCombinations.JourneyOrNot<>(requested, queryDate, queryTime, optionalJourney);
+                        return Pair.of(stationIdPair, journeyOrNot);
                     }
                 }).filter(pair -> pair.getRight().missing()).findAny();
 
@@ -190,7 +194,7 @@ class RouteCalculatorKeyRoutesTest {
     }
 
     private void validateFor(RouteCalculationCombinations.CombinationResults<Station> results) {
-        LocationIdPairSet<Station> missingForDate = results.getMissing();
+        LocationIdsAndNames<Station> missingForDate = results.getMissing();
         assertTrue(missingForDate.isEmpty(), missingForDate.toString());
     }
 

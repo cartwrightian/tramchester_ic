@@ -5,11 +5,11 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.LocationIdPair;
 import com.tramchester.domain.StationIdPair;
+import com.tramchester.domain.collections.LocationIdPairSet;
 import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.collections.LocationIdPairSet;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
@@ -24,8 +24,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -62,6 +64,7 @@ public class RouteCalculationCombinations<T extends Location<T>> {
         final StationGroupsRepository stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
         return (stationGroupId, date) -> !closedStationRepository.isGroupClosed(stationGroupsRepository.getStationGroup(stationGroupId), date);
     }
+
 
     public Optional<Journey> findJourneys(MutableGraphTransaction txn, IdFor<T> start, IdFor<T> dest, JourneyRequest journeyRequest, Running running) {
         return calculator.calculateRoute(txn, locationRepository.getLocation(start), locationRepository.getLocation(dest), journeyRequest, running)
@@ -123,9 +126,12 @@ public class RouteCalculationCombinations<T extends Location<T>> {
         final TramDate queryDate = request.getDate();
         final TramTime queryTime = request.getOriginalTime();
 
+        Function<IdFor<T>, String> resolver = id -> locationRepository.getLocation(id).getName();
+
         Stream<JourneyOrNot<T>> resultsStream = combinations.
                 parallelStream().
                 filter(stationIdPair -> bothOpen(stationIdPair, request)).
+                map(stationIdPair -> new LocationIdAndNamePair<T>(stationIdPair, resolver)).
                 map(stationIdPair -> {
                     try (final MutableGraphTransaction txn = database.beginTxMutable(timeout)) {
                         final Optional<Journey> optionalJourney = findJourneys(txn, stationIdPair.getBeginId(), stationIdPair.getEndId(), request, running);
@@ -138,9 +144,11 @@ public class RouteCalculationCombinations<T extends Location<T>> {
     public String displayFailed(List<JourneyOrNot<T>> pairs) {
         StringBuilder stringBuilder = new StringBuilder();
         pairs.forEach(pair -> stringBuilder.append("[").
-                append(pair.requested.getBeginId()).
-                append(" to ").append(pair.requested.getEndId()).
-                append("] "));
+        append(pair).append("] "));
+//        pairs.forEach(pair -> stringBuilder.append("[").
+//                append(pair.requested.getBeginId()).
+//                append(" to ").append(pair.requested.getEndId()).
+//                append("] "));
         return stringBuilder.toString();
     }
 
@@ -189,23 +197,30 @@ public class RouteCalculationCombinations<T extends Location<T>> {
         return interchangeRepository.isInterchange(start) && interchangeRepository.isInterchange(dest);
     }
 
+    public JourneyOrNot<T> createResult(LocationIdPair<T> locationIdPair, TramDate queryDate, TramTime queryTime, Optional<Journey> optionalJourney) {
+        Function<IdFor<T>, String> resolver = id -> locationRepository.getLocation(id).getName();
+        LocationIdAndNamePair<T> requested = new LocationIdAndNamePair<>(locationIdPair, resolver);
+        return new JourneyOrNot<>(requested, queryDate, queryTime, optionalJourney);
+    }
+
     public static class JourneyOrNot<T extends Location<T>> {
-        private final LocationIdPair<T> requested;
+        private final LocationIdAndNamePair<T> requested;
         private final LocalDate queryDate;
         private final TramTime queryTime;
         private final Journey journey;
 
-        public JourneyOrNot(LocationIdPair<T> requested, TramDate queryDate, TramTime queryTime, Optional<Journey> optionalJourney) {
+        @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+        public JourneyOrNot(LocationIdAndNamePair<T> requested, TramDate queryDate, TramTime queryTime, Optional<Journey> optionalJourney) {
             this(requested, queryDate.toLocalDate(), queryTime, optionalJourney);
         }
 
-        public JourneyOrNot(LocationIdPair<T> requested, LocalDate queryDate, TramTime queryTime, Optional<Journey> optionalJourney) {
+        @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+        public JourneyOrNot(LocationIdAndNamePair<T> requested, LocalDate queryDate, TramTime queryTime, Optional<Journey> optionalJourney) {
             this.requested = requested;
             this.queryDate = queryDate;
             this.queryTime = queryTime;
             this.journey = optionalJourney.orElse(null);
         }
-
 
         public boolean missing() {
             return journey==null;
@@ -216,8 +231,7 @@ public class RouteCalculationCombinations<T extends Location<T>> {
             return "JourneyOrNot{" +
                     " queryDate=" + queryDate +
                     ", queryTime=" + queryTime +
-                    ", from=" + requested.getBeginId() +
-                    ", to=" + requested.getEndId() +
+                    ", requested=" + requested +
                     '}';
         }
 
@@ -228,7 +242,7 @@ public class RouteCalculationCombinations<T extends Location<T>> {
             return journey;
         }
 
-        public LocationIdPair<T> getPair() {
+        public LocationIdAndNamePair<T> getPair() {
             return requested;
         }
     }
@@ -247,14 +261,15 @@ public class RouteCalculationCombinations<T extends Location<T>> {
         public List<JourneyOrNot<T>> getFailed() {
             return theResults.stream().
                     filter(RouteCalculationCombinations.JourneyOrNot::missing).
+                    sorted(Comparator.comparing(a -> a.getPair().getBeginId())).
                     toList();
         }
 
-        public LocationIdPairSet<T> getMissing() {
+        public LocationIdsAndNames<T> getMissing() {
             return theResults.stream().
                     filter(JourneyOrNot::missing).
                     map(JourneyOrNot::getPair).
-                    collect(LocationIdPairSet.collector());
+                    collect(LocationIdsAndNames.collect());
         }
 
         public List<Journey> getValidJourneys() {
@@ -266,7 +281,7 @@ public class RouteCalculationCombinations<T extends Location<T>> {
 
     }
 
-    public static interface ChecksOpen<T extends Location<T>> {
+    public interface ChecksOpen<T extends Location<T>> {
         boolean isOpen(IdFor<T> beginId, TramDate date);
     }
 }

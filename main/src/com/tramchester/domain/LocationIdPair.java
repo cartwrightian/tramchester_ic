@@ -28,14 +28,6 @@ public class LocationIdPair<TYPE extends Location<TYPE>> {
         return new LocationIdPair<>(locA, locB);
     }
 
-//    public static <T extends Location<?>> LocationIdPair<T> of(HasId<T> begin, HasId<T> end) {
-//        return new LocationIdPair<>(begin, end);
-//    }
-//
-//    public static  <T extends Location<?>> LocationIdPair<T>  of(IdFor<T> begin, IdFor<T> end) {
-//        return new LocationIdPair<>(begin, end);
-//    }
-
     public IdFor<TYPE> getBeginId() {
         return pair.getFirst();
     }
