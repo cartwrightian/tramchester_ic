@@ -1,21 +1,19 @@
 package com.tramchester;
 
+import jakarta.servlet.*;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.servlet.*;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 
 import static com.tramchester.RedirectToHttpsUsingELBProtoHeader.X_FORWARDED_PROTO;
-import static java.lang.String.format;
 import static jakarta.servlet.http.HttpServletResponse.SC_OK;
+import static java.lang.String.format;
 
 public class RedirectToAppFilter implements Filter {
     private static final Logger logger = LoggerFactory.getLogger(RedirectToAppFilter.class);
@@ -30,9 +28,9 @@ public class RedirectToAppFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-        String userAgent = httpServletRequest.getHeader("User-Agent");
-        HttpServletResponse servletResponse = (HttpServletResponse) response;
+        final HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+        final String userAgent = httpServletRequest.getHeader("User-Agent");
+        final HttpServletResponse servletResponse = (HttpServletResponse) response;
         if (userAgent==null) {
             logger.warn("Got null user agent, request from " + request.getRemoteAddr());
         } else if (userAgent.startsWith(ELB_HEALTH_CHECKER)) {
@@ -43,9 +41,9 @@ public class RedirectToAppFilter implements Filter {
 
         final String unsafeOriginal = httpServletRequest.getRequestURL().toString().toLowerCase();
 
-        final URI originalURL;
+        final URI originalURI;
         try {
-            originalURL = new URI(unsafeOriginal);
+            originalURI = new URI(unsafeOriginal);
         } catch(URISyntaxException unableToParse) {
             // not logging url here, unsafe
             logger.error("Unable to parse the URL", unableToParse);
@@ -53,12 +51,19 @@ public class RedirectToAppFilter implements Filter {
             return;
         }
 
-        if (originalURL.getPath().equals("/")) {
-            boolean forwardedSecure = isForwardedSecure(httpServletRequest);
-            String redirection = getRedirectURL(originalURL, forwardedSecure);
+        try {
+            if (originalURI.getPath().equals("/")) {
+                final boolean forwardedSecure = isForwardedSecure(httpServletRequest);
+                final String redirection = getRedirectURL(originalURI, forwardedSecure);
 
-            logger.debug(format("Redirect from %s to %s", originalURL.getHost(), redirection));
-            servletResponse.sendRedirect(redirection);
+                logger.debug(format("Redirect from %s to %s", originalURI.getHost(), redirection));
+                servletResponse.sendRedirect(redirection);
+                return;
+            }
+        }
+        catch (URISyntaxException uriSyntaxException) {
+            logger.error("Unable to parse the URL", uriSyntaxException);
+            servletResponse.sendError(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
@@ -66,15 +71,15 @@ public class RedirectToAppFilter implements Filter {
     }
 
     @NotNull
-    private String getRedirectURL(final URI url, final boolean forwardedSecure) throws MalformedURLException {
+    private String getRedirectURL(final URI uri, final boolean forwardedSecure) throws URISyntaxException {
         final String redirection;
-        final String protocol = url.getScheme().toLowerCase();
+        final String protocol = uri.getScheme().toLowerCase();
 
         if (forwardedSecure && "http".equals(protocol)) {
-            final URL secureURL = new URL(url.toString().replace(protocol, "https"));
-            redirection = secureURL + "app";
+            final URI secureURL = new URI(uri.toString().replace(protocol, "https"));
+            redirection = secureURL.toASCIIString() + "app";
         } else {
-            redirection = url + "app";
+            redirection = uri.toASCIIString() + "app";
         }
         return redirection;
     }
