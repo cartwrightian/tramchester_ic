@@ -63,7 +63,7 @@ public class RedirectToHttpsUsingELBProtoHeader implements Filter {
 
                     logger.info("Found http in " + X_FORWARDED_PROTO+ " need to redirect to https for " + originalURL.getHost());
 
-                    final URL location = mapUrl(originalURL.toURL());
+                    final URL location = mapUrl(originalURL).toURL();
 
                     if (isValidHost(location)) {
                         httpServletResponse.sendRedirect(location.toExternalForm());
@@ -76,7 +76,7 @@ public class RedirectToHttpsUsingELBProtoHeader implements Filter {
                 }
             }
         }
-        catch (MalformedURLException malformedURLException) {
+        catch (MalformedURLException | URISyntaxException malformedURLException) {
             logger.error("Unable to map URL, send server error. Url: " + originalURL.getHost(), malformedURLException);
             httpServletResponse.sendError(HttpServletResponse.SC_BAD_REQUEST);
             return;
@@ -84,16 +84,15 @@ public class RedirectToHttpsUsingELBProtoHeader implements Filter {
         chain.doFilter(request, response);
     }
 
-    private boolean isValidHost(final URL location) {
-        final String host = location.getHost();
-        return host.endsWith(secureHost) || "localhost".equals(host);
-    }
-
-    public URL mapUrl(final URL originalURL) throws MalformedURLException {
+    public URI mapUrl(final URI originalURI) throws URISyntaxException {
         // Note: only called on initial redirection
-        logger.debug("Mapping url host:"+originalURL.getHost() + "  path:'" + originalURL.getFile() +"'");
+        logger.debug("Mapping url host:"+originalURI.getHost() + "  path:'" + originalURI.getPath() +"'");
 
-        final String host = originalURL.getHost();
+        if (!originalURI.getScheme().equalsIgnoreCase("http")) {
+            throw new URISyntaxException(originalURI.toASCIIString(), "Not http");
+        }
+
+        final String host = originalURI.getHost();
 
         String redirectHost = host;
         for (String unsecure: unsecureHosts) {
@@ -103,18 +102,49 @@ public class RedirectToHttpsUsingELBProtoHeader implements Filter {
             }
         }
 
-        final URL newUrl = new URL("https", redirectHost, originalURL.getPort(), originalURL.getFile());
+        //final URL newUrl = new URL("https", redirectHost, originalURL.getPort(), originalURL.getFile());
+        final URI newURI = new URI("https", originalURI.getUserInfo(), redirectHost, originalURI.getPort(),
+                originalURI.getPath(), originalURI.getQuery(),originalURI.getFragment());
 
         if (!host.equals(redirectHost)) {
-            logger.info(format("Mapped URL '%s' '%s' '%s' to %s", originalURL.getHost(), originalURL.getPort(),
-                    originalURL.getFile(), newUrl));
+            logger.info(format("Mapped URL '%s' '%s' '%s' to %s", originalURI.getHost(), originalURI.getPort(),
+                    originalURI.getPath(), newURI));
         } else {
-            logger.info("No mapping of host, change to https for " + originalURL.getHost());
+            logger.info("No mapping of host, change to https for " + originalURI.getHost());
         }
 
-        return newUrl;
-
-
+        return newURI;
     }
+
+    private boolean isValidHost(final URL location) {
+        final String host = location.getHost();
+        return host.endsWith(secureHost) || "localhost".equals(host);
+    }
+
+//    public URL mapUrl(final URL originalURL) throws MalformedURLException {
+//        // Note: only called on initial redirection
+//        logger.debug("Mapping url host:"+originalURL.getHost() + "  path:'" + originalURL.getFile() +"'");
+//
+//        final String host = originalURL.getHost();
+//
+//        String redirectHost = host;
+//        for (String unsecure: unsecureHosts) {
+//            if (host.toLowerCase().endsWith(unsecure)) {
+//                redirectHost = host.replaceFirst(unsecure, secureHost);
+//                break;
+//            }
+//        }
+//
+//        final URL newUrl = new URL("https", redirectHost, originalURL.getPort(), originalURL.getFile());
+//
+//        if (!host.equals(redirectHost)) {
+//            logger.info(format("Mapped URL '%s' '%s' '%s' to %s", originalURL.getHost(), originalURL.getPort(),
+//                    originalURL.getFile(), newUrl));
+//        } else {
+//            logger.info("No mapping of host, change to https for " + originalURL.getHost());
+//        }
+//
+//        return newUrl;
+//    }
 
 }

@@ -3,19 +3,18 @@ package com.tramchester.integration;
 
 import com.tramchester.RedirectToHttpsUsingELBProtoHeader;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URL;
+import java.net.URISyntaxException;
 
 class RedirectHttpFilterTest extends EasyMockSupport {
 
@@ -24,18 +23,18 @@ class RedirectHttpFilterTest extends EasyMockSupport {
     private final String expected = "https://green.tramchester.com/somethingelse";
 
     @Test
-    void shouldFormNewURLLower() throws MalformedURLException {
-        URL result = filter.mapUrl(URI.create(path).toURL());
-        Assertions.assertEquals(expected, result.toExternalForm());
+    void shouldFormNewURLLower() throws URISyntaxException {
+        URI result = filter.mapUrl(URI.create(path));
+        Assertions.assertEquals(expected, result.toASCIIString());
     }
 
     @Test
-    void shouldFormNewURLUpper() throws MalformedURLException {
+    void shouldFormNewURLUpper() throws URISyntaxException {
         String original = path.replace("http","HTTP");
 
-        URL result = filter.mapUrl(URI.create(original).toURL());
+        URI result = filter.mapUrl(URI.create(original));
 
-        Assertions.assertEquals(expected, result.toExternalForm());
+        Assertions.assertEquals(expected, result.toASCIIString());
     }
 
     @Test
