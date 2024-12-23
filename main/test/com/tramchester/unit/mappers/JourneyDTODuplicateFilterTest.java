@@ -129,7 +129,7 @@ class JourneyDTODuplicateFilterTest {
         return new JourneyDTO(begin, getStationRef(NavigationRoad), stages,
                 expectedArrivalTime, firstDepartureTime,
                 changeStations, queryTime,
-                path, queryDate, journeyIndex);
+                path, queryDate.toLocalDate(), journeyIndex);
     }
 
     private LocationRefWithPosition getStationRef(TramStations tramStations) {

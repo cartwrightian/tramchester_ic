@@ -30,7 +30,8 @@ public class HaveGraphProperties {
         try {
             final String value = entity.getProperty(key.getText()).toString();
             if (RouteStation.class.equals(klass)) {
-                return (IdFor<C>) RouteStationId.parse(value);
+                final RouteStationId routeStationId = RouteStationId.parse(value);
+                return (IdFor<C>) routeStationId;
             } else {
                 return StringIdFor.createId(value, klass);
             }

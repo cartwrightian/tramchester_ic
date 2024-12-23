@@ -14,22 +14,20 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.*;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
 class RedirectAndFilterTests {
 
     private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, new IntegrationTramTestConfig());
 
-    private URL base;
-    private URL app;
+    private URI base;
+    private URI app;
 
     @BeforeEach
-    void onceBeforeEachTestRuns() throws MalformedURLException {
-        base = new URL("http://localhost:" + appExtension.getLocalPort());
-        app = new URL("http://localhost:" + appExtension.getLocalPort() + "/app");
+    void onceBeforeEachTestRuns() throws URISyntaxException {
+        base = new URI("http://localhost:" + appExtension.getLocalPort());
+        app = new URI("http://localhost:" + appExtension.getLocalPort() + "/app");
     }
 
     @Test
@@ -118,8 +116,8 @@ class RedirectAndFilterTests {
     }
 
     @NotNull
-    private HttpURLConnection getConnection(URL url) throws IOException {
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+    private HttpURLConnection getConnection(URI url) throws IOException {
+        HttpURLConnection connection = (HttpURLConnection) url.toURL().openConnection();
         connection.setRequestMethod("GET");
         connection.setInstanceFollowRedirects(false);
         return connection;

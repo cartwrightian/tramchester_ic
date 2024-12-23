@@ -192,7 +192,7 @@ public class StationAvailabilityRepositoryTest {
 
         Duration maxwait = Duration.ofMinutes(config.getMaxWait());
 
-        TestEnv.getUpcomingDates().forEach(date -> {
+        UpcomingDates.getUpcomingDates().forEach(date -> {
 
             TimeRange earlyRange = TimeRangePartial.of(earlistHour, maxwait, maxwait);
             Set<Station> notAvailableEarly = stationRepository.getStations().stream().

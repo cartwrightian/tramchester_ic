@@ -2,9 +2,7 @@ package com.tramchester.geo;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.LocationSet;
-import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
-import com.tramchester.repository.ClosedStationsRepository;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,12 +15,10 @@ import java.util.List;
 public class StationBoxFactory {
     private static final Logger logger = LoggerFactory.getLogger(StationBoxFactory.class);
 
-    private final ClosedStationsRepository closedStationsRepository;
     private final StationLocations stationLocations;
 
     @Inject
-    public StationBoxFactory(ClosedStationsRepository closedStationsRepository, StationLocations stationLocations) {
-        this.closedStationsRepository = closedStationsRepository;
+    public StationBoxFactory(StationLocations stationLocations) {
         this.stationLocations = stationLocations;
     }
 
@@ -30,7 +26,7 @@ public class StationBoxFactory {
     public void start() {
     }
 
-    public List<StationsBoxSimpleGrid> getStationBoxes(final int gridSizeInMeters, final TramDate date) {
+    public List<StationsBoxSimpleGrid> getStationBoxes(final int gridSizeInMeters) {
         final ArrayList<StationsBoxSimpleGrid> results = new ArrayList<>();
 
         final BoundingBox bounds = stationLocations.getActiveStationBounds();
@@ -69,7 +65,4 @@ public class StationBoxFactory {
         return results;
     }
 
-    private boolean anyOpen(final LocationSet<Station> locations, final TramDate date) {
-        return closedStationsRepository.anyStationOpen(locations, date);
-    }
 }

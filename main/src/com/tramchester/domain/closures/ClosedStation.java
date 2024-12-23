@@ -94,16 +94,5 @@ public class ClosedStation {
     public boolean closedWholeDay() {
         return dateTimeRange.allDay();
     }
-
-    // TODO remove
-    @Deprecated
-    public DateRange getDateRange() {
-        return dateTimeRange.getDateRange();
-    }
-
-    // TODO remove
-    @Deprecated
-    public TimeRange getTimeRange() {
-        return dateTimeRange.getTimeRange();
-    }
+    
 }

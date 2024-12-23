@@ -85,7 +85,7 @@ class RouteCalculatorForBoundingBoxTest {
         BoundingBox bounds = stationLocations.getActiveStationBounds();
         int gridSize = (bounds.getMaxNorthings() - bounds.getMinNorthings()) / 100;
 
-        final List<StationsBoxSimpleGrid> boxes = stationBoxFactory.getStationBoxes(gridSize, when);
+        final List<StationsBoxSimpleGrid> boxes = stationBoxFactory.getStationBoxes(gridSize);
 
         Set<Station> allStations = stationRepository.getStations();
 
@@ -112,7 +112,7 @@ class RouteCalculatorForBoundingBoxTest {
         BoundingBox bounds = stationLocations.getActiveStationBounds();
         int gridSize = (bounds.getMaxNorthings()-bounds.getMinNorthings()) / 100;
 
-        final List<StationsBoxSimpleGrid> boxes = stationBoxFactory.getStationBoxes(gridSize, when);
+        final List<StationsBoxSimpleGrid> boxes = stationBoxFactory.getStationBoxes(gridSize);
 
         long maxNumberOfJourneys = 3;
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(9,30),

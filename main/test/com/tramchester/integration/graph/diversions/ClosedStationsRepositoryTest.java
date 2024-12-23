@@ -2,9 +2,9 @@ package com.tramchester.integration.graph.diversions;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.domain.closures.ClosedStation;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.StationClosures;
+import com.tramchester.domain.closures.ClosedStation;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
@@ -12,7 +12,6 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.config.StationClosuresConfigForTest;
 import com.tramchester.integration.testSupport.tram.IntegrationTramClosedStationsTestConfig;
 import com.tramchester.repository.ClosedStationsRepository;
-import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.AfterAll;
@@ -78,15 +77,15 @@ public class ClosedStationsRepositoryTest {
     void shouldUseProvidedDiversions() {
         Set<ClosedStation> closed = closedStationsRepository.getClosedStationsFor(DataSourceID.tfgm);
         List<ClosedStation> closedIn3Weeks = closed.stream().
-                filter(closedStation -> closedStation.getDateRange().contains(when.plusWeeks(3))).toList();
+                filter(closedStation -> closedStation.getDateTimeRange().contains(when.plusWeeks(3))).toList();
         assertEquals(1, closedIn3Weeks.size());
 
-        ClosedStation closure = closedIn3Weeks.get(0);
+        ClosedStation closure = closedIn3Weeks.getFirst();
 
         List<Station> aroundClosure = new ArrayList<>(closure.getDiversionAroundClosure());
         assertEquals(1, aroundClosure.size());
 
-        Station divert = aroundClosure.get(0);
+        Station divert = aroundClosure.getFirst();
         assertEquals(TramStations.Victoria.getId(), divert.getId());
     }
 

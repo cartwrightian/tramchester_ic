@@ -61,7 +61,7 @@ public class StationBoxFactoryTest {
         BoundingBox bounds = stationLocations.getActiveStationBounds();
         int gridSize = (bounds.getMaxNorthings()-bounds.getMinNorthings()) / 100;
 
-        final List<StationsBoxSimpleGrid> grouped = stationBoxFactory.getStationBoxes(gridSize, when);
+        final List<StationsBoxSimpleGrid> grouped = stationBoxFactory.getStationBoxes(gridSize);
 
         Station station = TramStations.StPetersSquare.from(stationRepository);
 
@@ -74,7 +74,7 @@ public class StationBoxFactoryTest {
         BoundingBox bounds = stationLocations.getActiveStationBounds();
         int gridSize = (bounds.getMaxNorthings()-bounds.getMinNorthings()) / 100;
 
-        final List<StationsBoxSimpleGrid> grouped = stationBoxFactory.getStationBoxes(gridSize, when);
+        final List<StationsBoxSimpleGrid> grouped = stationBoxFactory.getStationBoxes(gridSize);
 
         Set<Station> allStations = stationRepository.getStationsServing(TransportMode.Tram).
                 stream().filter(station -> !closedStationRepository.isClosed(station, when)).
