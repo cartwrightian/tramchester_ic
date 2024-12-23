@@ -38,7 +38,7 @@ public enum KnownTramRoute {
     PiccadillyVictoria("Yellow Line", "Piccadilly - Victoria", "844");
 
     private final String shortName;
-    private final String longName;
+    private final String longName; // diagnostics only
     private final IdFor<Route> id;
 
     public static Set<KnownTramRoute> getFor(final TramDate date) {
@@ -95,15 +95,6 @@ public enum KnownTramRoute {
      */
     public String shortName() {
         return shortName;
-    }
-
-    /**
-     * Should not use, seems to change frequency, prefer ID
-     * @return long name, matching tfgm
-     */
-    @Deprecated
-    public String longName() {
-        return longName;
     }
 
     public IdFor<Route> getId() {

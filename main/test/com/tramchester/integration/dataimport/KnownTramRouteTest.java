@@ -15,9 +15,11 @@ import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
-import org.apache.commons.collections4.SetUtils;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.*;
@@ -81,22 +83,6 @@ class KnownTramRouteTest {
         final Set<Route> loaded = routeRepository.getRoutesRunningOn(when);
 
         assertEquals(loaded.size(), KnownTramRoute.getFor(when).size());
-    }
-
-    @Disabled("Seem to be changing names frequently in source data")
-    @Test
-    void shouldHaveCorrectLongNamesForKnownRoutesForDates() {
-
-        getDateRange().forEach(date -> {
-            Set<String> loadedLongNames = getLoadedTramRoutes(date).map(Route::getName).collect(Collectors.toSet());
-
-            Set<String> knownTramOnDates = KnownTramRoute.getFor(date).stream().map(KnownTramRoute::longName).collect(Collectors.toSet());
-
-            Set<String> mismatch = SetUtils.disjunction(loadedLongNames, knownTramOnDates);
-
-            assertTrue(mismatch.isEmpty(), "on " + date + " MISMATCH \n" + mismatch + "\n between LOADED \n" + loadedLongNames + " AND \n" + knownTramOnDates);
-        });
-
     }
 
     @Test

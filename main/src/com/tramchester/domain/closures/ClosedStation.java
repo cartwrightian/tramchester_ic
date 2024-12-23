@@ -94,5 +94,5 @@ public class ClosedStation {
     public boolean closedWholeDay() {
         return dateTimeRange.allDay();
     }
-    
+
 }
