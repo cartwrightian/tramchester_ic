@@ -79,7 +79,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
     @Override
     public Stream<Journey> calculateRoute(final GraphTransaction txn, final Location<?> start, final Location<?> destination,
-                                          final JourneyRequest journeyRequest, Running running) {
+                                          final JourneyRequest journeyRequest, final Running running) {
         logger.info(format("Finding shortest path for %s (%s) --> %s (%s) for %s",
                 start.getName(), start.getId(), destination.getName(), destination.getId(), journeyRequest));
 
@@ -91,9 +91,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime());
 
-        final TramDate date = journeyRequest.getDate();
-
-        final int numberOfChanges = getPossibleMinNumberOfChanges(start, destination, journeyRequest, date);
+        final int numberOfChanges = getPossibleMinNumberOfChanges(start, destination, journeyRequest);
 
         final Duration maxInitialWait = getMaxInitialWaitFor(start, config);
 
@@ -108,7 +106,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         }
     }
 
-    private int getPossibleMinNumberOfChanges(final Location<?> start, final Location<?> destination, final JourneyRequest journeyRequest, final TramDate date) {
+    private int getPossibleMinNumberOfChanges(final Location<?> start, final Location<?> destination, final JourneyRequest journeyRequest) {
         /*
          * Route change calc issue: for example media city is on the Eccles route but trams terminate at Etihad or
          * don't go on towards Eccles depending on the time of day
@@ -118,24 +116,6 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         // TODO Closure handling??
 
         return routeToRouteCosts.getNumberOfChanges(start, destination, journeyRequest);
-
-//        if (requestedMax.isUseComputed()) {
-//            logger.warn("Using computed max/min changes");
-//        } else {
-//            if (requestedMax.get() > result.getMax()) {
-//                if (closedStationsRepository.hasClosuresOn(date)) {
-//                    // TODO Ideally would compute this number, not just default to the max which has performance implications
-//                    logger.warn(format("Closures in effect today %s so over ride max changes", journeyRequest.getDate()));
-//                    result.overrideMax(requestedMax);
-//                } else {
-//                    logger.warn(format("Computed max changes (%s) is less than requested number of changes (%s)",
-//                            result.getMax(), requestedMax));
-//                    // TODO needed due to route change calc issue
-//                    result.overrideMax(requestedMax);
-//                }
-//            }
-//        }
-//        return result;
     }
 
     @Override
@@ -185,7 +165,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
     private Stream<Journey> getSingleJourneyStream(final GraphTransaction txn, final GraphNode startNode, final GraphNode endNode,
                                                    final JourneyRequest journeyRequest, TowardsDestination towardsDestination,
-                                                   final Duration maxInitialWait, Running running) {
+                                                   final Duration maxInitialWait, final Running running) {
 
         final TramDate tramDate = journeyRequest.getDate();
         final Set<GraphNodeId> destinationNodeIds = Collections.singleton(endNode.getId());

@@ -130,11 +130,11 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         return getPossibleMinChanges(start.getAllContained(), end.getAllContained(), date, time, modes);
     }
 
-    @Override
-    public int getNumberOfChanges(StationGroup start, StationGroup end, JourneyRequest journeyRequest) {
-        return getPossibleMinChanges(start, end, journeyRequest.getDate(), journeyRequest.getTimeRange(),
-                journeyRequest.getRequestedModes());
-    }
+//    @Override
+//    public int getNumberOfChanges(StationGroup start, StationGroup end, JourneyRequest journeyRequest) {
+//        return getPossibleMinChanges(start, end, journeyRequest.getDate(), journeyRequest.getTimeRange(),
+//                journeyRequest.getRequestedModes());
+//    }
 
     @Override
     public int getNumberOfChanges(LocationSet<Station> starts, LocationSet<Station> destinations,
@@ -284,10 +284,10 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     @Override
     public LowestCostsForDestRoutes getLowestCostCalculatorFor(final LocationCollection desintationRoutes, final JourneyRequest journeyRequest) {
-        return getLowestCostCalcutatorFor(desintationRoutes, journeyRequest.getDate(), journeyRequest.getTimeRange(), journeyRequest.getRequestedModes());
+        return getLowestCostCalculatorFor(desintationRoutes, journeyRequest.getDate(), journeyRequest.getTimeRange(), journeyRequest.getRequestedModes());
     }
 
-    public LowestCostsForDestRoutes getLowestCostCalcutatorFor(final LocationCollection destinations, final TramDate date,
+    public LowestCostsForDestRoutes getLowestCostCalculatorFor(final LocationCollection destinations, final TramDate date,
                                                                final TimeRange timeRange,
                                                                final EnumSet<TransportMode> requestedModes) {
         final Set<Route> destinationRoutes = destinations.locationStream().
@@ -310,7 +310,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         final Set<RoutePair> routePairs = getRoutePairs(startRoutes, destinationRoutes);
 
-        // TODO If fail to find min then use Max from the journey request to make sure we honour that request??
+        // TODO only need min now, refactor?
 
         final Set<Integer> numberOfChangesForRoutes = routePairs.stream().
                 map(pair -> getNumberChangesFor(pair, date, interchangesOperating, dateAndModeOverlaps)).
@@ -326,15 +326,6 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             minHops = minHops + closureOffset;
         }
 
-//        int maxHops = maxHops(numberOfChangesForRoutes);
-//        if (maxHops > maxDepth) {
-//            logger.error(format("Unexpected result for max hops %s greater than max depth %s, for %s to %s, change cache %s",
-//                    maxHops, maxDepth, HasId.asIds(startRoutes), HasId.asIds(destinationRoutes), interchangesOperating));
-//        } else {
-//            maxHops = maxHops + closureOffset;
-//        }
-//
-//        final NumberOfChanges numberOfChanges = new NumberOfChanges(minHops, maxHops);
         if (logger.isDebugEnabled()) {
             logger.debug(format("Computed min number of changes from %s to %s on %s as %s",
                     HasId.asIds(startRoutes), HasId.asIds(destinationRoutes), date, minHops));
@@ -343,17 +334,6 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
         return minHops;
     }
-
-//    private int maxHops(final Set<Integer> numberOfChangesForRoutes) {
-//        final Optional<Integer> query = numberOfChangesForRoutes.stream().
-//                filter(result -> result != Integer.MAX_VALUE).
-//                max(Integer::compare);
-//
-//        if (query.isEmpty()) {
-//            logger.warn("No maxHops found from " + numberOfChangesForRoutes);
-//        }
-//        return query.orElse(Integer.MAX_VALUE);
-//    }
 
     private int minHops(final Set<Integer> numberOfChangesForRoutes) {
         final Optional<Integer> query = numberOfChangesForRoutes.stream().
