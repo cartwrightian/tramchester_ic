@@ -29,7 +29,7 @@ public interface FakeStation extends HasId<Station> {
 
     IdForDTO getIdForDTO();
 
-    default LocationId getLocationId() {
-        return new LocationId(getId());
+    default LocationId<Station> getLocationId() {
+        return new LocationId<>(getId());
     }
 }

@@ -4,11 +4,11 @@ import com.tramchester.domain.id.IdFor;
 
 import java.util.Objects;
 
-public class LocationId implements IdFor<Location<?>> {
+public class LocationId<T extends Location<?>> implements IdFor<T> {
 
-    private final IdFor<?> theId;
+    private final IdFor<T> theId;
 
-    public <TYPE extends Location<?>> LocationId(IdFor<TYPE> id) {
+    public LocationId(IdFor<T> id) {
         theId = id;
     }
 
@@ -23,15 +23,15 @@ public class LocationId implements IdFor<Location<?>> {
     }
 
     @Override
-    public Class<Location<?>> getDomainType() {
-        return (Class<Location<?>>) theId.getDomainType();
+    public Class<T> getDomainType() {
+        return theId.getDomainType();
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        LocationId that = (LocationId) o;
+        LocationId<?> that = (LocationId<?>) o;
         return Objects.equals(theId, that.theId);
     }
 

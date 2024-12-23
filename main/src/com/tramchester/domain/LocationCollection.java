@@ -16,5 +16,5 @@ public interface LocationCollection {
 
     boolean isEmpty();
 
-    boolean contains(LocationId locationId);
+    boolean contains(LocationId<?> locationId);
 }

@@ -50,8 +50,8 @@ public interface Location<TYPE extends Location<TYPE>> extends HasGridPosition, 
     // marked as an interchange in the source data
     boolean isMarkedInterchange();
 
-    default LocationId getLocationId() {
-        return new LocationId(getId());
+    default LocationId<TYPE> getLocationId() {
+        return new LocationId<>(getId());
     }
 
     boolean containsOthers();

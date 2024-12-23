@@ -96,7 +96,7 @@ public class TowardsDestinationTest {
         TowardsDestination towardsDestination = new TowardsDestination((station));
 
         departs.forEach(depart -> {
-            LocationId locationId = towardsDestination.getLocationIdFor(depart);
+            LocationId<?> locationId = towardsDestination.getLocationIdFor(depart);
             assertTrue(destinations.contains(locationId));
         });
 
@@ -134,7 +134,7 @@ public class TowardsDestinationTest {
         TowardsDestination towardsDestination = new TowardsDestination((stationGroup));
 
         towardsGroup.forEach(relationship -> {
-            LocationId locationId = towardsDestination.getLocationIdFor(relationship);
+            LocationId<?> locationId = towardsDestination.getLocationIdFor(relationship);
             assertTrue(destinations.contains(locationId));
         });
     }
@@ -242,7 +242,7 @@ public class TowardsDestinationTest {
 
         assertEquals(1, results.size());
 
-        Location<?> result = results.locationStream().toList().get(0);
+        Location<?> result = results.locationStream().toList().getFirst();
 
         assertEquals(stationGroup, result);
     }

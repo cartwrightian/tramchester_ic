@@ -59,7 +59,7 @@ public class MixedLocationSet implements LocationCollection {
     }
 
     @Override
-    public boolean contains(final LocationId locationId) {
+    public boolean contains(final LocationId<?> locationId) {
         return locations.stream().anyMatch(location -> location.getLocationId().equals(locationId));
     }
 

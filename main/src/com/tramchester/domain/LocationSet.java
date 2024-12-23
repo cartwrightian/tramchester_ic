@@ -144,7 +144,7 @@ public class LocationSet<T extends Location<T>> implements LocationCollection {
     }
 
     @Override
-    public boolean contains(LocationId locationId) {
+    public boolean contains(LocationId<?> locationId) {
         return locations.stream().anyMatch(location -> location.getLocationId().equals(locationId));
     }
 
