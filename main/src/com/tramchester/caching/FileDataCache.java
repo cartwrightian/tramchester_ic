@@ -17,6 +17,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.io.File;
 import java.io.IOException;
+import java.io.Serial;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -225,6 +226,9 @@ public class FileDataCache implements DataCache {
     }
 
     public static class CacheLoadException extends Exception {
+        @Serial
+        private static final long serialVersionUID = 1L;
+
         public CacheLoadException(String msg) {
             super(msg);
         }

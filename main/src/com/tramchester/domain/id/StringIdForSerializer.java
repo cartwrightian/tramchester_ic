@@ -8,11 +8,15 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.tramchester.domain.CoreDomain;
 
 import java.io.IOException;
+import java.io.Serial;
 
 public class StringIdForSerializer<T extends CoreDomain> extends StdSerializer<StringIdFor<T>>  {
 
     static final String TYPE_FIELD = "type";
     static final String CONTENTS_FIELD = "id";
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     protected StringIdForSerializer(Class<StringIdFor<T>> t) {
             super(t);

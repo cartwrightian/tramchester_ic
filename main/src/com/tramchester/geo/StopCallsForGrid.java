@@ -49,8 +49,8 @@ public class StopCallsForGrid {
         final Map<Station, Integer> stationToNumberStopCalls = new HashMap<>();
         final EnumSet<TransportMode> modes = EnumSet.noneOf(TransportMode.class);
         box.getStations().stream().
-                filter(location -> location.getLocationType()== LocationType.Station).
-                map(location -> (Station)location).
+                filter(location -> location.getLocationType()==LocationType.Station).
+                //map(location -> (Station)location).
                 forEach(station -> {
                     final Set<StopCall> calls = stopCallRepository.getStopCallsFor(station, date, begin, end);
                     if (!calls.isEmpty()) {

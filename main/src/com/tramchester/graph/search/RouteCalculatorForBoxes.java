@@ -27,6 +27,7 @@ import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.search.diagnostics.CreateJourneyDiagnostics;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
 import com.tramchester.graph.search.selectors.BranchSelectorFactory;
+import com.tramchester.graph.search.selectors.BreadthFirstBranchSelectorForGridSearch;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.RunningRoutesAndServices;
@@ -97,10 +98,9 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
         final JourneyConstraints journeyConstraints = createJourneyConstraints(destinations, journeyRequest);
 
-
         // share selector across queries, to allow caching of station to station distances
         // TODO Optimise using box based distance calculation? -- avoid doing per station per box
-        final BranchOrderingPolicy selector = branchSelectorFactory.getFor(destinationBox, boxes);
+        final BranchOrderingPolicy selector = getBranchOrderingPolicy(destinationBox, boxes);
 
         final RequestStopStream<JourneysForBox> result = new RequestStopStream<>();
 
@@ -147,6 +147,12 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         });
 
         return result.setStream(stream);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static @NotNull BranchOrderingPolicy getBranchOrderingPolicy(final StationsBoxSimpleGrid destinationBox, final List<StationsBoxSimpleGrid> boxes) {
+        return (startBranch, expander) -> new BreadthFirstBranchSelectorForGridSearch(startBranch, expander,
+                destinationBox, boxes);
     }
 
     private static void scheduleLogging(final Running results, final ServiceReasons serviceReasons) {

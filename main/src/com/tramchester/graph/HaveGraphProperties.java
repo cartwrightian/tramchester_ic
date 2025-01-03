@@ -30,8 +30,7 @@ public class HaveGraphProperties {
         try {
             final String value = entity.getProperty(key.getText()).toString();
             if (RouteStation.class.equals(klass)) {
-                final RouteStationId routeStationId = RouteStationId.parse(value);
-                return (IdFor<C>) routeStationId;
+                return getIdForRouteStation(value);
             } else {
                 return StringIdFor.createId(value, klass);
             }
@@ -42,6 +41,11 @@ public class HaveGraphProperties {
             logger.error(msg);
             throw new RuntimeException(msg, notFound);
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <C extends CoreDomain> IdFor<C> getIdForRouteStation(String value) {
+        return (IdFor<C>) RouteStationId.parse(value);
     }
 
     protected IdFor<RouteStation> getRouteStationId(final Entity entity) {

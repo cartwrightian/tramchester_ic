@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @LazySingleton
-public class StopCallRepository implements ReportsCacheStats {
+public class StopCallRepository  {
     private static final Logger logger = LoggerFactory.getLogger(StopCallRepository.class);
 
     private final TripRepository tripRepository;
@@ -54,7 +54,7 @@ public class StopCallRepository implements ReportsCacheStats {
         // cost calcs potentially expensive, but only used during graph build
         cachedCosts = Caffeine.newBuilder().maximumSize(20000).expireAfterAccess(10, TimeUnit.MINUTES).
                 recordStats().build();
-        cacheMetrics.register(this);
+        cacheMetrics.register(this::reportStats);
     }
 
     @PostConstruct
@@ -134,8 +134,7 @@ public class StopCallRepository implements ReportsCacheStats {
         return new Costs(allCosts, route.getId(), first.getId(), second.getId());
     }
 
-    @Override
-    public final List<Pair<String, CacheStats>> stats() {
+    private List<Pair<String, CacheStats>> reportStats() {
         return Collections.singletonList(Pair.of("CachedCosts", cachedCosts.stats()));
     }
 

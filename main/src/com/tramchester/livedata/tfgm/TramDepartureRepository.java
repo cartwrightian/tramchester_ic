@@ -18,7 +18,6 @@ import com.tramchester.livedata.repository.UpcomingDeparturesSource;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.metrics.HasMetrics;
 import com.tramchester.metrics.RegistersMetrics;
-import com.tramchester.repository.ReportsCacheStats;
 import jakarta.inject.Inject;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
@@ -40,7 +39,7 @@ import java.util.stream.Stream;
 import static java.lang.String.format;
 
 @LazySingleton
-public class TramDepartureRepository implements UpcomingDeparturesSource, LiveDataObserver, ReportsCacheStats, HasMetrics {
+public class TramDepartureRepository implements UpcomingDeparturesSource, LiveDataObserver, HasMetrics {
     private static final Logger logger = LoggerFactory.getLogger(TramDepartureRepository.class);
 
     // TODO Correct limit here?
@@ -62,7 +61,7 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, LiveDa
         dueTramsCache = Caffeine.newBuilder().maximumSize(STATION_INFO_CACHE_SIZE).
                 expireAfterWrite(TIME_LIMIT_MINS.getSeconds(), TimeUnit.SECONDS).recordStats().build();
 
-        cacheMetrics.register(this);
+        cacheMetrics.register(this::reportStats);
     }
 
     @PostConstruct
@@ -179,9 +178,7 @@ public class TramDepartureRepository implements UpcomingDeparturesSource, LiveDa
         return Optional.of(ifPresent);
     }
 
-
-    @Override
-    public List<Pair<String, CacheStats>> stats() {
+    private List<Pair<String, CacheStats>> reportStats() {
         return Collections.singletonList(Pair.of("PlatformMessageRepository:messageCache", dueTramsCache.stats()));
     }
 

@@ -139,7 +139,7 @@ public class BitmapAsRoaringBitmap implements SimpleBitmap {
 
     @Override
     public void setAll(final int start, final int end) {
-        bitmap.add(start, end);
+        bitmap.add(start, (long)end);
     }
 
     @Override
@@ -147,7 +147,7 @@ public class BitmapAsRoaringBitmap implements SimpleBitmap {
         if (value) {
             setAll(start, end);
         } else {
-            bitmap.remove(start, end);
+            bitmap.remove(start, (long)end);
         }
     }
 

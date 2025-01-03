@@ -17,7 +17,6 @@ import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.facade.GraphRelationshipId;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.metrics.CacheMetrics;
-import com.tramchester.repository.ReportsCacheStats;
 import jakarta.inject.Inject;
 import org.apache.commons.lang3.tuple.Pair;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -33,7 +32,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 @LazySingleton
-public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepository {
+public class CachedNodeOperations implements NodeContentsRepository {
     private static final Logger logger = LoggerFactory.getLogger(CachedNodeOperations.class);
 
     private final Cache<GraphRelationshipId, IdFor<Trip>> tripIdRelationshipCache;
@@ -63,12 +62,7 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
                 initialCapacity(40000).
                 recordStats().build();
 
-        cacheMetrics.register(new ReportsCacheStats() {
-            @Override
-            public List<Pair<String, CacheStats>> stats() {
-                return this.stats();
-            }
-        });
+        cacheMetrics.register(this::reportStats);
     }
 
     private Long numberFor(final Set<TransportRelationshipTypes> types) {
@@ -101,8 +95,7 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
                 recordStats().build();
     }
 
-    @Override
-    public final List<Pair<String,CacheStats>> stats() {
+    private final List<Pair<String,CacheStats>> reportStats() {
         List<Pair<String,CacheStats>> result = new ArrayList<>();
         result.add(Pair.of("relationshipCostCache",relationshipCostCache.stats()));
         result.add(Pair.of("tripIdRelationshipCache", tripIdRelationshipCache.stats()));

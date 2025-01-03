@@ -1,6 +1,11 @@
 package com.tramchester.domain.time;
 
-public class InvalidDurationException extends Exception{
+import java.io.Serial;
+
+public class InvalidDurationException extends Exception {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     public InvalidDurationException(String message) {
         super(message);
     }

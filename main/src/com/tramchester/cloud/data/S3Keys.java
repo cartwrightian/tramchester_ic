@@ -3,6 +3,8 @@ package com.tramchester.cloud.data;
 import com.tramchester.config.TramchesterConfig;
 
 import jakarta.inject.Inject;
+
+import java.io.Serial;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -57,7 +59,11 @@ public class S3Keys {
         }
     }
 
-    public static class S3KeyException extends Throwable {
+    public static class S3KeyException extends Exception {
+
+        @Serial
+        private static final long serialVersionUID = 1L;
+
         public S3KeyException(String message) {
             super(message);
         }

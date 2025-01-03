@@ -9,8 +9,12 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.tramchester.domain.id.IdForDTO;
 
 import java.io.IOException;
+import java.io.Serial;
 
 public class IdForDTODeserialization extends StdDeserializer<IdForDTO> {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     protected IdForDTODeserialization(Class<?> vc) {
         super(vc);

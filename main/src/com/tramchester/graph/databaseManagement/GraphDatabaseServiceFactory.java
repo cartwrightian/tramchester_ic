@@ -79,7 +79,7 @@ public class GraphDatabaseServiceFactory implements DatabaseEventListener {
 
         final LogProvider logProvider = new SLF4JLogProvider();
 
-        try (Timing ignored = new Timing(logger, "DatabaseManagementService build")) {
+        try (Timing _ignored = new Timing(logger, "DatabaseManagementService build")) {
             final long neo4jPagecacheMemory = ByteUnit.parse(dbConfig.getNeo4jPagecacheMemory());
             final long memoryTransactionGlobalMaxSize = ByteUnit.parse(dbConfig.getMemoryTransactionGlobalMaxSize());
             managementServiceImpl = new DatabaseManagementServiceBuilder( graphFile ).

@@ -1,11 +1,8 @@
 package com.tramchester.domain.time;
 
-import java.util.Objects;
-
 public class TimeRangeAllDay implements TimeRange {
 
     public TimeRangeAllDay() {
-
     }
 
     @Override
@@ -69,5 +66,8 @@ public class TimeRangeAllDay implements TimeRange {
         return o instanceof TimeRangeAllDay;
     }
 
-
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
 }

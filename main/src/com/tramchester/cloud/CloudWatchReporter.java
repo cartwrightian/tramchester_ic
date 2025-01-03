@@ -31,6 +31,7 @@ public class CloudWatchReporter extends ScheduledReporter {
         this.client = client;
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public void report(SortedMap<String, Gauge> unTypedGauges, SortedMap<String, Counter> unused_counters,
                        SortedMap<String, Histogram> unused_histograms, SortedMap<String, Meter> meters,
@@ -38,9 +39,7 @@ public class CloudWatchReporter extends ScheduledReporter {
 
         SortedMap<String, Gauge<Number>> gauges = new TreeMap<>();
 
-        unTypedGauges.entrySet().stream().
-                filter(entry -> entry.getValue().getValue() instanceof Number).
-                forEach(entry -> gauges.put(entry.getKey(), (Gauge<Number>)entry.getValue()));
+        addNumberGauges(unTypedGauges, gauges);
 
         SortedMap<String, Timer> timersToSend = getTimersToSend(timers);
         SortedMap<String, Meter> metersToSend = getMetersToSend(meters);
@@ -55,6 +54,13 @@ public class CloudWatchReporter extends ScheduledReporter {
             logger.info(msg);
         }
         client.putMetricData(namespace, timersToSend, gaugesToSend, metersToSend);
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private static void addNumberGauges(SortedMap<String, Gauge> unTypedGauges, SortedMap<String, Gauge<Number>> gauges) {
+        unTypedGauges.entrySet().stream().
+                filter(entry -> entry.getValue().getValue() instanceof Number).
+                forEach(entry -> gauges.put(entry.getKey(), (Gauge<Number>)entry.getValue()));
     }
 
     private <T extends Number> SortedMap<String, Gauge<T>> getGuagesToSend(SortedMap<String, Gauge<T>> gauges) {

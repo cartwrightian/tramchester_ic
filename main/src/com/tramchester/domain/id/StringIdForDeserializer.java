@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.Serial;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,6 +21,9 @@ import static java.lang.String.format;
 
 public class StringIdForDeserializer<T extends CoreDomain> extends StdDeserializer<IdFor<T>>  {
     private static final Logger logger = LoggerFactory.getLogger(StringIdForDeserializer.class);
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     protected StringIdForDeserializer(Class<?> vc) {
         super(vc);
@@ -69,14 +73,15 @@ public class StringIdForDeserializer<T extends CoreDomain> extends StdDeserializ
         }
     }
 
-    private IdFor<T> createIdFor(JsonParser parser, Class<?> domainClass, String contents) throws JsonParseException {
+    private IdFor<T> createIdFor(final JsonParser parser, final Class<?> domainClass, final String contents) throws JsonParseException {
 
         if (!CoreDomain.class.isAssignableFrom(domainClass)) {
             throw new JsonParseException(parser, domainClass.getCanonicalName() + " does not implement CoreDomain");
         }
 
         // T extends CoreDomain so should be safe
-        Class<T> coreDomainClass = (Class<T>) domainClass.asSubclass(CoreDomain.class);
+        @SuppressWarnings("unchecked")
+        final Class<T> coreDomainClass = (Class<T>) domainClass.asSubclass(CoreDomain.class);
 
         return StringIdFor.createId(contents, coreDomainClass);
 
