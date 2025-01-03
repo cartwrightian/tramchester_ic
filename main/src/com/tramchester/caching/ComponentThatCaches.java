@@ -16,12 +16,12 @@ public class ComponentThatCaches<DATA extends CachableData, CACHES extends FileD
         this.itemType = itemType;
     }
 
-    protected boolean cachePresent(CACHES cachesDate) {
+    protected boolean cachePresent(final CACHES cachesDate) {
         return dataCache.has(cachesDate);
     }
 
-    protected boolean loadFromCache(CACHES cachesData) {
-        String filename = cachesData.getFilename();
+    protected boolean loadFromCache(final CACHES cachesData) {
+        final String filename = cachesData.getFilename();
         if (cachePresent(cachesData)) {
             logger.info(format("Loading data from %s of type %s", filename, itemType.getSimpleName()));
             dataCache.loadInto(cachesData, itemType);
@@ -32,7 +32,7 @@ public class ComponentThatCaches<DATA extends CachableData, CACHES extends FileD
         return false;
     }
 
-    protected void saveCacheIfNeeded(CACHES cachesData) {
+    protected void saveCacheIfNeeded(final CACHES cachesData) {
         if (!cachePresent(cachesData)) {
             logger.info(format("Saving data to %s of type %s", cachesData.getFilename(), itemType.getSimpleName()));
             dataCache.save(cachesData, itemType);

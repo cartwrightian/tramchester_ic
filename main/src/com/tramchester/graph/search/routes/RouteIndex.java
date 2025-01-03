@@ -70,7 +70,9 @@ public class RouteIndex extends ComponentThatCaches<RouteIndexData, RouteIndex.R
     @PreDestroy
     public void stop() {
         logger.info("Stopping");
-        super.saveCacheIfNeeded(routeIndexes);
+        if (!graphFilter.isActive()) {
+            super.saveCacheIfNeeded(routeIndexes);
+        }
         routeIndexes.clear();
         logger.info("Stopped");
     }

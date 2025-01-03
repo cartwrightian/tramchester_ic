@@ -13,6 +13,7 @@ import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.NumberOfRoutes;
+import jakarta.inject.Inject;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -20,7 +21,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import jakarta.inject.Inject;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.Instant;
@@ -79,7 +79,9 @@ public class RouteInterconnectRepository extends ComponentThatCaches<RoutePairIn
     @PreDestroy
     public void stop() {
         logger.info("stopping");
-        super.saveCacheIfNeeded(interconnectsForDepth);
+        if (!graphFilter.isActive()) {
+            super.saveCacheIfNeeded(interconnectsForDepth);
+        }
         interconnectsForDepth.clear();
         logger.info("stopped");
     }

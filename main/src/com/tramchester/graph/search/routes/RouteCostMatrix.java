@@ -81,7 +81,9 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
     @PreDestroy
     public  void stop() {
         logger.info("stop");
-        super.saveCacheIfNeeded(costsPerDegree);
+        if (!graphFilter.isActive()) {
+            super.saveCacheIfNeeded(costsPerDegree);
+        }
         costsPerDegree.clear();
         logger.info("stopped");
     }
