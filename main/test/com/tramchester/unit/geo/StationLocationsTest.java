@@ -100,6 +100,7 @@ class StationLocationsTest extends EasyMockSupport {
         verifyAll();
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     void shouldOrderClosestFirstRespectingNumToFind() {
         Station stationA = createTestStation("id123", "nameA", nearAltrincham);
@@ -109,7 +110,6 @@ class StationLocationsTest extends EasyMockSupport {
         MyLocation location = nearAltrincham.location();
         final MarginInMeters rangeInMeters = MarginInMeters.ofMeters(20000);
 
-        //noinspection unchecked
         EasyMock.expect(geography.getNearToSorted(EasyMock.isA(Geography.LocationsSource.class), EasyMock.eq(location.getGridPosition()),
                         EasyMock.eq(rangeInMeters))).
                 andReturn(Stream.of(stationA, stationB, stationC));
@@ -119,9 +119,10 @@ class StationLocationsTest extends EasyMockSupport {
         verifyAll();
 
         assertEquals(1, results.size());
-        assertEquals(stationA, results.get(0));
+        assertEquals(stationA, results.getFirst());
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     void shouldOrderClosestFirst() {
         Station stationA = createTestStation("id123", "nameA", nearAltrincham);
@@ -131,7 +132,6 @@ class StationLocationsTest extends EasyMockSupport {
         MyLocation location = nearAltrincham.location();
         final MarginInMeters rangeInMeters = MarginInMeters.ofMeters(20000);
 
-        //noinspection unchecked
         EasyMock.expect(geography.getNearToSorted(EasyMock.isA(Geography.LocationsSource.class), EasyMock.eq(location.getGridPosition()),
                         EasyMock.eq(rangeInMeters))).
                 andReturn(Stream.of(stationA, stationB, stationC));

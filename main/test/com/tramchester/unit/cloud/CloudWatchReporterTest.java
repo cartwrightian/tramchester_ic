@@ -30,6 +30,7 @@ class CloudWatchReporterTest extends EasyMockSupport {
 
     }
 
+    @SuppressWarnings("rawtypes")
     @Test
     void shouldFormNamespaceCorrectly() {
 
@@ -79,6 +80,7 @@ class CloudWatchReporterTest extends EasyMockSupport {
         verifyAll();
     }
 
+    @SuppressWarnings("rawtypes")
     public static class TestGauge implements Gauge<Number> {
 
         private final Number number;

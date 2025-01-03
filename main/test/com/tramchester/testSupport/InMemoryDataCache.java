@@ -33,6 +33,7 @@ public class InMemoryDataCache implements DataCache {
         savers.put(cachesData.getClass(), dataSaver);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <CACHETYPE extends CachableData, T extends FileDataCache.CachesData<CACHETYPE>> void loadInto(T cachesData, Class<CACHETYPE> dataClass) {
 
@@ -58,6 +59,7 @@ public class InMemoryDataCache implements DataCache {
         return savers.containsKey(cachesDataType);
     }
 
+    @SuppressWarnings("unchecked")
     public <CACHETYPE extends CachableData, T extends FileDataCache.CachesData<CACHETYPE>> Stream<CACHETYPE> getDataFor(Class<T> cachesDataType) {
         InMemoryDataSaver<? extends CachableData> saver = savers.get(cachesDataType);
         return saver.getData().map(item -> (CACHETYPE) item);

@@ -53,7 +53,7 @@ class NaptanStopDataTest extends ParserTestXMLHelper<NaptanStopData> {
                 "usZoneRef CreationDateTime=\"2013-12-17T14:30:00\" ModificationDateTime=\"2013-12-17T14:31:00\" Modification=\"revise\" Revisi" +
                 "onNumber=\"1\" Status=\"active\">MNCRPIC</PlusbusZoneRef></PlusbusZones></StopPoint></StopPoints></NaPTAN>";
 
-        NaptanStopData data = (NaptanStopData) super.parseFirstOnly(text);
+        NaptanStopData data = super.parseFirstOnly(text);
 
         assertNotNull(data);
 
@@ -133,7 +133,7 @@ class NaptanStopDataTest extends ParserTestXMLHelper<NaptanStopData> {
 
         assertEquals(items.size(), 2);
 
-        NaptanStopData dataA = items.get(0);
+        NaptanStopData dataA = items.getFirst();
         assertNotNull(dataA);
         assertIdEquals("acto1111", dataA.getAtcoCode());
 
@@ -169,7 +169,7 @@ class NaptanStopDataTest extends ParserTestXMLHelper<NaptanStopData> {
         assertEquals("St Helens", data.getTown());
         assertEquals("Stand 2", data.getIndicator());
         assertEquals(1, data.stopAreasRefs().size());
-        assertEquals("280G00000001", data.stopAreasRefs().get(0).getId());
+        assertEquals("280G00000001", data.stopAreasRefs().getFirst().getId());
         assertEquals(busCoachTrolleyStationBay, data.getStopType());
         assertFalse(data.hasRailInfo());
     }
@@ -200,7 +200,7 @@ class NaptanStopDataTest extends ParserTestXMLHelper<NaptanStopData> {
 
         assertEquals("ABDARE", data.getRailInfo().getTiploc());
         assertEquals(1, data.stopAreasRefs().size());
-        assertEquals("910GABDARE", data.stopAreasRefs().get(0).getId());
+        assertEquals("910GABDARE", data.stopAreasRefs().getFirst().getId());
     }
 
     @Test
