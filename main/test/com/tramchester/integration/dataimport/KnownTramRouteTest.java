@@ -11,7 +11,6 @@ import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
@@ -118,7 +117,6 @@ class KnownTramRouteTest {
         assertTrue(unexpectedLoadedForDate.isEmpty(), "Mismatch on known routes, loaded routes were: " + unexpectedLoadedForDate);
     }
 
-    @DisabledUntilDate(year=2025, month = 1, day = 2)
     @Test
     void shouldNotHaveUnusedKnownTramRoutesForDate() {
         TramDate start = TramDate.from(TestEnv.LocalNow());

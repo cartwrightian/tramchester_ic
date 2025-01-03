@@ -126,7 +126,7 @@ public class FileDataCache implements DataCache {
 
     @NotNull
     private List<Path> filesInCache() throws IOException {
-        return Files.list(cacheFolder).filter(Files::isRegularFile).collect(Collectors.toList());
+        return Files.list(cacheFolder).filter(Files::isRegularFile).toList();
     }
 
     @Override

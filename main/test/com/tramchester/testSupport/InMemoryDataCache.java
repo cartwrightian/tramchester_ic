@@ -40,7 +40,8 @@ public class InMemoryDataCache implements DataCache {
             throw new RuntimeException("No data for type " + dataClass);
         }
 
-        InMemoryDataSaver<CACHETYPE> dataSaver = (InMemoryDataSaver<CACHETYPE>) savers.get(cachesData.getClass());
+        final InMemoryDataSaver<? extends CachableData> inMemoryDataSaver = savers.get(cachesData.getClass());
+        final InMemoryDataSaver<CACHETYPE> dataSaver = (InMemoryDataSaver<CACHETYPE>) inMemoryDataSaver;
         try {
             cachesData.loadFrom(dataSaver.getData());
         } catch (FileDataCache.CacheLoadException e) {
