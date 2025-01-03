@@ -202,15 +202,11 @@ public class IdSet<T extends CoreDomain> implements Iterable<IdFor<T>> {
         return new IdSet<>(SetUtils.disjunction(setA.theSet, setB.theSet));
     }
 
-    @SafeVarargs
-    public static <T extends HasId<T> & CoreDomain> IdSet<T> union(IdSet<T>... ids) {
-        Set<IdFor<T>> newSet = Arrays.stream(ids).
-                flatMap(IdSet::stream).
-                collect(Collectors.toSet());
-        return new IdSet<>(newSet, false);
+    public static <T extends HasId<T> & CoreDomain> IdSet<T> union(final IdSet<T> setA, final IdSet<T> setB) {
+        return new IdSet<>(SetUtils.union(setA.theSet, setB.theSet));
     }
 
-    public static <T extends CoreDomain> IdSet<T> intersection(IdSet<T> setA, IdSet<T> setB) {
+    public static <T extends CoreDomain> IdSet<T> intersection(final IdSet<T> setA, final IdSet<T> setB) {
         return new IdSet<>(SetUtils.intersection(setA.theSet, setB.theSet));
     }
 }

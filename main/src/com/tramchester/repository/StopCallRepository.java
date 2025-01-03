@@ -16,6 +16,7 @@ import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.metrics.CacheMetrics;
+import jakarta.inject.Inject;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -23,7 +24,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import jakarta.inject.Inject;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -135,7 +135,7 @@ public class StopCallRepository implements ReportsCacheStats {
     }
 
     @Override
-    public List<Pair<String, CacheStats>> stats() {
+    public final List<Pair<String, CacheStats>> stats() {
         return Collections.singletonList(Pair.of("CachedCosts", cachedCosts.stats()));
     }
 

@@ -30,7 +30,7 @@ public class HasDataSaver<T>  {
         }
 
         @Override
-        public void close() throws Exception {
+        public void close() {
             contained.close();
         }
 

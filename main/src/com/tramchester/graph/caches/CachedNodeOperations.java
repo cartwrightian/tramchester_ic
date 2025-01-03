@@ -63,7 +63,12 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
                 initialCapacity(40000).
                 recordStats().build();
 
-        cacheMetrics.register(this);
+        cacheMetrics.register(new ReportsCacheStats() {
+            @Override
+            public List<Pair<String, CacheStats>> stats() {
+                return this.stats();
+            }
+        });
     }
 
     private Long numberFor(final Set<TransportRelationshipTypes> types) {
@@ -96,7 +101,8 @@ public class CachedNodeOperations implements ReportsCacheStats, NodeContentsRepo
                 recordStats().build();
     }
 
-    public List<Pair<String,CacheStats>> stats() {
+    @Override
+    public final List<Pair<String,CacheStats>> stats() {
         List<Pair<String,CacheStats>> result = new ArrayList<>();
         result.add(Pair.of("relationshipCostCache",relationshipCostCache.stats()));
         result.add(Pair.of("tripIdRelationshipCache", tripIdRelationshipCache.stats()));

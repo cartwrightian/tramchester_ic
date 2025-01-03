@@ -27,7 +27,7 @@ public class MutableTrip implements Trip {
 
     private boolean filtered; // at least one station on this trip was filtered out
 
-    public MutableTrip(IdFor<Trip> tripId, String headSign, Service service, Route route, TransportMode actualMode) {
+    public MutableTrip(final IdFor<Trip> tripId, String headSign, Service service, Route route, TransportMode actualMode) {
         this.tripId = tripId;
         this.headSign = headSign.intern();
         this.service = service;
@@ -35,7 +35,7 @@ public class MutableTrip implements Trip {
         this.actualMode = actualMode;
 
         filtered = false;
-        stopCalls = new StopCalls(this);
+        stopCalls = new StopCalls(tripId);
     }
 
     // test support
@@ -43,7 +43,7 @@ public class MutableTrip implements Trip {
         return new MutableTrip(tripId, headSign, service, route, route.getTransportMode());
     }
 
-    public static IdFor<Trip> createId(String text) {
+    public static IdFor<Trip> createId(final String text) {
         return StringIdFor.createId(text, Trip.class);
     }
 
