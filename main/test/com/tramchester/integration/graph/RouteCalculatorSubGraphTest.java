@@ -159,7 +159,7 @@ class RouteCalculatorSubGraphTest {
     @Test
     void shouldHaveSimpleOneStopJourneyLateNight() {
         // last tram now earlier
-        TramTime time = TramTime.of(23,53);
+        TramTime time = TramTime.of(23,40);
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 3,
                 maxJourneyDuration, 1, modes);
 //        journeyRequest.setDiag(true);

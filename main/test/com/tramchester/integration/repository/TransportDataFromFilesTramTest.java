@@ -99,8 +99,8 @@ public class TransportDataFromFilesTramTest {
         assertEquals(1, transportData.getAgencies().stream().filter(agency -> agency.getTransportModes().contains(Tram)).count());
         assertEquals(NUM_TFGM_TRAM_STATIONS, transportData.getStations(EnumSet.of(Tram)).size());
 
-        // 200 -> 197 due to Rochdale closure
-        int expectedPlatforms = 200;
+        // 200 -> 199 for new timetable...Jav 2025
+        int expectedPlatforms = 199;
         assertEquals(expectedPlatforms, transportData.getPlatforms(EnumSet.of(Tram)).size());
     }
 
@@ -226,7 +226,7 @@ public class TransportDataFromFilesTramTest {
                 map(routeStation -> Pair.of(routeStation.getStationId(), routeStation.getRoute().getName())).
                 collect(Collectors.toSet());
 
-        assertEquals(5, routeStationPairs.size(), routeStations.toString());
+        assertEquals(4, routeStationPairs.size(), routeStations.toString());
 
         IdSet<Route> routeIds =
                 routeStations.stream().

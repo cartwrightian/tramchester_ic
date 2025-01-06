@@ -93,7 +93,6 @@ public class InterchangesTramTest {
                 Piccadilly,
                 Victoria,
                 MarketStreet,
-                //Shudehill, // during victoria works only?
                 Broadway);
 
         TramDate when = TestEnv.testDay();
