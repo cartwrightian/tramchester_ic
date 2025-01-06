@@ -12,6 +12,8 @@ server:
     enabled: true
     bufferSize: 8KiB
     minimumEntitySize: 160B
+    syncFlush: true
+    excludedPaths: [ "/api/grid/chunked" ]
 redirectToSecure: true
 secureHost: tramchester.com
 staticAssetCacheTimeSeconds: 300

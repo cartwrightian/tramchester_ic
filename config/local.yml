@@ -69,19 +69,19 @@ tfgmTramliveData:
   dataUrl: ${LIVEDATA_URL:- "sns://tramchester_live_data_ProdBlue"}
   dataSubscriptionKey: ${TFGMAPIKEY:- ""}
   s3Bucket: ""
-  s3Prefix: ${ENV:- "test"}
+  s3Prefix: ${PLACE:- "test"}
   refreshPeriodSeconds: 20
   maxNumberStationsWithoutMessages: 10
   maxNumberStationsWithoutData: 5
   snsTopicPrefix: tramchester_live_data_
 planningEnabled: true
 maxWait: 25
+maxJourneyDuration: 155
 numberQueries: 3
 queryInterval: 10
 maxNumberResults: 5
 depthFirst: true
 maxWalkingConnections: 3
-maxJourneyDuration: 155
 nearestStopRangeKM: 1.6
 nearestStopForWalkingRangeKM: 1.6
 numOfNearestStopsToOffer: 5

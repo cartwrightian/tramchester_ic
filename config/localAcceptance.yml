@@ -12,10 +12,8 @@ server:
     enabled: true
     bufferSize: 8KiB
     minimumEntitySize: 160B
-  requestLog:
-    appenders:
-      - type: console
-        threshold: INFO
+    syncFlush: true
+    excludedPaths: [ "/api/grid/chunked" ]
 secureHost: tramchester.com
 redirectToSecure: true
 staticAssetCacheTimeSeconds: 300
@@ -23,8 +21,9 @@ graphDBConfig:
   graphName: databases/tramchesterAcceptance.db
   neo4jPagecacheMemory: 100m
   memoryTransactionGlobalMaxSize: 650m
-  enableDiagnostics: false
+  enableDiagnostics: ${ENABLE_DB_DIAG:- false }
 distributionBucket: tramchesternewdist
+instanceDataUrl: http://169.254.169.254
 environmentName: ${PLACE}
 buildNumber: ${BUILD:- 0}
 gtfsSourceConfig:
@@ -40,10 +39,10 @@ gtfsSourceConfig:
     groupedStationModes: []
     addWalksForClosed: true
     stationClosures: []
-    temporaryStationsWalks: [ ]
+    temporaryStationsWalks: []
 remoteSources:
   - name: tfgm
-    dataURL: ${TRAM_DATAURL:- https://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip}
+    dataURL: ${TRAM_DATAURL:- s3://tramchesternewdist/dist/${RELEASE_NUMBER}/tfgm_data.zip}
     dataCheckURL: https://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip
     dataPath: data/tram
     downloadPath: data/tram
@@ -56,6 +55,7 @@ remoteSources:
     downloadPath: databases
     filename: database.zip
     defaultExpiryDays: 0
+    modTimeCheckFilename: tramchester.db
     mandatory: false
     skipUpload: false
 cacheFolder: data/cache
@@ -73,20 +73,19 @@ tfgmTramliveData:
   refreshPeriodSeconds: 20
   maxNumberStationsWithoutMessages: 10
   maxNumberStationsWithoutData: 5
-instanceDataUrl: http://169.254.169.254
 planningEnabled: true
 maxWait: 25
-maxNumberResults: 5
-depthFirst: true
-maxJourneyDuration:  155
+maxJourneyDuration: 155
 numberQueries: 3
 queryInterval: 10
+maxNumberResults: 5
+depthFirst: true
 maxWalkingConnections: 3
 nearestStopRangeKM: 1.6
 nearestStopForWalkingRangeKM: 1.6
-numOfNearestStopsToOffer:  5
-numOfNearestStopsForWalking:  3
-walkingMPH: 3
+numOfNearestStopsToOffer: 5
+numOfNearestStopsForWalking: 3
+walkingMPH: 3.0
 recentStopsToShow: 5
 dataExpiryThreadhold: 3
 changeAtInterchangeOnly: true
@@ -99,21 +98,15 @@ swagger:
 
 logging:
   level: INFO
-  loggers:
-    "com.tramchester": INFO
-    "org.eclipse.jetty.server": INFO
-    "io.dropwizard.assets": INFO
 
   appenders:
     - type: console
-      threshold: INFO
-    - type: syslog
-      host: localhost
-      port: 514
+      threshold: WARN
     - type: file
       currentLogFilename: build/reports/tests/accept_tramchester.log
       threshold: INFO
       archive: true
-      archivedLogFilenamePattern: build/reports/tests/accept_tramchester-%d.log
+      archivedLogFilenamePattern: build/reports/tests/accept_tramchester-%i.log
       archivedFileCount: 5
       timeZone: UTC
+      maxFileSize: 50MB
