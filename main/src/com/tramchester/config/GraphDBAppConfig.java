@@ -55,7 +55,7 @@ public class GraphDBAppConfig extends Configuration implements GraphDBConfig {
                 "graphName='" + graphName + '\'' +
                 ", neo4jPagecacheMemory='" + neo4jPagecacheMemory + '\'' +
                 ", memoryTransactionGlobalMaxSize='" + memoryTransactionGlobalMaxSize + '\'' +
-                ", enableBolt=" + enableDiagnostics +
+                ", enableDiagnostics=" + enableDiagnostics +
                 "} " + super.toString();
     }
 }

@@ -42,8 +42,8 @@ public class StandaloneConfigLoader {
         final ObjectMapper objectMapper = Jackson.newObjectMapper();
         objectMapper.enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
-        final String properyPrefix = "dw";
-        return new YamlConfigurationFactory<>(klass, validator, objectMapper, properyPrefix);
+        final String propertyPrefix = "dw";
+        return new YamlConfigurationFactory<>(klass, validator, objectMapper, propertyPrefix);
     }
 
 }
