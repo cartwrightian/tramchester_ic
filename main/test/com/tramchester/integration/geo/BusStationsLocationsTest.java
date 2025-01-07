@@ -60,21 +60,21 @@ class BusStationsLocationsTest {
     void shouldGetAllStationsCloseToPiccGardens() {
         List<Station> result = stationLocations.nearestStationsSorted(TestPostcodes.NearPiccadillyGardens, 500,
                 inMeters, modes);
-        assertEquals(50, result.size());
+        assertEquals(51, result.size());
     }
 
     @Test
     void shouldGetAllStationsCloseToCentralBury() {
         List<Station> result = stationLocations.nearestStationsSorted(TestPostcodes.CentralBury, 500,
                 inMeters, modes);
-        assertEquals(40, result.size());
+        assertEquals(38, result.size());
     }
 
     @Test
     void shouldGetAllStationsCloseToCentralAlty() {
         List<Station> result = stationLocations.nearestStationsSorted(BusStations.StopAtAltrinchamInterchange.from(stationRepository),
                 500, inMeters, modes);
-        assertEquals(18, result.size());
+        assertEquals(16, result.size());
     }
 
 }

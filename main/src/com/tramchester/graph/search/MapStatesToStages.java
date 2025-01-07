@@ -277,14 +277,14 @@ class MapStatesToStages implements JourneyStateUpdate {
             this.duration = duration;
         }
 
-        public WalkingToStationStage createStage(TramTime actualTime, Duration totalCostNow) {
-            MyLocation walkStation = MyLocation.create(walkStart);
+        public WalkingToStationStage createStage(final TramTime actualTime, final Duration totalCostNow) {
+            final MyLocation walkStation = MyLocation.create(walkStart);
             logger.info("End walk to station " + destination.getId() + " duration " + duration);
 
             // offset for boarding cost
-            Duration offset = totalCostNow.minus(totalCostAtDestination);
+            final Duration offset = totalCostNow.minus(totalCostAtDestination);
 
-            TramTime walkStartTime = actualTime.minus(duration.plus(offset));
+            final TramTime walkStartTime = actualTime.minusRounded(duration.plus(offset));
             return new WalkingToStationStage(walkStation, destination, duration, walkStartTime);
         }
     }

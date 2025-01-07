@@ -1,6 +1,7 @@
 package com.tramchester.testSupport.reference;
 
 import com.tramchester.domain.DataSourceID;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.NPTGLocality;
@@ -12,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static com.tramchester.domain.reference.TransportMode.Bus;
 
-public enum BusStations implements FakeStation {
+public enum BusStations implements FakeStation, HasId<Station> {
 
     StopAtAltrinchamInterchange("1800AMIC0C1", "Altrincham Interchange (Stand C), Altrincham",
             new LatLong(53.38745, -2.34771)),
@@ -26,7 +27,7 @@ public enum BusStations implements FakeStation {
             new LatLong(53.3656, -2.27242)),
     KnutsfordStationStand3("0600MA6022", "Bus Station (Stand 3), Knutsford",
             new LatLong(53.30245, -2.37551)),
-    BuryInterchange("1800BYIC0C1", "Bury Interchange (Stand C), Bury",
+    BuryInterchange("1800BYIC0B1", "Bury Interchange (Stand B), Bury",
             new LatLong(53.59134, -2.29706)),
     PiccadilyStationStopA("1800EB01201", "Manchester Piccadilly Rail Station (Stop A London Road), Manchester City Centre, Manchester",
             new LatLong(53.47683, -2.23146)),

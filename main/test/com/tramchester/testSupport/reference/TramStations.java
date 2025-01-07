@@ -209,10 +209,5 @@ public enum TramStations implements FakeStation, HasId<Station> {
                               GridPosition gridPosition, DataSourceID dataSourceID, boolean isCentral) {
             super(id, localityId, stationName, latLong, gridPosition, dataSourceID, isCentral);
         }
-
-//        @Override
-//        public boolean servesMode(TransportMode mode) {
-//            return mode.equals(TransportMode.Tram);
-//        }
     }
 }

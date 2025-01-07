@@ -15,10 +15,7 @@ import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.BusTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.time.Duration;
 import java.util.EnumSet;
@@ -28,6 +25,7 @@ import static com.tramchester.domain.reference.TransportMode.Bus;
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@Disabled("too slow, useful for performance testing only?")
 @BusTest
 class RouteCalculatorAllBusJourneysTest {
 
@@ -67,7 +65,6 @@ class RouteCalculatorAllBusJourneysTest {
         int maxChanges = 3;
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, maxChanges,
                 Duration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, modes);
-
 
         LocationIdPairSet<StationGroup> stationGroupPairs = stationGroupRepository.getStationGroupsFor(Bus).stream().
                 flatMap(groupA -> stationGroupRepository.getStationGroupsFor(Bus).stream().

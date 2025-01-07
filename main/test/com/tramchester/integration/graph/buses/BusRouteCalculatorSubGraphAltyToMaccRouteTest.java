@@ -195,7 +195,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRouteTest {
 
     @Test
     void shouldHaveMacclesfieldToKnutsford() {
-        TramTime time = TramTime.of(11, 30);
+        TramTime time = TramTime.of(12, 20);
         JourneyRequest request = new JourneyRequest(when, time, false, MIN_CHANGES,
                 Duration.ofMinutes(config.getMaxJourneyDuration()), 1, BusesOnly);
 

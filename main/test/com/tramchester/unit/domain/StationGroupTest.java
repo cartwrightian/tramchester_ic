@@ -78,7 +78,8 @@ class StationGroupTest {
 
         MutableStation stationB = StationHelper.forTestMutable("idB", "areaB", "stopNameB",
                 new LatLong(4, 8), dataSourceID, true);
-        Route routeB = MutableRoute.getRoute(Route.createId("routeB"), "routeCodeB", "routeNameB", TestEnv.StagecoachManchester, Bus);
+        Route routeB = MutableRoute.getRoute(Route.createId("routeB"), "routeCodeB", "routeNameB",
+                TestEnv.BEE_A, Bus);
         stationB.addRouteDropOff(routeB);
         stationB.addRoutePickUp(routeA);
         Platform platformB = MutablePlatform.buildForTFGMTram("platformIdB", stationB,
@@ -130,7 +131,7 @@ class StationGroupTest {
         MutableStation stationB = StationHelper.forTestMutable("idB", "areaB", "stopNameB",
                 new LatLong(4, 8), dataSourceID, false);
         Route routeB = MutableRoute.getRoute(Route.createId("routeB"), "routeCodeB",
-                "routeNameB", TestEnv.StagecoachManchester, Bus);
+                "routeNameB", TestEnv.BEE_A, Bus);
 
         Set<Station> stations = new HashSet<>(Arrays.asList(stationA, stationB));
         IdFor<NPTGLocality> areaId = NPTGLocality.createId("areaId");

@@ -83,7 +83,7 @@ class JourneyPlannerBusTest {
 
     @Test
     void shouldGetTransportModes() {
-        Response response = APIClient.getApiResponse(factory, "version/modes");
+        Response response = APIClient.getApiResponse(factory, "version/config");
         assertEquals(200, response.getStatus());
 
         ConfigDTO result = response.readEntity(new GenericType<>() {});
@@ -136,19 +136,19 @@ class JourneyPlannerBusTest {
     @Test
     void shouldPlanBusJourneyNorthern() {
         TramTime queryTime = TramTime.of(8,45);
+        int maxChanges = 2;
 
-        JourneyQueryDTO query1 = journeyResourceTestFacade.getQueryDTO(when, queryTime, StopAtShudehillInterchange,
-                BuryInterchange, false, 2);
+        JourneyQueryDTO queryA = journeyResourceTestFacade.getQueryDTO(when, queryTime, StopAtShudehillInterchange,
+                BuryInterchange, false, maxChanges);
 
-        JourneyPlanRepresentation planA = journeyResourceTestFacade.getJourneyPlan(query1);
+        JourneyPlanRepresentation planA = journeyResourceTestFacade.getJourneyPlan(queryA);
         List<JourneyDTO> foundA = getValidJourneysAfter(queryTime, planA);
         Assertions.assertFalse(foundA.isEmpty());
 
+        JourneyQueryDTO queryB = journeyResourceTestFacade.getQueryDTO(when, queryTime, BuryInterchange,
+                StopAtShudehillInterchange, false, maxChanges);
 
-        JourneyQueryDTO query = journeyResourceTestFacade.getQueryDTO(when, queryTime, BuryInterchange,
-                StopAtShudehillInterchange, false, 2);
-
-        JourneyPlanRepresentation planB = journeyResourceTestFacade.getJourneyPlan(query);
+        JourneyPlanRepresentation planB = journeyResourceTestFacade.getJourneyPlan(queryB);
         List<JourneyDTO> foundB = getValidJourneysAfter(queryTime, planB);
         Assertions.assertFalse(foundB.isEmpty());
     }

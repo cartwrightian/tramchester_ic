@@ -90,7 +90,7 @@ class BusRouteCalculatorTest {
     }
 
     @Test
-    void shouldHaveValidStations() {
+    void shouldHaveValidLocalities() {
         assertNotNull(stockportCentral);
         assertNotNull(altrinchamCentral);
         assertNotNull(knutsfordLocality);
@@ -354,7 +354,7 @@ class BusRouteCalculatorTest {
 
         StationGroup broadheath = KnownLocality.Broadheath.from(stationGroupsRepository);
 
-        journeyRequest.setDiag(true);
+        //journeyRequest.setDiag(true);
 
         // caching currently saves about 5 seconds out of 40 (Apr 2024)
         //journeyRequest.setCachingDisabled(true);

@@ -18,7 +18,7 @@ import com.tramchester.integration.testSupport.config.IntegrationTramBusTestConf
 import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.reference.KnownLocality;
-import com.tramchester.testSupport.testTags.BusTest;
+import com.tramchester.testSupport.testTags.TramBusTest;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.Response;
@@ -37,11 +37,11 @@ import java.util.stream.Collectors;
 import static com.tramchester.testSupport.reference.TramStations.Shudehill;
 import static org.junit.jupiter.api.Assertions.*;
 
-@BusTest
+@TramBusTest
 @ExtendWith(DropwizardExtensionsSupport.class)
 class StationLinksNeighboursAndCompositeResourceTest {
 
-    private static final AppConfiguration configuration = new IntegrationTramBusTestConfig(true);
+    private static final AppConfiguration configuration = new IntegrationTramBusTestConfig();
 
     private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, configuration);
     private static GuiceContainerDependencies dependencies;

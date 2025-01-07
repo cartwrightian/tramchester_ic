@@ -26,7 +26,7 @@ import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownLocality;
-import com.tramchester.testSupport.testTags.BusTest;
+import com.tramchester.testSupport.testTags.TramBusTest;
 import org.junit.jupiter.api.*;
 
 import java.time.Duration;
@@ -41,7 +41,7 @@ import static com.tramchester.testSupport.reference.KnownLocations.nearStPetersS
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-@BusTest
+@TramBusTest
 public class NeighbourJourneysTest {
     private StationRepository stationRepository;
     private static RouteCalculatorTestFacade routeCalculator;
@@ -60,7 +60,7 @@ public class NeighbourJourneysTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        config = new IntegrationTramBusTestConfig(true);
+        config = new IntegrationTramBusTestConfig();
 
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
@@ -124,10 +124,11 @@ public class NeighbourJourneysTest {
     @Test
     void shouldHaveCorrectRouteToRouteHopsWhenNeighboursSets() {
 
-        LocationSet<Station> trams = new LocationSet<>(Arrays.asList(Altrincham.from(stationRepository), HarbourCity.from(stationRepository)));
+        LocationSet<Station> trams = new LocationSet<>(Arrays.asList(Altrincham.from(stationRepository),
+                HarbourCity.from(stationRepository)));
 
-        LocationSet<Station> buses = new LocationSet<>(Arrays.asList(KnutsfordStationStand3.from(stationRepository), StockportNewbridgeLane.from(stationRepository)));
-
+        LocationSet<Station> buses = new LocationSet<>(Arrays.asList(KnutsfordStationStand3.from(stationRepository),
+                StockportNewbridgeLane.from(stationRepository)));
 
         int busToTramHops = routeToRouteCosts.getPossibleMinChanges(buses, trams, date, timeRange, modes);
         assertEquals(1, busToTramHops);
@@ -180,7 +181,7 @@ public class NeighbourJourneysTest {
 
         journeys.forEach(journey -> {
             assertEquals(1, journey.getStages().size(), journey.toString());
-            TransportStage<?,?> stage = journey.getStages().get(0);
+            TransportStage<?,?> stage = journey.getStages().getFirst();
             assertEquals(Tram, stage.getMode());
         });
     }

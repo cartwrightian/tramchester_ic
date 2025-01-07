@@ -13,7 +13,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.reference.TramStations;
-import com.tramchester.testSupport.testTags.BusTest;
+import com.tramchester.testSupport.testTags.TramBusTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 import static com.tramchester.testSupport.reference.TramStations.Shudehill;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@BusTest
+@TramBusTest
 public class NeighboursRepositoryBusTest {
 
     private NeighboursRepository neighboursRepository;
@@ -35,7 +35,7 @@ public class NeighboursRepositoryBusTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        TramchesterConfig config = new IntegrationTramBusTestConfig(true);
+        TramchesterConfig config = new IntegrationTramBusTestConfig();
 
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();

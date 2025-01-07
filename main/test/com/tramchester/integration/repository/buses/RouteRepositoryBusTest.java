@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TransportMode.Bus;
 import static com.tramchester.integration.repository.buses.TransportDataFromFilesBusTest.TGFM_BUS_ROUTES;
-import static com.tramchester.testSupport.TestEnv.StagecoachManchester;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -57,7 +56,7 @@ public class RouteRepositoryBusTest {
 
         long most = findMostStopCalls.getAsLong();
 
-        assertEquals(121L, most);
+        assertEquals(118L, most);
     }
 
     @Test
@@ -68,7 +67,7 @@ public class RouteRepositoryBusTest {
                 sorted((a,b) -> Long.compare(b,a)).
                 limit(5).mapToLong(i -> i).sum();
 
-        assertEquals(605L , total);
+        assertEquals(590L , total);
     }
 
     @Test
@@ -80,8 +79,8 @@ public class RouteRepositoryBusTest {
     @Test
     void shouldGetSpecificBusRoutes() {
         Collection<Route> results = routeRepository.getRoutes();
-        long gmsRoutes = results.stream().filter(route -> route.getAgency().equals(StagecoachManchester)).count();
-        assertWithinNPercent(157, gmsRoutes, 0.1F);
+        long routes = results.stream().filter(route -> route.getAgency().equals(TestEnv.BEE_A)).count();
+        assertWithinNPercent(104, routes, 0.1F);
     }
 
     @Test

@@ -150,11 +150,11 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
         }
     }
 
-    private boolean checkForDiagnosticsEnabled(JourneyQueryDTO query) {
+    private boolean checkForDiagnosticsEnabled(final JourneyQueryDTO query) {
         final boolean diagnostics;
         if (query.getDiagnostics()) {
             if (config.inProdEnv()) {
-                logger.error("Got diagnostics flags while in prodcution, will be ignored");
+                logger.error("Got diagnostics flags while in production, will be ignored");
                 diagnostics = false;
             } else {
                 diagnostics = true;

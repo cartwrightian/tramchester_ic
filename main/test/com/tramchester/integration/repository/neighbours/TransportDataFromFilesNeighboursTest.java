@@ -12,7 +12,7 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownTramRoute;
-import com.tramchester.testSupport.testTags.BusTest;
+import com.tramchester.testSupport.testTags.TramBusTest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -30,7 +30,7 @@ import static com.tramchester.integration.repository.buses.TransportDataFromFile
 import static com.tramchester.testSupport.reference.TramStations.Shudehill;
 import static org.junit.jupiter.api.Assertions.*;
 
-@BusTest
+@TramBusTest
 public class TransportDataFromFilesNeighboursTest {
     private static ComponentContainer componentContainer;
     private StationRepository stationRepository;
@@ -39,7 +39,7 @@ public class TransportDataFromFilesNeighboursTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        TramchesterConfig config = new IntegrationTramBusTestConfig(true);
+        TramchesterConfig config = new IntegrationTramBusTestConfig();
 
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();

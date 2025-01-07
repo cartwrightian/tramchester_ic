@@ -35,7 +35,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.Bus;
-import static com.tramchester.testSupport.TestEnv.StagecoachManchester;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -44,7 +43,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public
 class TransportDataFromFilesBusTest {
 
-    public static final int TGFM_BUS_AGENCIES = 34;
+    public static final int TGFM_BUS_AGENCIES = 26;
     public static final int TGFM_BUS_ROUTES = 685;
     public static final int NUM_TFGM_BUS_STATIONS = 15697;
     private static ComponentContainer componentContainer;
@@ -105,15 +104,12 @@ class TransportDataFromFilesBusTest {
         assertEquals(0, tram);
     }
 
-
-
     @Test
     void shouldGetAgencies() {
         Set<Agency> agencies = transportData.getAgencies();
-        assertTrue(agencies.contains(StagecoachManchester), HasId.asIds(agencies));
+        assertTrue(agencies.contains(TestEnv.WarringtonsOwnBuses), HasId.asIds(agencies));
+        assertTrue(agencies.contains(TestEnv.BEE_A), HasId.asIds(agencies));
     }
-
-
 
     @Test
     void shouldHaveNotHaveRoutesWithZeroTrips() {

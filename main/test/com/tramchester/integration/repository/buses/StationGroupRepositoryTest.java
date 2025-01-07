@@ -61,7 +61,7 @@ class StationGroupRepositoryTest {
         assertNotNull(groupedStations);
 
         LocationSet<Station> contained = groupedStations.getAllContained();
-        assertEquals(26, contained.size(), groupedStations.toString());
+        assertEquals(25, contained.size(), groupedStations.toString());
 
         assertEquals(LocationType.StationGroup, groupedStations.getLocationType());
         assertEquals(KnownLocality.Altrincham.getId(), groupedStations.getId());

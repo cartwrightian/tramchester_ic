@@ -76,7 +76,8 @@ public class CreateJourneyDiagnostics {
     }
 
     @NotNull
-    private StationDiagnosticsDTO createLocationDiagnosticsDTO(final DiagNode diagNode, final AtomicInteger maxEdgeReasons, final AtomicInteger maxNodeReasons) {
+    private StationDiagnosticsDTO createLocationDiagnosticsDTO(final DiagNode diagNode, final AtomicInteger maxEdgeReasons,
+                                                               final AtomicInteger maxNodeReasons) {
 
         final int currentMaxReasonsForEdges = getMaxNumReasons(diagNode.edges.values());
         if (currentMaxReasonsForEdges > maxEdgeReasons.get()) {
@@ -91,7 +92,8 @@ public class CreateJourneyDiagnostics {
         final LocationRefWithPosition stationDto = new LocationRefWithPosition(location);
         final List<StationDiagnosticsLinkDTO> links = diagNode.visitEdges(this::createStationDiagLinkDTO);
 
-        return new StationDiagnosticsDTO(stationDto, convertReasons(heuristicsReasons), links, getCodes(heuristicsReasons), diagNode.associatedNodeIds);
+        return new StationDiagnosticsDTO(stationDto, convertReasons(heuristicsReasons), links,
+                getCodes(heuristicsReasons), diagNode.associatedNodeIds);
     }
 
     private StationDiagnosticsLinkDTO createStationDiagLinkDTO(final Edge edge) {
@@ -109,14 +111,14 @@ public class CreateJourneyDiagnostics {
     }
 
     private List<DiagnosticReasonDTO> convertReasons(final Set<HeuristicsReason> reasonCodes) {
-        final Set<HeuristicsReason> consolidated = consolidateCodes(reasonCodes);
-        return consolidated.stream().
+        final Stream<HeuristicsReason> consolidated = consolidateCodes(reasonCodes);
+        return consolidated.
                 filter(reason -> isInteresting(reason.getReasonCode())).
                 sorted(Comparator.comparingInt(a -> a.getReasonCode().ordinal())).
                 map(CreateJourneyDiagnostics::createDiagnosticReasonDTO).distinct().collect(Collectors.toList());
     }
 
-    private Set<HeuristicsReason> consolidateCodes(final Set<HeuristicsReason> heuristicsReasons) {
+    private Stream<HeuristicsReason> consolidateCodes(final Set<HeuristicsReason> heuristicsReasons) {
         final Map<ReasonCode, Set<HeuristicsReason>> map = new HashMap<>();
 
         heuristicsReasons.forEach(reason -> {
@@ -128,15 +130,14 @@ public class CreateJourneyDiagnostics {
         });
 
         return map.entrySet().stream().
-                flatMap(entry -> expand(entry.getKey(), entry.getValue().stream())).
-                collect(Collectors.toSet());
+                flatMap(entry -> expand(entry.getKey(), entry.getValue().stream()));
     }
 
     private Stream<HeuristicsReason> expand(final ReasonCode code, final Stream<HeuristicsReason> reasons) {
         if (code==ReasonCode.NotAtHour || code==ReasonCode.ServiceNotRunningAtTime || code==ReasonCode.HourOk) {
             return consolidateMultipleByFirstAttribute(reasons);
         } else if (code==ReasonCode.CachedNotAtHour) {
-            Stream<HeuristicsReason> cachedReasons = reasons.
+            final Stream<HeuristicsReason> cachedReasons = reasons.
                     map(reason -> (CachedHeuristicReason)reason).
                     map(CachedHeuristicReason::getContained);
             return consolidateMultipleByFirstAttribute(cachedReasons).map(CachedHeuristicReason::new);
@@ -155,7 +156,7 @@ public class CreateJourneyDiagnostics {
                 map(item -> " " + item).
                 reduce((s1, s2) -> s1 + s2);
 
-        final HeuristicsReason example = reasons.get(0);
+        final HeuristicsReason example = reasons.getFirst();
         return new HeuristicReasonWithAttribute<>(example.getReasonCode(), example.getHowIGotHere(), attributeValues.orElse(""), example.isValid(),
                 text -> text);
 

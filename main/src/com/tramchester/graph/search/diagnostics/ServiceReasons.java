@@ -67,7 +67,8 @@ public class ServiceReasons {
         nodeVisits = new HashMap<>();
     }
 
-    public void reportReasons(final GraphTransaction txn, final RouteCalculatorSupport.PathRequest pathRequest, final LocationCollection destinations) {
+    public void reportReasons(final GraphTransaction txn, final RouteCalculatorSupport.PathRequest pathRequest,
+                              final LocationCollection destinations) {
         if (diagnosticsEnabled) {
             final JourneyDiagnostics diagnostics = failedJourneyDiagnostics.recordFailedJourneys(reasons, destinations);
             journeyRequest.injectDiag(diagnostics);

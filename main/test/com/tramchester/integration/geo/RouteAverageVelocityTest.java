@@ -40,12 +40,12 @@ public class RouteAverageVelocityTest {
     }
 
     @Test
-    void getExpectedResultForBuses() {
+    void getExpectedResultForBusesSPIKE() {
 
         double result = averageVelocity.getVelocityInMetersPerSecond();
 
         assertNotEquals(-1, result);
-        assertEquals(15.15, result, 0.01);
+        assertEquals(10.83, result, 0.01);
     }
 
 

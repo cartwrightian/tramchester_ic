@@ -88,38 +88,38 @@ class BusRouteCostCalculatorTest {
 
     @Test
     void shouldFindCostsCorrectlyForAltyStockportComp() {
-        assertEquals(Durations.of(38,33), getCostBetween(average(), altrincham, stockport));
-        assertEquals(Durations.of(42,33), getCostBetween(average(), stockport, altrincham));
+        assertEquals(Durations.of(38,38), getCostBetween(average(), altrincham, stockport));
+        assertEquals(Durations.of(43,21), getCostBetween(average(), stockport, altrincham));
     }
 
     @Test
     void shouldFindCostsCorrectlyForAltyStockport() {
-        assertEquals(Durations.of(46, 30), getCost(average(), StopAtAltrinchamInterchange, StockportNewbridgeLane));
-        assertEquals(Durations.of(50,30), getCost(average(), StockportNewbridgeLane, StopAtAltrinchamInterchange));
+        assertEquals(Durations.of(46, 35), getCost(average(), StopAtAltrinchamInterchange, StockportNewbridgeLane));
+        assertEquals(Durations.of(51,18), getCost(average(), StockportNewbridgeLane, StopAtAltrinchamInterchange));
     }
 
     @Test
     void shouldFindCostsCorrectlyForShudehillAltyComp() {
-        assertEquals(Durations.of(50,46), getCostBetween(average(), altrincham, shudehill));
-        assertEquals(Durations.of(51,36), getCostBetween(average(), shudehill, altrincham));
+        assertEquals(Durations.of(52,47), getCostBetween(average(), altrincham, shudehill));
+        assertEquals(Durations.of(56,25), getCostBetween(average(), shudehill, altrincham));
     }
 
     @Test
     void shouldFindCostsCorrectlyForShudehillAlty() {
-        assertEquals(Durations.of(51,46), getCost(average(), StopAtAltrinchamInterchange, StopAtShudehillInterchange));
-        assertEquals(Durations.of(51,51), getCost(average(), StopAtShudehillInterchange, StopAtAltrinchamInterchange));
+        assertEquals(Durations.of(53,47), getCost(average(), StopAtAltrinchamInterchange, StopAtShudehillInterchange));
+        assertEquals(Durations.of(57,25), getCost(average(), StopAtShudehillInterchange, StopAtAltrinchamInterchange));
     }
 
     @Test
     void shouldFindCostsCorrectlyForShudehillStockportComp() {
-        assertEquals(Durations.of(42,42), getCostBetween(average(), shudehill, stockport));
-        assertEquals(Durations.of(33,57), getCostBetween(average(), stockport, shudehill));
+        assertEquals(Durations.of(42,29), getCostBetween(average(), shudehill, stockport));
+        assertEquals(Durations.of(33,34), getCostBetween(average(), stockport, shudehill));
     }
 
     @Test
     void shouldFindCostsCorrectlyForShudehillStockport() {
-        assertEquals(Durations.of(50,35), getCost(average(), StopAtShudehillInterchange, StockportNewbridgeLane));
-        assertEquals(Durations.of(41,3), getCost(average(), StockportNewbridgeLane, StopAtShudehillInterchange));
+        assertEquals(Durations.of(50,22), getCost(average(), StopAtShudehillInterchange, StockportNewbridgeLane));
+        assertEquals(Durations.of(41,16), getCost(average(), StockportNewbridgeLane, StopAtShudehillInterchange));
     }
 
     private BiFunction<Location<?>, Location<?>, Duration> average() {

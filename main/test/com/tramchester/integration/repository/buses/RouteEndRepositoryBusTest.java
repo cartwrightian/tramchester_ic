@@ -51,6 +51,6 @@ class RouteEndRepositoryBusTest {
     void shouldHaveExpectedNumberOfEndOfRouteStations() {
         IdSet<Station> result = routeEndRepository.getStations(TransportMode.Bus);
 
-        assertEquals(964, result.size());
+        assertEquals(950, result.size());
     }
 }

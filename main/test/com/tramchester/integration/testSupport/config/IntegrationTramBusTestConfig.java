@@ -21,9 +21,9 @@ import static com.tramchester.domain.reference.TransportMode.Tram;
 public class IntegrationTramBusTestConfig extends IntegrationBusTestConfig {
     private final boolean addNeighbours;
 
-    public IntegrationTramBusTestConfig(boolean addNeighbours) {
+    public IntegrationTramBusTestConfig() {
         super();
-        this.addNeighbours = addNeighbours;
+        this.addNeighbours = true;
     }
 
     @Override

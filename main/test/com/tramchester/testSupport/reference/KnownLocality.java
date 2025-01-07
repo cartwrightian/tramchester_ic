@@ -3,6 +3,7 @@ package com.tramchester.testSupport.reference;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.StationGroup;
+import com.tramchester.integration.graph.buses.BusRouteToRouteCostsTest;
 import com.tramchester.repository.StationGroupsRepository;
 
 import java.util.EnumSet;
@@ -51,7 +52,7 @@ public enum KnownLocality {
     }
 
     /***
-     * See BusRouteToRouteCostsTest for verification, useful to record this as used on several tests
+     * @see BusRouteToRouteCostsTest for verification, useful to record this as used on several tests
      */
     public static final int MIN_CHANGES = 2;
 }

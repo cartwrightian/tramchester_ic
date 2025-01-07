@@ -85,7 +85,7 @@ class StationTest {
         final Route routeA = MutableRoute.getRoute(Route.createId("routeIdA"), "shortNameA", "nameA",
                 TestEnv.MetAgency(), Tram);
         final Route routeB = MutableRoute.getRoute(Route.createId("routeIdB"), "shortNameB", "nameB",
-                TestEnv.StagecoachManchester, Bus);
+                TestEnv.BEE_A, Bus);
 
         assertFalse(station.hasPickup());
         assertFalse(station.hasDropoff());

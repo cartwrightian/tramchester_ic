@@ -144,8 +144,7 @@ public class StationAvailabilityRepositoryBusTest {
         StationGroup bollington = KnownLocality.Bollington.from(stationGroupRepository);
 
         TimeRange timeRange = TimeRangePartial.of(TramTime.of(2,0), TramTime.of(23,30));
-        TramDate date = TramDate.of(2024, 3, 2);
-        Set<Route> dropoffs = availabilityRepository.getDropoffRoutesFor(bollington, date, timeRange, modes);
+        Set<Route> dropoffs = availabilityRepository.getDropoffRoutesFor(bollington, when, timeRange, modes);
         assertFalse(dropoffs.isEmpty());
     }
 

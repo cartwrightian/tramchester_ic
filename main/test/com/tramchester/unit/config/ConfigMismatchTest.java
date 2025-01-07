@@ -105,6 +105,15 @@ class ConfigMismatchTest {
     }
 
     @Test
+    void shouldHaveSameTFGMRemoteDataSourceForBusAndTram() throws ConfigurationException, IOException {
+        AppConfiguration busConfig = loadConfigFromFile("buses.yml");
+        AppConfiguration tramConfig = loadConfigFromFile("local.yml");
+
+        assertEquals(3, busConfig.getRemoteDataSourceConfig().size());
+        assertRemoteSources(busConfig.getRemoteDataSourceConfig(), tramConfig.getRemoteDataSourceConfig(), DataSourceID.tfgm);
+    }
+
+    @Test
     void shouldHaveKeyParametersSameForRailIntegrationTests() throws IOException, ConfigurationException {
 
         AppConfiguration appConfig = loadConfigFromFile("rail.yml");

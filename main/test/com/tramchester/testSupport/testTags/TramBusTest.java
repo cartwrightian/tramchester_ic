@@ -9,7 +9,6 @@ import java.lang.annotation.Target;
 
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
-@Tag("GMTest")
-public @interface GMTest {
-    // for 'whole' of GM testing tram, bus and train
+@Tag("TramBusTest")
+public @interface TramBusTest {
 }
