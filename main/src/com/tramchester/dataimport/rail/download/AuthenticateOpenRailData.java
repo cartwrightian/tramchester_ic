@@ -8,13 +8,13 @@ import com.tramchester.config.OpenRailDataConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.DoesPostRequest;
 import jakarta.inject.Inject;
-import org.eclipse.emf.common.util.URI;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
@@ -58,7 +58,7 @@ public class AuthenticateOpenRailData {
         final String password = openRailDataConfig.getPassword();
         final String url = openRailDataConfig.getAuthURL();
 
-        final URI uri = URI.createURI(url);
+        final URI uri = URI.create(url);
 
         final String payload = String.format("username=%s&password=%s", username, password);
         final String body = URLEncoder.encode(payload, StandardCharsets.US_ASCII);

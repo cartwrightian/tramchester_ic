@@ -8,10 +8,10 @@ import com.tramchester.dataimport.rail.download.AuthenticateOpenRailData;
 import com.tramchester.testSupport.TestConfig;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
-import org.eclipse.emf.common.util.URI;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 
@@ -31,7 +31,7 @@ public class AuthenticateOpenRailDataTest extends EasyMockSupport {
         String url = "https://some.fake.url/auth";
         TramchesterConfig config = new ConfigWithOpenRailData(url);
         authenticator = new AuthenticateOpenRailData(config, doesPostRequest);
-        uri = URI.createURI(url);
+        uri = URI.create(url);
 
     }
 
