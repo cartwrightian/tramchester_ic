@@ -7,6 +7,7 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.time.ProvidesNow;
 import jakarta.inject.Inject;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +19,7 @@ import java.nio.file.Path;
 import java.rmi.RemoteException;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static java.lang.String.format;
@@ -42,12 +44,13 @@ public class FetchDataFromUrl {
     private final ProvidesNow providesLocalNow;
     private final DownloadedRemotedDataRepository downloadedDataRepository;
     private final GetsFileModTime getsFileModTime;
+    private final HeaderForDatasourceFactory headerFactory;
 
     @Inject
     public FetchDataFromUrl(HttpDownloadAndModTime httpDownloader, S3DownloadAndModTime s3Downloader,
                             HasRemoteDataSourceConfig config, ProvidesNow providesLocalNow,
                             DownloadedRemotedDataRepository downloadedDataRepository,
-                            GetsFileModTime getsFileModTime) {
+                            GetsFileModTime getsFileModTime, HeaderForDatasourceFactory headerFactory) {
         this.httpDownloader = httpDownloader;
         this.s3Downloader = s3Downloader;
         this.configs = new ArrayList<>(config.getRemoteDataSourceConfig());
@@ -55,6 +58,7 @@ public class FetchDataFromUrl {
 
         this.downloadedDataRepository = downloadedDataRepository;
         this.getsFileModTime = getsFileModTime;
+        this.headerFactory = headerFactory;
     }
 
     @PostConstruct
@@ -73,6 +77,7 @@ public class FetchDataFromUrl {
     }
 
     public void fetchData() {
+
         configs.forEach(sourceConfig -> {
             final DataSourceID dataSourceId = sourceConfig.getDataSourceId();
             final String targetFile = sourceConfig.getDownloadFilename();
@@ -84,13 +89,13 @@ public class FetchDataFromUrl {
             }
 
             final String prefix = "Source " + dataSourceId + ": ";
-            Path downloadDirectory = sourceConfig.getDownloadPath();
-            Path destination = downloadDirectory.resolve(targetFile);
-            Path statusCheckFile = sourceConfig.hasModCheckFilename() ? downloadDirectory.resolve(sourceConfig.getModTimeCheckFilename()) : destination;
-            DestAndStatusCheckFile destAndStatusCheckFile = new DestAndStatusCheckFile(destination, statusCheckFile);
+            final Path downloadDirectory = sourceConfig.getDownloadPath();
+            final Path destination = downloadDirectory.resolve(targetFile);
+            final Path statusCheckFile = sourceConfig.hasModCheckFilename() ? downloadDirectory.resolve(sourceConfig.getModTimeCheckFilename()) : destination;
+            final DestAndStatusCheckFile destAndStatusCheckFile = new DestAndStatusCheckFile(destination, statusCheckFile);
             try {
                 logger.info("Checking status for data source " + dataSourceId + " using  " + destAndStatusCheckFile);
-                RefreshStatus refreshStatus = refreshDataIfNewerAvailable(sourceConfig, destAndStatusCheckFile);
+                final RefreshStatus refreshStatus = refreshDataIfNewerAvailable(sourceConfig, destAndStatusCheckFile);
                 logger.info(format("%s Refresh status %s", prefix, refreshStatus));
                 switch (refreshStatus) {
                     case Refreshed -> {
@@ -114,37 +119,40 @@ public class FetchDataFromUrl {
 
         final boolean filePresent = getsFileModTime.exists(destAndStatusCheckFile.statusCheckFile);
 
+        // not used for S3, but we don't know at this stage if data source is S3 or not
+        final List<Pair<String,String>> headers = headerFactory.getFor(dataSourceId);
+
         if (filePresent) {
             logger.info(format("Source %s file %s is present", dataSourceId, destAndStatusCheckFile.statusCheckFile));
-            return refreshDataIfNewerAvailableHasFile(sourceConfig, destAndStatusCheckFile);
+            return refreshDataIfNewerAvailableHasFile(sourceConfig, destAndStatusCheckFile, headers);
         } else {
             logger.info(format("Source %s file %s is NOT present", dataSourceId, destAndStatusCheckFile.statusCheckFile));
-            return refreshDataIfNewerAvailableNoFile(sourceConfig, destAndStatusCheckFile);
+            return refreshDataIfNewerAvailableNoFile(sourceConfig, destAndStatusCheckFile, headers);
         }
 
     }
 
-    private RefreshStatus refreshDataIfNewerAvailableNoFile(DownloadedConfig sourceConfig, DestAndStatusCheckFile destAndStatusCheckFile) throws IOException, InterruptedException {
+    private RefreshStatus refreshDataIfNewerAvailableNoFile(DownloadedConfig sourceConfig, DestAndStatusCheckFile destAndStatusCheckFile,
+                                                            List<Pair<String, String>> headers) throws IOException, InterruptedException {
         DataSourceID dataSourceId = sourceConfig.getDataSourceId();
         URI originalURL = URI.create(sourceConfig.getDataUrl());
-
 
         ZonedDateTime localModTime = URLStatus.invalidTime;
 
         // download
         boolean isS3 = isS3(originalURL);
-        URLStatus status = getUrlStatus(originalURL, isS3, localModTime, sourceConfig);
+        final URLStatus status = getUrlStatus(originalURL, isS3, localModTime, sourceConfig, headers);
         if (status == null) {
             logger.warn(format("No local file %s and unable to check url status", destAndStatusCheckFile));
             return RefreshStatus.Missing;
         }
 
-        String actualURL = status.getActualURL();
-        Path downloadDirectory = sourceConfig.getDownloadPath();
+        final String actualURL = status.getActualURL();
+        final Path downloadDirectory = sourceConfig.getDownloadPath();
 
         logger.info(dataSourceId + ": no local file " + destAndStatusCheckFile.statusCheckFile + " so down loading new data from " + actualURL);
         FileUtils.forceMkdir(downloadDirectory.toAbsolutePath().toFile());
-        if (downloadTo(destAndStatusCheckFile.destination, actualURL, isS3, localModTime).isOk()) {
+        if (downloadTo(destAndStatusCheckFile.destination, actualURL, isS3, localModTime, headers).isOk()) {
             return RefreshStatus.Refreshed;
         } else {
             return RefreshStatus.Missing;
@@ -152,16 +160,17 @@ public class FetchDataFromUrl {
 
     }
 
-    private static boolean isS3(URI originalURL) {
+    private static boolean isS3(final URI originalURL) {
         return originalURL.getScheme().equalsIgnoreCase("s3");
     }
 
-    private RefreshStatus refreshDataIfNewerAvailableHasFile(DownloadedConfig sourceConfig, DestAndStatusCheckFile destAndStatusCheckFile) throws IOException, InterruptedException {
+    private RefreshStatus refreshDataIfNewerAvailableHasFile(DownloadedConfig sourceConfig, DestAndStatusCheckFile destAndStatusCheckFile,
+                                                             List<Pair<String, String>> headers) throws IOException, InterruptedException {
         // already has the source file locally
-        DataSourceID dataSourceId = sourceConfig.getDataSourceId();
+        final DataSourceID dataSourceId = sourceConfig.getDataSourceId();
 
-        ZonedDateTime localMod = getFileModLocalTime(destAndStatusCheckFile.statusCheckFile);
-        ZonedDateTime localNow = providesLocalNow.getZoneDateTimeUTC();
+        final ZonedDateTime localMod = getFileModLocalTime(destAndStatusCheckFile.statusCheckFile);
+        final ZonedDateTime localNow = providesLocalNow.getZoneDateTimeUTC();
 
         boolean expired = localMod.plus(sourceConfig.getDefaultExpiry()).isBefore(localNow);
         logger.info(format("%s %s Local mod time: %s Current Local Time: %s ", dataSourceId, destAndStatusCheckFile.statusCheckFile, localMod, localNow));
@@ -173,9 +182,9 @@ public class FetchDataFromUrl {
         }
 
         logger.info("Check remote status for originalURL:'"+sourceConfig.getDataUrl()+"'");
-        URI originalURL = URI.create(sourceConfig.getDataUrl());
-        boolean isS3 = isS3(originalURL);
-        final URLStatus status = getUrlStatus(originalURL, isS3, localMod, sourceConfig);
+        final URI originalURL = URI.create(sourceConfig.getDataUrl());
+        final boolean isS3 = isS3(originalURL);
+        final URLStatus status = getUrlStatus(originalURL, isS3, localMod, sourceConfig, headers);
         if (status == null) {
             return RefreshStatus.UnableToCheck;
         }
@@ -186,7 +195,7 @@ public class FetchDataFromUrl {
         if (serverMod.isEqual(URLStatus.invalidTime)) {
             logger.warn(format("%s: Unable to get mod time from server for %s", dataSourceId, actualURL));
             if (expired) {
-                boolean downloaded = attemptDownload(actualURL, destAndStatusCheckFile.destination, isS3, localMod);
+                final boolean downloaded = attemptDownload(actualURL, destAndStatusCheckFile.destination, isS3, localMod, headers);
                 if (downloaded) {
                     return RefreshStatus.Refreshed;
                 } else {
@@ -204,7 +213,7 @@ public class FetchDataFromUrl {
         try {
             if (serverMod.isAfter(localMod)) {
                 logger.warn(dataSourceId + ": server time is after local, downloading new data");
-                if (downloadTo(destAndStatusCheckFile.destination, actualURL, isS3, localMod).isOk()) {
+                if (downloadTo(destAndStatusCheckFile.destination, actualURL, isS3, localMod, headers).isOk()) {
                     return RefreshStatus.Refreshed;
                 } else {
                     return RefreshStatus.Missing;
@@ -220,10 +229,10 @@ public class FetchDataFromUrl {
 
     }
 
-    private URLStatus getUrlStatus(URI originalURL, boolean isS3, ZonedDateTime localModTime, DownloadedConfig config) throws IOException, InterruptedException {
+    private URLStatus getUrlStatus(URI originalURL, boolean isS3, ZonedDateTime localModTime, DownloadedConfig config, List<Pair<String, String>> headers) throws IOException, InterruptedException {
         DataSourceID dataSourceId = config.getDataSourceId();
         boolean warnIfMissing = config.isMandatory();
-        URLStatus status = getStatusFor(originalURL, isS3, localModTime, warnIfMissing);
+        URLStatus status = getStatusFor(originalURL, isS3, localModTime, warnIfMissing, headers);
         if (!status.isOk()) {
             if (status.getStatusCode() == 405 ) { // METHOD_NOT_ALLOWED
                 logger.warn("METHOD_NOT_ALLOWED was unable to query using HEAD for " + dataSourceId);
@@ -240,16 +249,19 @@ public class FetchDataFromUrl {
         return status;
     }
 
-    private URLStatus downloadTo(Path destination, String url, boolean isS3,
-                            ZonedDateTime zonedDateTime) throws IOException, InterruptedException {
+    private URLStatus downloadTo(Path destination, String url, boolean isS3, ZonedDateTime zonedDateTime,
+                                 List<Pair<String, String>> headers) throws IOException, InterruptedException {
         URI uri = URI.create(url);
 
         URLStatus result;
 
         if (isS3) {
-            result = s3Downloader.downloadTo(destination, uri, zonedDateTime);
+            if (!headers.isEmpty()) {
+                logger.warn("Ignoring headers for S3");
+            }
+            result = s3Downloader.downloadTo(destination, uri, zonedDateTime, Collections.emptyList());
         } else {
-            result = downloadFollowRedirects(destination, uri, zonedDateTime);
+            result = downloadFollowRedirects(destination, uri, zonedDateTime, headers);
         }
 
         if (result.hasModTime()) {
@@ -265,29 +277,33 @@ public class FetchDataFromUrl {
 
     }
 
-    private URLStatus downloadFollowRedirects(Path destination, URI initialURL, ZonedDateTime localModTime) throws IOException, InterruptedException {
+    private URLStatus downloadFollowRedirects(Path destination, URI initialURL, ZonedDateTime localModTime, 
+                                              final List<Pair<String, String>> headers) throws IOException, InterruptedException {
         RedirectStrategy redirectStrategy = new RedirectStrategy() {
             @Override
             public URLStatus action(URI actualURL) throws IOException {
-                return httpDownloader.downloadTo(destination, actualURL, localModTime);
+                return httpDownloader.downloadTo(destination, actualURL, localModTime, headers);
             }
         };
 
         return redirectStrategy.followRedirects(initialURL);
     }
 
-    private URLStatus getStatusFor(URI url, boolean isS3, ZonedDateTime localModTime, boolean warnIfMissing) throws IOException, InterruptedException {
+    private URLStatus getStatusFor(URI url, boolean isS3, ZonedDateTime localModTime, boolean warnIfMissing, List<Pair<String, String>> headers) throws IOException, InterruptedException {
         if (isS3) {
-            return s3Downloader.getStatusFor(url, localModTime, warnIfMissing);
+            if (!headers.isEmpty()) {
+                logger.warn("Ignoring headers for S3");
+            }
+            return s3Downloader.getStatusFor(url, localModTime, warnIfMissing, Collections.emptyList());
         }
-        return getStatusFollowRedirects(url, localModTime, warnIfMissing);
+        return getStatusFollowRedirects(url, localModTime, warnIfMissing, headers);
     }
 
-    private URLStatus getStatusFollowRedirects(URI url, ZonedDateTime localModTime, boolean warnIfMissing) throws IOException, InterruptedException {
+    private URLStatus getStatusFollowRedirects(URI url, ZonedDateTime localModTime, boolean warnIfMissing, List<Pair<String, String>> headers) throws IOException, InterruptedException {
         RedirectStrategy redirectStrategy = new RedirectStrategy() {
             @Override
             public URLStatus action(URI actualURI) throws InterruptedException, IOException {
-                return httpDownloader.getStatusFor(actualURI, localModTime, warnIfMissing);
+                return httpDownloader.getStatusFor(actualURI, localModTime, warnIfMissing, headers);
             }
         };
 
@@ -295,10 +311,10 @@ public class FetchDataFromUrl {
     }
 
     private boolean attemptDownload(String url, Path destination, boolean isS3,
-                                    ZonedDateTime currentModTime)  {
+                                    ZonedDateTime currentModTime, List<Pair<String, String>> headers)  {
         try {
             logger.info(destination + " expired downloading from " + url);
-            URLStatus status = downloadTo(destination, url, isS3, currentModTime);
+            final URLStatus status = downloadTo(destination, url, isS3, currentModTime, headers);
             return status.isOk();
         }
         catch (IOException | InterruptedException e) {

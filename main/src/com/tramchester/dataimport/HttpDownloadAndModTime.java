@@ -1,6 +1,7 @@
 package com.tramchester.dataimport;
 
 import jakarta.ws.rs.HttpMethod;
+import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.jetty.http.HttpHeader;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -18,8 +19,12 @@ import java.net.http.HttpResponse;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Path;
-import java.time.*;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -41,12 +46,15 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
     }
 
     @Override
-    public URLStatus getStatusFor(URI originalUrl, ZonedDateTime localModTime, boolean warnIfMissing) throws IOException, InterruptedException {
+    public URLStatus getStatusFor(URI originalUrl, ZonedDateTime localModTime, boolean warnIfMissing, List<Pair<String, String>> headers) throws IOException, InterruptedException {
 
         // TODO some servers return 200 for HEAD but a redirect status for a GET
         // So cannot rely on using the HEAD request for getting final URL for a resource
-        final HttpResponse<Void> response = fetchHeaders(originalUrl, localModTime, HttpMethod.HEAD, HttpResponse.BodyHandlers.discarding());
-        final HttpHeaders headers = response.headers();
+        final HttpResponse<Void> response = fetchHeaders(originalUrl, localModTime, HttpMethod.HEAD,
+                headers,
+                HttpResponse.BodyHandlers.discarding());
+
+        final HttpHeaders responseHeaders = response.headers();
 
         final Duration modDuration = getServerModMillis(response);
 
@@ -57,7 +65,7 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
         // might update depending on redirect status
         String finalUrl = originalUrl.toString();
         if (redirect) {
-            Optional<String> locationField = headers.firstValue(LOCATION);
+            Optional<String> locationField = responseHeaders.firstValue(LOCATION);
             if (locationField.isPresent()) {
                 logger.warn(format("URL: '%s' Redirect status %s and Location header '%s'",
                         originalUrl, httpStatusCode, locationField));
@@ -74,7 +82,7 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
                 } else {
                     logger.info("Got error status code " + httpStatusCode + " headers follow");
                 }
-                headers.map().forEach((header, values) -> logger.info("Header: " + header + " Value: " +values));
+                responseHeaders.map().forEach((header, values) -> logger.info("Header: " + header + " Value: " +values));
             }
         }
 
@@ -110,12 +118,19 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
     }
 
     private <T> HttpResponse<T> fetchHeaders(final URI uri, final ZonedDateTime localLastMod, final String method,
+                                             final List<Pair<String,String>> headers,
                                              final HttpResponse.BodyHandler<T> bodyHandler) throws IOException, InterruptedException {
 
         final HttpClient client = HttpClient.newBuilder().build();
         final HttpRequest.Builder httpRequestBuilder = HttpRequest.newBuilder().
                 uri(uri).
                 method(method, HttpRequest.BodyPublishers.noBody());
+
+        if (!headers.isEmpty()) {
+            // careful for logging here, might contain auth tokens or similar
+            logger.info("Adding headers " + headers.size());
+            headers.forEach(header -> httpRequestBuilder.setHeader(header.getKey(), header.getValue()));
+        }
 
         if (localLastMod != URLStatus.invalidTime) {
             final ZonedDateTime httpLocalModTime = localLastMod.withZoneSameLocal(ZoneId.of("Etc/UTC"));
@@ -131,7 +146,7 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
             httpRequestBuilder.header(HttpHeader.ACCEPT_ENCODING.name(), "gzip");
         }
 
-        HttpRequest httpRequest = httpRequestBuilder.build();
+        final HttpRequest httpRequest = httpRequestBuilder.build();
 
         return client.send(httpRequest, bodyHandler);
     }
@@ -165,13 +180,14 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
     }
 
     @Override
-    public URLStatus downloadTo(Path path, URI originalUrl, ZonedDateTime existingLocalModTime) {
+    public URLStatus downloadTo(Path path, URI originalUrl, ZonedDateTime existingLocalModTime, List<Pair<String, String>> headers) {
 
         logger.info(format("Download from %s to %s", originalUrl, path.toAbsolutePath()));
 
         try {
 
             HttpResponse<InputStream> response = fetchHeaders(originalUrl, existingLocalModTime, HttpMethod.GET,
+                    headers,
                     HttpResponse.BodyHandlers.ofInputStream());
 
             int statusCode = response.statusCode();
@@ -180,8 +196,8 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
 
             // might update depending on redirect status
             if (redirect) {
-                HttpHeaders headers = response.headers();
-                Optional<String> locationField = headers.firstValue(LOCATION);
+                HttpHeaders responseHeaders = response.headers();
+                Optional<String> locationField = responseHeaders.firstValue(LOCATION);
                 if (locationField.isPresent()) {
                     logger.warn(format("URL: '%s' Redirect status %s and Location header '%s'",
                             originalUrl, statusCode, locationField));

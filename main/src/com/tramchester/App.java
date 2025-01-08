@@ -118,7 +118,7 @@ public class App extends Application<AppConfiguration>  {
         logger.info("Args were: " + msg);
     }
 
-    private static void logEnvironmentalVars(List<String> names) {
+    private static void logEnvironmentalVars(final List<String> names) {
         final Map<String, String> vars = System.getenv();
         vars.forEach((name,value) -> {
             if (names.contains(name)) {

@@ -3,12 +3,15 @@ package com.tramchester.healthchecks;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.dataimport.*;
 import com.tramchester.domain.ServiceTimeLimits;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URI;
 import java.time.ZonedDateTime;
+import java.util.Collections;
+import java.util.List;
 
 public class NewDataAvailableHealthCheck extends TramchesterHealthCheck {
     private static final Logger logger = LoggerFactory.getLogger(NewDataAvailableHealthCheck.class);
@@ -43,7 +46,8 @@ public class NewDataAvailableHealthCheck extends TramchesterHealthCheck {
         try {
             final ZonedDateTime localFileModTime = getsFileModTime.getFor(config);
 
-            final URLStatus status = downloadAndModTime.getStatusFor(dataCheckUrl, localFileModTime, config.isMandatory());
+            final List<Pair<String, String>> headers = Collections.emptyList();
+            final URLStatus status = downloadAndModTime.getStatusFor(dataCheckUrl, localFileModTime, config.isMandatory(), headers);
 
             if (!status.isOk()) {
                 String msg = String.format("Got http status %s for %s", status.getStatusCode(), dataCheckUrl);

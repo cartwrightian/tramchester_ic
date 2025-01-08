@@ -10,6 +10,7 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.tfgm.TFGMRemoteDataSourceConfig;
+import org.apache.commons.lang3.tuple.Pair;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.Assertions;
@@ -19,8 +20,8 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -38,7 +39,8 @@ class FetchDataFromUrlTest extends EasyMockSupport {
     private DownloadedRemotedDataRepository downloadedDataRepository;
     private ZonedDateTime startTime;
     private ZonedDateTime expiredFileTime;
-    private LocalDateTime startTimeLocal;
+    private List<Pair<String, String>> headers;
+    private HeaderForDatasourceFactory headerFactory;
 
     @BeforeEach
     void beforeEachTestRuns() {
@@ -49,6 +51,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         httpDownloader = createMock(HttpDownloadAndModTime.class);
         getsFileModTime = createMock(GetsFileModTime.class);
         S3DownloadAndModTime s3Downloader = createMock(S3DownloadAndModTime.class);
+        headerFactory = createMock(HeaderForDatasourceFactory.class);
 
         DownloadedConfig remoteDataSourceConfig = config.getDataRemoteSourceConfig(DataSourceID.tfgm);
 
@@ -59,25 +62,26 @@ class FetchDataFromUrlTest extends EasyMockSupport {
 
         downloadedDataRepository = new DownloadedRemotedDataRepository();
         fetchDataFromUrl = new FetchDataFromUrl(httpDownloader, s3Downloader, config, providesLocalNow, downloadedDataRepository,
-                getsFileModTime);
-
+                getsFileModTime, headerFactory);
 
         startTime = TestEnv.UTCNow();
-        startTimeLocal = startTime.toLocalDateTime();
         expiredFileTime = startTime.minus(remoteDataSourceConfig.getDefaultExpiry()).minusDays(1);
 
+        headers = new ArrayList<>();
+        headers.add(Pair.of("Header", "HeaderValue"));
     }
 
     @Test
     void shouldHandleNoModTimeIsAvailableByDownloadingIfExpiryTimePast() throws IOException, InterruptedException {
         EasyMock.expect(providesLocalNow.getZoneDateTimeUTC()).andReturn(startTime);
+        EasyMock.expect(headerFactory.getFor(DataSourceID.tfgm)).andReturn(headers);
 
         EasyMock.expect(getsFileModTime.exists(destinationFile)).andReturn(true);
         EasyMock.expect(getsFileModTime.getFor(destinationFile)).andReturn(expiredFileTime);
 
         URLStatus status = new URLStatus(expectedDownloadURL, OK);
-        EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL, expiredFileTime, true)).andReturn(status);
-        EasyMock.expect(httpDownloader.downloadTo(destinationFile, expectedDownloadURL, expiredFileTime)).andReturn(status);
+        EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL, expiredFileTime, true, headers)).andReturn(status);
+        EasyMock.expect(httpDownloader.downloadTo(destinationFile, expectedDownloadURL, expiredFileTime, headers)).andReturn(status);
         EasyMock.expectLastCall();
 
         replayAll();
@@ -92,13 +96,14 @@ class FetchDataFromUrlTest extends EasyMockSupport {
     void shouldFetchIfModTimeIsNewer() throws IOException, InterruptedException {
 
         EasyMock.expect(providesLocalNow.getZoneDateTimeUTC()).andReturn(startTime);
+        EasyMock.expect(headerFactory.getFor(DataSourceID.tfgm)).andReturn(headers);
 
         EasyMock.expect(getsFileModTime.exists(destinationFile)).andReturn(true);
         EasyMock.expect(getsFileModTime.getFor(destinationFile)).andReturn(startTime);
 
         URLStatus status = new URLStatus(expectedDownloadURL, OK, startTime.plusMinutes(30));
-        EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL, startTime, true)).andReturn(status);
-        EasyMock.expect(httpDownloader.downloadTo(destinationFile, expectedDownloadURL, startTime)).andReturn(status);
+        EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL, startTime, true, headers)).andReturn(status);
+        EasyMock.expect(httpDownloader.downloadTo(destinationFile, expectedDownloadURL, startTime, headers)).andReturn(status);
         EasyMock.expect(getsFileModTime.update(destinationFile, startTime.plusMinutes(30))).andReturn(true);
 
         replayAll();
@@ -112,11 +117,12 @@ class FetchDataFromUrlTest extends EasyMockSupport {
     void shouldFetchIfLocalFileNotPresent() throws IOException, InterruptedException {
 
         EasyMock.expect(getsFileModTime.exists(destinationFile)).andReturn(false);
+        EasyMock.expect(headerFactory.getFor(DataSourceID.tfgm)).andReturn(headers);
 
         URLStatus status = new URLStatus(expectedDownloadURL, 200, startTime);
-        EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL, invalidTime, true)).andReturn(status);
+        EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL, invalidTime, true, headers)).andReturn(status);
 
-        EasyMock.expect(httpDownloader.downloadTo(destinationFile, expectedDownloadURL, invalidTime)).andReturn(status);
+        EasyMock.expect(httpDownloader.downloadTo(destinationFile, expectedDownloadURL, invalidTime, headers)).andReturn(status);
         EasyMock.expect(getsFileModTime.update(destinationFile, startTime)).andReturn(true);
 
 
@@ -132,10 +138,11 @@ class FetchDataFromUrlTest extends EasyMockSupport {
 
         EasyMock.expect(getsFileModTime.exists(destinationFile)).andReturn(true);
         EasyMock.expect(getsFileModTime.getFor(destinationFile)).andReturn(startTime);
+        EasyMock.expect(headerFactory.getFor(DataSourceID.tfgm)).andReturn(headers);
 
         EasyMock.expect(providesLocalNow.getZoneDateTimeUTC()).andReturn(startTime);
         URLStatus status = new URLStatus(expectedDownloadURL, 200, startTime.minusDays(1));
-        EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL, startTime, true)).andReturn(status);
+        EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL, startTime, true, headers)).andReturn(status);
 
         replayAll();
         Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
@@ -149,6 +156,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
     void shouldCopeWithRedirectsPermAndTemp() throws IOException, InterruptedException {
 
         EasyMock.expect(providesLocalNow.getZoneDateTimeUTC()).andReturn(startTime);
+        EasyMock.expect(headerFactory.getFor(DataSourceID.tfgm)).andReturn(headers);
 
         ZonedDateTime modTime = startTime.plusMinutes(1);
 
@@ -164,11 +172,11 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         URLStatus status2 = new URLStatus(redirectUrl2, MOVED_TEMPORARILY);
         URLStatus status3 = new URLStatus(redirectUrl2, OK, time);
 
-        EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL, modTime, true)).andReturn(status1);
-        EasyMock.expect(httpDownloader.getStatusFor(redirectUrl1, modTime, true)).andReturn(status2);
-        EasyMock.expect(httpDownloader.getStatusFor(redirectUrl2, modTime, true)).andReturn(status3);
+        EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL, modTime, true, headers)).andReturn(status1);
+        EasyMock.expect(httpDownloader.getStatusFor(redirectUrl1, modTime, true, headers)).andReturn(status2);
+        EasyMock.expect(httpDownloader.getStatusFor(redirectUrl2, modTime, true, headers)).andReturn(status3);
 
-        EasyMock.expect(httpDownloader.downloadTo(destinationFile, redirectUrl2, modTime)).andReturn(status3);
+        EasyMock.expect(httpDownloader.downloadTo(destinationFile, redirectUrl2, modTime, headers)).andReturn(status3);
         EasyMock.expect(getsFileModTime.update(destinationFile, time)).andReturn(true);
 
         replayAll();
@@ -183,6 +191,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
     void shouldCopeWithRedirectsOnDownloadPermAndTemp() throws IOException, InterruptedException {
 
         EasyMock.expect(providesLocalNow.getZoneDateTimeUTC()).andReturn(startTime);
+        EasyMock.expect(headerFactory.getFor(DataSourceID.tfgm)).andReturn(headers);
 
         ZonedDateTime fileModTime = expiredFileTime;
 
@@ -199,10 +208,10 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         URLStatus firstGetStatus = new URLStatus(redirectedURL, MOVED_TEMPORARILY);
         URLStatus secondHeadStatus = new URLStatus(redirectedURL, 200, remoteModTime);
 
-        EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL, fileModTime, true)).andReturn(initialHeadStatus);
+        EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL, fileModTime, true, headers)).andReturn(initialHeadStatus);
 
-        EasyMock.expect(httpDownloader.downloadTo(destinationFile, fromConfigURL, fileModTime)).andReturn(firstGetStatus);
-        EasyMock.expect(httpDownloader.downloadTo(destinationFile, redirectedURL, fileModTime)).andReturn(secondHeadStatus);
+        EasyMock.expect(httpDownloader.downloadTo(destinationFile, fromConfigURL, fileModTime, headers)).andReturn(firstGetStatus);
+        EasyMock.expect(httpDownloader.downloadTo(destinationFile, redirectedURL, fileModTime, headers)).andReturn(secondHeadStatus);
 
         EasyMock.expect(getsFileModTime.update(destinationFile, remoteModTime)).andReturn(true);
 
@@ -218,6 +227,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
     @Test
     void shouldHandleTooManyDirectsByThrowing() throws IOException, InterruptedException {
         EasyMock.expect(providesLocalNow.getZoneDateTimeUTC()).andReturn(startTime);
+        EasyMock.expect(headerFactory.getFor(DataSourceID.tfgm)).andReturn(headers);
 
         ZonedDateTime fileModTime = expiredFileTime;
 
@@ -229,8 +239,8 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         // sometimes see 200 from a server for HEAD but then a redirect for the GET (!)
         URLStatus redirect = new URLStatus(redirectedURL, MOVED_TEMPORARILY);
 
-        EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL, fileModTime, true)).andReturn(redirect);
-        EasyMock.expect(httpDownloader.getStatusFor(redirectedURL, fileModTime, true)).andStubReturn(redirect);
+        EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL, fileModTime, true, headers)).andReturn(redirect);
+        EasyMock.expect(httpDownloader.getStatusFor(redirectedURL, fileModTime, true, headers)).andStubReturn(redirect);
 
         replayAll();
         Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
@@ -242,6 +252,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
     void shouldCopeWithRedirects307() throws IOException, InterruptedException {
 
         EasyMock.expect(providesLocalNow.getZoneDateTimeUTC()).andReturn(startTime);
+        EasyMock.expect(headerFactory.getFor(DataSourceID.tfgm)).andReturn(headers);
 
         ZonedDateTime modTime = startTime.plusMinutes(1);
 
@@ -255,10 +266,10 @@ class FetchDataFromUrlTest extends EasyMockSupport {
         URLStatus status1 = new URLStatus(redirectUrl, TEMPORARY_REDIRECT);
         URLStatus status2 = new URLStatus(redirectUrl, 200, time);
 
-        EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL, modTime, true)).andReturn(status1);
-        EasyMock.expect(httpDownloader.getStatusFor(redirectUrl, modTime, true)).andReturn(status2);
+        EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL, modTime, true, headers)).andReturn(status1);
+        EasyMock.expect(httpDownloader.getStatusFor(redirectUrl, modTime, true, headers)).andReturn(status2);
 
-        EasyMock.expect(httpDownloader.downloadTo(destinationFile, redirectUrl, modTime)).andReturn(status2);
+        EasyMock.expect(httpDownloader.downloadTo(destinationFile, redirectUrl, modTime, headers)).andReturn(status2);
         EasyMock.expect(getsFileModTime.update(destinationFile, time)).andReturn(true);
 
         replayAll();
@@ -273,6 +284,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
     void shouldHandleNoModTimeIsAvailableByNotDownloadingIfExpiryOK() throws IOException, InterruptedException {
 
         EasyMock.expect(providesLocalNow.getZoneDateTimeUTC()).andReturn(startTime);
+        EasyMock.expect(headerFactory.getFor(DataSourceID.tfgm)).andReturn(headers);
 
         ZonedDateTime modTime = startTime.plusMinutes(1);
 
@@ -281,7 +293,7 @@ class FetchDataFromUrlTest extends EasyMockSupport {
 
         URLStatus status = new URLStatus(expectedDownloadURL, 200);
 
-        EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL, modTime, true)).andReturn(status);
+        EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL, modTime, true, headers)).andReturn(status);
 
         replayAll();
         Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
@@ -294,14 +306,15 @@ class FetchDataFromUrlTest extends EasyMockSupport {
     void shouldHandleNoModTimeIsAvailableByDownloadingWhenExpired() throws IOException, InterruptedException {
 
         EasyMock.expect(providesLocalNow.getZoneDateTimeUTC()).andReturn(startTime);
+        EasyMock.expect(headerFactory.getFor(DataSourceID.tfgm)).andReturn(headers);
 
         EasyMock.expect(getsFileModTime.exists(destinationFile)).andReturn(true);
         EasyMock.expect(getsFileModTime.getFor(destinationFile)).andReturn(expiredFileTime);
 
         URLStatus status = new URLStatus(expectedDownloadURL, 200);
 
-        EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL, expiredFileTime, true)).andReturn(status);
-        EasyMock.expect(httpDownloader.downloadTo(destinationFile, expectedDownloadURL, expiredFileTime)).andReturn(status);
+        EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL, expiredFileTime, true, headers)).andReturn(status);
+        EasyMock.expect(httpDownloader.downloadTo(destinationFile, expectedDownloadURL, expiredFileTime, headers)).andReturn(status);
 
         replayAll();
         Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
@@ -314,11 +327,12 @@ class FetchDataFromUrlTest extends EasyMockSupport {
     void shouldHandleNoModTimeIsAvailableByStillTryingDownloadWhenNoLocalFile() throws IOException, InterruptedException {
 
         EasyMock.expect(getsFileModTime.exists(destinationFile)).andReturn(false);
+        EasyMock.expect(headerFactory.getFor(DataSourceID.tfgm)).andReturn(headers);
 
         URLStatus statusWithoutValidModTime = new URLStatus(expectedDownloadURL, 200);
 
-        EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL, invalidTime, true)).andReturn(statusWithoutValidModTime);
-        EasyMock.expect(httpDownloader.downloadTo(destinationFile, expectedDownloadURL, invalidTime)).andReturn(statusWithoutValidModTime);
+        EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL, invalidTime, true, headers)).andReturn(statusWithoutValidModTime);
+        EasyMock.expect(httpDownloader.downloadTo(destinationFile, expectedDownloadURL, invalidTime, headers)).andReturn(statusWithoutValidModTime);
 
         replayAll();
         Assertions.assertAll(() -> fetchDataFromUrl.fetchData());
@@ -331,11 +345,12 @@ class FetchDataFromUrlTest extends EasyMockSupport {
     void shouldHandleNoModTimeIsAvailableByStillTryingDownloadWhenNoLocalFileDownloadFails() throws IOException, InterruptedException {
 
         EasyMock.expect(getsFileModTime.exists(destinationFile)).andReturn(false);
+        EasyMock.expect(headerFactory.getFor(DataSourceID.tfgm)).andReturn(headers);
 
         URLStatus statusWithoutValidModTime = new URLStatus(expectedDownloadURL, 200);
 
-        EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL, invalidTime, true)).andReturn(statusWithoutValidModTime);
-        EasyMock.expect(httpDownloader.downloadTo(destinationFile, expectedDownloadURL, invalidTime)).
+        EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL, invalidTime, true, headers)).andReturn(statusWithoutValidModTime);
+        EasyMock.expect(httpDownloader.downloadTo(destinationFile, expectedDownloadURL, invalidTime, headers)).
                 andReturn(new URLStatus(expectedDownloadURL, NOT_FOUND));
 
         replayAll();
@@ -349,10 +364,11 @@ class FetchDataFromUrlTest extends EasyMockSupport {
     void shouldHandleRemoteIs404NoLocalFile() throws IOException, InterruptedException {
 
         EasyMock.expect(getsFileModTime.exists(destinationFile)).andReturn(false);
+        EasyMock.expect(headerFactory.getFor(DataSourceID.tfgm)).andReturn(headers);
 
         URLStatus status = new URLStatus(expectedDownloadURL, NOT_FOUND);
 
-        EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL, invalidTime, true)).andReturn(status);
+        EasyMock.expect(httpDownloader.getStatusFor(expectedDownloadURL, invalidTime, true, headers)).andReturn(status);
 
         replayAll();
         Assertions.assertAll(() -> fetchDataFromUrl.fetchData());

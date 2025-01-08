@@ -9,6 +9,7 @@ import com.tramchester.dataimport.URLStatus;
 import com.tramchester.domain.ServiceTimeLimits;
 import com.tramchester.healthchecks.NewDataAvailableHealthCheck;
 import com.tramchester.testSupport.TestEnv;
+import org.apache.commons.lang3.tuple.Pair;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.Assertions;
@@ -18,6 +19,8 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.net.URI;
 import java.time.ZonedDateTime;
+import java.util.Collections;
+import java.util.List;
 
 class NewDataAvailableHealthCheckTest extends EasyMockSupport {
     private URI expecteds3URI;
@@ -29,6 +32,7 @@ class NewDataAvailableHealthCheckTest extends EasyMockSupport {
     private ZonedDateTime time;
     private RemoteDataSourceConfig dataSourceConfig;
     private S3DownloadAndModTime s3DownloadAndModTime;
+    private List<Pair<String, String>> headers;
 
     @BeforeEach
     void beforeEachTestRuns() {
@@ -44,6 +48,8 @@ class NewDataAvailableHealthCheckTest extends EasyMockSupport {
         healthCheck = new NewDataAvailableHealthCheck(dataSourceConfig, httpDownloadAndModTime, s3DownloadAndModTime,
                 getsFileModTime, serviceTimeLimits);
         time = TestEnv.UTCNow();
+
+        headers = Collections.emptyList();
     }
 
     @Test
@@ -54,7 +60,7 @@ class NewDataAvailableHealthCheckTest extends EasyMockSupport {
 
         URLStatus status = new URLStatus(expectedURL, 200, time.minusDays(1));
 
-        EasyMock.expect(httpDownloadAndModTime.getStatusFor(expectedURL, time, true)).andReturn(status);
+        EasyMock.expect(httpDownloadAndModTime.getStatusFor(expectedURL, time, true, headers)).andReturn(status);
         EasyMock.expect(getsFileModTime.getFor(dataSourceConfig)).andReturn(time);
 
         replayAll();
@@ -71,7 +77,7 @@ class NewDataAvailableHealthCheckTest extends EasyMockSupport {
 
         URLStatus status = new URLStatus(expectedURL, 200, time.plusDays(1));
 
-        EasyMock.expect(httpDownloadAndModTime.getStatusFor(expectedURL, time, true)).andReturn(status);
+        EasyMock.expect(httpDownloadAndModTime.getStatusFor(expectedURL, time, true, headers)).andReturn(status);
         EasyMock.expect(getsFileModTime.getFor(dataSourceConfig)).andReturn(time);
 
         replayAll();
@@ -88,7 +94,7 @@ class NewDataAvailableHealthCheckTest extends EasyMockSupport {
 
         URLStatus status = new URLStatus(expectedURL, 200);
 
-        EasyMock.expect(httpDownloadAndModTime.getStatusFor(expectedURL, time, true)).andReturn(status);
+        EasyMock.expect(httpDownloadAndModTime.getStatusFor(expectedURL, time, true, headers)).andReturn(status);
         EasyMock.expect(getsFileModTime.getFor(dataSourceConfig)).andReturn(time);
 
         replayAll();
@@ -105,7 +111,7 @@ class NewDataAvailableHealthCheckTest extends EasyMockSupport {
 
         URLStatus status = new URLStatus(expecteds3URI, 200, time.minusDays(1));
 
-        EasyMock.expect(s3DownloadAndModTime.getStatusFor(expecteds3URI, time, true)).andReturn(status);
+        EasyMock.expect(s3DownloadAndModTime.getStatusFor(expecteds3URI, time, true, headers)).andReturn(status);
         EasyMock.expect(getsFileModTime.getFor(dataSourceConfig)).andReturn(time);
 
         replayAll();
@@ -122,7 +128,7 @@ class NewDataAvailableHealthCheckTest extends EasyMockSupport {
 
         URLStatus status = new URLStatus(expectedURL, 200, time.plusDays(1));
 
-        EasyMock.expect(s3DownloadAndModTime.getStatusFor(expecteds3URI, time, true)).andReturn(status);
+        EasyMock.expect(s3DownloadAndModTime.getStatusFor(expecteds3URI, time, true, headers)).andReturn(status);
         EasyMock.expect(getsFileModTime.getFor(dataSourceConfig)).andReturn(time);
 
         replayAll();
@@ -139,7 +145,7 @@ class NewDataAvailableHealthCheckTest extends EasyMockSupport {
 
         URLStatus status = new URLStatus(expectedURL, 200);
 
-        EasyMock.expect(s3DownloadAndModTime.getStatusFor(expecteds3URI, time, true)).andReturn(status);
+        EasyMock.expect(s3DownloadAndModTime.getStatusFor(expecteds3URI, time, true, headers)).andReturn(status);
         EasyMock.expect(getsFileModTime.getFor(dataSourceConfig)).andReturn(time);
 
         replayAll();

@@ -8,6 +8,7 @@ import com.tramchester.dataimport.URLStatus;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.S3Test;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
@@ -16,6 +17,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -25,6 +28,7 @@ public class S3DownloaderTest {
 
     private Path temporaryFile;
     private S3DownloadAndModTime downloadAndModTime;
+    private List<Pair<String, String>> headers;
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
@@ -44,6 +48,8 @@ public class S3DownloaderTest {
 
         temporaryFile = Paths.get(FileUtils.getTempDirectoryPath(), "downloadAFile");
         tidyFile();
+
+        headers = Collections.emptyList();
     }
 
     @AfterEach
@@ -62,14 +68,14 @@ public class S3DownloaderTest {
         URI url = URI.create(TestEnv.getBucketUrl()+"testing/ForTestSupport.txt");
 
         ZonedDateTime localModTime = URLStatus.invalidTime;
-        URLStatus result = downloadAndModTime.getStatusFor(url, localModTime, true);
+        URLStatus result = downloadAndModTime.getStatusFor(url, localModTime, true, headers);
         assertTrue(result.isOk());
 
         ZonedDateTime modTime = result.getModTime();
         assertTrue(modTime.isBefore(TestEnv.UTCNow()));
         assertTrue(modTime.isAfter(ZonedDateTime.of(2000,1,1,12,59,22,0,ZoneOffset.UTC)));
 
-        downloadAndModTime.downloadTo(temporaryFile, url, localModTime);
+        downloadAndModTime.downloadTo(temporaryFile, url, localModTime, headers);
 
         assertTrue(temporaryFile.toFile().exists());
         assertTrue(temporaryFile.toFile().length()>0);
@@ -79,7 +85,7 @@ public class S3DownloaderTest {
     void shouldHaveExpectedStatusForMissingKey() {
         URI url = URI.create(TestEnv.getBucketUrl() + "SHOULDBEMISSING");
         ZonedDateTime localModTime = URLStatus.invalidTime;
-        URLStatus result = downloadAndModTime.getStatusFor(url, localModTime, true);
+        URLStatus result = downloadAndModTime.getStatusFor(url, localModTime, true, headers);
         assertFalse(result.isOk());
 
         assertEquals(404,result.getStatusCode());

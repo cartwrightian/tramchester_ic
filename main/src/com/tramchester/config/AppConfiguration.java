@@ -114,6 +114,9 @@ public class AppConfiguration extends TramchesterConfig {
     @JsonProperty("openLdb")
     private OpenLdbAppConfig openLdbConfig;
 
+    @JsonProperty("openRailData")
+    private OpenRailDataConfig openRailDataConfig;
+
     @JsonProperty("rail")
     private RailAppConfig railConfig;
 
@@ -302,6 +305,11 @@ public class AppConfiguration extends TramchesterConfig {
     @Override
     public OpenLdbConfig getOpenldbwsConfig() {
         return openLdbConfig;
+    }
+
+    @Override
+    public OpenRailDataConfig getOpenRailDataConfig() {
+        return openRailDataConfig;
     }
 
     @Override

@@ -115,6 +115,9 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
     //  Open Live Departure Boards Web Service config
     public abstract OpenLdbConfig getOpenldbwsConfig();
 
+    // config for auth against open rail data download
+    public abstract OpenRailDataConfig getOpenRailDataConfig();
+
     // rail data
     public abstract RailConfig getRailConfig();
 
@@ -248,4 +251,6 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
         // TODO env name into an enum
         return getEnvironmentName().startsWith("Prod");
     }
+
+
 }

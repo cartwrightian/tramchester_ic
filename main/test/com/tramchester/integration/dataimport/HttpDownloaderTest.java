@@ -4,6 +4,7 @@ import com.tramchester.dataimport.HttpDownloadAndModTime;
 import com.tramchester.dataimport.URLStatus;
 import com.tramchester.testSupport.TestEnv;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -47,13 +50,15 @@ class HttpDownloaderTest {
     void shouldDownloadSomething() throws IOException, InterruptedException {
         URI url = URI.create("https://github.com/fluidicon.png");
 
-        URLStatus headStatus = urlDownloader.getStatusFor(url, localModTime, true);
+        final List<Pair<String, String>> headers = Collections.emptyList();
+
+        URLStatus headStatus = urlDownloader.getStatusFor(url, localModTime, true, headers);
         assertTrue(headStatus.isOk());
         ZonedDateTime modTime = headStatus.getModTime();
         assertTrue(modTime.isBefore(TestEnv.UTCNow()));
         assertTrue(modTime.isAfter(ZonedDateTime.of(2000,1,1,12,59,22,0, ZoneOffset.UTC)), modTime.toString());
 
-        URLStatus getStatus = urlDownloader.downloadTo(temporaryFile, url, modTime);
+        URLStatus getStatus = urlDownloader.downloadTo(temporaryFile, url, modTime, headers);
 
         assertTrue(getStatus.isOk(), "unexpected status:" + getStatus);
 
@@ -68,9 +73,10 @@ class HttpDownloaderTest {
 
     @Test
     void shouldHaveValidModTimeForTimetableData() throws IOException, InterruptedException {
+        final List<Pair<String, String>> headers = Collections.emptyList();
 
         URI url = URI.create(TestEnv.TFGM_TIMETABLE_URL);
-        URLStatus result = urlDownloader.getStatusFor(url, localModTime, true);
+        URLStatus result = urlDownloader.getStatusFor(url, localModTime, true, headers);
 
         assertTrue(result.getModTime().getYear()>1970, "Unexpected date " + result.getModTime());
     }
@@ -78,8 +84,9 @@ class HttpDownloaderTest {
     @Test
     void shouldHave404StatusForMissingUrlHead() throws InterruptedException, IOException {
         URI url = URI.create("http://www.google.com/nothere");
+        final List<Pair<String, String>> headers = Collections.emptyList();
 
-        URLStatus headStatus = urlDownloader.getStatusFor(url, localModTime, true);
+        URLStatus headStatus = urlDownloader.getStatusFor(url, localModTime, true, headers);
 
         assertFalse(headStatus.isOk());
         assertFalse(headStatus.isRedirect());
@@ -90,9 +97,10 @@ class HttpDownloaderTest {
     @Test
     void shouldHave404StatusForMissingDownload() {
         URI url = URI.create("http://www.google.com/nothere");
+        final List<Pair<String, String>> headers = Collections.emptyList();
 
         ZonedDateTime modTime = URLStatus.invalidTime;
-        URLStatus getStatus = urlDownloader.downloadTo(temporaryFile, url, modTime);
+        URLStatus getStatus = urlDownloader.downloadTo(temporaryFile, url, modTime, headers);
 
         assertFalse(getStatus.isOk());
         assertFalse(getStatus.isRedirect());
@@ -104,8 +112,9 @@ class HttpDownloaderTest {
     @Test
     void shouldHaveRedirectStatusAndURL() throws IOException, InterruptedException {
         URI url = URI.create("http://news.bbc.co.uk");
+        final List<Pair<String, String>> headers = Collections.emptyList();
 
-        URLStatus result = urlDownloader.getStatusFor(url, localModTime, true);
+        URLStatus result = urlDownloader.getStatusFor(url, localModTime, true, headers);
 
         assertFalse(result.isOk());
         assertTrue(result.isRedirect());
