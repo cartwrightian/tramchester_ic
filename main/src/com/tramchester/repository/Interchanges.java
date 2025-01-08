@@ -17,12 +17,12 @@ import com.tramchester.graph.FindStationsByNumberLinks;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
 import com.tramchester.graph.search.routes.RouteIndex;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import jakarta.inject.Inject;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -139,13 +139,14 @@ public class Interchanges implements InterchangeRepository {
         };
     }
 
-    private void populateInterchangesFor(TransportMode mode, int linkThreshhold) {
+    private void populateInterchangesFor(final TransportMode mode, final int linkThreshhold) {
 
         logger.info("Finding interchanges for " + mode + " and threshhold " + linkThreshhold);
-        IdSet<Station> foundIdsViaLinks = findStationsByNumberConnections.atLeastNLinkedStations(mode, linkThreshhold);
+        final IdSet<Station> foundIdsViaLinks = findStationsByNumberConnections.atLeastNLinkedStations(mode, linkThreshhold);
 
         // filter out any station already marked as interchange, or if data source only uses marked interchanges
-        Set<Station> foundViaLinks = foundIdsViaLinks.stream().map(stationRepository::getStationById).
+        Set<Station> foundViaLinks = foundIdsViaLinks.stream().
+                map(stationRepository::getStationById).
                 filter(station -> !station.isMarkedInterchange()).
                 filter(station -> !config.onlyMarkedInterchange(station)).
                 collect(Collectors.toSet());

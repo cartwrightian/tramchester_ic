@@ -4,6 +4,5 @@ import java.net.URL;
 
 public interface OpenLdbConfig {
     String getAccessToken();
-
     URL getWSDLLocation();
 }

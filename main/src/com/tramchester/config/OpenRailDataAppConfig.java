@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class OpenRailDataAppConfig implements OpenRailDataConfig {
 
-
     private final String username;
     private final String password;
     private final String authURL;

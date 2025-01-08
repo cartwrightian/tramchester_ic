@@ -53,6 +53,7 @@ public class LiveDataParser {
     // live data api has limit in number of results
     private static final int MAX_DUE_TRAMS = 4;
 
+
     public enum LiveDataNamesMapping {
         DeansgateAliasB("Deansgate Castlefield","Deansgate-Castlefield"),
         Firswood("Firswood", "Firswood Station"),
@@ -105,6 +106,10 @@ public class LiveDataParser {
 
     @PreDestroy
     public void stop() {
+        logger.info("stopped");
+    }
+
+    public void logUnusedMappings() {
         final Set<String> unusedMappings = new HashSet<>(destinationNameMappings.keySet());
         unusedMappings.removeAll(mappingsUsed);
         if (!unusedMappings.isEmpty()) {
@@ -117,8 +122,6 @@ public class LiveDataParser {
         if (!unusedMappings.isEmpty()) {
             logger.warn("The following lines were not seen " + unusedLines);
         }
-
-        logger.info("stopped");
     }
 
     public List<TramStationDepartureInfo> parse(final String rawJson) {

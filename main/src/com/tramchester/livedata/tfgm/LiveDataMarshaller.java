@@ -56,6 +56,9 @@ public class LiveDataMarshaller implements LiveDataFetcher.ReceivesRawData {
 
     @PreDestroy
     public void dispose() {
+        if (fetcher.isEnabled()) {
+            parser.logUnusedMappings();
+        }
         fetcher.stop();
         observers.clear();
     }

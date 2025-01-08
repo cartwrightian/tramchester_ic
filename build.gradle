@@ -640,6 +640,13 @@ tasks.register('pullData', JavaExec) {
     args prodConfig
 }
 
+tasks.register('pullOpenRailData', JavaExec) {
+    dependsOn 'classes'
+    mainClass = 'com.tramchester.deployment.cli.FetchDataCLI'
+    classpath = sourceSets.main.runtimeClasspath
+    args 'config/rail.yml'
+}
+
 tasks.register('publishLiveData', JavaExec) {
     dependsOn 'classes'
     mainClass = 'com.tramchester.deployment.cli.PublishLiveDataToSNSCLI'

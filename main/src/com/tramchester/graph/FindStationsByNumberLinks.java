@@ -32,15 +32,15 @@ public class FindStationsByNumberLinks {
         this.graphDatabase = graphDatabase;
     }
 
-    public IdSet<Station> atLeastNLinkedStations(TransportMode mode, int threshhold) {
+    public IdSet<Station> atLeastNLinkedStations(final TransportMode mode, final int threshhold) {
         logger.info(format("Find at least N outbound for %s N=%s", mode, threshhold));
         Map<String, Object> params = new HashMap<>();
 
-        String modeLabel = GraphLabel.forMode(mode).name();
+        final String modeLabel = GraphLabel.forMode(mode).name();
 
         params.put("threshhold", threshhold);
 
-        String query = format("MATCH (a:STATION)-[link:LINKED]->(:STATION) " +
+        final String query = format("MATCH (a:STATION)-[link:LINKED]->(:STATION) " +
                         "WHERE a:%s " +
                         "WITH a, count(link) as numLinks " +
                         "WHERE numLinks>=$threshhold " +
@@ -51,7 +51,7 @@ public class FindStationsByNumberLinks {
     }
 
     @NotNull
-    private IdSet<Station> doQuery(TransportMode mode, Map<String, Object> params, String query) {
+    private IdSet<Station> doQuery(final TransportMode mode, Map<String, Object> params, final String query) {
         logger.info("Query: '" + query + '"');
 
         IdSet<Station> stationIds = new IdSet<>();

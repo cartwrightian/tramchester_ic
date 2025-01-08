@@ -115,7 +115,7 @@ public class AppConfiguration extends TramchesterConfig {
     private OpenLdbAppConfig openLdbConfig;
 
     @JsonProperty("openRailData")
-    private OpenRailDataConfig openRailDataConfig;
+    private OpenRailDataAppConfig openRailDataConfig;
 
     @JsonProperty("rail")
     private RailAppConfig railConfig;
