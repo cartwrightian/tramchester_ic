@@ -23,7 +23,7 @@ public class DoesPostRequest {
 
             final HttpRequest.Builder httpRequestBuilder = HttpRequest.newBuilder().
                     uri(uri).
-                    PUT(HttpRequest.BodyPublishers.ofString(body));
+                    POST(HttpRequest.BodyPublishers.ofString(body));
 
             httpRequestBuilder.setHeader("Content-Type", "application/x-www-form-urlencoded");
             HttpRequest httpRequest = httpRequestBuilder.build();
@@ -32,6 +32,10 @@ public class DoesPostRequest {
             int statusCode = response.statusCode();
             if (statusCode != 200) {
                 logger.error("Unexpected status for post " + statusCode + " url " + uri);
+                String diag = response.body();
+                if (!diag.isEmpty()) {
+                    logger.error("Additional " + diag);
+                }
             } else {
                 receivedBody = response.body();
                 logger.info("POST made OK to " + uri + " received body of size " + receivedBody.length());

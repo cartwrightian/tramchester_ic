@@ -1,9 +1,6 @@
 package com.tramchester.integration.testSupport.rail;
 
-import com.tramchester.config.GTFSSourceConfig;
-import com.tramchester.config.OpenLdbConfig;
-import com.tramchester.config.RailConfig;
-import com.tramchester.config.RemoteDataSourceConfig;
+import com.tramchester.config.*;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.integration.testSupport.config.IntegrationTestConfig;
 import com.tramchester.integration.testSupport.TestGroupType;
@@ -61,5 +58,25 @@ public class IntegrationRailTestConfig extends IntegrationTestConfig {
     @Override
     public OpenLdbConfig getOpenldbwsConfig() {
         return new TestOpenLdbConfig();
+    }
+
+    @Override
+    public OpenRailDataConfig getOpenRailDataConfig() {
+        return new OpenRailDataConfig() {
+            @Override
+            public String getUsername() {
+                return System.getenv("OPENRAILDATA_USERNAME");
+            }
+
+            @Override
+            public String getPassword() {
+                return System.getenv("OPENRAILDATA_PASSWORD");
+            }
+
+            @Override
+            public String getAuthURL() {
+                return "https://opendata.nationalrail.co.uk/authenticate";
+            }
+        };
     }
 }

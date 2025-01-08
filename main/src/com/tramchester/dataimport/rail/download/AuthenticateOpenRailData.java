@@ -60,16 +60,23 @@ public class AuthenticateOpenRailData {
 
         final URI uri = URI.create(url);
 
-        final String payload = String.format("username=%s&password=%s", username, password);
-        final String body = URLEncoder.encode(payload, StandardCharsets.US_ASCII);
+        final String encodedUsername = URLEncoder.encode(username, StandardCharsets.US_ASCII);
+        final String encodedPassword = URLEncoder.encode(password, StandardCharsets.US_ASCII);
+        final String payload = String.format("username=%s&password=%s", encodedUsername, encodedPassword);
+        //final String body = URLEncoder.encode(payload, StandardCharsets.US_ASCII);
 
-        String jsonResponse = doesPostRequest.post(uri, body);
+        final String jsonResponse = doesPostRequest.post(uri, payload);
 
         return parseJsonResponseForAuthToken(jsonResponse, username);
 
     }
 
     private @NotNull String parseJsonResponseForAuthToken(final String jsonResponse, final String requestedUsername) {
+        if (jsonResponse.isEmpty()) {
+            logger.error("Empty response received");
+            return "";
+        }
+
         logger.info("Parsing json of size " + jsonResponse.length());
         try(JsonParser parser = mapper.getFactory().createParser(jsonResponse)) {
             parser.nextToken();
