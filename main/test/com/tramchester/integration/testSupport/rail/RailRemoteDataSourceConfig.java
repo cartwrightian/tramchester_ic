@@ -8,6 +8,9 @@ import java.time.Duration;
 
 public class RailRemoteDataSourceConfig extends RemoteDataSourceConfig {
 
+    // https://www.railforums.co.uk/threads/data-atoc-org-portal-closing.278726/
+
+    // no longer available
     // http://data.atoc.org/how-to
     // https://data.atoc.org/member-area
 

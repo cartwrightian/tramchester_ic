@@ -350,12 +350,6 @@ tasks.register('all', JavaExec) {
     args 'server', 'config/all.yml'
 }
 
-tasks.register('busTest', Test) {
-    useJUnitPlatform {
-        includeTags 'BusTest'
-    }
-}
-
 tasks.register('unit', Test) {
     dependsOn 'compileJava'
     useJUnitPlatform()
@@ -403,6 +397,7 @@ def integrationTestConfiguration = {
 //         will also need to exclude all other live data tests
         excludeTags "postcode" // not needed for tram, but used by buses
         excludeTags "BusTest"
+        excludeTags "TramBusTest"
         excludeTags "TrainTest"
         excludeTags "GMTest"
         excludeTags "LiveDataS3UploadTest" // currently disabled
@@ -442,7 +437,17 @@ tasks.register('integrationProfile', Test) {
     jvmArgs agentPath
 }
 
-
+tasks.register('busTest', Test) {
+    dependsOn 'compileJava'
+    useJUnitPlatform {
+        includeTags 'BusTest'
+    }
+    maxHeapSize = "3g"
+    testLogging {
+        exceptionFormat "full" // default is "short"
+        events "passed", "failed", "standardError"
+    }
+}
 
 tasks.register('integrationGM', Test) {
     dependsOn 'compileJava'
