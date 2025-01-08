@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class AuthenticateOpenRailDataTest extends EasyMockSupport {
 
+    public static final String ENCODED_BODY = "username=alice%40example.com&password=secret";
     private AuthenticateOpenRailData authenticator;
     private DoesPostRequest doesPostRequest;
     private URI uri;
@@ -50,7 +51,7 @@ public class AuthenticateOpenRailDataTest extends EasyMockSupport {
                 "}";
 
         // note the example on the open rail data website does not look properly URl encoded....
-        EasyMock.expect(doesPostRequest.post(uri,"username%3Dalice%40example.com%26password%3Dsecret")).andReturn(json);
+        EasyMock.expect(doesPostRequest.post(uri, ENCODED_BODY)).andReturn(json);
 
         replayAll();
         String token = authenticator.getToken();
@@ -64,7 +65,7 @@ public class AuthenticateOpenRailDataTest extends EasyMockSupport {
         String json = "XXXXX";
 
         // note the example on the open rail data website does not look properly URl encoded....
-        EasyMock.expect(doesPostRequest.post(uri,"username%3Dalice%40example.com%26password%3Dsecret")).andReturn(json);
+        EasyMock.expect(doesPostRequest.post(uri, ENCODED_BODY)).andReturn(json);
 
         replayAll();
         String token = authenticator.getToken();
@@ -78,7 +79,7 @@ public class AuthenticateOpenRailDataTest extends EasyMockSupport {
         String json = "";
 
         // note the example on the open rail data website does not look properly URl encoded....
-        EasyMock.expect(doesPostRequest.post(uri,"username%3Dalice%40example.com%26password%3Dsecret")).andReturn(json);
+        EasyMock.expect(doesPostRequest.post(uri, ENCODED_BODY)).andReturn(json);
 
         replayAll();
         String token = authenticator.getToken();
@@ -101,7 +102,7 @@ public class AuthenticateOpenRailDataTest extends EasyMockSupport {
                 "}";
 
         // note the example on the open rail data website does not look properly URl encoded....
-        EasyMock.expect(doesPostRequest.post(uri,"username%3Dalice%40example.com%26password%3Dsecret")).andReturn(json);
+        EasyMock.expect(doesPostRequest.post(uri, ENCODED_BODY)).andReturn(json);
 
         replayAll();
         String token = authenticator.getToken();

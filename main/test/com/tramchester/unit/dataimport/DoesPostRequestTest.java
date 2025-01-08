@@ -107,7 +107,7 @@ public class DoesPostRequestTest {
         public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
             calledUrl = request.getRequestURL().toString();
             contentHeader = request.getHeader("Content-Type");
-            if (request.getMethod().equals("PUT")) {
+            if (request.getMethod().equals("POST")) {
                 processPut(baseRequest, response);
             }
         }
