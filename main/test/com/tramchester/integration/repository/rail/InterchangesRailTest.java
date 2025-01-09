@@ -28,7 +28,7 @@ class InterchangesRailTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        config = new IntegrationRailTestConfig(false);
+        config = new IntegrationRailTestConfig(IntegrationRailTestConfig.Scope.GreaterManchester);
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
@@ -54,7 +54,7 @@ class InterchangesRailTest {
     void shouldHaveExpectedInterchanges() {
         assertTrue(interchangeRepository.isInterchange(getStation(RailStationIds.ManchesterPiccadilly)));
         assertTrue(interchangeRepository.isInterchange(getStation(RailStationIds.Stockport)));
-        assertTrue(interchangeRepository.isInterchange(getStation(RailStationIds.LondonEuston)));
+        //assertTrue(interchangeRepository.isInterchange(getStation(RailStationIds.LondonEuston)));
 
         assertFalse(interchangeRepository.isInterchange(getStation(RailStationIds.Hale)));
         assertFalse(interchangeRepository.isInterchange(getStation(RailStationIds.Knutsford)));

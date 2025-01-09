@@ -125,7 +125,7 @@ class ConfigMismatchTest {
     void shouldHaveKeyParametersSameForNationalRailIntegrationTests() throws IOException, ConfigurationException {
 
         AppConfiguration appConfig = loadConfigFromFile("rail.yml");
-        IntegrationRailTestConfig  nationalRailConfig = new IntegrationRailTestConfig(true);
+        IntegrationRailTestConfig  nationalRailConfig = new IntegrationRailTestConfig(IntegrationRailTestConfig.Scope.National);
 
         validateCoreParameters(Collections.emptySet(), appConfig,  nationalRailConfig);
 

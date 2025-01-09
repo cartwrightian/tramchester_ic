@@ -36,15 +36,16 @@ public class TimeRangePartial implements TimeRange {
         }
     }
 
-    public static TimeRange of(TramTime time, Duration before, Duration after) {
+    public static TimeRange of(final TramTime time, final Duration before, final Duration after) {
+        Duration calcBefore = before;
         if (time.getHourOfDay()==0 && !time.isNextDay()) {
-            Duration currentMinsOfDay = Duration.ofMinutes(time.getMinuteOfHour());
+            final Duration currentMinsOfDay = Duration.ofMinutes(time.getMinuteOfHour());
             if (Durations.greaterThan(before, currentMinsOfDay)) {
-                before = currentMinsOfDay;
+                calcBefore = currentMinsOfDay;
             }
         }
-        TramTime begin = time.minus(before);
-        TramTime end = time.plus(after);
+        final TramTime begin = time.minus(calcBefore);
+        final TramTime end = time.plus(after);
         return new TimeRangePartial(begin, end);
     }
 

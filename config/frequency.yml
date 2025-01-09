@@ -49,11 +49,18 @@ remoteSources:
     downloadPath: data/tram
     filename: tfgm_data.zip
     defaultExpiryDays: 1
-  - name: rail
-    dataURL: ${RAIL_DATAURL:-s3://tramchesternewdist/railData/ttis928.zip}
-    dataCheckURL: ""
-    dataPath: data/rail
-    downloadPath: data/rail
+#  - name: rail
+#    dataURL: ${RAIL_DATAURL:-s3://tramchesternewdist/railData/ttis928.zip}
+#    dataCheckURL: ""
+#    dataPath: data/rail
+#    downloadPath: data/rail
+#    filename: rail_data.zip
+#    defaultExpiryDays: 1
+  - name: openRailData
+    dataURL: https://opendata.nationalrail.co.uk/api/staticfeeds/3.0/timetable
+    dataCheckURL: https://opendata.nationalrail.co.uk/api/staticfeeds/3.0/timetable
+    dataPath: data/openRailData
+    downloadPath: data/openRailData
     filename: rail_data.zip
     defaultExpiryDays: 1
   - name: naptanxml

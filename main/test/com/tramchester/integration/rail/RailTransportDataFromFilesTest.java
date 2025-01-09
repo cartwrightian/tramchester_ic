@@ -42,7 +42,7 @@ public class RailTransportDataFromFilesTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        config = new IntegrationRailTestConfig(true);
+        config = new IntegrationRailTestConfig(IntegrationRailTestConfig.Scope.National);
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }

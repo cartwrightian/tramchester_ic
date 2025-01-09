@@ -69,12 +69,12 @@ public class GraphDBTestConfig implements GraphDBConfig {
                 filter(dataSourceId -> dataSourceId !=DataSourceID.database).
                 collect(Collectors.toSet());
 
-        List<GTFSSourceConfig> gtfsDataSource = config.getGTFSDataSource();
-        Set<TransportMode> groupedModesFromConfig = gtfsDataSource.stream().
+        final List<GTFSSourceConfig> gtfsDataSource = config.getGTFSDataSource();
+        final Set<TransportMode> groupedModesFromConfig = gtfsDataSource.stream().
                 flatMap(gtfsSourceConfig -> gtfsSourceConfig.groupedStationModes().stream()).
                 collect(Collectors.toSet());
 
-        boolean hasClosures = gtfsDataSource.stream().anyMatch(gtfsSourceConfig -> !gtfsSourceConfig.getStationClosures().isEmpty());
+        final boolean hasClosures = gtfsDataSource.stream().anyMatch(gtfsSourceConfig -> !gtfsSourceConfig.getStationClosures().isEmpty());
 
         String modes = modesFromConfig.isEmpty() ? "NoModesEnabled" : asText(modesFromConfig);
 

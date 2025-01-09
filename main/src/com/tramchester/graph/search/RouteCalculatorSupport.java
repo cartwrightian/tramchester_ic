@@ -13,6 +13,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.geo.BoundingBoxWithStations;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.NumberOfNodesAndRelationshipsRepository;
 import com.tramchester.graph.caches.LowestCostSeen;
@@ -310,6 +311,17 @@ public class RouteCalculatorSupport {
         public BranchOrderingPolicy getSelector() {
             return selector;
         }
+    }
+
+    public static Duration getMaxInitialWaitFor(List<? extends BoundingBoxWithStations> startingBoxes, TramchesterConfig config) {
+        Optional<Duration> findMaxInitialWait = startingBoxes.stream().
+                flatMap(box -> box.getStations().stream()).
+                map(station -> getMaxInitialWaitFor(station, config))
+                .max(Duration::compareTo);
+        if (findMaxInitialWait.isEmpty()) {
+            throw new RuntimeException("Could not find max initial wait from " + startingBoxes);
+        }
+        return findMaxInitialWait.get();
     }
 
     public static Duration getMaxInitialWaitFor(final Location<?> location, final TramchesterConfig config) {

@@ -39,7 +39,7 @@ class RailRouteCalculatorCombinationTests {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        TramchesterConfig config = new IntegrationRailTestConfig(false);
+        TramchesterConfig config = new IntegrationRailTestConfig(IntegrationRailTestConfig.Scope.GreaterManchester);
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 

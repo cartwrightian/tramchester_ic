@@ -47,15 +47,15 @@ public class RailRouteCalculatorTest {
     private Station stockport;
     private Station manchesterPiccadilly;
     private Station altrincham;
-    private Station londonEuston;
+//    private Station londonEuston;
     private Station macclesfield;
     private TramTime travelTime;
-    private Station stokeOnTrent;
-    private Station miltonKeynesCentral;
+//    private Station stokeOnTrent;
+//    private Station miltonKeynesCentral;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        TramchesterConfig testConfig = new IntegrationRailTestConfig(true);
+        TramchesterConfig testConfig = new IntegrationRailTestConfig(IntegrationRailTestConfig.Scope.GreaterManchester);
         componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 
@@ -81,10 +81,12 @@ public class RailRouteCalculatorTest {
         stockport = Stockport.from(stationRepository);
         manchesterPiccadilly = stationRepository.getStationById(ManchesterPiccadilly.getId());
         altrincham = stationRepository.getStationById(Altrincham.getId());
-        londonEuston = stationRepository.getStationById(LondonEuston.getId());
+
+
+//        londonEuston = stationRepository.getStationById(LondonEuston.getId());
         macclesfield = stationRepository.getStationById(Macclesfield.getId());
-        stokeOnTrent = stationRepository.getStationById(StokeOnTrent.getId());
-        miltonKeynesCentral = stationRepository.getStationById(MiltonKeynesCentral.getId());
+//        stokeOnTrent = stationRepository.getStationById(StokeOnTrent.getId());
+//        miltonKeynesCentral = stationRepository.getStationById(MiltonKeynesCentral.getId());
 
         travelTime = TramTime.of(8, 0);
     }
@@ -120,29 +122,29 @@ public class RailRouteCalculatorTest {
         atLeastOneDirect(request, manchesterPiccadilly, macclesfield);
     }
 
-    @Test
-    void shouldHaveManPiccToMiltonKeynesCentral() {
-        JourneyRequest request = new JourneyRequest(afterEngineering, travelTime, false, 0,
-                Duration.ofMinutes(120), 1, getRequestedModes());
+//    @Test
+//    void shouldHaveManPiccToMiltonKeynesCentral() {
+//        JourneyRequest request = new JourneyRequest(afterEngineering, travelTime, false, 0,
+//                Duration.ofMinutes(120), 1, getRequestedModes());
+//
+//        atLeastOneDirect(request, manchesterPiccadilly, miltonKeynesCentral);
+//    }
 
-        atLeastOneDirect(request, manchesterPiccadilly, miltonKeynesCentral);
-    }
+//    @Test
+//    void shouldHaveMiltonKeynesToManchester() {
+//        JourneyRequest request = new JourneyRequest(afterEngineering, travelTime, false, 0,
+//                Duration.ofMinutes(120), 1, getRequestedModes());
+//
+//        atLeastOneDirect(request, miltonKeynesCentral, manchesterPiccadilly);
+//    }
 
-    @Test
-    void shouldHaveMiltonKeynesToManchester() {
-        JourneyRequest request = new JourneyRequest(afterEngineering, travelTime, false, 0,
-                Duration.ofMinutes(120), 1, getRequestedModes());
-
-        atLeastOneDirect(request, miltonKeynesCentral, manchesterPiccadilly);
-    }
-
-    @Test
-    void shouldHaveManPiccToStoke() {
-        JourneyRequest request = new JourneyRequest(when, travelTime, false, 0,
-                Duration.ofMinutes(80), 1, getRequestedModes());
-
-        atLeastOneDirect(request, manchesterPiccadilly, stokeOnTrent);
-    }
+//    @Test
+//    void shouldHaveManPiccToStoke() {
+//        JourneyRequest request = new JourneyRequest(when, travelTime, false, 0,
+//                Duration.ofMinutes(80), 1, getRequestedModes());
+//
+//        atLeastOneDirect(request, manchesterPiccadilly, stokeOnTrent);
+//    }
 
     @Test
     void shouldHaveAltrinchamToStockport() {
@@ -154,14 +156,14 @@ public class RailRouteCalculatorTest {
         atLeastOneDirect(request, altrincham, stockport);
     }
 
-    @Test
-    void shouldHaveManchesterToLondonEuston() {
-
-        JourneyRequest request = new JourneyRequest(afterEngineering, travelTime, false, 0,
-                Duration.ofMinutes(240), 3, getRequestedModes());
-
-        atLeastOneDirect(request, manchesterPiccadilly, londonEuston);
-    }
+//    @Test
+//    void shouldHaveManchesterToLondonEuston() {
+//
+//        JourneyRequest request = new JourneyRequest(afterEngineering, travelTime, false, 0,
+//                Duration.ofMinutes(240), 3, getRequestedModes());
+//
+//        atLeastOneDirect(request, manchesterPiccadilly, londonEuston);
+//    }
 
     @Test
     void shouldHaveHaleToKnutsford() {
@@ -169,6 +171,7 @@ public class RailRouteCalculatorTest {
 
         JourneyRequest request = new JourneyRequest(when, travelTime, false, 1,
                 Duration.ofMinutes(30), 1, getRequestedModes());
+
         atLeastOneDirect(request, Hale.getId(), Knutsford.getId());
     }
 
@@ -182,6 +185,7 @@ public class RailRouteCalculatorTest {
         atLeastOneDirect(request, Knutsford.getId(), Hale.getId());
     }
 
+    @Disabled("outside of GM")
     @Test
     void shouldFindCorrectNumberOfJourneys() {
 
@@ -199,6 +203,7 @@ public class RailRouteCalculatorTest {
         assertEquals(1, results.size(), results.toString());
     }
 
+    @Disabled("outside of GM")
     @Test
     void shouldHaveSimpleJourneyEustonToManchester() {
         TramTime travelTime = TramTime.of(8, 0);
@@ -239,16 +244,16 @@ public class RailRouteCalculatorTest {
         });
     }
 
-    @Disabled("performance")
-    @Test
-    void shouldHaveAltrinchamToLondonEuston() {
-        TramTime travelTime = TramTime.of(8, 0);
-
-        JourneyRequest request = new JourneyRequest(when, travelTime, false, 2,
-                Duration.ofMinutes(240), 1, getRequestedModes());
-
-        atLeastOneDirect(request, altrincham, londonEuston);
-    }
+//    @Disabled("performance")
+//    @Test
+//    void shouldHaveAltrinchamToLondonEuston() {
+//        TramTime travelTime = TramTime.of(8, 0);
+//
+//        JourneyRequest request = new JourneyRequest(when, travelTime, false, 2,
+//                Duration.ofMinutes(240), 1, getRequestedModes());
+//
+//        atLeastOneDirect(request, altrincham, londonEuston);
+//    }
 
     private void atLeastOneDirect(JourneyRequest request, Station start, Station dest) {
         atLeastOneDirect(request, start.getId(), dest.getId());

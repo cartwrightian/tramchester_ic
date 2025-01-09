@@ -27,7 +27,7 @@ public class ConfigParameterResolver implements ParameterResolver {
 
     private static final TramchesterConfig tramOnly = new IntegrationTramTestConfig();
     private static final TramchesterConfig tramAndTrain =  new RailAndTramGreaterManchesterConfig();
-    private static final TramchesterConfig trainOnly = new IntegrationRailTestConfig(true);
+    private static final TramchesterConfig trainOnly = new IntegrationRailTestConfig(IntegrationRailTestConfig.Scope.National);
 
     @Override
     public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {

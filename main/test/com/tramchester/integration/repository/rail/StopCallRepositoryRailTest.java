@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig.Scope.GreaterManchester;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TrainTest
@@ -31,7 +32,7 @@ public class StopCallRepositoryRailTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new ComponentsBuilder().create(new IntegrationRailTestConfig(true), TestEnv.NoopRegisterMetrics());
+        componentContainer = new ComponentsBuilder().create(new IntegrationRailTestConfig(GreaterManchester), TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
 
@@ -59,7 +60,8 @@ public class StopCallRepositoryRailTest {
         assertFalse(crossMidnightTrips.isEmpty());
 
         List<Trip> trips = crossMidnightTrips.stream().
-                filter(trip -> trip.getStopCalls().getLegs(false).stream().anyMatch(leg -> !leg.getFirst().intoNextDay() && leg.getSecond().intoNextDay())).
+                filter(trip -> trip.getStopCalls().getLegs(false).stream().
+                    anyMatch(leg -> !leg.getFirst().intoNextDay() && leg.getSecond().intoNextDay())).
                 toList();
 
         assertFalse(trips.isEmpty());

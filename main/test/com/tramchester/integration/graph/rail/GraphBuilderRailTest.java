@@ -43,7 +43,7 @@ class GraphBuilderRailTest {
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         // TODO chance to GM bounds only?
-        TramchesterConfig testConfig = new IntegrationRailTestConfig(true);
+        TramchesterConfig testConfig = new IntegrationRailTestConfig(IntegrationRailTestConfig.Scope.GreaterManchester);
         componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
@@ -89,15 +89,15 @@ class GraphBuilderRailTest {
         GraphNode startNode = txn.findNode(piccadilly);
         List<ImmutableGraphRelationship> outboundLinks = startNode.getRelationships(txn, Direction.OUTGOING, LINKED).toList();
 
-        assertEquals(35, outboundLinks.size(), outboundLinks.toString());
+        assertEquals(25, outboundLinks.size(), outboundLinks.toString());
 
-        Set<IdFor<Station>> destinations = outboundLinks.stream().map(graphRelationship -> graphRelationship.getEndNode(txn)).
-                map(node -> {
-                    return node.getStationId();
-                    //return getStationIdFrom(node.getNode());
-                }).collect(Collectors.toSet());
+        //return getStationIdFrom(node.getNode());
+        Set<IdFor<Station>> destinations = outboundLinks.stream().
+                map(graphRelationship -> graphRelationship.getEndNode(txn)).
+                map(GraphNode::getStationId).
+                collect(Collectors.toSet());
 
-        assertTrue(destinations.contains(Station.createId("STKP")), destinations.toString());
+        assertTrue(destinations.contains(Stockport.getId()), destinations.toString());
     }
 
     @Test
@@ -136,28 +136,28 @@ class GraphBuilderRailTest {
     }
 
     @Test
-    void shouldHaveCorrectRouteRelationshipsCreweToMKC() {
-        Station miltonKeynes = MiltonKeynesCentral.from(transportData);
-        final Set<GraphNode> routeStationNodes = getRouteStationNodes(miltonKeynes);
-        assertFalse(routeStationNodes.isEmpty());
+    void shouldHaveCorrectRouteRelationshipsStockportToManchesterPiccadilly() {
+        Station stockport = Stockport.from(transportData);
 
-        //Set<GraphNode> mkNodeIds = new HashSet<>(routeStationNodes);
+        final Set<GraphNode> stockportRouteStations = getRouteStationNodes(stockport);
+        assertFalse(stockportRouteStations.isEmpty());
 
-        Station crewe = Crewe.from(transportData);
-        Set<GraphNode> creweRouteStationsNodes = getRouteStationNodes(crewe);
+        Station manPic = ManchesterPiccadilly.from(transportData);
+        Set<GraphNode> manPicRouteStations = getRouteStationNodes(manPic);
 
-        Stream<GraphRelationship> outgoingFromCrewe = creweRouteStationsNodes.
-                stream().flatMap(node -> node.getRelationships(txn, Direction.OUTGOING, ON_ROUTE));
+        Stream<GraphRelationship> outgoingFromStockport = stockportRouteStations.stream().
+                flatMap(node -> node.getRelationships(txn, Direction.OUTGOING, ON_ROUTE));
 
-        List<GraphRelationship> endIsMKC = outgoingFromCrewe.
-                filter(relationship -> routeStationNodes.contains(relationship.getEndNode(txn))). // GraphNode.fromEnd(relationship))).
+        List<GraphRelationship> endIsManPic = outgoingFromStockport.
+                filter(relationship -> manPicRouteStations.contains(relationship.getEndNode(txn))).
                 toList();
 
-        assertFalse(endIsMKC.isEmpty(), outgoingFromCrewe.toString());
+        assertFalse(endIsManPic.isEmpty(), outgoingFromStockport.toString());
 
-        final Duration tenMins = Duration.ofMinutes(10);
-        endIsMKC.forEach(relationship -> assertTrue(
-                relationship.getCost().compareTo(tenMins) > 0, relationship.getAllProperties().toString()));
+        final Duration limit = Duration.ofMinutes(5);
+        endIsManPic.forEach(
+                relationship -> assertTrue(relationship.getCost().compareTo(limit) > 0,
+                        relationship.getAllProperties().toString()));
     }
 
     @NotNull

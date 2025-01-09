@@ -10,6 +10,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationWalk;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
+import com.tramchester.domain.time.TimeRange;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
@@ -24,6 +25,7 @@ import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.BetweenRoutesCostRepository;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.graph.search.RouteCalculatorArriveBy;
+import com.tramchester.graph.search.RouteCalculatorSupport;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
 import com.tramchester.mappers.Geography;
 import org.slf4j.Logger;
@@ -114,7 +116,10 @@ public class LocationJourneyPlanner {
         final MutableGraphNode startOfWalkNode = nodesAndRelationships.createWalkingNode(start, journeyRequest);
         nodesAndRelationships.createWalksToStart(startOfWalkNode, walksToStart);
 
-        final int numberOfChanges = findNumberChangesWalkAtStart(walksToStart, destination, journeyRequest);
+        Duration maxInitialWait = RouteCalculatorSupport.getMaxInitialWaitFor(walksToStart, config);
+        TimeRange timeRange = journeyRequest.getJourneyTimeRange(maxInitialWait);
+
+        final int numberOfChanges = findNumberChangesWalkAtStart(walksToStart, destination, journeyRequest, timeRange);
         final Stream<Journey> journeys;
         Running running = () -> true;
         if (journeyRequest.getArriveBy()) {
@@ -159,7 +164,10 @@ public class LocationJourneyPlanner {
 
         final LocationSet<Station> destinationStations = walksToDest.stream().map(StationWalk::getStation).collect(LocationSet.stationCollector());
 
-        final int numberOfChanges = findNumberChangesWalkAtEnd(start, walksToDest, journeyRequest);
+        Duration maxInitialWait = RouteCalculatorSupport.getMaxInitialWaitFor(start, config);
+        TimeRange timeRange = journeyRequest.getJourneyTimeRange(maxInitialWait);
+
+        final int numberOfChanges = findNumberChangesWalkAtEnd(start, walksToDest, journeyRequest, timeRange);
 
         Stream<Journey> journeys;
         Running running = () -> true;
@@ -195,7 +203,10 @@ public class LocationJourneyPlanner {
         LocationSet<Station> destinationStations = walksToDest.stream().
                 map(StationWalk::getStation).collect(LocationSet.stationCollector());
 
-        int numberOfChanges = findNumberChangesWalksStartAndEnd(walksAtStart, walksToDest, journeyRequest);
+        Duration maxInitialWait = RouteCalculatorSupport.getMaxInitialWaitFor(walksAtStart, config);
+        TimeRange timeRange = journeyRequest.getJourneyTimeRange(maxInitialWait);
+
+        int numberOfChanges = findNumberChangesWalksStartAndEnd(walksAtStart, walksToDest, journeyRequest, timeRange);
 
         /// CALC
         Stream<Journey> journeys;
@@ -231,20 +242,20 @@ public class LocationJourneyPlanner {
         return stationWalks;
     }
 
-    private int findNumberChangesWalkAtEnd(Location<?> start, Set<StationWalk> walksToDest, JourneyRequest journeyRequest) {
+    private int findNumberChangesWalkAtEnd(Location<?> start, Set<StationWalk> walksToDest, JourneyRequest journeyRequest, TimeRange timeRange) {
         final LocationSet<Station> destinations = walksToDest.stream().map(StationWalk::getStation).collect(LocationSet.stationCollector());
-        return  routeToRouteCosts.getNumberOfChanges(start, destinations, journeyRequest);
+        return  routeToRouteCosts.getNumberOfChanges(start, destinations, journeyRequest, timeRange);
     }
 
-    private int findNumberChangesWalkAtStart(Set<StationWalk> walksToStart, Location<?> destination, JourneyRequest journeyRequest) {
+    private int findNumberChangesWalkAtStart(Set<StationWalk> walksToStart, Location<?> destination, JourneyRequest journeyRequest, TimeRange timeRange) {
         final LocationSet<Station> starts = walksToStart.stream().map(StationWalk::getStation).collect(LocationSet.stationCollector());
-        return routeToRouteCosts.getNumberOfChanges(starts, destination, journeyRequest);
+        return routeToRouteCosts.getNumberOfChanges(starts, destination, journeyRequest, timeRange);
     }
 
-    private int findNumberChangesWalksStartAndEnd(Set<StationWalk> walksAtStart, Set<StationWalk> walksToDest, JourneyRequest journeyRequest) {
+    private int findNumberChangesWalksStartAndEnd(Set<StationWalk> walksAtStart, Set<StationWalk> walksToDest, JourneyRequest journeyRequest, TimeRange timeRange) {
         final LocationSet<Station> destinations = walksToDest.stream().map(StationWalk::getStation).collect(LocationSet.stationCollector());
         final LocationSet<Station> starts = walksAtStart.stream().map(StationWalk::getStation).collect(LocationSet.stationCollector());
-        return routeToRouteCosts.getNumberOfChanges(starts, destinations, journeyRequest);
+        return routeToRouteCosts.getNumberOfChanges(starts, destinations, journeyRequest, timeRange);
     }
 
     private Set<StationWalk> createWalks(Location<?> location, List<Station> startStations) {

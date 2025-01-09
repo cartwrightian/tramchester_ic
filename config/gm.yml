@@ -40,17 +40,24 @@ gtfsSourceConfig:
     temporaryStationsWalks: []
 rail:
   dataPath: data/rail
-  version: 928
+  version: 344
   modes: [ Train, RailReplacementBus ]
   initialWaitMinutes: 60
 remoteSources:
-  - name: rail
-    dataURL: ${RAIL_DATAURL:-s3://tramchesternewdist/railData/ttis928.zip}
-    dataCheckURL: ""
-    dataPath: data/rail
-    downloadPath: data/rail
+  - name: openRailData
+    dataURL: https://opendata.nationalrail.co.uk/api/staticfeeds/3.0/timetable
+    dataCheckURL: https://opendata.nationalrail.co.uk/api/staticfeeds/3.0/timetable
+    dataPath: data/openRailData
+    downloadPath: data/openRailData
     filename: rail_data.zip
     defaultExpiryDays: 1
+#  - name: rail
+#    dataURL: ${RAIL_DATAURL:-s3://tramchesternewdist/railData/ttis928.zip}
+#    dataCheckURL: ""
+#    dataPath: data/rail
+#    downloadPath: data/rail
+#    filename: rail_data.zip
+#    defaultExpiryDays: 1
   - name: tfgm
     dataURL: ${TRAM_DATAURL:- s3://tramchesternewdist/dist/${RELEASE_NUMBER}/tfgm_data.zip}
     dataCheckURL: https://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip

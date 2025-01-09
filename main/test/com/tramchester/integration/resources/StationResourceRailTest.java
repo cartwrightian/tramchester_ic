@@ -18,19 +18,20 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.StationResource;
 import com.tramchester.testSupport.testTags.TrainTest;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import jakarta.ws.rs.core.GenericType;
+import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import jakarta.ws.rs.core.GenericType;
-import jakarta.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig.Scope.GreaterManchester;
 import static com.tramchester.testSupport.reference.KnownLocations.nearPiccGardens;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -39,7 +40,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class StationResourceRailTest {
 
     private static final IntegrationAppExtension appExtension =
-            new IntegrationAppExtension(App.class, new ResourceRailTestConfig<>(StationResource.class, false));
+            new IntegrationAppExtension(App.class, new ResourceRailTestConfig<>(StationResource.class, GreaterManchester));
     private static APIClientFactory factory;
 
     private StationRepository stationRepo;

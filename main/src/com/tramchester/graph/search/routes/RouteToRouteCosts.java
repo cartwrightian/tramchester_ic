@@ -138,8 +138,8 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     @Override
     public int getNumberOfChanges(LocationSet<Station> starts, LocationSet<Station> destinations,
-                                              JourneyRequest journeyRequest) {
-        return getPossibleMinChanges(starts, destinations, journeyRequest.getDate(), journeyRequest.getTimeRange(),
+                                  JourneyRequest journeyRequest, TimeRange timeRange) {
+        return getPossibleMinChanges(starts, destinations, journeyRequest.getDate(), timeRange,
                 journeyRequest.getRequestedModes());
     }
 
@@ -176,16 +176,16 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     @Override
-    public int getNumberOfChanges(final Location<?> start, final Location<?> destination, final JourneyRequest journeyRequest) {
+    public int getNumberOfChanges(final Location<?> start, final Location<?> destination, final JourneyRequest journeyRequest, TimeRange timeRange) {
         return getPossibleMinChanges(start, destination, journeyRequest.getRequestedModes(), journeyRequest.getDate(),
-                journeyRequest.getTimeRange());
+                timeRange);
     }
 
     @Override
     public int getNumberOfChanges(final Location<?> start, final LocationSet<Station> destinations,
-                                              final JourneyRequest journeyRequest) {
+                                  final JourneyRequest journeyRequest, TimeRange timeRange) {
         final TramDate date = journeyRequest.getDate();
-        final TimeRange timeRange = journeyRequest.getTimeRange();
+        //final TimeRange timeRange = journeyRequest.getTimeRange();
         final EnumSet<TransportMode> preferredModes = journeyRequest.getRequestedModes();
 
         final Set<Route> pickupRoutes = availabilityRepository.getPickupRoutesFor(start, date, timeRange, preferredModes);
@@ -200,9 +200,9 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
 
     @Override
     public int getNumberOfChanges(final LocationSet<Station> starts, final Location<?> destination,
-                                              final JourneyRequest journeyRequest) {
+                                  final JourneyRequest journeyRequest, TimeRange timeRange) {
         final TramDate date = journeyRequest.getDate();
-        final TimeRange timeRange = journeyRequest.getTimeRange();
+        //final TimeRange timeRange = journeyRequest.getTimeRange();
         final EnumSet<TransportMode> preferredModes = journeyRequest.getRequestedModes();
 
         final Set<Route> pickupRoutes = availabilityRepository.getPickupRoutesFor(starts, date, timeRange, preferredModes);
@@ -283,8 +283,8 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
     }
 
     @Override
-    public LowestCostsForDestRoutes getLowestCostCalculatorFor(final LocationCollection desintationRoutes, final JourneyRequest journeyRequest) {
-        return getLowestCostCalculatorFor(desintationRoutes, journeyRequest.getDate(), journeyRequest.getTimeRange(), journeyRequest.getRequestedModes());
+    public LowestCostsForDestRoutes getLowestCostCalculatorFor(final LocationCollection desintationRoutes, final JourneyRequest journeyRequest, TimeRange timeRange) {
+        return getLowestCostCalculatorFor(desintationRoutes, journeyRequest.getDate(), timeRange, journeyRequest.getRequestedModes());
     }
 
     public LowestCostsForDestRoutes getLowestCostCalculatorFor(final LocationCollection destinations, final TramDate date,

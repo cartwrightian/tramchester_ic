@@ -26,7 +26,6 @@ import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.search.diagnostics.CreateJourneyDiagnostics;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
-import com.tramchester.graph.search.selectors.BranchSelectorFactory;
 import com.tramchester.graph.search.selectors.BreadthFirstBranchSelectorForGridSearch;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import com.tramchester.repository.ClosedStationsRepository;
@@ -58,7 +57,6 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
     private final GraphDatabase graphDatabaseService;
     private final ClosedStationsRepository closedStationsRepository;
     private final RunningRoutesAndServices runningRoutesAndService;
-    private final BranchSelectorFactory branchSelectorFactory;
 
     @Inject
     public RouteCalculatorForBoxes(TramchesterConfig config,
@@ -71,7 +69,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                                    BetweenRoutesCostRepository routeToRouteCosts,
                                    ClosedStationsRepository closedStationsRepository, RunningRoutesAndServices runningRoutesAndService,
                                    @SuppressWarnings("unused") RouteCostCalculator routeCostCalculator,
-                                   BranchSelectorFactory branchSelectorFactory, StationAvailabilityRepository stationAvailabilityRepository, CreateJourneyDiagnostics failedJourneyDiagnostics, NumberOfNodesAndRelationshipsRepository countsNodes) {
+                                   StationAvailabilityRepository stationAvailabilityRepository, CreateJourneyDiagnostics failedJourneyDiagnostics, NumberOfNodesAndRelationshipsRepository countsNodes) {
         super(pathToStages, nodeContentsRepository, graphDatabaseService,
                 providesNow, mapPathToLocations,
                 transportData, config, transportData, routeToRouteCosts, failedJourneyDiagnostics,
@@ -80,12 +78,11 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         this.graphDatabaseService = graphDatabaseService;
         this.closedStationsRepository = closedStationsRepository;
         this.runningRoutesAndService = runningRoutesAndService;
-        this.branchSelectorFactory = branchSelectorFactory;
     }
 
     public RequestStopStream<JourneysForBox> calculateRoutes(final StationsBoxSimpleGrid destinationBox, final JourneyRequest journeyRequest,
-                                                             final List<StationsBoxSimpleGrid> boxes) {
-        logger.info("Finding routes for " + boxes.size() + " bounding boxes");
+                                                             final List<StationsBoxSimpleGrid> startingBoxes) {
+        logger.info("Finding routes from " + startingBoxes.size() + " bounding boxes");
 
         // TODO Compute over a range of times??
 
@@ -96,11 +93,14 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
         final long maxNumberOfJourneys = journeyRequest.getMaxNumberOfJourneys();
 
-        final JourneyConstraints journeyConstraints = createJourneyConstraints(destinations, journeyRequest);
+        final Duration maxInitialWait = RouteCalculatorSupport.getMaxInitialWaitFor(startingBoxes, config);
+        final TimeRange timeRange = journeyRequest.getJourneyTimeRange(maxInitialWait);
+
+        final JourneyConstraints journeyConstraints = createJourneyConstraints(destinations, journeyRequest, timeRange);
 
         // share selector across queries, to allow caching of station to station distances
         // TODO Optimise using box based distance calculation? -- avoid doing per station per box
-        final BranchOrderingPolicy selector = getBranchOrderingPolicy(destinationBox, boxes);
+        final BranchOrderingPolicy selector = getBranchOrderingPolicy(destinationBox, startingBoxes);
 
         final RequestStopStream<JourneysForBox> result = new RequestStopStream<>();
 
@@ -110,14 +110,14 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
         scheduleLogging(result, serviceReasons);
 
-        final Stream<JourneysForBox> stream = boxes.parallelStream().
+        final Stream<JourneysForBox> stream = startingBoxes.parallelStream().
                 filter(item -> result.isRunning()).
-                map(box -> {
+                map(startBox -> {
 
             if (logger.isDebugEnabled()) {
-                logger.debug(format("Finding shortest path for %s --> %s for %s", box, destinations, journeyRequest));
+                logger.debug(format("Finding shortest path for %s --> %s for %s", startBox, destinations, journeyRequest));
             }
-            final LocationSet<Station> startingStations = box.getStations();
+            final LocationSet<Station> startingStations = startBox.getStations();
             final LowestCostSeen lowestCostSeenForBox = new LowestCostSeen();
 
             final AtomicInteger journeyIndex = new AtomicInteger(0);
@@ -127,7 +127,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                 final Stream<Journey> journeys = startingStations.stream().
                         filter(start -> !destinations.contains(start)).
                         map(start -> createNodeAndStation(txn, start)).
-                        flatMap(nodeAndStation -> changesForDestinations.getNumberOfChangesRange((box)).
+                        flatMap(nodeAndStation -> changesForDestinations.getNumberOfChangesRange(startBox, timeRange).
                                 map(numChanges -> createPathRequest(journeyRequest, nodeAndStation,  numChanges, journeyConstraints, selector))).
 
                         filter(item -> result.isRunning()).
@@ -142,7 +142,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                         collect(Collectors.toSet());
 
                 // yielding
-                return new JourneysForBox(box, collect);
+                return new JourneysForBox(startBox, collect);
             }
         });
 
@@ -183,23 +183,24 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
             cache = Caffeine.newBuilder().build();
         }
 
-        public Stream<Integer> getNumberOfChangesRange(final BoundingBoxWithStations box) {
-            final int possibleMinChanges = cache.get(box, theBox -> computeNumberOfChanges(box));
+        public Stream<Integer> getNumberOfChangesRange(final BoundingBoxWithStations box, final TimeRange range) {
+            final int possibleMinChanges = cache.get(box, theBox -> computeNumberOfChanges(box, range));
             return numChangesRange(journeyRequest, possibleMinChanges);
         }
 
-        private int computeNumberOfChanges(BoundingBoxWithStations box) {
-            return routeToRouteCosts.getNumberOfChanges(box.getStations(), destinations, journeyRequest);
+        private int computeNumberOfChanges(BoundingBoxWithStations box, TimeRange timeRange) {
+            return routeToRouteCosts.getNumberOfChanges(box.getStations(), destinations, journeyRequest, timeRange);
         }
 
     }
 
     @NotNull
-    private JourneyConstraints createJourneyConstraints(final LocationSet<Station> destinations, final JourneyRequest journeyRequest) {
+    private JourneyConstraints createJourneyConstraints(final LocationSet<Station> destinations, final JourneyRequest journeyRequest, TimeRange timeRange) {
         final TramDate date = journeyRequest.getDate();
 
         final TimeRange destinationsAvailable = getDestinationsAvailable(destinations, date);
-        final LowestCostsForDestRoutes lowestCostForDestinations = routeToRouteCosts.getLowestCostCalculatorFor(destinations, journeyRequest);
+        final LowestCostsForDestRoutes lowestCostForDestinations = routeToRouteCosts.getLowestCostCalculatorFor(destinations, journeyRequest,
+                timeRange);
         final RunningRoutesAndServices.FilterForDate routeAndServicesFilter = runningRoutesAndService.getFor(date);
 
         final Set<ClosedStation> closedStations = closedStationsRepository.getAnyWithClosure(date);

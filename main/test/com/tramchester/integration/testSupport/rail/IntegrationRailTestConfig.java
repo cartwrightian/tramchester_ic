@@ -2,9 +2,9 @@ package com.tramchester.integration.testSupport.rail;
 
 import com.tramchester.config.*;
 import com.tramchester.geo.BoundingBox;
+import com.tramchester.integration.testSupport.TestGroupType;
 import com.tramchester.integration.testSupport.config.GraphDBTestConfig;
 import com.tramchester.integration.testSupport.config.IntegrationTestConfig;
-import com.tramchester.integration.testSupport.TestGroupType;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TestOpenLdbConfig;
 
@@ -15,21 +15,35 @@ import java.util.List;
 public class IntegrationRailTestConfig extends IntegrationTestConfig {
 
     private static final TestGroupType testGroupType = TestGroupType.integration;
-    private final boolean national;
 
-//    public IntegrationRailTestConfig() {
-//        this(false);
-//    }
+    public enum Scope {
+        National,
+        GreaterManchester;
+    }
 
-    public IntegrationRailTestConfig(boolean national) {
+    private final Scope geoScope;
+
+    public IntegrationRailTestConfig(final Scope geoScope) {
         super(testGroupType);
-        this.national = national;
+        this.geoScope = geoScope;
+    }
+
+    @Override
+    public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
+        return List.of(railRemoteDataSource, remoteNaptanXMLConfig, remoteNPTGconfig);
     }
 
     @Override
     public GraphDBConfig getGraphDBConfig() {
-        String prefix = national ? "national" : "local";
-        return new GraphDBTestConfig(prefix, testGroupType, this);
+//        if (geoScope==Scope.National) {
+//            throw new RuntimeException("Wrong geo scope");
+//        }
+        return new GraphDBTestConfig(geoScope.name(), testGroupType, this);
+    }
+
+    @Override
+    public Path getCacheFolder() {
+        return TestEnv.CACHE_DIR.resolve("railIntegration_"+geoScope.name());
     }
 
     @Override
@@ -39,10 +53,12 @@ public class IntegrationRailTestConfig extends IntegrationTestConfig {
 
     @Override
     public BoundingBox getBounds() {
-        if (national) {
+        if (geoScope ==Scope.National) {
             return TestEnv.getNationalTrainBounds();
-        } else {
+        } else if (geoScope ==Scope.GreaterManchester){
             return TestEnv.getGreaterManchesterBounds();
+        } else {
+            throw new RuntimeException("Unknown scope " + geoScope);
         }
     }
 
@@ -51,10 +67,6 @@ public class IntegrationRailTestConfig extends IntegrationTestConfig {
         return Collections.emptyList();
     }
 
-    @Override
-    public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
-        return List.of(railRemoteDataSource, remoteNaptanXMLConfig, remoteNPTGconfig);
-    }
 
     @Override
     public int getMaxJourneyDuration() {
@@ -68,12 +80,6 @@ public class IntegrationRailTestConfig extends IntegrationTestConfig {
 
     @Override
     public int getQueryInterval() { return 20; }
-
-    @Override
-    public Path getCacheFolder() {
-        String scope = national ? "national" : "local";
-        return TestEnv.CACHE_DIR.resolve("railIntegration_"+scope);
-    }
 
     @Override
     public OpenLdbConfig getOpenldbwsConfig() {

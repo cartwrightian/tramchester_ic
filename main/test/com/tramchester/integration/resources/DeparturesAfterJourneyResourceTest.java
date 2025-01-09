@@ -57,7 +57,6 @@ class DeparturesAfterJourneyResourceTest {
     private TramDate queryDate;
     private TramTime time;
 
-
     @BeforeAll
     public static void onceBeforeAll() {
         factory = new APIClientFactory(appExtension);

@@ -209,8 +209,8 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
         }
     }
 
-    public Duration getInitialMaxWaitFor(DataSourceID sourceId) {
-        TransportDataSourceConfig sourceConfig = getGetSourceConfigFor(sourceId);
+    public Duration getInitialMaxWaitFor(final DataSourceID sourceId) {
+        final TransportDataSourceConfig sourceConfig = getGetSourceConfigFor(sourceId);
         return sourceConfig.getMaxInitialWait();
     }
 

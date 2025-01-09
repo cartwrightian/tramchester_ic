@@ -54,7 +54,7 @@ public class RailTimetableOverlaysTest {
     private static class RailOverlayTestConfig extends IntegrationRailTestConfig {
 
         public RailOverlayTestConfig() {
-            super(true);
+            super(Scope.National);
         }
 
         @Override

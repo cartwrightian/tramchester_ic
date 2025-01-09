@@ -91,9 +91,9 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime());
 
-        final int numberOfChanges = getPossibleMinNumberOfChanges(start, destination, journeyRequest);
-
         final Duration maxInitialWait = getMaxInitialWaitFor(start, config);
+
+        final int numberOfChanges = getPossibleMinNumberOfChanges(start, destination, journeyRequest, maxInitialWait);
 
         if (journeyRequest.getDiagnosticsEnabled()) {
             logger.warn("Diagnostics enabled, will only query for single result");
@@ -106,7 +106,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         }
     }
 
-    private int getPossibleMinNumberOfChanges(final Location<?> start, final Location<?> destination, final JourneyRequest journeyRequest) {
+    private int getPossibleMinNumberOfChanges(final Location<?> start, final Location<?> destination, final JourneyRequest journeyRequest, Duration maxInitialWait) {
         /*
          * Route change calc issue: for example media city is on the Eccles route but trams terminate at Etihad or
          * don't go on towards Eccles depending on the time of day
@@ -115,7 +115,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         // TODO Closure handling??
 
-        return routeToRouteCosts.getNumberOfChanges(start, destination, journeyRequest);
+        return routeToRouteCosts.getNumberOfChanges(start, destination, journeyRequest, journeyRequest.getJourneyTimeRange(maxInitialWait));
     }
 
     @Override
@@ -172,8 +172,9 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         final LocationCollection destinations = towardsDestination.getDestinations();
 
+        final TimeRange timeRange = journeyRequest.getJourneyTimeRange(maxInitialWait);
         // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
-        final LowestCostsForDestRoutes lowestCostsForRoutes = routeToRouteCosts.getLowestCostCalculatorFor(destinations, journeyRequest);
+        final LowestCostsForDestRoutes lowestCostsForRoutes = routeToRouteCosts.getLowestCostCalculatorFor(destinations, journeyRequest, timeRange);
 
         final Duration maxJourneyDuration = journeyRequest.getMaxJourneyDuration();
 
@@ -230,8 +231,10 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         final Set<GraphNodeId> destinationNodeIds = Collections.singleton(endNode.getId());
         final TramDate tramDate = journeyRequest.getDate();
 
+        final TimeRange timeRange = journeyRequest.getJourneyTimeRange(maxInitialWait);
+
         // can only be shared as same date and same set of destinations, will eliminate previously seen paths/results
-        final LowestCostsForDestRoutes lowestCostsForRoutes = routeToRouteCosts.getLowestCostCalculatorFor(destinations, journeyRequest);
+        final LowestCostsForDestRoutes lowestCostsForRoutes = routeToRouteCosts.getLowestCostCalculatorFor(destinations, journeyRequest, timeRange);
 
         final Duration maxJourneyDuration = journeyRequest.getMaxJourneyDuration();
 

@@ -16,6 +16,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig.Scope.GreaterManchester;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -26,7 +27,7 @@ class FindStationsByNumberLinksTrainTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        TramchesterConfig config = new IntegrationRailTestConfig(true);
+        TramchesterConfig config = new IntegrationRailTestConfig(GreaterManchester);
 
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
@@ -47,9 +48,8 @@ class FindStationsByNumberLinksTrainTest {
         int threshhold = 3;
         IdSet<Station> found = discoverer.atLeastNLinkedStations(TransportMode.Train, threshhold);
 
-
         assertTrue(found.contains(RailStationIds.ManchesterPiccadilly.getId()));
-        assertTrue(found.contains(RailStationIds.LondonEuston.getId()));
+        //assertTrue(found.contains(RailStationIds.LondonEuston.getId()));
         assertTrue(found.contains(RailStationIds.Stockport.getId()));
 
         assertFalse(found.contains(RailStationIds.Mobberley.getId()));

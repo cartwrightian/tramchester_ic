@@ -42,7 +42,7 @@ public class RailRouteCostsTest {
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
-        TramchesterConfig config = new IntegrationRailTestConfig(true);
+        TramchesterConfig config = new IntegrationRailTestConfig(IntegrationRailTestConfig.Scope.GreaterManchester);
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }

@@ -18,7 +18,7 @@ environmentName: ${PLACE}
 buildNumber: ${BUILD:- 0}
 staticAssetCacheTimeSeconds: 300
 graphDBConfig:
-  graphName: databases/rail.db
+  graphName: databases/naional_rail.db
   neo4jPagecacheMemory: 1000m
   memoryTransactionGlobalMaxSize: 650m
   enableDiagnostics: ${ENABLE_DB_DIAG:- false }
@@ -27,7 +27,7 @@ instanceDataUrl: http://169.254.169.254
 gtfsSourceConfig: []
 rail:
   dataPath: data/openRailData
-  version: 928
+  version: 344
   modes: [ Train, RailReplacementBus ]
   initialWaitMinutes: 60
 openRailData:
@@ -69,10 +69,10 @@ openLdb:
 cacheFolder: data/cache/rail
 calcTimeoutMillis: 3500
 bounds:
-  minEastings: 333200
-  minNorthings: 373130
-  maxEasting: 414500
-  maxNorthings: 437850
+  minEastings: 147588
+  minNorthings: 30599
+  maxEasting: 654747
+  maxNorthings: 967921
 planningEnabled: true
 maxWait: 30
 numberQueries: 3
