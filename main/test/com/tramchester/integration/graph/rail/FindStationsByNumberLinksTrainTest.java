@@ -26,7 +26,7 @@ class FindStationsByNumberLinksTrainTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        TramchesterConfig config = new IntegrationRailTestConfig();
+        TramchesterConfig config = new IntegrationRailTestConfig(true);
 
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();

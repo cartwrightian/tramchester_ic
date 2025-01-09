@@ -89,7 +89,7 @@ public class RemoteDataSourceConfigMismatchTest {
 
     @Test
     void shouldHaveMatchingRailSectionGMandAll() throws ConfigurationException, IOException {
-        validateConfig("gm.yml", "all.yml", DataSourceID.rail);
+        validateConfig("gm.yml", "all.yml", DataSourceID.openRailData);
     }
 
     @Test
@@ -104,7 +104,7 @@ public class RemoteDataSourceConfigMismatchTest {
 
     @Test
     void shouldHaveMatchingRailSectionGMandFrequency() throws ConfigurationException, IOException {
-        validateConfig("gm.yml", "frequency.yml", DataSourceID.rail);
+        validateConfig("gm.yml", "frequency.yml", DataSourceID.openRailData);
     }
 
     @Test

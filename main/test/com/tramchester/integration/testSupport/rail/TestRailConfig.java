@@ -27,7 +27,7 @@ public class TestRailConfig implements RailConfig {
 
         @Override
         public DataSourceID getDataSourceId() {
-            return DataSourceID.rail;
+            return DataSourceID.openRailData;
         }
 
     @Override
@@ -37,17 +37,17 @@ public class TestRailConfig implements RailConfig {
 
     @Override
         public Path getDataPath() {
-            return Path.of("data/rail");
+            return Path.of("data/openRailData");
         }
 
     @Override
-        public Path getStations() {
-            return Path.of(remoteConfig.getFilePrefix() + ".msn");
+    public Path getStations() {
+            return Path.of(remoteConfig.getFilePrefix() + ".MSN");
         }
 
-        @Override
-        public Path getTimetable() {
-            return Path.of(remoteConfig.getFilePrefix() + ".mca");
+    @Override
+    public Path getTimetable() {
+            return Path.of(remoteConfig.getFilePrefix() + ".MCA");
         }
 
     @Override

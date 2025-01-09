@@ -55,7 +55,7 @@ public class RailRouteCalculatorTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        TramchesterConfig testConfig = new IntegrationRailTestConfig();
+        TramchesterConfig testConfig = new IntegrationRailTestConfig(true);
         componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 

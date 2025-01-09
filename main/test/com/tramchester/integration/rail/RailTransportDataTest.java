@@ -40,7 +40,7 @@ public class RailTransportDataTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        config = new IntegrationRailTestConfig();
+        config = new IntegrationRailTestConfig(true);
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }

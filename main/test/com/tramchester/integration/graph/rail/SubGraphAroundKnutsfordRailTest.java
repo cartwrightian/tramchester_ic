@@ -181,7 +181,8 @@ class SubGraphAroundKnutsfordRailTest {
 
     private static class SubgraphConfig extends IntegrationRailTestConfig {
         public SubgraphConfig() {
-            super();
+            // TODO should this be national, is Knutsford within the GM bounds?
+            super(false);
             //super("subgraph_hale_trains_tramchester.db");
         }
 

@@ -25,11 +25,17 @@ public class GraphDBTestConfig implements GraphDBConfig {
     private final TestGroupType group;
     private final EnumSet<TransportMode> modesFromConfig;
     private final TramchesterConfig config;
+    private final String pathPrefix;
 
     public GraphDBTestConfig(TestGroupType group, TramchesterConfig config) {
+        this("", group, config);
+    }
+
+    public GraphDBTestConfig(final String pathPrefix, TestGroupType group, TramchesterConfig config) {
+        this.pathPrefix = pathPrefix;
         this.group = group;
-        this.modesFromConfig = config.getTransportModes();
         this.config = config;
+        this.modesFromConfig = config.getTransportModes();
     }
 
     public Path getDbPath() {
@@ -57,21 +63,22 @@ public class GraphDBTestConfig implements GraphDBConfig {
         return false;
     }
 
-    private Path createGraphDatabasePath(TestGroupType group, TramchesterConfig config) {
-        Set<DataSourceID> sourcesFromConfig = config.getRemoteDataSourceConfig().stream().
+    private Path createGraphDatabasePath(final TestGroupType group, final TramchesterConfig config) {
+        final Set<DataSourceID> sourcesFromConfig = config.getRemoteDataSourceConfig().stream().
                 map(RemoteDataSourceConfig::getDataSourceId).
                 filter(dataSourceId -> dataSourceId !=DataSourceID.database).
                 collect(Collectors.toSet());
 
         List<GTFSSourceConfig> gtfsDataSource = config.getGTFSDataSource();
         Set<TransportMode> groupedModesFromConfig = gtfsDataSource.stream().
-                flatMap(gtfsSourceConfig -> gtfsSourceConfig.groupedStationModes().stream()).collect(Collectors.toSet());
+                flatMap(gtfsSourceConfig -> gtfsSourceConfig.groupedStationModes().stream()).
+                collect(Collectors.toSet());
 
         boolean hasClosures = gtfsDataSource.stream().anyMatch(gtfsSourceConfig -> !gtfsSourceConfig.getStationClosures().isEmpty());
 
         String modes = modesFromConfig.isEmpty() ? "NoModesEnabled" : asText(modesFromConfig);
 
-        String subFolderName = format("%s_%s", group, modes);
+        String subFolderName = pathPrefix.isEmpty() ? format("%s_%s", group, modes) : format("%s_%s_%s", pathPrefix, group, modes);
 
         if (!sourcesFromConfig.isEmpty()) {
             subFolderName = subFolderName + "_sources_" + asText(sourcesFromConfig);
@@ -124,11 +131,11 @@ public class GraphDBTestConfig implements GraphDBConfig {
     }
 
     // need consistent ordering here to prevent duplication
-    private <E extends Enum<E>> String asText(Set<E> enums) {
+    private <E extends Enum<E>> String asText(final Set<E> enums) {
 
-        List<E> ordered = enums.stream().sorted(Comparator.comparing(Enum::name)).toList();
+        final List<E> ordered = enums.stream().sorted(Comparator.comparing(Enum::name)).toList();
 
-        StringBuilder builder = new StringBuilder();
+        final StringBuilder builder = new StringBuilder();
         for (E value : ordered) {
             if (!builder.isEmpty()) {
                 builder.append("_");

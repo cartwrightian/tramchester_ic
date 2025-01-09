@@ -141,7 +141,7 @@ public class TestEnv {
     }
 
     public static Agency NorthernTrainsAgency() {
-        return MutableAgency.build(DataSourceID.rail, TrainOperatingCompanies.NT.getAgencyId(), TrainOperatingCompanies.NT.getCompanyName());
+        return MutableAgency.build(DataSourceID.openRailData, TrainOperatingCompanies.NT.getAgencyId(), TrainOperatingCompanies.NT.getCompanyName());
     }
 
     // useful for diagnosing issues in windows env with spaces in paths etc.......
@@ -181,11 +181,11 @@ public class TestEnv {
         return new PlatformStopCall(platform, station, arrive, depart, seq, pickupDropoff, pickupDropoff, trip);
     }
 
-    public static BoundingBox getTFGMBusBounds() {
+    public static BoundingBox getGreaterManchesterBounds() {
         return new BoundingBox(333200, 373130, 414500, 437850);
     }
 
-    public static BoundingBox getTrainBounds() {
+    public static BoundingBox getNationalTrainBounds() {
         return new BoundingBox(147588, 30599, 654747, 967921);
     }
 

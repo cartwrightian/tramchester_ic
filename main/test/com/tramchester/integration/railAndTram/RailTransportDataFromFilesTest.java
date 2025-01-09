@@ -93,8 +93,8 @@ public class RailTransportDataFromFilesTest {
         // should be 2??
         assertEquals(1, platforms.size());
 
-        assertEquals(PlatformId.createId(station,"UNK"), platforms.get(0).getId());
-        assertEquals("UNK", platforms.get(0).getPlatformNumber());
+        assertEquals(PlatformId.createId(station,"UNK"), platforms.getFirst().getId());
+        assertEquals("UNK", platforms.getFirst().getPlatformNumber());
     }
 
     @Test
@@ -170,7 +170,7 @@ public class RailTransportDataFromFilesTest {
         List<Trip> matchingTrips = transportData.getTrips().stream().
                 filter(trip -> trip.callsAt(startStation.getId())).
                 filter(trip -> trip.callsAt(endStation.getId())).
-                filter(trip -> trip.getStopCalls().getStationSequence(false).get(0).equals(startStation)).
+                filter(trip -> trip.getStopCalls().getStationSequence(false).getFirst().equals(startStation)).
                 filter(trip -> trip.getStopCalls().getLastStop().getStation().equals(endStation)).
                 toList();
 
@@ -238,7 +238,7 @@ public class RailTransportDataFromFilesTest {
         assertTrue(transportData.hasDataSourceInfo());
 
         assertNotNull(transportData.getDataSourceInfo(DataSourceID.tfgm));
-        assertNotNull(transportData.getDataSourceInfo(DataSourceID.rail));
+        assertNotNull(transportData.getDataSourceInfo(DataSourceID.openRailData));
     }
 
     @Test

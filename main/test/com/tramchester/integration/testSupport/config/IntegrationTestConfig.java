@@ -42,7 +42,7 @@ public abstract class IntegrationTestConfig extends TestConfig {
         remoteNaptanXMLConfig = new NaptanRemoteDataSourceTestConfig(naptanLocalDataPath);
         remoteNPTGconfig = new NPTGDataSourceTestConfig();
         postCodeDatasourceConfig = new PostCodeDatasourceConfig();
-        railRemoteDataSource = new RailRemoteDataSourceConfig("data/rail");
+        railRemoteDataSource = new RailRemoteDataSourceConfig("data/openRailData");
     }
 
     @Override

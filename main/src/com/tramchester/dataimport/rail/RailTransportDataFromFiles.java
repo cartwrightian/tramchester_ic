@@ -79,12 +79,12 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
             throw new RuntimeException("Not enabled");
         }
 
-        if (!remoteDataRefreshed.hasFileFor(DataSourceID.rail)) {
-            String message = "Missing data source file for " + DataSourceID.rail;
+        if (!remoteDataRefreshed.hasFileFor(DataSourceID.openRailData)) {
+            String message = "Missing data source file for " + DataSourceID.openRailData;
             logger.error(message);
             throw new RuntimeException(message);
         }
-        final Path downloadedZip = remoteDataRefreshed.fileFor(DataSourceID.rail);
+        final Path downloadedZip = remoteDataRefreshed.fileFor(DataSourceID.openRailData);
 
         final GetsFileModTime fileModTime = new GetsFileModTime();
         final ZonedDateTime modTime = fileModTime.getFor(downloadedZip);

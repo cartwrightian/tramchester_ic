@@ -9,6 +9,7 @@ public enum DataSourceID {
     nptg, // National Public Transport Gazetteer, locations data
     postcode,
     naptanxml, // Naptan (stops) data in xml form, cross references nptg
+    @Deprecated
     rail, // AToC rail timetable data AFTER has been downloaded
     database, // pre-built graph db for use during deployment
     openRailData,

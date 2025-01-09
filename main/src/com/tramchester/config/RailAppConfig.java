@@ -30,10 +30,10 @@ public class RailAppConfig extends Configuration implements RailConfig {
         this.modes = EnumSet.copyOf(modes);
 
         this.version = version;
-        final String filename = "ttisf" + version;
+        final String filename = "RJTTF" + version;
 
-        this.timetable = Path.of(String.format("%s.mca", filename));
-        this.stations = Path.of(String.format("%s.msn", filename));
+        this.timetable = Path.of(String.format("%s.MCA", filename));
+        this.stations = Path.of(String.format("%s.MSN", filename));
 
         this.initialWaitMinutes = initialWaitMinutes;
     }
@@ -49,7 +49,7 @@ public class RailAppConfig extends Configuration implements RailConfig {
 
     @Override
     public DataSourceID getDataSourceId() {
-        return DataSourceID.rail;
+        return DataSourceID.openRailData;
     }
 
     @Override

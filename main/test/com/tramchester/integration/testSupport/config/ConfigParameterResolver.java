@@ -1,7 +1,6 @@
 package com.tramchester.integration.testSupport.config;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchesterConfig;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.testTags.DualTest;
@@ -28,7 +27,7 @@ public class ConfigParameterResolver implements ParameterResolver {
 
     private static final TramchesterConfig tramOnly = new IntegrationTramTestConfig();
     private static final TramchesterConfig tramAndTrain =  new RailAndTramGreaterManchesterConfig();
-    private static final TramchesterConfig trainOnly = new IntegrationRailTestConfig();
+    private static final TramchesterConfig trainOnly = new IntegrationRailTestConfig(true);
 
     @Override
     public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {

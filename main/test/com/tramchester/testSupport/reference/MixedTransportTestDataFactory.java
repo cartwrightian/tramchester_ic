@@ -17,12 +17,12 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.TransportData;
 import com.tramchester.repository.TransportDataContainer;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import jakarta.inject.Inject;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 
@@ -62,7 +62,7 @@ public class MixedTransportTestDataFactory implements TransportDataFactory {
 
     private void populateTestData(TransportDataContainer container) {
 
-        MutableAgency ferryAgency = new MutableAgency(DataSourceID.rail, Agency.createId("FER"), "ferryAgency");
+        MutableAgency ferryAgency = new MutableAgency(DataSourceID.openRailData, Agency.createId("FER"), "ferryAgency");
         MutableRoute ferryRoute = new MutableRoute(Route.createId("FER:42:C"), "42", "Lakes",
                 ferryAgency, TransportMode.Ferry);
 

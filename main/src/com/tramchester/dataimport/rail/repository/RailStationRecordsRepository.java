@@ -17,13 +17,13 @@ import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.repository.naptan.NaptanRepository;
+import jakarta.inject.Inject;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import jakarta.inject.Inject;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -149,7 +149,7 @@ public class RailStationRecordsRepository {
 
         final boolean isInterchange = (record.getRailInterchangeType()!= RailInterchangeType.None);
 
-        return new MutableStation(stationId, areaId, name, latLong, grid, DataSourceID.rail, isInterchange,
+        return new MutableStation(stationId, areaId, name, latLong, grid, DataSourceID.openRailData, isInterchange,
                 minChangeTime, isCentral);
     }
 

@@ -2,6 +2,7 @@ package com.tramchester.integration.testSupport.rail;
 
 import com.tramchester.config.*;
 import com.tramchester.geo.BoundingBox;
+import com.tramchester.integration.testSupport.config.GraphDBTestConfig;
 import com.tramchester.integration.testSupport.config.IntegrationTestConfig;
 import com.tramchester.integration.testSupport.TestGroupType;
 import com.tramchester.testSupport.TestEnv;
@@ -13,8 +14,22 @@ import java.util.List;
 
 public class IntegrationRailTestConfig extends IntegrationTestConfig {
 
-    public IntegrationRailTestConfig() {
-        super(TestGroupType.integration);
+    private static final TestGroupType testGroupType = TestGroupType.integration;
+    private final boolean national;
+
+//    public IntegrationRailTestConfig() {
+//        this(false);
+//    }
+
+    public IntegrationRailTestConfig(boolean national) {
+        super(testGroupType);
+        this.national = national;
+    }
+
+    @Override
+    public GraphDBConfig getGraphDBConfig() {
+        String prefix = national ? "national" : "local";
+        return new GraphDBTestConfig(prefix, testGroupType, this);
     }
 
     @Override
@@ -24,7 +39,11 @@ public class IntegrationRailTestConfig extends IntegrationTestConfig {
 
     @Override
     public BoundingBox getBounds() {
-        return TestEnv.getTrainBounds();
+        if (national) {
+            return TestEnv.getNationalTrainBounds();
+        } else {
+            return TestEnv.getGreaterManchesterBounds();
+        }
     }
 
     @Override
@@ -52,7 +71,8 @@ public class IntegrationRailTestConfig extends IntegrationTestConfig {
 
     @Override
     public Path getCacheFolder() {
-        return TestEnv.CACHE_DIR.resolve("railIntegration");
+        String scope = national ? "national" : "local";
+        return TestEnv.CACHE_DIR.resolve("railIntegration_"+scope);
     }
 
     @Override
@@ -79,4 +99,5 @@ public class IntegrationRailTestConfig extends IntegrationTestConfig {
             }
         };
     }
+
 }

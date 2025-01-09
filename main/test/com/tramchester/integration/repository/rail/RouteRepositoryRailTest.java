@@ -33,7 +33,7 @@ public class RouteRepositoryRailTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        IntegrationRailTestConfig config = new IntegrationRailTestConfig();
+        IntegrationRailTestConfig config = new IntegrationRailTestConfig(true);
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }

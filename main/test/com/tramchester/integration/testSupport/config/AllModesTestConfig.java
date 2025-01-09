@@ -41,7 +41,7 @@ public class AllModesTestConfig extends IntegrationTestConfig {
                 Duration.ofMinutes(13), Collections.emptyList());
 
         remoteTfgmSourceConfig = TFGMRemoteDataSourceConfig.createFor(dowloadFolder);
-        remoteDataRailConfig = new RailRemoteDataSourceConfig("data/rail");
+        remoteDataRailConfig = new RailRemoteDataSourceConfig("data/openRailData");
 
         return List.of(tfgmDataSource);
     }
@@ -54,7 +54,7 @@ public class AllModesTestConfig extends IntegrationTestConfig {
 
     @Override
     public BoundingBox getBounds() {
-        return TestEnv.getTFGMBusBounds();
+        return TestEnv.getGreaterManchesterBounds();
     }
 
     @Override

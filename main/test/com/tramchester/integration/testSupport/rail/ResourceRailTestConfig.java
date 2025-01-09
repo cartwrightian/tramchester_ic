@@ -7,8 +7,8 @@ import com.tramchester.resources.GraphDatabaseDependencyMarker;
 public class ResourceRailTestConfig<T extends APIResource>  extends IntegrationRailTestConfig {
     private final boolean planningEnabled;
 
-    public ResourceRailTestConfig(Class<T> resourceClass) {
-        super();
+    public ResourceRailTestConfig(Class<T> resourceClass, boolean national) {
+        super(national);
         planningEnabled =  GraphDatabaseDependencyMarker.class.isAssignableFrom(resourceClass);
     }
 

@@ -27,7 +27,7 @@ class TransportDataContainerTest {
 
         DataSourceInfo dataSourceA = new DataSourceInfo(DataSourceID.tfgm, "v1", plusOneHour, EnumSet.of(Tram));
         DataSourceInfo dataSourceB = new DataSourceInfo(DataSourceID.unknown, "v1", minusOneHour, EnumSet.of(Bus));
-        DataSourceInfo dataSourceC = new DataSourceInfo(DataSourceID.rail, "v1", baseTime, EnumSet.of(Tram));
+        DataSourceInfo dataSourceC = new DataSourceInfo(DataSourceID.openRailData, "v1", baseTime, EnumSet.of(Tram));
 
         container.addDataSourceInfo(dataSourceA);
         container.addDataSourceInfo(dataSourceB);

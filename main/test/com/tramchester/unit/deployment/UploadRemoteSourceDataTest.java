@@ -37,7 +37,7 @@ class UploadRemoteSourceDataTest extends EasyMockSupport {
         List<RemoteDataSourceConfig> remoteConfigs = new ArrayList<>();
 
         remoteConfigs.add(new DataSourceConfig(Path.of("data/xxx"), "filenameA.zip", DataSourceID.tfgm));
-        remoteConfigs.add(new DataSourceConfig(Path.of("data/yyy"), "filenameB.txt", DataSourceID.rail));
+        remoteConfigs.add(new DataSourceConfig(Path.of("data/yyy"), "filenameB.txt", DataSourceID.openRailData));
         remoteConfigs.add(new DataSourceConfig(Path.of("data/zzz"), "filenameC.zip", DataSourceID.nptg, "filenameC.xml"));
         remoteConfigs.add(new DataSourceConfig(Path.of("data/abc"), "filenameD.xml", DataSourceID.naptanxml));
 
@@ -50,7 +50,7 @@ class UploadRemoteSourceDataTest extends EasyMockSupport {
     void shouldUpdateEachRemoteDataSourceInConfigToS3() {
 
         EasyMock.expect(dataRefreshed.hasFileFor(DataSourceID.tfgm)).andReturn(true);
-        EasyMock.expect(dataRefreshed.hasFileFor(DataSourceID.rail)).andReturn(true);
+        EasyMock.expect(dataRefreshed.hasFileFor(DataSourceID.openRailData)).andReturn(true);
         EasyMock.expect(dataRefreshed.hasFileFor(DataSourceID.nptg)).andReturn(true);
         EasyMock.expect(dataRefreshed.hasFileFor(DataSourceID.naptanxml)).andReturn(false);
 
@@ -72,7 +72,7 @@ class UploadRemoteSourceDataTest extends EasyMockSupport {
     void shouldUploadFileAsCompressedWithZipPostfix() {
 
         EasyMock.expect(dataRefreshed.hasFileFor(DataSourceID.tfgm)).andReturn(false);
-        EasyMock.expect(dataRefreshed.hasFileFor(DataSourceID.rail)).andReturn(false);
+        EasyMock.expect(dataRefreshed.hasFileFor(DataSourceID.openRailData)).andReturn(false);
         EasyMock.expect(dataRefreshed.hasFileFor(DataSourceID.nptg)).andReturn(false);
         EasyMock.expect(dataRefreshed.hasFileFor(DataSourceID.naptanxml)).andReturn(true);
 
@@ -92,7 +92,7 @@ class UploadRemoteSourceDataTest extends EasyMockSupport {
     void shouldFailIfAnyFail() {
 
         EasyMock.expect(dataRefreshed.hasFileFor(DataSourceID.tfgm)).andReturn(true);
-        EasyMock.expect(dataRefreshed.hasFileFor(DataSourceID.rail)).andReturn(true);
+        EasyMock.expect(dataRefreshed.hasFileFor(DataSourceID.openRailData)).andReturn(true);
         EasyMock.expect(dataRefreshed.hasFileFor(DataSourceID.nptg)).andReturn(true);
         EasyMock.expect(dataRefreshed.hasFileFor(DataSourceID.naptanxml)).andReturn(false);
 

@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class CoordinateTransformsTest {
 
-    final static BoundingBox bounds = TestEnv.getTFGMBusBounds();
+    final static BoundingBox bounds = TestEnv.getGreaterManchesterBounds();
 
     private static final GridPosition MaccTheTowersFromNaptan = new GridPosition(391829, 373136);
 

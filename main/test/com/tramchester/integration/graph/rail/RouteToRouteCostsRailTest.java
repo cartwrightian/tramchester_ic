@@ -46,7 +46,7 @@ public class RouteToRouteCostsRailTest {
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
-        TramchesterConfig config = new IntegrationRailTestConfig();
+        TramchesterConfig config = new IntegrationRailTestConfig(true);
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 

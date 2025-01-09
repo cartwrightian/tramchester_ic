@@ -42,7 +42,8 @@ class GraphBuilderRailTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        TramchesterConfig testConfig = new IntegrationRailTestConfig();
+        // TODO chance to GM bounds only?
+        TramchesterConfig testConfig = new IntegrationRailTestConfig(true);
         componentContainer = new ComponentsBuilder().create(testConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }

@@ -20,7 +20,7 @@ public class BoundsForGreaterManchesterTest {
         LatLong westernmost = new LatLong(53.520083, -2.730694);
         LatLong easternmost = new LatLong(53.538464, -1.910183);
 
-        BoundingBox testBounds = TestEnv.getTFGMBusBounds();
+        BoundingBox testBounds = TestEnv.getGreaterManchesterBounds();
 
         assertTrue(testBounds.contained(northernmost));
         assertTrue(testBounds.contained(southernmost));

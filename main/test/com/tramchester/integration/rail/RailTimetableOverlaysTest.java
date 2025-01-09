@@ -53,6 +53,10 @@ public class RailTimetableOverlaysTest {
 
     private static class RailOverlayTestConfig extends IntegrationRailTestConfig {
 
+        public RailOverlayTestConfig() {
+            super(true);
+        }
+
         @Override
         public Path getCacheFolder() {
             return TestEnv.CACHE_DIR.resolve("railOverlays");
@@ -101,7 +105,7 @@ public class RailTimetableOverlaysTest {
 
                 @Override
                 public DataSourceID getDataSourceId() {
-                    return DataSourceID.rail;
+                    return DataSourceID.openRailData;
                 }
 
                 @Override

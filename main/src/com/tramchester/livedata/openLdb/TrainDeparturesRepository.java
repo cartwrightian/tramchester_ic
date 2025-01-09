@@ -22,11 +22,11 @@ import com.tramchester.livedata.repository.UpcomingDeparturesSource;
 import com.tramchester.metrics.CacheMetrics;
 import com.tramchester.repository.AgencyRepository;
 import com.tramchester.repository.StationRepository;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
-import jakarta.inject.Inject;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -50,7 +50,7 @@ public class TrainDeparturesRepository implements UpcomingDeparturesSource {
                                      TramchesterConfig config) {
         this.config = config;
         final Duration cacheDuration = DeparturesRepository.TRAIN_WINDOW;
-        long cacheSize = stationRepository.getNumberOfStations(DataSourceID.rail, TransportMode.Train);
+        long cacheSize = stationRepository.getNumberOfStations(DataSourceID.openRailData, TransportMode.Train);
 
         liveTrainDepartures = new LiveTrainDepartures(dataFetcher, agencyRepository, crsRepository);
         departuresCache = new UpcomingDeparturesCache(cacheSize, cacheDuration, cacheMetrics);
@@ -171,7 +171,7 @@ public class TrainDeparturesRepository implements UpcomingDeparturesSource {
             logger.debug("Find destination from " + crs);
 
             if (!crsRepository.hasCrs(crs)) {
-                return MutableStation.Unknown(DataSourceID.rail);
+                return MutableStation.Unknown(DataSourceID.openRailData);
             }
             return crsRepository.getFor(crs);
         }

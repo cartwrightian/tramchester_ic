@@ -163,7 +163,7 @@ public abstract class TestConfig extends AppConfiguration {
 
     @Override
     public @Valid BoundingBox getBounds() {
-        return TestEnv.getTFGMBusBounds();
+        return TestEnv.getGreaterManchesterBounds();
     }
 
     @Override

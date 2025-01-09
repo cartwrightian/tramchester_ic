@@ -20,7 +20,7 @@ class BoundingBoxTest {
 
     @Test
     void shouldHaveContained() {
-        BoundingBox box = TestEnv.getTFGMBusBounds();
+        BoundingBox box = TestEnv.getGreaterManchesterBounds();
 
         List<LatLong> withinBox = Arrays.asList(nearPiccGardens.latLong(), nearShudehill.latLong(),
                 TramStations.ManAirport.getLatLong(), nearAltrincham.latLong(), nearStockportBus.latLong());

@@ -31,7 +31,7 @@ public class StopCallRepositoryRailTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new ComponentsBuilder().create(new IntegrationRailTestConfig(), TestEnv.NoopRegisterMetrics());
+        componentContainer = new ComponentsBuilder().create(new IntegrationRailTestConfig(true), TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
 

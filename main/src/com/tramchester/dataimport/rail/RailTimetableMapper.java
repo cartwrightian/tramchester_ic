@@ -308,7 +308,7 @@ public class RailTimetableMapper {
             // this is so routes that start and/or finish out-of-bounds are named correctly
             final IdFor<Route> routeId = railRouteIdRepository.getRouteIdFor(agencyId, allCalledAtStations);
 
-            final MutableService service = railServiceGroups.getOrCreateService(basicSchedule, isOverlay, DataSourceID.rail);
+            final MutableService service = railServiceGroups.getOrCreateService(basicSchedule, isOverlay, DataSourceID.openRailData);
             final MutableRoute route = getOrCreateRoute(routeId, rawService, mutableAgency, mode, allCalledAtStations);
 
             route.addService(service);
@@ -487,7 +487,7 @@ public class RailTimetableMapper {
                 if (agencyName.equals(TrainOperatingCompanies.UNKNOWN.getCompanyName())) {
                     logger.warn("Unable to find name for agency " + atocCode);
                 }
-                mutableAgency = new MutableAgency(DataSourceID.rail, agencyId, agencyName);
+                mutableAgency = new MutableAgency(DataSourceID.openRailData, agencyId, agencyName);
                 container.addAgency(mutableAgency);
             }
             return mutableAgency;
@@ -505,7 +505,7 @@ public class RailTimetableMapper {
             if (platformLookup.containsKey(platformId)) {
                 platform = platformLookup.get(platformId);
             } else {
-                platform = new MutablePlatform(platformId, originStation, originStation.getName(), DataSourceID.rail, platformNumber,
+                platform = new MutablePlatform(platformId, originStation, originStation.getName(), DataSourceID.openRailData, platformNumber,
                         areaId, originStation.getLatLong(), originStation.getGridPosition(), originStation.isMarkedInterchange());
                 container.addPlatform(platform);
                 platformLookup.put(platformId, platform);

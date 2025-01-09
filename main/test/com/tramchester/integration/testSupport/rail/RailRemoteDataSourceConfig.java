@@ -14,11 +14,12 @@ public class RailRemoteDataSourceConfig extends RemoteDataSourceConfig {
     // http://data.atoc.org/how-to
     // https://data.atoc.org/member-area
 
-    public static final String VERSION = "928";
+    public static final String VERSION = "344";
 
-    private static final String CURRENT_PREFIX = "ttis"+VERSION;
+    private static final String CURRENT_PREFIX = "RJTTF"+VERSION;
 
-    private static final String RAIL_LATEST_ZIP = String.format("s3://tramchesternewdist/railData/%s.zip", CURRENT_PREFIX);
+    private static final String RAIL_LATEST_ZIP = "https://opendata.nationalrail.co.uk/api/staticfeeds/3.0/timetable";
+            //String.format("s3://tramchesternewdist/railData/%s.zip", CURRENT_PREFIX);
 
     private final String dataPath;
 
@@ -38,7 +39,7 @@ public class RailRemoteDataSourceConfig extends RemoteDataSourceConfig {
 
     @Override
     public String getDataCheckUrl() {
-        return "";
+        return RAIL_LATEST_ZIP;
     }
 
     @Override
@@ -58,16 +59,16 @@ public class RailRemoteDataSourceConfig extends RemoteDataSourceConfig {
 
     @Override
     public String getName() {
-        return "rail";
+        return "openRailData";
     }
 
     @Override
     public DataSourceID getDataSourceId() {
-        return DataSourceID.rail;
+        return DataSourceID.openRailData;
     }
 
     public String getFilePrefix() {
-        return CURRENT_PREFIX.replace("ttis", "ttisf");
+        return CURRENT_PREFIX;
     }
 
     @Override

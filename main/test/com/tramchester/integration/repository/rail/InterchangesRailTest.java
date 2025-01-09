@@ -28,7 +28,7 @@ class InterchangesRailTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        config = new IntegrationRailTestConfig();
+        config = new IntegrationRailTestConfig(false);
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
