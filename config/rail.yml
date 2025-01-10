@@ -27,7 +27,6 @@ instanceDataUrl: http://169.254.169.254
 gtfsSourceConfig: []
 rail:
   dataPath: data/openRailData
-  version: 344
   modes: [ Train, RailReplacementBus ]
   initialWaitMinutes: 60
 openRailData:
@@ -41,7 +40,8 @@ remoteSources:
     dataPath: data/openRailData
     downloadPath: data/openRailData
     filename: rail_data.zip
-    defaultExpiryDays: 5
+    defaultExpiryDays: 6
+    checkOnlyIfExpired: true
   - name: naptanxml
     dataURL: ${NAPTAN_DATAURL:- s3://tramchesternewdist/dist/${RELEASE_NUMBER}/NaPTAN.xml.zip}
     dataCheckURL: ""

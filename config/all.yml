@@ -40,8 +40,7 @@ gtfsSourceConfig:
     initialWaitMinutes: 13
     temporaryStationsWalks: []
 rail:
-  dataPath: data/rail
-  version: 285
+  dataPath: data/openRailData
   modes: [ Train, RailReplacementBus ]
   initialWaitMinutes: 60
 remoteSources:
@@ -52,20 +51,14 @@ remoteSources:
     downloadPath: data/bus
     filename: tfgm_data.zip
     defaultExpiryDays: 1
-#  - name: rail
-#    dataURL: s3://tramchesternewdist/railData/ttis928.zip
-#    dataCheckURL: ""
-#    dataPath: data/rail
-#    downloadPath: data/rail
-#    filename: rail_data.zip
-#    defaultExpiryDays: 1
   - name: openRailData
     dataURL: https://opendata.nationalrail.co.uk/api/staticfeeds/3.0/timetable
     dataCheckURL: https://opendata.nationalrail.co.uk/api/staticfeeds/3.0/timetable
     dataPath: data/openRailData
     downloadPath: data/openRailData
     filename: rail_data.zip
-    defaultExpiryDays: 1
+    defaultExpiryDays: 6
+    checkOnlyIfExpired: true
   - name: naptanxml
     dataURL: ${NAPTAN_DATAURL:- s3://tramchesternewdist/dist/${RELEASE_NUMBER}/NaPTAN.xml.zip}
     dataCheckURL: ""

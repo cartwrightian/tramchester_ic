@@ -37,7 +37,8 @@ remoteSources:
     dataPath: data/openRailData
     downloadPath: data/openRailData
     filename: rail_data.zip
-    defaultExpiryDays: 5
+    defaultExpiryDays: 6
+    checkOnlyIfExpired: true
   - name: tfgm
     dataURL: ${TRAM_DATAURL:- https://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip}
     dataCheckURL: https://odata.tfgm.com/opendata/downloads/TfGMgtfsnew.zip
@@ -70,8 +71,7 @@ remoteSources:
     mandatory: false
     skipUpload: false
 rail:
-  dataPath: data/rail
-  version: 928
+  dataPath: data/openRailData
   modes: [ Train, RailReplacementBus ]
   initialWaitMinutes: 60
 cacheFolder: data/cache
