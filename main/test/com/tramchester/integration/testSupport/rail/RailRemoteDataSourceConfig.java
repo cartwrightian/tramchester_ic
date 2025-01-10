@@ -49,7 +49,7 @@ public class RailRemoteDataSourceConfig extends RemoteDataSourceConfig {
 
     @Override
     public Duration getDefaultExpiry() {
-        return Duration.ofDays(1);
+        return Duration.ofDays(5);
     }
 
     @Override
