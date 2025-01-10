@@ -40,7 +40,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @TrainTest
 class SubGraphAroundKnutsfordRailTest {
-    //public static final int INITIAL_WAIT = 60;
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;
     private static SubgraphConfig config;
@@ -157,7 +156,7 @@ class SubGraphAroundKnutsfordRailTest {
     @Test
     void shouldHaveSimpleJourney() {
         JourneyRequest journeyRequest = new JourneyRequest(when, tramTime, false, 0,
-                Duration.ofMinutes(30), 1, EnumSet.noneOf(TransportMode.class));
+                Duration.ofMinutes(30), 1, EnumSet.of(Train));
         List<Journey> results = testFacade.calculateRouteAsList(Hale.getId(), Knutsford.getId(), journeyRequest);
         assertFalse(results.isEmpty());
     }
@@ -171,9 +170,10 @@ class SubGraphAroundKnutsfordRailTest {
     }
 
     private void validateAtLeastOneJourney(RailStationIds start, RailStationIds dest, Duration maxJourneyDuration) {
-        EnumSet<TransportMode> allModes = EnumSet.noneOf(TransportMode.class);
+        EnumSet<TransportMode> train = EnumSet.of(Train);
+
         JourneyRequest journeyRequest = new JourneyRequest(when, tramTime, false, 0,
-                maxJourneyDuration, 1, allModes);
+                maxJourneyDuration, 1, train);
 
         List<Journey> results = testFacade.calculateRouteAsList(start.getId(), dest.getId(), journeyRequest);
         assertFalse(results.isEmpty(), "No results from " + start + " to " + dest + " for " + journeyRequest);
@@ -181,14 +181,12 @@ class SubGraphAroundKnutsfordRailTest {
 
     private static class SubgraphConfig extends IntegrationRailTestConfig {
         public SubgraphConfig() {
-            // TODO should this be national, is Knutsford within the GM bounds?
             super(Scope.GreaterManchester);
-            //super("subgraph_hale_trains_tramchester.db");
         }
 
-//        @Override
-//        public int getMaxInitialWait() {
-//            return INITIAL_WAIT;
-//        }
+        @Override
+        public boolean isGraphFiltered() {
+            return true;
+        }
     }
 }

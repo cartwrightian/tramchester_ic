@@ -26,7 +26,6 @@ import java.time.Duration;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -172,7 +171,19 @@ public class RailRouteCalculatorTest {
         JourneyRequest request = new JourneyRequest(when, travelTime, false, 1,
                 Duration.ofMinutes(30), 1, getRequestedModes());
 
-        atLeastOneDirect(request, Hale.getId(), Knutsford.getId());
+        List<Journey> directs = atLeastOneDirect(request, Hale.getId(), Knutsford.getId());
+
+        Journey result = directs.getFirst();
+
+        assertEquals(4, result.getPath().size(), result.getPath().toString());
+
+        List<TransportStage<?, ?>> stages = result.getStages();
+
+        assertEquals(1, stages.size());
+        TransportStage<?, ?> stage = stages.getFirst();
+
+        assertEquals(TransportMode.Train, stage.getMode());
+        assertEquals(2, stage.getPassedStopsCount());
     }
 
     @Test
@@ -259,13 +270,14 @@ public class RailRouteCalculatorTest {
         atLeastOneDirect(request, start.getId(), dest.getId());
     }
 
-    private void atLeastOneDirect(JourneyRequest request, IdFor<Station> start, IdFor<Station> dest) {
+    private List<Journey> atLeastOneDirect(JourneyRequest request, IdFor<Station> start, IdFor<Station> dest) {
         List<Journey> journeys = testFacade.calculateRouteAsList(start, dest, request);
         assertFalse(journeys.isEmpty());
 
         // At least one direct
-        List<Journey> direct = journeys.stream().filter(journey -> journey.getStages().size() == 1).collect(Collectors.toList());
+        List<Journey> direct = journeys.stream().filter(journey -> journey.getStages().size() == 1).toList();
         assertFalse(direct.isEmpty(), "No direct from " + start + " to " + dest + " for " + request);
+        return direct;
     }
 
 

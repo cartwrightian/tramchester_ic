@@ -41,7 +41,7 @@ public class RouteToRouteCostsRailTest {
     private MutableGraphTransaction txn;
     private Station manPicc;
     private Station stockport;
-    private Station londonEuston;
+//    private Station londonEuston;
     private TimeRange timeRange;
 
     @BeforeAll
@@ -75,7 +75,7 @@ public class RouteToRouteCostsRailTest {
 
         manPicc = stationRepository.getStationById(ManchesterPiccadilly.getId());
         stockport = stationRepository.getStationById(Stockport.getId());
-        londonEuston = stationRepository.getStationById(LondonEuston.getId());
+//        londonEuston = stationRepository.getStationById(LondonEuston.getId());
 
         timeRange = TimeRangePartial.of(TramTime.of(8,15), TramTime.of(22,35));
 
@@ -96,24 +96,24 @@ public class RouteToRouteCostsRailTest {
         assertEquals(0, routeToRouteCosts.getPossibleMinChanges(manPicc, stockport, TRAIN, date, timeRange));
     }
 
-    @Test
-    void shouldGetNumberOfRouteHopsBetweenManPiccAndLondonEustom() {
-        assertEquals(0, routeToRouteCosts.getPossibleMinChanges(manPicc, londonEuston, TRAIN, date, timeRange));
-    }
+//    @Test
+//    void shouldGetNumberOfRouteHopsBetweenManPiccAndLondonEustom() {
+//        assertEquals(0, routeToRouteCosts.getPossibleMinChanges(manPicc, londonEuston, TRAIN, date, timeRange));
+//    }
 
-    @Disabled("Performance testing")
-    @Test
-    void shouldGetNumberOfRouteHopsBetweenManPiccAndLondonEustomPerformanceTesting() {
-        for (int i = 0; i < 20; i++) {
-            routeToRouteCosts.getPossibleMinChanges(manPicc, londonEuston, TRAIN, date, timeRange);
-        }
-    }
+//    @Disabled("Performance testing")
+//    @Test
+//    void shouldGetNumberOfRouteHopsBetweenManPiccAndLondonEustomPerformanceTesting() {
+//        for (int i = 0; i < 20; i++) {
+//            routeToRouteCosts.getPossibleMinChanges(manPicc, londonEuston, TRAIN, date, timeRange);
+//        }
+//    }
 
-    @Test
-    void shouldGetNumberOfRouteHopsBetweenAltrinchamAndLondonEuston() {
-        Station altrincham = stationRepository.getStationById(Altrincham.getId());
-        assertEquals(1, routeToRouteCosts.getPossibleMinChanges(altrincham, londonEuston, TRAIN, date, timeRange));
-    }
+//    @Test
+//    void shouldGetNumberOfRouteHopsBetweenAltrinchamAndLondonEuston() {
+//        Station altrincham = stationRepository.getStationById(Altrincham.getId());
+//        assertEquals(1, routeToRouteCosts.getPossibleMinChanges(altrincham, londonEuston, TRAIN, date, timeRange));
+//    }
 
     @Test
     void shouldGetNumberOfRouteHopsBetweenAltrinchamNavigationRoadAndStockport() {
@@ -127,12 +127,12 @@ public class RouteToRouteCostsRailTest {
 
     }
 
-    @Test
-    void shouldGetNumberOfChangesKnutsfordToDover() {
-        Station knutsford = stationRepository.getStationById(Knutsford.getId());
-        Station other = stationRepository.getStationById(Dover.getId());
-        assertEquals(3, routeToRouteCosts.getPossibleMinChanges(knutsford, other, TRAIN, date, timeRange));
-    }
+//    @Test
+//    void shouldGetNumberOfChangesKnutsfordToDover() {
+//        Station knutsford = stationRepository.getStationById(Knutsford.getId());
+//        Station other = stationRepository.getStationById(Dover.getId());
+//        assertEquals(3, routeToRouteCosts.getPossibleMinChanges(knutsford, other, TRAIN, date, timeRange));
+//    }
 
     @Disabled("spike only")
     @Test

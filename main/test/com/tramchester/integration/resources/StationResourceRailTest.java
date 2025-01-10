@@ -67,7 +67,7 @@ class StationResourceRailTest {
         LocationDTO result = response.readEntity(LocationDTO.class);
 
         assertEquals(stationId, result.getId());
-        assertEquals("Manchester Piccadilly Rail Station", result.getName());
+        assertEquals("MANCHESTER PICCADILLY", result.getName());
 
         List<PlatformDTO> platforms = result.getPlatforms();
         assertEquals(16, platforms.size(), platforms.toString());

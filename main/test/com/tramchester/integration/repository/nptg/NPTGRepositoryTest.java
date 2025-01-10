@@ -98,14 +98,13 @@ public class NPTGRepositoryTest {
     }
 
     @Test
-    void shouldHaveRecordForAllLoadedNaptanStops() {
+    void shouldHaveNTPGRecordForAllLoadedNaptanStops() {
         // to assist in setting margin for bounds
         NaptanRepository naptanRepository = componentContainer.get(NaptanRepository.class);
 
-        IdSet<NPTGLocality> missingRecords = naptanRepository.getAll().
-                map(NaptanRecord::getLocalityId).
-                filter(localityId -> !repository.hasLocaility(localityId)).
-                collect(IdSet.idCollector());
+        Set<NaptanRecord> missingRecords = naptanRepository.getAll().
+                filter(record -> !repository.hasLocaility(record.getLocalityId())).
+                collect(Collectors.toSet());
 
         assertEquals(0, missingRecords.size(), missingRecords.toString());
     }

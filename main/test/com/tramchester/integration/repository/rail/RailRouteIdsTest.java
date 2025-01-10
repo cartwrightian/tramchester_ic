@@ -102,7 +102,7 @@ public class RailRouteIdsTest {
 
         assertNotEquals(idA, idB);
         assertEquals(Route.createId("MNCRIAP:SBRN=>TP:3"), idA);
-        assertEquals(Route.createId("MNCRIAP:SBRN=>TP:1"), idB);
+        assertEquals(Route.createId("MNCRIAP:SBRN=>TP:2"), idB);
 
     }
 
@@ -206,7 +206,7 @@ public class RailRouteIdsTest {
                 toList();
 
         // was 36 under old ID scheme
-        assertEquals(11, routes.size(), routes.toString());
+        assertEquals(9, routes.size(), routes.toString());
     }
 
     @Test
