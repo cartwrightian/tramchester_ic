@@ -37,7 +37,7 @@ public class RailAndTramGreaterManchesterConfig extends IntegrationTramTestConfi
 
     @Override
     public RailConfig getRailConfig() {
-        return new TestRailConfig(railRemoteDataSource);
+        return new TestRailConfig();
     }
 
     @Override

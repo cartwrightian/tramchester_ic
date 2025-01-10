@@ -48,7 +48,7 @@ public class IntegrationRailTestConfig extends IntegrationTestConfig {
 
     @Override
     public RailConfig getRailConfig() {
-       return new TestRailConfig(railRemoteDataSource);
+       return new TestRailConfig();
     }
 
     @Override

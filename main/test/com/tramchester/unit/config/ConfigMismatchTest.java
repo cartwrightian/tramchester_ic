@@ -142,10 +142,7 @@ class ConfigMismatchTest {
         RailConfig rail = appConfig.getRailConfig();
         RailConfig testRail = appConfig.getRailConfig();
 
-        assertEquals(rail.getStations(), testRail.getStations());
-        assertEquals(rail.getTimetable(), testRail.getTimetable());
         assertEquals(rail.getModes(), testRail.getModes());
-        assertEquals(rail.getVersion(), testRail.getVersion());
 
         assertRailLiveData(appConfig.getOpenldbwsConfig(),  nationalRailConfig.getOpenldbwsConfig());
 
@@ -215,8 +212,6 @@ class ConfigMismatchTest {
         RailConfig configRail = appConfig.getRailConfig();
         RailConfig testRail = testConfig.getRailConfig();
 
-        assertEquals(configRail.getStations(), testRail.getStations());
-        assertEquals(configRail.getTimetable(), testRail.getTimetable());
         assertEquals(configRail.getModes(), testRail.getModes());
 
         assertRailLiveData(appConfig.getOpenldbwsConfig(), testConfig.getOpenldbwsConfig());
@@ -280,13 +275,13 @@ class ConfigMismatchTest {
 
     }
 
-    private void checkRailDataVersionFor(AppConfiguration appConfig) {
-        String version = appConfig.getRailConfig().getVersion();
-        RemoteDataSourceConfig dataSourceConfig = appConfig.getDataRemoteSourceConfig(DataSourceID.openRailData);
-        String zip = String.format("ttis%s.zip", version);
-        assertTrue(dataSourceConfig.getDataUrl().contains(zip),
-                "Rail config and data source config mismatch? version:"+version+" Url: "+dataSourceConfig.getDataUrl());
-    }
+//    private void checkRailDataVersionFor(AppConfiguration appConfig) {
+//        String version = appConfig.getRailConfig().getVersion();
+//        RemoteDataSourceConfig dataSourceConfig = appConfig.getDataRemoteSourceConfig(DataSourceID.openRailData);
+//        String zip = String.format("ttis%s.zip", version);
+//        assertTrue(dataSourceConfig.getDataUrl().contains(zip),
+//                "Rail config and data source config mismatch? version:"+version+" Url: "+dataSourceConfig.getDataUrl());
+//    }
 
     private void validateCoreParameters(Collection<Category> excluded, AppConfiguration expected, AppConfiguration testConfig) {
         assertEquals(expected.getStaticAssetCacheTimeSeconds(), testConfig.getStaticAssetCacheTimeSeconds(), "StaticAssetCacheTimeSeconds");
@@ -438,7 +433,7 @@ class ConfigMismatchTest {
 
         assertEquals(remoteSource.getDownloadPath(), testRemoteSource.getDownloadPath(), "downloadPath " + dataSourceID);
         assertEquals(remoteSource.getDataPath(), testRemoteSource.getDataPath(), "dataPath " + dataSourceID);
-
+        assertEquals(remoteSource.checkOnlyIfExpired(), testRemoteSource.checkOnlyIfExpired(), "dataPath " + dataSourceID);
     }
 
     private RemoteDataSourceConfig getSourceFrom(List<RemoteDataSourceConfig> remoteSources, DataSourceID dataSourceID) {

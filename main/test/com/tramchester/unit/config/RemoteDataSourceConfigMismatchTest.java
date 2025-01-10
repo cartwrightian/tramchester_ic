@@ -141,6 +141,7 @@ public class RemoteDataSourceConfigMismatchTest {
         assertEquals(sourceA.getDataCheckUrl(), sourceB.getDataCheckUrl());
 
         assertEquals(sourceA.getDefaultExpiry(), sourceB.getDefaultExpiry());
+        assertEquals(sourceA.checkOnlyIfExpired(), sourceB.checkOnlyIfExpired());
     }
 
 

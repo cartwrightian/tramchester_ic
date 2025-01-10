@@ -15,6 +15,8 @@ import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
@@ -32,7 +34,7 @@ public class Unzipper {
         try {
             if (zipMatcher.matches(filename)) {
                 int entries = 0;
-                logger.info(format("Unziping data from %s to %s ", filename, targetDirectory));
+                logger.info(format("Unzipping data from %s to %s ", filename, targetDirectory));
                 ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(zipFile));
                 ZipEntry zipEntry = zipInputStream.getNextEntry();
                 while (zipEntry != null) {
@@ -156,6 +158,42 @@ public class Unzipper {
                     fromZip, LocalDateTime.ofInstant(fromZip, TramchesterConfig.TimeZoneId)));
         }
         return modTimeMatches;
+    }
+
+    public List<Path> getContents(final Path filename) {
+        List<Path> contents = new ArrayList<>();
+
+        File zipFile = filename.toFile();
+        try {
+            if (zipMatcher.matches(filename)) {
+                int entries = 0;
+                logger.info(format("Listing contents data from %s", filename));
+                ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(zipFile));
+                ZipEntry zipEntry = zipInputStream.getNextEntry();
+                while (zipEntry != null) {
+                    entries++;
+                    contents.add(Path.of(zipEntry.getName()));
+                    zipInputStream.closeEntry();
+                    zipEntry = zipInputStream.getNextEntry();
+                }
+                zipInputStream.close();
+                if (entries==0) {
+                    logger.error("Unzipped zero entries, was this a zip file? " + filename);
+                }
+            } else {
+                logger.info(format("Skipping unzip, %s not a zip file", zipFile.getAbsoluteFile()));
+            }
+
+        } catch (ZipException zipException) {
+            logger.error("Unable to unzip, zip exception ", zipException);
+        }
+        catch (FileNotFoundException fileNotFoundException) {
+            logger.error("File is missing ", fileNotFoundException);
+        } catch (IOException ioException) {
+            logger.error("IOException while processing zip file ", ioException);
+        }
+
+        return contents;
     }
 
 }

@@ -34,6 +34,7 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
     private final boolean enabled;
     private final BoundingBox bounds;
     private final RailStationRecordsRepository stationRecordsRepository;
+    private final RailDataFilenameRepository filenameRepository;
     private final Loader loader;
 
     @Inject
@@ -41,13 +42,15 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
                                       TramchesterConfig config,
                                       GraphFilterActive graphFilterActive, RemoteDataAvailable remoteDataRefreshed,
                                       RailRouteIdRepository railRouteRepository,
-                                      RailStationRecordsRepository stationRecordsRepository) {
+                                      RailStationRecordsRepository stationRecordsRepository,
+                                      RailDataFilenameRepository filenameRepository) {
 
         this.remoteDataRefreshed = remoteDataRefreshed;
         this.enabled = config.hasRailConfig();
         this.railConfig = config.getRailConfig();
         this.bounds = config.getBounds();
         this.stationRecordsRepository = stationRecordsRepository;
+        this.filenameRepository = filenameRepository;
 
         loader = new Loader(loadRailTimetableRecords, railRouteRepository, railConfig, graphFilterActive);
     }
@@ -89,7 +92,7 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
         final GetsFileModTime fileModTime = new GetsFileModTime();
         final ZonedDateTime modTime = fileModTime.getFor(downloadedZip);
         final DataSourceInfo dataSourceInfo = new DataSourceInfo(railConfig.getDataSourceId(),
-                railConfig.getVersion(), modTime, railConfig.getModes());
+                filenameRepository.getCurrentVersion(), modTime, railConfig.getModes());
         logger.info("Generated  " + dataSourceInfo);
         return dataSourceInfo;
     }

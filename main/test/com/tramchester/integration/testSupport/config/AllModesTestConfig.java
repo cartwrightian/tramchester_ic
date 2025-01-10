@@ -48,7 +48,7 @@ public class AllModesTestConfig extends IntegrationTestConfig {
 
     @Override
     public RailConfig getRailConfig() {
-        return new TestRailConfig(remoteDataRailConfig);
+        return new TestRailConfig();
     }
 
 

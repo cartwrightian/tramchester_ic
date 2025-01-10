@@ -29,13 +29,13 @@ public class LoadRailTimetableRecords implements ProvidesRailTimetableRecords {
     private final boolean enabled;
 
     @Inject
-    public LoadRailTimetableRecords(TramchesterConfig config, RailDataRecordFactory factory, UnzipFetchedData.Ready ready) {
+    public LoadRailTimetableRecords(TramchesterConfig config, RailDataRecordFactory factory, UnzipFetchedData.Ready ready, RailDataFilenameRepository filenameRepository) {
         RailConfig railConfig = config.getRailConfig();
         enabled = (railConfig != null);
         this.factory = factory;
+
         if (enabled) {
-            final Path dataPath = railConfig.getDataPath();
-            filePath = dataPath.resolve(railConfig.getTimetable());
+            filePath = filenameRepository.getTimetable();
         } else {
             filePath = null;
         }

@@ -128,7 +128,7 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
 
         if (!headers.isEmpty()) {
             // careful for logging here, might contain auth tokens or similar
-            logger.info("Adding headers " + headers.size());
+            logger.info("Adding headers " + headers.stream().map(Pair::getKey).toList());
             headers.forEach(header -> httpRequestBuilder.setHeader(header.getKey(), header.getValue()));
         }
 
@@ -147,6 +147,8 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
         }
 
         final HttpRequest httpRequest = httpRequestBuilder.build();
+
+        logger.info("Performing " + method + " " + uri);
 
         return client.send(httpRequest, bodyHandler);
     }

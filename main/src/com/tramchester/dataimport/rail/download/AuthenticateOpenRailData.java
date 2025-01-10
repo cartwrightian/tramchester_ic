@@ -48,6 +48,9 @@ public class AuthenticateOpenRailData {
         }
     }
 
+    // https://wiki.openraildata.com/index.php/DTD
+    // https://wiki.openraildata.com/index.php/National_Rail_Data_Portal#Authentication
+
     public String getToken() {
         if (!enabled) {
             logger.error("getToken() invoked but not enabled, config missing?");
@@ -63,7 +66,6 @@ public class AuthenticateOpenRailData {
         final String encodedUsername = URLEncoder.encode(username, StandardCharsets.US_ASCII);
         final String encodedPassword = URLEncoder.encode(password, StandardCharsets.US_ASCII);
         final String payload = String.format("username=%s&password=%s", encodedUsername, encodedPassword);
-        //final String body = URLEncoder.encode(payload, StandardCharsets.US_ASCII);
 
         final String jsonResponse = doesPostRequest.post(uri, payload);
 

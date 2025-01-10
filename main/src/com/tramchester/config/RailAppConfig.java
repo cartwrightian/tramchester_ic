@@ -16,24 +16,14 @@ import java.util.Set;
 public class RailAppConfig extends Configuration implements RailConfig {
 
     private final Path dataPath;
-    private final Path stations;
-    private final Path timetable;
-    private final String version;
     private final EnumSet<TransportMode> modes;
     private final int initialWaitMinutes;
 
     public RailAppConfig(@JsonProperty(value ="dataPath", required = true) Path dataPath,
-                         @JsonProperty(value ="version", required = true) String version,
                          @JsonProperty(value="modes", required = true) Set<TransportMode> modes,
                          @JsonProperty(value="initialWaitMinutes", required = true) int initialWaitMinutes) {
         this.dataPath = dataPath;
         this.modes = EnumSet.copyOf(modes);
-
-        this.version = version;
-        final String filename = "RJTTF" + version;
-
-        this.timetable = Path.of(String.format("%s.MCA", filename));
-        this.stations = Path.of(String.format("%s.MSN", filename));
 
         this.initialWaitMinutes = initialWaitMinutes;
     }
@@ -57,20 +47,9 @@ public class RailAppConfig extends Configuration implements RailConfig {
         return Duration.ofMinutes(initialWaitMinutes);
     }
 
-    public Path getStations() {
-        return stations;
-    }
-
-    public Path getTimetable() {
-        return timetable;
-    }
-
     @Override
     public EnumSet<TransportMode> getModes() {
         return modes;
     }
 
-    public String getVersion() {
-        return version;
-    }
 }

@@ -12,11 +12,6 @@ import static com.tramchester.domain.reference.TransportMode.RailReplacementBus;
 import static com.tramchester.domain.reference.TransportMode.Train;
 
 public class TestRailConfig implements RailConfig {
-    private final RailRemoteDataSourceConfig remoteConfig;
-
-    public TestRailConfig(RailRemoteDataSourceConfig remoteConfig) {
-        this.remoteConfig = remoteConfig;
-    }
 
     public static final int INITIAL_WAIT_MINS = 60;
 
@@ -40,24 +35,24 @@ public class TestRailConfig implements RailConfig {
             return Path.of("data/openRailData");
         }
 
-    @Override
-    public Path getStations() {
-            return Path.of(remoteConfig.getFilePrefix() + ".MSN");
-        }
-
-    @Override
-    public Path getTimetable() {
-            return Path.of(remoteConfig.getFilePrefix() + ".MCA");
-        }
+//    @Override
+//    public Path getStations(String version) {
+//        return Path.of(remoteConfig.getFilePrefix(version) + ".MSN");
+//    }
+//
+//    @Override
+//    public Path getTimetable(String version) {
+//        return Path.of(remoteConfig.getFilePrefix(version) + ".MCA");
+//    }
 
     @Override
     public EnumSet<TransportMode> getModes() {
         return EnumSet.of(Train, RailReplacementBus);
     }
 
-    @Override
-    public String getVersion() {
-        return RailRemoteDataSourceConfig.VERSION;
-    }
+//    @Override
+//    public String getVersion() {
+//        return RailRemoteDataSourceConfig.VERSION;
+//    }
 
 }

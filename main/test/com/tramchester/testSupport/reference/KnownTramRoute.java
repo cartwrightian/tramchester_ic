@@ -8,19 +8,22 @@ import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.testSupport.TestEnv;
 
+import java.time.DayOfWeek;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static java.time.DayOfWeek.SUNDAY;
-
 /*
  * see also TramRouteHelper
  * Note: these are validated against tfgm data as part of Integration tests
  */
 public enum KnownTramRoute {
+
+    // Replacement buses
+    BusPiccGardensToAshto("Replacement Bus 1", "Piccadilly Gardens - Ashton", "1950"),
+    BusPiccToPiccGardens("Replacement Bus 2", "Piccadilly - Piccadilly Gardens", "2736"),
 
     // Blue
     EcclesAshton("Blue Line", "Eccles - Manchester - Ashton Under Lyne", "2119"),
@@ -44,11 +47,15 @@ public enum KnownTramRoute {
     public static Set<KnownTramRoute> getFor(final TramDate date) {
         EnumSet<KnownTramRoute> routes = EnumSet.noneOf(KnownTramRoute.class);
 
-        if (date.isAfter(TramDate.of(2025,1,1))) {
-            if (!date.getDayOfWeek().equals(SUNDAY)) {
+        if (date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
+            if (date.isAfter(TramDate.of(2025,1,18))) {
+                routes.add(BusPiccGardensToAshto);
+                routes.add(BusPiccToPiccGardens);
+
                 routes.add(BuryManchesterAltrincham);
             }
         } else {
+            // not on sundays until 19 Jan 2025
             routes.add(BuryManchesterAltrincham);
         }
 

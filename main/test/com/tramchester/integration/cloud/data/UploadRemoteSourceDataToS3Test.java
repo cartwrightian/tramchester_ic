@@ -191,6 +191,11 @@ class UploadRemoteSourceDataToS3Test {
         }
 
         @Override
+        public boolean checkOnlyIfExpired() {
+            return false;
+        }
+
+        @Override
         public Duration getDefaultExpiry() {
             return Duration.ofDays(1);
         }

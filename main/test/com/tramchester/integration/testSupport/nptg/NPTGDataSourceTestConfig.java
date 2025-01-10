@@ -33,6 +33,11 @@ public class NPTGDataSourceTestConfig extends RemoteDataSourceConfig {
     }
 
     @Override
+    public boolean checkOnlyIfExpired() {
+        return false;
+    }
+
+    @Override
     public Duration getDefaultExpiry() {
         return Duration.ofDays(14);
     }

@@ -5,6 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.RemoteDataAvailable;
 import com.tramchester.dataimport.rail.ProvidesRailTimetableRecords;
+import com.tramchester.dataimport.rail.RailDataFilenameRepository;
 import com.tramchester.dataimport.rail.RailRouteIDBuilder;
 import com.tramchester.dataimport.rail.RailTransportDataFromFiles;
 import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
@@ -259,6 +260,8 @@ public class RailRouteIdsTest {
         GraphFilterActive graphFilterActive = componentContainer.get(GraphFilterActive.class);
         RemoteDataAvailable remoteDataRefreshed = componentContainer.get(RemoteDataAvailable.class);
         RailStationRecordsRepository stationRecordsRepository = componentContainer.get(RailStationRecordsRepository.class);
+        RailDataFilenameRepository railFilenameRepository = componentContainer.get(RailDataFilenameRepository.class);
+
         CacheMetrics cacheMetrics = componentContainer.get(CacheMetrics.class);
         final ProvidesNow providesNow = componentContainer.get(ProvidesNow.class);
 
@@ -268,7 +271,8 @@ public class RailRouteIdsTest {
         routeIdRepository.start();
 
         final RailTransportDataFromFiles loadFromFiles = new RailTransportDataFromFiles(loadsRecords,
-                config, graphFilterActive, remoteDataRefreshed, routeIdRepository, stationRecordsRepository);
+                config, graphFilterActive, remoteDataRefreshed, routeIdRepository, stationRecordsRepository,
+                railFilenameRepository);
 
         final Set<RouteStation> first = getRouteStations(providesNow, "first load", loadFromFiles);
         final Set<RouteStation> second = getRouteStations(providesNow, "second load", loadFromFiles);

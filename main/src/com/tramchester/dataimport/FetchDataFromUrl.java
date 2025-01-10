@@ -119,13 +119,14 @@ public class FetchDataFromUrl {
 
         final boolean filePresent = getsFileModTime.exists(destAndStatusCheckFile.statusCheckFile);
 
-        // not used for S3, but we don't know at this stage if data source is S3 or not
-        final List<Pair<String,String>> headers = headerFactory.getFor(dataSourceId);
+
 
         if (filePresent) {
             logger.info(format("Source %s file %s is present", dataSourceId, destAndStatusCheckFile.statusCheckFile));
-            return refreshDataIfNewerAvailableHasFile(sourceConfig, destAndStatusCheckFile, headers);
+            return refreshDataIfNewerAvailableHasFile(sourceConfig, destAndStatusCheckFile);
         } else {
+            // not used for S3, but we don't know at this stage if data source is S3 or not
+            final List<Pair<String,String>> headers = headerFactory.getFor(dataSourceId);
             logger.info(format("Source %s file %s is NOT present", dataSourceId, destAndStatusCheckFile.statusCheckFile));
             return refreshDataIfNewerAvailableNoFile(sourceConfig, destAndStatusCheckFile, headers);
         }
@@ -164,8 +165,7 @@ public class FetchDataFromUrl {
         return originalURL.getScheme().equalsIgnoreCase("s3");
     }
 
-    private RefreshStatus refreshDataIfNewerAvailableHasFile(DownloadedConfig sourceConfig, DestAndStatusCheckFile destAndStatusCheckFile,
-                                                             List<Pair<String, String>> headers) throws IOException, InterruptedException {
+    private RefreshStatus refreshDataIfNewerAvailableHasFile(DownloadedConfig sourceConfig, DestAndStatusCheckFile destAndStatusCheckFile) throws IOException, InterruptedException {
         // already has the source file locally
         final DataSourceID dataSourceId = sourceConfig.getDataSourceId();
 
@@ -181,9 +181,22 @@ public class FetchDataFromUrl {
             return RefreshStatus.NoNeedToRefresh;
         }
 
+        if (sourceConfig.checkOnlyIfExpired() && !expired) {
+            logger.info(format("%s file: %s is not expired, and only checking for updates if expired", dataSourceId, destAndStatusCheckFile));
+            return RefreshStatus.NoNeedToRefresh;
+        }
+
         logger.info("Check remote status for originalURL:'"+sourceConfig.getDataUrl()+"'");
         final URI originalURL = URI.create(sourceConfig.getDataUrl());
         final boolean isS3 = isS3(originalURL);
+
+        final List<Pair<String, String>> headers;
+        if (isS3) {
+            headers = Collections.emptyList();
+        } else {
+            headers = headerFactory.getFor(dataSourceId);
+        }
+
         final URLStatus status = getUrlStatus(originalURL, isS3, localMod, sourceConfig, headers);
         if (status == null) {
             return RefreshStatus.UnableToCheck;

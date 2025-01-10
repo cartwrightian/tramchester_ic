@@ -28,8 +28,9 @@ public class LoadRailServicesFromText  {
     private final UnzipFetchedData.Ready ready;
     private final GraphFilterActive filter;
     private final RailStationRecordsRepository stationRecordsRepository;
+    private final RailDataFilenameRepository railDataFilenameRepository;
 
-    public LoadRailServicesFromText(TramchesterConfig config, ComponentContainer componentContainer, UnzipFetchedData.Ready ready) {
+    public LoadRailServicesFromText(TramchesterConfig config, ComponentContainer componentContainer, UnzipFetchedData.Ready ready, RailDataFilenameRepository railDataFilenameRepository) {
         this.config = config;
         this.ready = ready;
 
@@ -39,11 +40,12 @@ public class LoadRailServicesFromText  {
         filter = componentContainer.get(GraphFilterActive.class);
         railDataRecordFactory = componentContainer.get(RailDataRecordFactory.class);
         stationRecordsRepository = componentContainer.get(RailStationRecordsRepository.class);
+        this.railDataFilenameRepository = railDataFilenameRepository;
     }
 
     public void loadInto(TransportDataContainer dataContainer, String text) {
 
-        ProvidesRailTimetableRecords loadTimeTableRecords = new LocalRailRecords(config, railDataRecordFactory, ready, text);
+        ProvidesRailTimetableRecords loadTimeTableRecords = new LocalRailRecords(config, railDataRecordFactory, ready, text, railDataFilenameRepository);
 
         RailConfig railConfig = config.getRailConfig();
 
@@ -61,8 +63,8 @@ public class LoadRailServicesFromText  {
     private static class LocalRailRecords extends LoadRailTimetableRecords {
         private final String text;
 
-        public LocalRailRecords(TramchesterConfig config, RailDataRecordFactory factory, UnzipFetchedData.Ready ready, String text) {
-            super(config, factory, ready);
+        public LocalRailRecords(TramchesterConfig config, RailDataRecordFactory factory, UnzipFetchedData.Ready ready, String text, RailDataFilenameRepository railDataFilenameRepository) {
+            super(config, factory, ready, railDataFilenameRepository);
             this.text = text;
         }
 

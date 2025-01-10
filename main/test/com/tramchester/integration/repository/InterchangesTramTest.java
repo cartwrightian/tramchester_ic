@@ -88,6 +88,7 @@ public class InterchangesTramTest {
 
         Stream<TramStations> expectedTramStations = Stream.of(StWerburghsRoad, TraffordBar, Cornbrook, HarbourCity,
                 Pomona, Cornbrook, Deansgate,
+                VeloPark, Shudehill, HoltTown, // <- for replacement bus services
                 PiccadillyGardens,
                 StPetersSquare,
                 Piccadilly,

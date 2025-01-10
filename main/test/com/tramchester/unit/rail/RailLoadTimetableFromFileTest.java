@@ -3,6 +3,7 @@ package com.tramchester.unit.rail;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.UnzipFetchedData;
 import com.tramchester.dataimport.rail.LoadRailTimetableRecords;
+import com.tramchester.dataimport.rail.RailDataFilenameRepository;
 import com.tramchester.dataimport.rail.RailDataRecordFactory;
 import com.tramchester.dataimport.rail.records.*;
 import com.tramchester.testSupport.TestEnv;
@@ -13,7 +14,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.StringReader;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -28,8 +28,11 @@ public class RailLoadTimetableFromFileTest extends EasyMockSupport {
     @BeforeEach
     void beforeEachTestRuns() {
         factory = createMock(RailDataRecordFactory.class);
+        RailDataFilenameRepository railDataFilenameRepository = createMock(RailDataFilenameRepository.class);
+
         UnzipFetchedData.Ready ready = UnzipFetchedData.Ready.fakeForTestingOnly();
-        loadRailTimetableRecords = new LoadRailTimetableRecords(config, factory, ready);
+
+        loadRailTimetableRecords = new LoadRailTimetableRecords(config, factory, ready, railDataFilenameRepository);
     }
 
     @Test
@@ -51,7 +54,7 @@ public class RailLoadTimetableFromFileTest extends EasyMockSupport {
 
         replayAll();
         Stream<RailTimetableRecord> stream = loadRailTimetableRecords.load(reader);
-        List<RailTimetableRecord> results = stream.collect(Collectors.toList());
+        List<RailTimetableRecord> results = stream.toList();
         verifyAll();
 
         assertEquals(5, results.size());

@@ -61,6 +61,11 @@ public class DatabaseRemoteDataSourceConfig extends RemoteDataSourceConfig {
     }
 
     @Override
+    public boolean checkOnlyIfExpired() {
+        return false;
+    }
+
+    @Override
     public boolean getSkipUpload() {
         // sep upload mechanism for DB files
         return false;

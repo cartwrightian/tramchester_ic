@@ -4,6 +4,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.UnzipFetchedData;
+import com.tramchester.dataimport.rail.RailDataFilenameRepository;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
@@ -54,10 +55,11 @@ public class GMRailTransportDataTest {
 
         ProvidesNow providesNow = componentContainer.get(ProvidesNow.class);
         UnzipFetchedData.Ready ready = componentContainer.get(UnzipFetchedData.Ready.class);
+        RailDataFilenameRepository railDataFilenameRepository = componentContainer.get(RailDataFilenameRepository.class);
 
         dataContainer = new TransportDataContainer(providesNow, "testingOnly");
 
-        loadRailServicesFromText = new LoadRailServicesFromText(config, componentContainer, ready);
+        loadRailServicesFromText = new LoadRailServicesFromText(config, componentContainer, ready, railDataFilenameRepository);
     }
 
     @AfterEach

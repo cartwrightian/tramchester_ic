@@ -14,9 +14,10 @@ public class RailRemoteDataSourceConfig extends RemoteDataSourceConfig {
     // http://data.atoc.org/how-to
     // https://data.atoc.org/member-area
 
-    public static final String VERSION = "344";
+//    public static final String VERSION = "344";
 
-    private static final String CURRENT_PREFIX = "RJTTF"+VERSION;
+
+//    private static final String CURRENT_PREFIX = PREFIX +VERSION;
 
     private static final String RAIL_LATEST_ZIP = "https://opendata.nationalrail.co.uk/api/staticfeeds/3.0/timetable";
             //String.format("s3://tramchesternewdist/railData/%s.zip", CURRENT_PREFIX);
@@ -48,8 +49,13 @@ public class RailRemoteDataSourceConfig extends RemoteDataSourceConfig {
     }
 
     @Override
+    public boolean checkOnlyIfExpired() {
+        return true;
+    }
+
+    @Override
     public Duration getDefaultExpiry() {
-        return Duration.ofDays(5);
+        return Duration.ofDays(6);
     }
 
     @Override
@@ -67,9 +73,9 @@ public class RailRemoteDataSourceConfig extends RemoteDataSourceConfig {
         return DataSourceID.openRailData;
     }
 
-    public String getFilePrefix() {
-        return CURRENT_PREFIX;
-    }
+//    public String getFilePrefix(final String version) {
+//        return PREFIX+version;
+//    }
 
     @Override
     public String getModTimeCheckFilename() {

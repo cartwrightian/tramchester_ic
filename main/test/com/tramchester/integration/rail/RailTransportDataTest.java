@@ -3,6 +3,7 @@ package com.tramchester.integration.rail;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.dataimport.UnzipFetchedData;
+import com.tramchester.dataimport.rail.RailDataFilenameRepository;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
@@ -57,10 +58,11 @@ public class RailTransportDataTest {
 
         ProvidesNow providesNow = componentContainer.get(ProvidesNow.class);
         UnzipFetchedData.Ready ready = componentContainer.get(UnzipFetchedData.Ready.class);
+        RailDataFilenameRepository railDataFilenameRepository = componentContainer.get(RailDataFilenameRepository.class);
 
         dataContainer = new TransportDataContainer(providesNow, "testingOnly");
 
-        loadRailServicesFromText = new LoadRailServicesFromText(config, componentContainer, ready);
+        loadRailServicesFromText = new LoadRailServicesFromText(config, componentContainer, ready, railDataFilenameRepository);
     }
 
     @AfterEach

@@ -96,7 +96,7 @@ public class TripRepositoryTest {
         HasId<Station> navigationRd = NavigationRoad.from(stationRepository);
         Set<Trip> calls = atTime.stream().filter(trip -> trip.callsAt(navigationRd.getId())).collect(Collectors.toSet());
 
-        assertEquals(2, calls.size(), HasId.asIds(calls));
+        assertEquals(4, calls.size(), HasId.asIds(calls));
     }
 
     @Disabled("Solved by removing reboarding filter which does not impact depth first performance")

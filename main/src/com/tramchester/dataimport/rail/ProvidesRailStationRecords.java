@@ -1,16 +1,18 @@
 package com.tramchester.dataimport.rail;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.config.RailConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.UnzipFetchedData;
 import com.tramchester.dataimport.rail.records.PhysicalStationRecord;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
-import jakarta.inject.Inject;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -33,12 +35,13 @@ public class ProvidesRailStationRecords {
     }
 
     @Inject
-    public ProvidesRailStationRecords(TramchesterConfig config, UnzipFetchedData.Ready ready) {
+    public ProvidesRailStationRecords(TramchesterConfig config, UnzipFetchedData.Ready ready, RailDataFilenameRepository filenameRepository) {
         enabled = config.hasRailConfig();
         if (enabled) {
-            RailConfig railConfig = config.getRailConfig();
-            final Path dataPath = railConfig.getDataPath();
-            this.filePath = dataPath.resolve(railConfig.getStations());
+            this.filePath = filenameRepository.getStations();
+//            RailConfig railConfig = config.getRailConfig();
+//            final Path dataPath = railConfig.getDataPath();
+//            this.filePath = dataPath.resolve(railConfig.getStations());
         } else {
             this.filePath = null;
         }

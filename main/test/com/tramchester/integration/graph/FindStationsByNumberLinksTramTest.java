@@ -78,17 +78,20 @@ class FindStationsByNumberLinksTramTest {
         IdSet<Station> found = finder.atLeastNLinkedStations(TransportMode.Tram, threshhold);
 
         List<IdFor<Station>> expectedList = Stream.of(
+                Shudehill,
+                HoltTown, // <- replacement buses??
+                VeloPark, // <- replacement buses??
                 StPetersSquare,
                 PiccadillyGardens,
                 //Piccadilly,
                 MarketStreet,
-            TraffordBar,
-            Cornbrook,
-            Victoria,
-            StWerburghsRoad,
-            Pomona,
-            Broadway,
-            HarbourCity
+                TraffordBar,
+                Cornbrook,
+                Victoria,
+                StWerburghsRoad,
+                Pomona,
+                Broadway,
+                HarbourCity
             ).map(FakeStation::getId).toList();
 
         IdSet<Station> expected = new IdSet<>(expectedList);

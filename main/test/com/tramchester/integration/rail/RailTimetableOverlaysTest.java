@@ -72,15 +72,6 @@ public class RailTimetableOverlaysTest {
         @Override
         public RailConfig getRailConfig() {
             return new RailConfig() {
-                @Override
-                public Path getStations() {
-                    return Path.of("exampleStations.msn");
-                }
-
-                @Override
-                public Path getTimetable() {
-                    return Path.of("exampleOverlays.mca");
-                }
 
                 @Override
                 public Path getDataPath() {
@@ -91,12 +82,6 @@ public class RailTimetableOverlaysTest {
                 public EnumSet<TransportMode> getModes() {
                     return EnumSet.of(TransportMode.Train);
                 }
-
-                @Override
-                public String getVersion() {
-                    return "invalid";
-                }
-
 
                 @Override
                 public boolean getOnlyMarkedInterchanges() {
