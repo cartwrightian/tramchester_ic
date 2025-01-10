@@ -1,11 +1,9 @@
 package com.tramchester.integration.testSupport.config;
 
-import com.tramchester.config.NeighbourConfig;
-import com.tramchester.config.OpenLdbConfig;
-import com.tramchester.config.RailConfig;
-import com.tramchester.config.RemoteDataSourceConfig;
+import com.tramchester.config.*;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.BoundingBox;
+import com.tramchester.integration.testSupport.rail.OpenRailDataTestConfig;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.integration.testSupport.rail.TestRailConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -84,6 +82,11 @@ public class RailAndTramGreaterManchesterConfig extends IntegrationTramTestConfi
     @Override
     public OpenLdbConfig getOpenldbwsConfig() {
         return new TestOpenLdbConfig();
+    }
+
+    @Override
+    public OpenRailDataConfig getOpenRailDataConfig() {
+        return new OpenRailDataTestConfig();
     }
 
 }

@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TrainTest
 public class RailAndTramRouteRepositoryTest {
-    public static final int ALL_GM_ROUTES = 602;
+    public static final int ALL_GM_ROUTES = 604;
     private static ComponentContainer componentContainer;
     private RouteRepository routeRepository;
 
@@ -62,7 +62,7 @@ public class RailAndTramRouteRepositoryTest {
 
     @Test
     void shouldHaveExpectedNumberOfTramRoutes() {
-        int numberTramRoutes = 7;
+        int numberTramRoutes = 9;
 
         Set<Route> tramRoutes = routeRepository.getRoutes(TramsOnly);
         assertEquals(numberTramRoutes, tramRoutes.size());
