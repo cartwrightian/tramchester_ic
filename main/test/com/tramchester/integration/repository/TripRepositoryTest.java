@@ -235,12 +235,8 @@ public class TripRepositoryTest {
     }
 
     private List<TramTime> getTimesFor(final List<TramTime> times, final Station station, final TramDate date) {
-        if (station.getId().equals(ExchangeSquare.getId())) {
-            if (date.equals(UpcomingDates.ChristmasParadeDate)) {
-                return times.stream().
-                        filter(time -> !UpcomingDates.ChristmasParadeTiming.contains(time)).
-                        toList();
-            }
+        if (date.equals(UpcomingDates.VictoriaBuryImprovementWorks)) {
+            return times.stream().filter(time -> !UpcomingDates.VictoriaBuryImprovementWorksTiming.contains(time)).toList();
         }
         return times;
     }

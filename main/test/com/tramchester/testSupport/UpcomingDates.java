@@ -23,11 +23,13 @@ public class UpcomingDates {
     // use helper methods that handle filtering (i.e. for Christmas) and conversion to dates
     static final int DAYS_AHEAD = 7;
 
+//    public static TramDate ChristmasParadeDate = TramDate.of(2024, 12, 8);
+//    public static TimeRange ChristmasParadeTiming = TimeRange.of(TramTime.of(12,0),
+//            TramTime.of(14,30));
 
-    public static TramDate ChristmasParadeDate = TramDate.of(2024, 12, 8);
-    public static TimeRange ChristmasParadeTiming = TimeRange.of(TramTime.of(12,0),
-            TramTime.of(14,30));
-
+    public static TramDate VictoriaBuryImprovementWorks = TramDate.of(2025,1,19);
+    public static TimeRange VictoriaBuryImprovementWorksTiming = TimeRange.of(TramTime.of(4,0),
+            TramTime.of(10,0));
 
     static {
         TramDate today = TramDate.from(TestEnv.LocalNow());
