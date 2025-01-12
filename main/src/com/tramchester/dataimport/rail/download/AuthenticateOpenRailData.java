@@ -61,6 +61,10 @@ public class AuthenticateOpenRailData {
         final String password = openRailDataConfig.getPassword();
         final String url = openRailDataConfig.getAuthURL();
 
+        if (missingConfig(username, "username") || missingConfig(password,"password") || missingConfig(url,"url")) {
+            return "";
+        }
+
         final URI uri = URI.create(url);
 
         final String encodedUsername = URLEncoder.encode(username, StandardCharsets.US_ASCII);
@@ -71,6 +75,18 @@ public class AuthenticateOpenRailData {
 
         return parseJsonResponseForAuthToken(jsonResponse, username);
 
+    }
+
+    private boolean missingConfig(String value, String diagnostics) {
+        if (value==null) {
+            logger.error(diagnostics + " was null");
+            return true;
+        }
+        if (value.isBlank()) {
+            logger.error(diagnostics + " was blank");
+            return true;
+        }
+        return false;
     }
 
     private @NotNull String parseJsonResponseForAuthToken(final String jsonResponse, final String requestedUsername) {
