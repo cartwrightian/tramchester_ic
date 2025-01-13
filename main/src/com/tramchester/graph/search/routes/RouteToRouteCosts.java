@@ -130,12 +130,6 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         return getPossibleMinChanges(start.getAllContained(), end.getAllContained(), date, time, modes);
     }
 
-//    @Override
-//    public int getNumberOfChanges(StationGroup start, StationGroup end, JourneyRequest journeyRequest) {
-//        return getPossibleMinChanges(start, end, journeyRequest.getDate(), journeyRequest.getTimeRange(),
-//                journeyRequest.getRequestedModes());
-//    }
-
     @Override
     public int getNumberOfChanges(LocationSet<Station> starts, LocationSet<Station> destinations,
                                   JourneyRequest journeyRequest, TimeRange timeRange) {

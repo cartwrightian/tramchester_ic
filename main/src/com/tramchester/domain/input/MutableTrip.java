@@ -185,7 +185,7 @@ public class MutableTrip implements Trip {
         final StopCall lastStop = stopCalls.getLastStop();
         if (!lastStop.callsAtStation()) {
             // todo
-            throw new RuntimeException("Undefined behaviour, last stop is not called at");
+            throw new RuntimeException("Undefined behaviour, last stop is not called at for " + lastStop);
         }
         return lastStop.getStationId();
     }

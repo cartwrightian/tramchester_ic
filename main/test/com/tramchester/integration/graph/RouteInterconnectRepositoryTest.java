@@ -165,9 +165,9 @@ public class RouteInterconnectRepositoryTest {
 
         assertEquals(2, routeMatrix.getConnectionDepthFor(routeA, routeB));
 
-        RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
+        RouteIndexPair indexPair = routeIndex.getPairFor(RoutePair.of(routeA, routeB));
 
-        // ignore data and mode here
+        // ignore data and mode here???
         IndexedBitSet dateOverlaps = routeMatrix.createOverlapMatrixFor(date, modes);
         // 196 -> 49
         assertEquals(49, dateOverlaps.numberOfBitsSet());
@@ -176,9 +176,11 @@ public class RouteInterconnectRepositoryTest {
 
         assertTrue(results.hasAny());
 
-        assertEquals(2, results.getDepth()); // two sets of changes needed
+        PathResults.HasPathResults hasResults = (PathResults.HasPathResults) results;
 
-        assertEquals(4, results.numberPossible(), results.toString());
+        assertEquals(2, hasResults.getDepth()); // two sets of changes needed
+
+        assertEquals(4, hasResults.numberPossible(), hasResults.toString());
     }
 
     @Test

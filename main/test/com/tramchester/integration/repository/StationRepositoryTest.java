@@ -23,6 +23,7 @@ import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TripRepository;
+import com.tramchester.repository.naptan.NaptanRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownLocality;
@@ -144,6 +145,10 @@ public class StationRepositoryTest {
 
     @Test
     void shouldEndOfLineGetStation() {
+
+        NaptanRepository naptanRepository = componentContainer.get(NaptanRepository.class);
+        boolean naptanEnabled = naptanRepository.isEnabled();
+
         assertTrue(stationRepository.hasStationId(Altrincham.getId()));
 
         Station station = Altrincham.from(stationRepository);
@@ -159,19 +164,27 @@ public class StationRepositoryTest {
 
         assertEquals(Duration.ofMinutes(1), station.getMinChangeDuration());
 
-        double delta = 0.0001;
+        double delta = naptanEnabled ? 0.01 : 0.0001;
         LatLong expectedLatLong = Altrincham.getLatLong();
         assertEquals(expectedLatLong.getLat(), station.getLatLong().getLat(), delta);
         assertEquals(expectedLatLong.getLon(), station.getLatLong().getLon(), delta);
 
-        GridPosition expectedGrid = CoordinateTransforms.getGridPosition(expectedLatLong);
-        assertEquals(expectedGrid, station.getGridPosition());
+        if (!naptanEnabled) {
+            // naptan position differ from tfgm
+            GridPosition expectedGrid = CoordinateTransforms.getGridPosition(expectedLatLong);
+            assertEquals(expectedGrid, station.getGridPosition());
+        }
 
         assertEquals(DataSourceID.tfgm, station.getDataSourceID());
 
-        // Next two depend on naptan for "real" results
-        assertEquals(NPTGLocality.InvalidId(), station.getLocalityId());
-        assertFalse(station.isCentral());
+        if (naptanEnabled) {
+            assertEquals(KnownLocality.Altrincham.getLocalityId(), station.getLocalityId());
+            assertTrue(station.isCentral());
+        } else {
+            // Next two depend on naptan for "real" results
+            assertEquals(NPTGLocality.InvalidId(), station.getLocalityId());
+            assertFalse(station.isCentral());
+        }
 
         // platform
         assertTrue(station.hasPlatforms());

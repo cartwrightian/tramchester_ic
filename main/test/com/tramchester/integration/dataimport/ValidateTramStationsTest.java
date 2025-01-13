@@ -6,6 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.repository.StationRepository;
+import com.tramchester.repository.naptan.NaptanRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
@@ -30,6 +31,7 @@ class ValidateTramStationsTest {
     private static ComponentContainer componentContainer;
 
     private StationRepository transportData;
+    private boolean naptanEnabled;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun(TramchesterConfig tramchesterConfig) {
@@ -44,12 +46,18 @@ class ValidateTramStationsTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
+        NaptanRepository naptanRepository = componentContainer.get(NaptanRepository.class);
+        naptanEnabled = naptanRepository.isEnabled();
+
         transportData = componentContainer.get(StationRepository.class);
     }
 
     @Test
     void shouldHaveCorrectTestTramStations() {
         List<TramStations> testStations = Arrays.asList(TramStations.values());
+
+        // naptan records for tram station locations differ from tfgm data
+        double delta = naptanEnabled ? 0.01: 0.001;
 
         testStations.forEach(testStation -> {
 
@@ -59,7 +67,7 @@ class ValidateTramStationsTest {
 
             assertEquals(realStation.getName(), testStationName, "name wrong for id: " + testStation.getId());
 
-            assertLatLongEquals(realStation.getLatLong(), testStation.getLatLong(), 0.001, "latlong wrong for " + testStationName);
+            assertLatLongEquals(realStation.getLatLong(), testStation.getLatLong(), delta, "latlong wrong for " + testStationName);
 
         });
     }

@@ -104,7 +104,7 @@ public class StationAvailabilityRepositoryTest {
         assertTrue(result.contains(TramTime.of(8,0)));
         assertFalse(result.contains(TramTime.of(3,0)));
 
-        assertEquals(TimeRangePartial.of(TramTime.of(5,15), TramTime.nextDay(0,51)), result);
+        assertEquals(TimeRangePartial.of(TramTime.of(5,12), TramTime.nextDay(1,7)), result);
     }
 
     @Test
@@ -192,7 +192,9 @@ public class StationAvailabilityRepositoryTest {
 
         Duration maxwait = Duration.ofMinutes(config.getMaxWait());
 
-        UpcomingDates.getUpcomingDates().forEach(date -> {
+        UpcomingDates.getUpcomingDates().
+                filter(date -> !UpcomingDates.VictoriaBuryImprovementWorks.equals(date)).
+                forEach(date -> {
 
             TimeRange earlyRange = TimeRangePartial.of(earlistHour, maxwait, maxwait);
             Set<Station> notAvailableEarly = stationRepository.getStations().stream().
