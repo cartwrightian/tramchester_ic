@@ -13,9 +13,9 @@ import java.util.Set;
 public interface ServiceRepository {
     Set<Service> getServices();
     Set<Service> getServices(EnumSet<TransportMode> modes);
+    Set<Service> getServicesOnDate(TramDate date, EnumSet<TransportMode> modes);
+
     Service getServiceById(IdFor<Service> serviceId);
     boolean hasServiceId(IdFor<Service> serviceId);
-
-    Set<Service> getServicesOnDate(TramDate date);
 
 }

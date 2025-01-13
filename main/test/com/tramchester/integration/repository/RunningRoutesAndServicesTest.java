@@ -2,7 +2,6 @@ package com.tramchester.integration.repository;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.dates.DateRange;
@@ -36,13 +35,14 @@ import static org.junit.jupiter.api.Assertions.*;
 public class RunningRoutesAndServicesTest {
 
     private static ComponentContainer componentContainer;
+    private static IntegrationTramTestConfig config;
     private TransportData transportData;
     private RunningRoutesAndServices runningRoutesAndServices;
     private TramRouteHelper helper;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        TramchesterConfig config = new IntegrationTramTestConfig();
+        config = new IntegrationTramTestConfig();
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
@@ -87,12 +87,12 @@ public class RunningRoutesAndServicesTest {
                 toList();
         assertFalse(intoNextDay.isEmpty(), "failed to find any route operating on three consecutive week days");
 
-        Route route = intoNextDay.get(0);
+        Route route = intoNextDay.getFirst();
 
         TramDate when = getMiddleOfThreeConsec(route);
         assertNotNull(when, "failed to find any route operating on three consecutive dates");
 
-        RunningRoutesAndServices.FilterForDate filter = runningRoutesAndServices.getFor(when);
+        RunningRoutesAndServices.FilterForDate filter = runningRoutesAndServices.getFor(when, config.getTransportModes());
 
         IdFor<Route> routeId = route.getId();
 
@@ -142,7 +142,7 @@ public class RunningRoutesAndServicesTest {
     void shouldConsiderRoutesFromDayBeforeIfTheyAreStillRunningTheFollowingDay() {
         TramDate when = TestEnv.testDay();
 
-        RunningRoutesAndServices.FilterForDate filter = runningRoutesAndServices.getFor(when);
+        RunningRoutesAndServices.FilterForDate filter = runningRoutesAndServices.getFor(when, config.getTransportModes());
 
         TramDate previousDay = when.minusDays(1);
 
@@ -201,7 +201,7 @@ public class RunningRoutesAndServicesTest {
         assertTrue(weekdayDateRange.contains(nextTuesday), weekdayDateRange + " not contain " + nextTuesday);
         assertTrue(weekdayDateRange.contains(friday), weekdayDateRange + " not contain " + friday.toString());
 
-        RunningRoutesAndServices.FilterForDate filterForNextFriday = runningRoutesAndServices.getFor(friday);
+        RunningRoutesAndServices.FilterForDate filterForNextFriday = runningRoutesAndServices.getFor(friday, config.getTransportModes());
 
         Set<Service> weekdayFiltered = matchingServices.stream().
                 filter(svc -> filterForNextFriday.isServiceRunningByDate(svc.getId(), false))

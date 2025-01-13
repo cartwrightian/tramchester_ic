@@ -11,13 +11,14 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
 import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.repository.RouteRepository;
+import jakarta.inject.Inject;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
-import jakarta.inject.Inject;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -43,8 +44,8 @@ public class RoutesMapper {
         logger.info("started");
     }
 
-    public List<RouteDTO> getRouteDTOs(final TramDate date) {
-        final Set<Route> routesOnDate = routeRepository.getRoutesRunningOn(date);
+    public List<RouteDTO> getRouteDTOs(final TramDate date, EnumSet<TransportMode> modes) {
+        final Set<Route> routesOnDate = routeRepository.getRoutesRunningOn(date, modes);
         logger.info("Get routeDTOs for " + date + " from " + asIds(routesOnDate));
 
         return routesOnDate.stream().map(route -> getLocationsAlong(route, true)).toList();

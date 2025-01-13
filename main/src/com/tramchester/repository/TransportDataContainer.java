@@ -460,14 +460,15 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     }
 
     @Override
-    public Set<Service> getServicesOnDate(TramDate date) {
-        return services.filterStream(item -> item.getCalendar().operatesOn(date)).
+    public Set<Service> getServicesOnDate(final TramDate date,  final EnumSet<TransportMode> modes) {
+        return services.
+                filterStream(service -> TransportMode.intersects(modes, service.getTransportModes()) && service.getCalendar().operatesOn(date)).
                 collect(Collectors.toSet());
     }
 
     @Override
-    public Set<Route> getRoutesRunningOn(TramDate date) {
-        return routes.filterStream(route -> route.isAvailableOn(date)).collect(Collectors.toSet());
+    public Set<Route> getRoutesRunningOn(TramDate date, EnumSet<TransportMode> modes) {
+        return routes.filterStream(route -> route.isAvailableOn(date) && modes.contains(route.getTransportMode())).collect(Collectors.toSet());
     }
 
     public boolean hasRouteId(IdFor<Route> routeId) {

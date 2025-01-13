@@ -39,6 +39,7 @@ public class RouteCostMatrixTest {
     private RouteCostMatrix routeMatrix;
     private RouteIndex routeIndex;
     private RouteRepository routeRepository;
+    private TramchesterConfig config;
 
     // NOTE: this test does not cause a full db rebuild, so might see VERSION node missing messages
 
@@ -51,6 +52,7 @@ public class RouteCostMatrixTest {
         ///// NOTE Clears the Cache
 
         TestEnv.clearDataCache(componentContainer);
+
     }
 
     @AfterAll
@@ -65,6 +67,9 @@ public class RouteCostMatrixTest {
         routeHelper = new TramRouteHelper(routeRepository);
         routeMatrix = componentContainer.get(RouteCostMatrix.class);
         routeIndex = componentContainer.get(RouteIndex.class);
+
+        this.config = componentContainer.get(TramchesterConfig.class);
+
 
         date = TestEnv.testDay();
     }
@@ -131,7 +136,7 @@ public class RouteCostMatrixTest {
 
     @Test
     void shouldHaveUniqueDegreeForEachRoutePair() {
-        Set<Route> onDate = routeRepository.getRoutesRunningOn(date);
+        Set<Route> onDate = routeRepository.getRoutesRunningOn(date, config.getTransportModes());
 
         assertFalse(onDate.isEmpty());
 

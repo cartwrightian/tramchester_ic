@@ -35,6 +35,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
 import static com.tramchester.testSupport.reference.KnownTramRoute.EcclesAshton;
 import static com.tramchester.testSupport.reference.TramStations.*;
@@ -215,7 +216,7 @@ public class TripRepositoryTest {
 
         TramDate nextSunday = UpcomingDates.nextSunday();
 
-        Set<Service> sundayServices = serviceRepository.getServicesOnDate(nextSunday);
+        Set<Service> sundayServices = serviceRepository.getServicesOnDate(nextSunday, TramsOnly);
 
         Set<Trip> cornbrookTrips = tripRepository.getTrips().stream().
                 filter(trip -> trip.callsAt(Cornbrook.getId())).collect(Collectors.toSet());

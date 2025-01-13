@@ -8,16 +8,18 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdMap;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.CrossesDay;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
+import jakarta.inject.Inject;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.inject.Inject;
 import java.time.Duration;
+import java.util.EnumSet;
 import java.util.Set;
 
 @LazySingleton
@@ -33,28 +35,28 @@ public class RunningRoutesAndServices {
         this.routeRepository = routeRepository;
     }
 
-    public FilterForDate getFor(TramDate date) {
-        IdMap<Service> serviceIds = getServicesFor(date);
-        IdMap<Route> routeIds = getRoutesFor(date);
+    public FilterForDate getFor(final TramDate date, final EnumSet<TransportMode> modes) {
+        IdMap<Service> serviceIds = getServicesFor(date, modes);
+        IdMap<Route> routeIds = getRoutesFor(date, modes);
 
-        TramDate nextDay = date.plusDays(1);
-        IdMap<Service> runningServicesNextDay = getServicesFor(nextDay);
-        IdMap<Route> runningRoutesNextDay = getRoutesFor(nextDay);
+        final TramDate nextDay = date.plusDays(1);
+        IdMap<Service> runningServicesNextDay = getServicesFor(nextDay, modes);
+        IdMap<Route> runningRoutesNextDay = getRoutesFor(nextDay, modes);
 
-        TramDate previousDay = date.minusDays(1);
-        IdMap<Service> previousDaySvcs = servicesIntoNextDay(previousDay);
-        IdMap<Route> previousDayRoutes = routesIntoNextDayFor(previousDay);
+        final TramDate previousDay = date.minusDays(1);
+        IdMap<Service> previousDaySvcs = servicesIntoNextDay(previousDay, modes);
+        IdMap<Route> previousDayRoutes = routesIntoNextDayFor(previousDay, modes);
 
         return new FilterForDate(date, serviceIds, routeIds, runningServicesNextDay, runningRoutesNextDay,
                 previousDaySvcs, previousDayRoutes);
     }
 
-    private IdMap<Route> routesIntoNextDayFor(TramDate date) {
-        return intoNextDay(routeRepository.getRoutesRunningOn(date));
+    private IdMap<Route> routesIntoNextDayFor(final TramDate date, final EnumSet<TransportMode> modes) {
+        return intoNextDay(routeRepository.getRoutesRunningOn(date, modes));
     }
 
-    private IdMap<Service> servicesIntoNextDay(TramDate date) {
-        return intoNextDay(serviceRepository.getServicesOnDate(date));
+    private IdMap<Service> servicesIntoNextDay(final TramDate date, final  EnumSet<TransportMode> modes) {
+        return intoNextDay(serviceRepository.getServicesOnDate(date, modes));
     }
 
     private <T extends HasId<T> & CoreDomain & CrossesDay> IdMap<T> intoNextDay(Set<T> items) {
@@ -64,8 +66,8 @@ public class RunningRoutesAndServices {
     }
 
     @NotNull
-    private IdMap<Route> getRoutesFor(TramDate date) {
-        Set<Route> routes = routeRepository.getRoutesRunningOn(date);
+    private IdMap<Route> getRoutesFor(final TramDate date, final EnumSet<TransportMode> modes) {
+        Set<Route> routes = routeRepository.getRoutesRunningOn(date, modes);
         if (routes.isEmpty()) {
             logger.warn("No running routes found on " + date);
         } else {
@@ -75,8 +77,8 @@ public class RunningRoutesAndServices {
     }
 
     @NotNull
-    private IdMap<Service> getServicesFor(TramDate date) {
-        Set<Service> services = serviceRepository.getServicesOnDate(date);
+    private IdMap<Service> getServicesFor(final TramDate date, final EnumSet<TransportMode> modes) {
+        final Set<Service> services = serviceRepository.getServicesOnDate(date, modes);
         if (services.isEmpty()) {
             logger.warn("No running services found on " + date);
         } else {

@@ -38,6 +38,7 @@ import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
 import static com.tramchester.testSupport.reference.KnownLocations.*;
@@ -115,7 +116,7 @@ class TramRouteTest {
     void shouldHaveRoutesSetupCorrectly() {
         RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
 
-        Set<Route> running = routeRepository.getRoutesRunningOn(queryDate);
+        Set<Route> running = routeRepository.getRoutesRunningOn(queryDate, EnumSet.of(Tram));
 
         assertEquals(routeRepository.numberOfRoutes(), running.size());
     }
@@ -157,7 +158,7 @@ class TramRouteTest {
             List<TransportStage<?,?>> stages = journey.getStages();
             assertEquals(2, stages.size(), "stages: " + stages);
             assertEquals(stages.get(0).getMode(), TransportMode.Walk);
-            assertEquals(stages.get(1).getMode(), TransportMode.Tram);
+            assertEquals(stages.get(1).getMode(), Tram);
         });
     }
 
@@ -273,7 +274,7 @@ class TramRouteTest {
 
             assertEquals(TransportMode.Walk, walk1.getMode());
             assertEquals(TransportMode.Walk, walk2.getMode());
-            assertEquals(TransportMode.Tram, tram.getMode());
+            assertEquals(Tram, tram.getMode());
 
             TestEnv.assertMinutesRoundedEquals(walk1Cost, walk1.getDuration());
             TestEnv.assertMinutesRoundedEquals(walk2Cost, walk2.getDuration());

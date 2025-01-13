@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(ConfigParameterResolver.class)
@@ -79,7 +80,7 @@ class KnownTramRouteTest {
 
     @Test
     void shouldHaveExpectedNumberOfTramRoutes() {
-        final Set<Route> loaded = routeRepository.getRoutesRunningOn(when);
+        final Set<Route> loaded = routeRepository.getRoutesRunningOn(when, TramsOnly);
 
         assertEquals(loaded.size(), KnownTramRoute.getFor(when).size());
     }
@@ -143,8 +144,8 @@ class KnownTramRouteTest {
     }
 
     @NotNull
-    private Stream<Route> getLoadedTramRoutes(TramDate date) {
-        return routeRepository.getRoutesRunningOn(date).stream().filter(route -> route.getTransportMode() == Tram);
+    private Stream<Route> getLoadedTramRoutes(final TramDate date) {
+        return routeRepository.getRoutesRunningOn(date, EnumSet.of(Tram)).stream();
     }
 
 }

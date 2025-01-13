@@ -93,7 +93,7 @@ public class RouteCostCalculator {
     private Duration calculateLeastCost(final GraphTransaction txn, final GraphNode startNode, final GraphNode endNode, final GraphPropertyKey key,
                                         final TramDate date, final EnumSet<TransportMode> modes) throws InvalidDurationException {
 
-        final Set<Route> routesRunningOn = routeRepository.getRoutesRunningOn(date).stream().
+        final Set<Route> routesRunningOn = routeRepository.getRoutesRunningOn(date, modes).stream().
                 filter(route -> modes.contains(route.getTransportMode())).collect(Collectors.toSet());
 
         final IdSet<Route> available = IdSet.from(routesRunningOn);

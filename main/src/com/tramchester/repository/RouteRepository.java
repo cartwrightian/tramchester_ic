@@ -7,6 +7,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.TransportMode;
 
+import java.util.EnumSet;
 import java.util.Set;
 
 @ImplementedBy(TransportData.class)
@@ -19,7 +20,7 @@ public interface RouteRepository extends NumberOfRoutes {
     Set<Route> findRoutesByShortName(IdFor<Agency> agencyId, String shortName);
     Set<Route> findRoutesByName(IdFor<Agency> agencyId, String longName);
 
-    Set<Route> getRoutesRunningOn(TramDate date);
+    Set<Route> getRoutesRunningOn(TramDate date, EnumSet<TransportMode> modes);
 
     boolean hasRouteId(IdFor<Route> routeId);
 }

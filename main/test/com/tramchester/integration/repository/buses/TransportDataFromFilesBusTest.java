@@ -149,7 +149,7 @@ class TransportDataFromFilesBusTest {
     @Test
     void shouldGetServicesByDate() {
         TramDate nextSaturday = UpcomingDates.nextSaturday();
-        Set<Service> results = transportData.getServicesOnDate(nextSaturday);
+        Set<Service> results = transportData.getServicesOnDate(nextSaturday, config.getTransportModes());
 
         assertFalse(results.isEmpty());
         long onCorrectDate = results.stream().

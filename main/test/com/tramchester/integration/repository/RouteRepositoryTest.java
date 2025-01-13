@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -143,7 +144,7 @@ public class RouteRepositoryTest {
 
     @Test
     void shouldHaveExpectedNumberOfTramRoutesRunning() {
-        IdSet<Route> running = routeRepository.getRoutesRunningOn(when).stream().
+        IdSet<Route> running = routeRepository.getRoutesRunningOn(when, TramsOnly).stream().
                 filter(route -> route.getTransportMode()==Tram).
                 collect(IdSet.collector());
 

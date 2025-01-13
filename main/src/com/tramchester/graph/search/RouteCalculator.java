@@ -182,7 +182,9 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         final TimeRange destinationsAvailable = super.getDestinationsAvailable(destinations, tramDate);
 
-        final JourneyConstraints journeyConstraints = new JourneyConstraints(config, runningRoutesAndServices.getFor(tramDate),
+        final EnumSet<TransportMode> requestedModes = journeyRequest.getRequestedModes();
+
+        final JourneyConstraints journeyConstraints = new JourneyConstraints(config, runningRoutesAndServices.getFor(tramDate, requestedModes),
                 closedStations, destinations, lowestCostsForRoutes, maxJourneyDuration, destinationsAvailable);
 
         // share selector across queries, to allow caching of station to station distances
@@ -194,7 +196,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         final AtomicInteger journeyIndex = new AtomicInteger(0);
 
-        final PathRequest singlePathRequest = createPathRequest(startNode, tramDate, journeyRequest.getOriginalTime(), journeyRequest.getRequestedModes(),
+        final PathRequest singlePathRequest = createPathRequest(startNode, tramDate, journeyRequest.getOriginalTime(), requestedModes,
                 journeyRequest.getMaxChanges().get(),
                 journeyConstraints, maxInitialWait, selector);
 
@@ -241,7 +243,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         final Set<ClosedStation> closedStations = closedStationsRepository.getAnyWithClosure(tramDate);
 
         final TimeRange destinationsAvailable = super.getDestinationsAvailable(destinations, tramDate);
-        final JourneyConstraints journeyConstraints = new JourneyConstraints(config, runningRoutesAndServices.getFor(tramDate),
+        final JourneyConstraints journeyConstraints = new JourneyConstraints(config, runningRoutesAndServices.getFor(tramDate, requestedModes),
                 closedStations, destinations, lowestCostsForRoutes, maxJourneyDuration, destinationsAvailable);
 
         // share selector across queries, to allow caching of station to station distances

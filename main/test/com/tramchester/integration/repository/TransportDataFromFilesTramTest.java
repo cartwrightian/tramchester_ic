@@ -48,6 +48,7 @@ import static com.tramchester.domain.reference.CentralZoneStation.StPetersSquare
 import static com.tramchester.domain.reference.CentralZoneStation.TraffordBar;
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.integration.testSupport.Assertions.assertIdEquals;
+import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramStations.*;
@@ -105,8 +106,8 @@ public class TransportDataFromFilesTramTest {
 
     @Test
     void shouldHaveExpectedNumRoutes() {
-        Set<String> uniqueNames = transportData.getRoutesRunningOn(when).stream().
-                filter(route -> route.getTransportMode()==Tram).
+        Set<String> uniqueNames = transportData.getRoutesRunningOn(when, TramsOnly).stream().
+//                filter(route -> route.getTransportMode()==Tram).
                 map(Route::getName).collect(Collectors.toSet());
 
         assertEquals(KnownTramRoute.numberOn(when), uniqueNames.size(), uniqueNames.toString());
@@ -243,7 +244,7 @@ public class TransportDataFromFilesTramTest {
     @Test
     void shouldGetServicesByDate() {
         TramDate nextSaturday = UpcomingDates.nextSaturday();
-        Set<Service> results = transportData.getServicesOnDate(nextSaturday);
+        Set<Service> results = transportData.getServicesOnDate(nextSaturday, TramsOnly);
 
         assertFalse(results.isEmpty(), "no services next saturday");
         long onCorrectDate = results.stream().
@@ -252,7 +253,7 @@ public class TransportDataFromFilesTramTest {
         assertEquals(results.size(), onCorrectDate, "should all be on the specified date");
 
         TramDate noTrams = nextSaturday.plusWeeks(11*52);
-        results = transportData.getServicesOnDate(noTrams);
+        results = transportData.getServicesOnDate(noTrams, TramsOnly);
         assertTrue(results.isEmpty(), "not empty, got " + results);
     }
 
@@ -299,7 +300,7 @@ public class TransportDataFromFilesTramTest {
 
         Set<TramDate> noServices = UpcomingDates.getUpcomingDates().
                 filter(date -> !date.isChristmasPeriod()).
-                filter(date -> transportData.getServicesOnDate(date).isEmpty()).
+                filter(date -> transportData.getServicesOnDate(date, TramsOnly).isEmpty()).
                 collect(Collectors.toSet());
 
         assertTrue(noServices.isEmpty(), "no services on " + noServices);

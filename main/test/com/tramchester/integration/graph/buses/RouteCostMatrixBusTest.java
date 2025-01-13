@@ -3,7 +3,6 @@ package com.tramchester.integration.graph.buses;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.caching.DataCache;
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.RoutePair;
 import com.tramchester.domain.collections.RouteIndexPair;
@@ -32,6 +31,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @BusTest
 public class RouteCostMatrixBusTest {
     private static ComponentContainer componentContainer;
+    private static IntegrationBusTestConfig tramchesterConfig;
 
     private TramRouteHelper routeHelper;
     private TramDate date;
@@ -44,7 +44,7 @@ public class RouteCostMatrixBusTest {
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
 
-        TramchesterConfig tramchesterConfig = new IntegrationBusTestConfig();
+        tramchesterConfig = new IntegrationBusTestConfig();
         componentContainer = new ComponentsBuilder().create(tramchesterConfig, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 
@@ -80,7 +80,7 @@ public class RouteCostMatrixBusTest {
 
     @Test
     void shouldHaveUniqueDegreeForEachRoutePair() {
-        Set<Route> onDate = routeRepository.getRoutesRunningOn(date);
+        Set<Route> onDate = routeRepository.getRoutesRunningOn(date, tramchesterConfig.getTransportModes());
 
         assertFalse(onDate.isEmpty());
 

@@ -38,6 +38,7 @@ import static com.tramchester.dataimport.rail.reference.TrainOperatingCompanies.
 import static com.tramchester.domain.reference.TransportMode.*;
 import static com.tramchester.integration.testSupport.Assertions.assertIdEquals;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
+import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static org.junit.jupiter.api.Assertions.*;
 
 @GMTest
@@ -264,7 +265,7 @@ public class RailTransportDataFromFilesTest {
         assertTrue(result.isPresent());
         final Platform platform12 = result.get();
         assertEquals("12", platform12.getPlatformNumber());
-        assertEquals("Manchester Piccadilly Rail Station platform 12", platform12.getName());
+        assertEquals("MANCHESTER PICCADILLY platform 12", platform12.getName());
     }
 
     @Test
@@ -343,13 +344,13 @@ public class RailTransportDataFromFilesTest {
         assertEquals(1, transportData.getAgencies().stream().filter(agency -> agency.getTransportModes().contains(Tram)).count());
         assertEquals(TransportDataFromFilesTramTest.NUM_TFGM_TRAM_STATIONS, transportData.getStations(EnumSet.of(Tram)).size());
 
-        Set<String> uniqueNames = transportData.getRoutesRunningOn(when).stream().
-                filter(route -> route.getTransportMode()==Tram).
+        Set<String> uniqueNames = transportData.getRoutesRunningOn(when, TramsOnly).stream().
+//                filter(route -> route.getTransportMode()==Tram).
                 map(Route::getName).collect(Collectors.toSet());
 
         assertEquals(KnownTramRoute.numberOn(when), uniqueNames.size(), uniqueNames.toString());
 
-        int expected = 199;
+        int expected = 200;
         assertEquals(expected, transportData.getPlatforms(EnumSet.of(Tram)).size());
     }
 

@@ -100,8 +100,8 @@ public class StopCallRepository  {
 
     // visualisation of frequency support
     public Set<StopCall> getStopCallsFor(Station station, TramDate date, TramTime begin, TramTime end) {
-        Set<Service> runningOnDate = serviceRepository.getServicesOnDate(date);
-        Set<StopCall> callsForStation = stopCalls.get(station);
+        final Set<Service> runningOnDate = serviceRepository.getServicesOnDate(date, station.getTransportModes());
+        final Set<StopCall> callsForStation = stopCalls.get(station);
 
         return callsForStation.stream().
                 filter(stopCall -> stopCall.getPickupType().equals(GTFSPickupDropoffType.Regular)).

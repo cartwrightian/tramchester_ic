@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.TestEnv.dateFormatDashes;
 import static com.tramchester.testSupport.reference.KnownTramRoute.DeansgateCastlefieldManchesterAirport;
 import static org.junit.jupiter.api.Assertions.*;
@@ -85,17 +86,17 @@ class RouteResourceTest {
 
         assertEquals(1, airRoutes.size());
 
-        RouteDTO airRoute = airRoutes.get(0);
+        RouteDTO airRoute = airRoutes.getFirst();
         List<LocationRefWithPosition> stations = airRoute.getStations();
 
-        LocationRefWithPosition first = stations.get(0);
+        LocationRefWithPosition first = stations.getFirst();
 
         LocationRefWithPosition airportDTO = null;
         if (first.getId().equals(manAirportIdForDTO)) {
             airportDTO = first;
-            assertEquals(victoriaIdForDTO, stations.get(stations.size()-1).getId());
+            assertEquals(victoriaIdForDTO, stations.getLast().getId());
         } else if (first.getId().equals(victoriaIdForDTO)) {
-            airportDTO = stations.get(stations.size()-1);
+            airportDTO = stations.getLast();
             assertEquals(manAirportIdForDTO, airportDTO.getId());
         } else {
             fail("first and/or last incorrect for airport route " + airRoute);
@@ -110,7 +111,7 @@ class RouteResourceTest {
     void shouldGetRoutesFilteredByDate() {
         TramDate date = TestEnv.testDay();
 
-        Set<Route> expected = routeRepository.getRoutesRunningOn(date); // see also known tram route test that checks this number makes known number of routes
+        Set<Route> expected = routeRepository.getRoutesRunningOn(date, TramsOnly); // see also known tram route test that checks this number makes known number of routes
 
         String queryString = String.format("routes/filtered?date=%s", date.format(dateFormatDashes));
 

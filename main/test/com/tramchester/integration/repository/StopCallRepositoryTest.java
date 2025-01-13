@@ -29,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class StopCallRepositoryTest {
     private static ComponentContainer componentContainer;
+    private static IntegrationTramTestConfig config;
 
     private StopCallRepository stopCallRepository;
     private StationRepository stationRepository;
@@ -37,7 +38,8 @@ public class StopCallRepositoryTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        componentContainer = new ComponentsBuilder().create(new IntegrationTramTestConfig(), TestEnv.NoopRegisterMetrics());
+        config = new IntegrationTramTestConfig();
+        componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
 
@@ -57,7 +59,7 @@ public class StopCallRepositoryTest {
     @Test
     void shouldGetStopCallsForAStation() {
         final TramDate date = TestEnv.testDay();
-        Set<Service> servicesForDate = serviceRepository.getServicesOnDate(date);
+        Set<Service> servicesForDate = serviceRepository.getServicesOnDate(date, config.getTransportModes());
 
         final IdFor<Station> stationId = TramStations.ManAirport.getId();
 

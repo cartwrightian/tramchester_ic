@@ -4,6 +4,7 @@ import com.codahale.metrics.annotation.Timed;
 import com.google.inject.Inject;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.mappers.RoutesMapper;
 import io.dropwizard.jersey.caching.CacheControl;
@@ -18,6 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import jakarta.ws.rs.core.Response;
+
+import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -25,6 +28,8 @@ import java.util.concurrent.TimeUnit;
 @Produces(MediaType.APPLICATION_JSON)
 public class RouteResource implements APIResource, ExperimentalAPIMarker {
     private static final Logger logger = LoggerFactory.getLogger(RouteResource.class);
+
+    public static final EnumSet<TransportMode> ALL_MODES = EnumSet.allOf(TransportMode.class);
 
     private final RoutesMapper routesMapper;
     private final ProvidesNow providesNow;
@@ -44,7 +49,7 @@ public class RouteResource implements APIResource, ExperimentalAPIMarker {
     public Response getAll() {
         logger.info("getAll routes");
         try {
-            List<RouteDTO> routes = routesMapper.getRouteDTOs(providesNow.getTramDate());
+            List<RouteDTO> routes = routesMapper.getRouteDTOs(providesNow.getTramDate(), ALL_MODES);
 
             return Response.ok(routes).build();
         }
@@ -64,7 +69,7 @@ public class RouteResource implements APIResource, ExperimentalAPIMarker {
 
         try {
             TramDate date = TramDate.parse(dateRaw);
-            List<RouteDTO> routes = routesMapper.getRouteDTOs(date);
+            List<RouteDTO> routes = routesMapper.getRouteDTOs(date, ALL_MODES);
 
             return Response.ok(routes).build();
         }
