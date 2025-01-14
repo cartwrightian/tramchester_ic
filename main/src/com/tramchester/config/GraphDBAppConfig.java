@@ -46,6 +46,9 @@ public class GraphDBAppConfig extends Configuration implements GraphDBConfig {
 
     @Override
     public Boolean enableDiagnostics() {
+        if (enableDiagnostics==null) {
+            return false;
+        }
         return enableDiagnostics;
     }
 
