@@ -21,9 +21,9 @@ public final class StateBuilderParameters {
     private final boolean interchangesOnly;
     private final TransportRelationshipTypes[] currentModes;
 
-    public StateBuilderParameters(TramDate queryDate, TramTime queryTime,
-                                  TowardsDestination towardsDestination, NodeContentsRepository nodeContents,
-                                  TramchesterConfig config, EnumSet<TransportMode> requestedModes) {
+    public StateBuilderParameters(final TramDate queryDate, final TramTime queryTime,
+                                  final TowardsDestination towardsDestination, final NodeContentsRepository nodeContents,
+                                  final TramchesterConfig config, final EnumSet<TransportMode> requestedModes) {
         this.queryDate = queryDate;
         this.queryHour = queryTime.getHourOfDay();
         this.towardsDestination = towardsDestination;

@@ -109,7 +109,7 @@ class RailAndTramGraphBuilderTest {
         Station altyTram = Altrincham.from(stationRepository);
         Station altyTrain = RailStationIds.Altrincham.from(stationRepository);
 
-        Duration expectedCost = Duration.ofMinutes(1);
+        Duration expectedCost = Duration.ofSeconds(51L);
 
         GraphNode altyTramNode = txn.findNode(altyTram);
         GraphNode altyTrainNode = txn.findNode(altyTrain);
@@ -120,7 +120,7 @@ class RailAndTramGraphBuilderTest {
         List<ImmutableGraphRelationship> fromTram = altyTramNode.getRelationships(txn, Direction.OUTGOING, NEIGHBOUR).toList();
         assertEquals(1, fromTram.size(), "Wrong number of neighbours " + fromTram);
 
-        GraphRelationship tramNeighbour = fromTram.get(0);
+        GraphRelationship tramNeighbour = fromTram.getFirst();
         assertEquals(altyTrainNode, tramNeighbour.getEndNode(txn)); // GraphNode.fromEnd(tramNeighbour));
         assertEquals(expectedCost, tramNeighbour.getCost());
 

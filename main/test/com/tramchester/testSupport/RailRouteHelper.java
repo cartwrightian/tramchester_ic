@@ -9,6 +9,8 @@ import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.repository.RouteRepository;
 
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class RailRouteHelper {
     private final RailRouteIds railRouteRepository;
@@ -20,7 +22,7 @@ public class RailRouteHelper {
         this.routeRepository = componentContainer.get(RouteRepository.class);
     }
 
-    public RailRouteId getRouteId(TrainOperatingCompanies operatingCompany, RailStationIds begin, RailStationIds end, int index) {
+    public RailRouteId getRouteId(TrainOperatingCompanies operatingCompany, RailStationIds begin, RailStationIds end, final int index) {
         Optional<RailRouteId> query = railRouteRepository.getForAgency(operatingCompany.getAgencyId()).stream().
                 filter(railRouteId -> railRouteId.getBegin().equals(begin.getId())).
                 filter(railRouteId -> railRouteId.getEnd().equals(end.getId())).
@@ -31,8 +33,16 @@ public class RailRouteHelper {
         return query.get();
     }
 
-    public Route getRoute(TrainOperatingCompanies operatingCompany, RailStationIds start, RailStationIds end, int index) {
-        RailRouteId id = getRouteId(operatingCompany, start, end, index);
+    public Route getRoute(TrainOperatingCompanies operatingCompany, RailStationIds start, RailStationIds end, final int index) {
+        final RailRouteId id = getRouteId(operatingCompany, start, end, index);
         return routeRepository.getRouteById(id);
+    }
+
+    public Set<Route> getRoutes(TrainOperatingCompanies operatingCompany, RailStationIds start, RailStationIds end) {
+        return railRouteRepository.getForAgency(operatingCompany.getAgencyId()).stream().
+                filter(id -> id.getBegin().equals(start.getId())).
+                filter(id -> id.getEnd().equals(end.getId())).
+                map(routeRepository::getRouteById).
+                collect(Collectors.toSet());
     }
 }

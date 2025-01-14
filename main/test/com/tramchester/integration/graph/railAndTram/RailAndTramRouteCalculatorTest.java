@@ -264,17 +264,17 @@ public class RailAndTramRouteCalculatorTest {
         List<TransportStage<?, ?>> fromTramStages = fromTramJoruney.getStages();
         assertEquals(1, fromTramStages.size());
 
-        Journey fromTrainJoruney = journeysFromTram.get(0);
+        Journey fromTrainJoruney = journeysFromTram.getFirst();
         List<TransportStage<?, ?>> fromTrainStages = fromTrainJoruney.getStages();
         assertEquals(1, fromTrainStages.size());
 
-        TransportStage<?, ?> fromTram = fromTramStages.get(0);
+        TransportStage<?, ?> fromTram = fromTramStages.getFirst();
         assertEquals(Connect, fromTram.getMode());
-        assertEquals(Duration.ofMinutes(1), fromTram.getDuration());
+        assertEquals(Duration.ofSeconds(51), fromTram.getDuration());
 
-        TransportStage<?, ?> fromTrain = fromTrainStages.get(0);
+        TransportStage<?, ?> fromTrain = fromTrainStages.getFirst();
         assertEquals(Connect, fromTrain.getMode());
-        assertEquals(Duration.ofMinutes(1), fromTrain.getDuration());
+        assertEquals(Duration.ofSeconds(51), fromTrain.getDuration());
     }
 
     @Test
@@ -312,7 +312,7 @@ public class RailAndTramRouteCalculatorTest {
         List<Journey> journeys = new ArrayList<>(testFacade.calculateRouteAsList(start, dest, request));
         assertFalse(journeys.isEmpty(), "no journeys");
 
-        Journey journey = journeys.get(0);
+        Journey journey = journeys.getFirst();
 
         List<TransportStage<?, ?>> stages = journey.getStages();
         assertEquals(2, stages.size(),  "too many stages " + journeys);
@@ -429,7 +429,7 @@ public class RailAndTramRouteCalculatorTest {
 
     @Test
     void shouldBuryToStockportViaTramAndTrain() {
-        JourneyRequest request = new JourneyRequest(when, travelTime, false, 2,
+        JourneyRequest request = new JourneyRequest(when, travelTime, false, 3,
                 Duration.ofMinutes(110), 1, tramAndTrain());
 
         List<Journey> journeys = testFacade.calculateRouteAsList(tram(TramStations.Bury), rail(Stockport), request);

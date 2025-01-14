@@ -82,7 +82,7 @@ public class CachedNodeOperations implements NodeContentsRepository {
     }
 
     @NonNull
-    private <K, V> Cache<K, V> createCache(String name, GraphLabel label) {
+    private <K, V> Cache<K, V> createCache(final String name, final GraphLabel label) {
         return createCache(name, numberOfNodesAndRelationshipsRepository.numberOf(label));
     }
 

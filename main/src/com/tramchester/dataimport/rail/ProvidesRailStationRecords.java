@@ -39,9 +39,6 @@ public class ProvidesRailStationRecords {
         enabled = config.hasRailConfig();
         if (enabled) {
             this.filePath = filenameRepository.getStations();
-//            RailConfig railConfig = config.getRailConfig();
-//            final Path dataPath = railConfig.getDataPath();
-//            this.filePath = dataPath.resolve(railConfig.getStations());
         } else {
             this.filePath = null;
         }
@@ -58,8 +55,8 @@ public class ProvidesRailStationRecords {
     }
 
     private Map<String, RecordType> createRecordTypes() {
-        HashMap<String, RecordType> results = new HashMap<>();
-        for (RecordType value : RecordType.values()) {
+        final HashMap<String, RecordType> results = new HashMap<>();
+        for (final RecordType value : RecordType.values()) {
             results.put(value.name(), value);
         }
         return results;
@@ -82,18 +79,18 @@ public class ProvidesRailStationRecords {
     }
 
     public Stream<PhysicalStationRecord> load(Reader in) {
-        BufferedReader bufferedReader = new BufferedReader(in);
+        final BufferedReader bufferedReader = new BufferedReader(in);
         return bufferedReader.lines().
                 filter(line -> getRecordTypeFor(line).equals(RecordType.A)).
                 map(this::createPhysicalStation);
     }
 
-    private PhysicalStationRecord createPhysicalStation(String line) {
+    private PhysicalStationRecord createPhysicalStation(final String line) {
         return PhysicalStationRecord.parse(line);
     }
 
-    private RecordType getRecordTypeFor(String line) {
-        String rawType = line.substring(0, 1);
+    private RecordType getRecordTypeFor(final String line) {
+        final String rawType = line.substring(0, 1);
         if (recordTypes.containsKey(rawType)) {
             return recordTypes.get(rawType);
         }

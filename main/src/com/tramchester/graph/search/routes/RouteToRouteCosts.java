@@ -251,7 +251,6 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         }
 
         return getNumberOfHops(pickupRoutes, dropoffRoutes, date, changeStationOperating, closureOffset, preferredModes);
-
     }
 
     private int getClosureOffset(final Location<?> start, final LocationSet<Station> destinations, final TramDate date) {

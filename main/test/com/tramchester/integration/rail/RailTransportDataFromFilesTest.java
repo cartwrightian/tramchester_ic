@@ -20,7 +20,9 @@ import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.repository.TransportData;
+import com.tramchester.repository.naptan.NaptanRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.testTags.TrainTest;
 import org.junit.jupiter.api.*;
 
@@ -58,6 +60,12 @@ public class RailTransportDataFromFilesTest {
     }
 
     @Test
+    void shouldHaveNaptanEnabled() {
+        NaptanRepository naptanRepository = componentContainer.get(NaptanRepository.class);
+        assertTrue(naptanRepository.isEnabled());
+    }
+
+    @Test
     void shouldLoadStations() {
         Set<Station> allStations = transportData.getStations();
         assertFalse(allStations.isEmpty());
@@ -85,7 +93,7 @@ public class RailTransportDataFromFilesTest {
     void shouldGetSpecificStation() {
         Station result = transportData.getStationById(Derby.getId());
 
-        assertEquals("DERBY", result.getName());
+        assertEquals("Derby Rail Station", result.getName());
         assertIdEquals("E0054915", result.getLocalityId());
 
         final GridPosition expectedGrid = new GridPosition(436182, 335593);
@@ -101,11 +109,22 @@ public class RailTransportDataFromFilesTest {
     }
 
     @Test
-    void shouldHaveSensibleNames() {
+    void shouldHaveSensibleNamesManPicc() {
         Station result = transportData.getStationById(ManchesterPiccadilly.getId());
 
-        assertEquals("MANCHESTER PICCADILLY", result.getName());
+        assertEquals("Manchester Piccadilly Rail Station", result.getName());
         assertIdEquals("E0057786", result.getLocalityId());
+    }
+
+    /*
+       crossing checking with @See NaptanRepositoryTest
+    */
+    @Test
+    void shouldHaveMacclesfield() {
+        Station result = transportData.getStationById(Macclesfield.getId());
+
+        assertEquals("Macclesfield Rail Station", result.getName());
+        assertEquals(KnownLocality.Macclesfield.getLocalityId(), result.getLocalityId());
     }
 
     @Test
@@ -290,7 +309,7 @@ public class RailTransportDataFromFilesTest {
         assertTrue(result.isPresent());
         final Platform platform12 = result.get();
         assertEquals("12", platform12.getPlatformNumber());
-        assertEquals("LONDON WATERLOO platform 12", platform12.getName());
+        assertEquals("London Waterloo Rail Station platform 12", platform12.getName());
     }
 
     @Test

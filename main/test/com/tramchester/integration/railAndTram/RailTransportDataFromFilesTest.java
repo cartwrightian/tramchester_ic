@@ -7,7 +7,9 @@ import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
 import com.tramchester.dataimport.rail.repository.RailRouteIds;
 import com.tramchester.domain.*;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.*;
+import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
@@ -24,6 +26,7 @@ import com.tramchester.integration.repository.TransportDataFromFilesTramTest;
 import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchesterConfig;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.testTags.GMTest;
 import org.junit.jupiter.api.AfterAll;
@@ -36,7 +39,6 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.dataimport.rail.reference.TrainOperatingCompanies.NT;
 import static com.tramchester.domain.reference.TransportMode.*;
-import static com.tramchester.integration.testSupport.Assertions.assertIdEquals;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static org.junit.jupiter.api.Assertions.*;
@@ -103,7 +105,7 @@ public class RailTransportDataFromFilesTest {
         Station result = transportData.getStationById(ManchesterPiccadilly.getId());
 
         assertEquals("Manchester Piccadilly Rail Station", result.getName());
-        assertIdEquals("910GMNCRPIC", result.getLocalityId());
+        assertEquals(KnownLocality.ManchesterCityCentre.getLocalityId(), result.getLocalityId());
     }
 
     // out of bounds stations no longer loaded
@@ -265,7 +267,7 @@ public class RailTransportDataFromFilesTest {
         assertTrue(result.isPresent());
         final Platform platform12 = result.get();
         assertEquals("12", platform12.getPlatformNumber());
-        assertEquals("MANCHESTER PICCADILLY platform 12", platform12.getName());
+        assertEquals("Manchester Piccadilly Rail Station platform 12", platform12.getName());
     }
 
     @Test

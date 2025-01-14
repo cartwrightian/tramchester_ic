@@ -80,7 +80,7 @@ public class RailStationRecordsRepository {
         }
     }
 
-    private void loadStations(Stream<PhysicalStationRecord> physicalRecords) {
+    private void loadStations(final Stream<PhysicalStationRecord> physicalRecords) {
 
         Stream<Pair<MutableStation, PhysicalStationRecord>> railStations = physicalRecords.
                 filter(this::validRecord).
@@ -88,7 +88,7 @@ public class RailStationRecordsRepository {
 
         railStations.forEach(railStationPair -> {
             final MutableStation mutableStation = railStationPair.getLeft();
-            PhysicalStationRecord physicalStationRecord = railStationPair.getValue();
+            final PhysicalStationRecord physicalStationRecord = railStationPair.getValue();
             addStation(mutableStation, physicalStationRecord.getTiplocCode());
             crsRepository.putCRS(mutableStation, physicalStationRecord.getCRS());
         });
@@ -97,7 +97,7 @@ public class RailStationRecordsRepository {
 
     }
 
-    private boolean validRecord(PhysicalStationRecord physicalStationRecord) {
+    private boolean validRecord(final PhysicalStationRecord physicalStationRecord) {
         if (physicalStationRecord.getName().isEmpty()) {
             logger.warn("Invalid record " + physicalStationRecord);
             return false;
@@ -113,14 +113,15 @@ public class RailStationRecordsRepository {
         return true;
     }
 
-    private MutableStation createStationFor(final PhysicalStationRecord record) {
-        final IdFor<Station> stationId = Station.createId(record.getTiplocCode());
+    private MutableStation createStationFor(final PhysicalStationRecord stationRecord) {
+        final IdFor<Station> stationId = Station.createId(stationRecord.getTiplocCode());
 
         GridPosition grid = GridPosition.Invalid;
         LatLong latLong = LatLong.Invalid;
 
         final IdFor<NPTGLocality> areaId;
         final boolean isCentral;
+        final String name;
         if (naptanRepository.containsTiploc(stationId)) {
             // prefer naptan data if available
             final NaptanRecord naptanRecord = naptanRepository.getForTiploc(stationId);
@@ -128,36 +129,38 @@ public class RailStationRecordsRepository {
             grid = naptanRecord.getGridPosition();
             latLong = naptanRecord.getLatLong();
             isCentral = naptanRecord.isLocalityCenter();
+            name = naptanRecord.getCommonName();
         } else {
             areaId = NPTGLocality.InvalidId();
             isCentral = false;
+            name = stationRecord.getName();
         }
 
         if (!grid.isValid()) {
             // not from naptan, try to get from rail data
-            if (record.getEasting() == Integer.MIN_VALUE || record.getNorthing() == Integer.MIN_VALUE) {
+            if (stationRecord.getEasting() == Integer.MIN_VALUE || stationRecord.getNorthing() == Integer.MIN_VALUE) {
                 grid = GridPosition.Invalid;
             } else {
-                grid = convertToOsGrid(record.getEasting(), record.getNorthing());
+                grid = convertToOsGrid(stationRecord.getEasting(), stationRecord.getNorthing());
                 latLong = CoordinateTransforms.getLatLong(grid); // re-calc from rail grid
             }
         }
 
-        final Duration minChangeTime = Duration.ofMinutes(record.getMinChangeTime());
+        final Duration minChangeTime = Duration.ofMinutes(stationRecord.getMinChangeTime());
 
-        final String name = record.getName();
+        //final String name = stationRecord.getName();
 
-        final boolean isInterchange = (record.getRailInterchangeType()!= RailInterchangeType.None);
+        final boolean isInterchange = (stationRecord.getRailInterchangeType()!= RailInterchangeType.None);
 
         return new MutableStation(stationId, areaId, name, latLong, grid, DataSourceID.openRailData, isInterchange,
                 minChangeTime, isCentral);
     }
 
-    private GridPosition convertToOsGrid(int easting, int northing) {
+    private GridPosition convertToOsGrid(final int easting, final int northing) {
         return new GridPosition(easting * 100, northing * 100);
     }
 
-    private void addStation(MutableStation mutableStation, String tipLoc) {
+    private void addStation(final MutableStation mutableStation, final String tipLoc) {
         tiplocMap.put(tipLoc, mutableStation);
     }
 

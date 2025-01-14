@@ -101,7 +101,7 @@ class NaptanRepositoryTest {
     }
 
     @Test
-    void shouldHaveDataForTrainStation() {
+    void shouldHaveDataForMaccTrainStation() {
         IdFor<Station> tiploc = RailStationIds.Macclesfield.getId();
 
         assertTrue(repository.containsTiploc(tiploc));

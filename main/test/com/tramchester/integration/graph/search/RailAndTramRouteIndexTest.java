@@ -53,6 +53,7 @@ public class RailAndTramRouteIndexTest extends EasyMockSupport {
     private RouteRepository routeRepository;
     private LoaderSaverFactory factory;
     private RouteIndex routeIndex;
+    private RailRouteIds railRouteIdRepos;
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() throws IOException {
@@ -80,6 +81,8 @@ public class RailAndTramRouteIndexTest extends EasyMockSupport {
         routeRepository = componentContainer.get(RouteRepository.class);
         factory = componentContainer.get(LoaderSaverFactory.class);
         routeIndex = componentContainer.get(RouteIndex.class);
+        railRouteIdRepos = componentContainer.get(RailRouteIds.class);
+
 
         Files.deleteIfExists(otherFile);
     }
@@ -103,16 +106,22 @@ public class RailAndTramRouteIndexTest extends EasyMockSupport {
 
     @Test
     void shouldGetExpectedRouteIdsBetweenLiverpoolAndScarbrough() {
+
         // here to double-check if missing route is due to cache or route id creation inconsistencies
         IdFor<Agency> agency = Agency.createId("TP");
+        Set<RailRouteId> forAgency = railRouteIdRepos.getForAgency(agency);
+
+        assertFalse(forAgency.isEmpty());
+
         IdFor<Station> first = Station.createId("LVRPLSH");
-        IdFor<Station> second = Station.createId("SCARBRO");
+        IdFor<Station> second = Station.createId("YORK");
 
-        RailRouteIds idRepositoy = componentContainer.get(RailRouteIds.class);
-        Set<RailRouteId> forAgency = idRepositoy.getForAgency(agency);
+        Set<RailRouteId> fromLiverpool = forAgency.stream().
+                filter(railRouteId -> railRouteId.getBegin().equals(first)).collect(Collectors.toSet());
 
-        Set<RailRouteId> forRoute = forAgency.stream().
-                filter(railRouteId -> railRouteId.getBegin().equals(first)).
+        assertFalse(fromLiverpool.isEmpty());
+
+        Set<RailRouteId> forRoute = fromLiverpool.stream().
                 filter(railRouteId -> railRouteId.getEnd().equals(second)).
                 collect(Collectors.toSet());
 

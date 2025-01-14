@@ -94,10 +94,13 @@ public enum TransportRelationshipTypes implements RelationshipType {
     }
 
     public static TransportRelationshipTypes[] forModes(final EnumSet<TransportMode> transportModes) {
-        final TransportRelationshipTypes[] results = new TransportRelationshipTypes[transportModes.size()];
+        final Set<TransportRelationshipTypes> unique = transportModes.stream().
+                map(TransportRelationshipTypes::forMode).collect(Collectors.toSet());
+
+        final TransportRelationshipTypes[] results = new TransportRelationshipTypes[unique.size()];
         int index = 0;
-        for (TransportMode mode: transportModes) {
-            results[index] = forMode(mode);
+        for (final TransportRelationshipTypes type: unique) {
+            results[index] = type;
             index++;
         }
         return results;
