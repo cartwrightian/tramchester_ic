@@ -29,7 +29,7 @@ class RouteAndService {
         return route.getTransportMode();
     }
 
-    public boolean isAvailableOn(TramDate date) {
+    public boolean isAvailableOn(final TramDate date) {
         if (!route.isAvailableOn(date)) {
             return false;
         }

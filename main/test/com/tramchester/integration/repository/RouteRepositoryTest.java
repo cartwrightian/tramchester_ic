@@ -113,7 +113,7 @@ public class RouteRepositoryTest {
 
         List<Trip> ecclesTripsViaShudehill = ecclesRoute.getTrips().stream().
                 filter(trip -> trip.getStopCalls().getFirstStop().getStationId().equals(Ashton.getId())).
-                filter(trip -> trip.getStopCalls().callsAt(Shudehill)).
+                filter(trip -> trip.getStopCalls().callsAt(Shudehill.getId())).
                 toList();
 
         assertFalse(ecclesTripsViaShudehill.isEmpty());

@@ -6,6 +6,7 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.InvalidId;
 import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
@@ -46,6 +47,8 @@ public interface Trip extends HasId<Trip>, HasTransportMode, GraphProperty, Core
     boolean hasStops();
 
     boolean callsAt(IdFor<Station> station);
+
+    boolean callsAt(InterchangeStation interchangeStation);
 
     boolean operatesOn(TramDate date);
 

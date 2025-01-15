@@ -1,8 +1,8 @@
 package com.tramchester.domain.input;
 
 import com.tramchester.domain.StationIdPair;
-import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import org.slf4j.Logger;
@@ -67,12 +67,29 @@ public class StopCalls {
         return orderedStopCalls.get(callingNumber);
     }
 
-    public boolean callsAt(final HasId<Station> hasId) {
-        return callsAt(hasId.getId());
-    }
+//    public boolean callsAt(final HasId<Station> hasId) {
+//        return callsAt(hasId.getId());
+//    }
 
     public boolean callsAt(final IdFor<Station> stationId) {
         return stationIndex.containsKey(stationId);
+    }
+
+    public boolean callsAt(final InterchangeStation interchangeStation) {
+        return interchangeStation.getAllStations().stream().anyMatch(station -> callsAt(station.getId()));
+    }
+
+    public StopCall getStopFor(final InterchangeStation interchangeStation) {
+        final Set<Station> stations = interchangeStation.getAllStations();
+        final List<Integer> findIndex = stations.stream().
+                filter(station -> stationIndex.containsKey(station.getId())).
+                map(station -> stationIndex.get(station.getId())).
+                toList();
+        if (findIndex.size()==1) {
+            return orderedStopCalls.get(findIndex.getFirst());
+        }
+        throw new RuntimeException("Unable for find stop call for interchange station " + interchangeStation);
+
     }
 
     public StopCall getStopFor(final IdFor<Station> stationId) {
@@ -172,10 +189,6 @@ public class StopCalls {
     public boolean isEmpty() {
         return orderedStopCalls.isEmpty();
     }
-
-//    public Trip getTrip() {
-//        return parentTrip;
-//    }
 
     public static class StopLeg {
         private final StopCall first;

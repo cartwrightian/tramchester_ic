@@ -105,10 +105,10 @@ class PlatformStopCallsTest {
     @Test
     void shouldAddStops() {
 
-        assertTrue(stops.callsAt(stationA));
-        assertTrue(stops.callsAt(stationB));
-        assertTrue(stops.callsAt(stationC));
-        assertFalse(stops.callsAt(stationD));
+        assertTrue(stops.callsAt(stationA.getId()));
+        assertTrue(stops.callsAt(stationB.getId()));
+        assertTrue(stops.callsAt(stationC.getId()));
+        assertFalse(stops.callsAt(stationD.getId()));
 
         assertEquals(3, stops.numberOfCallingPoints());
     }

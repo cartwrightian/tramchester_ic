@@ -69,11 +69,24 @@ public class LinkedInterchangeStation implements InterchangeStation {
     }
 
     @Override
+    public LocationId<?> getLocationId() {
+        return origin.getLocationId();
+    }
+
+    @Override
+    public Set<Station> getAllStations() {
+        final Set<Station> result = new HashSet<>();
+        result.add(origin);
+        links.forEach(link -> result.add(link.getEnd()));
+        return result;
+    }
+
+    @Override
     public EnumSet<TransportMode> getTransportModes() {
         return allModes;
     }
 
-    public void addLink(StationToStationConnection stationLink) {
+    public void addLink(final StationToStationConnection stationLink) {
         if (!stationLink.getBegin().equals(origin)) {
             throw new RuntimeException(format("Attempt to add a stationlink (%s) that does not match origin %s", stationLink, origin));
         }

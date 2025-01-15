@@ -870,7 +870,7 @@ class TramGraphBuilderTest {
         Set<Trip> fileCallingTrips =
                 transportData.getRouteById(route.getId()).getTrips().stream().
 
-                filter(trip -> trip.getStopCalls().callsAt(station)).
+                filter(trip -> trip.getStopCalls().callsAt(station.getId())).
                 collect(Collectors.toSet());
 
         IdSet<Service> fileSvcIdFromTrips = fileCallingTrips.stream().

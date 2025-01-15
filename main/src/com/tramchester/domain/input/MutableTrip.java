@@ -6,6 +6,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
@@ -168,6 +169,11 @@ public class MutableTrip implements Trip {
     @Override
     public boolean callsAt(final IdFor<Station> stationId) {
         return stopCalls.callsAt(stationId);
+    }
+
+    @Override
+    public boolean callsAt(InterchangeStation interchangeStation) {
+        return stopCalls.callsAt(interchangeStation);
     }
 
     @Override

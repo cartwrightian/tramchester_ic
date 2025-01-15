@@ -60,11 +60,6 @@ public class SimpleInterchangeStation implements InterchangeStation {
         return station.servesRouteDropOff(route);
     }
 
-//    @Override
-//    public IdFor<Station> getStationId() {
-//        return station.getId();
-//    }
-
     @Override
     public InterchangeType getType() {
         return interchangeType;
@@ -73,6 +68,16 @@ public class SimpleInterchangeStation implements InterchangeStation {
     @Override
     public Station getStation() {
         return station;
+    }
+
+    @Override
+    public LocationId<?> getLocationId() {
+        return station.getLocationId();
+    }
+
+    @Override
+    public Set<Station> getAllStations() {
+        return Collections.singleton(station);
     }
 
     @Override

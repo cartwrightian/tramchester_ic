@@ -9,7 +9,6 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
@@ -28,9 +27,10 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
+import static com.tramchester.domain.reference.TransportMode.Train;
+import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.testSupport.TestEnv.Modes.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @GMTest
 public class RailAndTramStationAvailabilityRepositoryTest {
@@ -110,21 +110,43 @@ public class RailAndTramStationAvailabilityRepositoryTest {
     }
 
     @Test
-    void shouldHaveExpectedPickupsForTheLinkedStation() {
+    void shouldHaveExpectedPickupsForTheLinkedRailStation() {
         Station altrinchamTrain = RailStationIds.Altrincham.from(stationRepository);
 
-        IdSet<Route> results = availabilityRepository.getPickupRoutesFor(altrinchamTrain, when, timeRange, TrainAndTram)
-                .stream().collect(IdSet.collector());
+        //IdSet<Route> trainPickupsIds = trainPickups.stream().collect(IdSet.collector());
 
-        Set<Route> trainPickups = altrinchamTrain.getPickupRoutes();
-        IdSet<Route> trainPickupsIds = trainPickups.stream().collect(IdSet.collector());
+        Set<Route> results = availabilityRepository.getPickupRoutesFor(altrinchamTrain, when, timeRange, TrainAndTram);
 
-        long tramRoutes = trainPickups.stream().filter(route -> route.getTransportMode().equals(TransportMode.Tram)).count();
-        assertEquals(2, tramRoutes, "no tram routes in " + trainPickupsIds);
+        long tramRoutes = results.stream().filter(route -> route.getTransportMode()==Tram).count();
+        assertEquals(2, tramRoutes, HasId.asIds(results));
 
-        IdSet<Route> difference = IdSet.disjunction(trainPickupsIds, results);
+        IdSet<Route> trainRouteIds = results.stream().filter(route -> route.getTransportMode() == Train).collect(IdSet.collector());
+        assertFalse(trainRouteIds.isEmpty());
 
-        assertTrue(difference.isEmpty(), difference.toString());
+        IdSet<Route> trainPickups = altrinchamTrain.getPickupRoutes().stream().collect(IdSet.collector());
+
+        // won't be a 1:1 correspondence due to date and time range filtering...
+        assertTrue(trainPickups.containsAll(trainRouteIds));
+    }
+
+    @Test
+    void shouldHaveExpectedPickupsForTheLinkedTramStation() {
+        Station altrinchamTram = TramStations.Altrincham.from(stationRepository);
+
+        //IdSet<Route> trainPickupsIds = trainPickups.stream().collect(IdSet.collector());
+
+        Set<Route> results = availabilityRepository.getPickupRoutesFor(altrinchamTram, when, timeRange, TrainAndTram);
+
+        long trainRoutes = results.stream().filter(route -> route.getTransportMode()==Train).count();
+        assertEquals(4, trainRoutes, HasId.asIds(results));
+
+        IdSet<Route> tramRouteIds = results.stream().filter(route -> route.getTransportMode()==Tram).collect(IdSet.collector());
+        assertFalse(tramRouteIds.isEmpty());
+
+        IdSet<Route> tramPickups = altrinchamTram.getPickupRoutes().stream().collect(IdSet.collector());
+
+        // won't be a 1:1 correspondence due to date and time range filtering...
+        assertTrue(tramPickups.containsAll(tramRouteIds));
     }
 
     @Test
@@ -132,13 +154,12 @@ public class RailAndTramStationAvailabilityRepositoryTest {
 
         Station altrinchamRail = RailStationIds.Altrincham.from(stationRepository);
 
-
         // true because a train station
         boolean availableForTrains = availabilityRepository.isAvailable(altrinchamRail, when, timeRange, RailOnly);
         assertTrue(availableForTrains);
 
         // true because a multi modal station linked to a tram station
-        boolean availableForTrams = availabilityRepository.isAvailable(altrinchamRail, when, timeRange, TramsOnly);
+        boolean availableForTrams = availabilityRepository.isAvailable(altrinchamRail, when, timeRange, TrainAndTram);
         assertTrue(availableForTrams);
 
         // should get the linked Tram routes from the Train Station since Alty Tram station is linked
