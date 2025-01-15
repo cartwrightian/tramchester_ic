@@ -467,6 +467,7 @@ tasks.register('integrationGM', Test) {
     }
 }
 
+// tests that can be run against Tram config (the default) or RailAndTramGreaterManchesterConfig here
 tasks.register('dualTestIntegration', Test) {
     dependsOn 'compileJava'
     minHeapSize = "1000m"
@@ -632,7 +633,7 @@ tasks.register('diagrams') {
     }
 }
 
-// gm here so include both sets of data
+// todo gm here so include both sets of data
 tasks.register('pullData', JavaExec) {
     dependsOn 'classes'
     mainClass = 'com.tramchester.deployment.cli.FetchDataCLI'
@@ -661,7 +662,7 @@ tasks.register('monitorLiveTramData', JavaExec) {
     args 'config/local.yml', '2'
 }
 
-// gm here so include both sets of data
+// todo gm here so include both sets of data
 tasks.register('queryDueTramStatus', JavaExec) {
     dependsOn 'classes'
     mainClass = 'com.tramchester.deployment.cli.QueryLiveDataArchiveCLI'
@@ -696,7 +697,7 @@ tasks.register('buildDatabase', JavaExec) {
     args prodConfig //, 'build/distributions/database'
 }
 
-// gm here so include both sets of data
+// todo gm here so include both sets of data
 tasks.register('uploadDataSources', JavaExec) {
     dependsOn 'pullData'
     dependsOn 'classes'
@@ -787,41 +788,6 @@ tasks.register('tidy') {
     }
 }
 
-//tasks.register('allowHostDev') {
-//    dependsOn 'cfnassist'
-//    doLast {
-//        ant.cfnassist(project: 'tramchesterB', env: 'Dev') {
-//            WhiteList(port: '443', tag: 'web')
-//        }
-//    }
-//}
-//
-//tasks.register('blockHostDev') {
-//    dependsOn 'cfnassist'
-//    doLast {
-//        ant.cfnassist(project: 'tramchesterB', env: 'Dev') {
-//            BlackList(port: '443', tag: 'web')
-//        }
-//    }
-//}
-//
-//tasks.register('allowHostUAT') {
-//    dependsOn 'cfnassist'
-//    doLast {
-//        ant.cfnassist(project: 'tramchesterB', env: 'UAT') {
-//            WhiteList(port: '443', tag: 'web')
-//        }
-//    }
-//}
-//
-//tasks.register('denyHostUAT') {
-//    dependsOn 'cfnassist'
-//    doLast {
-//        ant.cfnassist(project: 'tramchesterB', env: 'UAT') {
-//            BlackList(port: '443', tag: 'web')
-//        }
-//    }
-//}
 //
 //tasks.register('allowhost') {
 //    dependsOn 'cfnassist'
