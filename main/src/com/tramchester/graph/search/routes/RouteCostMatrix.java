@@ -30,6 +30,16 @@ import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
+/***
+ * Represent connections between routes as a simple set of matrix
+ * Depth 1: direct, Depth 2: via one intermediate, and so on
+ * NOTES:
+ * Interchanges can represent multi-modal links if Neighbours is enabled i.e. Alty tram has a link to Alty train
+ * and vice versa. In this the case the link between the rail and tram routes will be at depth 1.
+ * Corresponding graph relationships between Neighbours are created in:
+ * @see com.tramchester.graph.graphbuild.CreateNodesAndRelationships
+ */
+
 @LazySingleton
 public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, RouteCostMatrix.CostsPerDegree> {
     private static final Logger logger = LoggerFactory.getLogger(RouteCostMatrix.class);
@@ -58,7 +68,6 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
         this.routeDateAndDayOverlap = routeDateAndDayOverlap;
 
         costsPerDegree = new CostsPerDegree();
-
     }
 
     @PostConstruct

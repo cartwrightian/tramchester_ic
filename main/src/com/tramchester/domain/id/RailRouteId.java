@@ -121,11 +121,11 @@ public class RailRouteId extends ContainsId<Route> implements IdFor<Route> {
     @Override
     public String toString() {
         return "RailRouteId{" +
-                "begin=" + begin +
-                ", end=" + end +
-                ", agencyId=" + agencyId +
-                ", index=" + index +
-                ", containedId=" + containedId +
+//                "begin=" + begin +
+//                ", end=" + end +
+//                ", agencyId=" + agencyId +
+//                ", index=" + index +
+                " containedId=" + containedId +
                 "} ";
     }
 }

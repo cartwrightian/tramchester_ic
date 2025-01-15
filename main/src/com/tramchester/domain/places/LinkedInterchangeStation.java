@@ -38,16 +38,24 @@ public class LinkedInterchangeStation implements InterchangeStation {
 
     @Override
     public Set<Route> getPickupRoutes() {
-        Set<Route> pickUps = new HashSet<>(origin.getPickupRoutes());
-        Set<Route> otherEnd = links.stream().map(StationToStationConnection::getEnd).
+        final Set<Route> pickUps = new HashSet<>(origin.getPickupRoutes());
+        final Set<Route> otherEnd = links.stream().map(StationToStationConnection::getEnd).
                 flatMap(station -> station.getPickupRoutes().stream()).collect(Collectors.toSet());
         pickUps.addAll(otherEnd);
         return pickUps;
     }
 
     @Override
-    public IdFor<Station> getStationId() {
-        return origin.getId();
+    public boolean servesRoutePickup(final Route route) {
+        if (origin.servesRoutePickup(route)) {
+            return true;
+        }
+        return links.stream().anyMatch(link -> link.getEnd().servesRoutePickup(route));
+    }
+
+    @Override
+    public boolean servesRouteDropOff(final Route route) {
+        return origin.servesRouteDropOff(route);
     }
 
     @Override
@@ -102,6 +110,6 @@ public class LinkedInterchangeStation implements InterchangeStation {
 
     @Override
     public IdFor<Station> getId() {
-        return getStationId();
+        return origin.getId();
     }
 }

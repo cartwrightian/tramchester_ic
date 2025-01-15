@@ -5,8 +5,8 @@ import com.tramchester.config.NeighbourConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.StationIdPair;
-import com.tramchester.domain.StationToStationConnection;
 import com.tramchester.domain.StationPair;
+import com.tramchester.domain.StationToStationConnection;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Location;
@@ -16,12 +16,12 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocationsRepository;
 import com.tramchester.mappers.Geography;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import jakarta.inject.Inject;
 import javax.measure.Quantity;
 import javax.measure.quantity.Length;
 import java.time.Duration;
@@ -30,6 +30,10 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TransportMode.Walk;
 import static java.lang.String.format;
+
+/***
+ * Geo location based proximity of stations
+ */
 
 // TODO Location<?> not Station
 
@@ -223,9 +227,13 @@ public class Neighbours implements NeighboursRepository {
         return DIFF_MODES_ONLY;
     }
 
+    @Override
+    public boolean isEnabled() {
+        return enabled;
+    }
 
 
-    private boolean noOverlapModes(EnumSet<TransportMode> modesA, EnumSet<TransportMode> modesB) {
+    private boolean noOverlapModes(final EnumSet<TransportMode> modesA, final EnumSet<TransportMode> modesB) {
         return !TransportMode.intersects(modesA, modesB);
 //        boolean aNotInB = modesA.stream().noneMatch(modesB::contains);
 //        boolean bNotInA = modesB.stream().noneMatch(modesA::contains);

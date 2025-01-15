@@ -100,11 +100,11 @@ public class MutableStation implements Station {
     }
 
     @Override
-    public boolean servesMode(TransportMode mode) {
+    public boolean servesMode(final TransportMode mode) {
         return hasMode(mode, servesRoutesPickup) || hasMode(mode, servesRoutesDropoff);
     }
 
-    private boolean hasMode(TransportMode mode, Set<Route> routes) {
+    private boolean hasMode(final TransportMode mode, final Set<Route> routes) {
         return routes.stream().anyMatch(route -> route.getTransportMode().equals(mode));
     }
 
@@ -141,7 +141,7 @@ public class MutableStation implements Station {
     }
 
     @Override
-    public boolean hasPlatform(IdFor<Platform> platformId) {
+    public boolean hasPlatform(final IdFor<Platform> platformId) {
         return platforms.stream().map(Platform::getId).anyMatch(id -> id.equals(platformId));
     }
 
@@ -166,12 +166,12 @@ public class MutableStation implements Station {
     }
 
     @Override
-    public boolean servesRoutePickup(Route route) {
+    public boolean servesRoutePickup(final Route route) {
         return servesRoutesPickup.contains(route);
     }
 
     @Override
-    public boolean servesRouteDropOff(Route route) {
+    public boolean servesRouteDropOff(final Route route) {
         return servesRoutesDropoff.contains(route);
     }
 

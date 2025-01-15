@@ -203,9 +203,10 @@ public class StationAvailabilityRepositoryForBusesTest {
     @Test
     void shouldCreateRepository() {
         TripRepository tripRepository = componentContainer.get(TripRepository.class);
+        InterchangeRepository interchangeRepository = componentContainer.get(InterchangeRepository.class);
         StationAvailabilityRepository stationAvailabilityRepository =
                 new StationAvailabilityRepository(stationRepository, closedStationRepository,
-                        new GraphFilterActive(false), tripRepository);
+                        new GraphFilterActive(false), tripRepository, interchangeRepository);
 
         for (int i = 0; i < 10; i++) {
             stationAvailabilityRepository.start();

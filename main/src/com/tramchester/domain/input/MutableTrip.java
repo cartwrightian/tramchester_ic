@@ -166,7 +166,7 @@ public class MutableTrip implements Trip {
     }
 
     @Override
-    public boolean callsAt(IdFor<Station> stationId) {
+    public boolean callsAt(final IdFor<Station> stationId) {
         return stopCalls.callsAt(stationId);
     }
 

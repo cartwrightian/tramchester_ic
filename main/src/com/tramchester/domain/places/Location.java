@@ -10,7 +10,7 @@ import com.tramchester.geo.HasGridPosition;
 import java.util.Set;
 
 public interface Location<TYPE extends Location<TYPE>> extends HasGridPosition, HasTransportModes,
-        GraphProperty, HasGraphLabel, CoreDomain , HasId<TYPE> {
+        GraphProperty, HasGraphLabel, CoreDomain , HasId<TYPE>, HasRoutes {
 
     String getName();
 
@@ -35,17 +35,9 @@ public interface Location<TYPE extends Location<TYPE>> extends HasGridPosition, 
     // can be used as a part of a journey, see also closed stations which are temporary changes
     boolean isActive();
 
-    /***
-     * Use StationAvailabilityRepository if care about date and time
-     * @return all drop off routes for a station, regardless of date
-     */
-    Set<Route> getDropoffRoutes();
+    //Set<Route> getDropoffRoutes();
 
-    /***
-     * Use StationAvailabilityRepository if care about date and time
-     * @return all pick up routes for a station, regardless of date
-     */
-    Set<Route> getPickupRoutes();
+    //Set<Route> getPickupRoutes();
 
     // marked as an interchange in the source data
     boolean isMarkedInterchange();

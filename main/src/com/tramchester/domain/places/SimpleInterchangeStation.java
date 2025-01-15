@@ -51,9 +51,19 @@ public class SimpleInterchangeStation implements InterchangeStation {
     }
 
     @Override
-    public IdFor<Station> getStationId() {
-        return station.getId();
+    public boolean servesRoutePickup(final Route route) {
+        return station.servesRoutePickup(route);
     }
+
+    @Override
+    public boolean servesRouteDropOff(final Route route) {
+        return station.servesRouteDropOff(route);
+    }
+
+//    @Override
+//    public IdFor<Station> getStationId() {
+//        return station.getId();
+//    }
 
     @Override
     public InterchangeType getType() {
@@ -80,6 +90,6 @@ public class SimpleInterchangeStation implements InterchangeStation {
 
     @Override
     public IdFor<Station> getId() {
-        return getStationId();
+        return station.getId();
     }
 }

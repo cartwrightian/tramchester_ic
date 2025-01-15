@@ -114,6 +114,16 @@ public class StationGroup implements Location<StationGroup> {
     }
 
     @Override
+    public boolean servesRoutePickup(final Route route) {
+        return anyMatch(station -> station.servesRoutePickup(route));
+    }
+
+    @Override
+    public boolean servesRouteDropOff(final Route route) {
+        return anyMatch(station -> station.servesRouteDropOff(route));
+    }
+
+    @Override
     public boolean isMarkedInterchange() {
         return anyMatch(Station::isMarkedInterchange);
     }

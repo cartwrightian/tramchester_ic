@@ -131,6 +131,18 @@ public class PostcodeLocation implements Location<PostcodeLocation>, CoreDomain,
     }
 
     @Override
+    public boolean servesRoutePickup(Route route) {
+        // TODO is this correct
+        return false;
+    }
+
+    @Override
+    public boolean servesRouteDropOff(Route route) {
+        // TODO is this correct
+        return false;
+    }
+
+    @Override
     public boolean isMarkedInterchange() {
         return false;
     }

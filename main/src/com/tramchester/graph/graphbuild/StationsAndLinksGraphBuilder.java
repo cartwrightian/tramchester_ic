@@ -22,11 +22,11 @@ import com.tramchester.graph.graphbuild.caching.RouteStationNodeCache;
 import com.tramchester.graph.graphbuild.caching.StationAndPlatformNodeCache;
 import com.tramchester.metrics.Timing;
 import com.tramchester.repository.TransportData;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
-import jakarta.inject.Inject;
 import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -197,7 +197,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
                         final GTFSPickupDropoffType dropOff = leg.getSecond().getDropoffType();
                         final StationIdPair legStations = leg.getStations();
                         if (pickup==Regular && dropOff==Regular && !pairs.containsKey(legStations)) {
-                            Duration cost = leg.getCost();
+                            final Duration cost = leg.getCost();
                             pairs.put(legStations, cost);
                         }
                     }
@@ -225,7 +225,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
             final Stream<MutableGraphRelationship> alreadyPresent = from.getRelationshipsMutable(txn, OUTGOING, LINKED);
 
             // if there is an existing link between stations then update iff the transport mode not already present
-            Optional<MutableGraphRelationship> find = alreadyPresent.
+            final Optional<MutableGraphRelationship> find = alreadyPresent.
                     filter(relation -> relation.getEndNodeId(txn).equals(toNodeId)).findFirst();
 
             find.ifPresent(existingRelationship -> {

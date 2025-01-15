@@ -1,25 +1,19 @@
 package com.tramchester.domain.places;
 
-import com.tramchester.domain.Route;
+import com.tramchester.domain.HasRoutes;
+import com.tramchester.domain.HasTransportModes;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.reference.TransportMode;
 
-import java.util.EnumSet;
-import java.util.Set;
-
-public interface InterchangeStation extends HasId<Station> {
+public interface InterchangeStation extends HasId<Station>, HasTransportModes, HasRoutes {
     boolean isMultiMode();
-
-    Set<Route> getDropoffRoutes();
-
-    Set<Route> getPickupRoutes();
-
-    IdFor<Station> getStationId();
 
     InterchangeType getType();
 
     Station getStation();
 
-    EnumSet<TransportMode> getTransportModes();
+    default IdFor<Station> getStationId() {
+        return getId();
+    }
+
 }

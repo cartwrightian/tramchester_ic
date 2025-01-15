@@ -185,6 +185,16 @@ public class MutablePlatform implements Platform {
     }
 
     @Override
+    public boolean servesRoutePickup(final Route route) {
+        return servesRoutesPickup.contains(route);
+    }
+
+    @Override
+    public boolean servesRouteDropOff(Route route) {
+        return servesRoutesDropoff.contains(route);
+    }
+
+    @Override
     public boolean isMarkedInterchange() {
         return isMarkedInterchange;
     }

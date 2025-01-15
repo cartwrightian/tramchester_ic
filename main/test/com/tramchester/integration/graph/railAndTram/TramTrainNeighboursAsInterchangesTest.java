@@ -4,6 +4,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.places.InterchangeStation;
+import com.tramchester.domain.places.InterchangeType;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.repository.InterchangesTramTest;
 import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchesterConfig;
@@ -18,9 +19,13 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.EnumSet;
 import java.util.Set;
 
+import static com.tramchester.domain.reference.TransportMode.Train;
+import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.testSupport.reference.TramStations.Altrincham;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @GMTest
@@ -79,13 +84,17 @@ public class TramTrainNeighboursAsInterchangesTest {
     @Test
     public void shouldHaveAltrinchamTramAsMultimode() {
         InterchangeStation interchange = interchangeRepository.getInterchange(altrinchamTram);
+        assertEquals(InterchangeType.NeighbourLinks, interchange.getType());
         assertTrue(interchange.isMultiMode(), "not multi-mode "  + interchange);
+        assertEquals(EnumSet.of(Tram, Train), interchange.getTransportModes());
     }
 
     @Test
     public void shouldHaveAltrinchamTrainAsMultimode() {
         InterchangeStation interchange = interchangeRepository.getInterchange(altrinchamTrain);
+        assertEquals(InterchangeType.NeighbourLinks, interchange.getType());
         assertTrue(interchange.isMultiMode(), "not multi-mode "  + interchange);
+        assertEquals(EnumSet.of(Tram, Train), interchange.getTransportModes());
     }
 
 }

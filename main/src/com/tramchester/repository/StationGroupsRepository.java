@@ -12,12 +12,12 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.repository.naptan.NaptanRepository;
 import com.tramchester.repository.nptg.NPTGRepository;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import jakarta.inject.Inject;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -26,11 +26,11 @@ import static java.lang.String.format;
 
 /***
  * Wrap stations with same area id inside a group so at API/UI level see unique list of station names
+ * Relies on naptan and NPTG data for grouping
  */
 @LazySingleton
 public class StationGroupsRepository {
     private static final Logger logger = LoggerFactory.getLogger(StationGroupsRepository.class);
-
 
     // TODO this should be zero?
     // Group needs to have more than this many stations to be includes
@@ -200,7 +200,7 @@ public class StationGroupsRepository {
                 collect(Collectors.toSet());
     }
 
-    public StationGroup findByName(String name) {
+    public StationGroup findByName(final String name) {
         guardIsEnabled();
         return stationGroupsByName.get(name);
     }
@@ -210,12 +210,12 @@ public class StationGroupsRepository {
         return new HashSet<>(stationGroups.values());
     }
 
-    public StationGroup getStationGroup(IdFor<StationGroup> stationGroupId) {
+    public StationGroup getStationGroup(final IdFor<StationGroup> stationGroupId) {
         guardIsEnabled();
         return stationGroups.get(stationGroupId);
     }
 
-    public StationGroup getStationGroupForArea(IdFor<NPTGLocality> areaId) {
+    public StationGroup getStationGroupForArea(final IdFor<NPTGLocality> areaId) {
         return getStationGroup(StationGroup.idFrom(areaId));
     }
 

@@ -85,7 +85,7 @@ public class RailAndTramRouteToRouteCostsTest {
         int result = routeToRouteCosts.getPossibleMinChanges(tram(Altrincham), rail(RailStationIds.Altrincham),
                 allTransportModes, date, timeRange);
 
-        assertEquals(1, result);
+        assertEquals(0, result);
     }
 
     @Test
@@ -98,11 +98,12 @@ public class RailAndTramRouteToRouteCostsTest {
         assertEquals(1, result);
     }
 
-    @Disabled("Is this realistic? Trains only but start at a tram station")
+    //@Disabled("Is this realistic? Trains only but start at a tram station")
     @Test
     void shouldValidHopsBetweenTramAndRailNeighbourThenTrainWhenOnlyTrainModeEnabled() {
         TimeRange timeRange = TimeRangePartial.of(TramTime.of(8, 15), TramTime.of(22, 35));
 
+        // should find a result since Altrincham -> Altincham Rail -> Stockport iff neighbours enabled
         int result = routeToRouteCosts.getPossibleMinChanges(tram(Altrincham), rail(Stockport),
                 EnumSet.of(Train), date, timeRange);
 

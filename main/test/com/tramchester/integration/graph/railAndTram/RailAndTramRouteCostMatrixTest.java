@@ -15,10 +15,7 @@ import com.tramchester.graph.search.routes.RouteDateAndDayOverlap;
 import com.tramchester.graph.search.routes.RouteIndex;
 import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchesterConfig;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
-import com.tramchester.repository.InterchangeRepository;
-import com.tramchester.repository.NumberOfRoutes;
-import com.tramchester.repository.RouteRepository;
-import com.tramchester.repository.StationRepository;
+import com.tramchester.repository.*;
 import com.tramchester.testSupport.RailRouteHelper;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
@@ -112,7 +109,31 @@ public class RailAndTramRouteCostMatrixTest {
             overlapsB.start();
             assertEquals(previous, overlapsB.numberBitsSet());
         }
+    }
 
+    @Test
+    void shouldHaveNeighboursEnabled() {
+        NeighboursRepository neighboursRepository = componentContainer.get(NeighboursRepository.class);
+        assertTrue(neighboursRepository.isEnabled());
+    }
+
+    @Test
+    void shouldHaveZeroDepthIfNeighboursAndNeighboursEnabled() {
+
+        StationRepository stationRepository = componentContainer.get(StationRepository.class);
+
+        Station altrinchamTram = TramStations.Altrincham.from(stationRepository);
+        Station altrinchamRail = RailStationIds.Altrincham.from(stationRepository);
+
+        Set<Route> altrinchamTramRoutes = altrinchamTram.getPickupRoutes();
+        Set<Route> altrinchamRailRoutes = altrinchamRail.getPickupRoutes();
+
+        for(final Route begin : altrinchamTramRoutes) {
+            for(final Route end : altrinchamRailRoutes) {
+                final int result = routeMatrix.getConnectionDepthFor(begin, end);
+                assertEquals(1, result, "Got " + result + " for " + begin.getId() + " and " + end.getId());
+            }
+        }
     }
 
     @Test

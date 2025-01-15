@@ -4,6 +4,7 @@ import com.tramchester.domain.Platform;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.places.LocationId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.reference.TransportMode;
@@ -57,6 +58,11 @@ public abstract class StopCall {
 
     public IdFor<Station> getStationId() {
         return station.getId();
+    }
+
+
+    public LocationId<?> getLocationId() {
+        return station.getLocationId();
     }
 
     public int getGetSequenceNumber() {
@@ -141,4 +147,5 @@ public abstract class StopCall {
 
         return true;
     }
+
 }

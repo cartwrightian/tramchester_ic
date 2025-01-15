@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 import static com.tramchester.domain.reference.TransportMode.*;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.Altrincham;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
+import static com.tramchester.testSupport.TestEnv.Modes.TrainAndTram;
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.Eccles;
 import static com.tramchester.testSupport.reference.TramStations.*;
@@ -244,6 +245,28 @@ public class RailAndTramRouteCalculatorTest {
     }
 
     @Test
+    void shouldHaveDirectAdjacentRailStations() {
+        TramTime time = TramTime.of(14,25);
+
+        TramDate date = TestEnv.testDay();
+
+        JourneyRequest request = new JourneyRequest(date, time, false, 0,
+                Duration.ofMinutes(30), 1, EnumSet.of(Train));
+
+        List<Journey> journeys = testFacade.calculateRouteAsList(rail(Altrincham), rail(NavigationRaod), request);
+
+        assertEquals(1, journeys.size());
+
+        Journey journey = journeys.getFirst();
+
+        assertEquals(1, journey.getStages().size());
+
+        TransportStage<?, ?> stage = journey.getStages().getFirst();
+
+        assertEquals(Duration.ofMinutes(2), stage.getDuration());
+    }
+
+    @Test
     void shouldHaveWalkBetweenAdjacentTramAndTrainStation() {
         TramTime time = TramTime.of(14,25);
 
@@ -254,13 +277,14 @@ public class RailAndTramRouteCalculatorTest {
 
         List<Journey> journeysFromTram = new ArrayList<>(testFacade.calculateRouteAsList(tram(TramStations.Altrincham),
                 rail(Altrincham), request));
+
         List<Journey> journeysFromTrain = new ArrayList<>(testFacade.calculateRouteAsList(rail(Altrincham),
                 tram(TramStations.Altrincham), request));
 
         assertEquals(1, journeysFromTram.size());
         assertEquals(1, journeysFromTrain.size());
 
-        Journey fromTramJoruney = journeysFromTram.get(0);
+        Journey fromTramJoruney = journeysFromTram.getFirst();
         List<TransportStage<?, ?>> fromTramStages = fromTramJoruney.getStages();
         assertEquals(1, fromTramStages.size());
 
@@ -291,23 +315,57 @@ public class RailAndTramRouteCalculatorTest {
         List<Journey> journeys = testFacade.calculateRouteAsList(start, dest, request);
         assertEquals(1, journeys.size(), "unexpected number of journeys " + journeys);
 
-        journeys.forEach(journey -> {
-            List<TransportStage<?, ?>> stages = journey.getStages();
-            assertEquals(1, stages.size(), "too many stages " + journey);
-            assertEquals(stages.get(0).getMode(), Train, "wrong second stage for " + stages);
-        });
+        Journey journey = journeys.getFirst();
+
+        List<TransportStage<?, ?>> stages = journey.getStages();
+        assertEquals(1, stages.size(), "too many stages " + journey);
+
+        TransportStage<?, ?> stage = stages.getFirst();
+        assertEquals(stage.getMode(), Train, "wrong second stage for " + stages);
+        assertEquals(Duration.ofMinutes(16), stage.getDuration());
+    }
+
+    @Test
+    void shouldTakeDirectTrainWhenStartAtTramStationNextToStationAndTramDisabled() {
+
+        // repro issues - coming back with a tram to nav road and then a change to the train instead of
+        // direct from altrincham stations
+        // Works fine for direct from altrincham rail, so seems to be an issue with crossing to the train station
+
+        TramTime time = TramTime.of(10,30);
+
+        JourneyRequest request = new JourneyRequest(when, time, false, 1,
+                Duration.ofMinutes(240), 3, EnumSet.of(Train));
+
+        Station start = tram(TramStations.Altrincham); // TRAM
+        Station dest = rail(Stockport);
+
+        List<Journey> journeys = new ArrayList<>(testFacade.calculateRouteAsList(start, dest, request));
+        assertFalse(journeys.isEmpty(), "no journeys");
+
+        Journey journey = journeys.getFirst();
+
+        List<TransportStage<?, ?>> stages = journey.getStages();
+        assertEquals(2, stages.size(),  "too many stages " + journeys);
+        assertEquals(stages.get(0).getMode(), Connect, "wrong first stage for " + stages);
+        assertEquals(stages.get(1).getMode(), Train, "wrong second stage for " + stages);
 
     }
 
     @Test
-    void shouldTakeDirectTrainWhenStarAtTramStationNextToStation() {
-        TramTime time = TramTime.of(14,25);
+    void shouldTakeDirectTrainWhenStartAtTramStationNextToStation() {
+
+        // repro issues - coming back with a tram to nav road and then a change to the train instead of
+        // direct from altrincham stations
+        // Works fine for direct from altrincham rail, so seems to be an issue with crossing to the train station
+
+        TramTime time = TramTime.of(10,30);
 
         JourneyRequest request = new JourneyRequest(when, time, false, 1,
-                Duration.ofMinutes(240), 3, tramAndTrain());
+                Duration.ofMinutes(240), 3, TrainAndTram);
 
         Station start = tram(TramStations.Altrincham); // TRAM
-        Station dest = rail(Stockport);
+        Station dest = rail(NavigationRaod); // TRAIN
 
         List<Journey> journeys = new ArrayList<>(testFacade.calculateRouteAsList(start, dest, request));
         assertFalse(journeys.isEmpty(), "no journeys");
@@ -339,7 +397,7 @@ public class RailAndTramRouteCalculatorTest {
         List<Journey> journeys = new ArrayList<>(testFacade.calculateRouteAsList(start, dest, request));
         assertFalse(journeys.isEmpty(), "no journeys");
 
-        Journey journey = journeys.get(0);
+        Journey journey = journeys.getFirst();
 
         List<TransportStage<?, ?>> stages = journey.getStages();
         assertEquals(2, stages.size(),  "too many stages " + journey);
@@ -347,7 +405,6 @@ public class RailAndTramRouteCalculatorTest {
         assertEquals(stages.get(1).getMode(), Train, "wrong second stage for " + stages);
 
     }
-
 
     @Test
     void shouldHaveStockportToManPiccViaRail() {
@@ -358,9 +415,6 @@ public class RailAndTramRouteCalculatorTest {
         atLeastOneDirect(request, rail(Stockport), rail(ManchesterPiccadilly), Train);
     }
 
-    private EnumSet<TransportMode> tramAndTrain() {
-        return EnumSet.of(Tram, Train, RailReplacementBus);
-    }
 
     @Test
     void shouldHaveManPiccToStockportViaRail() {
@@ -467,7 +521,11 @@ public class RailAndTramRouteCalculatorTest {
 
         direct.forEach(journey -> journey.getStages().forEach(stage -> assertEquals(mode, stage.getMode(),
                 "Mode wrong for journey " + journey + " for request " + request)));
+    }
 
+
+    private EnumSet<TransportMode> tramAndTrain() {
+        return EnumSet.of(Tram, Train, RailReplacementBus);
     }
 
 

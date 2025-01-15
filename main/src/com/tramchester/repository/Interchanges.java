@@ -115,7 +115,7 @@ public class Interchanges implements InterchangeRepository {
                             // contain same dropoffs and pickups as one it is replacing
                             LinkedInterchangeStation multiInterchangeStation = new LinkedInterchangeStation(stationLink);
                             logger.info(format("Replacing an existing interchange %s with multilink one for %s", existing.getId(),
-                                    multiInterchangeStation.getStationId()));
+                                    multiInterchangeStation.getId()));
                             interchanges.put(beginId, multiInterchangeStation);
                         }
                     } else {
@@ -165,7 +165,7 @@ public class Interchanges implements InterchangeRepository {
     private void addStations(Set<Station> stations, InterchangeType type) {
         Map<IdFor<Station>, SimpleInterchangeStation> toAdd = stations.stream().
                 map(station -> new SimpleInterchangeStation(station, type)).
-                collect(Collectors.toMap(SimpleInterchangeStation::getStationId, item -> item));
+                collect(Collectors.toMap(SimpleInterchangeStation::getId, item -> item));
         interchanges.putAll(toAdd);
     }
 

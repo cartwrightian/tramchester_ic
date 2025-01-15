@@ -94,16 +94,6 @@ public class ServedRoute {
         return timeWindows.get(routeAndService).anyOverlap(range);
     }
 
-    /***
-     * Use the form that takes a date
-     * @param route the route
-     * @return true if route present
-     */
-    @Deprecated
-    public boolean contains(Route route) {
-        return routeIds.contains(route.getId());
-    }
-
     @Override
     public String toString() {
         return "ServedRoute{" +

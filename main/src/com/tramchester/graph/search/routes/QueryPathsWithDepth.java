@@ -314,7 +314,7 @@ public interface QueryPathsWithDepth {
         @Override
         public String toString() {
             return "SingleInterchange{" +
-                    "change=" + interchangeStation.getStationId() +
+                    "change=" + interchangeStation.getId() +
                     '}';
         }
     }

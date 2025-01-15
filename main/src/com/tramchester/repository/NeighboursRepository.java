@@ -12,6 +12,7 @@ import java.util.Set;
 @ImplementedBy(Neighbours.class)
 public interface NeighboursRepository {
     boolean differentModesOnly();
+    boolean isEnabled();
 
     Set<StationToStationConnection> getAll();
     Set<Station> getNeighboursFor(IdFor<Station> id);
@@ -19,4 +20,5 @@ public interface NeighboursRepository {
     boolean hasNeighbours(IdFor<Station> id);
     boolean areNeighbours(Location<?> locationA, Location<?> locationB);
     boolean areNeighbours(LocationSet<Station> starts, LocationSet<Station> destinations);
+
 }
