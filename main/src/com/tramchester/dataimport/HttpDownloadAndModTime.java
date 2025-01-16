@@ -227,7 +227,7 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
 
                 return downloadWhenStatusIsOK(response, path, statusCode);
             }
-            
+
         } catch (IOException | InterruptedException exception) {
             String msg = format("Unable to download data from %s to %s exception %s", originalUrl, path, exception);
             logger.error(msg);
