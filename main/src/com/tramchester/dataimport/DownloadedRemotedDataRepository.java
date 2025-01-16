@@ -31,12 +31,12 @@ public class DownloadedRemotedDataRepository implements RemoteDataAvailable {
     }
 
     @Override
-    public boolean hasFileFor(DataSourceID dataSourceID) {
+    public boolean hasFileFor(final DataSourceID dataSourceID) {
         return availableFiles.containsKey(dataSourceID);
     }
 
     @Override
-    public Path fileFor(DataSourceID dataSourceID) {
+    public Path fileFor(final DataSourceID dataSourceID) {
         if (!availableFiles.containsKey(dataSourceID)) {
             final String msg = "No data was downloaded or was available for " + dataSourceID;
             logger.error(msg);
@@ -45,7 +45,7 @@ public class DownloadedRemotedDataRepository implements RemoteDataAvailable {
         return availableFiles.get(dataSourceID);
     }
 
-    public void markRefreshed(DataSourceID dataSourceId) {
+    public void markRefreshed(final DataSourceID dataSourceId) {
         if (refreshed.contains(dataSourceId)) {
             logger.warn(dataSourceId + " already marked as refreshed");
         }

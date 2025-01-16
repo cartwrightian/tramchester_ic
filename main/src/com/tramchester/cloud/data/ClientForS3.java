@@ -348,6 +348,10 @@ public class ClientForS3 {
             logger.warn("Could not get object for missing uri " + uri + " and key " + bucketKey);
             throw new FileNotFoundException(uri.toString());
         }
+        catch(SdkClientException clientException) {
+            logger.error("Unable to communicate with S3", clientException);
+            return URLStatus.invalidTime;
+        }
     }
 
     private ZonedDateTime overrideModTimeIfMetaData(final ResponseFacade response, final URI uri) {
@@ -403,9 +407,17 @@ public class ClientForS3 {
         }
 
         GetObjectRequest getObjectRequest = createRequestFor(bucketKey);
-        ResponseInputStream<GetObjectResponse> responseInputStream = s3Client.getObject(getObjectRequest);
 
-        GetObjectResponse response = responseInputStream.response();
+        final ResponseInputStream<GetObjectResponse> responseInputStream;
+        try {
+            responseInputStream = s3Client.getObject(getObjectRequest);
+        }
+        catch (SdkClientException sdkClientException) {
+            logger.error("Failure to connect to S3", sdkClientException);
+            return URLStatus.NetworkError(uri);
+        }
+
+        final GetObjectResponse response = responseInputStream.response();
         final String remoteMD5 = getETagClean(response);
 
         ResponseFacade responseFacade = createResponseFacade(response);

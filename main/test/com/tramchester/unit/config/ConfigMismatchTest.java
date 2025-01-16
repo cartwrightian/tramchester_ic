@@ -160,6 +160,7 @@ class ConfigMismatchTest {
         assertEquals(normalConfig.getGraphDBConfig().getDbPath(), remoteConfig.getDataPath().resolve(remoteConfig.getModTimeCheckFilename()));
     }
 
+    @Disabled("remote DM disabled for now on GM config setting")
     @Test
     void shouldHaveCheckFilenameForDBSourceMatchDBNameForGM() throws ConfigurationException, IOException {
         AppConfiguration normalConfig = loadConfigFromFile("gm.yml");
@@ -202,7 +203,9 @@ class ConfigMismatchTest {
         assertEquals(appConfig.getQueryInterval(), testConfig.getQueryInterval(), "query interval mismatch");
 
         assertEquals(configRemoteSources.size(), testRemoteSources.size());
-        assertEquals(5, testRemoteSources.size());
+
+        // 5->4 remote db config disabled for GM config
+        assertEquals(4, testRemoteSources.size());
 
         assertRemoteSources(configRemoteSources, testRemoteSources, DataSourceID.tfgm);
         assertRemoteSources(configRemoteSources, testRemoteSources, DataSourceID.openRailData);
@@ -262,7 +265,9 @@ class ConfigMismatchTest {
         List<RemoteDataSourceConfig> dataSourceConfig = appConfig.getRemoteDataSourceConfig();
         List<RemoteDataSourceConfig> testDataSourceConfig = accTestConfig.getRemoteDataSourceConfig();
         assertEquals(dataSourceConfig.size(), testDataSourceConfig.size());
-        assertEquals(5, dataSourceConfig.size());
+
+        // 5->4 remote DB config disabled for GM
+        assertEquals(4, dataSourceConfig.size());
 
         // rail tested above
         //assertRemoteSources(dataSourceConfig, testDataSourceConfig, 0);
@@ -270,7 +275,7 @@ class ConfigMismatchTest {
         assertRemoteSources(dataSourceConfig, testDataSourceConfig, DataSourceID.tfgm);
         assertRemoteSources(dataSourceConfig, testDataSourceConfig, DataSourceID.naptanxml);
         assertRemoteSources(dataSourceConfig, testDataSourceConfig, DataSourceID.nptg);
-        assertRemoteSources(dataSourceConfig, testDataSourceConfig, DataSourceID.database);
+//        assertRemoteSources(dataSourceConfig, testDataSourceConfig, DataSourceID.database);
 
 
     }

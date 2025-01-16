@@ -72,16 +72,16 @@ remoteSources:
     downloadPath: data/nptg
     filename: ${NPTG_FILE:- Localities.csv.zip}
     defaultExpiryDays: 14
-  - name: database
-    dataURL: s3://tramchesternewdist/dist/${RELEASE_NUMBER}/database.zip
-    dataCheckURL: s3://tramchesternewdist/dist/${RELEASE_NUMBER}/database.zip
-    dataPath: databases
-    downloadPath: databases
-    filename: database.zip
-    defaultExpiryDays: 0
-    modTimeCheckFilename: gm_rail.db
-    mandatory: false
-    skipUpload: false
+#  - name: database
+#    dataURL: s3://tramchesternewdist/dist/${RELEASE_NUMBER}/database.zip
+#    dataCheckURL: s3://tramchesternewdist/dist/${RELEASE_NUMBER}/database.zip
+#    dataPath: databases
+#    downloadPath: databases
+#    filename: database.zip
+#    defaultExpiryDays: 0
+#    modTimeCheckFilename: gm_rail.db
+#    mandatory: false
+#    skipUpload: false
 tfgmTramliveData:
   dataUrl: ${LIVEDATA_URL:- "sns://tramchester_live_data_ProdBlue"}
   dataSubscriptionKey: ${TFGMAPIKEY:- ""}

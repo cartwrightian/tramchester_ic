@@ -5,11 +5,11 @@ import com.tramchester.config.DownloadedConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
-import jakarta.inject.Inject;
 import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;
@@ -56,7 +56,7 @@ public class UnzipFetchedData  {
             final DataSourceID sourceId = sourceConfig.getDataSourceId();
 
             if (remoteDataAvailable.hasFileFor(sourceId)) {
-                Path filename = remoteDataAvailable.fileFor(sourceId);
+                final Path filename = remoteDataAvailable.fileFor(sourceId);
                 if (!unzipper.unpackIfZipped(filename, sourceConfig.getDownloadPath())) {
                     String msg = "unable to unpack zip file " + filename.toAbsolutePath();
                     logger.error(msg);

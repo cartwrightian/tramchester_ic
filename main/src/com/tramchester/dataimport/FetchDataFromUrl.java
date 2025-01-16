@@ -93,22 +93,28 @@ public class FetchDataFromUrl {
             final Path destination = downloadDirectory.resolve(targetFile);
             final Path statusCheckFile = sourceConfig.hasModCheckFilename() ? downloadDirectory.resolve(sourceConfig.getModTimeCheckFilename()) : destination;
             final DestAndStatusCheckFile destAndStatusCheckFile = new DestAndStatusCheckFile(destination, statusCheckFile);
-            try {
-                logger.info("Checking status for data source " + dataSourceId + " using  " + destAndStatusCheckFile);
-                final RefreshStatus refreshStatus = refreshDataIfNewerAvailable(sourceConfig, destAndStatusCheckFile);
-                logger.info(format("%s Refresh status %s", prefix, refreshStatus));
-                switch (refreshStatus) {
-                    case Refreshed -> {
-                        downloadedDataRepository.addFileFor(dataSourceId, destAndStatusCheckFile.destination);
-                        downloadedDataRepository.markRefreshed(dataSourceId);
-                    }
-                    case NoNeedToRefresh, NotExpired, UnableToCheck -> downloadedDataRepository.addFileFor(dataSourceId, destAndStatusCheckFile.statusCheckFile);
-                    case Missing -> logger.error("Unable to derive status for " + dataSourceId);
-                }
+            logger.info("Checking status for data source " + dataSourceId + " using  " + destAndStatusCheckFile);
 
-            } catch (IOException | InterruptedException exception) {
-                logger.warn(prefix + "Unable to refresh data for config: " + sourceConfig, exception);
+            RefreshStatus refreshStatus;
+            try {
+                refreshStatus = refreshDataIfNewerAvailable(sourceConfig, destAndStatusCheckFile);
             }
+            catch (IOException | InterruptedException exception) {
+                logger.warn(prefix + "Unable to check status or refresh data for config: " + sourceConfig, exception);
+                refreshStatus = RefreshStatus.UnableToCheck;
+            }
+
+            logger.info(format("%s Refresh status %s", prefix, refreshStatus));
+            switch (refreshStatus) {
+                case Refreshed -> {
+                    downloadedDataRepository.addFileFor(dataSourceId, destAndStatusCheckFile.destination);
+                    downloadedDataRepository.markRefreshed(dataSourceId);
+                }
+                case NoNeedToRefresh, NotExpired, UnableToCheck ->
+                        downloadedDataRepository.addFileFor(dataSourceId, destAndStatusCheckFile.statusCheckFile);
+                case Missing -> logger.error("Unable to derive status for " + dataSourceId);
+            }
+
         });
     }
 
@@ -119,8 +125,6 @@ public class FetchDataFromUrl {
 
         final boolean filePresent = getsFileModTime.exists(destAndStatusCheckFile.statusCheckFile);
 
-
-
         if (filePresent) {
             logger.info(format("Source %s file %s is present", dataSourceId, destAndStatusCheckFile.statusCheckFile));
             return refreshDataIfNewerAvailableHasFile(sourceConfig, destAndStatusCheckFile);
@@ -130,7 +134,6 @@ public class FetchDataFromUrl {
             logger.info(format("Source %s file %s is NOT present", dataSourceId, destAndStatusCheckFile.statusCheckFile));
             return refreshDataIfNewerAvailableNoFile(sourceConfig, destAndStatusCheckFile, headers);
         }
-
     }
 
     private RefreshStatus refreshDataIfNewerAvailableNoFile(DownloadedConfig sourceConfig, DestAndStatusCheckFile destAndStatusCheckFile,
@@ -242,10 +245,12 @@ public class FetchDataFromUrl {
 
     }
 
-    private URLStatus getUrlStatus(URI originalURL, boolean isS3, ZonedDateTime localModTime, DownloadedConfig config, List<Pair<String, String>> headers) throws IOException, InterruptedException {
-        DataSourceID dataSourceId = config.getDataSourceId();
-        boolean warnIfMissing = config.isMandatory();
-        URLStatus status = getStatusFor(originalURL, isS3, localModTime, warnIfMissing, headers);
+    private URLStatus getUrlStatus(final URI originalURL, final boolean isS3, final ZonedDateTime localModTime,
+                                   final DownloadedConfig config,
+                                   final List<Pair<String, String>> headers) throws IOException, InterruptedException {
+        final DataSourceID dataSourceId = config.getDataSourceId();
+        final boolean warnIfMissing = config.isMandatory();
+        final URLStatus status = getStatusFor(originalURL, isS3, localModTime, warnIfMissing, headers);
         if (!status.isOk()) {
             if (status.getStatusCode() == 405 ) { // METHOD_NOT_ALLOWED
                 logger.warn("METHOD_NOT_ALLOWED was unable to query using HEAD for " + dataSourceId);
@@ -302,7 +307,8 @@ public class FetchDataFromUrl {
         return redirectStrategy.followRedirects(initialURL);
     }
 
-    private URLStatus getStatusFor(URI url, boolean isS3, ZonedDateTime localModTime, boolean warnIfMissing, List<Pair<String, String>> headers) throws IOException, InterruptedException {
+    private URLStatus getStatusFor(final URI url, final boolean isS3, final ZonedDateTime localModTime,
+                                   final boolean warnIfMissing, final List<Pair<String, String>> headers) throws IOException, InterruptedException {
         if (isS3) {
             if (!headers.isEmpty()) {
                 logger.warn("Ignoring headers for S3");
@@ -312,10 +318,11 @@ public class FetchDataFromUrl {
         return getStatusFollowRedirects(url, localModTime, warnIfMissing, headers);
     }
 
-    private URLStatus getStatusFollowRedirects(URI url, ZonedDateTime localModTime, boolean warnIfMissing, List<Pair<String, String>> headers) throws IOException, InterruptedException {
+    private URLStatus getStatusFollowRedirects(final URI url, final ZonedDateTime localModTime, final boolean warnIfMissing,
+                                               final List<Pair<String, String>> headers) throws IOException, InterruptedException {
         RedirectStrategy redirectStrategy = new RedirectStrategy() {
             @Override
-            public URLStatus action(URI actualURI) throws InterruptedException, IOException {
+            public URLStatus action(final URI actualURI) throws InterruptedException, IOException {
                 return httpDownloader.getStatusFor(actualURI, localModTime, warnIfMissing, headers);
             }
         };

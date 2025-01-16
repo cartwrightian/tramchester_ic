@@ -39,6 +39,7 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
     private static final Logger logger = LoggerFactory.getLogger(HttpDownloadAndModTime.class);
 
     public final static String LAST_MOD_PATTERN = "EEE, dd MMM yyyy HH:mm:ss zzz";
+    private static final Duration HEADER_FETCH_TIMEOUT = Duration.ofSeconds(10);
     private final DateTimeFormatter formatter;
 
     public HttpDownloadAndModTime() {
@@ -46,7 +47,8 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
     }
 
     @Override
-    public URLStatus getStatusFor(URI originalUrl, ZonedDateTime localModTime, boolean warnIfMissing, List<Pair<String, String>> headers) throws IOException, InterruptedException {
+    public URLStatus getStatusFor(final URI originalUrl, final ZonedDateTime localModTime, final boolean warnIfMissing,
+                                  final List<Pair<String, String>> headers) throws IOException, InterruptedException {
 
         // TODO some servers return 200 for HEAD but a redirect status for a GET
         // So cannot rely on using the HEAD request for getting final URL for a resource
@@ -121,7 +123,9 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
                                              final List<Pair<String,String>> headers,
                                              final HttpResponse.BodyHandler<T> bodyHandler) throws IOException, InterruptedException {
 
-        final HttpClient client = HttpClient.newBuilder().build();
+        final HttpClient client = HttpClient.newBuilder().
+                connectTimeout(HEADER_FETCH_TIMEOUT).
+                build();
         final HttpRequest.Builder httpRequestBuilder = HttpRequest.newBuilder().
                 uri(uri).
                 method(method, HttpRequest.BodyPublishers.noBody());

@@ -20,19 +20,14 @@ import java.util.List;
 // NOTE: if rename this take care of names in build.gradle, for example on integrationGM target
 public class RailAndTramGreaterManchesterConfig extends IntegrationTramTestConfig {
 
-//    private static final String DB_NAME = "int_test_gm_tram_train.db";
-
-//    public RailAndTramGreaterManchesterConfig() {
-//        this(DB_NAME);
-//    }
-
     public RailAndTramGreaterManchesterConfig() {
         super(LiveData.Enabled, IntegrationTestConfig.CurrentClosures, IntegrationTestConfig.CurrentStationWalks, Caching.Enabled);
     }
 
     @Override
     public List<RemoteDataSourceConfig> getRemoteDataSourceConfig() {
-        return Arrays.asList(railRemoteDataSource, remoteTFGMConfig, remoteNaptanXMLConfig, remoteNPTGconfig, remoteDBSourceConfig);
+        // TODO temp removed remoteDBSourceConfig
+        return Arrays.asList(railRemoteDataSource, remoteTFGMConfig, remoteNaptanXMLConfig, remoteNPTGconfig);
     }
 
     @Override
