@@ -1,5 +1,6 @@
 package com.tramchester.dataimport;
 
+import com.netflix.governator.guice.lazy.LazySingleton;
 import jakarta.ws.rs.HttpMethod;
 import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.jetty.http.HttpHeader;
@@ -12,10 +13,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpHeaders;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import java.net.http.*;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Path;
@@ -35,14 +33,22 @@ import static jakarta.ws.rs.core.HttpHeaders.LOCATION;
 import static java.lang.String.format;
 import static java.time.ZoneOffset.UTC;
 
+@LazySingleton
 public class HttpDownloadAndModTime implements DownloadAndModTime {
     private static final Logger logger = LoggerFactory.getLogger(HttpDownloadAndModTime.class);
 
     public final static String LAST_MOD_PATTERN = "EEE, dd MMM yyyy HH:mm:ss zzz";
     private static final Duration HEADER_FETCH_TIMEOUT = Duration.ofSeconds(10);
     private final DateTimeFormatter formatter;
+    private final HttpClient client;
 
     public HttpDownloadAndModTime() {
+
+        // TODO Could we use Redirect Policy here insteaf of handrolled solution?
+        //  Maybe not since handrolled contains workarounds got various bugs and issues
+        client = HttpClient.newBuilder().
+                connectTimeout(HEADER_FETCH_TIMEOUT).
+                build();
         formatter = DateTimeFormatter.ofPattern(LAST_MOD_PATTERN, Locale.ENGLISH);
     }
 
@@ -123,9 +129,7 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
                                              final List<Pair<String,String>> headers,
                                              final HttpResponse.BodyHandler<T> bodyHandler) throws IOException, InterruptedException {
 
-        final HttpClient client = HttpClient.newBuilder().
-                connectTimeout(HEADER_FETCH_TIMEOUT).
-                build();
+
         final HttpRequest.Builder httpRequestBuilder = HttpRequest.newBuilder().
                 uri(uri).
                 method(method, HttpRequest.BodyPublishers.noBody());
@@ -202,12 +206,12 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
 
             // might update depending on redirect status
             if (redirect) {
-                HttpHeaders responseHeaders = response.headers();
-                Optional<String> locationField = responseHeaders.firstValue(LOCATION);
+                final HttpHeaders responseHeaders = response.headers();
+                final Optional<String> locationField = responseHeaders.firstValue(LOCATION);
                 if (locationField.isPresent()) {
                     logger.warn(format("URL: '%s' Redirect status %s and Location header '%s'",
                             originalUrl, statusCode, locationField));
-                    String redirectURL = locationField.get();
+                    final String redirectURL = locationField.get();
                     return new URLStatus(redirectURL, statusCode);
                 } else {
                     logger.error(format("Location header missing for redirect %s, change status code to a 404 for %s",
@@ -223,8 +227,7 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
 
                 return downloadWhenStatusIsOK(response, path, statusCode);
             }
-
-
+            
         } catch (IOException | InterruptedException exception) {
             String msg = format("Unable to download data from %s to %s exception %s", originalUrl, path, exception);
             logger.error(msg);
@@ -234,15 +237,16 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
     }
 
     @NotNull
-    private URLStatus downloadWhenStatusIsOK(HttpResponse<InputStream> response, Path destination, int statusCode) throws IOException {
+    private URLStatus downloadWhenStatusIsOK(HttpResponse<InputStream> response, final Path destination, final int statusCode)
+            throws IOException {
 
         String finalURL = response.toString();
         logger.info(format("Download is available from %s, save to %s", finalURL, destination));
 
-        Duration serverModMillis = getServerModMillis(response);
-        String contentType = getContentType(response);
-        String encoding = getContentEncoding(response);
-        long len = getLen(response);
+        final Duration serverModMillis = getServerModMillis(response);
+        final String contentType = getContentType(response);
+        final String encoding = getContentEncoding(response);
+        final long len = getLen(response);
 
         String contentDispos = getContentDispos(response);
         if (!contentDispos.isEmpty()) {
@@ -256,10 +260,10 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
         logger.info("Response encoding '" + encoding + "'" + logSuffix);
         logger.info("Content length is " + len + logSuffix);
 
-        boolean gziped = "gzip".equals(encoding);
+        final boolean gziped = "gzip".equals(encoding);
 
-        File targetFile = destination.toFile();
-        InputStream stream = getStreamFor(response.body(), gziped);
+        final File targetFile = destination.toFile();
+        final InputStream stream = getStreamFor(response.body(), gziped);
         if (len>0) {
             downloadByLength(stream, targetFile, len);
         } else {
@@ -272,7 +276,7 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
             throw new RuntimeException(msg);
         }
 
-        URLStatus result;
+        final URLStatus result;
         if (serverModMillis.isZero()) {
             result = new URLStatus(finalURL, statusCode);
             logger.warn("Server mod time is zero, not updating local file mod time " + logSuffix);
@@ -313,7 +317,7 @@ public class HttpDownloadAndModTime implements DownloadAndModTime {
                 received, targetFile.getPath(), downloadedLength));
     }
 
-    private InputStream getStreamFor(InputStream inputStream, boolean gziped) throws IOException {
+    private InputStream getStreamFor(final InputStream inputStream, final boolean gziped) throws IOException {
         if (gziped) {
             logger.info("Response was gzip encoded, will decompress");
             return new GZIPInputStream(inputStream);

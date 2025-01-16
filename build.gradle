@@ -108,8 +108,9 @@ dependencies {
 
     implementation  'org.jetbrains:annotations:26.0.1'
 
-    // note multiple incompatible forks of geotools see repo specified above and https://repo.osgeo.org/#browse/browse:release:org%2Fgeotools%2Fgt-main
-    // gt-epsg-hsql: hsql backed slow, gt-epsg-wkt property file backed faster
+    // note multiple incompatible forks of geotools see repo specified above and
+    // https://repo.osgeo.org/#browse/browse:release:org%2Fgeotools%2Fgt-main
+    // gt-epsg-hsql: hsql backed slow, gt-epsg-wkt property file backed faster (well ought to be...)
     implementation('org.geotools:gt-main:32.1', 'org.geotools:gt-epsg-wkt:32.1')
 
     implementation('javax.measure:unit-api:2.2')
@@ -128,7 +129,7 @@ dependencies {
     // needed for cxf gen'ed code, missing from cxfCodegen dependencies?
     implementation 'jakarta.xml.ws:jakarta.xml.ws-api:4.0.2'
     // for running the cxf generated code,  provide implementation of the SPI jakarta.xml.ws.spi.Provider
-    runtimeOnly 'com.sun.xml.ws:jaxws-rt:4.0.3'
+    implementation 'com.sun.xml.ws:jaxws-rt:4.0.3'
 
     // TODO Still needed? Workaround for issues running tests in intellij and glassfish DI, does not occur with running via gradle
     //testRuntimeOnly 'javax.servlet:javax.servlet-api:3.0.1'
@@ -162,6 +163,7 @@ cxfCodegen {
     cxfVersion = "4.0.4"
 }
 
+// todo need way to cache wsdl or results for when offline?
 tasks.register("railLiveDataCodeGen", Wsdl2Java) {
     toolOptions {
         wsdl.set(file(railLiveDataWSDL).toPath().toAbsolutePath().toString())
