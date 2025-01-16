@@ -16,6 +16,7 @@ data/rail
 data/naptan
 data/postcodes
 data/nptg
+data/openRailData
 diagrams
 data/cache**/
 data/test/testFile.txt
