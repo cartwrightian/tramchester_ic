@@ -175,12 +175,12 @@ class DeparturesAfterJourneyResourceTest {
     }
 
 
-    private SortedSet<DepartureDTO> getDeparturesForStationAfterJourney(Location<?> displayLocation, Station destinationForDueTram) {
-        DeparturesQueryDTO queryDTO = new DeparturesQueryDTO(displayLocation.getLocationType(), IdForDTO.createFor(displayLocation));
+    private SortedSet<DepartureDTO> getDeparturesForStationAfterJourney(final Location<?> displayLocation, final Station destinationForDueTram) {
+        final DeparturesQueryDTO queryDTO = new DeparturesQueryDTO(displayLocation.getLocationType(), IdForDTO.createFor(displayLocation));
 
-        JourneyQueryDTO journeyQueryDto = journeyPlanner.getQueryDTO(queryDate, time, displayLocation,
-                destinationForDueTram, false, 3);
-        JourneyPlanRepresentation plan = journeyPlanner.getJourneyPlan(journeyQueryDto);
+        final JourneyQueryDTO journeyQueryDto = journeyPlanner.getQueryDTO(queryDate, time, displayLocation,
+                destinationForDueTram, false, 2);
+        final JourneyPlanRepresentation plan = journeyPlanner. getJourneyPlan(journeyQueryDto);
 
         assertFalse(plan.getJourneys().isEmpty(), "could find journey from " + displayLocation.getId() + " to " + destinationForDueTram.getId());
 

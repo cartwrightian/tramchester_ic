@@ -243,7 +243,7 @@ public class DiagramCreator {
         if (node.hasLabel(GROUPED)) {
             //return getAreaIdFromGrouped(graphNode.getNode());
             IdFor<NPTGLocality> areaId = node.getAreaId();
-            if (nptgRepository.hasLocaility(areaId)) {
+            if (nptgRepository.hasLocality(areaId)) {
                 NPTGLocality area = nptgRepository.get(areaId);
                 return format("%s %s\n%s", area.getLocalityName(), area.getParentLocalityName(), areaId.getGraphId());
             } else {

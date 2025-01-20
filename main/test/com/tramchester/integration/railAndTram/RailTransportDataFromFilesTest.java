@@ -102,7 +102,7 @@ public class RailTransportDataFromFilesTest {
 
     @Test
     void shouldHaveSensibleNames() {
-        Station result = transportData.getStationById(ManchesterPiccadilly.getId());
+        Station result = ManchesterPiccadilly.from(transportData);
 
         assertEquals("Manchester Piccadilly Rail Station", result.getName());
         assertEquals(KnownLocality.ManchesterCityCentre.getLocalityId(), result.getLocalityId());

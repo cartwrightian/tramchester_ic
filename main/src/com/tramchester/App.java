@@ -210,7 +210,7 @@ public class App extends Application<AppConfiguration>  {
                }
         });
 
-        RejectInvalidEncodingFilter rejectInvalidEncodingFilter = new RejectInvalidEncodingFilter();
+        final RejectInvalidEncodingFilter rejectInvalidEncodingFilter = new RejectInvalidEncodingFilter();
         applicationContext.addFilter(new FilterHolder(rejectInvalidEncodingFilter), "/*", EnumSet.of(DispatcherType.REQUEST));
 
         if (configuration.redirectToSecure()) {

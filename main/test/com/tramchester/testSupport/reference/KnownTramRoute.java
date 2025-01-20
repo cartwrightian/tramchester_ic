@@ -48,23 +48,21 @@ public enum KnownTramRoute {
         EnumSet<KnownTramRoute> routes = EnumSet.noneOf(KnownTramRoute.class);
 
         if (date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
-            if (date.isAfter(TramDate.of(2025,1,18))) {
+            if (date.isAfter(TramDate.of(2025,1,19))) {
                 routes.add(BusPiccGardensToAshto);
                 routes.add(BusPiccToPiccGardens);
-
                 routes.add(BuryManchesterAltrincham);
             }
         } else {
-            // not on sundays until 19 Jan 2025
+            routes.add(PiccadillyVictoria);
             routes.add(BuryManchesterAltrincham);
+            routes.add(EtihadPiccadillyAltrincham);
         }
 
-        routes.add(PiccadillyVictoria);
         routes.add(EcclesAshton);
         routes.add(CornbrookTheTraffordCentre);
         routes.add(DeansgateCastlefieldManchesterAirport);
         routes.add(RochdaleShawandCromptonManchesterEastDidisbury);
-        routes.add(EtihadPiccadillyAltrincham);
 
         return routes;
     }

@@ -1,16 +1,22 @@
 package com.tramchester.domain.presentation.DTO.factory;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.dataimport.rail.repository.RailRouteIdRepository;
+import com.tramchester.dataimport.rail.repository.RailRouteIds;
+import com.tramchester.domain.Agency;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdForDTO;
+import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.*;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.presentation.TravelAction;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.transportStages.ConnectingStage;
 import com.tramchester.domain.transportStages.WalkingStage;
-
 import jakarta.inject.Inject;
+
 import java.time.Duration;
 import java.time.LocalDateTime;
 
@@ -20,11 +26,12 @@ import java.time.LocalDateTime;
 public class StageDTOFactory {
 
     private final DTOFactory stationDTOFactory;
+    private final RailHeadsignFactory railHeadsignFactory;
 
     @Inject
-    public StageDTOFactory(DTOFactory stationDTOFactory) {
-
+    public StageDTOFactory(DTOFactory stationDTOFactory, RailHeadsignFactory railHeadsignFactory) {
         this.stationDTOFactory = stationDTOFactory;
+        this.railHeadsignFactory = railHeadsignFactory;
     }
 
     public SimpleStageDTO build(final TransportStage<?,?> source, final TravelAction travelAction, final TramDate queryDate) {
@@ -49,6 +56,7 @@ public class StageDTOFactory {
         }
 
         final IdForDTO tripId = new IdForDTO(source.getTripId());
+        final String headsign = getHeadsignFor(source);
         if (source.hasBoardingPlatform()) {
             final PlatformDTO boardingPlatform = new PlatformDTO(source.getBoardingPlatform());
 
@@ -57,7 +65,7 @@ public class StageDTOFactory {
                     actionStation,
                     boardingPlatform,
                     firstDepartureTime, expectedArrivalTime,
-                    duration, source.getHeadSign(),
+                    duration, headsign,
                     source.getMode(),
                     source.getPassedStopsCount(), routeRefDTO, travelAction, queryDate, tripId);
         } else {
@@ -65,9 +73,17 @@ public class StageDTOFactory {
                     lastStation,
                     actionStation,
                     firstDepartureTime, expectedArrivalTime,
-                    duration, source.getHeadSign(),
+                    duration, headsign,
                     source.getMode(),
                     source.getPassedStopsCount(), routeRefDTO, travelAction, queryDate, tripId);
+        }
+    }
+
+    private String getHeadsignFor(TransportStage<?, ?> source) {
+        if (source.getMode()== TransportMode.Train) {
+            return railHeadsignFactory.getFor(source);
+        } else {
+            return source.getHeadSign();
         }
     }
 

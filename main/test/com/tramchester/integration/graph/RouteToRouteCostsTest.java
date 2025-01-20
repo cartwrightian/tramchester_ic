@@ -253,14 +253,13 @@ public class RouteToRouteCostsTest {
 
     @Test
     void shouldHandleServicesAtMidnight() {
-        Station altrincham = Altrincham.from(stationRepository);
+        Station altrincham = StPetersSquare.from(stationRepository);
 
         long maxDuration = config.getMaxJourneyDuration();
         TimeRange timeRange = TimeRangePartial.of(TramTime.of(0,0), Duration.ZERO, Duration.ofMinutes(maxDuration));
 
-        Station navigationRoad = NavigationRoad.from(stationRepository);
+        Station navigationRoad = Cornbrook.from(stationRepository);
 
-//        TramDate nextWeek = this.date.plusWeeks(1);
         int changes = routesCostRepository.getPossibleMinChanges(altrincham, navigationRoad, modes, date, timeRange);
 
         assertEquals(0, getMinCost(changes), "On " + date + " " + changes);

@@ -11,12 +11,12 @@ import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.MarginInMeters;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import jakarta.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +55,6 @@ public class NPTGRepository {
         }
         final BoundingBox bounds = config.getBounds();
 
-
         logger.info("Starting for " + bounds);
         loadData(bounds);
         if (nptgDataMap.isEmpty()) {
@@ -66,6 +65,11 @@ public class NPTGRepository {
         logger.info("started");
     }
 
+    @PreDestroy
+    private void stop() {
+        nptgDataMap.clear();
+    }
+
     private void loadData(final BoundingBox bounds) {
 
         final MarginInMeters initialMargin = MarginInMeters.ofMeters(MARGIN_IN_METERS*2);
@@ -73,7 +77,7 @@ public class NPTGRepository {
         final MarginInMeters loadMargin = MarginInMeters.ofMeters(MARGIN_IN_METERS);
 
         // todo use the callback mechanism instead
-        List<NPTGLocalityXMLData> inBoundsRecords = new ArrayList<>();
+        final List<NPTGLocalityXMLData> inBoundsRecords = new ArrayList<>();
 
         dataLoader.loadData(new ElementsFromXMLFile.XmlElementConsumer<>() {
             @Override
@@ -106,8 +110,8 @@ public class NPTGRepository {
 
     }
 
-    private String getParentName(Map<IdFor<NPTGLocality>, String> names, NPTGLocalityXMLData item) {
-        String ref = item.getParentLocalityRef();
+    private String getParentName(final Map<IdFor<NPTGLocality>, String> names, final NPTGLocalityXMLData item) {
+        final String ref = item.getParentLocalityRef();
         if (ref ==null) {
             return "";
         }
@@ -124,13 +128,12 @@ public class NPTGRepository {
             return "";
         }
 
-        String result = names.get(id);
+        final String result = names.get(id);
         if (result==null) {
             throw new RuntimeException("Problem with name for " + id + " from " + item);
         }
         return result;
     }
-
 
     private boolean filterBy(final BoundingBox bounds, final MarginInMeters margin, final NPTGLocalityXMLData item) {
         final GridPosition gridPosition = item.getGridPosition();
@@ -140,16 +143,11 @@ public class NPTGRepository {
         return bounds.within(margin, gridPosition);
     }
 
-    @PreDestroy
-    private void stop() {
-        nptgDataMap.clear();
-    }
-
-    public boolean hasLocaility(IdFor<NPTGLocality> localityCode) {
+    public boolean hasLocality(final IdFor<NPTGLocality> localityCode) {
         return nptgDataMap.hasId(localityCode);
     }
 
-    public NPTGLocality get(IdFor<NPTGLocality> localityCode) {
+    public NPTGLocality get(final IdFor<NPTGLocality> localityCode) {
         return nptgDataMap.get(localityCode);
     }
 

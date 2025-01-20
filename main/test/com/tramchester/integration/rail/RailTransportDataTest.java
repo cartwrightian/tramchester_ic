@@ -403,7 +403,7 @@ public class RailTransportDataTest {
         List<StopCalls.StopLeg> legs = stopCalls.getLegs(false);
         assertEquals(11, legs.size());
 
-        StopCalls.StopLeg firstLeg = legs.get(0);
+        StopCalls.StopLeg firstLeg = legs.getFirst();
         assertEquals(startTime, firstLeg.getDepartureTime());
         assertEquals(Inverness.getId(), firstLeg.getFirstStation().getId());
 
@@ -414,24 +414,25 @@ public class RailTransportDataTest {
 
     @Test
     void shouldReproIssueWithIncorrectlyFlaggedAsOverlay() {
-        String text = "BSNX625452301292301290000001 1OO2K26    124782000 EMU    100D                  N\n" +
-                "BX         SNYSN485200\n" +
-                "LOSTRHILL 0815 08152        HTB\n" +
-                "LIWNORWDJ           0817H00000000\n" +
-                "LIWNORWOD 0818H0819      081908192        T\n" +
-                "LIGIPSYH  0821H0822      08220822         T\n" +
-                "LICRYSTLP 0825 0826      082508262        T\n" +
-                "LICRYSBRJ           0828 00000000\n" +
-                "LINORWDJ  0830 0831      083008316        T\n" +
-                "LISELHGRJ           0833H00000000\n" +
-                "LIWCROYDN 0836 0837      083608374        T\n" +
-                "LIWADDON  0839 0839H     08390839         T\n" +
-                "LIWALNGTN 0842H0843      084308432        T\n" +
-                "LICRSHLTB 0845 0845H     08450845         T\n" +
-                "LISUTTON  0848H0850      084908504        T\n" +
-                "LIBELM    0853 0853H     08530853         T\n" +
-                "LIBANSTED 0856H0857      08570857         T\n" +
-                "LTEPSDNS  0900 0900      TF";
+        String text = """
+                BSNX625452301292301290000001 1OO2K26    124782000 EMU    100D                  N
+                BX         SNYSN485200
+                LOSTRHILL 0815 08152        HTB
+                LIWNORWDJ           0817H00000000
+                LIWNORWOD 0818H0819      081908192        T
+                LIGIPSYH  0821H0822      08220822         T
+                LICRYSTLP 0825 0826      082508262        T
+                LICRYSBRJ           0828 00000000
+                LINORWDJ  0830 0831      083008316        T
+                LISELHGRJ           0833H00000000
+                LIWCROYDN 0836 0837      083608374        T
+                LIWADDON  0839 0839H     08390839         T
+                LIWALNGTN 0842H0843      084308432        T
+                LICRSHLTB 0845 0845H     08450845         T
+                LISUTTON  0848H0850      084908504        T
+                LIBELM    0853 0853H     08530853         T
+                LIBANSTED 0856H0857      08570857         T
+                LTEPSDNS  0900 0900      TF""";
 
         loadRailServicesFromText.loadInto(dataContainer, text);
 

@@ -6,6 +6,7 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdForDTO;
+import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.MyLocation;
@@ -14,6 +15,7 @@ import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
 import com.tramchester.domain.presentation.DTO.SimpleStageDTO;
 import com.tramchester.domain.presentation.DTO.VehicleStageDTO;
 import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
+import com.tramchester.domain.presentation.DTO.factory.RailHeadsignFactory;
 import com.tramchester.domain.presentation.DTO.factory.StageDTOFactory;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.presentation.TravelAction;
@@ -42,11 +44,13 @@ class StageDTOFactoryTest extends EasyMockSupport {
     private StageDTOFactory factory;
     private TramDate when;
     private DTOFactory stationDTOFactory;
+    private RailHeadsignFactory railHeadsignFactory;
 
     @BeforeEach
     void beforeEachTestRun() {
         stationDTOFactory = createMock(DTOFactory.class);
-        factory = new StageDTOFactory(stationDTOFactory);
+        railHeadsignFactory = createMock(RailHeadsignFactory.class);
+        factory = new StageDTOFactory(stationDTOFactory, railHeadsignFactory);
         when = TestEnv.testDay();
     }
 
@@ -67,7 +71,7 @@ class StageDTOFactoryTest extends EasyMockSupport {
 
         replayAll();
         SimpleStageDTO build = factory.build(stage, TravelAction.WalkTo, when);
-        checkValues(stage, build, false, TravelAction.WalkTo);
+        checkValues(stage, build, false, TravelAction.WalkTo, stage.getHeadSign());
         verifyAll();
     }
 
@@ -85,7 +89,7 @@ class StageDTOFactoryTest extends EasyMockSupport {
 
         replayAll();
         SimpleStageDTO build = factory.build(connectingStage, TravelAction.ConnectTo, when);
-        checkValues(connectingStage, build, false, TravelAction.ConnectTo);
+        checkValues(connectingStage, build, false, TravelAction.ConnectTo, connectingStage.getHeadSign());
         verifyAll();
     }
 
@@ -116,7 +120,7 @@ class StageDTOFactoryTest extends EasyMockSupport {
         SimpleStageDTO stageDTO = factory.build(vehicleStage, TravelAction.Board, when);
         verifyAll();
 
-        checkValues(vehicleStage, stageDTO, true, TravelAction.Board);
+        checkValues(vehicleStage, stageDTO, true, TravelAction.Board, "headSign");
 
         assertTrue(stageDTO instanceof VehicleStageDTO);
 
@@ -125,7 +129,49 @@ class StageDTOFactoryTest extends EasyMockSupport {
         assertEquals(IdForDTO.createFor(trip), vehicleStageDTO.getTripId());
     }
 
-    private void checkValues(TransportStage<?,?> stage, SimpleStageDTO dto, boolean hasPlatform, TravelAction action) {
+    @Test
+    void shouldCreateStageDTOCorrectlyForTrainTransportStage() {
+        //Route testRoute = TestEnv.getTramTestRoute();
+        Route testRoute = TestEnv.getTrainTestRoute(StringIdFor.createId("railRouteId", Route.class),
+                "train route A");
+
+        Service service = MutableService.build(Service.createId("svcId"), DataSourceID.openRailData);
+        Trip trip = MutableTrip.build(Trip.createId("tripId"), "headSign", service, testRoute);
+
+        List<Integer> stopCallIndexes = Arrays.asList(1,2,3,4);
+
+        Station firstStation = MarketStreet.fakeWithPlatform(1);
+
+        VehicleStage vehicleStage = new VehicleStage(firstStation, testRoute,
+                TransportMode.Train, trip, TramTime.of(0, 0), Bury.fake(),
+                stopCallIndexes
+        );
+        vehicleStage.setCost(Duration.ofMinutes(5));
+
+        vehicleStage.setBoardingPlatform(TestEnv.findOnlyPlatform(firstStation));
+
+        EasyMock.expect(stationDTOFactory.createLocationRefWithPosition(firstStation)).
+                andStubReturn(new LocationRefWithPosition(firstStation));
+        EasyMock.expect(stationDTOFactory.createLocationRefWithPosition(Bury.fake())).
+                andReturn(new LocationRefWithPosition(Bury.fake()));
+
+        EasyMock.expect(railHeadsignFactory.getFor(vehicleStage)).andReturn("trainHeadSign");
+
+        replayAll();
+        SimpleStageDTO stageDTO = factory.build(vehicleStage, TravelAction.Board, when);
+        verifyAll();
+
+        checkValues(vehicleStage, stageDTO, true, TravelAction.Board, "trainHeadSign");
+
+        assertTrue(stageDTO instanceof VehicleStageDTO);
+
+        VehicleStageDTO vehicleStageDTO = (VehicleStageDTO) stageDTO;
+
+        assertEquals(IdForDTO.createFor(trip), vehicleStageDTO.getTripId());
+    }
+
+    private void checkValues(TransportStage<?,?> stage, SimpleStageDTO dto, boolean hasPlatform, TravelAction action,
+                             String expectedHeadsign) {
         assertEquals(IdForDTO.createFor(stage.getActionStation()), dto.getActionStation().getId());
         assertEquals(stage.getMode(), dto.getMode());
         assertEquals(stage.getFirstDepartureTime().toDate(when), dto.getFirstDepartureTime());
@@ -133,7 +179,7 @@ class StageDTOFactoryTest extends EasyMockSupport {
         assertEquals(stage.getExpectedArrivalTime().toDate(when), dto.getExpectedArrivalTime());
         assertEquals(stage.getDuration(), Duration.ofMinutes(dto.getDuration()));
         assertEquals(IdForDTO.createFor(stage.getFirstStation()), dto.getFirstStation().getId());
-        assertEquals(stage.getHeadSign(), dto.getHeadSign());
+        assertEquals(expectedHeadsign, dto.getHeadSign());
 
         assertEquals(stage.getRoute().getName(), dto.getRoute().getRouteName());
         assertEquals(stage.getRoute().getShortName(), dto.getRoute().getShortName());

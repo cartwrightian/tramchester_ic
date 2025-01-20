@@ -9,6 +9,7 @@ import com.tramchester.dataimport.rail.ExtractAgencyCallingPointsFromLocationRec
 import com.tramchester.dataimport.rail.ProvidesRailTimetableRecords;
 import com.tramchester.dataimport.rail.RailRouteIDBuilder;
 import com.tramchester.domain.Agency;
+import com.tramchester.domain.Route;
 import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.RailRouteId;
@@ -27,9 +28,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /***
- * Used to create initial view of rail routes as part of rail data import, not expected to be used apart from this and in tests
+ * Used to create view of rail routes as part of rail data import
  * NOTE:
- * is used as part of TransportData load so cannot depend (via dep injection) on that data, hence ExtractAgencyCallingPointsFromLocationRecords
+ * is used as part of TransportData load so cannot depend (via dep injection) on that data, hence
+ * ExtractAgencyCallingPointsFromLocationRecords being used here
  */
 @LazySingleton
 public class RailRouteIds implements ReportsCacheStats, RailRouteIdRepository {
@@ -94,25 +96,25 @@ public class RailRouteIds implements ReportsCacheStats, RailRouteIdRepository {
         loadedCallingPoints.clear();
     }
 
-    private void createRouteIdsFor(List<RailRouteCallingPoints> agencyCallingPoints) {
+    private void createRouteIdsFor(final List<RailRouteCallingPoints> agencyCallingPoints) {
 
         logger.info("Create possible route ids for " + agencyCallingPoints.size() + " calling points combinations");
 
         // efficiency: group calling points by agency id
-        Map<IdFor<Agency>, List<RailRouteCallingPoints>> callingPointsByAgency = new HashMap<>();
+        final Map<IdFor<Agency>, List<RailRouteCallingPoints>> callingPointsByAgency = new HashMap<>();
 
         agencyCallingPoints.forEach(points -> {
-            IdFor<Agency> agencyId = points.getAgencyId();
+            final IdFor<Agency> agencyId = points.getAgencyId();
             if (!callingPointsByAgency.containsKey(agencyId)) {
                 callingPointsByAgency.put(agencyId, new ArrayList<>());
             }
             callingPointsByAgency.get(agencyId).add(points);
         });
 
-        List<Integer> totals = new ArrayList<>();
+        final List<Integer> totals = new ArrayList<>();
 
         callingPointsByAgency.forEach((agencyId, callingPoints) -> {
-            Set<RailRouteCallingPointsWithRouteId> results = railRouteIDBuilder.getRouteIdsFor(agencyId, callingPoints);
+            final Set<RailRouteCallingPointsWithRouteId> results = railRouteIDBuilder.getRouteIdsFor(agencyId, callingPoints);
             routeIdsForAgency.put(agencyId, results);
             totals.add(results.size());
         });
@@ -131,18 +133,26 @@ public class RailRouteIds implements ReportsCacheStats, RailRouteIdRepository {
      * @return the MutableRoute to use
      */
     @Override
-    public RailRouteId getRouteIdFor(IdFor<Agency> agencyId, List<Station> callingStations) {
+    public RailRouteId getRouteIdFor(final IdFor<Agency> agencyId, final List<Station> callingStations) {
         // to a list, order matters
-        List<IdFor<Station>> callingStationsIds = callingStations.stream().map(Station::getId).collect(Collectors.toList());
+        final List<IdFor<Station>> callingStationsIds = callingStations.stream().map(Station::getId).collect(Collectors.toList());
 
-        RailRouteCallingPoints agencyCallingPoints = new RailRouteCallingPoints(agencyId, callingStationsIds);
+        final RailRouteCallingPoints agencyCallingPoints = new RailRouteCallingPoints(agencyId, callingStationsIds);
         return cachedIds.get(agencyCallingPoints, unused -> getRouteId(agencyCallingPoints));
     }
 
+    @Override
+    public RailRouteCallingPointsWithRouteId find(IdFor<Agency> agencyId, IdFor<Route> routeId) {
+        Set<RailRouteCallingPointsWithRouteId> forAgency = routeIdsForAgency.get(agencyId);
+        Optional<RailRouteCallingPointsWithRouteId> find = forAgency.stream().
+                filter(callingPoints -> callingPoints.routeId.equals(routeId)).findFirst();
+        return find.orElse(null);
+    }
+
     /** test support **/
-    public RailRouteId getRouteIdUncached(IdFor<Agency> agencyId, List<Station> callingStations) {
-        List<IdFor<Station>> callingStationsIds = callingStations.stream().map(Station::getId).collect(Collectors.toList());
-        RailRouteCallingPoints agencyCallingPoints = new RailRouteCallingPoints(agencyId, callingStationsIds);
+    public RailRouteId getRouteIdUncached(final IdFor<Agency> agencyId, final List<Station> callingStations) {
+        final List<IdFor<Station>> callingStationsIds = callingStations.stream().map(Station::getId).collect(Collectors.toList());
+        final RailRouteCallingPoints agencyCallingPoints = new RailRouteCallingPoints(agencyId, callingStationsIds);
         return getRouteId(agencyCallingPoints);
     }
 
@@ -155,9 +165,9 @@ public class RailRouteIds implements ReportsCacheStats, RailRouteIdRepository {
      * @param agencyCallingPoints places the route calls at
      * @return an id for the route
      */
-    public RailRouteId getRouteId(RailRouteCallingPoints agencyCallingPoints) {
+    public RailRouteId getRouteId(final RailRouteCallingPoints agencyCallingPoints) {
 
-        IdFor<Agency> agencyId = agencyCallingPoints.getAgencyId();
+        final IdFor<Agency> agencyId = agencyCallingPoints.getAgencyId();
 
         if (!routeIdsForAgency.containsKey(agencyId)) {
             Set<IdFor<Agency>> ids = routeIdsForAgency.keySet();
@@ -211,20 +221,13 @@ public class RailRouteIds implements ReportsCacheStats, RailRouteIdRepository {
                 sum();
     }
 
-    public Set<RailRouteId> getFor(IdFor<Station> begin, IdFor<Station> end) {
+    public Set<RailRouteId> getFor(final IdFor<Station> begin, final IdFor<Station> end) {
         final StationIdPair pair = StationIdPair.of(begin, end);
         return routeIdsForAgency.values().stream().flatMap(Collection::stream).
                 filter(callingPointsWithRouteId -> callingPointsWithRouteId.getBeginEnd().equals(pair)).
                 map(callingPointsWithRouteId -> callingPointsWithRouteId.routeId).
                 collect(Collectors.toSet());
     }
-
-//    public Set<RailRouteId> getAllIds() {
-//        return routeIdsForAgency.values().stream().
-//                flatMap(Collection::stream).collect(Collectors.toSet()).
-//                stream().map(RailRouteCallingPointsWithRouteId::getRouteId).
-//                collect(Collectors.toSet());
-//    }
 
     public static class RailRouteCallingPointsWithRouteId {
 

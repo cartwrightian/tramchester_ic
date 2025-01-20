@@ -84,7 +84,7 @@ public class GMRailTransportDataTest {
         List<Service> services = new ArrayList<>(dataContainer.getServices());
         assertEquals(1, services.size());
 
-        Service service = services.get(0);
+        Service service = services.getFirst();
 
         assertEquals(TramTime.of(7,29), service.getStartTime());
         assertEquals(TramTime.of(7,45), service.getFinishTime());
@@ -95,13 +95,14 @@ public class GMRailTransportDataTest {
 
         assertEquals(1, trips.size());
 
-        Trip trip = trips.get(0);
+        Trip trip = trips.getFirst();
 
         StopCalls calls = trip.getStopCalls();
         assertEquals(2, calls.numberOfCallingPoints());
 
         assertEquals(ManchesterPiccadilly.getId(), calls.getFirstStop().getStationId());
         assertEquals(ManchesterAirport.getId(), calls.getLastStop().getStationId());
+
     }
 
     @Test
@@ -189,7 +190,7 @@ public class GMRailTransportDataTest {
 
         assertEquals(1, trips.size());
 
-        Trip trip = trips.get(0);
+        Trip trip = trips.getFirst();
 
         StopCalls calls = trip.getStopCalls();
         assertEquals(2, calls.numberOfCallingPoints());
@@ -197,7 +198,7 @@ public class GMRailTransportDataTest {
         assertEquals(Station.createId("BOLTON"), calls.getFirstStop().getStationId());
         assertEquals(ManchesterPiccadilly.getId(), calls.getLastStop().getStationId());
 
-        Service service = services.get(0);
+        Service service = services.getFirst();
 
         assertEquals(TramTime.of(23,26), service.getStartTime());
         assertEquals(TramTime.of(23,54), service.getFinishTime());

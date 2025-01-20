@@ -27,10 +27,10 @@ public class JourneyResourceTestFacade {
     private final StationRepository stationRepository;
     private final APIClientFactory factory;
 
-    public JourneyResourceTestFacade(IntegrationAppExtension appExtension) {
-        App app =  appExtension.getApplication();
+    public JourneyResourceTestFacade(final IntegrationAppExtension appExtension) {
+        final App app =  appExtension.getApplication();
         stationRepository = app.getDependencies().get(StationRepository.class);
-        TramchesterConfig config = app.getDependencies().get(TramchesterConfig.class);
+        final TramchesterConfig config = app.getDependencies().get(TramchesterConfig.class);
         if (!config.getPlanningEnabled()) {
             throw new RuntimeException("Planning is not enabled!");
         }
@@ -73,14 +73,14 @@ public class JourneyResourceTestFacade {
         return parseStream.receive(response, inputStream);
     }
 
-    public JourneyPlanRepresentation getJourneyPlan(JourneyQueryDTO query) {
-        Response response = getResponse(false, Collections.emptyList(), query);
+    public JourneyPlanRepresentation getJourneyPlan(final JourneyQueryDTO query) {
+        final Response response = getResponse(false, Collections.emptyList(), query);
 
         Assertions.assertEquals(200, response.getStatus());
         return response.readEntity(JourneyPlanRepresentation.class);
     }
 
-    public Response getResponse(boolean streamed, List<Cookie> cookies, JourneyQueryDTO query) {
+    public Response getResponse(final boolean streamed, final List<Cookie> cookies, final JourneyQueryDTO query) {
         final String endpoint = streamed ? "journey/streamed" : "journey";
         return APIClient.postAPIRequest(factory, endpoint, query, cookies);
     }

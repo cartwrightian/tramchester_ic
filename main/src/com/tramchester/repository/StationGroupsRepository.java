@@ -142,7 +142,7 @@ public class StationGroupsRepository {
 
         final String areaName;
         final NPTGLocality locality;
-        if (nptgRepository.hasLocaility(localityId)) {
+        if (nptgRepository.hasLocality(localityId)) {
             locality = nptgRepository.get(localityId);
             areaName = locality.getLocalityName();
         } else {

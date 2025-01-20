@@ -34,8 +34,8 @@ public class RailRouteCallingPoints implements Comparable<RailRouteCallingPoints
         if (callingPoints.size() < 2) {
             throw new RuntimeException("Not enough calling points for " + callingPoints);
         }
-        final IdFor<Station> first = callingPoints.get(0);
-        final IdFor<Station> last = callingPoints.get(callingPoints.size() - 1);
+        final IdFor<Station> first = callingPoints.getFirst();
+        final IdFor<Station> last = callingPoints.getLast();
         return StationIdPair.of(first, last);
     }
 

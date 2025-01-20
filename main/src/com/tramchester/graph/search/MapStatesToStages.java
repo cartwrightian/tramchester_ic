@@ -318,7 +318,8 @@ class MapStatesToStages implements JourneyStateUpdate {
             this.boardingPlatformId = boardingPlatformId;
         }
 
-        public VehicleStage createStage(final GraphNode routeStationNode, final Duration totalCost, final IdFor<Trip> tripId, final TransportMode mode) {
+        public VehicleStage createStage(final GraphNode routeStationNode, final Duration totalCost, final IdFor<Trip> tripId,
+                                        final TransportMode mode) {
             final IdFor<Station> lastStationId = routeStationNode.getStationId();
             final Duration cost = totalCost.minus(costOffsetAtBoarding);
 
@@ -334,6 +335,7 @@ class MapStatesToStages implements JourneyStateUpdate {
             final VehicleStage vehicleStage = new VehicleStage(firstStation, trip.getRoute(), mode, trip, boardingTime,
                     lastStation, stopSequenceNumbers);
             vehicleStage.setCost(cost);
+
             if (boardingPlatformId != null) {
                 if (platformRepository.hasPlatformId(boardingPlatformId)) {
                     final Platform platform = platformRepository.getPlatformById(boardingPlatformId);

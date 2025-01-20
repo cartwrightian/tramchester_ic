@@ -117,9 +117,10 @@ public class JourneyPlannerResource extends UsesRecentCookie implements APIResou
 
             // duplicates where same path and timings, just different change points
             final Set<JourneyDTO> journeyDTOS = journeys.stream().
-                    map(journey -> journeyToDTOMapper.createJourneyDTO(journey,queryTramDate)).collect(Collectors.toSet());
+                    map(journey -> journeyToDTOMapper.createJourneyDTO(journey,queryTramDate)).
+                    collect(Collectors.toSet());
             final Set<JourneyDTO> filtered = duplicateFilter.apply(journeyDTOS);
-            int diff = journeyDTOS.size()-filtered.size();
+            final int diff = journeyDTOS.size()-filtered.size();
             if (diff!=0) {
                 logger.info(format("Filtered out %s of %s journeys", diff, journeyDTOS.size()));
             }

@@ -8,17 +8,17 @@ public class APIClientFactory {
     private final Client client;
     private final String url;
 
-    public APIClientFactory(IntegrationAppExtension appExtension) {
+    public APIClientFactory(final IntegrationAppExtension appExtension) {
         client = appExtension.client();
         this.url = "http://localhost:" + appExtension.getLocalPort();
     }
 
-    public APIClientFactory(AcceptanceAppExtenstion appExtension) {
+    public APIClientFactory(final AcceptanceAppExtenstion appExtension) {
         client = appExtension.client();
         this.url = appExtension.getUrl();
     }
 
-    public APIClient clientFor(String endPoint) {
+    public APIClient clientFor(final String endPoint) {
         return new APIClient(client, url, endPoint);
     }
 }

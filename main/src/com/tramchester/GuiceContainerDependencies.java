@@ -24,7 +24,7 @@ public class GuiceContainerDependencies implements ComponentContainer {
 
     private Injector injector;
 
-    public GuiceContainerDependencies(List<AbstractModule> moduleList) {
+    public GuiceContainerDependencies(final List<AbstractModule> moduleList) {
         reflections = new Reflections(App.class.getPackageName());
         injector = LifecycleInjector.builder().
                 withModules(moduleList).build().
@@ -39,7 +39,7 @@ public class GuiceContainerDependencies implements ComponentContainer {
         }
 
         logger.info("Start components");
-        LifecycleManager manager = injector.getInstance(LifecycleManager.class);
+        final LifecycleManager manager = injector.getInstance(LifecycleManager.class);
         try {
             manager.start();
         } catch (Exception e) {
@@ -57,10 +57,10 @@ public class GuiceContainerDependencies implements ComponentContainer {
     }
 
     public Set<Class<? extends APIResource>> getResources() {
-        Set<Class<? extends APIResource>> apiResources = reflections.getSubTypesOf(APIResource.class);
-        Set<Class<?>> havePath = reflections.getTypesAnnotatedWith(Path.class);
+        final Set<Class<? extends APIResource>> apiResources = reflections.getSubTypesOf(APIResource.class);
+        final Set<Class<?>> havePath = reflections.getTypesAnnotatedWith(Path.class);
 
-        Set<Class<? extends APIResource>> pathMissing = apiResources.stream().
+        final Set<Class<? extends APIResource>> pathMissing = apiResources.stream().
                 filter(apiType -> !havePath.contains(apiType)).collect(Collectors.toSet());
         if (!pathMissing.isEmpty()) {
             final String msg = "The following API resources lack a path: " + pathMissing;
@@ -68,7 +68,7 @@ public class GuiceContainerDependencies implements ComponentContainer {
             throw new RuntimeException(msg);
         }
 
-        Set<Class<?>> pathNotAPIResource = havePath.stream().
+        final Set<Class<?>> pathNotAPIResource = havePath.stream().
                 filter(hasPathType -> !apiResources.contains(hasPathType)).collect(Collectors.toSet());
         if (!pathNotAPIResource.isEmpty()) {
             final String msg = "The following Path annotated classes don't implement APIResource: " + pathNotAPIResource;
@@ -79,9 +79,9 @@ public class GuiceContainerDependencies implements ComponentContainer {
         return apiResources;
     }
 
-    public void registerHealthchecksInto(HealthCheckRegistry healthChecks) {
+    public void registerHealthchecksInto(final HealthCheckRegistry healthChecks) {
         logger.info("Register healthchecks");
-        RegistersHealthchecks instance = get(RegistersHealthchecks.class);
+        final RegistersHealthchecks instance = get(RegistersHealthchecks.class);
         instance.registerAllInto(healthChecks);
     }
 
@@ -122,6 +122,5 @@ public class GuiceContainerDependencies implements ComponentContainer {
     public <C> C get(Class<C> klass) {
         return injector.getInstance(klass);
     }
-
 
 }

@@ -73,12 +73,12 @@ public enum NaptanStopType {
         };
     }
 
-    public static EnumSet<NaptanStopType> getTypesFor(EnumSet<TransportMode> transportModes) {
+    public static EnumSet<NaptanStopType> getTypesFor(final EnumSet<TransportMode> transportModes) {
         Set<NaptanStopType> found = transportModes.stream().flatMap(mode -> getTypesFor(mode).stream()).collect(Collectors.toSet());
         return EnumSet.copyOf(found);
     }
 
-    private static Set<NaptanStopType> getTypesFor(TransportMode mode) {
+    public static Set<NaptanStopType> getTypesFor(TransportMode mode) {
         return Arrays.stream(values()).filter(type -> type.validFor(mode)).collect(Collectors.toSet());
     }
 

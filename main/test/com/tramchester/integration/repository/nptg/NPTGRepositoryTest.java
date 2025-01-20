@@ -61,7 +61,7 @@ public class NPTGRepositoryTest {
 
         IdFor<NPTGLocality> id = NPTGLocality.createId("N0074933");
 
-        assertTrue(repository.hasLocaility(id));
+        assertTrue(repository.hasLocality(id));
 
         NPTGLocality result = repository.get(id);
         assertEquals("Castlefield", result.getLocalityName());
@@ -74,7 +74,7 @@ public class NPTGRepositoryTest {
     void shouldGetLocalityOnEdgeOfGMBounds() {
         IdFor<NPTGLocality> id = NPTGLocality.createId("E0044412");
 
-        assertTrue(repository.hasLocaility(id));
+        assertTrue(repository.hasLocality(id));
         NPTGLocality result = repository.get(id);
         assertEquals("Cuddington", result.getLocalityName());
     }
@@ -84,7 +84,7 @@ public class NPTGRepositoryTest {
 
         IdFor<NPTGLocality> id = KnownLocality.LondonWestminster.getAreaId();
 
-        assertFalse(repository.hasLocaility(id));
+        assertFalse(repository.hasLocality(id));
     }
 
     @Test
@@ -109,7 +109,7 @@ public class NPTGRepositoryTest {
         assertFalse(inbounds.isEmpty());
 
         Set<NaptanRecord> missingRecords = inbounds.stream().
-                filter(naptanRecord -> !repository.hasLocaility(naptanRecord.getLocalityId())).
+                filter(naptanRecord -> !repository.hasLocality(naptanRecord.getLocalityId())).
                 collect(Collectors.toSet());
 
         assertEquals(0, missingRecords.size(), missingRecords.toString());

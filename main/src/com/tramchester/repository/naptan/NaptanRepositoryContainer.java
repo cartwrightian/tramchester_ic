@@ -4,8 +4,8 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.NaPTAN.NaptanXMLData;
 import com.tramchester.dataimport.NaPTAN.xml.NaptanDataCallbackImporter;
-import com.tramchester.dataimport.loader.files.ElementsFromXMLFile;
 import com.tramchester.dataimport.NaPTAN.xml.stopPoint.NaptanStopData;
+import com.tramchester.dataimport.loader.files.ElementsFromXMLFile;
 import com.tramchester.domain.id.*;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.NPTGLocality;
@@ -17,17 +17,18 @@ import com.tramchester.geo.GridPosition;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.mappers.Geography;
 import com.tramchester.repository.nptg.NPTGRepository;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import jakarta.inject.Inject;
 import java.util.*;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.tramchester.domain.reference.TransportMode.Train;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toSet;
 
@@ -37,10 +38,14 @@ import static java.util.stream.Collectors.toSet;
 public class NaptanRepositoryContainer implements NaptanRepository {
     private static final Logger logger = LoggerFactory.getLogger(NaptanRepositoryContainer.class);
 
+    private static final EnumSet<NaptanStopType> stopTypesForRail =
+            EnumSet.copyOf(NaptanStopType.getTypesFor(Train));
+
     private final NaptanDataCallbackImporter naptanDataImporter;
     private final NPTGRepository nptgRepository;
     private final Geography geography;
     private final TramchesterConfig config;
+    private final boolean hasTrain;
 
     private final IdMap<NaptanRecord> stops;
     private final Map<IdFor<Station>, IdFor<NaptanRecord>> tiplocToAtco;
@@ -60,6 +65,7 @@ public class NaptanRepositoryContainer implements NaptanRepository {
         tiplocToAtco = new HashMap<>();
         localities = Collections.emptyMap();
         requiredStopTypes = NaptanStopType.getTypesFor(config.getTransportModes());
+        hasTrain = config.getTransportModes().contains(Train);
     }
 
     @PostConstruct
@@ -93,7 +99,7 @@ public class NaptanRepositoryContainer implements NaptanRepository {
 
         logger.info("Loading data for " + bounds + " and range " + margin);
 
-        Consumer consumer = new Consumer(bounds, margin);
+        final Consumer consumer = new Consumer(bounds, margin);
 
         naptanDataImporter.loadData(consumer);
 
@@ -120,26 +126,35 @@ public class NaptanRepositoryContainer implements NaptanRepository {
             return false;
         }
 
-        if (stopData.getStopType()==NaptanStopType.unknown) {
+        final NaptanStopType stopType = stopData.getStopType();
+        if (stopType ==NaptanStopType.unknown) {
             logger.warn("Unknown stop type for " + stopData.getAtcoCode());
         }
 
-        if (!requiredStopTypes.contains(stopData.getStopType())) {
+        if (!requiredStopTypes.contains(stopType)) {
             return false;
         }
 
         if (filterBy(bounds, margin, stopData)) {
             final NaptanRecord record = createRecord(stopData);
-            stops.add(record);
-
-            if (stopData.hasRailInfo()) {
-                final IdFor<Station> id = Station.createId(stopData.getRailInfo().getTiploc());
-                tiplocToAtco.put(id, stopData.getAtcoCode());
-            }
-
+            addRecord(stopData, record);
             return true;
         } else {
+            // for rail we need rail records so can decode station IDs for route names etc.
+            if (hasTrain && stopTypesForRail.contains(stopType)) {
+                final NaptanRecord record = createRecord(stopData);
+                addRecord(stopData, record);
+            }
             return false;
+        }
+    }
+
+    private void addRecord(NaptanStopData stopData, NaptanRecord record) {
+        stops.add(record);
+
+        if (stopData.hasRailInfo()) {
+            final IdFor<Station> id = Station.createId(stopData.getRailInfo().getTiploc());
+            tiplocToAtco.put(id, stopData.getAtcoCode());
         }
     }
 
@@ -153,7 +168,7 @@ public class NaptanRepositoryContainer implements NaptanRepository {
         String suburb = original.getSuburb();
         String town = original.getTown();
 
-        if (nptgRepository.hasLocaility(localityCode)) {
+        if (nptgRepository.hasLocality(localityCode)) {
             final NPTGLocality locality = nptgRepository.get(localityCode);
             if (town.isBlank()) {
                 town = getTownFrom(locality);
@@ -169,7 +184,7 @@ public class NaptanRepositoryContainer implements NaptanRepository {
                 suburb, town, stopType, original.getStreet(), original.getIndicator(), original.isLocalityCentre());
     }
 
-    private String getSuburb(NPTGLocality locality) {
+    private String getSuburb(final NPTGLocality locality) {
         if (locality.getParentLocalityName().isEmpty()) {
             // not a suburb/subunit of somewhere else
             return "";
@@ -178,8 +193,8 @@ public class NaptanRepositoryContainer implements NaptanRepository {
         }
     }
 
-    private String getTownFrom(NPTGLocality locality) {
-        String parentLocalityName = locality.getParentLocalityName();
+    private String getTownFrom(final NPTGLocality locality) {
+        final String parentLocalityName = locality.getParentLocalityName();
         if (parentLocalityName.isEmpty()) {
             return locality.getLocalityName();
         } else {
@@ -231,7 +246,7 @@ public class NaptanRepositoryContainer implements NaptanRepository {
      * @return data if present, null otherwise
      */
     @Override
-    public NaptanRecord getForTiploc(IdFor<Station> railStationTiploc) {
+    public NaptanRecord getForTiploc(final IdFor<Station> railStationTiploc) {
         if (!tiplocToAtco.containsKey(railStationTiploc)) {
             return null;
         }
@@ -243,12 +258,12 @@ public class NaptanRepositoryContainer implements NaptanRepository {
     }
 
     @Override
-    public boolean containsTiploc(IdFor<Station> tiploc) {
+    public boolean containsTiploc(final IdFor<Station> tiploc) {
         return tiplocToAtco.containsKey(tiploc);
     }
 
     @Override
-    public boolean containsLocality(IdFor<NPTGLocality> id) {
+    public boolean containsLocality(final IdFor<NPTGLocality> id) {
         return localities.containsKey(id);
     }
 
@@ -259,7 +274,7 @@ public class NaptanRepositoryContainer implements NaptanRepository {
      * @return matching record
      */
     @Override
-    public Set<NaptanRecord> getRecordsForLocality(IdFor<NPTGLocality> localityId) {
+    public Set<NaptanRecord> getRecordsForLocality(final IdFor<NPTGLocality> localityId) {
         return localities.get(localityId).stream().map(stops::get).collect(toSet());
     }
 
@@ -269,11 +284,11 @@ public class NaptanRepositoryContainer implements NaptanRepository {
      * @return A list of points on convex hull containing the points within the given area
      */
     @Override
-    public List<LatLong> getBoundaryFor(IdFor<NPTGLocality> localityId) {
+    public List<LatLong> getBoundaryFor(final IdFor<NPTGLocality> localityId) {
 
         final Set<NaptanRecord> records = getRecordsForLocality(localityId);
 
-        Stream<LatLong> points = records.stream().map(NaptanRecord::getLatLong);
+        final Stream<LatLong> points = records.stream().map(NaptanRecord::getLatLong);
 
         return geography.createBoundaryFor(points);
     }
@@ -291,7 +306,7 @@ public class NaptanRepositoryContainer implements NaptanRepository {
         }
 
         @Override
-        public void process(NaptanStopData element) {
+        public void process(final NaptanStopData element) {
             if (!consumeStop(element, bounds, margin)) {
                 skippedStop++;
             }
@@ -302,7 +317,7 @@ public class NaptanRepositoryContainer implements NaptanRepository {
             return NaptanStopData.class;
         }
 
-        public void logSkipped(Logger logger) {
+        public void logSkipped(final Logger logger) {
             if (skippedStop>0) {
                 logger.info("Skipped " + skippedStop + " stops");
             }

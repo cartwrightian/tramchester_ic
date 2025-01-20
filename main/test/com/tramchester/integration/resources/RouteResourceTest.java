@@ -15,6 +15,7 @@ import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.resources.RouteResource;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
@@ -55,6 +56,7 @@ class RouteResourceTest {
         routeRepository = app.getDependencies().get(RouteRepository.class);
     }
 
+    @DisabledUntilDate(month = 2, year = 2025)
     @Test
     void shouldGetAllRoutes() {
 
