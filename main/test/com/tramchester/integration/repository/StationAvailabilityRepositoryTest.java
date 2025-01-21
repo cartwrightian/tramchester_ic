@@ -174,6 +174,7 @@ public class StationAvailabilityRepositoryTest {
 
             TimeRange lateRange = TimeRangePartial.of(latestHour, maxwait, maxwait);
             Set<Station> notAvailableLate = stationRepository.getStations().stream().
+                    filter(station -> !UpcomingDates.hasClosure(station, date)).
                     filter(Location::isActive).
                     filter(station -> station.getTransportModes().contains(Tram)).
                     filter(station -> !closedStationRepository.isClosed(station, date)).
@@ -192,12 +193,12 @@ public class StationAvailabilityRepositoryTest {
 
         Duration maxwait = Duration.ofMinutes(config.getMaxWait());
 
-        UpcomingDates.getUpcomingDates().
-                filter(date -> !UpcomingDates.VictoriaBuryImprovementWorks.equals(date)).
-                forEach(date -> {
+        final TimeRange earlyRange = TimeRangePartial.of(earlistHour, maxwait, maxwait);
 
-            TimeRange earlyRange = TimeRangePartial.of(earlistHour, maxwait, maxwait);
+        UpcomingDates.getUpcomingDates().forEach(date -> {
+
             Set<Station> notAvailableEarly = stationRepository.getStations().stream().
+                    filter(station -> !UpcomingDates.hasClosure(station, date)).
                     filter(Location::isActive).
                     filter(station -> station.getTransportModes().contains(Tram)).
                     filter(station -> !closedStationRepository.isClosed(station, date)).

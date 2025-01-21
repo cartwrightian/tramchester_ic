@@ -108,11 +108,11 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
     }
 
     @Override
-    public int getNumberQueries() { return 1; }
+    public int getNumberQueries() { return 3; }
 
     @Override
     public int getQueryInterval() {
-        return 6;
+        return 10;
     }
 
     @Override

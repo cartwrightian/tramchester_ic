@@ -304,6 +304,10 @@ class ConfigMismatchTest {
         assertEquals(expected.getMaxJourneyDuration(), testConfig.getMaxJourneyDuration(), "MaxJourneyDuration");
         assertEquals(expected.getDepthFirst(), testConfig.getDepthFirst(), "depthFirst");
 
+        // TODO why were these excluded....?
+        assertEquals(expected.getQueryInterval(), testConfig.getQueryInterval(), "QueryInterval");
+        assertEquals(expected.getNumberQueries(), testConfig.getNumberQueries(), "NumberQueries");
+
         assertEquals(expected.redirectToSecure(), testConfig.redirectToSecure());
 
         assertEquals(expected.getBuildNumber(), testConfig.getBuildNumber());

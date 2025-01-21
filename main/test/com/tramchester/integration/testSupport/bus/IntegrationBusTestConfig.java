@@ -51,7 +51,7 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
     }
 
     @Override
-    public int getNumberQueries() { return 1; }
+    public int getNumberQueries() { return 3; }
 
     @Override
     public boolean getDepthFirst() {
@@ -60,7 +60,7 @@ public class IntegrationBusTestConfig extends IntegrationTestConfig {
 
     @Override
     public int getQueryInterval() {
-        return 15;
+        return 20;
     }
 
     @Override

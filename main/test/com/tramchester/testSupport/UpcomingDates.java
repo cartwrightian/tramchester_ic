@@ -5,8 +5,6 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.time.TimeRange;
-import com.tramchester.domain.time.TramTime;
 import com.tramchester.testSupport.reference.TramStations;
 
 import java.time.DayOfWeek;
@@ -34,9 +32,9 @@ public class UpcomingDates {
     // use helper methods that handle filtering (i.e. for Christmas) and conversion to dates
     static final int DAYS_AHEAD = 7;
 
-    public static TramDate VictoriaBuryImprovementWorks = TramDate.of(2025,1,19);
-    public static TimeRange VictoriaBuryImprovementWorksTiming = TimeRange.of(TramTime.of(4,0),
-            TramTime.of(10,0));
+//    public static TramDate VictoriaBuryImprovementWorks = TramDate.of(2025,1,19);
+//    public static TimeRange VictoriaBuryImprovementWorksTiming = TimeRange.of(TramTime.of(4,0),
+//            TramTime.of(10,0));
 
     public static TramDate PiccAshtonImprovementWorks = TramDate.of(2025,1,26);
 

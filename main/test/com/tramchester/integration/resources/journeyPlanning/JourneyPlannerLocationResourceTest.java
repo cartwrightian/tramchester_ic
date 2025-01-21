@@ -252,8 +252,16 @@ class JourneyPlannerLocationResourceTest {
         TramTime queryTime = TramTime.of(9, 0);
         Set<JourneyDTO> journeys = validateJourneyFromLocation(nearPiccGardens, TramStations.PiccadillyGardens,
                 queryTime, true, when);
-        journeys.forEach(journeyDTO -> assertTrue(journeyDTO.getFirstDepartureTime().isBefore(queryTime.toDate(when))));
+
+        journeys.forEach(journeyDTO -> {
+            LocalDateTime queryTimeDate = journeyDTO.getQueryTime().toDate(journeyDTO.getQueryDate());
+
+            assertFalse(queryTimeDate.isAfter(journeyDTO.getFirstDepartureTime()),
+                    queryTimeDate + " is After dep time " + journeyDTO.getFirstDepartureTime() +
+                            " for journey " + journeyDTO);
+        });
     }
+
 
     @NotNull
     private LocalDateTime getDateTimeFor(TramDate when, int hour, int minute) {

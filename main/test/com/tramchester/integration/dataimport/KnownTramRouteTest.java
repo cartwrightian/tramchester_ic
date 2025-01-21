@@ -108,7 +108,7 @@ class KnownTramRouteTest {
         Map<TramDate, IdSet<Route>> unexpectedLoadedForDate = new HashMap<>();
 
         dateRange.stream().
-                filter(date -> !UpcomingDates.VictoriaBuryImprovementWorks.equals(date)).
+                //filter(date -> !UpcomingDates.VictoriaBuryImprovementWorks.equals(date)).
                 forEach(date -> {
             final IdSet<Route> known = KnownTramRoute.getFor(date).stream().map(KnownTramRoute::getId).collect(IdSet.idCollector());
             final Set<Route> loadedRoutes = getLoadedTramRoutes(date).filter(route -> !known.contains(route.getId())).collect(Collectors.toSet());
