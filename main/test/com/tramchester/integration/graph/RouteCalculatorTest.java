@@ -478,9 +478,14 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Cornbrook, StPetersSquare);
     }
 
-    @Disabled("Was passing due to mismatch on config for wait interval and number of queries")
+    @Disabled("Not an issue at front end")
     @Test
     void shouldNotGenerateDuplicateJourneysForSameReqNumChanges() {
+
+        // TODO Anyway to catch these at this stage?
+        // Can happen when query interval/number/wait combination mean we get the same trip twice, the
+        // filtering at the DTO level stops UI seeing the duplication but is there a chance for a small
+        // optimisation around TripID/Stage duplication during graph traversal?
 
         JourneyRequest request = standardJourneyRequest(when, TramTime.of(11, 45), 3, 2);
         List<Journey> journeys =  calculator.calculateRouteAsList(Bury, Altrincham, request);
