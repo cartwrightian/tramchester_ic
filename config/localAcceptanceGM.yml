@@ -79,7 +79,7 @@ calcTimeoutMillis: 3500
 bounds:
   minEastings: 370000
   minNorthings: 380000
-  maxEasting: 398500
+  maxEasting: 404903
   maxNorthings: 414500
 tfgmTramliveData:
   dataUrl: ${LIVEDATA_URL:- "sns://tramchester_live_data_ProdBlue"}

@@ -98,7 +98,7 @@ calcTimeoutMillis: 3500
 bounds:
   minEastings: 370000
   minNorthings: 380000
-  maxEasting: 398500
+  maxEasting: 404903
   maxNorthings: 414500
 planningEnabled: true
 neighbourConfig:

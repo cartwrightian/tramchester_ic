@@ -26,7 +26,6 @@ public class GraphDatabaseLifecycleManager {
     private final GraphDatabaseStoredVersions storedVersions;
 
     private boolean cleanDB;
-//    private final GraphIdFactory graphIdFactory;
 
     @Inject
     public GraphDatabaseLifecycleManager(TramchesterConfig configuration, GraphDatabaseServiceFactory serviceFactory,
@@ -34,10 +33,9 @@ public class GraphDatabaseLifecycleManager {
         this.graphDBConfig = configuration.getGraphDBConfig();
         this.serviceFactory = serviceFactory;
         this.storedVersions = storedVersions;
-//        this.graphIdFactory = graphIdFactory;
     }
 
-    public GraphDatabaseService startDatabase(DataSourceRepository dataSourceRepository, Path graphFile, boolean fileExists) {
+    public GraphDatabaseService startDatabase(final DataSourceRepository dataSourceRepository, final Path graphFile, final boolean fileExists) {
         logger.info("Create or load graph " + graphFile);
 
         if (fileExists) {

@@ -17,10 +17,12 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.geo.BoundingBox;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.TransportRelationshipTypes;
@@ -32,6 +34,7 @@ import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UnitTestOfGraphConfig;
+import com.tramchester.testSupport.reference.KnownLocations;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
 import org.jetbrains.annotations.NotNull;
@@ -124,6 +127,28 @@ public class GraphPropsTest {
         IdFor<Route> result = node.getRouteId();
 
         assertEquals(route.getId(), result);
+    }
+
+    @Test
+    void shouldSetAndGetBounds() {
+        BoundingBox boundingBox = TestEnv.getNationalTrainBounds();
+
+        node.setBounds(boundingBox);
+
+        BoundingBox result = node.getBounds();
+
+        assertEquals(boundingBox, result);
+    }
+
+    @Test
+    void shouldSetAndGetLatLongs() {
+        LatLong latLong = KnownLocations.nearShudehill.latLong();
+
+        node.setLatLong(latLong);
+
+        LatLong result = node.getLatLong();
+
+        assertEquals(latLong, result);
     }
 
     @Test
@@ -433,6 +458,7 @@ public class GraphPropsTest {
 
         assertEquals(duration, result);
     }
+
 
     @NotNull
     private IdFor<Route> getRailRouteId() {

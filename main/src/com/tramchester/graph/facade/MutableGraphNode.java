@@ -8,6 +8,7 @@ import com.tramchester.domain.places.*;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.geo.BoundingBox;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.HaveGraphProperties;
 import com.tramchester.graph.TransportRelationshipTypes;
@@ -107,6 +108,13 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
     public void setLatLong(final LatLong latLong) {
         node.setProperty(LATITUDE.getText(), latLong.getLat());
         node.setProperty(LONGITUDE.getText(), latLong.getLon());
+    }
+
+    public void setBounds(final BoundingBox bounds) {
+        node.setProperty(MAX_EASTING.getText(), bounds.getMaxEasting());
+        node.setProperty(MAX_NORTHING.getText(), bounds.getMaxNorthings());
+        node.setProperty(MIN_EASTING.getText(), bounds.getMinEastings());
+        node.setProperty(MIN_NORTHING.getText(), bounds.getMinNorthings());
     }
 
     public void setWalkId(final LatLong origin, final UUID uid) {
@@ -280,6 +288,15 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
         return Station.createId(text);
     }
 
+    public BoundingBox getBounds() {
+        int minEasting = (int) node.getProperty(MIN_EASTING.getText());
+        int minNorthing = (int) node.getProperty(MIN_NORTHING.getText());
+
+        int maxEasting = (int) node.getProperty(MAX_EASTING.getText());
+        int maxNorthing = (int) node.getProperty(MAX_NORTHING.getText());
+        return new BoundingBox(minEasting, minNorthing, maxEasting, maxNorthing);
+    }
+
     ///// utility ////////////////////////////////////////////////////////////
 
     @Override
@@ -302,5 +319,6 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
     public int hashCode() {
         return Objects.hash(graphNodeId);
     }
+
 
 }

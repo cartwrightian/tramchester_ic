@@ -3,6 +3,7 @@ package com.tramchester.unit.graph.databaseManagement;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.URLStatus;
 import com.tramchester.domain.DataSourceInfo;
+import com.tramchester.geo.BoundingBox;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
 import com.tramchester.graph.databaseManagement.GraphDatabaseStoredVersions;
@@ -62,10 +63,29 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
     }
 
     @Test
+    public void shouldOutOfDateIfBoundsMismatch() {
+
+        BoundingBox boundingBox = config.getBounds();
+
+        EasyMock.expect(transactionFactory.beginMutable(timeout)).andReturn(transaction);
+        EasyMock.expect(databaseMetaInfo.isNeighboursEnabled(transaction)).andReturn(config.hasNeighbourConfig());
+        EasyMock.expect(databaseMetaInfo.boundsMatch(transaction, boundingBox)).andReturn(false);
+        transaction.close();
+        EasyMock.expectLastCall();
+
+        replayAll();
+        boolean result = storedVersions.upToDate(transactionFactory, dataSourceRepository);
+        verifyAll();
+
+        assertFalse(result);
+    }
+
+    @Test
     public void shouldOutOfDateIfVersionMissingFromDB() {
 
         EasyMock.expect(transactionFactory.beginMutable(timeout)).andReturn(transaction);
         EasyMock.expect(databaseMetaInfo.isNeighboursEnabled(transaction)).andReturn(config.hasNeighbourConfig());
+        EasyMock.expect(databaseMetaInfo.boundsMatch(transaction, config.getBounds())).andReturn(true);
         EasyMock.expect(databaseMetaInfo.hasVersionInfo(transaction)).andReturn(false);
         transaction.close();
         EasyMock.expectLastCall();
@@ -92,6 +112,8 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
 
         EasyMock.expect(transactionFactory.beginMutable(timeout)).andReturn(transaction);
         EasyMock.expect(databaseMetaInfo.isNeighboursEnabled(transaction)).andReturn(config.hasNeighbourConfig());
+        EasyMock.expect(databaseMetaInfo.boundsMatch(transaction, config.getBounds())).andReturn(true);
+
         EasyMock.expect(databaseMetaInfo.hasVersionInfo(transaction)).andReturn(true);
         EasyMock.expect(databaseMetaInfo.getVersions(transaction)).andReturn(versionMap);
         transaction.close();
@@ -118,6 +140,7 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
 
         EasyMock.expect(transactionFactory.beginMutable(timeout)).andReturn(transaction);
         EasyMock.expect(databaseMetaInfo.isNeighboursEnabled(transaction)).andReturn(config.hasNeighbourConfig());
+        EasyMock.expect(databaseMetaInfo.boundsMatch(transaction, config.getBounds())).andReturn(true);
         EasyMock.expect(databaseMetaInfo.hasVersionInfo(transaction)).andReturn(true);
         EasyMock.expect(databaseMetaInfo.getVersions(transaction)).andReturn(versionMap);
         transaction.close();
@@ -143,6 +166,7 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
 
         EasyMock.expect(transactionFactory.beginMutable(timeout)).andReturn(transaction);
         EasyMock.expect(databaseMetaInfo.isNeighboursEnabled(transaction)).andReturn(config.hasNeighbourConfig());
+        EasyMock.expect(databaseMetaInfo.boundsMatch(transaction, config.getBounds())).andReturn(true);
         EasyMock.expect(databaseMetaInfo.hasVersionInfo(transaction)).andReturn(true);
         EasyMock.expect(databaseMetaInfo.getVersions(transaction)).andReturn(versionMap);
         transaction.close();
@@ -168,6 +192,7 @@ public class GraphDatabaseStoredVersionsTest extends EasyMockSupport {
 
         EasyMock.expect(transactionFactory.beginMutable(timeout)).andReturn(transaction);
         EasyMock.expect(databaseMetaInfo.isNeighboursEnabled(transaction)).andReturn(config.hasNeighbourConfig());
+        EasyMock.expect(databaseMetaInfo.boundsMatch(transaction, config.getBounds())).andReturn(true);
         EasyMock.expect(databaseMetaInfo.hasVersionInfo(transaction)).andReturn(true);
         EasyMock.expect(databaseMetaInfo.getVersions(transaction)).andReturn(versionMap);
         transaction.close();

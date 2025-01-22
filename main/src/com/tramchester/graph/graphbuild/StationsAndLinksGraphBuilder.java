@@ -1,7 +1,7 @@
 package com.tramchester.graph.graphbuild;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.config.HasGraphDBConfig;
+import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
@@ -15,6 +15,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.TimedTransaction;
+import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
 import com.tramchester.graph.facade.*;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.caching.GraphBuilderCache;
@@ -48,6 +49,8 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
     ///
 
     private final TransportData transportData;
+    private final GraphDatabaseMetaInfo databaseMetaInfo;
+    private final TramchesterConfig tramchesterConfig;
 
     // force construction via guide to generate ready token, needed where no direct code dependency on this class
     public Ready getReady() {
@@ -55,10 +58,13 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
     }
 
     @Inject
-    public StationsAndLinksGraphBuilder(GraphDatabase graphDatabase, HasGraphDBConfig config, GraphFilter graphFilter,
-                                        TransportData transportData, GraphBuilderCache builderCache) {
+    public StationsAndLinksGraphBuilder(GraphDatabase graphDatabase, TramchesterConfig config, GraphFilter graphFilter,
+                                        TransportData transportData, GraphBuilderCache builderCache,
+                                        GraphDatabaseMetaInfo databaseMetaInfo) {
         super(graphDatabase, graphFilter, config, builderCache);
+        this.tramchesterConfig = config;
         this.transportData = transportData;
+        this.databaseMetaInfo = databaseMetaInfo;
     }
 
     @PostConstruct
@@ -112,6 +118,9 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
                     addRouteStationsAndLinksFor(agency, stationAndPlatformNodeCache, routeStationNodeCache);
                 }
             }
+
+            addBoundsNode();
+
         } catch (Exception except) {
             logger.error("Exception while rebuilding the graph", except);
             throw new RuntimeException("Unable to build graph " + graphDatabase.getDbPath(), except);
@@ -120,6 +129,15 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         reportStats();
         System.gc();
         logMemory("After graph build");
+    }
+
+    private void addBoundsNode() {
+
+        try(MutableGraphTransaction tx = graphDatabase.beginTxMutable()) {
+            logger.info("Adding bounds to the DB");
+            databaseMetaInfo.setBounds(tx, tramchesterConfig.getBounds());
+            tx.commit();
+        }
     }
 
     private void addRouteStationsAndLinksFor(final Agency agency, final StationAndPlatformNodeCache stationAndPlatformNodeCache,

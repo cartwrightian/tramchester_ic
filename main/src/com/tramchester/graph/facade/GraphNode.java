@@ -12,6 +12,7 @@ import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.geo.BoundingBox;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import org.neo4j.graphdb.Direction;
@@ -45,6 +46,8 @@ public interface GraphNode {
     IdFor<StationGroup> getStationGroupId();
 
     IdFor<NPTGLocality> getAreaId();
+
+    BoundingBox getBounds();
 
     boolean hasTripId();
 

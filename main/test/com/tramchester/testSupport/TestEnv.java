@@ -189,7 +189,8 @@ public class TestEnv {
         return new BoundingBox(147588, 30599, 654747, 967921);
     }
 
-    public static BoundingBox getGreaterManchester() { return new BoundingBox(370000, 380000, 398500, 414500); }
+    public static BoundingBox getGreaterManchester() { return new BoundingBox(370000, 380000,
+            404903, 414500); }
 
     public static CacheMetrics.RegistersCacheMetrics NoopRegisterMetrics() {
         return new CacheMetrics.RegistersCacheMetrics() {

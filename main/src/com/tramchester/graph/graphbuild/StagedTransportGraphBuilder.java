@@ -66,6 +66,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
     private final GraphDatabaseMetaInfo databaseMetaInfo;
     private final StopCallRepository stopCallRepository;
     private final StationsWithDiversionRepository stationsWithDiversionRepository;
+    private final TramchesterConfig tramchesterConfig;
 
     // force construction via guice to generate ready token, needed where no direct code dependency on this class
     public Ready getReady() {
@@ -84,6 +85,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                                        GraphDatabaseMetaInfo databaseMetaInfo, StopCallRepository stopCallRepository,
                                        StationsWithDiversionRepository stationsWithDiversionRepository) {
         super(graphDatabase, graphFilter, config, builderCache);
+        this.tramchesterConfig = config;
         this.transportData = transportData;
         this.interchangeRepository = interchangeRepository;
         this.databaseMetaInfo = databaseMetaInfo;
@@ -133,7 +135,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                     });
 
             // only add version node if we manage to build graph, so partial builds that fail cause a rebuild
-            addVersionNode(graphDatabase, transportData);
+            addVersionNodes(graphDatabase, transportData);
 
         } catch (Exception except) {
             logger.error("Exception while rebuilding the graph", except);
@@ -145,6 +147,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         System.gc(); // for testing, was causing issue on the main test run
         logMemory("After graph build");
     }
+
+
 
     private void linkStationsAndPlatforms(final StationAndPlatformNodeCache stationAndPlatformNodeCache) {
 
@@ -158,7 +162,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         }
     }
 
-    private void addVersionNode(final GraphDatabase graphDatabase, final DataSourceRepository sourceRepository) {
+    private void addVersionNodes(final GraphDatabase graphDatabase, final DataSourceRepository sourceRepository) {
         if (!sourceRepository.hasDataSourceInfo()) {
             logger.error("No data source info was provided, version will not be set in the DB");
             return;

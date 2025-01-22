@@ -95,7 +95,8 @@ public class RailAndTramRouteToRouteCostsTest {
         int result = routeToRouteCosts.getPossibleMinChanges(tram(Altrincham), rail(Stockport),
                 allTransportModes, date, timeRange);
 
-        assertEquals(1, result);
+        // direct via altrincham rail
+        assertEquals(0, result);
     }
 
     //@Disabled("Is this realistic? Trains only but start at a tram station")
@@ -107,7 +108,7 @@ public class RailAndTramRouteToRouteCostsTest {
         int result = routeToRouteCosts.getPossibleMinChanges(tram(Altrincham), rail(Stockport),
                 EnumSet.of(Train), date, timeRange);
 
-        assertEquals(1, result);
+        assertEquals(0, result);
     }
 
     @Test

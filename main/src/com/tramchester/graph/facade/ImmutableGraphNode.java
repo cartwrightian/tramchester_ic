@@ -13,6 +13,7 @@ import com.tramchester.domain.places.StationGroup;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.geo.BoundingBox;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import org.neo4j.graphalgo.PathFinder;
@@ -184,6 +185,11 @@ public class ImmutableGraphNode implements GraphNode {
     @Override
     public IdFor<NPTGLocality> getAreaId() {
         return underlying.getAreaId();
+    }
+
+    @Override
+    public BoundingBox getBounds() {
+        return underlying.getBounds();
     }
 
     @Override

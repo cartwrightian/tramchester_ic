@@ -2,6 +2,7 @@ package com.tramchester.graph.databaseManagement;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.DataSourceInfo;
+import com.tramchester.geo.BoundingBox;
 import com.tramchester.graph.facade.ImmutableGraphNode;
 import com.tramchester.graph.facade.MutableGraphNode;
 import com.tramchester.graph.facade.MutableGraphTransaction;
@@ -11,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -36,7 +38,7 @@ public class GraphDatabaseMetaInfo {
         txn.createNode(GraphLabel.NEIGHBOURS_ENABLED);
     }
 
-    public Map<String, String> getVersions(MutableGraphTransaction txn) {
+    public Map<String, String> getVersions(final MutableGraphTransaction txn) {
         Stream<ImmutableGraphNode> query = txn.findNodes(GraphLabel.VERSION);
 
         Map<String, String> versions = new HashMap<>();
@@ -55,5 +57,43 @@ public class GraphDatabaseMetaInfo {
         MutableGraphNode node = tx.createNode(GraphLabel.VERSION);
         dataSourceInfo.forEach(node::set);
         logger.info("Set version data");
+    }
+
+    public boolean boundsMatch(MutableGraphTransaction txn, final BoundingBox boundingBox) {
+        final boolean hasBoundsNode = txn.hasAnyMatching(GraphLabel.BOUNDS);
+
+        if (!hasBoundsNode) {
+            logger.warn("No " + GraphLabel.BOUNDS + " node is present");
+            return false;
+        }
+
+        final List<ImmutableGraphNode> nodes = txn.findNodes(GraphLabel.BOUNDS).toList();
+        if (nodes.size()!=1) {
+            throw new RuntimeException("Wrong number of " + GraphLabel.BOUNDS + " nodes: " + nodes.size());
+        }
+
+        final ImmutableGraphNode node = nodes.getFirst();
+
+        final BoundingBox fromNode = node.getBounds();
+
+        final boolean match = boundingBox.equals(fromNode);
+        if (!match) {
+            logger.warn("Mismatch on bounds, expected " + boundingBox + " and got " + fromNode + " from DB");
+        }
+        return match;
+    }
+
+    public void setBounds(final MutableGraphTransaction transaction, final BoundingBox bounds) {
+        boolean hasBoundsNode = transaction.hasAnyMatching(GraphLabel.BOUNDS);
+
+        if (hasBoundsNode) {
+            // todo could this legit happen??
+            throw new RuntimeException("Bounds node already present");
+        }
+
+        logger.info("Set " + GraphLabel.BOUNDS + " to " + bounds);
+        final MutableGraphNode node = transaction.createNode(GraphLabel.BOUNDS);
+
+        node.setBounds(bounds);
     }
 }

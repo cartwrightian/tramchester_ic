@@ -2,12 +2,14 @@ package com.tramchester.unit.graph.databaseManagement;
 
 import com.tramchester.dataimport.URLStatus;
 import com.tramchester.domain.DataSourceInfo;
+import com.tramchester.geo.BoundingBox;
 import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
 import com.tramchester.graph.facade.ImmutableGraphNode;
 import com.tramchester.graph.facade.MutableGraphNode;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.repository.DataSourceRepository;
+import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,8 +19,7 @@ import org.neo4j.graphdb.Node;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static com.tramchester.domain.DataSourceID.naptanxml;
-import static com.tramchester.domain.DataSourceID.tfgm;
+import static com.tramchester.domain.DataSourceID.*;
 import static com.tramchester.domain.reference.TransportMode.Bus;
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static org.junit.jupiter.api.Assertions.*;
@@ -114,6 +115,54 @@ public class GraphDatabaseMetaInfoTest extends EasyMockSupport {
 
         replayAll();
         databaseMetaInfo.setNeighboursEnabled(transaction);
+        verifyAll();
+    }
+
+    @Test
+    void shouldGetBoundsMatch() {
+        ImmutableGraphNode graphNode = createMock(ImmutableGraphNode.class);
+        BoundingBox bounds = TestEnv.getGreaterManchester();
+
+        EasyMock.expect(transaction.hasAnyMatching(GraphLabel.BOUNDS)).andReturn(true);
+        EasyMock.expect(transaction.findNodes(GraphLabel.BOUNDS)).andReturn(Stream.of(graphNode));
+        EasyMock.expect(graphNode.getBounds()).andReturn(bounds);
+
+        replayAll();
+        boolean result = databaseMetaInfo.boundsMatch(transaction, bounds);
+        verifyAll();
+
+        assertTrue(result);
+    }
+
+    @Test
+    void shouldGetBoundsMisMatch() {
+        ImmutableGraphNode graphNode = createMock(ImmutableGraphNode.class);
+        BoundingBox boundsA = TestEnv.getGreaterManchester();
+        BoundingBox boundsB = TestEnv.getNationalTrainBounds();
+
+        EasyMock.expect(transaction.hasAnyMatching(GraphLabel.BOUNDS)).andReturn(true);
+        EasyMock.expect(transaction.findNodes(GraphLabel.BOUNDS)).andReturn(Stream.of(graphNode));
+        EasyMock.expect(graphNode.getBounds()).andReturn(boundsB);
+
+        replayAll();
+        boolean result = databaseMetaInfo.boundsMatch(transaction, boundsA);
+        verifyAll();
+
+        assertFalse(result);
+    }
+
+    @Test
+    void shouldCreateBoundsNode() {
+        BoundingBox bounds = TestEnv.getGreaterManchester();
+
+        MutableGraphNode graphNode = createMock(MutableGraphNode.class);
+        EasyMock.expect(transaction.hasAnyMatching(GraphLabel.BOUNDS)).andReturn(false);
+        EasyMock.expect(transaction.createNode(GraphLabel.BOUNDS)).andReturn(graphNode);
+        graphNode.setBounds(bounds);
+        EasyMock.expectLastCall();
+
+        replayAll();
+        databaseMetaInfo.setBounds(transaction, bounds);
         verifyAll();
     }
 

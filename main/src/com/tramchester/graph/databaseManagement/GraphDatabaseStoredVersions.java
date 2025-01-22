@@ -4,6 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.DataSourceInfo;
+import com.tramchester.geo.BoundingBox;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.facade.GraphTransactionFactory;
@@ -32,14 +33,19 @@ public class GraphDatabaseStoredVersions {
     }
 
     // NOTE: no GraphDatabase in this stage of the lifecycle, hence databaseServiceN
-    public boolean upToDate(GraphTransactionFactory transactionFactory, DataSourceRepository dataSourceRepository) {
+    public boolean upToDate(final GraphTransactionFactory transactionFactory, final DataSourceRepository dataSourceRepository) {
         logger.info("Checking graph version information ");
 
         // version -> flag
-        Map<DataSourceInfo, Boolean> upToDate = new HashMap<>();
+        final Map<DataSourceInfo, Boolean> upToDate = new HashMap<>();
         try(MutableGraphTransaction transaction = transactionFactory.beginMutable(GraphDatabase.DEFAULT_TXN_TIMEOUT)) {
 
             if (neighboursEnabledMismatch(transaction)) {
+                return false;
+            }
+
+            if (boundingBoxMismatch(transaction, config.getBounds())) {
+                logger.error("Mismatch on bounds, expected " + config.getBounds());
                 return false;
             }
 
@@ -79,6 +85,14 @@ public class GraphDatabaseStoredVersions {
             });
         }
         return upToDate.values().stream().allMatch(flag -> flag);
+    }
+
+    private boolean boundingBoxMismatch(final MutableGraphTransaction transaction, final BoundingBox bounds) {
+        final boolean match = databaseMetaInfo.boundsMatch(transaction, bounds);
+        if (!match) {
+            logger.warn("Mismatch on bounds, did not match " + bounds);
+        }
+        return !match;
     }
 
     private boolean neighboursEnabledMismatch(MutableGraphTransaction txn) {

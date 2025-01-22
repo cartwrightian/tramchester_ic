@@ -145,5 +145,14 @@ class CoordinateTransformsTest {
 
     }
 
+    @Test
+    void spikeEasternEdgeGlossop() {
+        LatLong latLong = new LatLong(53.4417259,-1.9276549);
+
+        GridPosition result = CoordinateTransforms.getGridPosition(latLong);
+
+        assertTrue(result.isValid());
+    }
+
 
 }

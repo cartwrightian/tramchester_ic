@@ -31,6 +31,7 @@ public enum GraphLabel implements Label {
     // meta labels for versions and feature flags
     VERSION,
     NEIGHBOURS_ENABLED,
+    BOUNDS,
     WALK_FOR_CLOSED_ENABLED,
     TEMP_WALKS_ADDED,
     COMPOSITES_ADDED,
