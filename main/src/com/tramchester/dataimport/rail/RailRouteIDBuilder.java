@@ -101,7 +101,7 @@ public class RailRouteIDBuilder {
                 map(railRoute -> new RailRouteIds.RailRouteCallingPointsWithRouteId(railRoute, getIdFor(railRoute))).
                 collect(Collectors.toList());
 
-        logger.info(format("Created %s rail route ids for %s %s for %s sets of calling points", railRoutesWithIds.size(), agencyId,
+        logger.debug(format("Created %s rail route ids for %s %s for %s sets of calling points", railRoutesWithIds.size(), agencyId,
                 beginEnd, matchingCallingPoints.size()));
 
         return railRoutesWithIds;

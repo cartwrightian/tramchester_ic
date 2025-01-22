@@ -139,14 +139,18 @@ public class NaptanRepositoryContainer implements NaptanRepository {
             final NaptanRecord record = createRecord(stopData);
             addRecord(stopData, record);
             return true;
-        } else {
-            // for rail we need rail records so can decode station IDs for route names etc.
-            if (hasTrain && stopTypesForRail.contains(stopType)) {
-                final NaptanRecord record = createRecord(stopData);
-                addRecord(stopData, record);
-            }
-            return false;
         }
+
+        if (hasTrain && stopTypesForRail.contains(stopType)) {
+            // when rail enabled we need rail records so can decode station IDs for route names etc.
+            // i.e. train from Manchester to London where we want to show final station name properly in the route
+            final NaptanRecord record = createRecord(stopData);
+            addRecord(stopData, record);
+            return true;
+        }
+
+        return false;
+
     }
 
     private void addRecord(NaptanStopData stopData, NaptanRecord record) {
@@ -177,7 +181,14 @@ public class NaptanRepositoryContainer implements NaptanRepository {
                 suburb = getSuburb(locality);
             }
         } else {
-            logger.warn(format("Naptan localityCode '%s' missing from nptg for acto %s", localityCode, atcoCode));
+            String msg = format("Naptan localityCode '%s' missing from nptg for acto %s and type %s", localityCode, atcoCode, original.getStopType());
+            if (stopTypesForRail.contains(stopType)) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug(msg);
+                }
+            } else {
+                logger.warn(msg);
+            }
         }
 
         return new NaptanRecord(atcoCode, localityCode, original.getCommonName(), original.getGridPosition(), original.getLatLong(),

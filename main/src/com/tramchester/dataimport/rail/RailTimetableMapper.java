@@ -601,13 +601,16 @@ public class RailTimetableMapper {
 
             if (!filter.isActive()) {
                 if (callingRecords.size() != intermediates.size()) {
-                    final Set<String> missing = callingRecords.stream().
-                            filter(record -> !stationRecords.hasStationRecord(record)).
-                            map(IntermediateLocation::getTiplocCode).
-                            collect(Collectors.toSet());
-                    logger.warn(format("Did not match all calling points (got %s of %s) for %s Missing: %s",
-                            intermediates.size(), callingRecords.size(), rawService.basicScheduleRecord,
-                            missing));
+                    // replacement bus often seem to be missing 1 station
+                    if (rawService.basicScheduleRecord.getTrainCategory()!=TrainCategory.BusReplacement) {
+                        final Set<String> missing = callingRecords.stream().
+                                filter(record -> !stationRecords.hasStationRecord(record)).
+                                map(IntermediateLocation::getTiplocCode).
+                                collect(Collectors.toSet());
+                        logger.warn(format("Did not match all calling points (got %s of %s) for %s Missing: %s",
+                                intermediates.size(), callingRecords.size(), rawService.basicScheduleRecord,
+                                missing));
+                    }
                 }
             }
 

@@ -81,7 +81,7 @@ public class NPTGRepository {
 
         dataLoader.loadData(new ElementsFromXMLFile.XmlElementConsumer<>() {
             @Override
-            public void process(NPTGLocalityXMLData element) {
+            public void process(final NPTGLocalityXMLData element) {
                 if (filterBy(bounds, initialMargin, element)) {
                     inBoundsRecords.add(element);
                 }
@@ -124,7 +124,7 @@ public class NPTGRepository {
             return "";
         }
         if (!names.containsKey(id)) {
-            logger.warn("name is missing for id " + id);
+            logger.warn("name is missing for " + id);
             return "";
         }
 
