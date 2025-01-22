@@ -197,6 +197,7 @@ public class RailAndTramRouteCalculatorTest {
 
     }
 
+    @Disabled("caught at DTO mapping stage")
     @Test
     void shouldNotGenerateDuplicateJourneysForSameReqNumChanges() {
 

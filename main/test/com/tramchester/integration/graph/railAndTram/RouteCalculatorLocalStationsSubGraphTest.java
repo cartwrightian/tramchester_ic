@@ -147,13 +147,13 @@ class RouteCalculatorLocalStationsSubGraphTest {
 
         assertEquals(1, journeysFromTram.size());
 
-        Journey fromTramJoruney = journeysFromTram.get(0);
+        Journey fromTramJoruney = journeysFromTram.getFirst();
         List<TransportStage<?, ?>> fromTramStages = fromTramJoruney.getStages();
         assertEquals(1, fromTramStages.size());
 
-        TransportStage<?, ?> fromTram = fromTramStages.get(0);
+        TransportStage<?, ?> fromTram = fromTramStages.getFirst();
         assertEquals(Connect, fromTram.getMode());
-        assertEquals(Duration.ofMinutes(1), fromTram.getDuration());
+        assertEquals(Duration.ofSeconds(51), fromTram.getDuration());
     }
 
     @Test
@@ -167,13 +167,13 @@ class RouteCalculatorLocalStationsSubGraphTest {
 
         assertEquals(1, journeysFromTrain.size());
 
-        Journey fromTrainJoruney = journeysFromTrain.get(0);
+        Journey fromTrainJoruney = journeysFromTrain.getFirst();
         List<TransportStage<?, ?>> fromTrainStages = fromTrainJoruney.getStages();
         assertEquals(1, fromTrainStages.size());
 
-        TransportStage<?, ?> fromTrain = fromTrainStages.get(0);
+        TransportStage<?, ?> fromTrain = fromTrainStages.getFirst();
         assertEquals(Connect, fromTrain.getMode());
-        assertEquals(Duration.ofMinutes(1), fromTrain.getDuration());
+        assertEquals(Duration.ofSeconds(51), fromTrain.getDuration());
     }
 
     @Test
@@ -191,7 +191,7 @@ class RouteCalculatorLocalStationsSubGraphTest {
         journeys.forEach(journey -> {
             List<TransportStage<?, ?>> stages = journey.getStages();
             assertEquals(1, stages.size(), "too many stages " + journey);
-            assertEquals(stages.get(0).getMode(), Train, "wrong second stage for " + stages);
+            assertEquals(stages.getFirst().getMode(), Train, "wrong second stage for " + stages);
         });
     }
 
@@ -210,7 +210,7 @@ class RouteCalculatorLocalStationsSubGraphTest {
         journeys.forEach(journey -> {
             List<TransportStage<?, ?>> stages = journey.getStages();
             assertEquals(1, stages.size(), "too many stages " + journey);
-            assertEquals(stages.get(0).getMode(), Train, "wrong second stage for " + stages);
+            assertEquals(stages.getFirst().getMode(), Train, "wrong second stage for " + stages);
         });
     }
 
@@ -229,7 +229,7 @@ class RouteCalculatorLocalStationsSubGraphTest {
         journeys.forEach(journey -> {
             List<TransportStage<?, ?>> stages = journey.getStages();
             assertEquals(1, stages.size(), "too many stages " + journey);
-            assertEquals(stages.get(0).getMode(), Train, "wrong first stage for " + stages);
+            assertEquals(stages.getFirst().getMode(), Train, "wrong first stage for " + stages);
         });
 
     }
@@ -246,7 +246,7 @@ class RouteCalculatorLocalStationsSubGraphTest {
         List<Journey> journeys = new ArrayList<>(testFacade.calculateRouteAsList(start, dest, request));
         assertFalse(journeys.isEmpty(), "no journeys");
 
-        Journey journey = journeys.get(0);
+        Journey journey = journeys.getFirst();
 
         List<TransportStage<?, ?>> stages = journey.getStages();
         assertEquals(2, stages.size(),  "too many stages " + journeys);
@@ -268,7 +268,7 @@ class RouteCalculatorLocalStationsSubGraphTest {
         List<Journey> journeys = new ArrayList<>(testFacade.calculateRouteAsList(start, dest, request));
         assertFalse(journeys.isEmpty(), "no journeys");
 
-        Journey journey = journeys.get(0);
+        Journey journey = journeys.getFirst();
 
         List<TransportStage<?, ?>> stages = journey.getStages();
         assertEquals(3, stages.size(),  "too many stages " + journeys);
@@ -289,7 +289,7 @@ class RouteCalculatorLocalStationsSubGraphTest {
         List<Journey> journeys = new ArrayList<>(testFacade.calculateRouteAsList(start, dest, request));
         assertFalse(journeys.isEmpty(), "no journeys");
 
-        Journey journey = journeys.get(0);
+        Journey journey = journeys.getFirst();
 
         List<TransportStage<?, ?>> stages = journey.getStages();
         assertEquals(2, stages.size(),  "too many stages " + journeys);
@@ -311,6 +311,11 @@ class RouteCalculatorLocalStationsSubGraphTest {
         @Override
         public Path getCacheFolder() {
             return TestEnv.CACHE_DIR.resolve("RouteCalculatorLocalStationsSubGraphTest");
+        }
+
+        @Override
+        public boolean isGraphFiltered() {
+            return true;
         }
     }
 

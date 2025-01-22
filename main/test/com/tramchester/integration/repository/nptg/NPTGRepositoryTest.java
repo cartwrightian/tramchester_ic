@@ -103,6 +103,7 @@ public class NPTGRepositoryTest {
         NaptanRepository naptanRepository = componentContainer.get(NaptanRepository.class);
 
         Set<NaptanRecord> inbounds = naptanRepository.getAll().
+                filter(naptanRecord -> naptanRecord.getLatLong().isValid()).
                 filter(naptanRecord -> TestEnv.getGreaterManchesterBounds().contained(naptanRecord.getLatLong())).
                 collect(Collectors.toSet());
 

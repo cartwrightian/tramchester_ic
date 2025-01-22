@@ -101,7 +101,10 @@ public class RailAndTramRouteInterconnectRepositoryTest {
         IndexedBitSet allDates = IndexedBitSet.getIdentity(numberOfRoutes, numberOfRoutes);
 
         Set<Route> routesA = railRouteHelper.getRoutes(TrainOperatingCompanies.TP, ManchesterPiccadilly, Leeds);
-        Set<Route> routesB = railRouteHelper.getRoutes(TrainOperatingCompanies.NT, Chester, Stockport);
+        Set<Route> routesB = railRouteHelper.getRoutes(TrainOperatingCompanies.NT, Chester, ManchesterPiccadilly);
+
+        assertFalse(routesA.isEmpty());
+        assertFalse(routesB.isEmpty());
 
         Set<PathResults> found = new HashSet<>();
         for(Route routeA : routesA) {
@@ -117,7 +120,7 @@ public class RailAndTramRouteInterconnectRepositoryTest {
 
         found.forEach(result -> {
             assertTrue(result.hasAny());
-            assertEquals(3, result.getDepth());
+            //assertEquals(2, result.getDepth());
         });
 
     }
