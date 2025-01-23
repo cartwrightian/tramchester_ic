@@ -118,7 +118,8 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
             this.graphFilterActive = graphFilterActive;
         }
 
-        public void loadInto(TransportDataContainer dataContainer, BoundingBox bounds, RailStationRecordsRepository stationRecords) {
+        public void loadInto(final TransportDataContainer dataContainer, final BoundingBox bounds,
+                             final RailStationRecordsRepository stationRecords) {
 
             logger.info("Load timetable");
 
@@ -139,9 +140,6 @@ public class RailTransportDataFromFiles implements DirectDataSourceFactory.Popul
             recordStream.forEach(mapper::seen);
             mapper.reportDiagnostics();
 
-            // TODO ?
-            // Breaks testing and the overall lifecycle management approach, need another way......
-            //railRouteRepository.dispose();
         }
 
     }

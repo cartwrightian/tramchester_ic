@@ -30,7 +30,7 @@ public class RailStationCRSRepository implements CRSRepository {
         logger.info("Stopped");
     }
 
-    public void putCRS(Station station, String crs) {
+    public void putCRS(final Station station, final String crs) {
         final IdFor<Station> stationId = station.getId();
         if (crs.isBlank()) {
             logger.error("Attempt to insert blank CRS for station " + station.getId());

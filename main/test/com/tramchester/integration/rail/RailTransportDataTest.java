@@ -71,6 +71,55 @@ public class RailTransportDataTest {
     }
 
     @Test
+    public void shouldLoadServiceWithCallingPointWithoutStationRecord() {
+        String text = """
+                TIBATRSH 24528866ABATTERSEA PIER STAFF HALT 87239   0
+                BSNX139662502152502150000010 1XX1G98    124747000 EMU    100      B            N
+                BX         SNYSN003400
+                LOVICTRIC 0430 043017 BRV    TB
+                LIBATRSH  0434 0434H     04340434         T
+                LIBATRSPK           0435H00000000   DBF
+                LIPOUPRTJ           0436H00000000   UBS                    H
+                LICLPHMJC 0438H0439H     0439043915 DBS   T
+                LIBALHAM            0443H000000001
+                LISTRENJN           0445H00000000   SL
+                LISTRHCOM           0446 000000001
+                LISELHRST           0450H000000001
+                LIWNDMLBJ           0452 00000000   SL
+                LIECROYDN           0453 000000005  RVSSL                  H
+                LISCROYDN           0454H000000004  SL                    1H
+                LIPURLEY            0458 000000004
+                LISNSTJN            0459H00000000   SL
+                LIREDHILL           0505 00000000DML
+                LIEARLSWD           0506H000000002
+                LISALFDS            0508 000000002                         H
+                LTGTWK    0512 05123  SL TF""";
+
+        loadRailServicesFromText.loadInto(dataContainer, text);
+
+        Set<Service> services = dataContainer.getServices();
+        assertEquals(1, services.size());
+
+        Set<Trip> trips = dataContainer.getTrips();
+        assertEquals(1, trips.size());
+
+        Trip trip = trips.iterator().next();
+
+        StopCalls calls = trip.getStopCalls();
+        assertEquals(3, calls.numberOfCallingPoints(), calls.toString());
+
+        assertEquals(Station.createId("VICTRIC"), calls.getFirstStop().getStation().getId());
+        assertEquals(Station.createId("GTWK"), calls.getLastStop().getStation().getId());
+
+        List<Station> stations = calls.getStationSequence(true);
+
+        boolean found = stations.stream().anyMatch(station -> station.getId().equals(Station.createId("BATRSH")));
+        assertTrue(found);
+
+
+    }
+
+    @Test
     public void shouldLoadSingleServices() {
         String text = """
                 BSNY690052210092212040000001 POO2H4324  124673105 EMU    075      S            P

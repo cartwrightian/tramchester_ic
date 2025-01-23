@@ -3,6 +3,7 @@ package com.tramchester.dataimport.rail;
 import com.tramchester.dataimport.rail.records.BasicScheduleExtraDetails;
 import com.tramchester.dataimport.rail.records.RailLocationRecord;
 import com.tramchester.dataimport.rail.records.RailTimetableRecord;
+import com.tramchester.dataimport.rail.records.TIPLOCInsert;
 import com.tramchester.dataimport.rail.records.reference.LocationActivityCode;
 import com.tramchester.dataimport.rail.repository.RailRouteCallingPoints;
 import com.tramchester.dataimport.rail.repository.RailStationRecordsRepository;
@@ -50,32 +51,33 @@ public class ExtractAgencyCallingPointsFromLocationRecords {
         return extractor.agencyCallingPoints;
     }
 
-    private void processRecord(RailTimetableRecord record) {
+    private void processRecord(final RailTimetableRecord record) {
         switch (record.getRecordType()) {
             case BasicScheduleExtra -> seenBegin(record);
             case TerminatingLocation -> seenEnd(record);
             case OriginLocation, IntermediateLocation -> seenLocation(record);
+            case TiplocInsert -> stationRecordsRepository.add((TIPLOCInsert) record);
         }
     }
 
-    private void seenBegin(RailTimetableRecord record) {
+    private void seenBegin(final RailTimetableRecord record) {
         if (!currentAtocCode.isEmpty()) {
             throw new RuntimeException("Unexpected state, was still processing for " + currentAtocCode + " at " + record);
         }
 
-        BasicScheduleExtraDetails extraDetails = (BasicScheduleExtraDetails) record;
+        final BasicScheduleExtraDetails extraDetails = (BasicScheduleExtraDetails) record;
         currentAtocCode = extraDetails.getAtocCode();
     }
 
-    private void seenLocation(RailTimetableRecord record) {
-        RailLocationRecord locationRecord = (RailLocationRecord) record;
+    private void seenLocation(final RailTimetableRecord record) {
+        final RailLocationRecord locationRecord = (RailLocationRecord) record;
         if (LocationActivityCode.doesStop(((RailLocationRecord) record).getActivity())) {
             locations.add(locationRecord);
         }
     }
 
-    private void seenEnd(RailTimetableRecord record) {
-        RailLocationRecord locationRecord = (RailLocationRecord) record;
+    private void seenEnd(final RailTimetableRecord record) {
+        final RailLocationRecord locationRecord = (RailLocationRecord) record;
         locations.add(locationRecord);
         createAgencyCallingPoints();
         currentAtocCode = "";
@@ -83,9 +85,9 @@ public class ExtractAgencyCallingPointsFromLocationRecords {
     }
 
     private void createAgencyCallingPoints() {
-        String atocCode = currentAtocCode;
+        final String atocCode = currentAtocCode;
 
-        IdFor<Agency> agencyId = Agency.createId(atocCode);
+        final IdFor<Agency> agencyId = Agency.createId(atocCode);
 
         List<IdFor<Station>> callingPoints = locations.stream().
                 filter(RailLocationRecord::doesStop).

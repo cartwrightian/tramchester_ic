@@ -30,7 +30,7 @@ public class LoadRailTimetableRecords implements ProvidesRailTimetableRecords {
 
     @Inject
     public LoadRailTimetableRecords(TramchesterConfig config, RailDataRecordFactory factory, UnzipFetchedData.Ready ready, RailDataFilenameRepository filenameRepository) {
-        RailConfig railConfig = config.getRailConfig();
+        final RailConfig railConfig = config.getRailConfig();
         enabled = (railConfig != null);
         this.factory = factory;
 
@@ -58,14 +58,14 @@ public class LoadRailTimetableRecords implements ProvidesRailTimetableRecords {
         }
     }
 
-    public Stream<RailTimetableRecord> load(Reader in) {
+    public Stream<RailTimetableRecord> load(final Reader in) {
         logger.info("Loading lines");
-        BufferedReader bufferedReader = new BufferedReader(in);
+        final BufferedReader bufferedReader = new BufferedReader(in);
         return bufferedReader.lines().map(this::processLine);
     }
 
-    private RailTimetableRecord processLine(String line) {
-        RailRecordType recordType = getRecordTypeFor(line);
+    private RailTimetableRecord processLine(final String line) {
+        final RailRecordType recordType = getRecordTypeFor(line);
         return switch (recordType) {
             case TiplocInsert -> factory.createTIPLOC(line);
             case BasicSchedule -> factory.createBasicSchedule(line);

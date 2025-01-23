@@ -34,14 +34,14 @@ public class PhysicalStationRecord {
     }
 
     public static PhysicalStationRecord parse(String text) {
-        String name = extract(text, 6, 31);
-        String tiplocCode = extract(text, 37, 43+1); // docs?
-        int easting = getEasting(text);
-        int northing = getNorthing(text);
-        char textRailInterchangeType = text.charAt(35);
-        RailInterchangeType railInterchangeType = RailInterchangeType.getFor(textRailInterchangeType);
-        int minChangeTime = getMinChangeTime(text);
-        String crs = extract(text,50, 52+1);
+        final String name = extract(text, 6, 31);
+        final String tiplocCode = extract(text, 37, 43+1); // docs?
+        final int easting = getEasting(text);
+        final int northing = getNorthing(text);
+        final char textRailInterchangeType = text.charAt(35);
+        final RailInterchangeType railInterchangeType = RailInterchangeType.getFor(textRailInterchangeType);
+        final int minChangeTime = getMinChangeTime(text);
+        final String crs = extract(text,50, 52+1);
         return new PhysicalStationRecord(name, tiplocCode, easting, northing, railInterchangeType, minChangeTime, crs);
     }
 

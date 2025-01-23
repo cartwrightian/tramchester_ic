@@ -5,6 +5,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.rail.ProvidesRailStationRecords;
 import com.tramchester.dataimport.rail.records.PhysicalStationRecord;
 import com.tramchester.dataimport.rail.records.RailLocationRecord;
+import com.tramchester.dataimport.rail.records.TIPLOCInsert;
 import com.tramchester.dataimport.rail.records.reference.RailInterchangeType;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.id.IdFor;
@@ -40,7 +41,8 @@ public class RailStationRecordsRepository {
     private static final Logger logger = LoggerFactory.getLogger(RailStationRecordsRepository.class);
 
     private final IdSet<Station> inUseStations;
-    private final Map<String, MutableStation> tiplocMap; // rail timetable id -> mutable station
+    private final Map<String, MutableStation> tiplocToStation; // rail timetable id -> mutable station
+    private final Map<String, TIPLOCInsert> tiplocToTiplocInsert;
     private final Set<String> missing;
     private final ProvidesRailStationRecords providesRailStationRecords;
     private final RailStationCRSRepository crsRepository;
@@ -54,7 +56,8 @@ public class RailStationRecordsRepository {
         this.crsRepository = crsRepository;
         this.naptanRepository = naptanRepository;
         inUseStations = new IdSet<>();
-        tiplocMap = new HashMap<>();
+        tiplocToStation = new HashMap<>();
+        tiplocToTiplocInsert = new HashMap<>();
         missing = new HashSet<>();
         enabled = config.hasRailConfig();
     }
@@ -76,7 +79,7 @@ public class RailStationRecordsRepository {
             }
             missing.clear();
             inUseStations.clear();
-            tiplocMap.clear();
+            tiplocToStation.clear();
         }
     }
 
@@ -93,7 +96,7 @@ public class RailStationRecordsRepository {
             crsRepository.putCRS(mutableStation, physicalStationRecord.getCRS());
         });
 
-        logger.info("Initially loaded " + tiplocMap.size() + " stations" );
+        logger.info("Initially loaded " + tiplocToStation.size() + " stations" );
 
     }
 
@@ -161,39 +164,91 @@ public class RailStationRecordsRepository {
     }
 
     private void addStation(final MutableStation mutableStation, final String tipLoc) {
-        tiplocMap.put(tipLoc, mutableStation);
+        tiplocToStation.put(tipLoc, mutableStation);
     }
 
     public Set<MutableStation> getInUse() {
-        return tiplocMap.values().stream().
+        return tiplocToStation.values().stream().
                 filter(station -> inUseStations.contains(station.getId())).
                 collect(Collectors.toSet());
     }
 
-    public void markAsInUse(Station station) {
+    public void markAsInUse(final Station station) {
         inUseStations.add(station.getId());
     }
 
     public int count() {
-        return tiplocMap.size();
+        return tiplocToStation.size();
     }
 
     public int countNeeded() {
         return inUseStations.size();
     }
 
-    public boolean hasStationRecord(RailLocationRecord record) {
+    public boolean hasStationRecord(final RailLocationRecord record) {
         final String tiplocCode = record.getTiplocCode();
-        boolean found = tiplocMap.containsKey(tiplocCode);
-        if (!found) {
-            missing.add(record.getTiplocCode());
+//        boolean found = tiplocToStation.containsKey(tiplocCode);
+        if (tiplocToStation.containsKey(tiplocCode)) {
+            return true;
         }
-        return found;
+        if (tiplocToTiplocInsert.containsKey(tiplocCode)) {
+            return attemptAdd(tiplocToTiplocInsert.get(tiplocCode));
+        }
+        return false;
+//        if (!found) {
+//            missing.add(record.getTiplocCode());
+//        }
+//        return found;
     }
 
-    public MutableStation getMutableStationFor(RailLocationRecord record) {
+    private boolean attemptAdd(final TIPLOCInsert tiplocInsert) {
+        final String tiplocCode = tiplocInsert.getTiplocCode();
+
+        final MutableStation mutableStation = createStationFor(tiplocInsert);
+
+        if (tiplocInsert.isUseful()) {
+            crsRepository.putCRS(mutableStation, tiplocInsert.getCRS());
+            addStation(mutableStation, tiplocCode);
+            return true;
+        }
+
+        return false;
+    }
+
+    private MutableStation createStationFor(TIPLOCInsert tiplocInsert) {
+        final IdFor<Station> stationId = Station.createId(tiplocInsert.getTiplocCode());
+
+        GridPosition grid = GridPosition.Invalid;
+        LatLong latLong = LatLong.Invalid;
+
+        final IdFor<NPTGLocality> areaId;
+        final boolean isCentral;
+        final String name;
+        if (naptanRepository.containsTiploc(stationId)) {
+            // prefer naptan data if available
+            final NaptanRecord naptanRecord = naptanRepository.getForTiploc(stationId);
+            areaId = naptanRecord.getLocalityId();
+            grid = naptanRecord.getGridPosition();
+            latLong = naptanRecord.getLatLong();
+            isCentral = naptanRecord.isLocalityCenter();
+            name = naptanRecord.getCommonName();
+        } else {
+            areaId = NPTGLocality.InvalidId();
+            isCentral = false;
+            name = tiplocInsert.getName();
+        }
+
+        boolean isInterchange = false;
+        // TODO
+        Duration minChangeTime = Duration.ofMinutes(5);
+
+        return new MutableStation(stationId, areaId, name, latLong, grid, DataSourceID.openRailData, isInterchange,
+                minChangeTime, isCentral);
+    }
+
+    public MutableStation getMutableStationFor(final RailLocationRecord record) {
         final String tiplocCode = record.getTiplocCode();
-        return tiplocMap.get(tiplocCode);
+        return tiplocToStation.get(tiplocCode);
     }
 
     /***
@@ -203,6 +258,15 @@ public class RailStationRecordsRepository {
      */
     public Station getMutableStationForTiploc(IdFor<Station> tiploc) {
         final String tiplocAsText = tiploc.getGraphId();
-        return tiplocMap.get(tiplocAsText);
+        return tiplocToStation.get(tiplocAsText);
+    }
+
+    public void add(final TIPLOCInsert tiplocInsert) {
+        final String tiploc = tiplocInsert.getTiplocCode();
+        if (tiplocToStation.containsKey(tiploc)) {
+            // nothing to do here
+            return;
+        }
+        tiplocToTiplocInsert.put(tiplocInsert.getTiplocCode(), tiplocInsert);
     }
 }

@@ -16,7 +16,7 @@ public class RailDataRecordFactory {
         century = Math.floorDiv(providesNow.getDate().getYear(), 100);
     }
 
-    public RailTimetableRecord createTIPLOC(String line) {
+    public RailTimetableRecord createTIPLOC(final String line) {
         return TIPLOCInsert.parse(line);
     }
 

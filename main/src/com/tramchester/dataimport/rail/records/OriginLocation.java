@@ -26,9 +26,9 @@ public class OriginLocation extends OriginOrTerminatingLocation  implements Rail
         this.line = line;
     }
 
-    public static OriginLocation parse(String text) {
-        String line = RecordHelper.extract(text, 23,25+1);
-        EnumSet<LocationActivityCode> activity = LocationActivityCode.parse(RecordHelper.extract(text, 30, 41));
+    public static OriginLocation parse(final String text) {
+        final String line = RecordHelper.extract(text, 23,25+1);
+        final EnumSet<LocationActivityCode> activity = LocationActivityCode.parse(RecordHelper.extract(text, 30, 41));
         return OriginOrTerminatingLocation.parse(text, new Creator(line, activity));
     }
 

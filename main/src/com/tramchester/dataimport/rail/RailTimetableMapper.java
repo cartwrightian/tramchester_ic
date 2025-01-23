@@ -54,6 +54,7 @@ public class RailTimetableMapper {
                 .appendValue(DAY_OF_MONTH, 2).toFormatter();
 
     private final RailServiceGroups railServiceGroups;
+    private final RailStationRecordsRepository stationRecords;
 
     private enum State {
         SeenSchedule,
@@ -70,7 +71,7 @@ public class RailTimetableMapper {
     private boolean overlay;
     private RawService rawService;
 
-    public RailTimetableMapper(RailStationRecordsRepository stations, WriteableTransportData container,
+    public RailTimetableMapper(RailStationRecordsRepository stationRecords, WriteableTransportData container,
                                RailConfig config, GraphFilterActive filter, BoundingBox bounds, RailRouteIdRepository railRouteRepository) {
 
         currentState = State.Between;
@@ -79,7 +80,8 @@ public class RailTimetableMapper {
         skippedService = new AtomicInteger(0);
 
         railServiceGroups = new RailServiceGroups(container);
-        processor = new CreatesTransportDataForRail(stations, container, travelCombinations,
+        this.stationRecords = stationRecords;
+        processor = new CreatesTransportDataForRail(stationRecords, container, travelCombinations,
                 config, filter, bounds, railServiceGroups, railRouteRepository);
     }
 
@@ -95,10 +97,8 @@ public class RailTimetableMapper {
     }
 
     private void tipLocInsert(final RailTimetableRecord record) {
-        // TODO Deal with stations present in TiplocInsert but not in RailStationRecordsRepository
-//        TIPLOCInsert insert = (TIPLOCInsert) record;
-//        String atocCode = insert.getTiplocCode();
-//        tiplocInsertRecords.put(atocCode, insert);
+        // these are handled via ExtractAgencyCallingPointsFromLocationRecords
+
     }
 
     private void seenExtraInfo(final RailTimetableRecord record) {
@@ -290,6 +290,7 @@ public class RailTimetableMapper {
             }
 
             final List<Station> withinBoundsCallingStations = allCalledAtStations.stream().
+                    filter(station -> station.getGridPosition().isValid()).
                     filter(bounds::contained).
                     toList();
 
@@ -361,6 +362,10 @@ public class RailTimetableMapper {
             }
 
             final MutableStation station = findStationFor(railLocation);
+
+            if (!station.getGridPosition().isValid()) {
+                return;
+            }
 
             if (!bounds.contained(station)) {
                 return;
@@ -446,7 +451,7 @@ public class RailTimetableMapper {
         }
 
         private MutableStation findStationFor(final RailLocationRecord record) {
-            MutableStation station;
+            final MutableStation station;
             if (!stationRecords.hasStationRecord(record)) {
                 throw new RuntimeException(format("Missing stationid %s encountered for %s", record.getTiplocCode(), record));
             } else {
@@ -475,7 +480,7 @@ public class RailTimetableMapper {
         }
 
         private MutableAgency getOrCreateAgency(final String atocCode) {
-            MutableAgency mutableAgency;
+            final MutableAgency mutableAgency;
             final IdFor<Agency> agencyId = Agency.createId(atocCode);
             if (container.hasAgencyId(agencyId)) {
                 mutableAgency = container.getMutableAgency(agencyId);
@@ -516,7 +521,7 @@ public class RailTimetableMapper {
 
         private MutableTrip getOrCreateTrip(final BasicSchedule schedule, final MutableService service, final Route route,
                                             final TransportMode mode) {
-            MutableTrip trip;
+            final MutableTrip trip;
             final IdFor<Trip> tripId = createTripIdFor(service);
             if (container.hasTripId(tripId)) {
                 logger.info("Had existing tripId: " + tripId + " for " + schedule);
@@ -536,8 +541,8 @@ public class RailTimetableMapper {
         private MutableRoute getOrCreateRoute(final IdFor<Route> routeId, final RawService rawService, final Agency agency,
                                               final TransportMode mode, final List<Station> allCallingPoints) {
             final IdFor<Agency> agencyId = agency.getId();
-            MutableRoute route;
 
+            final MutableRoute route;
             if (container.hasRouteId(routeId)) {
                 // route id already present
                 route = container.getMutableRoute(routeId);
@@ -585,7 +590,7 @@ public class RailTimetableMapper {
             // to assist with live data processing
             final List<IntermediateLocation> callingRecords = rawService.intermediateLocations.stream().
                     filter(IntermediateLocation::doesStop).
-                    collect(Collectors.toList());
+                    toList();
 
             final List<Station> intermediates = callingRecords.stream().
                     filter(stationRecords::hasStationRecord).
@@ -603,10 +608,10 @@ public class RailTimetableMapper {
                 if (callingRecords.size() != intermediates.size()) {
                     // replacement bus often seem to be missing 1 station
                     if (rawService.basicScheduleRecord.getTrainCategory()!=TrainCategory.BusReplacement) {
-                        final Set<String> missing = callingRecords.stream().
+                        Set<IntermediateLocation> missing = callingRecords.stream().
                                 filter(record -> !stationRecords.hasStationRecord(record)).
-                                map(IntermediateLocation::getTiplocCode).
-                                collect(Collectors.toSet());
+                                //map(IntermediateLocation::getTiplocCode).
+                                        collect(Collectors.toSet());
                         logger.warn(format("Did not match all calling points (got %s of %s) for %s Missing: %s",
                                 intermediates.size(), callingRecords.size(), rawService.basicScheduleRecord,
                                 missing));
