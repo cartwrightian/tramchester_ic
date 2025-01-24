@@ -209,4 +209,8 @@ public class IdSet<T extends CoreDomain> implements Iterable<IdFor<T>> {
     public static <T extends CoreDomain> IdSet<T> intersection(final IdSet<T> setA, final IdSet<T> setB) {
         return new IdSet<>(SetUtils.intersection(setA.theSet, setB.theSet));
     }
+
+    public static <T extends CoreDomain> boolean anyOverlap(IdSet<T> idsA, IdSet<T> idsB) {
+        return !SetUtils.intersection(idsA.theSet, idsB.theSet).isEmpty();
+    }
 }

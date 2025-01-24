@@ -108,9 +108,10 @@ public class MatchLiveTramToJourneyDestinationTest {
 
         List<UpcomingDeparture> all = getAllDepartures(journeyStations);
 
-        IdSet<Station> journeyDestinations = IdSet.singleton(journeyDestination.getId());
+        IdSet<Station> changes = IdSet.emptySet();
+
         List<UpcomingDeparture> trams = all.stream().
-                filter(departure -> matchToJourneyDest.matchesJourneyDestination(departure, journeyDestinations, journeyDestination.getId())).toList();
+                filter(departure -> matchToJourneyDest.matchesJourneyDestination(departure, changes, journeyDestination.getId())).toList();
 
         assertFalse(trams.isEmpty());
 

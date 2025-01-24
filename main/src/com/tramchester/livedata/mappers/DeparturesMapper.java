@@ -35,8 +35,8 @@ public class DeparturesMapper {
         return mapToDTO(dueTrams, lastUpdate, changeStations, finalStation);
     }
 
-    private Set<DepartureDTO> mapToDTO(Collection<UpcomingDeparture> dueTrams, LocalDateTime lastUpdate, IdSet<Station> changeStations,
-                                      IdFor<Station> finalStation) {
+    private Set<DepartureDTO> mapToDTO(Collection<UpcomingDeparture> dueTrams, final LocalDateTime lastUpdate, final IdSet<Station> changeStations,
+                                      final IdFor<Station> finalStation) {
         return dueTrams.stream().
                     map(dueTram -> getDepartureDTO(lastUpdate, dueTram, changeStations, finalStation))
                     .collect(Collectors.toSet());
