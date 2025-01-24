@@ -26,13 +26,6 @@ public class UpcomingDeparture {
 
     public static final Set<String> KNOWN_TRAM_STATUS = new HashSet<>(Arrays.asList("Due", "Arrived", "Departing"));
 
-//    @Deprecated
-//    public UpcomingDeparture(LocalDate date, Station displayLocation, Station destination, String status, Duration wait,
-//                             String carriages, LocalTime updateTime,
-//                             Agency agency, TransportMode mode) {
-//        this(date, displayLocation, destination, status, TramTime.ofHourMins(updateTime).plus(wait), carriages, agency, mode);
-//    }
-
     public UpcomingDeparture(LocalDate date, Station displayLocation, Station destination, String status, TramTime when,
                              String carriages, Agency agency, TransportMode mode) {
         this.date = date;
@@ -46,13 +39,8 @@ public class UpcomingDeparture {
         platform = null;
     }
 
-    /***
-     * Use getDestinationId instead
-     * @return final destination for this departure
-     */
-    @Deprecated
-    public Station getDestination() {
-        return destination;
+    public String getDestinationName() {
+        return destination.getName();
     }
 
     public IdFor<Station> getDestinationId() {

@@ -67,10 +67,11 @@ public class MatchLiveTramToJourneyDestinationTest extends EasyMockSupport {
 
         UpcomingDeparture tram = createDueTramFor(journeyBegin, tramDest);
 
+        EasyMock.expect(stationRepository.getStationById(tramDest.getId())).andReturn(tramDest);
         EasyMock.expect(stationRepository.getStationById(journeyEnd.getId())).andReturn(journeyEnd);
 
-        EasyMock.expect(stopOrderChecker.check(TramDate.of(date), journeyBegin, journeyEnd, tramDest)).andReturn(false);
-        EasyMock.expect(stopOrderChecker.check(TramDate.of(date), journeyBegin, tramDest, journeyEnd)).andReturn(true);
+        EasyMock.expect(stopOrderChecker.check(TramDate.of(date), journeyBegin, journeyEnd.getId(), tramDest.getId())).andReturn(false);
+        EasyMock.expect(stopOrderChecker.check(TramDate.of(date), journeyBegin, tramDest.getId(), journeyEnd.getId())).andReturn(true);
 
         replayAll();
         boolean matches = matchLiveTramToJourneyDestination.matchesJourneyDestination(tram, IdSet.emptySet(), journeyEnd.getId());
@@ -86,10 +87,15 @@ public class MatchLiveTramToJourneyDestinationTest extends EasyMockSupport {
         Station begin = Cornbrook.fake();
         Station destination = Deansgate.fake(BuryManchesterAltrincham);
 
-        UpcomingDeparture tram = createDueTramFor(begin, Bury.fake(BuryManchesterAltrincham));
+        Station tramDestination = Bury.fake(BuryManchesterAltrincham);
+
+
+        UpcomingDeparture tram = createDueTramFor(begin, tramDestination);
+        EasyMock.expect(stationRepository.getStationById(tramDestination.getId())).andReturn(tramDestination);
+
 
         EasyMock.expect(stationRepository.getStationById(destination.getId())).andReturn(destination);
-        EasyMock.expect(stopOrderChecker.check(TramDate.of(date), Cornbrook.fake(), Deansgate.fake(), Bury.fake())).andReturn(true);
+        EasyMock.expect(stopOrderChecker.check(TramDate.of(date), Cornbrook.fake(), Deansgate.getId(), Bury.getId())).andReturn(true);
 
         replayAll();
         boolean matches = matchLiveTramToJourneyDestination.matchesJourneyDestination(tram, IdSet.emptySet(), destination.getId());
@@ -108,10 +114,11 @@ public class MatchLiveTramToJourneyDestinationTest extends EasyMockSupport {
 
         UpcomingDeparture tram = createDueTramFor(begin, tramDestination);
 
+        EasyMock.expect(stationRepository.getStationById(tramDestination.getId())).andStubReturn(tramDestination);
         EasyMock.expect(stationRepository.getStationById(destination.getId())).andReturn(destination);
         EasyMock.expect(stationRepository.getStationById(change.getId())).andReturn(change);
 
-        EasyMock.expect(stopOrderChecker.check(TramDate.of(date), begin, change, tramDestination)).andReturn(true);
+        EasyMock.expect(stopOrderChecker.check(TramDate.of(date), begin, change.getId(), tramDestination.getId())).andReturn(true);
 
         replayAll();
         boolean matches = matchLiveTramToJourneyDestination.matchesJourneyDestination(tram, IdSet.singleton(change.getId()), destination.getId());
@@ -129,6 +136,8 @@ public class MatchLiveTramToJourneyDestinationTest extends EasyMockSupport {
         Station tramDestination = Altrincham.fake(BuryManchesterAltrincham);
 
         UpcomingDeparture tram = createDueTramFor(begin, tramDestination);
+
+        EasyMock.expect(stationRepository.getStationById(tramDestination.getId())).andStubReturn(tramDestination);
 
         EasyMock.expect(stationRepository.getStationById(destination.getId())).andReturn(destination);
         EasyMock.expect(stationRepository.getStationById(change.getId())).andReturn(change);
@@ -150,11 +159,12 @@ public class MatchLiveTramToJourneyDestinationTest extends EasyMockSupport {
 
         UpcomingDeparture tram = createDueTramFor(begin, tramDestination);
 
+        EasyMock.expect(stationRepository.getStationById(tramDestination.getId())).andStubReturn(tramDestination);
         EasyMock.expect(stationRepository.getStationById(destination.getId())).andReturn(destination);
         EasyMock.expect(stationRepository.getStationById(change.getId())).andReturn(change);
 
-        EasyMock.expect(stopOrderChecker.check(TramDate.of(date), begin, change, tramDestination)).andReturn(false);
-        EasyMock.expect(stopOrderChecker.check(TramDate.of(date), begin, tramDestination, change)).andReturn(false);
+        EasyMock.expect(stopOrderChecker.check(TramDate.of(date), begin, change.getId(), tramDestination.getId())).andReturn(false);
+        EasyMock.expect(stopOrderChecker.check(TramDate.of(date), begin, tramDestination.getId(), change.getId())).andReturn(false);
 
         replayAll();
         boolean matches = matchLiveTramToJourneyDestination.matchesJourneyDestination(tram, IdSet.singleton(change.getId()), destination.getId());
@@ -169,7 +179,10 @@ public class MatchLiveTramToJourneyDestinationTest extends EasyMockSupport {
         Station begin = Altrincham.fake();
         Station destination = TramStations.Bury.fake(BuryManchesterAltrincham);
 
-        UpcomingDeparture tram = createDueTramFor(begin, TramStations.Piccadilly.fake(EtihadPiccadillyAltrincham));
+        Station tramDestination = Piccadilly.fake(EtihadPiccadillyAltrincham);
+        UpcomingDeparture tram = createDueTramFor(begin, tramDestination);
+
+        EasyMock.expect(stationRepository.getStationById(tramDestination.getId())).andReturn(tramDestination);
 
         EasyMock.expect(stationRepository.getStationById(destination.getId())).andReturn(destination);
 

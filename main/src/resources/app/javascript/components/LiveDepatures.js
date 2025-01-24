@@ -13,7 +13,7 @@ export default {
                 {key:'dueTimeAsDate', title:'Time', sortable: true, width: '1px', align: 'start'}, 
                 {key:'carriages', title:''},
                 {key:'status', title:'Status', lign: 'start'},
-                {key:'destination.name', title:'Towards', sortable:true,align:'start'},
+                {key:'destinationName', title:'Towards', sortable:true,align:'start'},
                 {key:'matchesJourney', title:'', align: ' d-none'} // hides the column
             ],
             sortBy: [{ key: 'dueTimeAsDate', order: 'asc' }]

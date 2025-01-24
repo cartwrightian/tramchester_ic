@@ -42,7 +42,7 @@ class DepartureDTOTest {
         DepartureDTO departureDTO = new DepartureDTO(StPetersSquare.fake(), dueTram, now, true);
 
         assertEquals(StPetersSquare.getIdForDTO(), departureDTO.getFrom().getId());
-        assertEquals(Bury.getIdForDTO(), departureDTO.getDestination().getId());
+        assertEquals(Bury.getIdForDTO(), departureDTO.getDestinationId());
         assertEquals("status", departureDTO.getStatus());
         assertEquals("carriages", departureDTO.getCarriages());
         LocalDateTime when = departureDTO.getDueTime();
@@ -68,9 +68,9 @@ class DepartureDTOTest {
         list.add(departureDTOC);
 
         DepartureDTO[] elements = list.toArray(new DepartureDTO[3]);
-        assertEquals(Bury.getIdForDTO(), elements[0].getDestination().getId());
-        assertEquals(Deansgate.getIdForDTO(), elements[1].getDestination().getId());
-        assertEquals(Piccadilly.getIdForDTO(), elements[2].getDestination().getId());
+        assertEquals(Bury.getIdForDTO(), elements[0].getDestinationId());
+        assertEquals(Deansgate.getIdForDTO(), elements[1].getDestinationId());
+        assertEquals(Piccadilly.getIdForDTO(), elements[2].getDestinationId());
     }
 
     @NotNull

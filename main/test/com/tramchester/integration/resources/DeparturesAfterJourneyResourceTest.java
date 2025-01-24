@@ -131,7 +131,7 @@ class DeparturesAfterJourneyResourceTest {
         // NOTE:  potential race condition here if the departure in the initial query has 'departed' by the
         // time we do the second query here. Very small window but it could happen.
         IdForDTO tramDestinationExpected = IdForDTO.createFor(destinationForDueTramId);
-        boolean haveTowardsDest = departures.stream().anyMatch(departureDTO -> departureDTO.getDestination().getId().equals(tramDestinationExpected));
+        boolean haveTowardsDest = departures.stream().anyMatch(departureDTO -> departureDTO.getDestinationId().equals(tramDestinationExpected));
 
         assertTrue(haveTowardsDest, "Did not find " + tramDestinationExpected + " in " + departures);
 

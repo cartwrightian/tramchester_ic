@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.domain.reference.TransportMode;
@@ -21,10 +22,11 @@ public class DepartureDTO implements Comparable<DepartureDTO> {
 
     // NOTE: was used for live data archive but those S3 buckets were, erm lost, when IC moved jobs
 
-    // TODO Make from and destintaion StationRefDTO?
+    // TODO Make 'from' a StationRefDTO?
     private TransportMode transportMode;
     private LocationRefDTO from;
-    private LocationRefDTO destination;
+    private IdForDTO destinationId;
+    private String destinationName;
     private String carriages;
     private String status;
     private LocalDateTime dueTime;
@@ -33,27 +35,33 @@ public class DepartureDTO implements Comparable<DepartureDTO> {
     @JsonIgnore
     private LocalDateTime lastUpdated;
 
+    public DepartureDTO() {
+        // for deserialisation
+    }
+
     public DepartureDTO(Location<?> start, UpcomingDeparture upcomingDeparture, LocalDateTime updateTime, boolean matchesJourney) {
         this(upcomingDeparture.getMode(),
-                new LocationRefDTO(start), new LocationRefDTO(upcomingDeparture.getDestination()),
+                new LocationRefDTO(start),
+                IdForDTO.createFor(upcomingDeparture.getDestinationId()),
+                upcomingDeparture.getDestinationName(),
                 upcomingDeparture.getCarriages(), upcomingDeparture.getStatus(),
                 upcomingDeparture.getWhen().toDate(updateTime.toLocalDate()), updateTime, matchesJourney);
     }
 
-    private DepartureDTO(TransportMode mode, LocationRefDTO from, LocationRefDTO destination, String carriages, String status, LocalDateTime dueTime,
+    private DepartureDTO(TransportMode mode, LocationRefDTO from, IdForDTO destinationId, String destinationName, String carriages, String status, LocalDateTime dueTime,
                          LocalDateTime lastUpdated, boolean matchesJourney) {
+        if (destinationName==null) {
+            throw new RuntimeException("Cannot have null name, id was " + destinationId);
+        }
         this.transportMode = mode;
         this.from = from;
-        this.destination = destination;
+        this.destinationName = destinationName;
+        this.destinationId = destinationId;
         this.carriages = carriages;
         this.status = status;
         this.dueTime = dueTime;
         this.matchesJourney = matchesJourney;
         this.lastUpdated = lastUpdated;
-    }
-
-    public DepartureDTO() {
-        // for deserialisation
     }
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = TramchesterConfig.DateTimeFormatForJson)
@@ -73,8 +81,8 @@ public class DepartureDTO implements Comparable<DepartureDTO> {
         return status;
     }
 
-    public LocationRefDTO getDestination() {
-        return destination;
+    public IdForDTO getDestinationId() {
+        return destinationId;
     }
 
     public TransportMode getTransportMode() {
@@ -85,11 +93,15 @@ public class DepartureDTO implements Comparable<DepartureDTO> {
         return matchesJourney;
     }
 
+    public String getDestinationName() {
+        return destinationName;
+    }
+
     @Override
     public int compareTo(DepartureDTO other) {
         if (dueTime.equals(other.dueTime)) {
             // if same time use name ordering
-            return destination.getName().compareTo(other.destination.getName());
+            return destinationName.compareTo(other.destinationName);
         }
         // time ordering
         return dueTime.compareTo(other.dueTime);
@@ -100,7 +112,8 @@ public class DepartureDTO implements Comparable<DepartureDTO> {
         return "DepartureDTO{" +
                 "transportMode=" + transportMode +
                 ", from='" + from + '\'' +
-                ", destination='" + destination + '\'' +
+                ", destinationName='" + destinationName + '\'' +
+                ", destinationId='" + destinationId + '\'' +
                 ", carriages='" + carriages + '\'' +
                 ", status='" + status + '\'' +
                 ", dueTime=" + dueTime +
@@ -114,7 +127,8 @@ public class DepartureDTO implements Comparable<DepartureDTO> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         DepartureDTO that = (DepartureDTO) o;
-        return transportMode == that.transportMode && from.equals(that.from) && destination.equals(that.destination)
+        return transportMode == that.transportMode && from.equals(that.from) && destinationName.equals(that.destinationName)
+                && destinationId.equals(that.destinationId)
                 && carriages.equals(that.carriages) && status.equals(that.status)
                 && (matchesJourney==that.matchesJourney)
                 && dueTime.equals(that.dueTime) && lastUpdated.equals(that.lastUpdated);
@@ -122,7 +136,7 @@ public class DepartureDTO implements Comparable<DepartureDTO> {
 
     @Override
     public int hashCode() {
-        return Objects.hash(transportMode, from, destination, carriages, status, dueTime, lastUpdated, matchesJourney);
+        return Objects.hash(transportMode, from, destinationName, destinationId, carriages, status, dueTime, lastUpdated, matchesJourney);
     }
 
     @JsonProperty(value = "wait", access = JsonProperty.Access.READ_ONLY)

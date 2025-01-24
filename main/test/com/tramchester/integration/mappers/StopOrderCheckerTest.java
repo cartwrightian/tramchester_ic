@@ -46,7 +46,7 @@ public class StopOrderCheckerTest {
         Station middle = StPetersSquare.from(stationRepository);
         Station end = Bury.from(stationRepository);
 
-        boolean result = stopOrderChecker.check(when, begin, middle, end);
+        boolean result = stopOrderChecker.check(when, begin, middle.getId(), end.getId());
 
         assertTrue(result);
     }
@@ -57,7 +57,7 @@ public class StopOrderCheckerTest {
         Station middle = Altrincham.from(stationRepository);
         Station end = Bury.from(stationRepository);
 
-        boolean result = stopOrderChecker.check(when, begin, middle, end);
+        boolean result = stopOrderChecker.check(when, begin, middle.getId(), end.getId());
 
         assertFalse(result);
     }
@@ -68,7 +68,7 @@ public class StopOrderCheckerTest {
         Station middle = Altrincham.from(stationRepository);
         Station end = Victoria.from(stationRepository);
 
-        boolean result = stopOrderChecker.check(when, begin, middle, end);
+        boolean result = stopOrderChecker.check(when, begin, middle.getId(), end.getId());
 
         assertFalse(result);
     }
@@ -79,7 +79,7 @@ public class StopOrderCheckerTest {
         Station middle = Piccadilly.from(stationRepository);
         Station end = Altrincham.from(stationRepository);
 
-        boolean result = stopOrderChecker.check(when, begin, middle, end);
+        boolean result = stopOrderChecker.check(when, begin, middle.getId(), end.getId());
 
         assertFalse(result);
     }

@@ -11,6 +11,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.repository.RouteRepository;
+import com.tramchester.repository.StationRepository;
 import jakarta.inject.Inject;
 import org.apache.commons.collections4.SetUtils;
 import org.slf4j.Logger;
@@ -24,32 +25,37 @@ public class StopOrderChecker {
 
     private final BoundingBox bounds;
     private final RouteRepository routeRepository;
+    private final StationRepository stationRepository;
 
     @Inject
-    public StopOrderChecker(TramchesterConfig config, RouteRepository routeRepository) {
+    public StopOrderChecker(TramchesterConfig config, RouteRepository routeRepository, StationRepository stationRepository) {
         this.bounds = config.getBounds();
         this.routeRepository = routeRepository;
+        this.stationRepository = stationRepository;
     }
 
     /***
      *
      * @param date date to check for
      * @param begin station
-     * @param middle station
-     * @param end station
+     * @param middleId station
+     * @param endId station
      * @return true iff there is a route where these stations appear in trip sequence order begin->middle->end
      */
-    public boolean check(final TramDate date, final Station begin, final Station middle, final Station end) {
+    public boolean check(final TramDate date, final Station begin, final IdFor<Station> middleId, final IdFor<Station> endId) {
         if (!bounds.contained(begin)) {
             logger.error("being station " + begin.getId() + " was out of bounds");
             return false;
         }
 
+        Station middle = stationRepository.getStationById(middleId);
+        Station end = stationRepository.getStationById(endId);
+
         boolean middleOutOfBounds = !bounds.contained(middle);
         boolean endOutOfBounds = !bounds.contained(end);
 
         if (middleOutOfBounds && endOutOfBounds) {
-            logger.error("Cannot have both middle " + middle.getId() + " and end " + end.getId() + " out of bounds");
+            logger.error("Cannot have both middle " + middleId + " and end " + endId + " out of bounds");
             return false;
         }
 

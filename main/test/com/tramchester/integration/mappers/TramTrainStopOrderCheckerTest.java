@@ -11,6 +11,7 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.mappers.StopOrderChecker;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.testTags.GMTest;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,6 +20,7 @@ import static com.tramchester.integration.testSupport.rail.RailStationIds.Cheste
 import static com.tramchester.integration.testSupport.rail.RailStationIds.LondonEuston;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@GMTest
 public class TramTrainStopOrderCheckerTest {
     private static GuiceContainerDependencies componentContainer;
     private StationRepository stationRepository;
@@ -48,7 +50,7 @@ public class TramTrainStopOrderCheckerTest {
         Station middle = RailStationIds.Stockport.from(stationRepository);
         Station end = RailStationIds.ManchesterPiccadilly.from(stationRepository);
 
-        boolean result = stopOrderChecker.check(when, begin, middle, end);
+        boolean result = stopOrderChecker.check(when, begin, middle.getId(), end.getId());
 
         assertTrue(result);
     }
@@ -60,7 +62,7 @@ public class TramTrainStopOrderCheckerTest {
 
         Station end = crsRepository.getFor(Chester.crs());
 
-        boolean result = stopOrderChecker.check(when, begin, middle, end);
+        boolean result = stopOrderChecker.check(when, begin, middle.getId(), end.getId());
 
         assertTrue(result);
     }
@@ -72,7 +74,7 @@ public class TramTrainStopOrderCheckerTest {
 
         Station end = crsRepository.getFor(LondonEuston.crs());
 
-        boolean result = stopOrderChecker.check(when, begin, middle, end);
+        boolean result = stopOrderChecker.check(when, begin, middle.getId(), end.getId());
 
         assertTrue(result);
     }

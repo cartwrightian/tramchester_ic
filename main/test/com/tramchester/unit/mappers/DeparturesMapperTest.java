@@ -59,8 +59,8 @@ class DeparturesMapperTest extends EasyMockSupport {
         List<DepartureDTO> list = new LinkedList<>(results);
 
         assertEquals(1, list.size());
-        DepartureDTO departureDTO = list.get(0);
-        assertEquals(PiccadillyGardens.getIdForDTO(), departureDTO.getDestination().getId());
+        DepartureDTO departureDTO = list.getFirst();
+        assertEquals(PiccadillyGardens.getIdForDTO(), departureDTO.getDestinationId());
         assertEquals("DUE", departureDTO.getStatus());
         assertEquals(Bury.getIdForDTO(), departureDTO.getFrom().getId());
 
@@ -97,7 +97,7 @@ class DeparturesMapperTest extends EasyMockSupport {
         List<DepartureDTO> list = new LinkedList<>(results);
 
         assertEquals(1, list.size());
-        DepartureDTO departureDTO = list.get(0);
+        DepartureDTO departureDTO = list.getFirst();
         assertTrue(departureDTO.getMatchesJourney());
     }
 
@@ -126,7 +126,7 @@ class DeparturesMapperTest extends EasyMockSupport {
         List<DepartureDTO> list = new LinkedList<>(results);
 
         assertEquals(1, list.size());
-        DepartureDTO departureDTO = list.get(0);
+        DepartureDTO departureDTO = list.getFirst();
         assertFalse(departureDTO.getMatchesJourney());
     }
 
@@ -145,7 +145,7 @@ class DeparturesMapperTest extends EasyMockSupport {
         List<DepartureDTO> list = new LinkedList<>(results);
 
         assertEquals(1, list.size());
-        DepartureDTO departureDTO = list.get(0);
+        DepartureDTO departureDTO = list.getFirst();
         LocalDateTime result = departureDTO.getDueTime();
 
         assertEquals(LocalTime.of(0,7), result.toLocalTime());
