@@ -128,16 +128,16 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
         List<UpcomingDeparture> results = departureRepository.forStation(station);
 
         assertEquals(1, results.size());
-        UpcomingDeparture result = results.get(0);
+        UpcomingDeparture result = results.getFirst();
         assertEquals("Due", result.getStatus());
         //assertMinutesEquals(42, result.getWait());
         assertEquals(lastUpdate.plusMinutes(42).toLocalTime(), result.getWhen().asLocalTime());
         assertEquals("Single", result.getCarriages());
-        assertEquals(destination, result.getDestination());
+        assertEquals(destination.getId(), result.getDestinationId());
 
         List<UpcomingDeparture> resultOther = departureRepository.forStation(otherStation);
         assertEquals(1, resultOther.size());
-        assertEquals(destinationManAirport, resultOther.get(0).getDestination());
+        assertEquals(destinationManAirport.getId(), resultOther.getFirst().getDestinationId());
     }
 
     @Test

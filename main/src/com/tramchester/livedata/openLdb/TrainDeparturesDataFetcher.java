@@ -11,6 +11,7 @@ import com.thalesgroup.rtti._2017_10_01.ldb.types.StationBoard;
 import com.tramchester.config.OpenLdbConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.rail.repository.CRSRepository;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import jakarta.inject.Inject;
@@ -80,13 +81,15 @@ public class TrainDeparturesDataFetcher {
     }
 
     public Optional<StationBoard> getFor(final Station station) {
+        final IdFor<Station> stationId = station.getId();
+
         if (!enabled) {
-            logger.error("Attempt to invoke, but not enabled, did start up fail? Station:" + station.getId());
+            logger.error("Attempt to invoke, but not enabled, did start up fail? Station:" + stationId);
             return Optional.empty();
         }
         if (!started) {
             // restart strategy needed?
-            logger.warn("Not started, unable to fetch live data from " + station.getId());
+            logger.warn("Not started, unable to fetch live data from " + stationId);
             return Optional.empty();
         }
 
@@ -94,12 +97,12 @@ public class TrainDeparturesDataFetcher {
             logger.warn("Station is not a train station");
             return Optional.empty();
         }
-        if (!crsRepository.hasStation(station)) {
-            logger.error("Not CRS Code found for " + station.getId());
+        if (!crsRepository.hasStation(stationId)) {
+            logger.error("Not CRS Code found for " + stationId);
             return Optional.empty();
         }
-        final String crs = crsRepository.getCRSFor(station);
-        logger.info("Get train departures for " + station.getId() + " with CRS " + crs);
+        final String crs = crsRepository.getCRSFor(stationId);
+        logger.info("Get train departures for " + stationId + " with CRS " + crs);
 
         final GetBoardRequestParams params = new GetBoardRequestParams();
         params.setCrs(crs);

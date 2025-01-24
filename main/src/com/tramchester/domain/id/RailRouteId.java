@@ -34,21 +34,22 @@ public class RailRouteId extends ContainsId<Route> implements IdFor<Route> {
         this.index = index;
     }
 
-    public static RailRouteId createId(IdFor<Agency> agencyId, List<IdFor<Station>> callingPoints, int index) {
+    public static RailRouteId createId(final IdFor<Agency> agencyId, final List<IdFor<Station>> callingPoints, final int index) {
         if (callingPoints.size()<2) {
             throw new RuntimeException("Need at least two calling points to create rail route id, got " + callingPoints);
         }
-        IdFor<Station> first = callingPoints.get(0);
-        IdFor<Station> last = callingPoints.get(callingPoints.size()-1);
+        final IdFor<Station> first = callingPoints.getFirst();
+        final IdFor<Station> last = callingPoints.getLast();
         return new RailRouteId(first, last, agencyId, index);
     }
 
-    private static StringIdFor<Route> createContainedId(IdFor<Station> begin, IdFor<Station> end, IdFor<Agency> agency, int index) {
-        StringIdFor<Station> beginId = (StringIdFor<Station>) begin;
-        StringIdFor<Station> endId = (StringIdFor<Station>) end;
-        StringIdFor<Agency> agencyId = (StringIdFor<Agency>) agency;
+    private static StringIdFor<Route> createContainedId(final IdFor<Station> begin, final IdFor<Station> end,
+                                                        final IdFor<Agency> agency, final int index) {
+        final StringIdFor<Station> beginId = (StringIdFor<Station>) begin;
+        final StringIdFor<Station> endId = (StringIdFor<Station>) end;
+        final StringIdFor<Agency> agencyId = (StringIdFor<Agency>) agency;
 
-        String idText = String.format("%s:%s=>%s:%s", beginId.getContainedId(), endId.getContainedId(),
+        final String idText = String.format("%s:%s=>%s:%s", beginId.getContainedId(), endId.getContainedId(),
                 agencyId.getContainedId(), index);
 
         return new StringIdFor<>(idText, Route.class);

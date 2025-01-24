@@ -19,11 +19,12 @@ public class TIPLOCInsertTest {
     @Test
     void shouldHaveRecordTruncated() {
         String text = "TIBATRSH 24528866ABATTERSEA PIER STAFF HALT 87239   0";
-
+        //             01234567890123456789012345678901234567890123456789012
         TIPLOCInsert result = TIPLOCInsert.parse(text);
 
         assertEquals("BATRSH", result.getTiplocCode());
         assertEquals("BATTERSEA PIER STAFF HALT", result.getName());
+        assertEquals("528866", result.getCorpus());
         assertFalse(result.isUseful());
 //        assertEquals("xx", result.getCRS());
     }

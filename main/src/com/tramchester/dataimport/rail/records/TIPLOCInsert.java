@@ -22,19 +22,22 @@ public class TIPLOCInsert implements RailTimetableRecord {
     private final String tiplocCode;
     private final String name;
     private final String crs;
+    private final String corpus;
 
-    public TIPLOCInsert(String tiplocCode, String name, String crs) {
+    public TIPLOCInsert(String tiplocCode, String name, String crs, String corpus) {
         this.tiplocCode = tiplocCode;
         this.name = name;
         this.crs = crs;
+        this.corpus = corpus;
     }
 
     public static TIPLOCInsert parse(final String line) {
         final String tiplocCode = RecordHelper.extract(line, 3, 9+1);
+        final String corpus = RecordHelper.extract(line,12,17+1);
         final String name = RecordHelper.extract(line, 19, 44+1);
         final String crs = extractTruncatedSafe(line, 54, 56 + 1);
 
-        return new TIPLOCInsert(tiplocCode, name, crs);
+        return new TIPLOCInsert(tiplocCode, name, crs, corpus);
     }
 
     private static String extractTruncatedSafe(String line, int begin, int end) {
@@ -78,5 +81,9 @@ public class TIPLOCInsert implements RailTimetableRecord {
             return false;
         }
         return true;
+    }
+
+    public String getCorpus() {
+        return corpus;
     }
 }

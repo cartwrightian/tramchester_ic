@@ -43,12 +43,12 @@ public class MapJourneyDTOToStations {
         }
 
         if (stations.size()==1) {
-            return stations.get(0);
+            return stations.getFirst();
         }
 
         // TODO is it ok just pick one?
         logger.warn("Found multiple final (will use first one) stations " + stations + " for " + journeyDTOS);
-        return stations.get(0);
+        return stations.getFirst();
     }
 
     private LocationRefWithPosition lastStationIn(final List<LocationRefWithPosition> path) {

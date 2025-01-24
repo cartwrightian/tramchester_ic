@@ -1,7 +1,7 @@
 package com.tramchester.domain;
 
 import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.RailRouteId;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 
@@ -11,14 +11,14 @@ import java.util.Set;
 
 import static java.lang.String.format;
 
-public class MutableRailRoute extends MutableRoute {
+public class MutableRailRoute extends MutableRoute implements RailRoute {
 
     // used to find and name unique routes for rail, as routes are not part of the data set we have to
     // derive them
     private final List<Station> callingPoints;
     private static final Set<TransportMode> railModes = EnumSet.of(TransportMode.Train, TransportMode.RailReplacementBus);
 
-    public MutableRailRoute(IdFor<Route> id, List<Station> callingPoints, Agency agency, TransportMode transportMode) {
+    public MutableRailRoute(final RailRouteId id, final List<Station> callingPoints, final Agency agency, final TransportMode transportMode) {
         super(id, createShortName(agency, callingPoints), createName(agency, callingPoints), agency, transportMode);
         if (callingPoints.size()<2) {
             final String message = format("Need at least 2 calling points route %s (%s) and calling points %s",
@@ -31,17 +31,35 @@ public class MutableRailRoute extends MutableRoute {
         this.callingPoints = callingPoints;
     }
 
+    @Override
     public Station getBegin() {
-        return callingPoints.get(0);
+        return callingPoints.getFirst();
     }
 
+    @Override
     public Station getEnd() {
-        return callingPoints.get(callingPoints.size()-1);
+        return callingPoints.getLast();
     }
 
+    @Override
+    public boolean callsAtInOrder(final Station first, final Station second) {
+        final int indexOfFirst = callingPoints.indexOf(first);
+        if (indexOfFirst<0) {
+            return false;
+        }
+        final int indexOfSecond = callingPoints.indexOf(second);
+        if (indexOfSecond<0) {
+            return false;
+        }
+        return indexOfSecond>indexOfFirst;
+
+    }
+
+    @Override
     public List<Station> getCallingPoints() {
         return callingPoints;
     }
+
 
     @Override
     public String toString() {
@@ -50,23 +68,22 @@ public class MutableRailRoute extends MutableRoute {
                 "} " + super.toString();
     }
 
-    private static String createShortName(Agency agency, List<Station> callingPoints) {
-        Station first = callingPoints.get(0);
-        int lastIndex = callingPoints.size() - 1;
-        Station last = callingPoints.get(lastIndex);
+    private static String createShortName(final Agency agency, final List<Station> callingPoints) {
+        final Station first = callingPoints.getFirst();
+        final Station last = callingPoints.getLast();
 
         return format("%s service from %s to %s", agency.getName(), first.getName(), last.getName());
 
     }
 
-    private static String createName(Agency agency, List<Station> callingPoints) {
-        Station first = callingPoints.get(0);
-        int lastIndex = callingPoints.size() - 1;
-        Station last = callingPoints.get(lastIndex);
-        StringBuilder result = new StringBuilder();
+    private static String createName(final Agency agency, final List<Station> callingPoints) {
+        final Station first = callingPoints.getFirst();
+        final Station last = callingPoints.getLast();
+        final StringBuilder result = new StringBuilder();
 
         result.append(format("%s service from %s to %s", agency.getName(), first.getName(), last.getName()));
 
+        final int lastIndex = callingPoints.size() - 1;
         for (int i = 1; i < lastIndex; i++) {
             if (i>1) {
                 result.append(", ");

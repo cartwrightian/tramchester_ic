@@ -325,9 +325,9 @@ public class RailTransportDataFromFilesTest {
         IdFor<Station> endId = ManchesterAirport.getId();
 
         // all routes for between piccadilly and the airport
-        Set<MutableRailRoute> routes = transportData.getRoutes().stream().
+        Set<RailRoute> routes = transportData.getRoutes().stream().
                 filter(route -> route instanceof MutableRailRoute).
-                map(route -> (MutableRailRoute)route).
+                map(route -> (RailRoute)route).
                 filter(route -> route.getBegin().getId().equals(startId)).
                 filter(route -> route.getEnd().getId().equals(endId)).
                 collect(Collectors.toSet());

@@ -9,10 +9,7 @@ import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
 import com.tramchester.dataimport.rail.repository.RailRouteIdRepository;
 import com.tramchester.dataimport.rail.repository.RailStationRecordsRepository;
 import com.tramchester.domain.*;
-import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.PlatformId;
-import com.tramchester.domain.id.StringIdFor;
+import com.tramchester.domain.id.*;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.RailPlatformStopCall;
 import com.tramchester.domain.input.StopCall;
@@ -195,9 +192,9 @@ public class RailTimetableMapper {
             this.extraDetails = (BasicScheduleExtraDetails) record;
         }
 
-        public RailLocationRecord getTerminatingLocation() {
-            return terminatingLocation;
-        }
+//        public RailLocationRecord getTerminatingLocation() {
+//            return terminatingLocation;
+//        }
     }
 
     private static class CreatesTransportDataForRail {
@@ -276,9 +273,6 @@ public class RailTimetableMapper {
                 return false;
             }
 
-            //logger.debug("Create schedule for " + uniqueTrainId);
-            final String atocCode = rawService.extraDetails.getAtocCode();
-
             // Calling points
             final List<Station> allCalledAtStations = getRouteStationCallingPoints(rawService);
 
@@ -302,12 +296,13 @@ public class RailTimetableMapper {
             }
 
             // Agency
+            final String atocCode = rawService.extraDetails.getAtocCode();
             final MutableAgency mutableAgency = getOrCreateAgency(atocCode);
             final IdFor<Agency> agencyId = mutableAgency.getId();
 
             // route ID uses "national" ids, so without calling points filtered to be within bounds
             // this is so routes that start and/or finish out-of-bounds are named correctly
-            final IdFor<Route> routeId = railRouteIdRepository.getRouteIdFor(agencyId, allCalledAtStations);
+            final RailRouteId routeId = railRouteIdRepository.getRouteIdFor(agencyId, allCalledAtStations);
 
             final MutableService service = railServiceGroups.getOrCreateService(basicSchedule, isOverlay, DataSourceID.openRailData);
             final MutableRoute route = getOrCreateRoute(routeId, rawService, mutableAgency, mode, allCalledAtStations);
@@ -538,7 +533,7 @@ public class RailTimetableMapper {
             return StringIdFor.withPrefix("trip:", service.getId(), Trip.class);
         }
 
-        private MutableRoute getOrCreateRoute(final IdFor<Route> routeId, final RawService rawService, final Agency agency,
+        private MutableRoute getOrCreateRoute(final RailRouteId routeId, final RawService rawService, final Agency agency,
                                               final TransportMode mode, final List<Station> allCallingPoints) {
             final IdFor<Agency> agencyId = agency.getId();
 
@@ -577,6 +572,10 @@ public class RailTimetableMapper {
 
         private List<Station> getRouteStationCallingPoints(final RawService rawService) {
 
+
+            // TODO NOTE potential duplication here as create list of stations but this is NOT used to for
+            // the trip callings points
+
             final List<Station> result = new ArrayList<>();
 
             // add the starting point
@@ -586,8 +585,7 @@ public class RailTimetableMapper {
             }
 
             // add the intermediates
-            // TODO for now don't record passed stations (not stopping) but might want to do so in future
-            // to assist with live data processing
+            // TODO for now don't record passed stations (not stopping) but might want to do so in future to assist with live data processing
             final List<IntermediateLocation> callingRecords = rawService.intermediateLocations.stream().
                     filter(IntermediateLocation::doesStop).
                     toList();
@@ -605,6 +603,9 @@ public class RailTimetableMapper {
             }
 
             if (!filter.isActive()) {
+                // This seems to be happening where train appears to stop at a location not listed in MSN as a station
+                // TODO check the docs, guessing is edge case which should be be recorded as an actual stop even if
+                // flagged as 'T'
                 if (callingRecords.size() != intermediates.size()) {
                     // replacement bus often seem to be missing 1 station
                     if (rawService.basicScheduleRecord.getTrainCategory()!=TrainCategory.BusReplacement) {

@@ -374,17 +374,17 @@ public class RailTransportDataFromFilesTest {
         Agency agency = foundAgency.get();
 
         // all routes for VT between start and end
-        Set<MutableRailRoute> routes = transportData.getRoutes().stream().
+        Set<RailRoute> routes = transportData.getRoutes().stream().
                 filter(route -> route instanceof MutableRailRoute).
                 filter(route -> route.getAgency().equals(agency)).
-                map(route -> (MutableRailRoute)route).
+                map(route -> (RailRoute)route).
                 filter(route -> route.getBegin().getId().equals(startId)).
                 filter(route -> route.getEnd().getId().equals(endId)).
                 collect(Collectors.toSet());
 
         // get unique sets of calling points
         Set<List<Station>> uniqueCallingPoints = routes.stream().
-                map(MutableRailRoute::getCallingPoints).collect(Collectors.toSet());
+                map(RailRoute::getCallingPoints).collect(Collectors.toSet());
 
         assertEquals(routes.size(), uniqueCallingPoints.size());
 

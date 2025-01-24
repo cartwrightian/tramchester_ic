@@ -15,10 +15,9 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
-import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchesterConfig;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
+import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchesterConfig;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
-import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.GMTest;
@@ -38,7 +37,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 @GMTest
 public class RailAndTramRouteCalculatorSubGraphRoutesTest {
     private static final Duration TXN_TIMEOUT = Duration.ofMinutes(5);
-    private static StationRepository stationRepository;
     private static TramchesterConfig config;
 
     private static final TramDate when = TestEnv.testDay();
@@ -66,7 +64,6 @@ public class RailAndTramRouteCalculatorSubGraphRoutesTest {
                 create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
 
-        stationRepository = componentContainer.get(StationRepository.class);
         database = componentContainer.get(GraphDatabase.class);
     }
 

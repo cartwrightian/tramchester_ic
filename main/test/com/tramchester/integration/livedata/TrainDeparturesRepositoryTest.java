@@ -2,6 +2,7 @@ package com.tramchester.integration.livedata;
 
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.GuiceContainerDependencies;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchesterConfig;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
@@ -62,9 +63,11 @@ public class TrainDeparturesRepositoryTest {
 
         departures.forEach(departure -> {
             assertEquals(station, departure.getDisplayLocation());
-            Station dest = departure.getDestination();
+            assertTrue(station.getId().isValid(), "did not find displaylocaiton " + station.getId());
+
+            IdFor<Station> dest = departure.getDestinationId();
             assertNotNull(dest);
-            assertTrue(station.getId().isValid(), "did not find destination " + dest);
+            assertTrue(dest.isValid());
         });
     }
 }

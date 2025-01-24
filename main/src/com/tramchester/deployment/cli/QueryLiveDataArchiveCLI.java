@@ -101,7 +101,7 @@ public class QueryLiveDataArchiveCLI extends BaseCLI {
             Stream<String> allStatus = finder.getUniqueDueTramStatus(start, duration, sampleWindow).stream();
 
             Stream<String> withLineSep = allStatus.
-                    filter(text -> !UpcomingDeparture.KNOWN_STATUS.contains(text)).
+                    filter(text -> !UpcomingDeparture.KNOWN_TRAM_STATUS.contains(text)).
                     map(text -> text + System.lineSeparator());
 
             logger.info("Writing tram status to " + outputFilename);

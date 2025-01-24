@@ -21,7 +21,7 @@ public class FindUniqueDueTramStatusTest {
     private static ComponentContainer componentContainer;
     private FindUniqueDueTramStatus finder;
 
-    private final Set<String> expected = UpcomingDeparture.KNOWN_STATUS;
+    private final Set<String> expected = UpcomingDeparture.KNOWN_TRAM_STATUS;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {

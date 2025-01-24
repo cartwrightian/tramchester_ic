@@ -66,8 +66,8 @@ public enum LocationActivityCode implements EnumMap.HasCodes {
         this.code = code;
     }
 
-    public static EnumSet<LocationActivityCode> parse(String code) {
-        String lookup = code.trim();
+    public static EnumSet<LocationActivityCode> parse(final String code) {
+        final String lookup = code.trim();
         if (lookup.isEmpty()) {
             return EnumSet.noneOf(LocationActivityCode.class);
         }
@@ -77,18 +77,18 @@ public enum LocationActivityCode implements EnumMap.HasCodes {
     }
 
     private static EnumSet<LocationActivityCode> getCodesFor(final String text) {
-        EnumSet<LocationActivityCode> result = EnumSet.noneOf(LocationActivityCode.class);
+       final EnumSet<LocationActivityCode> result = EnumSet.noneOf(LocationActivityCode.class);
 
-        String[] tokens = text.split(" ");
-        for (String token : tokens) {
+        final String[] tokens = text.split(" ");
+        for (final String token : tokens) {
             result.addAll(parseToken(token));
         }
         return result;
 
     }
 
-    private static EnumSet<LocationActivityCode> parseToken(String token) {
-        EnumSet<LocationActivityCode> result = EnumSet.noneOf(LocationActivityCode.class);
+    private static EnumSet<LocationActivityCode> parseToken(final String token) {
+        final EnumSet<LocationActivityCode> result = EnumSet.noneOf(LocationActivityCode.class);
 
         String toProcess = token;
 
@@ -110,25 +110,25 @@ public enum LocationActivityCode implements EnumMap.HasCodes {
 
     }
 
-    private static LocationActivityCode parseSingle(String text) {
+    private static LocationActivityCode parseSingle(final String text) {
         if (codes.containsCode(text)) {
             return codes.get(text);
         }
         return None;
     }
 
-    public static boolean doesStop(EnumSet<LocationActivityCode> activity) {
-        EnumSet<LocationActivityCode> copyOfStops = EnumSet.copyOf(stops);
+    public static boolean doesStop(final EnumSet<LocationActivityCode> activity) {
+        final EnumSet<LocationActivityCode> copyOfStops = EnumSet.copyOf(stops);
         return copyOfStops.removeAll(activity);
     }
 
-    public static boolean doesPickup(EnumSet<LocationActivityCode> activity) {
-        EnumSet<LocationActivityCode> copyOfPickups = EnumSet.copyOf(pickUps);
+    public static boolean doesPickup(final EnumSet<LocationActivityCode> activity) {
+        final EnumSet<LocationActivityCode> copyOfPickups = EnumSet.copyOf(pickUps);
         return copyOfPickups.removeAll(activity);
     }
 
-    public static boolean doesDropOff(EnumSet<LocationActivityCode> activity) {
-        EnumSet<LocationActivityCode> copyOfDropoffs = EnumSet.copyOf(dropOffs);
+    public static boolean doesDropOff(final EnumSet<LocationActivityCode> activity) {
+        final EnumSet<LocationActivityCode> copyOfDropoffs = EnumSet.copyOf(dropOffs);
         return copyOfDropoffs.removeAll(activity);
     }
 

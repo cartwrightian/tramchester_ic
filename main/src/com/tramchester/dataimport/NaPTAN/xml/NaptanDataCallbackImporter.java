@@ -53,8 +53,7 @@ public class NaptanDataCallbackImporter {
         }
 
         Path filePath = remoteDataRefreshed.fileFor(DataSourceID.naptanxml);
-
-        String name = filePath.getFileName().toString();
+        final String name = filePath.getFileName().toString();
 
         if (name.toLowerCase().endsWith(".zip")) {
             String newPath = FilenameUtils.removeExtension(filePath.toString());
@@ -64,7 +63,8 @@ public class NaptanDataCallbackImporter {
 
         logger.info("Loading data from " + filePath.toAbsolutePath());
         // naptan xml is UTF-8
-        ElementsFromXMLFile<NaptanStopData> dataLoader = new ElementsFromXMLFile<>(filePath, StandardCharsets.UTF_8, mapper, consumer);
+        final ElementsFromXMLFile<NaptanStopData> dataLoader = new ElementsFromXMLFile<>(filePath,
+                StandardCharsets.UTF_8, mapper, consumer);
 
         dataLoader.load();
     }

@@ -7,9 +7,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 
-import java.time.Duration;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -26,14 +24,14 @@ public class UpcomingDeparture {
     private final TransportMode mode;
     private Platform platform;
 
-    public static final Set<String> KNOWN_STATUS = new HashSet<>(Arrays.asList("Due", "Arrived", "Departing"));
+    public static final Set<String> KNOWN_TRAM_STATUS = new HashSet<>(Arrays.asList("Due", "Arrived", "Departing"));
 
-    @Deprecated
-    public UpcomingDeparture(LocalDate date, Station displayLocation, Station destination, String status, Duration wait,
-                             String carriages, LocalTime updateTime,
-                             Agency agency, TransportMode mode) {
-        this(date, displayLocation, destination, status, TramTime.ofHourMins(updateTime).plus(wait), carriages, agency, mode);
-    }
+//    @Deprecated
+//    public UpcomingDeparture(LocalDate date, Station displayLocation, Station destination, String status, Duration wait,
+//                             String carriages, LocalTime updateTime,
+//                             Agency agency, TransportMode mode) {
+//        this(date, displayLocation, destination, status, TramTime.ofHourMins(updateTime).plus(wait), carriages, agency, mode);
+//    }
 
     public UpcomingDeparture(LocalDate date, Station displayLocation, Station destination, String status, TramTime when,
                              String carriages, Agency agency, TransportMode mode) {
@@ -48,8 +46,17 @@ public class UpcomingDeparture {
         platform = null;
     }
 
+    /***
+     * Use getDestinationId instead
+     * @return final destination for this departure
+     */
+    @Deprecated
     public Station getDestination() {
         return destination;
+    }
+
+    public IdFor<Station> getDestinationId() {
+        return destination.getId();
     }
 
     public String getStatus() {
@@ -143,5 +150,6 @@ public class UpcomingDeparture {
         }
         return platform.getId();
     }
+
 
 }

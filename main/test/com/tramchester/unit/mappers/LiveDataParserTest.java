@@ -117,7 +117,7 @@ class LiveDataParserTest extends EasyMockSupport {
 
         assertEquals(1, infos.size());
 
-        TramStationDepartureInfo info = infos.get(0);
+        TramStationDepartureInfo info = infos.getFirst();
 
         assertTrue(info.hasDueTrams());
 
@@ -125,10 +125,10 @@ class LiveDataParserTest extends EasyMockSupport {
 
         assertEquals(1, dueTrams.size());
 
-        UpcomingDeparture dueTram = dueTrams.get(0);
+        UpcomingDeparture dueTram = dueTrams.getFirst();
 
         assertEquals(TestEnv.MetAgency(), dueTram.getAgency());
-        assertEquals(Piccadilly.fake() , dueTram.getDestination());
+        assertEquals(Piccadilly.getId() , dueTram.getDestinationId());
         assertEquals(TramTime.of(11,46), dueTram.getWhen());
         assertEquals("Due", dueTram.getStatus());
         assertEquals("Single", dueTram.getCarriages());
@@ -182,7 +182,7 @@ class LiveDataParserTest extends EasyMockSupport {
 
         assertEquals(2, info.size());
 
-        TramStationDepartureInfo departureInfoA = info.get(0);
+        TramStationDepartureInfo departureInfoA = info.getFirst();
         assertEquals("1", departureInfoA.getDisplayId());
         assertEquals(OverheadDisplayLines.Eccles, departureInfoA.getLine());
         assertTrue(departureInfoA.hasStationPlatform());
@@ -195,7 +195,7 @@ class LiveDataParserTest extends EasyMockSupport {
         assertEquals(2, dueTrams.size());
         UpcomingDeparture dueFromA = dueTrams.get(1);
 
-        assertEquals("Piccadilly", dueFromA.getDestination().getName());
+        assertEquals(Piccadilly.getId(), dueFromA.getDestinationId());
         assertEquals("Due", dueFromA.getStatus());
         assertEquals("Single",dueFromA.getCarriages());
         assertEquals(TramTime.of(11,45).plusMinutes(12), dueFromA.getWhen());
@@ -218,8 +218,8 @@ class LiveDataParserTest extends EasyMockSupport {
 
         assertEquals(2, departureInfoB.getDueTrams().size());
 
-        UpcomingDeparture dueFromB = departureInfoB.getDueTrams().get(0);
-        assertEquals(Deansgate.getId(), dueFromB.getDestination().getId());
+        UpcomingDeparture dueFromB = departureInfoB.getDueTrams().getFirst();
+        assertEquals(Deansgate.getId(), dueFromB.getDestinationId());
     }
 
     @Test
@@ -271,17 +271,17 @@ class LiveDataParserTest extends EasyMockSupport {
 
         assertEquals(2, infos.size());
 
-        TramStationDepartureInfo infoA = infos.get(0);
+        TramStationDepartureInfo infoA = infos.getFirst();
         assertTrue(infoA.hasDueTrams());
         List<UpcomingDeparture> dueTramsA = infoA.getDueTrams();
         assertEquals(1, dueTramsA.size());
-        assertEquals(Piccadilly.getId(), dueTramsA.get(0).getDestination().getId());
+        assertEquals(Piccadilly.getId(), dueTramsA.getFirst().getDestinationId());
 
         TramStationDepartureInfo infoB = infos.get(1);
         assertTrue(infoB.hasDueTrams());
         List<UpcomingDeparture> dueTramsB = infoB.getDueTrams();
         assertEquals(1, dueTramsB.size());
-        assertEquals(Altrincham.getId(), dueTramsB.get(0).getDestination().getId());
+        assertEquals(Altrincham.getId(), dueTramsB.getFirst().getDestinationId());
 
     }
 
@@ -323,14 +323,14 @@ class LiveDataParserTest extends EasyMockSupport {
         List<TramStationDepartureInfo> info = doParsing(seeTramFront);
 
         assertEquals(2, info.size());
-        TramStationDepartureInfo departureInfo = info.get(0);
+        TramStationDepartureInfo departureInfo = info.getFirst();
         assertEquals("1", departureInfo.getDisplayId());
 
         // filter out the "See Tram Front" destination tram
         List<UpcomingDeparture> dueTrams = departureInfo.getDueTrams();
         assertEquals(1, dueTrams.size());
 
-        assertEquals(Piccadilly.getId(), dueTrams.get(0).getDestination().getId());
+        assertEquals(Piccadilly.getId(), dueTrams.getFirst().getDestinationId());
 
     }
 
@@ -359,14 +359,14 @@ class LiveDataParserTest extends EasyMockSupport {
         List<TramStationDepartureInfo> info = doParsing(seeTramFront);
 
         assertEquals(1, info.size());
-        TramStationDepartureInfo departureInfo = info.get(0);
+        TramStationDepartureInfo departureInfo = info.getFirst();
         assertEquals("1", departureInfo.getDisplayId());
 
         // filter out the "Not in Service" destination tram
         List<UpcomingDeparture> dueTrams = departureInfo.getDueTrams();
         assertEquals(1, dueTrams.size());
 
-        assertEquals(Piccadilly.getId(), dueTrams.get(0).getDestination().getId());
+        assertEquals(Piccadilly.getId(), dueTrams.getFirst().getDestinationId());
     }
 
     @Test
@@ -426,14 +426,14 @@ class LiveDataParserTest extends EasyMockSupport {
 
         assertEquals(1, results.size());
 
-        TramStationDepartureInfo result = results.get(0);
+        TramStationDepartureInfo result = results.getFirst();
         assertEquals("1", result.getDisplayId());
 
         List<UpcomingDeparture> allDue = result.getDueTrams();
         assertEquals(1, allDue.size());
 
-        UpcomingDeparture due = allDue.get(0);
-        assertEquals(Piccadilly.getId(), due.getDestination().getId());
+        UpcomingDeparture due = allDue.getFirst();
+        assertEquals(Piccadilly.getId(), due.getDestinationId());
     }
 
     @Test
@@ -461,16 +461,16 @@ class LiveDataParserTest extends EasyMockSupport {
 
         List<TramStationDepartureInfo> results = doParsing(exampleData);
 
-        TramStationDepartureInfo result = results.get(0);
+        TramStationDepartureInfo result = results.getFirst();
         assertEquals("234", result.getDisplayId());
 
         List<UpcomingDeparture> allDue = result.getDueTrams();
         assertEquals(2, allDue.size());
 
-        UpcomingDeparture due1 = allDue.get(0);
-        assertEquals(Deansgate.getId(), due1.getDestination().getId());
-        UpcomingDeparture due2 = allDue.get(0);
-        assertEquals(Deansgate.getId(), due2.getDestination().getId());
+        UpcomingDeparture due1 = allDue.getFirst();
+        assertEquals(Deansgate.getId(), due1.getDestinationId());
+        UpcomingDeparture due2 = allDue.getFirst();
+        assertEquals(Deansgate.getId(), due2.getDestinationId());
     }
 
     private List<TramStationDepartureInfo> doParsing(String data) {

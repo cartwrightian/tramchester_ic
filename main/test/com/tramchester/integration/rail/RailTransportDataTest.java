@@ -8,6 +8,7 @@ import com.tramchester.domain.Service;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
@@ -108,15 +109,16 @@ public class RailTransportDataTest {
         StopCalls calls = trip.getStopCalls();
         assertEquals(3, calls.numberOfCallingPoints(), calls.toString());
 
-        assertEquals(Station.createId("VICTRIC"), calls.getFirstStop().getStation().getId());
-        assertEquals(Station.createId("GTWK"), calls.getLastStop().getStation().getId());
+        IdFor<Station> firstStation = Station.createId("VICTRIC");
+        IdFor<Station> lastStation = Station.createId("GTWK");
 
-        List<Station> stations = calls.getStationSequence(true);
+        assertEquals(firstStation, calls.getFirstStop().getStation().getId());
+        assertEquals(lastStation, calls.getLastStop().getStation().getId());
 
-        boolean found = stations.stream().anyMatch(station -> station.getId().equals(Station.createId("BATRSH")));
-        assertTrue(found);
-
-
+        List<StopCall> callingsStations = calls.stream().filter(StopCall::callsAtStation).toList();
+        assertEquals(firstStation, callingsStations.getFirst().getStationId());
+        assertEquals(lastStation, callingsStations.getLast().getStationId());
+        assertEquals(Station.createId("CLPHMJC"), callingsStations.get(1).getStationId());
     }
 
     @Test

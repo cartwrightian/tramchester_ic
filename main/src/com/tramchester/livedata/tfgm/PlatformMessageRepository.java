@@ -11,6 +11,7 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.domain.liveUpdates.PlatformMessage;
@@ -171,6 +172,10 @@ public class PlatformMessageRepository implements PlatformMessageSource, Reports
     @Override
     public List<PlatformMessage> messagesFor(Station station, TramDate when, TramTime queryTime) {
         if (!isEnabled()) {
+            return Collections.emptyList();
+        }
+        if (!station.getTransportModes().contains(TransportMode.Tram)) {
+            logger.info("Not a tram station, not checking for messages for " + station.getId());
             return Collections.emptyList();
         }
 

@@ -47,7 +47,7 @@ class UpcomingDepartureTest {
         assertEquals(updateTime.plusMinutes(4), result.asLocalTime());
         assertFalse(result.isNextDay());
         assertEquals(displayLocation, departure.getDisplayLocation());
-        assertEquals(destination, departure.getDestination());
+        assertEquals(destination.getId(), departure.getDestinationId());
         assertEquals("Due", departure.getStatus());
         assertEquals("Double", departure.getCarriages());
         assertEquals(TransportMode.Tram, departure.getMode());

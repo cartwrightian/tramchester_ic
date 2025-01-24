@@ -77,7 +77,7 @@ public class DeparturesResource extends TransportResource implements APIResource
     @Operation(description = "Get departures for a location")
     @ApiResponse(content = @Content(schema = @Schema(implementation = DepartureListDTO.class)))
     @CacheControl(maxAge = 30, maxAgeUnit = TimeUnit.SECONDS)
-    public Response getNearestDepartures(DeparturesQueryDTO departuresQuery) {
+    public Response getNearestDepartures(final DeparturesQueryDTO departuresQuery) {
 
         if (departuresQuery.getLocationType()==null || departuresQuery.getLocationId()==null) {
             logger.error("Cannot process departure query: " + departuresQuery);
@@ -129,7 +129,7 @@ public class DeparturesResource extends TransportResource implements APIResource
         final LocalDateTime currentTime = providesNow.getDateTime();
 
         if (departuresQuery.hasJourneys()) {
-            List<JourneyDTO> journeys = departuresQuery.getJourneys();
+            final List<JourneyDTO> journeys = departuresQuery.getJourneys();
             logger.info("Fetching due trams corresponding to supplied journey");
             return new TreeSet<>(departuresMapper.mapToDTO(dueTrams, currentTime, journeys));
         } else {
@@ -140,7 +140,8 @@ public class DeparturesResource extends TransportResource implements APIResource
     }
 
     @NotNull
-    private List<Note> getNotes(Set<IdForDTO> notesFor, List<UpcomingDeparture> dueTrams, TramDate queryDate, TramTime queryTime, Location<?> location) {
+    private List<Note> getNotes(final Set<IdForDTO> notesFor, final List<UpcomingDeparture> dueTrams,
+                                final TramDate queryDate, final TramTime queryTime, final Location<?> location) {
         final Set<Station> stations = getStationsToQueryForNotes(notesFor, dueTrams);
         final List<Note> notes = providesNotes.createNotesForStations(stations, queryDate, queryTime);
         if (notes.isEmpty()) {

@@ -14,6 +14,8 @@ public class NaptanXMLStopClassification {
     final private String stopType;
     final private NaptanXMLOffStreet offStreet;
 
+    // TODO on street
+
     @JsonCreator
     public NaptanXMLStopClassification(@JsonProperty("StopType") String stopType,
                                         @JsonProperty("OffStreet") NaptanXMLOffStreet offStreet) {

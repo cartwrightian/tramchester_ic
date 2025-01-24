@@ -3,6 +3,7 @@ package com.tramchester.integration.resources;
 import com.tramchester.App;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.MyLocation;
@@ -52,10 +53,13 @@ class DeparturesAfterJourneyResourceTest {
     private Station stationWithNotes;
     private Station stationWithDepartures;
     private PlatformMessageSource platformMessageSource;
-    private Station destinationForDueTram;
+    //private Station destinationForDueTram;
+    private IdFor<Station> destinationForDueTramId;
+
     private JourneyResourceTestFacade journeyPlanner;
     private TramDate queryDate;
     private TramTime time;
+    private StationRepository stationRepository;
 
     @BeforeAll
     public static void onceBeforeAll() {
@@ -68,14 +72,13 @@ class DeparturesAfterJourneyResourceTest {
         final GuiceContainerDependencies dependencies = app.getDependencies();
 
         platformMessageSource = dependencies.get(PlatformMessageSource.class);
-        StationRepository stationRepository = dependencies.get(StationRepository.class);
+        stationRepository = dependencies.get(StationRepository.class);
         ProvidesLocalNow providesLocalNow = dependencies.get(ProvidesLocalNow.class);
 
         queryDate = providesLocalNow.getTramDate();
         time = providesLocalNow.getNowHourMins();
 
         journeyPlanner = new JourneyResourceTestFacade(appExtension);
-
 
         // find locations with valid due trains and messages, needed for tests
         // not ideal but it works
@@ -97,7 +100,7 @@ class DeparturesAfterJourneyResourceTest {
             Optional<UpcomingDeparture> lastDep = upcomingDepartures.stream().max(Comparator.comparing(UpcomingDeparture::getWhen));
             lastDep.ifPresent(dueTram -> {
                 stationWithDepartures = dueTram.getDisplayLocation();
-                destinationForDueTram = dueTram.getDestination();
+                destinationForDueTramId = dueTram.getDestinationId();
             });
         });
 
@@ -120,20 +123,20 @@ class DeparturesAfterJourneyResourceTest {
     void shouldGetDueTramsWithCorrectDueTramsHighlighted() {
         Station station = stationWithDepartures;
 
-        SortedSet<DepartureDTO> departures = getDeparturesForStationAfterJourney(station, destinationForDueTram);
+        SortedSet<DepartureDTO> departures = getDeparturesForStationAfterJourney(station, destinationForDueTramId);
         assertFalse(departures.isEmpty(), "no due trams at " + station);
 
         departures.forEach(depart -> assertEquals(new LocationRefDTO(station), depart.getFrom()));
 
         // NOTE:  potential race condition here if the departure in the initial query has 'departed' by the
         // time we do the second query here. Very small window but it could happen.
-        IdForDTO tramDestinationExpected = IdForDTO.createFor(destinationForDueTram.getId());
+        IdForDTO tramDestinationExpected = IdForDTO.createFor(destinationForDueTramId);
         boolean haveTowardsDest = departures.stream().anyMatch(departureDTO -> departureDTO.getDestination().getId().equals(tramDestinationExpected));
 
         assertTrue(haveTowardsDest, "Did not find " + tramDestinationExpected + " in " + departures);
 
         Optional<DepartureDTO> towardsDestination = departures.stream().filter(DepartureDTO::getMatchesJourney).findAny();
-        assertTrue(towardsDestination.isPresent(), "no tram flagged as matching journey to " + destinationForDueTram.getId() + " from " + station.getId()
+        assertTrue(towardsDestination.isPresent(), "no tram flagged as matching journey to " + destinationForDueTramId + " from " + station.getId()
             + " in " + departures);
     }
 
@@ -144,6 +147,7 @@ class DeparturesAfterJourneyResourceTest {
 
         DeparturesQueryDTO queryDTO = new DeparturesQueryDTO(station.getLocationType(), IdForDTO.createFor(station));
 
+        final Location<?> destinationForDueTram = stationRepository.getStationById(destinationForDueTramId);
         JourneyQueryDTO journeyQueryDto = journeyPlanner.getQueryDTO(queryDate, time, station,
                 destinationForDueTram, false, 3);
         JourneyPlanRepresentation plan = journeyPlanner.getJourneyPlan(journeyQueryDto);
@@ -167,22 +171,24 @@ class DeparturesAfterJourneyResourceTest {
 
         MyLocation myLocation = new MyLocation(latLong);
 
-        SortedSet<DepartureDTO> departures = getDeparturesForStationAfterJourney(myLocation, destinationForDueTram);
+        SortedSet<DepartureDTO> departures = getDeparturesForStationAfterJourney(myLocation, destinationForDueTramId);
         assertFalse(departures.isEmpty(), "no due trams at " + latLong);
 
         Optional<DepartureDTO> towardsDestination = departures.stream().filter(DepartureDTO::getMatchesJourney).findAny();
-        assertTrue(towardsDestination.isPresent(), "no tram towards " + destinationForDueTram.getId() + " from close to " + stationWithDepartures.getId());
+        assertTrue(towardsDestination.isPresent(), "no tram towards " + destinationForDueTramId + " from close to " + stationWithDepartures.getId());
     }
 
 
-    private SortedSet<DepartureDTO> getDeparturesForStationAfterJourney(final Location<?> displayLocation, final Station destinationForDueTram) {
+    private SortedSet<DepartureDTO> getDeparturesForStationAfterJourney(final Location<?> displayLocation, final IdFor<Station> destinationForDueTramId) {
         final DeparturesQueryDTO queryDTO = new DeparturesQueryDTO(displayLocation.getLocationType(), IdForDTO.createFor(displayLocation));
 
+        Location<?> destinationForDueTram = stationRepository.getStationById(destinationForDueTramId);
         final JourneyQueryDTO journeyQueryDto = journeyPlanner.getQueryDTO(queryDate, time, displayLocation,
                 destinationForDueTram, false, 2);
         final JourneyPlanRepresentation plan = journeyPlanner. getJourneyPlan(journeyQueryDto);
 
-        assertFalse(plan.getJourneys().isEmpty(), "could find journey from " + displayLocation.getId() + " to " + destinationForDueTram.getId());
+        assertFalse(plan.getJourneys().isEmpty(), "could find journey from " + displayLocation.getId() + " to " +
+                destinationForDueTramId);
 
         queryDTO.setJourneys(plan.getJourneys());
 
@@ -191,7 +197,6 @@ class DeparturesAfterJourneyResourceTest {
 
 
     private SortedSet<DepartureDTO> getDepartureDTOS(DeparturesQueryDTO queryDTO) {
-        //queryDTO.setTime(time);
 
         Response response = getPostResponse(queryDTO);
 

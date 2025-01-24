@@ -10,6 +10,9 @@ import javax.annotation.PreDestroy;
 import java.util.HashMap;
 import java.util.Map;
 
+/***
+ *  * NOTE can contain stations not in main repository if they are not 'in bounds'
+ */
 @LazySingleton
 public class RailStationCRSRepository implements CRSRepository {
     private static final Logger logger = LoggerFactory.getLogger(RailStationCRSRepository.class);
@@ -42,16 +45,16 @@ public class RailStationCRSRepository implements CRSRepository {
 
     /***
      * Use station.getCode()
-     * @param station the station
+     * @param stationId the station
      * @return the crs code
      */
     @Deprecated
-    public String getCRSFor(Station station) {
-        return toCrs.get(station.getId());
+    public String getCRSFor(IdFor<Station> stationId) {
+        return toCrs.get(stationId);
     }
 
-    public boolean hasStation(Station station) {
-        return toCrs.containsKey(station.getId());
+    public boolean hasStation(IdFor<Station> stationId) {
+        return toCrs.containsKey(stationId);
     }
 
     @Override

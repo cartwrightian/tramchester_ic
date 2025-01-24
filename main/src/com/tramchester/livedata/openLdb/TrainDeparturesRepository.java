@@ -96,7 +96,7 @@ public class TrainDeparturesRepository implements UpcomingDeparturesSource {
             maybeBoard.ifPresent(board -> {
                 final LocalDateTime generated = getDate(board);
                 result.addAll(board.getTrainServices().getService().stream().
-                        map(serviceItem -> map(serviceItem, station, generated)).
+                        map(serviceItem -> mapToDeparture(serviceItem, station, generated)).
                         toList());
             });
             logger.info("Got " + result.size() + " departures for " + station.getId());
@@ -112,7 +112,7 @@ public class TrainDeparturesRepository implements UpcomingDeparturesSource {
             return LocalDateTime.of(date, time);
         }
 
-        private UpcomingDeparture map(final ServiceItem serviceItem, final Station displayLocation, final LocalDateTime generated) {
+        private UpcomingDeparture mapToDeparture(final ServiceItem serviceItem, final Station displayLocation, final LocalDateTime generated) {
 
             final String carridges = carridgesFrom(serviceItem.getFormation());
             final Agency agency = agencyFrom(serviceItem.getOperatorCode());
@@ -144,36 +144,39 @@ public class TrainDeparturesRepository implements UpcomingDeparturesSource {
         }
 
         // TODO Difference between wait and when above??
-        private Duration getWait(final LocalDateTime generated, final ServiceItem serviceItem) {
-            final String std = serviceItem.getStd();
-            logger.info("Get wait from " + std);
-            LocalTime departureTime = LocalTime.parse(std);
-
-            final Duration duration = Duration.between(generated.toLocalTime(), departureTime);
-            // TODO
-            // Right now don't store seconds in TramTime so need to round
-            long minutes = duration.toMinutes();
-            final long remainder = duration.minusMinutes(minutes).getSeconds();
-            if (remainder > 30) {
-                minutes = minutes + 1;
-            }
-            final Duration rounded = Duration.ofMinutes(minutes);
-            logger.info("Wait Duration is " + duration + " and rounded is " + rounded);
-            return rounded;
-        }
+//        private Duration getWait(final LocalDateTime generated, final ServiceItem serviceItem) {
+//            final String std = serviceItem.getStd();
+//            logger.info("Get wait from " + std);
+//            LocalTime departureTime = LocalTime.parse(std);
+//
+//            final Duration duration = Duration.between(generated.toLocalTime(), departureTime);
+//            // TODO
+//            // Right now don't store seconds in TramTime so need to round
+//            long minutes = duration.toMinutes();
+//            final long remainder = duration.minusMinutes(minutes).getSeconds();
+//            if (remainder > 30) {
+//                minutes = minutes + 1;
+//            }
+//            final Duration rounded = Duration.ofMinutes(minutes);
+//            logger.info("Wait Duration is " + duration + " and rounded is " + rounded);
+//            return rounded;
+//        }
 
         private Station destinationFrom(final ArrayOfServiceLocations destination) {
             final List<ServiceLocation> dests = destination.getLocation();
             if (dests.size() > 1) {
                 logger.warn("Number of destinations was " + dests.size());
             }
-            final String crs = dests.get(0).getCrs();
-            logger.debug("Find destination from " + crs);
+            final String crs = dests.getFirst().getCrs();
 
             if (!crsRepository.hasCrs(crs)) {
+                logger.warn("Could not find station for " + crs);
                 return MutableStation.Unknown(DataSourceID.openRailData);
             }
-            return crsRepository.getFor(crs);
+
+            final Station station = crsRepository.getFor(crs);
+            logger.debug("Found station " + station.getId() + " for CRS " + crs);
+            return station;
         }
 
         private Agency agencyFrom(final String operatorCode) {

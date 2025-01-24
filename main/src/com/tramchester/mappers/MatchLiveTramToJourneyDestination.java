@@ -28,13 +28,13 @@ public class MatchLiveTramToJourneyDestination {
         this.stopOrderChecker = stopOrderChecker;
     }
 
-    public boolean matchesJourneyDestination(UpcomingDeparture dueTram, final IdSet<Station> origChangeStationsId,
-                                             IdFor<Station> finalStationId) {
+    public boolean matchesJourneyDestination(final UpcomingDeparture upcomingDeparture, final IdSet<Station> origChangeStationsId,
+                                             final IdFor<Station> finalStationId) {
 
         // this should no longer happen...
         final IdSet<Station> changeStationIds;
         if (origChangeStationsId.contains(finalStationId)) {
-            logger.warn("initial destinations " + origChangeStationsId + " incorrectly contains "
+            logger.warn("original destinations " + origChangeStationsId + " incorrectly contains "
                     + finalStationId + " so removing");
             changeStationIds = IdSet.copy(origChangeStationsId);
             changeStationIds.remove(finalStationId);
@@ -42,21 +42,21 @@ public class MatchLiveTramToJourneyDestination {
             changeStationIds = origChangeStationsId;
         }
 
-        final Station dueTramDestination = dueTram.getDestination();
-        if (finalStationId.equals(dueTramDestination.getId())) {
+        final Station dueDestination = upcomingDeparture.getDestination();
+        if (finalStationId.equals(dueDestination.getId())) {
             // quick win, tram is going to our final destination
             return true;
         }
 
-        final Station displayLocation = dueTram.getDisplayLocation();
-        final TramDate date = TramDate.of(dueTram.getDate());
+        final Station displayLocation = upcomingDeparture.getDisplayLocation();
+        final TramDate date = TramDate.of(upcomingDeparture.getDate());
 
-        // check for trams "towards" our destination
+        // check for trams/trains "towards" our destination
         final Station finalStation = stationRepository.getStationById(finalStationId);
         final IdSet<Route> finalStationDropOffs = finalStation.getDropoffRoutes().stream().collect(IdSet.collector());
-        if (anyRouteOverlap(dueTram, finalStationDropOffs)) {
-            boolean callsAtDest = stopOrderChecker.check(date, displayLocation, finalStation, dueTramDestination) ||
-                    stopOrderChecker.check(date, displayLocation, dueTramDestination, finalStation);
+        if (anyRouteOverlap(upcomingDeparture, finalStationDropOffs)) {
+            boolean callsAtDest = stopOrderChecker.check(date, displayLocation, finalStation, dueDestination) ||
+                    stopOrderChecker.check(date, displayLocation, dueDestination, finalStation);
             if (callsAtDest) {
                 return true; // else check on change stations
             }
@@ -68,66 +68,41 @@ public class MatchLiveTramToJourneyDestination {
                 collect(Collectors.toSet());
 
         boolean callsAtChangeStation = changeStations.stream().
-                filter(callingStation -> anyRouteOverlap(dueTram, callingStation)).
-                anyMatch(callingStation -> stopOrderChecker.check(date, displayLocation, callingStation, dueTramDestination));
+                filter(callingStation -> anyRouteOverlap(upcomingDeparture, callingStation)).
+                anyMatch(callingStation -> stopOrderChecker.check(date, displayLocation, callingStation, dueDestination));
 
         if (callsAtChangeStation) {
             return true;
         }
 
         boolean towardsChangeStation = changeStations.stream().
-                filter(callingStation -> anyRouteOverlap(dueTram, callingStation)).
-                anyMatch(callingStation -> stopOrderChecker.check(date, displayLocation, dueTramDestination, callingStation));
+                filter(callingStation -> anyRouteOverlap(upcomingDeparture, callingStation)).
+                anyMatch(callingStation -> stopOrderChecker.check(date, displayLocation, dueDestination, callingStation));
 
         if (towardsChangeStation) {
             return true;
         }
 
-//        final IdSet<Route> dropOffsAtDest = getDropoffsFor(initialStations);
-//        if (anyRouteOverlap(dueTram, dropOffsAtDest)) {
-//            // now need to check direction, is the due tram destination in the same direction as the journey destination?
-//
-////            final boolean callsAt = initialStations.stream().
-////                    anyMatch(journeyDest -> stopOrderChecker.check(date, dueTram.getDisplayLocation(), journeyDest, dueTramDestination));
-//            Set<Station> intermediates = initialStations.stream().
-//                    filter(initialStation -> stopOrderChecker.check(date, displayLocation, initialStation, dueTramDestination)).
-//                    collect(Collectors.toSet());
-//
-//            if (!intermediates.isEmpty()) {
-//
-//                // check if due tram is going in wrong direction
-//                boolean correctDir = stopOrderChecker.check(date, displayLocation, finalStation, dueTramDestination) ||
-//                        stopOrderChecker.check(date, displayLocation, dueTramDestination, finalStation);
-//                if (correctDir) {
-//                    return true;
-//                }
-//            }
-//
-//            // due tram is going towards our destination, it's on the way
-//            return initialStations.stream().
-//                    anyMatch(journeyDest -> stopOrderChecker.check(date, displayLocation, dueTramDestination, journeyDest));
-//        }
-
         // todo into debug
-        logger.info("Did not match due tram " + dueTram + " with any of " + changeStationIds + " or " + finalStationId);
+        logger.info("Did not match due tram " + upcomingDeparture + " with any of " + changeStationIds + " or " + finalStationId);
         return false;
 
     }
 
-    private boolean anyRouteOverlap(UpcomingDeparture dueTram, Station station) {
-        IdSet<Route> dropOffIds = station.getDropoffRoutes().stream().collect(IdSet.collector());
+    private boolean anyRouteOverlap(final UpcomingDeparture dueTram, final Station station) {
+        final IdSet<Route> dropOffIds = station.getDropoffRoutes().stream().collect(IdSet.collector());
         return anyRouteOverlap(dueTram, dropOffIds);
     }
 
-    private IdSet<Route> getDropoffsFor(final Set<Station> stations) {
-        return stations.stream().
-                flatMap(station -> station.getDropoffRoutes().stream()).
-                collect(IdSet.collector());
-    }
+//    private IdSet<Route> getDropoffsFor(final Set<Station> stations) {
+//        return stations.stream().
+//                flatMap(station -> station.getDropoffRoutes().stream()).
+//                collect(IdSet.collector());
+//    }
 
-    private boolean anyRouteOverlap(UpcomingDeparture departure, IdSet<Route> dropOffsAtDest) {
-        Station dueTramDest = departure.getDestination();
-        IdSet<Route> dropOffsForDueTram = dueTramDest.getDropoffRoutes().stream().collect(IdSet.collector());
-        return !IdSet.intersection(dropOffsAtDest, dropOffsForDueTram).isEmpty();
+    private boolean anyRouteOverlap(final UpcomingDeparture departure, final IdSet<Route> dropOffsAtDest) {
+        final Station departureDestination = departure.getDestination();
+        final IdSet<Route> dropoffsAtDepDest = departureDestination.getDropoffRoutes().stream().collect(IdSet.collector());
+        return !IdSet.intersection(dropOffsAtDest, dropoffsAtDepDest).isEmpty();
     }
 }

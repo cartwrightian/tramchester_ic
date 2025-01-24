@@ -120,7 +120,7 @@ public class DeparturesRepository {
         final SetUtils.SetView<TransportMode> toFetch = SetUtils.intersection(station.getTransportModes(), modes);
 
         if (toFetch.isEmpty()) {
-            logger.error(format("Station modes %s and filter modes %s do not overlap", station, modes));
+            logger.error(format("Station modes %s and filter modes %s do not overlap", station.getId(), modes));
         }
 
         return toFetch.stream().

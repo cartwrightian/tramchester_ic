@@ -5,8 +5,9 @@ import com.tramchester.config.TfgmTramLiveDataConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
-import com.tramchester.domain.StationPair;
+import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.places.Station;
@@ -14,7 +15,7 @@ import com.tramchester.livedata.domain.liveUpdates.UpcomingDeparture;
 import com.tramchester.livedata.tfgm.LiveDataFetcher;
 import com.tramchester.livedata.tfgm.LiveDataMarshaller;
 import com.tramchester.livedata.tfgm.TramStationDepartureInfo;
-import com.tramchester.mappers.MatchLiveTramToJourneyDestination;
+import com.tramchester.repository.StationRepository;
 import io.dropwizard.configuration.ConfigurationException;
 import org.apache.commons.collections4.SetUtils;
 import org.slf4j.Logger;
@@ -79,7 +80,7 @@ public class MonitorTramLiveData extends BaseCLI {
 
         final LiveDataMarshaller marshaller = dependencies.get(LiveDataMarshaller.class);
         final LiveDataFetcher fetcher = dependencies.get(LiveDataFetcher.class);
-        final MatchLiveTramToJourneyDestination matchLiveTramToJourneyDestination = dependencies.get(MatchLiveTramToJourneyDestination.class);
+        //final MatchLiveTramToJourneyDestination matchLiveTramToJourneyDestination = dependencies.get(MatchLiveTramToJourneyDestination.class);
         final CountDownLatch latch = new CountDownLatch(numberToReceive);
 
         RecordDisplayInfo recordDisplayInfo = new RecordDisplayInfo(logger);
@@ -126,40 +127,40 @@ public class MonitorTramLiveData extends BaseCLI {
             this.logger = logger;
         }
 
-        public void record(List<TramStationDepartureInfo> updates) {
-            Set<StationPair> allAmbiguousRoutings = updates.stream().
-                    flatMap(update -> record(update).stream()).
+        public void record(List<TramStationDepartureInfo> updates, StationRepository stationRepos) {
+            Set<StationIdPair> allAmbiguousRoutings = updates.stream().
+                    flatMap(update -> record(update, stationRepos).stream()).
                     collect(Collectors.toSet());
 
             if (!allAmbiguousRoutings.isEmpty()) {
-                logger.error("Found:" + allAmbiguousRoutings.size() + " Ambiguous between " + HasId.asIds(allAmbiguousRoutings));
+                logger.error("Found:" + allAmbiguousRoutings.size() + " Ambiguous between " + allAmbiguousRoutings);
 
-                IdSet<Station> ambiguousStarts = allAmbiguousRoutings.stream().map(StationPair::getBegin).collect(IdSet.collector());
-                IdSet<Station> ambiguousEnds = allAmbiguousRoutings.stream().map(StationPair::getEnd).collect(IdSet.collector());
+                IdSet<Station> ambiguousStarts = allAmbiguousRoutings.stream().map(StationIdPair::getBeginId).collect(IdSet.idCollector());
+                IdSet<Station> ambiguousEnds = allAmbiguousRoutings.stream().map(StationIdPair::getEndId).collect(IdSet.idCollector());
 
                 logger.info("Starts: " +ambiguousStarts.size() + " " + ambiguousStarts);
                 logger.info("Ends:" + ambiguousEnds.size() + " " + ambiguousEnds);
             }
         }
 
-        private Set<StationPair> record(TramStationDepartureInfo update) {
+        private Set<StationIdPair> record(TramStationDepartureInfo update, StationRepository stationRepos) {
             Station displayStation = update.getStation();
 
             return update.getDueTrams().stream().
-                    map(UpcomingDeparture::getDestination).
-                    filter(dest -> !dest.equals(displayStation)).
-                    filter(dest -> ambiguousRoutingBetween(update, dest)).
-                    map(dest -> StationPair.of(update.getStation(), dest)).
+                    map(UpcomingDeparture::getDestinationId).
+                    filter(dest -> !dest.equals(displayStation.getId())).
+                    filter(dest -> ambiguousRoutingBetween(update, dest, stationRepos)).
+                    map(dest -> StationIdPair.of(update.getStation().getId(), dest)).
                     collect(Collectors.toSet());
 
         }
 
         /**
          * @param tramStationDepartureInfo the live display information
-         * @param destination the destination of the due tram
+         * @param destinationId the destination of the due tram
          * @return true if ambiguous
          */
-        private boolean ambiguousRoutingBetween(TramStationDepartureInfo tramStationDepartureInfo, Station destination) {
+        private boolean ambiguousRoutingBetween(TramStationDepartureInfo tramStationDepartureInfo, IdFor<Station> destinationId, StationRepository stationRepository) {
             Station displayStation = tramStationDepartureInfo.getStation();
 
             final Set<Route> pickups;
@@ -170,11 +171,13 @@ public class MonitorTramLiveData extends BaseCLI {
                 pickups = displayStation.getPickupRoutes();
             }
 
+
+            Station destination = stationRepository.getStationById(destinationId);
             Set<Route> dropoffs = destination.getDropoffRoutes();
 
             SetUtils.SetView<Route> overlap = SetUtils.union(pickups, dropoffs);
 
-            String suffix = " between " + displayStation.getId() + " and " + destination.getId();
+            String suffix = " between " + displayStation.getId() + " and " + destinationId;
 
             if (overlap.isEmpty()) {
                 logger.error("No overlap " + suffix);
@@ -187,22 +190,22 @@ public class MonitorTramLiveData extends BaseCLI {
             }
 
             // appears this does not happen when we have more than one route....
-            boolean sameCallingPoints = sameCallingPoints(overlap, displayStation, destination);
+            boolean sameCallingPoints = sameCallingPoints(overlap, displayStation, destinationId);
             if (sameCallingPoints) {
                 logger.info("Same calling points for routes " + HasId.asIds(overlap) + suffix);
             }
             return !sameCallingPoints;
         }
 
-        private boolean sameCallingPoints(SetUtils.SetView<Route> overlap, Station start, Station end) {
+        private boolean sameCallingPoints(SetUtils.SetView<Route> overlap, Station start, IdFor<Station> end) {
             Set<List<Station>> allCallingPoints = new HashSet<>();
             for(Route route : overlap) {
                 route.getTrips().forEach(trip -> {
-                    if (trip.callsAt(start.getId()) && trip.callsAt(end.getId())) {
+                    if (trip.callsAt(start.getId()) && trip.callsAt(end)) {
                         List<Station> callingPoints = new ArrayList<>();
                         final StopCalls stopCalls = trip.getStopCalls();
                         final int firstIndex = stopCalls.getStopFor(start.getId()).getGetSequenceNumber();
-                        final int lastIndex = stopCalls.getStopFor(end.getId()).getGetSequenceNumber();
+                        final int lastIndex = stopCalls.getStopFor(end).getGetSequenceNumber();
                         for (int i = firstIndex; i <= lastIndex; i++) {
                             callingPoints.add(stopCalls.getStopBySequenceNumber(i).getStation());
                         }
@@ -215,10 +218,10 @@ public class MonitorTramLiveData extends BaseCLI {
             if (sameCallingPoints) {
                 // unambiguous
                 // seems this  not happen, if multiple routes we always end up with an ambiguous set of calling points
-                logger.info("Unambiguous calling points between " + start.getId() + " and " + end.getId()
+                logger.info("Unambiguous calling points between " + start.getId() + " and " + end
                         + " for routes " + HasId.asIds(overlap));
             } else {
-                logger.error("Ambiguous calling points between " + start.getId() + " and " + end.getId()
+                logger.error("Ambiguous calling points between " + start.getId() + " and " + end
                         + " for routes " + HasId.asIds(overlap));
             }
 
