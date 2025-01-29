@@ -23,8 +23,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Set;
 
+import static com.tramchester.testSupport.reference.TramStations.*;
+import static com.tramchester.testSupport.reference.TramStations.Victoria;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class StopCallRepositoryTest {
@@ -100,5 +103,47 @@ public class StopCallRepositoryTest {
         assertTrue(costs.consistent(), costs.toString());
 
         assertEquals(Duration.ofMinutes(3), costs.min(), costs.toString());
+    }
+
+    @Test
+    void shouldFindUniqueCallingPointsBetween() {
+        List<IdFor<Station>> stations = stopCallRepository.getClosedBetween(OldTrafford.getId(), StPetersSquare.getId());
+
+        assertEquals(5, stations.size());
+
+        assertEquals(OldTrafford.getId(), stations.get(4));
+        assertEquals(TraffordBar.getId(), stations.get(3));
+        assertEquals(Cornbrook.getId(), stations.get(2));
+        assertEquals(Deansgate.getId(), stations.get(1));
+        assertEquals(StPetersSquare.getId(), stations.get(0));
+
+    }
+
+    @Test
+    void shouldFindUniqueCallingPointsBetweenAdjacentStations() {
+        List<IdFor<Station>> stations = stopCallRepository.getClosedBetween(NavigationRoad.getId(), Timperley.getId());
+
+        assertEquals(2, stations.size());
+
+        assertEquals(Timperley.getId(), stations.get(0));
+        assertEquals(NavigationRoad.getId(), stations.get(1));
+
+    }
+
+    @Test
+    void shouldFindUniqueCallingPointsEndOfALine() {
+        List<IdFor<Station>> stations = stopCallRepository.getClosedBetween(Altrincham.getId(), Timperley.getId());
+
+        assertEquals(3, stations.size());
+
+        assertEquals(Timperley.getId(), stations.get(0));
+        assertEquals(NavigationRoad.getId(), stations.get(1));
+        assertEquals(Altrincham.getId(), stations.get(2));
+
+    }
+
+    @Test
+    void shouldFailToFindUniqueSequenceIfAmbiguous() {
+        assertThrows(RuntimeException.class, () -> stopCallRepository.getClosedBetween(StPetersSquare.getId(), Victoria.getId()));
     }
 }

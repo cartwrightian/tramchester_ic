@@ -7,9 +7,8 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
-import com.tramchester.repository.RouteRepository;
+import com.tramchester.repository.StopCallRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.UpcomingDates;
 import org.junit.jupiter.api.*;
 
@@ -21,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class UpcomingDatesTest {
     private static GuiceContainerDependencies componentContainer;
-    private TramRouteHelper tramRouteHelper;
+    private StopCallRepository stopCallRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -36,14 +35,13 @@ public class UpcomingDatesTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
-        tramRouteHelper = new TramRouteHelper(routeRepository);
+        stopCallRepository = componentContainer.get(StopCallRepository.class);
     }
 
     @Disabled("WIP")
     @Test
     void shouldHaveExpectedClosures() {
-        List<IdFor<Station>> expectedClosed = tramRouteHelper.getClosedBetween(Eccles.getId(), MediaCityUK.getId());
+        List<IdFor<Station>> expectedClosed = stopCallRepository.getClosedBetween(Eccles.getId(), MediaCityUK.getId());
 
         DateRange range = UpcomingDates.MediaCityEcclesWorks2025;
 
@@ -52,7 +50,6 @@ public class UpcomingDatesTest {
                     collect(IdSet.idCollector());
             assertTrue(missing.isEmpty(), "On " + date + " still open " + missing);
         });
-
 
     }
 }

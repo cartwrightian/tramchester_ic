@@ -17,6 +17,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.metrics.CacheMetrics;
 import jakarta.inject.Inject;
+import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -136,6 +137,62 @@ public class StopCallRepository  {
 
     private List<Pair<String, CacheStats>> reportStats() {
         return Collections.singletonList(Pair.of("CachedCosts", cachedCosts.stats()));
+    }
+
+    public List<IdFor<Station>> getClosedBetween(final IdFor<Station> beginId, final IdFor<Station> endId) {
+        final Station begin = stationRepository.getStationById(beginId);
+        final Station end = stationRepository.getStationById(endId);
+
+        final SetUtils.SetView<Route> routesForwards = SetUtils.intersection(begin.getPickupRoutes(), end.getDropoffRoutes());
+        final SetUtils.SetView<Route> routesBackwards = SetUtils.intersection(end.getPickupRoutes(), begin.getDropoffRoutes());
+
+        Set<StopCalls> allStopCalls = tripRepository.getTrips().stream().
+                filter(trip -> routesForwards.contains(trip.getRoute()) || routesBackwards.contains(trip.getRoute())).
+                filter(trip -> trip.callsAt(beginId) && trip.callsAt(endId)).
+                map(Trip::getStopCalls).
+                collect(Collectors.toSet());
+
+        if (allStopCalls.isEmpty()) {
+            throw new RuntimeException("No stop calls");
+        }
+
+        final Set<List<IdFor<Station>>> uniqueSequences = allStopCalls.stream().
+                map(stopCalls -> stationsBetween(stopCalls, beginId, endId)).
+                collect(Collectors.toSet());
+
+        if (uniqueSequences.size()!=1) {
+            throw new RuntimeException("Did not find unambiguous set of sequences between " + beginId + " and " +
+                    endId + " got " + uniqueSequences);
+        }
+
+        return uniqueSequences.iterator().next();
+    }
+
+    private List<IdFor<Station>> stationsBetween(final StopCalls stopCalls, final IdFor<Station> begin, final IdFor<Station> end) {
+        int beginIndex = stopCalls.getStopFor(begin).getGetSequenceNumber();
+        int endIndex = stopCalls.getStopFor(end).getGetSequenceNumber();
+
+        if (beginIndex>endIndex) {
+            final int temp = beginIndex;
+            beginIndex = endIndex;
+            endIndex = temp;
+        }
+
+        final List<IdFor<Station>> result = new ArrayList<>();
+        for (int i = beginIndex; i <= endIndex; i++) {
+            StopCall call = stopCalls.getStopBySequenceNumber(i);
+            result.add(call.getStationId());
+        }
+
+        final IdFor<Station> firstResult = result.getFirst();
+        final IdFor<Station> finalResult = result.getLast();
+
+        // need a well-defined ordering as trams might go between begin and end in either direction
+        if (firstResult.getGraphId().compareTo(finalResult.getGraphId())<0) {
+            return result.reversed();
+        } else {
+            return result;
+        }
     }
 
     public static class Costs {
