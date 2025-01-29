@@ -1,9 +1,6 @@
 package com.tramchester.integration.testSupport.config;
 
-import com.tramchester.config.GTFSSourceConfig;
-import com.tramchester.config.GraphDBConfig;
-import com.tramchester.config.RemoteDataSourceConfig;
-import com.tramchester.config.TramchesterConfig;
+import com.tramchester.config.*;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.StationClosures;
 import com.tramchester.domain.id.IdFor;
@@ -119,14 +116,23 @@ public class GraphDBTestConfig implements GraphDBConfig {
         return "_withClosures_"+result;
     }
 
-    private static String closuresText(final StationClosures stationClosures) {
+    private static String closuresText(final StationClosures stationClosuresConfig) {
 
         final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.BASIC_ISO_DATE;
-        final LocalDate startDate = stationClosures.getDateRange().getStartDate().toLocalDate();
-        final LocalDate endDate = stationClosures.getDateRange().getEndDate().toLocalDate();
-        final String ids = stationClosures.getStations().stream().
-                map(IdFor::getGraphId).
-                reduce("",(a, b) -> a + b);
+        final LocalDate startDate = stationClosuresConfig.getDateRange().getStartDate().toLocalDate();
+        final LocalDate endDate = stationClosuresConfig.getDateRange().getEndDate().toLocalDate();
+
+        final StationsConfig stationClosures = stationClosuresConfig.getStations();
+        final String ids;
+        if (stationClosures instanceof StationListConfig stationListConfig) {
+            ids = stationListConfig.getStations().stream().
+                    map(IdFor::getGraphId).
+                    reduce("", (a, b) -> a + b);
+        } else if (stationClosures instanceof StationPairConfig stationPairConfig) {
+            ids = String.format("%s_to_%s", stationPairConfig.getFirst(), stationPairConfig.getSecond());
+        } else {
+            throw new RuntimeException("Unexpected StationClosures " + stationClosures);
+        }
         return String.format("%s_%s_%s", dateTimeFormatter.format(startDate), dateTimeFormatter.format(endDate), ids);
     }
 

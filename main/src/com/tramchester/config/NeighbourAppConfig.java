@@ -49,6 +49,6 @@ public class NeighbourAppConfig implements  NeighbourConfig {
     @JsonIgnore
     @Override
     public List<StationIdPair> getAdditional() {
-        return additional.stream().map(StationPairConfig::getStations).collect(Collectors.toList());
+        return additional.stream().map(StationPairConfig::getStationPair).collect(Collectors.toList());
     }
 }

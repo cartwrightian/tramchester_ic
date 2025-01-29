@@ -83,7 +83,7 @@ public class MatchLiveTramOrTrainToJourneyDestinationTest {
     }
 
     @Test
-    void shouldManPiccToStockport() {
+    void shouldManPiccToStockportTowardsEuston() {
         Station euston = RailStationIds.LondonEuston.from(crsRepository);
 
         Station journeyStart = RailStationIds.ManchesterPiccadilly.from(stationRepository);
@@ -108,6 +108,31 @@ public class MatchLiveTramOrTrainToJourneyDestinationTest {
         List<UpcomingDeparture> towardsLondon = matching.stream().filter(train -> train.getDestinationId().equals(euston.getId())).toList();
 
         assertFalse(towardsLondon.isEmpty());
+    }
+
+    @Test
+    void shouldManPiccToStockportTowardsHazelGrove() {
+
+        Station hazelGrove = stationRepository.getStationById(Station.createId("HAZL"));
+        Station journeyStart = RailStationIds.ManchesterPiccadilly.from(stationRepository);
+        Station journeyDestination = RailStationIds.Stockport.from(stationRepository);
+
+        StationPair journeyStations = StationPair.of(journeyStart, journeyDestination);
+
+        IdSet<Station> journeyDestinations = IdSet.singleton(journeyDestination.getId());
+
+        List<UpcomingDeparture> all = getAllDepartures(journeyStations, EnumSet.of(Train));
+        assertFalse(all.isEmpty());
+
+        List<UpcomingDeparture> matching = all.stream().
+                filter(departure -> matchToJourneyDest.matchesJourneyDestination(departure, journeyDestinations, journeyDestination.getId())).toList();
+
+        assertFalse(matching.isEmpty());
+
+        List<UpcomingDeparture> towardsHazelGrove = matching.stream().
+                filter(train -> train.getDestinationId().equals(hazelGrove.getId())).toList();
+
+        assertFalse(towardsHazelGrove.isEmpty());
     }
 
 

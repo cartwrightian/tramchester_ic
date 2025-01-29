@@ -2,10 +2,7 @@ package com.tramchester.integration.repository;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.config.DateRangeConfig;
-import com.tramchester.config.StationClosuresConfig;
-import com.tramchester.config.TfgmTramLiveDataConfig;
-import com.tramchester.config.TramchesterConfig;
+import com.tramchester.config.*;
 import com.tramchester.domain.StationClosures;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.DateTimeRange;
@@ -27,7 +24,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -105,7 +101,8 @@ public class StationsWithDiversionsRepositoryTest {
         }
 
         private static List<StationClosures> getClosures() {
-            Set<String> closed = Collections.singleton(withDiversion.getRawId());
+            //Set<String> closed = Collections.singleton(withDiversion.getRawId());
+            StationListConfig closed = new StationListConfig(Collections.singleton(withDiversion.getRawId()));
             DateRangeConfig dataRangeConfig = new DateRangeConfig(begin, end);
 
             StationClosuresConfig closureConfig = new StationClosuresConfig(closed, dataRangeConfig,

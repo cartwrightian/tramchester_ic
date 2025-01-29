@@ -36,7 +36,7 @@ public class TemporaryStationsWalkIdsConfig implements TemporaryStationsWalkIds 
 
     @Override
     public StationIdPair getStationPair() {
-        return stationPair.getStations();
+        return stationPair.getStationPair();
     }
 
     @Override

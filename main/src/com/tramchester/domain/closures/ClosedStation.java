@@ -10,6 +10,10 @@ import com.tramchester.domain.time.TimeRange;
 import java.util.Objects;
 import java.util.Set;
 
+/***
+ * Use Closure
+ */
+@Deprecated()
 public class ClosedStation {
     private final Station station;
     private final DateTimeRange dateTimeRange;

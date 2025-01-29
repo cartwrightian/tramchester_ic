@@ -7,6 +7,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.UpcomingDates;
 
 import java.time.DayOfWeek;
 import java.util.Arrays;
@@ -22,8 +23,7 @@ import java.util.stream.Collectors;
 public enum KnownTramRoute {
 
     // Replacement buses
-    BusPiccGardensToAshto("Replacement Bus 1", "Piccadilly Gardens - Ashton", "1950"),
-    BusPiccToPiccGardens("Replacement Bus 2", "Piccadilly - Piccadilly Gardens", "2736"),
+    BusEcclesToMediaCity("Replacement Bus 1", "Eccles - Media City", "2749"),
 
     // Blue
     EcclesAshton("Blue Line", "Eccles - Manchester - Ashton Under Lyne", "2119"),
@@ -47,17 +47,23 @@ public enum KnownTramRoute {
     public static Set<KnownTramRoute> getFor(final TramDate date) {
         EnumSet<KnownTramRoute> routes = EnumSet.noneOf(KnownTramRoute.class);
 
-        if (date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
-            if (date.isAfter(TramDate.of(2025,1,19))) {
-                routes.add(BusPiccGardensToAshto);
-                routes.add(BusPiccToPiccGardens);
-                routes.add(BuryManchesterAltrincham);
-            }
-        } else {
-            routes.add(PiccadillyVictoria);
-            routes.add(BuryManchesterAltrincham);
-            routes.add(EtihadPiccadillyAltrincham);
+        final TramDate startDate = UpcomingDates.MediaCityEcclesWorks2025.getStartDate().minusDays(1);
+
+        if (startDate.isBefore(date) &&
+                date.isBefore(TramDate.of(2025,3, 14))) {
+            routes.add(BusEcclesToMediaCity);
         }
+
+        if (date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
+            routes.add(BuryManchesterAltrincham);
+
+
+        } else {
+            routes.add(BuryManchesterAltrincham);
+        }
+
+        routes.add(PiccadillyVictoria);
+        routes.add(EtihadPiccadillyAltrincham);
 
         routes.add(EcclesAshton);
         routes.add(CornbrookTheTraffordCentre);

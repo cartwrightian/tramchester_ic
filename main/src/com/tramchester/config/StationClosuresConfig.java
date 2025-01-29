@@ -15,7 +15,8 @@ import java.util.Set;
 // config example
 /*
     stationClosures:
-        - stations: [ "9400ZZMAECC", "9400ZZMALDY", "9400ZZMAWST" ]
+        - stations:
+            ids: [ "9400ZZMAECC", "9400ZZMALDY", "9400ZZMAWST" ]
         dateRange:
             begin: 2023-07-15
             end: 2023-09-20
@@ -30,20 +31,20 @@ import java.util.Set;
 
 public class StationClosuresConfig extends Configuration implements StationClosures {
 
-    private final Set<String> stationsText;
+    private final StationsConfig stations;
     private final DateRangeConfig dateRangeConfig;
     private final TimeRangeConfig timeRangeConfig;
     private final Boolean fullyClosed;
     private final Set<String> diversionsAroundClosure;
     private final Set<String> diversionsToFromClosure;
 
-    public StationClosuresConfig(@JsonProperty(value = "stations", required = true) Set<String> stationsText,
+    public StationClosuresConfig(@JsonProperty(value = "stations", required = true) StationsConfig stations,
                                  @JsonProperty(value="dateRange", required = true) DateRangeConfig dateRangeConfig,
                                  @JsonProperty(value="timeRange", required = false) TimeRangeConfig timeRangeConfig,
                                  @JsonProperty(value = "fullyClosed", required = true) Boolean fullyClosed,
                                  @JsonProperty(value = "diversionsAroundClosure", required = false) Set<String> diversionsAroundClosure,
                                  @JsonProperty(value = "diversionsToFromClosure", required = false) Set<String> diversionsToFromClosure)  {
-        this.stationsText = stationsText;
+        this.stations = stations;
         this.dateRangeConfig = dateRangeConfig;
         this.timeRangeConfig = timeRangeConfig;
         this.fullyClosed = fullyClosed;
@@ -58,10 +59,14 @@ public class StationClosuresConfig extends Configuration implements StationClosu
         return dateRangeConfig.isValid();
     }
 
+//    @Override
+//    public IdSet<Station> getStations() {
+//        return stations.getStations();
+//    }
 
     @Override
-    public IdSet<Station> getStations() {
-        return stationsText.stream().map(Station::createId).collect(IdSet.idCollector());
+    public StationsConfig getStations() {
+        return stations;
     }
 
     @Override
@@ -103,7 +108,7 @@ public class StationClosuresConfig extends Configuration implements StationClosu
     @Override
     public String toString() {
         return "StationClosuresConfig{" +
-                "stationsText=" + stationsText +
+                "stationsText=" + stations +
                 ", dateRangeConfig=" + dateRangeConfig +
                 ", fullyClosed=" + fullyClosed +
                 ", diversionsAroundClosure=" + diversionsAroundClosure +
@@ -131,6 +136,6 @@ public class StationClosuresConfig extends Configuration implements StationClosu
 
     @Override
     public int hashCode() {
-        return Objects.hash(stationsText, dateRangeConfig, fullyClosed, diversionsAroundClosure, diversionsToFromClosure);
+        return Objects.hash(stations, dateRangeConfig, fullyClosed, diversionsAroundClosure, diversionsToFromClosure);
     }
 }

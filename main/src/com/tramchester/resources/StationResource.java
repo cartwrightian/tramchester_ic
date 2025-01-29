@@ -2,11 +2,10 @@ package com.tramchester.resources;
 
 import com.codahale.metrics.annotation.Timed;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.StationClosures;
 import com.tramchester.domain.UpdateRecentJourneys;
+import com.tramchester.domain.closures.Closure;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
@@ -22,10 +21,7 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.mappers.RecentJourneysToLocations;
-import com.tramchester.repository.DataSourceRepository;
-import com.tramchester.repository.StationRepository;
-import com.tramchester.repository.StationRepositoryPublic;
-import com.tramchester.repository.TransportModeRepository;
+import com.tramchester.repository.*;
 import io.dropwizard.jersey.caching.CacheControl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -54,6 +50,7 @@ public class StationResource extends UsesRecentCookie implements APIResource {
     private static final Logger logger = LoggerFactory.getLogger(StationResource.class);
 
     private final StationRepositoryPublic stationRepository;
+    private final ClosedStationsRepository closedStationsRepository;
     private final DataSourceRepository dataSourceRepository;
     private final StationLocations stationLocations;
     private final DTOFactory DTOFactory;
@@ -67,12 +64,13 @@ public class StationResource extends UsesRecentCookie implements APIResource {
     @Inject
     public StationResource(StationRepository stationRepository,
                            UpdateRecentJourneys updateRecentJourneys,
-                           ProvidesNow providesNow,
+                           ProvidesNow providesNow, ClosedStationsRepository closedStationsRepository,
                            DataSourceRepository dataSourceRepository, StationLocations stationLocations,
                            DTOFactory DTOFactory,
                            LocationDTOFactory locationDTOFactory, TramchesterConfig config, TransportModeRepository transportModeRepository,
                            RecentJourneysToLocations recentJourneysToStations) {
         super(updateRecentJourneys, providesNow);
+        this.closedStationsRepository = closedStationsRepository;
         this.DTOFactory = DTOFactory;
         this.locationDTOFactory = locationDTOFactory;
         this.transportModeRepository = transportModeRepository;
@@ -244,12 +242,14 @@ public class StationResource extends UsesRecentCookie implements APIResource {
     @ApiResponse(content = @Content(array = @ArraySchema(uniqueItems = true, schema = @Schema(implementation = StationClosureDTO.class))))
     @CacheControl(maxAge = 5, maxAgeUnit = TimeUnit.MINUTES)
     public Response getClosures() {
-        Set<StationClosures> closed = getUpcomingClosuresFor(providesNow.getTramDate());
+
+        Set<Closure> closed = getUpcomingClosuresFor(providesNow.getTramDate());
 
         logger.info("Get closed stations " + closed);
 
+        // TODO Should not be using config here
         List<StationClosureDTO> dtos = closed.stream().
-                map(closure -> StationClosureDTO.from(closure, toRefs(closure.getStations()))).
+                map(StationClosureDTO::from).
                 collect(Collectors.toList());
 
         logger.info("Returning " + dtos.size() + " closures");
@@ -258,20 +258,21 @@ public class StationResource extends UsesRecentCookie implements APIResource {
 
     }
 
-    private Set<StationClosures> getUpcomingClosuresFor(final TramDate date) {
+    private Set<Closure> getUpcomingClosuresFor(final TramDate date) {
+        return closedStationsRepository.getClosuresFor(date);
 
-        return config.getGTFSDataSource().stream().
-                flatMap(dataSourceRepository -> dataSourceRepository.getStationClosures().stream()).
-                filter(closure -> date.isBefore(closure.getDateRange().getEndDate()) || date.equals(closure.getDateRange().getEndDate())).
-                collect(Collectors.toSet());
+//        return config.getGTFSDataSource().stream().
+//                flatMap(dataSourceRepository -> dataSourceRepository.getStationClosures().stream()).
+//                filter(closure -> date.isBefore(closure.getDateRange().getEndDate()) || date.equals(closure.getDateRange().getEndDate())).
+//                collect(Collectors.toSet());
     }
 
 
-    private List<LocationRefDTO> toRefs(IdSet<Station> closedStations) {
-        return closedStations.stream().
-                map(stationRepository::getStationById).
-                map(DTOFactory::createLocationRefDTO).
-                collect(Collectors.toList());
-    }
+//    private List<LocationRefDTO> toRefs(IdSet<Station> closedStations) {
+//        return closedStations.stream().
+//                map(stationRepository::getStationById).
+//                map(DTOFactory::createLocationRefDTO).
+//                collect(Collectors.toList());
+//    }
 
 }

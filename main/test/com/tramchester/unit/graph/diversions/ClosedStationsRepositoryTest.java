@@ -7,7 +7,9 @@ import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.StationClosures;
 import com.tramchester.domain.closures.ClosedStation;
 import com.tramchester.domain.closures.ClosedStationFactory;
+import com.tramchester.domain.closures.Closure;
 import com.tramchester.domain.dates.DateRange;
+import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
@@ -63,6 +65,12 @@ public class ClosedStationsRepositoryTest extends EasyMockSupport {
         StationClosures shudehillConfig = new StationClosuresConfigForTest(shudehill, dateRange, fullyClosed);
         StationClosures buryConfig = new StationClosuresConfigForTest(bury, dateRange, fullyClosed);
 
+        EasyMock.expect(closeStationFactory.createFor(shudehillConfig)).
+                andReturn(new Closure(new DateTimeRange(dateRange, TimeRange.AllDay()), Collections.singleton(Altrincham.fake()), fullyClosed));
+        EasyMock.expect(closeStationFactory.createFor(buryConfig)).
+                andReturn(new Closure(new DateTimeRange(dateRange, TimeRange.AllDay()), Collections.singleton(Altrincham.fake()), fullyClosed));
+
+
         ClosedStation shudehillClosed = new ClosedStation(shudehill.fake(), dateRange, TimeRange.AllDay(), fullyClosed, Collections.emptySet(), Collections.emptySet());
         buryTimeRange = TimeRange.of(TramTime.of(15,14), TramTime.of(19,35));
         ClosedStation buryClosed = new ClosedStation(bury.fake(), dateRange, buryTimeRange, fullyClosed, Collections.emptySet(), Collections.emptySet());
@@ -87,6 +95,11 @@ public class ClosedStationsRepositoryTest extends EasyMockSupport {
         StationClosures closedA = new StationClosuresConfigForTest(Altrincham, dateRangeA, true);
         StationClosures closedB = new StationClosuresConfigForTest(Altrincham, dateRangeB, true);
         TramchesterConfig config = new ConfigWithClosure(Arrays.asList(closedA, closedB));
+
+        EasyMock.expect(closeStationFactory.createFor(closedA)).
+                andReturn(new Closure(new DateTimeRange(dateRangeA, TimeRange.AllDay()), Collections.singleton(Altrincham.fake()), true));
+        EasyMock.expect(closeStationFactory.createFor(closedB)).
+                andReturn(new Closure(new DateTimeRange(dateRangeB, TimeRange.AllDay()), Collections.singleton(Altrincham.fake()), true));
 
         EasyMock.expect(closeStationFactory.createClosedStation(EasyMock.eq(closedA), EasyMock.eq(Altrincham.getId()), EasyMock.isA(ClosedStationFactory.ShouldIncludeStationInDiversions.class))).
                 andReturn(new ClosedStation(Altrincham.fake(), dateRangeA, true, Collections.emptySet(), Collections.emptySet()));

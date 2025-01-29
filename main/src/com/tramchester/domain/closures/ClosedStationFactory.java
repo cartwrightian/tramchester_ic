@@ -1,13 +1,18 @@
 package com.tramchester.domain.closures;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.config.StationListConfig;
+import com.tramchester.config.StationPairConfig;
+import com.tramchester.config.StationsConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.StationClosures;
 import com.tramchester.domain.dates.DateRange;
+import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.time.TimeRange;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.repository.StationRepository;
@@ -17,7 +22,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
@@ -90,6 +94,32 @@ public class ClosedStationFactory {
                 found.size() ,  withinRange.size(), closedStation.getId()));
 
         return found;
+    }
+
+    public Closure createFor(final StationClosures closureConfig) {
+        final DateRange dateRange = closureConfig.getDateRange();
+
+        final boolean fullyClosed = closureConfig.isFullyClosed();
+
+        StationsConfig stationConfig = closureConfig.getStations();
+
+        final Set<Station> stations;
+        if (stationConfig instanceof StationListConfig stationListConfig) {
+            stations = stationListConfig.getStations().stream().
+                    map(stationRepository::getStationById).
+                    collect(Collectors.toSet());
+        } else if (stationConfig instanceof StationPairConfig stationPairConfig) {
+            // todo get from route repository
+            throw new RuntimeException("todo");
+        } else {
+            throw new RuntimeException("Unexpected type for stations config " + stationConfig);
+        }
+
+        if (closureConfig.hasTimeRange()) {
+            return new Closure(new DateTimeRange(dateRange, closureConfig.getTimeRange()), stations, fullyClosed);
+        } else {
+            return new Closure(new DateTimeRange(dateRange, TimeRange.AllDay()), stations, fullyClosed);
+        }
     }
 
     public interface ShouldIncludeStationInDiversions {

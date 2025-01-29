@@ -1,9 +1,8 @@
 package com.tramchester.testSupport;
 
+import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.testSupport.reference.TramStations;
 
@@ -13,8 +12,6 @@ import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
-
-import static com.tramchester.testSupport.reference.TramStations.*;
 
 public class UpcomingDates {
 
@@ -32,27 +29,25 @@ public class UpcomingDates {
     // use helper methods that handle filtering (i.e. for Christmas) and conversion to dates
     static final int DAYS_AHEAD = 7;
 
-//    public static TramDate VictoriaBuryImprovementWorks = TramDate.of(2025,1,19);
-//    public static TimeRange VictoriaBuryImprovementWorksTiming = TimeRange.of(TramTime.of(4,0),
-//            TramTime.of(10,0));
+    public static DateRange MediaCityEcclesWorks2025 = DateRange.of(TramDate.of(2025,2,1),
+        TramDate.of(2025, 2, 25));
 
-    public static TramDate PiccAshtonImprovementWorks = TramDate.of(2025,1,26);
 
-    public static IdSet<Station> PiccAshtonClosureStations = Stream.of(
-        VeloPark.getId(),
-        Piccadilly.getId(),
-        NewIslington.getId(),
-        HoltTown.getId(),
-        Etihad.getId(),
-        StringIdFor.createId("9400ZZMAELN", Station.class),
-        StringIdFor.createId("9400ZZMADRO", Station.class),
-        StringIdFor.createId("9400ZZMACLN", Station.class),
-        StringIdFor.createId("9400ZZMACEM", Station.class),
-        StringIdFor.createId("9400ZZMAAUD", Station.class),
-        StringIdFor.createId("9400ZZMAAWT", Station.class),
-        Ashton.getId(),
-        StringIdFor.createId("9400ZZMAAMO", Station.class)
-    ).collect(IdSet.idCollector());
+//    public static IdSet<Station> PiccAshtonClosureStations = Stream.of(
+//        VeloPark.getId(),
+//        Piccadilly.getId(),
+//        NewIslington.getId(),
+//        HoltTown.getId(),
+//        Etihad.getId(),
+//        StringIdFor.createId("9400ZZMAELN", Station.class),
+//        StringIdFor.createId("9400ZZMADRO", Station.class),
+//        StringIdFor.createId("9400ZZMACLN", Station.class),
+//        StringIdFor.createId("9400ZZMACEM", Station.class),
+//        StringIdFor.createId("9400ZZMAAUD", Station.class),
+//        StringIdFor.createId("9400ZZMAAWT", Station.class),
+//        Ashton.getId(),
+//        StringIdFor.createId("9400ZZMAAMO", Station.class)
+//    ).collect(IdSet.idCollector());
 
 
     public static boolean hasClosure(final Station station, final TramDate date) {
@@ -63,12 +58,13 @@ public class UpcomingDates {
         return hasClosure(station.getId(), date);
     }
 
-    private static boolean hasClosure(IdFor<Station> stationId, TramDate date) {
-        if (date.equals(PiccAshtonImprovementWorks)) {
-            return PiccAshtonClosureStations.contains(stationId);
-        } else {
-            return false;
-        }
+    public static boolean hasClosure(IdFor<Station> stationId, TramDate date) {
+        return false;
+//        if (date.equals(PiccAshtonImprovementWorks)) {
+//            return PiccAshtonClosureStations.contains(stationId);
+//        } else {
+//            return false;
+//        }
     }
 
     public static boolean validTestDate(final TramDate date) {

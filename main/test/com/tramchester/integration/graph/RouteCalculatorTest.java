@@ -28,6 +28,7 @@ import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
@@ -530,11 +531,22 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest9am, Cornbrook, Eccles);
     }
 
+    @DisabledUntilDate(year = 2025, month = 2, day = 26)
     @Test
     void shouldReproIssueWithJourneysToEccles() {
         TramDate testDate = this.when.plusWeeks(1);
 
         JourneyRequest journeyRequest = standardJourneyRequest(testDate, TramTime.of(9,0), maxNumResults, 1);
+
+        assertGetAndCheckJourneys(journeyRequest, Bury, Broadway);
+        assertGetAndCheckJourneys(journeyRequest, Bury, Eccles);
+    }
+
+    @Test
+    void shouldReproIssueWithJourneysToEcclesWithBus() {
+        TramDate testDate = this.when.plusWeeks(1);
+
+        JourneyRequest journeyRequest = standardJourneyRequest(testDate, TramTime.of(9,0), maxNumResults, 2);
 
         assertGetAndCheckJourneys(journeyRequest, Bury, Broadway);
         assertGetAndCheckJourneys(journeyRequest, Bury, Eccles);
@@ -580,9 +592,20 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Ashton, Eccles);
     }
 
+    @DisabledUntilDate(year = 2025, month = 2, day = 26)
     @Test
     void reproduceIssueWithTramsSundayToFromEcclesAndCornbrook() {
-        JourneyRequest journeyRequest = standardJourneyRequest(UpcomingDates.nextSunday(), TramTime.of(9,30), maxNumResults, 0);
+        JourneyRequest journeyRequest = standardJourneyRequest(UpcomingDates.nextSunday(), TramTime.of(9,30),
+                maxNumResults, 0);
+
+        assertGetAndCheckJourneys(journeyRequest, Cornbrook, Eccles);
+        assertGetAndCheckJourneys(journeyRequest, Eccles, Cornbrook);
+    }
+
+    @Test
+    void reproduceIssueWithTramsSundayToFromEcclesAndCornbrookWithBus() {
+        JourneyRequest journeyRequest = standardJourneyRequest(UpcomingDates.nextSunday(), TramTime.of(9,30),
+                maxNumResults, 1);
 
         assertGetAndCheckJourneys(journeyRequest, Cornbrook, Eccles);
         assertGetAndCheckJourneys(journeyRequest, Eccles, Cornbrook);

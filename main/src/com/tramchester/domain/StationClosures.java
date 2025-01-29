@@ -3,15 +3,17 @@ package com.tramchester.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.tramchester.config.StationClosuresConfig;
+import com.tramchester.config.StationsConfig;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.time.TimeRange;
 
-@JsonDeserialize(as= StationClosuresConfig.class)
+@JsonDeserialize(as=StationClosuresConfig.class)
 public interface StationClosures {
 
-    IdSet<Station> getStations();
+    StationsConfig getStations();
+
     boolean isFullyClosed();
     DateRange getDateRange();
 
@@ -28,6 +30,7 @@ public interface StationClosures {
 
     IdSet<Station> getDiversionsToFromClosure();
 
+    @Deprecated
     static boolean areEqual(StationClosures a, Object other) {
         if (!StationClosures.class.isAssignableFrom(other.getClass())) {
             return false;

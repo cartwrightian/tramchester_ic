@@ -1,5 +1,7 @@
 package com.tramchester.integration.testSupport.config;
 
+import com.tramchester.config.StationListConfig;
+import com.tramchester.config.StationsConfig;
 import com.tramchester.domain.StationClosures;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.id.IdSet;
@@ -8,6 +10,7 @@ import com.tramchester.domain.time.TimeRange;
 import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.TramStations;
 
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 
@@ -43,8 +46,8 @@ public class StationClosuresConfigForTest implements StationClosures {
     }
 
     @Override
-    public IdSet<Station> getStations() {
-        return IdSet.singleton(station.getId());
+    public StationsConfig getStations() {
+        return new StationListConfig(Collections.singleton(station.getRawId()));
     }
 
     @Override

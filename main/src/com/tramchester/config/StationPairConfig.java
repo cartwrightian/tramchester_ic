@@ -9,7 +9,7 @@ import jakarta.validation.Valid;
 
 @Valid
 @JsonIgnoreProperties(ignoreUnknown = false)
-public class StationPairConfig {
+public class StationPairConfig extends StationsConfig {
     private final String first;
     private final String second;
 
@@ -28,7 +28,7 @@ public class StationPairConfig {
     }
 
     @JsonIgnore
-    public StationIdPair getStations() {
+    public StationIdPair getStationPair() {
         return new StationIdPair(Station.createId(first), Station.createId(second));
     }
 
@@ -39,4 +39,5 @@ public class StationPairConfig {
                 ", second='" + second + '\'' +
                 '}';
     }
+
 }

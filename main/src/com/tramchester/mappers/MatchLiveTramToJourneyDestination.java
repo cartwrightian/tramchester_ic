@@ -31,15 +31,15 @@ public class MatchLiveTramToJourneyDestination {
     public boolean matchesJourneyDestination(final UpcomingDeparture upcomingDeparture, final IdSet<Station> origChangeStationsId,
                                                     final IdFor<Station> journeyDestinationId) {
         return switch (upcomingDeparture.getMode()) {
-            case Tram -> matchesJourneyDestinationForTram(upcomingDeparture, origChangeStationsId, journeyDestinationId);
+            case Tram -> matchesJourneyDestinationWhenAllWithinBounds(upcomingDeparture, origChangeStationsId, journeyDestinationId);
             case Train, RailReplacementBus -> matchesJourneyDestinationForTrain(upcomingDeparture, origChangeStationsId, journeyDestinationId);
             case Ferry, Subway, Bus, Ship -> false;
             case Walk, Connect, NotSet, Unknown -> throw new RuntimeException("Unexpected mode for an UpcomingDeparture " + upcomingDeparture);
         };
     }
 
-    public boolean matchesJourneyDestinationForTram(final UpcomingDeparture dueTram, final IdSet<Station> origChangeStationsId,
-                                             final IdFor<Station> journeyDestinationId) {
+    public boolean matchesJourneyDestinationWhenAllWithinBounds(final UpcomingDeparture dueTram, final IdSet<Station> origChangeStationsId,
+                                                                final IdFor<Station> journeyDestinationId) {
 
         // this should no longer happen...todo except for tests....?
         final IdSet<Station> changeStationIds;
@@ -117,6 +117,10 @@ public class MatchLiveTramToJourneyDestination {
     }
 
     private boolean matchesJourneyDestinationForTrain(UpcomingDeparture upcomingDeparture, IdSet<Station> origChangeStationsId, IdFor<Station> journeyDestinationId) {
+        if (stationRepository.hasStationId(upcomingDeparture.getDestinationId())) {
+            return matchesJourneyDestinationWhenAllWithinBounds(upcomingDeparture, origChangeStationsId, journeyDestinationId);
+        }
+        // else TODO
         return false;
     }
 }

@@ -236,14 +236,10 @@ public class TripRepositoryTest {
     }
 
     private List<TramTime> getTimesFor(final List<TramTime> times, final Station station, final TramDate date) {
-//        if (date.equals(UpcomingDates.VictoriaBuryImprovementWorks)) {
+//        if (date.equals(UpcomingDates.PiccAshtonImprovementWorks)) {
 //            return times.stream().
-//                    filter(time -> !UpcomingDates.VictoriaBuryImprovementWorksTiming.contains(time)).toList();
+//                    filter(time -> !UpcomingDates.hasClosure(station, date)).toList();
 //        }
-        if (date.equals(UpcomingDates.PiccAshtonImprovementWorks)) {
-            return times.stream().
-                    filter(time -> !UpcomingDates.hasClosure(station, date)).toList();
-        }
         return times;
     }
 }

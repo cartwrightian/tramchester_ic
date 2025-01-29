@@ -1,6 +1,7 @@
 package com.tramchester.dataimport.loader;
 
 import com.tramchester.config.GTFSSourceConfig;
+import com.tramchester.config.StationListConfig;
 import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.domain.*;
 import com.tramchester.domain.factory.TransportEntityFactory;
@@ -72,16 +73,26 @@ public class GTFSStopTimeLoader {
     }
 
     private void addClosedStations(final PreloadedStationsAndPlatforms preloadStations) {
+
+        // Need to use config since data load is not complete and so can't use closed StationRepository?
         final List<StationClosures> stationClosures = dataSourceConfig.getStationClosures();
         if (stationClosures.isEmpty()) {
             logger.info("No station closures, no additional stations to add");
             return;
         }
 
+        // TODO station pair based config??
         final IdSet<Station> closedButNotLoaded = stationClosures.stream().
-                flatMap(closures -> closures.getStations().stream()).
+                filter(stationClosure -> stationClosure instanceof StationListConfig).
+                map(stationClosure -> (StationListConfig)stationClosure).
+                flatMap(stationClosure -> stationClosure.getStations().stream()).
                 filter(stationId -> !buildable.hasStationId(stationId)).
                 collect(IdSet.idCollector());
+
+//        final IdSet<Station> closedButNotLoaded = stationClosures.stream().
+//                flatMap(closures -> closures.getStations().stream()).
+//                filter(stationId -> !buildable.hasStationId(stationId)).
+//                collect(IdSet.idCollector());
 
         if (closedButNotLoaded.isEmpty()) {
             logger.info("Station closures present but no additional stations to add");

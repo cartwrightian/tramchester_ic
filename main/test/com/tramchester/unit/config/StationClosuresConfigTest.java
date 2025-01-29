@@ -5,6 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.tramchester.config.StationClosuresConfig;
+import com.tramchester.config.StationListConfig;
+import com.tramchester.config.StationPairConfig;
+import com.tramchester.config.StationsConfig;
+import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
@@ -32,16 +36,21 @@ public class StationClosuresConfigTest {
     @Test
     void shouldParseYamlWithDiversionsAround() throws JsonProcessingException {
 
-        String yaml = "stations: [ \"9400ZZMAECC\", \"9400ZZMALDY\", \"9400ZZMAWST\" ]\n" +
-                "dateRange:\n" +
-                "   begin: 2023-07-15\n" +
-                "   end: 2023-09-20\n" +
-                "fullyClosed: true\n" +
-                "diversionsAroundClosure: [ \"9400ZZMAVIC\" ]";
+        String yaml = """
+                stations:
+                   ids: [ "9400ZZMAECC", "9400ZZMALDY", "9400ZZMAWST" ]
+                dateRange:
+                   begin: 2023-07-15
+                   end: 2023-09-20
+                fullyClosed: true
+                diversionsAroundClosure: [ "9400ZZMAVIC" ]""";
 
         StationClosuresConfig result = mapper.readValue(yaml, StationClosuresConfig.class);
 
-        IdSet<Station> stations = result.getStations();
+        StationsConfig stationConfig = result.getStations();
+        assertInstanceOf(StationListConfig.class, stationConfig);
+        IdSet<Station> stations = ((StationListConfig)stationConfig).getStations();
+
         assertEquals(3, stations.size());
         assertTrue(stations.contains(TramStations.Eccles.getId()));
         assertTrue(stations.contains(TramStations.Ladywell.getId()));
@@ -63,18 +72,23 @@ public class StationClosuresConfigTest {
     @Test
     void shouldParseYamlWithDiversionsAroundAndToFrom() throws JsonProcessingException {
 
-        String yaml = "stations: [ \"9400ZZMAECC\", \"9400ZZMALDY\", \"9400ZZMAWST\" ]\n" +
-                "dateRange:\n" +
-                "   begin: 2023-07-15\n" +
-                "   end: 2023-09-20\n" +
-                "fullyClosed: true\n" +
-                "diversionsToFromClosure: [ \"9400ZZMAMKT\" ]\n" +
-                "diversionsAroundClosure: [ \"9400ZZMAVIC\" ]";
+        String yaml = """
+                stations:
+                    ids: [ "9400ZZMAECC", "9400ZZMALDY", "9400ZZMAWST" ]
+                dateRange:
+                   begin: 2023-07-15
+                   end: 2023-09-20
+                fullyClosed: true
+                diversionsToFromClosure: [ "9400ZZMAMKT" ]
+                diversionsAroundClosure: [ "9400ZZMAVIC" ]""";
 
 
         StationClosuresConfig result = mapper.readValue(yaml, StationClosuresConfig.class);
 
-        IdSet<Station> stations = result.getStations();
+        StationsConfig stationConfig = result.getStations();
+        assertInstanceOf(StationListConfig.class, stationConfig);
+        IdSet<Station> stations = ((StationListConfig)stationConfig).getStations();
+
         assertEquals(3, stations.size());
         assertTrue(stations.contains(TramStations.Eccles.getId()));
         assertTrue(stations.contains(TramStations.Ladywell.getId()));
@@ -97,15 +111,20 @@ public class StationClosuresConfigTest {
     @Test
     void shouldParseYamlWithNoDiversionsGiven() throws JsonProcessingException {
 
-        String yaml = "stations: [ \"9400ZZMAECC\", \"9400ZZMALDY\", \"9400ZZMAWST\" ]\n" +
-                "dateRange:\n" +
-                "   begin: 2023-07-15\n" +
-                "   end: 2023-09-20\n" +
-                "fullyClosed: true";
+        String yaml = """
+                stations:
+                   ids: [ "9400ZZMAECC", "9400ZZMALDY", "9400ZZMAWST" ]
+                dateRange:
+                   begin: 2023-07-15
+                   end: 2023-09-20
+                fullyClosed: true""";
 
         StationClosuresConfig result = mapper.readValue(yaml, StationClosuresConfig.class);
 
-        IdSet<Station> stations = result.getStations();
+        StationsConfig stationConfig = result.getStations();
+        assertInstanceOf(StationListConfig.class, stationConfig);
+        IdSet<Station> stations = ((StationListConfig)stationConfig).getStations();
+
         assertEquals(3, stations.size());
         assertTrue(stations.contains(TramStations.Eccles.getId()));
         assertTrue(stations.contains(TramStations.Ladywell.getId()));
@@ -125,20 +144,59 @@ public class StationClosuresConfigTest {
     }
 
     @Test
-    void shouldParseYamlWithOptionalTimeRangeForClosure() throws JsonProcessingException {
+    void shouldParseYamlWithStationRangeNoDiversionsGiven() throws JsonProcessingException {
 
-        String yaml = "stations: [ \"9400ZZMAECC\", \"9400ZZMALDY\", \"9400ZZMAWST\" ]\n" +
-                "dateRange:\n" +
-                "   begin: 2023-07-15\n" +
-                "   end: 2023-09-20\n" +
-                "timeRange:\n" +
-                "   begin: 00:01\n" +
-                "   end: 10:45\n" +
-                "fullyClosed: true";
+        String yaml = """
+                stations:
+                   first: "9400ZZMAALT"
+                   second: "9400ZZMATIM"
+                dateRange:
+                   begin: 2023-07-15
+                   end: 2023-09-20
+                fullyClosed: true""";
 
         StationClosuresConfig result = mapper.readValue(yaml, StationClosuresConfig.class);
 
-        IdSet<Station> stations = result.getStations();
+        StationsConfig stationConfig = result.getStations();
+        assertInstanceOf(StationPairConfig.class, stationConfig);
+        StationIdPair stations = ((StationPairConfig) stationConfig).getStationPair();
+
+        assertEquals(stations.getBeginId(), TramStations.Altrincham.getId());
+        assertEquals(stations.getEndId(), TramStations.Timperley.getId());
+
+        DateRange dateRange = result.getDateRange();
+        assertEquals(TramDate.of(2023,7,15), dateRange.getStartDate());
+        assertEquals(TramDate.of(2023,9,20), dateRange.getEndDate());
+
+        assertFalse(result.hasTimeRange());
+
+        assertFalse(result.hasDiversionsAroundClosure());
+        assertFalse(result.hasDiversionsToFromClosure());
+
+        assertTrue(result.isFullyClosed());
+
+    }
+
+    @Test
+    void shouldParseYamlWithOptionalTimeRangeForClosure() throws JsonProcessingException {
+
+        String yaml = """
+                stations:
+                    ids: [ "9400ZZMAECC", "9400ZZMALDY", "9400ZZMAWST" ]
+                dateRange:
+                   begin: 2023-07-15
+                   end: 2023-09-20
+                timeRange:
+                   begin: 00:01
+                   end: 10:45
+                fullyClosed: true""";
+
+        StationClosuresConfig result = mapper.readValue(yaml, StationClosuresConfig.class);
+
+        StationsConfig stationConfig = result.getStations();
+        assertInstanceOf(StationListConfig.class, stationConfig);
+        IdSet<Station> stations = ((StationListConfig)stationConfig).getStations();
+
         assertEquals(3, stations.size());
         assertTrue(stations.contains(TramStations.Eccles.getId()));
         assertTrue(stations.contains(TramStations.Ladywell.getId()));
@@ -172,11 +230,14 @@ public class StationClosuresConfigTest {
     @Test
     void shouldThrowIfUnknownExtra() {
 
-        String yaml = "stations: [ \"9400ZZMAECC\", \"9400ZZMALDY\", \"9400ZZMAWST\" ]\n" +
-                "begin: 2023-07-15\n" +
-                "end: 2023-09-20\n" +
-                "UNKNOWN: 2023-09-20\n" +
-                "fullyClosed: true";
+        String yaml = """
+                stations:
+                    type: List
+                    ids: [ "9400ZZMAECC", "9400ZZMALDY", "9400ZZMAWST" ]
+                begin: 2023-07-15
+                end: 2023-09-20
+                UNKNOWN: 2023-09-20
+                fullyClosed: true""";
 
 
         assertThrows(JsonProcessingException.class, () -> mapper.readValue(yaml, StationClosuresConfig.class));
