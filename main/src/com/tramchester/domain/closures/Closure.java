@@ -15,13 +15,19 @@ public class Closure {
 
     public Closure(DateTimeRange dateTimeRange, Set<Station> stations, boolean fullyClosed) {
         this.dateTimeRange = dateTimeRange;
-
         this.stations = stations;
         this.fullyClosed = fullyClosed;
     }
 
     public boolean overlapsWith(final DateRange dateRange) {
         return dateRange.overlapsWith(dateRange);
+    }
+
+    public boolean overlapsWith(final Closure other) {
+        if (other.dateTimeRange.overlaps(this.dateTimeRange)) {
+            return this.stations.stream().anyMatch(other.stations::contains);
+        }
+        return false;
     }
 
     public boolean activeFor(final TramDate date) {
@@ -43,4 +49,13 @@ public class Closure {
     public boolean isFullyClosed() {
         return fullyClosed;
     }
+
+    public boolean activeFor(final TramDate date, final TimeRange timeRange) {
+        if (dateTimeRange.contains(date)) {
+            return dateTimeRange.fullyContains(timeRange);
+        }
+
+        return false;
+    }
+
 }

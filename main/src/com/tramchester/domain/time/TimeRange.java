@@ -50,4 +50,6 @@ public interface TimeRange {
     boolean contains(TramTime tramTime);
 
     boolean fullyContains(TimeRange other);
+
+
 }

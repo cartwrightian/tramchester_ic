@@ -10,14 +10,15 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StopCallRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.testTags.DataUpdateTest;
 import org.junit.jupiter.api.*;
 
 import java.util.List;
 
-import static com.tramchester.testSupport.reference.TramStations.Eccles;
-import static com.tramchester.testSupport.reference.TramStations.MediaCityUK;
+import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@DataUpdateTest
 public class UpcomingDatesTest {
     private static GuiceContainerDependencies componentContainer;
     private StopCallRepository stopCallRepository;
@@ -41,7 +42,7 @@ public class UpcomingDatesTest {
     @Disabled("WIP")
     @Test
     void shouldHaveExpectedClosures() {
-        List<IdFor<Station>> expectedClosed = stopCallRepository.getClosedBetween(Eccles.getId(), MediaCityUK.getId());
+        List<IdFor<Station>> expectedClosed = stopCallRepository.getClosedBetween(Eccles.getId(), Broadway.getId());
 
         DateRange range = UpcomingDates.MediaCityEcclesWorks2025;
 

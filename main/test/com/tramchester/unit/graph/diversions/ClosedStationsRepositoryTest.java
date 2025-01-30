@@ -47,7 +47,6 @@ public class ClosedStationsRepositoryTest extends EasyMockSupport {
     private DateRange dateRange;
     private ClosedStationFactory closeStationFactory;
     private GraphFilter graphFilter;
-    private TimeRange buryTimeRange;
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
@@ -56,6 +55,8 @@ public class ClosedStationsRepositoryTest extends EasyMockSupport {
 
         TramStations shudehill = Shudehill;
         TramStations bury = Bury;
+
+        TimeRange buryTimeRange = TimeRange.of(TramTime.of(15, 14), TramTime.of(19, 35));
 
         when = TestEnv.testDay();
         dateRange = DateRange.of(when, when.plusWeeks(1));
@@ -68,12 +69,11 @@ public class ClosedStationsRepositoryTest extends EasyMockSupport {
         EasyMock.expect(closeStationFactory.createFor(shudehillConfig)).
                 andReturn(new Closure(new DateTimeRange(dateRange, TimeRange.AllDay()), Collections.singleton(Altrincham.fake()), fullyClosed));
         EasyMock.expect(closeStationFactory.createFor(buryConfig)).
-                andReturn(new Closure(new DateTimeRange(dateRange, TimeRange.AllDay()), Collections.singleton(Altrincham.fake()), fullyClosed));
-
+                andReturn(new Closure(new DateTimeRange(dateRange, buryTimeRange), Collections.singleton(Altrincham.fake()), fullyClosed));
 
         ClosedStation shudehillClosed = new ClosedStation(shudehill.fake(), dateRange, TimeRange.AllDay(), fullyClosed, Collections.emptySet(), Collections.emptySet());
-        buryTimeRange = TimeRange.of(TramTime.of(15,14), TramTime.of(19,35));
-        ClosedStation buryClosed = new ClosedStation(bury.fake(), dateRange, buryTimeRange, fullyClosed, Collections.emptySet(), Collections.emptySet());
+        ClosedStation buryClosed = new ClosedStation(bury.fake(), dateRange, buryTimeRange, fullyClosed, Collections.emptySet(),
+                Collections.emptySet());
 
         EasyMock.expect(closeStationFactory.createClosedStation(EasyMock.eq(shudehillConfig), EasyMock.eq(shudehill.getId()), EasyMock.isA(ClosedStationFactory.ShouldIncludeStationInDiversions.class))).
                 andReturn(shudehillClosed);

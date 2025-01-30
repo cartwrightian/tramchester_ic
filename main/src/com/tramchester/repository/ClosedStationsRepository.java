@@ -39,14 +39,14 @@ public class ClosedStationsRepository {
     private final GraphFilter graphFilter;
 
     private final Set<ClosedStation> closedStations;
-    private final Map<IdFor<Station>, Set<Closure>> closureDates;
+    private final Map<IdFor<Station>, Set<Closure>> closuresForStation;
 
     @Inject
     public ClosedStationsRepository(TramchesterConfig config, ClosedStationFactory closedStationFactory, GraphFilter graphFilter) {
         this.config = config;
         this.closedStationFactory = closedStationFactory;
         this.graphFilter = graphFilter;
-        closureDates = new HashMap<>();
+        closuresForStation = new HashMap<>();
         closedStations = new HashSet<>();
     }
 
@@ -61,7 +61,7 @@ public class ClosedStationsRepository {
                 logger.info("No closures for " + source.getName());
             }
         });
-        logger.warn("Added " + closureDates.size() + " stations closures");
+        logger.warn("Added " + closuresForStation.size() + " stations closures");
         logger.info("Started");
     }
 
@@ -72,14 +72,15 @@ public class ClosedStationsRepository {
         // capture closed stations and date ranges
         closureConfigs.forEach(closureConfig -> {
             final Closure closure = closedStationFactory.createFor(closureConfig);
-            //final DateRange dateRange = closureConfig.getDateRange();
             final StationsConfig stations = closureConfig.getStations();
             if (stations instanceof StationListConfig stationListConfig) {
                 stationListConfig.getStations().forEach(stationId -> {
-                    if (!closureDates.containsKey(stationId)) {
-                        closureDates.put(stationId, new HashSet<>());
+                    if (!closuresForStation.containsKey(stationId)) {
+                        closuresForStation.put(stationId, new HashSet<>());
                     }
-                    closureDates.get(stationId).add(closure);
+                    final Set<Closure> closures = closuresForStation.get(stationId);
+                    guardAgainstOverlap(closures, closure);
+                    closures.add(closure);
                 });
             } else {
                 throw new RuntimeException("TODO");
@@ -90,20 +91,23 @@ public class ClosedStationsRepository {
         // capture details of each closure
         closureConfigs.forEach(closure -> {
                     final Set<ClosedStation> toAdd = toClosedStations(closure);
-                    guardAgainstOverlap(toAdd);
+//                    guardAgainstOverlap(toAdd);
                     closedStations.addAll(toAdd);
                 });
 
+    }
 
-//        // capture details of each closure
-//        closures.forEach(closure -> {
-//            final Set<ClosedStation> toAdd = closure.getStations().stream().
-//                    map(closedStationId -> closedStationFactory.createClosedStation(closure, closedStationId,
-//                            diversionStation -> shouldIncludeDiversion(diversionStation, closure.getDateRange()))).
-//                    collect(Collectors.toSet());
-//            guardAgainstOverlap(toAdd);
-//            closedStations.addAll(toAdd);
-//        });
+    private void guardAgainstOverlap(final Set<Closure> closures, final Closure candidate) {
+        Set<Closure> overlapping = closures.stream().
+                filter(closure -> closure.overlapsWith(candidate)).
+                collect(Collectors.toSet());
+        if (overlapping.isEmpty()) {
+            return;
+        }
+
+        final String msg = format("Cannot add closure %s since overlaps with existing %s", candidate, overlapping);
+        logger.error(msg);
+        throw new RuntimeException(msg);
     }
 
     private Set<ClosedStation> toClosedStations(final StationClosures closureConfig) {
@@ -119,27 +123,27 @@ public class ClosedStationsRepository {
         }
     }
 
-    private void guardAgainstOverlap(final Set<ClosedStation> toAdd) {
-        toAdd.forEach(toCheck -> {
-            final Station station = toCheck.getStation();
-            closedStations.stream().
-                    filter(closedStation -> closedStation.getStation().equals(station)).
-                    forEach(sameStationClosure -> {
-                        if (sameStationClosure.overlaps(toCheck)) {
-                            String msg = format("Cannot add closure for %s since closure %s overlaps with existing %s", station.getId(), sameStationClosure, toCheck);
-                            logger.error(msg);
-                            throw new RuntimeException(msg);
-                        }
-                    });
-        });
-    }
+//    private void guardAgainstOverlap(final Set<ClosedStation> toAdd) {
+//        toAdd.forEach(toCheck -> {
+//            final Station station = toCheck.getStation();
+//            closedStations.stream().
+//                    filter(closedStation -> closedStation.getStation().equals(station)).
+//                    forEach(sameStationClosure -> {
+//                        if (sameStationClosure.overlaps(toCheck)) {
+//                            String msg = format("Cannot add closure for %s since closure %s overlaps with existing %s", station.getId(), sameStationClosure, toCheck);
+//                            logger.error(msg);
+//                            throw new RuntimeException(msg);
+//                        }
+//                    });
+//        });
+//    }
 
     private boolean shouldIncludeDiversion(final Station diversionStation, final DateRange dateRange) {
         if (graphFilter.shouldInclude(diversionStation)) {
             final IdFor<Station> stationId = diversionStation.getId();
-            if (closureDates.containsKey(stationId)) {
+            if (closuresForStation.containsKey(stationId)) {
                 // diversion station also has closures, make sure not closed on same dates
-                final Set<Closure> closures = closureDates.get(stationId);
+                final Set<Closure> closures = closuresForStation.get(stationId);
                 boolean noOverlap = closures.stream().noneMatch(closure -> closure.overlapsWith(dateRange));
                 if (!noOverlap) {
                     logger.debug(format("Diversion station %s has overlapping closures %s with %s",
@@ -157,12 +161,12 @@ public class ClosedStationsRepository {
     @PreDestroy
     public void stop() {
         logger.info("Stopping");
-        closureDates.clear();
+        closuresForStation.clear();
         logger.info("Stopped");
     }
 
     public boolean hasClosuresOn(final TramDate date) {
-        return closureDates.values().stream().flatMap(Collection::stream).anyMatch(closure -> closure.activeFor(date));
+        return closuresForStation.values().stream().flatMap(Collection::stream).anyMatch(closure -> closure.activeFor(date));
     }
 
     public Set<ClosedStation> getClosedStationsFor(final DataSourceID sourceId) {
@@ -265,13 +269,15 @@ public class ClosedStationsRepository {
 
         final IdSet<Station> locationsWithAClosure = locations.stream().
                 map(HasId::getId).
-                filter(closureDates::containsKey).
+                filter(closuresForStation::containsKey).
                 collect(IdSet.idCollector());
 
+        // at least one of the provided did not have a related closure
         if (locationsWithAClosure.size() != locations.size()) {
             return true;
         }
         // ELSE all locations have a closure, so check if any of those are not all day long
+
 
         return closedStations.stream().
                 filter(closedStation -> locationsWithAClosure.contains(closedStation.getStationId())).
@@ -289,7 +295,7 @@ public class ClosedStationsRepository {
     }
 
     public Set<ClosedStation> getAnyWithClosure(final TramDate tramDate) {
-        final IdSet<Station> hasClosure = closureDates.entrySet().stream().
+        final IdSet<Station> hasClosure = closuresForStation.entrySet().stream().
                 filter(entry -> entry.getValue().stream().anyMatch(range -> range.activeFor(tramDate))).
                 map(Map.Entry::getKey).
                 collect(IdSet.idCollector());
@@ -319,44 +325,29 @@ public class ClosedStationsRepository {
         };
     }
 
-    private boolean isStationClosed(Station station, TramDate date, TimeRange timeRange) {
-        final boolean closedOnDay = isStationClosed(station, date);
-        if (!closedOnDay) {
-            return false;
-        }
-        // else we know station has a closure
-        if (timeRange.allDay()) {
-            return true;
-        }
-        // else we need to check if timeRange is fully enclosed by the closures in effect today
-        final List<ClosedStation> foundClosures = closedStations.stream().
-                filter(closedStation -> closedStation.getStation().equals(station)).
-                filter(closedStation -> closedStation.getDateTimeRange().contains(date)).
-                toList();
+    private boolean isStationClosed(final Station station, final TramDate date, final TimeRange timeRange) {
+        return isStationClosed(station.getId(), date, timeRange);
+    }
 
-        if (foundClosures.size()!=1) {
-            String msg = format("Got the wrong number of closures for %s on date %s, found %s", station.getId(), date, foundClosures);
-            logger.error(msg);
-            throw new RuntimeException(msg);
+    private boolean isStationClosed(final IdFor<Station> stationId, final TramDate date, final TimeRange timeRange) {
+        if (closuresForStation.containsKey(stationId)) {
+            return closuresForStation.get(stationId).
+                    stream().anyMatch(closure -> closure.activeFor(date, timeRange));
         }
+        return false;
 
-        ClosedStation found = foundClosures.get(0);
-        return found.getDateTimeRange().fullyContains(timeRange);
     }
 
     public boolean isClosed(final IdFor<Station> stationId, final TramDate date) {
-        if (!closureDates.containsKey(stationId)) {
+        if (!closuresForStation.containsKey(stationId)) {
             // none match
             return false;
         }
-
-        final Set<Closure> forStation = closureDates.get(stationId);
-        return forStation.stream().anyMatch(range -> range.activeFor(date));
-
+        return closuresForStation.get(stationId).stream().anyMatch(closure -> closure.activeFor(date));
     }
 
-    public Set<Closure> getClosuresFor(TramDate date) {
-        return closureDates.values().stream().
+    public Set<Closure> getClosuresFor(final TramDate date) {
+        return closuresForStation.values().stream().
                 flatMap(Collection::stream).
                 filter(closure -> closure.activeFor(date)).
                 collect(Collectors.toSet());

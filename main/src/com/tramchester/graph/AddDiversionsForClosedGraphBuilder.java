@@ -208,7 +208,7 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
         }
     }
 
-    private void addDiversionsToAndFromClosed(final MutableGraphTransaction txn,final ClosedStation closure) {
+    private void addDiversionsToAndFromClosed(final MutableGraphTransaction txn, final ClosedStation closure) {
         final Station closedStation = closure.getStation();
 
         Set<Station> others = closure.getDiversionToFromClosure();
@@ -307,7 +307,6 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
 
     private void setCommonProperties(final MutableGraphRelationship relationship, final Duration cost, final ClosedStation closure) {
         relationship.setCost(cost);
-        //relationship.setDateRange(closure.getDateRange());
         relationship.setDateTimeRange(closure.getDateTimeRange());
     }
 
