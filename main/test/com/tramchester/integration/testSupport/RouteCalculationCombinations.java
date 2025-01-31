@@ -56,7 +56,7 @@ public class RouteCalculationCombinations<T extends Location<T>> {
 
     public static ChecksOpen<Station> checkStationOpen(ComponentContainer componentContainer) {
         final ClosedStationsRepository closedStationRepository = componentContainer.get(ClosedStationsRepository.class);
-        return (stationId, date) -> !closedStationRepository.isClosed(stationId, date);
+        return (stationId, date) -> !closedStationRepository.isStationClosed(stationId, date);
     }
 
     public static ChecksOpen<StationGroup> checkGroupOpen(ComponentContainer componentContainer) {

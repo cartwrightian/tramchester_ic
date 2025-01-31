@@ -6,6 +6,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TimeRange;
 
+import java.util.Collections;
 import java.util.Set;
 
 public class Closure {
@@ -17,6 +18,10 @@ public class Closure {
         this.dateTimeRange = dateTimeRange;
         this.stations = stations;
         this.fullyClosed = fullyClosed;
+    }
+
+    public Closure(Station station, DateRange dateRange, TimeRange timeRange, boolean fullyClosed) {
+        this(DateTimeRange.of(dateRange, timeRange), Collections.singleton(station), fullyClosed);
     }
 
     public boolean overlapsWith(final DateRange dateRange) {

@@ -159,8 +159,8 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         RouteStation routeStationA = new RouteStation(Bury.fake(), TestEnv.getTramTestRoute());
         RouteStation routeStationB = new RouteStation(Shudehill.fake(), TestEnv.getTramTestRoute());
 
-        EasyMock.expect(journeyConstraints.isClosed(Bury.fake())).andReturn(false);
-        EasyMock.expect(journeyConstraints.isClosed(Shudehill.fake())).andReturn(true);
+        EasyMock.expect(journeyConstraints.isClosed(Bury.getId())).andReturn(false);
+        EasyMock.expect(journeyConstraints.isClosed(Shudehill.getId())).andReturn(true);
         EasyMock.expect(journeyConstraints.getFewestChangesCalculator()).andReturn(fewestHopsForRoutes);
 
         GraphNode node = createMock(GraphNode.class);

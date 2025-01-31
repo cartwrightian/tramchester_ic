@@ -422,7 +422,7 @@ public class TransportDataFromFilesTramTest {
         IdSet<Station> result = new IdSet<>();
 
         transportData.getStations(TramsOnly).stream().
-                filter(station -> !closedStationRepository.isClosed(station.getId(), when)).
+                filter(station -> !closedStationRepository.isStationClosed(station.getId(), when)).
                 forEach(station -> {
                     IdFor<Station> stationId = station.getId();
                     Set<Trip> all = transportData.getTrips().stream().filter(trip -> trip.callsAt(stationId)).collect(Collectors.toSet());
@@ -437,7 +437,7 @@ public class TransportDataFromFilesTramTest {
 
         IdSet<Station> expected = TramStations.getEndOfTheLine().stream().
                 map(FakeStation::getId).
-                filter(stationId -> !closedStationRepository.isClosed(stationId, when)).
+                filter(stationId -> !closedStationRepository.isStationClosed(stationId, when)).
                 collect(IdSet.idCollector());
 
         IdSet<Station> disjunction = IdSet.disjunction(expected, result);

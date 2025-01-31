@@ -143,7 +143,7 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
         }
 
         closedStations.stream().
-                filter(closedStation -> graphFilter.shouldInclude(closedStation.getStation())).
+                filter(closedStation -> graphFilter.shouldInclude(closedStation.getStationId())).
             forEach(closedStation -> {
 
                 // TODO This excludes all stations with closures, more sophisticated would be to ID how/if closure
@@ -200,7 +200,7 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
                     throw new RuntimeException(message);
                 }
                 logger.info("Found " + GraphLabel.WALK_FOR_CLOSED_ENABLED + " node");
-                node = nodes.get(0);
+                node = nodes.getFirst();
             }
             node.setSourceName(sourceConfig.getName());
 
@@ -208,25 +208,25 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
         }
     }
 
-    private void addDiversionsToAndFromClosed(final MutableGraphTransaction txn, final ClosedStation closure) {
-        final Station closedStation = closure.getStation();
+    private void addDiversionsToAndFromClosed(final MutableGraphTransaction txn, final ClosedStation closedStation) {
+        final Station actualStation = closedStation.getStation();
 
-        Set<Station> others = closure.getDiversionToFromClosure();
+        Set<Station> others = closedStation.getDiversionToFromClosure();
 
-        final MutableGraphNode closedNode = txn.findNodeMutable(closedStation);
+        final MutableGraphNode closedNode = txn.findNodeMutable(actualStation);
         if (closedNode==null) {
-            String msg = "Could not find database node for from: " + closedStation.getId();
+            String msg = "Could not find database node for from: " + actualStation.getId();
             logger.error(msg);
             throw new RuntimeException(msg);
         }
 
-        logger.info("Adding Diversion relations to/from closed " + closedStation.getId() + " to/from " + asIds(others));
+        logger.info("Adding Diversion relations to/from closed " + actualStation.getId() + " to/from " + asIds(others));
 
         others.stream().filter(graphFilter::shouldInclude).forEach(otherStation -> {
 
-            final Duration cost = geography.getWalkingDuration(closedStation, otherStation);
+            final Duration cost = geography.getWalkingDuration(actualStation, otherStation);
 
-            logger.info(format("Create diversion to/from %s and %s cost %s", closedStation.getId(), otherStation.getId(), cost));
+            logger.info(format("Create diversion to/from %s and %s cost %s", actualStation.getId(), otherStation.getId(), cost));
 
             final MutableGraphNode otherNode = txn.findNodeMutable(otherStation);
             if (otherNode==null) {
@@ -238,14 +238,14 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
             final MutableGraphRelationship fromClosed = createRelationship(txn, closedNode, otherNode, DIVERSION);
             final MutableGraphRelationship fromOther = createRelationship(txn, otherNode, closedNode, DIVERSION);
 
-            setCommonProperties(fromClosed, cost, closure);
-            setCommonProperties(fromOther, cost, closure);
+            setCommonProperties(fromClosed, cost, closedStation);
+            setCommonProperties(fromOther, cost, closedStation);
 
             fromClosed.set(otherStation);
-            fromOther.set(closedStation);
+            fromOther.set(actualStation);
 
             otherNode.addLabel(GraphLabel.HAS_DIVERSION);
-            stationsWithDiversions.add(otherStation, closure.getDateTimeRange());
+            stationsWithDiversions.add(otherStation, closedStation.getDateTimeRange());
 
         });
     }
@@ -253,12 +253,12 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
     /***
      * Create diversions around a closed station (not to/from that station)
      * @param txn current transaction
-     * @param closure station closure details
+     * @param closedStation station closure details
      * @return number added
      */
-    private int addDiversionsAroundClosed(final MutableGraphTransaction txn, final ClosedStation closure) {
+    private int addDiversionsAroundClosed(final MutableGraphTransaction txn, final ClosedStation closedStation) {
 
-        final Set<Station> stationsToLink = closure.getDiversionAroundClosure();
+        final Set<Station> stationsToLink = closedStation.getDiversionAroundClosure();
 
         final Set<Pair<Station, Station>> toLinkViaDiversion = stationsToLink.stream().
             flatMap(nearbyA -> stationsToLink.stream().map(nearbyB -> Pair.of(nearbyA, nearbyB))).
@@ -286,24 +286,21 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
 
             final MutableGraphNode firstNode = txn.findNodeMutable(first);
 
-            Stream<ImmutableGraphRelationship> alreadyPresent = firstNode.getRelationships(txn, Direction.OUTGOING, DIVERSION);
+//            Stream<ImmutableGraphRelationship> alreadyPresent = firstNode.getRelationships(txn, Direction.OUTGOING, DIVERSION);
 
             final MutableGraphNode secondNode = txn.findNodeMutable(second);
 
             firstNode.addLabel(GraphLabel.HAS_DIVERSION);
 
             final MutableGraphRelationship relationship = createRelationship(txn, firstNode, secondNode, DIVERSION);
-            setCommonProperties(relationship, cost, closure);
+            setCommonProperties(relationship, cost, closedStation);
             relationship.set(second);
         });
 
-        // TODO Is this correct?
-        uniqueStations.forEach(station -> stationsWithDiversions.add(station, closure.getDateTimeRange()));
+        uniqueStations.forEach(station -> stationsWithDiversions.add(station, closedStation.getDateTimeRange()));
 
         return toLinkViaDiversion.size();
     }
-
-
 
     private void setCommonProperties(final MutableGraphRelationship relationship, final Duration cost, final ClosedStation closure) {
         relationship.setCost(cost);

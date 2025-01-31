@@ -71,8 +71,8 @@ public class ClosedStationsRepositoryTest extends EasyMockSupport {
         EasyMock.expect(closeStationFactory.createFor(buryConfig)).
                 andReturn(new Closure(new DateTimeRange(dateRange, buryTimeRange), Collections.singleton(Altrincham.fake()), fullyClosed));
 
-        ClosedStation shudehillClosed = new ClosedStation(shudehill.fake(), dateRange, TimeRange.AllDay(), fullyClosed, Collections.emptySet(), Collections.emptySet());
-        ClosedStation buryClosed = new ClosedStation(bury.fake(), dateRange, buryTimeRange, fullyClosed, Collections.emptySet(),
+        ClosedStation shudehillClosed = new ClosedStation(shudehill.fake(), dateRange, TimeRange.AllDay(), Collections.emptySet(), Collections.emptySet());
+        ClosedStation buryClosed = new ClosedStation(bury.fake(), dateRange, buryTimeRange, Collections.emptySet(),
                 Collections.emptySet());
 
         EasyMock.expect(closeStationFactory.createClosedStation(EasyMock.eq(shudehillConfig), EasyMock.eq(shudehill.getId()), EasyMock.isA(ClosedStationFactory.ShouldIncludeStationInDiversions.class))).
@@ -102,9 +102,9 @@ public class ClosedStationsRepositoryTest extends EasyMockSupport {
                 andReturn(new Closure(new DateTimeRange(dateRangeB, TimeRange.AllDay()), Collections.singleton(Altrincham.fake()), true));
 
         EasyMock.expect(closeStationFactory.createClosedStation(EasyMock.eq(closedA), EasyMock.eq(Altrincham.getId()), EasyMock.isA(ClosedStationFactory.ShouldIncludeStationInDiversions.class))).
-                andReturn(new ClosedStation(Altrincham.fake(), dateRangeA, true, Collections.emptySet(), Collections.emptySet()));
+                andReturn(new ClosedStation(Altrincham.fake(), dateRangeA, Collections.emptySet(), Collections.emptySet()));
         EasyMock.expect(closeStationFactory.createClosedStation(EasyMock.eq(closedB), EasyMock.eq(Altrincham.getId()), EasyMock.isA(ClosedStationFactory.ShouldIncludeStationInDiversions.class))).
-                andReturn(new ClosedStation(Altrincham.fake(), dateRangeB, true, Collections.emptySet(), Collections.emptySet()));
+                andReturn(new ClosedStation(Altrincham.fake(), dateRangeB, Collections.emptySet(), Collections.emptySet()));
 
         replayAll();
         assertThrows(RuntimeException.class, () -> {
@@ -118,8 +118,8 @@ public class ClosedStationsRepositoryTest extends EasyMockSupport {
     void shouldHaveExpectedClosures() {
         replayAll();
         closeStationRepository.start();
-        assertTrue(closeStationRepository.isClosed(TramStations.Shudehill.getId(), when.plusDays(1)));
-        assertFalse(closeStationRepository.isClosed(TramStations.Shudehill.getId(), when.plusWeeks(1).plusDays(1)));
+        assertTrue(closeStationRepository.isStationClosed(TramStations.Shudehill.getId(), when.plusDays(1)));
+        assertFalse(closeStationRepository.isStationClosed(TramStations.Shudehill.getId(), when.plusWeeks(1).plusDays(1)));
         verifyAll();
     }
 
@@ -197,7 +197,7 @@ public class ClosedStationsRepositoryTest extends EasyMockSupport {
 
         ClosedStation closed = closeStationRepository.getClosedStation(bury, when, timeRange);
         assertNotNull(closed);
-        assertEquals(bury, closed.getStation());
+        assertEquals(bury.getId(), closed.getStationId());
         dateRange.stream().forEach(date -> {
             assertTrue(closed.getDateTimeRange().contains(date));
         });
@@ -217,7 +217,7 @@ public class ClosedStationsRepositoryTest extends EasyMockSupport {
 
         ClosedStation closed = closeStationRepository.getClosedStation(station, when, timeRange);
         assertNotNull(closed);
-        assertEquals(station, closed.getStation());
+        assertEquals(station.getId(), closed.getStationId());
         dateRange.stream().forEach(date -> {
             assertTrue(closed.getDateTimeRange().contains(date));
         });

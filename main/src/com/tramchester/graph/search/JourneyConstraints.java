@@ -1,15 +1,15 @@
 package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.*;
+import com.tramchester.domain.LocationCollection;
+import com.tramchester.domain.Route;
+import com.tramchester.domain.Service;
 import com.tramchester.domain.closures.ClosedStation;
-import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
-import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.repository.RunningRoutesAndServices;
 import org.slf4j.Logger;
@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class JourneyConstraints {
 
@@ -97,12 +96,12 @@ public class JourneyConstraints {
     }
 
     // TODO Only whole day for now
-    public boolean isClosed(Station station) {
-        if (!closedStationsIds.contains(station.getId())) {
+    public boolean isClosed(final IdFor<Station> stationId) {
+        if (!closedStationsIds.contains(stationId)) {
             return false;
         }
         return closedStations.stream().
-                filter(closedStation -> closedStation.getStation().equals(station)).
+                filter(closedStation -> closedStation.getStationId().equals(stationId)).
                 allMatch(ClosedStation::closedWholeDay);
     }
 

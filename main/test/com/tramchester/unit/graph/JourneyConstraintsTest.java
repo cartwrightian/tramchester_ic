@@ -51,7 +51,7 @@ public class JourneyConstraintsTest extends EasyMockSupport {
         DateRange dateRange = DateRange.of(when.plusWeeks(1), when.plusWeeks(2));
         TimeRange timeRange = TimeRange.AllDay();
 
-        ClosedStation closedStation = new ClosedStation(TramStations.Shudehill.fake(), dateRange, timeRange, true, Collections.emptySet(), Collections.emptySet());
+        ClosedStation closedStation = new ClosedStation(TramStations.Shudehill.fake(), dateRange, timeRange, Collections.emptySet(), Collections.emptySet());
         Set<ClosedStation> closedStations = Collections.singleton(closedStation);
 
         lowestCostForDest = createMock(LowestCostsForDestRoutes.class);
@@ -167,12 +167,10 @@ public class JourneyConstraintsTest extends EasyMockSupport {
 
     @Test
     void shouldCheckIfClosedStation() {
-        Station stationA = TramStations.Anchorage.fake();
-        Station stationB = TramStations.Shudehill.fake();
 
         replayAll();
-        assertFalse(journeyConstraints.isClosed(stationA));
-        assertTrue(journeyConstraints.isClosed(stationB));
+        assertFalse(journeyConstraints.isClosed(TramStations.Anchorage.getId()));
+        assertTrue(journeyConstraints.isClosed(TramStations.Shudehill.getId()));
         verifyAll();
     }
 

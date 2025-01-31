@@ -117,7 +117,7 @@ class KnownTramRouteTest {
             }
         });
 
-        assertTrue(unexpectedLoadedForDate.isEmpty(), "Mismatch on known routes, loaded routes were: " + unexpectedLoadedForDate);
+        assertTrue(unexpectedLoadedForDate.isEmpty(), "Mismatch on known routes, unexpected routes were: " + unexpectedLoadedForDate);
     }
 
     @Test

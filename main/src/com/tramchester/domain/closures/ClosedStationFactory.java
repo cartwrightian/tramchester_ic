@@ -47,8 +47,6 @@ public class ClosedStationFactory {
 
         final Set<Station> nearbyOpenStations = getNearbyOpenStations(station, includeDiversion);
 
-        final boolean fullyClosed = closure.isFullyClosed();
-
         final Set<Station> diversionsAround;
         if (closure.hasDiversionsAroundClosure()) {
             final IdSet<Station> diversionsAroundClosure = closure.getDiversionsAroundClosure();
@@ -70,9 +68,9 @@ public class ClosedStationFactory {
         }
 
         if (closure.hasTimeRange()) {
-            return new ClosedStation(station, dateRange, closure.getTimeRange(), fullyClosed, diversionsAround, diversionsToFrom);
+            return new ClosedStation(station, dateRange, closure.getTimeRange(), diversionsAround, diversionsToFrom);
         } else {
-            return new ClosedStation(station, dateRange, fullyClosed, diversionsAround, diversionsToFrom);
+            return new ClosedStation(station, dateRange, diversionsAround, diversionsToFrom);
         }
     }
 

@@ -568,9 +568,16 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequestD, Cornbrook, Weaste);
     }
 
+    @DisabledUntilDate(year = 2025, month = 2, day = 27)
     @Test
     void shouldReproIssueWithStPetersToBeyondEcclesAt8AM() {
         List<TramTime> missingTimes = checkRangeOfTimes(StPetersSquare, Eccles,0);
+        assertTrue(missingTimes.isEmpty(), missingTimes.toString());
+    }
+
+    @Test
+    void shouldReproIssueWithStPetersToBeyondEcclesAt8AMReplacementBuses() {
+        List<TramTime> missingTimes = checkRangeOfTimes(StPetersSquare, Eccles,1);
         assertTrue(missingTimes.isEmpty(), missingTimes.toString());
     }
 

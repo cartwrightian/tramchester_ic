@@ -93,7 +93,7 @@ public class ClosedStationsRepositoryTest {
     void shouldHaveExpectedClosedStationsForFirstPeriod() {
         Set<ClosedStation> closed = closedStationsRepository.getAnyWithClosure(when);
         assertEquals(2, closed.size());
-        IdSet<Station> ids = closed.stream().map(ClosedStation::getStation).collect(IdSet.collector());
+        IdSet<Station> ids = closed.stream().map(ClosedStation::getStationId).collect(IdSet.idCollector());
         assertTrue(ids.contains(StPetersSquare.getId()));
         assertTrue(ids.contains(PiccadillyGardens.getId()));
 
@@ -105,7 +105,7 @@ public class ClosedStationsRepositoryTest {
     void shouldHaveExpectedClosedStationsForOverlap() {
         Set<ClosedStation> fullyClosed = closedStationsRepository.getAnyWithClosure(overlap);
         assertEquals(4, fullyClosed.size());
-        IdSet<Station> ids = fullyClosed.stream().map(ClosedStation::getStation).collect(IdSet.collector());
+        IdSet<Station> ids = fullyClosed.stream().map(ClosedStation::getStationId).collect(IdSet.idCollector());
         assertTrue(ids.contains(StPetersSquare.getId()));
     }
 

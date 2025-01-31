@@ -150,10 +150,10 @@ public class ServiceHeuristics {
         final IdFor<RouteStation> routeStationId = nodeOperations.getRouteStationId(node);
         final RouteStation routeStation = stationRepository.getRouteStationById(routeStationId);
 
-        final Station associatedStation = routeStation.getStation();
+        final IdFor<Station> associatedStationId = routeStation.getStationId();
 
-        if (journeyConstraints.isClosed(associatedStation)) {
-           return reasons.recordReason(HeuristicsReasons.StationClosed(howIGotHere, associatedStation.getId()));
+        if (journeyConstraints.isClosed(associatedStationId)) {
+           return reasons.recordReason(HeuristicsReasons.StationClosed(howIGotHere, associatedStationId));
         }
 
         return valid(ReasonCode.StationOpen, howIGotHere, reasons);

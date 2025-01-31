@@ -100,7 +100,7 @@ public class InterchangesTramTest {
         TramDate when = TestEnv.testDay();
 
         Set<Station> expectedStations = expectedTramStations.
-                filter(item -> !closedStationsRepository.isClosed(item.getId(), when)).
+                filter(item -> !closedStationsRepository.isStationClosed(item.getId(), when)).
                 map(item -> item.from(stationRepository)).collect(Collectors.toSet());
 
         final Set<Station> additional = AdditionalTramInterchanges.stations().

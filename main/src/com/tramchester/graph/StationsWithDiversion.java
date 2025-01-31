@@ -1,7 +1,6 @@
 package com.tramchester.graph;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.places.Station;
 import com.tramchester.repository.StationsWithDiversionRepository;
@@ -34,11 +33,13 @@ public class StationsWithDiversion implements StationsWithDiversionRepository {
     public void add(final Station station, final DateTimeRange dateTimeRange) {
         if (diversions.containsKey(station)) {
             final Set<DateTimeRange> currentRanges = diversions.get(station);
-            long overlaps = currentRanges.stream().filter(existing -> existing.overlaps(dateTimeRange)).
+            long overlaps = currentRanges.stream().
+                    filter(existing -> existing.overlaps(dateTimeRange)).
                     filter(existing -> !existing.equals(dateTimeRange)).
                     count();
             if (overlaps>0) {
-                throw new RuntimeException("For Station " +station.getId()+ " found overlap between " + dateTimeRange + " and existing " + currentRanges);
+                throw new RuntimeException("For Station " +station.getId()+ " found overlap between " + dateTimeRange +
+                        " and existing " + currentRanges);
             }
         } else {
             diversions.put(station, new HashSet<>());

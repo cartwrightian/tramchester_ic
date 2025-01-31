@@ -91,14 +91,12 @@ public class ClosedStationsRepository {
         // capture details of each closure
         closureConfigs.forEach(closure -> {
                     final Set<ClosedStation> toAdd = toClosedStations(closure);
-//                    guardAgainstOverlap(toAdd);
                     closedStations.addAll(toAdd);
                 });
-
     }
 
     private void guardAgainstOverlap(final Set<Closure> closures, final Closure candidate) {
-        Set<Closure> overlapping = closures.stream().
+        final Set<Closure> overlapping = closures.stream().
                 filter(closure -> closure.overlapsWith(candidate)).
                 collect(Collectors.toSet());
         if (overlapping.isEmpty()) {
@@ -122,21 +120,6 @@ public class ClosedStationsRepository {
             throw new RuntimeException("todo for " + closureConfig);
         }
     }
-
-//    private void guardAgainstOverlap(final Set<ClosedStation> toAdd) {
-//        toAdd.forEach(toCheck -> {
-//            final Station station = toCheck.getStation();
-//            closedStations.stream().
-//                    filter(closedStation -> closedStation.getStation().equals(station)).
-//                    forEach(sameStationClosure -> {
-//                        if (sameStationClosure.overlaps(toCheck)) {
-//                            String msg = format("Cannot add closure for %s since closure %s overlaps with existing %s", station.getId(), sameStationClosure, toCheck);
-//                            logger.error(msg);
-//                            throw new RuntimeException(msg);
-//                        }
-//                    });
-//        });
-//    }
 
     private boolean shouldIncludeDiversion(final Station diversionStation, final DateRange dateRange) {
         if (graphFilter.shouldInclude(diversionStation)) {
@@ -184,7 +167,7 @@ public class ClosedStationsRepository {
     }
 
     private boolean isStationClosed(Station station, TramDate date) {
-        return isClosed(station.getId(), date);
+        return isStationClosed(station.getId(), date);
     }
 
     public boolean isGroupClosed(final StationGroup group, final TramDate date) {
@@ -335,15 +318,13 @@ public class ClosedStationsRepository {
                     stream().anyMatch(closure -> closure.activeFor(date, timeRange));
         }
         return false;
-
     }
 
-    public boolean isClosed(final IdFor<Station> stationId, final TramDate date) {
-        if (!closuresForStation.containsKey(stationId)) {
-            // none match
-            return false;
+    public boolean isStationClosed(final IdFor<Station> stationId, final TramDate date) {
+        if (closuresForStation.containsKey(stationId)) {
+            return closuresForStation.get(stationId).stream().anyMatch(closure -> closure.activeFor(date));
         }
-        return closuresForStation.get(stationId).stream().anyMatch(closure -> closure.activeFor(date));
+        return false;
     }
 
     public Set<Closure> getClosuresFor(final TramDate date) {
