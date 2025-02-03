@@ -13,7 +13,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
-import com.tramchester.integration.testSupport.config.StationClosuresConfigForTest;
+import com.tramchester.integration.testSupport.config.closures.StationClosuresListForTest;
 import com.tramchester.integration.testSupport.tram.IntegrationTramClosedStationsTestConfig;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
@@ -50,8 +50,8 @@ class RouteCalculatorCloseStationsTest {
 
     // see note below on DB deletion
     private final static List<StationClosures> closedStations = Arrays.asList(
-            new StationClosuresConfigForTest(Shudehill, new DateRange(begin, end), true),
-            new StationClosuresConfigForTest(PiccadillyGardens, new DateRange(begin, end), false));
+            new StationClosuresListForTest(Shudehill, new DateRange(begin, end), true),
+            new StationClosuresListForTest(PiccadillyGardens, new DateRange(begin, end), false));
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {

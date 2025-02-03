@@ -9,11 +9,13 @@ import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
-import com.tramchester.integration.testSupport.config.StationClosuresConfigForTest;
+import com.tramchester.integration.testSupport.config.closures.StationClosuresListForTest;
+import com.tramchester.integration.testSupport.config.closures.StationClosuresPairForTest;
 import com.tramchester.integration.testSupport.tram.IntegrationTramClosedStationsTestConfig;
 import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,18 +45,22 @@ public class ClosedStationsRepositoryTest {
         overlap = when.plusDays(3);
 
         Set<TramStations> diversionOnly = Collections.emptySet();
-        StationClosuresConfigForTest closureA = new StationClosuresConfigForTest(StPetersSquare, new DateRange(when, when.plusWeeks(1)),
+        StationClosuresListForTest closureA = new StationClosuresListForTest(StPetersSquare, new DateRange(when, when.plusWeeks(1)),
                 true);
-        StationClosuresConfigForTest closureB = new StationClosuresConfigForTest(TraffordCentre, new DateRange(overlap, when.plusWeeks(2)),
+        StationClosuresListForTest closureB = new StationClosuresListForTest(TraffordCentre, new DateRange(overlap, when.plusWeeks(2)),
                 false, diversionOnly, Collections.emptySet());
-        StationClosuresConfigForTest closureC = new StationClosuresConfigForTest(ExchangeSquare, new DateRange(overlap, when.plusWeeks(3)),
+        StationClosuresListForTest closureC = new StationClosuresListForTest(ExchangeSquare, new DateRange(overlap, when.plusWeeks(3)),
                 false, Collections.singleton(Victoria), Collections.emptySet());
 
         // overlaps with A
-        StationClosuresConfigForTest closureD = new StationClosuresConfigForTest(PiccadillyGardens, new DateRange(when, when.plusWeeks(1)),
+        StationClosuresListForTest closureD = new StationClosuresListForTest(PiccadillyGardens, new DateRange(when, when.plusWeeks(1)),
                 true);
 
-        List<StationClosures> closedStations = Arrays.asList(closureA, closureB, closureC, closureD);
+        Pair<TramStations, TramStations> pair = Pair.of(Altrincham, Timperley);
+        StationClosuresPairForTest closureE = new StationClosuresPairForTest(pair, new DateRange(when.plusWeeks(7), when.plusWeeks(8)),
+                true, Collections.emptySet(), Collections.emptySet());
+
+        List<StationClosures> closedStations = Arrays.asList(closureA, closureB, closureC, closureD, closureE);
 
         config = new IntegrationTramClosedStationsTestConfig(closedStations, true);
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
@@ -87,6 +93,17 @@ public class ClosedStationsRepositoryTest {
 
         Station divert = aroundClosure.getFirst();
         assertEquals(TramStations.Victoria.getId(), divert.getId());
+    }
+
+    @Test
+    void shouldHaveExpectedClosedStationsForPair() {
+        Set<ClosedStation> closed = closedStationsRepository.getAnyWithClosure(when.plusWeeks(7));
+        assertEquals(3, closed.size());
+
+        IdSet<Station> ids = closed.stream().map(ClosedStation::getStationId).collect(IdSet.idCollector());
+        assertTrue(ids.contains(Altrincham.getId()));
+        assertTrue(ids.contains(NavigationRoad.getId()));
+        assertTrue(ids.contains(Timperley.getId()));
     }
 
     @Test

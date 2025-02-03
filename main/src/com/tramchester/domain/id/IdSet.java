@@ -22,11 +22,11 @@ public class IdSet<T extends CoreDomain> implements Iterable<IdFor<T>> {
         this(set, true);
     }
 
-    public static <W extends CoreDomain> IdSet<W> wrap(Set<IdFor<W>> set) {
+    public static <W extends CoreDomain> IdSet<W> wrap(final Set<IdFor<W>> set) {
         return new IdSet<>(set, false);
     }
 
-    private IdSet(Set<IdFor<T>> set, boolean copy) {
+    private IdSet(final Set<IdFor<T>> set, final boolean copy) {
         theSet = copy ? new HashSet<>(set) : set;
     }
 
@@ -40,12 +40,12 @@ public class IdSet<T extends CoreDomain> implements Iterable<IdFor<T>> {
         theSet.add(id);
     }
 
-    public IdSet(int initialCapabicity) {
+    public IdSet(final int initialCapabicity) {
         theSet = new HashSet<>(initialCapabicity);
     }
 
-    public static <T extends CoreDomain> IdSet<T> singleton(IdFor<T> id) {
-        IdSet<T> result = new IdSet<>();
+    public static <T extends CoreDomain> IdSet<T> singleton(final IdFor<T> id) {
+        final IdSet<T> result = new IdSet<>();
         result.add(id);
         return result;
     }
@@ -54,8 +54,8 @@ public class IdSet<T extends CoreDomain> implements Iterable<IdFor<T>> {
         return new IdSet<>(Collections.emptySet());
     }
 
-    public static <S extends CoreDomain & HasId<S>> IdSet<S> from(Set<S> items) {
-        Set<IdFor<S>> ids = items.stream().map(HasId::getId).collect(Collectors.toSet());
+    public static <S extends CoreDomain & HasId<S>> IdSet<S> from(final Set<S> items) {
+        final Set<IdFor<S>> ids = items.stream().map(HasId::getId).collect(Collectors.toSet());
         return wrap(ids);
     }
 
@@ -63,12 +63,12 @@ public class IdSet<T extends CoreDomain> implements Iterable<IdFor<T>> {
         return new IdSet<>(other.theSet);
     }
 
-    public IdSet<T> addAll(IdSet<T> other) {
+    public IdSet<T> addAll(final IdSet<T> other) {
         theSet.addAll(other.theSet);
         return this;
     }
 
-    public IdSet<T> add(IdFor<T> id) {
+    public IdSet<T> add(final IdFor<T> id) {
         theSet.add(id);
         return this;
     }
@@ -198,7 +198,7 @@ public class IdSet<T extends CoreDomain> implements Iterable<IdFor<T>> {
         return new ArrayList<>(theSet);
     }
 
-    public static <T extends CoreDomain>  IdSet<T> disjunction(IdSet<T> setA, IdSet<T> setB) {
+    public static <T extends CoreDomain>  IdSet<T> disjunction(final IdSet<T> setA, final IdSet<T> setB) {
         return new IdSet<>(SetUtils.disjunction(setA.theSet, setB.theSet));
     }
 
@@ -210,7 +210,7 @@ public class IdSet<T extends CoreDomain> implements Iterable<IdFor<T>> {
         return new IdSet<>(SetUtils.intersection(setA.theSet, setB.theSet));
     }
 
-    public static <T extends CoreDomain> boolean anyOverlap(IdSet<T> idsA, IdSet<T> idsB) {
+    public static <T extends CoreDomain> boolean anyOverlap(final IdSet<T> idsA, final IdSet<T> idsB) {
         return !SetUtils.intersection(idsA.theSet, idsB.theSet).isEmpty();
     }
 }

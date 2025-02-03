@@ -26,12 +26,9 @@ public class DateRange {
     }
 
     public static DateRange from(final Collection<TramDate> dates) {
-        List<TramDate> sorted = dates.stream().sorted(TramDate::compareTo).toList();
+        final List<TramDate> sorted = dates.stream().sorted(TramDate::compareTo).toList();
 
-        TramDate first = sorted.get(0);
-        TramDate last = sorted.get(sorted.size()-1);
-
-        return new DateRange(first, last);
+        return new DateRange(sorted.getFirst(), sorted.getLast());
     }
 
     public boolean contains(final TramDate queryDate) {
@@ -70,7 +67,7 @@ public class DateRange {
                 '}';
     }
 
-    public boolean overlapsWith(DateRange other) {
+    public boolean overlapsWith(final DateRange other) {
         if (other.isEmpty() || this.isEmpty()) {
             return false;
         }
@@ -84,7 +81,7 @@ public class DateRange {
         return this==Empty;
     }
 
-    private static boolean between(DateRange dateRange, TramDate date) {
+    private static boolean between(final DateRange dateRange, final TramDate date) {
         if (date.equals(dateRange.startDate) || date.equals(dateRange.endDate)) {
             return true;
         }
@@ -129,7 +126,7 @@ public class DateRange {
         if (isEmpty()) {
             return 0;
         }
-        long diff = Math.subtractExact(endDate.toEpochDay(), startDate.toEpochDay());
+        final long diff = Math.subtractExact(endDate.toEpochDay(), startDate.toEpochDay());
         // inclusive, so add one
         return Math.abs(diff+1);
     }

@@ -11,7 +11,7 @@ import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.StationLocations;
-import com.tramchester.integration.testSupport.config.StationClosuresConfigForTest;
+import com.tramchester.integration.testSupport.config.closures.StationClosuresListForTest;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
@@ -50,7 +50,7 @@ public class ClosedStationFactoryTest extends EasyMockSupport {
     @Test
     void shouldCreateClosedStationFromNearby() {
         DateRange dateRange = DateRange.of(TestEnv.testDay(), TestEnv.testDay().plusWeeks(1));
-        StationClosures closures = new StationClosuresConfigForTest(Bury, dateRange, true);
+        StationClosures closures = new StationClosuresListForTest(Bury, dateRange, true);
 
         ClosedStationFactory.ShouldIncludeStationInDiversions include = diversionStation -> true;
 
@@ -81,7 +81,7 @@ public class ClosedStationFactoryTest extends EasyMockSupport {
         TimeRange timeRange = TimeRangePartial.of(TramTime.of(9,13), TramTime.of(10,55));
 
         DateRange dateRange = DateRange.of(TestEnv.testDay(), TestEnv.testDay().plusWeeks(1));
-        StationClosuresConfigForTest closures = new StationClosuresConfigForTest(Bury, dateRange, true);
+        StationClosuresListForTest closures = new StationClosuresListForTest(Bury, dateRange, true);
         closures.setTimeRange(timeRange);
 
         ClosedStationFactory.ShouldIncludeStationInDiversions include = diversionStation -> true;
@@ -104,7 +104,7 @@ public class ClosedStationFactoryTest extends EasyMockSupport {
     @Test
     void shouldCreateClosedStationFromNearbySomeExluded() {
         DateRange dateRange = DateRange.of(TestEnv.testDay(), TestEnv.testDay().plusWeeks(1));
-        StationClosures closures = new StationClosuresConfigForTest(Bury, dateRange, true);
+        StationClosures closures = new StationClosuresListForTest(Bury, dateRange, true);
 
         ClosedStationFactory.ShouldIncludeStationInDiversions include = diversionStation -> diversionStation.getId().equals(StPetersSquare.getId());
 
@@ -132,7 +132,7 @@ public class ClosedStationFactoryTest extends EasyMockSupport {
         DateRange dateRange = DateRange.of(TestEnv.testDay(), TestEnv.testDay().plusWeeks(1));
         Set<TramStations> diversionsAround = Collections.singleton(NavigationRoad);
         Set<TramStations> diversionsFrom = Collections.singleton(ManAirport);
-        StationClosures closures = new StationClosuresConfigForTest(Bury, dateRange, true, diversionsAround, diversionsFrom);
+        StationClosures closures = new StationClosuresListForTest(Bury, dateRange, true, diversionsAround, diversionsFrom);
 
         ClosedStationFactory.ShouldIncludeStationInDiversions include = diversionStation -> true;
 

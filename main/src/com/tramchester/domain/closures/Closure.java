@@ -29,6 +29,10 @@ public class Closure {
     }
 
     public boolean overlapsWith(final Closure other) {
+//        if (other.dateTimeRange.getDateRange().overlapsWith(this.getDateRange())) {
+//            return this.stations.stream().anyMatch(other.stations::contains);
+//        }
+
         if (other.dateTimeRange.overlaps(this.dateTimeRange)) {
             return this.stations.stream().anyMatch(other.stations::contains);
         }

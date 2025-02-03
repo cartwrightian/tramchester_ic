@@ -2,6 +2,7 @@ package com.tramchester.repository;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.StationListConfig;
+import com.tramchester.config.StationPairConfig;
 import com.tramchester.config.StationsConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
@@ -38,14 +39,17 @@ public class ClosedStationsRepository {
     private final TramchesterConfig config;
     private final ClosedStationFactory closedStationFactory;
     private final StationRepository stationRepository;
+    private final StopCallRepository stopCallRepository;
 
     private final ClosedStationContainer closedStationContainer;
 
     @Inject
-    public ClosedStationsRepository(TramchesterConfig config, ClosedStationFactory closedStationFactory, StationRepository stationRepository, GraphFilter graphFilter) {
+    public ClosedStationsRepository(TramchesterConfig config, ClosedStationFactory closedStationFactory,
+                                    StationRepository stationRepository, StopCallRepository stopCallRepository, GraphFilter graphFilter) {
         this.config = config;
         this.closedStationFactory = closedStationFactory;
         this.stationRepository = stationRepository;
+        this.stopCallRepository = stopCallRepository;
         closedStationContainer = new ClosedStationContainer(closedStationFactory, graphFilter);
     }
 
@@ -70,47 +74,48 @@ public class ClosedStationsRepository {
 
         // capture closed stations and date ranges
         closureConfigs.forEach(closureConfig -> {
-            final Closure closure = closedStationFactory.createFor(closureConfig);
             final StationsConfig stations = closureConfig.getStations();
             if (stations instanceof StationListConfig stationListConfig) {
-                IdSet<Station> configStations = stationListConfig.getStations();
-                addConfigStationsForClosure(closure, configStations);
+                final IdSet<Station> configStationIds = stationListConfig.getStations();
+
+                final Closure closure = closedStationFactory.createFor(closureConfig, configStationIds);
+                closedStationContainer.addStationsFor(closure, configStationIds);
+            } else if (stations instanceof StationPairConfig stationPairConfig) {
+                final StationIdPair pair = stationPairConfig.getStationPair();
+                final List<IdFor<Station>> stationIdsBetween = stopCallRepository.getClosedBetween(pair.getBeginId(), pair.getEndId());
+                final IdSet<Station> closedStationsIds = stationIdsBetween.stream().collect(IdSet.idCollector());
+
+                final Closure closure = closedStationFactory.createFor(closureConfig, closedStationsIds);
+                closedStationContainer.addStationsFor(closure, stationIdsBetween);
             } else {
-                throw new RuntimeException("TODO");
+                throw new RuntimeException("Unexpected type for " + closureConfig);
             }
 
         });
 
         closureConfigs.forEach(this::createClosedStations);
 
-        // capture details of each closure station
-//        closureConfigs.forEach(closure -> {
-//                    final Map<IdFor<Station>, ClosedStation> toAdd =
-//                            //toClosedStations(closure);
-//                    closedStations.putAll(toAdd);
-//                });
     }
 
-    private void addConfigStationsForClosure(final Closure closure, final IdSet<Station> stationIds) {
-        stationIds.forEach(stationId -> {
-            closedStationContainer.add(stationId, closure);
-        });
-    }
 
-    private void createClosedStations(final StationClosures closureConfig) {
-        final StationsConfig stationClosureConfig = closureConfig.getStations();
+    private void createClosedStations(final StationClosures closures) {
+        final StationsConfig stationClosureConfig = closures.getStations();
 
         if (stationClosureConfig instanceof StationListConfig stationListConfig) {
             stationListConfig.getStations().forEach(stationId -> {
                 final Station station = stationRepository.getStationById(stationId);
-                closedStationContainer.add(closureConfig, station);
+                closedStationContainer.add(closures, station);
             });
-
-//                    map(closedStationId -> closedStationFactory.createClosedStation(closureConfig, closedStationId,
-//                        diversionStation -> shouldIncludeDiversion(diversionStation, closureConfig.getDateRange()))).
-//                        collect(Collectors.toMap(ClosedStation::getStationId, a -> a));
-        } else {
-            throw new RuntimeException("todo for " + closureConfig);
+        } else if (stationClosureConfig instanceof StationPairConfig stationPairConfig) {
+            StationIdPair idPair = stationPairConfig.getStationPair();
+            List<IdFor<Station>> stationIds = stopCallRepository.getClosedBetween(idPair.getBeginId(), idPair.getEndId());
+            stationIds.forEach(stationId -> {
+                final Station station = stationRepository.getStationById(stationId);
+                closedStationContainer.add(closures, station);
+            });
+        }
+        else {
+            throw new RuntimeException("unexpected type " + stationClosureConfig);
         }
     }
 
@@ -143,17 +148,6 @@ public class ClosedStationsRepository {
 
     public Set<ClosedStation> getAnyWithClosure(final TramDate date) {
         return closedStationContainer.getAnyWithClosure(date);
-
-
-//        final IdSet<Station> hasClosure = closuresForStation.entrySet().stream().
-//                filter(entry -> entry.getValue().stream().anyMatch(range -> range.activeFor(tramDate))).
-//                map(Map.Entry::getKey).
-//                collect(IdSet.idCollector());
-//
-//       return closedStations.stream().
-//                filter(closedStation -> hasClosure.contains(closedStation.getStationId())).
-//                filter(closedStation -> closedStation.getDateTimeRange().contains(tramDate)).
-//                collect(Collectors.toSet());
     }
 
 
@@ -243,22 +237,13 @@ public class ClosedStationsRepository {
             forDatasource = new HashMap<>();
         }
 
-        public void add(IdFor<Station> stationId, Closure closure) {
-            if (!closuresForStation.containsKey(stationId)) {
-                closuresForStation.put(stationId, new HashSet<>());
-            }
-            final Set<Closure> existingClosuresForStation = closuresForStation.get(stationId);
-            guardAgainstOverlap(existingClosuresForStation, closure);
-            existingClosuresForStation.add(closure);
-        }
-
         public void clear() {
             forDatasource.clear();
             closedStations.clear();
             closuresForStation.clear();
         }
 
-        public void add(StationClosures closureConfig, final Station station) {
+        private void add(StationClosures closureConfig, final Station station) {
             final IdFor<Station> stationId = station.getId();
             final DataSourceID dataSourceID = station.getDataSourceID();
 
@@ -269,6 +254,19 @@ public class ClosedStationsRepository {
                 forDatasource.put(dataSourceID, new IdSet<>());
             }
             forDatasource.get(dataSourceID).add(stationId);
+        }
+
+        public void addStationsFor(final Closure closure, final Iterable<IdFor<Station>> configStationIds) {
+            configStationIds.forEach(stationId -> add(stationId, closure));
+        }
+
+        private void add(final IdFor<Station> stationId, final Closure closure) {
+            if (!closuresForStation.containsKey(stationId)) {
+                closuresForStation.put(stationId, new HashSet<>());
+            }
+            final Set<Closure> existingClosuresForStation = closuresForStation.get(stationId);
+            guardAgainstOverlap(existingClosuresForStation, closure);
+            existingClosuresForStation.add(closure);
         }
 
         public Set<ClosedStation> getFor(final DataSourceID sourceId) {
@@ -413,6 +411,7 @@ public class ClosedStationsRepository {
 
 
         }
+
     }
 
 

@@ -1,9 +1,6 @@
 package com.tramchester.domain.closures;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.config.StationListConfig;
-import com.tramchester.config.StationPairConfig;
-import com.tramchester.config.StationsConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.StationClosures;
 import com.tramchester.domain.dates.DateRange;
@@ -94,24 +91,26 @@ public class ClosedStationFactory {
         return found;
     }
 
-    public Closure createFor(final StationClosures closureConfig) {
+    public Closure createFor(final StationClosures closureConfig, IdSet<Station> stationIds) {
         final DateRange dateRange = closureConfig.getDateRange();
 
         final boolean fullyClosed = closureConfig.isFullyClosed();
 
-        StationsConfig stationConfig = closureConfig.getStations();
-
         final Set<Station> stations;
-        if (stationConfig instanceof StationListConfig stationListConfig) {
-            stations = stationListConfig.getStations().stream().
+        stations = stationIds.stream().
                     map(stationRepository::getStationById).
                     collect(Collectors.toSet());
-        } else if (stationConfig instanceof StationPairConfig stationPairConfig) {
-            // todo get from route repository
-            throw new RuntimeException("todo");
-        } else {
-            throw new RuntimeException("Unexpected type for stations config " + stationConfig);
-        }
+
+//        if (stationConfig instanceof StationListConfig stationListConfig) {
+//            stations = stationListConfig.getStations().stream().
+//                    map(stationRepository::getStationById).
+//                    collect(Collectors.toSet());
+//        } else if (stationConfig instanceof StationPairConfig stationPairConfig) {
+//            // todo get from route repository
+//            throw new RuntimeException("todo");
+//        } else {
+//            throw new RuntimeException("Unexpected type for stations config " + stationConfig);
+//        }
 
         if (closureConfig.hasTimeRange()) {
             return new Closure(new DateTimeRange(dateRange, closureConfig.getTimeRange()), stations, fullyClosed);
