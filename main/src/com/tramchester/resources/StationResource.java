@@ -243,12 +243,12 @@ public class StationResource extends UsesRecentCookie implements APIResource {
     @CacheControl(maxAge = 5, maxAgeUnit = TimeUnit.MINUTES)
     public Response getClosures() {
 
-        Set<Closure> closed = getUpcomingClosuresFor(providesNow.getTramDate());
+        final Set<Closure> closed = getUpcomingClosuresFor(providesNow.getTramDate());
 
         logger.info("Get closed stations " + closed);
 
         // TODO Should not be using config here
-        List<StationClosureDTO> dtos = closed.stream().
+        final List<StationClosureDTO> dtos = closed.stream().
                 map(StationClosureDTO::from).
                 collect(Collectors.toList());
 

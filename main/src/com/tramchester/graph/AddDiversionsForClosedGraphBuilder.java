@@ -209,9 +209,9 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
     }
 
     private void addDiversionsToAndFromClosed(final MutableGraphTransaction txn, final ClosedStation closedStation) {
-        final Station actualStation = closedStation.getStation();
+        final Station actualStation = stationRepository.getStationById(closedStation.getStationId());
 
-        Set<Station> others = closedStation.getDiversionToFromClosure();
+        final Set<Station> others = closedStation.getDiversionToFromClosure();
 
         final MutableGraphNode closedNode = txn.findNodeMutable(actualStation);
         if (closedNode==null) {

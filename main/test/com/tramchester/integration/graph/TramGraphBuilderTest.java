@@ -816,6 +816,7 @@ class TramGraphBuilderTest {
 
     }
 
+    @DisabledUntilDate(year = 2025, month = 2, day = 26)
     @Test
     void shouldHaveCorrectInboundsAtMediaCity() {
 

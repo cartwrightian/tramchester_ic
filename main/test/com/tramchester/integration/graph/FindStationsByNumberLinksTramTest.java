@@ -79,8 +79,6 @@ class FindStationsByNumberLinksTramTest {
 
         List<IdFor<Station>> expectedList = Stream.of(
                 //Shudehill,
-                HoltTown, // <- replacement buses??
-                VeloPark, // <- replacement buses??
                 StPetersSquare,
                 PiccadillyGardens,
                 //Piccadilly,
@@ -90,7 +88,7 @@ class FindStationsByNumberLinksTramTest {
                 Victoria,
                 StWerburghsRoad,
                 Pomona,
-                Broadway,
+                //Broadway,
                 HarbourCity
             ).map(FakeStation::getId).toList();
 

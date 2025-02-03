@@ -445,8 +445,6 @@ public class TransportDataFromFilesTramTest {
 
     }
 
-
-
     @Test
     void shouldHaveExpectedTraffordParkPlatformsForLiveDataWorkaround() {
 

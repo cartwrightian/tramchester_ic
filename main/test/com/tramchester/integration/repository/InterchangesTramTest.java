@@ -89,13 +89,11 @@ public class InterchangesTramTest {
         Stream<TramStations> expectedTramStations = Stream.of(StWerburghsRoad, TraffordBar, Cornbrook, HarbourCity,
                 Pomona, Cornbrook, Deansgate,
                 //Shudehill,
-                VeloPark, HoltTown, // <- for replacement bus services
                 PiccadillyGardens,
                 StPetersSquare,
                 Piccadilly,
                 Victoria,
-                MarketStreet,
-                Broadway);
+                MarketStreet);
 
         TramDate when = TestEnv.testDay();
 
@@ -155,7 +153,8 @@ public class InterchangesTramTest {
     void shouldHaveInterchangesForMediaCity() {
         assertTrue(interchangeRepository.isInterchange(stationRepository.getStationById(TramStations.HarbourCity.getId())));
 
-        assertTrue(interchangeRepository.isInterchange(stationRepository.getStationById(TramStations.Broadway.getId())));
+        // true -> false during eccles line closure
+        assertFalse(interchangeRepository.isInterchange(stationRepository.getStationById(TramStations.Broadway.getId())));
     }
 
     @Test
