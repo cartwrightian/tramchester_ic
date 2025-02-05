@@ -18,6 +18,7 @@ import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TramStationAdjacenyRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.conditional.RequiresNetwork;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.LiveDataDueTramsTest;
 import com.tramchester.testSupport.testTags.LiveDataMessagesTest;
@@ -29,6 +30,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@RequiresNetwork
 class TramPositionInferenceTest {
 
     private static ComponentContainer componentContainer;

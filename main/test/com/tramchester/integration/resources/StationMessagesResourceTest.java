@@ -19,6 +19,7 @@ import com.tramchester.livedata.domain.liveUpdates.PlatformMessage;
 import com.tramchester.livedata.repository.PlatformMessageSource;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.StationMessagesResource;
+import com.tramchester.testSupport.conditional.RequiresNetwork;
 import com.tramchester.testSupport.testTags.LiveDataMessagesTest;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import jakarta.ws.rs.core.Response;
@@ -35,6 +36,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@RequiresNetwork
 @ExtendWith(DropwizardExtensionsSupport.class)
 class StationMessagesResourceTest {
 

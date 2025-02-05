@@ -8,6 +8,7 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.livedata.tfgm.LiveDataFetcher;
 import com.tramchester.livedata.tfgm.PlatformMessageRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.conditional.RequiresNetwork;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.LiveDataMessagesTest;
 import org.junit.jupiter.api.AfterAll;
@@ -20,6 +21,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@RequiresNetwork
 public class PlatformMessageRepositoryTest {
     private static ComponentContainer componentContainer;
 

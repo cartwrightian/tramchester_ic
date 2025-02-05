@@ -91,11 +91,11 @@ public class ClientForS3 {
             return false;
         }
 
-        ZonedDateTime fileModTime = getsFileModTime.getFor(fileToUpload);
+        final ZonedDateTime fileModTime = getsFileModTime.getFor(fileToUpload);
 
         try {
-            byte[] buffer = Files.readAllBytes(fileToUpload);
-            String localMd5 = Base64.encodeBase64String(messageDigest.digest(buffer));
+            final byte[] buffer = Files.readAllBytes(fileToUpload);
+            final String localMd5 = Base64.encodeBase64String(messageDigest.digest(buffer));
             return uploadToS3(bucket, key, localMd5, RequestBody.fromBytes(buffer), fileModTime);
 
         } catch (IOException e) {
@@ -104,14 +104,14 @@ public class ClientForS3 {
         }
     }
 
-    public boolean uploadZipped(String bucket, String key, Path original) {
+    public boolean uploadZipped(final String bucket, final String key, final Path original) {
         logger.info(format("Zip and Uploading to bucket '%s' key '%s' file '%s'", bucket, key, original.toAbsolutePath()));
 
         try {
-            ByteArrayOutputStream outputStream = zipper.zip(original);
-            byte[] buffer = outputStream.toByteArray();
-            String localMd5 = Base64.encodeBase64String(messageDigest.digest(buffer));
-            ZonedDateTime fileModTime = getsFileModTime.getFor(original);
+            final ByteArrayOutputStream outputStream = zipper.zip(original);
+            final byte[] buffer = outputStream.toByteArray();
+            final String localMd5 = Base64.encodeBase64String(messageDigest.digest(buffer));
+            final ZonedDateTime fileModTime = getsFileModTime.getFor(original);
 
             // todo ideally pass in a stream to avoid having whole file in memory, but no way to do local MD5
             // if that is done.....
@@ -146,20 +146,21 @@ public class ClientForS3 {
         return uploadToS3(bucket, key, localMd5, requestBody, modTimeMetaData);
     }
 
-    private boolean uploadToS3(String bucket, String key, String localMd5, RequestBody requestBody, ZonedDateTime fileModTime) {
+    private boolean uploadToS3(final String bucket, final String key, final String localMd5, final RequestBody requestBody,
+                               final ZonedDateTime fileModTime) {
         if (!isStarted()) {
             logger.error("No started, uploadToS3");
             return false;
         }
 
-        Map<String, String> metaData= new HashMap<>();
-        String modTimeText = fileModTime.format(DATE_TIME_FORMATTER);
+        final Map<String, String> metaData = new HashMap<>();
+        final String modTimeText = fileModTime.format(DATE_TIME_FORMATTER);
         logger.info(format("Set %s to %s", ORIG_MOD_TIME_META_DATA_KEY, modTimeText));
         metaData.put(ORIG_MOD_TIME_META_DATA_KEY, modTimeText);
 
         try {
             logger.debug("Uploading with MD5: " + localMd5);
-            PutObjectRequest putObjectRequest = PutObjectRequest.builder().
+            final PutObjectRequest putObjectRequest = PutObjectRequest.builder().
                     bucket(bucket).
                     metadata(metaData).
                     key(key).

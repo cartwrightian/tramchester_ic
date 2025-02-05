@@ -8,6 +8,7 @@ import com.tramchester.cloud.SNSPublisherSubscriber;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.cloud.SnsAndSqsSupport;
+import com.tramchester.testSupport.conditional.RequiresNetwork;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,6 +27,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@RequiresNetwork
 public class SnsPublisherTest {
     private static ComponentContainer componentContainer;
     private static SqsClient sqsClient;

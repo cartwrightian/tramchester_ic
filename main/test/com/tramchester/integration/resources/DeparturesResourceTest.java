@@ -27,6 +27,7 @@ import com.tramchester.livedata.tfgm.TramDepartureRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.DeparturesResource;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.conditional.RequiresNetwork;
 import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.LiveDataDueTramsTest;
@@ -48,6 +49,7 @@ import java.util.stream.Stream;
 import static com.tramchester.testSupport.reference.KnownLocations.nearAltrinchamInterchange;
 import static org.junit.jupiter.api.Assertions.*;
 
+@RequiresNetwork
 @ExtendWith(DropwizardExtensionsSupport.class)
 class DeparturesResourceTest {
 

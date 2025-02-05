@@ -16,6 +16,7 @@ import com.tramchester.livedata.tfgm.LiveDataParser;
 import com.tramchester.livedata.repository.StationByName;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.conditional.RequiresNetwork;
 import com.tramchester.testSupport.testTags.LiveDataMessagesTest;
 import com.tramchester.testSupport.testTags.LiveDataInfraTest;
 import org.junit.jupiter.api.*;
@@ -27,6 +28,7 @@ import java.util.stream.Collectors;
 import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.*;
 
+@RequiresNetwork
 class LiveDataHTTPFetcherTest {
 
     private static ComponentContainer componentContainer;

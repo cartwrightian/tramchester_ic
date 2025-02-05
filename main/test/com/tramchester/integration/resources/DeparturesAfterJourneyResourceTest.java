@@ -29,6 +29,7 @@ import com.tramchester.livedata.repository.PlatformMessageSource;
 import com.tramchester.livedata.repository.UpcomingDeparturesSource;
 import com.tramchester.livedata.tfgm.TramDepartureRepository;
 import com.tramchester.repository.StationRepository;
+import com.tramchester.testSupport.conditional.RequiresNetwork;
 import com.tramchester.testSupport.testTags.LiveDataDueTramsTest;
 import com.tramchester.testSupport.testTags.LiveDataMessagesTest;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
@@ -43,6 +44,7 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@RequiresNetwork
 @ExtendWith(DropwizardExtensionsSupport.class)
 class DeparturesAfterJourneyResourceTest {
 

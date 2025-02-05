@@ -11,6 +11,7 @@ import com.tramchester.deployment.UploadRemoteSourceData;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.conditional.RequiresNetwork;
 import com.tramchester.testSupport.testTags.S3Test;
 import org.junit.jupiter.api.*;
 import software.amazon.awssdk.core.ResponseInputStream;
@@ -34,6 +35,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@RequiresNetwork
 @S3Test
 class UploadRemoteSourceDataToS3Test {
 

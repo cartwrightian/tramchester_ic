@@ -8,6 +8,7 @@ import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
 import com.tramchester.livedata.domain.DTO.TramPositionDTO;
 import com.tramchester.livedata.domain.DTO.TramsPositionsDTO;
 import com.tramchester.resources.TramPositionsResource;
+import com.tramchester.testSupport.conditional.RequiresNetwork;
 import com.tramchester.testSupport.testTags.LiveDataDueTramsTest;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import jakarta.ws.rs.core.Response;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@RequiresNetwork
 @ExtendWith(DropwizardExtensionsSupport.class)
 class TramPositionsResourceTest {
 

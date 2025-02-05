@@ -7,6 +7,7 @@ import com.tramchester.cloud.SQSSubscriberFactory;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.cloud.SnsAndSqsSupport;
+import com.tramchester.testSupport.conditional.RequiresNetwork;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,6 +18,7 @@ import software.amazon.awssdk.services.sqs.SqsClient;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@RequiresNetwork
 public class SQSSubscriberFactoryTest {
     private static ComponentContainer componentContainer;
     private static SnsClient snsClient;
