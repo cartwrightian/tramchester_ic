@@ -31,6 +31,6 @@ public class RouteDTO extends RouteRefDTO {
     }
 
     public IdForDTO getStartStation() {
-        return stations.get(0).getId();
+        return stations.getFirst().getId();
     }
 }

@@ -1,5 +1,6 @@
 package com.tramchester.unit.domain.presentation.DTO.factory;
 
+import com.tramchester.config.BusReplacementRepository;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.MutableService;
 import com.tramchester.domain.Route;
@@ -36,8 +37,7 @@ import java.util.List;
 
 import static com.tramchester.testSupport.reference.KnownLocations.nearAltrincham;
 import static com.tramchester.testSupport.reference.TramStations.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class StageDTOFactoryTest extends EasyMockSupport {
 
@@ -45,12 +45,14 @@ class StageDTOFactoryTest extends EasyMockSupport {
     private TramDate when;
     private DTOFactory stationDTOFactory;
     private RailHeadsignFactory railHeadsignFactory;
+    private BusReplacementRepository busReplacementRepository;
 
     @BeforeEach
     void beforeEachTestRun() {
         stationDTOFactory = createMock(DTOFactory.class);
         railHeadsignFactory = createMock(RailHeadsignFactory.class);
-        factory = new StageDTOFactory(stationDTOFactory, railHeadsignFactory);
+        busReplacementRepository = createMock(BusReplacementRepository.class);
+        factory = new StageDTOFactory(stationDTOFactory, railHeadsignFactory, busReplacementRepository);
         when = TestEnv.testDay();
     }
 
@@ -111,6 +113,8 @@ class StageDTOFactoryTest extends EasyMockSupport {
 
         vehicleStage.setBoardingPlatform(TestEnv.findOnlyPlatform(firstStation));
 
+        EasyMock.expect(busReplacementRepository.isReplacement(testRoute.getId())).andReturn(false);
+
         EasyMock.expect(stationDTOFactory.createLocationRefWithPosition(firstStation)).
                 andStubReturn(new LocationRefWithPosition(firstStation));
         EasyMock.expect(stationDTOFactory.createLocationRefWithPosition(Bury.fake())).
@@ -131,7 +135,6 @@ class StageDTOFactoryTest extends EasyMockSupport {
 
     @Test
     void shouldCreateStageDTOCorrectlyForTrainTransportStage() {
-        //Route testRoute = TestEnv.getTramTestRoute();
         Route testRoute = TestEnv.getTrainTestRoute(StringIdFor.createId("railRouteId", Route.class),
                 "train route A");
 
@@ -168,6 +171,39 @@ class StageDTOFactoryTest extends EasyMockSupport {
         VehicleStageDTO vehicleStageDTO = (VehicleStageDTO) stageDTO;
 
         assertEquals(IdForDTO.createFor(trip), vehicleStageDTO.getTripId());
+    }
+
+    @Test
+    void shouldCreateStageDTOCorrectlyForBusReplacementStage() {
+        Route testRoute = TestEnv.getTramTestRoute();
+
+        Service service = MutableService.build(Service.createId("svcId"), DataSourceID.tfgm);
+        Trip trip = MutableTrip.build(Trip.createId("tripId"), "headSign", service, testRoute);
+
+        List<Integer> stopCallIndexes = Arrays.asList(1,2,3,4);
+
+        Station firstStation = MarketStreet.fakeWithPlatform(1);
+
+        VehicleStage vehicleStage = new VehicleStage(firstStation, testRoute,
+                TransportMode.Tram, trip, TramTime.of(0, 0), Bury.fake(),
+                stopCallIndexes
+        );
+        vehicleStage.setCost(Duration.ofMinutes(5));
+
+        vehicleStage.setBoardingPlatform(TestEnv.findOnlyPlatform(firstStation));
+
+        EasyMock.expect(busReplacementRepository.isReplacement(testRoute.getId())).andReturn(true);
+
+        EasyMock.expect(stationDTOFactory.createLocationRefWithPosition(firstStation)).
+                andStubReturn(new LocationRefWithPosition(firstStation));
+        EasyMock.expect(stationDTOFactory.createLocationRefWithPosition(Bury.fake())).
+                andReturn(new LocationRefWithPosition(Bury.fake()));
+
+        replayAll();
+        SimpleStageDTO stageDTO = factory.build(vehicleStage, TravelAction.Board, when);
+        verifyAll();
+
+        assertEquals(TransportMode.Bus, stageDTO.getMode());
     }
 
     private void checkValues(TransportStage<?,?> stage, SimpleStageDTO dto, boolean hasPlatform, TravelAction action,

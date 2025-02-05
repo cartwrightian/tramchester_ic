@@ -165,10 +165,29 @@ public class JourneyPlannerResourceTest {
     @Test
     void shouldGetNoResultsToAirportWhenLimitOnChanges() {
 
-        JourneyQueryDTO query = journeyPlanner.getQueryDTO(when, TramTime.of(11,45), Altrincham, ManAirport, true, 0);
+        JourneyQueryDTO query = journeyPlanner.getQueryDTO(when, TramTime.of(11,45), Altrincham, ManAirport,
+                true, 0);
 
         JourneyPlanRepresentation plan = journeyPlanner.getJourneyPlan(query);
         assertTrue(plan.getJourneys().isEmpty());
+    }
+
+    @Test
+    void shouldHaveCorrectTransportModeForReplacementBus() {
+        // replacement buses in tfgm data are marked as tram, switch that to Bus iff route for a stage is a replacement bus
+        JourneyQueryDTO queryDTO = journeyPlanner.getQueryDTO(when, TramTime.of(10,15), Eccles, StPetersSquare,
+                false, 2);
+
+        JourneyPlanRepresentation results = journeyPlanner.getJourneyPlan(queryDTO);
+
+        Set<JourneyDTO> journeys = results.getJourneys();
+
+        assertFalse(journeys.isEmpty());
+
+        journeys.forEach(journeyDTO -> {
+            SimpleStageDTO first = journeyDTO.getStages().getFirst();
+            assertEquals(TransportMode.Bus, first.getMode(), "wrong mode for " + first);
+        });
     }
 
     @Test
