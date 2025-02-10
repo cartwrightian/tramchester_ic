@@ -50,7 +50,7 @@ public enum KnownTramRoute {
         final TramDate startDate = UpcomingDates.MediaCityEcclesWorks2025.getStartDate().minusDays(1);
 
         if (startDate.isBefore(date) &&
-                date.isBefore(TramDate.of(2025,3, 21))) {
+                date.isBefore(TramDate.of(2025,3, 28))) {
             routes.add(BusEcclesToMediaCity);
         }
 
