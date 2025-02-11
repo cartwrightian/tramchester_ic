@@ -58,7 +58,7 @@ class StationResourceRailTest {
 
     @Test
     void shouldGetSingleStationWithPlatforms() {
-        IdForDTO stationId = RailStationIds.ManchesterPiccadilly.getIdDTO();
+        IdForDTO stationId = RailStationIds.ManchesterPiccadilly.getIdForDTO();
 
         String endPoint = "stations/" + stationId.getActualId();
         Response response = APIClient.getApiResponse(factory, endPoint);
@@ -132,11 +132,11 @@ class StationResourceRailTest {
         assertEquals(5, stationList.size(), stationList.toString());
         Set<IdForDTO> ids = stationList.stream().map(LocationRefDTO::getId).collect(Collectors.toSet());
 
-        assertTrue(ids.contains(RailStationIds.ManchesterPiccadilly.getIdDTO()));
-        assertTrue(ids.contains(RailStationIds.ManchesterVictoria.getIdDTO()));
-        assertTrue(ids.contains(RailStationIds.ManchesterDeansgate.getIdDTO()));
-        assertTrue(ids.contains(RailStationIds.SalfordCentral.getIdDTO()));
-        assertTrue(ids.contains(RailStationIds.ManchesterOxfordRoad.getIdDTO()));
+        assertTrue(ids.contains(RailStationIds.ManchesterPiccadilly.getIdForDTO()));
+        assertTrue(ids.contains(RailStationIds.ManchesterVictoria.getIdForDTO()));
+        assertTrue(ids.contains(RailStationIds.ManchesterDeansgate.getIdForDTO()));
+        assertTrue(ids.contains(RailStationIds.SalfordCentral.getIdForDTO()));
+        assertTrue(ids.contains(RailStationIds.ManchesterOxfordRoad.getIdForDTO()));
     }
 
 

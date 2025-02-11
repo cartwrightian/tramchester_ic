@@ -470,6 +470,7 @@ tasks.register('integrationGM', Test) {
 }
 
 // tests that can be run against Tram config (the default) or RailAndTramGreaterManchesterConfig here
+// move into integrationGM?
 tasks.register('dualTestIntegration', Test) {
     dependsOn 'compileJava'
     minHeapSize = "1000m"

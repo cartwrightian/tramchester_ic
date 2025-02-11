@@ -27,9 +27,11 @@ public interface FakeStation extends HasId<Station> {
 
     Station fake();
 
-    IdForDTO getIdForDTO();
-
     default LocationId<Station> getLocationId() {
         return new LocationId<>(getId());
+    }
+
+    default IdForDTO getIdForDTO() {
+        return new IdForDTO(getRawId());
     }
 }

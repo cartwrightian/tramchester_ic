@@ -69,12 +69,12 @@ public enum TramStations implements FakeStation, HasId<Station> {
     Rochdale("9400ZZMARIN", "Rochdale Town Centre", pos(53.61736, -2.15509)),
     ShawAndCrompton("9400ZZMASHA", "Shaw and Crompton", pos(53.5763, -2.08963));
 
-    private final String id;
+    private final String rawId;
     private final String name;
     private final LatLong latlong;
 
-    TramStations(String id, String name, LatLong latlong) {
-        this.id = id;
+    TramStations(String rawId, String name, LatLong latlong) {
+        this.rawId = rawId;
         this.name = name;
         this.latlong = latlong;
     }
@@ -88,29 +88,28 @@ public enum TramStations implements FakeStation, HasId<Station> {
             Bury,
             TraffordCentre,
             MediaCityUK
-//            RochdaleRail // while rochdale town centre closed
     ));
 
     public static Set<TramStations> getEndOfTheLine() {
         return EndOfTheLine;
     }
 
-    public static boolean isEndOfLine(Station station) {
+    public static boolean isEndOfLine(final Station station) {
         return containedIn(station.getId(), getEndOfTheLine());
     }
 
-    private static boolean containedIn(IdFor<Station> stationId, Set<TramStations> theSet) {
-        IdSet<Station> ids = theSet.stream().map(TramStations::getId).collect(IdSet.idCollector());
+    private static boolean containedIn(final IdFor<Station> stationId, final Set<TramStations> theSet) {
+        final IdSet<Station> ids = theSet.stream().map(TramStations::getId).collect(IdSet.idCollector());
         return ids.contains(stationId);
     }
 
-    private static LatLong pos(double lat, double lon) {
+    private static LatLong pos(final double lat, final double lon) {
         return new LatLong(lat, lon);
     }
 
     @Override
     public String getRawId() {
-        return id;
+        return rawId;
     }
 
     @Override
@@ -125,15 +124,10 @@ public enum TramStations implements FakeStation, HasId<Station> {
 
     @NotNull
     private MutableStation createMutable() {
-        GridPosition grid = CoordinateTransforms.getGridPosition(latlong);
-        MutableStation mutableStation = new FakeTramStaton(getId(), NPTGLocality.InvalidId(), name, latlong, grid, DataSourceID.tfgm, true);
+        final GridPosition grid = CoordinateTransforms.getGridPosition(latlong);
+        final MutableStation mutableStation = new FakeTramStaton(getId(), NPTGLocality.InvalidId(), name, latlong, grid, DataSourceID.tfgm, true);
         mutableStation.addMode(TransportMode.Tram);
         return mutableStation;
-    }
-
-    @Override
-    public IdForDTO getIdForDTO() {
-        return new IdForDTO(id);
     }
 
     @Override

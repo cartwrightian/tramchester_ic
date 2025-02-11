@@ -17,6 +17,7 @@ import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.repository.NeighboursRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.GMTest;
 import org.junit.jupiter.api.*;
@@ -127,13 +128,21 @@ public class RailAndTramRouteCalculatorTest {
     }
 
     @Test
+    void shouldFindRoutesWhenTramAndTrainPossible() {
+        TramTime time = TramTime.of(9,0);
+        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 1, maxDurationFromConfig,
+                1, TrainAndTram);
+
+        List<Journey> journeys = testFacade.calculateRouteAsList(TramStations.Altrincham,
+                RailStationIds.ManchesterPiccadilly, journeyRequest);
+        assertFalse(journeys.isEmpty());
+    }
+
+    @Test
     void shouldHaveVictoriaToEccles() {
-        // this works fine when only tram data loaded, but fails when tram and train is loaded
         TramTime time = TramTime.of(9,0);
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, ECCLES_CHANGES_WHILE_BUS_REPLACEMENT, maxDurationFromConfig,
                 1, TramsOnly);
-
-//        journeyRequest.setDiag(true);
 
         List<Journey> journeys = testFacade.calculateRouteAsList(Victoria, Eccles, journeyRequest);
         assertFalse(journeys.isEmpty());
@@ -195,8 +204,8 @@ public class RailAndTramRouteCalculatorTest {
                 Duration.ofMinutes(100), 1, tramAndTrain());
 
         // ashton west
-        Station start = rail(Altrincham);
-        Station dest = tram(TramStations.Ashton);
+        FakeStation start = rail(Altrincham);
+        FakeStation dest = tram(TramStations.Ashton);
 
         List<Journey> journeys = testFacade.calculateRouteAsList(start, dest, request);
         assertFalse(journeys.isEmpty(), "no journeys");
@@ -242,8 +251,8 @@ public class RailAndTramRouteCalculatorTest {
         JourneyRequest request = new JourneyRequest(date, time, false, 1,
                 Duration.ofMinutes(240), 5, EnumSet.of(Tram, Train));
 
-        Station start = rail(Altrincham);
-        Station dest = rail(Stockport);
+        FakeStation start = rail(Altrincham);
+        FakeStation dest = rail(Stockport);
 
         List<Journey> journeys = testFacade.calculateRouteAsList(start, dest, request);
 
@@ -316,8 +325,8 @@ public class RailAndTramRouteCalculatorTest {
         JourneyRequest request = new JourneyRequest(when, time, false, 1,
                 Duration.ofMinutes(240), 1, EnumSet.of(Tram, Train));
 
-        Station start = rail(Altrincham);
-        Station dest = rail(Stockport);
+        FakeStation start = rail(Altrincham);
+        FakeStation dest = rail(Stockport);
 
         List<Journey> journeys = testFacade.calculateRouteAsList(start, dest, request);
         assertEquals(1, journeys.size(), "unexpected number of journeys " + journeys);
@@ -344,8 +353,8 @@ public class RailAndTramRouteCalculatorTest {
         JourneyRequest request = new JourneyRequest(when, time, false, 1,
                 Duration.ofMinutes(240), 3, EnumSet.of(Train));
 
-        Station start = tram(TramStations.Altrincham); // TRAM
-        Station dest = rail(Stockport);
+        FakeStation start = tram(TramStations.Altrincham); // TRAM
+        FakeStation dest = rail(Stockport);
 
         List<Journey> journeys = new ArrayList<>(testFacade.calculateRouteAsList(start, dest, request));
         assertFalse(journeys.isEmpty(), "no journeys");
@@ -371,8 +380,8 @@ public class RailAndTramRouteCalculatorTest {
         JourneyRequest request = new JourneyRequest(when, time, false, 1,
                 Duration.ofMinutes(240), 3, TrainAndTram);
 
-        Station start = tram(TramStations.Altrincham); // TRAM
-        Station dest = rail(NavigationRaod); // TRAIN
+        FakeStation start = tram(TramStations.Altrincham); // TRAM
+        FakeStation dest = rail(NavigationRaod); // TRAIN
 
         List<Journey> journeys = new ArrayList<>(testFacade.calculateRouteAsList(start, dest, request));
         assertFalse(journeys.isEmpty(), "no journeys");
@@ -398,8 +407,8 @@ public class RailAndTramRouteCalculatorTest {
         JourneyRequest request = new JourneyRequest(date, time, false, 1,
                 Duration.ofMinutes(240), 1, trainOnly);
 
-        Station start = tram(TramStations.Altrincham);
-        Station dest = rail(Stockport);
+        FakeStation start = tram(TramStations.Altrincham);
+        FakeStation dest = rail(Stockport);
 
         List<Journey> journeys = new ArrayList<>(testFacade.calculateRouteAsList(start, dest, request));
         assertFalse(journeys.isEmpty(), "no journeys");
@@ -474,8 +483,8 @@ public class RailAndTramRouteCalculatorTest {
         JourneyRequest request = new JourneyRequest(when, travelTime, false, 0,
                 Duration.ofMinutes(30), 1, tramAndTrain());
 
-        Station start = tram(TramStations.EastDidsbury);
-        Station dest = RailStationIds.EastDidsbury.from(stationRepository);
+        FakeStation start = tram(TramStations.EastDidsbury);
+        FakeStation dest = RailStationIds.EastDidsbury; //.from(stationRepository);
         List<Journey> journeys = testFacade.calculateRouteAsList(start, dest, request);
         assertFalse(journeys.isEmpty());
 
@@ -510,15 +519,17 @@ public class RailAndTramRouteCalculatorTest {
         assertFalse(results.isEmpty());
     }
 
-    private Station rail(RailStationIds railStation) {
-        return railStation.from(stationRepository);
+    private FakeStation rail(RailStationIds railStation) {
+        return railStation;
+        //return railStation.from(stationRepository);
     }
 
-    private Station tram(TramStations tramStation) {
-        return tramStation.from(stationRepository);
+    private FakeStation tram(TramStations tramStation) {
+        return tramStation;
+        //return tramStation.from(stationRepository);
     }
 
-    private void atLeastOneDirect(JourneyRequest request, Station start, Station dest, TransportMode mode) {
+    private void atLeastOneDirect(JourneyRequest request, FakeStation start, FakeStation dest, TransportMode mode) {
         List<Journey> journeys = testFacade.calculateRouteAsList(start, dest, request);
         assertFalse(journeys.isEmpty());
 

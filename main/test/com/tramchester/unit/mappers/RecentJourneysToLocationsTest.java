@@ -35,7 +35,7 @@ public class RecentJourneysToLocationsTest extends EasyMockSupport {
 
     private final IdForDTO altrinchamIdForDTO = Altrincham.getIdForDTO();
     private final IdForDTO buryIdForDTO = Bury.getIdForDTO();
-    private final IdForDTO stockportIdDTO = Stockport.getIdDTO();
+    private final IdForDTO stockportIdDTO = Stockport.getIdForDTO();
 
     private RecentJourneysToLocations mapper;
     private LocationRepository locationRepository;

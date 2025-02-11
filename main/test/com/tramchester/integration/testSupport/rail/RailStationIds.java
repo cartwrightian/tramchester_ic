@@ -2,75 +2,78 @@ package com.tramchester.integration.testSupport.rail;
 
 import com.tramchester.dataimport.rail.repository.CRSRepository;
 import com.tramchester.domain.id.HasId;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.Station;
-import com.tramchester.repository.StationRepository;
+import com.tramchester.domain.presentation.LatLong;
+import com.tramchester.testSupport.reference.FakeStation;
 
 
-public enum RailStationIds implements HasId<Station> {
-    Stockport(createId("STKP"), true, "SPT"),
-    ManchesterPiccadilly(createId("MNCRPIC"), true, "MAN"),
-    ManchesterVictoria(createId("MNCRVIC"), true, "MCV"),
-    ManchesterDeansgate(createId("MNCRDGT"), true, "DGT"),
-    ManchesterOxfordRoad(createId("MNCROXR"), true, "MCO"),
-    ManchesterAirport(createId("MNCRIAP"), true, "MIA"),
-    SalfordCentral(createId("SLFDORD"), true, "SFD"),
-    Altrincham(createId("ALTRNHM"), true, "ALT"),
-    NavigationRaod(createId("NAVGTNR"), true, "NVR"),
-    Crewe(createId("CREWE"), false, "CRE"),
-    LondonEuston(createId("EUSTON"), false, "EUS"),
-    Derby(createId("DRBY"), false, "DBY"),
-    Belper(createId("BELPER"), false, "BLP"),
-    Duffield(createId("DUFIELD"), false, "DFI"),
-    Dover(createId("DOVERP"), false, "DVP"),
-    Wimbledon(createId("WDON"), false, "WIM"),
-    LondonWaterloo(createId("WATRLMN"), false, "WAT"),
-    LondonStPancras(createId("STPX"), false, "STP"),
-    Macclesfield(createId("MACLSFD"), false, "MAC"),
-    MiltonKeynesCentral(createId("MKNSCEN"), false, "MKC"),
-    Hale(createId("HALE"), true, "HAL"),
-    Knutsford(createId("KNUTSFD"), false, "KNF"),
-    Ashley(createId("ASHLEY"), true, "ASY"),
-    Mobberley(createId("MOBERLY"), true, "MOB"),
-    StokeOnTrent(createId("STOKEOT"), false, "SOT"),
-    Delamere(createId("DELAMER"), false, "DLM"),
-    Wilmslow(createId("WLMSL"), true, "WML"),
-    Chester(createId("CHST"), false, "CTR"),
-    EastDidsbury(createId("EDIDBRY"), true, "EDY"),
-    Eccles(createId("ECCLES"), true, "ECC"),
-    Inverness(createId("IVRNESS"), false, "INV"),
-    LiverpoolLimeStreet(createId("LVRPLSH"), false, "LIV"),
-    Huddersfield(createId("HDRSFLD"), false, "HUD"),
-    Ashton(createId("ASHONUL"), true, "AHN"),
-    Levenshulme(createId("LVHM"), true, "LVM"),
-    Leeds(createId("LEEDS"), false, "LDS"),
-    Saltburn(createId("SBRN"), false, "SLB");
+public enum RailStationIds implements HasId<Station>, FakeStation {
+    Stockport("STKP", true, "SPT"),
+    ManchesterPiccadilly("MNCRPIC", true, "MAN"),
+    ManchesterVictoria("MNCRVIC", true, "MCV"),
+    ManchesterDeansgate("MNCRDGT", true, "DGT"),
+    ManchesterOxfordRoad("MNCROXR", true, "MCO"),
+    ManchesterAirport("MNCRIAP", true, "MIA"),
+    SalfordCentral("SLFDORD", true, "SFD"),
+    Altrincham("ALTRNHM", true, "ALT"),
+    NavigationRaod("NAVGTNR", true, "NVR"),
+    Crewe("CREWE", false, "CRE"),
+    LondonEuston("EUSTON", false, "EUS"),
+    Derby("DRBY", false, "DBY"),
+    Belper("BELPER", false, "BLP"),
+    Duffield("DUFIELD", false, "DFI"),
+    Dover("DOVERP", false, "DVP"),
+    Wimbledon("WDON", false, "WIM"),
+    LondonWaterloo("WATRLMN", false, "WAT"),
+    LondonStPancras("STPX", false, "STP"),
+    Macclesfield("MACLSFD", false, "MAC"),
+    MiltonKeynesCentral("MKNSCEN", false, "MKC"),
+    Hale("HALE", true, "HAL"),
+    Knutsford("KNUTSFD", false, "KNF"),
+    Ashley("ASHLEY", true, "ASY"),
+    Mobberley("MOBERLY", true, "MOB"),
+    StokeOnTrent("STOKEOT", false, "SOT"),
+    Delamere("DELAMER", false, "DLM"),
+    Wilmslow("WLMSL", true, "WML"),
+    Chester("CHST", false, "CTR"),
+    EastDidsbury("EDIDBRY", true, "EDY"),
+    Eccles("ECCLES", true, "ECC"),
+    Inverness("IVRNESS", false, "INV"),
+    LiverpoolLimeStreet("LVRPLSH", false, "LIV"),
+    Huddersfield("HDRSFLD", false, "HUD"),
+    Ashton("ASHONUL", true, "AHN"),
+    Levenshulme("LVHM", true, "LVM"),
+    Leeds("LEEDS", false, "LDS"),
+    Saltburn("SBRN", false, "SLB");
 
-    private static IdFor<Station> createId(String text) {
-        return Station.createId(text);
-    }
-
-    private final IdFor<Station> id;
+    private final String rawId;
     private final String crs;
     private final boolean isGreaterManchester;
 
-    RailStationIds(IdFor<Station> id, boolean isGreaterManchester, String crs) {
-        this.id = id;
+    RailStationIds(String rawId, boolean isGreaterManchester, String crs) {
+        this.rawId = rawId;
         this.isGreaterManchester = isGreaterManchester;
         this.crs = crs;
     }
 
-    public IdFor<Station> getId() {
-        return id;
+    @Override
+    public String getName() {
+        return name();
     }
 
-    public Station from(final StationRepository repository) {
-        return repository.getStationById(getId());
+    @Override
+    public LatLong getLatLong() {
+        throw new RuntimeException("Not implemented yet");
     }
 
-    public IdForDTO getIdDTO() {
-        return new IdForDTO(id);
+    @Override
+    public String getRawId() {
+        return rawId;
+    }
+
+    @Override
+    public Station fake() {
+        throw new RuntimeException("Not implemented yet");
     }
 
     public boolean isGreaterManchester() {

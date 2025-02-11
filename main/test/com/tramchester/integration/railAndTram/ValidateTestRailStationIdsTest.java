@@ -3,6 +3,7 @@ package com.tramchester.integration.railAndTram;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.dataimport.rail.repository.CRSRepository;
 import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchesterConfig;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.repository.StationRepository;
@@ -23,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class ValidateTestRailStationIdsTest {
     private static ComponentContainer componentContainer;
     private StationRepository stationRepository;
+    private CRSRepository crsRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -39,6 +41,7 @@ class ValidateTestRailStationIdsTest {
     @BeforeEach
     void onceBeforeEachTestRuns() {
         stationRepository = componentContainer.get(StationRepository.class);
+        crsRepository = componentContainer.get(CRSRepository.class);
     }
 
     @Test
@@ -50,6 +53,24 @@ class ValidateTestRailStationIdsTest {
 
         assertTrue(missing.isEmpty(), missing.toString());
 
+    }
+
+    @Test
+    void shouldHaveTestStationsInTheCRSRepository() {
+        Set<RailStationIds> missing = Arrays.stream(RailStationIds.values()).
+                filter(station -> !crsRepository.hasCRSCode(station.crs())).
+                collect(Collectors.toSet());
+
+        assertTrue(missing.isEmpty(), missing.toString());
+    }
+
+    @Test
+    void shouldHaveCRSAndStationIdConsistency() {
+        Set<RailStationIds> mismatch = Arrays.stream(RailStationIds.values()).
+                filter(station -> !crsRepository.getCRSCodeFor(station.getId()).equals(station.crs())).
+                collect(Collectors.toSet());
+
+        assertTrue(mismatch.isEmpty(), mismatch.toString());
     }
 
 }
