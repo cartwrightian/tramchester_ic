@@ -147,7 +147,7 @@ public class TransportDataContainer implements TransportData, WriteableTransport
     }
 
     @Override
-    public Station getStationById(IdFor<Station> stationId) {
+    public Station getStationById(final IdFor<Station> stationId) {
         if (!stationsById.hasId(stationId)) {
             String msg = "Unable to find station from ID " + stationId;
             logger.error(msg);

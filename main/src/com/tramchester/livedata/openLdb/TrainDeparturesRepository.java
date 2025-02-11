@@ -169,12 +169,12 @@ public class TrainDeparturesRepository implements UpcomingDeparturesSource {
             }
             final String crs = dests.getFirst().getCrs();
 
-            if (!crsRepository.hasCrs(crs)) {
+            if (!crsRepository.hasCRSCode(crs)) {
                 logger.warn("Could not find station for " + crs);
                 return MutableStation.Unknown(DataSourceID.openRailData);
             }
 
-            final Station station = crsRepository.getFor(crs);
+            final Station station = crsRepository.getStationFor(crs);
             logger.debug("Found station " + station.getId() + " for CRS " + crs);
             return station;
         }

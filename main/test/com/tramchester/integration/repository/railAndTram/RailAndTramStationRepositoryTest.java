@@ -40,23 +40,23 @@ public class RailAndTramStationRepositoryTest {
     void shouldHaveConsistencyOnCRSAndStationRepositoryForInBoundsStation() {
         Station hale = RailStationIds.Hale.from(stationRepository);
 
-        String crs = crsRepository.getCRSFor(hale.getId());
+        String crs = crsRepository.getCRSCodeFor(hale.getId());
 
-        Station fromCRS = crsRepository.getFor(crs);
+        Station fromCRS = crsRepository.getStationFor(crs);
 
         assertEquals(hale, fromCRS);
     }
 
     @Test
     void shouldHaveGetFromCRSAndStationRepositoryInBoundsStation() {
-        Station hale = crsRepository.getFor("HAL");
+        Station hale = crsRepository.getStationFor("HAL");
         assertTrue(stationRepository.hasStationId(hale.getId()));
     }
 
     @Disabled("This can in fact happen as only in-use and inbound stations are added to main station repository")
     @Test
     void shouldHaveGetFromCRSAndStationRepositoryForOutofBoundsStation() {
-        Station chester = crsRepository.getFor("CTR");
+        Station chester = crsRepository.getStationFor("CTR");
         assertTrue(stationRepository.hasStationId(chester.getId()));
     }
 }

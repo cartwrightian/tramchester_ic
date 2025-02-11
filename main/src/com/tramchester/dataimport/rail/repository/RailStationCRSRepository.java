@@ -17,8 +17,8 @@ import java.util.Map;
 public class RailStationCRSRepository implements CRSRepository {
     private static final Logger logger = LoggerFactory.getLogger(RailStationCRSRepository.class);
 
-    private final Map<IdFor<Station>, String> toCrs;
-    private final Map<String, Station> toStation;
+    private final Map<IdFor<Station>, String> toCrs; // stationId -> crs code
+    private final Map<String, Station> toStation; // crs code -> station
 
     public RailStationCRSRepository() {
         toStation = new HashMap<>();
@@ -44,26 +44,30 @@ public class RailStationCRSRepository implements CRSRepository {
     }
 
     /***
-     * Use station.getCode()
      * @param stationId the station
      * @return the crs code
      */
-    @Deprecated
-    public String getCRSFor(IdFor<Station> stationId) {
+    public String getCRSCodeFor(final IdFor<Station> stationId) {
         return toCrs.get(stationId);
     }
 
-    public boolean hasStation(IdFor<Station> stationId) {
+    public boolean hasStation(final IdFor<Station> stationId) {
         return toCrs.containsKey(stationId);
     }
 
     @Override
-    public Station getFor(String crs) {
+    public Station getStationFor(final IdFor<Station> stationId) {
+        final String crs = getCRSCodeFor(stationId);
+        return getStationFor(crs);
+    }
+
+    @Override
+    public Station getStationFor(final String crs) {
         return toStation.get(crs);
     }
 
     @Override
-    public boolean hasCrs(String crs) {
+    public boolean hasCRSCode(final String crs) {
         return toStation.containsKey(crs);
     }
 

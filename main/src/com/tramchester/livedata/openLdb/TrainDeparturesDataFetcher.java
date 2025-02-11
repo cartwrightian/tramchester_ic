@@ -101,7 +101,7 @@ public class TrainDeparturesDataFetcher {
             logger.error("Not CRS Code found for " + stationId);
             return Optional.empty();
         }
-        final String crs = crsRepository.getCRSFor(stationId);
+        final String crs = crsRepository.getCRSCodeFor(stationId);
         logger.info("Get train departures for " + stationId + " with CRS " + crs);
 
         final GetBoardRequestParams params = new GetBoardRequestParams();

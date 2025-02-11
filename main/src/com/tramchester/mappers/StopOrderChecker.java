@@ -2,6 +2,7 @@ package com.tramchester.mappers;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.dataimport.rail.repository.CRSRepository;
 import com.tramchester.domain.RailRoute;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
@@ -26,12 +27,14 @@ public class StopOrderChecker {
     private final BoundingBox bounds;
     private final RouteRepository routeRepository;
     private final StationRepository stationRepository;
+    private final CRSRepository crsRepository;
 
     @Inject
-    public StopOrderChecker(TramchesterConfig config, RouteRepository routeRepository, StationRepository stationRepository) {
+    public StopOrderChecker(TramchesterConfig config, RouteRepository routeRepository, StationRepository stationRepository, CRSRepository crsRepository) {
         this.bounds = config.getBounds();
         this.routeRepository = routeRepository;
         this.stationRepository = stationRepository;
+        this.crsRepository = crsRepository;
     }
 
     /***
@@ -48,11 +51,12 @@ public class StopOrderChecker {
             return false;
         }
 
-        Station middle = stationRepository.getStationById(middleId);
-        Station end = stationRepository.getStationById(endId);
+        final Station middle = stationRepository.hasStationId(middleId) ? stationRepository.getStationById(middleId) : crsRepository.getStationFor(middleId);
+        final Station end = stationRepository.hasStationId(endId) ? stationRepository.getStationById(endId) : crsRepository.getStationFor(endId);
 
-        boolean middleOutOfBounds = !bounds.contained(middle);
-        boolean endOutOfBounds = !bounds.contained(end);
+        // cannot check bounds like this....since station never loaded into the repository if OOB
+        final boolean middleOutOfBounds = !bounds.contained(middle);
+        final boolean endOutOfBounds = !bounds.contained(end);
 
         if (middleOutOfBounds && endOutOfBounds) {
             logger.error("Cannot have both middle " + middleId + " and end " + endId + " out of bounds");

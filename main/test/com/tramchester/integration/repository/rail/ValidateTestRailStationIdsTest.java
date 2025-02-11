@@ -54,11 +54,11 @@ class ValidateTestRailStationIdsTest {
     @Test
     void shouldHaveMatchingCRS() {
         List<RailStationIds> incorrect = Arrays.stream(RailStationIds.values()).
-                filter(item -> !crsRepository.getCRSFor(item.getId()).equals(item.crs())).
+                filter(item -> !crsRepository.getCRSCodeFor(item.getId()).equals(item.crs())).
                 toList();
 
         List<Pair<String, String>> diag = incorrect.stream().
-                map(item -> Pair.of(crsRepository.getCRSFor(item.getId()), item.name() + ": " + item.crs())).
+                map(item -> Pair.of(crsRepository.getCRSCodeFor(item.getId()), item.name() + ": " + item.crs())).
                 toList();
 
         assertTrue(incorrect.isEmpty(), diag.toString());

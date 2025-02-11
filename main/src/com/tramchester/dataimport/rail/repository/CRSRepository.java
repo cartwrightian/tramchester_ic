@@ -10,9 +10,10 @@ import com.tramchester.domain.places.Station;
  */
 @ImplementedBy(RailStationCRSRepository.class)
 public interface CRSRepository {
-    String getCRSFor(IdFor<Station> station);
+    String getCRSCodeFor(IdFor<Station> station);
     boolean hasStation(IdFor<Station> station);
+    Station getStationFor(IdFor<Station> stationId);
 
-    Station getFor(String crs);
-    boolean hasCrs(String crs);
+    Station getStationFor(String crs);
+    boolean hasCRSCode(String crs);
 }

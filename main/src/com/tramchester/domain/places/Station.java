@@ -19,18 +19,6 @@ public interface Station extends Location<Station> {
     // is marked as a central location in the naptan data
     boolean isCentral();
 
-//    /***
-//     * @param route route to check
-//     * @return true if station serves given route, use with care ignores the date
-//     */
-//    boolean servesRoutePickup(Route route);
-//
-//    /***
-//     * @param route route to check
-//     * @return true if station serves given route, use with care ignores the date
-//     */
-//    boolean servesRouteDropOff(Route route);
-
     boolean servesMode(TransportMode mode);
 
     Duration getMinChangeDuration();

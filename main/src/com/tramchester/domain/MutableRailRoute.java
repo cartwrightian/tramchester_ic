@@ -16,6 +16,7 @@ public class MutableRailRoute extends MutableRoute implements RailRoute {
     // used to find and name unique routes for rail, as routes are not part of the data set we have to
     // derive them
     private final List<Station> callingPoints;
+
     private static final Set<TransportMode> railModes = EnumSet.of(TransportMode.Train, TransportMode.RailReplacementBus);
 
     public MutableRailRoute(final RailRouteId id, final List<Station> callingPoints, final Agency agency, final TransportMode transportMode) {

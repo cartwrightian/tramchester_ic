@@ -105,7 +105,8 @@ public class RailAndTramRouteCalculatorSubGraphRoutesTest {
     void shouldHaveVictoriaToEccles() {
         // this works fine when only tram data loaded, but fails when tram and train is loaded
         TramTime time = TramTime.of(9,0);
-        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 1, maxDurationFromConfig,
+        // max changes 1->2 due to eccles bus replacement
+        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 2, maxDurationFromConfig,
                 1, TramsOnly);
 
         //journeyRequest.setDiag(true);

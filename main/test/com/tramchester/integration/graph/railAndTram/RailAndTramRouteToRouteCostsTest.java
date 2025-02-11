@@ -162,7 +162,8 @@ public class RailAndTramRouteToRouteCostsTest {
         Station eccles = TramStations.Eccles.from(stationRepository);
         int changes = routeToRouteCosts.getPossibleMinChanges(rochdale, eccles, TramsOnly, date, timeRange);
 
-        assertEquals(1, changes);
+        // 1 -> 2 , eccles replacement bus
+        assertEquals(2, changes);
     }
 
     @Test

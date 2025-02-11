@@ -60,8 +60,9 @@ public class TramTrainStopOrderCheckerTest {
         Station begin = RailStationIds.ManchesterPiccadilly.from(stationRepository);
         Station middle = RailStationIds.Hale.from(stationRepository);
 
-        Station end = crsRepository.getFor(Chester.crs());
+        Station end = crsRepository.getStationFor(Chester.crs());
 
+        // not loaded into main station repository as out of bounds
         boolean result = stopOrderChecker.check(when, begin, middle.getId(), end.getId());
 
         assertTrue(result);
@@ -72,7 +73,8 @@ public class TramTrainStopOrderCheckerTest {
         Station begin = RailStationIds.ManchesterPiccadilly.from(stationRepository);
         Station middle = RailStationIds.Stockport.from(stationRepository);
 
-        Station end = crsRepository.getFor(LondonEuston.crs());
+        // not loaded into main station repository as out of bounds
+        Station end = crsRepository.getStationFor(LondonEuston.crs());
 
         boolean result = stopOrderChecker.check(when, begin, middle.getId(), end.getId());
 

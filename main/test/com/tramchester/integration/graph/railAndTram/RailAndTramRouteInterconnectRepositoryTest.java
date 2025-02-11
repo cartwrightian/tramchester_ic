@@ -24,7 +24,9 @@ import com.tramchester.testSupport.testTags.GMTest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
@@ -38,6 +40,7 @@ public class RailAndTramRouteInterconnectRepositoryTest {
     private RouteIndex routeIndex;
     private int numberOfRoutes;
     private RouteInterconnectRepository repository;
+    private RouteRepository routeRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestRuns() {
@@ -57,7 +60,7 @@ public class RailAndTramRouteInterconnectRepositoryTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
+        routeRepository = componentContainer.get(RouteRepository.class);
         railRouteHelper = new RailRouteHelper(componentContainer);
         routeIndex = componentContainer.get(RouteIndex.class);
         repository = componentContainer.get(RouteInterconnectRepository.class);
@@ -83,17 +86,29 @@ public class RailAndTramRouteInterconnectRepositoryTest {
 
     @Test
     void shouldReproIssueGettingInterchangesAndMissingIndex() {
-        Route routeA = railRouteHelper.getRoute(TrainOperatingCompanies.TP, ManchesterVictoria, Huddersfield, 1);
-        Route routeB = railRouteHelper.getRoute(TrainOperatingCompanies.NT, Chester, Stockport, 1);
+        Set<Route> routesA = railRouteHelper.getRoutes(TrainOperatingCompanies.TP, ManchesterVictoria, Huddersfield);
+        Set<Route> routesB = railRouteHelper.getRoutes(TrainOperatingCompanies.NT, Chester, Stockport);
 
-        RouteIndexPair indexPair = routeIndex.getPairFor(RoutePair.of(routeA, routeB));
-        IndexedBitSet allDates = IndexedBitSet.getIdentity(numberOfRoutes, numberOfRoutes);
+        assertFalse(routesA.isEmpty());
+        assertFalse(routesB.isEmpty());
 
-        PathResults results = repository.getInterchangesFor(indexPair, allDates, interchangeStation -> true);
+        List<PathResults> found = new ArrayList<>();
+        for(Route routeA : routesA) {
+            for (Route routeB : routesB) {
 
-        assertTrue(results.hasAny());
+                RouteIndexPair indexPair = routeIndex.getPairFor(RoutePair.of(routeA, routeB));
+                IndexedBitSet allDates = IndexedBitSet.getIdentity(numberOfRoutes, numberOfRoutes);
 
-        assertEquals(3,results.getDepth());
+                PathResults result = repository.getInterchangesFor(indexPair, allDates, interchangeStation -> true);
+                if (result.hasAny()) {
+                    found.add(result);
+                }
+            }
+        }
+
+        assertFalse(found.isEmpty());
+
+        found.forEach(pathResults -> assertEquals(3,pathResults.getDepth()));
     }
 
     @Test
@@ -120,7 +135,6 @@ public class RailAndTramRouteInterconnectRepositoryTest {
 
         found.forEach(result -> {
             assertTrue(result.hasAny());
-            //assertEquals(2, result.getDepth());
         });
 
     }

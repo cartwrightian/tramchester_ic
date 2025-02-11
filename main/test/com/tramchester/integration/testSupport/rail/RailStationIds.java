@@ -82,6 +82,6 @@ public enum RailStationIds implements HasId<Station> {
     }
 
     public Station from(final CRSRepository crsRepository) {
-        return crsRepository.getFor(crs);
+        return crsRepository.getStationFor(crs);
     }
 }

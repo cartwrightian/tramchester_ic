@@ -138,7 +138,7 @@ public class RailAndTramStationAvailabilityRepositoryTest {
         Set<Route> results = availabilityRepository.getPickupRoutesFor(altrinchamTram, when, timeRange, TrainAndTram);
 
         long trainRoutes = results.stream().filter(route -> route.getTransportMode()==Train).count();
-        assertEquals(4, trainRoutes, HasId.asIds(results));
+        assertEquals(5, trainRoutes, HasId.asIds(results));
 
         IdSet<Route> tramRouteIds = results.stream().filter(route -> route.getTransportMode()==Tram).collect(IdSet.collector());
         assertFalse(tramRouteIds.isEmpty());

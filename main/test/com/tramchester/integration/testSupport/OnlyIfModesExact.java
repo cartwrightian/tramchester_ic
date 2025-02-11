@@ -26,8 +26,8 @@ public @interface OnlyIfModesExact {
 
     class ExactMatchToConfiguredModesExtension implements ExecutionCondition {
         @Override
-        public ConditionEvaluationResult evaluateExecutionCondition(ExtensionContext context) {
-            Optional<Method> maybeMethod = context.getTestMethod();
+        public ConditionEvaluationResult evaluateExecutionCondition(final ExtensionContext context) {
+            final Optional<Method> maybeMethod = context.getTestMethod();
             if (maybeMethod.isPresent()) {
                 final Method method = context.getRequiredTestMethod();
                 final var annotation = method.getDeclaredAnnotation(OnlyIfModesExact.class);
@@ -35,14 +35,14 @@ public @interface OnlyIfModesExact {
                     return ConditionEvaluationResult.enabled("no OnlyIfModesExact annotation");
                 }
 
-                TramchesterConfig config = (TramchesterConfig) context.getStore(ExtensionContext.Namespace.GLOBAL).get("tramchester.config");
+                final TramchesterConfig config = (TramchesterConfig) context.getStore(ExtensionContext.Namespace.GLOBAL).get("tramchester.config");
                 if (config==null) {
                     throw new ExtensionConfigurationException("ConfigParameterResolver not conigured? config not found");
                 }
-                EnumSet<TransportMode> configuredModes = config.getTransportModes();
-                List<TransportMode> fromAnnotation = Arrays.asList(annotation.value());
+                final EnumSet<TransportMode> configuredModes = config.getTransportModes();
+                final List<TransportMode> fromAnnotation = Arrays.asList(annotation.value());
 
-                boolean match = configuredModes.equals(EnumSet.copyOf(fromAnnotation));
+                final boolean match = configuredModes.equals(EnumSet.copyOf(fromAnnotation));
 
                 if (match) {
                     return ConditionEvaluationResult.enabled("modes matched config");
