@@ -87,10 +87,10 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
     private void populateTestData(final TransportDataContainer container) {
         final MutableAgency agency =  new MutableAgency(DataSourceID.tfgm, MutableAgency.METL, "Metrolink");
 
-        final MutableRoute routeA = createTramRoute(CornbrookTheTraffordCentre);
-        final MutableRoute routeB = createTramRoute(RochdaleShawandCromptonManchesterEastDidisbury);
-        final MutableRoute routeC = createTramRoute(EcclesAshton);
-        final MutableRoute routeD = createTramRoute(DeansgateCastlefieldManchesterAirport);
+        final MutableRoute routeA = createTramRoute(getCornbrookTheTraffordCentre());
+        final MutableRoute routeB = createTramRoute(getShawandCromptonManchesterEastDidisbury());
+        final MutableRoute routeC = createTramRoute(getEcclesAshton());
+        final MutableRoute routeD = createTramRoute(getDeansgateManchesterAirport());
 
         agency.addRoute(routeA);
         agency.addRoute(routeB);
@@ -357,11 +357,11 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         }
 
         public Route getRouteA() {
-            return getRouteById(CornbrookTheTraffordCentre.getId());
+            return getRouteById(getCornbrookTheTraffordCentre().getId());
         }
 
         public Route getRouteB() {
-            return getRouteById(RochdaleShawandCromptonManchesterEastDidisbury.getId());
+            return getRouteById(getShawandCromptonManchesterEastDidisbury().getId());
         }
 
     }

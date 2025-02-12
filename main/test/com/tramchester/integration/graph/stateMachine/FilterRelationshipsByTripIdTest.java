@@ -88,7 +88,7 @@ public class FilterRelationshipsByTripIdTest {
     @Test
     void shouldFindRelationshipsTowardsDestination() {
         Station station = NavigationRoad.from(stationRepository);
-        Route route = tramRouteHelper.getOneRoute(KnownTramRoute.BuryManchesterAltrincham, when);
+        Route route = tramRouteHelper.getOneRoute(KnownTramRoute.getBuryManchesterAltrincham(), when);
 
         ImmutableGraphNode node = findRouteStation(station, route);
 

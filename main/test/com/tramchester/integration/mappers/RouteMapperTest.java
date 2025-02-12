@@ -51,7 +51,7 @@ class RouteMapperTest {
 
     @Test
     void shouldHaveWorkaroundForAirportRouteIdsTransposedInData() {
-        Route fromAirportRoute = tramRouteHelper.getOneRoute(DeansgateCastlefieldManchesterAirport, date);
+        Route fromAirportRoute = tramRouteHelper.getOneRoute(getDeansgateManchesterAirport(), date);
 
         List<Station> results = mapper.getStationsOn(fromAirportRoute, false, ManAirport.getId());
 
@@ -62,7 +62,7 @@ class RouteMapperTest {
 
     @Test
     void shouldHaveWorkaroundForTraffordCentreRouteIdsTransposedInData() {
-        Route fromTraffordCenter = tramRouteHelper.getOneRoute(CornbrookTheTraffordCentre, date);
+        Route fromTraffordCenter = tramRouteHelper.getOneRoute(getCornbrookTheTraffordCentre(), date);
 
         List<Station> results = mapper.getStationsOn(fromTraffordCenter, false, TraffordCentre.getId());
 

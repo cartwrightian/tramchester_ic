@@ -96,8 +96,8 @@ public class RouteInterconnectRepositoryTest {
 
     @Test
     void shouldHaveExpectedInterchangeForSimpleInterchange() {
-        Route routeA = routeHelper.getOneRoute(BuryManchesterAltrincham, date);
-        Route routeB = routeHelper.getOneRoute(DeansgateCastlefieldManchesterAirport, date);
+        Route routeA = routeHelper.getOneRoute(getBuryManchesterAltrincham(), date);
+        Route routeB = routeHelper.getOneRoute(getDeansgateManchesterAirport(), date);
 
         RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
 
@@ -116,8 +116,8 @@ public class RouteInterconnectRepositoryTest {
 
     @Test
     void shouldHaveExpectedInterchangeForSimpleInterchangeFiltered() {
-        Route routeA = routeHelper.getOneRoute(BuryManchesterAltrincham, date);
-        Route routeB = routeHelper.getOneRoute(DeansgateCastlefieldManchesterAirport, date);
+        Route routeA = routeHelper.getOneRoute(getBuryManchesterAltrincham(), date);
+        Route routeB = routeHelper.getOneRoute(getDeansgateManchesterAirport(), date);
 
         RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
 
@@ -138,8 +138,8 @@ public class RouteInterconnectRepositoryTest {
     void shouldHaveExpectedInterchangeForSimpleInterchangeNotOnDate() {
 
         // use date where we can get routes
-        Route routeA = routeHelper.getOneRoute(BuryManchesterAltrincham, date);
-        Route routeB = routeHelper.getOneRoute(DeansgateCastlefieldManchesterAirport, date);
+        Route routeA = routeHelper.getOneRoute(getBuryManchesterAltrincham(), date);
+        Route routeB = routeHelper.getOneRoute(getDeansgateManchesterAirport(), date);
 
         RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
 
@@ -160,8 +160,8 @@ public class RouteInterconnectRepositoryTest {
     @Test
     void shouldCheckFor2Changes() {
 
-        Route routeA = routeHelper.getOneRoute(PiccadillyVictoria, date);
-        Route routeB = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
+        Route routeA = routeHelper.getOneRoute(getPiccadillyVictoria(), date);
+        Route routeB = routeHelper.getOneRoute(getCornbrookTheTraffordCentre(), date);
 
         assertEquals(2, routeMatrix.getConnectionDepthFor(routeA, routeB));
 
@@ -188,8 +188,8 @@ public class RouteInterconnectRepositoryTest {
 
     @Test
     void shouldHaveExpectedBacktrackFor1Changes() {
-        Route routeA = routeHelper.getOneRoute(BuryManchesterAltrincham, date);
-        Route routeB = routeHelper.getOneRoute(DeansgateCastlefieldManchesterAirport, date);
+        Route routeA = routeHelper.getOneRoute(getBuryManchesterAltrincham(), date);
+        Route routeB = routeHelper.getOneRoute(getDeansgateManchesterAirport(), date);
         RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
 
         assertTrue(interchangeRepository.hasInterchangeFor(indexPair));
@@ -226,8 +226,8 @@ public class RouteInterconnectRepositoryTest {
 
     @Test
     void shouldHaveExpectedBacktrackFor2Changes() {
-        Route routeA = routeHelper.getOneRoute(PiccadillyVictoria, date);
-        Route routeB = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
+        Route routeA = routeHelper.getOneRoute(getPiccadillyVictoria(), date);
+        Route routeB = routeHelper.getOneRoute(getCornbrookTheTraffordCentre(), date);
         RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
 
         assertFalse(interchangeRepository.hasInterchangeFor(indexPair));
@@ -268,8 +268,8 @@ public class RouteInterconnectRepositoryTest {
 
     @Test
     void shouldCheckFor2ChangesFiltered() {
-        Route routeA = routeHelper.getOneRoute(PiccadillyVictoria, date);
-        Route routeB = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
+        Route routeA = routeHelper.getOneRoute(getPiccadillyVictoria(), date);
+        Route routeB = routeHelper.getOneRoute(getCornbrookTheTraffordCentre(), date);
         RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
 
         IndexedBitSet dateOverlaps = routeMatrix.createOverlapMatrixFor(date, modes);
@@ -303,7 +303,7 @@ public class RouteInterconnectRepositoryTest {
     void shouldReproIssueWithGreenLineRoute() {
         RouteIndexPairFactory pairFactory = componentContainer.get(RouteIndexPairFactory.class);
 
-        Route greenInbound = routeHelper.getOneRoute(BuryManchesterAltrincham, date);
+        Route greenInbound = routeHelper.getOneRoute(getBuryManchesterAltrincham(), date);
 
         short greenIndex = routeIndex.indexFor(greenInbound.getId());
 

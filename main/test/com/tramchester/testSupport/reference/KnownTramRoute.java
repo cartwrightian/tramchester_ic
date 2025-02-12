@@ -14,52 +14,60 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class KnownTramRoute {
-    // Replacement buses
-    public static final TestRoute BusEcclesToMediaCity = getBusEcclesToMediaCity();
-    // Blue
-    public static final TestRoute EcclesAshton = getEcclesAshton();
-    // Green
-    public static final TestRoute BuryManchesterAltrincham = getBuryManchesterAltrincham();
-    // Navy
-    public static final TestRoute DeansgateCastlefieldManchesterAirport = getDeansgateManchesterAirport();
-    // Pink
-    public static final TestRoute RochdaleShawandCromptonManchesterEastDidisbury = getShawandCromptonManchesterEastDidisbury();
-    // Purple
-    public static final TestRoute EtihadPiccadillyAltrincham = getEtihadPiccadillyAltrincham();
-    // Red
-    public static final TestRoute CornbrookTheTraffordCentre = getCornbrookTheTraffordCentre();
-    // Yellow
-    public static final TestRoute PiccadillyVictoria = getPiccadillyVictoria();
 
-    private static @NotNull KnownTramRouteEnum getPiccadillyVictoria() {
+    /***
+     * @return Yellow route
+     */
+    public static @NotNull TestRoute getPiccadillyVictoria() {
         return KnownTramRouteEnum.PiccadillyVictoria;
     }
 
-    private static @NotNull KnownTramRouteEnum getBusEcclesToMediaCity() {
+    /***
+     * @return Replacement Bus Media City to Eccles
+     */
+    public static @NotNull TestRoute getBusEcclesToMediaCity() {
         return KnownTramRouteEnum.BusEcclesToMediaCity;
     }
 
-    private static @NotNull KnownTramRouteEnum getCornbrookTheTraffordCentre() {
+    /***
+     * @return Red route
+     */
+    public static @NotNull TestRoute getCornbrookTheTraffordCentre() {
         return KnownTramRouteEnum.CornbrookTheTraffordCentre;
     }
 
-    private static @NotNull KnownTramRouteEnum getEtihadPiccadillyAltrincham() {
+    /***
+     * @return Purple route
+     */
+    public static @NotNull TestRoute getEtihadPiccadillyAltrincham() {
         return KnownTramRouteEnum.EtihadPiccadillyAltrincham;
     }
 
-    private static @NotNull KnownTramRouteEnum getShawandCromptonManchesterEastDidisbury() {
+    /***
+     * @return Pink route
+     */
+    public static @NotNull TestRoute getShawandCromptonManchesterEastDidisbury() {
         return KnownTramRouteEnum.RochdaleShawandCromptonManchesterEastDidisbury;
     }
 
-    private static @NotNull KnownTramRouteEnum getDeansgateManchesterAirport() {
+    /***
+     * @return Navy route
+     */
+    public static @NotNull TestRoute getDeansgateManchesterAirport() {
         return KnownTramRouteEnum.DeansgateCastlefieldManchesterAirport;
     }
 
-    private static @NotNull KnownTramRouteEnum getBuryManchesterAltrincham() {
+    /***
+     * @return Green route
+     */
+    public static @NotNull TestRoute getBuryManchesterAltrincham() {
         return KnownTramRouteEnum.BuryManchesterAltrincham;
     }
 
-    private static @NotNull KnownTramRouteEnum getEcclesAshton() {
+    /***
+     * @return Blue route
+     */
+    public static @NotNull TestRoute getEcclesAshton() {
         return KnownTramRouteEnum.EcclesAshton;
     }
 
@@ -91,23 +99,23 @@ public class KnownTramRoute {
 
         if (startDate.isBefore(date) &&
                 date.isBefore(TramDate.of(2025,3, 28))) {
-            routes.add(BusEcclesToMediaCity);
+            routes.add(getBusEcclesToMediaCity());
         }
 
         if (date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
-            routes.add(BuryManchesterAltrincham);
+            routes.add(getBuryManchesterAltrincham());
 
         } else {
-            routes.add(BuryManchesterAltrincham);
+            routes.add(getBuryManchesterAltrincham());
         }
 
-        routes.add(PiccadillyVictoria);
-        routes.add(EtihadPiccadillyAltrincham);
+        routes.add(getPiccadillyVictoria());
+        routes.add(getEtihadPiccadillyAltrincham());
 
-        routes.add(EcclesAshton);
-        routes.add(CornbrookTheTraffordCentre);
-        routes.add(DeansgateCastlefieldManchesterAirport);
-        routes.add(RochdaleShawandCromptonManchesterEastDidisbury);
+        routes.add(getEcclesAshton());
+        routes.add(getCornbrookTheTraffordCentre());
+        routes.add(getDeansgateManchesterAirport());
+        routes.add(getShawandCromptonManchesterEastDidisbury());
 
         return routes;
     }

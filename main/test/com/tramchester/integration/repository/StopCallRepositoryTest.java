@@ -91,7 +91,7 @@ public class StopCallRepositoryTest {
 
     @Test
     void shouldGetCostsForAStopCall() {
-        Route route = routeRepository.getRouteById(KnownTramRoute.BuryManchesterAltrincham.getId());
+        Route route = routeRepository.getRouteById(KnownTramRoute.getBuryManchesterAltrincham().getId());
         assertNotNull(route);
 
         Station alty = stationRepository.getStationById(TramStations.Altrincham.getId());

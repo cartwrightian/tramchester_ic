@@ -108,15 +108,15 @@ public class RouteToRouteCostsTest {
 
     @Test
     void shouldComputeCostsSameRoute() {
-        Route routeA = routeHelper.getOneRoute(DeansgateCastlefieldManchesterAirport, date);
+        Route routeA = routeHelper.getOneRoute(getDeansgateManchesterAirport(), date);
 
         assertEquals(0, getMinCost(routesCostRepository.getPossibleMinChanges(routeA, routeA, date, timeRange, modes)));
     }
 
     @Test
     void shouldComputeCostsDifferentRoutesTwoChange() {
-        Route routeA = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
-        Route routeB = routeHelper.getOneRoute(PiccadillyVictoria, date);
+        Route routeA = routeHelper.getOneRoute(getCornbrookTheTraffordCentre(), date);
+        Route routeB = routeHelper.getOneRoute(getPiccadillyVictoria(), date);
 
         assertEquals(2, getMinCost(routesCostRepository.getPossibleMinChanges(routeA, routeB, date, timeRange, modes)),
                 "wrong for " + routeA.getId() + " " + routeB.getId());
@@ -126,8 +126,8 @@ public class RouteToRouteCostsTest {
 
     @Test
     void shouldFailIfOurOfTimeRangeDifferentRoutesTwoChange() {
-        Route routeA = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
-        Route routeB = routeHelper.getOneRoute(EtihadPiccadillyAltrincham, date);
+        Route routeA = routeHelper.getOneRoute(getCornbrookTheTraffordCentre(), date);
+        Route routeB = routeHelper.getOneRoute(getEtihadPiccadillyAltrincham(), date);
 
         assertEquals(1, getMinCost(routesCostRepository.getPossibleMinChanges(routeA, routeB, date, timeRange, modes)),
                 "wrong for " + routeA.getId() + " " + routeB.getId());
@@ -139,8 +139,8 @@ public class RouteToRouteCostsTest {
 
     @Test
     void shouldComputeCostsDifferentRoutesOneChanges() {
-        Route routeA = routeHelper.getOneRoute(BuryManchesterAltrincham, date);
-        Route routeB = routeHelper.getOneRoute(DeansgateCastlefieldManchesterAirport, date);
+        Route routeA = routeHelper.getOneRoute(getBuryManchesterAltrincham(), date);
+        Route routeB = routeHelper.getOneRoute(getDeansgateManchesterAirport(), date);
 
         assertEquals(1, getMinCost(routesCostRepository.getPossibleMinChanges(routeA, routeB, date, timeRange, modes)),
                 "wrong for " + routeA.getId() + " " + routeB.getId());
@@ -218,9 +218,9 @@ public class RouteToRouteCostsTest {
     @Test
     void shouldSortAsExpected() {
 
-        Route routeA = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
-        Route routeB = routeHelper.getOneRoute(DeansgateCastlefieldManchesterAirport, date);
-        Route routeC = routeHelper.getOneRoute(PiccadillyVictoria, date);
+        Route routeA = routeHelper.getOneRoute(getCornbrookTheTraffordCentre(), date);
+        Route routeB = routeHelper.getOneRoute(getDeansgateManchesterAirport(), date);
+        Route routeC = routeHelper.getOneRoute(getPiccadillyVictoria(), date);
 
         Station destination = TramStations.TraffordCentre.from(stationRepository);
         LowestCostsForDestRoutes sorts = routesCostRepository.getLowestCostCalculatorFor(LocationSet.singleton(destination), date, timeRange, modes);

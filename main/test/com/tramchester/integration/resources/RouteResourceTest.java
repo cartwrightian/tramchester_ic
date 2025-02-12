@@ -33,7 +33,6 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.TestEnv.dateFormatDashes;
-import static com.tramchester.testSupport.reference.KnownTramRoute.DeansgateCastlefieldManchesterAirport;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
@@ -82,7 +81,7 @@ class RouteResourceTest {
         List<RouteDTO> routes = getRouteResponse();
 
         List<RouteDTO> airRoutes = routes.stream().
-                filter(routeDTO -> routeDTO.getRouteID().equals(DeansgateCastlefieldManchesterAirport.dtoId())).
+                filter(routeDTO -> routeDTO.getRouteID().equals(KnownTramRoute.getDeansgateManchesterAirport().dtoId())).
                 toList();
 
         assertEquals(1, airRoutes.size());

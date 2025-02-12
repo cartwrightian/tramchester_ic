@@ -84,7 +84,7 @@ public class TowardsDestinationTest {
     void shouldHaveDestinationIds() {
 
         Station station = NavigationRoad.from(stationRepository);
-        Route route = tramRouteHelper.getOneRoute(KnownTramRoute.BuryManchesterAltrincham, when);
+        Route route = tramRouteHelper.getOneRoute(KnownTramRoute.getBuryManchesterAltrincham(), when);
 
         ImmutableGraphNode node = findRouteStation(station, route);
 
@@ -142,7 +142,7 @@ public class TowardsDestinationTest {
     @Test
     void shouldFindRelationshipsTowardsDestination() {
         Station station = NavigationRoad.from(stationRepository);
-        Route route = tramRouteHelper.getOneRoute(KnownTramRoute.BuryManchesterAltrincham, when);
+        Route route = tramRouteHelper.getOneRoute(KnownTramRoute.getBuryManchesterAltrincham(), when);
 
         ImmutableGraphNode node = findRouteStation(station, route);
 
@@ -169,7 +169,7 @@ public class TowardsDestinationTest {
     @Test
     void shouldFindNoRelationshipsIfNotTowardsDestination() {
         Station station = NavigationRoad.from(stationRepository);
-        Route route = tramRouteHelper.getOneRoute(KnownTramRoute.BuryManchesterAltrincham, when);
+        Route route = tramRouteHelper.getOneRoute(KnownTramRoute.getBuryManchesterAltrincham(), when);
 
         ImmutableGraphNode node = findRouteStation(station, route);
 
@@ -208,7 +208,7 @@ public class TowardsDestinationTest {
     @Test
     void shouldFindRelationshipsTowardsDestinationGroupFromRouteStation() {
         Station station = StPetersSquare.from(stationRepository);
-        Route route = tramRouteHelper.getOneRoute(KnownTramRoute.BuryManchesterAltrincham, when);
+        Route route = tramRouteHelper.getOneRoute(KnownTramRoute.getBuryManchesterAltrincham(), when);
 
         StationGroup stationGroup = getStationGroup(station);
 

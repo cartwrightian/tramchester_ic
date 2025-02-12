@@ -11,7 +11,7 @@ import com.tramchester.testSupport.TestEnv;
  * see also TramRouteHelper
  * Note: these are validated against tfgm data as part of Integration tests
  */
-public enum KnownTramRouteEnum implements TestRoute {
+enum KnownTramRouteEnum implements TestRoute {
 
     // Replacement buses
     BusEcclesToMediaCity("Replacement Bus 1", "Eccles - Media City", "2749"),

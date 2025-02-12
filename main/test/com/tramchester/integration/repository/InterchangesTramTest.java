@@ -38,8 +38,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.CentralZoneStation.StWerbergsRoad;
-import static com.tramchester.testSupport.reference.KnownTramRoute.DeansgateCastlefieldManchesterAirport;
-import static com.tramchester.testSupport.reference.KnownTramRoute.RochdaleShawandCromptonManchesterEastDidisbury;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -134,10 +132,10 @@ public class InterchangesTramTest {
         InterchangeStation interchange = interchangeRepository.getInterchange(stWerb);
         assertEquals(InterchangeType.NumberOfLinks, interchange.getType());
 
-        Route toAirport = tramRouteHelper.getOneRoute(DeansgateCastlefieldManchesterAirport, date);
+        Route toAirport = tramRouteHelper.getOneRoute(KnownTramRoute.getDeansgateManchesterAirport(), date);
         assertTrue(interchange.getPickupRoutes().contains(toAirport));
 
-        Route toEastDids = tramRouteHelper.getOneRoute(RochdaleShawandCromptonManchesterEastDidisbury, date);
+        Route toEastDids = tramRouteHelper.getOneRoute(KnownTramRoute.getShawandCromptonManchesterEastDidisbury(), date);
         Set<Route> dropoffRoutes = interchange.getDropoffRoutes().stream().
                 filter(route -> route.isAvailableOn(date)).
                 collect(Collectors.toSet());
@@ -210,7 +208,7 @@ public class InterchangesTramTest {
 
         IdSet<Route> dropOffs = cornbrook.getDropoffRoutes().stream().collect(IdSet.collector());
 
-        assertTrue(dropOffs.contains(KnownTramRoute.CornbrookTheTraffordCentre.getId()), dropOffs.toString());
+        assertTrue(dropOffs.contains(KnownTramRoute.getCornbrookTheTraffordCentre().getId()), dropOffs.toString());
     }
 
     @Test

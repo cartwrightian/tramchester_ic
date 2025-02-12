@@ -74,8 +74,8 @@ public class RoutePairToInterchangeRepositoryTest {
 
     @Test
     void shouldGetExpectedSingleInterchangesBetweenRoutes() {
-        Route toTraffordCentre = routeHelper.getOneRoute(CornbrookTheTraffordCentre, date);
-        Route toAirport = routeHelper.getOneRoute(DeansgateCastlefieldManchesterAirport, date);
+        Route toTraffordCentre = routeHelper.getOneRoute(getCornbrookTheTraffordCentre(), date);
+        Route toAirport = routeHelper.getOneRoute(getDeansgateManchesterAirport(), date);
 
         RoutePair routeIndexPair = RoutePair.of(toTraffordCentre, toAirport);
 
@@ -92,8 +92,8 @@ public class RoutePairToInterchangeRepositoryTest {
 
     @Test
     void shouldGetExpectedMultipleInterchangesBetweenRoutes() {
-        Route blueLine = routeHelper.getOneRoute(EcclesAshton, date);
-        Route navyLine = routeHelper.getOneRoute(DeansgateCastlefieldManchesterAirport, date);
+        Route blueLine = routeHelper.getOneRoute(getEcclesAshton(), date);
+        Route navyLine = routeHelper.getOneRoute(getDeansgateManchesterAirport(), date);
 
         RoutePair routeIndexPair = RoutePair.of(blueLine, navyLine);
 

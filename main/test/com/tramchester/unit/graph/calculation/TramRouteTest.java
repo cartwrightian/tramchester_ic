@@ -137,7 +137,7 @@ class TramRouteTest {
         assertEquals(transportData.getFirst(), transportStage.getFirstStation());
         assertEquals(transportData.getSecond(), transportStage.getLastStation());
         assertEquals(0, transportStage.getPassedStopsCount());
-        assertEquals(KnownTramRoute.CornbrookTheTraffordCentre.shortName(), transportStage.getRoute().getShortName());
+        assertEquals(KnownTramRoute.getCornbrookTheTraffordCentre().shortName(), transportStage.getRoute().getShortName());
         assertEquals(transportStage.getFirstStation(), transportStage.getActionStation());
         assertMinutesEquals(11, transportStage.getDuration());
         assertEquals(TramTime.of(8,0), transportStage.getFirstDepartureTime());

@@ -49,8 +49,6 @@ import java.util.stream.Stream;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
-import static com.tramchester.testSupport.reference.KnownTramRoute.BuryManchesterAltrincham;
-import static com.tramchester.testSupport.reference.KnownTramRoute.EcclesAshton;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -81,7 +79,7 @@ class TramGraphBuilderTest {
 
         when = TestEnv.testDay();
 
-        tramRouteEcclesAshton = tramRouteHelper.getOneRoute(EcclesAshton, when);
+        tramRouteEcclesAshton = tramRouteHelper.getOneRoute(KnownTramRoute.getEcclesAshton(), when);
 
         stationRepository = componentContainer.get(StationRepository.class);
         serviceRepository = componentContainer.get(ServiceRepository.class);
@@ -266,7 +264,7 @@ class TramGraphBuilderTest {
 
         Station cornbrook = Cornbrook.from(stationRepository);
 
-        Route buryToAlty = tramRouteHelper.getOneRoute(BuryManchesterAltrincham, when);
+        Route buryToAlty = tramRouteHelper.getOneRoute(KnownTramRoute.getBuryManchesterAltrincham(), when);
 
         List<ImmutableGraphRelationship> svcOutbounds = getOutboundsServicesForRouteStation(cornbrook, buryToAlty);
         assertFalse(svcOutbounds.isEmpty());
@@ -610,7 +608,7 @@ class TramGraphBuilderTest {
     @Test
     void shouldHaveEndOfTripAtEndOfLineStation() {
         Station bury = Bury.from(stationRepository);
-        Route buryToAlty = tramRouteHelper.getOneRoute(BuryManchesterAltrincham, when);
+        Route buryToAlty = tramRouteHelper.getOneRoute(KnownTramRoute.getBuryManchesterAltrincham(), when);
 
         ImmutableGraphNode node = txn.findNode(new RouteStation(bury, buryToAlty));
 
@@ -653,7 +651,7 @@ class TramGraphBuilderTest {
     @Test
     void shouldHaveCorrectRelationshipsForServicesAtCornbrook() {
 
-        Route route = tramRouteHelper.getOneRoute(BuryManchesterAltrincham, when);
+        Route route = tramRouteHelper.getOneRoute(KnownTramRoute.getBuryManchesterAltrincham(), when);
 
         List<ImmutableGraphRelationship> svcOutbounds = getOutboundsServicesForRouteStation(Cornbrook.from(stationRepository), route);
         assertFalse(svcOutbounds.isEmpty());
@@ -729,7 +727,7 @@ class TramGraphBuilderTest {
         Station stationA = Timperley.from(stationRepository);
         Station stationB = Brooklands.from(stationRepository);
 
-        Route buryToAlty = tramRouteHelper.getOneRoute(BuryManchesterAltrincham, when);
+        Route buryToAlty = tramRouteHelper.getOneRoute(KnownTramRoute.getBuryManchesterAltrincham(), when);
 
         RouteStation routeStationA = stationRepository.getRouteStation(stationA, buryToAlty);
         RouteStation routeStationB = stationRepository.getRouteStation(stationB, buryToAlty);
@@ -808,7 +806,7 @@ class TramGraphBuilderTest {
 
         final Station cornbrook = Cornbrook.from(stationRepository);
 
-        Route tramRouteAltBury = tramRouteHelper.getOneRoute(KnownTramRoute.BuryManchesterAltrincham, when);
+        Route tramRouteAltBury = tramRouteHelper.getOneRoute(KnownTramRoute.getBuryManchesterAltrincham(), when);
 
         RouteStation routeStationCornbrookAltyPiccRoute = stationRepository.getRouteStation(cornbrook, tramRouteAltBury);
         List<ImmutableGraphRelationship> outboundsA = txn.getRouteStationRelationships(routeStationCornbrookAltyPiccRoute, Direction.OUTGOING);
@@ -821,11 +819,11 @@ class TramGraphBuilderTest {
     @Test
     void shouldHaveCorrectInboundsAtMediaCity() {
 
-        checkInboundConsistency(MediaCityUK, EcclesAshton);
+        checkInboundConsistency(MediaCityUK, KnownTramRoute.getEcclesAshton());
 
-        checkInboundConsistency(HarbourCity, EcclesAshton);
+        checkInboundConsistency(HarbourCity, KnownTramRoute.getEcclesAshton());
 
-        checkInboundConsistency(Broadway, EcclesAshton);
+        checkInboundConsistency(Broadway, KnownTramRoute.getEcclesAshton());
 
     }
 
@@ -833,13 +831,13 @@ class TramGraphBuilderTest {
     @Test
     void shouldCheckOutboundSvcRelationships() {
 
-        checkOutboundConsistency(StPetersSquare, BuryManchesterAltrincham);
+        checkOutboundConsistency(StPetersSquare, KnownTramRoute.getBuryManchesterAltrincham());
 
-        checkOutboundConsistency(Cornbrook, BuryManchesterAltrincham);
+        checkOutboundConsistency(Cornbrook, KnownTramRoute.getBuryManchesterAltrincham());
 
-        checkOutboundConsistency(MediaCityUK, EcclesAshton);
+        checkOutboundConsistency(MediaCityUK, KnownTramRoute.getEcclesAshton());
 
-        checkOutboundConsistency(HarbourCity, EcclesAshton);
+        checkOutboundConsistency(HarbourCity, KnownTramRoute.getEcclesAshton());
 
         // these two are not consistent because same svc can go different ways while still having same route code
         // i.e. service from harbour city can go to media city or to Broadway with same svc and route id

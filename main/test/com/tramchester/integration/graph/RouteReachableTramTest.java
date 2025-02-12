@@ -15,6 +15,7 @@ import com.tramchester.graph.RouteReachable;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.KnownTramRoute;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,8 +25,6 @@ import java.time.Duration;
 import java.util.List;
 
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
-import static com.tramchester.testSupport.reference.KnownTramRoute.BuryManchesterAltrincham;
-import static com.tramchester.testSupport.reference.KnownTramRoute.EtihadPiccadillyAltrincham;
 import static com.tramchester.testSupport.reference.TramStations.Altrincham;
 import static com.tramchester.testSupport.reference.TramStations.NavigationRoad;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -69,8 +68,8 @@ class RouteReachableTramTest {
 
         assertEquals(2, routeIds.size(), routeIds.toString());
 
-        assertTrue(routeIds.contains(EtihadPiccadillyAltrincham.getId()), routeIds.toString());
-        assertTrue(routeIds.contains(BuryManchesterAltrincham.getId()), routeIds.toString());
+        assertTrue(routeIds.contains(KnownTramRoute.getEtihadPiccadillyAltrincham().getId()), routeIds.toString());
+        assertTrue(routeIds.contains(KnownTramRoute.getBuryManchesterAltrincham().getId()), routeIds.toString());
     }
 
 

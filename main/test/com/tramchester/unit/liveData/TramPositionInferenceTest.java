@@ -15,6 +15,7 @@ import com.tramchester.livedata.tfgm.TramPositionInference;
 import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.TramStationAdjacenyRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TestRoute;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
@@ -27,7 +28,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
-import static com.tramchester.testSupport.reference.KnownTramRoute.BuryManchesterAltrincham;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -64,7 +64,7 @@ public class TramPositionInferenceTest  extends EasyMockSupport {
         date = TramDate.of(dateTime.toLocalDate());
         startTime = TramTime.ofHourMins(dateTime.toLocalTime());
 
-        tramRoute = BuryManchesterAltrincham;
+        tramRoute = KnownTramRoute.getBuryManchesterAltrincham();
         begin = StPetersSquare.faker().dropOff(tramRoute).dropOffPlatform(1, tramRoute).build();
         end = Deansgate.faker().dropOff(tramRoute).dropOffPlatform(1, tramRoute).build();
 

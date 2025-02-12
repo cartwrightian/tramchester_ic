@@ -98,8 +98,9 @@ public class RouteIndexTest extends EasyMockSupport {
     @Test
     void shouldHaveIndexForAllKnownRoutes() {
 
-        for (int i = 0; i < KnownTramRoute.values().length; i++) {
-            Route route = routeHelper.getOneRoute(KnownTramRoute.RochdaleShawandCromptonManchesterEastDidisbury, date);
+        int length = KnownTramRoute.getFor(date).size(); //KnownTramRoute.values().length;
+        for (int i = 0; i < length; i++) {
+            Route route = routeHelper.getOneRoute(KnownTramRoute.getShawandCromptonManchesterEastDidisbury(), date);
             short index = routeIndex.indexFor(route.getId()); // throws on error
 
             Route result = routeIndex.getRouteFor(index);

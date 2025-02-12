@@ -148,15 +148,15 @@ public class TransportDataFromFilesTramTest {
         // cannot check for specific size as the way routes handled in tfgm gtfs feed can lead to duplicates
         //assertEquals(10, traffordBarRoutes.size());
 
-        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(EtihadPiccadillyAltrincham)));
+        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(getEtihadPiccadillyAltrincham())));
 
-        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(RochdaleShawandCromptonManchesterEastDidisbury)));
+        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(getShawandCromptonManchesterEastDidisbury())));
 
-        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(DeansgateCastlefieldManchesterAirport)));
+        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(getDeansgateManchesterAirport())));
 
-        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(EcclesAshton)));
+        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(getEcclesAshton())));
 
-        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(BuryManchesterAltrincham)));
+        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(getBuryManchesterAltrincham())));
     }
 
     @Test
@@ -195,7 +195,7 @@ public class TransportDataFromFilesTramTest {
                         collect(IdSet.collector());
 
         // Picc gardens 2024
-        assertTrue(routeIds.contains(DeansgateCastlefieldManchesterAirport.getId()), routeIds.toString());
+        assertTrue(routeIds.contains(getDeansgateManchesterAirport().getId()), routeIds.toString());
     }
 
     @Test
@@ -233,11 +233,11 @@ public class TransportDataFromFilesTramTest {
                         map(RouteStation::getRoute).
                         collect(IdSet.collector());
 
-        assertTrue(routeIds.contains(PiccadillyVictoria.getId()), routeIds.toString());
+        assertTrue(routeIds.contains(getPiccadillyVictoria().getId()), routeIds.toString());
 
-        assertTrue(routeIds.contains(BuryManchesterAltrincham.getId()), routeIds.toString());
+        assertTrue(routeIds.contains(getBuryManchesterAltrincham().getId()), routeIds.toString());
 
-        assertTrue(routeIds.contains(PiccadillyVictoria.getId()), routeIds.toString());
+        assertTrue(routeIds.contains(getPiccadillyVictoria().getId()), routeIds.toString());
 
     }
 

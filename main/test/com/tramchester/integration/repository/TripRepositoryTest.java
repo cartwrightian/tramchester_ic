@@ -20,6 +20,7 @@ import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.repository.*;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
@@ -37,7 +38,6 @@ import java.util.stream.Stream;
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
-import static com.tramchester.testSupport.reference.KnownTramRoute.EcclesAshton;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -178,7 +178,7 @@ public class TripRepositoryTest {
 
         Set<Trip> allTrips = getTripsFor(tripRepository.getTrips(), Cornbrook);
 
-        Set<Route> routes = routeRepository.findRoutesByShortName(MutableAgency.METL, EcclesAshton.shortName());
+        Set<Route> routes = routeRepository.findRoutesByShortName(MutableAgency.METL, KnownTramRoute.getEcclesAshton().shortName());
 
         assertFalse(routes.isEmpty());
 
