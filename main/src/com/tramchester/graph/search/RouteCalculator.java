@@ -106,7 +106,8 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         }
     }
 
-    private int getPossibleMinNumberOfChanges(final Location<?> start, final Location<?> destination, final JourneyRequest journeyRequest, Duration maxInitialWait) {
+    private int getPossibleMinNumberOfChanges(final Location<?> start, final Location<?> destination,
+                                              final JourneyRequest journeyRequest, Duration maxInitialWait) {
         /*
          * Route change calc issue: for example media city is on the Eccles route but trams terminate at Etihad or
          * don't go on towards Eccles depending on the time of day
@@ -115,7 +116,8 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         // TODO Closure handling??
 
-        return routeToRouteCosts.getNumberOfChanges(start, destination, journeyRequest, journeyRequest.getJourneyTimeRange(maxInitialWait));
+        return routeToRouteCosts.getNumberOfChanges(start, destination, journeyRequest,
+                journeyRequest.getJourneyTimeRange(maxInitialWait));
     }
 
     @Override

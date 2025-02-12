@@ -120,8 +120,8 @@ public class RailAndTramRouteCalculatorTest {
     @Test
     void shouldHaveStPetersSquareToEccles() {
         TramTime time = TramTime.of(9,0);
-        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, ECCLES_CHANGES_WHILE_BUS_REPLACEMENT, maxDurationFromConfig,
-                1, TramsOnly);
+        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, ECCLES_CHANGES_WHILE_BUS_REPLACEMENT,
+                maxDurationFromConfig, 1, TramsOnly);
 
         List<Journey> journeys = testFacade.calculateRouteAsList(StPetersSquare, Eccles, journeyRequest);
         assertFalse(journeys.isEmpty());
@@ -129,13 +129,44 @@ public class RailAndTramRouteCalculatorTest {
 
     @Test
     void shouldFindRoutesWhenTramAndTrainPossible() {
-        TramTime time = TramTime.of(9,0);
+        TramTime time = TramTime.of(15,50);
+
+        // TODO 1 change should still surface the 15:57 that gets to MAN at 16:25
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 1, maxDurationFromConfig,
-                1, TrainAndTram);
+                5, TramsOnly);
 
         List<Journey> journeys = testFacade.calculateRouteAsList(TramStations.Altrincham,
                 RailStationIds.ManchesterPiccadilly, journeyRequest);
         assertFalse(journeys.isEmpty());
+
+        List<Journey> trains = journeys.stream().filter(journey -> journey.getTransportModes().contains(Train)).toList();
+        assertFalse(trains.isEmpty(), journeys.toString());
+
+        trains.forEach(trainJourney -> {
+            List<TransportStage<?, ?>> stages = trainJourney.getStages();
+            assertEquals(2, stages.size());
+            assertEquals(Connect, stages.getFirst().getMode());
+            assertEquals(Train, stages.getLast().getMode());
+        });
+
+        List<Journey> trams = journeys.stream().filter(journey -> journey.getTransportModes().contains(Tram)).toList();
+        assertFalse(trams.isEmpty(), journeys.toString());
+    }
+
+    @Test
+    void shouldFindTramWhenConnectToRailStationPossible() {
+        TramTime time = TramTime.of(15,50);
+
+        // TODO 1 change should still surface the 15:57 that gets to MAN at 16:25
+        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 1, maxDurationFromConfig,
+                5, TramsOnly);
+
+        List<Journey> journeys = testFacade.calculateRouteAsList(TramStations.Altrincham,
+                RailStationIds.ManchesterPiccadilly, journeyRequest);
+        assertFalse(journeys.isEmpty());
+
+        long trams = journeys.stream().filter(journey -> journey.getTransportModes().contains(Tram)).count();
+        assertNotEquals(0, trams);
     }
 
     @Test

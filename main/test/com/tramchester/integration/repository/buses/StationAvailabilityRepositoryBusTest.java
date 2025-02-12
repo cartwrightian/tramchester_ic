@@ -13,13 +13,12 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
+import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
-import com.tramchester.repository.ClosedStationsRepository;
-import com.tramchester.repository.StationAvailabilityRepository;
-import com.tramchester.repository.StationGroupsRepository;
-import com.tramchester.repository.StationRepository;
+import com.tramchester.repository.*;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.testTags.BusTest;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
@@ -34,8 +33,7 @@ import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.domain.time.TramTime.of;
 import static com.tramchester.testSupport.TestEnv.Modes.BusesOnly;
 import static com.tramchester.testSupport.reference.TramStations.Altrincham;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @BusTest
 public class StationAvailabilityRepositoryBusTest {
@@ -75,6 +73,29 @@ public class StationAvailabilityRepositoryBusTest {
         modes = BusesOnly;
         morningRange = TimeRangePartial.of(of(8, 45), of(10, 45));
         eveningRange = TimeRangePartial.of(of(20, 53), of(23, 53));
+    }
+
+    @Test
+    void shouldNotBeAvailableIfModesWrong() {
+
+        Station stPeters = BusStations.StopAtAltrinchamInterchange.from(stationRepository);
+
+        EnumSet<TransportMode> otherModes = EnumSet.of(TransportMode.Ferry);
+        boolean duringTheDay = availabilityRepository.isAvailable(stPeters, when, TimeRangePartial.of(of(8,45), of(10,45)), otherModes);
+
+        assertFalse(duringTheDay);
+
+    }
+
+    @Test
+    void shouldCheckStationGroupsAsExpected() {
+        StationGroup stationGroup = stationGroupRepository.getStationGroup(KnownLocality.Altrincham.getId()); //.findByName(BusStations.Composites.AltrinchamInterchange.getName());
+        assertNotNull(stationGroup);
+
+        boolean duringTheDay = availabilityRepository.isAvailable(stationGroup, when, TimeRangePartial.of(of(8,45), of(10,45)), modes);
+
+        assertTrue(duringTheDay);
+
     }
 
     @Test
@@ -202,6 +223,37 @@ public class StationAvailabilityRepositoryBusTest {
             assertTrue(notAvailableLate.isEmpty(), "Not available " + date + " " + lateRange + " " + HasId.asIds(notAvailableLate));
 
         });
+    }
+
+    @DataExpiryTest
+    @Test
+    void shouldHaveExpectedRoutesAvailableForDatesAndTimeRanges() {
+
+        // earier to diagnose using end of line station
+        Station station = BusStations.StopAtShudehillInterchange.from(stationRepository);
+
+        TimeRange timeRange = TimeRangePartial.of(TramTime.of(12, 50), Duration.ofHours(4), Duration.ofHours(4));
+
+        Set<Route> results = availabilityRepository.getPickupRoutesFor(station, when, timeRange, modes);
+
+        assertEquals(3, results.size(),
+                timeRange + " missing routes from " + station.getId() + " got " + HasId.asIds(results));
+    }
+
+    @Disabled("performance testing")
+    @Test
+    void shouldCreateRepository() {
+        TripRepository tripRepository = componentContainer.get(TripRepository.class);
+        InterchangeRepository interchangeRepository = componentContainer.get(InterchangeRepository.class);
+        StationAvailabilityRepository stationAvailabilityRepository =
+                new StationAvailabilityRepository(stationRepository, closedStationRepository,
+                        new GraphFilterActive(false), tripRepository, interchangeRepository);
+
+        for (int i = 0; i < 10; i++) {
+            stationAvailabilityRepository.start();
+            stationAvailabilityRepository.stop();
+        }
+
     }
 
     @Disabled("to convert to bus")

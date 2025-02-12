@@ -18,13 +18,15 @@ public class ServedRoute {
 
     // TODO TEST ME PROPERLY!
 
+    private final LocationId<?> locationId;
     private final Set<RouteAndService> routeAndServices;
     private final Map<RouteAndService, TimeRange> timeWindows;
 
     private final IdSet<Route> routeIds; // for performance, significant
     private final EnumSet<TransportMode> allServedModes; // for performance, significant
 
-    public ServedRoute() {
+    public ServedRoute(final LocationId<?> locationId) {
+        this.locationId = locationId;
         routeAndServices = new HashSet<>();
         timeWindows = new HashMap<>();
         routeIds = new IdSet<>();
@@ -97,6 +99,7 @@ public class ServedRoute {
     @Override
     public String toString() {
         return "ServedRoute{" +
+                "locationId=" + locationId +
                 "routeAndServices=" + routeAndServices +
                 ", timeWindows=" + timeWindows +
                 '}';

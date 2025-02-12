@@ -212,7 +212,7 @@ public interface QueryPathsWithDepth {
 
         public static QueryPath Of(final Set<InterchangeStation> changes) {
             if (changes.size()==1) {
-                InterchangeStation change = changes.iterator().next();
+                final InterchangeStation change = changes.iterator().next();
                 return new SingleInterchange(change);
             } else {
                 return new AnyOfInterchanges(changes);

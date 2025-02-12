@@ -32,8 +32,7 @@ import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.Altrincham;
 import static com.tramchester.testSupport.reference.TramStations.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 @GMTest
 public class RailAndTramRouteToRouteCostsTest {
@@ -84,6 +83,31 @@ public class RailAndTramRouteToRouteCostsTest {
 
         int result = routeToRouteCosts.getPossibleMinChanges(tram(Altrincham), rail(RailStationIds.Altrincham),
                 allTransportModes, date, timeRange);
+
+        assertEquals(0, result);
+    }
+
+    // TODO better to handle this case by passing in an extended list of modes ??
+
+    // TODO is served route working with Interchange Stations correctly?
+    // Rail station Man Picc is not returning tram routes, but is an interchange station
+
+    @Test
+    void shouldValidHopsBetweenTramAndInterchangceWhenConnectPossibleTramOnly() {
+        TimeRange timeRange = TimeRangePartial.of(TramTime.of(8, 15), TramTime.of(22, 35));
+
+        int result = routeToRouteCosts.getPossibleMinChanges(tram(Altrincham), rail(ManchesterPiccadilly),
+                TramsOnly, date, timeRange);
+
+        assertEquals(0, result);
+    }
+
+    @Test
+    void shouldValidHopsBetweenInterchangceAndTramWhenConnectPossibleTramOnly() {
+        TimeRange timeRange = TimeRangePartial.of(TramTime.of(8, 15), TramTime.of(22, 35));
+
+        int result = routeToRouteCosts.getPossibleMinChanges(rail(RailStationIds.Altrincham), tram(Piccadilly),
+                TramsOnly, date, timeRange);
 
         assertEquals(0, result);
     }

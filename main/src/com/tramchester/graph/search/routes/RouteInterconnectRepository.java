@@ -397,7 +397,7 @@ public class RouteInterconnectRepository extends ComponentThatCaches<RoutePairIn
         }
 
         // re-expand from (A,C) -> B into: (A,B) (B,C)
-        public Stream<Pair<RouteIndexPair, RouteIndexPair>> getLinksFor(RouteIndexPair indexPair) {
+        public Stream<Pair<RouteIndexPair, RouteIndexPair>> getLinksFor(final RouteIndexPair indexPair) {
             final int position = getPositionFor(indexPair);
 
             final BitSet connectingRoutes = bitSetForIndex.get(position);

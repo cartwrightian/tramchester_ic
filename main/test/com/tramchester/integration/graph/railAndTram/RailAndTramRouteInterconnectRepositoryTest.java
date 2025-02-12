@@ -10,7 +10,6 @@ import com.tramchester.domain.RoutePair;
 import com.tramchester.domain.collections.IndexedBitSet;
 import com.tramchester.domain.collections.RouteIndexPair;
 import com.tramchester.domain.collections.RouteIndexPairFactory;
-import com.tramchester.domain.dates.TramDate;
 import com.tramchester.graph.filters.GraphFilterActive;
 import com.tramchester.graph.search.routes.*;
 import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchesterConfig;
@@ -66,7 +65,6 @@ public class RailAndTramRouteInterconnectRepositoryTest {
         repository = componentContainer.get(RouteInterconnectRepository.class);
 
         numberOfRoutes = routeRepository.numberOfRoutes();
-        TramDate date = TestEnv.testDay();
     }
 
     @Disabled("did not find the issue, always passes")

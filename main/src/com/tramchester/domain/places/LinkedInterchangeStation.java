@@ -13,16 +13,22 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
+/***
+ * These interchanges stations has an implicit direction
+ * Dropoffs at the original =>> Pickups at either origin or linked
+ */
 public class LinkedInterchangeStation implements InterchangeStation {
     private final Set<StationToStationConnection> links;
     private final Station origin;
     private final EnumSet<TransportMode> allModes;
 
-    public LinkedInterchangeStation(StationToStationConnection stationLink) {
+    public LinkedInterchangeStation(final StationToStationConnection stationLink) {
         links = new HashSet<>();
         links.add(stationLink);
         origin = stationLink.getBegin();
-        Set<TransportMode> collectedModes = links.stream().flatMap(links -> links.getContainedModes().stream()).collect(Collectors.toSet());
+        final Set<TransportMode> collectedModes = links.stream().
+                flatMap(links -> links.getContainedModes().stream()).
+                collect(Collectors.toSet());
         this.allModes = EnumSet.copyOf(collectedModes);
     }
 
@@ -31,11 +37,20 @@ public class LinkedInterchangeStation implements InterchangeStation {
         return allModes.size() > 1;
     }
 
+    /***
+     * See above note on the 'direction' for a linked interchange
+     * @return only the dropoffs for the origin
+     */
     @Override
     public Set<Route> getDropoffRoutes() {
         return origin.getDropoffRoutes();
     }
 
+
+    /***
+     * See above note on the 'direction' for a linked interchange
+     * @return pickups for both the origin and all linked stations
+     */
     @Override
     public Set<Route> getPickupRoutes() {
         final Set<Route> pickUps = new HashSet<>(origin.getPickupRoutes());

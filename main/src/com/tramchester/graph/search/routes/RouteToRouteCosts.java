@@ -125,6 +125,17 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         return costs.numberOfBitsSet();
     }
 
+    /***
+     * Bus Test support only
+     * TODO remove
+     * @param start begin
+     * @param end end
+     * @param date date
+     * @param time time
+     * @param modes modes
+     * @return number of change
+     */
+    @Deprecated
     public int getPossibleMinChanges(StationGroup start, StationGroup end, TramDate date, TimeRange time,
                                      EnumSet<TransportMode> modes) {
         return getPossibleMinChanges(start.getAllContained(), end.getAllContained(), date, time, modes);

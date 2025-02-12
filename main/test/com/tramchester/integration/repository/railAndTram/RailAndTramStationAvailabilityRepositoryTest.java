@@ -1,8 +1,7 @@
-package com.tramchester.integration.graph.railAndTram;
+package com.tramchester.integration.repository.railAndTram;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
@@ -20,10 +19,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.GMTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.util.Set;
 
@@ -43,7 +39,7 @@ public class RailAndTramStationAvailabilityRepositoryTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        TramchesterConfig config = new RailAndTramGreaterManchesterConfig();
+        RailAndTramGreaterManchesterConfig config = new RailAndTramGreaterManchesterConfig();
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }
@@ -52,6 +48,18 @@ public class RailAndTramStationAvailabilityRepositoryTest {
     static void OnceAfterAllTestsAreFinished() {
         componentContainer.close();
     }
+
+//    @BeforeEach
+//    void onceBeforeEachTestRuns() {
+//        stationRepository = componentContainer.get(StationRepository.class);
+//        availabilityRepository = componentContainer.get(StationAvailabilityRepository.class);
+//
+//        when = TestEnv.testDay();
+//
+//        allDay = TimeRangePartial.of(of(4, 30), TramTime.nextDay(22, 30));
+//
+//    }
+
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
@@ -72,6 +80,7 @@ public class RailAndTramStationAvailabilityRepositoryTest {
 
         InterchangeStation interchangeTram = interchangeRepository.getInterchange(altrinchamTram);
 
+        // huh?
         assertEquals(interchangeTram.getDropoffRoutes(), altrinchamTram.getDropoffRoutes());
 
         Set<Route> trainPickups = altrinchamTrain.getPickupRoutes();
@@ -130,7 +139,7 @@ public class RailAndTramStationAvailabilityRepositoryTest {
     }
 
     @Test
-    void shouldHaveExpectedPickupsForTheLinkedTramStation() {
+    void shouldHaveExpectedPickupsForTheLinkedTramStationWhenAllModesEnabled() {
         Station altrinchamTram = TramStations.Altrincham.from(stationRepository);
 
         //IdSet<Route> trainPickupsIds = trainPickups.stream().collect(IdSet.collector());
@@ -147,6 +156,20 @@ public class RailAndTramStationAvailabilityRepositoryTest {
 
         // won't be a 1:1 correspondence due to date and time range filtering...
         assertTrue(tramPickups.containsAll(tramRouteIds));
+    }
+
+    @Disabled("better to handle this by passing in an extended list of modes in some scenarios")
+    @Test
+    void shouldHaveExpectedPickupsForTheLinkedTramStationWhenOnlyTrain() {
+        Station manPicc = RailStationIds.ManchesterPiccadilly.from(stationRepository);
+
+        Set<Route> results = availabilityRepository.getPickupRoutesFor(manPicc, when, timeRange, TramsOnly);
+
+        long tramRoutes = results.stream().filter(route -> route.getTransportMode()==Tram).count();
+        assertNotEquals(0, tramRoutes);
+
+        long trainRoutes = results.stream().filter(route -> route.getTransportMode()==Train).count();
+        assertNotEquals(0, trainRoutes);
     }
 
     @Test
@@ -170,7 +193,36 @@ public class RailAndTramStationAvailabilityRepositoryTest {
                 timeRange + " missing routes from " + altrinchamRail.getId() + " got " + HasId.asIds(results));
     }
 
+    @Test
+    void shouldHaveConnectedStationPickupRoutesForInterchangeStations() {
+        Station manPicc = RailStationIds.ManchesterPiccadilly.from(stationRepository);
 
+        // Direction is rail -> rail OR tram
+
+        Set<Route> results = availabilityRepository.getPickupRoutesFor(manPicc, when, timeRange, TrainAndTram);
+
+        long tramRoutes = results.stream().filter(route -> route.getTransportMode().equals(Tram)).count();
+        assertNotEquals(0, tramRoutes, "no tram in " + HasId.asIds(results));
+
+        long trainRoutes = results.stream().filter(route -> route.getTransportMode().equals(Train)).count();
+        assertNotEquals(0, trainRoutes, "no train in " + HasId.asIds(results));
+    }
+
+    @Test
+    void shouldHaveConnectedStationDropoffRoutesForInterchangeStations() {
+
+        // Direction is rail -> rail OR tram
+
+        Station manPicc = RailStationIds.ManchesterPiccadilly.from(stationRepository);
+
+        Set<Route> results = availabilityRepository.getDropoffRoutesFor(manPicc, when, timeRange, TrainAndTram);
+
+        long tramRoutes = results.stream().filter(route -> route.getTransportMode().equals(Tram)).count();
+        assertEquals(0, tramRoutes, "no tram in " + HasId.asIds(results));
+
+        long trainRoutes = results.stream().filter(route -> route.getTransportMode().equals(Train)).count();
+        assertNotEquals(0, trainRoutes, "no train in " + HasId.asIds(results));
+    }
 
 
 }

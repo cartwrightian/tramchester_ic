@@ -24,9 +24,12 @@ public enum KnownTramRoute {
 
     // Replacement buses
     BusEcclesToMediaCity("Replacement Bus 1", "Eccles - Media City", "2749"),
+    BusEcclesToMediaCity_new("Replacement Bus 1", "Eccles - Media City", "2757"),
 
     // Blue
     EcclesAshton("Blue Line", "Eccles - Manchester - Ashton Under Lyne", "2119"),
+    EcclesAshton_new("Blue Line", "Eccles - Manchester - Ashton Under Lyne", "2750"),
+
     // Green
     BuryManchesterAltrincham("Green Line", "Bury - Manchester - Altrincham", "841"),
     // Navy
@@ -56,7 +59,6 @@ public enum KnownTramRoute {
 
         if (date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
             routes.add(BuryManchesterAltrincham);
-
 
         } else {
             routes.add(BuryManchesterAltrincham);

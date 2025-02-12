@@ -22,10 +22,10 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
@@ -101,13 +101,13 @@ public class GTFSStopTimeLoader {
 
         logger.warn("The following stations were marked closed but were not added as no calling trams " + closedButNotLoaded);
 
-        final Set<TransportMode> transportModes = dataSourceConfig.getTransportModes();
+        final EnumSet<TransportMode> transportModes = dataSourceConfig.getTransportModes();
 
         for (IdFor<Station> closedStationId : closedButNotLoaded) {
             if (!preloadStations.hasId(closedStationId)) {
                 throw new RuntimeException("Missing closed station id in preloaded " + closedStationId);
             }
-            MutableStation station = preloadStations.get(closedStationId);
+            final MutableStation station = preloadStations.get(closedStationId);
             transportModes.forEach(station::addMode);
             buildable.addStation(station);
             logger.info("Added closed station " + closedStationId);

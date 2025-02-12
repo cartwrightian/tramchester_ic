@@ -16,10 +16,13 @@ import javax.measure.quantity.Time;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.ZoneId;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import static com.tramchester.domain.reference.TransportMode.*;
+import static com.tramchester.domain.reference.TransportMode.RailReplacementBus;
+import static com.tramchester.domain.reference.TransportMode.Train;
 import static tech.units.indriya.unit.Units.METRE_PER_SECOND;
 import static tech.units.indriya.unit.Units.SECOND;
 
@@ -128,18 +131,17 @@ public abstract class TramchesterConfig extends Configuration implements HasRemo
     public abstract BoundingBox getBounds();
 
     public EnumSet<TransportMode> getTransportModes() {
-        final Set<TransportMode> modes = getGTFSDataSource().stream().
-                map(GTFSSourceConfig::getTransportModes).
-                flatMap(Collection::stream).
-                collect(Collectors.toSet());
+        final EnumSet<TransportMode> result = EnumSet.noneOf(TransportMode.class);
+        getGTFSDataSource().stream().
+                map(GTFSSourceConfig::getTransportModes).forEach(result::addAll);
 
         final RailConfig railConfig = getRailConfig();
         if (railConfig!=null) {
-            modes.add(Train);
-            modes.add(RailReplacementBus);
+            result.add(Train);
+            result.add(RailReplacementBus);
         }
 
-        return modes.isEmpty() ? EnumSet.noneOf(TransportMode.class) : EnumSet.copyOf(modes);
+        return result;
     }
 
     public RemoteDataSourceConfig getDataRemoteSourceConfig(DataSourceID dataSourceID) {

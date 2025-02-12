@@ -10,9 +10,9 @@ import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 
 import java.time.LocalDate;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @JsonDeserialize(as = GTFSSourceAppConfig.class)
 public interface GTFSSourceConfig extends TransportDataSourceConfig {
@@ -44,10 +44,12 @@ public interface GTFSSourceConfig extends TransportDataSourceConfig {
     // interchange to add to those auto discovered by the interchange repository
     IdSet<Station> getAdditionalInterchanges();
 
-    default Set<TransportMode> getTransportModes() {
-        return getTransportGTFSModes().stream().
+    default EnumSet<TransportMode> getTransportModes() {
+        final EnumSet<TransportMode> result = EnumSet.noneOf(TransportMode.class);
+        getTransportGTFSModes().stream().
                 map(GTFSTransportationType::toTransportMode).
-                collect(Collectors.toSet());
+                forEach(result::add);
+        return result;
     }
 
     // transport modes where StationGroups will be created i.e. stations in same NPTG locality group as created
