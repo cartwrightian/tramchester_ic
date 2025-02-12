@@ -82,7 +82,7 @@ dependencies {
             'commons-codec:commons-codec:1.17.1',
             'org.apache.commons:commons-collections4:4.4',
             'org.apache.commons:commons-compress:1.27.1',
-            'com.github.ben-manes.caffeine:caffeine:3.1.8'
+            'com.github.ben-manes.caffeine:caffeine:3.2.0'
     implementation "com.fasterxml.jackson.core:jackson-core:$jacksonVersion",
             "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",
             "com.fasterxml.jackson.module:jackson-module-afterburner:$jacksonVersion",
