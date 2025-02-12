@@ -4,6 +4,7 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.testSupport.UpcomingDates;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.DayOfWeek;
 import java.util.Arrays;
@@ -14,21 +15,53 @@ import java.util.stream.Collectors;
 
 public class KnownTramRoute {
     // Replacement buses
-    public static final KnownTramRouteEnum BusEcclesToMediaCity = KnownTramRouteEnum.BusEcclesToMediaCity;
+    public static final TestRoute BusEcclesToMediaCity = getBusEcclesToMediaCity();
     // Blue
-    public static final KnownTramRouteEnum EcclesAshton = KnownTramRouteEnum.EcclesAshton;
+    public static final TestRoute EcclesAshton = getEcclesAshton();
     // Green
-    public static final KnownTramRouteEnum BuryManchesterAltrincham = KnownTramRouteEnum.BuryManchesterAltrincham;
+    public static final TestRoute BuryManchesterAltrincham = getBuryManchesterAltrincham();
     // Navy
-    public static final KnownTramRouteEnum DeansgateCastlefieldManchesterAirport = KnownTramRouteEnum.DeansgateCastlefieldManchesterAirport;
+    public static final TestRoute DeansgateCastlefieldManchesterAirport = getDeansgateManchesterAirport();
     // Pink
-    public static final KnownTramRouteEnum RochdaleShawandCromptonManchesterEastDidisbury = KnownTramRouteEnum.RochdaleShawandCromptonManchesterEastDidisbury;
+    public static final TestRoute RochdaleShawandCromptonManchesterEastDidisbury = getShawandCromptonManchesterEastDidisbury();
     // Purple
-    public static final KnownTramRouteEnum EtihadPiccadillyAltrincham = KnownTramRouteEnum.EtihadPiccadillyAltrincham;
+    public static final TestRoute EtihadPiccadillyAltrincham = getEtihadPiccadillyAltrincham();
     // Red
-    public static final KnownTramRouteEnum CornbrookTheTraffordCentre = KnownTramRouteEnum.CornbrookTheTraffordCentre;
+    public static final TestRoute CornbrookTheTraffordCentre = getCornbrookTheTraffordCentre();
     // Yellow
-    public static final KnownTramRouteEnum PiccadillyVictoria = KnownTramRouteEnum.PiccadillyVictoria;
+    public static final TestRoute PiccadillyVictoria = getPiccadillyVictoria();
+
+    private static @NotNull KnownTramRouteEnum getPiccadillyVictoria() {
+        return KnownTramRouteEnum.PiccadillyVictoria;
+    }
+
+    private static @NotNull KnownTramRouteEnum getBusEcclesToMediaCity() {
+        return KnownTramRouteEnum.BusEcclesToMediaCity;
+    }
+
+    private static @NotNull KnownTramRouteEnum getCornbrookTheTraffordCentre() {
+        return KnownTramRouteEnum.CornbrookTheTraffordCentre;
+    }
+
+    private static @NotNull KnownTramRouteEnum getEtihadPiccadillyAltrincham() {
+        return KnownTramRouteEnum.EtihadPiccadillyAltrincham;
+    }
+
+    private static @NotNull KnownTramRouteEnum getShawandCromptonManchesterEastDidisbury() {
+        return KnownTramRouteEnum.RochdaleShawandCromptonManchesterEastDidisbury;
+    }
+
+    private static @NotNull KnownTramRouteEnum getDeansgateManchesterAirport() {
+        return KnownTramRouteEnum.DeansgateCastlefieldManchesterAirport;
+    }
+
+    private static @NotNull KnownTramRouteEnum getBuryManchesterAltrincham() {
+        return KnownTramRouteEnum.BuryManchesterAltrincham;
+    }
+
+    private static @NotNull KnownTramRouteEnum getEcclesAshton() {
+        return KnownTramRouteEnum.EcclesAshton;
+    }
 
     public static Set<TestRoute> find(final Set<Route> routes) {
         return routes.stream().
@@ -37,7 +70,7 @@ public class KnownTramRoute {
                 collect(Collectors.toSet());
     }
 
-    static TestRoute fromId(final IdFor<Route> routeId) {
+    private static TestRoute fromId(final IdFor<Route> routeId) {
         Optional<KnownTramRouteEnum> find = Arrays.stream(KnownTramRouteEnum.values()).
                 filter(knownTramRoute -> knownTramRoute.getId().equals(routeId)).findFirst();
         if (find.isPresent()) {
@@ -52,7 +85,7 @@ public class KnownTramRoute {
     }
 
     public static Set<TestRoute> getFor(final TramDate date) {
-        Set<TestRoute> routes = new HashSet<>(); // EnumSet.noneOf(KnownTramRoute.class);
+        Set<TestRoute> routes = new HashSet<>();
 
         final TramDate startDate = UpcomingDates.MediaCityEcclesWorks2025.getStartDate().minusDays(1);
 

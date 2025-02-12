@@ -7,7 +7,7 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.reference.KnownBusRoute;
-import com.tramchester.testSupport.reference.KnownTramRouteEnum;
+import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TestRoute;
 
 import java.util.HashMap;
@@ -32,7 +32,7 @@ public class TramRouteHelper {
 
     private void createMap() {
         knownRouteToRoutes = new HashMap<>();
-        TestRoute[] knownTramRoutes = KnownTramRouteEnum.values(); // ignores date
+        TestRoute[] knownTramRoutes = KnownTramRoute.values(); // ignores date
         for (TestRoute knownRoute : knownTramRoutes) {
             final Set<Route> routesByShortName = routeRepository.findRoutesByShortName(MutableAgency.METL, knownRoute.shortName());
             knownRouteToRoutes.put(knownRoute, routesByShortName);
