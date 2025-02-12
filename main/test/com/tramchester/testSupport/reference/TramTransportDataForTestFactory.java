@@ -30,7 +30,8 @@ import java.time.DayOfWeek;
 import java.time.LocalTime;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
-import static com.tramchester.domain.time.TramTime.*;
+import static com.tramchester.domain.time.TramTime.of;
+import static com.tramchester.domain.time.TramTime.ofHourMins;
 import static com.tramchester.testSupport.reference.KnownLocations.*;
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 import static com.tramchester.testSupport.reference.TramTransportDataForTestFactory.TramTransportDataForTest.INTERCHANGE;
@@ -47,6 +48,9 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
     public final static TramDate startDate = TramDate.of(2014, 2, 10);
     public final static TramDate endDate = TramDate.of(2020, 8, 15);
     private static final DayOfWeek dayOfWeek = DayOfWeek.MONDAY;
+
+    private final static TramDate routeDate = TestEnv.testDay();
+
 
     @Inject
     public TramTransportDataForTestFactory(ProvidesNow providesNow) {
@@ -87,10 +91,11 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
     private void populateTestData(final TransportDataContainer container) {
         final MutableAgency agency =  new MutableAgency(DataSourceID.tfgm, MutableAgency.METL, "Metrolink");
 
-        final MutableRoute routeA = createTramRoute(getCornbrookTheTraffordCentre());
-        final MutableRoute routeB = createTramRoute(getShawandCromptonManchesterEastDidisbury());
-        final MutableRoute routeC = createTramRoute(getEcclesAshton());
-        final MutableRoute routeD = createTramRoute(getDeansgateManchesterAirport());
+
+        final MutableRoute routeA = createTramRoute(getCornbrookTheTraffordCentre(routeDate));
+        final MutableRoute routeB = createTramRoute(getShawandCromptonManchesterEastDidisbury(routeDate));
+        final MutableRoute routeC = createTramRoute(getEcclesAshton(routeDate));
+        final MutableRoute routeD = createTramRoute(getDeansgateManchesterAirport(routeDate));
 
         agency.addRoute(routeA);
         agency.addRoute(routeB);
@@ -244,8 +249,8 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
                 dataSourceID, isCentral);
     }
 
-    private MutableRoute createTramRoute(TestRoute knownRoute) {
-        return new MutableRoute(knownRoute.getId(), knownRoute.shortName(), knownRoute.name(), TestEnv.MetAgency(),
+    private MutableRoute createTramRoute(final TestRoute knownRoute) {
+        return new MutableRoute(knownRoute.getId(), knownRoute.shortName(), "route " + knownRoute.shortName(), TestEnv.MetAgency(),
                 knownRoute.mode());
     }
 
@@ -357,11 +362,11 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
         }
 
         public Route getRouteA() {
-            return getRouteById(getCornbrookTheTraffordCentre().getId());
+            return getRouteById(getCornbrookTheTraffordCentre(routeDate).getId());
         }
 
         public Route getRouteB() {
-            return getRouteById(getShawandCromptonManchesterEastDidisbury().getId());
+            return getRouteById(getShawandCromptonManchesterEastDidisbury(routeDate).getId());
         }
 
     }

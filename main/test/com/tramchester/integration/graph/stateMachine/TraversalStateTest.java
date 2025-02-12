@@ -110,7 +110,7 @@ public class TraversalStateTest extends EasyMockSupport {
 
         JourneyStateUpdate updateState = new JourneyState(time, minuteState);
 
-        Route route = tramRouteHelper.getOneRoute(KnownTramRoute.getBuryManchesterAltrincham(), when);
+        Route route = tramRouteHelper.getOneRoute(KnownTramRoute.getBuryManchesterAltrincham(when), when);
 
         RouteStation routeStation = new RouteStation(cornbrook, route);
 
@@ -152,7 +152,7 @@ public class TraversalStateTest extends EasyMockSupport {
 
         JourneyStateUpdate updateState = new JourneyState(time, minuteState);
 
-        Route route = tramRouteHelper.getOneRoute(KnownTramRoute.getBuryManchesterAltrincham(), when);
+        Route route = tramRouteHelper.getOneRoute(KnownTramRoute.getBuryManchesterAltrincham(when), when);
 
         RouteStation routeStation = new RouteStation(cornbrook, route);
 
@@ -189,7 +189,7 @@ public class TraversalStateTest extends EasyMockSupport {
 
         MinuteState minuteState = mockMinuteNode(traversalStateFactory);
 
-        Route route = tramRouteHelper.getOneRoute(KnownTramRoute.getBuryManchesterAltrincham(), when);
+        Route route = tramRouteHelper.getOneRoute(KnownTramRoute.getBuryManchesterAltrincham(when), when);
 
         Trip trip = findATrip(route, Deansgate.getId());
 

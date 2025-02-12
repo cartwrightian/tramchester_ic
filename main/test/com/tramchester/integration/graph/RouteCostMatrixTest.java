@@ -76,8 +76,8 @@ public class RouteCostMatrixTest {
 
     @Test
     void shouldHaveExpectedIndexWhereDirectInterchangePossible() {
-        Route routeA = routeHelper.getOneRoute(getBuryManchesterAltrincham(), date);
-        Route routeB = routeHelper.getOneRoute(getDeansgateManchesterAirport(), date);
+        Route routeA = routeHelper.getOneRoute(getBuryManchesterAltrincham(date), date);
+        Route routeB = routeHelper.getOneRoute(getDeansgateManchesterAirport(date), date);
 
         int depth = routeMatrix.getConnectionDepthFor(routeA, routeB);
         assertEquals(1, depth);
@@ -85,8 +85,8 @@ public class RouteCostMatrixTest {
 
     @Test
     void shouldHaveExpectedIndexWhereNoDirectInterchangePossible() {
-        Route routeA = routeHelper.getOneRoute(getPiccadillyVictoria(), date);
-        Route routeB = routeHelper.getOneRoute(getCornbrookTheTraffordCentre(), date);
+        Route routeA = routeHelper.getOneRoute(getPiccadillyVictoria(date), date);
+        Route routeB = routeHelper.getOneRoute(getCornbrookTheTraffordCentre(date), date);
 
         int depth = routeMatrix.getConnectionDepthFor(routeA, routeB);
         assertEquals(2, depth);
@@ -94,8 +94,8 @@ public class RouteCostMatrixTest {
 
     @Test
     void shouldHaveExpectedIndexForEcclesRouteOntoAltyRoute() {
-        Route routeA = routeHelper.getOneRoute(getEcclesAshton(), date);
-        Route routeB = routeHelper.getOneRoute(getBuryManchesterAltrincham(), date);
+        Route routeA = routeHelper.getOneRoute(getEcclesAshton(date), date);
+        Route routeB = routeHelper.getOneRoute(getBuryManchesterAltrincham(date), date);
 
         int depth = routeMatrix.getConnectionDepthFor(routeA, routeB);
         assertEquals(1, depth);
@@ -103,8 +103,8 @@ public class RouteCostMatrixTest {
 
     @Test
     void shouldHaveExpectedIndexForEcclesRouteFromAltyRoute() {
-        Route routeA = routeHelper.getOneRoute(getBuryManchesterAltrincham(), date);
-        Route routeB = routeHelper.getOneRoute(getDeansgateManchesterAirport(), date);
+        Route routeA = routeHelper.getOneRoute(getBuryManchesterAltrincham(date), date);
+        Route routeB = routeHelper.getOneRoute(getDeansgateManchesterAirport(date), date);
 
         int depth = routeMatrix.getConnectionDepthFor(routeA, routeB);
         assertEquals(1, depth);
@@ -112,8 +112,8 @@ public class RouteCostMatrixTest {
 
     @Test
     void shouldGetBitsSetIfAlreadySetForLowerDepth() {
-        Route routeA = routeHelper.getOneRoute(getCornbrookTheTraffordCentre(), date);
-        Route routeB = routeHelper.getOneRoute(getBuryManchesterAltrincham(), date);
+        Route routeA = routeHelper.getOneRoute(getCornbrookTheTraffordCentre(date), date);
+        Route routeB = routeHelper.getOneRoute(getBuryManchesterAltrincham(date), date);
 
         RouteIndexPair indexPair = routeIndex.getPairFor(RoutePair.of(routeA, routeB));
 

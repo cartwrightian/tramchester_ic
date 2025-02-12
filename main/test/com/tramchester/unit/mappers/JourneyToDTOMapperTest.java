@@ -158,7 +158,7 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
     void shouldMapJourneyWithConnectingStage() {
         TramTime time = TramTime.of(15,45);
 
-        Station startStation = Altrincham.fakeWithPlatform(1);
+        Station startStation = Altrincham.fakeWithPlatform(1, when);
 
         ConnectingStage<Station,Station> connectingStage = new ConnectingStage<>(StopAtAltrinchamInterchange.fake(),
                 startStation, Duration.ofMinutes(1), time);
@@ -209,12 +209,12 @@ class JourneyToDTOMapperTest extends EasyMockSupport {
     @Test
     void shouldMapThreeStageJourneyWithWalk() {
         TramTime am10 = TramTime.of(10,0);
-        Station begin = Altrincham.fakeWithPlatform(1);
+        Station begin = Altrincham.fakeWithPlatform(1, when);
         Platform platformA = TestEnv.findOnlyPlatform(begin);
 
         MyLocation middleA = nearPiccGardensLocation;
 
-        Station middleB = MarketStreet.fakeWithPlatform(1);
+        Station middleB = MarketStreet.fakeWithPlatform(1, when);
 
         Station end = Bury.fake();
 

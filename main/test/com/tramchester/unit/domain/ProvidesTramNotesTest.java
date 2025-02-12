@@ -279,7 +279,7 @@ class ProvidesTramNotesTest extends EasyMockSupport {
 
     private PlatformMessage createPlatformMessage(LocalDateTime lastUpdate, TramStations tramStation, String message) {
 
-        Station station = tramStation.fakeWithPlatform(1);
+        Station station = tramStation.fakeWithPlatform(1, TramDate.of(lastUpdate.toLocalDate()));
 
         Platform platform = TestEnv.findOnlyPlatform(station);
         return new PlatformMessage(platform, message, lastUpdate, station, "displayId");

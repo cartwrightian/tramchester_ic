@@ -35,7 +35,7 @@ class RouteCalculatorSubGraphMonsallTest {
     private static TramRouteHelper tramRouteHelper;
 
     private RouteCalculatorTestFacade calculator;
-    private final TramDate when = TestEnv.testDay();
+    private final static TramDate when = TestEnv.testDay();
     private MutableGraphTransaction txn;
 
     @BeforeAll
@@ -57,7 +57,7 @@ class RouteCalculatorSubGraphMonsallTest {
     }
 
     private static void configureFilter(ConfigurableGraphFilter graphFilter, TransportData transportData) {
-        graphFilter.addRoutes(tramRouteHelper.getId(KnownTramRoute.getShawandCromptonManchesterEastDidisbury()));
+        graphFilter.addRoutes(tramRouteHelper.getId(KnownTramRoute.getShawandCromptonManchesterEastDidisbury(when)));
     }
 
     @AfterAll

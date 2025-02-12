@@ -138,8 +138,8 @@ public class RailAndTramRouteCostMatrixTest {
 
     @Test
     void shouldHaveExpectedIndexWhereDirectTramInterchangePossible() {
-        Route routeA = routeHelper.getOneRoute(getBuryManchesterAltrincham(), date);
-        Route routeB = routeHelper.getOneRoute(getDeansgateManchesterAirport(), date);
+        Route routeA = routeHelper.getOneRoute(getBuryManchesterAltrincham(date), date);
+        Route routeB = routeHelper.getOneRoute(getDeansgateManchesterAirport(date), date);
 
         int depth = routeMatrix.getConnectionDepthFor(routeA, routeB);
         assertEquals(1, depth);
@@ -171,8 +171,8 @@ public class RailAndTramRouteCostMatrixTest {
 
     @Test
     void shouldHaveExpectedIndexWhereNoDirectInterchangePossible() {
-        Route routeA = routeHelper.getOneRoute(getPiccadillyVictoria(), date);
-        Route routeB = routeHelper.getOneRoute(getCornbrookTheTraffordCentre(), date);
+        Route routeA = routeHelper.getOneRoute(getPiccadillyVictoria(date), date);
+        Route routeB = routeHelper.getOneRoute(getCornbrookTheTraffordCentre(date), date);
 
         int depth = routeMatrix.getConnectionDepthFor(routeA, routeB);
         assertEquals(2, depth);

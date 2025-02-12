@@ -132,12 +132,12 @@ class TramRouteTest {
         assertFirstAndLast(journeys, Station.createId(FIRST_STATION), Station.createId(SECOND_STATION), 0, queryTime);
 
         Journey journey = journeys.iterator().next();
-        final TransportStage<?, ?> transportStage = journey.getStages().get(0);
+        final TransportStage<?, ?> transportStage = journey.getStages().getFirst();
 
         assertEquals(transportData.getFirst(), transportStage.getFirstStation());
         assertEquals(transportData.getSecond(), transportStage.getLastStation());
         assertEquals(0, transportStage.getPassedStopsCount());
-        assertEquals(KnownTramRoute.getCornbrookTheTraffordCentre().shortName(), transportStage.getRoute().getShortName());
+        assertEquals(KnownTramRoute.getCornbrookTheTraffordCentre(queryDate).shortName(), transportStage.getRoute().getShortName());
         assertEquals(transportStage.getFirstStation(), transportStage.getActionStation());
         assertMinutesEquals(11, transportStage.getDuration());
         assertEquals(TramTime.of(8,0), transportStage.getFirstDepartureTime());

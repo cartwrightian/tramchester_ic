@@ -1,6 +1,7 @@
 package com.tramchester.unit.mappers;
 
 import com.tramchester.domain.Platform;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.PlatformId;
 import com.tramchester.domain.places.Station;
@@ -54,7 +55,7 @@ public class TramDepartureFactoryTest extends EasyMockSupport {
     void shouldHaveCreateWithPlatform() {
         LocalDateTime updateTime = TestEnv.LocalNow();
 
-        Station airport = ManAirport.fakeWithPlatform(2);
+        Station airport = ManAirport.fakeWithPlatform(2, TramDate.of(updateTime.toLocalDate()));
 
         Platform airportPlatform = TestEnv.findOnlyPlatform(airport);
 

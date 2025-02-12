@@ -80,8 +80,10 @@ class RouteResourceTest {
 
         List<RouteDTO> routes = getRouteResponse();
 
+        TramDate date = TestEnv.testDay();
+
         List<RouteDTO> airRoutes = routes.stream().
-                filter(routeDTO -> routeDTO.getRouteID().equals(KnownTramRoute.getDeansgateManchesterAirport().dtoId())).
+                filter(routeDTO -> routeDTO.getRouteID().equals(KnownTramRoute.getDeansgateManchesterAirport(date).dtoId())).
                 toList();
 
         assertEquals(1, airRoutes.size());

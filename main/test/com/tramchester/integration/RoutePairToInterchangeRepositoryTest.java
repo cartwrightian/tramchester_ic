@@ -74,8 +74,8 @@ public class RoutePairToInterchangeRepositoryTest {
 
     @Test
     void shouldGetExpectedSingleInterchangesBetweenRoutes() {
-        Route toTraffordCentre = routeHelper.getOneRoute(getCornbrookTheTraffordCentre(), date);
-        Route toAirport = routeHelper.getOneRoute(getDeansgateManchesterAirport(), date);
+        Route toTraffordCentre = routeHelper.getOneRoute(getCornbrookTheTraffordCentre(date), date);
+        Route toAirport = routeHelper.getOneRoute(getDeansgateManchesterAirport(date), date);
 
         RoutePair routeIndexPair = RoutePair.of(toTraffordCentre, toAirport);
 
@@ -92,8 +92,8 @@ public class RoutePairToInterchangeRepositoryTest {
 
     @Test
     void shouldGetExpectedMultipleInterchangesBetweenRoutes() {
-        Route blueLine = routeHelper.getOneRoute(getEcclesAshton(), date);
-        Route navyLine = routeHelper.getOneRoute(getDeansgateManchesterAirport(), date);
+        Route blueLine = routeHelper.getOneRoute(getEcclesAshton(date), date);
+        Route navyLine = routeHelper.getOneRoute(getDeansgateManchesterAirport(date), date);
 
         RoutePair routeIndexPair = RoutePair.of(blueLine, navyLine);
 
@@ -103,7 +103,8 @@ public class RoutePairToInterchangeRepositoryTest {
 
         IdSet<Station> stationIds = interchanges.stream().map(InterchangeStation::getStation).collect(IdSet.collector());
 
-        IdSet<Station> expected = Stream.of(StPetersSquare, Deansgate, Cornbrook, TraffordBar, Victoria, MarketStreet).
+        IdSet<Station> expected = Stream.of(StPetersSquare, Deansgate, Cornbrook, TraffordBar, Victoria, MarketStreet,
+                        Piccadilly, Shudehill, PiccadillyGardens).
                 map(CentralZoneStation::getId).
                 collect(IdSet.idCollector());
 

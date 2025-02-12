@@ -11,5 +11,4 @@ public interface TestRoute {
     IdFor<Route> getId();
     IdForDTO dtoId();
     Route fake();
-    String name();
 }

@@ -146,7 +146,7 @@ public class RunningRoutesAndServicesTest {
 
         TramDate previousDay = when.minusDays(1);
 
-        Route altyToBuryRoute = helper.getOneRoute(KnownTramRoute.getBuryManchesterAltrincham(), previousDay);
+        Route altyToBuryRoute = helper.getOneRoute(KnownTramRoute.getBuryManchesterAltrincham(when), previousDay);
 
         assertTrue(filter.isRouteRunning(altyToBuryRoute.getId(), false));
         assertTrue(filter.isRouteRunning(altyToBuryRoute.getId(), true));

@@ -86,9 +86,10 @@ public class InterchangesTramTest {
 
         Stream<TramStations> expectedTramStations = Stream.of(StWerburghsRoad, TraffordBar, Cornbrook, HarbourCity,
                 Pomona, Cornbrook, Deansgate,
-                //Shudehill,
+                Shudehill,
                 PiccadillyGardens,
                 StPetersSquare,
+                Broadway,
                 Piccadilly,
                 Victoria,
                 MarketStreet);
@@ -132,10 +133,10 @@ public class InterchangesTramTest {
         InterchangeStation interchange = interchangeRepository.getInterchange(stWerb);
         assertEquals(InterchangeType.NumberOfLinks, interchange.getType());
 
-        Route toAirport = tramRouteHelper.getOneRoute(KnownTramRoute.getDeansgateManchesterAirport(), date);
+        Route toAirport = tramRouteHelper.getOneRoute(KnownTramRoute.getDeansgateManchesterAirport(date), date);
         assertTrue(interchange.getPickupRoutes().contains(toAirport));
 
-        Route toEastDids = tramRouteHelper.getOneRoute(KnownTramRoute.getShawandCromptonManchesterEastDidisbury(), date);
+        Route toEastDids = tramRouteHelper.getOneRoute(KnownTramRoute.getShawandCromptonManchesterEastDidisbury(date), date);
         Set<Route> dropoffRoutes = interchange.getDropoffRoutes().stream().
                 filter(route -> route.isAvailableOn(date)).
                 collect(Collectors.toSet());
@@ -150,9 +151,7 @@ public class InterchangesTramTest {
     @Test
     void shouldHaveInterchangesForMediaCity() {
         assertTrue(interchangeRepository.isInterchange(stationRepository.getStationById(TramStations.HarbourCity.getId())));
-
-        // true -> false during eccles line closure
-        assertFalse(interchangeRepository.isInterchange(stationRepository.getStationById(TramStations.Broadway.getId())));
+        assertTrue(interchangeRepository.isInterchange(stationRepository.getStationById(TramStations.Broadway.getId())));
     }
 
     @Test
@@ -199,6 +198,8 @@ public class InterchangesTramTest {
 
     @Test
     void shouldReproIssueWithMissingInterchangeForTraffordCentreToCornbrook() {
+        TramDate date = TestEnv.testDay();
+
         Station cornbrook = Cornbrook.from(stationRepository);
 
         Set<InterchangeStation> interchanges = interchangeRepository.getAllInterchanges();
@@ -208,7 +209,7 @@ public class InterchangesTramTest {
 
         IdSet<Route> dropOffs = cornbrook.getDropoffRoutes().stream().collect(IdSet.collector());
 
-        assertTrue(dropOffs.contains(KnownTramRoute.getCornbrookTheTraffordCentre().getId()), dropOffs.toString());
+        assertTrue(dropOffs.contains(KnownTramRoute.getCornbrookTheTraffordCentre(date).getId()), dropOffs.toString());
     }
 
     @Test

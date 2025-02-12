@@ -77,7 +77,7 @@ public class StationRepositoryTest {
 
     @Test
     void shouldHaveExpectedStationsForRoute() {
-        Route buryToAlty = routeHelper.getOneRoute(getBuryManchesterAltrincham(), when);
+        Route buryToAlty = routeHelper.getOneRoute(getBuryManchesterAltrincham(when), when);
 
         Set<Station> allStations = stationRepository.getStations(EnumSet.of(Tram));
 
@@ -212,13 +212,13 @@ public class StationRepositoryTest {
 
         List<TestRoute> expected =
                 Arrays.asList(
-                        getBuryManchesterAltrincham(),
-                        getEcclesAshton(),
-                        getDeansgateManchesterAirport(),
+                        getBuryManchesterAltrincham(when),
+                        getEcclesAshton(when),
+                        getDeansgateManchesterAirport(when),
 //                CrumpsallManchesterAshton,
-                        getCornbrookTheTraffordCentre(),
-                        getEtihadPiccadillyAltrincham(),
-                        getShawandCromptonManchesterEastDidisbury());
+                        getCornbrookTheTraffordCentre(when),
+                        getEtihadPiccadillyAltrincham(when),
+                        getShawandCromptonManchesterEastDidisbury(when));
 
         IdSet<Route> expectedIds = expected.stream().
                 map(TestRoute::getId).
@@ -250,14 +250,14 @@ public class StationRepositoryTest {
             filter(route -> route.isAvailableOn(when)).
             collect(IdSet.collector());
         assertEquals(1, pickups.size());
-        assertTrue(pickups.contains(getCornbrookTheTraffordCentre().getId()), pickups.toString());
+        assertTrue(pickups.contains(getCornbrookTheTraffordCentre(when).getId()), pickups.toString());
 
         IdSet<Route> dropOffs = station.getDropoffRoutes().stream().
             filter(route -> route.isAvailableOn(when)).
             collect(IdSet.collector());
             
         assertEquals(1, dropOffs.size());
-        assertTrue(pickups.contains(getCornbrookTheTraffordCentre().getId()));
+        assertTrue(pickups.contains(getCornbrookTheTraffordCentre(when).getId()));
     }
 
     @Test
@@ -267,15 +267,15 @@ public class StationRepositoryTest {
 
         IdSet<Route> dropOffs = mediaCity.getDropoffRoutes().stream().collect(IdSet.collector());
 
-        // bus replacement 1->2
-        assertEquals(2, dropOffs.size(), dropOffs.toString());
-        assertTrue(dropOffs.contains(getEcclesAshton().getId()));
-        assertTrue(dropOffs.contains(((TestRoute) getBusEcclesToMediaCity()).getId()));
+        // bus replacement 1->2->4
+        assertEquals(4, dropOffs.size(), dropOffs.toString());
+        assertTrue(dropOffs.contains(getEcclesAshton(when).getId()));
+        assertTrue(dropOffs.contains(getBusEcclesToMediaCity(when).getId()));
 
         IdSet<Route> pickUps = mediaCity.getDropoffRoutes().stream().collect(IdSet.collector());
-        assertEquals(2, pickUps.size(), pickUps.toString());
-        assertTrue(pickUps.contains(getEcclesAshton().getId()));
-        assertTrue(pickUps.contains(((TestRoute) getBusEcclesToMediaCity()).getId()));
+        assertEquals(4, pickUps.size(), pickUps.toString());
+        assertTrue(pickUps.contains(getEcclesAshton(when).getId()));
+        assertTrue(pickUps.contains(getBusEcclesToMediaCity(when).getId()));
     }
 
     @Test

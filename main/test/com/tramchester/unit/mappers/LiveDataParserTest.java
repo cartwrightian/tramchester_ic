@@ -39,7 +39,7 @@ class LiveDataParserTest extends EasyMockSupport {
     void beforeEachTestRuns() {
         stationByName = createStrictMock(StationByName.class);
 
-        Station mediaCity = MediaCityUK.fakeWithPlatform(2);
+        Station mediaCity = MediaCityUK.fakeWithPlatform(2, TestEnv.testDay());
 
         mediaCityPlatform = TestEnv.findOnlyPlatform(mediaCity);
         departureFactory = createMock(TramDepartureFactory.class);
@@ -253,7 +253,7 @@ class LiveDataParserTest extends EasyMockSupport {
         expectationByName(Altrincham);
         expectationByName(Piccadilly);
 
-        Station navRaod = NavigationRoad.fakeWithPlatform(1);
+        Station navRaod = NavigationRoad.fakeWithPlatform(1, TestEnv.testDay());
 
         Platform navRoadPlatform1 = TestEnv.findOnlyPlatform(navRaod);
 

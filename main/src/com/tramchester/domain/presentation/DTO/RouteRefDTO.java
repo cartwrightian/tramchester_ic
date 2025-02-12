@@ -32,7 +32,7 @@ public class RouteRefDTO {
 
         this.transportMode = route.getTransportMode();
         this.shortName = route.getShortName();
-        this.routeID = IdForDTO.createFor(route); //route.getId().forDTO();
+        this.routeID = IdForDTO.createFor(route);
     }
 
     public String getRouteName() {

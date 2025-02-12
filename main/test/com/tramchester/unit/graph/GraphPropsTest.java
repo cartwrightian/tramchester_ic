@@ -14,7 +14,6 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.RailRouteId;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
@@ -418,8 +417,8 @@ public class GraphPropsTest {
     @Test
     void shouldSetPlatformId() {
 
-        IdFor<NPTGLocality> areaId = NPTGLocality.createId("areaId");
-        Station station = TramStations.PiccadillyGardens.fakeWithPlatform(2);
+        //IdFor<NPTGLocality> areaId = NPTGLocality.createId("areaId");
+        Station station = TramStations.PiccadillyGardens.fakeWithPlatform(2, TestEnv.testDay());
 
         List<Platform> platforms = new ArrayList<>(station.getPlatforms());
         Platform platform = platforms.get(0);

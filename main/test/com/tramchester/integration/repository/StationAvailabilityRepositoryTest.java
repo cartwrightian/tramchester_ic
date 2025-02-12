@@ -237,9 +237,9 @@ public class StationAvailabilityRepositoryTest {
         Station victoria = Victoria.from(stationRepository);
         Set<Route> dropOffs = availabilityRepository.getDropoffRoutesFor(victoria, date, timeRange, TramsOnly);
 
-        Route yellowInbound = tramRouteHelper.getOneRoute(getPiccadillyVictoria(), date);
-        Route blueInbound = tramRouteHelper.getOneRoute(getShawandCromptonManchesterEastDidisbury(), date);
-        Route greenOutbound = tramRouteHelper.getOneRoute(getBuryManchesterAltrincham(), date);
+        Route yellowInbound = tramRouteHelper.getOneRoute(getPiccadillyVictoria(when), date);
+        Route blueInbound = tramRouteHelper.getOneRoute(getShawandCromptonManchesterEastDidisbury(when), date);
+        Route greenOutbound = tramRouteHelper.getOneRoute(getBuryManchesterAltrincham(when), date);
 
         assertTrue(dropOffs.contains(yellowInbound));
         assertTrue(dropOffs.contains(blueInbound));

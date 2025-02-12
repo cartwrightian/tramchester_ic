@@ -67,8 +67,7 @@ class FindLinkedStationsTest {
         assertFalse(results.contains(createLink(Shudehill, StPetersSquare)));
 
         assertTrue(results.contains(createLink(MediaCityUK, HarbourCity)));
-        // closure of eccles line until 25/2/2025 : True -> False
-        assertFalse(results.contains(createLink(MediaCityUK, Broadway)));
+        assertTrue(results.contains(createLink(MediaCityUK, Broadway)));
 
     }
 

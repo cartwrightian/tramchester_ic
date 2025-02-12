@@ -103,7 +103,7 @@ class StageDTOFactoryTest extends EasyMockSupport {
 
         List<Integer> stopCallIndexes = Arrays.asList(1,2,3,4);
 
-        Station firstStation = MarketStreet.fakeWithPlatform(1);
+        Station firstStation = MarketStreet.fakeWithPlatform(1, when);
 
         VehicleStage vehicleStage = new VehicleStage(firstStation, testRoute,
                 TransportMode.Tram, trip, TramTime.of(0, 0), Bury.fake(),
@@ -143,7 +143,7 @@ class StageDTOFactoryTest extends EasyMockSupport {
 
         List<Integer> stopCallIndexes = Arrays.asList(1,2,3,4);
 
-        Station firstStation = MarketStreet.fakeWithPlatform(1);
+        Station firstStation = MarketStreet.fakeWithPlatform(1, when);
 
         VehicleStage vehicleStage = new VehicleStage(firstStation, testRoute,
                 TransportMode.Train, trip, TramTime.of(0, 0), Bury.fake(),
@@ -182,7 +182,7 @@ class StageDTOFactoryTest extends EasyMockSupport {
 
         List<Integer> stopCallIndexes = Arrays.asList(1,2,3,4);
 
-        Station firstStation = MarketStreet.fakeWithPlatform(1);
+        Station firstStation = MarketStreet.fakeWithPlatform(1, when);
 
         VehicleStage vehicleStage = new VehicleStage(firstStation, testRoute,
                 TransportMode.Tram, trip, TramTime.of(0, 0), Bury.fake(),

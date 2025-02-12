@@ -54,7 +54,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         LocalDate today = TestEnv.LocalNow().toLocalDate();
         lastUpdate = LocalDateTime.of(today, LocalTime.of(15,42));
 
-        station = TramStations.Shudehill.fakeWithPlatform(1);
+        station = TramStations.Shudehill.fakeWithPlatform(1, TramDate.of(today));
         platform = TestEnv.findOnlyPlatform(station);
     }
 
@@ -101,7 +101,7 @@ class PlatformMessageRepositoryTest  extends EasyMockSupport {
         assertEquals("some message", stationMessages.get(0).getMessage());
 
 //        final Platform platform = MutablePlatform.buildForTFGMTram("XXXX", "platform name", Ashton.getLatLong(), DataSourceID.unknown, IdFor.invalid());
-        Station otherStation = TramStations.Ashton.fakeWithPlatform(1);
+        Station otherStation = TramStations.Ashton.fakeWithPlatform(1, date);
 
         List<PlatformMessage> noStationMsg = repository.messagesFor(otherStation, date, updateTime);
         assertTrue(noStationMsg.isEmpty());

@@ -178,7 +178,7 @@ public class TripRepositoryTest {
 
         Set<Trip> allTrips = getTripsFor(tripRepository.getTrips(), Cornbrook);
 
-        Set<Route> routes = routeRepository.findRoutesByShortName(MutableAgency.METL, KnownTramRoute.getEcclesAshton().shortName());
+        Set<Route> routes = routeRepository.findRoutesByShortName(MutableAgency.METL, KnownTramRoute.getEcclesAshton(when).shortName());
 
         assertFalse(routes.isEmpty());
 

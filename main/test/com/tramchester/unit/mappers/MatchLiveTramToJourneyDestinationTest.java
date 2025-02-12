@@ -31,6 +31,7 @@ public class MatchLiveTramToJourneyDestinationTest extends EasyMockSupport {
     private TramTime time;
     private StationRepository stationRepository;
     private StopOrderChecker stopOrderChecker;
+    private TramDate when;
 
     @BeforeEach
     void beforeEachTestRuns() {
@@ -39,6 +40,7 @@ public class MatchLiveTramToJourneyDestinationTest extends EasyMockSupport {
         matchLiveTramToJourneyDestination = new MatchLiveTramToJourneyDestination(stationRepository, stopOrderChecker);
         date = LocalDate.of(2024, 6, 30);
         time = TramTime.of(10,45);
+        when = TramDate.of(date);
     }
 
     @Test
@@ -61,9 +63,9 @@ public class MatchLiveTramToJourneyDestinationTest extends EasyMockSupport {
     @Test
     void shouldFindDueTramWhenJourneyDestinationTowards() {
 
-        Station journeyBegin = StPetersSquare.fake(getBuryManchesterAltrincham());
-        Station journeyEnd = Altrincham.fake(getBuryManchesterAltrincham());
-        Station tramDest = Timperley.fake(getBuryManchesterAltrincham());
+        Station journeyBegin = StPetersSquare.fake(getBuryManchesterAltrincham(when));
+        Station journeyEnd = Altrincham.fake(getBuryManchesterAltrincham(when));
+        Station tramDest = Timperley.fake(getBuryManchesterAltrincham(when));
 
         UpcomingDeparture tram = createDueTramFor(journeyBegin, tramDest);
 
@@ -85,9 +87,9 @@ public class MatchLiveTramToJourneyDestinationTest extends EasyMockSupport {
     void shouldFindDueTramWhenJourneyAllRoutesCallAtDestinationAndCorrectDirection() {
 
         Station begin = Cornbrook.fake();
-        Station destination = Deansgate.fake(getBuryManchesterAltrincham());
+        Station destination = Deansgate.fake(getBuryManchesterAltrincham(when));
 
-        Station tramDestination = Bury.fake(getBuryManchesterAltrincham());
+        Station tramDestination = Bury.fake(getBuryManchesterAltrincham(when));
 
 
         UpcomingDeparture tram = createDueTramFor(begin, tramDestination);
@@ -107,10 +109,10 @@ public class MatchLiveTramToJourneyDestinationTest extends EasyMockSupport {
     @Test
     void shouldFindDueTramWhenChangeStationAvailableRouteChanges() {
 
-        Station begin = StPetersSquare.fake(getBuryManchesterAltrincham());
-        Station change = Cornbrook.faker().dropOff(getBuryManchesterAltrincham()).dropOff(getCornbrookTheTraffordCentre()).build();
-        Station destination = TraffordCentre.fake(getCornbrookTheTraffordCentre());
-        Station tramDestination = Altrincham.fake(getBuryManchesterAltrincham());
+        Station begin = StPetersSquare.fake(getBuryManchesterAltrincham(when));
+        Station change = Cornbrook.faker().dropOff(getBuryManchesterAltrincham(when)).dropOff(getCornbrookTheTraffordCentre(when)).build();
+        Station destination = TraffordCentre.fake(getCornbrookTheTraffordCentre(when));
+        Station tramDestination = Altrincham.fake(getBuryManchesterAltrincham(when));
 
         UpcomingDeparture tram = createDueTramFor(begin, tramDestination);
 
@@ -130,10 +132,10 @@ public class MatchLiveTramToJourneyDestinationTest extends EasyMockSupport {
     @Test
     void shouldFindDueTramWhenChangeStationDoesNotMatchRoute() {
 
-        Station begin = StPetersSquare.fake(getBuryManchesterAltrincham());
-        Station change = Cornbrook.fake(getCornbrookTheTraffordCentre()); // removed alty route so no match
-        Station destination = TraffordCentre.fake(getCornbrookTheTraffordCentre());
-        Station tramDestination = Altrincham.fake(getBuryManchesterAltrincham());
+        Station begin = StPetersSquare.fake(getBuryManchesterAltrincham(when));
+        Station change = Cornbrook.fake(getCornbrookTheTraffordCentre(when)); // removed alty route so no match
+        Station destination = TraffordCentre.fake(getCornbrookTheTraffordCentre(when));
+        Station tramDestination = Altrincham.fake(getBuryManchesterAltrincham(when));
 
         UpcomingDeparture tram = createDueTramFor(begin, tramDestination);
 
@@ -152,10 +154,10 @@ public class MatchLiveTramToJourneyDestinationTest extends EasyMockSupport {
     @Test
     void shouldFindDueTramWhenChangeStationMatchRouteButWrongDirection() {
 
-        Station begin = StPetersSquare.fake(getBuryManchesterAltrincham());
-        Station change = Cornbrook.faker().dropOff(getCornbrookTheTraffordCentre()).dropOff(getBuryManchesterAltrincham()).build();
-        Station destination = TraffordCentre.fake(getCornbrookTheTraffordCentre());
-        Station tramDestination = Bury.fake(getBuryManchesterAltrincham());
+        Station begin = StPetersSquare.fake(getBuryManchesterAltrincham(when));
+        Station change = Cornbrook.faker().dropOff(getCornbrookTheTraffordCentre(when)).dropOff(getBuryManchesterAltrincham(when)).build();
+        Station destination = TraffordCentre.fake(getCornbrookTheTraffordCentre(when));
+        Station tramDestination = Bury.fake(getBuryManchesterAltrincham(when));
 
         UpcomingDeparture tram = createDueTramFor(begin, tramDestination);
 
@@ -177,9 +179,9 @@ public class MatchLiveTramToJourneyDestinationTest extends EasyMockSupport {
     void shouldNotFindDueTramWhenRoutesDoNotOverlap() {
 
         Station begin = Altrincham.fake();
-        Station destination = TramStations.Bury.fake(getBuryManchesterAltrincham());
+        Station destination = TramStations.Bury.fake(getBuryManchesterAltrincham(when));
 
-        Station tramDestination = Piccadilly.fake(getEtihadPiccadillyAltrincham());
+        Station tramDestination = Piccadilly.fake(getEtihadPiccadillyAltrincham(when));
         UpcomingDeparture tram = createDueTramFor(begin, tramDestination);
 
         EasyMock.expect(stationRepository.getStationById(tramDestination.getId())).andReturn(tramDestination);

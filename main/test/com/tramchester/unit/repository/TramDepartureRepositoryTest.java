@@ -2,6 +2,7 @@ package com.tramchester.unit.repository;
 
 import com.tramchester.domain.Agency;
 import com.tramchester.domain.Platform;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
@@ -53,7 +54,7 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
         date = today;
         lastUpdate = LocalDateTime.of(today, LocalTime.of(15,42));
 
-        station = Shudehill.fakeWithPlatform(1);
+        station = Shudehill.fakeWithPlatform(1, TramDate.of(date));
         platform = TestEnv.findOnlyPlatform(station);
 
         expectedDue = TramTime.ofHourMins(lastUpdate.toLocalTime().plusMinutes(42));
@@ -70,7 +71,7 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
                 "message 1", station, dueTram);
 
         // second station, has due tram
-        Station secondStation = Altrincham.fakeWithPlatform(1);
+        Station secondStation = Altrincham.fakeWithPlatform(1, TramDate.of(date));
         Platform platfromForSecondStation = TestEnv.findOnlyPlatform(secondStation);
 
         UpcomingDeparture dueTramOther = new UpcomingDeparture(date, secondStation, ManAirport.fake(), "Due",
@@ -79,7 +80,7 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
                 "message 2", secondStation, dueTramOther);
 
         // third, no due trams
-        Station thirdStation = TraffordCentre.fakeWithPlatform(2);
+        Station thirdStation = TraffordCentre.fakeWithPlatform(2, TramDate.of(date));
         Platform platfromForThirdStation = TestEnv.findOnlyPlatform(thirdStation);
 
         TramStationDepartureInfo thirdStationInfo = new TramStationDepartureInfo("displayId3", OverheadDisplayLines.Airport,
@@ -107,7 +108,7 @@ class TramDepartureRepositoryTest extends EasyMockSupport {
         addStationInfoWithDueTram(infos, lastUpdate, "displayId", platform,
                 "some message", station, dueTram);
 
-        Station otherStation = Altrincham.fakeWithPlatform(1);
+        Station otherStation = Altrincham.fakeWithPlatform(1, TramDate.of(date));
         Platform otherPlatform = TestEnv.findOnlyPlatform(otherStation);
 
                 Station destinationManAirport = ManAirport.fake();

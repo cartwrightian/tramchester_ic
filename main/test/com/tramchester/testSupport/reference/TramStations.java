@@ -4,6 +4,7 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.MutablePlatform;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.Route;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.*;
 import com.tramchester.domain.places.MutableStation;
 import com.tramchester.domain.places.NPTGLocality;
@@ -86,8 +87,8 @@ public enum TramStations implements FakeStation, HasId<Station> {
             Ashton,
             Rochdale,
             Bury,
-            TraffordCentre,
-            MediaCityUK
+            TraffordCentre
+            //MediaCityUK
     ));
 
     public static Set<TramStations> getEndOfTheLine() {
@@ -135,8 +136,8 @@ public enum TramStations implements FakeStation, HasId<Station> {
         return faker().build();
     }
 
-    public Station fakeWithPlatform(final int platformNumber) {
-        return faker().platform(platformNumber).build();
+    public Station fakeWithPlatform(final int platformNumber, TramDate date) {
+        return faker().platform(platformNumber, date).build();
     }
 
     public Station fake(final TestRoute knownTramRoute) {
@@ -163,8 +164,8 @@ public enum TramStations implements FakeStation, HasId<Station> {
             return this;
         }
 
-        public FakeStationBuilder platform(final int platformNumber) {
-            fakeDropOffPlatforms.put(platformNumber, KnownTramRoute.getBuryManchesterAltrincham());
+        public FakeStationBuilder platform(final int platformNumber, TramDate date) {
+            fakeDropOffPlatforms.put(platformNumber, KnownTramRoute.getBuryManchesterAltrincham(date));
             return this;
         }
 

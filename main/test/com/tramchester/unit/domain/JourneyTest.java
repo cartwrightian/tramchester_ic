@@ -1,6 +1,7 @@
 package com.tramchester.unit.domain;
 
 import com.tramchester.domain.*;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.MutableTrip;
 import com.tramchester.domain.input.Trip;
@@ -219,10 +220,12 @@ class JourneyTest {
     void shouldHaveCallingPlatformIds() {
         final TramTime departureTimeA = queryTime.plusMinutes(10);
 
-        final Station alty = Altrincham.fakeWithPlatform(1);
+        TramDate date = TestEnv.testDay();
+
+        final Station alty = Altrincham.fakeWithPlatform(1, date);
         final Platform platform1 = TestEnv.findOnlyPlatform(alty);
 
-        final Station stPeters = StPetersSquare.fakeWithPlatform(2);
+        final Station stPeters = StPetersSquare.fakeWithPlatform(2, date);
         final Platform platform2 = TestEnv.findOnlyPlatform(stPeters);
 
         final VehicleStage stageA = createVehicleStage(alty, stPeters, Bus, departureTimeA, 13);

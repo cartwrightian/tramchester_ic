@@ -1,8 +1,9 @@
 package com.tramchester.unit.config;
 
 import com.tramchester.config.BusReplacementRepository;
+import com.tramchester.domain.dates.TramDate;
+import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownTramRoute;
-import com.tramchester.testSupport.reference.TestRoute;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -25,7 +26,8 @@ public class BusReplacementRepositoryTest {
 
     @Test
     void shouldHaveExpectedReplacementBus() {
-        assertTrue(repositry.isReplacement(((TestRoute) KnownTramRoute.getBusEcclesToMediaCity()).getId()));
+        TramDate when = TestEnv.testDay();
+        assertTrue(repositry.isReplacement(KnownTramRoute.getBusEcclesToMediaCity(when).getId()));
     }
 
 }

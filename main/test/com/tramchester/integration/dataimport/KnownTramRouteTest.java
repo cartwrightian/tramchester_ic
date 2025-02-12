@@ -11,6 +11,7 @@ import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TestRoute;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
@@ -22,7 +23,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import java.time.DayOfWeek;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -65,6 +68,67 @@ class KnownTramRouteTest {
     }
 
     @Test
+    void shouldHaveExpectedRouteIdForBlue() {
+        checkRouteIdFor(KnownTramRoute::getEcclesAshton, false);
+    }
+
+    @Test
+    void shouldHaveExpectedRouteIdForReplacementBus() {
+        checkRouteIdFor(KnownTramRoute::getBusEcclesToMediaCity, false);
+    }
+
+    @Test
+    void shouldHaveExpectedRouteIdForNavy() {
+        checkRouteIdFor(KnownTramRoute::getDeansgateManchesterAirport, false);
+    }
+
+    @Test
+    void shouldHaveExpectedRouteIdForGreen() {
+        checkRouteIdFor(KnownTramRoute::getBuryManchesterAltrincham, true);
+    }
+
+    @Test
+    void shouldHaveExpectedRouteIdForPink() {
+        checkRouteIdFor(KnownTramRoute::getShawandCromptonManchesterEastDidisbury, false);
+    }
+
+    @Test
+    void shouldHaveExpectedRouteIdForPurple() {
+        checkRouteIdFor(KnownTramRoute::getEtihadPiccadillyAltrincham, false);
+    }
+
+    @Test
+    void shouldHaveExpectedRouteIdForRed() {
+        checkRouteIdFor(KnownTramRoute::getCornbrookTheTraffordCentre, false);
+    }
+
+    @Test
+    void shouldHaveExpectedRouteIdForYellow() {
+        checkRouteIdFor(KnownTramRoute::getPiccadillyVictoria, false);
+    }
+
+    void checkRouteIdFor(Function<TramDate, TestRoute> function, boolean skipSunday) {
+
+        getDateRange().
+                filter(date -> !(skipSunday && date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) ).
+                forEach(date -> {
+            final IdSet<Route> loadedIds = getLoadedTramRoutes(date).collect(IdSet.collector());
+            TestRoute testRoute = function.apply(date);
+            assertTrue(loadedIds.contains(testRoute.getId()), testRoute.getId() + " missing from " +
+                    loadedIds + " on " + date);
+        });
+    }
+
+    @Test
+    void shouldHaveExpectedForBlue() {
+        assertEquals(Route.createId("2119"), KnownTramRoute.findFor("Blue Line",
+                TramDate.of(2025,2,1)).getId());
+        assertEquals(Route.createId("2750"), KnownTramRoute.findFor("Blue Line",
+                TramDate.of(2025,2,16)).getId());
+
+    }
+
+    @Test
     void shouldHaveCorrectIds() {
 
         getDateRange().forEach(date -> {
@@ -100,6 +164,7 @@ class KnownTramRouteTest {
         });
     }
 
+    @DisabledUntilDate(year=2025, month=2, day=25)
     @Test
     void shouldNotHaveUnknownTramRoutes() {
         TramDate start = TramDate.from(TestEnv.LocalNow());
@@ -108,17 +173,21 @@ class KnownTramRouteTest {
 
         Map<TramDate, IdSet<Route>> unexpectedLoadedForDate = new HashMap<>();
 
-        dateRange.stream().
-                //filter(date -> !UpcomingDates.VictoriaBuryImprovementWorks.equals(date)).
-                forEach(date -> {
-            final IdSet<Route> known = KnownTramRoute.getFor(date).stream().map(TestRoute::getId).collect(IdSet.idCollector());
-            final Set<Route> loadedRoutes = getLoadedTramRoutes(date).filter(route -> !known.contains(route.getId())).collect(Collectors.toSet());
+        dateRange.stream().forEach(date -> {
+            final IdSet<Route> known = KnownTramRoute.getFor(date).stream().
+                    map(TestRoute::getId).
+                    collect(IdSet.idCollector());
+            final Set<Route> loadedRoutes = getLoadedTramRoutes(date).
+                    filter(route -> !known.contains(route.getId())).
+                    collect(Collectors.toSet());
+
             if (!loadedRoutes.isEmpty()) {
                 unexpectedLoadedForDate.put(date, loadedRoutes.stream().collect(IdSet.collector()));
             }
         });
 
-        assertTrue(unexpectedLoadedForDate.isEmpty(), "Mismatch on known routes, unexpected routes were: " + unexpectedLoadedForDate);
+        assertTrue(unexpectedLoadedForDate.isEmpty(), "Mismatch on known routes, unexpected routes were: "
+                + unexpectedLoadedForDate);
     }
 
     @Test

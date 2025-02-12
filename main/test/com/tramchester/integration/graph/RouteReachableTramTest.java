@@ -68,8 +68,8 @@ class RouteReachableTramTest {
 
         assertEquals(2, routeIds.size(), routeIds.toString());
 
-        assertTrue(routeIds.contains(KnownTramRoute.getEtihadPiccadillyAltrincham().getId()), routeIds.toString());
-        assertTrue(routeIds.contains(KnownTramRoute.getBuryManchesterAltrincham().getId()), routeIds.toString());
+        assertTrue(routeIds.contains(KnownTramRoute.getEtihadPiccadillyAltrincham(when).getId()), routeIds.toString());
+        assertTrue(routeIds.contains(KnownTramRoute.getBuryManchesterAltrincham(when).getId()), routeIds.toString());
     }
 
 
