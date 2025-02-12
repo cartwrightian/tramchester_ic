@@ -6,7 +6,7 @@ import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.KnownTramRoute;
+import com.tramchester.testSupport.reference.TestRoute;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class RouteDTOTest {
 
-    private final static KnownTramRoute knownRoute = CornbrookTheTraffordCentre;
+    private final static TestRoute knownRoute = CornbrookTheTraffordCentre;
 
 
     @Test

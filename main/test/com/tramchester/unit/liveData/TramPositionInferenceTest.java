@@ -15,7 +15,7 @@ import com.tramchester.livedata.tfgm.TramPositionInference;
 import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.TramStationAdjacenyRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.KnownTramRoute;
+import com.tramchester.testSupport.reference.TestRoute;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,7 +40,7 @@ public class TramPositionInferenceTest  extends EasyMockSupport {
     private LocalDateTime dateTime;
     private TramDate date;
     private TramTime startTime;
-    private KnownTramRoute tramRoute;
+    private TestRoute tramRoute;
     private Station begin;
     private Station end;
     private StationPair pair;

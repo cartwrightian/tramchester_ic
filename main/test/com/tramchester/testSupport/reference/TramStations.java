@@ -139,7 +139,7 @@ public enum TramStations implements FakeStation, HasId<Station> {
         return faker().platform(platformNumber).build();
     }
 
-    public Station fake(final KnownTramRoute knownTramRoute) {
+    public Station fake(final TestRoute knownTramRoute) {
         return faker().dropOff(knownTramRoute).build();
     }
 
@@ -148,8 +148,8 @@ public enum TramStations implements FakeStation, HasId<Station> {
     }
 
     public static class FakeStationBuilder {
-        private final Map<Integer, KnownTramRoute> fakeDropOffPlatforms;
-        private final Set<KnownTramRoute> fakeRoutes;
+        private final Map<Integer, TestRoute> fakeDropOffPlatforms;
+        private final Set<TestRoute> fakeRoutes;
         private final TramStations tramStation;
 
         public FakeStationBuilder(final TramStations tramStation) {
@@ -158,7 +158,7 @@ public enum TramStations implements FakeStation, HasId<Station> {
             fakeRoutes = new HashSet<>();
         }
 
-        public FakeStationBuilder dropOff(final KnownTramRoute knownTramRoute) {
+        public FakeStationBuilder dropOff(final TestRoute knownTramRoute) {
             fakeRoutes.add(knownTramRoute);
             return this;
         }
@@ -168,7 +168,7 @@ public enum TramStations implements FakeStation, HasId<Station> {
             return this;
         }
 
-        public FakeStationBuilder dropOffPlatform(final int platformNumber, final KnownTramRoute route) {
+        public FakeStationBuilder dropOffPlatform(final int platformNumber, final TestRoute route) {
             if (fakeDropOffPlatforms.containsKey(platformNumber)) {
                 throw new RuntimeException("Platform " + platformNumber + " already seen for route " + fakeDropOffPlatforms.get(platformNumber));
             }
@@ -179,7 +179,7 @@ public enum TramStations implements FakeStation, HasId<Station> {
         public Station build() {
             final MutableStation station = tramStation.createMutable();
 
-            final Set<Route> routes = fakeRoutes.stream().map(KnownTramRoute::fake).collect(Collectors.toSet());
+            final Set<Route> routes = fakeRoutes.stream().map(TestRoute::fake).collect(Collectors.toSet());
             final Set<Platform> platforms = fakeDropOffPlatforms.entrySet().stream().
                     map(entry -> createPlatform(station, entry.getKey()).addRouteDropOff(entry.getValue().fake())).
                     collect(Collectors.toSet());

@@ -18,6 +18,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
+import com.tramchester.testSupport.reference.TestRoute;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
 import org.junit.jupiter.api.*;
@@ -148,7 +149,7 @@ public class RouteRepositoryTest {
                 filter(route -> route.getTransportMode()==Tram).
                 collect(IdSet.collector());
 
-        IdSet<Route> knownTramRoutes = getFor(when).stream().map(KnownTramRoute::getId).collect(IdSet.idCollector());
+        IdSet<Route> knownTramRoutes = getFor(when).stream().map(TestRoute::getId).collect(IdSet.idCollector());
 
         IdSet<Route> diffA = IdSet.disjunction(running, knownTramRoutes);
         assertTrue(diffA.isEmpty(), diffA.toString());
@@ -163,11 +164,11 @@ public class RouteRepositoryTest {
     @Test
     void shouldOverlapAsExpected() {
 
-        Set<KnownTramRoute> known = KnownTramRoute.getFor(when);
+        Set<TestRoute> known = KnownTramRoute.getFor(when);
         Set<RoutePair> noOverlap = new HashSet<>();
 
-        for (KnownTramRoute knownRouteA : known) {
-            for (KnownTramRoute knownRouteB : known) {
+        for (TestRoute knownRouteA : known) {
+            for (TestRoute knownRouteB : known) {
                 Route routeA = routeHelper.getOneRoute(knownRouteA, when);
                 Route routeB = routeHelper.getOneRoute(knownRouteB, when);
                 if (!routeA.isDateOverlap(routeB)) {

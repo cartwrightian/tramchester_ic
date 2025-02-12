@@ -12,6 +12,7 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.reference.KnownTramRoute;
+import com.tramchester.testSupport.reference.TestRoute;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
 import org.jetbrains.annotations.NotNull;
@@ -69,7 +70,7 @@ class KnownTramRouteTest {
         getDateRange().forEach(date -> {
             IdSet<Route> loadedIds = getLoadedTramRoutes(date).collect(IdSet.collector());
 
-            IdSet<Route> knownTramOnDates = KnownTramRoute.getFor(date).stream().map(KnownTramRoute::getId).
+            IdSet<Route> knownTramOnDates = KnownTramRoute.getFor(date).stream().map(TestRoute::getId).
                     collect(IdSet.idCollector());
 
             IdSet<Route> mismatch = IdSet.disjunction(loadedIds, knownTramOnDates);
@@ -110,7 +111,7 @@ class KnownTramRouteTest {
         dateRange.stream().
                 //filter(date -> !UpcomingDates.VictoriaBuryImprovementWorks.equals(date)).
                 forEach(date -> {
-            final IdSet<Route> known = KnownTramRoute.getFor(date).stream().map(KnownTramRoute::getId).collect(IdSet.idCollector());
+            final IdSet<Route> known = KnownTramRoute.getFor(date).stream().map(TestRoute::getId).collect(IdSet.idCollector());
             final Set<Route> loadedRoutes = getLoadedTramRoutes(date).filter(route -> !known.contains(route.getId())).collect(Collectors.toSet());
             if (!loadedRoutes.isEmpty()) {
                 unexpectedLoadedForDate.put(date, loadedRoutes.stream().collect(IdSet.collector()));
@@ -127,14 +128,14 @@ class KnownTramRouteTest {
         DateRange dateRange = DateRange.of(start, when.plusWeeks(1));
 
 
-        SortedMap<TramDate, Set<KnownTramRoute>> unusedForDate = new TreeMap<>();
+        SortedMap<TramDate, Set<TestRoute>> unusedForDate = new TreeMap<>();
 
         dateRange.stream().
                 filter(date -> !(UpcomingDates.isChristmasDay(date) || UpcomingDates.isBoxingDay(date))).
                 forEach(date -> {
                     final IdSet<Route> loaded = getLoadedTramRoutes(date).collect(IdSet.collector());
 
-                    final Set<KnownTramRoute> knownButUnused = KnownTramRoute.getFor(date).stream().
+                    final Set<TestRoute> knownButUnused = KnownTramRoute.getFor(date).stream().
                             filter(knownTramRoute -> !loaded.contains(knownTramRoute.getId())).
                             collect(Collectors.toSet());
                     if (!knownButUnused.isEmpty()) {

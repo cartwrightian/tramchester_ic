@@ -27,7 +27,7 @@ import com.tramchester.repository.naptan.NaptanRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownLocality;
-import com.tramchester.testSupport.reference.KnownTramRoute;
+import com.tramchester.testSupport.reference.TestRoute;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
 import org.junit.jupiter.api.*;
@@ -210,17 +210,18 @@ public class StationRepositoryTest {
         assertTrue(station.hasDropoff());
         assertTrue(station.hasPickup());
 
-        EnumSet<KnownTramRoute> expected = EnumSet.of(
-                BuryManchesterAltrincham,
-                EcclesAshton,
-                DeansgateCastlefieldManchesterAirport,
+        List<TestRoute> expected =
+                Arrays.asList(
+                        BuryManchesterAltrincham,
+                        EcclesAshton,
+                        DeansgateCastlefieldManchesterAirport,
 //                CrumpsallManchesterAshton,
-                CornbrookTheTraffordCentre,
-                EtihadPiccadillyAltrincham,
-                RochdaleShawandCromptonManchesterEastDidisbury);
+                        CornbrookTheTraffordCentre,
+                        EtihadPiccadillyAltrincham,
+                        RochdaleShawandCromptonManchesterEastDidisbury);
 
         IdSet<Route> expectedIds = expected.stream().
-                map(KnownTramRoute::getId).
+                map(TestRoute::getId).
                 collect(IdSet.idCollector());
 
         IdSet<Route> pickups = station.getPickupRoutes().stream().

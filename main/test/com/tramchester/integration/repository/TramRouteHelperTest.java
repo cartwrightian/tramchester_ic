@@ -9,6 +9,7 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
+import com.tramchester.testSupport.reference.TestRoute;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,9 +46,9 @@ class TramRouteHelperTest {
 
         TramDate date = TramDate.from(TestEnv.LocalNow());
 
-        Set<KnownTramRoute> knownRoutes = KnownTramRoute.getFor(date);
+        Set<TestRoute> knownRoutes = KnownTramRoute.getFor(date);
 
-        for(KnownTramRoute knownRoute : knownRoutes) {
+        for(TestRoute knownRoute : knownRoutes) {
             Route route = tramRouteHelper.getOneRoute(knownRoute, date);
                 assertEquals(TestEnv.MetAgency(), route.getAgency(), "agency wrong" + route.getAgency());
                 assertEquals(knownRoute.shortName(), route.getShortName(), "shortname " + route.getShortName());

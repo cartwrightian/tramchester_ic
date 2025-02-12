@@ -16,6 +16,7 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.resources.RouteResource;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownTramRoute;
+import com.tramchester.testSupport.reference.TestRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import jakarta.ws.rs.core.GenericType;
@@ -65,7 +66,7 @@ class RouteResourceTest {
 
         Set<IdForDTO> namesFromDTO = routeDTOS.stream().map(RouteRefDTO::getRouteID).collect(Collectors.toSet());
         Set<IdForDTO> expectedNames = KnownTramRoute.getFor(today).stream().
-                map(KnownTramRoute::dtoId).
+                map(TestRoute::dtoId).
                 collect(Collectors.toSet());
 
         Set<IdForDTO> mismatch = SetUtils.disjunction(namesFromDTO, expectedNames);

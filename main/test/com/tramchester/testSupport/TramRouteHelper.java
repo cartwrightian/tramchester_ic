@@ -7,7 +7,8 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.reference.KnownBusRoute;
-import com.tramchester.testSupport.reference.KnownTramRoute;
+import com.tramchester.testSupport.reference.KnownTramRouteEnum;
+import com.tramchester.testSupport.reference.TestRoute;
 
 import java.util.HashMap;
 import java.util.List;
@@ -21,7 +22,7 @@ import static java.lang.String.format;
  */
 public class TramRouteHelper {
 
-    private Map<KnownTramRoute, Set<Route>> knownRouteToRoutes;
+    private Map<TestRoute, Set<Route>> knownRouteToRoutes;
     private final RouteRepository routeRepository;
 
     public TramRouteHelper(RouteRepository routeRepository) {
@@ -31,8 +32,8 @@ public class TramRouteHelper {
 
     private void createMap() {
         knownRouteToRoutes = new HashMap<>();
-        KnownTramRoute[] knownTramRoutes = KnownTramRoute.values(); // ignores date
-        for (KnownTramRoute knownRoute : knownTramRoutes) {
+        TestRoute[] knownTramRoutes = KnownTramRouteEnum.values(); // ignores date
+        for (TestRoute knownRoute : knownTramRoutes) {
             final Set<Route> routesByShortName = routeRepository.findRoutesByShortName(MutableAgency.METL, knownRoute.shortName());
             knownRouteToRoutes.put(knownRoute, routesByShortName);
         }
@@ -44,12 +45,12 @@ public class TramRouteHelper {
      * @return set of matching routes
      */
     @Deprecated
-    public Set<Route> get(final KnownTramRoute knownRoute) {
+    public Set<Route> get(final TestRoute knownRoute) {
         guard(knownRoute);
         return knownRouteToRoutes.get(knownRoute);
     }
 
-    public Route getOneRoute(final KnownTramRoute knownRoute, final TramDate date) {
+    public Route getOneRoute(final TestRoute knownRoute, final TramDate date) {
         guard(knownRoute);
         final Set<Route> routes = knownRouteToRoutes.get(knownRoute);
         final List<Route> result = routes.stream().filter(route -> route.isAvailableOn(date)).toList();
@@ -74,13 +75,13 @@ public class TramRouteHelper {
         return result.getFirst();
     }
 
-    public IdSet<Route> getId(final KnownTramRoute knownRoute) {
+    public IdSet<Route> getId(final TestRoute knownRoute) {
         guard(knownRoute);
         return knownRouteToRoutes.get(knownRoute).stream().collect(IdSet.collector());
     }
 
 
-    private void guard(final KnownTramRoute knownRoute) {
+    private void guard(final TestRoute knownRoute) {
         if (!knownRouteToRoutes.containsKey(knownRoute)) {
             throw new RuntimeException("Missing " + knownRoute);
         }

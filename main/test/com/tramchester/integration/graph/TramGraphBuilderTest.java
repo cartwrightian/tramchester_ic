@@ -32,6 +32,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.KnownTramRoute;
+import com.tramchester.testSupport.reference.TestRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import org.jetbrains.annotations.NotNull;
@@ -847,7 +848,7 @@ class TramGraphBuilderTest {
         // graphAndFileConsistencyCheckOutbounds(Stations.HarbourCity.getId(), RouteCodesForTesting.ASH_TO_ECCLES);
     }
 
-    private void checkOutboundConsistency(TramStations tramStation, KnownTramRoute knownRoute) {
+    private void checkOutboundConsistency(TramStations tramStation, TestRoute knownRoute) {
         Station station = tramStation.from(stationRepository);
         Route route = tramRouteHelper.getOneRoute(knownRoute, when);
 
@@ -895,7 +896,7 @@ class TramGraphBuilderTest {
     }
 
     @SuppressWarnings("SameParameterValue")
-    private void checkInboundConsistency(TramStations tramStation, KnownTramRoute knownRoute) {
+    private void checkInboundConsistency(TramStations tramStation, TestRoute knownRoute) {
         Route route = tramRouteHelper.getOneRoute(knownRoute, when);
         Station station = tramStation.from(stationRepository);
 

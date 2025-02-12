@@ -244,7 +244,7 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
                 dataSourceID, isCentral);
     }
 
-    private MutableRoute createTramRoute(KnownTramRoute knownRoute) {
+    private MutableRoute createTramRoute(TestRoute knownRoute) {
         return new MutableRoute(knownRoute.getId(), knownRoute.shortName(), knownRoute.name(), TestEnv.MetAgency(),
                 knownRoute.mode());
     }
