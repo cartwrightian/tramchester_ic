@@ -13,7 +13,6 @@ import com.tramchester.graph.search.routes.RouteToRouteCosts;
 public interface BetweenRoutesCostRepository {
 
     int getNumberOfChanges(Location<?> start, Location<?> destination, JourneyRequest journeyRequest, TimeRange timeRange);
-
     int getNumberOfChanges(LocationSet<Station> starts, LocationSet<Station> destinations, JourneyRequest journeyRequest, TimeRange timeRange);
     int getNumberOfChanges(Location<?> start, LocationSet<Station> destinations, JourneyRequest journeyRequest, TimeRange timeRange);
     int getNumberOfChanges(LocationSet<Station> starts, Location<?> destination, JourneyRequest journeyRequest, TimeRange timeRange);

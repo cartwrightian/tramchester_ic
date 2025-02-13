@@ -4,6 +4,7 @@ import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
+import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
@@ -24,6 +25,7 @@ import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.GMTest;
 import org.junit.jupiter.api.*;
 
+import java.time.Duration;
 import java.util.EnumSet;
 
 import static com.tramchester.domain.reference.TransportMode.Train;
@@ -70,7 +72,7 @@ public class RailAndTramRouteToRouteCostsTest {
         TimeRange timeRange = TimeRangePartial.of(TramTime.of(8, 15), TramTime.of(22, 35));
 
         EnumSet<TransportMode> all = allTransportModes;
-        int result = routeToRouteCosts.getPossibleMinChanges(tram(Bury), rail(Stockport),
+        int result = getPossibleMinChanges(tram(Bury), rail(Stockport),
                 all, date, timeRange);
 
         assertEquals(1, result);
@@ -81,7 +83,7 @@ public class RailAndTramRouteToRouteCostsTest {
     void shouldValidHopsBetweenTramAndRailNeighbours() {
         TimeRange timeRange = TimeRangePartial.of(TramTime.of(8, 15), TramTime.of(22, 35));
 
-        int result = routeToRouteCosts.getPossibleMinChanges(tram(Altrincham), rail(RailStationIds.Altrincham),
+        int result = getPossibleMinChanges(tram(Altrincham), rail(RailStationIds.Altrincham),
                 allTransportModes, date, timeRange);
 
         assertEquals(0, result);
@@ -96,17 +98,23 @@ public class RailAndTramRouteToRouteCostsTest {
     void shouldValidHopsBetweenTramAndInterchangceWhenConnectPossibleTramOnly() {
         TimeRange timeRange = TimeRangePartial.of(TramTime.of(8, 15), TramTime.of(22, 35));
 
-        int result = routeToRouteCosts.getPossibleMinChanges(tram(Altrincham), rail(ManchesterPiccadilly),
+        int result = getPossibleMinChanges(tram(Altrincham), rail(ManchesterPiccadilly),
                 TramsOnly, date, timeRange);
 
         assertEquals(0, result);
+    }
+
+    private int getPossibleMinChanges(Station being, Station end, EnumSet<TransportMode> modes, TramDate date, TimeRange timeRange) {
+        JourneyRequest journeyRequest = new JourneyRequest(date, timeRange.getStart(), false, JourneyRequest.MaxNumberOfChanges.of(1),
+                Duration.ofMinutes(120), 1, modes);
+        return routeToRouteCosts.getNumberOfChanges(being, end, journeyRequest, timeRange);
     }
 
     @Test
     void shouldValidHopsBetweenInterchangceAndTramWhenConnectPossibleTramOnly() {
         TimeRange timeRange = TimeRangePartial.of(TramTime.of(8, 15), TramTime.of(22, 35));
 
-        int result = routeToRouteCosts.getPossibleMinChanges(rail(RailStationIds.Altrincham), tram(Piccadilly),
+        int result = getPossibleMinChanges(rail(RailStationIds.Altrincham), tram(Piccadilly),
                 TramsOnly, date, timeRange);
 
         assertEquals(0, result);
@@ -116,7 +124,7 @@ public class RailAndTramRouteToRouteCostsTest {
     void shouldValidHopsBetweenTramAndRailNeighbourThenTrain() {
         TimeRange timeRange = TimeRangePartial.of(TramTime.of(8, 15), TramTime.of(22, 35));
 
-        int result = routeToRouteCosts.getPossibleMinChanges(tram(Altrincham), rail(Stockport),
+        int result = getPossibleMinChanges(tram(Altrincham), rail(Stockport),
                 allTransportModes, date, timeRange);
 
         // direct via altrincham rail
@@ -129,7 +137,7 @@ public class RailAndTramRouteToRouteCostsTest {
         TimeRange timeRange = TimeRangePartial.of(TramTime.of(8, 15), TramTime.of(22, 35));
 
         // should find a result since Altrincham -> Altincham Rail -> Stockport iff neighbours enabled
-        int result = routeToRouteCosts.getPossibleMinChanges(tram(Altrincham), rail(Stockport),
+        int result = getPossibleMinChanges(tram(Altrincham), rail(Stockport),
                 EnumSet.of(Train), date, timeRange);
 
         assertEquals(0, result);
@@ -139,7 +147,7 @@ public class RailAndTramRouteToRouteCostsTest {
     void shouldValidHopsBetweenTramAndRailShortRange() {
         TimeRange timeRange = TimeRangePartial.of(TramTime.of(8, 15), TramTime.of(22, 35));
 
-        int result = routeToRouteCosts.getPossibleMinChanges(tram(Cornbrook), rail(RailStationIds.Altrincham),
+        int result = getPossibleMinChanges(tram(Cornbrook), rail(RailStationIds.Altrincham),
                 allTransportModes, date, timeRange);
 
         assertEquals(1, result);
@@ -151,7 +159,7 @@ public class RailAndTramRouteToRouteCostsTest {
 
         EnumSet<TransportMode> preferredModes = EnumSet.of(Tram);
 
-        int result = routeToRouteCosts.getPossibleMinChanges(tram(TramStations.Bury), rail(Stockport),
+        int result = getPossibleMinChanges(tram(TramStations.Bury), rail(Stockport),
                 preferredModes, date, timeRange);
 
         assertEquals(Integer.MAX_VALUE, result);
@@ -162,7 +170,7 @@ public class RailAndTramRouteToRouteCostsTest {
         TimeRange timeRange = TimeRangePartial.of(TramTime.of(8, 15), TramTime.of(22, 35));
 
         EnumSet<TransportMode> preferredModes = EnumSet.of(Train);
-        int result = routeToRouteCosts.getPossibleMinChanges(rail(ManchesterPiccadilly), rail(Stockport),
+        int result = getPossibleMinChanges(rail(ManchesterPiccadilly), rail(Stockport),
                 preferredModes, date, timeRange);
 
         assertEquals(0, result); // non stop
@@ -172,7 +180,7 @@ public class RailAndTramRouteToRouteCostsTest {
     void shouldHaveCorrectHopsBetweenTramStationsOnly() {
         TimeRange timeRange = TimeRangePartial.of(TramTime.of(8, 15), TramTime.of(22, 35));
 
-        int result = routeToRouteCosts.getPossibleMinChanges(tram(Cornbrook), tram(StPetersSquare),
+        int result = getPossibleMinChanges(tram(Cornbrook), tram(StPetersSquare),
                 allTransportModes, date, timeRange);
 
         assertEquals(0, result);
@@ -184,7 +192,7 @@ public class RailAndTramRouteToRouteCostsTest {
         TimeRange timeRange = TimeRangePartial.of(TramTime.of(9,0), TramTime.of(10,0));
         Station rochdale = TramStations.Rochdale.from(stationRepository);
         Station eccles = TramStations.Eccles.from(stationRepository);
-        int changes = routeToRouteCosts.getPossibleMinChanges(rochdale, eccles, TramsOnly, date, timeRange);
+        int changes = getPossibleMinChanges(rochdale, eccles, TramsOnly, date, timeRange);
 
         // 1 -> 2 , eccles replacement bus
         assertEquals(2, changes);

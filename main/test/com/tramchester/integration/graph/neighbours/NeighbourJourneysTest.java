@@ -105,6 +105,12 @@ public class NeighbourJourneysTest {
         txn.close();
     }
 
+    private int getPossibleMinChanges(Station being, Station end, EnumSet<TransportMode> modes, TramDate date, TimeRange timeRange) {
+        JourneyRequest journeyRequest = new JourneyRequest(date, timeRange.getStart(), false, JourneyRequest.MaxNumberOfChanges.of(1),
+                Duration.ofMinutes(120), 1, modes);
+        return routeToRouteCosts.getNumberOfChanges(being, end, journeyRequest, timeRange);
+    }
+
     @Test
     void shouldHaveTestStations() {
         assertNotNull(shudehillBusStop);
@@ -114,10 +120,10 @@ public class NeighbourJourneysTest {
     @Test
     void shouldHaveCorrectRouteToRouteHopsWhenNeighbours() {
 
-        int busToTramHops = routeToRouteCosts.getPossibleMinChanges(shudehillBusStop, shudehillTram, modes, date, timeRange);
+        int busToTramHops = getPossibleMinChanges(shudehillBusStop, shudehillTram, modes, date, timeRange);
         assertEquals(1, busToTramHops);
 
-        int tramToBusHops = routeToRouteCosts.getPossibleMinChanges(shudehillTram, shudehillBusStop, modes, date, timeRange);
+        int tramToBusHops = getPossibleMinChanges(shudehillTram, shudehillBusStop, modes, date, timeRange);
         assertEquals(1, tramToBusHops);
     }
 
@@ -149,7 +155,7 @@ public class NeighbourJourneysTest {
 
     @Test
     void shouldFindMaxRouteHopsBetweenModes() {
-        int hops = routeToRouteCosts.getPossibleMinChanges(shudehillTram, shudehillBusStop, modes, date, timeRange);
+        int hops = getPossibleMinChanges(shudehillTram, shudehillBusStop, modes, date, timeRange);
         assertEquals(1, hops);
     }
 

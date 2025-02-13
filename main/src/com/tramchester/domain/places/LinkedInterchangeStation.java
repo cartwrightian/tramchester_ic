@@ -46,7 +46,6 @@ public class LinkedInterchangeStation implements InterchangeStation {
         return origin.getDropoffRoutes();
     }
 
-
     /***
      * See above note on the 'direction' for a linked interchange
      * @return pickups for both the origin and all linked stations

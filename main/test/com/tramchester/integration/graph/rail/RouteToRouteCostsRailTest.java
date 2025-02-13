@@ -3,9 +3,11 @@ package com.tramchester.integration.graph.rail;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
@@ -23,6 +25,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.testTags.TrainTest;
 import org.junit.jupiter.api.*;
 
+import java.time.Duration;
 import java.util.*;
 
 import static com.tramchester.domain.reference.TransportMode.Train;
@@ -88,32 +91,20 @@ public class RouteToRouteCostsRailTest {
 
     @Test
     void shouldGetNumberOfRouteHopsBetweenStockportAndManPicc() {
-        assertEquals(0, routeToRouteCosts.getPossibleMinChanges(stockport, manPicc, TRAIN, date, timeRange));
+        assertEquals(0, getPossibleMinChanges(stockport, manPicc, TRAIN, date, timeRange));
     }
 
     @Test
     void shouldHaveExpectedNumberHopsChangesManToStockport() {
-        assertEquals(0, routeToRouteCosts.getPossibleMinChanges(manPicc, stockport, TRAIN, date, timeRange));
+        assertEquals(0, getPossibleMinChanges(manPicc, stockport, TRAIN, date, timeRange));
     }
 
-//    @Test
-//    void shouldGetNumberOfRouteHopsBetweenManPiccAndLondonEustom() {
-//        assertEquals(0, routeToRouteCosts.getPossibleMinChanges(manPicc, londonEuston, TRAIN, date, timeRange));
-//    }
+    private int getPossibleMinChanges(Location<?> being, Location<?> end, EnumSet<TransportMode> modes, TramDate date, TimeRange timeRange) {
 
-//    @Disabled("Performance testing")
-//    @Test
-//    void shouldGetNumberOfRouteHopsBetweenManPiccAndLondonEustomPerformanceTesting() {
-//        for (int i = 0; i < 20; i++) {
-//            routeToRouteCosts.getPossibleMinChanges(manPicc, londonEuston, TRAIN, date, timeRange);
-//        }
-//    }
-
-//    @Test
-//    void shouldGetNumberOfRouteHopsBetweenAltrinchamAndLondonEuston() {
-//        Station altrincham = stationRepository.getStationById(Altrincham.getId());
-//        assertEquals(1, routeToRouteCosts.getPossibleMinChanges(altrincham, londonEuston, TRAIN, date, timeRange));
-//    }
+        JourneyRequest journeyRequest = new JourneyRequest(date, timeRange.getStart(), false, JourneyRequest.MaxNumberOfChanges.of(1),
+                Duration.ofMinutes(120), 1, modes);
+        return routeToRouteCosts.getNumberOfChanges(being, end, journeyRequest, timeRange);
+    }
 
     @Test
     void shouldGetNumberOfRouteHopsBetweenAltrinchamNavigationRoadAndStockport() {
@@ -121,18 +112,11 @@ public class RouteToRouteCostsRailTest {
         Station navigationRaod = stationRepository.getStationById(NavigationRaod.getId());
         Station stockport = stationRepository.getStationById(Stockport.getId());
 
-        assertEquals(0, routeToRouteCosts.getPossibleMinChanges(altrincham, navigationRaod, TRAIN, date, timeRange));
-        assertEquals(0, routeToRouteCosts.getPossibleMinChanges(navigationRaod, stockport, TRAIN, date, timeRange));
-        assertEquals(0, routeToRouteCosts.getPossibleMinChanges(altrincham, stockport, TRAIN, date, timeRange));
+        assertEquals(0, getPossibleMinChanges(altrincham, navigationRaod, TRAIN, date, timeRange));
+        assertEquals(0, getPossibleMinChanges(navigationRaod, stockport, TRAIN, date, timeRange));
+        assertEquals(0, getPossibleMinChanges(altrincham, stockport, TRAIN, date, timeRange));
 
     }
-
-//    @Test
-//    void shouldGetNumberOfChangesKnutsfordToDover() {
-//        Station knutsford = stationRepository.getStationById(Knutsford.getId());
-//        Station other = stationRepository.getStationById(Dover.getId());
-//        assertEquals(3, routeToRouteCosts.getPossibleMinChanges(knutsford, other, TRAIN, date, timeRange));
-//    }
 
     @Disabled("spike only")
     @Test

@@ -3,11 +3,13 @@ package com.tramchester.integration.graph;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.RoutePair;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
@@ -153,25 +155,23 @@ public class RouteToRouteCostsTest {
     void shouldFindLowestHopCountForTwoStations() {
         Station start = TramStations.Altrincham.from(stationRepository);
         Station end = TramStations.ManAirport.from(stationRepository);
-        int result = routesCostRepository.getPossibleMinChanges(start, end, modes, date, timeRange);
+        int result = getPossibleMinChanges(start, end, modes, date, timeRange);
 
         assertEquals(1, getMinCost(result));
     }
 
-//    @Test
-//    void shouldFindHighestHopCountForTwoStations() {
-//        Station start = TramStations.Ashton.from(stationRepository);
-//        Station end = TramStations.ManAirport.from(stationRepository);
-//        int result = routesCostRepository.getNumberOfChanges(start, end, modes, date, timeRange);
-//
-//        assertEquals(1, result.getMax());
-//    }
+    private int getPossibleMinChanges(Location<?> being, Location<?> end, EnumSet<TransportMode> modes, TramDate date, TimeRange timeRange) {
+
+        JourneyRequest journeyRequest = new JourneyRequest(date, timeRange.getStart(), false, JourneyRequest.MaxNumberOfChanges.of(1),
+                Duration.ofMinutes(120), 1, modes);
+        return routesCostRepository.getNumberOfChanges(being, end, journeyRequest, timeRange);
+    }
 
     @Test
     void shouldFindLowestHopCountForTwoStationsSameRoute() {
         Station start = TramStations.Victoria.from(stationRepository);
         Station end = TramStations.ManAirport.from(stationRepository);
-        int result = routesCostRepository.getPossibleMinChanges(start, end, modes, date, timeRange);
+        int result = getPossibleMinChanges(start, end, modes, date, timeRange);
 
         assertEquals(0, getMinCost(result));
     }
@@ -181,7 +181,7 @@ public class RouteToRouteCostsTest {
         Station start = TramStations.Victoria.from(stationRepository);
         Station end = TramStations.ManAirport.from(stationRepository);
 
-        int result = routesCostRepository.getPossibleMinChanges(start, end, EnumSet.of(Train), date, timeRange);
+        int result = getPossibleMinChanges(start, end, EnumSet.of(Train), date, timeRange);
 
         assertEquals(Integer.MAX_VALUE, getMinCost(result));
 
@@ -192,14 +192,14 @@ public class RouteToRouteCostsTest {
         Station mediaCity = MediaCityUK.from(stationRepository);
         Station ashton = ManAirport.from(stationRepository);
 
-        int result = routesCostRepository.getPossibleMinChanges(mediaCity, ashton, modes, date, timeRange);
+        int result = getPossibleMinChanges(mediaCity, ashton, modes, date, timeRange);
 
         assertEquals(1, getMinCost(result));
     }
 
     @Test
     void shouldFindMediaCityToAshtonReproIssueWithCommutedChangesFindingNoResults() {
-        int possibleMin = routesCostRepository.getPossibleMinChanges(MediaCityUK.from(stationRepository),
+        int possibleMin = getPossibleMinChanges(MediaCityUK.from(stationRepository),
                 Ashton.from(stationRepository), modes, date, timeRange);
 
         assertEquals(0, possibleMin);
@@ -210,7 +210,7 @@ public class RouteToRouteCostsTest {
     void shouldFindHighestHopCountForTwoStationsSameRoute() {
         Station start = TramStations.Victoria.from(stationRepository);
         Station end = TramStations.ManAirport.from(stationRepository);
-        int result = routesCostRepository.getPossibleMinChanges(start, end, modes, date, timeRange);
+        int result = getPossibleMinChanges(start, end, modes, date, timeRange);
 
         assertEquals(0, getMinCost(result));
     }
@@ -246,7 +246,7 @@ public class RouteToRouteCostsTest {
 
         Station navigationRoad = NavigationRoad.from(stationRepository);
 
-        int changes = routesCostRepository.getPossibleMinChanges(altrincham, navigationRoad, modes, date, timeRange);
+        int changes = getPossibleMinChanges(altrincham, navigationRoad, modes, date, timeRange);
 
         assertEquals(0, getMinCost(changes), changes);
     }
@@ -260,7 +260,7 @@ public class RouteToRouteCostsTest {
 
         Station navigationRoad = Cornbrook.from(stationRepository);
 
-        int changes = routesCostRepository.getPossibleMinChanges(altrincham, navigationRoad, modes, date, timeRange);
+        int changes = getPossibleMinChanges(altrincham, navigationRoad, modes, date, timeRange);
 
         assertEquals(0, getMinCost(changes), "On " + date + " " + changes);
     }
@@ -274,7 +274,7 @@ public class RouteToRouteCostsTest {
 
         Station navigationRoad = NavigationRoad.from(stationRepository);
 
-        int changes = routesCostRepository.getPossibleMinChanges(altrincham, navigationRoad, modes, date, timeRange);
+        int changes = getPossibleMinChanges(altrincham, navigationRoad, modes, date, timeRange);
 
         assertEquals(0, getMinCost(changes), "On " + date+ " " + changes);
     }

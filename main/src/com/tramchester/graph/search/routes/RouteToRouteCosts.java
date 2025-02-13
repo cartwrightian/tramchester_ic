@@ -220,7 +220,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         return getNumberOfHops(pickupRoutes, dropoffRoutes, date, availabilityFacade, closureOffset, requestedModes);
     }
 
-    public int getPossibleMinChanges(final Location<?> startLocation, final Location<?> destLocation,
+    private int getPossibleMinChanges(final Location<?> startLocation, final Location<?> destLocation,
                                      final EnumSet<TransportMode> requestedModes, final TramDate date, final TimeRange timeRange) {
 
         // TODO requested modes is problematic when we have an interchange station that has multiple modes?

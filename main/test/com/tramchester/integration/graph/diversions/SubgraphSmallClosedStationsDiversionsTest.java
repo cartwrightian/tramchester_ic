@@ -200,10 +200,8 @@ class SubgraphSmallClosedStationsDiversionsTest {
         ranges.forEach(range -> assertTrue(range.getTimeRange().allDay(), "Expected all day time range for " + range));
     }
 
-
     @Test
     void shouldHaveExpectedRouteToRouteCostsForClosedStations() {
-        RouteToRouteCosts routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
 
         Location<?> start = StPetersSquare.from(stationRepository);
         Location<?> destination = Piccadilly.from(stationRepository);
@@ -211,9 +209,17 @@ class SubgraphSmallClosedStationsDiversionsTest {
         TimeRange timeRange = TimeRangePartial.of(TramTime.of(6,0), TramTime.of(23,55));
         EnumSet<TransportMode> mode = EnumSet.of(TransportMode.Tram);
 
-        int costs = routeToRouteCosts.getPossibleMinChanges(start, destination, mode, when.plusDays(1), timeRange);
+        int costs = getPossibleMinChanges(start, destination, mode, when.plusDays(1), timeRange);
 
         assertEquals(0, costs);
+    }
+
+    private int getPossibleMinChanges(Location<?> being, Location<?> end, EnumSet<TransportMode> modes, TramDate date, TimeRange timeRange) {
+        RouteToRouteCosts routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
+
+        JourneyRequest journeyRequest = new JourneyRequest(date, timeRange.getStart(), false, JourneyRequest.MaxNumberOfChanges.of(1),
+                Duration.ofMinutes(120), 1, modes);
+        return routeToRouteCosts.getNumberOfChanges(being, end, journeyRequest, timeRange);
     }
 
     @Test

@@ -12,6 +12,7 @@ import com.tramchester.domain.collections.LocationIdPairSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.InterchangeStation;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
@@ -228,12 +229,18 @@ class RouteCalculatorSubGraphMediaCityTest {
         Station salfordQuay = SalfordQuay.from(stationRepository);
         Station stPetersSquare = StPetersSquare.from(stationRepository);
 
-        RouteToRouteCosts routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
-
         TimeRange timeRange = TimeRangePartial.of(TramTime.of(8,5), TramTime.of(8,30));
-        int results = routeToRouteCosts.getPossibleMinChanges(salfordQuay, stPetersSquare, getRequestedModes(), when, timeRange);
+        int results = getPossibleMinChanges(salfordQuay, stPetersSquare, getRequestedModes(), when, timeRange);
 
         assertEquals(results, 0);
+    }
+
+    private int getPossibleMinChanges(Location<?> being, Location<?> end, EnumSet<TransportMode> modes, TramDate date, TimeRange timeRange) {
+        RouteToRouteCosts routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
+
+        JourneyRequest journeyRequest = new JourneyRequest(date, timeRange.getStart(), false, JourneyRequest.MaxNumberOfChanges.of(1),
+                Duration.ofMinutes(120), 1, modes);
+        return routeToRouteCosts.getNumberOfChanges(being, end, journeyRequest, timeRange);
     }
 
     @Test

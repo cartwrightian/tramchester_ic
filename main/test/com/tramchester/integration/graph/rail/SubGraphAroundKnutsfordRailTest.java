@@ -6,6 +6,7 @@ import com.tramchester.DiagramCreator;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
@@ -111,15 +112,22 @@ class SubGraphAroundKnutsfordRailTest {
 
         EnumSet<TransportMode> transportModes = EnumSet.of(Train);
 
-        int haleKnutsford = routeToRouteCosts.getPossibleMinChanges(hale, knutsford, transportModes, when, timeRange);
+        int haleKnutsford = getPossibleMinChanges(hale, knutsford, transportModes, when, timeRange);
         assertEquals(0, haleKnutsford, "expected no changes");
 
-        int knutsfordToHale = routeToRouteCosts.getPossibleMinChanges(knutsford, hale, transportModes, when, timeRange);
+        int knutsfordToHale = getPossibleMinChanges(knutsford, hale, transportModes, when, timeRange);
         assertEquals(0, knutsfordToHale, "expected no changes");
 
         Duration maxJourneyDuration = Duration.ofMinutes(60);
         validateAtLeastOneJourney(Hale, Knutsford, maxJourneyDuration);
         validateAtLeastOneJourney(Knutsford, Hale, maxJourneyDuration);
+    }
+
+    private int getPossibleMinChanges(Location<?> being, Location<?> end, EnumSet<TransportMode> modes, TramDate date, TimeRange timeRange) {
+
+        JourneyRequest journeyRequest = new JourneyRequest(date, timeRange.getStart(), false, JourneyRequest.MaxNumberOfChanges.of(1),
+                Duration.ofMinutes(120), 1, modes);
+        return routeToRouteCosts.getNumberOfChanges(being, end, journeyRequest, timeRange);
     }
 
     @SuppressWarnings("JUnitTestMethodWithNoAssertions")
@@ -144,7 +152,7 @@ class SubGraphAroundKnutsfordRailTest {
         for (RailStationIds startId: stations) {
             for (RailStationIds destinationId: stations) {
                 if (!startId.equals(destinationId)) {
-                    int numberOfChanges = routeToRouteCosts.getPossibleMinChanges(startId.from(stationRepository),
+                    int numberOfChanges = getPossibleMinChanges(startId.from(stationRepository),
                             destinationId.from(stationRepository),
                             transportModes, when, timeRange);
                     assertEquals(0, numberOfChanges);

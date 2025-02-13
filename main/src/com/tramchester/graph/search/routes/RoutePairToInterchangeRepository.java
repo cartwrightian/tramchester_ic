@@ -45,7 +45,7 @@ public class RoutePairToInterchangeRepository {
         logger.info("Stopped");
     }
 
-    private void populateFor(InterchangeStation interchange) {
+    private void populateFor(final InterchangeStation interchange) {
 
         final Set<Route> dropOffAtInterchange = interchange.getDropoffRoutes();
         final Set<Route> pickupAtInterchange = interchange.getPickupRoutes();
