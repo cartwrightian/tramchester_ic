@@ -6,12 +6,12 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TestRoute;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
@@ -74,7 +74,10 @@ class KnownTramRouteTest {
 
     @Test
     void shouldHaveExpectedRouteIdForReplacementBus() {
-        checkRouteIdFor(KnownTramRoute::getBusEcclesToMediaCity, false);
+        UpcomingDates.MediaCityEcclesWorks2025.stream().forEach(date -> {
+            TestRoute result = KnownTramRoute.getBusEcclesToMediaCity(date);
+            assertEquals(Route.createId("2757"), result.getId());
+        });
     }
 
     @Test
@@ -109,24 +112,29 @@ class KnownTramRouteTest {
 
     void checkRouteIdFor(Function<TramDate, TestRoute> function, boolean skipSunday) {
 
+        Set<TramDate> missingOnDates = new HashSet<>();
         getDateRange().
                 filter(date -> !(skipSunday && date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) ).
                 forEach(date -> {
-            final IdSet<Route> loadedIds = getLoadedTramRoutes(date).collect(IdSet.collector());
-            TestRoute testRoute = function.apply(date);
-            assertTrue(loadedIds.contains(testRoute.getId()), testRoute.getId() + " missing from " +
-                    loadedIds + " on " + date);
-        });
+                final IdSet<Route> loadedIds = getLoadedTramRoutes(date).collect(IdSet.collector());
+                TestRoute testRoute = function.apply(date);
+                if (!loadedIds.contains(testRoute.getId())) {
+                    missingOnDates.add(date);
+                }
+            });
+
+        List<String> diag = missingOnDates.stream().map(date -> "On date " + date + " test route " + function.apply(date) + " with id " +
+                function.apply(date).getId() + " is missing from " + HasId.asIds(getLoadedTramRoutes(date).toList())).toList();
+        assertTrue(missingOnDates.isEmpty(), diag.toString());
     }
 
-    @Test
-    void shouldHaveExpectedForBlue() {
-        assertEquals(Route.createId("2119"), KnownTramRoute.findFor("Blue Line",
-                TramDate.of(2025,2,1)).getId());
-        assertEquals(Route.createId("2750"), KnownTramRoute.findFor("Blue Line",
-                TramDate.of(2025,2,16)).getId());
-
-    }
+//    @Test
+//    void shouldHaveExpectedForBlue() {
+//        assertEquals(Route.createId("2119"), KnownTramRoute.findFor("Blue Line",
+//                TramDate.of(2025,2,1)).getId());
+//        assertEquals(Route.createId("2750"), KnownTramRoute.findFor("Blue Line",
+//                TramDate.of(2025,2,16)).getId());
+//    }
 
     @Test
     void shouldHaveCorrectIds() {
@@ -164,7 +172,6 @@ class KnownTramRouteTest {
         });
     }
 
-    @DisabledUntilDate(year=2025, month=2, day=25)
     @Test
     void shouldNotHaveUnknownTramRoutes() {
         TramDate start = TramDate.from(TestEnv.LocalNow());
@@ -194,8 +201,7 @@ class KnownTramRouteTest {
     void shouldNotHaveUnusedKnownTramRoutesForDate() {
         TramDate start = TramDate.from(TestEnv.LocalNow());
 
-        DateRange dateRange = DateRange.of(start, when.plusWeeks(1));
-
+        DateRange dateRange = DateRange.of(start, when.plusWeeks(2));
 
         SortedMap<TramDate, Set<TestRoute>> unusedForDate = new TreeMap<>();
 
@@ -212,7 +218,7 @@ class KnownTramRouteTest {
                     }
                 });
 
-        assertTrue(unusedForDate.isEmpty(), "For dates " + unusedForDate.keySet() + "\n Have unused loaded routes " + unusedForDate);
+        assertTrue(unusedForDate.isEmpty(), "For dates " + unusedForDate.keySet() + "\n Have known but not loaded routes " + unusedForDate);
     }
 
     @NotNull

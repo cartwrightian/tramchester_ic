@@ -38,9 +38,11 @@ public class MatchLiveTramToJourneyDestinationTest extends EasyMockSupport {
         stationRepository = createMock(StationRepository.class);
         stopOrderChecker = createMock(StopOrderChecker.class);
         matchLiveTramToJourneyDestination = new MatchLiveTramToJourneyDestination(stationRepository, stopOrderChecker);
-        date = LocalDate.of(2024, 6, 30);
+
+        when = TestEnv.testDay();
+
+        date = when.toLocalDate(); //LocalDate.of(2024, 6, 30);
         time = TramTime.of(10,45);
-        when = TramDate.of(date);
     }
 
     @Test

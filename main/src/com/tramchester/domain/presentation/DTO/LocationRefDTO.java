@@ -8,7 +8,7 @@ import com.tramchester.domain.places.Location;
 import java.util.Set;
 
 @SuppressWarnings("unused")
-public class LocationRefDTO {
+public class LocationRefDTO implements HasIdForDTO {
     private LocationType locationType;
     private boolean pickUp;
     private boolean dropOff;
@@ -29,6 +29,7 @@ public class LocationRefDTO {
         // deserialization
     }
 
+    @Override
     public IdForDTO getId() {
         return id;
     }

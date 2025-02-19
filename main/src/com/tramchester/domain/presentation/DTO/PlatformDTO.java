@@ -7,7 +7,7 @@ import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.presentation.LatLong;
 
 @SuppressWarnings("unused")
-public class PlatformDTO {
+public class PlatformDTO implements HasIdForDTO {
 
     private IdFor<Platform> platformId;
 
@@ -35,6 +35,7 @@ public class PlatformDTO {
         return platformId;
     }
 
+    @Override
     public IdForDTO getId() {
         return id;
     }

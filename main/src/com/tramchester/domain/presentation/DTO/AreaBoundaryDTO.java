@@ -1,12 +1,13 @@
 package com.tramchester.domain.presentation.DTO;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.presentation.LatLong;
 
 import java.util.List;
 
-public class AreaBoundaryDTO extends BoundaryDTO {
+public class AreaBoundaryDTO extends BoundaryDTO implements HasIdForDTO {
     private IdForDTO areaId;
     private String areaName;
 
@@ -20,7 +21,18 @@ public class AreaBoundaryDTO extends BoundaryDTO {
         // for deserialisation
     }
 
+    /***
+     * Use GetId
+     * @return area id
+     */
+    @Deprecated
     public IdForDTO getAreaId() {
+        return areaId;
+    }
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @Override
+    public IdForDTO getId() {
         return areaId;
     }
 
@@ -35,4 +47,5 @@ public class AreaBoundaryDTO extends BoundaryDTO {
                 ", areaName='" + areaName + '\'' +
                 "} " + super.toString();
     }
+
 }

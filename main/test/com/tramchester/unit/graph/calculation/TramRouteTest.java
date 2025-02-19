@@ -84,7 +84,7 @@ class TramRouteTest {
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
         calculator = componentContainer.get(RouteCalculator.class);
 
-        queryDate = TramDate.of(2014,6,30);
+        queryDate = TramTransportDataForTestFactory.startDate; //   TramDate.of(2014,6,30);
         queryTime = TramTime.of(7, 57);
         StationRepository stationRepo = componentContainer.get(StationRepository.class);
 
@@ -137,7 +137,8 @@ class TramRouteTest {
         assertEquals(transportData.getFirst(), transportStage.getFirstStation());
         assertEquals(transportData.getSecond(), transportStage.getLastStation());
         assertEquals(0, transportStage.getPassedStopsCount());
-        assertEquals(KnownTramRoute.getCornbrookTheTraffordCentre(queryDate).shortName(), transportStage.getRoute().getShortName());
+        assertEquals(KnownTramRoute.getCornbrookTheTraffordCentre(TramTransportDataForTestFactory.routeDate).shortName(),
+                transportStage.getRoute().getShortName());
         assertEquals(transportStage.getFirstStation(), transportStage.getActionStation());
         assertMinutesEquals(11, transportStage.getDuration());
         assertEquals(TramTime.of(8,0), transportStage.getFirstDepartureTime());

@@ -49,8 +49,8 @@ public class TramTransportDataForTestFactory implements TransportDataFactory {
     public final static TramDate endDate = TramDate.of(2020, 8, 15);
     private static final DayOfWeek dayOfWeek = DayOfWeek.MONDAY;
 
-    private final static TramDate routeDate = TestEnv.testDay();
-
+    // TODO remove this workaround and make the startDate and endDate use current date(s)
+    public final static TramDate routeDate = TestEnv.testDay();
 
     @Inject
     public TramTransportDataForTestFactory(ProvidesNow providesNow) {

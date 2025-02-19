@@ -59,6 +59,11 @@ public class IdSet<T extends CoreDomain> implements Iterable<IdFor<T>> {
         return wrap(ids);
     }
 
+    public static <S extends CoreDomain & HasId<S>> IdSet<S> from(final Collection<HasId<S>> items) {
+        final Set<IdFor<S>> ids = items.stream().map(HasId::getId).collect(Collectors.toSet());
+        return wrap(ids);
+    }
+
     public static <T extends CoreDomain> IdSet<T> copy(IdSet<T> other) {
         return new IdSet<>(other.theSet);
     }

@@ -3,9 +3,11 @@ package com.tramchester.domain.id;
 import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.collections.DomainPair;
+import com.tramchester.domain.presentation.DTO.HasIdForDTO;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 public interface HasId<DOMAINTYPE extends CoreDomain> {
@@ -30,6 +32,10 @@ public interface HasId<DOMAINTYPE extends CoreDomain> {
 
     static String asIds(final LocationSet<?> locationSet) {
         return locationSet.asIds();
+    }
+
+    static String asIds(List<? extends HasIdForDTO> items) {
+        return collectionToIdStringList(items, item -> item.getId().getActualId());
     }
 
     @NotNull

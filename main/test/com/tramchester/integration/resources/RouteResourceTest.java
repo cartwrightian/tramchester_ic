@@ -3,6 +3,7 @@ package com.tramchester.integration.resources;
 import com.tramchester.App;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.presentation.DTO.LocationRefWithPosition;
 import com.tramchester.domain.presentation.DTO.RouteDTO;
@@ -27,7 +28,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -80,15 +83,18 @@ class RouteResourceTest {
 
         List<RouteDTO> routes = getRouteResponse();
 
-        TramDate date = TestEnv.testDay();
+        // has to be today since route ids change over time
+        TramDate date = TramDate.of(LocalDate.now());
 
-        List<RouteDTO> airRoutes = routes.stream().
-                filter(routeDTO -> routeDTO.getRouteID().equals(KnownTramRoute.getDeansgateManchesterAirport(date).dtoId())).
-                toList();
+        IdForDTO expectedRouteId = KnownTramRoute.getDeansgateManchesterAirport(date).dtoId();
 
-        assertEquals(1, airRoutes.size());
+        Optional<RouteDTO> airRoutes = routes.stream().
+                filter(routeDTO -> routeDTO.getId().equals(expectedRouteId)).
+                findFirst();
 
-        RouteDTO airRoute = airRoutes.getFirst();
+        assertTrue(airRoutes.isPresent(),"expected to match " + expectedRouteId + " in " + HasId.asIds(routes));
+
+        RouteDTO airRoute = airRoutes.get();
         List<LocationRefWithPosition> stations = airRoute.getStations();
 
         LocationRefWithPosition first = stations.getFirst();

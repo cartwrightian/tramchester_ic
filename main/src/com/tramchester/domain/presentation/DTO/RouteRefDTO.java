@@ -8,9 +8,9 @@ import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.reference.TransportMode;
 
 @JsonIgnoreProperties(value = "tram", allowGetters = true)
-public class RouteRefDTO {
+public class RouteRefDTO implements HasIdForDTO {
 
-    private IdForDTO routeID;
+    private IdForDTO id;
     private String routeName;
     private TransportMode transportMode;
     private String shortName;
@@ -32,7 +32,7 @@ public class RouteRefDTO {
 
         this.transportMode = route.getTransportMode();
         this.shortName = route.getShortName();
-        this.routeID = IdForDTO.createFor(route);
+        this.id = IdForDTO.createFor(route);
     }
 
     public String getRouteName() {
@@ -47,8 +47,19 @@ public class RouteRefDTO {
         return transportMode;
     }
 
+    /***
+     * Use getId
+     * @return route id
+     */
+    @Deprecated
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     public IdForDTO getRouteID() {
-        return routeID;
+        return id;
+    }
+
+    @Override
+    public IdForDTO getId() {
+        return id;
     }
 
     // use TransportMode
@@ -76,7 +87,7 @@ public class RouteRefDTO {
     @Override
     public String toString() {
         return "RouteRefDTO{" +
-                "routeID='" + routeID + '\'' +
+                "id='" + id + '\'' +
                 ", routeName='" + routeName + '\'' +
                 ", transportMode=" + transportMode +
                 ", shortName='" + shortName + '\'' +

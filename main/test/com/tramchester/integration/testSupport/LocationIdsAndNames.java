@@ -22,6 +22,13 @@ public class LocationIdsAndNames<T extends Location<T>> {
         this.items = items;
     }
 
+    @Override
+    public String toString() {
+        return "LocationIdsAndNames{" +
+                "items=" + items +
+                '}';
+    }
+
     public static <T extends Location<T>> Collector<LocationIdAndNamePair<T>, LocationIdsAndNames<T>, LocationIdsAndNames<T>> collect() {
         return new Collector<>() {
             @Override

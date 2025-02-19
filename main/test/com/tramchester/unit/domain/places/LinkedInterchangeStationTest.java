@@ -82,7 +82,7 @@ public class LinkedInterchangeStationTest {
         assertTrue(pickupRoutes.contains(tramPickup));
         assertTrue(pickupRoutes.contains(trainPickup));
 
-        assertEquals(1, tramInterchange.getDropoffRoutes().size());
+        assertEquals(2, tramInterchange.getDropoffRoutes().size());
         assertTrue(tramInterchange.getDropoffRoutes().contains(tramDropoff));
 
         InterchangeStation trainInterchange = new LinkedInterchangeStation(trainToTram);
@@ -97,7 +97,7 @@ public class LinkedInterchangeStationTest {
         assertTrue(pickupRoutesTrain.contains(tramPickup));
         assertTrue(pickupRoutesTrain.contains(trainPickup));
 
-        assertEquals(1, trainInterchange.getDropoffRoutes().size());
+        assertEquals(2, trainInterchange.getDropoffRoutes().size());
         assertTrue(trainInterchange.getDropoffRoutes().contains(trainDropoff));
     }
 
@@ -128,7 +128,7 @@ public class LinkedInterchangeStationTest {
         assertEquals(trainId, trainInterchange.getStationId());
         assertEquals(trainStation, trainInterchange.getStation());
 
-        assertEquals(1, trainInterchange.getDropoffRoutes().size());
+        assertEquals(3, trainInterchange.getDropoffRoutes().size());
         assertTrue(trainInterchange.getDropoffRoutes().contains(trainDropoff));
 
         Set<Route> pickupRoutes = trainInterchange.getPickupRoutes();

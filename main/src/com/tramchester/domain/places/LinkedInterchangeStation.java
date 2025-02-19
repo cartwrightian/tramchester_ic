@@ -1,5 +1,6 @@
 package com.tramchester.domain.places;
 
+import com.tramchester.domain.HasRoutes;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.StationToStationConnection;
 import com.tramchester.domain.id.IdFor;
@@ -9,6 +10,7 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -37,39 +39,39 @@ public class LinkedInterchangeStation implements InterchangeStation {
         return allModes.size() > 1;
     }
 
-    /***
-     * See above note on the 'direction' for a linked interchange
-     * @return only the dropoffs for the origin
-     */
     @Override
     public Set<Route> getDropoffRoutes() {
-        return origin.getDropoffRoutes();
+        return merge(HasRoutes::getDropoffRoutes);
+        //return origin.getDropoffRoutes();
     }
 
-    /***
-     * See above note on the 'direction' for a linked interchange
-     * @return pickups for both the origin and all linked stations
-     */
     @Override
     public Set<Route> getPickupRoutes() {
-        final Set<Route> pickUps = new HashSet<>(origin.getPickupRoutes());
-        final Set<Route> otherEnd = links.stream().map(StationToStationConnection::getEnd).
-                flatMap(station -> station.getPickupRoutes().stream()).collect(Collectors.toSet());
-        pickUps.addAll(otherEnd);
-        return pickUps;
+        return merge(HasRoutes::getPickupRoutes);
     }
 
     @Override
     public boolean servesRoutePickup(final Route route) {
-        if (origin.servesRoutePickup(route)) {
-            return true;
-        }
-        return links.stream().anyMatch(link -> link.getEnd().servesRoutePickup(route));
+        return fold(station -> station.servesRoutePickup(route));
     }
 
     @Override
     public boolean servesRouteDropOff(final Route route) {
-        return origin.servesRouteDropOff(route);
+        return fold(station -> station.servesRouteDropOff(route));
+        //return origin.servesRouteDropOff(route);
+    }
+
+    private boolean fold(Function<Station, Boolean> check) {
+        if (check.apply(origin)) {
+            return true;
+        }
+        return links.stream().anyMatch(link -> check.apply(link.getEnd()));
+    }
+
+    private Set<Route> merge(final Function<Station, Set<Route>> getRoutes) {
+        final Set<Route> result = new HashSet<>(getRoutes.apply(origin));
+        links.forEach(link -> result.addAll(getRoutes.apply(link.getEnd())));
+        return result;
     }
 
     @Override

@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Set;
 
 @SuppressWarnings("unused")
-public class LocationDTO {
+public class LocationDTO implements HasIdForDTO{
     private IdForDTO id;
     private String name;
     private LatLong latLong;
@@ -36,6 +36,7 @@ public class LocationDTO {
         // deserialisation
     }
 
+    @Override
     public IdForDTO getId() {
         return id;
     }

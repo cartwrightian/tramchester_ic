@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 public class KnownTramRoute {
 
     public static TramDate febCutOver = TramDate.of(2025,2,16);
-    public static TramDate initialDate = TramDate.of(2014, 6, 1);
+    public static TramDate revertDate = TramDate.of(2025, 2, 25);
 
     /***
      * @return Replacement Bus Media City to Eccles
@@ -114,10 +114,7 @@ public class KnownTramRoute {
     public static Set<TestRoute> getFor(final TramDate date) {
         final Set<TestRoute> routes = new HashSet<>();
 
-        final TramDate startDate = UpcomingDates.MediaCityEcclesWorks2025.getStartDate().minusDays(1);
-
-        if (startDate.isBefore(date) &&
-                date.isBefore(TramDate.of(2025,3, 28))) {
+        if (UpcomingDates.MediaCityEcclesWorks2025.contains(date)) {
             routes.add(getBusEcclesToMediaCity(date));
         }
         if (date.equals(TramDate.of(2025,2,23))) {

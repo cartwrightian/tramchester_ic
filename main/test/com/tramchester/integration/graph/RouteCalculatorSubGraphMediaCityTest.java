@@ -10,6 +10,7 @@ import com.tramchester.domain.LocationIdPair;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.collections.LocationIdPairSet;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.Location;
@@ -244,7 +245,7 @@ class RouteCalculatorSubGraphMediaCityTest {
     }
 
     @Test
-    void shouldHaveJoruneyFromEveryStationToEveryOther() {
+    void shouldHaveJourneyFromEveryStationToEveryOther() {
 
         final TramTime time = TramTime.of(8, 5);
 
@@ -266,12 +267,16 @@ class RouteCalculatorSubGraphMediaCityTest {
                 filter(station -> !closedStationRepository.isClosed(station, date)).
                 collect(Collectors.toSet());
 
+        assertFalse(stations.isEmpty(), "No stations for + " + date);
+
         LocationIdPairSet<Station> stationIdPairs = stations.stream().flatMap(start -> stations.stream().
                         filter(dest -> !dest.getId().equals(start.getId())).
                         filter(dest -> !combinations.betweenInterchanges(start, dest)).
                         map(dest -> LocationIdPair.of(start, dest))).
                         filter(pair -> !pair.same()).
                         collect(LocationIdPairSet.collector());
+
+        assertFalse(stationIdPairs.isEmpty(), "No pairs for " + date + " from stations " + HasId.asIds(stations));
 
         RouteCalculationCombinations.CombinationResults<Station> results = combinations.getJourneysFor(stationIdPairs, journeyRequest);
 
