@@ -6,9 +6,10 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.testSupport.UpcomingDates;
 import org.jetbrains.annotations.NotNull;
 
-import java.time.DayOfWeek;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.tramchester.testSupport.UpcomingDates.YorkStreetWorks2025;
 
 public class KnownTramRoute {
 
@@ -121,12 +122,17 @@ public class KnownTramRoute {
             routes.add(getBusVictoriaPiccadilly(date));
         }
 
-        if (!date.getDayOfWeek().equals(DayOfWeek.SUNDAY) || !date.isAfter(TramDate.of(2025, 2, 15))) {
-            routes.add(getBuryManchesterAltrincham(date));
+//        if (!date.getDayOfWeek().equals(DayOfWeek.SUNDAY) || !date.isAfter(TramDate.of(2025, 2, 15))) {
+//            routes.add(getBuryManchesterAltrincham(date));
+//        }
+
+        routes.add(getBuryManchesterAltrincham(date));
+
+        if (!YorkStreetWorks2025.contains(date)) {
+            routes.add(getEtihadPiccadillyAltrincham(date));
         }
 
         routes.add(getPiccadillyVictoria(date));
-        routes.add(getEtihadPiccadillyAltrincham(date));
 
         routes.add(getEcclesAshton(date));
         routes.add(getCornbrookTheTraffordCentre(date));

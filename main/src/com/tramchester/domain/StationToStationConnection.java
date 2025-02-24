@@ -14,6 +14,8 @@ import java.util.Set;
 
 public class StationToStationConnection {
 
+    private final int hashCode;
+
     public enum LinkType {
         Diversion,
         Linked,
@@ -23,6 +25,7 @@ public class StationToStationConnection {
     private final StationPair pair;
     private final EnumSet<TransportMode> linkingModes;
     private final LinkType linkType;
+
     private final Quantity<Length> distanceBetweenInMeters;
     private final Duration connectionTime;
 
@@ -33,6 +36,8 @@ public class StationToStationConnection {
         this.connectionTime = connectionTime;
         this.pair = StationPair.of(begin, end);
         this.linkingModes = linkingModes;
+        // performance
+        this.hashCode = Objects.hash(pair, linkingModes, linkType, distanceBetweenInMeters);
     }
 
     public static StationToStationConnection createForWalk(Station begin, Station end, EnumSet<TransportMode> linkingModes,
@@ -67,12 +72,13 @@ public class StationToStationConnection {
         if (o == null || getClass() != o.getClass()) return false;
         StationToStationConnection that = (StationToStationConnection) o;
         return Objects.equals(pair, that.pair) && Objects.equals(linkingModes, that.linkingModes)
-                && linkType == that.linkType && Objects.equals(distanceBetweenInMeters, that.distanceBetweenInMeters);
+                && linkType == that.linkType
+                && Objects.equals(distanceBetweenInMeters, that.distanceBetweenInMeters);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(pair, linkingModes, linkType, distanceBetweenInMeters);
+       return hashCode;
     }
 
     /***

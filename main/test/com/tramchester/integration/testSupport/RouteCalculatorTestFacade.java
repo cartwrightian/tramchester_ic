@@ -7,7 +7,7 @@ import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.presentation.DTO.diagnostics.JourneyDiagnostics;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.facade.MutableGraphTransaction;
@@ -56,7 +56,7 @@ public class RouteCalculatorTestFacade {
         return calculateRouteAsList(getFor(startId), getFor(destId), request);
     }
 
-    public List<Journey> calculateRouteAsList(FakeStation start, StationGroup end, JourneyRequest journeyRequest) {
+    public List<Journey> calculateRouteAsList(FakeStation start, StationLocalityGroup end, JourneyRequest journeyRequest) {
         return calculateRouteAsList(start.from(stationRepository), end, journeyRequest);
     }
 

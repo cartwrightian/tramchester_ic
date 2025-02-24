@@ -36,6 +36,7 @@ public class ServiceHeuristics {
     private final NodeContentsRepository nodeOperations;
     private final int currentChangesLimit;
     private final LowestCostsForDestRoutes lowestCostsForDestRoutes;
+    private final int penultimateChange;
 
     public ServiceHeuristics(StationRepository stationRepository, NodeContentsRepository nodeOperations,
                              JourneyConstraints journeyConstraints, TramTime actualQueryTime,
@@ -47,6 +48,7 @@ public class ServiceHeuristics {
         this.actualQueryTime = actualQueryTime;
         this.currentChangesLimit = currentChangesLimit;
         this.lowestCostsForDestRoutes = journeyConstraints.getFewestChangesCalculator();
+        penultimateChange = currentChangesLimit>1 ? currentChangesLimit-1 : currentChangesLimit;
     }
     
     public HeuristicsReason checkServiceDateAndTime(final GraphNode node, final HowIGotHere howIGotHere, final ServiceReasons reasons,
@@ -84,7 +86,8 @@ public class ServiceHeuristics {
         return valid(ReasonCode.NeighbourConnectionsOk, howIGotHere, reasons);
     }
 
-    public HeuristicsReason checkNumberWalkingConnections(final int currentNumConnections, final HowIGotHere howIGotHere, final ServiceReasons reasons) {
+    public HeuristicsReason checkNumberWalkingConnections(final int currentNumConnections, final HowIGotHere howIGotHere,
+                                                          final ServiceReasons reasons) {
         reasons.incrementTotalChecked();
 
         if (currentNumConnections > journeyConstraints.getMaxWalkingConnections()) {
@@ -164,10 +167,22 @@ public class ServiceHeuristics {
                                        final HowIGotHere howIGotHere, final ServiceReasons reasons) {
         // todo more efficient way for intersection on EnumSets?
         if (Sets.intersection(modelLabels, requestedModeLabels).isEmpty()) {
-            //IdFor<RouteStation> routeStationId = nodeOperations.getRouteStationId(node);
             return reasons.recordReason(HeuristicsReasons.TransportModeWrong(howIGotHere));
         }
         return valid(ReasonCode.TransportModeOk, howIGotHere, reasons);
+    }
+
+
+    public HeuristicsReason checkModesMatchForFinalChange(final int currentNumberOfChanges,
+                                                          final EnumSet<GraphLabel> nodeLabels, final EnumSet<GraphLabel> destinationLabels,
+                                                          final HowIGotHere howIGotHere, final ServiceReasons reasons) {
+        // TODO potential optimisation where only one mode is configured, in which case this check does nothing
+        if (currentNumberOfChanges==penultimateChange) {
+            if (Sets.intersection(nodeLabels, destinationLabels).isEmpty()) {
+                return reasons.recordReason(HeuristicsReasons.StationNotReachable(howIGotHere, ReasonCode.TransportModeWrong));
+            }
+        }
+        return valid(ReasonCode.NumChangesOK, howIGotHere, reasons);
     }
 
     public HeuristicsReason canReachDestination(final GraphNode endNode, final int currentNumberOfChanges, final HowIGotHere howIGotHere,
@@ -245,4 +260,5 @@ public class ServiceHeuristics {
         }
         return valid(ReasonCode.Continue, howIGotHere, reasons);
     }
+
 }

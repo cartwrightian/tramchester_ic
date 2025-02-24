@@ -9,7 +9,7 @@ import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.InvalidDurationException;
@@ -53,9 +53,9 @@ class CompositeRouteTest {
 
     private TramDate queryDate;
     private MutableGraphTransaction txn;
-    private StationGroup startGroup;
+    private StationLocalityGroup startGroup;
     private TramTime queryTime;
-    private StationGroup fourthStationComposite;
+    private StationLocalityGroup fourthStationComposite;
     private LocationJourneyPlannerTestFacade locationJourneyPlanner;
     private RouteCalculatorTestFacade calculator;
 
@@ -145,7 +145,7 @@ class CompositeRouteTest {
     void shouldHaveJourneyFromComposite() {
         JourneyRequest journeyRequest = createJourneyRequest(queryTime, 0);
 
-        final StationGroup start = startGroup;
+        final StationLocalityGroup start = startGroup;
         final Station destination = transportData.getInterchange();
 
 //        Set<Journey> journeys = calculator.calculateRoute(txn, start, destination, journeyRequest).collect(Collectors.toSet());

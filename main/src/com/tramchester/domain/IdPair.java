@@ -1,5 +1,6 @@
 package com.tramchester.domain;
 
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 
 import java.util.Objects;
@@ -12,6 +13,10 @@ public class IdPair<T extends CoreDomain> {
     public IdPair(IdFor<T> first, IdFor<T> second) {
         this.first = first;
         this.second = second;
+    }
+
+    public static <T extends HasId<T> & CoreDomain> IdPair<T> of(T first, T second) {
+        return new IdPair<>(first.getId(), second.getId());
     }
 
     public boolean same() {

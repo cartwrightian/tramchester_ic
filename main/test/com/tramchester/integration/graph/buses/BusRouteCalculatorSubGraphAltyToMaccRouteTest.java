@@ -13,7 +13,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.StopCall;
 import com.tramchester.domain.input.StopCalls;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.MarginInMeters;
@@ -57,7 +57,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRouteTest {
     private MutableGraphTransaction txn;
     private TramDate when;
     private StationGroupsRepository stationGroupsRepository;
-    private StationGroup altrinchamInterchange;
+    private StationLocalityGroup altrinchamInterchange;
     private List<Station> knutfordStations;
     private StationRepository stationRepository;
 

@@ -18,7 +18,7 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.graph.filters.GraphFilter;
 import jakarta.inject.Inject;
@@ -154,7 +154,7 @@ public class ClosedStationsRepository {
     public boolean isClosed(Location<?> location, TramDate date, TimeRange timeRange) {
         return switch (location.getLocationType()) {
             case Station -> isStationClosed((Station)location, date, timeRange);
-            case StationGroup -> isGroupClosed((StationGroup)location, date, timeRange);
+            case StationGroup -> isGroupClosed((StationLocalityGroup)location, date, timeRange);
             case Platform -> isPlatformClosed((Platform)location, date, timeRange);
             case Postcode, MyLocation -> false;
         };
@@ -163,7 +163,7 @@ public class ClosedStationsRepository {
     public boolean isClosed(final Location<?> location, final TramDate date) {
         return switch (location.getLocationType()) {
             case Station -> isStationClosed((Station)location, date);
-            case StationGroup -> isGroupClosed((StationGroup)location, date);
+            case StationGroup -> isGroupClosed((StationLocalityGroup)location, date);
             case Platform -> isPlatformClosed((Platform)location, date);
             case Postcode, MyLocation -> false;
         };
@@ -181,11 +181,11 @@ public class ClosedStationsRepository {
         return closedStationContainer.isStationClosed(station.getId(), date);
     }
 
-    public boolean isGroupClosed(final StationGroup group, final TramDate date) {
+    public boolean isGroupClosed(final StationLocalityGroup group, final TramDate date) {
         return allClosed(group.getAllContained(), date);
     }
 
-    public boolean isGroupClosed(final StationGroup group, final TramDate date, final TimeRange timeRange) {
+    public boolean isGroupClosed(final StationLocalityGroup group, final TramDate date, final TimeRange timeRange) {
         if (timeRange.allDay()) {
             return allClosed(group.getAllContained(), date);
         }
@@ -383,7 +383,7 @@ public class ClosedStationsRepository {
                     filter(closedStation -> closedStation.getDateTimeRange().getDateRange().contains(date)).collect(Collectors.toSet());
         }
 
-        public boolean anyStationOpen(LocationSet<Station> locations, TramDate date) {
+        public boolean anyStationOpen(final LocationSet<Station> locations, TramDate date) {
             if (!hasClosuresOn(date)) {
                 return true;
             }

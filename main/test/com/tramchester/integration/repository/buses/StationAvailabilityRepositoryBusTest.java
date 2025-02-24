@@ -8,7 +8,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
@@ -89,7 +89,7 @@ public class StationAvailabilityRepositoryBusTest {
 
     @Test
     void shouldCheckStationGroupsAsExpected() {
-        StationGroup stationGroup = stationGroupRepository.getStationGroup(KnownLocality.Altrincham.getId()); //.findByName(BusStations.Composites.AltrinchamInterchange.getName());
+        StationLocalityGroup stationGroup = stationGroupRepository.getStationGroup(KnownLocality.Altrincham.getId()); //.findByName(BusStations.Composites.AltrinchamInterchange.getName());
         assertNotNull(stationGroup);
 
         boolean duringTheDay = availabilityRepository.isAvailable(stationGroup, when, TimeRangePartial.of(of(8,45), of(10,45)), modes);
@@ -101,7 +101,7 @@ public class StationAvailabilityRepositoryBusTest {
     @Test
     void shouldBeAvailableAtExpectedHoursOld() {
 
-        StationGroup stockport = KnownLocality.Stockport.from(stationGroupRepository);
+        StationLocalityGroup stockport = KnownLocality.Stockport.from(stationGroupRepository);
 
         boolean duringTheDay = availabilityRepository.isAvailable(stockport, when, morningRange, modes);
         assertTrue(duringTheDay);
@@ -116,7 +116,7 @@ public class StationAvailabilityRepositoryBusTest {
     @Test
     void shouldBeAvailableAtMaccExpectedHours() {
 
-        StationGroup macclesfield = KnownLocality.Macclesfield.from(stationGroupRepository);
+        StationLocalityGroup macclesfield = KnownLocality.Macclesfield.from(stationGroupRepository);
 
         boolean duringTheDay = availabilityRepository.isAvailable(macclesfield, when, morningRange, modes);
 
@@ -134,7 +134,7 @@ public class StationAvailabilityRepositoryBusTest {
     @Test
     void shouldBeAvailableAtMaccExpectedDropOffsAndPickups() {
 
-        StationGroup macclesfield = KnownLocality.Macclesfield.from(stationGroupRepository);
+        StationLocalityGroup macclesfield = KnownLocality.Macclesfield.from(stationGroupRepository);
 
         Set<Route> pickups = availabilityRepository.getPickupRoutesFor(macclesfield, when, morningRange, modes);
         assertFalse(pickups.isEmpty());
@@ -149,7 +149,7 @@ public class StationAvailabilityRepositoryBusTest {
 
         // there really are no buses in the evening!
 
-        StationGroup macclesfield = KnownLocality.Macclesfield.from(stationGroupRepository);
+        StationLocalityGroup macclesfield = KnownLocality.Macclesfield.from(stationGroupRepository);
 
         Set<Route> pickups = availabilityRepository.getPickupRoutesFor(macclesfield, when, eveningRange, modes);
         assertTrue(pickups.isEmpty());
@@ -162,7 +162,7 @@ public class StationAvailabilityRepositoryBusTest {
     @Test
     void shouldHaveAvailabilityAtBollington() {
 
-        StationGroup bollington = KnownLocality.Bollington.from(stationGroupRepository);
+        StationLocalityGroup bollington = KnownLocality.Bollington.from(stationGroupRepository);
 
         TimeRange timeRange = TimeRangePartial.of(TramTime.of(2,0), TramTime.of(23,30));
         Set<Route> dropoffs = availabilityRepository.getDropoffRoutesFor(bollington, when, timeRange, modes);

@@ -6,7 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
@@ -79,7 +79,7 @@ class LocationJourneyPlannerBusTest {
         JourneyRequest journeyRequest = new JourneyRequest(nextMonday, travelTime, false, 3,
                 maxDuration, 1, getRequestedModes());
 
-        StationGroup end = KnownLocality.Stockport.from(stationGroupsRepository);
+        StationLocalityGroup end = KnownLocality.Stockport.from(stationGroupsRepository);
 
         Set<Journey> results = planner.quickestRouteForLocation(nearAltrinchamInterchange, end, journeyRequest, 5);
 
@@ -93,7 +93,7 @@ class LocationJourneyPlannerBusTest {
     @Test
     void shouldHaveSimpleBusAndWalk() {
 
-        StationGroup stockportBusStation = KnownLocality.Stockport.from(stationGroupsRepository);
+        StationLocalityGroup stockportBusStation = KnownLocality.Stockport.from(stationGroupsRepository);
 
         TramTime travelTime = TramTime.of(8, 0);
 
@@ -109,7 +109,7 @@ class LocationJourneyPlannerBusTest {
     @Test
     void shouldFindAltyToKnutford() {
 
-        StationGroup alty = KnownLocality.Altrincham.from(stationGroupsRepository);
+        StationLocalityGroup alty = KnownLocality.Altrincham.from(stationGroupsRepository);
 
         TramTime travelTime = TramTime.of(10, 30);
 

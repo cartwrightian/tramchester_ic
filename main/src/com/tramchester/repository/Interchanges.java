@@ -3,6 +3,7 @@ package com.tramchester.repository;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.domain.LocationCollection;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.StationToStationConnection;
 import com.tramchester.domain.collections.RouteIndexPair;
@@ -295,6 +296,34 @@ public class Interchanges implements InterchangeRepository {
     @Override
     public Stream<InterchangeStation> getInterchangesFor(final RouteIndexPair indexPair) {
         return pairToInterchange.getInterchangesFor(indexPair);
+    }
+
+    /***
+     * Return modes for destinations iff the destination is an interchange
+     * @param destinations set of destinations, may or may not be interchanges
+     * @return transport modes for only those destinations that are interchange, which might be none of them
+     */
+    @Override
+    public EnumSet<TransportMode> getInterchangeModes(final LocationCollection destinations) {
+        final Set<TransportMode> modes = destinations.locationStream().
+                filter(this::isInterchange).
+                map(this::getInterchange).
+                flatMap(interchangeStation -> interchangeStation.getTransportModes().stream()).
+                collect(Collectors.toSet());
+        if (modes.isEmpty()) {
+            return EnumSet.noneOf(TransportMode.class);
+        } else {
+            return EnumSet.copyOf(modes);
+        }
+    }
+
+    @Override
+    public EnumSet<TransportMode> getInterchangeModes(Location<?> location) {
+        if (isInterchange(location)) {
+            return getInterchange(location).getTransportModes();
+        } else {
+            return EnumSet.noneOf(TransportMode.class);
+        }
     }
 
     private void recordPairsToInterchanges() {

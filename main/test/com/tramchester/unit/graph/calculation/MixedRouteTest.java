@@ -114,13 +114,14 @@ class MixedRouteTest {
     void shouldTestMultiStopJourneyFerryIsPossible() {
         ///
         // Note relies on multi-mode stations automatically being seen as interchanges
-        // Change at Interchange ONLY is enable in config below
-        ///
+        // Change at Interchange ONLY is enabled in config below
+        //
         assertTrue(config.getChangeAtInterchangeOnly(),"valid precondition");
         JourneyRequest journeyRequest = createJourneyRequest(queryTime, 1);
 
         Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getFirst(),
                 transportData.getFourthStation(), journeyRequest, () -> true).collect(Collectors.toSet());
+
         assertFalse(journeys.isEmpty());
 
         journeys.forEach(journey -> {
@@ -144,9 +145,10 @@ class MixedRouteTest {
 
     private static void assertFirstAndLastForOneStage(Set<Journey> journeys, String firstStation, String secondStation,
                                                       int passedStops, TramTime queryTime) {
-        Journey journey = (Journey)journeys.toArray()[0];
+        Journey journey = (Journey)journeys.toArray()[0]; // TODO YUCK!
         List<TransportStage<?,?>> stages = journey.getStages();
-        TransportStage<?,?> vehicleStage = stages.get(0);
+
+        TransportStage<?,?> vehicleStage = stages.getFirst();
         assertEquals(Station.createId(firstStation), vehicleStage.getFirstStation().getId());
         assertEquals(Station.createId(secondStation), vehicleStage.getLastStation().getId());
         assertEquals(passedStops,  vehicleStage.getPassedStopsCount());

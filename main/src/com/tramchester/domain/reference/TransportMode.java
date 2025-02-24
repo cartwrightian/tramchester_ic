@@ -47,7 +47,7 @@ public enum TransportMode implements HasTransportMode {
         return hasModes.getTransportModes().contains(TransportMode.Tram);
     }
 
-    public static TransportMode fromNumber(short number) {
+    public static TransportMode fromNumber(final short number) {
         return index.get(number);
     }
 

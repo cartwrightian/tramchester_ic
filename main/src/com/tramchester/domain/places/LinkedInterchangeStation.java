@@ -42,7 +42,6 @@ public class LinkedInterchangeStation implements InterchangeStation {
     @Override
     public Set<Route> getDropoffRoutes() {
         return merge(HasRoutes::getDropoffRoutes);
-        //return origin.getDropoffRoutes();
     }
 
     @Override
@@ -58,7 +57,6 @@ public class LinkedInterchangeStation implements InterchangeStation {
     @Override
     public boolean servesRouteDropOff(final Route route) {
         return fold(station -> station.servesRouteDropOff(route));
-        //return origin.servesRouteDropOff(route);
     }
 
     private boolean fold(Function<Station, Boolean> check) {

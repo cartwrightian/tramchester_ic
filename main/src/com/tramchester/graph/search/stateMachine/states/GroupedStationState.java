@@ -2,7 +2,7 @@ package com.tramchester.graph.search.stateMachine.states;
 
 
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
@@ -65,7 +65,7 @@ public class GroupedStationState extends TraversalState {
                                 Stream<ImmutableGraphRelationship> relationships, Duration cost,
                                 Towards<GroupedStationState> builder, GraphNode graphNode) {
         super(parent, relationships, cost, builder.getDestination(), graphNode.getId());
-        final IdFor<StationGroup> stationGroupdId = graphNode.getStationGroupId();
+        final IdFor<StationLocalityGroup> stationGroupdId = graphNode.getStationGroupId();
         journeyStateUpdate.seenStationGroup(stationGroupdId);
     }
 

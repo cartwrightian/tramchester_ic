@@ -1,15 +1,12 @@
 package com.tramchester.unit.graph;
 
 import com.tramchester.config.GTFSSourceConfig;
-import com.tramchester.domain.LocationCollection;
-import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.closures.ClosedStation;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
@@ -57,11 +54,11 @@ public class JourneyConstraintsTest extends EasyMockSupport {
         lowestCostForDest = createMock(LowestCostsForDestRoutes.class);
         filterForDate = createMock(RunningRoutesAndServices.FilterForDate.class);
 
-        LocationSet<Station> endStations = LocationSet.singleton(TramStations.Bury.fake());
+        //LocationSet<Station> endStations = LocationSet.singleton(TramStations.Bury.fake());
 
         maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
         journeyConstraints = new JourneyConstraints(config, filterForDate,
-                closedStations, endStations, lowestCostForDest, maxJourneyDuration,
+                closedStations, TestEnv.Modes.TramsOnly, lowestCostForDest, maxJourneyDuration,
                 TimeRangePartial.of(TramTime.of(8,0), TramTime.of(23,0)));
     }
 
@@ -93,7 +90,7 @@ public class JourneyConstraintsTest extends EasyMockSupport {
         TimeRange timeRange = TimeRangePartial.of(TramTime.of(16, 0), TramTime.nextDay(1, 5));
 
         JourneyConstraints constraints = new JourneyConstraints(config, filterForDate,
-                Collections.emptySet(), LocationSet.singleton(TramStations.Bury.fake()), lowestCostForDest, maxJourneyDuration,
+                Collections.emptySet(), TestEnv.Modes.TramsOnly, lowestCostForDest, maxJourneyDuration,
                 timeRange);
 
         assertTrue(constraints.destinationsAvailable(TramTime.of(16,15)));
@@ -174,13 +171,13 @@ public class JourneyConstraintsTest extends EasyMockSupport {
         verifyAll();
     }
 
-    @Test
-    void shouldGetEndStations() {
-
-        LocationCollection result = journeyConstraints.getDestinations();
-        assertEquals(1, result.size());
-        assertTrue(result.contains(TramStations.Bury.getLocationId()));
-    }
+//    @Test
+//    void shouldGetEndStations() {
+//
+//        LocationCollection result = journeyConstraints.getDestinations();
+//        assertEquals(1, result.size());
+//        assertTrue(result.contains(TramStations.Bury.getLocationId()));
+//    }
 
     @Test
     void shouldCheckLongestPath() {

@@ -23,17 +23,20 @@ public class MixedLocationSet implements LocationCollection {
         locations = new HashSet<>();
     }
 
-    public MixedLocationSet(LocationCollection collection) {
+    public MixedLocationSet(final LocationCollection collection) {
         locations = collection.locationStream().collect(Collectors.toSet());
     }
 
+    // TODO
+    // MixedFor a single location?
+    @Deprecated
     public static MixedLocationSet singleton(final Location<?> location) {
         final MixedLocationSet result = new MixedLocationSet();
         result.add(location);
         return result;
     }
 
-    public void add(final Location<?> item) {
+    private void add(final Location<?> item) {
         locations.add(item);
     }
 

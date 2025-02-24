@@ -25,7 +25,7 @@ public class TowardsDestination {
             DEPART, WALKS_TO_STATION, DIVERSION_DEPART);
 
     private final LocationCollection expanded;
-    private final LocationCollection originalDestinations;
+//    private final LocationCollection originalDestinations;
 
     public TowardsDestination(final Location<?> destination) {
         this(MixedLocationSet.singleton(destination));
@@ -33,7 +33,7 @@ public class TowardsDestination {
 
     public TowardsDestination(final LocationCollection destinations) {
         this.expanded = expand(destinations);
-        this.originalDestinations = destinations;
+//        this.originalDestinations = destinations;
     }
 
     private LocationCollection expand(final LocationCollection destinations) {
@@ -82,9 +82,9 @@ public class TowardsDestination {
         }
     }
 
-    public LocationCollection getDestinations() {
-        return originalDestinations;
-    }
+//    public LocationCollection getDestinations() {
+//        return originalDestinations;
+//    }
 
 
 }

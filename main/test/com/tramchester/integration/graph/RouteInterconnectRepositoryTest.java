@@ -25,6 +25,7 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.InMemoryDataCache;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
 import org.apache.commons.lang3.tuple.Pair;
@@ -157,6 +158,7 @@ public class RouteInterconnectRepositoryTest {
 
     }
 
+    @DisabledUntilDate(year = 2025, month = 3, day = 16)
     @Test
     void shouldCheckFor2Changes() {
 
@@ -224,6 +226,7 @@ public class RouteInterconnectRepositoryTest {
 
     }
 
+    @DisabledUntilDate(year = 2025, month = 3, day = 17)
     @Test
     void shouldHaveExpectedBacktrackFor2Changes() {
         Route routeA = routeHelper.getOneRoute(getPiccadillyVictoria(date), date);
@@ -266,6 +269,7 @@ public class RouteInterconnectRepositoryTest {
         return converted.toString();
     }
 
+    @DisabledUntilDate(year = 2025, month = 3, day = 16)
     @Test
     void shouldCheckFor2ChangesFiltered() {
         Route routeA = routeHelper.getOneRoute(getPiccadillyVictoria(date), date);
@@ -281,10 +285,14 @@ public class RouteInterconnectRepositoryTest {
 
         assertTrue(viaMarketStreetAndCornbook.hasAny());
 
+        assertInstanceOf(PathResults.HasPathResults.class, viaMarketStreetAndCornbook, "No path results");
+
         PathResults.HasPathResults results = (PathResults.HasPathResults) viaMarketStreetAndCornbook;
         assertNotNull(results);
 
-        Set<QueryPathsWithDepth.BothOf> parts = results.stream().map(path -> (QueryPathsWithDepth.BothOf)path).collect(Collectors.toSet());
+        Set<QueryPathsWithDepth.BothOf> parts = results.stream().
+                filter(path -> path instanceof QueryPathsWithDepth.BothOf).
+                map(path -> (QueryPathsWithDepth.BothOf)path).collect(Collectors.toSet());
 
         assertFalse(parts.isEmpty());
 

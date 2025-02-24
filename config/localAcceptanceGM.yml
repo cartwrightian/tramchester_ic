@@ -25,7 +25,7 @@ gtfsSourceConfig:
     initialWaitMinutes: 13
     noServices: []
     markedInterchangesOnly: false
-    additionalInterchanges: [9400ZZMAGMX,9400ZZMAPIC]
+    additionalInterchanges: [9400ZZMAPIC]
     groupedStationModes: []
     addWalksForClosed: true
     stationClosures: []
@@ -60,16 +60,6 @@ remoteSources:
     downloadPath: data/nptg
     filename: ${NPTG_FILE:- Localities.csv.zip}
     defaultExpiryDays: 14
-#  - name: database
-#    dataURL: s3://tramchesternewdist/dist/${RELEASE_NUMBER}/database.zip
-#    dataCheckURL: s3://tramchesternewdist/dist/${RELEASE_NUMBER}/database.zip
-#    dataPath: databases
-#    downloadPath: databases
-#    filename: database.zip
-#    defaultExpiryDays: 0
-#    modTimeCheckFilename: gm_rail.db
-#    mandatory: false
-#    skipUpload: false
 rail:
   dataPath: data/openRailData
   modes: [ Train, RailReplacementBus ]

@@ -13,6 +13,7 @@ import com.tramchester.domain.collections.RequestStopStream;
 import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.geo.BoundingBoxWithStations;
@@ -28,10 +29,7 @@ import com.tramchester.graph.search.diagnostics.CreateJourneyDiagnostics;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
 import com.tramchester.graph.search.selectors.BreadthFirstBranchSelectorForGridSearch;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
-import com.tramchester.repository.ClosedStationsRepository;
-import com.tramchester.repository.RunningRoutesAndServices;
-import com.tramchester.repository.StationAvailabilityRepository;
-import com.tramchester.repository.TransportData;
+import com.tramchester.repository.*;
 import jakarta.inject.Inject;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.traversal.BranchOrderingPolicy;
@@ -39,10 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
-import java.util.List;
-import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -57,6 +52,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
     private final GraphDatabase graphDatabaseService;
     private final ClosedStationsRepository closedStationsRepository;
     private final RunningRoutesAndServices runningRoutesAndService;
+    private final InterchangeRepository interchangeRepository;
 
     @Inject
     public RouteCalculatorForBoxes(TramchesterConfig config,
@@ -69,7 +65,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                                    BetweenRoutesCostRepository routeToRouteCosts,
                                    ClosedStationsRepository closedStationsRepository, RunningRoutesAndServices runningRoutesAndService,
                                    @SuppressWarnings("unused") RouteCostCalculator routeCostCalculator,
-                                   StationAvailabilityRepository stationAvailabilityRepository, CreateJourneyDiagnostics failedJourneyDiagnostics, NumberOfNodesAndRelationshipsRepository countsNodes) {
+                                   StationAvailabilityRepository stationAvailabilityRepository, CreateJourneyDiagnostics failedJourneyDiagnostics, NumberOfNodesAndRelationshipsRepository countsNodes, InterchangeRepository interchangeRepository) {
         super(pathToStages, nodeContentsRepository, graphDatabaseService,
                 providesNow, mapPathToLocations,
                 transportData, config, transportData, routeToRouteCosts, failedJourneyDiagnostics,
@@ -78,6 +74,7 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
         this.graphDatabaseService = graphDatabaseService;
         this.closedStationsRepository = closedStationsRepository;
         this.runningRoutesAndService = runningRoutesAndService;
+        this.interchangeRepository = interchangeRepository;
     }
 
     public RequestStopStream<JourneysForBox> calculateRoutes(final StationsBoxSimpleGrid destinationBox, final JourneyRequest journeyRequest,
@@ -205,8 +202,10 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
 
         final Set<ClosedStation> closedStations = closedStationsRepository.getAnyWithClosure(date);
 
+        EnumSet<TransportMode> destinationsModes = interchangeRepository.getInterchangeModes(destinations);
+
         return new JourneyConstraints(config, routeAndServicesFilter, closedStations,
-                destinations, lowestCostForDestinations, journeyRequest.getMaxJourneyDuration(), destinationsAvailable);
+                destinationsModes, lowestCostForDestinations, journeyRequest.getMaxJourneyDuration(), destinationsAvailable);
     }
 
 

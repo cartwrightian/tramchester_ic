@@ -26,18 +26,18 @@ import java.util.stream.Collectors;
  * Stations grouped together as in same nptg locality, use as starting or end point for a journey
  * see also class: com.tramchester.graph.GraphQuery::getGroupedNode
  */
-public class StationGroup implements Location<StationGroup> {
-    private final IdFor<StationGroup> id;
+public class StationLocalityGroup implements Location<StationLocalityGroup> {
+    private final IdFor<StationLocalityGroup> id;
     private final IdFor<NPTGLocality> localityId;
     private final LocationSet<Station> groupedStations;
     private final String name;
 
     private final LatLong latLong;
     private final DataSourceID dataSourceId;
-    private final IdFor<StationGroup> parentId;
+    private final IdFor<StationLocalityGroup> parentId;
 
-    public StationGroup(final Set<Station> groupedStations, final IdFor<NPTGLocality> localityId, final String name, final IdFor<NPTGLocality> parentId,
-                        LatLong latLong) {
+    public StationLocalityGroup(final Set<Station> groupedStations, final IdFor<NPTGLocality> localityId, final String name, final IdFor<NPTGLocality> parentId,
+                                LatLong latLong) {
         if (groupedStations.isEmpty()) {
             throw new RuntimeException("Attempt to create empty group for " + localityId + " name name " +name);
         }
@@ -45,7 +45,7 @@ public class StationGroup implements Location<StationGroup> {
         if (parentId.isValid()) {
             this.parentId = idFrom(parentId);
         } else {
-            this.parentId = StringIdFor.invalid(StationGroup.class);
+            this.parentId = StringIdFor.invalid(StationLocalityGroup.class);
         }
         this.latLong = latLong;
         this.dataSourceId = computeDataSourceId(groupedStations);
@@ -55,12 +55,12 @@ public class StationGroup implements Location<StationGroup> {
     }
 
     @NotNull
-    public static IdFor<StationGroup> idFrom(IdFor<NPTGLocality> localityId) {
-        return StringIdFor.convert(localityId, StationGroup.class);
+    public static IdFor<StationLocalityGroup> idFrom(IdFor<NPTGLocality> localityId) {
+        return StringIdFor.convert(localityId, StationLocalityGroup.class);
     }
 
-    public static IdFor<StationGroup> createId(String text) {
-        return StringIdFor.createId(text, StationGroup.class);
+    public static IdFor<StationLocalityGroup> createId(String text) {
+        return StringIdFor.createId(text, StationLocalityGroup.class);
     }
 
     @Override
@@ -79,7 +79,7 @@ public class StationGroup implements Location<StationGroup> {
     }
 
     @Override
-    public IdFor<StationGroup> getId() {
+    public IdFor<StationLocalityGroup> getId() {
         return id;
     }
 
@@ -206,7 +206,7 @@ public class StationGroup implements Location<StationGroup> {
                 '}';
     }
 
-    public IdFor<StationGroup> getParentId() {
+    public IdFor<StationLocalityGroup> getParentId() {
         return parentId;
     }
 

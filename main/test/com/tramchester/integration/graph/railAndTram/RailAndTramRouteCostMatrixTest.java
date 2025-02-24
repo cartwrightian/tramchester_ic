@@ -5,6 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.caching.FileDataCache;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.dataimport.rail.reference.TrainOperatingCompanies;
+import com.tramchester.domain.IdPair;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.collections.ImmutableIndexedBitSet;
 import com.tramchester.domain.dates.TramDate;
@@ -24,6 +25,8 @@ import com.tramchester.testSupport.testTags.GMTest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -118,7 +121,7 @@ public class RailAndTramRouteCostMatrixTest {
     }
 
     @Test
-    void shouldHaveZeroDepthIfNeighboursAndNeighboursEnabled() {
+    void shouldHaveCorrectDepthIfNeighboursAndNeighboursEnabled() {
 
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
 
@@ -128,12 +131,17 @@ public class RailAndTramRouteCostMatrixTest {
         Set<Route> altrinchamTramRoutes = altrinchamTram.getPickupRoutes();
         Set<Route> altrinchamRailRoutes = altrinchamRail.getPickupRoutes();
 
+        List<IdPair<Route>> incorrect = new ArrayList<>();
         for(final Route begin : altrinchamTramRoutes) {
             for(final Route end : altrinchamRailRoutes) {
                 final int result = routeMatrix.getConnectionDepthFor(begin, end);
-                assertEquals(1, result, "Got " + result + " for " + begin.getId() + " and " + end.getId());
+                if (result!=1) {
+                    incorrect.add(IdPair.of(begin, end));
+                }
+                //assertEquals(1, result, "Got " + result + " for " + begin.getId() + " and " + end.getId());
             }
         }
+        assertTrue(incorrect.isEmpty(), incorrect.toString());
     }
 
     @Test

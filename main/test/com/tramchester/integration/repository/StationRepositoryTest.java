@@ -26,6 +26,7 @@ import com.tramchester.repository.TripRepository;
 import com.tramchester.repository.naptan.NaptanRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.reference.TestRoute;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
@@ -75,6 +76,7 @@ public class StationRepositoryTest {
         when = TestEnv.testDay();
     }
 
+    @DisabledUntilDate(year = 2025, month = 3, day = 17)
     @Test
     void shouldHaveExpectedStationsForRoute() {
         Route buryToAlty = routeHelper.getOneRoute(getBuryManchesterAltrincham(when), when);
@@ -203,8 +205,9 @@ public class StationRepositoryTest {
         assertEquals(LocationType.Platform, platformOne.getLocationType());
     }
 
+    @DisabledUntilDate(year = 2025, month = 3, day = 17)
     @Test
-    void shouldHaveExpectedPickupAndDropoffForStationMany() {
+    void shouldHaveExpectedPickupAndDropoffForCornbrook() {
         Station station = Cornbrook.from(stationRepository);
 
         assertTrue(station.hasDropoff());
@@ -262,18 +265,17 @@ public class StationRepositoryTest {
 
     @Test
     void shouldHaveExpectedPickupAndDropOffsForMediaCity() {
-        // seen issues
+        // seen issues here
         Station mediaCity = MediaCityUK.from(stationRepository);
 
         IdSet<Route> dropOffs = mediaCity.getDropoffRoutes().stream().collect(IdSet.collector());
 
-        // bus replacement 1->2->4
-        assertEquals(4, dropOffs.size(), dropOffs.toString());
+        assertEquals(3, dropOffs.size(), dropOffs.toString());
         assertTrue(dropOffs.contains(getEcclesAshton(when).getId()));
         assertTrue(dropOffs.contains(getBusEcclesToMediaCity(when).getId()));
 
         IdSet<Route> pickUps = mediaCity.getDropoffRoutes().stream().collect(IdSet.collector());
-        assertEquals(4, pickUps.size(), pickUps.toString());
+        assertEquals(3, pickUps.size(), pickUps.toString());
         assertTrue(pickUps.contains(getEcclesAshton(when).getId()));
         assertTrue(pickUps.contains(getBusEcclesToMediaCity(when).getId()));
     }

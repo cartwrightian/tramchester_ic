@@ -93,6 +93,9 @@ public class StopCalls {
     }
 
     public StopCall getStopFor(final IdFor<Station> stationId) {
+        if (!stationIndex.containsKey(stationId)) {
+            throw new RuntimeException("Could not find station " + stationId);
+        }
         final int index = stationIndex.get(stationId);
         return orderedStopCalls.get(index);
     }

@@ -7,7 +7,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.TimedTransaction;
@@ -94,7 +94,7 @@ public class StationGroupsGraphBuilder extends CreateNodesAndRelationships {
     }
 
     private void addGroupedStationsNodesAndLinks(final TransportMode mode) {
-        final Set<StationGroup> groupsForMode = stationGroupsRepository.getStationGroupsFor(mode);
+        final Set<StationLocalityGroup> groupsForMode = stationGroupsRepository.getStationGroupsFor(mode);
 
         if (groupsForMode.isEmpty()) {
             logger.info("No grouped stations to add for " + mode);
@@ -103,7 +103,7 @@ public class StationGroupsGraphBuilder extends CreateNodesAndRelationships {
 
         final String logMessage = "Adding " + groupsForMode.size() + " station groups for " + mode;
 
-        final Map<IdFor<StationGroup>, GraphNodeId> nodeForGroups = new HashMap<>();
+        final Map<IdFor<StationLocalityGroup>, GraphNodeId> nodeForGroups = new HashMap<>();
 
         try(TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, logMessage)) {
             final MutableGraphTransaction txn = timedTransaction.transaction();
@@ -124,7 +124,7 @@ public class StationGroupsGraphBuilder extends CreateNodesAndRelationships {
             final MutableGraphTransaction txn = addParentTxn.transaction();
             groupsForMode.stream().filter(graphFilter::shouldInclude).
                     filter(this::shouldInclude).
-                    filter(StationGroup::hasParent).
+                    filter(StationLocalityGroup::hasParent).
                     filter(group -> nodeForGroups.containsKey(group.getParentId())).
                     forEach(group -> {
                         final GraphNodeId currentNodeId = nodeForGroups.get(group.getId());
@@ -142,7 +142,7 @@ public class StationGroupsGraphBuilder extends CreateNodesAndRelationships {
     }
 
     private void createGroupToParentRelationship(final MutableGraphTransaction txn, final MutableGraphNode childNode,
-                                                 final MutableGraphNode parentNode, final StationGroup childGroup) {
+                                                 final MutableGraphNode parentNode, final StationLocalityGroup childGroup) {
         // parent group <-> child group
         final Location<?> parentGroup = stationGroupsRepository.getStationGroup(childGroup.getParentId());
         final Duration walkingCost = geography.getWalkingDuration(childGroup, parentGroup);
@@ -153,12 +153,12 @@ public class StationGroupsGraphBuilder extends CreateNodesAndRelationships {
         }
     }
 
-    private boolean shouldInclude(StationGroup station) {
+    private boolean shouldInclude(StationLocalityGroup station) {
         return graphFilter.shouldIncludeRoutes(station.getPickupRoutes()) ||
                 graphFilter.shouldIncludeRoutes(station.getDropoffRoutes());
     }
 
-    private MutableGraphNode createGroupedStationNodes(final MutableGraphTransaction txn, final StationGroup stationGroup) {
+    private MutableGraphNode createGroupedStationNodes(final MutableGraphTransaction txn, final StationLocalityGroup stationGroup) {
         final MutableGraphNode groupNode = createGraphNode(txn, GraphLabel.GROUPED);
         final IdFor<NPTGLocality> areaId = stationGroup.getLocalityId();
         groupNode.setAreaId(areaId);
@@ -166,7 +166,7 @@ public class StationGroupsGraphBuilder extends CreateNodesAndRelationships {
         return groupNode;
     }
 
-    private void linkStationsWithGroup(final MutableGraphTransaction txn, final MutableGraphNode groupNode, final StationGroup stationGroup) {
+    private void linkStationsWithGroup(final MutableGraphTransaction txn, final MutableGraphNode groupNode, final StationLocalityGroup stationGroup) {
         final LocationSet<Station> contained = stationGroup.getAllContained();
 
         contained.stream().

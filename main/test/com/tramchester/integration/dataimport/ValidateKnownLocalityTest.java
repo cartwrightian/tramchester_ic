@@ -17,7 +17,7 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.places.NaptanRecord;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.StationGroupsRepository;
@@ -73,7 +73,7 @@ public class ValidateKnownLocalityTest {
 
     @Test
     void shouldBeInBounds() {
-        Set<StationGroup> outOfBounds = GreaterManchester.stream().
+        Set<StationLocalityGroup> outOfBounds = GreaterManchester.stream().
                 map(place -> place.from(stationGroupsRepository)).
                 filter(place -> !boundingBox.contained(place.getLatLong())).
                 collect(Collectors.toSet());
@@ -86,7 +86,7 @@ public class ValidateKnownLocalityTest {
     void shouldHaveStationsWithinBounds() {
         Map<KnownLocality, IdSet<Station>> outOfBounds = new HashMap<>();
         for(KnownLocality knownLocality : KnownLocality.GreaterManchester) {
-            StationGroup stationGroup = knownLocality.from(stationGroupsRepository);
+            StationLocalityGroup stationGroup = knownLocality.from(stationGroupsRepository);
 
             LocationSet<Station> contained = stationGroup.getAllContained();
             IdSet<Station> outside = contained.stream().
@@ -105,7 +105,7 @@ public class ValidateKnownLocalityTest {
         StationGroupsRepository stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
 
         GreaterManchester.forEach(knowLocality -> {
-            StationGroup group = knowLocality.from(stationGroupsRepository);
+            StationLocalityGroup group = knowLocality.from(stationGroupsRepository);
             assertTrue(group.getAllContained().size()>1, "not enough stations for " + group);
         });
     }
@@ -125,7 +125,7 @@ public class ValidateKnownLocalityTest {
 
         Map<KnownLocality, IdSet<Station>> results = new HashMap<>();
         GreaterManchester.forEach(knowLocality -> {
-            StationGroup group = knowLocality.from(stationGroupsRepository);
+            StationLocalityGroup group = knowLocality.from(stationGroupsRepository);
             Set<NaptanRecord> records = naptanRepository.getRecordsForLocality(group.getLocalityId());
 
             final IdSet<Station> fromGroup = group.getAllContained().stream().collect(IdSet.collector());

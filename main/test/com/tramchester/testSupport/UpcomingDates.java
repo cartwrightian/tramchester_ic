@@ -3,7 +3,6 @@ package com.tramchester.testSupport;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.testSupport.reference.TramStations;
 
@@ -11,11 +10,8 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
-
-import static com.tramchester.testSupport.reference.TramStations.*;
 
 public class UpcomingDates {
 
@@ -36,9 +32,8 @@ public class UpcomingDates {
     public static DateRange MediaCityEcclesWorks2025 = DateRange.of(TramDate.of(2025,2,17),
         TramDate.of(2025, 2, 24));
 
-    public static final TramDate VictoriaWorks = TramDate.of(2025,2,23);
-    public static final IdSet<Station> victoriaWorksClosedStations = IdSet.from(Arrays.asList(
-            Victoria, Shudehill, MarketStreet, ExchangeSquare));
+    public static DateRange YorkStreetWorks2025 = DateRange.of(TramDate.of(2025,3,1),
+            TramDate.of(2025, 3, 16));
 
     public static boolean hasClosure(final Station station, final TramDate date) {
         return hasClosure(station.getId(), date);
@@ -49,9 +44,9 @@ public class UpcomingDates {
     }
 
     public static boolean hasClosure(IdFor<Station> stationId, TramDate date) {
-        if (victoriaWorksClosedStations.contains(stationId)) {
-            return date.equals(VictoriaWorks);
-        }
+//        if (victoriaWorksClosedStations.contains(stationId)) {
+//            return date.equals(VictoriaWorks);
+//        }
         return false;
     }
 

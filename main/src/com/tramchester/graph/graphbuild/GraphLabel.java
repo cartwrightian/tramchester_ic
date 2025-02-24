@@ -43,6 +43,8 @@ public enum GraphLabel implements Label {
 
     private static final GraphLabel[] hourLabels;
 
+    public static final EnumSet<GraphLabel> TransportModes = EnumSet.of(TRAM, BUS, TRAIN, FERRY, SUBWAY);
+
     static {
         hourLabels = new GraphLabel[24];
         for (int hour = 0; hour < 24; hour++) {
@@ -50,21 +52,21 @@ public enum GraphLabel implements Label {
         }
     }
 
-    public static GraphLabel forMode(TransportMode mode) {
+    public static GraphLabel forMode(final TransportMode mode) {
         return switch (mode) {
             case Tram -> TRAM;
             case Bus -> BUS;
             case Train, RailReplacementBus -> TRAIN;
             case Ferry, Ship -> FERRY;
             case Subway -> SUBWAY;
-            case Walk -> QUERY_NODE;
+            case Walk -> QUERY_NODE; // TODO This is inconsistent!
             default -> throw new RuntimeException("Unsupported mode " + mode);
         };
     }
 
-    public static EnumSet<GraphLabel> forMode(final EnumSet<TransportMode> modes) {
+    public static EnumSet<GraphLabel> forModes(final EnumSet<TransportMode> modes) {
         return modes.stream().
-                map(mode -> forMode(mode.getTransportMode())).
+                map(GraphLabel::forMode).
                 collect(Collectors.toCollection( () -> EnumSet.noneOf(GraphLabel.class)));
     }
 

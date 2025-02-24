@@ -8,7 +8,7 @@ import com.tramchester.domain.LocationIdPair;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.collections.LocationIdPairSet;
 import com.tramchester.domain.places.LocationType;
-import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.RouteCalculationCombinations;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
@@ -35,7 +35,7 @@ class RouteCalculatorKeyGroupsBusTest {
     private static TramchesterConfig testConfig;
 
     private final TramDate when = TestEnv.testDay();
-    private RouteCalculationCombinations<StationGroup> combinations;
+    private RouteCalculationCombinations<StationLocalityGroup> combinations;
     private JourneyRequest journeyRequest;
 
     @BeforeAll
@@ -62,16 +62,16 @@ class RouteCalculatorKeyGroupsBusTest {
 
     @Test
     void shouldCheckSomeKnownLocalities() {
-        LocationIdPairSet<StationGroup> pairs = createPairsFor(Arrays.asList(Altrincham, Stockport, ManchesterAirport));
+        LocationIdPairSet<StationLocalityGroup> pairs = createPairsFor(Arrays.asList(Altrincham, Stockport, ManchesterAirport));
         combinations.validateAllHaveAtLeastOneJourney(pairs, journeyRequest, true);
     }
 
     @Test
     void shouldCheckResultsProcessing() {
-        LocationIdPairSet<StationGroup> pairs = createPairsFor(Arrays.asList(Altrincham, Stockport, ManchesterAirport));
-        RouteCalculationCombinations.CombinationResults<StationGroup> results = combinations.getJourneysFor(pairs, journeyRequest);
+        LocationIdPairSet<StationLocalityGroup> pairs = createPairsFor(Arrays.asList(Altrincham, Stockport, ManchesterAirport));
+        RouteCalculationCombinations.CombinationResults<StationLocalityGroup> results = combinations.getJourneysFor(pairs, journeyRequest);
 
-        List<RouteCalculationCombinations.JourneyOrNot<StationGroup>> failed = results.getFailed();
+        List<RouteCalculationCombinations.JourneyOrNot<StationLocalityGroup>> failed = results.getFailed();
 
         assertTrue(failed.isEmpty());
     }
@@ -83,16 +83,16 @@ class RouteCalculatorKeyGroupsBusTest {
         JourneyRequest request = new JourneyRequest(when, time, false, MIN_CHANGES,
                 Duration.ofMinutes(testConfig.getMaxJourneyDuration()), 1, BusesOnly);
 
-        LocationIdPairSet<StationGroup> pairs = createPairsFor(new ArrayList<>(GreaterManchester));
+        LocationIdPairSet<StationLocalityGroup> pairs = createPairsFor(new ArrayList<>(GreaterManchester));
         combinations.validateAllHaveAtLeastOneJourney(pairs, request, true);
     }
 
-    private LocationIdPairSet<StationGroup> createPairsFor(List<KnownLocality> localities) {
-        LocationIdPairSet<StationGroup> pairs = new LocationIdPairSet<>();
+    private LocationIdPairSet<StationLocalityGroup> createPairsFor(List<KnownLocality> localities) {
+        LocationIdPairSet<StationLocalityGroup> pairs = new LocationIdPairSet<>();
         for(final KnownLocality placeA : localities) {
             for(final KnownLocality placeB : localities) {
                 if (placeA!=placeB) {
-                    LocationIdPair<StationGroup> pair = new LocationIdPair<>(placeA.getId(), placeB.getId(), LocationType.StationGroup);
+                    LocationIdPair<StationLocalityGroup> pair = new LocationIdPair<>(placeA.getId(), placeB.getId(), LocationType.StationGroup);
                     pairs.add(pair);
                 }
             }

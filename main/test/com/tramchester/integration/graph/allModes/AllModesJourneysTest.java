@@ -7,7 +7,7 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
@@ -81,7 +81,7 @@ public class AllModesJourneysTest {
 
     @Test
     void shouldHaveBusToTram() {
-        StationGroup stockport = KnownLocality.Stockport.from(stationGroupsRepository);
+        StationLocalityGroup stockport = KnownLocality.Stockport.from(stationGroupsRepository);
         Station altyTram = stationRepository.getStationById(TramStations.Altrincham.getId());
 
         TramTime travelTime = TramTime.of(9, 0);
@@ -115,8 +115,8 @@ public class AllModesJourneysTest {
     @Test
     void shouldHaveStockToAltyBusJourney() {
 
-        StationGroup stockport = KnownLocality.Stockport.from(stationGroupsRepository);
-        StationGroup alty = KnownLocality.Altrincham.from(stationGroupsRepository);
+        StationLocalityGroup stockport = KnownLocality.Stockport.from(stationGroupsRepository);
+        StationLocalityGroup alty = KnownLocality.Altrincham.from(stationGroupsRepository);
 
         TramTime travelTime = TramTime.of(9, 0);
 

@@ -8,7 +8,7 @@ import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.integration.testSupport.APIClient;
@@ -133,10 +133,10 @@ class JourneyLocationsResourceBusTest {
         List<LocationRefDTO> locationList = result.readEntity(new GenericType<>() {});
 
         assertEquals(2,locationList.size());
-        IdSet<StationGroup> ids = locationList.stream().
+        IdSet<StationLocalityGroup> ids = locationList.stream().
                 map(LocationRefDTO::getId).
                 map(IdForDTO::getActualId).
-                map(StationGroup::createId).
+                map(StationLocalityGroup::createId).
                 collect(IdSet.idCollector());
 
         assertTrue(ids.contains(KnownLocality.ManchesterCityCentre.getId()), locationList.toString());
@@ -146,7 +146,7 @@ class JourneyLocationsResourceBusTest {
 
     @Test
     void shouldSurfaceCorrectRecentStationsWhenHaveMixInCookie() throws JsonProcessingException {
-        Stream<StationGroup> groups = Stream.of(KnownLocality.Altrincham, KnownLocality.Shudehill,
+        Stream<StationLocalityGroup> groups = Stream.of(KnownLocality.Altrincham, KnownLocality.Shudehill,
                 KnownLocality.Stockport).map(locality -> locality.from(stationGroupsRepository));
 
         // fake as tram stations not loaded into repository
@@ -161,10 +161,10 @@ class JourneyLocationsResourceBusTest {
 
         assertEquals(3, locationDTOs.size());
 
-        IdSet<StationGroup> ids = locationDTOs.stream().
+        IdSet<StationLocalityGroup> ids = locationDTOs.stream().
                 map(LocationRefDTO::getId).
                 map(IdForDTO::getActualId).
-                map(StationGroup::createId).
+                map(StationLocalityGroup::createId).
                 collect(IdSet.idCollector());
 
         assertTrue(ids.contains(KnownLocality.Altrincham.getId()));
@@ -176,7 +176,7 @@ class JourneyLocationsResourceBusTest {
     @Test
     void shouldGetRecentStationsWithModes() throws JsonProcessingException {
         // TODO add mix of modes
-        Stream<StationGroup> groupStream = Stream.of(KnownLocality.Altrincham, KnownLocality.Shudehill, KnownLocality.Stockport).map(locality -> locality.from(stationGroupsRepository));
+        Stream<StationLocalityGroup> groupStream = Stream.of(KnownLocality.Altrincham, KnownLocality.Shudehill, KnownLocality.Stockport).map(locality -> locality.from(stationGroupsRepository));
         Cookie cookie = CookieSupport.createCookieFor(groupStream, mapper);
 
         // same mode, but tests list parsing
@@ -187,10 +187,10 @@ class JourneyLocationsResourceBusTest {
 
         assertEquals(3, locationDTOs.size());
 
-        IdSet<StationGroup> ids = locationDTOs.stream().
+        IdSet<StationLocalityGroup> ids = locationDTOs.stream().
                 map(LocationRefDTO::getId).
                 map(IdForDTO::getActualId).
-                map(StationGroup::createId).
+                map(StationLocalityGroup::createId).
                 collect(IdSet.idCollector());
 
         assertTrue(ids.contains(KnownLocality.Altrincham.getId()));

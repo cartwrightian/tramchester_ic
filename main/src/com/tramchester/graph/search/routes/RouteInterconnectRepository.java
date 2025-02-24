@@ -246,9 +246,7 @@ public class RouteInterconnectRepository extends ComponentThatCaches<RoutePairIn
             }
 
             // can be multiple interchanges points between a pair of routes
-            final Set<InterchangeStation> changes = interchangeRepository.getInterchangesFor(indexPair).
-                    filter(interchangeFilter::apply).
-                    collect(Collectors.toSet());
+            final Set<InterchangeStation> changes = getFilteredInterchangesFor(indexPair, interchangeFilter);
 
             if (changes.isEmpty()) {
                 return QueryPathsWithDepth.ZeroPaths.get();
@@ -267,6 +265,12 @@ public class RouteInterconnectRepository extends ComponentThatCaches<RoutePairIn
 
             return new QueryPathsWithDepth.AnyOf(combined);
         }
+    }
+
+    private @NotNull Set<InterchangeStation> getFilteredInterchangesFor(RouteIndexPair indexPair, Function<InterchangeStation, Boolean> interchangeFilter) {
+        return interchangeRepository.getInterchangesFor(indexPair).
+                filter(interchangeFilter::apply).
+                collect(Collectors.toSet());
     }
 
     @NotNull
@@ -406,7 +410,7 @@ public class RouteInterconnectRepository extends ComponentThatCaches<RoutePairIn
                     map(link -> Pair.of(pairFactory.get(indexPair.first(), link), pairFactory.get(link, indexPair.second())));
         }
 
-        public void cacheTo(final int depth, HasDataSaver.ClosableDataSaver<RoutePairInterconnectsData> saver) {
+        public void cacheTo(final int depth, final HasDataSaver.ClosableDataSaver<RoutePairInterconnectsData> saver) {
             bitSetForIndex.entrySet().stream().
                     filter(entry -> !entry.getValue().isEmpty()).
                     map(entry -> createCacheItem(depth, entry.getKey(), entry.getValue())).

@@ -52,20 +52,24 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private final Running running;
 
     private final Set<GraphNodeId> seenTimeNode;
+    private final EnumSet<GraphLabel> destinationLabels;
 
     public TramRouteEvaluator(final RouteCalculatorSupport.PathRequest pathRequest, final Set<GraphNodeId> destinationNodeIds,
                               final NodeContentsRepository nodeContentsRepository, final ServiceReasons reasons,
                               final PreviousVisits previousVisits, final LowestCostSeen bestResultSoFar, final TramchesterConfig config,
                               final GraphNodeId startNodeId,
                               final GraphTransaction txn, Running running) {
-        this(pathRequest.getServiceHeuristics(), destinationNodeIds, nodeContentsRepository, reasons, previousVisits, bestResultSoFar, config, startNodeId,
-                pathRequest.getRequestedModes(), pathRequest.getMaxInitialWait(), txn, running);
+        this(pathRequest.getServiceHeuristics(), destinationNodeIds, nodeContentsRepository, reasons, previousVisits,
+                bestResultSoFar, config, startNodeId, pathRequest.getRequestedModes(),
+                pathRequest.getDesintationModes(),
+                pathRequest.getMaxInitialWait(), txn, running);
     }
 
     public TramRouteEvaluator(final ServiceHeuristics serviceHeuristics, final Set<GraphNodeId> destinationNodeIds,
                               final NodeContentsRepository nodeContentsRepository, final ServiceReasons reasons,
                               final PreviousVisits previousVisits, final LowestCostSeen bestResultSoFar, final TramchesterConfig config,
                               final GraphNodeId startNodeId, final EnumSet<TransportMode> requestedModes,
+                              final EnumSet<TransportMode> destinationModes,
                               final Duration maxInitialWait, final GraphTransaction txn, Running running) {
         this.serviceHeuristics = serviceHeuristics;
         this.destinationNodeIds = destinationNodeIds;
@@ -75,7 +79,8 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         this.bestResultSoFar = bestResultSoFar;
 
         this.startNodeId = startNodeId;
-        this.requestedLabels = GraphLabel.forMode(requestedModes);
+        this.requestedLabels = GraphLabel.forModes(requestedModes);
+        this.destinationLabels = GraphLabel.forModes(destinationModes);
         this.maxInitialWaitMins = Math.toIntExact(maxInitialWait.toMinutes());
         this.txn = txn;
 
@@ -255,7 +260,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         }
 
         // -->Route Station
-        // is reachable from here and is route operating today?
+        // is dest reachable from here and is route operating today?
         // is the station open?
         if (nodeLabels.contains(GraphLabel.ROUTE_STATION)) {
 
@@ -268,6 +273,13 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
             if (!stationOpen.isValid()) {
                 // NOTE: might still reach the closed station via a walk, which is not via the RouteStation
                 return stationOpen;
+            }
+
+            // TODO final change needs to match destination modes of transport
+            final HeuristicsReason modesMatch = serviceHeuristics.checkModesMatchForFinalChange(journeyState.getNumberChanges(),
+                    nodeLabels, destinationLabels, howIGotHere, reasons);
+            if (!modesMatch.isValid()) {
+                return modesMatch;
             }
 
             if (depthFirst) {

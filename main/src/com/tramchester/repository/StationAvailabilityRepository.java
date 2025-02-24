@@ -205,7 +205,7 @@ public class StationAvailabilityRepository {
                                final EnumSet<TransportMode> requestedModes) {
 
         if (location.getLocationType()==LocationType.StationGroup) {
-            final StationGroup stationGroup = (StationGroup) location;
+            final StationLocalityGroup stationGroup = (StationLocalityGroup) location;
             return isGroupAvailable(stationGroup, date, timeRange, requestedModes);
         }
 
@@ -237,7 +237,7 @@ public class StationAvailabilityRepository {
                 dropoffsForLocation.get(locationId).anyAvailable(date, timeRange, requestedModes);
     }
 
-    private boolean isGroupAvailable(final StationGroup stationGroup, final TramDate date, final TimeRange timeRange,
+    private boolean isGroupAvailable(final StationLocalityGroup stationGroup, final TramDate date, final TimeRange timeRange,
                                      final EnumSet<TransportMode> requestedModes) {
         return stationGroup.getAllContained().stream().anyMatch(station -> isAvailable(station, date, timeRange, requestedModes));
     }
@@ -247,7 +247,7 @@ public class StationAvailabilityRepository {
         final LocationId<?> locationId = location.getLocationId();
 
         if (location.getLocationType()==LocationType.StationGroup) {
-            final StationGroup stationGroup = (StationGroup) location;
+            final StationLocalityGroup stationGroup = (StationLocalityGroup) location;
             return getPickupRoutesForGroup(stationGroup, date, timeRange, modes);
         }
 
@@ -295,7 +295,7 @@ public class StationAvailabilityRepository {
 
     }
 
-    private Set<Route> getPickupRoutesForGroup(final StationGroup stationGroup, final TramDate date, final TimeRange timeRange, final EnumSet<TransportMode> modes) {
+    private Set<Route> getPickupRoutesForGroup(final StationLocalityGroup stationGroup, final TramDate date, final TimeRange timeRange, final EnumSet<TransportMode> modes) {
         return stationGroup.getAllContained().stream().
                 flatMap(station -> getPickupRoutesFor(station, date, timeRange, modes).stream()).
                 collect(Collectors.toSet());
@@ -307,7 +307,7 @@ public class StationAvailabilityRepository {
         // TODO find way to share logic on station groups, interchanges etc between pickup and dropoff
 
         if (location.getLocationType()==LocationType.StationGroup) {
-            final StationGroup stationGroup = (StationGroup) location;
+            final StationLocalityGroup stationGroup = (StationLocalityGroup) location;
             return getDropoffRoutesForGroup(stationGroup, date, timeRange, modes);
         }
         if (closedStationsRepository.isClosed(location, date, timeRange)) {
@@ -351,7 +351,7 @@ public class StationAvailabilityRepository {
 //        }
     }
 
-    private Set<Route> getDropoffRoutesForGroup(StationGroup stationGroup, TramDate date, TimeRange timeRange, EnumSet<TransportMode> modes) {
+    private Set<Route> getDropoffRoutesForGroup(StationLocalityGroup stationGroup, TramDate date, TimeRange timeRange, EnumSet<TransportMode> modes) {
         return stationGroup.getAllContained().stream().
                 flatMap(station -> getDropoffRoutesFor(station, date, timeRange, modes).stream()).
                 collect(Collectors.toSet());
@@ -415,7 +415,7 @@ public class StationAvailabilityRepository {
             return MixedLocationSet.singleton(location);
         }
         if (location.getLocationType()==LocationType.StationGroup) {
-            final StationGroup group = (StationGroup) location;
+            final StationLocalityGroup group = (StationLocalityGroup) location;
             return group.getAllContained();
         }
         throw new RuntimeException("Unsupported location type " + location.getId() + " " + location.getLocationType());

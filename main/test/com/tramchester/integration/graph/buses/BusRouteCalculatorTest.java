@@ -8,7 +8,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
@@ -49,10 +49,10 @@ class BusRouteCalculatorTest {
     private final TramDate when = TestEnv.testDay();
     private MutableGraphTransaction txn;
     private Duration maxJourneyDuration;
-    private StationGroup stockportCentral;
-    private StationGroup altrinchamCentral;
-    private StationGroup knutsfordLocality;
-    private StationGroup shudehillLocality;
+    private StationLocalityGroup stockportCentral;
+    private StationLocalityGroup altrinchamCentral;
+    private StationLocalityGroup knutsfordLocality;
+    private StationLocalityGroup shudehillLocality;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -116,8 +116,8 @@ class BusRouteCalculatorTest {
 
     @Test
     void shouldHaveStockToAltyJourneyAndBackAgainOneChangesLocalityBased() {
-        StationGroup altrincham = KnownLocality.Altrincham.from(stationGroupsRepository);
-        StationGroup stockport = KnownLocality.Stockport.from(stationGroupsRepository);
+        StationLocalityGroup altrincham = KnownLocality.Altrincham.from(stationGroupsRepository);
+        StationLocalityGroup stockport = KnownLocality.Stockport.from(stationGroupsRepository);
 
         TramTime travelTime = TramTime.of(9,0);
         TramDate nextMonday = TestEnv.nextMonday();
@@ -258,7 +258,7 @@ class BusRouteCalculatorTest {
     @Test
     void shouldFindJourneyInFutureCorrectly() {
         // attempt to repro seen in ui where zero journeys
-        StationGroup start = KnownLocality.OldfieldBrow.from(stationGroupsRepository);
+        StationLocalityGroup start = KnownLocality.OldfieldBrow.from(stationGroupsRepository);
 
         final TramDate futureDate = TestEnv.testDay().plusDays(14);
         JourneyRequest journeyRequest = new JourneyRequest(futureDate,
@@ -271,7 +271,7 @@ class BusRouteCalculatorTest {
 
     @Test
     void shouldHaveJourneyAltyToKnutsford() {
-        StationGroup end = knutsfordLocality;
+        StationLocalityGroup end = knutsfordLocality;
 
         TramTime time = TramTime.of(10, 40);
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 1,
@@ -285,7 +285,7 @@ class BusRouteCalculatorTest {
     @Test
     void shouldHandleJourneyDirectWithinASingleComposite() {
 
-        StationGroup piccadillyComp = stationGroupsRepository.findByName("Piccadilly Rail Station");
+        StationLocalityGroup piccadillyComp = stationGroupsRepository.findByName("Piccadilly Rail Station");
         List<Station> stations = piccadillyComp.getAllContained().stream().toList();
         assertTrue(stations.size()>2);
         Station start = stations.get(0);
@@ -352,7 +352,7 @@ class BusRouteCalculatorTest {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(9,40),
                 false, maxChanges, maxJourneyDuration, 3, getRequestedModes());
 
-        StationGroup broadheath = KnownLocality.Broadheath.from(stationGroupsRepository);
+        StationLocalityGroup broadheath = KnownLocality.Broadheath.from(stationGroupsRepository);
 
         //journeyRequest.setDiag(true);
 
@@ -398,7 +398,7 @@ class BusRouteCalculatorTest {
 
     @Test
     void shouldReproPerfIssueAltyToAirport() {
-        StationGroup airport = KnownLocality.ManchesterAirport.from(stationGroupsRepository);
+        StationLocalityGroup airport = KnownLocality.ManchesterAirport.from(stationGroupsRepository);
 
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(11,11),
                 false, 3, maxJourneyDuration, 3, getRequestedModes());

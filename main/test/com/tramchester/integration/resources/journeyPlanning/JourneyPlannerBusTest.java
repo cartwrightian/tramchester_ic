@@ -6,7 +6,7 @@ import com.tramchester.App;
 import com.tramchester.GuiceContainerDependencies;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.LocationType;
-import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.presentation.DTO.ConfigDTO;
 import com.tramchester.domain.presentation.DTO.JourneyDTO;
 import com.tramchester.domain.presentation.DTO.JourneyPlanRepresentation;
@@ -55,8 +55,8 @@ class JourneyPlannerBusTest {
 
     private TramDate when;
     private JourneyResourceTestFacade journeyResourceTestFacade;
-    private StationGroup stockportCentralStops;
-    private StationGroup nearShudehillCentralStops;
+    private StationLocalityGroup stockportCentralStops;
+    private StationLocalityGroup nearShudehillCentralStops;
     private ObjectMapper mapper;
     private StationGroupsRepository stationGroupRepository;
 
@@ -206,8 +206,8 @@ class JourneyPlannerBusTest {
 
         TramTime queryTime = TramTime.of(8,56);
 
-        StationGroup start = KnownLocality.Altrincham.from(stationGroupRepository);
-        StationGroup end = KnownLocality.ManchesterAirport.from(stationGroupRepository);
+        StationLocalityGroup start = KnownLocality.Altrincham.from(stationGroupRepository);
+        StationLocalityGroup end = KnownLocality.ManchesterAirport.from(stationGroupRepository);
 
         Timestamped expectedStart = new Timestamped(start, timeStamp);
         Timestamped expectedEnd = new Timestamped(end, timeStamp);

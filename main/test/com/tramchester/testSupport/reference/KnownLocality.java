@@ -2,7 +2,7 @@ package com.tramchester.testSupport.reference;
 
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.NPTGLocality;
-import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.integration.graph.buses.BusRouteToRouteCostsTest;
 import com.tramchester.repository.StationGroupsRepository;
 
@@ -39,15 +39,15 @@ public enum KnownLocality {
         return NPTGLocality.createId(localityId);
     }
 
-    public IdFor<StationGroup> getId() {
-        return StationGroup.createId(localityId);
+    public IdFor<StationLocalityGroup> getId() {
+        return StationLocalityGroup.createId(localityId);
     }
 
     public IdFor<NPTGLocality> getLocalityId() {
         return NPTGLocality.createId(localityId);
     }
 
-    public StationGroup from(StationGroupsRepository stationGroupRepository) {
+    public StationLocalityGroup from(StationGroupsRepository stationGroupRepository) {
         return stationGroupRepository.getStationGroup(getId());
     }
 

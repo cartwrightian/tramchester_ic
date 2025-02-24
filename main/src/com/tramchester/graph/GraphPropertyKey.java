@@ -8,7 +8,7 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.places.StationLocalityGroup;
 
 public enum GraphPropertyKey {
     STATION_ID("station_id"),
@@ -72,7 +72,7 @@ public enum GraphPropertyKey {
         if (klass.equals(NPTGLocality.class)) {
             return AREA_ID;
         }
-        if (klass.equals(StationGroup.class)) {
+        if (klass.equals(StationLocalityGroup.class)) {
             return STATION_GROUP_ID;
         }
         throw new RuntimeException("Missing key for type" + klass);

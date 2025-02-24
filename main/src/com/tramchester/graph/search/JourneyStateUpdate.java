@@ -4,7 +4,7 @@ import com.tramchester.domain.exceptions.TramchesterException;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.facade.GraphNode;
@@ -28,7 +28,7 @@ public interface JourneyStateUpdate {
 
     void seenRouteStation(IdFor<Station> correspondingStationId);
 
-    void seenStationGroup(IdFor<StationGroup> stationGroupId);
+    void seenStationGroup(IdFor<StationLocalityGroup> stationGroupId);
 
     void beginDiversion(final IdFor<Station> stationId);
     boolean onDiversion();

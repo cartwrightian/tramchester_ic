@@ -6,7 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
@@ -74,8 +74,8 @@ public class BusRouteToRouteCostsTest {
 
     @Test
     void shouldGetNumberOfRouteHopsBetweenAltrinchamStockport() {
-        StationGroup start = KnownLocality.Altrincham.from(stationGroupsRepository);
-        StationGroup end = KnownLocality.Stockport.from(stationGroupsRepository);
+        StationLocalityGroup start = KnownLocality.Altrincham.from(stationGroupsRepository);
+        StationLocalityGroup end = KnownLocality.Stockport.from(stationGroupsRepository);
 
         // one for the temp stockport bus station, was zero, seems direct alty buses terminating somewhere else
         assertEquals(0, routeToRouteCosts.getPossibleMinChanges(start, end, date, wholeDayRange, modes));
@@ -83,8 +83,8 @@ public class BusRouteToRouteCostsTest {
 
     @Test
     void shouldGetNumberOfRouteHopsBetweenAltrinchamShudehill() {
-        StationGroup start = KnownLocality.Altrincham.from(stationGroupsRepository);
-        StationGroup end = Shudehill.from(stationGroupsRepository);
+        StationLocalityGroup start = KnownLocality.Altrincham.from(stationGroupsRepository);
+        StationLocalityGroup end = Shudehill.from(stationGroupsRepository);
 
         int numberOfChanges = routeToRouteCosts.getPossibleMinChanges(start, end, date, wholeDayRange, modes);
         assertEquals(1, numberOfChanges);
@@ -93,7 +93,7 @@ public class BusRouteToRouteCostsTest {
     @Test
     void shouldGetNumberOfRouteHopsBetweenKnutsfordAndShudehill() {
         Station start = stationRepository.getStationById(BusStations.KnutsfordStationStand3.getId());
-        StationGroup end = Shudehill.from(stationGroupsRepository);
+        StationLocalityGroup end = Shudehill.from(stationGroupsRepository);
 
         int numberOfChanges = routeToRouteCosts.getPossibleMinChanges(LocationSet.singleton(start),
                 end.getAllContained(), date, wholeDayRange, modes);
@@ -103,8 +103,8 @@ public class BusRouteToRouteCostsTest {
 
     @Test
     void shouldHaveValidResultForAltyToMacc() {
-        StationGroup start = KnownLocality.Altrincham.from(stationGroupsRepository);
-        StationGroup dest = KnownLocality.Macclesfield.from(stationGroupsRepository);
+        StationLocalityGroup start = KnownLocality.Altrincham.from(stationGroupsRepository);
+        StationLocalityGroup dest = KnownLocality.Macclesfield.from(stationGroupsRepository);
 
         TimeRange range = TimeRangePartial.of(TramTime.of(10,5), TramTime.of(14,53));
         int results = routeToRouteCosts.getPossibleMinChanges(start, dest, date, range, modes);

@@ -5,7 +5,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Platform;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
@@ -57,7 +57,7 @@ public class DeparturesRepository {
         logger.info(format("Get due %s services at %s for %s %s", modes, location.getId(), date, time));
         List<UpcomingDeparture> departures = switch (location.getLocationType()) {
             case Station -> getStationDepartures((Station) location, modes);
-            case StationGroup -> getStationGroupDepartures((StationGroup) location, modes);
+            case StationGroup -> getStationGroupDepartures((StationLocalityGroup) location, modes);
             case MyLocation, Postcode -> getDeparturesNearTo(location, modes);
             case Platform -> getPlatformDepartures((Platform) location, modes);
         };
@@ -108,7 +108,7 @@ public class DeparturesRepository {
                 collect(Collectors.toList());
     }
 
-    private List<UpcomingDeparture> getStationGroupDepartures(final StationGroup stationGroup,  final EnumSet<TransportMode> modes) {
+    private List<UpcomingDeparture> getStationGroupDepartures(final StationLocalityGroup stationGroup, final EnumSet<TransportMode> modes) {
         return stationGroup.getAllContained().stream().
                 filter(station -> TransportMode.intersects(station.getTransportModes(), modes)).
                 flatMap(station -> getStationDepartures(station, modes).stream()).

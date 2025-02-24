@@ -6,7 +6,7 @@ import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.GraphNode;
@@ -39,7 +39,7 @@ import static com.tramchester.graph.TransportRelationshipTypes.GROUPED_TO_PARENT
 import static org.junit.jupiter.api.Assertions.*;
 
 @BusTest
-public class StationGroupsGraphBuilderTest {
+public class StationLocalityGroupsGraphBuilderTest {
     private static ComponentContainer componentContainer;
     private static IntegrationBusTestConfig testConfig;
     private static MutableGraphTransaction txn;
@@ -93,7 +93,7 @@ public class StationGroupsGraphBuilderTest {
     @Test
     void shouldHaveSpecificGroupWithExpectedRelationships() {
         KnownLocality bollington = KnownLocality.Bollington;
-        IdFor<StationGroup> stationGroupId = bollington.getId();
+        IdFor<StationLocalityGroup> stationGroupId = bollington.getId();
 
         List<ImmutableGraphNode> nodes = txn.findNodes(GraphLabel.GROUPED).
                 filter(node -> node.getAreaId().equals(bollington.getAreaId())).toList();
@@ -107,7 +107,7 @@ public class StationGroupsGraphBuilderTest {
         List<ImmutableGraphRelationship> childLinks = stationGroupNode.getRelationships(txn,
                 Direction.OUTGOING, TransportRelationshipTypes.GROUPED_TO_CHILD).toList();
 
-        StationGroup group = stationGroupsRepository.getStationGroup(stationGroupId);
+        StationLocalityGroup group = stationGroupsRepository.getStationGroup(stationGroupId);
 
         LocationSet<Station> containedLocations = group.getAllContained();
         IdSet<Station> containedIds = containedLocations.stream().collect(IdSet.collector());

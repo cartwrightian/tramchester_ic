@@ -14,6 +14,7 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.GTFSPickupDropoffType;
+import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.StationTime;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.*;
@@ -422,7 +423,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
         final boolean isInterchange = interchangeRepository.isInterchange(station);
 
-        // If bus we board to/from station, for trams it is from the platform
+
+        // If Bus, for example, we board to/from station, for trams it is from the platform
         final MutableGraphNode platformOrStation = station.hasPlatforms() ? stationAndPlatformNodeCache.getPlatform(tx, stopCall.getPlatform().getId())
                 : stationAndPlatformNodeCache.getStation(tx, station.getId());
         final IdFor<RouteStation> routeStationId = RouteStation.createId(station.getId(), route.getId());
@@ -430,6 +432,8 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
         if (isInterchange) {
             routeStationNode.addLabel(INTERCHANGE);
+            final EnumSet<TransportMode> interchangeModes = interchangeRepository.getInterchangeModes(station);
+            GraphLabel.forModes(interchangeModes).forEach(routeStationNode::addLabel);
         }
 
         // boarding: platform/station ->  callingPoint , NOTE: no boarding at the last stop of a trip

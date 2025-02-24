@@ -9,7 +9,7 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.mappers.Geography;
 import com.tramchester.repository.StationGroupsRepository;
@@ -29,7 +29,7 @@ import static com.tramchester.domain.reference.TransportMode.Bus;
 import static org.junit.jupiter.api.Assertions.*;
 
 @BusTest
-class StationGroupRepositoryTest {
+class StationLocalityGroupRepositoryTest {
     private StationGroupsRepository stationGroupsRepository;
     private StationRepository stationRepository;
 
@@ -57,7 +57,7 @@ class StationGroupRepositoryTest {
 
     @Test
     void shouldFindExpectedGroupStations() {
-        final StationGroup groupedStations = stationGroupsRepository.findByName("Altrincham");
+        final StationLocalityGroup groupedStations = stationGroupsRepository.findByName("Altrincham");
         assertNotNull(groupedStations);
 
         LocationSet<Station> contained = groupedStations.getAllContained();
@@ -72,15 +72,15 @@ class StationGroupRepositoryTest {
 
     @Test
     void shouldHaveParentGroupId() {
-        StationGroup shudehill = stationGroupsRepository.getStationGroup(KnownLocality.Shudehill.getId());
+        StationLocalityGroup shudehill = stationGroupsRepository.getStationGroup(KnownLocality.Shudehill.getId());
 
         assertEquals(KnownLocality.ManchesterCityCentre.getId(), shudehill.getParentId());
     }
 
     @Test
     void allParentGroupsShouldBeValid() {
-        Set<StationGroup> missingParent = stationGroupsRepository.getAllGroups().stream().
-                filter(StationGroup::hasParent).
+        Set<StationLocalityGroup> missingParent = stationGroupsRepository.getAllGroups().stream().
+                filter(StationLocalityGroup::hasParent).
                 filter(group -> !stationGroupsRepository.hasGroup(group.getParentId())).
                 collect(Collectors.toSet());
 
@@ -90,7 +90,7 @@ class StationGroupRepositoryTest {
     @Disabled("illustrates threshold issue on number of stations. TODO")
     @Test
     void shouldHaveValidParentForKersalBar() {
-        StationGroup kersalBar = stationGroupsRepository.findByName("Kersal Bar");
+        StationLocalityGroup kersalBar = stationGroupsRepository.findByName("Kersal Bar");
         assertNotNull(kersalBar);
 
         assertTrue(kersalBar.hasParent());
@@ -104,8 +104,8 @@ class StationGroupRepositoryTest {
 
         final int maxCostMins = 15;
 
-        Set<StationGroup> tooLong = stationGroupsRepository.getAllGroups().
-                stream().filter(StationGroup::hasParent).
+        Set<StationLocalityGroup> tooLong = stationGroupsRepository.getAllGroups().
+                stream().filter(StationLocalityGroup::hasParent).
                 filter(group -> geography.getWalkingDuration(group, stationGroupsRepository.getStationGroup(group.getParentId())).toMinutes() > maxCostMins).
                 collect(Collectors.toSet());
 
@@ -114,9 +114,9 @@ class StationGroupRepositoryTest {
 
     @Test
     void shouldHaveReasonableDurationShudehillToParent() {
-        StationGroup shudehill = stationGroupsRepository.getStationGroup(KnownLocality.Shudehill.getId());
+        StationLocalityGroup shudehill = stationGroupsRepository.getStationGroup(KnownLocality.Shudehill.getId());
 
-        StationGroup parent = stationGroupsRepository.getStationGroup(shudehill.getParentId());
+        StationLocalityGroup parent = stationGroupsRepository.getStationGroup(shudehill.getParentId());
 
         Duration cost = geography.getWalkingDuration(shudehill, parent);
 
@@ -126,9 +126,9 @@ class StationGroupRepositoryTest {
     @Disabled("seems parent locality relationship in NPTG does not mean close together....")
     @Test
     void shouldHaveReasonableCostAgecroftToParent() {
-        StationGroup agecroft = stationGroupsRepository.getStationGroup(StationGroup.createId("E0028249"));
+        StationLocalityGroup agecroft = stationGroupsRepository.getStationGroup(StationLocalityGroup.createId("E0028249"));
 
-        StationGroup parent = stationGroupsRepository.getStationGroup(agecroft.getParentId());
+        StationLocalityGroup parent = stationGroupsRepository.getStationGroup(agecroft.getParentId());
 
         assertEquals(10L, geography.getWalkingDuration(agecroft, parent).toMinutes());
     }
@@ -142,7 +142,7 @@ class StationGroupRepositoryTest {
 
         NPTGLocality locality = nptgRepository.get(manchesterCityCentre.getLocalityId());
 
-        StationGroup group = stationGroupsRepository.getStationGroup(manchesterCityCentre.getId());
+        StationLocalityGroup group = stationGroupsRepository.getStationGroup(manchesterCityCentre.getId());
 
         assertEquals(locality.getLatLong(), group.getLatLong());
     }
@@ -160,7 +160,7 @@ class StationGroupRepositoryTest {
 
     @Test
     void shouldHaveValidStationsInGroupedStation() {
-        Set<StationGroup> compositesFor = stationGroupsRepository.getStationGroupsFor(Bus);
+        Set<StationLocalityGroup> compositesFor = stationGroupsRepository.getStationGroupsFor(Bus);
         assertFalse(compositesFor.isEmpty());
 
         compositesFor.forEach(group -> {

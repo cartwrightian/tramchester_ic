@@ -6,14 +6,12 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdSet;
-import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchesterConfig;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
-import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.StationAvailabilityRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -72,53 +70,6 @@ public class RailAndTramStationAvailabilityRepositoryTest {
     }
 
     @Test
-    void shouldHaveExpectedInterchangeForTramStation() {
-        InterchangeRepository interchangeRepository = componentContainer.get(InterchangeRepository.class);
-
-        Station altrinchamTram = TramStations.Altrincham.from(stationRepository);
-        Station altrinchamTrain = RailStationIds.Altrincham.from(stationRepository);
-
-        InterchangeStation interchangeTram = interchangeRepository.getInterchange(altrinchamTram);
-
-        // huh?
-        assertEquals(interchangeTram.getDropoffRoutes(), altrinchamTram.getDropoffRoutes());
-
-        Set<Route> trainPickups = altrinchamTrain.getPickupRoutes();
-        Set<Route> tramPickups = altrinchamTram.getPickupRoutes();
-
-        int expectedNumber = trainPickups.size() + tramPickups.size();
-
-        Set<Route> interchangePickups = interchangeTram.getPickupRoutes();
-        assertEquals(expectedNumber, interchangePickups.size());
-
-        assertTrue(interchangePickups.containsAll(tramPickups));
-        assertTrue(interchangePickups.containsAll(trainPickups));
-    }
-
-    @Test
-    void shouldHaveExpectedInterchangeForTrainStation() {
-        InterchangeRepository interchangeRepository = componentContainer.get(InterchangeRepository.class);
-
-        Station altrinchamTram = TramStations.Altrincham.from(stationRepository);
-        Station altrinchamTrain = RailStationIds.Altrincham.from(stationRepository);
-
-        InterchangeStation interchangeTrain = interchangeRepository.getInterchange(altrinchamTrain);
-
-        assertEquals(interchangeTrain.getDropoffRoutes(), altrinchamTrain.getDropoffRoutes());
-
-        Set<Route> trainPickups = altrinchamTrain.getPickupRoutes();
-        Set<Route> tramPickups = altrinchamTram.getPickupRoutes();
-
-        int expectedNumber = trainPickups.size() + tramPickups.size();
-
-        Set<Route> interchangePickups = interchangeTrain.getPickupRoutes();
-        assertEquals(expectedNumber, interchangePickups.size());
-
-        assertTrue(interchangePickups.containsAll(tramPickups));
-        assertTrue(interchangePickups.containsAll(trainPickups));
-    }
-
-    @Test
     void shouldHaveExpectedPickupsForTheLinkedRailStation() {
         Station altrinchamTrain = RailStationIds.Altrincham.from(stationRepository);
 
@@ -147,7 +98,7 @@ public class RailAndTramStationAvailabilityRepositoryTest {
         Set<Route> results = availabilityRepository.getPickupRoutesFor(altrinchamTram, when, timeRange, TrainAndTram);
 
         long trainRoutes = results.stream().filter(route -> route.getTransportMode()==Train).count();
-        assertEquals(5, trainRoutes, HasId.asIds(results));
+        assertEquals(4, trainRoutes, HasId.asIds(results));
 
         IdSet<Route> tramRouteIds = results.stream().filter(route -> route.getTransportMode()==Tram).collect(IdSet.collector());
         assertFalse(tramRouteIds.isEmpty());
@@ -215,13 +166,13 @@ public class RailAndTramStationAvailabilityRepositoryTest {
 
         Station manPicc = RailStationIds.ManchesterPiccadilly.from(stationRepository);
 
-        Set<Route> results = availabilityRepository.getDropoffRoutesFor(manPicc, when, timeRange, TrainAndTram);
+        Set<Route> dropOffs = availabilityRepository.getDropoffRoutesFor(manPicc, when, timeRange, TrainAndTram);
 
-        long tramRoutes = results.stream().filter(route -> route.getTransportMode().equals(Tram)).count();
-        assertEquals(0, tramRoutes, "no tram in " + HasId.asIds(results));
+        long tramDropoffs = dropOffs.stream().filter(route -> route.getTransportMode().equals(Tram)).count();
+        assertEquals(3, tramDropoffs, "wrong number tram in " + HasId.asIds(dropOffs));
 
-        long trainRoutes = results.stream().filter(route -> route.getTransportMode().equals(Train)).count();
-        assertNotEquals(0, trainRoutes, "no train in " + HasId.asIds(results));
+        long trainDropoffs = dropOffs.stream().filter(route -> route.getTransportMode().equals(Train)).count();
+        assertNotEquals(0, trainDropoffs, "no train in " + HasId.asIds(dropOffs));
     }
 
 

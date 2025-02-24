@@ -7,7 +7,7 @@ import com.tramchester.domain.id.StringIdFor;
 import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramTime;
@@ -107,7 +107,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     @Override
-    public void seenStationGroup(IdFor<StationGroup> stationGroupId) {
+    public void seenStationGroup(IdFor<StationLocalityGroup> stationGroupId) {
         coreState.seenStationGroup(stationGroupId);
     }
 
@@ -422,7 +422,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
             lastSeenStation = correspondingStationId;
         }
 
-        public void seenStationGroup(IdFor<StationGroup> stationGroupId) {
+        public void seenStationGroup(IdFor<StationLocalityGroup> stationGroupId) {
             lastSeenStation = stationGroupId;
         }
 

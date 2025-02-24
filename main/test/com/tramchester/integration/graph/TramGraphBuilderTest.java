@@ -792,12 +792,14 @@ class TramGraphBuilderTest {
 
     @NotNull
     private IdSet<Trip> relevantTripsFor(IdFor<Service> svcId, Route route, Station station, IdFor<Station> towards) {
+        final IdFor<Station> stationId = station.getId();
         return transportData.getTrips().stream().
                 filter(trip -> trip.getService().getId().equals(svcId)).
                 filter(trip -> trip.getRoute().equals(route)).
-                filter(trip -> trip.callsAt(station.getId())).
-                filter(trip -> trip.isAfter(station.getId(), towards)).
-                filter(trip -> !trip.lastStation().equals(station.getId())).
+                filter(trip -> trip.callsAt(stationId)).
+                filter(trip -> trip.callsAt(towards)).
+                filter(trip -> trip.isAfter(stationId, towards)).
+                filter(trip -> !trip.lastStation().equals(stationId)).
                 collect(IdSet.collector());
     }
 

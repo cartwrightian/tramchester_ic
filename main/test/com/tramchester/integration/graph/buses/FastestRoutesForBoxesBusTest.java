@@ -7,7 +7,7 @@ import com.tramchester.domain.BoundingBoxWithCost;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.collections.RequestStopStream;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.search.FastestRoutesForBoxes;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
@@ -54,7 +54,7 @@ class FastestRoutesForBoxesBusTest {
     @Disabled("peformance")
     @Test
     void shouldReproIssueWithMappingResults() throws InterruptedException {
-        StationGroup destination = KnownLocality.ManchesterCityCentre.from(stationGroupsRepository);
+        StationLocalityGroup destination = KnownLocality.ManchesterCityCentre.from(stationGroupsRepository);
 
         TramTime time = TramTime.of(7,30);
         TramDate date = TramDate.of(2024,1,28);

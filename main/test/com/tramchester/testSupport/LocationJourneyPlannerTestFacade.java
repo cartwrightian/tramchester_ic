@@ -4,7 +4,7 @@ import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.LocationJourneyPlanner;
@@ -40,7 +40,7 @@ public class LocationJourneyPlannerTestFacade {
         return quickestRouteForLocation(start.from(stationRepository), dest, request, maxStages);
     }
 
-    public Set<Journey> quickestRouteForLocation(KnownLocations knownLocations, StationGroup end, JourneyRequest journeyRequest, int maxStages) {
+    public Set<Journey> quickestRouteForLocation(KnownLocations knownLocations, StationLocalityGroup end, JourneyRequest journeyRequest, int maxStages) {
         return quickestRouteForLocation(knownLocations.location(), end, journeyRequest, maxStages);
     }
 

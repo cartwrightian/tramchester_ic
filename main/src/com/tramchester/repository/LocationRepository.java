@@ -30,7 +30,7 @@ public class LocationRepository {
         return switch (type) {
             case Station -> stationRepository.hasStationId(Station.createId(rawId));
             case Platform, MyLocation -> false;
-            case StationGroup -> stationGroupsRepository.hasGroup(StationGroup.createId(rawId));
+            case StationGroup -> stationGroupsRepository.hasGroup(StationLocalityGroup.createId(rawId));
             case Postcode -> postcodeRepository.hasPostcode(PostcodeLocation.createId(rawId));
         };
     }
@@ -40,7 +40,7 @@ public class LocationRepository {
         return switch (type) {
             case Station -> stationRepository.getStationById(Station.createId(rawId));
             case Platform -> throw new RuntimeException("Not supported yet");
-            case StationGroup -> stationGroupsRepository.getStationGroup(StationGroup.createId(rawId));
+            case StationGroup -> stationGroupsRepository.getStationGroup(StationLocalityGroup.createId(rawId));
             case Postcode -> postcodeRepository.getPostcode(PostcodeLocation.createId(rawId));
             case MyLocation -> MyLocation.parseFromId(rawId);
         };
@@ -61,7 +61,7 @@ public class LocationRepository {
     }
 
     private <T extends Location<?>> Location<?> getGroupStation(IdFor<T> location) {
-        IdFor<StationGroup> stationId = StringIdFor.convert(location, StationGroup.class);
+        IdFor<StationLocalityGroup> stationId = StringIdFor.convert(location, StationLocalityGroup.class);
         return stationGroupsRepository.getStationGroup(stationId);
     }
 

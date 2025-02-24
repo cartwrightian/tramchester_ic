@@ -5,7 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.integration.testSupport.config.IntegrationTramBusTestConfig;
 import com.tramchester.repository.NeighboursRepository;
 import com.tramchester.repository.StationGroupsRepository;
@@ -28,7 +28,7 @@ public class NeighboursRepositoryBusTest {
     private NeighboursRepository neighboursRepository;
     private StationGroupsRepository stationGroupsRepository;
 
-    private StationGroup shudehillGroup;
+    private StationLocalityGroup shudehillGroup;
     private Station shudehillTram;
 
     private static ComponentContainer componentContainer;
@@ -59,7 +59,7 @@ public class NeighboursRepositoryBusTest {
 
     @Test
     void shouldHaveCorrectNeighboursForAltrinchamTram() {
-        StationGroup altrinchamGroup = KnownLocality.Altrincham.from(stationGroupsRepository);
+        StationLocalityGroup altrinchamGroup = KnownLocality.Altrincham.from(stationGroupsRepository);
         IdSet<Station> centralIds = altrinchamGroup.getAllContained().
                 stream().filter(Station::isCentral).
                 collect(IdSet.collector());

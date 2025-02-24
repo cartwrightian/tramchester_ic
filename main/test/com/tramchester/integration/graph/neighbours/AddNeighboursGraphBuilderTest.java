@@ -5,7 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.facade.GraphNode;
@@ -44,7 +44,7 @@ class AddNeighboursGraphBuilderTest {
     private static GraphDatabase graphDatabase;
     private static StationRepository stationRepository;
     private static StationGroupsRepository stationGroupRepository;
-    private StationGroup shudehillCentralBus;
+    private StationLocalityGroup shudehillCentralBus;
     private Station shudehillTram;
 
     private static ComponentContainer componentContainer;

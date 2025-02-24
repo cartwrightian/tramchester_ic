@@ -8,7 +8,7 @@ import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
@@ -79,7 +79,7 @@ public class NeighbourJourneysTest {
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
         StationGroupsRepository stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
 
-        StationGroup shudehillCentralBus = KnownLocality.Shudehill.from(stationGroupsRepository);
+        StationLocalityGroup shudehillCentralBus = KnownLocality.Shudehill.from(stationGroupsRepository);
 
         Optional<Station> maybeStop = shudehillCentralBus.getAllContained().stream().findAny();
         maybeStop.ifPresent(stop -> shudehillBusStop = stop);

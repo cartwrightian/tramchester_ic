@@ -6,7 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.StationToStationConnection;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.graph.search.FindLinkedStations;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.StationGroupsRepository;
@@ -30,7 +30,7 @@ class FindLinkedStationsBusTest {
 
     private static ComponentContainer componentContainer;
     private FindLinkedStations findStationLinks;
-    private StationGroup shudehillCentralBusStops;
+    private StationLocalityGroup shudehillCentralBusStops;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {

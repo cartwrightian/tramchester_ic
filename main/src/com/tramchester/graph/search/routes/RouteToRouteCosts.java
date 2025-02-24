@@ -15,7 +15,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.graph.search.BetweenRoutesCostRepository;
@@ -136,7 +136,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
      * @return number of change
      */
     @Deprecated
-    public int getPossibleMinChanges(StationGroup start, StationGroup end, TramDate date, TimeRange time,
+    public int getPossibleMinChanges(StationLocalityGroup start, StationLocalityGroup end, TramDate date, TimeRange time,
                                      EnumSet<TransportMode> modes) {
         return getPossibleMinChanges(start.getAllContained(), end.getAllContained(), date, time, modes);
     }

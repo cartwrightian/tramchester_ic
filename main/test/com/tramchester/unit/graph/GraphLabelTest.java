@@ -36,10 +36,41 @@ public class GraphLabelTest {
     }
 
     @Test
-    void shouldGetHourFromLables() {
+    void shouldGetHourFromLabels() {
         EnumSet<GraphLabel> labels = EnumSet.of(GraphLabel.TRAM, GraphLabel.TRAIN, GraphLabel.HOUR, GraphLabel.HOUR_4);
         int result = GraphLabel.getHourFrom(labels);
         assertEquals(4, result);
+    }
+
+    @Test
+    void shouldGetGraphLabelsFromModes() {
+        EnumSet<TransportMode> modes = getTransportModes();
+
+        EnumSet<GraphLabel> results = GraphLabel.forModes(modes);
+        int size = modes.size() - 2; // Ferry&Ship->Ferry, Rail&RailReplacementBus->Train
+        assertEquals(size, results.size());
+    }
+
+    @Test
+    void shouldGetSetOfLabelsForModes() {
+        EnumSet<TransportMode> modes = getTransportModes();
+
+        EnumSet<GraphLabel> results = GraphLabel.forModes(modes);
+        assertEquals(GraphLabel.TransportModes, results);
+    }
+
+    private static @NotNull EnumSet<TransportMode> getTransportModes() {
+        EnumSet<TransportMode> modes = EnumSet.allOf(TransportMode.class);
+        modes.remove(TransportMode.Connect);
+        modes.remove(TransportMode.NotSet);
+        modes.remove(TransportMode.Unknown);
+        modes.remove(TransportMode.Walk); // TODO inconsistency on use of QUERY_NODE for walks, needs sorting out
+        return modes;
+    }
+
+    @Test
+    void shouldHaveSetOfValidModeLabels() {
+
     }
 
     @Test

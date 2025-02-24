@@ -13,7 +13,7 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.InterchangeStation;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
@@ -59,7 +59,7 @@ public class RouteCalculationCombinations<T extends Location<T>> {
         return (stationId, date) -> !closedStationRepository.isStationClosed(stationId, date);
     }
 
-    public static ChecksOpen<StationGroup> checkGroupOpen(ComponentContainer componentContainer) {
+    public static ChecksOpen<StationLocalityGroup> checkGroupOpen(ComponentContainer componentContainer) {
         final ClosedStationsRepository closedStationRepository = componentContainer.get(ClosedStationsRepository.class);
         final StationGroupsRepository stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
         return (stationGroupId, date) -> !closedStationRepository.isGroupClosed(stationGroupsRepository.getStationGroup(stationGroupId), date);

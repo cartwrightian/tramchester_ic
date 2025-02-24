@@ -221,7 +221,8 @@ public class RouteCalculatorSupport {
         final Duration maxInitialWait = getMaxInitialWaitFor(nodeAndStation.location, config);
         final ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeContentsRepository, journeyConstraints,
                 journeyRequest.getOriginalTime(), numChanges);
-        return new PathRequest(journeyRequest, nodeAndStation.node, numChanges, serviceHeuristics, maxInitialWait, selector);
+        return new PathRequest(journeyRequest, nodeAndStation.node, numChanges, serviceHeuristics, maxInitialWait, selector,
+                journeyConstraints.getDestinationModes());
     }
 
     public PathRequest createPathRequest(GraphNode startNode, TramDate queryDate, TramTime actualQueryTime,
@@ -230,7 +231,8 @@ public class RouteCalculatorSupport {
                                          BranchOrderingPolicy selector) {
         final ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeContentsRepository, journeyConstraints,
                 actualQueryTime, numChanges);
-        return new PathRequest(startNode, queryDate, actualQueryTime, numChanges, serviceHeuristics, requestedModes, maxInitialWait, selector);
+        return new PathRequest(startNode, queryDate, actualQueryTime, numChanges, serviceHeuristics, requestedModes, maxInitialWait, selector,
+                journeyConstraints.getDestinationModes());
     }
 
     protected TimeRange getDestinationsAvailable(LocationCollection destinations, TramDate tramDate) {
@@ -246,17 +248,19 @@ public class RouteCalculatorSupport {
         private final EnumSet<TransportMode> requestedModes;
         private final Duration maxInitialWait;
         private final BranchOrderingPolicy selector;
+        private final EnumSet<TransportMode> destinationModes;
 
         public PathRequest(JourneyRequest journeyRequest, GraphNode startNode, int numChanges, ServiceHeuristics serviceHeuristics,
-                           Duration maxInitialWait, BranchOrderingPolicy selector) {
-            this(startNode, journeyRequest.getDate(), journeyRequest.getOriginalTime(), numChanges, serviceHeuristics, journeyRequest.getRequestedModes(),
-                    maxInitialWait, selector);
+                           Duration maxInitialWait, BranchOrderingPolicy selector, EnumSet<TransportMode> desintationModes) {
+            this(startNode, journeyRequest.getDate(), journeyRequest.getOriginalTime(), numChanges, serviceHeuristics,
+                    journeyRequest.getRequestedModes(),
+                    maxInitialWait, selector, desintationModes);
 
         }
 
         public PathRequest(GraphNode startNode, TramDate queryDate, TramTime queryTime, int numChanges,
                            ServiceHeuristics serviceHeuristics, EnumSet<TransportMode> requestedModes,
-                           Duration maxInitialWait, BranchOrderingPolicy selector) {
+                           Duration maxInitialWait, BranchOrderingPolicy selector, EnumSet<TransportMode> destinationModes) {
             this.startNode = startNode;
             this.queryDate = queryDate;
             this.queryTime = queryTime;
@@ -265,6 +269,7 @@ public class RouteCalculatorSupport {
             this.requestedModes = requestedModes;
             this.maxInitialWait = maxInitialWait;
             this.selector = selector;
+            this.destinationModes = destinationModes;
         }
 
         public ServiceHeuristics getServiceHeuristics() {
@@ -310,6 +315,10 @@ public class RouteCalculatorSupport {
 
         public BranchOrderingPolicy getSelector() {
             return selector;
+        }
+
+        public EnumSet<TransportMode> getDesintationModes() {
+            return destinationModes;
         }
     }
 

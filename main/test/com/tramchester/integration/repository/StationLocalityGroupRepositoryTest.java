@@ -6,7 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithGroupsEnabled;
 import com.tramchester.repository.StationGroupsRepository;
@@ -23,7 +23,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class StationGroupRepositoryTest {
+class StationLocalityGroupRepositoryTest {
 
     private static GuiceContainerDependencies componentContainer;
     private StationGroupsRepository stationGroupsRepository;
@@ -53,14 +53,14 @@ class StationGroupRepositoryTest {
     void shouldBeEnabled() {
         assertTrue(stationGroupsRepository.isEnabled());
 
-        Set<StationGroup> loaded = stationGroupsRepository.getStationGroupsFor(TransportMode.Tram);
+        Set<StationLocalityGroup> loaded = stationGroupsRepository.getStationGroupsFor(TransportMode.Tram);
 
         assertEquals(17, loaded.size());
     }
 
     @Test
     void shouldHaveExpectedTramStationGroup() {
-        StationGroup found = stationGroupsRepository.getStationGroupForArea(KnownLocality.ManchesterCityCentre.getLocalityId());
+        StationLocalityGroup found = stationGroupsRepository.getStationGroupForArea(KnownLocality.ManchesterCityCentre.getLocalityId());
 
         assertNotNull(found);
 
@@ -81,7 +81,7 @@ class StationGroupRepositoryTest {
 
     @Test
     void shouldFindGroupByName() {
-        StationGroup found = stationGroupsRepository.findByName("Sale");
+        StationLocalityGroup found = stationGroupsRepository.findByName("Sale");
 
         assertNotNull(found);
 

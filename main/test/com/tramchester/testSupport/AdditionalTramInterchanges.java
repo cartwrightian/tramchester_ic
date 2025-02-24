@@ -10,8 +10,8 @@ public class AdditionalTramInterchanges {
     private enum Interchanges {
 
         // official interchange points not auto-detected by InterchangeRepository, see config for tram routing also
-        Piccadilly("9400ZZMAPIC"),
-        Deansgate("9400ZZMAGMX");
+        Piccadilly("9400ZZMAPIC");
+        //Deansgate("9400ZZMAGMX") // detected auto during York Street closures
         //MediacityUK("9400ZZMAMCU"),
 
         private final String stationId;

@@ -176,8 +176,11 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         // todo into mock
         Running running = () -> isRunning;
+        final EnumSet<TransportMode> destinationModes = TramsOnly;
         return new TramRouteEvaluator(serviceHeuristics, destinationNodeIds, contentsRepository,
-                reasons, previousSuccessfulVisit, lowestCostSeen, config, startNodeId, TramsOnly, maxInitialWait, txn, running);
+                reasons, previousSuccessfulVisit, lowestCostSeen, config, startNodeId, TramsOnly,
+                destinationModes,
+                maxInitialWait, txn, running);
     }
 
     @Test
@@ -588,6 +591,8 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
                 andStubReturn(createValidReason(NeighbourConnectionsOk));
         EasyMock.expect(serviceHeuristics.checkModes(labels, EnumSet.of(TRAM), howIGotHere, reasons)).
                 andStubReturn(createValidReason(TransportModeOk));
+        EasyMock.expect(serviceHeuristics.checkModesMatchForFinalChange(0, EnumSet.of(ROUTE_STATION, TRAM),
+                EnumSet.of(TRAM), howIGotHere, reasons)).andStubReturn(createValidReason(NumChangesOK));
 
         TramTime time = TramTime.of(8, 15);
         NotStartedState traversalState = getNotStartedState(startNodeId);

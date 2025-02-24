@@ -287,6 +287,9 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
             throw new RuntimeException(msg);
         }
 
+        /*** NOTE: when we apply INTERCHANGE LABEL we update the modes
+         * @see StagedTransportGraphBuilder#createBoardingAndDepart
+         */
         final TransportMode mode = routeStation.getRoute().getTransportMode();
         final GraphLabel modeLabel = GraphLabel.forMode(mode);
 

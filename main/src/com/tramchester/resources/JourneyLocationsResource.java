@@ -8,7 +8,7 @@ import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.MyLocation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
 import com.tramchester.domain.presentation.DTO.factory.LocationDTOFactory;
@@ -160,9 +160,9 @@ public class JourneyLocationsResource extends UsesRecentCookie implements APIRes
 
         if (mode==TransportMode.Bus) {
             // convert to localities
-            IdSet<StationGroup> localityIds = stations.stream().
+            IdSet<StationLocalityGroup> localityIds = stations.stream().
                     map(Location::getLocalityId).
-                    map(StationGroup::idFrom).
+                    map(StationLocalityGroup::idFrom).
                     filter(IdFor::isValid).
                     collect(IdSet.idCollector());
             logger.info("Convert nearest stations to localities for " + mode);

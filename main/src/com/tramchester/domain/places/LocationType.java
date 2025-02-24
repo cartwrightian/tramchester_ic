@@ -27,7 +27,7 @@ public enum LocationType {
         if (theType.equals(com.tramchester.domain.Platform.class)) {
             return Platform;
         }
-        if (theType.equals(com.tramchester.domain.places.StationGroup.class)) {
+        if (theType.equals(StationLocalityGroup.class)) {
             return StationGroup;
         }
         if (theType.equals(com.tramchester.domain.places.MyLocation.class)) {

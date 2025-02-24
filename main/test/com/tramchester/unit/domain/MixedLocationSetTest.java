@@ -54,33 +54,34 @@ public class MixedLocationSetTest {
         assertFalse(locationSet.contains(StPetersSquare.getLocationId()));
     }
 
-    @Test
-    void shouldHaveAdd() {
-
-        MixedLocationSet locationSet = new MixedLocationSet();
-
-        assertTrue(locationSet.isEmpty());
-
-        locationSet.add(Altrincham.fake());
-        locationSet.add(Altrincham.fake());
-        locationSet.add(Bury.fake());
-        locationSet.add(Cornbrook.fake());
-
-        assertListElementsPresent(locationSet);
-
-        locationSet.add(location);
-
-        assertEquals(4, locationSet.size());
-        assertTrue(locationSet.contains(location.getLocationId()));
-
-    }
+    // add now private
+//    @Test
+//    void shouldHaveAdd() {
+//
+//        MixedLocationSet locationSet = new MixedLocationSet();
+//
+//        assertTrue(locationSet.isEmpty());
+//
+//        locationSet.add(Altrincham.fake());
+//        locationSet.add(Altrincham.fake());
+//        locationSet.add(Bury.fake());
+//        locationSet.add(Cornbrook.fake());
+//
+//        assertListElementsPresent(locationSet);
+//
+//        locationSet.add(location);
+//
+//        assertEquals(4, locationSet.size());
+//        assertTrue(locationSet.contains(location.getLocationId()));
+//
+//    }
 
     @Test
     void shouldGetMixedStream() {
 
-        MixedLocationSet locationSet = new MixedLocationSet();
+        MixedLocationSet locationSet = MixedLocationSet.singleton(location); // new MixedLocationSet();
 
-        locationSet.add(location);
+        //locationSet.add(location);
 
         assertEquals(1, locationSet.size());
 

@@ -12,6 +12,7 @@ import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TestRoute;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
@@ -95,6 +96,8 @@ class KnownTramRouteTest {
         checkRouteIdFor(KnownTramRoute::getShawandCromptonManchesterEastDidisbury, false);
     }
 
+    // likely have to disable until end of york street works
+    @DisabledUntilDate(year = 2025, month = 3, day = 11)
     @Test
     void shouldHaveExpectedRouteIdForPurple() {
         checkRouteIdFor(KnownTramRoute::getEtihadPiccadillyAltrincham, false);

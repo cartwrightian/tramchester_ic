@@ -5,7 +5,7 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.StationPair;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.StopCall;
-import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.places.Station;
 
 import java.util.Set;
@@ -38,7 +38,7 @@ public class IncludeAllFilter implements GraphFilter {
     }
 
     @Override
-    public boolean shouldInclude(StationGroup stationGroup) {
+    public boolean shouldInclude(StationLocalityGroup stationGroup) {
         return true;
     }
 

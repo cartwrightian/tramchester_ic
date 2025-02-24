@@ -88,7 +88,7 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
         set(service, node);
     }
 
-    public void set(final StationGroup stationGroup) {
+    public void set(final StationLocalityGroup stationGroup) {
         set(stationGroup, node);
     }
 
@@ -242,8 +242,8 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
     }
 
     @Override
-    public IdFor<StationGroup> getStationGroupId() {
-        return getIdFor(StationGroup.class, node);
+    public IdFor<StationLocalityGroup> getStationGroupId() {
+        return getIdFor(StationLocalityGroup.class, node);
     }
 
     @Override

@@ -5,7 +5,7 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Location;
-import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.InvalidDurationException;
@@ -35,9 +35,9 @@ class BusRouteCostCalculatorTest {
 
     private MutableGraphTransaction txn;
     private RouteCostCalculator routeCost;
-    private StationGroup altrincham;
-    private StationGroup stockport;
-    private StationGroup shudehill;
+    private StationLocalityGroup altrincham;
+    private StationLocalityGroup stockport;
+    private StationLocalityGroup shudehill;
     private StationRepository stationRepository;
 
     private final TramDate date = TestEnv.testDay();

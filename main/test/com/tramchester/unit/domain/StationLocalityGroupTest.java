@@ -19,7 +19,7 @@ import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.integration.testSupport.Assertions.assertIdEquals;
 import static org.junit.jupiter.api.Assertions.*;
 
-class StationGroupTest {
+class StationLocalityGroupTest {
 
     private final DataSourceID dataSourceID = DataSourceID.tfgm;
 
@@ -36,7 +36,7 @@ class StationGroupTest {
         stationA.addPlatform(platform);
 
         IdFor<NPTGLocality> areaId = NPTGLocality.createId("areaId");
-        StationGroup groupedStations = new StationGroup(Collections.singleton(stationA), areaId,
+        StationLocalityGroup groupedStations = new StationLocalityGroup(Collections.singleton(stationA), areaId,
                 "compName", NPTGLocality.createId("parentId"), latLong);
 
         assertEquals(LocationType.StationGroup, groupedStations.getLocationType());
@@ -47,8 +47,8 @@ class StationGroupTest {
         assertEquals(2.3, groupedStations.getLatLong().getLon(),0);
 
         assertEquals(areaId, groupedStations.getLocalityId());
-        assertEquals(StationGroup.createId("areaId"), groupedStations.getId());
-        assertEquals(StationGroup.createId("parentId"), groupedStations.getParentId());
+        assertEquals(StationLocalityGroup.createId("areaId"), groupedStations.getId());
+        assertEquals(StationLocalityGroup.createId("parentId"), groupedStations.getParentId());
         assertEquals("areaId", groupedStations.getId().getGraphId());
 
         assertTrue(groupedStations.hasPlatforms());
@@ -88,7 +88,7 @@ class StationGroupTest {
 
         Set<Station> stations = new HashSet<>(Arrays.asList(stationA, stationB));
         IdFor<NPTGLocality> areaId = NPTGLocality.createId("areaId");
-        StationGroup stationGroup = new StationGroup(stations, areaId, "compName", NPTGLocality.InvalidId(), new LatLong(53, -2));
+        StationLocalityGroup stationGroup = new StationLocalityGroup(stations, areaId, "compName", NPTGLocality.InvalidId(), new LatLong(53, -2));
 
         assertEquals(LocationType.StationGroup, stationGroup.getLocationType());
 
@@ -135,7 +135,7 @@ class StationGroupTest {
 
         Set<Station> stations = new HashSet<>(Arrays.asList(stationA, stationB));
         IdFor<NPTGLocality> areaId = NPTGLocality.createId("areaId");
-        StationGroup stationGroup = new StationGroup(stations, areaId, "compName", NPTGLocality.InvalidId(), new LatLong(53, -2));
+        StationLocalityGroup stationGroup = new StationLocalityGroup(stations, areaId, "compName", NPTGLocality.InvalidId(), new LatLong(53, -2));
 
         assertFalse(stationGroup.hasPickup());
         assertFalse(stationGroup.hasDropoff());

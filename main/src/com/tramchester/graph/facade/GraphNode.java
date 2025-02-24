@@ -8,7 +8,7 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
@@ -43,7 +43,7 @@ public interface GraphNode {
 
     IdFor<Route> getRouteId();
 
-    IdFor<StationGroup> getStationGroupId();
+    IdFor<StationLocalityGroup> getStationGroupId();
 
     IdFor<NPTGLocality> getAreaId();
 

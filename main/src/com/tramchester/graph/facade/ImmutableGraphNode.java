@@ -9,7 +9,7 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
@@ -178,7 +178,7 @@ public class ImmutableGraphNode implements GraphNode {
     }
 
     @Override
-    public IdFor<StationGroup> getStationGroupId() {
+    public IdFor<StationLocalityGroup> getStationGroupId() {
         return underlying.getStationGroupId();
     }
 

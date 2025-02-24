@@ -1,6 +1,5 @@
 package com.tramchester.integration.repository.railAndTram;
 
-import com.google.common.collect.Sets;
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
@@ -78,28 +77,26 @@ class InterchangesRailAndTramTest {
 
     @Test
     void shouldHaveExpectedModesForNeighbourInterchangeTram() {
-        Station tram = TramStations.Altrincham.from(stationRepository);
-        Station train = RailStationIds.Altrincham.from(stationRepository);
+        Station tramStation = TramStations.Altrincham.from(stationRepository);
+        Station railStation = RailStationIds.Altrincham.from(stationRepository);
 
         // check not being added as interchange via config or source data
-        assertFalse(tram.isMarkedInterchange());
+        assertFalse(tramStation.isMarkedInterchange());
+        assertTrue(interchangeRepository.isInterchange(tramStation));
 
-        assertTrue(interchangeRepository.isInterchange(tram));
-
-        InterchangeStation tramInterchange = interchangeRepository.getInterchange(tram);
-
+        InterchangeStation tramInterchange = interchangeRepository.getInterchange(tramStation);
         assertEquals(InterchangeType.NeighbourLinks, tramInterchange.getType());
-
         assertTrue(tramInterchange.isMultiMode(), tramInterchange.toString());
 
-        IdSet<Route> tramPickups = getIds(tram.getPickupRoutes());
-        IdSet<Route> trainPickups = getIds(train.getPickupRoutes());
+        IdSet<Route> tramPickups = getIds(tramStation.getPickupRoutes());
+        IdSet<Route> trainPickups = getIds(railStation.getPickupRoutes());
 
-        IdSet<Route> expected = IdSet.union(trainPickups, tramPickups);
+        assertEquals(IdSet.union(trainPickups, tramPickups), getIds(tramInterchange.getPickupRoutes()));
 
-        assertEquals(expected, getIds(tramInterchange.getPickupRoutes()));
+        IdSet<Route> tramDropOffs = getIds(tramStation.getDropoffRoutes());
+        IdSet<Route> trainDropOffs = getIds(railStation.getDropoffRoutes());
 
-        assertEquals(tram.getDropoffRoutes(), tramInterchange.getDropoffRoutes());
+        assertEquals(IdSet.union(trainDropOffs, tramDropOffs), getIds(tramInterchange.getDropoffRoutes()));
     }
 
     private IdSet<Route> getIds(Set<Route> pickupRoutes) {
@@ -122,10 +119,12 @@ class InterchangesRailAndTramTest {
 
         assertTrue(trainInterchange.isMultiMode());
 
-        Set<Route> expectedPickups = Sets.union(train.getPickupRoutes(), tram.getPickupRoutes());
+        IdSet<Route> expectedPickups = IdSet.union(getIds(train.getPickupRoutes()), getIds(tram.getPickupRoutes()));
 
-        assertEquals(expectedPickups, trainInterchange.getPickupRoutes());
-        assertEquals(train.getDropoffRoutes(), trainInterchange.getDropoffRoutes());
+        assertEquals(expectedPickups, getIds(trainInterchange.getPickupRoutes()));
+
+        assertEquals(IdSet.union(getIds(train.getDropoffRoutes()), getIds(tram.getDropoffRoutes())),
+                getIds(trainInterchange.getDropoffRoutes()));
 
     }
 

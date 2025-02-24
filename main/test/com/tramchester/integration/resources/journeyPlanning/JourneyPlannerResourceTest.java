@@ -173,24 +173,6 @@ public class JourneyPlannerResourceTest {
     }
 
     @Test
-    void shouldHaveCorrectTransportModeForReplacementBus() {
-        // replacement buses in tfgm data are marked as tram, switch that to Bus iff route for a stage is a replacement bus
-        JourneyQueryDTO queryDTO = journeyPlanner.getQueryDTO(when, TramTime.of(10,15), Eccles, StPetersSquare,
-                false, 2);
-
-        JourneyPlanRepresentation results = journeyPlanner.getJourneyPlan(queryDTO);
-
-        Set<JourneyDTO> journeys = results.getJourneys();
-
-        assertFalse(journeys.isEmpty());
-
-        journeys.forEach(journeyDTO -> {
-            SimpleStageDTO first = journeyDTO.getStages().getFirst();
-            assertEquals(TransportMode.Bus, first.getMode(), "wrong mode for " + first);
-        });
-    }
-
-    @Test
     void shouldReproLateNightIssueShudehillToAltrincham() {
 
         JourneyQueryDTO query = journeyPlanner.getQueryDTO(when, TramTime.of(23,11), Shudehill, Altrincham, false, 3);

@@ -7,7 +7,7 @@ import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.repository.naptan.NaptanRepository;
@@ -44,8 +44,8 @@ public class StationGroupsRepository {
 
     private final boolean enabled;
 
-    private final Map<IdFor<StationGroup>, StationGroup> stationGroups;
-    private final Map<String, StationGroup> stationGroupsByName;
+    private final Map<IdFor<StationLocalityGroup>, StationLocalityGroup> stationGroups;
+    private final Map<String, StationLocalityGroup> stationGroupsByName;
 
     @Inject
     public StationGroupsRepository(StationRepository stationRepository, TramchesterConfig config,
@@ -156,7 +156,7 @@ public class StationGroupsRepository {
 
         final IdFor<NPTGLocality> parentId = getParentIdFor(locality, groupedByAreaId);
 
-        final StationGroup stationGroup = new StationGroup(stationsToGroup, localityId, areaName, parentId, locality.getLatLong());
+        final StationLocalityGroup stationGroup = new StationLocalityGroup(stationsToGroup, localityId, areaName, parentId, locality.getLatLong());
 
         stationGroups.put(stationGroup.getId(), stationGroup);
         stationGroupsByName.put(areaName, stationGroup);
@@ -193,33 +193,33 @@ public class StationGroupsRepository {
         throw new RuntimeException(msg);
     }
 
-    public Set<StationGroup> getStationGroupsFor(final TransportMode mode) {
+    public Set<StationLocalityGroup> getStationGroupsFor(final TransportMode mode) {
         guardIsEnabled();
         return stationGroups.values().stream().
                 filter(station -> station.getTransportModes().contains(mode)).
                 collect(Collectors.toSet());
     }
 
-    public StationGroup findByName(final String name) {
+    public StationLocalityGroup findByName(final String name) {
         guardIsEnabled();
         return stationGroupsByName.get(name);
     }
 
-    public Set<StationGroup> getAllGroups() {
+    public Set<StationLocalityGroup> getAllGroups() {
         guardIsEnabled();
         return new HashSet<>(stationGroups.values());
     }
 
-    public StationGroup getStationGroup(final IdFor<StationGroup> stationGroupId) {
+    public StationLocalityGroup getStationGroup(final IdFor<StationLocalityGroup> stationGroupId) {
         guardIsEnabled();
         return stationGroups.get(stationGroupId);
     }
 
-    public StationGroup getStationGroupForArea(final IdFor<NPTGLocality> areaId) {
-        return getStationGroup(StationGroup.idFrom(areaId));
+    public StationLocalityGroup getStationGroupForArea(final IdFor<NPTGLocality> areaId) {
+        return getStationGroup(StationLocalityGroup.idFrom(areaId));
     }
 
-    public boolean hasGroup(final IdFor<StationGroup> id) {
+    public boolean hasGroup(final IdFor<StationLocalityGroup> id) {
         // no guard here as need to handle situation where Group is set in cookie but groups no longer enabled
         if (isEnabled()) {
             return stationGroups.containsKey(id);
@@ -230,7 +230,7 @@ public class StationGroupsRepository {
     }
 
     public boolean hasArea(final IdFor<NPTGLocality> areaId) {
-        return hasGroup(StationGroup.idFrom(areaId));
+        return hasGroup(StationLocalityGroup.idFrom(areaId));
     }
 
     public boolean isEnabled() {

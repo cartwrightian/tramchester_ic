@@ -1,7 +1,6 @@
 package com.tramchester.graph.search;
 
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.LocationCollection;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.closures.ClosedStation;
@@ -16,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
+import java.util.EnumSet;
 import java.util.Set;
 
 public class JourneyConstraints {
@@ -34,16 +34,16 @@ public class JourneyConstraints {
     private final TimeRange destinationsAvailable;
     private final TramchesterConfig config;
     private final int maxPathLength;
-    private final LocationCollection destinations;
     private final IdSet<Station> closedStationsIds;
     private final Set<ClosedStation> closedStations;
     private final Duration maxJourneyDuration;
     private final int maxWalkingConnections;
     private final int maxNumberWalkingConnections;
     private final LowestCostsForDestRoutes lowestCostForDestinations;
+    private final EnumSet<TransportMode> destinationModes; // must account for interchange
 
     public JourneyConstraints(TramchesterConfig config, RunningRoutesAndServices.FilterForDate routesAndServicesFilter,
-                              Set<ClosedStation> closedStations, LocationCollection destinations,
+                              Set<ClosedStation> closedStations, EnumSet<TransportMode> destinationModes,
                               LowestCostsForDestRoutes lowestCostForDestinations, Duration maxJourneyDuration,
                               TimeRange destinationsAvailable) {
         this.config = config;
@@ -53,7 +53,8 @@ public class JourneyConstraints {
         this.destinationsAvailable = destinationsAvailable;
         this.maxPathLength = computeMaxPathLength();
 
-        this.destinations = destinations;
+        //this.destinations = destinations;
+        this.destinationModes = destinationModes;
         this.maxJourneyDuration = maxJourneyDuration;
         this.maxWalkingConnections = config.getMaxWalkingConnections();
 
@@ -87,9 +88,9 @@ public class JourneyConstraints {
         return maxPathLength;
     }
 
-    public LocationCollection getDestinations() {
-        return destinations;
-    }
+//    public LocationCollection getDestinations() {
+//        return destinations;
+//    }
 
     public Duration getMaxJourneyDuration() {
         return maxJourneyDuration;
@@ -118,7 +119,7 @@ public class JourneyConstraints {
         return "JourneyConstraints{" +
                 "runningServices=" + routesAndServicesFilter +
                 ", maxPathLength=" + maxPathLength +
-                ", endStations=" + destinations +
+                //", endStations=" + destinations +
                 ", closedStations=" + closedStationsIds +
                 ", maxJourneyDuration=" + maxJourneyDuration +
                 ", maxWalkingConnections=" + maxWalkingConnections +
@@ -159,8 +160,8 @@ public class JourneyConstraints {
 
         return true;
     }
-//
-//    public boolean destinationsAvailable(TimeRange hourRange) {
-//        return destinationsAvailable.anyOverlap(hourRange);
-//    }
+
+    public EnumSet<TransportMode> getDestinationModes() {
+        return destinationModes;
+    }
 }

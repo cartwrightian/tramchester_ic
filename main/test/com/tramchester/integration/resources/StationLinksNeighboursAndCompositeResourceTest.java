@@ -7,7 +7,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.places.StationGroup;
+import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.domain.presentation.DTO.StationGroupDTO;
 import com.tramchester.domain.presentation.DTO.StationToStationConnectionDTO;
@@ -47,7 +47,7 @@ class StationLinksNeighboursAndCompositeResourceTest {
     private static GuiceContainerDependencies dependencies;
     private static APIClientFactory factory;
 
-    private StationGroup shudehillCentralBusStops;
+    private StationLocalityGroup shudehillCentralBusStops;
     private IdForDTO shudehillTramId;
     private StationGroupsRepository stationGroupsRepository;
 
@@ -120,7 +120,7 @@ class StationLinksNeighboursAndCompositeResourceTest {
     @Test
     void shouldGetCompositeStations() {
 
-        StationGroup actualComposite = KnownLocality.Altrincham.from(stationGroupsRepository);
+        StationLocalityGroup actualComposite = KnownLocality.Altrincham.from(stationGroupsRepository);
         Set<IdForDTO> expectedIds = actualComposite.getAllContained().stream().
                 map(IdForDTO::createFor).
                 collect(Collectors.toSet());

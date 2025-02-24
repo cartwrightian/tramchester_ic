@@ -5,11 +5,11 @@ import com.tramchester.domain.dates.TramDate;
 
 public class RoutePair extends DomainPair<Route> {
 
-    public RoutePair(Route first, Route second) {
+    public RoutePair(final Route first, final Route second) {
         super(first, second);
     }
 
-    public static RoutePair of(Route routeA, Route routeB) {
+    public static RoutePair of(final Route routeA, final Route routeB) {
         return new RoutePair(routeA, routeB);
     }
 
@@ -18,7 +18,7 @@ public class RoutePair extends DomainPair<Route> {
         return "RoutePair{" + super.toString() + '}';
     }
 
-    public boolean bothAvailableOn(TramDate date) {
+    public boolean bothAvailableOn(final TramDate date) {
         return first().isAvailableOn(date) && second().isAvailableOn(date);
     }
 

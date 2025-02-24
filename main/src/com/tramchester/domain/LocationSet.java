@@ -53,6 +53,8 @@ public class LocationSet<T extends Location<T>> implements LocationCollection {
         return locations.stream();
     }
 
+    // todo sort out singleton about, then make this private
+    @Deprecated
     public void add(T location) {
         locations.add(location);
     }
