@@ -30,7 +30,6 @@ public class TemporaryStationsWalkIdsConfig implements TemporaryStationsWalkIds 
 
     @Override
     public DateRange getDateRange() {
-
         return DateRange.of(TramDate.of(begin), TramDate.of(end));
     }
 
@@ -42,14 +41,14 @@ public class TemporaryStationsWalkIdsConfig implements TemporaryStationsWalkIds 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        TemporaryStationsWalkIdsConfig that = (TemporaryStationsWalkIdsConfig) o;
-        return Objects.equals(getStationPair(), that.getStationPair()) && Objects.equals(begin, that.begin) && Objects.equals(end, that.end);
+        if (!(o instanceof TemporaryStationsWalkIds that)) return false;
+        return TemporaryStationsWalkIds.areEqual(this, that);
+//        return Objects.equals(stationPair, that.stationPair) && Objects.equals(begin, that.begin) && Objects.equals(end, that.end);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getStationPair(), begin, end);
+        return Objects.hash(stationPair, begin, end);
     }
 
     @Override

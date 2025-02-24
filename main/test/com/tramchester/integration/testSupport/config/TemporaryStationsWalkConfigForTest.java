@@ -1,7 +1,7 @@
 package com.tramchester.integration.testSupport.config;
 
-import com.tramchester.domain.StationIdPair;
 import com.tramchester.config.TemporaryStationsWalkIds;
+import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.dates.DateRange;
 
 import java.util.Objects;
@@ -30,13 +30,21 @@ public class TemporaryStationsWalkConfigForTest implements TemporaryStationsWalk
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        TemporaryStationsWalkConfigForTest that = (TemporaryStationsWalkConfigForTest) o;
-        return Objects.equals(stations, that.stations) && Objects.equals(getDateRange(), that.getDateRange());
+        if (!(o instanceof TemporaryStationsWalkIds that)) return false;
+        return TemporaryStationsWalkIds.areEqual(this, that);
+        //return Objects.equals(stations, that.stations) && Objects.equals(dateRange, that.dateRange);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(stations, getDateRange());
+        return Objects.hash(stations, dateRange);
+    }
+
+    @Override
+    public String toString() {
+        return "TemporaryStationsWalkConfigForTest{" +
+                "stations=" + stations +
+                ", dateRange=" + dateRange +
+                '}';
     }
 }

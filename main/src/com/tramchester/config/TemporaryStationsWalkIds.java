@@ -8,4 +8,8 @@ import com.tramchester.domain.dates.DateRange;
 public interface TemporaryStationsWalkIds {
     DateRange getDateRange();
     StationIdPair getStationPair();
+
+    static boolean areEqual(TemporaryStationsWalkIds a, TemporaryStationsWalkIds b) {
+        return a.getDateRange().equals(b.getDateRange()) && a.getStationPair().equals(b.getStationPair());
+    }
 }

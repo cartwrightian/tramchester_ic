@@ -37,7 +37,17 @@ gtfsSourceConfig:
     groupedStationModes: []
     addWalksForClosed: true
     stationClosures: []
-    temporaryStationsWalks: []
+    temporaryStationsWalks:
+      - stations:
+          first: 9400ZZMASTP
+          second: 9400ZZMAPGD
+        begin: 2025-03-01
+        end: 2025-03-16
+      - stations:
+          first: 9400ZZMASTP
+          second: 9400ZZMAPIC
+        begin: 2025-03-01
+        end: 2025-03-16
 rail:
   dataPath: data/openRailData
   modes: [ Train, RailReplacementBus ]
