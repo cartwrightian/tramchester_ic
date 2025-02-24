@@ -9,6 +9,7 @@ import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
+import com.tramchester.integration.testSupport.config.IntegrationTestConfig;
 import com.tramchester.integration.testSupport.config.closures.StationClosuresListForTest;
 import com.tramchester.integration.testSupport.config.closures.StationClosuresPairForTest;
 import com.tramchester.integration.testSupport.tram.IntegrationTramClosedStationsTestConfig;
@@ -62,7 +63,7 @@ public class ClosedStationsRepositoryTest {
 
         List<StationClosures> closedStations = Arrays.asList(closureA, closureB, closureC, closureD, closureE);
 
-        config = new IntegrationTramClosedStationsTestConfig(closedStations, true);
+        config = new IntegrationTramClosedStationsTestConfig(closedStations, true, IntegrationTestConfig.CurrentStationWalks);
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
     }

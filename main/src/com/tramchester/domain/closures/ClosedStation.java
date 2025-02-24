@@ -61,7 +61,6 @@ public class ClosedStation {
                 && Objects.equals(diversionsAroundClosure, that.diversionsAroundClosure) && Objects.equals(diversionsToFromClosure, that.diversionsToFromClosure);
     }
 
-    @Deprecated
     public DateTimeRange getDateTimeRange() {
         return dateTimeRange;
     }

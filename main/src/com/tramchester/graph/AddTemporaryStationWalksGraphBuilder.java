@@ -7,6 +7,7 @@ import com.tramchester.domain.TemporaryStationWalk;
 import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
+import com.tramchester.domain.time.TimeRange;
 import com.tramchester.graph.facade.*;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.CreateNodesAndRelationships;
@@ -219,6 +220,7 @@ public class AddTemporaryStationWalksGraphBuilder extends CreateNodesAndRelation
     private void setCommonProperties(final MutableGraphRelationship relationship, final Duration cost, final TemporaryStationWalk stationWalk) {
         relationship.setCost(cost);
         relationship.setDateRange(stationWalk.getDateRange());
+        relationship.setTimeRange(TimeRange.AllDay());
     }
 
     @Override

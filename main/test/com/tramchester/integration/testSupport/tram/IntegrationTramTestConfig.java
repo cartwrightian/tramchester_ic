@@ -60,14 +60,15 @@ public class IntegrationTramTestConfig extends IntegrationTestConfig {
         this(LiveData.Disabled, closedStations, IntegrationTestConfig.CurrentStationWalks, Caching.Enabled);
     }
 
-    IntegrationTramTestConfig(List<StationClosures> closedStations, Caching caching) {
-        this(LiveData.Disabled, closedStations, IntegrationTestConfig.CurrentStationWalks, caching);
+    IntegrationTramTestConfig(List<StationClosures> closedStations, Caching caching, List<TemporaryStationsWalkIds> currentStationWalks) {
+        this(LiveData.Disabled, closedStations, currentStationWalks, caching);
         if (isGraphFiltered() && this.caching!=Caching.Disabled) {
             throw new RuntimeException("Misconfiguration, caching must be disabled if graph filtering is enabled");
         }
     }
 
-    protected IntegrationTramTestConfig(LiveData liveData, List<StationClosures> closedStations, List<TemporaryStationsWalkIds> tempWalks, Caching caching) {
+    protected IntegrationTramTestConfig(LiveData liveData, List<StationClosures> closedStations, List<TemporaryStationsWalkIds> tempWalks,
+                                        Caching caching) {
         super(TestGroupType.integration);
         this.liveData = liveData;
         this.caching = caching;

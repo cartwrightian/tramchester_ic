@@ -378,7 +378,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
 
     private static class SubgraphConfig extends IntegrationTramClosedStationsTestConfig {
         public SubgraphConfig(List<StationClosures> closures) {
-            super(closures, true);
+            super(closures, true, Collections.emptyList());
         }
 
         @Override

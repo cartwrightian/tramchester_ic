@@ -49,7 +49,6 @@ class LocationJourneyPlannerTest {
     private TramDate date;
     private Duration maxJourneyDuration;
     private long maxNumberOfJourneys;
-    private StationRepository stationRepository;
 
     // TODO MAKE this a dual test
 
@@ -71,7 +70,7 @@ class LocationJourneyPlannerTest {
         maxJourneyDuration = Duration.ofMinutes(testConfig.getMaxJourneyDuration());
         date = when;
         txn = database.beginTxMutable(TXN_TIMEOUT, TimeUnit.SECONDS);
-        stationRepository = componentContainer.get(StationRepository.class);
+        StationRepository stationRepository = componentContainer.get(StationRepository.class);
         planner = new LocationJourneyPlannerTestFacade(componentContainer.get(LocationJourneyPlanner.class), stationRepository, txn);
         maxNumberOfJourneys = 3;
     }

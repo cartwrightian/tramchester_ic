@@ -23,10 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -56,7 +53,8 @@ class RouteCalculatorCloseStationsTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
-        TramchesterConfig config = new IntegrationTramClosedStationsTestConfig(closedStations, true);
+        TramchesterConfig config = new IntegrationTramClosedStationsTestConfig(closedStations, true,
+                Collections.emptyList());
 
         // if above closedStation list is changed need to enable this once
         //TestEnv.deleteDBIfPresent(config);

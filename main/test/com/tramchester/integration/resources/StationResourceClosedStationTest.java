@@ -10,6 +10,7 @@ import com.tramchester.domain.presentation.DTO.LocationRefDTO;
 import com.tramchester.integration.testSupport.APIClient;
 import com.tramchester.integration.testSupport.APIClientFactory;
 import com.tramchester.integration.testSupport.IntegrationAppExtension;
+import com.tramchester.integration.testSupport.config.IntegrationTestConfig;
 import com.tramchester.integration.testSupport.config.closures.StationClosuresListForTest;
 import com.tramchester.integration.testSupport.tram.IntegrationTramClosedStationsTestConfig;
 import com.tramchester.testSupport.TestEnv;
@@ -36,7 +37,7 @@ public class StationResourceClosedStationTest {
             new StationClosuresListForTest(closedStation, new DateRange(when, when.plusWeeks(1)), false));
 
     // NOTE: planning disabled here
-    private static final AppConfiguration config = new IntegrationTramClosedStationsTestConfig(closedStations, false);
+    private static final AppConfiguration config = new IntegrationTramClosedStationsTestConfig(closedStations, false, IntegrationTestConfig.CurrentStationWalks);
 
     private static final IntegrationAppExtension appExtension = new IntegrationAppExtension(App.class, config);
 

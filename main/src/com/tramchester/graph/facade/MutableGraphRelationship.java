@@ -90,9 +90,9 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
         relationship.setProperty(STOP_SEQ_NUM.getText(), sequenceNumber);
     }
 
-    public void setDateTimeRange(DateTimeRange dateTimeRange) {
-        DateRange dateRange = dateTimeRange.getDateRange();
-        TimeRange timeRange = dateTimeRange.getTimeRange();
+    public void setDateTimeRange(final DateTimeRange dateTimeRange) {
+        final DateRange dateRange = dateTimeRange.getDateRange();
+        final TimeRange timeRange = dateTimeRange.getTimeRange();
 
         setDateRange(dateRange);
         setTimeRange(timeRange);

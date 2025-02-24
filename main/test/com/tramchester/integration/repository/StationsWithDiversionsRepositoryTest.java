@@ -10,6 +10,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
+import com.tramchester.integration.testSupport.config.IntegrationTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramClosedStationsTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StationsWithDiversionRepository;
@@ -92,7 +93,7 @@ public class StationsWithDiversionsRepositoryTest {
         }
 
         public DiversionsConfig(List<StationClosures> closures) {
-            super(closures, true);
+            super(closures, true, IntegrationTestConfig.CurrentStationWalks);
         }
 
         @Override
