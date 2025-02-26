@@ -24,21 +24,19 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.StationsWithDiversion;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.*;
-import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.config.closures.StationClosuresListForTest;
+import com.tramchester.integration.testSupport.tram.CentralStationsSubGraph;
 import com.tramchester.integration.testSupport.tram.IntegrationTramClosedStationsTestConfig;
 import com.tramchester.mappers.Geography;
 import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StationsWithDiversionRepository;
-import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.TramStations;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Direction;
@@ -70,17 +68,6 @@ class SubgraphSmallClosedStationsDiversionsTest {
     private final static List<StationClosures> closedStations = List.of(
             new StationClosuresListForTest(PiccadillyGardens, new DateRange(when.plusWeeks(1), when.plusWeeks(2)), false));
 
-    private static final List<TramStations> centralStations = Arrays.asList(
-            Cornbrook,
-            Deansgate,
-            StPetersSquare,
-            ExchangeSquare,
-            Victoria,
-            PiccadillyGardens,
-            Piccadilly,
-            MarketStreet,
-            Shudehill);
-
     private RouteCalculatorTestFacade calculator;
     private StationRepository stationRepository;
     private MutableGraphTransaction txn;
@@ -94,14 +81,10 @@ class SubgraphSmallClosedStationsDiversionsTest {
         TestEnv.deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder().
-                configureGraphFilter(SubgraphSmallClosedStationsDiversionsTest::configureFilter).
+                configureGraphFilter(CentralStationsSubGraph::configureFilter).
                 create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
         database = componentContainer.get(GraphDatabase.class);
-    }
-
-    private static void configureFilter(ConfigurableGraphFilter graphFilter, TransportData transportData) {
-        centralStations.forEach(station -> graphFilter.addStation(station.getId()));
     }
 
     @AfterAll

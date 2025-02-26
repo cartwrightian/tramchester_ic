@@ -1,6 +1,7 @@
 package com.tramchester.domain;
 
 import com.tramchester.domain.dates.DateRange;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.time.TimeRange;
 
 import java.util.Objects;
@@ -49,7 +50,7 @@ public class TemporaryStationWalk {
     @Override
     public String toString() {
         return "TemporaryStationWalk{" +
-                "stationPair=" + stationPair +
+                "stationPair=" + HasId.asIds(stationPair) +
                 ", dateRange=" + dateRange +
                 ", dataSourceID=" + dataSourceID +
                 '}';

@@ -111,6 +111,11 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
         }
     }
 
+    /***
+     * For pre-built graphs load the diversions into the repository
+     * @param node current node
+     * @param txn transaction
+     */
     private void recordDiversionsAtNode(final ImmutableGraphNode node, final GraphTransaction txn) {
         final IdFor<Station> stationId = node.getStationId();
         final Station station = stationRepository.getStationById(stationId);

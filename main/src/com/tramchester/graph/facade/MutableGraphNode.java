@@ -187,7 +187,7 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
     }
 
     @Override
-    public ImmutableGraphRelationship getSingleRelationship(MutableGraphTransaction txn, TransportRelationshipTypes transportRelationshipType, Direction direction) {
+    public ImmutableGraphRelationship getSingleRelationship(GraphTransaction txn, TransportRelationshipTypes transportRelationshipType, Direction direction) {
         final Relationship found = node.getSingleRelationship(transportRelationshipType, direction);
         if (found==null) {
             return null;

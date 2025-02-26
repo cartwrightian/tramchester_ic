@@ -68,7 +68,6 @@ public class AddTemporaryStationWalksGraphBuilder extends CreateNodesAndRelation
 
     @PostConstruct
     public void start() {
-
         logger.info("starting");
 
         config.getGTFSDataSource().forEach(source -> {
@@ -102,6 +101,11 @@ public class AddTemporaryStationWalksGraphBuilder extends CreateNodesAndRelation
         }
     }
 
+    /***
+     * Record existing diversions i.e. from prebuilt graph
+     * @param node current node
+     * @param txn transaction
+     */
     private void recordDiversionsAtNode(final ImmutableGraphNode node, final GraphTransaction txn) {
         final IdFor<Station> stationId = node.getStationId();
         final Station station = stationRepository.getStationById(stationId);
@@ -132,8 +136,6 @@ public class AddTemporaryStationWalksGraphBuilder extends CreateNodesAndRelation
                 filter(walk -> graphFilter.shouldInclude(walk.getStationPair())).
                 forEach(this::createWalks);
     }
-
-
 
     private void createWalks(final TemporaryStationWalk temporaryStationWalk) {
         try(TimedTransaction timedTransaction = new TimedTransaction(database, logger, "create walks for " +temporaryStationWalk)) {
@@ -199,18 +201,20 @@ public class AddTemporaryStationWalksGraphBuilder extends CreateNodesAndRelation
         fromFirst.set(second);
         fromSecond.set(first);
 
+        // might be an existing label but that is fine
         firstNode.addLabel(GraphLabel.HAS_DIVERSION);
         secondNode.addLabel(GraphLabel.HAS_DIVERSION);
+
         final DateTimeRange dateTimeRange = DateTimeRange.of(temporaryStationWalk.getDateRange(), temporaryStationWalk.getTimeRange());
         stationsWithDiversions.add(first, dateTimeRange);
         stationsWithDiversions.add(second, dateTimeRange);
     }
 
     @NotNull
-    private static MutableGraphNode findNodeFor(MutableGraphTransaction txn, Station first) {
-        final MutableGraphNode closedNode = txn.findNodeMutable(first);
+    private static MutableGraphNode findNodeFor(final MutableGraphTransaction txn, final Station station) {
+        final MutableGraphNode closedNode = txn.findNodeMutable(station);
         if (closedNode==null) {
-            String msg = "Could not find database node for from: " + first.getId();
+            String msg = "Could not find database node for from: " + station.getId();
             logger.error(msg);
             throw new RuntimeException(msg);
         }
@@ -233,7 +237,6 @@ public class AddTemporaryStationWalksGraphBuilder extends CreateNodesAndRelation
     public Set<DateTimeRange> getDateTimeRangesFor(final Station station) {
         return stationsWithDiversions.getDateTimeRangesFor(station);
     }
-
 
     public static class Ready {
         private Ready() {

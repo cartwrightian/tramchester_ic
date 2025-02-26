@@ -33,11 +33,11 @@ public class StationsWithDiversion implements StationsWithDiversionRepository {
     public void add(final Station station, final DateTimeRange dateTimeRange) {
         if (diversions.containsKey(station)) {
             final Set<DateTimeRange> currentRanges = diversions.get(station);
-            long overlaps = currentRanges.stream().
+            final long overlapButNotSame = currentRanges.stream().
                     filter(existing -> existing.overlaps(dateTimeRange)).
                     filter(existing -> !existing.equals(dateTimeRange)).
                     count();
-            if (overlaps>0) {
+            if (overlapButNotSame>0) {
                 throw new RuntimeException("For Station " +station.getId()+ " found overlap between " + dateTimeRange +
                         " and existing " + currentRanges);
             }

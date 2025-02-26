@@ -70,7 +70,7 @@ public class TemporaryStationsWalkRepositoryTest {
 
         List<TemporaryStationWalk> results = new ArrayList<>(walks);
 
-        StationPair result = results.get(0).getStationPair();
+        StationPair result = results.getFirst().getStationPair();
 
         StationPair stationPair = stationRepository.getStationPair(stationIdPairA);
 

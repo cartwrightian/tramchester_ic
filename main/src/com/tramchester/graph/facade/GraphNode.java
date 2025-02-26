@@ -69,7 +69,7 @@ public interface GraphNode {
 
     boolean hasRelationship(Direction direction, TransportRelationshipTypes transportRelationshipTypes);
 
-    ImmutableGraphRelationship getSingleRelationship(MutableGraphTransaction txn, TransportRelationshipTypes transportRelationshipTypes, Direction direction);
+    ImmutableGraphRelationship getSingleRelationship(GraphTransaction txn, TransportRelationshipTypes transportRelationshipTypes, Direction direction);
 
     Stream<ImmutableGraphRelationship> getRelationships(GraphTransaction txn, Direction direction, TransportRelationshipTypes relationshipType);
 

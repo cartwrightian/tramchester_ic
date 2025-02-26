@@ -45,7 +45,7 @@ public class TemporaryStationWalksRepository {
                 logger.info("No closures for " + source.getName());
             }
         });
-        logger.warn("Added " + walks.size() + " temporary station walks");
+        logger.warn("Added " + walks.size() + " temporary station walks " + walks);
         logger.info("Started");
     }
 
