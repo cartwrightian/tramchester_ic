@@ -8,7 +8,6 @@ import com.tramchester.config.TemporaryStationsWalkIds;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.Journey;
 import com.tramchester.domain.JourneyRequest;
-import com.tramchester.domain.StationIdPair;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.dates.TramDate;
@@ -30,7 +29,6 @@ import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
-import com.tramchester.integration.testSupport.config.TemporaryStationsWalkConfigForTest;
 import com.tramchester.integration.testSupport.tram.CentralStationsSubGraph;
 import com.tramchester.integration.testSupport.tram.IntegrationTramClosedStationsTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -40,6 +38,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StationsWithDiversionRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
@@ -57,7 +56,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.neo4j.graphdb.Direction.INCOMING;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
-@Disabled("WIP")
+@DisabledUntilDate(year = 2025, month = 3, day = 4)
 class SubgraphSmallTempWalksDiversionsTest {
     // Note this needs to be > time for whole test fixture, see note below in @After
     private static final int TXN_TIMEOUT = 5*60;
@@ -71,11 +70,7 @@ class SubgraphSmallTempWalksDiversionsTest {
     // TODO will need to find another data/approach once works complete
     private final static TramDate when = UpcomingDates.YorkStreetWorks2025.getStartDate().plusDays(1);
 
-    private static final DateRange range = UpcomingDates.YorkStreetWorks2025; //DateRange.of(when, when.plusWeeks(2));
-
-    private static final List<TemporaryStationsWalkIds> walks = List.of(
-            new TemporaryStationsWalkConfigForTest(StationIdPair.of(StPetersSquare, Piccadilly), range),
-            new TemporaryStationsWalkConfigForTest(StationIdPair.of(StPetersSquare, PiccadillyGardens), range));
+    private static final DateRange range = UpcomingDates.YorkStreetWorks2025;
 
     private RouteCalculatorTestFacade calculator;
     private StationRepository stationRepository;
