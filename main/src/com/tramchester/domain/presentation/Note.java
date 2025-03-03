@@ -40,7 +40,8 @@ public class Note {
         Weekend,
         Christmas,
         ClosedStation,
-        Live
+        Live,
+        Diversion
     }
 
     @Override

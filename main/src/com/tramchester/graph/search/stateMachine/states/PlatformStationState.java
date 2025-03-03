@@ -50,8 +50,11 @@ public class PlatformStationState extends StationState {
             final Stream<ImmutableGraphRelationship> initial = stationNode.getRelationships(txn, OUTGOING, WALKS_FROM_STATION, ENTER_PLATFORM,
                     NEIGHBOUR, GROUPED_TO_PARENT);
             final Stream<ImmutableGraphRelationship> diversions = addValidDiversions(stationNode, journeyState, txn);
+
+            //final Stream<ImmutableGraphRelationship> relationships = Stream.concat(diversions, initial); //Stream.concat(initial, diversions);
             final Stream<ImmutableGraphRelationship> relationships = Stream.concat(initial, diversions);
-            return new PlatformStationState(platformState, filterExcludingEndNode(txn, relationships, platformState), cost,
+
+            return new PlatformStationState(platformState, filterExcludingNode(txn, relationships, platformState), cost,
                     stationNode, journeyState, this);
         }
 

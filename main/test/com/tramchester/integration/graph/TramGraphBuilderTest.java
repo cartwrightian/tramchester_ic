@@ -30,7 +30,6 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TestRoute;
 import com.tramchester.testSupport.reference.TramStations;
@@ -231,7 +230,6 @@ class TramGraphBuilderTest {
         assertTrue(destinations.contains(Timperley.getId()));
     }
 
-    @DisabledUntilDate(year = 2025, month = 2, day = 26)
     @Test
     void shouldHaveCorrectOutboundsAtMediaCity() {
 
@@ -817,7 +815,6 @@ class TramGraphBuilderTest {
 
     }
 
-    @DisabledUntilDate(year = 2025, month = 2, day = 26)
     @Test
     void shouldHaveCorrectInboundsAtMediaCity() {
 
@@ -829,7 +826,6 @@ class TramGraphBuilderTest {
 
     }
 
-    @DisabledUntilDate(year = 2025, month = 2, day = 26)
     @Test
     void shouldCheckOutboundSvcRelationships() {
 

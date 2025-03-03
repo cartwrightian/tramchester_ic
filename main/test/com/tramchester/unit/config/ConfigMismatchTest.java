@@ -32,6 +32,18 @@ class ConfigMismatchTest {
     //    filename: codepo_gb.zip
     //    defaultExpiryDays: 180
 
+    // TODO re-instate?
+    //       - stations:
+    //          first: 9400ZZMASTP
+    //          second: 9400ZZMAPGD
+    //        begin: 2025-03-01
+    //        end: 2025-03-16
+    //      - stations:
+    //          first: 9400ZZMASTP
+    //          second: 9400ZZMAPIC
+    //        begin: 2025-03-01
+    //        end: 2025-03-16
+
     enum Category {
         Closures,
         Modes,

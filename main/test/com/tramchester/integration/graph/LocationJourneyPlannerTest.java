@@ -276,7 +276,9 @@ class LocationJourneyPlannerTest {
     @Test
     void shouldFindJourneyWithWalkingAtEndDeansgateNearShudehill() {
         TramTime queryTime = TramTime.of(8, 35);
-        final JourneyRequest request = new JourneyRequest(date, queryTime, false, 2,
+
+        // 2->3 for closures?
+        final JourneyRequest request = new JourneyRequest(date, queryTime, false, 3,
                 maxJourneyDuration, maxNumberOfJourneys, getRequestedModes());
 
         Set<Journey> journeySet = planner.quickestRouteForLocation(Altrincham, nearShudehill, request, 3);

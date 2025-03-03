@@ -53,7 +53,7 @@ public class FindStateAfterRouteStation  {
 
         // filter so we don't just get straight back on tram if just boarded, or if we are on an existing trip
         final Stream<ImmutableGraphRelationship> relationships = getBoardsAndOthers(node, txn, false);
-        final Stream<ImmutableGraphRelationship> filteredRelationships = stateBuilder.filterExcludingEndNode(txn, relationships, onTrip);
+        final Stream<ImmutableGraphRelationship> filteredRelationships = stateBuilder.filterExcludingNode(txn, relationships, onTrip);
         return createNoPlatformStationState(onTrip, node, cost, journeyState, filteredRelationships, destination);
     }
 

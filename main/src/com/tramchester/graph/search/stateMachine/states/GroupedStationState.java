@@ -41,7 +41,7 @@ public class GroupedStationState extends TraversalState {
 
         public TraversalState fromChildStation(StationState stationState, JourneyStateUpdate journeyStateUpdate,
                                                GraphNode node, Duration cost, GraphTransaction txn) {
-            final Stream<ImmutableGraphRelationship> relationships = filterExcludingEndNode(txn,
+            final Stream<ImmutableGraphRelationship> relationships = filterExcludingNode(txn,
                     node.getRelationships(txn, Direction.OUTGOING, GROUPED_TO_CHILD, GROUPED_TO_GROUPED), stationState);
             return new GroupedStationState(stationState, journeyStateUpdate, relationships, cost, this, node);
         }
@@ -55,7 +55,7 @@ public class GroupedStationState extends TraversalState {
 
         public TraversalState fromGrouped(GroupedStationState parent, Duration cost, JourneyStateUpdate journeyStateUpdate,
                                           GraphNode node, GraphTransaction txn) {
-            final Stream<ImmutableGraphRelationship> relationships = filterExcludingEndNode(txn,
+            final Stream<ImmutableGraphRelationship> relationships = filterExcludingNode(txn,
                     node.getRelationships(txn, Direction.OUTGOING, GROUPED_TO_CHILD, GROUPED_TO_GROUPED), parent);
             return new GroupedStationState(parent, journeyStateUpdate, relationships, cost, this, node);
         }

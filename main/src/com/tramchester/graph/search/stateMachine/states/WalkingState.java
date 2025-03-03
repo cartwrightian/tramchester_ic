@@ -53,7 +53,7 @@ public class WalkingState extends TraversalState {
 
         public TraversalState fromStation(final StationState station, final GraphNode node, final Duration cost, final GraphTransaction txn) {
             return new WalkingState(station,
-                    filterExcludingEndNode(txn, node.getRelationships(txn, OUTGOING), station), cost, this, node);
+                    filterExcludingNode(txn, node.getRelationships(txn, OUTGOING), station), cost, this, node);
         }
 
     }

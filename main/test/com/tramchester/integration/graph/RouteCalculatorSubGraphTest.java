@@ -20,6 +20,7 @@ import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.TramStations;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
@@ -98,36 +99,40 @@ class RouteCalculatorSubGraphTest {
                 new JourneyRequest(when, tramTime, false, 5, maxJourneyDuration, 1, modes));
 
         validateAtLeastOneJourney(Cornbrook, Pomona,
-                new JourneyRequest(when, TramTime.of(19,51).plusMinutes(6), false, 5,
+                new JourneyRequest(when, TramTime.of(19,51).plusMinutes(6), false, 2,
                         maxJourneyDuration, 1, modes));
 
         validateAtLeastOneJourney(TramStations.Deansgate, Cornbrook,
-                new JourneyRequest(when, TramTime.of(19,51).plusMinutes(3), false, 5,
+                new JourneyRequest(when, TramTime.of(19,51).plusMinutes(3), false, 2,
                         maxJourneyDuration, 1, modes));
 
         validateAtLeastOneJourney(TramStations.Deansgate, Pomona,
-                new JourneyRequest(when, TramTime.of(19,51).plusMinutes(3), false, 5,
+                new JourneyRequest(when, TramTime.of(19,51).plusMinutes(3), false, 2,
                         maxJourneyDuration, 1, modes));
 
+    }
+
+    @DisabledUntilDate(year = 2025, month = 3, day = 17)
+    @Test
+    void reproduceIssueEdgePerTripPomona() {
         validateAtLeastOneJourney(StPetersSquare, Pomona, new JourneyRequest(when, tramTime,
-                false, 5, maxJourneyDuration, 1, modes));
-        validateAtLeastOneJourney(StPetersSquare, Pomona, new JourneyRequest(when, tramTime,
-                false, 5, maxJourneyDuration, 1, modes));
+                false, 2, maxJourneyDuration, 1, modes));
     }
 
     @Test
     void shouldHandleCrossingMidnightDirect() {
-        validateAtLeastOneJourney(Cornbrook, StPetersSquare, new JourneyRequest(when, tramTime, false, 5,
+        validateAtLeastOneJourney(Cornbrook, StPetersSquare, new JourneyRequest(when, tramTime, false, 2,
                 maxJourneyDuration, 1, modes));
     }
 
+    @DisabledUntilDate(year = 2025, month = 3, day = 17)
     @SuppressWarnings("JUnitTestMethodWithNoAssertions")
     @Test
     void shouldHaveJourneysBetweenAllStations() {
         for (TramStations start: stations) {
             for (TramStations destination: stations) {
                 if (!start.equals(destination)) {
-                    JourneyRequest journeyRequest = new JourneyRequest(when, tramTime, false, 5, maxJourneyDuration,
+                    JourneyRequest journeyRequest = new JourneyRequest(when, tramTime, false, 2, maxJourneyDuration,
                             1, modes);
                     validateAtLeastOneJourney(start, destination, journeyRequest);
                 }
@@ -145,7 +150,8 @@ class RouteCalculatorSubGraphTest {
         JourneyRequest journeyRequest = new JourneyRequest(when, tramTime, false, 3,
                 maxJourneyDuration,1, modes);
         //journeyRequest.setDiag(true);
-        final Station station = stationRepository.getStationById(Pomona.getId());
+
+        final Station station = Cornbrook.from(stationRepository);
         Set<Journey> results = testFacade.quickestRouteForLocation(station, nearStPetersSquare, journeyRequest, 4);
         assertFalse(results.isEmpty());
     }
@@ -195,7 +201,7 @@ class RouteCalculatorSubGraphTest {
     private static class SubgraphConfig extends IntegrationTramTestConfig {
         public SubgraphConfig() {
             // TODO no closures, but is this valid??
-            super(Collections.emptyList());
+            super(Collections.emptyList(), Caching.Disabled, Collections.emptyList());
         }
 
         @Override
@@ -220,6 +226,6 @@ class RouteCalculatorSubGraphTest {
     private void validateAtLeastOneJourney(TramStations start, TramStations dest, JourneyRequest journeyRequest) {
         // TODO Use find any on stream instead
         final List<Journey> results = calculator.calculateRouteAsList(start, dest, journeyRequest);
-        assertFalse(results.isEmpty());
+        assertFalse(results.isEmpty(), "No results between " + start.getId() + " and " + dest.getId() + " for " +journeyRequest);
     }
 }

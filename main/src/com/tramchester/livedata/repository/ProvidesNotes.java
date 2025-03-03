@@ -12,7 +12,5 @@ import java.util.Set;
 
 @ImplementedBy(ProvidesTramNotes.class)
 public interface ProvidesNotes {
-//    List<Note> createNotesForJourneys(Set<Journey> journeys, TramDate queryDate);
-
     List<Note> createNotesForStations(Set<Station> stations, TramDate queryDate, TramTime time);
 }

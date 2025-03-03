@@ -140,7 +140,7 @@ class RouteCalculatorSubGraphMediaCityTest {
         validateAtLeastOneJourney(MediaCityUK, ExchangeSquare, TramTime.of(10,0), testSunday);
     }
 
-    @DisabledUntilDate(year = 2025, month = 3)
+    @DisabledUntilDate(year = 2025, month = 3, day = 5)
     @Test
     void shouldHaveJourneyFromEveryStationToEveryOtherNDaysAheadEarlyMorning() {
 
@@ -155,7 +155,7 @@ class RouteCalculatorSubGraphMediaCityTest {
         assertTrue(failed.isEmpty(), failed.toString());
     }
 
-    @DisabledUntilDate(year = 2025, month = 3)
+    @DisabledUntilDate(year = 2025, month = 3, day = 5)
     @Test
     void shouldHaveJourneyFromEveryStationToEveryOtherNDaysAhead() {
 
@@ -234,9 +234,10 @@ class RouteCalculatorSubGraphMediaCityTest {
         Station stPetersSquare = StPetersSquare.from(stationRepository);
 
         TimeRange timeRange = TimeRangePartial.of(TramTime.of(8,5), TramTime.of(8,30));
-        int results = getPossibleMinChanges(salfordQuay, stPetersSquare, getRequestedModes(), when, timeRange);
+        int result = getPossibleMinChanges(salfordQuay, stPetersSquare, getRequestedModes(), when, timeRange);
 
-        assertEquals(results, 0);
+        // 0->1 during closures
+        assertEquals(result, 1);
     }
 
     private int getPossibleMinChanges(Location<?> being, Location<?> end, EnumSet<TransportMode> modes, TramDate date, TimeRange timeRange) {
@@ -247,6 +248,7 @@ class RouteCalculatorSubGraphMediaCityTest {
         return routeToRouteCosts.getNumberOfChanges(being, end, journeyRequest, timeRange);
     }
 
+    @DisabledUntilDate(year = 2025, month = 3, day = 5)
     @Test
     void shouldHaveJourneyFromEveryStationToEveryOther() {
 

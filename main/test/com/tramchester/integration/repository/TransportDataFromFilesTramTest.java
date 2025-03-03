@@ -172,7 +172,8 @@ public class TransportDataFromFilesTramTest {
 
         Set<String> uniqueRouteNames = callingRoutes.stream().map(Route::getName).collect(Collectors.toSet());
 
-        assertEquals(2, uniqueRouteNames.size(), uniqueRouteNames.toString());
+        // 2->1 york street closure
+        assertEquals(1, uniqueRouteNames.size(), uniqueRouteNames.toString());
     }
 
     @Test

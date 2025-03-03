@@ -2,6 +2,7 @@ package com.tramchester.livedata.tfgm;
 
 import com.google.common.collect.Sets;
 import com.netflix.governator.guice.lazy.LazySingleton;
+import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.DTO.factory.DTOFactory;
@@ -12,12 +13,12 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.livedata.domain.liveUpdates.PlatformMessage;
 import com.tramchester.livedata.repository.PlatformMessageSource;
 import com.tramchester.livedata.repository.ProvidesNotes;
+import jakarta.inject.Inject;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
-import jakarta.inject.Inject;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -31,10 +32,13 @@ public class ProvidesTramNotes implements ProvidesNotes {
     public static final String website = "Please check <a href=\"https://tfgm.com/travel-updates/travel-alerts#tram\">TFGM</a> for details.";
     public static final String weekend = "At the weekend your journey may be affected by improvement works." + website;
     public static final String christmas = "There are changes to Metrolink services during Christmas and New Year." + website;
-    public static final String christmas2023 = "There are changes to services between 24th Dec and 1st January. " +
-            "Please check <a = href=\"https://tfgm.com/winter-travel/christmas-operating-times\">TFGM</a> for details.";
 
-//    private static final int MESSAGE_LIFETIME = 5;
+    private static final DateRange YorkStreetWorks2025 = DateRange.of(TramDate.of(2025,3,1),
+            TramDate.of(2025, 3, 16));
+
+    public static  final String YorkStreetClosures2025 = """
+            Between 1st and 16th March there are no trams between St Peters Square and Piccadilly Garden or MarketStreet,
+             you might find it faster to walk to/from St Peters Square""";
 
     private final PlatformMessageSource platformMessageSource;
     private final DTOFactory stationDTOFactory;
@@ -106,12 +110,10 @@ public class ProvidesTramNotes implements ProvidesNotes {
             notes.add(new Note(weekend, Weekend));
         }
         if (queryDate.isChristmasPeriod()) {
-            int year = queryDate.getYear();
-            if (year==2023 || year==2024) {
-                notes.add(new Note(christmas2023, Christmas));
-            } else {
-                notes.add(new Note(christmas, Christmas));
-            }
+            notes.add(new Note(christmas, Christmas));
+        }
+        if (YorkStreetWorks2025.contains(queryDate)) {
+            notes.add(new Note(YorkStreetClosures2025, Diversion));
         }
         return notes;
     }

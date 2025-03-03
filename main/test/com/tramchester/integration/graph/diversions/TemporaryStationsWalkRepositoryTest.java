@@ -30,7 +30,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TemporaryStationsWalkRepositoryTest {
 
-
     private static TramDate when;
     private static GuiceContainerDependencies componentContainer;
     private static StationIdPair stationIdPairA;

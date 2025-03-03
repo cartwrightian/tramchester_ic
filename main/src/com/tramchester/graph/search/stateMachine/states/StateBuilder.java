@@ -37,7 +37,8 @@ public abstract class StateBuilder<T extends TraversalState> implements Towards<
         return queryDate;
     }
 
-    public Stream<ImmutableGraphRelationship> addValidDiversions(final GraphNode node, JourneyStateUpdate journeyStateUpdate, final GraphTransaction txn) {
+    public Stream<ImmutableGraphRelationship> addValidDiversions(final GraphNode node, JourneyStateUpdate journeyStateUpdate,
+                                                                 final GraphTransaction txn) {
 
         if (journeyStateUpdate.onDiversion()) {
             if (logger.isDebugEnabled()) {
@@ -47,7 +48,8 @@ public abstract class StateBuilder<T extends TraversalState> implements Towards<
         }
 
         if (node.hasRelationship(Direction.OUTGOING, DIVERSION)) {
-            return node.getRelationships(txn, Direction.OUTGOING, DIVERSION).filter(diversion -> diversion.validOn(queryDate));
+            return node.getRelationships(txn, Direction.OUTGOING, DIVERSION).
+                    filter(diversion -> diversion.validOn(queryDate));
         }
 
         return Stream.empty();
@@ -61,9 +63,9 @@ public abstract class StateBuilder<T extends TraversalState> implements Towards<
         return nodeContents.getTripId(relationship);
     }
 
-    protected <R extends GraphRelationship> Stream<R> filterExcludingEndNode(final GraphTransaction txn,
-                                                                                    final Stream<R> relationships,
-                                                                                    final NodeId hasNodeId) {
+    protected <R extends GraphRelationship> Stream<R> filterExcludingNode(final GraphTransaction txn,
+                                                                          final Stream<R> relationships,
+                                                                          final NodeId hasNodeId) {
         final GraphNodeId nodeId = hasNodeId.nodeId();
         return relationships.filter(relationship -> !relationship.getEndNodeId(txn).equals(nodeId));
     }

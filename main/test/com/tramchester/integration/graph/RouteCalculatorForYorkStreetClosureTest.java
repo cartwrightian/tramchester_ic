@@ -5,16 +5,17 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.places.Location;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
+import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TemporaryStationWalksRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
-import com.tramchester.testSupport.testTags.DualTest;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -27,14 +28,14 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TransportMode.Connect;
 import static com.tramchester.domain.reference.TransportMode.Tram;
+import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("JUnitTestMethodWithNoAssertions")
 @ExtendWith(ConfigParameterResolver.class)
-@DualTest
 @DataUpdateTest
-@Disabled("WIP")
+@Disabled("WIP, issue with temp walks, revisit or disable walks")
 public class RouteCalculatorForYorkStreetClosureTest {
 
     // Note this needs to be > time for whole test fixture, see note below in @After
@@ -49,6 +50,7 @@ public class RouteCalculatorForYorkStreetClosureTest {
     private Duration maxJourneyDuration;
     private int maxNumResults;
     private TramDate when;
+    private StationRepository stationRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun(TramchesterConfig tramchesterConfig) {
@@ -66,6 +68,7 @@ public class RouteCalculatorForYorkStreetClosureTest {
     @BeforeEach
     void beforeEachTestRuns() {
         txn = database.beginTxMutable(TXN_TIMEOUT, TimeUnit.SECONDS);
+        stationRepository = componentContainer.get(StationRepository.class);
         calculator = new RouteCalculatorTestFacade(componentContainer, txn);
         maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
         maxNumResults = config.getMaxNumResults();
@@ -101,19 +104,27 @@ public class RouteCalculatorForYorkStreetClosureTest {
     @Test
     void shouldFindWalkFromStPetersToPiccDuringYorkStreetWork() {
 
+        // this test repros an issue where the journey becomes
+        // StPeters->PiccGardens->MarketStreet->Picc (via Picc Gardens again...!)
+
         TramTime time = TramTime.of(9,0);
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 2,
-                maxJourneyDuration, maxNumResults, EnumSet.of(Tram));
+                maxJourneyDuration, maxNumResults, TramsOnly);
 
         List<Journey> results = calculator.calculateRouteAsList(StPetersSquare, Piccadilly, journeyRequest);
 
         assertFalse(results.isEmpty());
 
-        results.forEach(journey -> {
-            assertEquals(1, journey.getStages().size(), journey.getStages().toString());
-            assertEquals(Connect, journey.getStages().getFirst().getMode());
-            //assertEquals(Tram, journey.getStages().getLast().getMode());
-        });
+        Location<?> marketStreet = MarketStreet.from(stationRepository);
+        List<Journey> incorrect = results.stream().
+                filter(journey -> journey.getPath().contains(marketStreet)).
+                toList();
+
+        assertTrue(incorrect.isEmpty(), incorrect.toString());
+
+//        results.forEach(journey -> {
+//            assertEquals(Connect, journey.getStages().getFirst().getMode());
+//        });
     }
 
     @Test

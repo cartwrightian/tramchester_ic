@@ -1,6 +1,7 @@
 package com.tramchester.testSupport.reference;
 
 import com.tramchester.domain.Route;
+import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.testSupport.UpcomingDates;
@@ -13,21 +14,17 @@ import static com.tramchester.testSupport.UpcomingDates.YorkStreetWorks2025;
 
 public class KnownTramRoute {
 
-    public static TramDate febCutOver = TramDate.of(2025,2,16);
-    public static TramDate revertDate = TramDate.of(2025, 2, 25);
+    public static final TramDate febCutOver = TramDate.of(2025,2,16);
+    public static final TramDate revertDate = TramDate.of(2025, 2, 25);
+
+    private static final DateRange YorkStreetWorks2025MissingRoute = DateRange.of(YorkStreetWorks2025.getEndDate(),
+            YorkStreetWorks2025.getEndDate().plusDays(2));
 
     /***
      * @return Replacement Bus Media City to Eccles
      */
     public static @NotNull TestRoute getBusEcclesToMediaCity(TramDate date) {
         return findFor("Replacement Bus 1", date);
-    }
-
-    /***
-     * @return Replacement Bus Victoria to Piccadilly
-     */
-    public static @NotNull TestRoute getBusVictoriaPiccadilly(TramDate date) {
-        return findFor("Replacement Bus 2", date);
     }
 
     /***
@@ -118,17 +115,10 @@ public class KnownTramRoute {
         if (UpcomingDates.MediaCityEcclesWorks2025.contains(date)) {
             routes.add(getBusEcclesToMediaCity(date));
         }
-        if (date.equals(TramDate.of(2025,2,23))) {
-            routes.add(getBusVictoriaPiccadilly(date));
-        }
-
-//        if (!date.getDayOfWeek().equals(DayOfWeek.SUNDAY) || !date.isAfter(TramDate.of(2025, 2, 15))) {
-//            routes.add(getBuryManchesterAltrincham(date));
-//        }
 
         routes.add(getBuryManchesterAltrincham(date));
 
-        if (!YorkStreetWorks2025.contains(date)) {
+        if (!(YorkStreetWorks2025.contains(date) || YorkStreetWorks2025MissingRoute.contains(date))) {
             routes.add(getEtihadPiccadillyAltrincham(date));
         }
 

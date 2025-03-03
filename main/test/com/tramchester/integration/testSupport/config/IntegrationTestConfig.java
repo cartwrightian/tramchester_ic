@@ -16,7 +16,6 @@ import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.reference.TramStations;
 
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -44,7 +43,8 @@ public abstract class IntegrationTestConfig extends TestConfig {
 
     public static final List<StationClosures> CurrentClosures = Collections.emptyList();
 
-    public static final List<TemporaryStationsWalkIds> CurrentStationWalks = Arrays.asList(StPetersToPiccGardens, StPetersToPicc);
+    public static final List<TemporaryStationsWalkIds> CurrentStationWalks = Collections.emptyList();
+            //Arrays.asList(StPetersToPiccGardens, StPetersToPicc);
 
     private final TestGroupType testGroupType;
 

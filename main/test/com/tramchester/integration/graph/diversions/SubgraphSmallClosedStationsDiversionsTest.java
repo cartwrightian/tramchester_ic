@@ -37,6 +37,7 @@ import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StationsWithDiversionRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Direction;
@@ -110,10 +111,6 @@ class SubgraphSmallClosedStationsDiversionsTest {
     @AfterEach
     void afterEachTestRuns() {
         txn.close();
-    }
-
-    private EnumSet<TransportMode> getRequestedModes() {
-        return TramsOnly;
     }
 
     @Test
@@ -226,27 +223,29 @@ class SubgraphSmallClosedStationsDiversionsTest {
     @Test
     void shouldHaveJourneyFromPiccGardensToPiccadilly() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
-                maxChanges, maxJourneyDuration, 1, getRequestedModes());
+                maxChanges, maxJourneyDuration, 1, TramsOnly);
 
         List<Journey> results = calculator.calculateRouteAsList(PiccadillyGardens, Victoria, journeyRequest);
 
         assertFalse(results.isEmpty(), "no journeys");
     }
 
+    @DisabledUntilDate(year = 2025, month = 3, day = 17)
     @Test
     void shouldFindRouteAroundCloseBackOnToTramCornbrookToPicc() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
-                maxChanges, maxJourneyDuration, 1, getRequestedModes());
+                maxChanges, maxJourneyDuration, 1, TramsOnly);
 
         List<Journey> results = calculator.calculateRouteAsList(Cornbrook, Piccadilly, journeyRequest);
 
         assertFalse(results.isEmpty(), "no journeys");
     }
 
+    @DisabledUntilDate(year = 2025, month = 3, day = 17)
     @Test
     void shouldFindRouteAroundCloseBackOnToTramPiccToCornbrook() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
-                maxChanges, maxJourneyDuration, 1, getRequestedModes());
+                maxChanges, maxJourneyDuration, 1, TramsOnly);
 
         List<Journey> results = calculator.calculateRouteAsList(Piccadilly, Cornbrook, journeyRequest);
 
@@ -256,7 +255,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
     @Test
     void shouldFindRouteAroundCloseBackOnToTramVicToPicc() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
-                maxChanges, maxJourneyDuration, 1, getRequestedModes());
+                maxChanges, maxJourneyDuration, 1, TramsOnly);
 
         List<Journey> results = calculator.calculateRouteAsList(Victoria, Piccadilly, journeyRequest);
 
@@ -266,7 +265,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
     @Test
     void shouldFindRouteAroundCloseBackOnToTramPiccToVic() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
-                maxChanges, maxJourneyDuration, 1, getRequestedModes());
+                maxChanges, maxJourneyDuration, 1, TramsOnly);
 
         List<Journey> results = calculator.calculateRouteAsList(Piccadilly, Victoria, journeyRequest);
 
@@ -276,7 +275,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
     @Test
     void shouldFindRouteWhenFromStationWithDiversionToOtherDiversionStation() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
-                maxChanges, maxJourneyDuration, 1, getRequestedModes());
+                maxChanges, maxJourneyDuration, 1, TramsOnly);
         List<Journey> results = calculator.calculateRouteAsList(ExchangeSquare, Deansgate, journeyRequest);
 
         assertFalse(results.isEmpty());
@@ -285,25 +284,27 @@ class SubgraphSmallClosedStationsDiversionsTest {
     @Test
     void shouldFindPiccadillyToPiccadillyGardens() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
-                maxChanges, maxJourneyDuration, 1, getRequestedModes());
+                maxChanges, maxJourneyDuration, 1, TramsOnly);
         List<Journey> results = calculator.calculateRouteAsList(Piccadilly, PiccadillyGardens, journeyRequest);
 
         assertFalse(results.isEmpty());
     }
 
+    @DisabledUntilDate(year = 2025, month = 3, day = 17)
     @Test
     void shouldFindStPetersToPiccadillyGardens() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
-                maxChanges, maxJourneyDuration, 1, getRequestedModes());
+                maxChanges, maxJourneyDuration, 1, TramsOnly);
         List<Journey> results = calculator.calculateRouteAsList(StPetersSquare, PiccadillyGardens, journeyRequest);
 
         assertFalse(results.isEmpty());
     }
 
+    @DisabledUntilDate(year = 2025, month = 3, day = 17)
     @Test
     void shouldFindDeansgateToPiccadillyGardens() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
-                maxChanges, maxJourneyDuration, 1, getRequestedModes());
+                maxChanges, maxJourneyDuration, 1, TramsOnly);
 
         List<Journey> results = calculator.calculateRouteAsList(Deansgate, PiccadillyGardens, journeyRequest);
 

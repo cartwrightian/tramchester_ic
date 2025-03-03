@@ -13,6 +13,7 @@ import com.tramchester.livedata.domain.liveUpdates.PlatformMessage;
 import com.tramchester.livedata.repository.PlatformMessageSource;
 import com.tramchester.livedata.tfgm.ProvidesTramNotes;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.reference.BusStations;
 import com.tramchester.testSupport.reference.TramStations;
 import org.easymock.EasyMock;
@@ -125,9 +126,10 @@ class ProvidesTramNotesTest extends EasyMockSupport {
     void shouldHaveNoteForChristmasTramServices() {
         EasyMock.expect(platformMessageSource.isEnabled()).andStubReturn(true);
 
-        int year = 2023;
+        int year = TestEnv.testDay().getYear();
+
         TramDate beforeChristmas = TramDate.of(year, 12, 23);
-        Note christmasNote = new Note(ProvidesTramNotes.christmas2023, Note.NoteType.Christmas);
+        Note christmasNote = new Note(ProvidesTramNotes.christmas, Note.NoteType.Christmas);
 
         TramTime queryTime = TramTime.of(13,42);
         TramDate afterChristmas = TramDate.of(year+1, 1, 2);
@@ -148,9 +150,8 @@ class ProvidesTramNotesTest extends EasyMockSupport {
         for(int offset=1; offset<10; offset++) {
             TramDate queryDate = beforeChristmas.plusDays(offset);
             result = getNotesForStations(stations, queryDate, queryTime);
-            assertTrue(result.contains(christmasNote));
+            assertTrue(result.contains(christmasNote), "did not find '" + christmasNote + "' in " + result);
         }
-
 
         result = getNotesForStations(stations, afterChristmas, queryTime);
 
@@ -222,7 +223,12 @@ class ProvidesTramNotesTest extends EasyMockSupport {
         if (serviceDate.isChristmasPeriod()) {
             expected++;
         }
+        if (UpcomingDates.YorkStreetWorks2025.contains(date)) {
+            expected++;
+        }
+
         assertEquals(expected, notes.size());
+
     }
 
     @Test

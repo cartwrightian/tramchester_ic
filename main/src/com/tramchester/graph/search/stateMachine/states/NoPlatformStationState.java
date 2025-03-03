@@ -58,7 +58,8 @@ public class NoPlatformStationState extends StationState {
 
             final Stream<ImmutableGraphRelationship> diversions = addValidDiversions(node, journeyState, txn);
 
-            return new NoPlatformStationState(notStartedState, Stream.concat(walksAndGroup, diversions), cost, node, journeyState, getDestination());
+            return new NoPlatformStationState(notStartedState, Stream.concat(walksAndGroup, diversions), cost, node,
+                    journeyState, getDestination());
         }
 
         public TraversalState fromRouteStationEndTrip(final RouteStationStateEndTrip routeStationState, final GraphNode node, final Duration cost,

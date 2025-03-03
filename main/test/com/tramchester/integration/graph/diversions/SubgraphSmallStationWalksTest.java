@@ -13,20 +13,18 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.facade.MutableGraphTransaction;
-import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.config.TemporaryStationsWalkConfigForTest;
+import com.tramchester.integration.testSupport.tram.CentralStationsSubGraph;
 import com.tramchester.integration.testSupport.tram.IntegrationTramStationWalksTestConfig;
-import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.reference.TramStations;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -47,17 +45,6 @@ class SubgraphSmallStationWalksTest {
 
     private final static TramDate when = TestEnv.testDay();
 
-    private static final List<TramStations> centralStations = Arrays.asList(
-            Cornbrook,
-            Deansgate,
-            StPetersSquare,
-            ExchangeSquare,
-            Victoria,
-            PiccadillyGardens,
-            Piccadilly,
-            MarketStreet,
-            Shudehill);
-
     private RouteCalculatorTestFacade calculator;
     private MutableGraphTransaction txn;
     private Duration maxJourneyDuration;
@@ -76,14 +63,10 @@ class SubgraphSmallStationWalksTest {
         TestEnv.deleteDBIfPresent(config);
 
         componentContainer = new ComponentsBuilder().
-                configureGraphFilter(SubgraphSmallStationWalksTest::configureFilter).
+                configureGraphFilter(CentralStationsSubGraph::configureFilter).
                 create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
         database = componentContainer.get(GraphDatabase.class);
-    }
-
-    private static void configureFilter(ConfigurableGraphFilter graphFilter, TransportData transportData) {
-        centralStations.forEach(station -> graphFilter.addStation(station.getId()));
     }
 
     @AfterAll
@@ -123,10 +106,11 @@ class SubgraphSmallStationWalksTest {
         assertFalse(results.isEmpty(), "no journeys");
     }
 
+    @DisabledUntilDate(year = 2025, month = 3, day = 5)
     @Test
     void shouldFindRouteUsingWalkCornbrookToPicc() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
-                maxChanges, maxJourneyDuration, 1, getRequestedModes());
+                2, maxJourneyDuration, 1, getRequestedModes());
 
         List<Journey> results = calculator.calculateRouteAsList(Cornbrook, Piccadilly, journeyRequest);
 

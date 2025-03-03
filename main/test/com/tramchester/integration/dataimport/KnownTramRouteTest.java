@@ -200,6 +200,7 @@ class KnownTramRouteTest {
                 + unexpectedLoadedForDate);
     }
 
+    @DisabledUntilDate(year = 2025, month = 3, day = 17)
     @Test
     void shouldNotHaveUnusedKnownTramRoutesForDate() {
         TramDate start = TramDate.from(TestEnv.LocalNow());

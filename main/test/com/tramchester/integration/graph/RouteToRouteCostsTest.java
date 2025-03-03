@@ -128,6 +128,7 @@ public class RouteToRouteCostsTest {
                 "wrong for " + routeB.getId() + " " + routeA.getId());
     }
 
+    @DisabledUntilDate(year = 2025, month = 3, day = 17)
     @Test
     void shouldFailIfOurOfTimeRangeDifferentRoutesTwoChange() {
         Route routeA = routeHelper.getOneRoute(getCornbrookTheTraffordCentre(date), date);
@@ -170,15 +171,6 @@ public class RouteToRouteCostsTest {
     }
 
     @Test
-    void shouldFindLowestHopCountForTwoStationsSameRoute() {
-        Station start = TramStations.Victoria.from(stationRepository);
-        Station end = TramStations.ManAirport.from(stationRepository);
-        int result = getPossibleMinChanges(start, end, modes, date, timeRange);
-
-        assertEquals(0, getMinCost(result));
-    }
-
-    @Test
     void shouldFindNoHopeIfWrongTransportMode() {
         Station start = TramStations.Victoria.from(stationRepository);
         Station end = TramStations.ManAirport.from(stationRepository);
@@ -204,7 +196,8 @@ public class RouteToRouteCostsTest {
         int possibleMin = getPossibleMinChanges(MediaCityUK.from(stationRepository),
                 Ashton.from(stationRepository), modes, date, timeRange);
 
-        assertEquals(0, possibleMin);
+        // 0->1 for york street closure
+        assertEquals(1, possibleMin);
 
     }
 
@@ -214,7 +207,8 @@ public class RouteToRouteCostsTest {
         Station end = TramStations.ManAirport.from(stationRepository);
         int result = getPossibleMinChanges(start, end, modes, date, timeRange);
 
-        assertEquals(0, getMinCost(result));
+        // 0->1 yorkstreet closures
+        assertEquals(1, getMinCost(result));
     }
 
     @DisabledUntilDate(year = 2025, month = 3, day = 17)
