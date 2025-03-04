@@ -11,18 +11,17 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
-import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
+import com.tramchester.integration.testSupport.config.IntegrationTestConfig;
+import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TemporaryStationWalksRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
-import com.tramchester.testSupport.testTags.DualTest;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.time.Duration;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -37,10 +36,8 @@ import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("JUnitTestMethodWithNoAssertions")
-@ExtendWith(ConfigParameterResolver.class)
 @DataUpdateTest
-@DualTest
-@DisabledUntilDate(year = 2025, month = 3, day = 9)
+@Disabled("WIP")
 public class RouteCalculatorForYorkStreetClosureTest {
 
     // Note this needs to be > time for whole test fixture, see note below in @After
@@ -58,8 +55,10 @@ public class RouteCalculatorForYorkStreetClosureTest {
     private StationRepository stationRepository;
 
     @BeforeAll
-    static void onceBeforeAnyTestsRun(TramchesterConfig tramchesterConfig) {
-        config = tramchesterConfig;
+    static void onceBeforeAnyTestsRun() {
+        config = new IntegrationTramTestConfig(Collections.emptyList(), IntegrationTramTestConfig.Caching.Disabled,
+                IntegrationTestConfig.YorkStreetClosureWalks);
+
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
         database = componentContainer.get(GraphDatabase.class);

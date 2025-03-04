@@ -5,14 +5,15 @@ import com.tramchester.domain.dates.DateTimeRange;
 import com.tramchester.domain.places.Station;
 import com.tramchester.repository.StationsWithDiversionRepository;
 import jakarta.inject.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @LazySingleton
 public class StationsWithDiversion implements StationsWithDiversionRepository {
+    private static final Logger logger = LoggerFactory.getLogger(StationsWithDiversion.class);
+
     private final Map<Station, Set<DateTimeRange>> diversions;
 
     @Inject
@@ -26,7 +27,11 @@ public class StationsWithDiversion implements StationsWithDiversionRepository {
     }
 
     @Override
-    public Set<DateTimeRange> getDateTimeRangesFor(Station station) {
+    public Set<DateTimeRange> getDateTimeRangesFor(final Station station) {
+        if (!diversions.containsKey(station)) {
+            logger.warn("Tried to get date ranges for " + station.getId() + " but none present");
+            return Collections.emptySet();
+        }
         return diversions.get(station);
     }
 

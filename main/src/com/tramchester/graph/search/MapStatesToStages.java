@@ -72,12 +72,13 @@ class MapStatesToStages implements JourneyStateUpdate {
     public void board(final TransportMode transportMode, final GraphNode node, final boolean hasPlatform) {
         onVehicle = true;
         boardingTime = null;
+        final IdFor<Station> actionStationId = node.getStationId();
+
         if (onDiversion) {
-            logger.info("End diversion");
+            logger.info("End diversion at " + actionStationId);
             onDiversion = false;
         }
 
-        final IdFor<Station> actionStationId = node.getStationId();
         if (logger.isDebugEnabled()) {
             logger.debug("Board " + transportMode + " " + actionStationId + " totalcost  " + totalCost);
         }
@@ -225,10 +226,11 @@ class MapStatesToStages implements JourneyStateUpdate {
     }
 
     @Override
-    public void beginDiversion(IdFor<Station> stationId) {
+    public void beginDiversion(final IdFor<Station> stationId) {
         if (onDiversion) {
             throw new RuntimeException("Already on diversion at " + stationId);
         }
+        logger.info("Begin diversion at " + stationId);
         onDiversion = true;
     }
 

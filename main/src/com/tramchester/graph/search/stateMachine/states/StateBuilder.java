@@ -1,5 +1,6 @@
 package com.tramchester.graph.search.stateMachine.states;
 
+import com.google.common.collect.Streams;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
@@ -14,6 +15,7 @@ import org.neo4j.graphdb.Direction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Comparator;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.TransportRelationshipTypes.DIVERSION;
@@ -37,22 +39,29 @@ public abstract class StateBuilder<T extends TraversalState> implements Towards<
         return queryDate;
     }
 
-    public Stream<ImmutableGraphRelationship> addValidDiversions(final GraphNode node, JourneyStateUpdate journeyStateUpdate,
+    public Stream<ImmutableGraphRelationship> addValidDiversions(final Stream<ImmutableGraphRelationship> existing,
+                                                                 final GraphNode node, JourneyStateUpdate journeyStateUpdate,
                                                                  final GraphTransaction txn) {
 
         if (journeyStateUpdate.onDiversion()) {
             if (logger.isDebugEnabled()) {
                 logger.debug("Already on diversion " + node.getStationId());
             }
-            return Stream.empty();
+            return existing;
         }
 
+        // TODO Is this ordering the right approach, or require only one diversion from each location (doesn't work either?)
         if (node.hasRelationship(Direction.OUTGOING, DIVERSION)) {
-            return node.getRelationships(txn, Direction.OUTGOING, DIVERSION).
-                    filter(diversion -> diversion.validOn(queryDate));
+            Stream<ImmutableGraphRelationship> diversions = node.getRelationships(txn, Direction.OUTGOING, DIVERSION).
+                    filter(diversion -> diversion.validOn(queryDate)).
+                    sorted(Comparator.comparing(ImmutableGraphRelationship::getCost));
+            //return relationships;
+
+            // TODO ordering here?
+            return Streams.concat(existing, diversions);
         }
 
-        return Stream.empty();
+        return existing;
     }
 
     protected int getQueryHour() {

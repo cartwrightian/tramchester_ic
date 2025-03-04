@@ -25,9 +25,9 @@ public class FindStateAfterRouteStation  {
         // end of a trip, may need to go back to this route station to catch new service
 
         final Stream<ImmutableGraphRelationship> boardsAndOthers = getBoardsAndOthers(node, txn, false);
-        final Stream<ImmutableGraphRelationship> diversions = stateBuilder.addValidDiversions(node, journeyStateUpdate, txn);
+        final Stream<ImmutableGraphRelationship> relationships = stateBuilder.addValidDiversions(boardsAndOthers, node, journeyStateUpdate, txn);
 
-        final Stream<ImmutableGraphRelationship> relationships = Stream.concat(boardsAndOthers, diversions);
+        //final Stream<ImmutableGraphRelationship> relationships = Stream.concat(boardsAndOthers, diversions);
         return createNoPlatformStationState(routeStationState, node, cost, journeyStateUpdate, relationships, destination);
     }
 

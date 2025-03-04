@@ -56,9 +56,9 @@ public class NoPlatformStationState extends StationState {
 
             final Stream<ImmutableGraphRelationship> walksAndGroup = boardRelationshipsPlus(node, txn, WALKS_FROM_STATION, GROUPED_TO_PARENT, NEIGHBOUR);
 
-            final Stream<ImmutableGraphRelationship> diversions = addValidDiversions(node, journeyState, txn);
+            final Stream<ImmutableGraphRelationship> relationships = addValidDiversions(walksAndGroup, node, journeyState, txn);
 
-            return new NoPlatformStationState(notStartedState, Stream.concat(walksAndGroup, diversions), cost, node,
+            return new NoPlatformStationState(notStartedState, relationships, cost, node,
                     journeyState, getDestination());
         }
 

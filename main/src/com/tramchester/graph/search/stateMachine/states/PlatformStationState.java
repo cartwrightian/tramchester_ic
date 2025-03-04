@@ -49,10 +49,9 @@ public class PlatformStationState extends StationState {
                                                  final JourneyStateUpdate journeyState, final GraphTransaction txn) {
             final Stream<ImmutableGraphRelationship> initial = stationNode.getRelationships(txn, OUTGOING, WALKS_FROM_STATION, ENTER_PLATFORM,
                     NEIGHBOUR, GROUPED_TO_PARENT);
-            final Stream<ImmutableGraphRelationship> diversions = addValidDiversions(stationNode, journeyState, txn);
+            final Stream<ImmutableGraphRelationship> relationships = addValidDiversions(initial, stationNode, journeyState, txn);
 
-            //final Stream<ImmutableGraphRelationship> relationships = Stream.concat(diversions, initial); //Stream.concat(initial, diversions);
-            final Stream<ImmutableGraphRelationship> relationships = Stream.concat(initial, diversions);
+            //final Stream<ImmutableGraphRelationship> relationships = Stream.concat(initial, diversions);
 
             return new PlatformStationState(platformState, filterExcludingNode(txn, relationships, platformState), cost,
                     stationNode, journeyState, this);
@@ -63,9 +62,9 @@ public class PlatformStationState extends StationState {
                                               final GraphTransaction txn) {
             final Stream<ImmutableGraphRelationship> initial = stationNode.getRelationships(txn, OUTGOING, WALKS_FROM_STATION,
                     GROUPED_TO_PARENT, ENTER_PLATFORM, NEIGHBOUR);
-            final Stream<ImmutableGraphRelationship> diversions = addValidDiversions(stationNode, journeyState, txn);
+            final Stream<ImmutableGraphRelationship> relationships = addValidDiversions(initial, stationNode, journeyState, txn);
 
-            final Stream<ImmutableGraphRelationship> relationships = Stream.concat(initial, diversions);
+            //final Stream<ImmutableGraphRelationship> relationships = Stream.concat(initial, diversions);
             return new PlatformStationState(notStartedState, relationships, cost, stationNode, journeyState, this);
         }
 
@@ -73,9 +72,9 @@ public class PlatformStationState extends StationState {
         public PlatformStationState fromNeighbour(final StationState stationState, final GraphNode stationNode, final Duration cost,
                                                   final JourneyStateUpdate journeyState, final GraphTransaction txn) {
             final Stream<ImmutableGraphRelationship> initial = stationNode.getRelationships(txn, OUTGOING, ENTER_PLATFORM, GROUPED_TO_PARENT);
-            final Stream<ImmutableGraphRelationship> diversions = addValidDiversions(stationNode, journeyState, txn);
+            final Stream<ImmutableGraphRelationship> relationships = addValidDiversions(initial, stationNode, journeyState, txn);
 
-            final Stream<ImmutableGraphRelationship> relationships = Stream.concat(initial, diversions);
+            //final Stream<ImmutableGraphRelationship> relationships = Stream.concat(initial, diversions);
             return new PlatformStationState(stationState, relationships, cost, stationNode, journeyState, this);
         }
 
