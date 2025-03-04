@@ -56,7 +56,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.neo4j.graphdb.Direction.INCOMING;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
-@DisabledUntilDate(year = 2025, month = 3, day = 4)
+@DisabledUntilDate(year = 2025, month = 3, day = 9)
 class SubgraphSmallTempWalksDiversionsTest {
     // Note this needs to be > time for whole test fixture, see note below in @After
     private static final int TXN_TIMEOUT = 5*60;

@@ -29,9 +29,6 @@ public class UpcomingDates {
     // use helper methods that handle filtering (i.e. for Christmas) and conversion to dates
     static final int DAYS_AHEAD = 14;
 
-    public static DateRange MediaCityEcclesWorks2025 = DateRange.of(TramDate.of(2025,2,17),
-        TramDate.of(2025, 2, 24));
-
     public static DateRange YorkStreetWorks2025 = DateRange.of(TramDate.of(2025,3,1),
             TramDate.of(2025, 3, 16));
 

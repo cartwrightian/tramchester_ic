@@ -4,7 +4,6 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.testSupport.UpcomingDates;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -14,18 +13,18 @@ import static com.tramchester.testSupport.UpcomingDates.YorkStreetWorks2025;
 
 public class KnownTramRoute {
 
-    public static final TramDate febCutOver = TramDate.of(2025,2,16);
+    //public static final TramDate febCutOver = TramDate.of(2025,2,16);
     public static final TramDate revertDate = TramDate.of(2025, 2, 25);
 
     private static final DateRange YorkStreetWorks2025MissingRoute = DateRange.of(YorkStreetWorks2025.getEndDate(),
-            YorkStreetWorks2025.getEndDate().plusDays(2));
+            YorkStreetWorks2025.getEndDate().plusDays(3));
 
     /***
      * @return Replacement Bus Media City to Eccles
      */
-    public static @NotNull TestRoute getBusEcclesToMediaCity(TramDate date) {
-        return findFor("Replacement Bus 1", date);
-    }
+//    public static @NotNull TestRoute getBusEcclesToMediaCity(TramDate date) {
+//        return findFor("Replacement Bus 1", date);
+//    }
 
     /***
      * @return Yellow route
@@ -111,10 +110,6 @@ public class KnownTramRoute {
 
     public static Set<TestRoute> getFor(final TramDate date) {
         final Set<TestRoute> routes = new HashSet<>();
-
-        if (UpcomingDates.MediaCityEcclesWorks2025.contains(date)) {
-            routes.add(getBusEcclesToMediaCity(date));
-        }
 
         routes.add(getBuryManchesterAltrincham(date));
 

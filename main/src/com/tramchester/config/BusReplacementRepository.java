@@ -24,11 +24,12 @@ public class BusReplacementRepository {
     @PostConstruct
     public void start() {
         // TODO maybe into config at some point, but fine in code for now
-        replacementBusRoutes.add(Route.createId("2749"));
-        replacementBusRoutes.add(Route.createId("2757"));
-        replacementBusRoutes.forEach(routeId -> {
-            logger.info("Have bus replacement route " + routeId);
-        });
+//        replacementBusRoutes.add(Route.createId("2749"));
+//        replacementBusRoutes.add(Route.createId("2757"));
+//        replacementBusRoutes.forEach(routeId -> {
+//            logger.info("Have bus replacement route " + routeId);
+//        });
+        logger.info("No replacement buses");
     }
 
     public boolean hasReplacementBuses() {

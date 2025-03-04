@@ -40,7 +40,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(ConfigParameterResolver.class)
 @DataUpdateTest
 @DualTest
-@DisabledUntilDate(year = 2025, month = 3, day = 4)
+@DisabledUntilDate(year = 2025, month = 3, day = 9)
 public class RouteCalculatorForYorkStreetClosureTest {
 
     // Note this needs to be > time for whole test fixture, see note below in @After

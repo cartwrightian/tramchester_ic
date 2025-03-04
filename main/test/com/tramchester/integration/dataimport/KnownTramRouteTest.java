@@ -74,14 +74,6 @@ class KnownTramRouteTest {
     }
 
     @Test
-    void shouldHaveExpectedRouteIdForReplacementBus() {
-        UpcomingDates.MediaCityEcclesWorks2025.stream().forEach(date -> {
-            TestRoute result = KnownTramRoute.getBusEcclesToMediaCity(date);
-            assertEquals(Route.createId("2757"), result.getId());
-        });
-    }
-
-    @Test
     void shouldHaveExpectedRouteIdForNavy() {
         checkRouteIdFor(KnownTramRoute::getDeansgateManchesterAirport, false);
     }

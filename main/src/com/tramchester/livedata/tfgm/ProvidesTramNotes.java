@@ -37,7 +37,7 @@ public class ProvidesTramNotes implements ProvidesNotes {
             TramDate.of(2025, 3, 16));
 
     public static  final String YorkStreetClosures2025 = """
-            Between 1st and 16th March there are no trams between St Peters Square and Piccadilly Garden or MarketStreet,
+            Between 1st and 16th March there are no trams between St Peters Square and Piccadilly Garden or Market Street,
              you might find it faster to walk to/from St Peters Square""";
 
     private final PlatformMessageSource platformMessageSource;
