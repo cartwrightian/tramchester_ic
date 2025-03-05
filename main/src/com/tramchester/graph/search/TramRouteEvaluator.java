@@ -110,6 +110,12 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
 
         final HowIGotHere howIGotHere = new HowIGotHere(journeyState, nextNode.getId(), getPreviousNodeSafe(last));
 
+        // TODO Reinstate this
+//        if (journeyState.alreadyVisited(nextNode, labels)) {
+//            logger.warn("Returned to " + nextNode.getId() + " " + labels);
+//            return Evaluation.EXCLUDE_AND_PRUNE;
+//        }
+
         reasons.recordVisit(howIGotHere);
 
         if (!running.isRunning()) {
@@ -219,7 +225,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         if (nodeLabels.contains(GraphLabel.MINUTE)) {
             // TODO SPIKE!
             if (!depthFirst) {
-                if (this.seenTimeNode.contains(nextNodeId)) {
+                if (seenTimeNode.contains(nextNodeId)) {
                     return reasons.recordReason(HeuristicsReasons.AlreadySeenTime(howIGotHere, nextNodeId));
                 } else {
                     seenTimeNode.add(nextNodeId);
@@ -314,6 +320,8 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     @NotNull
     private synchronized HeuristicsReason processArrivalAtDest(final ImmutableJourneyState journeyState, final HowIGotHere howIGotHere,
                                                                final int numberChanges, Duration totalCostSoFar) {
+
+        // todo if was on diversion at any stage then change behaviour here?
 
         // todo set a thresh-hold on this rather than just having to be lower?
         if (bestResultSoFar.isLower(journeyState)) {

@@ -40,7 +40,7 @@ public abstract class StateBuilder<T extends TraversalState> implements Towards<
     }
 
     public Stream<ImmutableGraphRelationship> addValidDiversions(final Stream<ImmutableGraphRelationship> existing,
-                                                                 final GraphNode node, JourneyStateUpdate journeyStateUpdate,
+                                                                 final GraphNode node, final JourneyStateUpdate journeyStateUpdate,
                                                                  final GraphTransaction txn) {
 
         if (journeyStateUpdate.onDiversion()) {
@@ -52,10 +52,9 @@ public abstract class StateBuilder<T extends TraversalState> implements Towards<
 
         // TODO Is this ordering the right approach, or require only one diversion from each location (doesn't work either?)
         if (node.hasRelationship(Direction.OUTGOING, DIVERSION)) {
-            Stream<ImmutableGraphRelationship> diversions = node.getRelationships(txn, Direction.OUTGOING, DIVERSION).
+            final Stream<ImmutableGraphRelationship> diversions = node.getRelationships(txn, Direction.OUTGOING, DIVERSION).
                     filter(diversion -> diversion.validOn(queryDate)).
                     sorted(Comparator.comparing(ImmutableGraphRelationship::getCost));
-            //return relationships;
 
             // TODO ordering here?
             return Streams.concat(existing, diversions);

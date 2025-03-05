@@ -17,7 +17,7 @@ public class KnownTramRoute {
     public static final TramDate revertDate = TramDate.of(2025, 2, 25);
 
     private static final DateRange YorkStreetWorks2025MissingRoute = DateRange.of(YorkStreetWorks2025.getEndDate(),
-            YorkStreetWorks2025.getEndDate().plusDays(3));
+            YorkStreetWorks2025.getEndDate().plusDays(5));
 
     /***
      * @return Replacement Bus Media City to Eccles

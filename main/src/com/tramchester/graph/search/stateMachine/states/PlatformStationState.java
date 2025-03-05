@@ -72,9 +72,9 @@ public class PlatformStationState extends StationState {
         public PlatformStationState fromNeighbour(final StationState stationState, final GraphNode stationNode, final Duration cost,
                                                   final JourneyStateUpdate journeyState, final GraphTransaction txn) {
             final Stream<ImmutableGraphRelationship> initial = stationNode.getRelationships(txn, OUTGOING, ENTER_PLATFORM, GROUPED_TO_PARENT);
+
             final Stream<ImmutableGraphRelationship> relationships = addValidDiversions(initial, stationNode, journeyState, txn);
 
-            //final Stream<ImmutableGraphRelationship> relationships = Stream.concat(initial, diversions);
             return new PlatformStationState(stationState, relationships, cost, stationNode, journeyState, this);
         }
 
@@ -126,7 +126,8 @@ public class PlatformStationState extends StationState {
     }
 
     @Override
-    protected TraversalState toGrouped(final GroupedStationState.Builder towardsGroup, JourneyStateUpdate journeyStateUpdate, final GraphNode node, final Duration cost,
+    protected TraversalState toGrouped(final GroupedStationState.Builder towardsGroup, JourneyStateUpdate journeyStateUpdate,
+                                       final GraphNode node, final Duration cost,
                                        final JourneyStateUpdate journeyState) {
         return towardsGroup.fromChildStation(this, journeyStateUpdate, node, cost, txn);
     }
@@ -138,7 +139,8 @@ public class PlatformStationState extends StationState {
     }
 
     @Override
-    protected void toDestination(final DestinationState.Builder towardsDestination, final GraphNode node, final Duration cost, final JourneyStateUpdate journeyStateUpdate) {
+    protected void toDestination(final DestinationState.Builder towardsDestination, final GraphNode node,
+                                 final Duration cost, final JourneyStateUpdate journeyStateUpdate) {
         towardsDestination.from(this, cost, node);
     }
 }

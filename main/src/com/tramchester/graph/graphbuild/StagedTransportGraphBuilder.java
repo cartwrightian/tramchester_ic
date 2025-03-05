@@ -457,6 +457,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         if (isInterchange) {
             departType = INTERCHANGE_DEPART;
         } else if (stationsWithDiversionRepository.hasDiversions(station)) {
+            // if not an interchange need to add way of departing (i.e. when changes at interchange only is enabled)
             departType = DIVERSION_DEPART;
         } else {
             departType = DEPART;
@@ -468,6 +469,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
         departRelationship.set(station);
         boardingDepartNodeCache.putDepart(boardingNode.getId(), routeStationNode.getId());
 
+        // if station has diversions and is also an interchange, then always valid to depart at any date
         if (departType.equals(DIVERSION_DEPART)) {
             final Set<DateTimeRange> ranges = stationsWithDiversionRepository.getDateTimeRangesFor(station);
             ranges.forEach(departRelationship::setDateTimeRange);

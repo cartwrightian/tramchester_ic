@@ -40,7 +40,8 @@ public class DiagramCreator {
 
     private final GraphDatabase graphDatabase;
     private final TransportRelationshipTypes[] toplevelRelationships =
-            new TransportRelationshipTypes[]{LINKED, ON_ROUTE, ROUTE_TO_STATION, STATION_TO_ROUTE, DIVERSION };
+            new TransportRelationshipTypes[]{LINKED, ON_ROUTE, ROUTE_TO_STATION, STATION_TO_ROUTE, DIVERSION,
+                    ENTER_PLATFORM, LEAVE_PLATFORM, DIVERSION_DEPART  };
     private final StationRepository stationRepository;
     private final NPTGRepository nptgRepository;
 
@@ -73,14 +74,14 @@ public class DiagramCreator {
         BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileStream);
         PrintStream printStream = new PrintStream(bufferedOutputStream);
 
-        DiagramBuild builder = new DiagramBuild(printStream);
+        final DiagramBuild builder = new DiagramBuild(printStream);
 
         try (GraphTransaction txn = graphDatabase.beginTx()) {
             builder.append("digraph G {\n");
 
             startPointsList.forEach(startPoint -> {
 
-                GraphNode startNode = txn.findNode((Location<?>) startPoint);
+                final GraphNode startNode = txn.findNode((Location<?>) startPoint);
 
                 if (startNode==null) {
                     logger.error("Can't find start node for station " + startPoint.getId());
@@ -110,7 +111,8 @@ public class DiagramCreator {
         Files.createDirectory(diagramsFolder);
     }
 
-    private void visit(GraphNode node, DiagramBuild builder, int depth, Set<GraphNodeId> nodeSeen, Set<GraphRelationshipId> relationshipSeen,
+    private void visit(final GraphNode node, final DiagramBuild builder, final int depth,
+                       final Set<GraphNodeId> nodeSeen, final Set<GraphRelationshipId> relationshipSeen,
                        boolean topLevel, GraphTransaction txn) {
         if (depth<=0) {
             return;
@@ -133,7 +135,7 @@ public class DiagramCreator {
                                boolean topLevel, GraphTransaction txn) {
         getRelationships(targetNode, Direction.INCOMING, topLevel, txn).forEach(towards -> {
 
-            GraphNode startNode = towards.getStartNode(txn); //GraphNode.fromStart(towards);
+            GraphNode startNode = towards.getStartNode(txn);
             addNode(builder, startNode);
 
             // startNode -> targetNode
@@ -142,7 +144,8 @@ public class DiagramCreator {
         });
     }
 
-    private Stream<ImmutableGraphRelationship> getRelationships(GraphNode targetNode, Direction direction, boolean toplevelOnly, GraphTransaction txn) {
+    private Stream<ImmutableGraphRelationship> getRelationships(GraphNode targetNode, Direction direction,
+                                                                boolean toplevelOnly, GraphTransaction txn) {
         TransportRelationshipTypes[] types = toplevelOnly ?  toplevelRelationships : TransportRelationshipTypes.values();
         return targetNode.getRelationships(txn, direction, types);
     }
@@ -194,14 +197,13 @@ public class DiagramCreator {
         }
     }
 
-    private void addNode(DiagramBuild builder, GraphNode sourceNode) {
+    private void addNode(final DiagramBuild builder, final GraphNode sourceNode) {
         addLine(builder, format("\"%s\" [label=\"%s\" shape=%s];\n", createNodeId(sourceNode),
                 getLabelFor(sourceNode), getShapeFor(sourceNode)));
     }
 
-    private String createNodeId(GraphNode node) {
+    private String createNodeId(final GraphNode node) {
         return node.getId().toString();
-        //return String.valueOf(node.getId());
     }
 
     private String getShapeFor(final GraphNode node) {
@@ -260,7 +262,6 @@ public class DiagramCreator {
             return node.getServiceId().getGraphId();
         }
         if (node.hasLabel(HOUR)) {
-            //        return getHour(graphNode.getNode());
             return   node.getHour().toString();
         }
         if (node.hasLabel(MINUTE)) {
@@ -269,7 +270,6 @@ public class DiagramCreator {
             return format("%s:%s\n%s", time.getHourOfDay(), time.getMinuteOfHour(), days);
         }
         if (node.hasLabel(GROUPED)) {
-            //return getStationIdFrom(node.getNode());
             IdFor<Station> stationId = node.getStationId();
             Station station = stationRepository.getStationById(stationId);
             return format("%s\n%s\n%s", station.getName(), station.getLocalityId(), stationId.getGraphId());

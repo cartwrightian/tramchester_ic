@@ -13,6 +13,7 @@ import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphNodeId;
+import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.stateMachine.states.ImmutableTraversalState;
 import com.tramchester.graph.search.stateMachine.states.TraversalState;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateType;
@@ -22,6 +23,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Set;
 
 public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
 
@@ -102,8 +106,8 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     @Override
-    public void seenRouteStation(IdFor<Station> correspondingStationId) {
-        coreState.seenRouteStation(correspondingStationId);
+    public void seenRouteStation(final GraphNode node) {
+        coreState.seenRouteStation(node);
     }
 
     @Override
@@ -258,6 +262,14 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
     }
 
     @Override
+    public boolean alreadyVisited(final GraphNode node, final EnumSet<GraphLabel> labels) {
+        if (labels.contains(GraphLabel.ROUTE_STATION)) {
+            return coreState.alreadyVisitedRouteStation(node.getId());
+        }
+        return false;
+    }
+
+    @Override
     public TransportMode getTransportMode() {
         return coreState.currentMode;
     }
@@ -300,23 +312,25 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
         private int numberOfDiversionsTaken;
         private boolean currentlyOnDiversion;
         private IdFor<? extends Location<?>> lastSeenStation;
+        private Set<GraphNodeId> seenRouteStations;
 
         public CoreState(final TramTime queryTime) {
             this(queryTime, false, 0,
                     TransportMode.NotSet, 0, 0,
-                    false, 0, StringIdFor.invalid(Station.class));
+                    false, 0, StringIdFor.invalid(Station.class), new HashSet<>());
         }
 
         // Copy cons
         public CoreState(final CoreState previous) {
             this(previous.journeyClock, previous.hasBegun, previous.numberOfBoardings, previous.currentMode, previous.numberOfWalkingConnections,
                     previous.numberNeighbourConnections,
-                    previous.currentlyOnDiversion, previous.numberOfDiversionsTaken, previous.lastSeenStation);
+                    previous.currentlyOnDiversion, previous.numberOfDiversionsTaken, previous.lastSeenStation, previous.seenRouteStations);
         }
 
         private <T extends Location<?>> CoreState(final TramTime journeyClock, final boolean hasBegun, final int numberOfBoardings,
                                                   final TransportMode currentMode, int numberOfWalkingConnections, int numberNeighbourConnections,
-                          boolean currentlyOnDiversion, int numberOfDiversionsTaken, IdFor<? extends T> lastSeenStation) {
+                          boolean currentlyOnDiversion, int numberOfDiversionsTaken, IdFor<? extends T> lastSeenStation,
+                                                  Set<GraphNodeId> seenRouteStations) {
             this.hasBegun = hasBegun;
             this.journeyClock = journeyClock;
             this.currentMode = currentMode;
@@ -326,6 +340,7 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
             this.currentlyOnDiversion = currentlyOnDiversion;
             this.numberOfDiversionsTaken = numberOfDiversionsTaken;
             this.lastSeenStation = lastSeenStation;
+            this.seenRouteStations = seenRouteStations;
         }
 
         public void incrementWalkingConnections() {
@@ -418,8 +433,9 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
             lastSeenStation = stationId;
         }
 
-        public void seenRouteStation(final IdFor<Station> correspondingStationId) {
-            lastSeenStation = correspondingStationId;
+        public void seenRouteStation(final GraphNode node) {
+            lastSeenStation = node.getStationId();
+            seenRouteStations.add(node.getId());
         }
 
         public void seenStationGroup(IdFor<StationLocalityGroup> stationGroupId) {
@@ -458,6 +474,9 @@ public class JourneyState implements ImmutableJourneyState, JourneyStateUpdate {
             return lastSeenStation;
         }
 
+        public boolean alreadyVisitedRouteStation(final GraphNodeId nodeId) {
+            return seenRouteStations.contains(nodeId);
+        }
     }
 
 }

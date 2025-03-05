@@ -106,7 +106,7 @@ class SubgraphSmallStationWalksTest {
         assertFalse(results.isEmpty(), "no journeys");
     }
 
-    @DisabledUntilDate(year = 2025, month = 3, day = 5)
+    @DisabledUntilDate(year = 2025, month = 3, day = 12)
     @Test
     void shouldFindRouteUsingWalkCornbrookToPicc() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,

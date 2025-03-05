@@ -216,12 +216,13 @@ class MapStatesToStages implements JourneyStateUpdate {
     }
 
     @Override
-    public void seenRouteStation(IdFor<Station> correspondingStationId) {
+    public void seenStationGroup(IdFor<StationLocalityGroup> stationGroupId) {
         // no-op
     }
 
+
     @Override
-    public void seenStationGroup(IdFor<StationLocalityGroup> stationGroupId) {
+    public void seenRouteStation(GraphNode node) {
         // no-op
     }
 

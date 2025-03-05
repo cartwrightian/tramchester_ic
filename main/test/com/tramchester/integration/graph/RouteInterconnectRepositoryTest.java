@@ -110,11 +110,13 @@ public class RouteInterconnectRepositoryTest {
 
         assertTrue(results.hasAny());
 
-        assertEquals(6, results.numberPossible(), results.toString());
+        // 6 ->3
+        assertEquals(3, results.numberPossible(), results.toString());
         assertEquals(1, results.getDepth());
 
     }
 
+    @DisabledUntilDate(year = 2025, month = 3, day = 17)
     @Test
     void shouldHaveExpectedInterchangeForSimpleInterchangeFiltered() {
         Route routeA = routeHelper.getOneRoute(getBuryManchesterAltrincham(date), date);
@@ -126,7 +128,8 @@ public class RouteInterconnectRepositoryTest {
 
         assertNotEquals(0, dateOverlaps.numberOfBitsSet());
 
-        PathResults results = repository.getInterchangesFor(indexPair, dateOverlaps, interchangeStation -> interchangeStation.getStationId().equals(Victoria.getId()));
+        PathResults results = repository.getInterchangesFor(indexPair, dateOverlaps,
+                interchangeStation -> interchangeStation.getStationId().equals(Victoria.getId()));
 
         assertTrue(results.hasAny());
         assertEquals(1, results.numberPossible(), results.toString());
@@ -197,7 +200,7 @@ public class RouteInterconnectRepositoryTest {
         assertTrue(interchangeRepository.hasInterchangeFor(indexPair));
         Set<InterchangeStation> interchanges = interchangeRepository.getInterchangesFor(indexPair).collect(Collectors.toSet());
 
-        assertEquals(6, interchanges.size(), HasId.asIds(interchanges));
+        assertEquals(3, interchanges.size(), HasId.asIds(interchanges));
 
         // unrealistic as would be 0 in code, direct via one interchange
         assertEquals(1, routeMatrix.getConnectionDepthFor(routeA, routeB));

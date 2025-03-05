@@ -100,7 +100,7 @@ public class TransportDataFromFilesTramTest {
         assertEquals(1, transportData.getAgencies().stream().filter(agency -> agency.getTransportModes().contains(Tram)).count());
         assertEquals(NUM_TFGM_TRAM_STATIONS, transportData.getStations(TramsOnly).size());
 
-        int expectedPlatforms = 200;
+        int expectedPlatforms = 198;
         assertEquals(expectedPlatforms, transportData.getPlatforms(TramsOnly).size());
     }
 
@@ -227,7 +227,8 @@ public class TransportDataFromFilesTramTest {
                 map(routeStation -> Pair.of(routeStation.getStationId(), routeStation.getRoute().getName())).
                 collect(Collectors.toSet());
 
-        assertEquals(4, routeStationPairs.size(), routeStations.toString());
+        // 4->1 during Spring 2025 closures
+        assertEquals(1, routeStationPairs.size(), routeStations.toString());
 
         IdSet<Route> routeIds =
                 routeStations.stream().
@@ -236,7 +237,8 @@ public class TransportDataFromFilesTramTest {
 
         assertTrue(routeIds.contains(getPiccadillyVictoria(when).getId()), routeIds.toString());
 
-        assertTrue(routeIds.contains(getBuryManchesterAltrincham(when).getId()), routeIds.toString());
+        // Spring 2025 closures...
+        assertFalse(routeIds.contains(getBuryManchesterAltrincham(when).getId()), routeIds.toString());
 
         assertTrue(routeIds.contains(getPiccadillyVictoria(when).getId()), routeIds.toString());
 

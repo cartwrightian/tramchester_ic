@@ -27,7 +27,6 @@ public class FindStateAfterRouteStation  {
         final Stream<ImmutableGraphRelationship> boardsAndOthers = getBoardsAndOthers(node, txn, false);
         final Stream<ImmutableGraphRelationship> relationships = stateBuilder.addValidDiversions(boardsAndOthers, node, journeyStateUpdate, txn);
 
-        //final Stream<ImmutableGraphRelationship> relationships = Stream.concat(boardsAndOthers, diversions);
         return createNoPlatformStationState(routeStationState, node, cost, journeyStateUpdate, relationships, destination);
     }
 
@@ -81,11 +80,9 @@ public class FindStateAfterRouteStation  {
             other = node.getRelationships(txn, OUTGOING, WALKS_FROM_STATION, NEIGHBOUR, GROUPED_TO_PARENT);
         }
 
-        // ordering by number of hops, but this might not yield good results i.e. routes linked but at "far end"
         final Stream<ImmutableGraphRelationship> boarding = getBoardingRelationships(txn, node);
 
         // Note: Sorting by route connections is slow and produces little gain
-        // TODO What to sort by?
         // final Stream<ImmutableGraphRelationship> boarding = traversalOps.orderBoardingRelationsByRouteConnections(unsorted);
 
         // order matters here when using depth first, i.e. explore walks first other will not follow those linked when solution found

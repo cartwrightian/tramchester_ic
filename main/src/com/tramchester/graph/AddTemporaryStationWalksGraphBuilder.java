@@ -129,18 +129,17 @@ public class AddTemporaryStationWalksGraphBuilder extends CreateNodesAndRelation
     }
 
     private void createWalksForClosed(final GTFSSourceConfig source) {
-        logger.info("Add temp walks for " + source.getName());
-        final Set<TemporaryStationWalk> walks = walksRepository.getTemporaryWalksFor(source.getDataSourceId());
-
-        walks.stream().
+        final List<TemporaryStationWalk> walks = walksRepository.getTemporaryWalksFor(source.getDataSourceId()).stream().
                 filter(walk -> graphFilter.shouldInclude(walk.getStationPair())).
-                forEach(this::createWalks);
-    }
+                toList();
 
-    private void createWalks(final TemporaryStationWalk temporaryStationWalk) {
-        try(TimedTransaction timedTransaction = new TimedTransaction(database, logger, "create walks for " +temporaryStationWalk)) {
+        try(TimedTransaction timedTransaction = new TimedTransaction(database, logger, "create walks for " +source.getDataSourceId())) {
             final MutableGraphTransaction txn = timedTransaction.transaction();
-            addWalksFor(txn, temporaryStationWalk);
+
+            for(TemporaryStationWalk walk : walks) {
+                addStationWalk(txn, walk);
+            }
+
             timedTransaction.commit();
         }
     }
@@ -179,14 +178,14 @@ public class AddTemporaryStationWalksGraphBuilder extends CreateNodesAndRelation
         }
     }
 
-    private void addWalksFor(final MutableGraphTransaction txn, final TemporaryStationWalk temporaryStationWalk) {
+    private void addStationWalk(final MutableGraphTransaction txn, final TemporaryStationWalk temporaryStationWalk) {
         final Station first = temporaryStationWalk.getStationPair().first();
         final Station second = temporaryStationWalk.getStationPair().second();
 
         final MutableGraphNode firstNode = findNodeFor(txn, first);
         final MutableGraphNode secondNode = findNodeFor(txn, second);
 
-        logger.info("Adding Diversion relations to/from " + firstNode.getId() + " and " + second.getId());
+        logger.debug("Adding Temp Station Walk to/from " + firstNode.getId() + " and " + second.getId());
 
         final Duration cost = geography.getWalkingDuration(first, second);
 

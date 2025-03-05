@@ -54,13 +54,14 @@ class FindLinkedStationsTest {
 
         assertEquals(TestEnv.NumberOfStationLinks, results.size());
 
-        assertTrue(results.contains(createLink(StPetersSquare, PiccadillyGardens)));
-        assertTrue(results.contains(createLink(StPetersSquare, MarketStreet)));
+        // Spring 2025
+        assertFalse(results.contains(createLink(StPetersSquare, PiccadillyGardens)));
+        assertFalse(results.contains(createLink(StPetersSquare, MarketStreet)));
         assertTrue(results.contains(createLink(StPetersSquare, Deansgate)));
 
-        assertTrue(results.contains(createLink(PiccadillyGardens, StPetersSquare)));
+        assertFalse(results.contains(createLink(PiccadillyGardens, StPetersSquare)));
 
-        assertTrue(results.contains(createLink(MarketStreet, StPetersSquare)));
+        assertFalse(results.contains(createLink(MarketStreet, StPetersSquare)));
         assertTrue(results.contains(createLink(Deansgate, StPetersSquare)));
 
         assertFalse(results.contains(createLink(StPetersSquare, Shudehill)));

@@ -36,8 +36,8 @@ import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("JUnitTestMethodWithNoAssertions")
-@DataUpdateTest
 @Disabled("WIP")
+@DataUpdateTest
 public class RouteCalculatorForYorkStreetClosureTest {
 
     // Note this needs to be > time for whole test fixture, see note below in @After
@@ -161,7 +161,7 @@ public class RouteCalculatorForYorkStreetClosureTest {
         validateExpectedConnections(results, journey -> journey.getStages().getLast());
     }
 
-    private void validateExpectedConnections(List<Journey> results, Function<Journey, TransportStage<?,?>> getStage) {
+    private void validateExpectedConnections(final List<Journey> results, Function<Journey, TransportStage<?,?>> getStage) {
         assertFalse(results.isEmpty());
 
         Location<?> marketStreet = MarketStreet.from(stationRepository);

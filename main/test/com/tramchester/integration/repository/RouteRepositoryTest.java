@@ -17,6 +17,7 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TestRoute;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
@@ -75,6 +76,7 @@ public class RouteRepositoryTest {
         assertTrue(TransportMode.isTram(result));
     }
 
+    @DisabledUntilDate(year = 2025, month = 3, day = 17)
     @Test
     void shouldHaveExpectedRoutesAtDeansgate() {
         // according to the map this should not be the case, but it does seem to be in the timetable

@@ -97,9 +97,6 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         final boolean hasPlatforms = originalLabels.contains(GraphLabel.HAS_PLATFORMS);
 
         // TODO assumption here that performance is ok as using EnumSet for these operations
-//        final EnumSet<GraphLabel> modeLabels = EnumSet.copyOf(originalLabels);
-//        modeLabels.retainAll(GraphLabel.TransportModes);
-
         final EnumSet<GraphLabel> otherLabels = EnumSet.copyOf(originalLabels);
         otherLabels.removeAll(GraphLabel.TransportModes);
 
@@ -107,8 +104,6 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         final int numLabels = otherLabels.size();
         if (numLabels==1) {
             actualNodeType = otherLabels.iterator().next();
-//        } else if (numLabels==3 && isInterchange && nodeLabels.contains(GraphLabel.ROUTE_STATION)) {
-//            actualNodeType = GraphLabel.ROUTE_STATION;
         } else if (numLabels==2 && otherLabels.contains(GraphLabel.ROUTE_STATION)) {
             actualNodeType = GraphLabel.ROUTE_STATION;
         } else if (otherLabels.contains(GraphLabel.STATION)) {

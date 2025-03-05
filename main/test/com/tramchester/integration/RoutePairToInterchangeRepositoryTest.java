@@ -30,8 +30,7 @@ import java.util.stream.Stream;
 import static com.tramchester.domain.reference.CentralZoneStation.*;
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(ConfigParameterResolver.class)
 @DualTest
@@ -85,9 +84,10 @@ public class RoutePairToInterchangeRepositoryTest {
 
         IdSet<Station> stationIds = interchanges.stream().map(InterchangeStation::getStation).collect(IdSet.collector());
 
-        assertEquals(2, stationIds.size(), stationIds.toString());
+        // Spring 2025 closures 2->1
+        assertEquals(1, stationIds.size(), stationIds.toString());
         assertTrue(stationIds.contains(Cornbrook.getId()), stationIds.toString());
-        assertTrue(stationIds.contains(Deansgate.getId()), stationIds.toString());
+        assertFalse(stationIds.contains(Deansgate.getId()), stationIds.toString());
     }
 
     @Test
@@ -103,7 +103,10 @@ public class RoutePairToInterchangeRepositoryTest {
 
         IdSet<Station> stationIds = interchanges.stream().map(InterchangeStation::getStation).collect(IdSet.collector());
 
-        IdSet<Station> expected = Stream.of(StPetersSquare, Deansgate, Cornbrook, TraffordBar, Victoria, MarketStreet
+        // Spring 2025 closures
+        IdSet<Station> expected = Stream.of(
+                //StPetersSquare, MarketStreet, Victoria,
+                        Deansgate, Cornbrook, TraffordBar
 //                        Piccadilly,
 //                        PiccadillyGardens,
                         //Shudehill

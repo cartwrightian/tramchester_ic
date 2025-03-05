@@ -18,7 +18,6 @@ import com.tramchester.resources.RouteResource;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TestRoute;
-import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.Response;
@@ -36,6 +35,8 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.TestEnv.dateFormatDashes;
+import static com.tramchester.testSupport.reference.TramStations.Deansgate;
+import static com.tramchester.testSupport.reference.TramStations.ManAirport;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
@@ -78,8 +79,8 @@ class RouteResourceTest {
 
     @Test
     void shouldHaveExpectedFirstLastForAirportRoute() {
-        IdForDTO manAirportIdForDTO = TramStations.ManAirport.getIdForDTO();
-        IdForDTO victoriaIdForDTO = TramStations.Victoria.getIdForDTO();
+        IdForDTO manAirportIdForDTO = ManAirport.getIdForDTO();
+        IdForDTO finalStationDTOId =  Deansgate.getIdForDTO(); //TramStations.Victoria.getIdForDTO();
 
         List<RouteDTO> routes = getRouteResponse();
 
@@ -102,15 +103,15 @@ class RouteResourceTest {
         LocationRefWithPosition airportDTO = null;
         if (first.getId().equals(manAirportIdForDTO)) {
             airportDTO = first;
-            assertEquals(victoriaIdForDTO, stations.getLast().getId());
-        } else if (first.getId().equals(victoriaIdForDTO)) {
+            assertEquals(finalStationDTOId, stations.getLast().getId());
+        } else if (first.getId().equals(finalStationDTOId)) {
             airportDTO = stations.getLast();
             assertEquals(manAirportIdForDTO, airportDTO.getId());
         } else {
             fail("first and/or last incorrect for airport route " + airRoute);
         }
 
-        TestEnv.assertLatLongEquals(TramStations.ManAirport.getLatLong(), airportDTO.getLatLong(), 0.00001, "lat long");
+        TestEnv.assertLatLongEquals(ManAirport.getLatLong(), airportDTO.getLatLong(), 0.00001, "lat long");
         assertTrue(airportDTO.getTransportModes().contains(TransportMode.Tram));
 
     }

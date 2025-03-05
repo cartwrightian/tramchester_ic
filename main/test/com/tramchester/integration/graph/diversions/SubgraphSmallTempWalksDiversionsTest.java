@@ -35,7 +35,6 @@ import com.tramchester.integration.testSupport.tram.IntegrationTramClosedStation
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.mappers.Geography;
 import com.tramchester.repository.ClosedStationsRepository;
-import com.tramchester.repository.InterchangeRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StationsWithDiversionRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -57,7 +56,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.neo4j.graphdb.Direction.INCOMING;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
-@Disabled("WIP")
 class SubgraphSmallTempWalksDiversionsTest {
     // Note this needs to be > time for whole test fixture, see note below in @After
     private static final int TXN_TIMEOUT = 5*60;
@@ -221,6 +219,24 @@ class SubgraphSmallTempWalksDiversionsTest {
     }
 
     @Test
+    void shouldFindPiccGardensToPicc() {
+        TramTime time = TramTime.of(9,0);
+        JourneyRequest journeyRequest = new JourneyRequest(when, time, false, 2,
+                maxJourneyDuration, maxNumResults, TramsOnly);
+
+        List<Journey> results = calculator.calculateRouteAsList(PiccadillyGardens, Piccadilly, journeyRequest);
+
+        assertFalse(results.isEmpty());
+
+        Location<?> marketStreet = MarketStreet.from(stationRepository);
+        List<Journey> incorrect = results.stream().
+                filter(journey -> journey.getPath().contains(marketStreet)).
+                toList();
+
+        assertTrue(incorrect.isEmpty(), incorrect.toString());
+    }
+
+    @Test
     void shouldFindStPetersToPiccadilly() {
         // this test attempts to repro an issue where the journey becomes
         // StPeters->PiccGardens->MarketStreet->Picc (via Picc Gardens again...!)
@@ -244,21 +260,14 @@ class SubgraphSmallTempWalksDiversionsTest {
             assertTrue(result.getArrivalTime().isAfter(time));
         });
 
-//        results.forEach(result -> {
-//            assertEquals(2, result.getStages().size(), result.toString());
-//            assertEquals(TransportMode.Connect, result.getStages().getFirst().getMode());
-//            assertEquals(TransportMode.Tram, result.getStages().getLast().getMode());
+    }
+
+//    @Test
+//    void shouldHaveAbilityToChangeAtPiccGardens() {
+//        InterchangeRepository interchangeRepository = componentContainer.get(InterchangeRepository.class);
 //
-//        });
-    }
-
-
-    @Test
-    void shouldHaveAbilityToChangeAtPiccGardens() {
-        InterchangeRepository interchangeRepository = componentContainer.get(InterchangeRepository.class);
-
-        assertTrue(interchangeRepository.isInterchange(PiccadillyGardens.from(stationRepository)));
-    }
+//        assertTrue(interchangeRepository.isInterchange(PiccadillyGardens.from(stationRepository)));
+//    }
 
     @Test
     void shouldFindStPetersToPiccadillyGardens() {

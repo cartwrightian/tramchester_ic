@@ -39,7 +39,7 @@ public class PlatformState extends TraversalState implements NodeId {
         }
 
         public PlatformState from(final PlatformStationState stationState, final GraphNode node, final Duration cost, final GraphTransaction txn) {
-            Stream<ImmutableGraphRelationship> boarding = findStateAfterRouteStation.getBoardingRelationships(txn, node);
+            final Stream<ImmutableGraphRelationship> boarding = findStateAfterRouteStation.getBoardingRelationships(txn, node);
 
             return new PlatformState(stationState, boarding, node, cost, this.getDestination());
         }

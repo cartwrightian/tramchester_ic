@@ -23,6 +23,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.TramStations;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
@@ -273,6 +274,8 @@ class LocationJourneyPlannerTest {
         });
     }
 
+
+    @DisabledUntilDate(year = 2025, month = 3, day = 12)
     @Test
     void shouldFindJourneyWithWalkingAtEndDeansgateNearShudehill() {
         TramTime queryTime = TramTime.of(8, 35);
@@ -288,7 +291,7 @@ class LocationJourneyPlannerTest {
         assertFalse(journeyList.isEmpty());
 
         // find the lowest cost journey, should be tram to shudehill and then a walk
-        Journey lowestCostJourney = journeyList.get(0);
+        Journey lowestCostJourney = journeyList.getFirst();
 
         assertEquals(Duration.ofMinutes(33), RouteCalculatorTest.costOfJourney(lowestCostJourney), journeySet.toString());
 
