@@ -377,7 +377,6 @@ public class RouteCalculatorTest {
 
     @Test
     void shouldHandleCrossingMidnightWithChangeCentral() {
-        // XXX
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(22,15), maxNumResults, maxChanges);
         assertGetAndCheckJourneys(journeyRequest, Monsall, Piccadilly);
     }

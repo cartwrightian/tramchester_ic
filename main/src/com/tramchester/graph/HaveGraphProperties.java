@@ -48,7 +48,7 @@ public class HaveGraphProperties {
         return (IdFor<C>) RouteStationId.parse(value);
     }
 
-    protected IdFor<RouteStation> getRouteStationId(final Entity entity) {
+    protected RouteStationId getRouteStationId(final Entity entity) {
         String value = entity.getProperty(ROUTE_STATION_ID.getText()).toString();
         return RouteStationId.parse(value);
     }

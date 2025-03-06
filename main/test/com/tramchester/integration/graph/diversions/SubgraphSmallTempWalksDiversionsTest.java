@@ -39,6 +39,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StationsWithDiversionRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
@@ -236,6 +237,7 @@ class SubgraphSmallTempWalksDiversionsTest {
         assertTrue(incorrect.isEmpty(), incorrect.toString());
     }
 
+    @DisabledUntilDate(year = 2025, month = 3, day = 12)
     @Test
     void shouldFindStPetersToPiccadilly() {
         // this test attempts to repro an issue where the journey becomes

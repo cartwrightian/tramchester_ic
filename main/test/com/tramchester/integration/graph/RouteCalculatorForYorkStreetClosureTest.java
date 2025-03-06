@@ -36,8 +36,8 @@ import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("JUnitTestMethodWithNoAssertions")
-@Disabled("WIP")
 @DataUpdateTest
+@Disabled("WIP")
 public class RouteCalculatorForYorkStreetClosureTest {
 
     // Note this needs to be > time for whole test fixture, see note below in @After

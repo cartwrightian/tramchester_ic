@@ -6,7 +6,6 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.repository.RouteRepository;
@@ -111,16 +110,25 @@ class KnownTramRouteTest {
         getDateRange().
                 filter(date -> !(skipSunday && date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) ).
                 forEach(date -> {
-                final IdSet<Route> loadedIds = getLoadedTramRoutes(date).collect(IdSet.collector());
-                TestRoute testRoute = function.apply(date);
-                if (!loadedIds.contains(testRoute.getId())) {
-                    missingOnDates.add(date);
-                }
+                    final IdSet<Route> loadedIds = getLoadedTramRoutes(date).collect(IdSet.collector());
+                    TestRoute testRoute = function.apply(date);
+                    if (!loadedIds.contains(testRoute.getId())) {
+                        missingOnDates.add(date);
+                    }
             });
 
         List<String> diag = missingOnDates.stream().map(date -> "On date " + date + " test route " + function.apply(date) + " with id " +
-                function.apply(date).getId() + " is missing from " + HasId.asIds(getLoadedTramRoutes(date).toList())).toList();
+                function.apply(date).getId() + " is missing from " + shortNameMatch(function, date)).toList();
         assertTrue(missingOnDates.isEmpty(), diag.toString());
+    }
+
+    private String shortNameMatch(Function<TramDate, TestRoute> function, TramDate date) {
+        String shortName = function.apply(date).shortName();
+        IdSet<Route> matchedShortNames = getLoadedTramRoutes(date).
+                filter(route -> route.getShortName().equals(shortName)).
+                map(Route::getId).
+                collect(IdSet.idCollector());
+        return matchedShortNames.toString();
     }
 
 //    @Test

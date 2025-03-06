@@ -13,8 +13,9 @@ import static com.tramchester.testSupport.UpcomingDates.YorkStreetWorks2025;
 
 public class KnownTramRoute {
 
-    //public static final TramDate febCutOver = TramDate.of(2025,2,16);
     public static final TramDate revertDate = TramDate.of(2025, 2, 25);
+
+    public static final TramDate marchCutover = TramDate.of(2025,3,13);
 
     private static final DateRange YorkStreetWorks2025MissingRoute = DateRange.of(YorkStreetWorks2025.getEndDate(),
             YorkStreetWorks2025.getEndDate().plusDays(5));

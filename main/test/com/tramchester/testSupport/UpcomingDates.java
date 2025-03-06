@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static com.tramchester.testSupport.reference.TramStations.PiccadillyGardens;
+
 public class UpcomingDates {
 
     private static final TramDate sunday;
@@ -41,9 +43,9 @@ public class UpcomingDates {
     }
 
     public static boolean hasClosure(IdFor<Station> stationId, TramDate date) {
-//        if (victoriaWorksClosedStations.contains(stationId)) {
-//            return date.equals(VictoriaWorks);
-//        }
+        if (PiccadillyGardens.getId().equals(stationId)) {
+            return date.equals(YorkStreetWorks2025.getEndDate());
+        }
         return false;
     }
 

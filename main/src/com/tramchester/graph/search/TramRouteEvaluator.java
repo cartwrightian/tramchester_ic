@@ -106,14 +106,15 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         final GraphNode nextNode = txn.fromEnd(path);
         final GraphRelationship last = txn.lastFrom(path);
 
+        // reuse these, label operations on nodes are expensive
         final EnumSet<GraphLabel> labels = nodeContentsRepository.getLabels(nextNode);
 
         final HowIGotHere howIGotHere = new HowIGotHere(journeyState, nextNode.getId(), getPreviousNodeSafe(last));
 
-        // TODO Reinstate this
+        // TODO WIP Spike
 //        if (journeyState.alreadyVisited(nextNode, labels)) {
-//            logger.warn("Returned to " + nextNode.getId() + " " + labels);
-//            return Evaluation.EXCLUDE_AND_PRUNE;
+//            logger.debug("Returned to " + nextNode.getId() + " " + labels);
+//            return Evaluation.EXCLUDE_AND_CONTINUE;
 //        }
 
         reasons.recordVisit(howIGotHere);

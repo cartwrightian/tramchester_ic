@@ -91,8 +91,8 @@ public class InterchangesTramTest {
                 //StPetersSquare,
                 Broadway,
                 Piccadilly,
-                Victoria
-                //MarketStreet
+                Victoria,
+                MarketStreet
         );
 
         TramDate when = TestEnv.testDay();
