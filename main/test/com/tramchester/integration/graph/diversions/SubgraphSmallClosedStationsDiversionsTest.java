@@ -222,7 +222,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
 
     @Test
     void shouldHaveJourneyFromPiccGardensToPiccadilly() {
-        JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
+        JourneyRequest journeyRequest = new JourneyRequest(when.plusDays(1), TramTime.of(8,0), false,
                 maxChanges, maxJourneyDuration, 1, TramsOnly);
 
         List<Journey> results = calculator.calculateRouteAsList(PiccadillyGardens, Victoria, journeyRequest);
@@ -283,7 +283,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
 
     @Test
     void shouldFindPiccadillyToPiccadillyGardens() {
-        JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
+        JourneyRequest journeyRequest = new JourneyRequest(when.plusDays(1), TramTime.of(8,0), false,
                 maxChanges, maxJourneyDuration, 1, TramsOnly);
         List<Journey> results = calculator.calculateRouteAsList(Piccadilly, PiccadillyGardens, journeyRequest);
 

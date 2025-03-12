@@ -270,11 +270,11 @@ public class StationRepositoryTest {
 
         IdSet<Route> dropOffs = mediaCity.getDropoffRoutes().stream().collect(IdSet.collector());
 
-        assertEquals(2, dropOffs.size(), dropOffs.toString());
+        assertEquals(3, dropOffs.size(), dropOffs.toString());
         assertTrue(dropOffs.contains(getEcclesAshton(when).getId()));
 
         IdSet<Route> pickUps = mediaCity.getDropoffRoutes().stream().collect(IdSet.collector());
-        assertEquals(2, pickUps.size(), pickUps.toString());
+        assertEquals(3, pickUps.size(), pickUps.toString());
         assertTrue(pickUps.contains(getEcclesAshton(when).getId()));
     }
 

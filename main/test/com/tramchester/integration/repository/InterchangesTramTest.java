@@ -87,8 +87,8 @@ public class InterchangesTramTest {
         Stream<TramStations> expectedTramStations = Stream.of(StWerburghsRoad, TraffordBar, Cornbrook, HarbourCity,
                 Pomona, Cornbrook, Deansgate,
                 //Shudehill,
-                //PiccadillyGardens, // Spring 2025 Closures
-                //StPetersSquare,
+                PiccadillyGardens,
+                StPetersSquare,
                 Broadway,
                 Piccadilly,
                 Victoria,

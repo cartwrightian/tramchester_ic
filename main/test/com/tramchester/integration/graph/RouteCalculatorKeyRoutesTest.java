@@ -72,7 +72,9 @@ class RouteCalculatorKeyRoutesTest {
 
     @Test
     void shouldFindEndOfRoutesToInterchanges() {
-        LocationIdPairSet<Station> stationIdPairs = combinations.EndOfRoutesToInterchanges(Tram);
+        LocationIdPairSet<Station> stationIdPairs = combinations.EndOfRoutesToInterchanges(Tram).stream().
+                filter(pair -> !UpcomingDates.hasClosure(pair, when)).
+                collect(LocationIdPairSet.collector());
         RouteCalculationCombinations.CombinationResults<Station> results = combinations.getJourneysFor(stationIdPairs, journeyRequest);
         validateFor(results);
     }
@@ -86,14 +88,18 @@ class RouteCalculatorKeyRoutesTest {
 
     @Test
     void shouldFindInterchangesToEndOfRoutes() {
-        LocationIdPairSet<Station> stationIdPairs = combinations.InterchangeToEndRoutes(Tram);
+        LocationIdPairSet<Station> stationIdPairs = combinations.InterchangeToEndRoutes(Tram)
+                .stream().filter(pair -> !UpcomingDates.hasClosure(pair, when)).
+                collect(LocationIdPairSet.collector());
         RouteCalculationCombinations.CombinationResults<Station> results = combinations.getJourneysFor(stationIdPairs, journeyRequest);
         validateFor(results);
     }
 
     @Test
     void shouldFindInterchangesToInterchanges() {
-        LocationIdPairSet<Station> stationIdPairs = combinations.InterchangeToInterchange(Tram);
+        LocationIdPairSet<Station> stationIdPairs = combinations.InterchangeToInterchange(Tram).stream().
+                filter(pair -> !UpcomingDates.hasClosure(pair, when)).
+                collect(LocationIdPairSet.collector());
         RouteCalculationCombinations.CombinationResults<Station> results = combinations.getJourneysFor(stationIdPairs, journeyRequest);
         validateFor(results);
     }

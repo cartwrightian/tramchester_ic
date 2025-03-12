@@ -140,7 +140,7 @@ class RouteCalculatorSubGraphMediaCityTest {
         validateAtLeastOneJourney(MediaCityUK, ExchangeSquare, TramTime.of(10,0), testSunday);
     }
 
-    @DisabledUntilDate(year = 2025, month = 3, day = 12)
+    @DisabledUntilDate(year = 2025, month = 3, day = 17)
     @Test
     void shouldHaveJourneyFromEveryStationToEveryOtherNDaysAheadEarlyMorning() {
 
@@ -155,7 +155,7 @@ class RouteCalculatorSubGraphMediaCityTest {
         assertTrue(failed.isEmpty(), failed.toString());
     }
 
-    @DisabledUntilDate(year = 2025, month = 3, day = 12)
+    @DisabledUntilDate(year = 2025, month = 3, day = 17)
     @Test
     void shouldHaveJourneyFromEveryStationToEveryOtherNDaysAhead() {
 
@@ -248,7 +248,7 @@ class RouteCalculatorSubGraphMediaCityTest {
         return routeToRouteCosts.getNumberOfChanges(being, end, journeyRequest, timeRange);
     }
 
-    @DisabledUntilDate(year = 2025, month = 3, day = 12)
+    @DisabledUntilDate(year = 2025, month = 3, day = 17)
     @Test
     void shouldHaveJourneyFromEveryStationToEveryOther() {
 

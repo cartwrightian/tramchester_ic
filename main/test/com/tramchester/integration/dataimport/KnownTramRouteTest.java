@@ -88,7 +88,7 @@ class KnownTramRouteTest {
     }
 
     // likely have to disable until end of york street works
-    @DisabledUntilDate(year = 2025, month = 3, day = 11)
+    @DisabledUntilDate(year = 2025, month = 3, day = 17)
     @Test
     void shouldHaveExpectedRouteIdForPurple() {
         checkRouteIdFor(KnownTramRoute::getEtihadPiccadillyAltrincham, false);
@@ -106,9 +106,10 @@ class KnownTramRouteTest {
 
     void checkRouteIdFor(Function<TramDate, TestRoute> function, boolean skipSunday) {
 
-        Set<TramDate> missingOnDates = new HashSet<>();
+        List<TramDate> missingOnDates = new ArrayList<>();
         getDateRange().
                 filter(date -> !(skipSunday && date.getDayOfWeek().equals(DayOfWeek.SUNDAY)) ).
+                sorted(TramDate::compareTo).
                 forEach(date -> {
                     final IdSet<Route> loadedIds = getLoadedTramRoutes(date).collect(IdSet.collector());
                     TestRoute testRoute = function.apply(date);
@@ -118,7 +119,7 @@ class KnownTramRouteTest {
             });
 
         List<String> diag = missingOnDates.stream().map(date -> "On date " + date + " test route " + function.apply(date) + " with id " +
-                function.apply(date).getId() + " is missing from " + shortNameMatch(function, date)).toList();
+                function.apply(date).getId() + " is missing from " + shortNameMatch(function, date) + System.lineSeparator()).toList();
         assertTrue(missingOnDates.isEmpty(), diag.toString());
     }
 
@@ -179,7 +180,7 @@ class KnownTramRouteTest {
     void shouldNotHaveUnknownTramRoutes() {
         TramDate start = TramDate.from(TestEnv.LocalNow());
 
-        DateRange dateRange = DateRange.of(start, when.plusWeeks(6));
+        DateRange dateRange = DateRange.of(start, when.plusWeeks(2));
 
         Map<TramDate, IdSet<Route>> unexpectedLoadedForDate = new HashMap<>();
 

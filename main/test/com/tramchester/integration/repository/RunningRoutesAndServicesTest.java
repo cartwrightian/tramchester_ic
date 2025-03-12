@@ -140,7 +140,7 @@ public class RunningRoutesAndServicesTest {
 
     @Test
     void shouldConsiderRoutesFromDayBeforeIfTheyAreStillRunningTheFollowingDay() {
-        TramDate when = TestEnv.testDay();
+        TramDate when = TestEnv.testDay().plusDays(1);
 
         RunningRoutesAndServices.FilterForDate filter = runningRoutesAndServices.getFor(when, config.getTransportModes());
 

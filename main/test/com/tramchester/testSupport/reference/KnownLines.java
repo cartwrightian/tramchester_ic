@@ -9,6 +9,7 @@ public enum KnownLines {
     Green("Green Line"),
     Navy("Navy Line"),
     Yellow("Yellow Line"),
+    Brown("Brown Line"),
     Blue("Blue Line");
 
     private final String shortName;

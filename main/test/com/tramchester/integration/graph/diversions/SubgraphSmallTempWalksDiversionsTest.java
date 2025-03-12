@@ -237,7 +237,7 @@ class SubgraphSmallTempWalksDiversionsTest {
         assertTrue(incorrect.isEmpty(), incorrect.toString());
     }
 
-    @DisabledUntilDate(year = 2025, month = 3, day = 12)
+    @DisabledUntilDate(year = 2025, month = 3, day = 17)
     @Test
     void shouldFindStPetersToPiccadilly() {
         // this test attempts to repro an issue where the journey becomes

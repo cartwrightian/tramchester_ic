@@ -231,27 +231,29 @@ class JourneyPlannerLocationResourceTest {
 
     @Test
     void shouldFindStationsNearPiccGardensWalkingOnly() {
+        TramDate testDay = when.plusDays(1); // Sping 2025 works
         Set<JourneyDTO> journeys = validateJourneyFromLocation(nearPiccGardens, TramStations.PiccadillyGardens,
-                TramTime.of(9,0), false, when);
+                TramTime.of(9,0), false, testDay);
 
         assertFalse(journeys.isEmpty());
         JourneyDTO first = getEarliestArrivingJourney(journeys);
 
-        assertEquals(getDateTimeFor(when, 9, 0), first.getFirstDepartureTime(), "wrong departure time for " + first);
-        assertEquals(getDateTimeFor(when, 9, 2), first.getExpectedArrivalTime(), "wrong arrival time for " + first);
+        assertEquals(getDateTimeFor(testDay, 9, 0), first.getFirstDepartureTime(), "wrong departure time for " + first);
+        assertEquals(getDateTimeFor(testDay, 9, 2), first.getExpectedArrivalTime(), "wrong arrival time for " + first);
 
         List<SimpleStageDTO> stages = first.getStages();
         assertEquals(1, stages.size());
         SimpleStageDTO stage = stages.get(0);
-        assertEquals(getDateTimeFor(when, 9, 0), stage.getFirstDepartureTime());
-        assertEquals(getDateTimeFor(when, 9, 2), stage.getExpectedArrivalTime());
+        assertEquals(getDateTimeFor(testDay, 9, 0), stage.getFirstDepartureTime());
+        assertEquals(getDateTimeFor(testDay, 9, 2), stage.getExpectedArrivalTime());
     }
 
     @Test
     void shouldFindStationsNearPiccGardensWalkingOnlyArriveBy() {
         TramTime queryTime = TramTime.of(9, 0);
+
         Set<JourneyDTO> journeys = validateJourneyFromLocation(nearPiccGardens, TramStations.PiccadillyGardens,
-                queryTime, true, when);
+                queryTime, true, when.plusDays(1));
 
         journeys.forEach(journeyDTO -> {
             LocalDateTime queryTimeDate = journeyDTO.getQueryTime().toDate(journeyDTO.getQueryDate());

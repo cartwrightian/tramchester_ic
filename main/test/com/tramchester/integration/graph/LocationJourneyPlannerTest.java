@@ -83,8 +83,8 @@ class LocationJourneyPlannerTest {
 
     @Test
     void shouldHaveDirectWalkNearPiccadillyGardens() {
-
-        JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(9, 0), false,
+        // plus one week for spring 2025 closures
+        JourneyRequest journeyRequest = new JourneyRequest(when.plusWeeks(1), TramTime.of(9, 0), false,
                 0, maxJourneyDuration, maxNumberOfJourneys, getRequestedModes());
         Set<Journey> unsortedResults = planner.quickestRouteForLocation(nearPiccGardens, PiccadillyGardens,
                 journeyRequest, 3);
@@ -117,9 +117,9 @@ class LocationJourneyPlannerTest {
     }
 
     @Test
-    void shouldHaveDirectWalkFromPiccadily() {
-
-        JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(9, 0),
+    void shouldHaveDirectWalkFromPiccadilly() {
+        // plus one week for spring 2025 closures
+        JourneyRequest journeyRequest = new JourneyRequest(when.plusWeeks(1), TramTime.of(9, 0),
                 false, 1, maxJourneyDuration, maxNumberOfJourneys, getRequestedModes());
         Set<Journey> unsortedResults = planner.quickestRouteForLocation(PiccadillyGardens, nearPiccGardens, journeyRequest, 2);
 
@@ -367,7 +367,8 @@ class LocationJourneyPlannerTest {
 
     @Test
     void shouldFindWalkOnlyIfNearDestinationStationSingleStationWalk() {
-        final JourneyRequest request = new JourneyRequest(when, TramTime.of(9, 0),
+        // plus one week for spring 2025 closures
+        final JourneyRequest request = new JourneyRequest(when.plusWeeks(1), TramTime.of(9, 0),
                 false, 0, maxJourneyDuration, maxNumberOfJourneys, getRequestedModes());
 
         // set max stages to 1, because there is another path via walk to market street and then tram
@@ -375,7 +376,7 @@ class LocationJourneyPlannerTest {
         assertFalse(results.isEmpty(),"no results");
 
         results.forEach(journey-> {
-            TransportStage<?,?> rawStage = journey.getStages().get(0);
+            TransportStage<?,?> rawStage = journey.getStages().getFirst();
             assertEquals(TransportMode.Walk, rawStage.getMode());
             assertEquals(PiccadillyGardens.getId(), rawStage.getLastStation().getId());
             assertEquals(nearPiccGardens.latLong(), rawStage.getFirstStation().getLatLong());

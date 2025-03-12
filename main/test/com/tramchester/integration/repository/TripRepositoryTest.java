@@ -97,7 +97,7 @@ public class TripRepositoryTest {
         HasId<Station> navigationRd = NavigationRoad.from(stationRepository);
         Set<Trip> calls = atTime.stream().filter(trip -> trip.callsAt(navigationRd.getId())).collect(Collectors.toSet());
 
-        assertEquals(3, calls.size(), HasId.asIds(calls));
+        assertEquals(5, calls.size(), HasId.asIds(calls));
     }
 
     @Disabled("Solved by removing reboarding filter which does not impact depth first performance")
@@ -231,11 +231,15 @@ public class TripRepositoryTest {
         return stationRepository.getStations(EnumSet.of(Tram)).stream().
                 filter(station -> !UpcomingDates.hasClosure(station, date));
     }
+
     private boolean isOpen(final TramDate date, final Station station) {
         return ! (closedStationRepository.isClosed(station, date) || UpcomingDates.hasClosure(station, date));
     }
 
     private List<TramTime> getTimesFor(final List<TramTime> times, final Station station, final TramDate date) {
+        if (UpcomingDates.hasClosure(station.getId(), date)) {
+            return Collections.emptyList();
+        }
 //        if (date.equals(UpcomingDates.PiccAshtonImprovementWorks)) {
 //            return times.stream().
 //                    filter(time -> !UpcomingDates.hasClosure(station, date)).toList();

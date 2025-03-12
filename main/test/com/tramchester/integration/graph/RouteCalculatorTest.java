@@ -559,10 +559,6 @@ public class RouteCalculatorTest {
 
     @Test
     void reproduceIssueEdgePerTrip() {
-        // see also RouteCalculatorSubGraphTest
-        // 2->1 for Spring 2025 closures
-        JourneyRequest journeyRequestA = standardJourneyRequest(when, TramTime.of(19,48), maxNumResults, 2);
-        assertGetAndCheckJourneys(journeyRequestA, PiccadillyGardens, Pomona);
 
         JourneyRequest journeyRequestB = standardJourneyRequest(when, TramTime.of(19,51), maxNumResults, 1);
         assertGetAndCheckJourneys(journeyRequestB, StPetersSquare, Pomona);
@@ -572,6 +568,13 @@ public class RouteCalculatorTest {
 
         JourneyRequest journeyRequestD = standardJourneyRequest(when, TramTime.of(6,40), maxNumResults, 1);
         assertGetAndCheckJourneys(journeyRequestD, Cornbrook, Weaste);
+
+        // see also RouteCalculatorSubGraphTest
+        // 2->1 for Spring 2025 closures
+        // also plus one day
+        JourneyRequest journeyRequestA = standardJourneyRequest(when.plusDays(1), TramTime.of(19,48), maxNumResults, 2);
+        assertGetAndCheckJourneys(journeyRequestA, PiccadillyGardens, Pomona);
+
     }
 
     @DisabledUntilDate(year = 2025, month = 3, day = 14)
@@ -700,6 +703,7 @@ public class RouteCalculatorTest {
         final List<TramDate> dates = candidateDates.stream().
                 filter(date -> !UpcomingDates.hasClosure(start, date)).
                 filter(date -> !UpcomingDates.hasClosure(dest, date)).
+                filter(date -> !UpcomingDates.DeansgateTraffordBarWorks.contains(date)).
                 toList();
 
         if (dates.isEmpty()) {

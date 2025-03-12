@@ -1,9 +1,12 @@
 package com.tramchester.testSupport;
 
+import com.tramchester.domain.LocationIdPair;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
+import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.TramStations;
 
 import java.time.DayOfWeek;
@@ -13,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static com.tramchester.testSupport.reference.TramStations.PiccadillyGardens;
+import static com.tramchester.testSupport.reference.TramStations.*;
 
 public class UpcomingDates {
 
@@ -31,8 +34,15 @@ public class UpcomingDates {
     // use helper methods that handle filtering (i.e. for Christmas) and conversion to dates
     static final int DAYS_AHEAD = 14;
 
-    public static DateRange YorkStreetWorks2025 = DateRange.of(TramDate.of(2025,3,1),
+    public static final DateRange YorkStreetWorks2025 = DateRange.of(TramDate.of(2025,3,1),
             TramDate.of(2025, 3, 16));
+
+    public static final DateRange DeansgateTraffordBarWorks = DateRange.of(TramDate.of(2025, 3, 22),
+            TramDate.of(2025,3,23));
+
+    public static final IdSet<Station> DeansgateWorksStations = Stream.of(PiccadillyGardens, TraffordBar, StPetersSquare).
+            map(FakeStation::getId).
+            collect(IdSet.idCollector());
 
     public static boolean hasClosure(final Station station, final TramDate date) {
         return hasClosure(station.getId(), date);
@@ -43,9 +53,14 @@ public class UpcomingDates {
     }
 
     public static boolean hasClosure(IdFor<Station> stationId, TramDate date) {
+
         if (PiccadillyGardens.getId().equals(stationId)) {
-            return date.equals(YorkStreetWorks2025.getEndDate());
+            return YorkStreetWorks2025.contains(date) || DeansgateTraffordBarWorks.contains(date);
         }
+        if (DeansgateWorksStations.contains(stationId)) {
+            return DeansgateTraffordBarWorks.contains(date);
+        }
+
         return false;
     }
 
@@ -112,5 +127,12 @@ public class UpcomingDates {
     public static boolean isBoxingDay(TramDate date) {
         LocalDate localDate = date.toLocalDate();
         return localDate.getMonth().equals(Month.DECEMBER) && localDate.getDayOfMonth()==26;
+    }
+
+    public static boolean hasClosure(LocationIdPair<Station> pair, TramDate date) {
+        if (hasClosure(pair.getBeginId(),date)) {
+            return true;
+        }
+        return hasClosure(pair.getEndId(), date);
     }
 }

@@ -98,7 +98,7 @@ class SubgraphSmallStationWalksTest {
 
     @Test
     void shouldHaveJourneyFromPiccGardensToVictoria() {
-        JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
+        JourneyRequest journeyRequest = new JourneyRequest(when.plusDays(1), TramTime.of(8,0), false,
                 maxChanges, maxJourneyDuration, 1, getRequestedModes());
 
         List<Journey> results = calculator.calculateRouteAsList(PiccadillyGardens, Victoria, journeyRequest);
@@ -106,7 +106,7 @@ class SubgraphSmallStationWalksTest {
         assertFalse(results.isEmpty(), "no journeys");
     }
 
-    @DisabledUntilDate(year = 2025, month = 3, day = 12)
+    @DisabledUntilDate(year = 2025, month = 3, day = 17)
     @Test
     void shouldFindRouteUsingWalkCornbrookToPicc() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,

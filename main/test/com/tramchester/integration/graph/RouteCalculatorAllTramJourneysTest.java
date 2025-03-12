@@ -15,6 +15,7 @@ import com.tramchester.integration.testSupport.RouteCalculationCombinations;
 import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.testTags.DualTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -86,6 +87,7 @@ class RouteCalculatorAllTramJourneysTest {
         LocationIdPairSet<Station> stationIdPairs = haveServices.stream().flatMap(start -> haveServices.stream().
                 filter(dest -> !combinations.betweenInterchanges(start, dest)).
                 map(dest -> LocationIdPair.of(start, dest))).
+                filter(pair -> !UpcomingDates.hasClosure(pair, when)).
                 filter(pair -> !pair.same()).
                 collect(LocationIdPairSet.collector());
 

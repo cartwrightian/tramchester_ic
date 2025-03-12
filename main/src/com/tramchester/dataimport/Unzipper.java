@@ -55,14 +55,14 @@ public class Unzipper {
 
             return true;
         } catch (ZipException zipException) {
-            logger.error("Unable to unzip, zip exception ", zipException);
+            logger.error("Unable to unzip, zip exception " + filename, zipException);
             return false;
         }
         catch (FileNotFoundException fileNotFoundException) {
-            logger.error("File is missing ", fileNotFoundException);
+            logger.error("File is missing " + filename, fileNotFoundException);
             return false;
         } catch (IOException ioException) {
-            logger.error("IOException while processing zip file ", ioException);
+            logger.error("IOException while processing zip file " + filename, ioException);
             return false;
         }
 

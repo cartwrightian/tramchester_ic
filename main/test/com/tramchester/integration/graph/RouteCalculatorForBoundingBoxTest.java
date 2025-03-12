@@ -115,7 +115,8 @@ class RouteCalculatorForBoundingBoxTest {
         final List<StationsBoxSimpleGrid> boxes = stationBoxFactory.getStationBoxes(gridSize);
 
         long maxNumberOfJourneys = 3;
-        JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(9,30),
+        // plus 1 days, spring 2025 closures
+        JourneyRequest journeyRequest = new JourneyRequest(when.plusDays(1), TramTime.of(9,30),
                 false, 3, Duration.ofMinutes(testConfig.getMaxJourneyDuration()), maxNumberOfJourneys,
                 TramsOnly);
 
