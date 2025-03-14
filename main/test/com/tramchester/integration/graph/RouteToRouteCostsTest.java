@@ -196,8 +196,7 @@ public class RouteToRouteCostsTest {
         int possibleMin = getPossibleMinChanges(MediaCityUK.from(stationRepository),
                 Ashton.from(stationRepository), modes, date, timeRange);
 
-        // 0->1 for york street closure
-        assertEquals(1, possibleMin);
+        assertEquals(0, possibleMin);
 
     }
 
@@ -207,8 +206,7 @@ public class RouteToRouteCostsTest {
         Station end = TramStations.ManAirport.from(stationRepository);
         int result = getPossibleMinChanges(start, end, modes, date, timeRange);
 
-        // 0->1 yorkstreet closures
-        assertEquals(1, getMinCost(result));
+        assertEquals(0, getMinCost(result));
     }
 
     @DisabledUntilDate(year = 2025, month = 3, day = 17)

@@ -66,9 +66,9 @@ class RouteReachableTramTest {
         IdSet<Route> routeIds = results.stream().collect(IdSet.collector());
 
         // 2->1 during york street closures
-        assertEquals(1, routeIds.size(), routeIds.toString());
+        assertEquals(2, routeIds.size(), routeIds.toString());
 
-        assertFalse(routeIds.contains(KnownTramRoute.getEtihadPiccadillyAltrincham(when).getId()), routeIds.toString());
+        assertTrue(routeIds.contains(KnownTramRoute.getEtihadPiccadillyAltrincham(when).getId()), routeIds.toString());
         assertTrue(routeIds.contains(KnownTramRoute.getBuryManchesterAltrincham(when).getId()), routeIds.toString());
     }
 

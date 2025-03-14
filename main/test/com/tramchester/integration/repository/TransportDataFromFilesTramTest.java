@@ -172,8 +172,7 @@ public class TransportDataFromFilesTramTest {
 
         Set<String> uniqueRouteNames = callingRoutes.stream().map(Route::getName).collect(Collectors.toSet());
 
-        // 2->1 york street closure
-        assertEquals(1, uniqueRouteNames.size(), uniqueRouteNames.toString());
+        assertEquals(2, uniqueRouteNames.size(), uniqueRouteNames.toString());
     }
 
     @Test
@@ -227,8 +226,7 @@ public class TransportDataFromFilesTramTest {
                 map(routeStation -> Pair.of(routeStation.getStationId(), routeStation.getRoute().getName())).
                 collect(Collectors.toSet());
 
-        // 4->1 during Spring 2025 closures
-        assertEquals(1, routeStationPairs.size(), routeStations.toString());
+        assertEquals(4, routeStationPairs.size(), routeStations.toString());
 
         IdSet<Route> routeIds =
                 routeStations.stream().
@@ -237,8 +235,7 @@ public class TransportDataFromFilesTramTest {
 
         assertTrue(routeIds.contains(getPiccadillyVictoria(when).getId()), routeIds.toString());
 
-        // Spring 2025 closures...
-        assertFalse(routeIds.contains(getBuryManchesterAltrincham(when).getId()), routeIds.toString());
+        assertTrue(routeIds.contains(getBuryManchesterAltrincham(when).getId()), routeIds.toString());
 
         assertTrue(routeIds.contains(getPiccadillyVictoria(when).getId()), routeIds.toString());
 

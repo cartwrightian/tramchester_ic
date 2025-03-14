@@ -8,8 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.tramchester.testSupport.UpcomingDates.DeansgateTraffordBarWorks;
-import static com.tramchester.testSupport.UpcomingDates.YorkStreetWorks2025;
+import static com.tramchester.testSupport.UpcomingDates.*;
 
 public class KnownTramRoute {
 
@@ -110,16 +109,17 @@ public class KnownTramRoute {
     }
 
     public static Set<TestRoute> getFor(final TramDate date) {
+
         final Set<TestRoute> routes = new HashSet<>();
 
         routes.add(getBuryManchesterAltrincham(date));
 
         // || YorkStreetWorks2025MissingRoute.contains(date)
-        if (!(YorkStreetWorks2025.contains(date) || DeansgateTraffordBarWorks.contains(date))) {
+        if (!(YorkStreetWorks2025.contains(date) || DeansgateTraffordBarWorks.contains(date) || EndMarchNotOnTFGMSite.contains(date))) {
             routes.add(getEtihadPiccadillyAltrincham(date));
         }
 
-        if (DeansgateTraffordBarWorks.contains(date)) {
+        if (DeansgateTraffordBarWorks.contains(date) || EndMarchNotOnTFGMSite.contains(date)) {
             routes.add(getFirswoodEastDidsbury(date));
         }
 

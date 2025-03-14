@@ -44,6 +44,8 @@ public class UpcomingDates {
             map(FakeStation::getId).
             collect(IdSet.idCollector());
 
+    public static final DateRange EndMarchNotOnTFGMSite = DateRange.of(TramDate.of(2025, 3, 29), 1);
+
     public static boolean hasClosure(final Station station, final TramDate date) {
         return hasClosure(station.getId(), date);
     }
@@ -55,10 +57,14 @@ public class UpcomingDates {
     public static boolean hasClosure(IdFor<Station> stationId, TramDate date) {
 
         if (PiccadillyGardens.getId().equals(stationId)) {
-            return YorkStreetWorks2025.contains(date) || DeansgateTraffordBarWorks.contains(date);
+            if (YorkStreetWorks2025.contains(date) || DeansgateTraffordBarWorks.contains(date)) {
+                return true;
+            }
         }
         if (DeansgateWorksStations.contains(stationId)) {
-            return DeansgateTraffordBarWorks.contains(date);
+            if (DeansgateTraffordBarWorks.contains(date) ||EndMarchNotOnTFGMSite.contains(date)) {
+                return true;
+            }
         }
 
         return false;

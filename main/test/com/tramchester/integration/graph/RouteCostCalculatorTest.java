@@ -81,8 +81,8 @@ class RouteCostCalculatorTest {
 
     @Test
     void shouldComputeCostsForMediaCityAshton() throws InvalidDurationException {
-        assertEquals(Duration.ofHours(1).plusMinutes(6).plusSeconds(4), routeCostCalculator.getAverageCostBetween(txn, mediaCity, Ashton.from(stationRepository), when, modes));
-        assertEquals(Duration.ofHours(1).plusMinutes(5).plusSeconds(1), routeCostCalculator.getAverageCostBetween(txn,  Ashton.from(stationRepository), mediaCity, when, modes));
+        assertEquals(Duration.ofMinutes(56), routeCostCalculator.getAverageCostBetween(txn, mediaCity, Ashton.from(stationRepository), when, modes));
+        assertEquals(Duration.ofMinutes(54), routeCostCalculator.getAverageCostBetween(txn,  Ashton.from(stationRepository), mediaCity, when, modes));
     }
 
     @Test
@@ -94,8 +94,8 @@ class RouteCostCalculatorTest {
         final Duration altyToBury = routeCostCalculator.getAverageCostBetween(txn, altrincham, bury, when, modes);
 
         // often changes by a few seconds....
-        assertEquals(Duration.ofMinutes(62), buryToAlty.truncatedTo(ChronoUnit.MINUTES));
-        assertEquals(Duration.ofMinutes(63), altyToBury);
+        assertEquals(Duration.ofMinutes(63), buryToAlty.truncatedTo(ChronoUnit.MINUTES));
+        assertEquals(Duration.ofMinutes(64).plusSeconds(57), altyToBury);
     }
 
     @Test

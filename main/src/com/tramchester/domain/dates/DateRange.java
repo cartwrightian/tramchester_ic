@@ -31,6 +31,10 @@ public class DateRange {
         return new DateRange(sorted.getFirst(), sorted.getLast());
     }
 
+    public static DateRange of(TramDate begin, int durationDays) {
+        return of(begin, begin.plusDays(durationDays));
+    }
+
     public boolean contains(final TramDate queryDate) {
         if (isEmpty()) {
             return false;

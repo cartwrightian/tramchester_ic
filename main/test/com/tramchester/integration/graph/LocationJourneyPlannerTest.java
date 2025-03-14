@@ -23,7 +23,6 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.LocationJourneyPlanner;
 import com.tramchester.testSupport.LocationJourneyPlannerTestFacade;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.TramStations;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
@@ -93,7 +92,7 @@ class LocationJourneyPlannerTest {
 
         unsortedResults.forEach(journey -> {
             List<TransportStage<?,?>> stages = journey.getStages();
-            WalkingToStationStage first = (WalkingToStationStage) stages.get(0);
+            WalkingToStationStage first = (WalkingToStationStage) stages.getFirst();
             assertEquals(nearPiccGardens.latLong(), first.getFirstStation().getLatLong());
             assertEquals(PiccadillyGardens.getId(), first.getLastStation().getId());
 
@@ -101,7 +100,7 @@ class LocationJourneyPlannerTest {
             assertEquals(1, changes.size());
             Set<String> names = changes.stream().map(changeLocation -> changeLocation.location().getName()).collect(Collectors.toSet());
             assertTrue(names.contains(PiccadillyGardens.getName()), "could not find in " + names);
-            assertEquals(TransportMode.Walk, changes.get(0).fromMode());
+            assertEquals(TransportMode.Walk, changes.getFirst().fromMode());
         });
 
         unsortedResults.forEach(journey -> {
@@ -126,7 +125,7 @@ class LocationJourneyPlannerTest {
         assertFalse(unsortedResults.isEmpty());
         unsortedResults.forEach(journey -> {
             List<TransportStage<?,?>> stages = journey.getStages();
-            WalkingFromStationStage first = (WalkingFromStationStage) stages.get(0);
+            WalkingFromStationStage first = (WalkingFromStationStage) stages.getFirst();
             assertEquals(PiccadillyGardens.getId(), first.getFirstStation().getId());
             assertEquals(nearPiccGardens.latLong(), first.getLastStation().getLatLong());
         });
@@ -150,7 +149,7 @@ class LocationJourneyPlannerTest {
                 limit(3).toList();
 
         assertFalse(twoStageJourneys.isEmpty());
-        Journey firstJourney = twoStageJourneys.get(0);
+        Journey firstJourney = twoStageJourneys.getFirst();
         TransportStage<?,?> tramStage = firstJourney.getStages().get(0);
         TransportStage<?,?> walkStage = firstJourney.getStages().get(1);
 
@@ -164,7 +163,7 @@ class LocationJourneyPlannerTest {
 
         List<ChangeLocation<?>> changes = firstJourney.getChangeStations();
         assertEquals(1, changes.size());
-        ChangeLocation<?> change = changes.get(0);
+        ChangeLocation<?> change = changes.getFirst();
         assertEquals(walkChangeStation.getId(), change.location().getId());
         assertEquals(TransportMode.Tram, change.fromMode());
     }
@@ -200,7 +199,7 @@ class LocationJourneyPlannerTest {
 
         assertFalse(results.isEmpty());
         results.forEach(journey -> assertEquals(2, journey.getStages().size()));
-        results.forEach(journey -> assertEquals(TransportMode.Walk, journey.getStages().get(0).getMode()));
+        results.forEach(journey -> assertEquals(TransportMode.Walk, journey.getStages().getFirst().getMode()));
 
         results.forEach(result -> assertTrue(result.getPath().size()==11 || result.getPath().size()==12));
 
@@ -247,7 +246,7 @@ class LocationJourneyPlannerTest {
 
         journeyList.forEach(journey -> {
             List<Location<?>> callingPoints = journey.getPath();
-            assertEquals(Deansgate.getId(), callingPoints.get(0).getId());
+            assertEquals(Deansgate.getId(), callingPoints.getFirst().getId());
             final int numCallingPoints = 11;
             assertEquals(numCallingPoints, callingPoints.size());
             assertEquals(NavigationRoad.getId(), callingPoints.get(numCallingPoints-2).getId());
@@ -275,7 +274,6 @@ class LocationJourneyPlannerTest {
     }
 
 
-    @DisabledUntilDate(year = 2025, month = 3, day = 12)
     @Test
     void shouldFindJourneyWithWalkingAtEndDeansgateNearShudehill() {
         TramTime queryTime = TramTime.of(8, 35);
@@ -306,7 +304,7 @@ class LocationJourneyPlannerTest {
         List<ChangeLocation<?>> changeStations = lowestCostJourney.getChangeStations();
         assertEquals(1, changeStations.size());
 
-        ChangeLocation<?> changeStation = changeStations.get(0);
+        ChangeLocation<?> changeStation = changeStations.getFirst();
         assertTrue(nearStationIds.contains(changeStation.getId()), changeStation.toString());
         assertEquals(TransportMode.Tram, changeStation.fromMode(), changeStation.toString());
     }

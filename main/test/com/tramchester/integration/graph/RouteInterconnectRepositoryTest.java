@@ -110,8 +110,7 @@ public class RouteInterconnectRepositoryTest {
 
         assertTrue(results.hasAny());
 
-        // 6 ->3
-        assertEquals(3, results.numberPossible(), results.toString());
+        assertEquals(6, results.numberPossible(), results.toString());
         assertEquals(1, results.getDepth());
 
     }
@@ -200,7 +199,7 @@ public class RouteInterconnectRepositoryTest {
         assertTrue(interchangeRepository.hasInterchangeFor(indexPair));
         Set<InterchangeStation> interchanges = interchangeRepository.getInterchangesFor(indexPair).collect(Collectors.toSet());
 
-        assertEquals(3, interchanges.size(), HasId.asIds(interchanges));
+        assertEquals(6, interchanges.size(), HasId.asIds(interchanges));
 
         // unrealistic as would be 0 in code, direct via one interchange
         assertEquals(1, routeMatrix.getConnectionDepthFor(routeA, routeB));

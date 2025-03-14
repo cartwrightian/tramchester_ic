@@ -160,7 +160,7 @@ public class RouteCalculatorTest {
 
     @Test
     void shouldHaveSimpleManyStopSameLineJourney() {
-        checkRouteNextNDays(Altrincham, Cornbrook, TramTime.of(15,0), 0);
+        checkRouteNextNDays(Altrincham, TraffordBar, TramTime.of(15,0), 0);
     }
 
     @DataExpiryTest
@@ -315,7 +315,7 @@ public class RouteCalculatorTest {
 
     @Test
     void shouldHaveSimpleManyStopJourneyStartAtInterchange() {
-        checkRouteNextNDays(Cornbrook, Bury, TramTime.of(11,45), maxChanges);
+        checkRouteNextNDays(Victoria, Ashton, TramTime.of(11,45), maxChanges);
     }
 
     @Test

@@ -236,8 +236,7 @@ class RouteCalculatorSubGraphMediaCityTest {
         TimeRange timeRange = TimeRangePartial.of(TramTime.of(8,5), TramTime.of(8,30));
         int result = getPossibleMinChanges(salfordQuay, stPetersSquare, getRequestedModes(), when, timeRange);
 
-        // 0->1 during closures
-        assertEquals(result, 1);
+        assertEquals(result, 0);
     }
 
     private int getPossibleMinChanges(Location<?> being, Location<?> end, EnumSet<TransportMode> modes, TramDate date, TimeRange timeRange) {

@@ -47,7 +47,6 @@ enum KnownTramRouteEnum implements TestRoute {
     // Brown 2811,7778482,Brown Line,Firswood - East Didsbury,,0,,,
     FirswoodEastDidsbury(Brown, "Firswood - East Didsbury", "2811", DeansgateTraffordBarWorks.getStartDate()),
 
-
     // Yellow
     PiccadillyVictoria(Yellow, "Piccadilly - Victoria", "844", revertDate),
     PiccadillyVictoriaNewA(Yellow, "Piccadilly - Victoria", "2783", marchCutoverA),

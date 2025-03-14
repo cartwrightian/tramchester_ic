@@ -197,11 +197,11 @@ class KnownTramRouteTest {
             }
         });
 
-        assertTrue(unexpectedLoadedForDate.isEmpty(), "Mismatch on known routes, unexpected routes were: "
+        assertTrue(unexpectedLoadedForDate.isEmpty(), "Mismatch on known routes, unexpected loaded routes were: "
                 + unexpectedLoadedForDate);
     }
 
-    @DisabledUntilDate(year = 2025, month = 3, day = 17)
+    //@DisabledUntilDate(year = 2025, month = 3, day = 17)
     @Test
     void shouldNotHaveUnusedKnownTramRoutesForDate() {
         TramDate start = TramDate.from(TestEnv.LocalNow());
