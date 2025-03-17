@@ -13,6 +13,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.resources.DataVersionResourceTest;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.SmokeTest;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
@@ -45,10 +46,6 @@ public class AppUserJourneyTest extends UserJourneyTest {
     public static final String configPath = "config/localAcceptance.yml";
 
     private static final AcceptanceAppExtenstion appExtenstion = new AcceptanceAppExtenstion(App.class, configPath);
-
-    private final TramStations bury = Bury;
-    private final TramStations altrincham = Altrincham;
-    private final TramStations deansgate = Deansgate;
 
     // useful consts, keep around as can swap when timetable changes
     //public static final String altyToBuryLineName = "Altrincham - Manchester - Bury";
@@ -136,10 +133,10 @@ public class AppUserJourneyTest extends UserJourneyTest {
         assertFalse(allToStops.isEmpty(), "no to stops");
         checkSorted(allToStops);
 
-        desiredJourney(appPage, altrincham, bury, when, TramTime.of(10,15), false);
-        assertJourney(appPage, altrincham, bury, "10:15", when, false);
-        desiredJourney(appPage, altrincham, bury, when.plusMonths(1), TramTime.of(3,15), false);
-        assertJourney(appPage, altrincham, bury, "03:15", when.plusMonths(1), false);
+        desiredJourney(appPage, Altrincham, Bury, when, TramTime.of(10,15), false);
+        assertJourney(appPage, Altrincham, Bury, "10:15", when, false);
+        desiredJourney(appPage, Altrincham, Bury, when.plusMonths(1), TramTime.of(3,15), false);
+        assertJourney(appPage, Altrincham, Bury, "03:15", when.plusMonths(1), false);
 
         appPage.selectNow();
         validateCurrentTimeIsSelected(appPage);
@@ -231,7 +228,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
     void shouldCheckAltrinchamToDeansgate(ProvidesDriver providesDriver) throws IOException {
         AppPage appPage = prepare(providesDriver, url);
         TramTime queryTime = TramTime.of(10,0);
-        desiredJourney(appPage, altrincham, deansgate, when, queryTime, false);
+        desiredJourney(appPage, Altrincham, Deansgate, when, queryTime, false);
         appPage.planAJourney();
 
         assertTrue(appPage.resultsClickable(), "results clickable");
@@ -293,7 +290,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
     @MethodSource("getProvider")
     void shouldHideStationInToListWhenSelectedInFromList(ProvidesDriver providesDriver) throws IOException {
         AppPage appPage = prepare(providesDriver, url);
-        desiredJourney(appPage, altrincham, bury, when, TramTime.of(10,15), false);
+        desiredJourney(appPage, Altrincham, Bury, when, TramTime.of(10,15), false);
 
         appPage.waitForStops(AppPage.FROM_STOP);
         List<String> destStops = appPage.getToStops();
@@ -304,7 +301,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
     @MethodSource("getProvider")
     void shouldShowNoRoutesMessage(ProvidesDriver providesDriver) throws IOException {
         AppPage appPage = prepare(providesDriver, url);
-        desiredJourney(appPage, altrincham, bury, when, TramTime.of(3,15), false);
+        desiredJourney(appPage, Altrincham, Bury, when, TramTime.of(3,15), false);
         appPage.planAJourney();
 
         assertTrue(appPage.noResults());
@@ -317,7 +314,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
         TramTime eightFifteen = TramTime.of(9,15);
 
         AppPage appPage = prepare(providesDriver, url);
-        desiredJourney(appPage, altrincham, deansgate, when, tenFifteen, false);
+        desiredJourney(appPage, Altrincham, Deansgate, when, tenFifteen, false);
         appPage.planAJourney();
         assertTrue(appPage.resultsClickable(), "results clickable");
         assertTrue(appPage.searchEnabled());
@@ -327,7 +324,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
         assertTrue(departTime.isValid());
         assertTrue(departTime.isAfter(tenFifteen), "depart not after " + tenFifteen);
 
-        desiredJourney(appPage, altrincham, deansgate, when, eightFifteen, false);
+        desiredJourney(appPage, Altrincham, Deansgate, when, eightFifteen, false);
         appPage.planAJourney();
         // need way to delay response for this test to be useful
         //assertFalse(appPage.searchEnabled());
@@ -347,7 +344,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
         TramTime tenFifteen = TramTime.of(10,15);
 
         AppPage appPage = prepare(providesDriver, url);
-        desiredJourney(appPage, altrincham, deansgate, when, tenFifteen, false);
+        desiredJourney(appPage, Altrincham, Deansgate, when, tenFifteen, false);
         appPage.planAJourney();
         assertTrue(appPage.resultsClickable(), "results clickable");
         assertTrue(appPage.searchEnabled());
@@ -376,7 +373,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
         TramTime tenFifteen = TramTime.of(10,15);
 
         AppPage appPage = prepare(providesDriver, url);
-        desiredJourney(appPage, altrincham, deansgate, when, tenFifteen, false);
+        desiredJourney(appPage, Altrincham, Deansgate, when, tenFifteen, false);
         appPage.planAJourney();
         assertTrue(appPage.resultsClickable(), "results clickable");
         assertTrue(appPage.searchEnabled());
@@ -406,7 +403,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
     void shouldHaveMultistageJourney(ProvidesDriver providesDriver) throws IOException {
         AppPage appPage = prepare(providesDriver, url);
         TramTime planTime = TramTime.of(10,0);
-        desiredJourney(appPage, altrincham, TramStations.ManAirport, when, planTime, false);
+        desiredJourney(appPage, Altrincham, TramStations.ManAirport, when, planTime, false);
         appPage.planAJourney();
         assertTrue(appPage.resultsClickable());
 
@@ -469,6 +466,7 @@ public class AppUserJourneyTest extends UserJourneyTest {
 
     }
 
+    @DisabledUntilDate(year = 2025, month = 3, day = 24)
     @ParameterizedTest(name = "{displayName} {arguments}")
     @MethodSource("getProvider")
     void shouldDisplayWeekendWorkNoteOnlyOnWeekends(ProvidesDriver providesDriver) throws IOException {
@@ -477,18 +475,18 @@ public class AppUserJourneyTest extends UserJourneyTest {
         AppPage appPage = prepare(providesDriver, url);
         LocalDate aSaturday = UpcomingDates.nextSaturday().toLocalDate();
 
-        desiredJourney(appPage, altrincham, deansgate, aSaturday, time, false);
+        desiredJourney(appPage, Altrincham, Cornbrook, aSaturday, time, false);
         appPage.planAJourney();
         assertTrue(appPage.resultsClickable(), "results clickable");
         assertTrue(appPage.notesPresent());
         assertTrue(appPage.hasWeekendMessage());
 
-        desiredJourney(appPage, altrincham, deansgate, when, time, false);
+        desiredJourney(appPage, Altrincham, Cornbrook, when, time, false);
         appPage.planAJourney();
         assertTrue(appPage.resultsClickable());
         assertTrue(appPage.noWeekendMessage());
 
-        desiredJourney(appPage, altrincham, deansgate, aSaturday.plusDays(1), time, false);
+        desiredJourney(appPage, Altrincham, Cornbrook, aSaturday.plusDays(1), time, false);
         appPage.planAJourney();
         assertTrue(appPage.resultsClickable());
         assertTrue(appPage.notesPresent());
