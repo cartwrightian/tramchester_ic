@@ -710,6 +710,15 @@ tasks.register('uploadDataSources', JavaExec) {
     args prodConfig, s3prefix
 }
 
+// todo gm here so include both sets of data
+tasks.register('tidyOldDists', JavaExec) {
+    dependsOn 'classes'
+    mainClass = 'com.tramchester.deployment.cli.TidyOldDistDataCLI'
+    classpath = sourceSets.main.runtimeClasspath
+    standardInput = System.in
+    args prodConfig, 'dist'
+}
+
 distZip {
     dependsOn 'queryLiveDataArchiveStartScript'
     dependsOn 'webpack'
@@ -735,16 +744,6 @@ tasks.register('uploadApp', S3Upload) {
 tasks.register('upload') {
     dependsOn 'uploadDataSources'
     dependsOn 'uploadApp'
-}
-
-
-// >>>>> https://data.atoc.org/member-area
-
-// todo needs replacing
-tasks.register('uploadRailToS3', S3Upload) {
-    key = 'railData/ttis928.zip'
-    file = 'data/rail/ttis928.zip'
-    overwrite = false
 }
 
 tasks.register('infra') {

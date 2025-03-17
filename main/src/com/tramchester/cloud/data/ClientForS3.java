@@ -310,7 +310,7 @@ public class ClientForS3 {
         return Streams.stream(new KeyIterator(s3Client, bucket)).map(S3Object::key);
     }
 
-    private Stream<S3Object> getSummaryForPrefix(String bucket, String prefix) {
+    public Stream<S3Object> getSummaryForPrefix(String bucket, String prefix) {
         if (!isStarted()) {
             logger.error("Not started, getSummaryForPrefix");
             return Stream.empty();
@@ -353,6 +353,44 @@ public class ClientForS3 {
             logger.error("Unable to communicate with S3", clientException);
             return URLStatus.invalidTime;
         }
+    }
+
+
+    public boolean deleteKeys(final String bucket, final List<S3Object> items) {
+        logger.warn("Request to delete " + items.size() + " keys");
+
+        final List<ObjectIdentifier> itemIds = items.stream().map(this::createObjectId).toList();
+
+        final Delete toDelete = Delete.builder().objects(itemIds).build();
+
+        final DeleteObjectsRequest deleteObjectsRequest = DeleteObjectsRequest.builder().
+                bucket(bucket).delete(toDelete).build();
+
+        final DeleteObjectsResponse response = s3Client.deleteObjects(deleteObjectsRequest);
+
+        if (response.hasDeleted()) {
+            final List<DeletedObject> deletedIds =  response.deleted();
+            logger.info("Deleted " + deletedIds.size());
+            deletedIds.forEach(deletedObject -> {
+                logger.info("Deleted " + deletedObject.key());
+            });
+        } else {
+            logger.warn("Deleted no objects");
+        }
+
+        boolean hasErrors = response.hasErrors();
+        if (hasErrors) {
+            List<S3Error> errors = response.errors();
+            logger.error("Got " + errors.size() + " errors during delete.");
+            errors.forEach(error -> logger.error(String.format("Failed deleted for %s %s %s",error.key(), error.code(), error.message())));
+        }
+        return !hasErrors;
+    }
+
+    private ObjectIdentifier createObjectId(S3Object item) {
+        return ObjectIdentifier.builder().
+                key(item.key()).
+                build();
     }
 
     private ZonedDateTime overrideModTimeIfMetaData(final ResponseFacade response, final URI uri) {
@@ -447,6 +485,7 @@ public class ClientForS3 {
 
         return new URLStatus(uri, 200, modTime);
     }
+
 
     private record BucketKey(String bucket, String key) {
 

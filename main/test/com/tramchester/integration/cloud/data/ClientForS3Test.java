@@ -92,7 +92,7 @@ public class ClientForS3Test {
     }
 
     @Test
-    void shouldCreateThenDeleteAKey() throws IOException {
+    void shouldCreateThenRemoveAKey() throws IOException {
 
         final String fullKey = "test/key";
         final String text = "someTextToPlaceInS3";
@@ -103,12 +103,40 @@ public class ClientForS3Test {
         // exists?
         assertTrue(clientForS3.keyExists(BUCKET, "test", "key"));
 
+        // can get summary
+        List<S3Object> items = clientForS3.getSummaryForPrefix(BUCKET, fullKey).toList();
+        assertEquals(items.size(), 1);
+
         // get contents
         String resultText = getContentsOfKey(fullKey);
         assertEquals(text, resultText);
 
         // delete
         awsS3.deleteObject(DeleteObjectRequest.builder().bucket(BUCKET).key(fullKey).build());
+        s3Waiter.waitUntilObjectNotExists(HeadObjectRequest.builder().bucket(BUCKET).key(fullKey).build());
+
+        // not exists?
+        assertFalse(clientForS3.keyExists(BUCKET, "test", "key"));
+    }
+
+    @Test
+    void shouldCreateThenDeleteAKey() {
+
+        final String fullKey = "test/key";
+        final String text = "someTextToPlaceInS3";
+        clientForS3.upload(BUCKET, fullKey, text, TestEnv.UTCNow());
+
+        s3Waiter.waitUntilObjectExists(HeadObjectRequest.builder().bucket(BUCKET).key(fullKey).build());
+
+        // exists?
+        assertTrue(clientForS3.keyExists(BUCKET, "test", "key"));
+
+        List<S3Object> items = clientForS3.getSummaryForPrefix(BUCKET, fullKey).toList();
+        assertEquals(items.size(), 1);
+        // delete
+        boolean success = clientForS3.deleteKeys(BUCKET, items);
+        assertTrue(success);
+
         s3Waiter.waitUntilObjectNotExists(HeadObjectRequest.builder().bucket(BUCKET).key(fullKey).build());
 
         // not exists?
