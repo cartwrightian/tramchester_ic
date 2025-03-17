@@ -84,10 +84,10 @@ public class RoutePairToInterchangeRepositoryTest {
 
         IdSet<Station> stationIds = interchanges.stream().map(InterchangeStation::getStation).collect(IdSet.collector());
 
-        // Spring 2025 closures 2->1
-        assertEquals(2, stationIds.size(), stationIds.toString());
+        // Spring 2025 closures 2->1->3
+        assertEquals(3, stationIds.size(), stationIds.toString());
         assertTrue(stationIds.contains(Cornbrook.getId()), stationIds.toString());
-        assertTrue(stationIds.contains(Deansgate.getId()), stationIds.toString());
+        assertTrue(stationIds.contains(StPetersSquare.getId()), stationIds.toString());
     }
 
     @Test
@@ -105,8 +105,12 @@ public class RoutePairToInterchangeRepositoryTest {
 
         // Spring 2025 closures
         IdSet<Station> expected = Stream.of(
-                StPetersSquare, MarketStreet, Victoria,
-                Deansgate, Cornbrook, TraffordBar
+                StPetersSquare,
+//                MarketStreet,
+                Victoria,
+                //Deansgate,
+                Cornbrook,
+                TraffordBar
 //                        Piccadilly,
 //                        PiccadillyGardens,
                         //Shudehill

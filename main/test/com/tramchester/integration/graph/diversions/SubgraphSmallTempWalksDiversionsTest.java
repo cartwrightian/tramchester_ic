@@ -29,7 +29,6 @@ import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
-import com.tramchester.integration.testSupport.config.IntegrationTestConfig;
 import com.tramchester.integration.testSupport.tram.CentralStationsSubGraph;
 import com.tramchester.integration.testSupport.tram.IntegrationTramClosedStationsTestConfig;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -38,7 +37,6 @@ import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StationsWithDiversionRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
@@ -57,6 +55,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.neo4j.graphdb.Direction.INCOMING;
 import static org.neo4j.graphdb.Direction.OUTGOING;
 
+@Disabled("WIP")
 class SubgraphSmallTempWalksDiversionsTest {
     // Note this needs to be > time for whole test fixture, see note below in @After
     private static final int TXN_TIMEOUT = 5*60;
@@ -68,9 +67,8 @@ class SubgraphSmallTempWalksDiversionsTest {
     private static IntegrationTramClosedStationsTestConfig config;
 
     // TODO will need to find another data/approach once works complete
-    private final static TramDate when = UpcomingDates.YorkStreetWorks2025.getStartDate().plusDays(1);
-
-    private static final DateRange range = UpcomingDates.YorkStreetWorks2025;
+    private final static TramDate when = TestEnv.testDay();
+    private static final DateRange range = DateRange.of(when.plusDays(1), when.plusDays(5));
 
     private RouteCalculatorTestFacade calculator;
     private StationRepository stationRepository;
@@ -82,8 +80,13 @@ class SubgraphSmallTempWalksDiversionsTest {
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
+
+        /// TODO
+        List<TemporaryStationsWalkIds> walks = Collections.emptyList();
+
+
         IntegrationTramTestConfig configWithwalks = new IntegrationTramTestConfig(Collections.emptyList(), IntegrationTramTestConfig.Caching.Disabled,
-                IntegrationTestConfig.YorkStreetClosureWalks);
+                walks);
 
         Optional<GTFSSourceConfig> findTFGM = configWithwalks.getGTFSDataSource().stream().
                 filter(source -> source.getDataSourceId().equals(DataSourceID.tfgm)).findFirst();

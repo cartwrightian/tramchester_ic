@@ -12,11 +12,15 @@ import static com.tramchester.testSupport.UpcomingDates.*;
 
 public class KnownTramRoute {
 
+    @Deprecated
     public static final TramDate revertDate = TramDate.of(2025, 2, 25);
 
+    @Deprecated
     public static final TramDate marchCutoverA = TramDate.of(2025,3,13);
 
     public static final TramDate marchCutoverB = TramDate.of(2025,3,17);
+
+    public static final TramDate marchCutoverC = TramDate.of(2025,3,25);
 
     /***
      * @return Yellow route
@@ -114,16 +118,20 @@ public class KnownTramRoute {
 
         routes.add(getBuryManchesterAltrincham(date));
 
-        // || YorkStreetWorks2025MissingRoute.contains(date)
-        if (!(YorkStreetWorks2025.contains(date) || DeansgateTraffordBarWorks.contains(date) || EndMarchNotOnTFGMSite.contains(date))) {
+        TramDate april2025CutOver = TramDate.of(2025, 4, 24);
+
+        if (!(DeansgateTraffordBarWorks.contains(date) || EndMarchNotOnTFGMSite.contains(date)
+                || HighStreetAndChurchStreetWorks.contains(date) || date.isAfter(april2025CutOver))) {
             routes.add(getEtihadPiccadillyAltrincham(date));
         }
 
-        if (DeansgateTraffordBarWorks.contains(date) || EndMarchNotOnTFGMSite.contains(date)) {
+        if (DeansgateTraffordBarWorks.contains(date) ) {
             routes.add(getFirswoodEastDidsbury(date));
         }
 
-        routes.add(getPiccadillyVictoria(date));
+        if (!(HighStreetAndChurchStreetWorks.contains(date) || date.isAfter(april2025CutOver))) {
+            routes.add(getPiccadillyVictoria(date));
+        }
 
         routes.add(getEcclesAshton(date));
         routes.add(getCornbrookTheTraffordCentre(date));

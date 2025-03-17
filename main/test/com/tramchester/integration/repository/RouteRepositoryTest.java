@@ -17,7 +17,6 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TestRoute;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
@@ -72,14 +71,11 @@ public class RouteRepositoryTest {
         Route result = routeHelper.getOneRoute(getEcclesAshton(when), when);
         assertEquals(getEcclesAshton(when).getId(), result.getId());
         assertEquals(TestEnv.MetAgency(),result.getAgency());
-        //assertTrue(IdForDTO.createFor(result).getActualId().startsWith("METLBLUE:I:"));
         assertTrue(TransportMode.isTram(result));
     }
 
-    @DisabledUntilDate(year = 2025, month = 3, day = 17)
     @Test
     void shouldHaveExpectedRoutesAtDeansgate() {
-        // according to the map this should not be the case, but it does seem to be in the timetable
 
         Station deansgate = Deansgate.from(stationRepository);
 
@@ -88,8 +84,14 @@ public class RouteRepositoryTest {
         Route traffordCenterRoute = routeHelper.getOneRoute(getCornbrookTheTraffordCentre(when), when);
 
         assertTrue(pickups.contains(traffordCenterRoute), "Could not find " + traffordCenterRoute.getId()
-                + " in " + KnownTramRoute.find(pickups).toString());
+                + " in " + summary(pickups));
 
+    }
+
+    private String summary(Set<Route> pickups) {
+        return pickups.stream().
+                map(route -> route.getId() + " " + route.getId() + " " + route.getDateRange() + System.lineSeparator()).
+                collect(Collectors.joining());
     }
 
     @Disabled("appear to be no longer present")
@@ -157,9 +159,6 @@ public class RouteRepositoryTest {
         assertTrue(diffA.isEmpty(), diffA.toString());
 
         assertEquals(knownTramRoutes.size(), running.size());
-
-//        Sets.SetView<String> diffB = Sets.difference(knownTramRoutes, running);
-//        assertTrue(diffB.isEmpty(), diffB.toString());
 
     }
 
@@ -234,6 +233,21 @@ public class RouteRepositoryTest {
 
         assertTrue(cornbrookPickups.contains(victoriaToAirport));
         assertTrue(cornbrookDropofss.contains(victoriaToAirport));
+
+    }
+
+    @Test
+    void shouldHaveActiveDatesAndDaysForAllLoadedRoutes() {
+        Set<Route> allLoaded = routeRepository.getRoutes();
+
+        Set<Route> missingDateFange = allLoaded.stream().
+                filter(route -> route.getDateRange().isEmpty()).collect(Collectors.toSet());
+
+        assertTrue(missingDateFange.isEmpty(), HasId.asIds(missingDateFange));
+
+        Set<Route> noDays = allLoaded.stream().filter(route -> route.getOperatingDays().isEmpty()).collect(Collectors.toSet());
+
+        assertTrue(noDays.isEmpty(), noDays.toString());
 
     }
 

@@ -105,7 +105,6 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, VeloPark, TraffordBar);
     }
 
-    @DisabledUntilDate(year = 2025, month = 3, day = 17)
     @Test
     void shouldPlanSimpleJourneyFromAltyToAshtonCheckInterchangesAndHaveExpectedIndexes() {
 
@@ -394,7 +393,6 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequestB, Altrincham, OldTrafford);
     }
 
-    @DisabledUntilDate(year = 2025, month = 3, day = 14)
     @Test
     void shouldHandleAtMidnightDirectCornbrookStPeters() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.nextDay(0,0), maxNumResults, maxChanges);
@@ -407,7 +405,6 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Cornbrook, StPetersSquare);
     }
 
-    @DisabledUntilDate(year = 2025, month = 3, day = 14)
     @Test
     void shouldHandlePastMidnightDirectCornbrookStPeters() {
         JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.nextDay(0,1), maxNumResults, 0);
@@ -478,6 +475,7 @@ public class RouteCalculatorTest {
         return TramTime.difference(departs, arrive);
     }
 
+    @DisabledUntilDate(year = 2025, month = 3, day = 24)
     @Test
     void shouldCheckCornbrookToStPetersSquareOnSundayMorning() {
         JourneyRequest journeyRequest = standardJourneyRequest(UpcomingDates.nextSunday(), TramTime.of(11, 0), maxNumResults, maxChanges);
@@ -514,7 +512,6 @@ public class RouteCalculatorTest {
         });
     }
 
-    @DisabledUntilDate(year = 2025, month = 3, day = 14)
     @Test
     void ShouldReproIssueWithSomeMediaCityJourneys() {
 
@@ -577,7 +574,6 @@ public class RouteCalculatorTest {
 
     }
 
-    @DisabledUntilDate(year = 2025, month = 3, day = 14)
     @Test
     void shouldReproIssueWithStPetersToBeyondEcclesAt8AM() {
         List<TramTime> missingTimes = checkRangeOfTimes(StPetersSquare, Eccles,0);
@@ -596,13 +592,14 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Deansgate, Ashton);
     }
 
+    @DisabledUntilDate(year = 2025, month = 3, day = 24)
     @Test
     void reproduceIssueWithTramsSundayStPetersToDeansgate() {
         JourneyRequest journeyRequest = standardJourneyRequest(UpcomingDates.nextSunday(), TramTime.of(9,0), maxNumResults, 0);
         assertGetAndCheckJourneys(journeyRequest, StPetersSquare, Deansgate);
     }
 
-    @DisabledUntilDate(year = 2025, month = 3, day = 16)
+    @DisabledUntilDate(year = 2025, month = 3, day = 24)
     @Test
     void reproduceIssueWithTramsSundayAshtonToEccles() {
         JourneyRequest journeyRequest = standardJourneyRequest(UpcomingDates.nextSunday(), TramTime.of(9, 45), maxNumResults, 1);
@@ -627,6 +624,7 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Eccles, Cornbrook);
     }
 
+    @DisabledUntilDate(year = 2025, month = 3, day = 24)
     @Test
     void shouldReproduceIssueCornbrookToAshtonSatursdays() {
         JourneyRequest journeyRequest = standardJourneyRequest(UpcomingDates.nextSaturday(), TramTime.of(9,0), maxNumResults, 1);

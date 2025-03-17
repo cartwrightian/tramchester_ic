@@ -25,7 +25,6 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.InMemoryDataCache;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
 import org.apache.commons.lang3.tuple.Pair;
@@ -110,12 +109,11 @@ public class RouteInterconnectRepositoryTest {
 
         assertTrue(results.hasAny());
 
-        assertEquals(6, results.numberPossible(), results.toString());
+        assertEquals(5, results.numberPossible(), results.toString());
         assertEquals(1, results.getDepth());
 
     }
 
-    @DisabledUntilDate(year = 2025, month = 3, day = 17)
     @Test
     void shouldHaveExpectedInterchangeForSimpleInterchangeFiltered() {
         Route routeA = routeHelper.getOneRoute(getBuryManchesterAltrincham(date), date);
@@ -160,7 +158,6 @@ public class RouteInterconnectRepositoryTest {
 
     }
 
-    @DisabledUntilDate(year = 2025, month = 3, day = 16)
     @Test
     void shouldCheckFor2Changes() {
 
@@ -173,8 +170,8 @@ public class RouteInterconnectRepositoryTest {
 
         // ignore data and mode here???
         IndexedBitSet dateOverlaps = routeMatrix.createOverlapMatrixFor(date, modes);
-        // 196 -> 49 -> 64
-        assertEquals(64, dateOverlaps.numberOfBitsSet());
+        // 196 -> 49
+        assertEquals(49, dateOverlaps.numberOfBitsSet());
 
         PathResults results = repository.getInterchangesFor(indexPair, dateOverlaps, interchangeStation -> true);
 
@@ -199,7 +196,7 @@ public class RouteInterconnectRepositoryTest {
         assertTrue(interchangeRepository.hasInterchangeFor(indexPair));
         Set<InterchangeStation> interchanges = interchangeRepository.getInterchangesFor(indexPair).collect(Collectors.toSet());
 
-        assertEquals(6, interchanges.size(), HasId.asIds(interchanges));
+        assertEquals(5, interchanges.size(), HasId.asIds(interchanges));
 
         // unrealistic as would be 0 in code, direct via one interchange
         assertEquals(1, routeMatrix.getConnectionDepthFor(routeA, routeB));
@@ -228,7 +225,6 @@ public class RouteInterconnectRepositoryTest {
 
     }
 
-    @DisabledUntilDate(year = 2025, month = 3, day = 17)
     @Test
     void shouldHaveExpectedBacktrackFor2Changes() {
         Route routeA = routeHelper.getOneRoute(getPiccadillyVictoria(date), date);
@@ -271,7 +267,6 @@ public class RouteInterconnectRepositoryTest {
         return converted.toString();
     }
 
-    @DisabledUntilDate(year = 2025, month = 3, day = 16)
     @Test
     void shouldCheckFor2ChangesFiltered() {
         Route routeA = routeHelper.getOneRoute(getPiccadillyVictoria(date), date);

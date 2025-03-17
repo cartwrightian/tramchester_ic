@@ -85,8 +85,7 @@ public class InterchangesTramTest {
     void shouldHaveExpectedTramInterchanges() {
 
         Stream<TramStations> expectedTramStations = Stream.of(StWerburghsRoad, TraffordBar, Cornbrook, HarbourCity,
-                Pomona, Cornbrook, Deansgate,
-                //Shudehill,
+                Pomona, Cornbrook,
                 PiccadillyGardens,
                 StPetersSquare,
                 Broadway,

@@ -4,7 +4,6 @@ import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TemporaryStationsWalkIds;
 import com.tramchester.domain.StationClosures;
-import com.tramchester.domain.StationIdPair;
 import com.tramchester.integration.testSupport.TestGroupType;
 import com.tramchester.integration.testSupport.naptan.NaptanRemoteDataSourceTestConfig;
 import com.tramchester.integration.testSupport.nptg.NPTGDataSourceTestConfig;
@@ -12,11 +11,8 @@ import com.tramchester.integration.testSupport.postcodes.PostCodeDatasourceConfi
 import com.tramchester.integration.testSupport.rail.RailRemoteDataSourceConfig;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.testSupport.reference.TramStations;
 
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -35,16 +31,8 @@ public abstract class IntegrationTestConfig extends TestConfig {
 //            true, Collections.emptySet(), Collections.singleton(TramStations.RochdaleRail)
 //            );
 
-    private static final TemporaryStationsWalkIds StPetersToPiccGardens = new TemporaryStationsWalkConfigForTest(
-            StationIdPair.of(TramStations.StPetersSquare, TramStations.PiccadillyGardens),
-            UpcomingDates.YorkStreetWorks2025);
-    private static final TemporaryStationsWalkIds StPetersToPicc = new TemporaryStationsWalkConfigForTest(
-            StationIdPair.of(TramStations.StPetersSquare, TramStations.Piccadilly),
-            UpcomingDates.YorkStreetWorks2025);
-
     public static final List<StationClosures> CurrentClosures = Collections.emptyList();
 
-    public static final List<TemporaryStationsWalkIds> YorkStreetClosureWalks = Arrays.asList(StPetersToPiccGardens, StPetersToPicc);
 
     public static final List<TemporaryStationsWalkIds> CurrentStationWalks = Collections.emptyList();
 

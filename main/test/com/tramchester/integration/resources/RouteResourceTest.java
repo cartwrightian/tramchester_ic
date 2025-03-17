@@ -35,8 +35,7 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.TestEnv.dateFormatDashes;
-import static com.tramchester.testSupport.reference.TramStations.Deansgate;
-import static com.tramchester.testSupport.reference.TramStations.ManAirport;
+import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
@@ -80,7 +79,7 @@ class RouteResourceTest {
     @Test
     void shouldHaveExpectedFirstLastForAirportRoute() {
         IdForDTO manAirportIdForDTO = ManAirport.getIdForDTO();
-        IdForDTO finalStationDTOId =  Deansgate.getIdForDTO(); //TramStations.Victoria.getIdForDTO();
+        IdForDTO finalStationDTOId =  Victoria.getIdForDTO();
 
         List<RouteDTO> routes = getRouteResponse();
 

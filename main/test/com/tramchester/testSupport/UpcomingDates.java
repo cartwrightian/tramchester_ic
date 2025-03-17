@@ -6,7 +6,6 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
-import com.tramchester.testSupport.reference.FakeStation;
 import com.tramchester.testSupport.reference.TramStations;
 
 import java.time.DayOfWeek;
@@ -34,15 +33,16 @@ public class UpcomingDates {
     // use helper methods that handle filtering (i.e. for Christmas) and conversion to dates
     static final int DAYS_AHEAD = 14;
 
-    public static final DateRange YorkStreetWorks2025 = DateRange.of(TramDate.of(2025,3,1),
-            TramDate.of(2025, 3, 16));
-
     public static final DateRange DeansgateTraffordBarWorks = DateRange.of(TramDate.of(2025, 3, 22),
             TramDate.of(2025,3,23));
 
-    public static final IdSet<Station> DeansgateWorksStations = Stream.of(PiccadillyGardens, TraffordBar, StPetersSquare).
-            map(FakeStation::getId).
-            collect(IdSet.idCollector());
+    public static final IdSet<Station> DeansgateWorksStations = TramStations.ids(PiccadillyGardens, TraffordBar, StPetersSquare,
+            ExchangeSquare, Cornbrook, MarketStreet, Shudehill);
+
+    public static final DateRange HighStreetAndChurchStreetWorks = DateRange.of(TramDate.of(2025,3,25),
+            TramDate.of(2025,4,24));
+
+    private static final IdSet<Station> HighStreetAndChurchStreetWorkStations = TramStations.ids(Shudehill, MarketStreet);
 
     public static final DateRange EndMarchNotOnTFGMSite = DateRange.of(TramDate.of(2025, 3, 29), 1);
 
@@ -57,7 +57,7 @@ public class UpcomingDates {
     public static boolean hasClosure(IdFor<Station> stationId, TramDate date) {
 
         if (PiccadillyGardens.getId().equals(stationId)) {
-            if (YorkStreetWorks2025.contains(date) || DeansgateTraffordBarWorks.contains(date)) {
+            if (DeansgateTraffordBarWorks.contains(date)) {
                 return true;
             }
         }
@@ -66,12 +66,17 @@ public class UpcomingDates {
                 return true;
             }
         }
+        if (HighStreetAndChurchStreetWorks.contains(date)) {
+            if (HighStreetAndChurchStreetWorkStations.contains(stationId)) {
+                return true;
+            }
+        }
 
         return false;
     }
 
     public static boolean validTestDate(final TramDate date) {
-        return !date.isChristmasPeriod();
+        return !(date.isChristmasPeriod());
     }
 
     public static List<TramDate> daysAhead() {

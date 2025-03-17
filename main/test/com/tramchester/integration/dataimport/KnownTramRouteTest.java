@@ -13,6 +13,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.KnownTramRoute;
+import com.tramchester.testSupport.reference.KnownTramRouteEnum;
 import com.tramchester.testSupport.reference.TestRoute;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
@@ -88,7 +89,7 @@ class KnownTramRouteTest {
     }
 
     // likely have to disable until end of york street works
-    @DisabledUntilDate(year = 2025, month = 3, day = 17)
+    @DisabledUntilDate(year = 2025, month = 4)
     @Test
     void shouldHaveExpectedRouteIdForPurple() {
         checkRouteIdFor(KnownTramRoute::getEtihadPiccadillyAltrincham, false);
@@ -99,6 +100,7 @@ class KnownTramRouteTest {
         checkRouteIdFor(KnownTramRoute::getCornbrookTheTraffordCentre, false);
     }
 
+    @DisabledUntilDate(year = 2025, month = 4)
     @Test
     void shouldHaveExpectedRouteIdForYellow() {
         checkRouteIdFor(KnownTramRoute::getPiccadillyVictoria, false);
@@ -131,14 +133,6 @@ class KnownTramRouteTest {
                 collect(IdSet.idCollector());
         return matchedShortNames.toString();
     }
-
-//    @Test
-//    void shouldHaveExpectedForBlue() {
-//        assertEquals(Route.createId("2119"), KnownTramRoute.findFor("Blue Line",
-//                TramDate.of(2025,2,1)).getId());
-//        assertEquals(Route.createId("2750"), KnownTramRoute.findFor("Blue Line",
-//                TramDate.of(2025,2,16)).getId());
-//    }
 
     @Test
     void shouldHaveCorrectIds() {
@@ -180,9 +174,9 @@ class KnownTramRouteTest {
     void shouldNotHaveUnknownTramRoutes() {
         TramDate start = TramDate.from(TestEnv.LocalNow());
 
-        DateRange dateRange = DateRange.of(start, when.plusWeeks(2));
+        DateRange dateRange = DateRange.of(start, when.plusWeeks(6));
 
-        Map<TramDate, IdSet<Route>> unexpectedLoadedForDate = new HashMap<>();
+        SortedMap<TramDate, IdSet<Route>> unexpectedLoadedForDate = new TreeMap<>();
 
         dateRange.stream().forEach(date -> {
             final IdSet<Route> known = KnownTramRoute.getFor(date).stream().
@@ -201,12 +195,11 @@ class KnownTramRouteTest {
                 + unexpectedLoadedForDate);
     }
 
-    //@DisabledUntilDate(year = 2025, month = 3, day = 17)
     @Test
     void shouldNotHaveUnusedKnownTramRoutesForDate() {
         TramDate start = TramDate.from(TestEnv.LocalNow());
 
-        DateRange dateRange = DateRange.of(start, when.plusWeeks(2));
+        DateRange dateRange = DateRange.of(start, when.plusWeeks(6));
 
         SortedMap<TramDate, Set<TestRoute>> unusedForDate = new TreeMap<>();
 
@@ -224,6 +217,17 @@ class KnownTramRouteTest {
                 });
 
         assertTrue(unusedForDate.isEmpty(), "For dates " + unusedForDate.keySet() + "\n Have known but not loaded routes " + unusedForDate);
+    }
+
+    @Test
+    void shouldHaveCorrectDateForKnownRoutes() {
+        EnumSet<KnownTramRouteEnum> knowRoutes = EnumSet.allOf(KnownTramRouteEnum.class);
+
+        knowRoutes.forEach(known -> {
+            assertTrue(routeRepository.hasRouteId(known.getId()), known + " is missing from repo");
+            Route actual = routeRepository.getRouteById(known.getId());
+            assertTrue(actual.getDateRange().contains(known.getValidFrom()), known + " not within " + actual.getDateRange());
+        });
     }
 
     @NotNull

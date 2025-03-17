@@ -2,8 +2,10 @@ package com.tramchester.integration.graph;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
+import com.tramchester.config.TemporaryStationsWalkIds;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.*;
+import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.TransportStage;
@@ -11,20 +13,17 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
-import com.tramchester.integration.testSupport.config.IntegrationTestConfig;
+import com.tramchester.integration.testSupport.config.TemporaryStationsWalkConfigForTest;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TemporaryStationWalksRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import org.junit.jupiter.api.*;
 
 import java.time.Duration;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -54,10 +53,24 @@ public class RouteCalculatorForYorkStreetClosureTest {
     private TramDate when;
     private StationRepository stationRepository;
 
+    public static final DateRange YorkStreetWorks2025 = DateRange.of(TramDate.of(2025,3,1),
+        TramDate.of(2025, 3, 16));
+
+    private static final TemporaryStationsWalkIds StPetersToPiccGardens = new TemporaryStationsWalkConfigForTest(
+            StationIdPair.of(StPetersSquare, PiccadillyGardens),
+            YorkStreetWorks2025);
+
+    private static final TemporaryStationsWalkIds StPetersToPicc = new TemporaryStationsWalkConfigForTest(
+            StationIdPair.of(TramStations.StPetersSquare, TramStations.Piccadilly),
+            YorkStreetWorks2025);
+
+    public static final List<TemporaryStationsWalkIds> YorkStreetClosureWalks = Arrays.asList(StPetersToPiccGardens, StPetersToPicc);
+
+
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
         config = new IntegrationTramTestConfig(Collections.emptyList(), IntegrationTramTestConfig.Caching.Disabled,
-                IntegrationTestConfig.YorkStreetClosureWalks);
+                YorkStreetClosureWalks);
 
         componentContainer = new ComponentsBuilder().create(config, TestEnv.NoopRegisterMetrics());
         componentContainer.initialise();
@@ -77,7 +90,7 @@ public class RouteCalculatorForYorkStreetClosureTest {
         maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
         maxNumResults = config.getMaxNumResults();
 
-        when = UpcomingDates.YorkStreetWorks2025.getStartDate().plusDays(1);
+        when = YorkStreetWorks2025.getStartDate().plusDays(1);
 
     }
 
@@ -95,7 +108,7 @@ public class RouteCalculatorForYorkStreetClosureTest {
         assertEquals(2, walks.size());
 
         walks.forEach(walk -> {
-            assertEquals(UpcomingDates.YorkStreetWorks2025, walk.getDateRange());
+            assertEquals(YorkStreetWorks2025, walk.getDateRange());
         });
 
         Set<StationIdPair> ids = walks.stream().map(walk -> walk.getStationPair().getStationIds()).collect(Collectors.toSet());
