@@ -35,7 +35,7 @@ openRailData:
   authURL: https://opendata.nationalrail.co.uk/authenticate
 remoteSources:
   - name: openRailData
-    dataURL: https://opendata.nationalrail.co.uk/api/staticfeeds/3.0/timetable
+    dataURL: ${RAIL_DATAURL:- s3://tramchesternewdist/dist/${RELEASE_NUMBER}/rail_data.zip}
     dataCheckURL: https://opendata.nationalrail.co.uk/api/staticfeeds/3.0/timetable
     dataPath: data/openRailData
     downloadPath: data/openRailData
