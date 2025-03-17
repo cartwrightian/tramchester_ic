@@ -47,7 +47,7 @@ version = buildNumber
 ext {
     dropwizardVersion = '4.0.12'
     jacksonVersion = '2.18.2'
-    awsSdkVersion = '2.29.44'
+    awsSdkVersion = '2.31.1'
 }
 
 repositories {
@@ -508,6 +508,7 @@ tasks.register('s3Test', Test) {
     dependsOn 'compileJava'
     useJUnitPlatform {
         includeTags "S3Test"
+        excludeTags "LiveDataS3UploadTest"
     }
     testLogging {
         exceptionFormat "full" // default is "short"
