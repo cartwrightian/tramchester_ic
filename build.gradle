@@ -1,6 +1,6 @@
 
 plugins {
-    id 'com.mgd.core.gradle.s3' version '2.0.11'
+    id 'com.mgd.core.gradle.s3' version '2.1.1'
     id 'io.mateo.cxf-codegen' version '2.4.1'
     id 'java'
     id 'application'
@@ -82,7 +82,7 @@ dependencies {
             'commons-codec:commons-codec:1.18.0',
             'org.apache.commons:commons-collections4:4.4',
             'org.apache.commons:commons-compress:1.27.1',
-            'com.github.ben-manes.caffeine:caffeine:3.1.8'
+            'com.github.ben-manes.caffeine:caffeine:3.2.0'
     implementation "com.fasterxml.jackson.core:jackson-core:$jacksonVersion",
             "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",
             "com.fasterxml.jackson.module:jackson-module-afterburner:$jacksonVersion",
@@ -741,6 +741,7 @@ tasks.register('upload') {
 
 // >>>>> https://data.atoc.org/member-area
 
+// todo needs replacing
 tasks.register('uploadRailToS3', S3Upload) {
     key = 'railData/ttis928.zip'
     file = 'data/rail/ttis928.zip'
