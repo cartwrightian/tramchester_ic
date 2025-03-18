@@ -19,7 +19,6 @@ import com.tramchester.integration.testSupport.config.TemporaryStationsWalkConfi
 import com.tramchester.integration.testSupport.tram.CentralStationsSubGraph;
 import com.tramchester.integration.testSupport.tram.IntegrationTramStationWalksTestConfig;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
@@ -106,7 +105,7 @@ class SubgraphSmallStationWalksTest {
         assertFalse(results.isEmpty(), "no journeys");
     }
 
-    @DisabledUntilDate(year = 2025, month = 3, day = 17)
+    //@DisabledUntilDate(year = 2025, month = 3, day = 17)
     @Test
     void shouldFindRouteUsingWalkCornbrookToPicc() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,

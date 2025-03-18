@@ -26,7 +26,6 @@ import com.tramchester.repository.TripRepository;
 import com.tramchester.repository.naptan.NaptanRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.reference.TestRoute;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
@@ -76,7 +75,6 @@ public class StationRepositoryTest {
         when = TestEnv.testDay();
     }
 
-    @DisabledUntilDate(year = 2025, month = 3, day = 17)
     @Test
     void shouldHaveExpectedStationsForRoute() {
         Route buryToAlty = routeHelper.getOneRoute(getBuryManchesterAltrincham(when), when);
@@ -205,7 +203,6 @@ public class StationRepositoryTest {
         assertEquals(LocationType.Platform, platformOne.getLocationType());
     }
 
-    @DisabledUntilDate(year = 2025, month = 3, day = 17)
     @Test
     void shouldHaveExpectedPickupAndDropoffForCornbrook() {
         Station station = Cornbrook.from(stationRepository);

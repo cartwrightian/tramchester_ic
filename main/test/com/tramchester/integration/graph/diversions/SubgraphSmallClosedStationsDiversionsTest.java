@@ -37,7 +37,6 @@ import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StationsWithDiversionRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Direction;
@@ -230,7 +229,6 @@ class SubgraphSmallClosedStationsDiversionsTest {
         assertFalse(results.isEmpty(), "no journeys");
     }
 
-    @DisabledUntilDate(year = 2025, month = 3, day = 17)
     @Test
     void shouldFindRouteAroundCloseBackOnToTramCornbrookToPicc() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
@@ -241,7 +239,6 @@ class SubgraphSmallClosedStationsDiversionsTest {
         assertFalse(results.isEmpty(), "no journeys");
     }
 
-    @DisabledUntilDate(year = 2025, month = 3, day = 17)
     @Test
     void shouldFindRouteAroundCloseBackOnToTramPiccToCornbrook() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
@@ -290,7 +287,6 @@ class SubgraphSmallClosedStationsDiversionsTest {
         assertFalse(results.isEmpty());
     }
 
-    @DisabledUntilDate(year = 2025, month = 3, day = 17)
     @Test
     void shouldFindStPetersToPiccadillyGardens() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,
@@ -300,7 +296,6 @@ class SubgraphSmallClosedStationsDiversionsTest {
         assertFalse(results.isEmpty());
     }
 
-    @DisabledUntilDate(year = 2025, month = 3, day = 17)
     @Test
     void shouldFindDeansgateToPiccadillyGardens() {
         JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(8,0), false,

@@ -249,7 +249,6 @@ class RouteCalculatorSubGraphMediaCityTest {
         return routeToRouteCosts.getNumberOfChanges(being, end, journeyRequest, timeRange);
     }
 
-    @DisabledUntilDate(year = 2025, month = 3, day = 17)
     @Test
     void shouldHaveJourneyFromEveryStationToEveryOther() {
 

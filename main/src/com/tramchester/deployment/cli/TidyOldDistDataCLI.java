@@ -60,17 +60,15 @@ public class TidyOldDistDataCLI extends BaseCLI {
 
     @Override
     public boolean run(Logger logger, GuiceContainerDependencies dependencies, TramchesterConfig config) {
-        ProvidesLocalNow providesLocalNow = dependencies.get(ProvidesLocalNow.class);
+        final ProvidesLocalNow providesLocalNow = dependencies.get(ProvidesLocalNow.class);
 
-        ZonedDateTime zonedNow = providesLocalNow.getZoneDateTimeUTC();
-
-        ZonedDateTime cutoff = zonedNow.minusYears(1);
+        final ZonedDateTime cutoff = providesLocalNow.getZoneDateTimeUTC().minusYears(1);
 
         logger.info("Cutoff is " + cutoff);
 
-        ClientForS3 clientForS3 = dependencies.get(ClientForS3.class);
+        final ClientForS3 clientForS3 = dependencies.get(ClientForS3.class);
 
-        List<S3ObjectWithModTime> matchingKeys = findMatchingKeys(logger, config, clientForS3, cutoff);
+        final List<S3ObjectWithModTime> matchingKeys = findMatchingKeys(logger, config, clientForS3, cutoff);
 
         if (matchingKeys.isEmpty()) {
             logger.warn("No matching keys found for " + cutoff);
@@ -84,7 +82,7 @@ public class TidyOldDistDataCLI extends BaseCLI {
 
         final boolean success;
         if (proceed) {
-            logger.warn("Deleteing keys");
+            logger.warn("Deleting keys");
             List<S3Object> toDelete = matchingKeys.stream().map(S3ObjectWithModTime::s3Object).toList();
             success = clientForS3.deleteKeys(config.getDistributionBucket(), toDelete);
             if (success) {
@@ -124,8 +122,7 @@ public class TidyOldDistDataCLI extends BaseCLI {
 
         String consent = getLine();
 
-        boolean proceed = "Y".equals(consent) || "y".equals(consent);
-        return proceed;
+        return "Y".equals(consent) || "y".equals(consent);
     }
 
     private String getLine() {
