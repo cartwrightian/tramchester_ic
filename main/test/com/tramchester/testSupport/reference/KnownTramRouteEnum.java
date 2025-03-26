@@ -8,9 +8,14 @@ import com.tramchester.domain.id.IdForDTO;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.testSupport.TestEnv;
 
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.stream.Collectors;
+
 import static com.tramchester.testSupport.UpcomingDates.DeansgateTraffordBarWorks;
 import static com.tramchester.testSupport.reference.KnownLines.*;
-import static com.tramchester.testSupport.reference.KnownTramRoute.*;
+import static com.tramchester.testSupport.reference.KnownTramRoute.marchCutoverB;
+import static com.tramchester.testSupport.reference.KnownTramRoute.marchCutoverC;
 
 /*
  * see also TramRouteHelper
@@ -47,7 +52,8 @@ public enum KnownTramRouteEnum implements TestRoute {
     FirswoodEastDidsbury(Brown, "Firswood - East Didsbury", "2811", DeansgateTraffordBarWorks.getStartDate()),
 
     // Yellow
-    PiccadillyVictoriaNewB(Yellow, "Piccadilly - Victoria", "2808", marchCutoverB);
+    PiccadillyVictoriaNewB(Yellow, "Piccadilly - Victoria", "2808", marchCutoverB),
+    PiccadillyVictoriaNewInvalid(Yellow, "Piccadilly - Victoria", "", marchCutoverC);
     //PiccadillyVictoriaNewC(Yellow, "Piccadilly - Victoria", "2783", TramDate.of(2025,3,13));
 
     private final KnownLines line;
@@ -60,6 +66,11 @@ public enum KnownTramRouteEnum implements TestRoute {
         this.id = Route.createId(id);
         this.validFrom = validFrom;
         this.line = line;
+    }
+
+    public static EnumSet<KnownTramRouteEnum> validRoutes() {
+        return Arrays.stream(values()).filter(item -> item.getId().isValid()).
+                collect(Collectors.toCollection(() -> EnumSet.noneOf(KnownTramRouteEnum.class)));
     }
 
     public TramDate getValidFrom() {

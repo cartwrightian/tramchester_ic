@@ -13,12 +13,10 @@ public class AggregateServiceCalendar implements ServiceCalendar {
 
     // for diagnostics only
     private final Collection<ServiceCalendar> sources;
-//    private final TramDateSet additional;
-//    private final TramDateSet removed;
+
     private boolean hasAdditional;
     private final boolean cancelled;
     private final DateRange aggregatedRange;
-
 
     public AggregateServiceCalendar(Collection<ServiceCalendar> calendars) {
 
@@ -36,17 +34,11 @@ public class AggregateServiceCalendar implements ServiceCalendar {
 
         hasAdditional = false;
 
-//        TramDateSet allExcluded = new TramDateSet();
         calendars.forEach(calendar -> {
             setDaysFor(calendar);
             aggregatedDays.addAll(calendar.getOperatingDays());
             hasAdditional = hasAdditional || calendar.hasAddition();
-//            additional.addAll(calendar.getAdditions());
-//            allExcluded.addAll(calendar.getRemoved());
         });
-
-        // only keep an excluded date if it's not available via any of the other contained calendars
-        //removed = allExcluded.stream().filter(date -> !days.isSet(date)).collect(TramDateSet.collector());
     }
 
     private MutableDaysBitmap createDaysBitset(DateRange dateRange) {
@@ -62,7 +54,7 @@ public class AggregateServiceCalendar implements ServiceCalendar {
         days.insert(calendar.getDaysBitmap());
     }
 
-    private static DateRange calculateDateRange(Collection<ServiceCalendar> calendars) {
+    private static DateRange calculateDateRange(final Collection<ServiceCalendar> calendars) {
         if (calendars.isEmpty()) {
             throw new RuntimeException("No calendars supplied");
         }

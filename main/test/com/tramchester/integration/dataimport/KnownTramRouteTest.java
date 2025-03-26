@@ -6,6 +6,7 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.repository.RouteRepository;
@@ -32,6 +33,7 @@ import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
+import static com.tramchester.testSupport.reference.KnownTramRoute.getPiccadillyVictoria;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(ConfigParameterResolver.class)
@@ -221,13 +223,54 @@ class KnownTramRouteTest {
 
     @Test
     void shouldHaveCorrectDateForKnownRoutes() {
-        EnumSet<KnownTramRouteEnum> knowRoutes = EnumSet.allOf(KnownTramRouteEnum.class);
+        EnumSet<KnownTramRouteEnum> knowRoutes = KnownTramRouteEnum.validRoutes();
+
+        assertFalse(knowRoutes.isEmpty());
 
         knowRoutes.forEach(known -> {
             assertTrue(routeRepository.hasRouteId(known.getId()), known + " is missing from repo");
             Route actual = routeRepository.getRouteById(known.getId());
             assertTrue(actual.getDateRange().contains(known.getValidFrom()), known + " not within " + actual.getDateRange());
         });
+    }
+
+    @DisabledUntilDate(year = 2025, month = 4)
+    @Test
+    void shouldCheckForMissingRouteSpring2025Closures() {
+        // TODO needed for each route?
+
+        TestRoute piccadillyVictoria = getPiccadillyVictoria(when);
+        String shortName = piccadillyVictoria.shortName();
+
+        Set<Route> matching = routeRepository.getRoutes().stream().
+                filter(route -> route.getShortName().equals(shortName)).
+                collect(Collectors.toSet());
+
+        assertFalse(matching.isEmpty());
+
+        Set<Route> foundForDate = matching.stream().filter(route -> route.isAvailableOn(when)).collect(Collectors.toSet());
+
+        assertFalse(foundForDate.isEmpty(), "Not matching date " + when + " for " + HasId.asIds(matching));
+    }
+
+    @DisabledUntilDate(year = 2025, month = 4)
+    @Test
+    void shouldCheckForActualDatesYellowRouteIsAvailableFor() {
+        TestRoute piccadillyVictoria = getPiccadillyVictoria(when);
+        String shortName = piccadillyVictoria.shortName();
+
+        List<Route> matching = routeRepository.getRoutes().stream().
+                filter(route -> route.getShortName().equals(shortName)).
+                toList();
+
+        assertEquals(1, matching.size(), HasId.asIds(matching));
+
+        Route found = matching.getFirst();
+
+        DateRange range = found.getDateRange();
+
+        assertTrue(range.contains(when), when + " is missing from " + found.getDateRange());
+
     }
 
     @NotNull

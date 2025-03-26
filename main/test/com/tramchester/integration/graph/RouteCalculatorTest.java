@@ -28,7 +28,6 @@ import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
@@ -475,7 +474,6 @@ public class RouteCalculatorTest {
         return TramTime.difference(departs, arrive);
     }
 
-    @DisabledUntilDate(year = 2025, month = 3, day = 24)
     @Test
     void shouldCheckCornbrookToStPetersSquareOnSundayMorning() {
         JourneyRequest journeyRequest = standardJourneyRequest(UpcomingDates.nextSunday(), TramTime.of(11, 0), maxNumResults, maxChanges);
@@ -592,14 +590,12 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Deansgate, Ashton);
     }
 
-    @DisabledUntilDate(year = 2025, month = 3, day = 24)
     @Test
     void reproduceIssueWithTramsSundayStPetersToDeansgate() {
         JourneyRequest journeyRequest = standardJourneyRequest(UpcomingDates.nextSunday(), TramTime.of(9,0), maxNumResults, 0);
         assertGetAndCheckJourneys(journeyRequest, StPetersSquare, Deansgate);
     }
 
-    @DisabledUntilDate(year = 2025, month = 3, day = 24)
     @Test
     void reproduceIssueWithTramsSundayAshtonToEccles() {
         JourneyRequest journeyRequest = standardJourneyRequest(UpcomingDates.nextSunday(), TramTime.of(9, 45), maxNumResults, 1);
@@ -624,7 +620,6 @@ public class RouteCalculatorTest {
         assertGetAndCheckJourneys(journeyRequest, Eccles, Cornbrook);
     }
 
-    @DisabledUntilDate(year = 2025, month = 3, day = 24)
     @Test
     void shouldReproduceIssueCornbrookToAshtonSatursdays() {
         JourneyRequest journeyRequest = standardJourneyRequest(UpcomingDates.nextSaturday(), TramTime.of(9,0), maxNumResults, 1);

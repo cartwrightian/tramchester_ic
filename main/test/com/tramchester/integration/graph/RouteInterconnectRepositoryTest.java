@@ -25,6 +25,7 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.InMemoryDataCache;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
 import org.apache.commons.lang3.tuple.Pair;
@@ -109,7 +110,7 @@ public class RouteInterconnectRepositoryTest {
 
         assertTrue(results.hasAny());
 
-        assertEquals(5, results.numberPossible(), results.toString());
+        assertEquals(4, results.numberPossible(), results.toString());
         assertEquals(1, results.getDepth());
 
     }
@@ -158,6 +159,7 @@ public class RouteInterconnectRepositoryTest {
 
     }
 
+    @DisabledUntilDate(year = 2025, month = 4)
     @Test
     void shouldCheckFor2Changes() {
 
@@ -196,7 +198,7 @@ public class RouteInterconnectRepositoryTest {
         assertTrue(interchangeRepository.hasInterchangeFor(indexPair));
         Set<InterchangeStation> interchanges = interchangeRepository.getInterchangesFor(indexPair).collect(Collectors.toSet());
 
-        assertEquals(5, interchanges.size(), HasId.asIds(interchanges));
+        assertEquals(4, interchanges.size(), HasId.asIds(interchanges));
 
         // unrealistic as would be 0 in code, direct via one interchange
         assertEquals(1, routeMatrix.getConnectionDepthFor(routeA, routeB));
@@ -225,6 +227,7 @@ public class RouteInterconnectRepositoryTest {
 
     }
 
+    @DisabledUntilDate(year = 2025, month = 4)
     @Test
     void shouldHaveExpectedBacktrackFor2Changes() {
         Route routeA = routeHelper.getOneRoute(getPiccadillyVictoria(date), date);
@@ -267,6 +270,7 @@ public class RouteInterconnectRepositoryTest {
         return converted.toString();
     }
 
+    @DisabledUntilDate(year = 2025, month = 4)
     @Test
     void shouldCheckFor2ChangesFiltered() {
         Route routeA = routeHelper.getOneRoute(getPiccadillyVictoria(date), date);

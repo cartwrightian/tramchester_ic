@@ -83,13 +83,15 @@ public class StationRepositoryTest {
 
         IdSet<Station> dropOffs = allStations.stream().filter(station -> station.servesRouteDropOff(buryToAlty)).collect(IdSet.collector());
 
-        int expectedNumStations = 25;
+        int expectedNumStations = 24;
 
         assertEquals(expectedNumStations, dropOffs.size(), dropOffs.toString());
 
         assertTrue(dropOffs.contains(Altrincham.getId()));
         assertTrue(dropOffs.contains(Cornbrook.getId()));
-        assertTrue(dropOffs.contains(Shudehill.getId()));
+        // March/April 2025 closures
+        assertFalse(dropOffs.contains(Shudehill.getId()));
+
         assertTrue(dropOffs.contains(Bury.getId()));
 
         IdSet<Station> pickUps = allStations.stream().filter(station -> station.servesRoutePickup(buryToAlty)).collect(IdSet.collector());
@@ -97,7 +99,8 @@ public class StationRepositoryTest {
         assertEquals(expectedNumStations, pickUps.size(), pickUps.toString());
         assertTrue(pickUps.contains(Bury.getId()));
         assertTrue(pickUps.contains(Cornbrook.getId()));
-        assertTrue(pickUps.contains(Shudehill.getId()));
+        // March/April 2025 closures
+        assertFalse(pickUps.contains(Shudehill.getId()));
         assertTrue(pickUps.contains(Altrincham.getId()));
     }
 
@@ -217,7 +220,7 @@ public class StationRepositoryTest {
                         getDeansgateManchesterAirport(when),
 //                CrumpsallManchesterAshton,
                         getCornbrookTheTraffordCentre(when),
-                        getEtihadPiccadillyAltrincham(when),
+//                        getEtihadPiccadillyAltrincham(when),
                         getShawandCromptonManchesterEastDidisbury(when));
 
         IdSet<Route> expectedIds = expected.stream().

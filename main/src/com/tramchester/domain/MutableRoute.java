@@ -193,12 +193,12 @@ public class MutableRoute implements Route {
 
         private boolean loaded;
 
-        RouteCalendar(Route parentRoute) {
+        RouteCalendar(final Route parentRoute) {
             this.parentRoute = parentRoute;
             loaded = false;
         }
 
-        public boolean isAvailableOn(TramDate date) {
+        public boolean isAvailableOn(final TramDate date) {
             loadFromParent();
 
             return serviceCalendar.operatesOn(date);

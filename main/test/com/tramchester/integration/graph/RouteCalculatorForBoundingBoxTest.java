@@ -115,8 +115,8 @@ class RouteCalculatorForBoundingBoxTest {
         final List<StationsBoxSimpleGrid> boxes = stationBoxFactory.getStationBoxes(gridSize);
 
         long maxNumberOfJourneys = 3;
-        // plus 1 days, spring 2025 closures
-        JourneyRequest journeyRequest = new JourneyRequest(when.plusDays(1), TramTime.of(9,30),
+
+        JourneyRequest journeyRequest = new JourneyRequest(when, TramTime.of(9,30),
                 false, 3, Duration.ofMinutes(testConfig.getMaxJourneyDuration()), maxNumberOfJourneys,
                 TramsOnly);
 
@@ -126,9 +126,6 @@ class RouteCalculatorForBoundingBoxTest {
         assertTrue(findDestBox.isPresent());
 
         StationsBoxSimpleGrid destinationBox = findDestBox.get();
-
-        // repro issue happening during closures summer 2024
-
 
         RequestStopStream<JourneysForBox> result = calculator.calculateRoutes(destinationBox, journeyRequest, boxes);
 
@@ -142,7 +139,8 @@ class RouteCalculatorForBoundingBoxTest {
 
         List<JourneysForBox> missed = groupedJourneys.stream().filter(group -> group.getJourneys().isEmpty()).toList();
 
-        assertEquals(1, missed.size(), missed.toString()); // when start and dest match
+        // 1->2 market street closures March/April 2025
+        assertEquals(2, missed.size(), missed.toString()); // when start and dest match
 
         groupedJourneys.forEach(group -> group.getJourneys().forEach(journey -> {
             assertFalse(journey.getStages().isEmpty()); // catch case where starting point is dest

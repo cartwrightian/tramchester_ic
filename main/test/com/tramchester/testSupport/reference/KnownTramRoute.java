@@ -80,15 +80,19 @@ public class KnownTramRoute {
     }
 
     public static TestRoute findFor(final KnownLines line, final TramDate date) {
-        List<KnownTramRouteEnum> matched = Arrays.stream(KnownTramRouteEnum.values()).
+        List<KnownTramRouteEnum> find = Arrays.stream(KnownTramRouteEnum.values()).
                 filter(knownTramRoute -> knownTramRoute.line().equals(line)).
                 filter(knownTramRoute -> date.isEqual(knownTramRoute.getValidFrom()) || date.isAfter(knownTramRoute.getValidFrom())).
                 sorted(Comparator.comparing(KnownTramRouteEnum::getValidFrom)).
                 toList();
-        if (matched.isEmpty()) {
+        if (find.isEmpty()) {
             throw new RuntimeException("No match for " + line.getShortName() + " on " + date);
         }
-        return matched.getLast();
+        final KnownTramRouteEnum matched = find.getLast();
+        if (!matched.getId().isValid()) {
+            throw new RuntimeException(matched + " is not valid for date " + date);
+        }
+        return matched;
      }
 
     public static Set<TestRoute> find(final Set<Route> routes) {
