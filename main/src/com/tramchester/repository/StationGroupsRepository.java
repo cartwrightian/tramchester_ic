@@ -216,7 +216,7 @@ public class StationGroupsRepository {
     }
 
     public StationLocalityGroup getStationGroupForArea(final IdFor<NPTGLocality> areaId) {
-        return getStationGroup(StationLocalityGroup.idFrom(areaId));
+        return getStationGroup(StationLocalityGroup.createId(areaId));
     }
 
     public boolean hasGroup(final IdFor<StationLocalityGroup> id) {
@@ -230,7 +230,7 @@ public class StationGroupsRepository {
     }
 
     public boolean hasArea(final IdFor<NPTGLocality> areaId) {
-        return hasGroup(StationLocalityGroup.idFrom(areaId));
+        return hasGroup(StationLocalityGroup.createId(areaId));
     }
 
     public boolean isEnabled() {

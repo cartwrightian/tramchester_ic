@@ -1,10 +1,11 @@
 package com.tramchester.domain.id;
 
+import com.tramchester.domain.places.LocationId;
 import com.tramchester.domain.places.PostcodeLocation;
 
 import java.util.Objects;
 
-public class PostcodeLocationId extends ContainsId<PostcodeLocation> implements IdFor<PostcodeLocation> {
+public class PostcodeLocationId extends ContainsId<PostcodeLocation> {
     private final StringIdFor<PostcodeLocation> containedId;
 
     private PostcodeLocationId(String text) {
@@ -57,5 +58,10 @@ public class PostcodeLocationId extends ContainsId<PostcodeLocation> implements 
     @Override
     public int hashCode() {
         return Objects.hash(containedId);
+    }
+
+    public LocationId<PostcodeLocation> getLocationId() {
+        // TODO to field? Efficiency.
+        return LocationId.wrap(containedId);
     }
 }

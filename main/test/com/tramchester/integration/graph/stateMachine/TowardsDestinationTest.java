@@ -93,10 +93,10 @@ public class TowardsDestinationTest {
         assertFalse(departs.isEmpty());
 
         LocationCollection destinations = LocationSet.singleton(station);
-        TowardsDestination towardsDestination = new TowardsDestination((station));
+        //TowardsDestination towardsDestination = new TowardsDestination((station));
 
         departs.forEach(depart -> {
-            LocationId<?> locationId = towardsDestination.getLocationIdFor(depart);
+            LocationId<?> locationId = depart.getLocationId(); // towardsDestination.getLocationIdFor(depart);
             assertTrue(destinations.contains(locationId));
         });
 
@@ -131,10 +131,8 @@ public class TowardsDestinationTest {
 
         assertFalse(towardsGroup.isEmpty());
 
-        TowardsDestination towardsDestination = new TowardsDestination((stationGroup));
-
         towardsGroup.forEach(relationship -> {
-            LocationId<?> locationId = towardsDestination.getLocationIdFor(relationship);
+            LocationId<?> locationId = relationship.getLocationId();
             assertTrue(destinations.contains(locationId));
         });
     }

@@ -58,11 +58,11 @@ public class MapPathToLocations {
         return results;
     }
 
-    private Optional<Location<?>> mapNode(GraphNode node) {
+    private Optional<Location<?>> mapNode(final GraphNode node) {
         EnumSet<GraphLabel> labels = nodeContentsRepository.getLabels(node);
         if (labels.contains(GROUPED)) {
             //return getAreaIdFromGrouped(graphNode.getNode());
-            IdFor<NPTGLocality> areaId = node.getAreaId();
+            final IdFor<NPTGLocality> areaId = node.getAreaId();
             final StationLocalityGroup stationGroup = stationGroupsRepository.getStationGroupForArea(areaId);
             if (stationGroup==null) {
                 throw new RuntimeException(format("Missing grouped station %s for %s labels %s props %s",

@@ -20,7 +20,7 @@ class RouteAndService {
         hashCode = Objects.hash(route, service);
     }
 
-    public static boolean contains(Set<RouteAndService> routeAndServices, Route route) {
+    public static boolean contains(final Set<RouteAndService> routeAndServices, final Route route) {
         return routeAndServices.stream().
                 anyMatch(routeAndService -> routeAndService.getRoute().equals(route));
     }

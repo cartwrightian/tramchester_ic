@@ -172,12 +172,12 @@ public class MutableTrip implements Trip {
     }
 
     @Override
-    public boolean callsAt(InterchangeStation interchangeStation) {
+    public boolean callsAt(final InterchangeStation interchangeStation) {
         return stopCalls.callsAt(interchangeStation);
     }
 
     @Override
-    public boolean operatesOn(TramDate date) {
+    public boolean operatesOn(final TramDate date) {
         return service.getCalendar().operatesOn(date);
     }
 

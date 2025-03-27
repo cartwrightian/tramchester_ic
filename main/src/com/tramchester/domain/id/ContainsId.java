@@ -3,6 +3,7 @@ package com.tramchester.domain.id;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tramchester.domain.CoreDomain;
 
+// TODO Interface?
 abstract class ContainsId<T extends CoreDomain> implements IdFor<T> {
 
     @JsonIgnore

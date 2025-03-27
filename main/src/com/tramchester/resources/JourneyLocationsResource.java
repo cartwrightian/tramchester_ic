@@ -162,7 +162,7 @@ public class JourneyLocationsResource extends UsesRecentCookie implements APIRes
             // convert to localities
             IdSet<StationLocalityGroup> localityIds = stations.stream().
                     map(Location::getLocalityId).
-                    map(StationLocalityGroup::idFrom).
+                    map(StationLocalityGroup::createId).
                     filter(IdFor::isValid).
                     collect(IdSet.idCollector());
             logger.info("Convert nearest stations to localities for " + mode);

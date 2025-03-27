@@ -22,24 +22,24 @@ public class MyLocation implements Location<MyLocation> {
     @Deprecated
     public static final String MY_LOCATION_PLACEHOLDER_ID = "MyLocationPlaceholderId";
 
-    public static IdFor<MyLocation> createId(LatLong latLong) {
-        String text = String.format("%s,%s", latLong.getLat(), latLong.getLon());
+    public static IdFor<MyLocation> createId(final LatLong latLong) {
+        final String text = String.format("%s,%s", latLong.getLat(), latLong.getLon());
         return StringIdFor.createId(text, MyLocation.class);
     }
 
     private final LatLong latLong;
 
-    public static MyLocation create(LatLong latLong) {
+    public static MyLocation create(final LatLong latLong) {
         return new MyLocation(latLong);
     }
 
-    public static MyLocation parseFromId(String rawId) {
-        String[] parts = rawId.split(",");
+    public static MyLocation parseFromId(final String rawId) {
+        final String[] parts = rawId.split(",");
         if (parts.length!=2) {
             throw new NumberFormatException("Cannot parse LatLong " + rawId);
         }
-        double lat = Double.parseDouble(parts[0]);
-        double lon = Double.parseDouble(parts[1]);
+        final double lat = Double.parseDouble(parts[0]);
+        final double lon = Double.parseDouble(parts[1]);
         return new MyLocation(new LatLong(lat, lon));
     }
 
@@ -48,13 +48,19 @@ public class MyLocation implements Location<MyLocation> {
         return "MyLocation{" + latLong + '}';
     }
 
-    public MyLocation(LatLong latLong) {
+    public MyLocation(final LatLong latLong) {
         this.latLong = latLong;
     }
 
     @Override
     public IdFor<MyLocation> getId() {
+        // TODO into field, efficiency ?
         return createId(latLong);
+    }
+
+    @Override
+    public LocationId<MyLocation> getLocationId() {
+        return LocationId.wrap(createId(latLong));
     }
 
     @Override

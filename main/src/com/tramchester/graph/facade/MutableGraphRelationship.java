@@ -11,6 +11,7 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.LocationId;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationLocalityGroup;
@@ -29,8 +30,13 @@ import java.time.LocalTime;
 import java.util.*;
 
 import static com.tramchester.graph.GraphPropertyKey.*;
+import static com.tramchester.graph.TransportRelationshipTypes.*;
+import static com.tramchester.graph.TransportRelationshipTypes.DIVERSION_DEPART;
 
 public class MutableGraphRelationship extends HaveGraphProperties implements GraphRelationship {
+
+    private static final EnumSet<TransportRelationshipTypes> HAS_STATION_ID = EnumSet.of(LEAVE_PLATFORM, INTERCHANGE_DEPART,
+            DEPART, WALKS_TO_STATION, DIVERSION_DEPART);
 
     private final Relationship relationship;
     private final GraphRelationshipId id;
@@ -333,6 +339,18 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
     public TramTime getEndTime() {
         final LocalTime localTime = (LocalTime) relationship.getProperty(END_TIME.getText());
         return TramTime.ofHourMins(localTime);
+    }
+
+    @Override
+    public LocationId<?> getLocationId() {
+        final TransportRelationshipTypes transportRelationshipTypes = getType();
+        if (HAS_STATION_ID.contains(transportRelationshipTypes)) {
+            return LocationId.wrap(getStationId());
+        } else if (transportRelationshipTypes==GROUPED_TO_PARENT) {
+            return LocationId.wrap(getStationGroupId());
+        } else {
+            throw new RuntimeException("Unsupported relationship type " + transportRelationshipTypes);
+        }
     }
 
     public IdFor<Station> getStationId() {

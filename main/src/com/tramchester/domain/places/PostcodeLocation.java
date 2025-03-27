@@ -148,6 +148,11 @@ public class PostcodeLocation implements Location<PostcodeLocation>, CoreDomain,
     }
 
     @Override
+    public LocationId<PostcodeLocation> getLocationId() {
+        return id.getLocationId();
+    }
+
+    @Override
     public GraphLabel getNodeLabel() {
         throw new RuntimeException("Not implemented for postcode");
     }

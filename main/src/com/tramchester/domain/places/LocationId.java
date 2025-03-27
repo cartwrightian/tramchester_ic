@@ -13,8 +13,12 @@ public class LocationId<T extends Location<?>> implements HasId<T> {
 
     private final IdFor<T> theId;
 
-    public LocationId(final IdFor<T> id) {
+    protected LocationId(final IdFor<T> id) {
         theId = id;
+    }
+
+    public static <S extends Location<?>> LocationId<S> wrap(final IdFor<S> baseId) {
+        return new LocationId<>(baseId);
     }
 
     @Override

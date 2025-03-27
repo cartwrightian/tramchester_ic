@@ -39,9 +39,11 @@ public interface Location<TYPE extends Location<TYPE>> extends HasGridPosition, 
     boolean isMarkedInterchange();
 
     // TODO this is inefficient as create a new instance each call
-    default LocationId<TYPE> getLocationId() {
-        return new LocationId<>(getId());
-    }
+//    default LocationId<TYPE> getLocationId() {
+//        return new LocationId<>(getId());
+//    }
+
+    LocationId<TYPE> getLocationId();
 
     boolean containsOthers();
 

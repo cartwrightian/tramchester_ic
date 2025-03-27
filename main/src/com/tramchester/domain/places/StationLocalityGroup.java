@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
  * see also class: com.tramchester.graph.GraphQuery::getGroupedNode
  */
 public class StationLocalityGroup implements Location<StationLocalityGroup> {
-    private final IdFor<StationLocalityGroup> id;
+    private final LocationId<StationLocalityGroup> id;
     private final IdFor<NPTGLocality> localityId;
     private final LocationSet<Station> groupedStations;
     private final String name;
@@ -36,14 +36,14 @@ public class StationLocalityGroup implements Location<StationLocalityGroup> {
     private final DataSourceID dataSourceId;
     private final IdFor<StationLocalityGroup> parentId;
 
-    public StationLocalityGroup(final Set<Station> groupedStations, final IdFor<NPTGLocality> localityId, final String name, final IdFor<NPTGLocality> parentId,
-                                LatLong latLong) {
+    public StationLocalityGroup(final Set<Station> groupedStations, final IdFor<NPTGLocality> localityId, final String name,
+                                final IdFor<NPTGLocality> parentId, final LatLong latLong) {
         if (groupedStations.isEmpty()) {
             throw new RuntimeException("Attempt to create empty group for " + localityId + " name name " +name);
         }
-        this.id = idFrom(localityId);
+        this.id = LocationId.wrap(createId(localityId));
         if (parentId.isValid()) {
-            this.parentId = idFrom(parentId);
+            this.parentId = createId(parentId);
         } else {
             this.parentId = StringIdFor.invalid(StationLocalityGroup.class);
         }
@@ -55,7 +55,7 @@ public class StationLocalityGroup implements Location<StationLocalityGroup> {
     }
 
     @NotNull
-    public static IdFor<StationLocalityGroup> idFrom(final IdFor<NPTGLocality> localityId) {
+    public static IdFor<StationLocalityGroup> createId(final IdFor<NPTGLocality> localityId) {
         return StringIdFor.convert(localityId, StationLocalityGroup.class);
     }
 
@@ -80,6 +80,11 @@ public class StationLocalityGroup implements Location<StationLocalityGroup> {
 
     @Override
     public IdFor<StationLocalityGroup> getId() {
+        return id.getId();
+    }
+
+    @Override
+    public LocationId<StationLocalityGroup> getLocationId() {
         return id;
     }
 

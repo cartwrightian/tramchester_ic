@@ -8,6 +8,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.input.Trip;
+import com.tramchester.domain.places.LocationId;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationLocalityGroup;
@@ -222,6 +223,11 @@ public class ImmutableGraphRelationship implements GraphRelationship {
     @Override
     public TramTime getEndTime() {
         return underlying.getEndTime();
+    }
+
+    @Override
+    public LocationId<?> getLocationId() {
+        return underlying.getLocationId();
     }
 
     @Override

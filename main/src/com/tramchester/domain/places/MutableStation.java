@@ -22,8 +22,8 @@ public class MutableStation implements Station {
     // TODO into config?
     public static final int DEFAULT_MIN_CHANGE_TIME = 1;
 
+    private final LocationId<Station> id;
     private final IdFor<NPTGLocality> localityId;
-    private final IdFor<Station> id;
     private final String name;
     private final LatLong latLong;
     private final GridPosition gridPosition;
@@ -45,7 +45,7 @@ public class MutableStation implements Station {
     }
 
     // for some data sources we know if station is an interchange
-    public MutableStation(IdFor<Station> id, IdFor<NPTGLocality> localityId, String stationName, LatLong latLong, GridPosition gridPosition,
+    public MutableStation(IdFor<Station> stationId, IdFor<NPTGLocality> localityId, String stationName, LatLong latLong, GridPosition gridPosition,
                           DataSourceID dataSourceID, boolean isMarkedInterchange, Duration changeTimeNeeded, boolean isCentral) {
         this.localityId = localityId;
         this.gridPosition = gridPosition;
@@ -57,7 +57,7 @@ public class MutableStation implements Station {
         servesRoutesDropoff = new HashSet<>();
         passedByRoute = new HashSet<>();
 
-        this.id = id;
+        this.id = LocationId.wrap(stationId);
         this.name = stationName;
         this.latLong = latLong;
         this.isCentral = isCentral;
@@ -70,8 +70,13 @@ public class MutableStation implements Station {
     }
 
     @Override
-    public IdFor<Station> getId() {
+    public LocationId<Station> getLocationId() {
         return id;
+    }
+
+    @Override
+    public IdFor<Station> getId() {
+        return id.getId();
     }
 
     @Override

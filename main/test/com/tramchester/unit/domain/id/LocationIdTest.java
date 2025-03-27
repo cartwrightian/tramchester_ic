@@ -14,8 +14,8 @@ public class LocationIdTest {
 
     @Test
     void shouldBeEquals() {
-        LocationId<Station> locationIdA = new LocationId<>(stationIdA);
-        LocationId<Station> locationIdB = new LocationId<>(stationIdA);
+        LocationId<Station> locationIdA = LocationId.wrap(stationIdA);
+        LocationId<Station> locationIdB = LocationId.wrap(stationIdA);
 
         assertTrue(locationIdA.equals(locationIdA));
         assertTrue(locationIdA.equals(locationIdB));
@@ -24,8 +24,8 @@ public class LocationIdTest {
 
     @Test
     void shouldNotBeEquals() {
-        LocationId<Station> locationIdA = new LocationId<>(stationIdA);
-        LocationId<Station> locationIdB = new LocationId<>(stationIdB);
+        LocationId<Station> locationIdA = LocationId.wrap(stationIdA);
+        LocationId<Station> locationIdB = LocationId.wrap(stationIdB);
 
         assertFalse(locationIdA.equals(locationIdB));
         assertFalse(locationIdB.equals(locationIdA));
@@ -33,7 +33,7 @@ public class LocationIdTest {
 
     @Test
     void shouldBeEqualsToUnderlyingId() {
-        LocationId<Station> locationIdA = new LocationId<>(stationIdA);
+        LocationId<Station> locationIdA = LocationId.wrap(stationIdA);
 
         assertEquals(locationIdA.getId(), stationIdA);
     }

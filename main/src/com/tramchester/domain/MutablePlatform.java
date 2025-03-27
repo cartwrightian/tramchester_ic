@@ -3,6 +3,7 @@ package com.tramchester.domain;
 import com.google.common.collect.Streams;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.PlatformId;
+import com.tramchester.domain.places.LocationId;
 import com.tramchester.domain.places.LocationType;
 import com.tramchester.domain.places.NPTGLocality;
 import com.tramchester.domain.places.Station;
@@ -23,7 +24,7 @@ import static java.lang.String.format;
 
 public class MutablePlatform implements Platform {
 
-    private final IdFor<Platform> id;
+    private final LocationId<Platform> id;
     private final String name;
     private final String platformNumber;
     private final LatLong latLong;
@@ -37,7 +38,7 @@ public class MutablePlatform implements Platform {
 
     public MutablePlatform(IdFor<Platform> id, Station station, String platformName, DataSourceID dataSourceId, String platformNumber,
                            IdFor<NPTGLocality> localityId, LatLong latLong, GridPosition gridPosition, boolean isMarkedInterchange) {
-        this.id = id;
+        this.id = LocationId.wrap(id);
         this.station = station;
         this.dataSourceId = dataSourceId;
         this.platformNumber = platformNumber;
@@ -81,8 +82,13 @@ public class MutablePlatform implements Platform {
     }
 
     @Override
-    public IdFor<Platform> getId() {
+    public LocationId<Platform> getLocationId() {
         return id;
+    }
+
+    @Override
+    public IdFor<Platform> getId() {
+        return id.getId();
     }
 
     @Override

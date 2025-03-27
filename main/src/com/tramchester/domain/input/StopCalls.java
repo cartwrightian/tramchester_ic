@@ -63,13 +63,9 @@ public class StopCalls {
         return orderedStopCalls.values().stream().filter(StopCall::callsAtStation).count();
     }
 
-    public StopCall getStopBySequenceNumber(int callingNumber) {
+    public StopCall getStopBySequenceNumber(final int callingNumber) {
         return orderedStopCalls.get(callingNumber);
     }
-
-//    public boolean callsAt(final HasId<Station> hasId) {
-//        return callsAt(hasId.getId());
-//    }
 
     public boolean callsAt(final IdFor<Station> stationId) {
         return stationIndex.containsKey(stationId);
@@ -176,12 +172,12 @@ public class StopCalls {
     }
 
     public StopCall getFirstStop() {
-        int firstKey = orderedStopCalls.firstKey();
+        final int firstKey = orderedStopCalls.firstKey();
         return orderedStopCalls.get(firstKey);
     }
 
     public StopCall getLastStop() {
-        int lastKey = orderedStopCalls.lastKey();
+        final int lastKey = orderedStopCalls.lastKey();
         return orderedStopCalls.get(lastKey);
     }
 
@@ -198,10 +194,10 @@ public class StopCalls {
         private final StopCall second;
         private final Duration duration;
 
-        private StopLeg(StopCall first, StopCall second) {
+        private StopLeg(final StopCall first, final StopCall second) {
             this.first = first;
             this.second = second;
-            duration = TramTime.difference(first.getDepartureTime(), second.getArrivalTime());
+            this.duration = TramTime.difference(first.getDepartureTime(), second.getArrivalTime());
         }
 
         public StopCall getFirst() {
@@ -256,7 +252,7 @@ public class StopCalls {
         }
 
         public StationIdPair getStations() {
-            return StationIdPair.of(first.station.getId(), second.getStation().getId());
+            return StationIdPair.of(first.station.getId(), second.station.getId());
         }
     }
 }
