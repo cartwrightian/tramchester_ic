@@ -48,6 +48,8 @@ ext {
     dropwizardVersion = '4.0.12'
     jacksonVersion = '2.18.3'
     awsSdkVersion = '2.31.1'
+    allureVersion = '2.25.0'
+    //allure.results.directory=build/reports/allure
 }
 
 repositories {
@@ -59,6 +61,7 @@ repositories {
         url "https://raw.github.com/neo4j-contrib/m2/master/releases"
     }
 }
+
 
 // useful reminder ./gradlew -q dependencyInsight --dependency X.Y:Z
 dependencies {
@@ -124,12 +127,18 @@ dependencies {
             'org.seleniumhq.selenium:selenium-java:4.29.0',
             'org.hamcrest:hamcrest:3.0'
 
+    testImplementation("org.javassist:javassist:3.30.2-GA")
+
     // cxf complains about missing conduit without this
     cxfCodegen 'org.apache.cxf:cxf-rt-transports-http:4.1.1'
     // needed for cxf gen'ed code, missing from cxfCodegen dependencies?
     implementation 'jakarta.xml.ws:jakarta.xml.ws-api:4.0.2'
     // for running the cxf generated code,  provide implementation of the SPI jakarta.xml.ws.spi.Provider
     implementation 'com.sun.xml.ws:jaxws-rt:4.0.3'
+
+    // allure test reports
+    testImplementation(platform("io.qameta.allure:allure-bom:$allureVersion"))
+    testImplementation("io.qameta.allure:allure-junit5")
 
     // TODO Still needed? Workaround for issues running tests in intellij and glassfish DI, does not occur with running via gradle
     //testRuntimeOnly 'javax.servlet:javax.servlet-api:3.0.1'
@@ -362,14 +371,7 @@ tasks.register('unit', Test) {
     }
 }
 
-tasks.register('profileTest', Test) {
-    dependsOn 'compileJava'
-    useJUnitPlatform()
-    jvmArgs agentPath
-    filter {
-        includeTestsMatching "com.tramchester.unit.graph.NumberOfNodesAndRelationshipsRepositoryTest"
-    }
-}
+
 
 tasks.register('liveMessages', Test) {
     dependsOn 'compileJava'
@@ -493,6 +495,16 @@ tasks.register('dataUpdated', Test) {
     useJUnitPlatform {
         includeTags 'DataUpdateTest'
     }
+}
+
+tasks.register('profileDataUpdated', Test) {
+    configure integrationTestConfiguration
+    outputs.upToDateWhen { false }
+    dependsOn 'compileJava'
+    useJUnitPlatform {
+        includeTags 'DataUpdateTest'
+    }
+    jvmArgs agentPath
 }
 
 tasks.register('liveRailSmoke', Test) {

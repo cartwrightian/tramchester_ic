@@ -308,13 +308,13 @@ class TramGraphBuilderTest {
             assertTrue(endSeqNum>startSeqNum, "sanity check");
 
             for (int seqNum = startSeqNum; seqNum <= endSeqNum; seqNum++) {
-                StopCall stopCall = stopCalls.getStopBySequenceNumber(seqNum);
+                final StopCall stopCall = stopCalls.getStopBySequenceNumber(seqNum);
 
-                RouteStation routeStation = new RouteStation(stopCall.getStation(), route);
-                ImmutableGraphNode routeStationNode = txn.findNode(routeStation);
+                final RouteStation routeStation = new RouteStation(stopCall.getStation(), route);
+                final ImmutableGraphNode routeStationNode = txn.findNode(routeStation);
                 assertNotNull(routeStationNode,"route station node");
 
-                List<ImmutableGraphRelationship> inboundLinks = routeStationNode.getRelationships(txn, Direction.INCOMING, TRAM_GOES_TO).toList();
+                final List<ImmutableGraphRelationship> inboundLinks = routeStationNode.getRelationships(txn, Direction.INCOMING, TRAM_GOES_TO).toList();
                 assertFalse(inboundLinks.isEmpty(), "inbound links");
 
                 List<ImmutableGraphRelationship> matchingRelationships = inboundLinks.stream().
@@ -327,9 +327,9 @@ class TramGraphBuilderTest {
                 } else {
                     assertEquals(1, matchingRelationships.size(), "missing inbound for " + tripId + " at "
                             + routeStation.getId() + " seq " + seqNum);
-                    ImmutableGraphRelationship relationship = matchingRelationships.get(0);
+                    ImmutableGraphRelationship relationship = matchingRelationships.getFirst();
 
-                    GraphNode minuteNode = relationship.getStartNode(txn);
+                    final GraphNode minuteNode = relationship.getStartNode(txn);
                     assertEquals(tripId, minuteNode.getTripId(), "missing on minute node");
                 }
             }

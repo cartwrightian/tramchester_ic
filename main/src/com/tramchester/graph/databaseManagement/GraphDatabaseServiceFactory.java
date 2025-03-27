@@ -114,7 +114,7 @@ public class GraphDatabaseServiceFactory implements DatabaseEventListener {
         }
 
         // has to be done in the builder above
-        //managementServiceImpl.registerDatabaseEventListener(this);
+        //managementServiceImpl.addDatabaseListener(this);
     }
 
     private DatabaseManagementService getManagementService() {
@@ -159,7 +159,7 @@ public class GraphDatabaseServiceFactory implements DatabaseEventListener {
 
         logger.info("Wait for GraphDatabaseService available");
         int retries = 100;
-        // NOTE: DB can just silently fail to start if updated net4j versions, so cleanGraph in this scenario
+        // NOTE: DB can just silently fail to start if updated neo4j versions, so cleanGraph in this scenario
         while (!graphDatabaseService.isAvailable(STARTUP_TIMEOUT) && retries>0) {
             logger.error("GraphDatabaseService is not available (neo4j updated? dbClean needed?), name: " + dbName +
                     " Path: " + graphFile.toAbsolutePath() + " check " + retries);

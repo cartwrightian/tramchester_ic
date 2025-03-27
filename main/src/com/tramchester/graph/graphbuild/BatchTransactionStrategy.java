@@ -40,7 +40,7 @@ public class BatchTransactionStrategy implements TransactionStrategy {
     }
 
     @Override
-    public void tripBegin(Trip trip) {
+    public void tripBegin(final Trip trip) {
         if (transaction==null) {
             transaction = graphDatabase.beginTxMutable();
             tripCount.set(0);

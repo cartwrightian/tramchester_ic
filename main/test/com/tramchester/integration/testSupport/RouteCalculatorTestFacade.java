@@ -127,7 +127,7 @@ public class RouteCalculatorTestFacade {
         private final Duration timeout;
         private final AtomicBoolean timedOut;
 
-        private TimesOutRunner(Duration timeout) {
+        private TimesOutRunner(final Duration timeout) {
             this.timeout = timeout;
             this.creationTime = Instant.now();
             timedOut = new AtomicBoolean(false);

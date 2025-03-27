@@ -19,7 +19,6 @@ import com.tramchester.domain.time.StationTime;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.*;
 import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
-import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.MutableGraphNode;
 import com.tramchester.graph.facade.MutableGraphRelationship;
 import com.tramchester.graph.facade.MutableGraphTransaction;
@@ -35,7 +34,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import java.time.Duration;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
@@ -497,25 +495,41 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
                                            final StopCallRepository.Costs costs,
                                            final MutableGraphTransaction txn) {
 
-        final Set<GraphNodeId> endNodesIds;
+//        final Set<GraphNodeId> endNodesIds;
+//        if (from.hasRelationship(OUTGOING, ON_ROUTE)) {
+//            // diff outbounds for same route actually a normal situation, where (especially) trains go via
+//            // different paths even thought route is the "same", or back to the depot
+//            endNodesIds = from.getRelationships(txn, OUTGOING, ON_ROUTE).
+//                    map(relationship -> relationship.getEndNodeId(txn)).
+//                    collect(Collectors.toSet());
+//        } else {
+//            endNodesIds = Collections.emptySet();
+//        }
+//
+//        if (!endNodesIds.contains(to.getId())) {
+//            MutableGraphRelationship onRoute = createRelationship(txn, from, to, ON_ROUTE);
+//            onRoute.set(route);
+//
+//            onRoute.setCost(costs.average());
+////            onRoute.setMaxCost(costs.max());
+//            onRoute.setTransportMode(route.getTransportMode());
+//        }
+
         if (from.hasRelationship(OUTGOING, ON_ROUTE)) {
             // diff outbounds for same route actually a normal situation, where (especially) trains go via
             // different paths even thought route is the "same", or back to the depot
-            endNodesIds = from.getRelationships(txn, OUTGOING, ON_ROUTE).
+            final boolean alreadyHasRelationship = from.getRelationships(txn, OUTGOING, ON_ROUTE).
                     map(relationship -> relationship.getEndNodeId(txn)).
-                    collect(Collectors.toSet());
-        } else {
-            endNodesIds = Collections.emptySet();
+                    anyMatch(endNodesId -> endNodesId.equals(to.getId()));
+            if (alreadyHasRelationship) {
+                return;
+            }
         }
 
-        if (!endNodesIds.contains(to.getId())) {
-            MutableGraphRelationship onRoute = createRelationship(txn, from, to, ON_ROUTE);
-            onRoute.set(route);
-
-            onRoute.setCost(costs.average());
-//            onRoute.setMaxCost(costs.max());
-            onRoute.setTransportMode(route.getTransportMode());
-        }
+        final MutableGraphRelationship onRoute = createRelationship(txn, from, to, ON_ROUTE);
+        onRoute.set(route);
+        onRoute.setCost(costs.average());
+        onRoute.setTransportMode(route.getTransportMode());
     }
 
     private void createPlatformStationRelationships(final Station station, final MutableGraphNode stationNode, final Platform platform,

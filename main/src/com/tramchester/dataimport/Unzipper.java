@@ -29,13 +29,19 @@ public class Unzipper {
 
     final PathMatcher zipMatcher = FileSystems.getDefault().getPathMatcher("glob:**.zip");
 
-    public boolean unpackIfZipped(Path filename, Path targetDirectory) {
-        File zipFile = filename.toFile();
+    public boolean unpackIfZipped(final Path filename, final Path targetDirectory) {
+        final File zipFile = filename.toFile();
+
         try {
             if (zipMatcher.matches(filename)) {
+                if (alreadyPresent(filename, targetDirectory)) {
+                    logger.info("Already unzipped " + filename.toAbsolutePath() + " (based on mod time)");
+                    return true;
+                }
+
                 int entries = 0;
                 logger.info(format("Unzipping data from %s to %s ", filename, targetDirectory));
-                ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(zipFile));
+                final ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(zipFile));
                 ZipEntry zipEntry = zipInputStream.getNextEntry();
                 while (zipEntry != null) {
                     entries++;
@@ -68,20 +74,32 @@ public class Unzipper {
 
     }
 
-    private void updateFileModTime(Path targetDirectory, File zipFile) {
-        long zipMod = zipFile.lastModified();
+    private boolean alreadyPresent(final Path zipfile, final Path target) {
+        final File targetFile = target.toFile();
+        if (targetFile.exists()) {
+            final long targetMod = targetFile.lastModified();
+            final long zipMod = zipfile.toFile().lastModified();
+            return zipMod == targetMod;
+        }
+        return false;
+    }
+
+    private void updateFileModTime(final Path targetDirectory, final File zipFile) {
+        final long zipMod = zipFile.lastModified();
         logger.info("Set '" + targetDirectory.toAbsolutePath() + "' mod time to: " + zipMod);
-        boolean undatedModTime = targetDirectory.toFile().setLastModified(zipMod);
+        final boolean undatedModTime = targetDirectory.toFile().setLastModified(zipMod);
         if (!undatedModTime) {
             logger.warn("Could not update the modification time of " + targetDirectory.toAbsolutePath());
         }
     }
 
-    private void extractEntryTo(Path targetDirectory, ZipEntry zipEntry, ZipInputStream zipInputStream) throws IOException {
-        Path target = targetDirectory.resolve(zipEntry.getName());
-        logger.debug("Extracting entry " + toLogString(zipEntry));
+    private void extractEntryTo(final Path targetDirectory, final ZipEntry zipEntry, final ZipInputStream zipInputStream) throws IOException {
+        final Path target = targetDirectory.resolve(zipEntry.getName());
+        if (logger.isDebugEnabled()) {
+            logger.debug("Extracting entry " + toLogString(zipEntry));
+        }
 
-        String absolutePath = target.toAbsolutePath().toString();
+        final String absolutePath = target.toAbsolutePath().toString();
         if (zipEntry.isDirectory()) {
             logger.debug("Create directory " + absolutePath);
             Files.createDirectories(target);
@@ -89,23 +107,24 @@ public class Unzipper {
         }
 
         logger.debug("Unpack file " + absolutePath);
-        Path parent = target.getParent();
+        final Path parent = target.getParent();
         if (!parent.toFile().exists()) {
             logger.info("Create needed directory " + parent + " for " +absolutePath);
             Files.createDirectories(parent);
         }
 
-        File unpackTarget = target.toFile();
+        final File unpackTarget = target.toFile();
         if (unpackTarget.exists()) {
             logger.debug(absolutePath + " already exists");
 
-            boolean modTimeMatches = checkModTime(zipEntry, unpackTarget);
-            boolean sizeMatches = checkFileSize(zipEntry, unpackTarget);
-
-            if (modTimeMatches && sizeMatches) {
-                logger.debug("Not over-writing " + absolutePath);
-                return;
+            // file size check is cheaper than mod time check
+            if (checkFileSize(zipEntry, unpackTarget)) {
+                if (checkModTime(zipEntry, unpackTarget)) {
+                    logger.debug("Not over-writing " + absolutePath);
+                    return;
+                }
             }
+
             logger.debug("Deleting " + absolutePath);
             Files.delete(target);
         }
@@ -124,18 +143,18 @@ public class Unzipper {
     }
 
     // toString on zipEntry is just the name../.
-    private String toLogString(ZipEntry zipEntry) {
+    private String toLogString(final ZipEntry zipEntry) {
         return String.format("zipEntry{name:%s size:%s comp size: %s method:%s}", zipEntry.getName(), zipEntry.getSize(),
                 zipEntry.getCompressedSize(), zipEntry.getMethod());
     }
 
-    private boolean checkFileSize(ZipEntry zipEntry, File file) {
+    private boolean checkFileSize(final ZipEntry zipEntry, final File file) {
         if (zipEntry.getSize()==-1) {
             logger.info("No size present in zip for " + file);
             return true;
         }
 
-        boolean sizeMatches = zipEntry.getSize() == file.length();
+        final boolean sizeMatches = zipEntry.getSize() == file.length();
         if (!sizeMatches) {
             logger.warn(format("File %s exists but size (%s) does not match (%s)",
                     file, file.length(), zipEntry.getSize()));
@@ -146,11 +165,11 @@ public class Unzipper {
         return sizeMatches;
     }
 
-    private boolean checkModTime(ZipEntry zipEntry, File file) {
-        Instant fromFile = Instant.ofEpochMilli(file.lastModified());
-        Instant fromZip = Instant.ofEpochMilli(zipEntry.getLastModifiedTime().toMillis());
+    private boolean checkModTime(final ZipEntry zipEntry, final File file) {
+        final Instant fromFile = Instant.ofEpochMilli(file.lastModified());
+        final Instant fromZip = Instant.ofEpochMilli(zipEntry.getLastModifiedTime().toMillis());
         // only second resolution accurate here
-        boolean modTimeMatches =  fromFile.getEpochSecond() == fromZip.getEpochSecond();
+        final boolean modTimeMatches =  fromFile.getEpochSecond() == fromZip.getEpochSecond();
         if (!modTimeMatches) {
             logger.info(format("File %s exists but mod time %s (%s) does not match %s (%s) to nearest second",
                     file,
@@ -161,14 +180,14 @@ public class Unzipper {
     }
 
     public List<Path> getContents(final Path filename) {
-        List<Path> contents = new ArrayList<>();
+        final List<Path> contents = new ArrayList<>();
 
-        File zipFile = filename.toFile();
+        final File zipFile = filename.toFile();
         try {
             if (zipMatcher.matches(filename)) {
                 int entries = 0;
                 logger.info(format("Listing contents data from %s", filename));
-                ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(zipFile));
+                final ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(zipFile));
                 ZipEntry zipEntry = zipInputStream.getNextEntry();
                 while (zipEntry != null) {
                     entries++;

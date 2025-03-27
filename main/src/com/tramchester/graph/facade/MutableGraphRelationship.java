@@ -188,12 +188,19 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
             relationship.setProperty(tripIdProperty, new String[]{text});
             return;
         }
+        // else
 
         final String[] existing = getTripIdProperty();
-        final List<String> existingList = Arrays.asList(existing);
-        if (existingList.contains(text)) {
+
+        // depends on the sort below
+        if (Arrays.binarySearch(existing, text)>0) {
             return;
         }
+//        final List<String> existingList = Arrays.asList(existing);
+//        if (existingList.contains(text)) {
+//            return;
+//        }
+        //else
 
         final String[] replacement = Arrays.copyOf(existing, existing.length + 1);
         replacement[existing.length] = text;
