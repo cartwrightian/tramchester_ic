@@ -55,7 +55,7 @@ public class StationLocalityGroup implements Location<StationLocalityGroup> {
     }
 
     @NotNull
-    public static IdFor<StationLocalityGroup> idFrom(IdFor<NPTGLocality> localityId) {
+    public static IdFor<StationLocalityGroup> idFrom(final IdFor<NPTGLocality> localityId) {
         return StringIdFor.convert(localityId, StationLocalityGroup.class);
     }
 

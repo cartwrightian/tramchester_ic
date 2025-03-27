@@ -8,8 +8,9 @@ import com.tramchester.domain.time.TramTime;
 public class PlatformStopCall extends StopCall {
     private final Platform callingPlatform;
 
-    public PlatformStopCall(Platform platform, Station station, TramTime arrivalTime, TramTime departureTime, int sequenceNumber,
-                               GTFSPickupDropoffType pickupType, GTFSPickupDropoffType dropoffType, Trip trip) {
+    public PlatformStopCall(final Platform platform, final Station station, final TramTime arrivalTime, final TramTime departureTime,
+                            final int sequenceNumber, final GTFSPickupDropoffType pickupType, final GTFSPickupDropoffType dropoffType,
+                            final Trip trip) {
         super(station, arrivalTime, departureTime, sequenceNumber, pickupType, dropoffType, trip);
         this.callingPlatform = platform;
     }

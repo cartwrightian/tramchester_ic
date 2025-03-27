@@ -114,9 +114,9 @@ public class StringIdFor<T extends CoreDomain> implements IdFor<T> {
         return new StringIdFor<>(domainType);
     }
 
-    public static <FROM extends CoreDomain,TO extends CoreDomain> IdFor<TO> convert(IdFor<FROM> original, Class<TO> domainType) {
+    public static <FROM extends CoreDomain,TO extends CoreDomain> IdFor<TO> convert(final IdFor<FROM> original, final Class<TO> domainType) {
         guardForType(original);
-        StringIdFor<FROM> other = (StringIdFor<FROM>) original;
+        final StringIdFor<FROM> other = (StringIdFor<FROM>) original;
         return createId(other.theId, domainType);
     }
 
@@ -126,7 +126,7 @@ public class StringIdFor<T extends CoreDomain> implements IdFor<T> {
         return createId(prefix+other.theId, domainType);
     }
 
-    private static <FROM extends CoreDomain> void guardForType(IdFor<FROM> original) {
+    private static <FROM extends CoreDomain> void guardForType(final IdFor<FROM> original) {
         if (!(original instanceof StringIdFor)) {
             throw new RuntimeException(original + " is not a StringIdFor");
         }

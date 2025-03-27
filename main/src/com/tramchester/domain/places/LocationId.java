@@ -13,7 +13,7 @@ public class LocationId<T extends Location<?>> implements HasId<T> {
 
     private final IdFor<T> theId;
 
-    public LocationId(IdFor<T> id) {
+    public LocationId(final IdFor<T> id) {
         theId = id;
     }
 

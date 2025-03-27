@@ -262,7 +262,7 @@ public class GTFSStopTimeLoader {
         private StopCall createStopCall(final StopTimeData stopTimeData, final Route route, final Trip trip, final Station station) {
             final TransportMode transportMode = route.getTransportMode();
 
-            // this is tfgm specific
+            // this is currently tfgm specific
             if (dataSourceConfig.getTransportModesWithPlatforms().contains(transportMode)) {
 
                 final IdFor<Platform> platformId = factory.getPlatformId(stopTimeData, station);

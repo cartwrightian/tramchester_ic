@@ -11,6 +11,8 @@ import java.util.concurrent.ConcurrentMap;
 
 /// TODO use a caffeine based cache?
 public class GraphIdFactory {
+    private static final EnumSet<GraphLabel> NO_LABELS = EnumSet.noneOf(GraphLabel.class);
+
     private final ConcurrentMap<String, GraphNodeId> nodeIds;
     private final ConcurrentMap<String, GraphRelationshipId> relationshipIds;
     private final boolean diagnostics;
@@ -24,14 +26,13 @@ public class GraphIdFactory {
     GraphNodeId getIdFor(final Node node) {
         final String internalId = node.getElementId();
 
-        final EnumSet<GraphLabel> labels;
         if (diagnostics) {
             // add labels to id to aid in diagnostics
-            labels = GraphLabel.from(node.getLabels());
+            final EnumSet<GraphLabel> labels = GraphLabel.from(node.getLabels());
+            return nodeIds.computeIfAbsent(internalId, unused -> new GraphNodeId(internalId, labels));
         } else {
-            labels = EnumSet.noneOf(GraphLabel.class);
+            return nodeIds.computeIfAbsent(internalId, unused -> new GraphNodeId(internalId, NO_LABELS));
         }
-        return nodeIds.computeIfAbsent(internalId, unused -> new GraphNodeId(internalId, labels));
     }
 
     GraphRelationshipId getIdFor(final Relationship relationship) {

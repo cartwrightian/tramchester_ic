@@ -152,18 +152,20 @@ public class MutableGraphTransaction implements GraphTransaction {
         return routeStationNode.getRelationships(this, direction, TransportRelationshipTypes.forPlanning()).toList();
     }
 
-    public MutableGraphNode wrapNode(final Node node) {
+    public GraphNode wrapNode(final Node node) {
+        return wrapNodeAsImmutable(node);
+//        final GraphNodeId graphNodeId = idFactory.getIdFor(node);
+//        return new MutableGraphNode(node, graphNodeId);
+    }
+
+    private MutableGraphNode wrapNodeAsMutable(final Node node) {
         final GraphNodeId graphNodeId = idFactory.getIdFor(node);
         return new MutableGraphNode(node, graphNodeId);
     }
 
-    public MutableGraphNode wrapNodeAsMutable(final Node endNode) {
-        final GraphNodeId graphNodeId = idFactory.getIdFor(endNode);
-        return new MutableGraphNode(endNode, graphNodeId);
-    }
-
-    ImmutableGraphNode wrapNodeAsImmutable(final Node endNode) {
-        final MutableGraphNode underlying = wrapNodeAsMutable(endNode);
+    ImmutableGraphNode wrapNodeAsImmutable(final Node node) {
+        final MutableGraphNode underlying = wrapNodeAsMutable(node);
+        // TODO Cache?
         return new ImmutableGraphNode(underlying);
     }
 
