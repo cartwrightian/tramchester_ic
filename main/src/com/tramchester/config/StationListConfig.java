@@ -11,7 +11,7 @@ import java.util.Set;
 
 @Valid
 @JsonIgnoreProperties(ignoreUnknown = false)
-public class StationListConfig extends StationsConfig {
+public class StationListConfig implements StationsConfig {
 
     private final Set<String> stationsIdsText;
 

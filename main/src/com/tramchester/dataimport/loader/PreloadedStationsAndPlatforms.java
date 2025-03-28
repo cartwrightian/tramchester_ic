@@ -12,11 +12,12 @@ import com.tramchester.domain.places.Station;
 import java.util.Optional;
 
 public class PreloadedStationsAndPlatforms {
+
     private final CompositeIdMap<Station, MutableStation> stations;
     private final CompositeIdMap<Platform, MutablePlatform> platforms;
     private final TransportEntityFactory factory;
 
-    PreloadedStationsAndPlatforms(TransportEntityFactory factory) {
+    PreloadedStationsAndPlatforms(final TransportEntityFactory factory) {
         stations = new CompositeIdMap<>();
         platforms = new CompositeIdMap<>();
         this.factory = factory;
@@ -65,4 +66,5 @@ public class PreloadedStationsAndPlatforms {
     public MutablePlatform getPlatform(final IdFor<Platform> id) {
         return platforms.get(id);
     }
+
 }

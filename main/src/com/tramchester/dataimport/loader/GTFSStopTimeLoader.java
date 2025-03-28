@@ -1,7 +1,6 @@
 package com.tramchester.dataimport.loader;
 
 import com.tramchester.config.GTFSSourceConfig;
-import com.tramchester.config.StationListConfig;
 import com.tramchester.dataimport.data.StopTimeData;
 import com.tramchester.domain.*;
 import com.tramchester.domain.factory.TransportEntityFactory;
@@ -29,6 +28,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
+import static com.tramchester.config.StationsConfig.getStationsFrom;
 import static java.lang.String.format;
 
 public class GTFSStopTimeLoader {
@@ -74,6 +74,10 @@ public class GTFSStopTimeLoader {
 
     private void addClosedStations(final PreloadedStationsAndPlatforms preloadStations) {
 
+        // If there are no calling vehicles then by default those stations are not loaded, but this means
+        // missing entirely including showing the users they are closed - so the work-around is to
+        // still load those stations if they are marked as closed in the config
+
         // Need to use config since data load is not complete and so can't use closed StationRepository?
         final List<StationClosures> stationClosures = dataSourceConfig.getStationClosures();
         if (stationClosures.isEmpty()) {
@@ -81,18 +85,10 @@ public class GTFSStopTimeLoader {
             return;
         }
 
-        // TODO station pair based config??
         final IdSet<Station> closedButNotLoaded = stationClosures.stream().
-                filter(stationClosure -> stationClosure instanceof StationListConfig).
-                map(stationClosure -> (StationListConfig)stationClosure).
-                flatMap(stationClosure -> stationClosure.getStations().stream()).
+                flatMap(stationClosure -> getStationsFrom(stationClosure.getStations()).stream()).
                 filter(stationId -> !buildable.hasStationId(stationId)).
                 collect(IdSet.idCollector());
-
-//        final IdSet<Station> closedButNotLoaded = stationClosures.stream().
-//                flatMap(closures -> closures.getStations().stream()).
-//                filter(stationId -> !buildable.hasStationId(stationId)).
-//                collect(IdSet.idCollector());
 
         if (closedButNotLoaded.isEmpty()) {
             logger.info("Station closures present but no additional stations to add");
@@ -103,7 +99,7 @@ public class GTFSStopTimeLoader {
 
         final EnumSet<TransportMode> transportModes = dataSourceConfig.getTransportModes();
 
-        for (IdFor<Station> closedStationId : closedButNotLoaded) {
+        for (final IdFor<Station> closedStationId : closedButNotLoaded) {
             if (!preloadStations.hasId(closedStationId)) {
                 throw new RuntimeException("Missing closed station id in preloaded " + closedStationId);
             }
@@ -225,7 +221,7 @@ public class GTFSStopTimeLoader {
             return service;
         }
 
-        private void addStationAndRouteStation(Route route, MutableStation station, StopTimeData stopTimeData) {
+        private void addStationAndRouteStation(final Route route, final MutableStation station, final StopTimeData stopTimeData) {
 
             final GTFSPickupDropoffType dropOffType = stopTimeData.getDropOffType();
             if (dropOffType.isDropOff()) {
@@ -246,7 +242,7 @@ public class GTFSStopTimeLoader {
             }
 
             if (!buildable.hasRouteStationId(RouteStation.createId(stationId, route.getId()))) {
-                RouteStation routeStation = factory.createRouteStation(station, route);
+                final RouteStation routeStation = factory.createRouteStation(station, route);
                 buildable.addRouteStation(routeStation);
             }
         }

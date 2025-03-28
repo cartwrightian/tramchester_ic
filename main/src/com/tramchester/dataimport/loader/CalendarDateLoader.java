@@ -34,12 +34,12 @@ public class CalendarDateLoader {
         this.gtfsSourceConfig = gtfsSourceConfig;
     }
 
-    public void load(Stream<CalendarDateData> calendarsDates, IdMap<Service> services) {
+    public void load(final Stream<CalendarDateData> calendarsDates, final IdMap<Service> services) {
         final TramDateSet noServices = TramDateSet.of(gtfsSourceConfig.getNoServices());
 
         logger.info("Loading calendar dates "+ services.size() +" services with no services on " + noServices);
-        IdSet<Service> missingCalendarDates = new IdSet<>();
-        AtomicInteger countCalendarDates = new AtomicInteger(0);
+        final IdSet<Service> missingCalendarDates = new IdSet<>();
+        final AtomicInteger countCalendarDates = new AtomicInteger(0);
 
         calendarsDates.forEach(exceptionDate -> {
             final IdFor<Service> serviceId = exceptionDate.getServiceId();

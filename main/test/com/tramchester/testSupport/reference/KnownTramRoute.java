@@ -12,15 +12,10 @@ import static com.tramchester.testSupport.UpcomingDates.*;
 
 public class KnownTramRoute {
 
-    @Deprecated
-    public static final TramDate revertDate = TramDate.of(2025, 2, 25);
-
-    @Deprecated
-    public static final TramDate marchCutoverA = TramDate.of(2025,3,13);
-
-    public static final TramDate marchCutoverB = TramDate.of(2025,3,17);
-
     public static final TramDate marchCutoverC = TramDate.of(2025,3,25);
+
+    // missing from tfgm data
+    public static final String MISSING_ROUTE = "";
 
     /***
      * @return Yellow route

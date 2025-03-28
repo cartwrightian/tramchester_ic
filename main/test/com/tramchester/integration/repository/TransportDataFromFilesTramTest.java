@@ -27,7 +27,6 @@ import com.tramchester.livedata.tfgm.TramDepartureFactory;
 import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.FakeStation;
@@ -46,7 +45,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.CentralZoneStation.StPetersSquare;
-import static com.tramchester.domain.reference.CentralZoneStation.TraffordBar;
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.integration.testSupport.Assertions.assertIdEquals;
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
@@ -69,7 +67,6 @@ public class TransportDataFromFilesTramTest {
 
     private TransportData transportData;
     private Collection<Service> allServices;
-    private TramRouteHelper routeHelper;
     private ClosedStationsRepository closedStationRepository;
     private TramDate when;
 
@@ -89,7 +86,6 @@ public class TransportDataFromFilesTramTest {
     void beforeEachTestRuns() {
         transportData = componentContainer.get(TransportData.class);
         allServices = transportData.getServices(EnumSet.of(Tram));
-        routeHelper = new TramRouteHelper(transportData);
         closedStationRepository = componentContainer.get(ClosedStationsRepository.class);
 
         when = TestEnv.testDay(); // filter by date, otherwise get variations due to upcoming routes etc
@@ -99,9 +95,12 @@ public class TransportDataFromFilesTramTest {
     @Test
     void shouldHaveExpectedNumbersForTram() {
         assertEquals(1, transportData.getAgencies().stream().filter(agency -> agency.getTransportModes().contains(Tram)).count());
+
+        // NOTE: one cause here is closures meaning no stop calls for a station - so unless in config as closed this will mean
+        // that station is never loaded
         assertEquals(NUM_TFGM_TRAM_STATIONS, transportData.getStations(TramsOnly).size());
 
-        int expectedPlatforms = 200;
+        int expectedPlatforms = 200 - 4;
         assertEquals(expectedPlatforms, transportData.getPlatforms(TramsOnly).size());
     }
 
@@ -134,30 +133,6 @@ public class TransportDataFromFilesTramTest {
         assertEquals(1, agencies.size()); // just MET for trams
         assertIdEquals("7778482", agencies.getFirst().getId());
         assertEquals("Metrolink", agencies.getFirst().getName());
-    }
-
-    @Test
-    void shouldHaveRouteStationsThatOccurDueToDepot() {
-        Set<RouteStation> routeStations = transportData.getRouteStations();
-
-        Set<RouteStation> traffordBar = routeStations.stream().
-                filter(routeStation -> routeStation.getStationId().equals(TraffordBar.getId())).collect(Collectors.toSet());
-
-        IdSet<Route> traffordBarRoutes = traffordBar.stream().
-                map(RouteStation::getRoute).map(Route::getId).collect(IdSet.idCollector());
-
-        // cannot check for specific size as the way routes handled in tfgm gtfs feed can lead to duplicates
-        //assertEquals(10, traffordBarRoutes.size());
-
-        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(getEtihadPiccadillyAltrincham(when))));
-
-        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(getShawandCromptonManchesterEastDidisbury(when))));
-
-        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(getDeansgateManchesterAirport(when))));
-
-        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(getEcclesAshton(when))));
-
-        assertTrue(traffordBarRoutes.containsAll(routeHelper.getId(getBuryManchesterAltrincham(when))));
     }
 
     @Test

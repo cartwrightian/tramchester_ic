@@ -92,7 +92,7 @@ public class TransportDataSource {
 
         private final ChecksForTripId checksForTripId;
 
-        public StopTimeFilteredReader(ChecksForTripId checksForTripId) {
+        public StopTimeFilteredReader(final ChecksForTripId checksForTripId) {
             this.checksForTripId = checksForTripId;
         }
 

@@ -38,7 +38,15 @@ gtfsSourceConfig:
     additionalInterchanges: []
     groupedStationModes: []
     addWalksForClosed: true
-    stationClosures: []
+    stationClosures:
+      - stations:
+          ids: [ "9400ZZMASHU", "9400ZZMAMKT" ]
+        dateRange:
+          begin: 2025-03-25
+          end: 2025-04-24
+        fullyClosed: true
+        diversionsAroundClosure: [ ]
+        diversionsToFromClosure: [ ]
     temporaryStationsWalks: []
 remoteSources:
   - name: tfgm

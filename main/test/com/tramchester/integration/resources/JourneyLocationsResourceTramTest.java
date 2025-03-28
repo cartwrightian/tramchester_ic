@@ -140,8 +140,8 @@ class JourneyLocationsResourceTramTest {
         assertTrue(ids.contains(TramStations.StPetersSquare.getIdForDTO()));
         assertTrue(ids.contains(TramStations.ExchangeSquare.getIdForDTO()));
 
-        assertTrue(ids.contains(TramStations.MarketStreet.getIdForDTO()));
-        assertTrue(ids.contains(TramStations.Shudehill.getIdForDTO()));
+        assertFalse(ids.contains(TramStations.MarketStreet.getIdForDTO()));
+        assertFalse(ids.contains(TramStations.Shudehill.getIdForDTO()));
     }
 
     @Test

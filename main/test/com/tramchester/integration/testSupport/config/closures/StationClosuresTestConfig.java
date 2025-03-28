@@ -70,4 +70,14 @@ public abstract class StationClosuresTestConfig implements StationClosures  {
         return diversionsToFrom.stream().map(FakeStation::getId).collect(IdSet.idCollector());
     }
 
+    @Override
+    public String toString() {
+        return "StationClosuresTestConfig{" +
+                "dateRange=" + dateRange +
+                ", fullyClosed=" + fullyClosed +
+                ", diversionsAround=" + diversionsAround +
+                ", diversionsToFrom=" + diversionsToFrom +
+                ", timeRange=" + timeRange +
+                '}';
+    }
 }

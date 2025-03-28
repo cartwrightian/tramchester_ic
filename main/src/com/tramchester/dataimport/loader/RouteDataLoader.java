@@ -12,6 +12,7 @@ import com.tramchester.repository.WriteableTransportData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.EnumSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
@@ -31,28 +32,30 @@ public class RouteDataLoader {
         this.factory = factory;
     }
 
-    public ExcludedRoutes load(Stream<RouteData> routeDataStream, CompositeIdMap<Agency, MutableAgency> allAgencies) {
-        Set<GTFSTransportationType> transportModes = sourceConfig.getTransportGTFSModes();
-        AtomicInteger count = new AtomicInteger();
+    public ExcludedRoutes load(final Stream<RouteData> routeDataStream, final CompositeIdMap<Agency, MutableAgency> allAgencies) {
+        final EnumSet<GTFSTransportationType> transportModes = EnumSet.copyOf(sourceConfig.getTransportGTFSModes());
+        final DataSourceID dataSourceID = sourceConfig.getDataSourceId();
 
-        ExcludedRoutes excludedRoutes = new ExcludedRoutes();
+        final AtomicInteger count = new AtomicInteger();
+
+        final ExcludedRoutes excludedRoutes = new ExcludedRoutes();
+
 
         logger.info("Loading routes for transport modes " + transportModes.toString());
         routeDataStream.forEach(routeData -> {
-            IdFor<Agency> agencyId = routeData.getAgencyId();
+            final IdFor<Agency> agencyId = routeData.getAgencyId();
             boolean missingAgency = !allAgencies.hasId(agencyId);
             if (missingAgency) {
                 logger.error("Missing agency " + agencyId);
             }
 
-            GTFSTransportationType routeType = factory.getRouteType(routeData, agencyId);
+            final GTFSTransportationType routeType = factory.getRouteType(routeData, agencyId);
 
             if (transportModes.contains(routeType)) {
-                DataSourceID dataSourceID = sourceConfig.getDataSourceId();
-                MutableAgency agency = missingAgency ? createMissingAgency(dataSourceID, allAgencies, agencyId, factory)
+                final MutableAgency agency = missingAgency ? createMissingAgency(dataSourceID, allAgencies, agencyId, factory)
                         : allAgencies.get(agencyId);
 
-                MutableRoute route = factory.createRoute(routeType, routeData, agency);
+                final MutableRoute route = factory.createRoute(routeType, routeData, agency);
 
                 agency.addRoute(route);
                 if (!buildable.hasAgencyId(agencyId)) {
@@ -88,11 +91,11 @@ public class RouteDataLoader {
             excludedRouteIds = new IdSet<>();
         }
 
-        public void excludeRoute(IdFor<Route> routeId) {
+        public void excludeRoute(final IdFor<Route> routeId) {
             excludedRouteIds.add(routeId);
         }
 
-        public boolean wasExcluded(IdFor<Route> routeId) {
+        public boolean wasExcluded(final IdFor<Route> routeId) {
             return excludedRouteIds.contains(routeId);
         }
 
@@ -108,7 +111,7 @@ public class RouteDataLoader {
             excludedRouteIds.clear();
         }
 
-        public void recordInLog(Set<GTFSTransportationType> transportModes) {
+        public void recordInLog(final Set<GTFSTransportationType> transportModes) {
             if (excludedRouteIds.isEmpty()) {
                 return;
             }

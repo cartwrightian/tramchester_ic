@@ -2,6 +2,8 @@ package com.tramchester.domain.id;
 
 
 import com.tramchester.domain.CoreDomain;
+import com.tramchester.domain.LocationIdPair;
+import com.tramchester.domain.places.Location;
 import org.apache.commons.collections4.SetUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -66,6 +68,13 @@ public class IdSet<T extends CoreDomain> implements Iterable<IdFor<T>> {
 
     public static <T extends CoreDomain> IdSet<T> copy(IdSet<T> other) {
         return new IdSet<>(other.theSet);
+    }
+
+    public static <LOCATION extends Location<LOCATION>> IdSet<LOCATION> from(LocationIdPair<LOCATION> locationIdPair) {
+        final IdSet<LOCATION> results = new IdSet<>();
+        results.add(locationIdPair.getBeginId());
+        results.add(locationIdPair.getEndId());
+        return results;
     }
 
     public IdSet<T> addAll(final IdSet<T> other) {

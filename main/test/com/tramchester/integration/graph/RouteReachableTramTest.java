@@ -68,9 +68,11 @@ class RouteReachableTramTest {
         // 2->1 during March/April closures 2025
         assertEquals(1, routeIds.size(), routeIds.toString());
 
-        assertFalse(routeIds.contains(KnownTramRoute.getEtihadPiccadillyAltrincham(when).getId()), routeIds.toString());
+        // TODO Re-instate when route back the the data
+        //assertFalse(routeIds.contains(KnownTramRoute.getEtihadPiccadillyAltrincham(when).getId()), routeIds.toString());
         assertTrue(routeIds.contains(KnownTramRoute.getBuryManchesterAltrincham(when).getId()), routeIds.toString());
     }
+
 
 
 }

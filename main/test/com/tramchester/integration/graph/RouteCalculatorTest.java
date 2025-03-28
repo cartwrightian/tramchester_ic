@@ -124,7 +124,7 @@ public class RouteCalculatorTest {
             assertTrue(expected.contains(interchange), interchange + " not in " + expected);
 
             List<ChangeLocation<?>> changeStations = journey.getChangeStations();
-            assertEquals(1, changeStations.size());
+            assertEquals(1, changeStations.size(), changeStations.toString());
             assertTrue(expected.contains(changeStations.getFirst().location().getName()));
         });
 

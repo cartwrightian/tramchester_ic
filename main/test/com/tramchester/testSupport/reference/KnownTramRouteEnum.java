@@ -12,9 +12,8 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.stream.Collectors;
 
-import static com.tramchester.testSupport.UpcomingDates.DeansgateTraffordBarWorks;
 import static com.tramchester.testSupport.reference.KnownLines.*;
-import static com.tramchester.testSupport.reference.KnownTramRoute.marchCutoverB;
+import static com.tramchester.testSupport.reference.KnownTramRoute.MISSING_ROUTE;
 import static com.tramchester.testSupport.reference.KnownTramRoute.marchCutoverC;
 
 /*
@@ -25,36 +24,26 @@ public enum KnownTramRouteEnum implements TestRoute {
 
     // Blue
     EcclesAshton(Blue, "Eccles - Manchester - Ashton Under Lyne", "2119", marchCutoverC),
-    EcclesAshtonNewB(Blue, "Eccles - Manchester - Ashton Under Lyne", "2801", marchCutoverB),
 
     // Green
     BuryManchesterAltrincham(Green, "Bury - Manchester - Altrincham", "841", marchCutoverC),
-    BuryManchesterAltrinchamNewB(Green, "Bury - Manchester - Altrincham", "2802", marchCutoverB),
 
     // Navy
     DeansgateCastlefieldManchesterAirport(Navy, "Deansgate-Castlefield - Manchester Airport", "2120", marchCutoverC),
-    DeansgateCastlefieldManchesterAirportNewB(Navy, "Deansgate-Castlefield - Manchester Airport", "2803", marchCutoverB),
 
     // Pink
     RochdaleShawandCromptonManchesterEastDidisbury(Pink, "Rochdale - Manchester - East Didsbury", "2831", marchCutoverC),
-    RochdaleShawandCromptonManchesterEastDidisburyNewB(Pink, "Rochdale - Manchester - East Didsbury", "2804", marchCutoverB),
     RochdaleShawandCromptonManchesterEastDidisburyNewC(Pink, "Rochdale - Manchester - East Didsbury", "845", TramDate.of(2025, 4,6)),
     RochdaleShawandCromptonManchesterEastDidisburyNewD(Pink, "Rochdale - Manchester - East Didsbury", "2831", TramDate.of(2025, 4,7)),
 
-    // Purple
-    EtihadPiccadillyAltrinchamNew(Purple, "Etihad Campus - Piccadilly - Altrincham", "2806", marchCutoverB),
+    // Purple, not in tfgm data as of 28/3/2025
+    EtihadPiccadillyAltrinchamNew(Purple, "Etihad Campus - Piccadilly - Altrincham", MISSING_ROUTE, marchCutoverC),
 
     // Red
     CornbrookTheTraffordCentre(Red, "Cornbrook - The Trafford Centre", "849", marchCutoverC),
-    CornbrookTheTraffordCentreNewB(Red, "Cornbrook - The Trafford Centre", "2807", marchCutoverB),
 
-    // Brown 2811,7778482,Brown Line,Firswood - East Didsbury,,0,,,
-    FirswoodEastDidsbury(Brown, "Firswood - East Didsbury", "2811", DeansgateTraffordBarWorks.getStartDate()),
-
-    // Yellow
-    PiccadillyVictoriaNewB(Yellow, "Piccadilly - Victoria", "2808", marchCutoverB),
-    PiccadillyVictoriaNewInvalid(Yellow, "Piccadilly - Victoria", "", marchCutoverC);
-    //PiccadillyVictoriaNewC(Yellow, "Piccadilly - Victoria", "2783", TramDate.of(2025,3,13));
+    // Yellow, not in tfgm data as of 28/3/2025
+    PiccadillyVictoriaNewInvalid(Yellow, "Piccadilly - Victoria", MISSING_ROUTE, marchCutoverC);
 
     private final KnownLines line;
     private final String longName; // diagnostics only
@@ -108,4 +97,6 @@ public enum KnownTramRouteEnum implements TestRoute {
     public Route fake() {
         return new MutableRoute(id, line.getShortName(), longName, TestEnv.MetAgency(), TransportMode.Tram);
     }
+
+
 }

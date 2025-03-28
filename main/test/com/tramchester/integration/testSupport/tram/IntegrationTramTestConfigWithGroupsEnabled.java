@@ -1,7 +1,6 @@
 package com.tramchester.integration.testSupport.tram;
 
 import com.tramchester.config.GTFSSourceConfig;
-import com.tramchester.domain.StationClosures;
 import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
@@ -19,11 +18,10 @@ public class IntegrationTramTestConfigWithGroupsEnabled extends IntegrationTramT
     public IntegrationTramTestConfigWithGroupsEnabled() {
         super(EnumSet.of(TransportMode.Tram));
 
-        final List<StationClosures> closedStations = Collections.emptyList();
         final Set<TransportMode> groupStationModes = Collections.singleton(TransportMode.Tram);
 
         overideTFGMTestConfig = new TFGMGTFSSourceTestConfig(GTFSTransportationType.tram,
-                TransportMode.Tram, AdditionalTramInterchanges.stations(), groupStationModes, closedStations,
+                TransportMode.Tram, AdditionalTramInterchanges.stations(), groupStationModes, CurrentClosures,
                 IntegrationTramTestConfig.MAX_INITIAL_WAIT, Collections.emptyList());
     }
 

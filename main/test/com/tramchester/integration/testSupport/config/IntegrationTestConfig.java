@@ -4,17 +4,24 @@ import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.RemoteDataSourceConfig;
 import com.tramchester.config.TemporaryStationsWalkIds;
 import com.tramchester.domain.StationClosures;
+import com.tramchester.domain.dates.DateRange;
+import com.tramchester.domain.dates.TramDate;
 import com.tramchester.integration.testSupport.TestGroupType;
+import com.tramchester.integration.testSupport.config.closures.StationClosuresListForTest;
 import com.tramchester.integration.testSupport.naptan.NaptanRemoteDataSourceTestConfig;
 import com.tramchester.integration.testSupport.nptg.NPTGDataSourceTestConfig;
 import com.tramchester.integration.testSupport.postcodes.PostCodeDatasourceConfig;
 import com.tramchester.integration.testSupport.rail.RailRemoteDataSourceConfig;
 import com.tramchester.testSupport.TestConfig;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.reference.TramStations;
 
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
+
+import static com.tramchester.testSupport.reference.TramStations.MarketStreet;
+import static com.tramchester.testSupport.reference.TramStations.Shudehill;
 
 public abstract class IntegrationTestConfig extends TestConfig {
 
@@ -24,15 +31,13 @@ public abstract class IntegrationTestConfig extends TestConfig {
 
     protected final RailRemoteDataSourceConfig railRemoteDataSource;
 
-    // use StationClosuresConfigForTest to create closures here
+    private static final List<TramStations> closedStations = List.of(MarketStreet, Shudehill);
 
-//    private static final StationClosures rochdaleTownCentre = new StationClosuresConfigForTest(TramStations.Rochdale,
-//            DateRange.of(TramDate.of(2024, 10, 19), TramDate.of(2024, 10, 31)),
-//            true, Collections.emptySet(), Collections.singleton(TramStations.RochdaleRail)
-//            );
+    public static final StationClosures marketStreetApril2025 = new StationClosuresListForTest(closedStations,
+        DateRange.of(TramDate.of(2025, 3, 25), TramDate.of(2025, 4, 24)),
+        true, Collections.emptySet(), Collections.emptySet());
 
-    public static final List<StationClosures> CurrentClosures = Collections.emptyList();
-
+    public static final List<StationClosures> CurrentClosures = List.of(marketStreetApril2025);
 
     public static final List<TemporaryStationsWalkIds> CurrentStationWalks = Collections.emptyList();
 

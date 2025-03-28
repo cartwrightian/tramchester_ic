@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.tramchester.config.StationClosuresConfig;
 import com.tramchester.config.StationsConfig;
+import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
-import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.time.TimeRange;
 
 @JsonDeserialize(as=StationClosuresConfig.class)

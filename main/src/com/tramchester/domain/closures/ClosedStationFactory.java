@@ -91,7 +91,7 @@ public class ClosedStationFactory {
         return found;
     }
 
-    public Closure createFor(final StationClosures closureConfig, IdSet<Station> stationIds) {
+    public Closure createFor(final StationClosures closureConfig, final IdSet<Station> stationIds) {
         final DateRange dateRange = closureConfig.getDateRange();
 
         final boolean fullyClosed = closureConfig.isFullyClosed();

@@ -91,7 +91,6 @@ class RouteCalculatorForBoundingBoxTest {
 
         Set<Station> missing = allStations.stream().
                 filter(station -> !closedStationsRepository.isClosed(station, when)).
-//                filter(this::workAroundTimetableShowingPiccGardensClosed).
                 filter(station -> boxes.stream().noneMatch(box -> box.getStations().contains(station))).
                 collect(Collectors.toSet());
 
@@ -99,13 +98,6 @@ class RouteCalculatorForBoundingBoxTest {
         // cannot be found by BreadthFirstBranchSelectorForGridSearch inside of one the station boxes
         assertTrue(missing.isEmpty(), HasId.asIds(missing));
     }
-
-//    private boolean workAroundTimetableShowingPiccGardensClosed(final Station station) {
-//        if (when.isAfter(TestEnv.PicGardensClosureEnds)) {
-//            return true;
-//        }
-//        return !station.getId().equals(PiccadillyGardens.getId());
-//    }
 
     @Test
     void shouldFindJourneysForBoundedBoxStations() throws InterruptedException {
@@ -139,8 +131,7 @@ class RouteCalculatorForBoundingBoxTest {
 
         List<JourneysForBox> missed = groupedJourneys.stream().filter(group -> group.getJourneys().isEmpty()).toList();
 
-        // 1->2 market street closures March/April 2025
-        assertEquals(2, missed.size(), missed.toString()); // when start and dest match
+        assertEquals(1, missed.size(), missed.toString()); // when start and dest match
 
         groupedJourneys.forEach(group -> group.getJourneys().forEach(journey -> {
             assertFalse(journey.getStages().isEmpty()); // catch case where starting point is dest

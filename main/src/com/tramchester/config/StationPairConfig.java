@@ -9,7 +9,7 @@ import jakarta.validation.Valid;
 
 @Valid
 @JsonIgnoreProperties(ignoreUnknown = false)
-public class StationPairConfig extends StationsConfig {
+public class StationPairConfig implements StationsConfig {
     private final String first;
     private final String second;
 
