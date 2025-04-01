@@ -35,6 +35,7 @@ public class SnsPublisherTest {
     private static String subscriptionArn;
     private static IntegrationTramTestConfig config;
     private static SnsAndSqsSupport.QueueUrlAndArn urlAndArn;
+    private static SnsAndSqsSupport snsAndSqsSupport;
     private SNSPublisherSubscriber snsPublisherSubscrinber;
 
     @BeforeAll
@@ -45,6 +46,8 @@ public class SnsPublisherTest {
 
         sqsClient = SqsClient.create();
         snsClient = SnsClient.create();
+
+        snsAndSqsSupport = new SnsAndSqsSupport(snsClient, sqsClient);
 
         subscribeToTestMessages();
     }
@@ -90,11 +93,11 @@ public class SnsPublisherTest {
     static void subscribeToTestMessages() {
         String topicName = config.getLiveDataSNSPublishTopic();
 
-        String topicArn = SnsAndSqsSupport.createOrGetTopic(snsClient, topicName);
+        String topicArn = snsAndSqsSupport.createOrGetTopic(topicName);
 
-        urlAndArn = SnsAndSqsSupport.createQueueIfNeeded(sqsClient, TestEnv.getTestQueueName());
+        urlAndArn = snsAndSqsSupport.createQueueIfNeeded(TestEnv.getTestQueueName());
 
-        SnsAndSqsSupport.addPolicyForSNS(sqsClient, urlAndArn, topicArn);
+        snsAndSqsSupport.addPolicyForSNS(urlAndArn, topicArn);
 
         SubscribeRequest subscribeRequest = SubscribeRequest.builder().
                 topicArn(topicArn).
@@ -115,6 +118,6 @@ public class SnsPublisherTest {
 
         snsClient.unsubscribe(unsubscribeRequest);
 
-        SnsAndSqsSupport.clearQueue(sqsClient, urlAndArn);
+        snsAndSqsSupport.clearQueue(urlAndArn);
     }
 }

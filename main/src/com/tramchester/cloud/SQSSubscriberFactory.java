@@ -205,7 +205,7 @@ public class SQSSubscriberFactory {
             }
             // TODO Just used the first one here, so cope with mismatch in pub/sub cadence.....
             // but should we log this as might indicate an issue?
-            return extractPayloadFrom(sorted.get(0));
+            return extractPayloadFrom(sorted.getFirst());
         }
 
         private int compare(JsonObject a, JsonObject b) {

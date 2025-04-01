@@ -25,6 +25,7 @@ public class SQSSubscriberFactoryTest {
     private static IntegrationTramTestConfig config;
     private static SqsClient sqsClient;
     private static String queueName;
+    private static SnsAndSqsSupport snsAndSqsSupport;
     private SQSSubscriberFactory factory;
 
     @BeforeAll
@@ -37,18 +38,20 @@ public class SQSSubscriberFactoryTest {
         sqsClient = SqsClient.create();
 
         queueName = TestEnv.getTestQueueName();
+
+        snsAndSqsSupport = new SnsAndSqsSupport(snsClient, sqsClient);
     }
 
     @BeforeEach
     void onceBeforeEachTestRuns() {
         factory = componentContainer.get(SQSSubscriberFactory.class);
-        SnsAndSqsSupport.clearQueueByName(sqsClient, queueName);
+        snsAndSqsSupport.clearQueueByName(queueName);
     }
 
     @AfterAll
     static void OnceAfterAllTestsAreFinished() {
         componentContainer.close();
-        SnsAndSqsSupport.clearQueueByName(sqsClient, queueName);
+        snsAndSqsSupport.clearQueueByName(queueName);
     }
 
     @Test
@@ -58,7 +61,7 @@ public class SQSSubscriberFactoryTest {
         long retentionPeriodSeconds = 60;
         SQSSubscriber subscriber = factory.getFor(queueName, config.getLiveDataSNSPublishTopic(), retentionPeriodSeconds);
 
-        String topicArn = SnsAndSqsSupport.createOrGetTopic(snsClient, config.getLiveDataSNSPublishTopic());
+        String topicArn = snsAndSqsSupport.createOrGetTopic(config.getLiveDataSNSPublishTopic());
 
         PublishRequest publishRequest = PublishRequest.builder().
                 topicArn(topicArn).
@@ -77,14 +80,16 @@ public class SQSSubscriberFactoryTest {
         long retentionPeriodSeconds = 60;
         SQSSubscriber subscriber = factory.getFor(queueName, config.getLiveDataSNSPublishTopic(), retentionPeriodSeconds);
 
-        String topicArn = SnsAndSqsSupport.createOrGetTopic(snsClient, config.getLiveDataSNSPublishTopic());
+        String topicArn = snsAndSqsSupport.createOrGetTopic(config.getLiveDataSNSPublishTopic());
 
+        // not batch because testing the timestamp ordering in the receiver here
         for (int i = 0; i < 10; i++) {
             String text = "messageNumber"+i;
             PublishRequest publishRequest = PublishRequest.builder().
                     topicArn(topicArn).
                     message(text).build();
             snsClient.publish(publishRequest);
+
             Thread.sleep(10);
         }
 
