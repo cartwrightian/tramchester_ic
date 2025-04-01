@@ -24,19 +24,30 @@ import java.util.stream.Stream;
 public class MutableGraphTransaction implements GraphTransaction {
     private final Transaction txn;
     private final GraphIdFactory idFactory;
+    private final TransactionObserver transactionObserver;
+    private final int transactionId;
 
-    MutableGraphTransaction(Transaction txn, GraphIdFactory idFactory) {
+    MutableGraphTransaction(final Transaction txn, final GraphIdFactory idFactory, final int transactionId, final TransactionObserver transactionObserver) {
         this.txn = txn;
         this.idFactory = idFactory;
+        this.transactionId = transactionId;
+        this.transactionObserver = transactionObserver;
+    }
+
+    @Override
+    public int getTransactionId() {
+        return transactionId;
     }
 
     @Override
     public void close() {
         txn.close();
+        transactionObserver.onClose(this);
     }
 
     public void commit() {
         txn.commit();
+        transactionObserver.onCommit(this);
     }
 
     public MutableGraphNode createNode(final GraphLabel graphLabel) {
@@ -232,5 +243,10 @@ public class MutableGraphTransaction implements GraphTransaction {
     @Override
     public ImmutableGraphNode getEndNode(final Relationship relationship) {
         return wrapNodeAsImmutable(relationship.getEndNode());
+    }
+
+    interface TransactionObserver {
+        void onClose(GraphTransaction mutableGraphTransaction);
+        void onCommit(GraphTransaction mutableGraphTransaction);
     }
 }

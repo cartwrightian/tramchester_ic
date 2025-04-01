@@ -21,10 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
@@ -51,8 +48,12 @@ public class GTFSStopTimeLoader {
         final String sourceName = dataSourceConfig.getName();
         final AtomicInteger invalidTimeCount = new AtomicInteger(0);
 
+        final Set<TransportMode> withPlatforms = dataSourceConfig.getTransportModesWithPlatforms();
+        final EnumSet<TransportMode> modesWithPlatforms = withPlatforms.isEmpty() ?
+                EnumSet.noneOf(TransportMode.class) : EnumSet.copyOf(withPlatforms);
+
         final StopTimeDataLoader stopTimeDataLoader = new StopTimeDataLoader(buildable, preloadStations, factory,
-                dataSourceConfig, tripAndServices);
+                dataSourceConfig, tripAndServices, modesWithPlatforms);
 
         logger.info("Loading stop times for " + sourceName);
         stopTimes.
@@ -135,14 +136,17 @@ public class GTFSStopTimeLoader {
         private final TransportEntityFactory factory;
         private final GTFSSourceConfig dataSourceConfig;
         private final PreloadTripAndServices tripAndServices;
+        private final EnumSet<TransportMode> modesWithPlatforms;
 
         public StopTimeDataLoader(WriteableTransportData buildable, PreloadedStationsAndPlatforms preloadStations,
-                                  TransportEntityFactory factory, GTFSSourceConfig dataSourceConfig, PreloadTripAndServices tripAndServices) {
+                                  TransportEntityFactory factory, GTFSSourceConfig dataSourceConfig, PreloadTripAndServices tripAndServices,
+                                  EnumSet<TransportMode> modesWithPlatforms) {
             this.buildable = buildable;
             this.preloadStations = preloadStations;
             this.factory = factory;
             this.dataSourceConfig = dataSourceConfig;
             this.tripAndServices = tripAndServices;
+            this.modesWithPlatforms = modesWithPlatforms;
 
             addedServices = new IdMap<>();
             excludedStations = new IdSet<>();
@@ -159,7 +163,7 @@ public class GTFSStopTimeLoader {
                 final Route route = getRouteFrom(trip);
                 final MutableStation station = preloadStations.get(stationId);
 
-                final boolean routePlatforms = expectedPlatformsForRoute(route);
+                final boolean routePlatforms = modesWithPlatforms.contains(route.getTransportMode());
                 final boolean stationPlatforms = station.hasPlatforms();
                 if (routePlatforms && !stationPlatforms) {
                     missingPlatforms.record(stationId, stopTripId);
@@ -190,10 +194,6 @@ public class GTFSStopTimeLoader {
                 throw new RuntimeException("Null route for " + trip.getId());
             }
             return route;
-        }
-
-        private boolean expectedPlatformsForRoute(final Route route) {
-            return dataSourceConfig.getTransportModesWithPlatforms().contains(route.getTransportMode());
         }
 
         private Service addStopTimeData(final StopTimeData stopTimeData, final MutableTrip trip,
@@ -259,7 +259,7 @@ public class GTFSStopTimeLoader {
             final TransportMode transportMode = route.getTransportMode();
 
             // this is currently tfgm specific
-            if (dataSourceConfig.getTransportModesWithPlatforms().contains(transportMode)) {
+            if (modesWithPlatforms.contains(transportMode)) {
 
                 final IdFor<Platform> platformId = factory.getPlatformId(stopTimeData, station);
 

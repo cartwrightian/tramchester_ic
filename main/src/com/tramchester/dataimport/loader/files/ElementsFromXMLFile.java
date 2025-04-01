@@ -36,13 +36,13 @@ public class ElementsFromXMLFile<T> {
 
         factory = new WstxInputFactory();
 
-        Class<T> elementType = xmlElementConsumer.getElementType();
+        final Class<T> elementType = xmlElementConsumer.getElementType();
         stopElementName = getElementName(elementType);
         elementJavaType = mapper.getTypeFactory().constructType(elementType);
 
     }
 
-    private String getElementName(Class<?> type) {
+    private String getElementName(final Class<?> type) {
         final JsonTypeName elementType = type.getAnnotation(JsonTypeName.class);
         return elementType.value();
     }

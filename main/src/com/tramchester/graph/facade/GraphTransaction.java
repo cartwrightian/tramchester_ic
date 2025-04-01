@@ -13,6 +13,9 @@ import java.util.List;
 import java.util.stream.Stream;
 
 public interface GraphTransaction extends AutoCloseable {
+
+    int getTransactionId();
+
     void close();
 
     ImmutableGraphRelationship wrapRelationship(Relationship relationship);

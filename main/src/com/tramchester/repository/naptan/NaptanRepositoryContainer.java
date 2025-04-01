@@ -127,8 +127,9 @@ public class NaptanRepositoryContainer implements NaptanRepository {
         }
 
         final NaptanStopType stopType = stopData.getStopType();
-        if (stopType ==NaptanStopType.unknown) {
+        if (stopType == NaptanStopType.unknown) {
             logger.warn("Unknown stop type for " + stopData.getAtcoCode());
+            return false;
         }
 
         if (!requiredStopTypes.contains(stopType)) {

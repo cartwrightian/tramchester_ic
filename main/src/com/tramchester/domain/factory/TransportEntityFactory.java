@@ -70,7 +70,7 @@ public abstract class TransportEntityFactory {
             stopTimeData.getStopSequence(), stopTimeData.getPickupType(), stopTimeData.getDropOffType(), trip);
     }
 
-    public StopCall createNoPlatformStopCall(Trip trip, Station station, StopTimeData stopTimeData) {
+    public StopCall createNoPlatformStopCall(final Trip trip, final Station station, final StopTimeData stopTimeData) {
         return new NoPlatformStopCall(station, stopTimeData.getArrivalTime(), stopTimeData.getDepartureTime(),
                 stopTimeData.getStopSequence(), stopTimeData.getPickupType(), stopTimeData.getDropOffType(), trip);
     }

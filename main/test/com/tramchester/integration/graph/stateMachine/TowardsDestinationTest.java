@@ -12,10 +12,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.*;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.TransportRelationshipTypes;
-import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.ImmutableGraphNode;
-import com.tramchester.graph.facade.ImmutableGraphRelationship;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.search.stateMachine.FilterByDestinations;
@@ -28,10 +25,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Direction;
 
 import java.util.List;
@@ -42,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class TowardsDestinationTest {
     private static GuiceContainerDependencies componentContainer;
-    private MutableGraphTransaction txn;
+    private ImmutableGraphTransaction txn;
     private StationRepository stationRepository;
     private TramRouteHelper tramRouteHelper;
     private TramDate when;
@@ -74,10 +68,14 @@ public class TowardsDestinationTest {
         componentContainer.get(StagedTransportGraphBuilder.Ready.class);
 
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
-        txn = database.beginTxMutable();
+        txn = database.beginTx();
 
         when = TestEnv.testDay();
+    }
 
+    @AfterEach
+    void onceAfterEachTestRuns() {
+        txn.close();
     }
 
     @Test

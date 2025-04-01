@@ -71,11 +71,19 @@ public class BoundingBox {
             throw new RuntimeException("Invalid grid position " + position);
         }
 
-        long margin = marginInMeters.get();
-        return (position.getEastings() >= getMinEastings() - margin) &&
-                (position.getEastings() <= getMaxEasting() + margin) &&
-                (position.getNorthings() >= getMinNorthings() - margin) &&
-                (position.getNorthings() <= getMaxNorthings() + margin);
+        final long margin = marginInMeters.get();
+        final int eastings = position.getEastings();
+        if ((eastings >= getMinEastings() - margin) && (eastings <= getMaxEasting() + margin)) {
+            final int northings = position.getNorthings();
+            return (northings >= getMinNorthings() - margin) && (northings <= getMaxNorthings() + margin);
+        } else {
+            return false;
+        }
+
+//        return (eastings >= getMinEastings() - margin) &&
+//                (eastings <= getMaxEasting() + margin) &&
+//                (position.getNorthings() >= getMinNorthings() - margin) &&
+//                (position.getNorthings() <= getMaxNorthings() + margin);
     }
 
     public boolean contained(Location<?> hasPosition) {

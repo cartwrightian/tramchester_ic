@@ -21,6 +21,11 @@ public class ImmutableGraphTransaction implements GraphTransaction  {
     }
 
     @Override
+    public int getTransactionId() {
+        return underlying.getTransactionId();
+    }
+
+    @Override
     public void close() {
         underlying.close();
     }

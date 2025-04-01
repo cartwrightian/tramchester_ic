@@ -23,10 +23,7 @@ import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.neo4j.graphdb.Direction;
 
 import java.util.List;
@@ -70,7 +67,11 @@ public class FilterRelationshipsByTripIdTest {
         txn = database.beginTxMutable();
 
         when = TestEnv.testDay();
+    }
 
+    @AfterEach
+    void onceAfterEachTestRuns() {
+        txn.close();
     }
 
     @NotNull

@@ -10,6 +10,7 @@ import com.tramchester.graph.facade.ImmutableGraphTransaction;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.repository.DataSourceRepository;
+import jakarta.inject.Inject;
 import org.neo4j.graphalgo.EvaluationContext;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
@@ -21,7 +22,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import jakarta.inject.Inject;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
@@ -69,6 +69,7 @@ public class GraphDatabase implements DatabaseEventListener {
     public void stop() {
         logger.info("stopping");
         if (databaseService!=null) {
+            graphTransactionFactory.close();
             lifecycleManager.stopDatabase();
             databaseService = null;
         } else {
@@ -87,7 +88,7 @@ public class GraphDatabase implements DatabaseEventListener {
         return beginTx(DEFAULT_TXN_TIMEOUT);
     }
 
-    public ImmutableGraphTransaction beginTx(Duration timeout) {
+    public ImmutableGraphTransaction beginTx(final Duration timeout) {
         return graphTransactionFactory.begin(timeout);
     }
 

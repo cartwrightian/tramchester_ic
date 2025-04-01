@@ -136,7 +136,7 @@ public class TramTime implements Comparable<TramTime> {
         return factory.of(other.hour, other.minute, 1);
     }
 
-    public static Duration difference(TramTime first, TramTime second) {
+    public static Duration difference(final TramTime first, final TramTime second) {
         // todo seconds resolution
         return Duration.ofMinutes(diffenceAsMinutes(first, second));
     }
@@ -144,7 +144,7 @@ public class TramTime implements Comparable<TramTime> {
     /***
      * TODO Use seconds, or change to use Duration
      */
-    private static int diffenceAsMinutes(TramTime first, TramTime second) {
+    private static int diffenceAsMinutes(final TramTime first, final TramTime second) {
         if (first.isAfterBasic(second)) {
             return diffenceAsMinutesOverMidnight(second, first);
         } else {
@@ -152,20 +152,20 @@ public class TramTime implements Comparable<TramTime> {
         }
     }
 
-    private static int diffenceAsMinutesOverMidnight(TramTime earlier, TramTime later) {
+    private static int diffenceAsMinutesOverMidnight(final TramTime earlier, final TramTime later) {
         if (nextday(earlier) && today(later)) {
-            int untilMidnight = (HOURS_IN_DAY * MINS_IN_HOUR) - later.minutesOfDay();
+            final int untilMidnight = (HOURS_IN_DAY * MINS_IN_HOUR) - later.minutesOfDay();
             return untilMidnight + earlier.minutesOfDay();
         } else {
             return later.minutesOfDay() - earlier.minutesOfDay();
         }
     }
 
-    private static boolean today(TramTime tramTime) {
+    private static boolean today(final TramTime tramTime) {
         return tramTime.offsetDays==0;
     }
 
-    private static boolean nextday(TramTime tramTime) {
+    private static boolean nextday(final TramTime tramTime) {
         return tramTime.offsetDays==1;
     }
 
@@ -210,8 +210,7 @@ public class TramTime implements Comparable<TramTime> {
         return toPattern;
     }
 
-    // is after with compensation for late nights
-    private boolean isAfterBasic(TramTime other) {
+    private boolean isAfterBasic(final TramTime other) {
         if (hour>other.hour) {
             return true;
         }
@@ -232,13 +231,13 @@ public class TramTime implements Comparable<TramTime> {
         return Integer.compare(this.offsetDays, other.offsetDays);
     }
 
-    public static <T> Comparator<T> comparing(ToTramTimeFunction<? super T> keyExtractor) {
+    public static <T> Comparator<T> comparing(final ToTramTimeFunction<? super T> keyExtractor) {
         Objects.requireNonNull(keyExtractor);
         return (Comparator<T> & Serializable)
                 (c1, c2) -> TramTime.compare(keyExtractor.applyAsTramTime(c1), keyExtractor.applyAsTramTime(c2));
     }
 
-    private static int compare(TramTime a, TramTime b) {
+    private static int compare(final TramTime a, final TramTime b) {
         return a.compareTo(b);
     }
 
@@ -246,7 +245,7 @@ public class TramTime implements Comparable<TramTime> {
         return LocalTime.of(hour, minute);
     }
 
-    public boolean departsAfter(TramTime other) {
+    public boolean departsAfter(final TramTime other) {
         if (this.offsetDays==other.offsetDays) {
             return this.isAfterBasic(other);
         }
@@ -254,14 +253,14 @@ public class TramTime implements Comparable<TramTime> {
     }
 
     // inclusive
-    public boolean between(TramTime start, TramTime end) {
+    public boolean between(final TramTime start, final TramTime end) {
         if ((this.equals(start)) || isAfter(start)) {
             return (this.equals(end) || isBefore(end));
         }
         return false;
     }
 
-    public boolean isBefore(TramTime other) {
+    public boolean isBefore(final TramTime other) {
         if (this.equals(other)) {
             return false;
         }
@@ -271,7 +270,7 @@ public class TramTime implements Comparable<TramTime> {
         return other.offsetDays > this.offsetDays;
     }
 
-    public boolean isAfter(TramTime other) {
+    public boolean isAfter(final TramTime other) {
         if (this.equals(other)) {
             return false;
         }
@@ -281,14 +280,14 @@ public class TramTime implements Comparable<TramTime> {
         return offsetDays>other.offsetDays;
     }
 
-    public boolean isAfterOrSame(TramTime other) {
+    public boolean isAfterOrSame(final TramTime other) {
         if (other.equals(this)) {
             return true;
         }
         return isAfter(other);
     }
 
-    public TramTime minusMinutes(int amount) {
+    public TramTime minusMinutes(final int amount) {
         if (!this.isValid()) {
             throw new RuntimeException("Attempt to subtract " + amount + " from an invalid time");
         }
@@ -300,7 +299,7 @@ public class TramTime implements Comparable<TramTime> {
         int daysToSubtract = Integer.divideUnsigned(amount, HOURS_IN_DAY * MINS_IN_HOUR);
 
         int hoursToSubtract = Integer.divideUnsigned(amount, MINS_IN_HOUR);
-        int minutesToSubtract = amount - ( hoursToSubtract * MINS_IN_HOUR);
+        final int minutesToSubtract = amount - ( hoursToSubtract * MINS_IN_HOUR);
 
         int newMins = minute - minutesToSubtract;
         if (newMins<0) {
@@ -314,7 +313,7 @@ public class TramTime implements Comparable<TramTime> {
             newHours = HOURS_IN_DAY + newHours;
         }
 
-        int newOffsetDays = offsetDays - daysToSubtract;
+        final int newOffsetDays = offsetDays - daysToSubtract;
         if (newOffsetDays<0) {
             throw new RuntimeException(format("Offset days (%S) is negative for %s minus %s", newOffsetDays, this, amount ));
         }
@@ -322,17 +321,17 @@ public class TramTime implements Comparable<TramTime> {
         return TramTime.of(newHours, newMins, newOffsetDays);
     }
 
-    public TramTime plus(Duration duration) {
+    public TramTime plus(final Duration duration) {
         final int minutes = getMinutesSafe(duration);
         return plusMinutes(minutes);
     }
 
-    public TramTime minus(Duration duration) {
+    public TramTime minus(final Duration duration) {
         final int minutes = getMinutesSafe(duration);
         return minusMinutes(minutes);
     }
 
-    public TramTime minusRounded(Duration duration) {
+    public TramTime minusRounded(final Duration duration) {
         final double minutesExact = duration.toSeconds() / 60D;
         final long minutes = Math.round(minutesExact);
         return minusMinutes(Math.toIntExact(minutes));
@@ -350,20 +349,20 @@ public class TramTime implements Comparable<TramTime> {
     }
 
     // TODO Store seconds in tram time
-    private int getMinutesSafe(Duration duration) {
-        long seconds = duration.getSeconds();
-        int mod = Math.floorMod(seconds, 60);
+    private int getMinutesSafe(final Duration duration) {
+        final long seconds = duration.getSeconds();
+        final int mod = Math.floorMod(seconds, 60);
         if (mod!=0) {
             throw new RuntimeException("Accuracy lost attempting to convert " + duration + " to minutes");
         }
         return (int) Math.floorDiv(seconds, 60);
     }
 
-    public TramTime plusMinutes(Long minsToAdd) {
+    public TramTime plusMinutes(final Long minsToAdd) {
         return plusMinutes(minsToAdd.intValue());
     }
 
-    public TramTime plusMinutes(int minsToAdd) {
+    public TramTime plusMinutes(final int minsToAdd) {
         if (minsToAdd==0) {
             return sameTime();
         }
@@ -411,13 +410,13 @@ public class TramTime implements Comparable<TramTime> {
     }
 
     // to date, respecting day offset
-    public LocalDateTime toDate(LocalDate startDate) {
-        LocalDateTime base = LocalDateTime.of(startDate, asLocalTime());
+    public LocalDateTime toDate(final LocalDate startDate) {
+        final LocalDateTime base = LocalDateTime.of(startDate, asLocalTime());
         return base.plusDays(offsetDays);
     }
 
-    public LocalDateTime toDate(TramDate startDate) {
-        LocalDateTime base = LocalDateTime.of(startDate.toLocalDate(), asLocalTime());
+    public LocalDateTime toDate(final TramDate startDate) {
+        final LocalDateTime base = LocalDateTime.of(startDate.toLocalDate(), asLocalTime());
         return base.plusDays(offsetDays);
     }
 
@@ -442,7 +441,7 @@ public class TramTime implements Comparable<TramTime> {
             }
         }
 
-        private TramTime of(int hours, int minutes, int offsetDays) {
+        private TramTime of(final int hours, final int minutes, final int offsetDays) {
             if (offsetDays>=NUM_DAYS) {
                 throw new RuntimeException(String.format("offsetdays is too large, got %s max %s hour: %s mins: %s",
                         offsetDays, NUM_DAYS, hours, minutes));
@@ -510,7 +509,7 @@ public class TramTime implements Comparable<TramTime> {
          * @param offset to start of HHMM part of the string
          * @return hours part i.e. 11 16
          */
-        private static int parseHour(final CharSequence text, int offset) {
+        private static int parseHour(final CharSequence text, final int offset) {
             if (text.length() < offset+4) {
                 throw new NumberFormatException(String.format("String too short for given offset (%s), got %s", offset, text));
             }
@@ -552,8 +551,5 @@ public class TramTime implements Comparable<TramTime> {
 
         }
 
-//        public static TramTime Invalid() {
-//            return invalidTime;
-//        }
     }
 }

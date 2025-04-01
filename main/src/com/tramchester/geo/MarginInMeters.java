@@ -14,12 +14,12 @@ public class MarginInMeters {
         this.meters = meters;
     }
 
-    public static MarginInMeters ofMeters(int meters) {
+    public static MarginInMeters ofMeters(final int meters) {
         return new MarginInMeters(meters);
     }
 
-    public static MarginInMeters ofKM(Double kilometers) {
-        double meters = kilometers * 1000D;
+    public static MarginInMeters ofKM(final Double kilometers) {
+        final double meters = kilometers * 1000D;
         return new MarginInMeters(Math.toIntExact(Math.round(meters)));
     }
 
