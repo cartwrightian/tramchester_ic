@@ -22,28 +22,26 @@ public class GraphTransactionFactory implements MutableGraphTransaction.Transact
     private final GraphDatabaseService databaseService;
     private final GraphDBConfig graphDBConfig;
 
-    private final AtomicInteger openCount;
-    private final Map<Integer,GraphTransaction> openTransactions;
-    private final Map<Integer, StackTraceElement[]> diagnostics;
-    private final Set<Integer> commited;
+    private final State state;
+    private final AtomicInteger transactionCount;
 
     public GraphTransactionFactory(GraphDatabaseService databaseService, GraphDBConfig graphDBConfig) {
         this.databaseService = databaseService;
         this.graphDBConfig = graphDBConfig;
-        openTransactions = new HashMap<>();
-        openCount = new AtomicInteger(0);
-        diagnostics = new HashMap<>();
-        commited = new HashSet<>();
+
+        transactionCount = new AtomicInteger(0);
+        state = new State();
     }
 
     public MutableGraphTransaction beginMutable(final Duration timeout) {
         // graph id factory scoped to transaction level to avoid memory usages issues
         final GraphIdFactory graphIdFactory = new GraphIdFactory(graphDBConfig);
+        final int index = transactionCount.incrementAndGet();
         final Transaction graphDatabaseTxn = databaseService.beginTx(timeout.toSeconds(), TimeUnit.SECONDS);
-        final int index = openCount.incrementAndGet();
         MutableGraphTransaction graphTransaction = new MutableGraphTransaction(graphDatabaseTxn, graphIdFactory, index,this);
-        openTransactions.put(index, graphTransaction);
-        diagnostics.put(index, Thread.currentThread().getStackTrace());
+
+        state.put(graphTransaction, Thread.currentThread().getStackTrace());
+
         return graphTransaction;
     }
 
@@ -53,53 +51,89 @@ public class GraphTransactionFactory implements MutableGraphTransaction.Transact
     }
 
     public void close() {
-        final int total = openCount.get();
+        final int total = transactionCount.get();
         if (total>0) {
-            logger.info("Opened " + openCount.get() + " transactions");
-            if (!openTransactions.isEmpty()) {
-                logger.warn("close: Still " + openTransactions.size() + " Remaining open transactions: " + openTransactions);
-                openTransactions.keySet().forEach(index -> {
-                    logger.warn("Transaction " + index + " from " + logStack(diagnostics.get(index)));
-                    final GraphTransaction graphTransaction = openTransactions.get(index);
-                    logger.info("Closing " + graphTransaction);
-                    graphTransaction.close();
-                });
+            logger.info("Opened " + transactionCount.get() + " transactions");
+            if (state.hasOutstanding()) {
+                logger.warn("close: Still " + state.outstanding() + " remaining open transactions");
+                state.logOutstanding(logger);
             }
         }
     }
 
-    private String logStack(StackTraceElement[] stackTraceElements) {
-        return Arrays.stream(stackTraceElements).map(line -> line + System.lineSeparator()).collect(Collectors.joining());
-    }
-
     @Override
     public void onCommit(final GraphTransaction graphTransaction) {
-        final int index = graphTransaction.getTransactionId();
-
-        if (openTransactions.containsKey(index)) {
-            openTransactions.remove(index);
-            diagnostics.remove(index);
-            commited.add(index);
-        } else {
-            logger.error("onCommit: Could not find for index: " + index + " " + graphTransaction);
-        }
+        state.commitTransaction(graphTransaction);
     }
 
     @Override
     public void onClose(final GraphTransaction graphTransaction) {
-        final int index = graphTransaction.getTransactionId();
+        state.closeTransaction(graphTransaction);
+    }
 
-        if (commited.contains(index)) {
-            return;
+    private static class State {
+        private final Map<Integer,GraphTransaction> openTransactions;
+        private final Map<Integer, StackTraceElement[]> diagnostics;
+        private final Set<Integer> commited;
+
+        private State() {
+            openTransactions = new HashMap<>();
+            diagnostics = new HashMap<>();
+            commited = new HashSet<>();
         }
 
-        if (openTransactions.containsKey(index)) {
-            openTransactions.remove(index);
-            diagnostics.remove(index);
-        } else {
-            logger.error("onClose: Could not find for index: " + index + " " + graphTransaction);
+        public void put(final MutableGraphTransaction graphTransaction, final StackTraceElement[] stackTrace) {
+            final int index = graphTransaction.getTransactionId();
+            openTransactions.put(index, graphTransaction);
+            diagnostics.put(index, stackTrace);
         }
 
+        public void closeTransaction(final GraphTransaction graphTransaction) {
+            final int index = graphTransaction.getTransactionId();
+            if (commited.contains(index)) {
+                return;
+            }
+
+            if (openTransactions.containsKey(index)) {
+                openTransactions.remove(index);
+                diagnostics.remove(index);
+            } else {
+                logger.error("onClose: Could not find for index: " + index);
+            }
+        }
+
+        public void commitTransaction(final GraphTransaction graphTransaction) {
+            final int index = graphTransaction.getTransactionId();
+
+            if (openTransactions.containsKey(index)) {
+                openTransactions.remove(index);
+                diagnostics.remove(index);
+                commited.add(index);
+            } else {
+                logger.error("onCommit: Could not find for index: " + index);
+            }
+        }
+
+        public boolean hasOutstanding() {
+            return !openTransactions.isEmpty();
+        }
+
+        public int outstanding() {
+            return openTransactions.size();
+        }
+
+        public void logOutstanding(Logger logger) {
+            openTransactions.keySet().forEach(index -> {
+                logger.warn("Transaction " + index + " from " + logStack(diagnostics.get(index)));
+                final GraphTransaction graphTransaction = openTransactions.get(index);
+                logger.info("Closing " + graphTransaction);
+                graphTransaction.close();
+            });
+        }
+
+        private String logStack(StackTraceElement[] stackTraceElements) {
+            return Arrays.stream(stackTraceElements).map(line -> line + System.lineSeparator()).collect(Collectors.joining());
+        }
     }
 
 }

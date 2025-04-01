@@ -46,7 +46,8 @@ public class StationClosureDTO {
                 timeRange.getEnd(), timeRange.allDay(), refs, closure.isFullyClosed());
     }
 
-    private StationClosureDTO(TramDate begin, TramDate end, TramTime beginTime, TramTime endTime, boolean allDay, List<LocationRefDTO> stations, boolean fullyClosed) {
+    private StationClosureDTO(TramDate begin, TramDate end, TramTime beginTime, TramTime endTime, boolean allDay,
+                              List<LocationRefDTO> stations, boolean fullyClosed) {
         this.stations = stations;
         this.begin = begin.toLocalDate();
         this.end = end.toLocalDate();

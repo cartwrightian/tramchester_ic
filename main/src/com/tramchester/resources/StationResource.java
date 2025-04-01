@@ -247,7 +247,6 @@ public class StationResource extends UsesRecentCookie implements APIResource {
 
         logger.info("Get closed stations " + closed);
 
-        // TODO Should not be using config here
         final List<StationClosureDTO> dtos = closed.stream().
                 map(StationClosureDTO::from).
                 collect(Collectors.toList());
@@ -255,24 +254,11 @@ public class StationResource extends UsesRecentCookie implements APIResource {
         logger.info("Returning " + dtos.size() + " closures");
 
         return Response.ok(dtos).build();
-
     }
 
     private Set<Closure> getUpcomingClosuresFor(final TramDate date) {
         return closedStationsRepository.getClosuresFor(date);
-
-//        return config.getGTFSDataSource().stream().
-//                flatMap(dataSourceRepository -> dataSourceRepository.getStationClosures().stream()).
-//                filter(closure -> date.isBefore(closure.getDateRange().getEndDate()) || date.equals(closure.getDateRange().getEndDate())).
-//                collect(Collectors.toSet());
     }
 
-
-//    private List<LocationRefDTO> toRefs(IdSet<Station> closedStations) {
-//        return closedStations.stream().
-//                map(stationRepository::getStationById).
-//                map(DTOFactory::createLocationRefDTO).
-//                collect(Collectors.toList());
-//    }
 
 }

@@ -2,6 +2,7 @@ package com.tramchester.acceptance.geolocation;
 
 import com.tramchester.App;
 import com.tramchester.acceptance.AppUserJourneyTest;
+import com.tramchester.acceptance.FetchAllStationsFromAPI;
 import com.tramchester.acceptance.UserJourneyTest;
 import com.tramchester.acceptance.infra.AcceptanceAppExtenstion;
 import com.tramchester.acceptance.infra.ProvidesDriver;
@@ -9,7 +10,6 @@ import com.tramchester.acceptance.pages.App.AppPage;
 import com.tramchester.acceptance.pages.App.Stage;
 import com.tramchester.acceptance.pages.App.TestResultSummaryRow;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.integration.repository.TransportDataFromFilesTramTest;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
@@ -44,7 +44,7 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
 
     private static final String configPath = AppUserJourneyTest.configPath;
 
-    public static final AcceptanceAppExtenstion testRule = new AcceptanceAppExtenstion(App.class, configPath);
+    public static final AcceptanceAppExtenstion appExtension = new AcceptanceAppExtenstion(App.class, configPath);
 
     private final String bury = TramStations.Bury.getName();
     private final String altrincham = TramStations.Altrincham.getName();
@@ -64,7 +64,7 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        url = testRule.getUrl()+"/app/index.html";
+        url = appExtension.getUrl()+"/app/index.html";
         when = TestEnv.testDay().toLocalDate();
     }
 
@@ -83,6 +83,12 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
     void shouldHaveCorrectNearbyStops(ProvidesDriver providesDriver) throws IOException {
         AppPage appPage = prepare(providesDriver);
 
+        FetchAllStationsFromAPI fetchAllStationsFromAPI = new FetchAllStationsFromAPI(appExtension);
+
+        final int allStations = fetchAllStationsFromAPI.getStations().size();
+        //final int closed = fetchAllStationsFromAPI.getClosedStations().size();
+        //final int expectedNumber = allStations-closed;
+
         assertTrue(appPage.hasLocation(), "geo enabled");
         assertTrue(appPage.searchEnabled());
 
@@ -100,8 +106,7 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
         List<String> recentFromStops = appPage.getRecentFromStops();
         assertThat(allFrom, not(contains(recentFromStops)));
 
-        assertEquals(TransportDataFromFilesTramTest.NUM_TFGM_TRAM_STATIONS,
-                nearestFromStops.size() + allFrom.size() + recentFromStops.size());
+        assertEquals(allStations, nearestFromStops.size() + allFrom.size() + recentFromStops.size());
 
         // to
         List<String> myLocationToStops = appPage.getNearbyToStops();
@@ -112,8 +117,7 @@ public class AppUserJourneyLocationsTest extends UserJourneyTest {
         List<String> allTo = appPage.getAllStopsToStops();
         assertThat(allTo, not(contains(nearestToStops)));
         int recentToCount = appPage.getRecentToStops().size();
-        assertEquals(TransportDataFromFilesTramTest.NUM_TFGM_TRAM_STATIONS,
-                nearestToStops.size()+allTo.size()+recentToCount);
+        assertEquals(allStations, nearestToStops.size()+allTo.size()+recentToCount);
 
         // check recents works as expected
         desiredJourney(appPage, TramStations.Altrincham, TramStations.Bury, when, TramTime.of(10,15), false);

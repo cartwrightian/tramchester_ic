@@ -1,6 +1,7 @@
 package com.tramchester.acceptance.infra;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.tramchester.config.AppConfiguration;
 import com.tramchester.testSupport.TestEnv;
 import io.dropwizard.core.Application;
@@ -44,7 +45,9 @@ public class AcceptanceAppExtenstion extends DropwizardAppExtension<AppConfigura
         if (localRun()) {
             return super.getObjectMapper();
         } else {
-            return new ObjectMapper();
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.registerModule(new JavaTimeModule());
+            return mapper;
         }
     }
 
