@@ -431,6 +431,7 @@ def integrationRailConfig = {
 
 tasks.register('integration', Test) {
     dependsOn 'compileJava'
+    outputs.upToDateWhen { false }
     configure integrationTestConfiguration
 }
 
