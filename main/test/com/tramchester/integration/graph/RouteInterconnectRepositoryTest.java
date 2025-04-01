@@ -159,7 +159,7 @@ public class RouteInterconnectRepositoryTest {
 
     }
 
-    @DisabledUntilDate(year = 2025, month = 4)
+    @DisabledUntilDate(year = 2025, month = 4, day = 14)
     @Test
     void shouldCheckFor2Changes() {
 
@@ -227,7 +227,7 @@ public class RouteInterconnectRepositoryTest {
 
     }
 
-    @DisabledUntilDate(year = 2025, month = 4)
+    @DisabledUntilDate(year = 2025, month = 4, day = 14)
     @Test
     void shouldHaveExpectedBacktrackFor2Changes() {
         Route routeA = routeHelper.getOneRoute(getPiccadillyVictoria(date), date);
@@ -270,7 +270,7 @@ public class RouteInterconnectRepositoryTest {
         return converted.toString();
     }
 
-    @DisabledUntilDate(year = 2025, month = 4)
+    @DisabledUntilDate(year = 2025, month = 4,  day = 14)
     @Test
     void shouldCheckFor2ChangesFiltered() {
         Route routeA = routeHelper.getOneRoute(getPiccadillyVictoria(date), date);

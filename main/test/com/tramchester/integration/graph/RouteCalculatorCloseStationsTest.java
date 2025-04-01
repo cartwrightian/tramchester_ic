@@ -107,7 +107,7 @@ class RouteCalculatorCloseStationsTest {
         assertTrue(singleStage.isEmpty());
     }
 
-    @DisabledUntilDate(year = 2025, month = 4)
+    @DisabledUntilDate(year = 2025, month = 4, day = 14)
     @Test
     void shouldFindRouteToClosedStationViaDirectTramWhenAfterClosurePeriod() {
         TramDate travelDate = UpcomingDates.avoidChristmasDate(end.plusDays(2));

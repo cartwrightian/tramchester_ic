@@ -91,7 +91,7 @@ class KnownTramRouteTest {
     }
 
     // likely have to disable until end of york street works
-    @DisabledUntilDate(year = 2025, month = 4)
+    @DisabledUntilDate(year = 2025, month = 4, day = 14)
     @Test
     void shouldHaveExpectedRouteIdForPurple() {
         checkRouteIdFor(KnownTramRoute::getEtihadPiccadillyAltrincham, false);
@@ -102,7 +102,7 @@ class KnownTramRouteTest {
         checkRouteIdFor(KnownTramRoute::getCornbrookTheTraffordCentre, false);
     }
 
-    @DisabledUntilDate(year = 2025, month = 4)
+    @DisabledUntilDate(year = 2025, month = 4, day = 14)
     @Test
     void shouldHaveExpectedRouteIdForYellow() {
         checkRouteIdFor(KnownTramRoute::getPiccadillyVictoria, false);
@@ -234,7 +234,7 @@ class KnownTramRouteTest {
         });
     }
 
-    @DisabledUntilDate(year = 2025, month = 4)
+    @DisabledUntilDate(year = 2025, month = 4, day = 14)
     @Test
     void shouldCheckForMissingRouteSpring2025Closures() {
         // TODO needed for each route?
@@ -253,7 +253,7 @@ class KnownTramRouteTest {
         assertFalse(foundForDate.isEmpty(), "Not matching date " + when + " for " + HasId.asIds(matching));
     }
 
-    @DisabledUntilDate(year = 2025, month = 4)
+    @DisabledUntilDate(year = 2025, month = 4, day = 14)
     @Test
     void shouldCheckForActualDatesYellowRouteIsAvailableFor() {
         TestRoute piccadillyVictoria = getPiccadillyVictoria(when);

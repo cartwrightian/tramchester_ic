@@ -116,7 +116,7 @@ public class RouteToRouteCostsTest {
         assertEquals(0, getMinCost(routesCostRepository.getPossibleMinChanges(routeA, routeA, date, timeRange, modes)));
     }
 
-    @DisabledUntilDate(year = 2025, month = 4)
+    @DisabledUntilDate(year = 2025, month = 4, day = 14)
     @Test
     void shouldComputeCostsDifferentRoutesTwoChange() {
         Route routeA = routeHelper.getOneRoute(getCornbrookTheTraffordCentre(date), date);
@@ -128,7 +128,7 @@ public class RouteToRouteCostsTest {
                 "wrong for " + routeB.getId() + " " + routeA.getId());
     }
 
-    @DisabledUntilDate(year = 2025, month = 4)
+    @DisabledUntilDate(year = 2025, month = 4, day = 14)
     @Test
     void shouldFailIfOurOfTimeRangeDifferentRoutesTwoChange() {
         Route routeA = routeHelper.getOneRoute(getCornbrookTheTraffordCentre(date), date);
@@ -209,7 +209,7 @@ public class RouteToRouteCostsTest {
         assertEquals(0, getMinCost(result));
     }
 
-    @DisabledUntilDate(year = 2025, month = 4)
+    @DisabledUntilDate(year = 2025, month = 4, day = 14)
     @Test
     void shouldSortAsExpected() {
 

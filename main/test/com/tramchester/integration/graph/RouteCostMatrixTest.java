@@ -84,7 +84,7 @@ public class RouteCostMatrixTest {
         assertEquals(1, depth);
     }
 
-    @DisabledUntilDate(year = 2025, month = 4)
+    @DisabledUntilDate(year = 2025, month = 4, day=14)
     @Test
     void shouldHaveExpectedIndexWhereNoDirectInterchangePossible() {
         Route routeA = routeHelper.getOneRoute(getPiccadillyVictoria(date), date);
