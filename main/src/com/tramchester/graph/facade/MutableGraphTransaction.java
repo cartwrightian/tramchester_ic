@@ -165,8 +165,6 @@ public class MutableGraphTransaction implements GraphTransaction {
 
     public GraphNode wrapNode(final Node node) {
         return wrapNodeAsImmutable(node);
-//        final GraphNodeId graphNodeId = idFactory.getIdFor(node);
-//        return new MutableGraphNode(node, graphNodeId);
     }
 
     private MutableGraphNode wrapNodeAsMutable(final Node node) {

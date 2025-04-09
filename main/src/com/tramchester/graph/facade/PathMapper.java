@@ -23,8 +23,8 @@ public class PathMapper {
         currentState = initial;
         Duration currentCost = Duration.ZERO;
         for (Entity entity : path) {
-            if (entity instanceof Node) {
-                final GraphNode graphNode = txn.wrapNode((Node) entity);
+            if (entity instanceof Node node) {
+                final GraphNode graphNode = txn.wrapNode(node);
                 currentState = forGraphNode.getNextStateFrom(currentState, graphNode, currentCost);
             }
             if (entity instanceof Relationship relationship) {

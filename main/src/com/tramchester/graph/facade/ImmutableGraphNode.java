@@ -30,11 +30,12 @@ import java.util.stream.Stream;
 
 public class ImmutableGraphNode implements GraphNode {
     private final MutableGraphNode underlying;
+    private final GraphNodeId nodeId;
+
     private final IdCache<Station> stationId;
     private final IdCache<Trip> tripId;
     private final IdCache<Service> serviceId;
     private final IdCache<RouteStation> routeStationId;
-    private final GraphNodeId nodeId;
 
     ImmutableGraphNode(final MutableGraphNode underlying) {
         this.underlying = underlying;
@@ -96,7 +97,6 @@ public class ImmutableGraphNode implements GraphNode {
     @Override
     public IdFor<RouteStation> getRouteStationId() {
         return routeStationId.get();
-//        return underlying.getRouteStationId();
     }
 
     @Override
