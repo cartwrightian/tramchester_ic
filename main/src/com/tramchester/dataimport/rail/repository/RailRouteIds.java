@@ -90,7 +90,7 @@ public class RailRouteIds implements ReportsCacheStats, RailRouteIdRepository {
     }
 
     private void createRouteIdsFor(ProvidesRailTimetableRecords providesRailTimetableRecords, RailStationRecordsRepository stationRecordsRepository) {
-        List<RailRouteCallingPoints> loadedCallingPoints = ExtractAgencyCallingPointsFromLocationRecords.
+        final List<RailRouteCallingPoints> loadedCallingPoints = ExtractAgencyCallingPointsFromLocationRecords.
                 loadCallingPoints(providesRailTimetableRecords, stationRecordsRepository);
         createRouteIdsFor(loadedCallingPoints);
         loadedCallingPoints.clear();
@@ -119,7 +119,7 @@ public class RailRouteIds implements ReportsCacheStats, RailRouteIdRepository {
             totals.add(results.size());
         });
 
-        int total = totals.stream().reduce(Integer::sum).orElse(0);
+        final int total = totals.stream().reduce(Integer::sum).orElse(0);
 
         logger.info("Created " + total + " ids from " + agencyCallingPoints.size() + " sets of calling points");
 

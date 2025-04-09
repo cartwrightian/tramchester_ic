@@ -212,7 +212,7 @@ public class RailRouteIdsTest {
                 toList();
 
         // was 36 under old ID scheme
-        assertEquals(9, routes.size(), routes.toString());
+        assertEquals(11, routes.size(), routes.toString());
     }
 
     @Test

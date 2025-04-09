@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 import static com.tramchester.testSupport.reference.KnownLines.*;
 import static com.tramchester.testSupport.reference.KnownTramRoute.MISSING_ROUTE;
-import static com.tramchester.testSupport.reference.KnownTramRoute.marchCutoverC;
+import static com.tramchester.testSupport.reference.KnownTramRoute.lastCutoverDate;
 
 /*
  * see also TramRouteHelper
@@ -23,27 +23,25 @@ import static com.tramchester.testSupport.reference.KnownTramRoute.marchCutoverC
 public enum KnownTramRouteEnum implements TestRoute {
 
     // Blue
-    EcclesAshton(Blue, "Eccles - Manchester - Ashton Under Lyne", "2119", marchCutoverC),
+    EcclesAshton(Blue, "Eccles - Manchester - Ashton Under Lyne", "2119", lastCutoverDate),
 
     // Green
-    BuryManchesterAltrincham(Green, "Bury - Manchester - Altrincham", "841", marchCutoverC),
+    BuryManchesterAltrincham(Green, "Bury - Manchester - Altrincham", "841", lastCutoverDate),
 
     // Navy
-    DeansgateCastlefieldManchesterAirport(Navy, "Deansgate-Castlefield - Manchester Airport", "2120", marchCutoverC),
+    DeansgateCastlefieldManchesterAirport(Navy, "Deansgate-Castlefield - Manchester Airport", "2120", lastCutoverDate),
 
     // Pink
-    RochdaleShawandCromptonManchesterEastDidisbury(Pink, "Rochdale - Manchester - East Didsbury", "2831", marchCutoverC),
-    RochdaleShawandCromptonManchesterEastDidisburyNewC(Pink, "Rochdale - Manchester - East Didsbury", "845", TramDate.of(2025, 4,6)),
-    RochdaleShawandCromptonManchesterEastDidisburyNewD(Pink, "Rochdale - Manchester - East Didsbury", "2831", TramDate.of(2025, 4,7)),
+    RochdaleShawandCromptonManchesterEastDidisbury(Pink, "Rochdale - Manchester - East Didsbury", "2831", lastCutoverDate),
 
     // Purple, not in tfgm data as of 28/3/2025
-    EtihadPiccadillyAltrinchamNew(Purple, "Etihad Campus - Piccadilly - Altrincham", MISSING_ROUTE, marchCutoverC),
+    EtihadPiccadillyAltrinchamNew(Purple, "Etihad Campus - Piccadilly - Altrincham", MISSING_ROUTE, lastCutoverDate),
 
     // Red
-    CornbrookTheTraffordCentre(Red, "Cornbrook - The Trafford Centre", "849", marchCutoverC),
+    CornbrookTheTraffordCentre(Red, "Cornbrook - The Trafford Centre", "849", lastCutoverDate),
 
     // Yellow, not in tfgm data as of 28/3/2025
-    PiccadillyVictoriaNewInvalid(Yellow, "Piccadilly - Victoria", MISSING_ROUTE, marchCutoverC);
+    PiccadillyVictoriaNewInvalid(Yellow, "Piccadilly - Victoria", MISSING_ROUTE, lastCutoverDate);
 
     private final KnownLines line;
     private final String longName; // diagnostics only

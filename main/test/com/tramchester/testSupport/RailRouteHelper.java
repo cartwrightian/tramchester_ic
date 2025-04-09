@@ -17,7 +17,6 @@ public class RailRouteHelper {
     private final RouteRepository routeRepository;
 
     public RailRouteHelper(ComponentContainer componentContainer) {
-
         this.railRouteRepository = componentContainer.get(RailRouteIds.class);
         this.routeRepository = componentContainer.get(RouteRepository.class);
     }

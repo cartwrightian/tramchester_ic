@@ -7,7 +7,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -36,9 +39,10 @@ public class GraphTransactionFactory implements MutableGraphTransaction.Transact
     public MutableGraphTransaction beginMutable(final Duration timeout) {
         // graph id factory scoped to transaction level to avoid memory usages issues
         final GraphIdFactory graphIdFactory = new GraphIdFactory(graphDBConfig);
-        final int index = transactionCount.incrementAndGet();
         final Transaction graphDatabaseTxn = databaseService.beginTx(timeout.toSeconds(), TimeUnit.SECONDS);
-        MutableGraphTransaction graphTransaction = new MutableGraphTransaction(graphDatabaseTxn, graphIdFactory, index,this);
+
+        final int index = transactionCount.incrementAndGet();
+        final MutableGraphTransaction graphTransaction = new MutableGraphTransaction(graphDatabaseTxn, graphIdFactory, index,this);
 
         state.put(graphTransaction, Thread.currentThread().getStackTrace());
 
@@ -46,8 +50,7 @@ public class GraphTransactionFactory implements MutableGraphTransaction.Transact
     }
 
     public ImmutableGraphTransaction begin(final Duration timeout) {
-        final MutableGraphTransaction contained = beginMutable(timeout);
-        return new ImmutableGraphTransaction(contained);
+        return new ImmutableGraphTransaction(beginMutable(timeout));
     }
 
     public void close() {
@@ -57,6 +60,8 @@ public class GraphTransactionFactory implements MutableGraphTransaction.Transact
             if (state.hasOutstanding()) {
                 logger.warn("close: Still " + state.outstanding() + " remaining open transactions");
                 state.logOutstanding(logger);
+            } else {
+                logger.info("closed: open and commit/close balanced");
             }
         }
     }
@@ -72,13 +77,13 @@ public class GraphTransactionFactory implements MutableGraphTransaction.Transact
     }
 
     private static class State {
-        private final Map<Integer,GraphTransaction> openTransactions;
-        private final Map<Integer, StackTraceElement[]> diagnostics;
+        private final ConcurrentHashMap<Integer,GraphTransaction> openTransactions;
+        private final ConcurrentHashMap<Integer, StackTraceElement[]> diagnostics;
         private final Set<Integer> commited;
 
         private State() {
-            openTransactions = new HashMap<>();
-            diagnostics = new HashMap<>();
+            openTransactions = new ConcurrentHashMap<>();
+            diagnostics = new ConcurrentHashMap<>();
             commited = new HashSet<>();
         }
 
@@ -94,24 +99,37 @@ public class GraphTransactionFactory implements MutableGraphTransaction.Transact
                 return;
             }
 
-            if (openTransactions.containsKey(index)) {
-                openTransactions.remove(index);
-                diagnostics.remove(index);
-            } else {
+            if (openTransactions.remove(index) == null) {
                 logger.error("onClose: Could not find for index: " + index);
+            } else {
+                diagnostics.remove(index);
             }
+
+//            if (openTransactions.containsKey(index)) {
+//                openTransactions.remove(index);
+//                diagnostics.remove(index);
+//            } else {
+//                logger.error("onClose: Could not find for index: " + index);
+//            }
         }
 
         public void commitTransaction(final GraphTransaction graphTransaction) {
             final int index = graphTransaction.getTransactionId();
 
-            if (openTransactions.containsKey(index)) {
-                openTransactions.remove(index);
+            if (openTransactions.remove(index)==null) {
+                logger.error("onCommit: Could not find for index: " + index);
+            } else {
                 diagnostics.remove(index);
                 commited.add(index);
-            } else {
-                logger.error("onCommit: Could not find for index: " + index);
             }
+
+//            if (openTransactions.containsKey(index)) {
+//                openTransactions.remove(index);
+//                diagnostics.remove(index);
+//                commited.add(index);
+//            } else {
+//                logger.error("onCommit: Could not find for index: " + index);
+//            }
         }
 
         public boolean hasOutstanding() {

@@ -208,26 +208,6 @@ public class StationAvailabilityRepositoryTest {
         });
     }
 
-//    @Test
-//    void reproduceIssueForYellowAndPinkRoutesWhenGMInEffect() {
-//        TramDate date = TestEnv.testDay();
-//        TimeRange timeRange = TimeRange.of(TramTime.of(8, 45), TramTime.of(16, 45));
-//        Set<TransportMode> requestedModes = EnumSet.of(Tram);
-//
-//        InterchangeRepository interchangeRepository = componentContainer.get(InterchangeRepository.class);
-//
-//        Route yellowInbound = tramRouteHelper.getOneRoute(BuryPiccadilly, date);
-//        Route pinkOutbound = tramRouteHelper.getOneRoute(EastDidisburyManchesterShawandCromptonRochdale, date);
-//
-//        RoutePair routePair = RoutePair.of(yellowInbound, pinkOutbound);
-//        Station victoria = Victoria.from(stationRepository);
-//        Set<InterchangeStation> interchanges = Collections.singleton(interchangeRepository.getInterchange(victoria));
-//
-//        RouteAndChanges routeAndChanges = new RouteAndChanges(routePair, interchanges);
-//        boolean result = availabilityRepository.isAvailable(routeAndChanges, date, timeRange, requestedModes);
-//        assertTrue(result);
-//    }
-
     @DisabledUntilDate(year = 2025, month = 4, day = 24)
     @Test
     void shouldHaveExpectedDropOffRoutesForVictoriaTram() {
@@ -251,8 +231,6 @@ public class StationAvailabilityRepositoryTest {
         assertTrue(pickups.contains(blueInbound));
         assertTrue(pickups.contains(greenOutbound));
 
-
     }
-
 
 }

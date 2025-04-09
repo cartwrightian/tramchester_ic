@@ -22,6 +22,7 @@ public class ConfigParameterResolver implements ParameterResolver {
 
     public static final String PARAMETER_KEY = "com.tramchester.config";
     private static final String dualTest = getTagName(DualTest.class);
+
     private static final String trainTest = getTagName(TrainTest.class);
     private static final String gmTest = getTagName(GMTest.class);
 
@@ -38,26 +39,24 @@ public class ConfigParameterResolver implements ParameterResolver {
     public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
         Set<String> tags = extensionContext.getTags();
 
-        Optional<String> configOverride = extensionContext.getConfigurationParameter(PARAMETER_KEY);
+        final Optional<String> configOverride = extensionContext.getConfigurationParameter(PARAMETER_KEY);
 
-        TramchesterConfig config = null;
+        final TramchesterConfig config;
         if (tags.contains(dualTest)) {
             config = configOverride.map(name -> getExpectedOverride(name, tramAndTrain)).orElse(tramOnly);
         } else if (tags.contains(trainTest) && tags.contains(gmTest)) {
             config = configOverride.map(name -> getExpectedOverride(name, trainOnly)).orElse(tramAndTrain);
-        }
-
-        if (config == null) {
+        } else {
             throw new ExtensionConfigurationException("ConfigParameterResolver and overrides not defined for tags " + tags);
         }
+
         extensionContext.getStore(ExtensionContext.Namespace.GLOBAL).put("tramchester.config", config);
         return config;
-
     }
 
     @NotNull
-    private static TramchesterConfig getExpectedOverride(String name, TramchesterConfig expected) {
-        String expectedClassName = (expected.getClass().getSimpleName());
+    private static TramchesterConfig getExpectedOverride(final String name, final TramchesterConfig expected) {
+        final String expectedClassName = (expected.getClass().getSimpleName());
         if (name.equals(expectedClassName)) {
             return expected;
         } else {

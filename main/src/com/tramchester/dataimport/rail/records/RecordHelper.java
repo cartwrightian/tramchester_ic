@@ -19,18 +19,20 @@ public class RecordHelper {
      */
     public static String extract(final String text, final int begin, final int end) {
         final int length = text.length();
-        if ((begin-1) > length) {
+        final int realBegin = begin - 1;
+        if (realBegin > length) {
             logger.warn(format("Record length too short (begin) was %s but looking for substring(%s,%s) in '%s'",
                     length, begin, end, text));
             return "";
         }
-        if ((end-1) > length) {
+        final int realEnd = end - 1;
+        if (realEnd > length) {
             logger.warn(format("Record length too short (end) was %s but looking for substring(%s,%s) in '%s'",
                     length, begin, end, text));
-            return text.substring(begin-1, length-1).trim();
+            return text.substring(realBegin, length-1).trim();
         }
 
-        return text.substring(begin-1, end-1).trim();
+        return text.substring(realBegin, realEnd).trim();
     }
 
     public static TramDate extractTramDate(String text, int begin, int century) {

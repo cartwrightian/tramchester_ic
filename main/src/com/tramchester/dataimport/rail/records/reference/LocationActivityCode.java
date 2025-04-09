@@ -73,7 +73,6 @@ public enum LocationActivityCode implements EnumMap.HasCodes {
         }
 
         return getCodesFor(lookup);
-
     }
 
     private static EnumSet<LocationActivityCode> getCodesFor(final String text) {
@@ -84,7 +83,6 @@ public enum LocationActivityCode implements EnumMap.HasCodes {
             result.addAll(parseToken(token));
         }
         return result;
-
     }
 
     private static EnumSet<LocationActivityCode> parseToken(final String token) {

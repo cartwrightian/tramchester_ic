@@ -12,7 +12,7 @@ import static com.tramchester.testSupport.UpcomingDates.*;
 
 public class KnownTramRoute {
 
-    public static final TramDate marchCutoverC = TramDate.of(2025,3,25);
+    public static final TramDate lastCutoverDate = TramDate.of(2025,4,7);
 
     // missing from tfgm data
     public static final String MISSING_ROUTE = "";
