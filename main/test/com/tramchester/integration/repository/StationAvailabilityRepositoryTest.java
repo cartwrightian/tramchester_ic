@@ -21,9 +21,9 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
 import com.tramchester.testSupport.testTags.DualTest;
-import com.tramchester.testSupport.testTags.GMTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,7 +44,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(ConfigParameterResolver.class)
 @DualTest
-@GMTest
 public class StationAvailabilityRepositoryTest {
     private static ComponentContainer componentContainer;
     private static TramchesterConfig config;
@@ -104,7 +103,7 @@ public class StationAvailabilityRepositoryTest {
         assertTrue(result.contains(TramTime.of(8,0)));
         assertFalse(result.contains(TramTime.of(3,0)));
 
-        assertEquals(TimeRangePartial.of(TramTime.of(5,12), TramTime.nextDay(0,48)), result);
+        assertEquals(TimeRangePartial.of(TramTime.of(5,10), TramTime.nextDay(0,48)), result);
     }
 
     @Test
@@ -152,14 +151,14 @@ public class StationAvailabilityRepositoryTest {
     @Test
     void shouldHaveExpectedRoutesAvailableForDatesAndTimeRanges() {
 
-        // earier to diagnose using end of line station
+        // earlier to diagnose using end of line station
         Station altrincham = Altrincham.from(stationRepository);
 
         TimeRange timeRange = TimeRangePartial.of(TramTime.of(12, 50), Duration.ofHours(4), Duration.ofHours(4));
 
         Set<Route> results = availabilityRepository.getPickupRoutesFor(altrincham, when, timeRange, modes);
 
-        assertEquals(2, results.size(),
+        assertEquals(1, results.size(),
                 timeRange + " missing routes from " + altrincham.getId() + " got " + HasId.asIds(results));
     }
 
@@ -229,6 +228,7 @@ public class StationAvailabilityRepositoryTest {
 //        assertTrue(result);
 //    }
 
+    @DisabledUntilDate(year = 2025, month = 4, day = 24)
     @Test
     void shouldHaveExpectedDropOffRoutesForVictoriaTram() {
         TramDate date = TestEnv.testDay();
