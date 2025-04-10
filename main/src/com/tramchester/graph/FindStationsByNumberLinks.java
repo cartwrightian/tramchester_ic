@@ -5,9 +5,9 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
-import com.tramchester.graph.facade.MutableGraphTransaction;
-import com.tramchester.graph.graphbuild.StationGroupsGraphBuilder;
+import com.tramchester.graph.facade.TimedTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
+import com.tramchester.graph.graphbuild.StationGroupsGraphBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Result;
 import org.slf4j.Logger;
@@ -54,14 +54,14 @@ public class FindStationsByNumberLinks {
     private IdSet<Station> doQuery(final TransportMode mode, Map<String, Object> params, final String query) {
         logger.info("Query: '" + query + '"');
 
-        IdSet<Station> stationIds = new IdSet<>();
+        final IdSet<Station> stationIds = new IdSet<>();
 
+        // TODO could be immutable
         try (TimedTransaction timedTransaction = graphDatabase.beginTimedTxMutable(logger, "linked for " + mode) ) {
-            MutableGraphTransaction txn = timedTransaction.transaction();
-            Result result = txn.execute(query, params);
+            final Result result = timedTransaction.execute(query, params);
             while (result.hasNext()) {
-                Map<String, Object> row = result.next();
-                String text = (String) row.get("stationId");
+                final Map<String, Object> row = result.next();
+                final String text = (String) row.get("stationId");
                 stationIds.add(Station.createId(text));
             }
             result.close();

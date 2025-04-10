@@ -8,6 +8,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
 import com.tramchester.graph.facade.MutableGraphNode;
 import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.facade.TimedTransaction;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.CreateNodesAndRelationships;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
@@ -89,8 +90,7 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
     }
 
     private void createNeighboursInDB() {
-        try(TimedTransaction timedTransaction = graphDatabase.beginTimedTxMutable(logger, "create neighbours")) {
-            MutableGraphTransaction txn = timedTransaction.transaction();
+        try(TimedTransaction txn = graphDatabase.beginTimedTxMutable(logger, "create neighbours")) {
                 stationRepository.getActiveStationStream().
                     filter(filter::shouldInclude).
                     filter(station -> neighboursRepository.hasNeighbours(station.getId())).
@@ -98,7 +98,7 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
                         final Set<StationToStationConnection> links = neighboursRepository.getNeighbourLinksFor(station.getId());
                         addNeighbourRelationships(txn, filter, station, links);
                 });
-            timedTransaction.commit();
+            txn.commit();
         }
     }
 

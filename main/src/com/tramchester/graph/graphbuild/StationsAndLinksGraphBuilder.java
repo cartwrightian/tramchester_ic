@@ -14,7 +14,7 @@ import com.tramchester.domain.reference.GTFSPickupDropoffType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphPropertyKey;
-import com.tramchester.graph.TimedTransaction;
+import com.tramchester.graph.facade.TimedTransaction;
 import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
 import com.tramchester.graph.facade.*;
 import com.tramchester.graph.filters.GraphFilter;
@@ -98,14 +98,13 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
 
         try (Timing ignored = new Timing(logger, "graph rebuild")) {
             try(TimedTransaction timedTransaction = graphDatabase.beginTimedTxMutable(logger, "Adding stations")) {
-                final MutableGraphTransaction tx = timedTransaction.transaction();
                 for(final Station station : transportData.getStations()) {
                     if (graphFilter.shouldInclude(station)) {
                         if (station.getTransportModes().isEmpty()) {
                             logger.info("Skipping " + station.getId() + " as no transport modes are set, non stopping station");
                         } else {
-                            final GraphNode stationNode = createStationNode(tx, station);
-                            createPlatformsForStation(tx, station, stationAndPlatformNodeCache);
+                            final GraphNode stationNode = createStationNode(timedTransaction, station);
+                            createPlatformsForStation(timedTransaction, station, stationAndPlatformNodeCache);
                             stationAndPlatformNodeCache.putStation(station.getId(), stationNode);
                         }
                     }
@@ -159,8 +158,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         // nodes will not be created for stations that as 'passed' by services that do not call, which is the
         // case for rail transport data.
 
-        try(TimedTransaction timedTransaction = graphDatabase.beginTimedTxMutable(logger, "Adding routes")){
-            final MutableGraphTransaction tx = timedTransaction.transaction();
+        try(TimedTransaction txn = graphDatabase.beginTimedTxMutable(logger, "Adding routes")){
             routes.forEach(route -> {
                 final IdFor<Route> asId = route.getId();
                 logger.debug("Adding route " + asId);
@@ -168,16 +166,16 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
                         filter(station -> station.servesRouteDropOff(route) || station.servesRoutePickup(route)).
                         map(station -> transportData.getRouteStation(station, route)).
                         forEach(routeStation -> {
-                            final MutableGraphNode routeStationNode = createRouteStationNode(tx, routeStation, routeStationNodeCache);
-                            linkStationAndRouteStation(tx, routeStation.getStation(), routeStationNode, route.getTransportMode(),
+                            final MutableGraphNode routeStationNode = createRouteStationNode(txn, routeStation, routeStationNodeCache);
+                            linkStationAndRouteStation(txn, routeStation.getStation(), routeStationNode, route.getTransportMode(),
                                     stationAndPlatformNodeCache);
                         });
 
-                createLinkRelationships(tx, route, stationAndPlatformNodeCache);
+                createLinkRelationships(txn, route, stationAndPlatformNodeCache);
 
                 logger.debug("Route " + asId + " added ");
             });
-            timedTransaction.commit();
+            txn.commit();
         }
     }
 

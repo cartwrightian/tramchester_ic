@@ -7,18 +7,17 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.FindStationsByNumberLinks;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphPropertyKey;
-import com.tramchester.graph.TimedTransaction;
 import com.tramchester.graph.facade.GraphRelationship;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.facade.TimedTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
 import com.tramchester.mappers.Geography;
 import com.tramchester.repository.StationRepository;
+import jakarta.inject.Inject;
 import org.neo4j.graphdb.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.inject.Inject;
 import java.util.*;
 
 import static java.lang.String.format;
@@ -57,8 +56,8 @@ public class FindLinkedStations {
         logger.info("Query: '" + query + '"');
 
         Set<StationToStationConnection> links = new HashSet<>();
-        try (TimedTransaction timedTransaction = graphDatabase.beginTimedTxMutable(logger, "query for links " + mode)) {
-            final MutableGraphTransaction txn = timedTransaction.transaction();
+        // TODO could be immutable
+        try (TimedTransaction txn = graphDatabase.beginTimedTxMutable(logger, "query for links " + mode)) {
             final Result result = txn.execute(query, params);
             while (result.hasNext()) {
                 final GraphRelationship relationship = txn.getQueryColumnAsRelationship(result.next(), "r");

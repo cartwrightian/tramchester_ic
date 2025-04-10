@@ -168,14 +168,13 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
     }
 
     private void createWalks(final ClosedStation closedStation) {
-        try(TimedTransaction timedTransaction = graphDatabase.beginTimedTxMutable(logger, "create diversions for " +closedStation.getStationId())) {
-            final MutableGraphTransaction txn = timedTransaction.transaction();
+        try(TimedTransaction txn = graphDatabase.beginTimedTxMutable(logger, "create diversions for " +closedStation.getStationId())) {
             addDiversionsToAndFromClosed(txn, closedStation);
             final int added = addDiversionsAroundClosed(txn, closedStation);
             if (added==0) {
                 logger.warn("Did not create any diversions around closure of " + closedStation.getStationId());
             }
-            timedTransaction.commit();
+            txn.commit();
         }
     }
 

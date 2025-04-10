@@ -4,10 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.databaseManagement.GraphDatabaseLifecycleManager;
-import com.tramchester.graph.facade.GraphTransaction;
-import com.tramchester.graph.facade.GraphTransactionFactory;
-import com.tramchester.graph.facade.ImmutableGraphTransaction;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.repository.DataSourceRepository;
 import jakarta.inject.Inject;
@@ -102,21 +99,20 @@ public class GraphDatabase implements DatabaseEventListener {
         return graphTransactionFactory.beginMutable(DEFAULT_TXN_TIMEOUT);
     }
 
-    public MutableGraphTransaction beginTxMutable(Duration timeout) {
+    public MutableGraphTransaction beginTxMutable(final Duration timeout) {
         return graphTransactionFactory.beginMutable(timeout);
     }
 
     public TimedTransaction beginTimedTxMutable(final Logger logger, final String text) {
-        return new TimedTransaction(beginTxMutable(), logger, text);
+        return graphTransactionFactory.beginTimedMutable(logger, text, DEFAULT_TXN_TIMEOUT);
     }
 
     /////////////
 
     public void createIndexes() {
 
-        try (TimedTransaction timed = beginTimedTxMutable(logger, "Create DB Constraints & indexes"))
+        try (TimedTransaction tx = beginTimedTxMutable(logger, "Create DB Constraints & indexes"))
         {
-            final MutableGraphTransaction tx = timed.transaction();
             final Schema schema = tx.schema();
 
             createUniqueIdConstraintFor(schema, GraphLabel.STATION, GraphPropertyKey.STATION_ID);
@@ -127,7 +123,7 @@ public class GraphDatabase implements DatabaseEventListener {
 
             schema.indexFor(GraphLabel.PLATFORM).on(GraphPropertyKey.PLATFORM_ID.getText()).create();
 
-            timed.commit();
+            tx.commit();
         }
     }
 

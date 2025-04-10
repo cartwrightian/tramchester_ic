@@ -10,7 +10,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.TimedTransaction;
+import com.tramchester.graph.facade.TimedTransaction;
 import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.MutableGraphNode;
 import com.tramchester.graph.facade.MutableGraphTransaction;
@@ -105,8 +105,7 @@ public class StationGroupsGraphBuilder extends CreateNodesAndRelationships {
 
         final Map<IdFor<StationLocalityGroup>, GraphNodeId> nodeForGroups = new HashMap<>();
 
-        try(TimedTransaction timedTransaction = graphDatabase.beginTimedTxMutable(logger, logMessage)) {
-            final MutableGraphTransaction txn = timedTransaction.transaction();
+        try(TimedTransaction txn = graphDatabase.beginTimedTxMutable(logger, logMessage)) {
             groupsForMode.stream().filter(graphFilter::shouldInclude).
                 filter(this::shouldInclude).
                 forEach(group -> {
@@ -114,14 +113,13 @@ public class StationGroupsGraphBuilder extends CreateNodesAndRelationships {
                     nodeForGroups.put(group.getId(), groupNode.getId());
                     linkStationsWithGroup(txn, groupNode, group);
             });
-            timedTransaction.commit();
+            txn.commit();
         }
 
         logger.info("Added " + nodeForGroups.size() + " station groups");
 
         final AtomicInteger parentChildLinks = new AtomicInteger(0);
-        try(TimedTransaction addParentTxn = graphDatabase.beginTimedTxMutable(logger, "add parents for groups")) {
-            final MutableGraphTransaction txn = addParentTxn.transaction();
+        try(TimedTransaction txn = graphDatabase.beginTimedTxMutable(logger, "add parents for groups")) {
             groupsForMode.stream().filter(graphFilter::shouldInclude).
                     filter(this::shouldInclude).
                     filter(StationLocalityGroup::hasParent).
@@ -132,7 +130,7 @@ public class StationGroupsGraphBuilder extends CreateNodesAndRelationships {
                         createGroupToParentRelationship(txn, txn.getNodeByIdMutable(currentNodeId), txn.getNodeByIdMutable(parentNodeId), group);
                         parentChildLinks.getAndIncrement();
                     });
-            addParentTxn.commit();
+            txn.commit();
         }
 
         logger.info("Added " + parentChildLinks.get() + " links between parent/child station groups");

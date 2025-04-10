@@ -39,7 +39,6 @@ import static java.lang.String.format;
 public class AddTemporaryStationWalksGraphBuilder extends CreateNodesAndRelationships implements StationsWithDiversionRepository {
     private static final Logger logger = LoggerFactory.getLogger(AddTemporaryStationWalksGraphBuilder.class);
 
-    private final GraphDatabase database;
     private final TemporaryStationWalksRepository walksRepository;
     private final TramchesterConfig config;
     private final GraphFilter graphFilter;
@@ -55,7 +54,6 @@ public class AddTemporaryStationWalksGraphBuilder extends CreateNodesAndRelation
                                                 Geography geography, StationsWithDiversion stationsWithDiversions,
                                                 StationRepository stationRepository) {
         super(database);
-        this.database = database;
         this.graphFilter = graphFilter;
         this.walksRepository = walksRepository;
         this.config = config;
@@ -133,14 +131,13 @@ public class AddTemporaryStationWalksGraphBuilder extends CreateNodesAndRelation
                 filter(walk -> graphFilter.shouldInclude(walk.getStationPair())).
                 toList();
 
-        try(TimedTransaction timedTransaction = graphDatabase.beginTimedTxMutable(logger, "create walks for " +source.getDataSourceId())) {
-            final MutableGraphTransaction txn = timedTransaction.transaction();
+        try(TimedTransaction txn = graphDatabase.beginTimedTxMutable(logger, "create walks for " +source.getDataSourceId())) {
 
             for(TemporaryStationWalk walk : walks) {
                 addStationWalk(txn, walk);
             }
 
-            timedTransaction.commit();
+            txn.commit();
         }
     }
 
@@ -170,7 +167,7 @@ public class AddTemporaryStationWalksGraphBuilder extends CreateNodesAndRelation
                     throw new RuntimeException(message);
                 }
                 logger.info("Found " + GraphLabel.TEMP_WALKS_ADDED + " node");
-                node = nodes.get(0);
+                node = nodes.getFirst();
             }
             node.setSourceName(sourceConfig.getName());
 

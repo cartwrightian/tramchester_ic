@@ -49,6 +49,20 @@ public class GraphTransactionFactory implements MutableGraphTransaction.Transact
         return graphTransaction;
     }
 
+    public TimedTransaction beginTimedMutable(Logger logger, String text, Duration timeout) {
+        final GraphIdFactory graphIdFactory = new GraphIdFactory(graphDBConfig);
+        final Transaction graphDatabaseTxn = databaseService.beginTx(timeout.toSeconds(), TimeUnit.SECONDS);
+
+        final int index = transactionCount.incrementAndGet();
+
+        TimedTransaction graphTransaction = new TimedTransaction(graphDatabaseTxn, graphIdFactory,
+                index,this, logger, text);
+
+        state.put(graphTransaction, Thread.currentThread().getStackTrace());
+
+        return graphTransaction;
+    }
+
     public ImmutableGraphTransaction begin(final Duration timeout) {
         return new ImmutableGraphTransaction(beginMutable(timeout));
     }
@@ -56,12 +70,13 @@ public class GraphTransactionFactory implements MutableGraphTransaction.Transact
     public void close() {
         final int total = transactionCount.get();
 
-        // TODO into debug
-        if (total==1) {
-            logger.info("Only one transaction");
-            state.logDiagnostics(logger, Level.INFO);
-
+        if (logger.isDebugEnabled()) {
+            if (total == 1) {
+                logger.debug("Only one transaction");
+                state.logDiagnostics(logger, Level.DEBUG);
+            }
         }
+        
         if (total>0) {
             logger.info("Opened " + total + " transactions");
             if (state.hasOutstanding()) {

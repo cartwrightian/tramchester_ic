@@ -22,6 +22,7 @@ import com.tramchester.graph.databaseManagement.GraphDatabaseMetaInfo;
 import com.tramchester.graph.facade.MutableGraphNode;
 import com.tramchester.graph.facade.MutableGraphRelationship;
 import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.facade.TimedTransaction;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.caching.*;
 import com.tramchester.metrics.Timing;
@@ -151,13 +152,12 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
     private void linkStationsAndPlatforms(final StationAndPlatformNodeCache stationAndPlatformNodeCache) {
 
-        try(TimedTransaction timedTransaction = graphDatabase.beginTimedTxMutable(logger, "link stations & platforms")) {
-            final MutableGraphTransaction txn = timedTransaction.transaction();
+        try(TimedTransaction txn = graphDatabase.beginTimedTxMutable(logger, "link stations & platforms")) {
             transportData.getActiveStationStream().
                     filter(Station::hasPlatforms).
                     filter(graphFilter::shouldInclude).
                     forEach(station -> linkStationAndPlatforms(txn, station, stationAndPlatformNodeCache));
-            timedTransaction.commit();
+            txn.commit();
         }
     }
 
@@ -184,10 +184,9 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             return;
         }
 
-        try (TimedTransaction timedTransaction = graphDatabase.beginTimedTxMutable(logger, "onRoute for " + agency.getId())) {
-            final MutableGraphTransaction tx = timedTransaction.transaction();
-            getRoutesForAgency(agency).forEach(route -> createOnRouteRelationships(tx, route, routeStationNodeCache));
-            timedTransaction.commit();
+        try (TimedTransaction txn = graphDatabase.beginTimedTxMutable(logger, "onRoute for " + agency.getId())) {
+            getRoutesForAgency(agency).forEach(route -> createOnRouteRelationships(txn, route, routeStationNodeCache));
+            txn.commit();
         }
 
         try(Timing ignored = new Timing(logger,"service, hour for " + agency.getId())) {
@@ -211,11 +210,10 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             transactionStrategy.close();
         }
 
-        try (TimedTransaction timedTransaction = graphDatabase.beginTimedTxMutable(logger, "boards & departs for " + agency.getId())) {
-            final MutableGraphTransaction tx = timedTransaction.transaction();
-            getRoutesForAgency(agency).forEach(route -> buildGraphForBoardsAndDeparts(route, tx, stationAndPlatformCache, routeStationNodeCache,
+        try (TimedTransaction txn = graphDatabase.beginTimedTxMutable(logger, "boards & departs for " + agency.getId())) {
+            getRoutesForAgency(agency).forEach(route -> buildGraphForBoardsAndDeparts(route, txn, stationAndPlatformCache, routeStationNodeCache,
                     boardingDepartNodeCache));
-            timedTransaction.commit();
+            txn.commit();
         }
 
         agencyBuilderNodeCache.clear();
