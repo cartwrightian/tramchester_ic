@@ -86,7 +86,7 @@ class RouteResourceTest {
         // has to be today since route ids change over time
         TramDate date = TramDate.of(LocalDate.now());
 
-        IdForDTO expectedRouteId = KnownTramRoute.getDeansgateManchesterAirport(date).dtoId();
+        IdForDTO expectedRouteId = KnownTramRoute.getNavy(date).dtoId();
 
         Optional<RouteDTO> airRoutes = routes.stream().
                 filter(routeDTO -> routeDTO.getId().equals(expectedRouteId)).

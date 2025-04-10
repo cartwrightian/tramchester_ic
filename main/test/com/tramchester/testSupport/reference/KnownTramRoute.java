@@ -5,14 +5,14 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.DayOfWeek;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.tramchester.testSupport.UpcomingDates.*;
-
 public class KnownTramRoute {
 
-    public static final TramDate lastCutoverDate = TramDate.of(2025,4,7);
+    public static final TramDate startAprilCutover = TramDate.of(2025,4,7);
+    public static final TramDate endAprilCutover = TramDate.of(2025, 4, 24);
 
     // missing from tfgm data
     public static final String MISSING_ROUTE = "";
@@ -20,58 +20,50 @@ public class KnownTramRoute {
     /***
      * @return Yellow route
      */
-    public static @NotNull TestRoute getPiccadillyVictoria(TramDate date) {
+    public static @NotNull TestRoute getYellow(TramDate date) {
         return findFor(KnownLines.Yellow, date);
     }
 
     /***
      * @return Red route
      */
-    public static @NotNull TestRoute getCornbrookTheTraffordCentre(TramDate date) {
+    public static @NotNull TestRoute getRed(TramDate date) {
         return findFor(KnownLines.Red, date);
     }
 
     /***
      * @return Purple route
      */
-    public static @NotNull TestRoute getEtihadPiccadillyAltrincham(TramDate date) {
+    public static @NotNull TestRoute getPurple(TramDate date) {
         return findFor(KnownLines.Purple, date);
     }
 
     /***
      * @return Pink route
      */
-    public static @NotNull TestRoute getShawandCromptonManchesterEastDidisbury(TramDate date) {
+    public static @NotNull TestRoute getPink(TramDate date) {
         return findFor(KnownLines.Pink, date);
     }
 
     /***
      * @return Navy route
      */
-    public static @NotNull TestRoute getDeansgateManchesterAirport(TramDate date) {
+    public static @NotNull TestRoute getNavy(TramDate date) {
         return findFor(KnownLines.Navy, date);
     }
 
     /***
      * @return Green route
      */
-    public static @NotNull TestRoute getBuryManchesterAltrincham(TramDate date) {
+    public static @NotNull TestRoute getGreen(TramDate date) {
         return findFor(KnownLines.Green, date);
     }
 
     /***
      * @return Blue route
      */
-    public static @NotNull TestRoute getEcclesAshton(TramDate date) {
+    public static @NotNull TestRoute getBlue(TramDate date) {
         return findFor(KnownLines.Blue, date);
-    }
-
-    /***
-     * @return Brown route
-     */
-
-    private static TestRoute getFirswoodEastDidsbury(TramDate date) {
-        return findFor(KnownLines.Brown, date);
     }
 
     public static TestRoute findFor(final KnownLines line, final TramDate date) {
@@ -115,27 +107,18 @@ public class KnownTramRoute {
 
         final Set<TestRoute> routes = new HashSet<>();
 
-        routes.add(getBuryManchesterAltrincham(date));
-
-        TramDate april2025CutOver = TramDate.of(2025, 4, 24);
-
-//        if (!(DeansgateTraffordBarWorks.contains(date) || EndMarchNotOnTFGMSite.contains(date)
-//                || HighStreetAndChurchStreetWorks.contains(date) || date.isAfter(april2025CutOver))) {
-//            routes.add(getEtihadPiccadillyAltrincham(date));
-//        }
-//
-//        if (DeansgateTraffordBarWorks.contains(date) ) {
-//            routes.add(getFirswoodEastDidsbury(date));
-//        }
-
-        if (!(HighStreetAndChurchStreetWorks.contains(date) || date.isAfter(april2025CutOver))) {
-            routes.add(getPiccadillyVictoria(date));
+        if (date.isAfter(endAprilCutover) || date.equals(endAprilCutover)) {
+            if (date.getDayOfWeek()!= DayOfWeek.SUNDAY) {
+                routes.add(getYellow(date));
+            }
+            routes.add(getPurple(date));
         }
 
-        routes.add(getEcclesAshton(date));
-        routes.add(getCornbrookTheTraffordCentre(date));
-        routes.add(getDeansgateManchesterAirport(date));
-        routes.add(getShawandCromptonManchesterEastDidisbury(date));
+        routes.add(getGreen(date));
+        routes.add(getBlue(date));
+        routes.add(getRed(date));
+        routes.add(getNavy(date));
+        routes.add(getPink(date));
 
         return routes;
     }

@@ -135,13 +135,12 @@ class JourneyLocationsResourceTramTest {
                 collect(Collectors.toSet());
 
         assertTrue(ids.contains(TramStations.PiccadillyGardens.getIdForDTO()), ids.toString());
-//        assertTrue(ids.contains(TramStations.Piccadilly.getIdForDTO()), ids.toString());
 
         assertTrue(ids.contains(TramStations.StPetersSquare.getIdForDTO()));
         assertTrue(ids.contains(TramStations.ExchangeSquare.getIdForDTO()));
 
-        assertFalse(ids.contains(TramStations.MarketStreet.getIdForDTO()));
-        assertFalse(ids.contains(TramStations.Shudehill.getIdForDTO()));
+        assertTrue(ids.contains(TramStations.MarketStreet.getIdForDTO()));
+        assertTrue(ids.contains(TramStations.Shudehill.getIdForDTO()));
     }
 
     @Test

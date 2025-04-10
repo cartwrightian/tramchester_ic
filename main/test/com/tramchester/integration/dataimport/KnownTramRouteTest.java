@@ -33,7 +33,8 @@ import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
-import static com.tramchester.testSupport.reference.KnownTramRoute.getPiccadillyVictoria;
+import static com.tramchester.testSupport.UpcomingDates.MayDay2025;
+import static com.tramchester.testSupport.reference.KnownTramRoute.getYellow;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(ConfigParameterResolver.class)
@@ -72,40 +73,40 @@ class KnownTramRouteTest {
 
     @Test
     void shouldHaveExpectedRouteIdForBlue() {
-        checkRouteIdFor(KnownTramRoute::getEcclesAshton, false);
+        checkRouteIdFor(KnownTramRoute::getBlue, false);
     }
 
     @Test
     void shouldHaveExpectedRouteIdForNavy() {
-        checkRouteIdFor(KnownTramRoute::getDeansgateManchesterAirport, false);
+        checkRouteIdFor(KnownTramRoute::getNavy, false);
     }
 
     @Test
     void shouldHaveExpectedRouteIdForGreen() {
-        checkRouteIdFor(KnownTramRoute::getBuryManchesterAltrincham, true);
+        checkRouteIdFor(KnownTramRoute::getGreen, true);
     }
 
     @Test
     void shouldHaveExpectedRouteIdForPink() {
-        checkRouteIdFor(KnownTramRoute::getShawandCromptonManchesterEastDidisbury, false);
+        checkRouteIdFor(KnownTramRoute::getPink, false);
     }
 
     // likely have to disable until end of york street works
     @DisabledUntilDate(year = 2025, month = 4, day = 14)
     @Test
     void shouldHaveExpectedRouteIdForPurple() {
-        checkRouteIdFor(KnownTramRoute::getEtihadPiccadillyAltrincham, false);
+        checkRouteIdFor(KnownTramRoute::getPurple, false);
     }
 
     @Test
     void shouldHaveExpectedRouteIdForRed() {
-        checkRouteIdFor(KnownTramRoute::getCornbrookTheTraffordCentre, false);
+        checkRouteIdFor(KnownTramRoute::getRed, false);
     }
 
     @DisabledUntilDate(year = 2025, month = 4, day = 14)
     @Test
     void shouldHaveExpectedRouteIdForYellow() {
-        checkRouteIdFor(KnownTramRoute::getPiccadillyVictoria, false);
+        checkRouteIdFor(KnownTramRoute::getYellow, false);
     }
 
     void checkRouteIdFor(Function<TramDate, TestRoute> function, boolean skipSunday) {
@@ -206,6 +207,7 @@ class KnownTramRouteTest {
         SortedMap<TramDate, Set<TestRoute>> unusedForDate = new TreeMap<>();
 
         dateRange.stream().
+                filter(date -> !date.equals(MayDay2025)).
                 filter(date -> !(UpcomingDates.isChristmasDay(date) || UpcomingDates.isBoxingDay(date))).
                 forEach(date -> {
                     final IdSet<Route> loaded = getLoadedTramRoutes(date).collect(IdSet.collector());
@@ -218,7 +220,8 @@ class KnownTramRouteTest {
                     }
                 });
 
-        assertTrue(unusedForDate.isEmpty(), "For dates " + unusedForDate.keySet() + "\n Have known but not loaded routes " + unusedForDate);
+        assertTrue(unusedForDate.isEmpty(), "For dates " + unusedForDate.keySet() +
+                "\n Have known but not loaded routes " + unusedForDate);
     }
 
     @Test
@@ -240,7 +243,7 @@ class KnownTramRouteTest {
     void shouldCheckForMissingRouteSpring2025Closures() {
         // TODO needed for each route?
 
-        TestRoute piccadillyVictoria = getPiccadillyVictoria(when);
+        TestRoute piccadillyVictoria = getYellow(when);
         String shortName = piccadillyVictoria.shortName();
 
         Set<Route> matching = routeRepository.getRoutes().stream().
@@ -257,7 +260,7 @@ class KnownTramRouteTest {
     @DisabledUntilDate(year = 2025, month = 4, day = 14)
     @Test
     void shouldCheckForActualDatesYellowRouteIsAvailableFor() {
-        TestRoute piccadillyVictoria = getPiccadillyVictoria(when);
+        TestRoute piccadillyVictoria = getYellow(when);
         String shortName = piccadillyVictoria.shortName();
 
         List<Route> matching = routeRepository.getRoutes().stream().

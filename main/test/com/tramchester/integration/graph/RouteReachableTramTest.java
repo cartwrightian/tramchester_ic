@@ -70,7 +70,7 @@ class RouteReachableTramTest {
 
         // TODO Re-instate when route back the the data
         //assertFalse(routeIds.contains(KnownTramRoute.getEtihadPiccadillyAltrincham(when).getId()), routeIds.toString());
-        assertTrue(routeIds.contains(KnownTramRoute.getBuryManchesterAltrincham(when).getId()), routeIds.toString());
+        assertTrue(routeIds.contains(KnownTramRoute.getGreen(when).getId()), routeIds.toString());
     }
 
 

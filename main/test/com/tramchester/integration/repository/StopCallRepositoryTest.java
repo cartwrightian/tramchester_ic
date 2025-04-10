@@ -92,7 +92,7 @@ public class StopCallRepositoryTest {
     @Test
     void shouldGetCostsForAStopCall() {
         TramDate when = TestEnv.testDay();
-        Route route = routeRepository.getRouteById(KnownTramRoute.getBuryManchesterAltrincham(when).getId());
+        Route route = routeRepository.getRouteById(KnownTramRoute.getGreen(when).getId());
         assertNotNull(route);
 
         Station alty = stationRepository.getStationById(TramStations.Altrincham.getId());

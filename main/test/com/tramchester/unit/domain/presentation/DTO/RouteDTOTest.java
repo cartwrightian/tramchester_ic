@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class RouteDTOTest {
 
     private static TramDate when = TestEnv.testDay();
-    private final static TestRoute knownRoute = KnownTramRoute.getCornbrookTheTraffordCentre(when);
+    private final static TestRoute knownRoute = KnownTramRoute.getRed(when);
 
 
     @Test

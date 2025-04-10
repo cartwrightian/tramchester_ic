@@ -129,9 +129,12 @@ class RouteCalculatorForBoundingBoxTest {
 
         assertFalse(groupedJourneys.isEmpty());
 
-        List<JourneysForBox> missed = groupedJourneys.stream().filter(group -> group.getJourneys().isEmpty()).toList();
+        List<JourneysForBox> missed = groupedJourneys.stream().
+                filter(group -> group.getJourneys().isEmpty()).
+                toList();
 
-        assertEquals(1, missed.size(), missed.toString()); // when start and dest match
+        // plus 1 for market street being close
+        assertEquals(1+1, missed.size(), missed.toString()); // when start and dest match
 
         groupedJourneys.forEach(group -> group.getJourneys().forEach(journey -> {
             assertFalse(journey.getStages().isEmpty()); // catch case where starting point is dest

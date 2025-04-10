@@ -57,7 +57,7 @@ class RouteCalculatorSubGraphMonsallTest {
     }
 
     private static void configureFilter(ConfigurableGraphFilter graphFilter, TransportData transportData) {
-        graphFilter.addRoutes(tramRouteHelper.getId(KnownTramRoute.getShawandCromptonManchesterEastDidisbury(when)));
+        graphFilter.addRoutes(tramRouteHelper.getId(KnownTramRoute.getPink(when)));
     }
 
     @AfterAll

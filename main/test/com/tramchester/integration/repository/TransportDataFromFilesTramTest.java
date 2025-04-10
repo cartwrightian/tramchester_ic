@@ -100,7 +100,7 @@ public class TransportDataFromFilesTramTest {
         // that station is never loaded
         assertEquals(NUM_TFGM_TRAM_STATIONS, transportData.getStations(TramsOnly).size());
 
-        int expectedPlatforms = 200 - 4;
+        int expectedPlatforms = 200;
         assertEquals(expectedPlatforms, transportData.getPlatforms(TramsOnly).size());
     }
 
@@ -171,7 +171,7 @@ public class TransportDataFromFilesTramTest {
                         collect(IdSet.collector());
 
         // Picc gardens 2024
-        assertTrue(routeIds.contains(getDeansgateManchesterAirport(when).getId()), routeIds.toString());
+        assertTrue(routeIds.contains(getNavy(when).getId()), routeIds.toString());
     }
 
     @Test
@@ -210,11 +210,11 @@ public class TransportDataFromFilesTramTest {
                         map(RouteStation::getRoute).
                         collect(IdSet.collector());
 
-        assertTrue(routeIds.contains(getPiccadillyVictoria(when).getId()), routeIds.toString());
+        assertTrue(routeIds.contains(getYellow(when).getId()), routeIds.toString());
 
-        assertTrue(routeIds.contains(getBuryManchesterAltrincham(when).getId()), routeIds.toString());
+        assertTrue(routeIds.contains(getGreen(when).getId()), routeIds.toString());
 
-        assertTrue(routeIds.contains(getPiccadillyVictoria(when).getId()), routeIds.toString());
+        assertTrue(routeIds.contains(getYellow(when).getId()), routeIds.toString());
 
     }
 

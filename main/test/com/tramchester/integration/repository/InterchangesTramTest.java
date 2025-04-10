@@ -84,20 +84,17 @@ public class InterchangesTramTest {
     @Test
     void shouldHaveExpectedTramInterchanges() {
 
-        Stream<TramStations> expectedTramStations = Stream.of(StWerburghsRoad, TraffordBar, Cornbrook, HarbourCity,
-                Pomona, Cornbrook,
-                //PiccadillyGardens,
-                StPetersSquare,
+        Stream<TramStations> expectedTramStations = Stream.of(
+                StWerburghsRoad, TraffordBar, Cornbrook, HarbourCity,
+                Pomona, Cornbrook, PiccadillyGardens, StPetersSquare,
                 Broadway,
-                //Piccadilly,
-                Victoria,
-                MarketStreet
+                MarketStreet,
+                Victoria
         );
 
-        TramDate when = TestEnv.testDay();
 
         Set<Station> expectedStations = expectedTramStations.
-                filter(item -> !closedStationsRepository.isStationClosed(item.getId(), when)).
+                //filter(item -> !closedStationsRepository.isStationClosed(item.getId(), when)).
                 map(item -> item.from(stationRepository)).collect(Collectors.toSet());
 
         final Set<Station> additional = AdditionalTramInterchanges.stations().
@@ -133,10 +130,10 @@ public class InterchangesTramTest {
         InterchangeStation interchange = interchangeRepository.getInterchange(stWerb);
         assertEquals(InterchangeType.NumberOfLinks, interchange.getType());
 
-        Route toAirport = tramRouteHelper.getOneRoute(KnownTramRoute.getDeansgateManchesterAirport(date), date);
+        Route toAirport = tramRouteHelper.getOneRoute(KnownTramRoute.getNavy(date), date);
         assertTrue(interchange.getPickupRoutes().contains(toAirport));
 
-        Route toEastDids = tramRouteHelper.getOneRoute(KnownTramRoute.getShawandCromptonManchesterEastDidisbury(date), date);
+        Route toEastDids = tramRouteHelper.getOneRoute(KnownTramRoute.getPink(date), date);
         Set<Route> dropoffRoutes = interchange.getDropoffRoutes().stream().
                 filter(route -> route.isAvailableOn(date)).
                 collect(Collectors.toSet());
@@ -209,7 +206,7 @@ public class InterchangesTramTest {
 
         IdSet<Route> dropOffs = cornbrook.getDropoffRoutes().stream().collect(IdSet.collector());
 
-        assertTrue(dropOffs.contains(KnownTramRoute.getCornbrookTheTraffordCentre(date).getId()), dropOffs.toString());
+        assertTrue(dropOffs.contains(KnownTramRoute.getRed(date).getId()), dropOffs.toString());
     }
 
     @Test

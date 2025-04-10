@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -39,7 +40,8 @@ public class GraphTransactionFactory implements MutableGraphTransaction.Transact
         final Transaction graphDatabaseTxn = databaseService.beginTx(timeout.toSeconds(), TimeUnit.SECONDS);
 
         final int index = transactionCount.incrementAndGet();
-        final MutableGraphTransaction graphTransaction = new MutableGraphTransaction(graphDatabaseTxn, graphIdFactory, index,this);
+        final MutableGraphTransaction graphTransaction = new MutableGraphTransaction(graphDatabaseTxn, graphIdFactory,
+                index,this);
 
         state.put(graphTransaction, Thread.currentThread().getStackTrace());
 
@@ -52,8 +54,13 @@ public class GraphTransactionFactory implements MutableGraphTransaction.Transact
 
     public void close() {
         final int total = transactionCount.get();
+
+        // TODO into debug
+        if (total==1) {
+            logger.info("Only one transaction for " + state.diagnostics);
+        }
         if (total>0) {
-            logger.info("Opened " + transactionCount.get() + " transactions");
+            logger.info("Opened " + total + " transactions");
             if (state.hasOutstanding()) {
                 logger.warn("close: Still " + state.outstanding() + " remaining open transactions");
                 state.logOutstanding(logger);
@@ -61,6 +68,7 @@ public class GraphTransactionFactory implements MutableGraphTransaction.Transact
                 logger.info("closed: open and commit/close balanced");
             }
         }
+        state.close();
     }
 
     @Override
@@ -77,20 +85,24 @@ public class GraphTransactionFactory implements MutableGraphTransaction.Transact
         private final Map<Integer,GraphTransaction> openTransactions;
         private final Map<Integer, StackTraceElement[]> diagnostics;
         private final Set<Integer> commited;
+        private AtomicBoolean closed;
 
         private State() {
             openTransactions = new HashMap<>();
             diagnostics = new HashMap<>();
             commited = new HashSet<>();
+            closed = new AtomicBoolean(false);
         }
 
         public synchronized void put(final MutableGraphTransaction graphTransaction, final StackTraceElement[] stackTrace) {
+            guardNotClosed();
             final int index = graphTransaction.getTransactionId();
             openTransactions.put(index, graphTransaction);
             diagnostics.put(index, stackTrace);
         }
 
         public synchronized void closeTransaction(final GraphTransaction graphTransaction) {
+            guardNotClosed();
             final int index = graphTransaction.getTransactionId();
             if (commited.contains(index)) {
                 return;
@@ -104,6 +116,7 @@ public class GraphTransactionFactory implements MutableGraphTransaction.Transact
         }
 
         public synchronized void commitTransaction(final GraphTransaction graphTransaction) {
+            guardNotClosed();
             final int index = graphTransaction.getTransactionId();
 
             if (openTransactions.remove(index)==null) {
@@ -112,25 +125,20 @@ public class GraphTransactionFactory implements MutableGraphTransaction.Transact
                 diagnostics.remove(index);
                 commited.add(index);
             }
-
-//            if (openTransactions.containsKey(index)) {
-//                openTransactions.remove(index);
-//                diagnostics.remove(index);
-//                commited.add(index);
-//            } else {
-//                logger.error("onCommit: Could not find for index: " + index);
-//            }
         }
 
         public boolean hasOutstanding() {
+            guardNotClosed();
             return !openTransactions.isEmpty();
         }
 
         public int outstanding() {
+            guardNotClosed();
             return openTransactions.size();
         }
 
-        public void logOutstanding(Logger logger) {
+        public void logOutstanding(final Logger logger) {
+            guardNotClosed();
             openTransactions.keySet().forEach(index -> {
                 logger.warn("Transaction " + index + " from " + logStack(diagnostics.get(index)));
                 final GraphTransaction graphTransaction = openTransactions.get(index);
@@ -141,6 +149,17 @@ public class GraphTransactionFactory implements MutableGraphTransaction.Transact
 
         private String logStack(StackTraceElement[] stackTraceElements) {
             return Arrays.stream(stackTraceElements).map(line -> line + System.lineSeparator()).collect(Collectors.joining());
+        }
+
+        public void close() {
+            guardNotClosed();
+            closed.set(true);
+        }
+
+        private void guardNotClosed() {
+            if (closed.get()) {
+                throw new RuntimeException("Closed");
+            }
         }
     }
 

@@ -170,7 +170,7 @@ public enum TramStations implements FakeStation, HasId<Station> {
         }
 
         public FakeStationBuilder platform(final int platformNumber, TramDate date) {
-            fakeDropOffPlatforms.put(platformNumber, KnownTramRoute.getBuryManchesterAltrincham(date));
+            fakeDropOffPlatforms.put(platformNumber, KnownTramRoute.getGreen(date));
             return this;
         }
 
