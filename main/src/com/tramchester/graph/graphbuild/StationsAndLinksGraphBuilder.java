@@ -94,10 +94,10 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         logger.info("Building graph for feedinfo: " + transportData.summariseDataSourceInfo());
         logMemory("Before graph build");
 
-        graphDatabase.createIndexs();
+        graphDatabase.createIndexes();
 
         try (Timing ignored = new Timing(logger, "graph rebuild")) {
-            try(TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "Adding stations")) {
+            try(TimedTransaction timedTransaction = graphDatabase.beginTimedTxMutable(logger, "Adding stations")) {
                 final MutableGraphTransaction tx = timedTransaction.transaction();
                 for(final Station station : transportData.getStations()) {
                     if (graphFilter.shouldInclude(station)) {
@@ -159,7 +159,7 @@ public class StationsAndLinksGraphBuilder extends GraphBuilder {
         // nodes will not be created for stations that as 'passed' by services that do not call, which is the
         // case for rail transport data.
 
-        try(TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "Adding routes")){
+        try(TimedTransaction timedTransaction = graphDatabase.beginTimedTxMutable(logger, "Adding routes")){
             final MutableGraphTransaction tx = timedTransaction.transaction();
             routes.forEach(route -> {
                 final IdFor<Route> asId = route.getId();

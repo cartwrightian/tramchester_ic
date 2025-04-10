@@ -24,7 +24,7 @@ public class FindStationsByNumberLinks {
 
     private final GraphDatabase graphDatabase;
 
-    // NOTE: beware circular dependencies here, interchange discover depends on this which is in turn used during
+    // NOTE: beware circular dependencies here, interchange discovery depends on this which is in turn used during
     // graph building
     @Inject
     public FindStationsByNumberLinks(GraphDatabase graphDatabase,
@@ -56,7 +56,7 @@ public class FindStationsByNumberLinks {
 
         IdSet<Station> stationIds = new IdSet<>();
 
-        try (TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "linked for " + mode) ) {
+        try (TimedTransaction timedTransaction = graphDatabase.beginTimedTxMutable(logger, "linked for " + mode) ) {
             MutableGraphTransaction txn = timedTransaction.transaction();
             Result result = txn.execute(query, params);
             while (result.hasNext()) {

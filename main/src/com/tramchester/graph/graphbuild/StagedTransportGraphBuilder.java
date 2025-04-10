@@ -151,7 +151,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
 
     private void linkStationsAndPlatforms(final StationAndPlatformNodeCache stationAndPlatformNodeCache) {
 
-        try(TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "link stations & platforms")) {
+        try(TimedTransaction timedTransaction = graphDatabase.beginTimedTxMutable(logger, "link stations & platforms")) {
             final MutableGraphTransaction txn = timedTransaction.transaction();
             transportData.getActiveStationStream().
                     filter(Station::hasPlatforms).
@@ -184,7 +184,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             return;
         }
 
-        try (TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "onRoute for " + agency.getId())) {
+        try (TimedTransaction timedTransaction = graphDatabase.beginTimedTxMutable(logger, "onRoute for " + agency.getId())) {
             final MutableGraphTransaction tx = timedTransaction.transaction();
             getRoutesForAgency(agency).forEach(route -> createOnRouteRelationships(tx, route, routeStationNodeCache));
             timedTransaction.commit();
@@ -211,7 +211,7 @@ public class StagedTransportGraphBuilder extends GraphBuilder {
             transactionStrategy.close();
         }
 
-        try (TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "boards & departs for " + agency.getId())) {
+        try (TimedTransaction timedTransaction = graphDatabase.beginTimedTxMutable(logger, "boards & departs for " + agency.getId())) {
             final MutableGraphTransaction tx = timedTransaction.transaction();
             getRoutesForAgency(agency).forEach(route -> buildGraphForBoardsAndDeparts(route, tx, stationAndPlatformCache, routeStationNodeCache,
                     boardingDepartNodeCache));

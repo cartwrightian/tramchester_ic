@@ -86,10 +86,12 @@ public class RouteInterconnectRepositoryTest {
     void beforeEachTestRuns() {
         routeRepository = componentContainer.get(RouteRepository.class);
         routeHelper = new TramRouteHelper(routeRepository);
+
         routeMatrix = componentContainer.get(RouteCostMatrix.class);
-        repository = componentContainer.get(RouteInterconnectRepository.class);
         routeIndex = componentContainer.get(RouteIndex.class);
         interchangeRepository = componentContainer.get(InterchangeRepository.class);
+
+        repository = componentContainer.get(RouteInterconnectRepository.class);
 
         date = TestEnv.testDay();
         modes = EnumSet.of(Tram);

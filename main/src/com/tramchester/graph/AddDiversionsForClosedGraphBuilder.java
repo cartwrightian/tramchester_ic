@@ -168,7 +168,7 @@ public class AddDiversionsForClosedGraphBuilder extends CreateNodesAndRelationsh
     }
 
     private void createWalks(final ClosedStation closedStation) {
-        try(TimedTransaction timedTransaction = new TimedTransaction(database, logger, "create diversions for " +closedStation.getStationId())) {
+        try(TimedTransaction timedTransaction = graphDatabase.beginTimedTxMutable(logger, "create diversions for " +closedStation.getStationId())) {
             final MutableGraphTransaction txn = timedTransaction.transaction();
             addDiversionsToAndFromClosed(txn, closedStation);
             final int added = addDiversionsAroundClosed(txn, closedStation);

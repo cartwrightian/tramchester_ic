@@ -5,6 +5,7 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 import java.time.Duration;
 import java.util.*;
@@ -57,7 +58,9 @@ public class GraphTransactionFactory implements MutableGraphTransaction.Transact
 
         // TODO into debug
         if (total==1) {
-            logger.info("Only one transaction for " + state.diagnostics);
+            logger.info("Only one transaction");
+            state.logDiagnostics(logger, Level.INFO);
+
         }
         if (total>0) {
             logger.info("Opened " + total + " transactions");
@@ -94,6 +97,12 @@ public class GraphTransactionFactory implements MutableGraphTransaction.Transact
             closed = new AtomicBoolean(false);
         }
 
+        public void close() {
+            guardNotClosed();
+            diagnostics.clear();
+            closed.set(true);
+        }
+
         public synchronized void put(final MutableGraphTransaction graphTransaction, final StackTraceElement[] stackTrace) {
             guardNotClosed();
             final int index = graphTransaction.getTransactionId();
@@ -110,9 +119,10 @@ public class GraphTransactionFactory implements MutableGraphTransaction.Transact
 
             if (openTransactions.remove(index) == null) {
                 logger.error("onClose: Could not find for index: " + index);
-            } else {
-                diagnostics.remove(index);
             }
+//            else {
+//                diagnostics.remove(index);
+//            }
         }
 
         public synchronized void commitTransaction(final GraphTransaction graphTransaction) {
@@ -122,7 +132,7 @@ public class GraphTransactionFactory implements MutableGraphTransaction.Transact
             if (openTransactions.remove(index)==null) {
                 logger.error("onCommit: Could not find for index: " + index);
             } else {
-                diagnostics.remove(index);
+                //diagnostics.remove(index);
                 commited.add(index);
             }
         }
@@ -140,26 +150,25 @@ public class GraphTransactionFactory implements MutableGraphTransaction.Transact
         public void logOutstanding(final Logger logger) {
             guardNotClosed();
             openTransactions.keySet().forEach(index -> {
-                logger.warn("Transaction " + index + " from " + logStack(diagnostics.get(index)));
+                logger.warn("Transaction " + index + " from " + stackAsString(diagnostics.get(index)));
                 final GraphTransaction graphTransaction = openTransactions.get(index);
                 logger.info("Closing " + graphTransaction);
                 graphTransaction.close();
             });
         }
 
-        private String logStack(StackTraceElement[] stackTraceElements) {
+        private String stackAsString(StackTraceElement[] stackTraceElements) {
             return Arrays.stream(stackTraceElements).map(line -> line + System.lineSeparator()).collect(Collectors.joining());
-        }
-
-        public void close() {
-            guardNotClosed();
-            closed.set(true);
         }
 
         private void guardNotClosed() {
             if (closed.get()) {
                 throw new RuntimeException("Closed");
             }
+        }
+
+        public void logDiagnostics(final Logger logger, Level level) {
+            diagnostics.values().forEach(value -> logger.atLevel(level).log(stackAsString(value)));
         }
     }
 

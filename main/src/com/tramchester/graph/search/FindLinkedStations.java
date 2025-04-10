@@ -57,7 +57,7 @@ public class FindLinkedStations {
         logger.info("Query: '" + query + '"');
 
         Set<StationToStationConnection> links = new HashSet<>();
-        try (TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, "query for links " + mode)) {
+        try (TimedTransaction timedTransaction = graphDatabase.beginTimedTxMutable(logger, "query for links " + mode)) {
             final MutableGraphTransaction txn = timedTransaction.transaction();
             final Result result = txn.execute(query, params);
             while (result.hasNext()) {

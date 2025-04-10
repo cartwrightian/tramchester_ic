@@ -19,11 +19,11 @@ import com.tramchester.graph.graphbuild.caching.GraphBuilderCache;
 import com.tramchester.graph.graphbuild.caching.StationAndPlatformNodeCache;
 import com.tramchester.mappers.Geography;
 import com.tramchester.repository.StationGroupsRepository;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
-import jakarta.inject.Inject;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
@@ -105,7 +105,7 @@ public class StationGroupsGraphBuilder extends CreateNodesAndRelationships {
 
         final Map<IdFor<StationLocalityGroup>, GraphNodeId> nodeForGroups = new HashMap<>();
 
-        try(TimedTransaction timedTransaction = new TimedTransaction(graphDatabase, logger, logMessage)) {
+        try(TimedTransaction timedTransaction = graphDatabase.beginTimedTxMutable(logger, logMessage)) {
             final MutableGraphTransaction txn = timedTransaction.transaction();
             groupsForMode.stream().filter(graphFilter::shouldInclude).
                 filter(this::shouldInclude).
@@ -120,7 +120,7 @@ public class StationGroupsGraphBuilder extends CreateNodesAndRelationships {
         logger.info("Added " + nodeForGroups.size() + " station groups");
 
         final AtomicInteger parentChildLinks = new AtomicInteger(0);
-        try(TimedTransaction addParentTxn = new TimedTransaction(graphDatabase, logger, "add parents for groups")) {
+        try(TimedTransaction addParentTxn = graphDatabase.beginTimedTxMutable(logger, "add parents for groups")) {
             final MutableGraphTransaction txn = addParentTxn.transaction();
             groupsForMode.stream().filter(graphFilter::shouldInclude).
                     filter(this::shouldInclude).

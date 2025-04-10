@@ -13,11 +13,11 @@ import com.tramchester.graph.graphbuild.CreateNodesAndRelationships;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
 import com.tramchester.repository.NeighboursRepository;
 import com.tramchester.repository.StationRepository;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
-import jakarta.inject.Inject;
 import java.time.Duration;
 import java.util.Set;
 
@@ -89,7 +89,7 @@ public class AddNeighboursGraphBuilder extends CreateNodesAndRelationships {
     }
 
     private void createNeighboursInDB() {
-        try(TimedTransaction timedTransaction = new TimedTransaction(database, logger, "create neighbours")) {
+        try(TimedTransaction timedTransaction = graphDatabase.beginTimedTxMutable(logger, "create neighbours")) {
             MutableGraphTransaction txn = timedTransaction.transaction();
                 stationRepository.getActiveStationStream().
                     filter(filter::shouldInclude).

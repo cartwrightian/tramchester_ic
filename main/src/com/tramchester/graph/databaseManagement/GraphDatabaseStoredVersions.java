@@ -32,7 +32,6 @@ public class GraphDatabaseStoredVersions {
         this.databaseMetaInfo = databaseMetaInfo;
     }
 
-    // NOTE: no GraphDatabase in this stage of the lifecycle, hence databaseServiceN
     public boolean upToDate(final GraphTransactionFactory transactionFactory, final DataSourceRepository dataSourceRepository) {
         logger.info("Checking graph version information ");
 

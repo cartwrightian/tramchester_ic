@@ -106,16 +106,19 @@ public class GraphDatabase implements DatabaseEventListener {
         return graphTransactionFactory.beginMutable(timeout);
     }
 
-    ///
+    public TimedTransaction beginTimedTxMutable(final Logger logger, final String text) {
+        return new TimedTransaction(beginTxMutable(), logger, text);
+    }
 
-    public void createIndexs() {
+    /////////////
 
-        try (TimedTransaction timed = new TimedTransaction(this, logger, "Create DB Constraints & indexes"))
+    public void createIndexes() {
+
+        try (TimedTransaction timed = beginTimedTxMutable(logger, "Create DB Constraints & indexes"))
         {
-            MutableGraphTransaction tx = timed.transaction();
-            Schema schema = tx.schema();
+            final MutableGraphTransaction tx = timed.transaction();
+            final Schema schema = tx.schema();
 
-//            schema.indexFor(GraphLabel.STATION).on(GraphPropertyKey.ROUTE_ID.getText()).create();
             createUniqueIdConstraintFor(schema, GraphLabel.STATION, GraphPropertyKey.STATION_ID);
 
             createUniqueIdConstraintFor(schema, GraphLabel.ROUTE_STATION, GraphPropertyKey.ROUTE_STATION_ID);

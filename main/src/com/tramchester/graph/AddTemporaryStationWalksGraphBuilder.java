@@ -133,7 +133,7 @@ public class AddTemporaryStationWalksGraphBuilder extends CreateNodesAndRelation
                 filter(walk -> graphFilter.shouldInclude(walk.getStationPair())).
                 toList();
 
-        try(TimedTransaction timedTransaction = new TimedTransaction(database, logger, "create walks for " +source.getDataSourceId())) {
+        try(TimedTransaction timedTransaction = graphDatabase.beginTimedTxMutable(logger, "create walks for " +source.getDataSourceId())) {
             final MutableGraphTransaction txn = timedTransaction.transaction();
 
             for(TemporaryStationWalk walk : walks) {
