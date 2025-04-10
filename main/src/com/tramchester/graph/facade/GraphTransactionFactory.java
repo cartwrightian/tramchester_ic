@@ -7,10 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -77,23 +74,23 @@ public class GraphTransactionFactory implements MutableGraphTransaction.Transact
     }
 
     private static class State {
-        private final ConcurrentHashMap<Integer,GraphTransaction> openTransactions;
-        private final ConcurrentHashMap<Integer, StackTraceElement[]> diagnostics;
+        private final Map<Integer,GraphTransaction> openTransactions;
+        private final Map<Integer, StackTraceElement[]> diagnostics;
         private final Set<Integer> commited;
 
         private State() {
-            openTransactions = new ConcurrentHashMap<>();
-            diagnostics = new ConcurrentHashMap<>();
+            openTransactions = new HashMap<>();
+            diagnostics = new HashMap<>();
             commited = new HashSet<>();
         }
 
-        public void put(final MutableGraphTransaction graphTransaction, final StackTraceElement[] stackTrace) {
+        public synchronized void put(final MutableGraphTransaction graphTransaction, final StackTraceElement[] stackTrace) {
             final int index = graphTransaction.getTransactionId();
             openTransactions.put(index, graphTransaction);
             diagnostics.put(index, stackTrace);
         }
 
-        public void closeTransaction(final GraphTransaction graphTransaction) {
+        public synchronized void closeTransaction(final GraphTransaction graphTransaction) {
             final int index = graphTransaction.getTransactionId();
             if (commited.contains(index)) {
                 return;
@@ -104,16 +101,9 @@ public class GraphTransactionFactory implements MutableGraphTransaction.Transact
             } else {
                 diagnostics.remove(index);
             }
-
-//            if (openTransactions.containsKey(index)) {
-//                openTransactions.remove(index);
-//                diagnostics.remove(index);
-//            } else {
-//                logger.error("onClose: Could not find for index: " + index);
-//            }
         }
 
-        public void commitTransaction(final GraphTransaction graphTransaction) {
+        public synchronized void commitTransaction(final GraphTransaction graphTransaction) {
             final int index = graphTransaction.getTransactionId();
 
             if (openTransactions.remove(index)==null) {

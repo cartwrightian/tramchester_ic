@@ -83,7 +83,7 @@ public class GraphDatabaseLifecycleManager {
     }
 
     public void stopDatabase() {
-        try (Timing ignored = new Timing(logger, "DatabaseManagementService stopping")){
+        try (Timing ignored = new Timing(logger, "DatabaseManagementService stopping")) {
             serviceFactory.shutdownDatabase();
         } catch (Exception exceptionInClose) {
             logger.error("DatabaseManagementService Exception during close down " + graphDBConfig.getDbPath(), exceptionInClose);

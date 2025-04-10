@@ -85,11 +85,13 @@ public class StationAvailabilityRepositoryTest {
 
         Station stPeters = StPetersSquare.from(stationRepository);
 
-        boolean duringTheDay = availabilityRepository.isAvailable(stPeters, when, TimeRangePartial.of(of(8,45), of(10,45)), modes);
+        boolean duringTheDay = availabilityRepository.isAvailable(stPeters, when,
+                TimeRangePartial.of(of(8,45), of(10,45)), modes);
 
         assertTrue(duringTheDay);
 
-        boolean lateAtNight = availabilityRepository.isAvailable(stPeters, when, TimeRangePartial.of(of(3,5), of(3,15)), modes);
+        boolean lateAtNight = availabilityRepository.isAvailable(stPeters, when,
+                TimeRangePartial.of(of(3,5), of(3,15)), modes);
 
         assertFalse(lateAtNight);
     }
@@ -112,10 +114,10 @@ public class StationAvailabilityRepositoryTest {
         Station stPeters = StPetersSquare.from(stationRepository);
 
         EnumSet<TransportMode> otherModes = EnumSet.of(TransportMode.Ferry);
-        boolean duringTheDay = availabilityRepository.isAvailable(stPeters, when, TimeRangePartial.of(of(8,45), of(10,45)), otherModes);
+        boolean duringTheDay = availabilityRepository.isAvailable(stPeters, when,
+                TimeRangePartial.of(of(8,45), of(10,45)), otherModes);
 
         assertFalse(duringTheDay);
-
     }
 
     @DataExpiryTest

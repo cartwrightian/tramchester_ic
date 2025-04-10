@@ -119,14 +119,14 @@ public class KnownTramRoute {
 
         TramDate april2025CutOver = TramDate.of(2025, 4, 24);
 
-        if (!(DeansgateTraffordBarWorks.contains(date) || EndMarchNotOnTFGMSite.contains(date)
-                || HighStreetAndChurchStreetWorks.contains(date) || date.isAfter(april2025CutOver))) {
-            routes.add(getEtihadPiccadillyAltrincham(date));
-        }
-
-        if (DeansgateTraffordBarWorks.contains(date) ) {
-            routes.add(getFirswoodEastDidsbury(date));
-        }
+//        if (!(DeansgateTraffordBarWorks.contains(date) || EndMarchNotOnTFGMSite.contains(date)
+//                || HighStreetAndChurchStreetWorks.contains(date) || date.isAfter(april2025CutOver))) {
+//            routes.add(getEtihadPiccadillyAltrincham(date));
+//        }
+//
+//        if (DeansgateTraffordBarWorks.contains(date) ) {
+//            routes.add(getFirswoodEastDidsbury(date));
+//        }
 
         if (!(HighStreetAndChurchStreetWorks.contains(date) || date.isAfter(april2025CutOver))) {
             routes.add(getPiccadillyVictoria(date));

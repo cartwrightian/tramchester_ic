@@ -35,11 +35,11 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
 import static com.tramchester.testSupport.reference.TramStations.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(ConfigParameterResolver.class)
 @DualTest
@@ -228,7 +228,7 @@ public class TripRepositoryTest {
     }
 
     private Stream<Station> getStations(final TramDate date) {
-        return stationRepository.getStations(EnumSet.of(Tram)).stream().
+        return stationRepository.getStations(TramsOnly).stream().
                 filter(station -> !UpcomingDates.hasClosure(station, date));
     }
 

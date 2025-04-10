@@ -696,7 +696,6 @@ public class RouteCalculatorTest {
         final List<TramDate> dates = candidateDates.stream().
                 filter(date -> !UpcomingDates.hasClosure(start, date)).
                 filter(date -> !UpcomingDates.hasClosure(dest, date)).
-                filter(date -> !UpcomingDates.DeansgateTraffordBarWorks.contains(date)).
                 toList();
 
         if (dates.isEmpty()) {

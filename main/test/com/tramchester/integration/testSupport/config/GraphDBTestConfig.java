@@ -3,6 +3,7 @@ package com.tramchester.integration.testSupport.config;
 import com.tramchester.config.*;
 import com.tramchester.domain.DataSourceID;
 import com.tramchester.domain.StationClosures;
+import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.integration.testSupport.TestGroupType;
@@ -11,7 +12,10 @@ import org.jetbrains.annotations.NotNull;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Comparator;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.TransportMode.Bus;
@@ -105,9 +109,12 @@ public class GraphDBTestConfig implements GraphDBConfig {
         // then....
         final List<String> items = gtfsDataSource.stream().
                 flatMap(gtfsConfig -> gtfsConfig.getStationClosures().stream()).
-                map(GraphDBTestConfig::closuresText).toList();
-        StringBuilder result = new StringBuilder();
-        for(String text : items) {
+                map(GraphDBTestConfig::closuresText).
+                sorted().
+                toList();
+
+        final StringBuilder result = new StringBuilder();
+        for(final String text : items) {
             if (!result.isEmpty()) {
                 result.append("_");
             }
@@ -119,20 +126,30 @@ public class GraphDBTestConfig implements GraphDBConfig {
     private static String closuresText(final StationClosures stationClosuresConfig) {
 
         final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.BASIC_ISO_DATE;
-        final LocalDate startDate = stationClosuresConfig.getDateRange().getStartDate().toLocalDate();
-        final LocalDate endDate = stationClosuresConfig.getDateRange().getEndDate().toLocalDate();
+
+        final DateRange dateRange = stationClosuresConfig.getDateRange();
+        final LocalDate startDate = dateRange.getStartDate().toLocalDate();
+        final LocalDate endDate = dateRange.getEndDate().toLocalDate();
 
         final StationsConfig stationClosures = stationClosuresConfig.getStations();
-        final String ids;
-        if (stationClosures instanceof StationListConfig stationListConfig) {
-            ids = stationListConfig.getStations().stream().
-                    map(IdFor::getGraphId).
-                    reduce("", (a, b) -> a + b);
-        } else if (stationClosures instanceof StationPairConfig stationPairConfig) {
-            ids = String.format("%s_to_%s", stationPairConfig.getFirst(), stationPairConfig.getSecond());
-        } else {
-            throw new RuntimeException("Unexpected StationClosures " + stationClosures);
-        }
+
+        final String ids = StationsConfig.getStationsFrom(stationClosures).stream().
+                map(IdFor::getGraphId).
+                sorted().
+                reduce("", (a, b) -> a + b);
+
+//        final String ids;
+//
+//        if (stationClosures instanceof StationListConfig stationListConfig) {
+//            ids = stationListConfig.getStations().stream().
+//                    map(IdFor::getGraphId).
+//                    reduce("", (a, b) -> a + b);
+//        } else if (stationClosures instanceof StationPairConfig stationPairConfig) {
+//            ids = String.format("%s_to_%s", stationPairConfig.getFirst(), stationPairConfig.getSecond());
+//        } else {
+//            throw new RuntimeException("Unexpected StationClosures " + stationClosures);
+//        }
+
         return String.format("%s_%s_%s", dateTimeFormatter.format(startDate), dateTimeFormatter.format(endDate), ids);
     }
 

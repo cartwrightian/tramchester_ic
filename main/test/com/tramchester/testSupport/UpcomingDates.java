@@ -33,14 +33,12 @@ public class UpcomingDates {
     // use helper methods that handle filtering (i.e. for Christmas) and conversion to dates
     static final int DAYS_AHEAD = 14;
 
-    public static final DateRange DeansgateTraffordBarWorks = DateRange.of(TramDate.of(2025, 3, 22),
-            TramDate.of(2025,3,23));
-
-    public static final IdSet<Station> DeansgateWorksStations = TramStations.ids(PiccadillyGardens, TraffordBar, StPetersSquare,
-            ExchangeSquare, Cornbrook, MarketStreet, Shudehill);
-
     public static final DateRange HighStreetAndChurchStreetWorks = DateRange.of(TramDate.of(2025,3,25),
             TramDate.of(2025,4,24));
+
+    // still missing from timetable....
+    public static final DateRange HighStreetAndChurchStreetWorksOngoing = DateRange.of(HighStreetAndChurchStreetWorks.getEndDate(),
+            2);
 
     private static final IdSet<Station> HighStreetAndChurchStreetWorkStations = TramStations.ids(Shudehill, MarketStreet);
 
@@ -56,17 +54,17 @@ public class UpcomingDates {
 
     public static boolean hasClosure(IdFor<Station> stationId, TramDate date) {
 
-        if (PiccadillyGardens.getId().equals(stationId)) {
-            if (DeansgateTraffordBarWorks.contains(date)) {
-                return true;
-            }
-        }
-        if (DeansgateWorksStations.contains(stationId)) {
-            if (DeansgateTraffordBarWorks.contains(date) ||EndMarchNotOnTFGMSite.contains(date)) {
-                return true;
-            }
-        }
-        if (HighStreetAndChurchStreetWorks.contains(date)) {
+//        if (PiccadillyGardens.getId().equals(stationId)) {
+//            if (DeansgateTraffordBarWorks.contains(date)) {
+//                return true;
+//            }
+//        }
+//        if (DeansgateWorksStations.contains(stationId)) {
+//            if (DeansgateTraffordBarWorks.contains(date) ||EndMarchNotOnTFGMSite.contains(date)) {
+//                return true;
+//            }
+//        }
+        if (HighStreetAndChurchStreetWorks.contains(date) || HighStreetAndChurchStreetWorksOngoing.contains(date)) {
             if (HighStreetAndChurchStreetWorkStations.contains(stationId)) {
                 return true;
             }
