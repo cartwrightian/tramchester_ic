@@ -1,10 +1,13 @@
 package com.tramchester.unit.graph.databaseManagement;
 
+import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.databaseManagement.GraphDatabaseLifecycleManager;
 import com.tramchester.graph.databaseManagement.GraphDatabaseServiceFactory;
 import com.tramchester.graph.databaseManagement.GraphDatabaseStoredVersions;
 import com.tramchester.graph.facade.GraphTransactionFactory;
+import com.tramchester.integration.testSupport.TestGroupType;
+import com.tramchester.integration.testSupport.config.GraphDBTestConfig;
 import com.tramchester.repository.DataSourceRepository;
 import com.tramchester.testSupport.TestEnv;
 import org.easymock.EasyMock;
@@ -30,7 +33,11 @@ public class GraphDatabaseLifecycleManagerTest extends EasyMockSupport {
     @BeforeEach
     public void onceBeforeEachTestRuns() {
 
-        TramchesterConfig config = TestEnv.GET();
+        //TramchesterConfig config = TestEnv.GET();
+
+        TramchesterConfig config = createMock(TramchesterConfig.class);
+        GraphDBConfig dbConfig = new GraphDBTestConfig(TestGroupType.unit, TestEnv.GET());
+        EasyMock.expect(config.getGraphDBConfig()).andReturn(dbConfig);
 
         graphDatabaseService = createMock(GraphDatabaseService.class);
         serviceFactory = createMock(GraphDatabaseServiceFactory.class);

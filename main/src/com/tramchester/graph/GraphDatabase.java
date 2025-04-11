@@ -55,7 +55,7 @@ public class GraphDatabase implements DatabaseEventListener {
             final Path dbPath = graphDBConfig.getDbPath();
             boolean fileExists = Files.exists(dbPath);
             databaseService = lifecycleManager.startDatabase(dataSourceRepository, dbPath, fileExists);
-            graphTransactionFactory = new GraphTransactionFactory(databaseService, graphDBConfig);
+            graphTransactionFactory = new GraphTransactionFactory(databaseService, graphDBConfig.enableDiagnostics());
             logger.info("graph db started ");
         } else {
             logger.warn("Planning is disabled, not starting the graph database");

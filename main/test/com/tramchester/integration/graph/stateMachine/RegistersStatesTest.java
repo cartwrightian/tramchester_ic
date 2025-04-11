@@ -5,7 +5,6 @@ import com.tramchester.ComponentsBuilder;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.LocationCollection;
 import com.tramchester.domain.LocationSet;
-import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.search.stateMachine.RegistersStates;
@@ -21,8 +20,9 @@ import org.junit.jupiter.api.Test;
 
 import java.io.*;
 import java.nio.file.Path;
-import java.util.EnumSet;
 import java.util.Set;
+
+import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 
 class RegistersStatesTest {
     private static ComponentContainer componentContainer;
@@ -46,8 +46,10 @@ class RegistersStatesTest {
         NodeContentsRepository nodeContents = componentContainer.get(NodeContentsRepository.class);
         LocationCollection destinationIds = new LocationSet<>();
         TowardsDestination towardsDestination = new TowardsDestination(destinationIds);
-        factory = new TraversalStateFactory(new StateBuilderParameters(TestEnv.testDay(), TramTime.of(8,0),
-                towardsDestination, nodeContents, config, EnumSet.of(TransportMode.Tram)));
+
+        StateBuilderParameters parameters = new StateBuilderParameters(TestEnv.testDay(), TramTime.of(8, 0),
+                towardsDestination, nodeContents, config, TramsOnly);
+        factory = new TraversalStateFactory(parameters);
     }
 
     @Test

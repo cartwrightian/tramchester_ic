@@ -33,6 +33,7 @@ import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
+import static com.tramchester.testSupport.UpcomingDates.LateMayBankHold2025;
 import static com.tramchester.testSupport.UpcomingDates.MayDay2025;
 import static com.tramchester.testSupport.reference.KnownTramRoute.getYellow;
 import static org.junit.jupiter.api.Assertions.*;
@@ -207,7 +208,7 @@ class KnownTramRouteTest {
         SortedMap<TramDate, Set<TestRoute>> unusedForDate = new TreeMap<>();
 
         dateRange.stream().
-                filter(date -> !date.equals(MayDay2025)).
+                filter(date -> !(date.equals(MayDay2025) || date.equals(LateMayBankHold2025))).
                 filter(date -> !(UpcomingDates.isChristmasDay(date) || UpcomingDates.isBoxingDay(date))).
                 forEach(date -> {
                     final IdSet<Route> loaded = getLoadedTramRoutes(date).collect(IdSet.collector());

@@ -6,12 +6,12 @@ import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.facade.GraphTransactionFactory;
 import com.tramchester.metrics.Timing;
 import com.tramchester.repository.DataSourceRepository;
+import jakarta.inject.Inject;
 import org.apache.commons.io.FileUtils;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Path;
 
@@ -21,22 +21,24 @@ public class GraphDatabaseLifecycleManager {
 
     private static final int SHUTDOWN_TIMEOUT = 200;
 
-    private final GraphDBConfig graphDBConfig;
     private final GraphDatabaseServiceFactory serviceFactory;
     private final GraphDatabaseStoredVersions storedVersions;
+    private final TramchesterConfig configuration;
 
+    private GraphDBConfig graphDBConfig;
     private boolean cleanDB;
 
     @Inject
     public GraphDatabaseLifecycleManager(TramchesterConfig configuration, GraphDatabaseServiceFactory serviceFactory,
                                          GraphDatabaseStoredVersions storedVersions) {
-        this.graphDBConfig = configuration.getGraphDBConfig();
+        this.configuration = configuration;
         this.serviceFactory = serviceFactory;
         this.storedVersions = storedVersions;
     }
 
     public GraphDatabaseService startDatabase(final DataSourceRepository dataSourceRepository, final Path graphFile, final boolean fileExists) {
         logger.info("Create or load graph " + graphFile);
+        this.graphDBConfig = configuration.getGraphDBConfig();
 
         if (fileExists) {
             logger.info("Graph db file is present at " + graphFile);
@@ -46,7 +48,7 @@ public class GraphDatabaseLifecycleManager {
 
         cleanDB = !fileExists;
         GraphDatabaseService databaseService = serviceFactory.create();
-        final GraphTransactionFactory transactionFactory = new GraphTransactionFactory(databaseService, graphDBConfig);
+        final GraphTransactionFactory transactionFactory = new GraphTransactionFactory(databaseService, graphDBConfig.enableDiagnostics());
 
         if (fileExists && !storedVersions.upToDate(transactionFactory, dataSourceRepository)) {
             logger.warn("Graph is out of date, rebuild needed");

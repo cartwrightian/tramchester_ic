@@ -51,7 +51,6 @@ public class CachedNodeOperations implements NodeContentsRepository {
         relationshipCostCache = createCache("relationshipCostCache", numberFor(TransportRelationshipTypes.haveCosts()));
         tripIdRelationshipCache = createCache("tripIdRelationshipCache", numberFor(TransportRelationshipTypes.haveTripId()));
         timeNodeCache = createCache("timeNodeCache", GraphLabel.MINUTE);
-//        hourNodeCache = createCache("hourNodeCache", GraphLabel.HOUR);
 
         long numberOfNodes = numberOfNodesAndRelationshipsRepository.numberOfNodes();
 
@@ -99,7 +98,6 @@ public class CachedNodeOperations implements NodeContentsRepository {
         List<Pair<String,CacheStats>> result = new ArrayList<>();
         result.add(Pair.of("relationshipCostCache",relationshipCostCache.stats()));
         result.add(Pair.of("tripIdRelationshipCache", tripIdRelationshipCache.stats()));
-//        result.add(Pair.of("hourNodeCache", hourNodeCache.stats()));
         result.add(Pair.of("timeNodeCache", timeNodeCache.stats()));
         result.add(Pair.of("labelCache", labelCache.stats()));
 

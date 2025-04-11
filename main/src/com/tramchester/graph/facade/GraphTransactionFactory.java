@@ -1,6 +1,5 @@
 package com.tramchester.graph.facade;
 
-import com.tramchester.config.GraphDBConfig;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
@@ -22,22 +21,45 @@ public class GraphTransactionFactory implements MutableGraphTransaction.Transact
     private static final Logger logger = LoggerFactory.getLogger(GraphTransactionFactory.class);
 
     private final GraphDatabaseService databaseService;
-    private final GraphDBConfig graphDBConfig;
-
     private final State state;
     private final AtomicInteger transactionCount;
+    private final GraphIdFactory graphIdFactory;
 
-    public GraphTransactionFactory(GraphDatabaseService databaseService, GraphDBConfig graphDBConfig) {
+    public GraphTransactionFactory(final GraphDatabaseService databaseService, final boolean diagnostics) {
         this.databaseService = databaseService;
-        this.graphDBConfig = graphDBConfig;
 
         transactionCount = new AtomicInteger(0);
         state = new State();
+
+        graphIdFactory = new GraphIdFactory(diagnostics);
+    }
+
+
+    public void close() {
+        final int total = transactionCount.get();
+
+        if (logger.isDebugEnabled()) {
+            if (total == 1) {
+                logger.debug("Only one transaction");
+                state.logDiagnostics(logger, Level.DEBUG);
+            }
+        }
+
+        if (total>0) {
+            logger.info("Opened " + total + " transactions");
+            if (state.hasOutstanding()) {
+                logger.warn("close: Still " + state.outstanding() + " remaining open transactions");
+                state.logOutstanding(logger);
+            } else {
+                logger.info("closed: open and commit/close balanced");
+            }
+        }
+
+        graphIdFactory.close();
+        state.close();
     }
 
     public MutableGraphTransaction beginMutable(final Duration timeout) {
-        // graph id factory scoped to transaction level to avoid memory usages issues
-        final GraphIdFactory graphIdFactory = new GraphIdFactory(graphDBConfig);
         final Transaction graphDatabaseTxn = databaseService.beginTx(timeout.toSeconds(), TimeUnit.SECONDS);
 
         final int index = transactionCount.incrementAndGet();
@@ -50,7 +72,6 @@ public class GraphTransactionFactory implements MutableGraphTransaction.Transact
     }
 
     public TimedTransaction beginTimedMutable(Logger logger, String text, Duration timeout) {
-        final GraphIdFactory graphIdFactory = new GraphIdFactory(graphDBConfig);
         final Transaction graphDatabaseTxn = databaseService.beginTx(timeout.toSeconds(), TimeUnit.SECONDS);
 
         final int index = transactionCount.incrementAndGet();
@@ -65,28 +86,6 @@ public class GraphTransactionFactory implements MutableGraphTransaction.Transact
 
     public ImmutableGraphTransaction begin(final Duration timeout) {
         return new ImmutableGraphTransaction(beginMutable(timeout));
-    }
-
-    public void close() {
-        final int total = transactionCount.get();
-
-        if (logger.isDebugEnabled()) {
-            if (total == 1) {
-                logger.debug("Only one transaction");
-                state.logDiagnostics(logger, Level.DEBUG);
-            }
-        }
-        
-        if (total>0) {
-            logger.info("Opened " + total + " transactions");
-            if (state.hasOutstanding()) {
-                logger.warn("close: Still " + state.outstanding() + " remaining open transactions");
-                state.logOutstanding(logger);
-            } else {
-                logger.info("closed: open and commit/close balanced");
-            }
-        }
-        state.close();
     }
 
     @Override

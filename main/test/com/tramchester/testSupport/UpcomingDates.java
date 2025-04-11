@@ -41,6 +41,7 @@ public class UpcomingDates {
             2);
 
     public static TramDate MayDay2025 = TramDate.of(2025,5,5);
+    public static TramDate LateMayBankHold2025 = TramDate.of(2025, 5, 26);
 
     private static final IdSet<Station> HighStreetAndChurchStreetWorkStations = TramStations.ids(Shudehill, MarketStreet);
 

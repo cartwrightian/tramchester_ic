@@ -1,26 +1,45 @@
 package com.tramchester.graph.facade;
 
-import com.tramchester.config.GraphDBConfig;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.tramchester.graph.graphbuild.GraphLabel;
+import com.tramchester.repository.ReportsCacheStats;
+import org.apache.commons.lang3.tuple.Pair;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.List;
 
-/// TODO use a caffeine based cache?
-public class GraphIdFactory {
+public class GraphIdFactory implements ReportsCacheStats {
+    private static final Logger logger = LoggerFactory.getLogger(GraphIdFactory.class);
+
     private static final EnumSet<GraphLabel> NO_LABELS = EnumSet.noneOf(GraphLabel.class);
 
-    private final ConcurrentMap<String, GraphNodeId> nodeIds;
-    private final ConcurrentMap<String, GraphRelationshipId> relationshipIds;
+    //public static final Duration DEFAULT_EXPIRY = Duration.ofMinutes(5);
+
+    private final Cache<String, GraphNodeId> nodeIds;
+    private final Cache<String, GraphRelationshipId> relationshipIds;
     private final boolean diagnostics;
 
-    public GraphIdFactory(final GraphDBConfig graphDBConfig) {
-        nodeIds = new ConcurrentHashMap<>();
-        relationshipIds = new ConcurrentHashMap<>();
-        diagnostics = graphDBConfig.enableDiagnostics();
+    public GraphIdFactory(final boolean diagnostics) {
+        this.diagnostics = diagnostics;
+
+        nodeIds = createCache();
+        relationshipIds = createCache();
+        logger.info("created");
+    }
+
+    private <K, V> Cache<K, V>  createCache() {
+        return Caffeine.newBuilder().
+                //expireAfterAccess(DEFAULT_EXPIRY).
+                initialCapacity(20000).
+                recordStats().
+                build();
     }
 
     GraphNodeId getIdFor(final Node node) {
@@ -29,15 +48,31 @@ public class GraphIdFactory {
         if (diagnostics) {
             // add labels to id to aid in diagnostics
             final EnumSet<GraphLabel> labels = GraphLabel.from(node.getLabels());
-            return nodeIds.computeIfAbsent(internalId, unused -> new GraphNodeId(internalId, labels));
+            return nodeIds.get(internalId, unused -> new GraphNodeId(internalId, labels));
         } else {
-            return nodeIds.computeIfAbsent(internalId, unused -> new GraphNodeId(internalId, NO_LABELS));
+            return nodeIds.get(internalId, unused -> new GraphNodeId(internalId, NO_LABELS));
         }
     }
 
     GraphRelationshipId getIdFor(final Relationship relationship) {
         final String internalId = relationship.getElementId();
-        return relationshipIds.computeIfAbsent(internalId, GraphRelationshipId::new);
+        return relationshipIds.get(internalId, GraphRelationshipId::new);
+    }
+
+    public void close() {
+        stats().forEach(pair -> logger.info("Cache stats for " + pair.getLeft() + " " + pair.getRight().toString()));
+        relationshipIds.invalidateAll();
+        nodeIds.invalidateAll();
+        logger.info("closed");
+    }
+
+    @Override
+    public List<Pair<String, CacheStats>> stats() {
+        final List<Pair<String, CacheStats>> results = new ArrayList<>();
+        results.add(Pair.of("nodeIds", nodeIds.stats()));
+        results.add(Pair.of("relationshipIds", relationshipIds.stats()));
+
+        return results;
     }
 
 }
