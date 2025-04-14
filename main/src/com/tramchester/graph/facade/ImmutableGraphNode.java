@@ -37,6 +37,7 @@ public class ImmutableGraphNode implements GraphNode {
     private final IdCache<Service> serviceId;
     private final IdCache<RouteStation> routeStationId;
     private final LabelsCache labels;
+    private final TimeCache timeCache;
 
     ImmutableGraphNode(final MutableGraphNode underlying) {
         this.underlying = underlying;
@@ -47,6 +48,7 @@ public class ImmutableGraphNode implements GraphNode {
         serviceId = new IdCache<>(Service.class);
         routeStationId = new IdCache<>(RouteStation.class);
         labels = new LabelsCache();
+        timeCache = new TimeCache();
     }
 
     public static WeightedPath findSinglePath(PathFinder<WeightedPath> finder, GraphNode startNode, GraphNode endNode) {
@@ -89,7 +91,6 @@ public class ImmutableGraphNode implements GraphNode {
     @Override
     public boolean hasLabel(final GraphLabel graphLabel) {
         return labels.has(graphLabel);
-        //return underlying.hasLabel(graphLabel);
     }
 
     @Override
@@ -116,7 +117,7 @@ public class ImmutableGraphNode implements GraphNode {
     @Override
     public TramTime getTime() {
         // todo cache?
-        return underlying.getTime();
+        return timeCache.get();
     }
 
     @Override
@@ -142,7 +143,6 @@ public class ImmutableGraphNode implements GraphNode {
     @Override
     public EnumSet<GraphLabel> getLabels() {
         return labels.get();
-        //return underlying.getLabels();
     }
 
     @Override
@@ -212,6 +212,13 @@ public class ImmutableGraphNode implements GraphNode {
     }
 
     @Override
+    public String toString() {
+        return "ImmutableGraphNode{" +
+                "underlying=" + underlying +
+                '}';
+    }
+
+    @Override
     public int hashCode() {
         return Objects.hash(nodeId);
     }
@@ -268,13 +275,21 @@ public class ImmutableGraphNode implements GraphNode {
         private void fetch() {
             contents = underlying.getLabels();
         }
-
     }
 
-    @Override
-    public String toString() {
-        return "ImmutableGraphNode{" +
-                "underlying=" + underlying +
-                '}';
+    private class TimeCache {
+        private TramTime time;
+
+        private TimeCache() {
+            time = TramTime.invalid();
+        }
+
+        synchronized public TramTime get() {
+            if (!time.isValid()) {
+                time = underlying.getTime();
+            }
+            return time;
+        }
     }
+
 }

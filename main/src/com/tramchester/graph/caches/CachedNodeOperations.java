@@ -6,13 +6,10 @@ import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.NumberOfNodesAndRelationshipsRepository;
 import com.tramchester.graph.TransportRelationshipTypes;
-import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.facade.GraphRelationshipId;
-import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.metrics.CacheMetrics;
 import jakarta.inject.Inject;
 import org.apache.commons.lang3.tuple.Pair;
@@ -34,10 +31,6 @@ public class CachedNodeOperations implements NodeContentsRepository {
     private final Cache<GraphRelationshipId, IdFor<Trip>> tripIdRelationshipCache;
     private final Cache<GraphRelationshipId, Duration> relationshipCostCache;
 
-    private final Cache<GraphNodeId, TramTime> timeNodeCache;
-
-    //private final Cache<GraphNodeId, EnumSet<GraphLabel>> labelCache;
-
     private final NumberOfNodesAndRelationshipsRepository numberOfNodesAndRelationshipsRepository;
 
     @Inject
@@ -46,7 +39,6 @@ public class CachedNodeOperations implements NodeContentsRepository {
 
         relationshipCostCache = createCache("relationshipCostCache", numberFor(TransportRelationshipTypes.haveCosts()));
         tripIdRelationshipCache = createCache("tripIdRelationshipCache", numberFor(TransportRelationshipTypes.haveTripId()));
-        timeNodeCache = createCache("timeNodeCache", GraphLabel.MINUTE);
 
         cacheMetrics.register(this::reportStats);
     }
@@ -63,12 +55,6 @@ public class CachedNodeOperations implements NodeContentsRepository {
         logger.info("dispose");
         relationshipCostCache.invalidateAll();
         tripIdRelationshipCache.invalidateAll();
-        timeNodeCache.invalidateAll();
-    }
-
-    @NonNull
-    private <K, V> Cache<K, V> createCache(final String name, final GraphLabel label) {
-        return createCache(name, numberOfNodesAndRelationshipsRepository.numberOf(label));
     }
 
     @NonNull
@@ -80,12 +66,10 @@ public class CachedNodeOperations implements NodeContentsRepository {
                 recordStats().build();
     }
 
-    private final List<Pair<String,CacheStats>> reportStats() {
+    private List<Pair<String,CacheStats>> reportStats() {
         List<Pair<String,CacheStats>> result = new ArrayList<>();
         result.add(Pair.of("relationshipCostCache",relationshipCostCache.stats()));
         result.add(Pair.of("tripIdRelationshipCache", tripIdRelationshipCache.stats()));
-        result.add(Pair.of("timeNodeCache", timeNodeCache.stats()));
-        //result.add(Pair.of("labelCache", labelCache.stats()));
 
         return result;
     }
@@ -94,12 +78,6 @@ public class CachedNodeOperations implements NodeContentsRepository {
         final GraphRelationshipId relationshipId = relationship.getId();
         return tripIdRelationshipCache.get(relationshipId, id -> relationship.getTripId());
     }
-
-//    @Override
-//    public TramTime getTime(final GraphNode node) {
-//        final GraphNodeId nodeId = node.getId();
-//        return timeNodeCache.get(nodeId, id -> node.getTime());
-//    }
 
     @Override
     public Duration getCost(final GraphRelationship relationship) {
