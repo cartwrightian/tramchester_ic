@@ -167,15 +167,14 @@ public class MutableGraphTransaction implements GraphTransaction {
         return wrapNodeAsImmutable(node);
     }
 
+    ImmutableGraphNode wrapNodeAsImmutable(final Node node) {
+        final MutableGraphNode underlying = wrapNodeAsMutable(node);
+        return new ImmutableGraphNode(underlying);
+    }
+
     private MutableGraphNode wrapNodeAsMutable(final Node node) {
         final GraphNodeId graphNodeId = idFactory.getIdFor(node);
         return new MutableGraphNode(node, graphNodeId);
-    }
-
-    ImmutableGraphNode wrapNodeAsImmutable(final Node node) {
-        final MutableGraphNode underlying = wrapNodeAsMutable(node);
-        // TODO Cache?
-        return new ImmutableGraphNode(underlying);
     }
 
     @Override

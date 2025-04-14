@@ -10,7 +10,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.presentation.DTO.diagnostics.JourneyDiagnostics;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.graph.search.diagnostics.DiagnosticsToGraphViz;
 import com.tramchester.repository.StationGroupsRepository;
@@ -36,11 +36,11 @@ public class RouteCalculatorTestFacade {
 
     private final RouteCalculator routeCalculator;
     private final StationRepository stationRepository;
-    private final MutableGraphTransaction txn;
+    private final GraphTransaction txn;
     private final StationGroupsRepository stationGroupsRepository;
     private final DiagnosticsToGraphViz diagnosticsToGraphViz;
 
-    public  RouteCalculatorTestFacade(ComponentContainer componentContainer, MutableGraphTransaction txn) {
+    public  RouteCalculatorTestFacade(ComponentContainer componentContainer, GraphTransaction txn) {
         this.routeCalculator = componentContainer.get(RouteCalculator.class);
         this.stationRepository = componentContainer.get(StationRepository.class);
         this.stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);

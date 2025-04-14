@@ -12,9 +12,9 @@ import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.facade.MutableGraphTransaction;
-import com.tramchester.integration.testSupport.config.AllModesTestConfig;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
+import com.tramchester.integration.testSupport.config.AllModesTestConfig;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
@@ -40,7 +40,7 @@ public class AllModesJourneysTest {
     private static TramchesterConfig config;
 
     private static ComponentContainer componentContainer;
-    private MutableGraphTransaction txn;
+    private GraphTransaction txn;
     private StationRepository stationRepository;
     private Duration maxJourneyDuration;
     private TramDate when;
@@ -65,11 +65,10 @@ public class AllModesJourneysTest {
         when = TestEnv.testDay();
 
         GraphDatabase graphDatabase = componentContainer.get(GraphDatabase.class);
-        StationRepository stationRepository = componentContainer.get(StationRepository.class);
 
         stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
 
-        txn = graphDatabase.beginTxMutable();
+        txn = graphDatabase.beginTx();
         routeCalculator = new RouteCalculatorTestFacade(componentContainer, txn);
         this.stationRepository = componentContainer.get(StationRepository.class);
     }

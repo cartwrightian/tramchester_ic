@@ -12,7 +12,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.config.TemporaryStationsWalkConfigForTest;
@@ -45,7 +45,7 @@ class SubgraphSmallStationWalksTest {
     private final static TramDate when = TestEnv.testDay();
 
     private RouteCalculatorTestFacade calculator;
-    private MutableGraphTransaction txn;
+    private GraphTransaction txn;
     private Duration maxJourneyDuration;
     private int maxChanges;
 
@@ -79,7 +79,7 @@ class SubgraphSmallStationWalksTest {
         // trigger full build of graph DB
         componentContainer.get(StagedTransportGraphBuilder.Ready.class);
 
-        txn = database.beginTxMutable(TXN_TIMEOUT, TimeUnit.SECONDS);
+        txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
 
         calculator = new RouteCalculatorTestFacade(componentContainer, txn);
         maxJourneyDuration = Duration.ofMinutes(30);

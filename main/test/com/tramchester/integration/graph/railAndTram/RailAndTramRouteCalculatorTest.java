@@ -10,9 +10,9 @@ import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.facade.MutableGraphTransaction;
-import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchesterConfig;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
+import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchesterConfig;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.repository.NeighboursRepository;
 import com.tramchester.repository.StationRepository;
@@ -30,7 +30,8 @@ import java.util.stream.Collectors;
 import static com.tramchester.domain.reference.TransportMode.*;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.Altrincham;
 import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
-import static com.tramchester.testSupport.TestEnv.Modes.*;
+import static com.tramchester.testSupport.TestEnv.Modes.TrainAndTram;
+import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.reference.TramStations.Eccles;
 import static com.tramchester.testSupport.reference.TramStations.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -46,7 +47,7 @@ public class RailAndTramRouteCalculatorTest {
     private static ComponentContainer componentContainer;
     private static GraphDatabase database;
 
-    private MutableGraphTransaction txn;
+    private GraphTransaction txn;
     private RouteCalculatorTestFacade testFacade;
 
     private TramTime travelTime;
@@ -79,7 +80,7 @@ public class RailAndTramRouteCalculatorTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        txn = database.beginTxMutable(TXN_TIMEOUT, TimeUnit.SECONDS);
+        txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
         testFacade = new RouteCalculatorTestFacade(componentContainer, txn);
 
         travelTime = TramTime.of(8, 0);

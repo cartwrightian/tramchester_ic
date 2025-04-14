@@ -11,7 +11,7 @@ import com.tramchester.domain.places.Location;
 import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.config.TemporaryStationsWalkConfigForTest;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -47,7 +47,7 @@ public class RouteCalculatorForYorkStreetClosureTest {
     private static TramchesterConfig config;
 
     private RouteCalculatorTestFacade calculator;
-    private MutableGraphTransaction txn;
+    private GraphTransaction txn;
     private Duration maxJourneyDuration;
     private int maxNumResults;
     private TramDate when;
@@ -84,7 +84,7 @@ public class RouteCalculatorForYorkStreetClosureTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        txn = database.beginTxMutable(TXN_TIMEOUT, TimeUnit.SECONDS);
+        txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
         stationRepository = componentContainer.get(StationRepository.class);
         calculator = new RouteCalculatorTestFacade(componentContainer, txn);
         maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());

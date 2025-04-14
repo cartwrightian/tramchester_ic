@@ -71,11 +71,11 @@ public class LocationJourneyPlanner {
         this.routeToRouteCosts = routeToRouteCosts;
     }
 
-    public Stream<Journey> quickestRouteForLocation(MutableGraphTransaction txn, Location<?> start, Location<?> destination,
-                                                    JourneyRequest journeyRequest) {
+    public Stream<Journey> quickestRouteForLocation(final MutableGraphTransaction txn, final Location<?> start, final Location<?> destination,
+                                                    final JourneyRequest journeyRequest) {
         logger.info(format("Finding shortest path for %s --> %s (%s) for %s", start.getId(), destination.getId(), destination.getName(), journeyRequest));
-        boolean walkAtStart = start.getLocationType().isWalk();
-        boolean walkAtEnd = destination.getLocationType().isWalk();
+        final boolean walkAtStart = start.getLocationType().isWalk();
+        final boolean walkAtEnd = destination.getLocationType().isWalk();
 
         if (walkAtStart && walkAtEnd) {
             return quickestRouteWalkAtStartAndEnd(txn, start, destination, journeyRequest);
@@ -88,7 +88,7 @@ public class LocationJourneyPlanner {
         }
 
         // station => station
-        Running running = () -> true;
+        final Running running = () -> true;
         if (journeyRequest.getArriveBy()) {
             return routeCalculatorArriveBy.calculateRoute(txn, start, destination, journeyRequest, running);
         } else {
@@ -96,8 +96,8 @@ public class LocationJourneyPlanner {
         }
     }
 
-    private Stream<Journey> quickRouteWalkAtStart(MutableGraphTransaction txn, Location<?> start, Location<?> destination,
-                                                  JourneyRequest journeyRequest) {
+    private Stream<Journey> quickRouteWalkAtStart(final MutableGraphTransaction txn, final Location<?> start, final Location<?> destination,
+                                                  final JourneyRequest journeyRequest) {
         logger.info(format("Finding shortest path for %s --> %s (%s) for %s", start.getId(),
                 destination.getId(), destination.getName(), journeyRequest));
 
@@ -106,7 +106,7 @@ public class LocationJourneyPlanner {
             logger.warn(format("Start %s not within %s of station bounds %s", startGrid, margin, stationLocations.getActiveStationBounds()));
         }
 
-        Set<StationWalk> walksToStart = getStationWalks(start, journeyRequest.getRequestedModes());
+        final Set<StationWalk> walksToStart = getStationWalks(start, journeyRequest.getRequestedModes());
         if (walksToStart.isEmpty()) {
             logger.warn("No walks to start found " +start);
             return Stream.empty();
@@ -116,8 +116,8 @@ public class LocationJourneyPlanner {
         final MutableGraphNode startOfWalkNode = nodesAndRelationships.createWalkingNode(start, journeyRequest);
         nodesAndRelationships.createWalksToStart(startOfWalkNode, walksToStart);
 
-        Duration maxInitialWait = RouteCalculatorSupport.getMaxInitialWaitFor(walksToStart, config);
-        TimeRange timeRange = journeyRequest.getJourneyTimeRange(maxInitialWait);
+        final Duration maxInitialWait = RouteCalculatorSupport.getMaxInitialWaitFor(walksToStart, config);
+        final TimeRange timeRange = journeyRequest.getJourneyTimeRange(maxInitialWait);
 
         final int numberOfChanges = findNumberChangesWalkAtStart(walksToStart, destination, journeyRequest, timeRange);
         final Stream<Journey> journeys;
@@ -133,12 +133,12 @@ public class LocationJourneyPlanner {
         return journeys;
     }
 
-    private Stream<Journey> quickestRouteWalkAtEnd(MutableGraphTransaction txn, Location<?> start, Location<?> destination,
-                                                   JourneyRequest journeyRequest) {
+    private Stream<Journey> quickestRouteWalkAtEnd(final MutableGraphTransaction txn, final Location<?> start, final Location<?> destination,
+                                                   final JourneyRequest journeyRequest) {
         logger.info(format("Finding shortest path for %s (%s) --> %s for %s", start.getId(), start.getName(),
                 destination, journeyRequest));
 
-        GridPosition endGrid = destination.getGridPosition();
+        final GridPosition endGrid = destination.getGridPosition();
         if (!stationLocations.withinBounds(destination)) {
             logger.warn(format("Destination %s not within %s of station bounds %s", endGrid, margin, stationLocations.getActiveStationBounds()));
         }
@@ -147,16 +147,16 @@ public class LocationJourneyPlanner {
             logger.warn("Destination not within station bounds " + destination);
         }
 
-        Set<StationWalk> walksToDest = getStationWalks(destination, journeyRequest.getRequestedModes());
+        final Set<StationWalk> walksToDest = getStationWalks(destination, journeyRequest.getRequestedModes());
         if (walksToDest.isEmpty()) {
             logger.warn("Cannot find any walks from " + destination + " to stations");
             return Stream.empty();
         }
 
-        WalkNodesAndRelationships nodesAndRelationships = new WalkNodesAndRelationships(txn, nodeOperations);
+        final WalkNodesAndRelationships nodesAndRelationships = new WalkNodesAndRelationships(txn, nodeOperations);
 
-        MutableGraphNode endWalk = nodesAndRelationships.createWalkingNode(destination, journeyRequest);
-        List<MutableGraphRelationship> addedRelationships = new LinkedList<>();
+        final MutableGraphNode endWalk = nodesAndRelationships.createWalkingNode(destination, journeyRequest);
+        final List<MutableGraphRelationship> addedRelationships = new LinkedList<>();
 
         nodesAndRelationships.createWalksToDest(endWalk, walksToDest);
 
@@ -164,13 +164,13 @@ public class LocationJourneyPlanner {
 
         final LocationSet<Station> destinationStations = walksToDest.stream().map(StationWalk::getStation).collect(LocationSet.stationCollector());
 
-        Duration maxInitialWait = RouteCalculatorSupport.getMaxInitialWaitFor(start, config);
-        TimeRange timeRange = journeyRequest.getJourneyTimeRange(maxInitialWait);
+        final Duration maxInitialWait = RouteCalculatorSupport.getMaxInitialWaitFor(start, config);
+        final TimeRange timeRange = journeyRequest.getJourneyTimeRange(maxInitialWait);
 
         final int numberOfChanges = findNumberChangesWalkAtEnd(start, walksToDest, journeyRequest, timeRange);
 
-        Stream<Journey> journeys;
-        Running running = () -> true;
+        final Stream<Journey> journeys;
+        final Running running = () -> true;
         if (journeyRequest.getArriveBy()) {
             journeys = routeCalculatorArriveBy.calculateRouteWalkAtEnd(txn, start, endWalk, destinationStations, journeyRequest, numberOfChanges, running);
         } else {
@@ -183,30 +183,30 @@ public class LocationJourneyPlanner {
         return journeys;
     }
 
-    private Stream<Journey> quickestRouteWalkAtStartAndEnd(MutableGraphTransaction txn, Location<?> start, Location<?> dest,
-                                                           JourneyRequest journeyRequest) {
+    private Stream<Journey> quickestRouteWalkAtStartAndEnd(final MutableGraphTransaction txn, final Location<?> start, final Location<?> dest,
+                                                           final JourneyRequest journeyRequest) {
         logger.info(format("Finding shortest path for %s --> %s on %s", start, dest, journeyRequest));
 
-        WalkNodesAndRelationships nodesAndRelationships = new WalkNodesAndRelationships(txn, nodeOperations);
+        final WalkNodesAndRelationships nodesAndRelationships = new WalkNodesAndRelationships(txn, nodeOperations);
 
         // Add Walk at the Start
-        Set<StationWalk> walksAtStart = getStationWalks(start, journeyRequest.getRequestedModes());
-        MutableGraphNode startNode = nodesAndRelationships.createWalkingNode(start, journeyRequest);
+        final Set<StationWalk> walksAtStart = getStationWalks(start, journeyRequest.getRequestedModes());
+        final MutableGraphNode startNode = nodesAndRelationships.createWalkingNode(start, journeyRequest);
         nodesAndRelationships.createWalksToStart(startNode, walksAtStart);
 
         // Add Walks at the end
-        Set<StationWalk> walksToDest = getStationWalks(dest, journeyRequest.getRequestedModes());
-        MutableGraphNode endWalk = nodesAndRelationships.createWalkingNode(dest, journeyRequest);
+        final Set<StationWalk> walksToDest = getStationWalks(dest, journeyRequest.getRequestedModes());
+        final MutableGraphNode endWalk = nodesAndRelationships.createWalkingNode(dest, journeyRequest);
         nodesAndRelationships.createWalksToDest(endWalk, walksToDest);
 
         // where destination walks take us
-        LocationSet<Station> destinationStations = walksToDest.stream().
+        final LocationSet<Station> destinationStations = walksToDest.stream().
                 map(StationWalk::getStation).collect(LocationSet.stationCollector());
 
-        Duration maxInitialWait = RouteCalculatorSupport.getMaxInitialWaitFor(walksAtStart, config);
-        TimeRange timeRange = journeyRequest.getJourneyTimeRange(maxInitialWait);
+        final Duration maxInitialWait = RouteCalculatorSupport.getMaxInitialWaitFor(walksAtStart, config);
+        final TimeRange timeRange = journeyRequest.getJourneyTimeRange(maxInitialWait);
 
-        int numberOfChanges = findNumberChangesWalksStartAndEnd(walksAtStart, walksToDest, journeyRequest, timeRange);
+        final int numberOfChanges = findNumberChangesWalksStartAndEnd(walksAtStart, walksToDest, journeyRequest, timeRange);
 
         /// CALC
         Stream<Journey> journeys;

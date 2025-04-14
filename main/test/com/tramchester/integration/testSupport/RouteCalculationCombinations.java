@@ -17,13 +17,12 @@ import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.repository.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
-import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -59,14 +58,14 @@ public class RouteCalculationCombinations<T extends Location<T>> {
         return (stationId, date) -> !closedStationRepository.isStationClosed(stationId, date);
     }
 
-    public static ChecksOpen<StationLocalityGroup> checkGroupOpen(ComponentContainer componentContainer) {
+    public static ChecksOpen<StationLocalityGroup> checkGroupOpen(final ComponentContainer componentContainer) {
         final ClosedStationsRepository closedStationRepository = componentContainer.get(ClosedStationsRepository.class);
         final StationGroupsRepository stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
         return (stationGroupId, date) -> !closedStationRepository.isGroupClosed(stationGroupsRepository.getStationGroup(stationGroupId), date);
     }
 
-
-    public Optional<Journey> findJourneys(MutableGraphTransaction txn, IdFor<T> start, IdFor<T> dest, JourneyRequest journeyRequest, Running running) {
+    public Optional<Journey> findJourneys(final GraphTransaction txn, final IdFor<T> start, final IdFor<T> dest,
+                                          final JourneyRequest journeyRequest, final Running running) {
         return calculator.calculateRoute(txn, locationRepository.getLocation(start), locationRepository.getLocation(dest), journeyRequest, running)
                 .limit(1).
                 findAny();
@@ -78,21 +77,21 @@ public class RouteCalculationCombinations<T extends Location<T>> {
     }
 
     public CombinationResults<T> validateAllHaveAtLeastOneJourney(final LocationIdPairSet<T> stationIdPairs,
-                                                                             final JourneyRequest journeyRequest, final boolean check, Duration timeout) {
+                                                                             final JourneyRequest journeyRequest, final boolean check, final Duration timeout) {
 
         if (stationIdPairs.isEmpty()) {
             fail("no station pairs");
         }
-        long openPairs = stationIdPairs.stream().filter(stationIdPair -> bothOpen(stationIdPair, journeyRequest)).count();
+        final long openPairs = stationIdPairs.stream().filter(stationIdPair -> bothOpen(stationIdPair, journeyRequest.getDate())).count();
         assertNotEquals(0, openPairs);
 
-        Running running = () -> true;
+        final Running running = () -> true;
 
-        CombinationResults<T> results = computeJourneys(stationIdPairs, journeyRequest, running, timeout);
+        final CombinationResults<T> results = computeJourneys(stationIdPairs, journeyRequest, running, timeout);
         assertEquals(openPairs, results.size(), "Not enough results");
 
         // check all results present, collect failures into a list
-        List<RouteCalculationCombinations.JourneyOrNot<T>> failed = results.getFailed();
+        final List<RouteCalculationCombinations.JourneyOrNot<T>> failed = results.getFailed();
 
         // TODO This should be in the tests, not here
         if (check) {
@@ -103,12 +102,12 @@ public class RouteCalculationCombinations<T extends Location<T>> {
         return results;
     }
 
-    private boolean bothOpen(LocationIdPair<T> locationIdPair, JourneyRequest journeyRequest) {
-        return checksOpen.isOpen(locationIdPair.getBeginId(), journeyRequest.getDate()) &&
-                checksOpen.isOpen(locationIdPair.getEndId(), journeyRequest.getDate());
+    private boolean bothOpen(final LocationIdPair<T> locationIdPair, final TramDate date) {
+        return checksOpen.isOpen(locationIdPair.getBeginId(), date) &&
+                checksOpen.isOpen(locationIdPair.getEndId(), date);
     }
 
-    public CombinationResults<T> getJourneysFor(final LocationIdPairSet<T> stationIdPairs, JourneyRequest journeyRequest) {
+    public CombinationResults<T> getJourneysFor(final LocationIdPairSet<T> stationIdPairs, final JourneyRequest journeyRequest) {
         return validateAllHaveAtLeastOneJourney(stationIdPairs, journeyRequest, false, GraphDatabase.DEFAULT_TXN_TIMEOUT);
     }
 
@@ -122,62 +121,58 @@ public class RouteCalculationCombinations<T extends Location<T>> {
     }
 
     @NotNull
-    private CombinationResults<T> computeJourneys(final LocationIdPairSet<T> combinations, final JourneyRequest request, Running running, Duration timeout) {
+    private CombinationResults<T> computeJourneys(final LocationIdPairSet<T> combinations, final JourneyRequest request,
+                                                  final Running running, final Duration timeout) {
         final TramDate queryDate = request.getDate();
         final TramTime queryTime = request.getOriginalTime();
 
-        Function<IdFor<T>, String> resolver = id -> locationRepository.getLocation(id).getName();
+        final Function<IdFor<T>, String> resolver = id -> locationRepository.getLocation(id).getName();
 
         Stream<JourneyOrNot<T>> resultsStream = combinations.
                 parallelStream().
-                filter(stationIdPair -> bothOpen(stationIdPair, request)).
-                map(stationIdPair -> new LocationIdAndNamePair<T>(stationIdPair, resolver)).
+                filter(stationIdPair -> bothOpen(stationIdPair, queryDate)).
+                map(stationIdPair -> new LocationIdAndNamePair<>(stationIdPair, resolver)).
                 map(stationIdPair -> {
-                    try (final MutableGraphTransaction txn = database.beginTxMutable(timeout)) {
+                    try (final GraphTransaction txn = database.beginTx(timeout)) {
                         final Optional<Journey> optionalJourney = findJourneys(txn, stationIdPair.getBeginId(), stationIdPair.getEndId(), request, running);
-                        return new JourneyOrNot<T>(stationIdPair, queryDate, queryTime, optionalJourney);
+                        return new JourneyOrNot<>(stationIdPair, queryDate, queryTime, optionalJourney);
                     }
                 });
         return new CombinationResults<>(resultsStream);
     }
 
-    public String displayFailed(List<JourneyOrNot<T>> pairs) {
-        StringBuilder stringBuilder = new StringBuilder();
-        pairs.forEach(pair -> stringBuilder.append("[").
-        append(pair).append("] "));
-//        pairs.forEach(pair -> stringBuilder.append("[").
-//                append(pair.requested.getBeginId()).
-//                append(" to ").append(pair.requested.getEndId()).
-//                append("] "));
+    public String displayFailed(final List<JourneyOrNot<T>> pairs) {
+        final StringBuilder stringBuilder = new StringBuilder();
+        pairs.forEach(pair -> stringBuilder.append("[").append(pair).append("] "));
         return stringBuilder.toString();
     }
 
-    public LocationIdPairSet<Station> EndOfRoutesToInterchanges(TransportMode mode) {
-        IdSet<Station> interchanges = getInterchangesFor(mode);
-        IdSet<Station> endRoutes = routeEndRepository.getStations(mode);
+    public LocationIdPairSet<Station> EndOfRoutesToInterchanges(final TransportMode mode) {
+        final IdSet<Station> interchanges = getInterchangesFor(mode);
+        final IdSet<Station> endRoutes = routeEndRepository.getStations(mode);
         return createJourneyPairs(interchanges, endRoutes);
     }
 
-    public LocationIdPairSet<Station> InterchangeToInterchange(TransportMode mode) {
-        IdSet<Station> interchanges = getInterchangesFor(mode);
+    public LocationIdPairSet<Station> InterchangeToInterchange(final TransportMode mode) {
+        final IdSet<Station> interchanges = getInterchangesFor(mode);
         return createJourneyPairs(interchanges, interchanges);
     }
 
-    public LocationIdPairSet<Station> InterchangeToEndRoutes(TransportMode mode) {
-        IdSet<Station> interchanges = getInterchangesFor(mode);
-        IdSet<Station> endRoutes = routeEndRepository.getStations(mode);
+    public LocationIdPairSet<Station> InterchangeToEndRoutes(final TransportMode mode) {
+        final IdSet<Station> interchanges = getInterchangesFor(mode);
+        final IdSet<Station> endRoutes = routeEndRepository.getStations(mode);
         return createJourneyPairs(endRoutes, interchanges);
     }
 
-    private IdSet<Station> getInterchangesFor(TransportMode mode) {
+    private IdSet<Station> getInterchangesFor(final TransportMode mode) {
         return interchangeRepository.getAllInterchanges().stream().
                 map(InterchangeStation::getStationId).
                 filter(stationId -> stationRepository.getStationById(stationId).servesMode(mode)).
                 collect(IdSet.idCollector());
     }
 
-    public LocationIdPairSet<Station> EndOfRoutesToEndOfRoutes(TransportMode mode) {
-        IdSet<Station> endRoutes = routeEndRepository.getStations(mode);
+    public LocationIdPairSet<Station> EndOfRoutesToEndOfRoutes(final TransportMode mode) {
+        final IdSet<Station> endRoutes = routeEndRepository.getStations(mode);
         return createJourneyPairs(endRoutes, endRoutes);
     }
 
@@ -193,29 +188,24 @@ public class RouteCalculationCombinations<T extends Location<T>> {
         return combinations;
     }
 
-    public boolean betweenInterchanges(Station start, Station dest) {
+    public boolean betweenInterchanges(final Station start, final Station dest) {
         return interchangeRepository.isInterchange(start) && interchangeRepository.isInterchange(dest);
     }
 
     public JourneyOrNot<T> createResult(LocationIdPair<T> locationIdPair, TramDate queryDate, TramTime queryTime, Optional<Journey> optionalJourney) {
-        Function<IdFor<T>, String> resolver = id -> locationRepository.getLocation(id).getName();
-        LocationIdAndNamePair<T> requested = new LocationIdAndNamePair<>(locationIdPair, resolver);
+        final Function<IdFor<T>, String> resolver = id -> locationRepository.getLocation(id).getName();
+        final LocationIdAndNamePair<T> requested = new LocationIdAndNamePair<>(locationIdPair, resolver);
         return new JourneyOrNot<>(requested, queryDate, queryTime, optionalJourney);
     }
 
     public static class JourneyOrNot<T extends Location<T>> {
         private final LocationIdAndNamePair<T> requested;
-        private final LocalDate queryDate;
+        private final TramDate queryDate;
         private final TramTime queryTime;
         private final Journey journey;
 
         @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
         public JourneyOrNot(LocationIdAndNamePair<T> requested, TramDate queryDate, TramTime queryTime, Optional<Journey> optionalJourney) {
-            this(requested, queryDate.toLocalDate(), queryTime, optionalJourney);
-        }
-
-        @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-        public JourneyOrNot(LocationIdAndNamePair<T> requested, LocalDate queryDate, TramTime queryTime, Optional<Journey> optionalJourney) {
             this.requested = requested;
             this.queryDate = queryDate;
             this.queryTime = queryTime;
@@ -250,7 +240,7 @@ public class RouteCalculationCombinations<T extends Location<T>> {
     public static class CombinationResults<T extends Location<T>> {
         private final List<JourneyOrNot<T>> theResults;
 
-        public CombinationResults(Stream<JourneyOrNot<T>> resultsStream) {
+        public CombinationResults(final Stream<JourneyOrNot<T>> resultsStream) {
             theResults = resultsStream.collect(Collectors.toList());
         }
 
@@ -282,6 +272,6 @@ public class RouteCalculationCombinations<T extends Location<T>> {
     }
 
     public interface ChecksOpen<T extends Location<T>> {
-        boolean isOpen(IdFor<T> beginId, TramDate date);
+        boolean isOpen(final IdFor<T> beginId, final TramDate date);
     }
 }

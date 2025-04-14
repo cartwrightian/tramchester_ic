@@ -11,7 +11,7 @@ import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.config.closures.StationClosuresListForTest;
 import com.tramchester.integration.testSupport.tram.IntegrationTramClosedStationsTestConfig;
@@ -41,7 +41,7 @@ class RouteCalculatorCloseStationsTest {
 
     private RouteCalculatorTestFacade calculator;
     private final static TramDate when = TestEnv.testDay();
-    private MutableGraphTransaction txn;
+    private GraphTransaction txn;
 
     private final static TramDate begin = when.plusWeeks(1);
     private final static TramDate end = when.plusWeeks(2);
@@ -71,7 +71,7 @@ class RouteCalculatorCloseStationsTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        txn = database.beginTxMutable(TXN_TIMEOUT, TimeUnit.SECONDS);
+        txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
         calculator = new RouteCalculatorTestFacade(componentContainer, txn);
     }
 

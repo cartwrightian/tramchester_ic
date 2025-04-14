@@ -19,7 +19,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.MarginInMeters;
 import com.tramchester.geo.StationLocations;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
@@ -54,7 +54,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRouteTest {
 
     private RouteCalculatorTestFacade calculator;
 
-    private MutableGraphTransaction txn;
+    private GraphTransaction txn;
     private TramDate when;
     private StationGroupsRepository stationGroupsRepository;
     private StationLocalityGroup altrinchamInterchange;
@@ -98,7 +98,7 @@ class BusRouteCalculatorSubGraphAltyToMaccRouteTest {
         stationGroupsRepository = componentContainer.get(StationGroupsRepository.class);
         stationRepository = componentContainer.get(StationRepository.class);
 
-        txn = database.beginTxMutable();
+        txn = database.beginTx();
 
         calculator = new RouteCalculatorTestFacade(componentContainer, txn);
 

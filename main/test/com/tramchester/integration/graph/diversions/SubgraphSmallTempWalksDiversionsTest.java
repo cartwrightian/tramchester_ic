@@ -23,7 +23,6 @@ import com.tramchester.graph.StationsWithDiversion;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.ImmutableGraphNode;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
-import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
@@ -71,7 +70,7 @@ class SubgraphSmallTempWalksDiversionsTest {
 
     private RouteCalculatorTestFacade calculator;
     private StationRepository stationRepository;
-    private MutableGraphTransaction txn;
+    private GraphTransaction txn;
     private Duration maxJourneyDuration;
     private int maxChanges;
     private StationsWithDiversionRepository diversionRepository;
@@ -114,7 +113,7 @@ class SubgraphSmallTempWalksDiversionsTest {
         // trigger full build of graph DB
         componentContainer.get(StagedTransportGraphBuilder.Ready.class);
 
-        txn = database.beginTxMutable(TXN_TIMEOUT, TimeUnit.SECONDS);
+        txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
         stationRepository = componentContainer.get(StationRepository.class);
         diversionRepository = componentContainer.get(StationsWithDiversionRepository.class);
 

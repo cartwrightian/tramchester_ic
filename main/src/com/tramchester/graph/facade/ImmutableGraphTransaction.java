@@ -16,7 +16,7 @@ public class ImmutableGraphTransaction implements GraphTransaction  {
 
     private final MutableGraphTransaction underlying;
 
-    public ImmutableGraphTransaction(MutableGraphTransaction underlying) {
+    public ImmutableGraphTransaction(final MutableGraphTransaction underlying) {
         this.underlying = underlying;
     }
 
@@ -31,37 +31,37 @@ public class ImmutableGraphTransaction implements GraphTransaction  {
     }
 
     @Override
-    public ImmutableGraphNode getNodeById(GraphNodeId nodeId) {
+    public ImmutableGraphNode getNodeById(final GraphNodeId nodeId) {
         return underlying.getNodeById(nodeId);
     }
 
     @Override
-    public Stream<ImmutableGraphNode> findNodes(GraphLabel graphLabel) {
+    public Stream<ImmutableGraphNode> findNodes(final GraphLabel graphLabel) {
         return underlying.findNodes(graphLabel);
     }
 
     @Override
-    public boolean hasAnyMatching(GraphLabel label, String field, String value) {
+    public boolean hasAnyMatching(final GraphLabel label, final String field, final String value) {
         return underlying.hasAnyMatching(label, field, value);
     }
 
     @Override
-    public boolean hasAnyMatching(GraphLabel graphLabel) {
+    public boolean hasAnyMatching(final GraphLabel graphLabel) {
         return underlying.hasAnyMatching(graphLabel);
     }
 
     @Override
-    public <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> ImmutableGraphNode findNode(ITEM item) {
+    public <ITEM extends GraphProperty & HasGraphLabel & HasId<TYPE>, TYPE extends CoreDomain> ImmutableGraphNode findNode(final ITEM item) {
         return underlying.findNode(item);
     }
 
     @Override
-    public EvaluationContext createEvaluationContext(GraphDatabaseService databaseService) {
+    public EvaluationContext createEvaluationContext(final GraphDatabaseService databaseService) {
         return underlying.createEvaluationContext(databaseService);
     }
 
     @Override
-    public List<ImmutableGraphRelationship> getRouteStationRelationships(RouteStation routeStation, Direction direction) {
+    public List<ImmutableGraphRelationship> getRouteStationRelationships(final RouteStation routeStation, final Direction direction) {
         return underlying.getRouteStationRelationships(routeStation, direction);
     }
 
@@ -81,7 +81,7 @@ public class ImmutableGraphTransaction implements GraphTransaction  {
     }
 
     @Override
-    public ImmutableGraphRelationship getRelationshipById(GraphRelationshipId graphRelationshipId) {
+    public ImmutableGraphRelationship getRelationshipById(final GraphRelationshipId graphRelationshipId) {
         return underlying.getRelationshipById(graphRelationshipId);
     }
 
@@ -91,27 +91,27 @@ public class ImmutableGraphTransaction implements GraphTransaction  {
     }
 
     @Override
-    public ImmutableGraphRelationship lastFrom(Path path) {
+    public ImmutableGraphRelationship lastFrom(final Path path) {
         return underlying.lastFrom(path);
     }
 
     @Override
-    public ImmutableGraphNode fromStart(Path path) {
+    public ImmutableGraphNode fromStart(final Path path) {
         return underlying.fromStart(path);
     }
 
     @Override
-    public GraphNodeId createNodeId(Node node) {
+    public GraphNodeId createNodeId(final Node node) {
         return underlying.createNodeId(node);
     }
 
     @Override
-    public ImmutableGraphNode getStartNode(Relationship relationship) {
+    public ImmutableGraphNode getStartNode(final Relationship relationship) {
         return underlying.getStartNode(relationship);
     }
 
     @Override
-    public ImmutableGraphNode getEndNode(Relationship relationship) {
+    public ImmutableGraphNode getEndNode(final Relationship relationship) {
         return underlying.getEndNode(relationship);
     }
 }

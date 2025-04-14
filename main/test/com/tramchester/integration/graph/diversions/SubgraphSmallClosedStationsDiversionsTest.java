@@ -71,7 +71,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
 
     private RouteCalculatorTestFacade calculator;
     private StationRepository stationRepository;
-    private MutableGraphTransaction txn;
+    private GraphTransaction txn;
     private Duration maxJourneyDuration;
     private int maxChanges;
     private StationsWithDiversionRepository diversionRepository;
@@ -99,7 +99,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
         // trigger full build of graph DB
         componentContainer.get(StagedTransportGraphBuilder.Ready.class);
 
-        txn = database.beginTxMutable(TXN_TIMEOUT, TimeUnit.SECONDS);
+        txn = database.beginTx(TXN_TIMEOUT, TimeUnit.SECONDS);
         stationRepository = componentContainer.get(StationRepository.class);
         diversionRepository = componentContainer.get(StationsWithDiversionRepository.class);
 

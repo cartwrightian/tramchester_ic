@@ -75,9 +75,6 @@ class RouteCalculatorAllTramJourneysTest {
                 filter(station -> !closedRepository.isClosed(station, when)).
                 collect(Collectors.toSet());
 
-        // TODO
-        //JourneyRequest.MaxNumberOfChanges maxChanges = JourneyRequest.MaxNumberOfChanges.UseComputed();
-
         JourneyRequest.MaxNumberOfChanges maxChanges = JourneyRequest.MaxNumberOfChanges.of(2);
 
         JourneyRequest journeyRequest = new JourneyRequest(when, time, false, maxChanges,

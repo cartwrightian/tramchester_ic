@@ -21,7 +21,7 @@ import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
 import com.tramchester.integration.testSupport.LocationIdsAndNames;
@@ -78,7 +78,7 @@ class RouteCalculatorSubGraphMediaCityTest {
             MarketStreet
     );
 
-    private MutableGraphTransaction txn;
+    private GraphTransaction txn;
 
     private Duration maxJourneyDuration;
     private RouteCalculationCombinations<Station> combinations;
@@ -114,7 +114,7 @@ class RouteCalculatorSubGraphMediaCityTest {
     void beforeEachTestRuns() {
         maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
         stationRepository = componentContainer.get(StationRepository.class);
-        txn = database.beginTxMutable();
+        txn = database.beginTx();
         combinations = new RouteCalculationCombinations<>(componentContainer, RouteCalculationCombinations.checkStationOpen(componentContainer) );
         calculator = new RouteCalculatorTestFacade(componentContainer, txn);
         closedStationRepository = componentContainer.get(ClosedStationsRepository.class);

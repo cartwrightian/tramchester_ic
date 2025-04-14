@@ -62,7 +62,7 @@ public class LocationJourneyPlannerTestFacade {
     }
 
     @NotNull
-    private Set<Journey> asSetClosed(Stream<Journey> theStream, int maxStages) {
+    private Set<Journey> asSetClosed(final Stream<Journey> theStream, final int maxStages) {
         Set<Journey> result = theStream.
                 filter(journey -> journey.getStages().size()<=maxStages).
                 collect(Collectors.toSet());

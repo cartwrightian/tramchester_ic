@@ -13,7 +13,7 @@ import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.filters.ConfigurableGraphFilter;
 import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.integration.testSupport.config.RailAndTramGreaterManchesterConfig;
@@ -50,7 +50,7 @@ public class RailAndTramRouteCalculatorSubGraphRoutesTest {
             RailStationIds.ManchesterVictoria,
             RailStationIds.ManchesterOxfordRoad).map(HasId::getId).toList();
 
-    private MutableGraphTransaction txn;
+    private GraphTransaction txn;
     private RouteCalculatorTestFacade testFacade;
     private Duration maxDurationFromConfig;
 
@@ -89,7 +89,7 @@ public class RailAndTramRouteCalculatorSubGraphRoutesTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        txn = database.beginTxMutable(TXN_TIMEOUT);
+        txn = database.beginTx(TXN_TIMEOUT);
         testFacade = new RouteCalculatorTestFacade(componentContainer, txn);
 
         maxDurationFromConfig = Duration.ofMinutes(config.getMaxJourneyDuration());
