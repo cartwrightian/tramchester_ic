@@ -17,11 +17,9 @@ import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
-import com.tramchester.graph.search.stateMachine.TraversalOps;
 import com.tramchester.graph.search.stateMachine.states.NotStartedState;
 import com.tramchester.graph.search.stateMachine.states.StateBuilderParameters;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
-import com.tramchester.repository.TripRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.reference.StationHelper;
 import org.easymock.EasyMock;
@@ -54,7 +52,6 @@ class JourneyStateTest extends EasyMockSupport {
         station.addRoutePickUp(TestEnv.getTramTestRoute());
         station.addRoutePickUp(TestEnv.getTramTestRoute());
 
-        TripRepository tripRepository = createMock(TripRepository.class);
         NodeContentsRepository nodeContentsRepository = createMock(NodeContentsRepository.class);
         final TramchesterConfig config = TestEnv.GET();
 
@@ -67,12 +64,9 @@ class JourneyStateTest extends EasyMockSupport {
 
         MutableGraphTransaction txn = createMock(MutableGraphTransaction.class);
 
-
-        final TraversalOps traversalOps = new TraversalOps(txn);
-
         GraphNodeId startNodeId = GraphNodeId.TestOnly(88842L);
 
-        traversalState = new NotStartedState(traversalOps, traversalStateFactory, startNodeId, txn);
+        traversalState = new NotStartedState(traversalStateFactory, startNodeId, txn);
     }
 
     @Test

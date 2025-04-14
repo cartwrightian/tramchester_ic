@@ -24,12 +24,10 @@ import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.FilterRelationshipsByTripId;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
-import com.tramchester.graph.search.stateMachine.TraversalOps;
 import com.tramchester.graph.search.stateMachine.states.*;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.repository.TripRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.reference.KnownTramRoute;
@@ -52,7 +50,6 @@ public class TraversalStateTest extends EasyMockSupport {
     private GraphTransaction txn;
     private NodeContentsRepository nodeContentsRepository;
     private StationRepository stationRepository;
-    private TraversalOps traversalOps;
     private TramDate when;
     private TramTime time;
     private Duration cost;
@@ -74,13 +71,13 @@ public class TraversalStateTest extends EasyMockSupport {
     @BeforeEach
     void beforeEachOfTheTestsRun() {
         nodeContentsRepository = componentContainer.get(NodeContentsRepository.class);
-        TripRepository tripRepository = componentContainer.get(TripRepository.class);
+//        TripRepository tripRepository = componentContainer.get(TripRepository.class);
         RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
         tramRouteHelper = new TramRouteHelper(routeRepository);
         stationRepository = componentContainer.get(StationRepository.class);
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
         txn = database.beginTx();
-        traversalOps = new TraversalOps(txn);
+//        TraversalOps traversalOps = new TraversalOps(txn);
         when = TestEnv.testDay();
 
         time = TramTime.of(8,42);
@@ -159,7 +156,6 @@ public class TraversalStateTest extends EasyMockSupport {
         GraphNode routeStationNode = txn.findNode(routeStation);
 
         boolean isInterchange = true;
-        Trip trip = findATrip(route, TraffordBar.getId());
 
         replayAll();
         RouteStationStateEndTrip routeStationStateOnTrip = builder.fromMinuteState(updateState, minuteState, routeStationNode, cost, isInterchange, txn);
@@ -235,7 +231,7 @@ public class TraversalStateTest extends EasyMockSupport {
         // routes are bi-driectional, exclude the one that just goes back where we came from
         assertEquals(1, towardsService.size(), displayTowardsService(towardsService));
 
-        ImmutableGraphRelationship towardsTrip = towardsService.get(0);
+        ImmutableGraphRelationship towardsTrip = towardsService.getFirst();
 
         assertTrue(towardsTrip.hasTripIdInList(trip.getId()));
     }
@@ -283,7 +279,7 @@ public class TraversalStateTest extends EasyMockSupport {
     @NotNull
     private MinuteState mockMinuteNode(TraversalStateFactory traversalStateFactory) {
         MinuteState minuteState = createMock(MinuteState.class);
-        EasyMock.expect(minuteState.getTraversalOps()).andReturn(traversalOps);
+        //EasyMock.expect(minuteState.getTraversalOps()).andReturn(traversalOps);
         EasyMock.expect(minuteState.getTransaction()).andReturn(txn);
         EasyMock.expect(minuteState.getTraversalStateFactory()).andReturn(traversalStateFactory);
         EasyMock.expect(minuteState.getTotalDuration()).andReturn(Duration.ZERO);

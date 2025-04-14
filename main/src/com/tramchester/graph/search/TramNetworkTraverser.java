@@ -14,8 +14,10 @@ import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
-import com.tramchester.graph.search.stateMachine.TraversalOps;
-import com.tramchester.graph.search.stateMachine.states.*;
+import com.tramchester.graph.search.stateMachine.states.ImmutableTraversalState;
+import com.tramchester.graph.search.stateMachine.states.NotStartedState;
+import com.tramchester.graph.search.stateMachine.states.StateBuilderParameters;
+import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import com.tramchester.repository.TripRepository;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.PathExpander;
@@ -40,7 +42,6 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     private static final Logger logger = LoggerFactory.getLogger(TramNetworkTraverser.class);
 
     private final NodeContentsRepository nodeContentsRepository;
-    private final TripRepository tripRepository;
     private final TramchesterConfig config;
     private final GraphTransaction txn;
     private final boolean fullLogging;
@@ -49,7 +50,6 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
                                 TramchesterConfig config, boolean fullLogging) {
         this.txn = txn;
         this.nodeContentsRepository = nodeContentsRepository;
-        this.tripRepository = tripRepository;
         this.fullLogging = fullLogging;
         this.config = config;
 
@@ -73,10 +73,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
                 destinationNodeIds, nodeContentsRepository, reasons, previousVisits, lowestCostSeen, config,
                 startNode.getId(), txn, running);
 
-        final TraversalOps traversalOps = new TraversalOps(txn);
-
-        final NotStartedState traversalState = new NotStartedState(traversalOps, traversalStateFactory,
-                startNode.getId(), txn);
+        final NotStartedState traversalState = new NotStartedState(traversalStateFactory, startNode.getId(), txn);
         final InitialBranchState<JourneyState> initialJourneyState = JourneyState.initialState(actualQueryTime, traversalState);
 
         if (fullLogging) {

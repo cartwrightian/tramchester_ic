@@ -13,7 +13,6 @@ import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
-import com.tramchester.graph.search.stateMachine.TraversalOps;
 import com.tramchester.graph.search.stateMachine.states.NotStartedState;
 import com.tramchester.graph.search.stateMachine.states.StateBuilderParameters;
 import com.tramchester.graph.search.stateMachine.states.TraversalState;
@@ -21,11 +20,11 @@ import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
 import com.tramchester.repository.PlatformRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.TripRepository;
+import jakarta.inject.Inject;
 import org.neo4j.graphdb.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.inject.Inject;
 import java.time.Duration;
 import java.util.EnumSet;
 import java.util.List;
@@ -74,13 +73,11 @@ public class MapPathToStagesViaStates implements PathToStages {
 
         final TraversalStateFactory stateFactory = new TraversalStateFactory(builderParameters);
 
-        final TraversalOps traversalOps = new TraversalOps(txn);
-
         final MapStatesToStages mapStatesToStages = new MapStatesToStages(stationRepository, platformRepository, tripRepository, queryTime);
 
         final ImmutableGraphNode startOfPath = txn.fromStart(path);
 
-        final TraversalState initial = new NotStartedState(traversalOps, stateFactory, startOfPath.getId(), txn);
+        final TraversalState initial = new NotStartedState(stateFactory, startOfPath.getId(), txn);
 
         final PathMapper pathMapper = new PathMapper(path, txn);
 

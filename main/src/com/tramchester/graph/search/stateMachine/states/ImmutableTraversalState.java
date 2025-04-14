@@ -6,7 +6,6 @@ import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.JourneyStateUpdate;
-import com.tramchester.graph.search.stateMachine.TraversalOps;
 
 import java.time.Duration;
 import java.util.EnumSet;
@@ -22,8 +21,6 @@ public interface ImmutableTraversalState {
     TraversalStateType getStateType();
 
     GraphNodeId nodeId();
-
-    TraversalOps getTraversalOps();
 
     GraphTransaction getTransaction();
 

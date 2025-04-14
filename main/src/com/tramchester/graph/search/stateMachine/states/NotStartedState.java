@@ -4,15 +4,14 @@ import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.search.JourneyStateUpdate;
-import com.tramchester.graph.search.stateMachine.TraversalOps;
 
 import java.time.Duration;
 
 public class NotStartedState extends TraversalState {
 
-    public NotStartedState(final TraversalOps traversalOps, final TraversalStateFactory traversalStateFactory,
+    public NotStartedState(final TraversalStateFactory traversalStateFactory,
                            final GraphNodeId graphNodeId, GraphTransaction txn) {
-        super(traversalOps, traversalStateFactory, TraversalStateType.NotStartedState, graphNodeId, txn);
+        super(traversalStateFactory, TraversalStateType.NotStartedState, graphNodeId, txn);
     }
 
     @Override

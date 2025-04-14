@@ -9,7 +9,6 @@ import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.NodeId;
-import com.tramchester.graph.search.stateMachine.TraversalOps;
 import org.neo4j.graphdb.Direction;
 
 import java.time.Duration;
@@ -23,7 +22,6 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
     // GraphState -> JourneyState -> TraversalState
 
     protected final TraversalStateFactory traversalStateFactory;
-    private final TraversalOps traversalOps;
     protected final GraphTransaction txn;
 
     private final Stream<ImmutableGraphRelationship> outbounds;
@@ -32,11 +30,10 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
     private final GraphNodeId graphNodeId;
 
     // initial only, at beginning of search
-    protected TraversalState(final TraversalOps traversalOps, final TraversalStateFactory traversalStateFactory,
+    protected TraversalState(final TraversalStateFactory traversalStateFactory,
                              final TraversalStateType stateType, final GraphNodeId graphNodeId,
                              final GraphTransaction txn) {
         super(stateType);
-        this.traversalOps = traversalOps;
         this.txn = txn;
         this.traversalStateFactory = traversalStateFactory;
 
@@ -52,7 +49,6 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
     protected TraversalState(final ImmutableTraversalState parent, final Stream<ImmutableGraphRelationship> outbounds, final Duration costForLastEdge,
                              final TraversalStateType stateType, final GraphNodeId graphNodeId) {
         super(stateType);
-        this.traversalOps = parent.getTraversalOps();
         this.txn = parent.getTransaction();
         this.traversalStateFactory = parent.getTraversalStateFactory();
 
@@ -71,11 +67,6 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
     @Override
     public GraphTransaction getTransaction() {
         return txn;
-    }
-
-    @Override
-    public TraversalOps getTraversalOps() {
-        return traversalOps;
     }
 
     public Stream<ImmutableGraphRelationship> getOutbounds(GraphTransaction txn) {
