@@ -48,7 +48,6 @@ public class LocationJourneyPlannerTestFacade {
         return quickestRouteForLocation(start, dest.from(stationRepository), request, maxStages);
     }
 
-
     public Set<Journey> quickestRouteForLocation(FakeStation start, KnownLocations dest, JourneyRequest journeyRequest, int maxStages) {
         return quickestRouteForLocation(start.from(stationRepository), dest.location(), journeyRequest, maxStages);
     }

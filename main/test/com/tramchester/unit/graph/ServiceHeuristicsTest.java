@@ -2,7 +2,6 @@ package com.tramchester.unit.graph;
 
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.domain.JourneyRequest;
-import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
@@ -45,7 +44,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
 
     private static final int MAX_WAIT = 30;
     private static final int MAX_NUM_CHANGES = 5;
-    private final LocationSet<Station> endStations = LocationSet.singleton(TramStations.Deansgate.fake());
+//    private final LocationSet<Station> endStations = LocationSet.singleton(TramStations.Deansgate.fake());
 
     private final TramchesterConfig config30MinsWait = new NeedMaxWaitConfig(MAX_WAIT);
     private NodeContentsRepository nodeContentsCache;
@@ -105,8 +104,10 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         EasyMock.expect(journeyConstraints.getFewestChangesCalculator()).andReturn(fewestHopsForRoutes);
 
         GraphNode node = createMock(GraphNode.class);
-        EasyMock.expect(nodeContentsCache.getServiceId(node)).andReturn(serviceIdA);
-        EasyMock.expect(nodeContentsCache.getServiceId(node)).andReturn(serviceIdB);
+        EasyMock.expect(node.getServiceId()).andReturn(serviceIdA);
+        EasyMock.expect(node.getServiceId()).andReturn(serviceIdB);
+//        EasyMock.expect(nodeContentsCache.getServiceId(node)).andReturn(serviceIdA);
+//        EasyMock.expect(nodeContentsCache.getServiceId(node)).andReturn(serviceIdB);
 
         replayAll();
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeContentsCache,
@@ -134,8 +135,10 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         EasyMock.expect(journeyConstraints.getFewestChangesCalculator()).andReturn(fewestHopsForRoutes);
 
         GraphNode node = createMock(GraphNode.class);
-        EasyMock.expect(nodeContentsCache.getServiceId(node)).andReturn(serviceIdA);
-        EasyMock.expect(nodeContentsCache.getServiceId(node)).andReturn(serviceIdB);
+        EasyMock.expect(node.getServiceId()).andReturn(serviceIdA);
+        EasyMock.expect(node.getServiceId()).andReturn(serviceIdB);
+//        EasyMock.expect(nodeContentsCache.getServiceId(node)).andReturn(serviceIdA);
+//        EasyMock.expect(nodeContentsCache.getServiceId(node)).andReturn(serviceIdB);
 
         replayAll();
         ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeContentsCache,
@@ -165,10 +168,13 @@ class ServiceHeuristicsTest extends EasyMockSupport {
 
         GraphNode node = createMock(GraphNode.class);
 
-        EasyMock.expect(nodeContentsCache.getRouteStationId(node)).andReturn(routeStationA.getId());
+        //EasyMock.expect(nodeContentsCache.getRouteStationId(node)).andReturn(routeStationA.getId());
+        EasyMock.expect(node.getRouteStationId()).andReturn(routeStationA.getId());
         EasyMock.expect(stationRepository.getRouteStationById(routeStationA.getId())).andReturn(routeStationA);
 
-        EasyMock.expect(nodeContentsCache.getRouteStationId(node)).andReturn(routeStationB.getId());
+        //EasyMock.expect(nodeContentsCache.getRouteStationId(node)).andReturn(routeStationB.getId());
+        EasyMock.expect(node.getRouteStationId()).andReturn(routeStationB.getId());
+
         EasyMock.expect(stationRepository.getRouteStationById(routeStationB.getId())).andReturn(routeStationB);
 
         replayAll();
@@ -563,7 +569,8 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         TramTime visitTime = queryTime.plusMinutes(20);
 
         final IdFor<RouteStation> routeStationId = RouteStation.createId(stationId, routeId);
-        EasyMock.expect(nodeContentsCache.getRouteStationId(node)).andStubReturn(routeStationId);
+        //EasyMock.expect(nodeContentsCache.getRouteStationId(node)).andStubReturn(routeStationId);
+        EasyMock.expect(node.getRouteStationId()).andStubReturn(routeStationId);
         EasyMock.expect(stationRepository.getRouteStationById(routeStationId)).andStubReturn(routeStation);
         EasyMock.expect(journeyConstraints.getFewestChangesCalculator()).andReturn(fewestHopsForRoutes);
 

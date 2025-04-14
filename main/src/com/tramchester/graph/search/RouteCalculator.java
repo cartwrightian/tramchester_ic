@@ -122,7 +122,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
     public Stream<Journey> calculateRouteWalkAtEnd(GraphTransaction txn, Location<?> start, GraphNode endOfWalk, LocationCollection destinations,
                                                    JourneyRequest journeyRequest, int numberOfChanges, Running running)
     {
-        GraphNode startNode = getLocationNodeSafe(txn, start);
+        final GraphNode startNode = getLocationNodeSafe(txn, start);
         final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime());
         //final TowardsDestination towardsDestination = new TowardsDestination(destinations);
 
@@ -139,7 +139,6 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
 
         final InitialWalksFinished finished = new InitialWalksFinished(journeyRequest, stationWalks);
         final GraphNode endNode = getLocationNodeSafe(txn, destination);
-        //final TowardsDestination towardsDestination = new TowardsDestination(destination);
         final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime(), stationWalks);
 
         Duration maxInitialWait = getMaxInitialWaitFor(stationWalks, config);

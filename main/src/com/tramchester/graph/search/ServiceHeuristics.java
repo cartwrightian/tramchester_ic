@@ -55,7 +55,7 @@ public class ServiceHeuristics {
                                                     final TramTime visitTime, final int maxWait) {
         reasons.incrementTotalChecked();
 
-        final IdFor<Service> nodeServiceId = nodeOperations.getServiceId(node);
+        final IdFor<Service> nodeServiceId = node.getServiceId();
 
         if (!journeyConstraints.isRunningOnDate(nodeServiceId, visitTime)) {
             return reasons.recordReason(HeuristicsReasons.DoesNotRunOnQueryDate(howIGotHere, nodeServiceId));
@@ -150,7 +150,7 @@ public class ServiceHeuristics {
     public HeuristicsReason checkStationOpen(final GraphNode node, final HowIGotHere howIGotHere, final ServiceReasons reasons) {
         reasons.incrementTotalChecked();
 
-        final IdFor<RouteStation> routeStationId = nodeOperations.getRouteStationId(node);
+        final IdFor<RouteStation> routeStationId = node.getRouteStationId();
         final RouteStation routeStation = stationRepository.getRouteStationById(routeStationId);
 
         final IdFor<Station> associatedStationId = routeStation.getStationId();
@@ -189,7 +189,7 @@ public class ServiceHeuristics {
                                                 final ServiceReasons reasons, final TramTime currentElapsed) {
         reasons.incrementTotalChecked();
 
-        final IdFor<RouteStation> routeStationId = nodeOperations.getRouteStationId(endNode);
+        final IdFor<RouteStation> routeStationId = endNode.getRouteStationId();
         final RouteStation routeStation = stationRepository.getRouteStationById(routeStationId);
 
         if (routeStation==null) {
@@ -220,7 +220,7 @@ public class ServiceHeuristics {
     public HeuristicsReason lowerCostIncludingInterchange(final GraphNode nextNode, final HowIGotHere howIGotHere, final ServiceReasons reasons) {
         reasons.incrementTotalChecked();
 
-        final IdFor<RouteStation> routeStationId = nodeOperations.getRouteStationId(nextNode);
+        final IdFor<RouteStation> routeStationId = nextNode.getRouteStationId();
         final RouteStation routeStation = stationRepository.getRouteStationById(routeStationId);
 
         if  (lowestCostsForDestRoutes.getFewestChanges(routeStation.getRoute())==0) {
@@ -254,7 +254,7 @@ public class ServiceHeuristics {
                                                      final ServiceReasons reasons) {
         reasons.incrementTotalChecked();
 
-        final IdFor<Trip> tripId = nodeOperations.getTripId(minuteNode);
+        final IdFor<Trip> tripId = minuteNode.getTripId();
         if (journeyState.alreadyDeparted(tripId)) {
             return reasons.recordReason(HeuristicsReasons.SameTrip(tripId, howIGotHere));
         }

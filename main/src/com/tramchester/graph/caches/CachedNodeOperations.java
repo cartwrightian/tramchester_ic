@@ -4,10 +4,8 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.NumberOfNodesAndRelationshipsRepository;
 import com.tramchester.graph.TransportRelationshipTypes;
@@ -114,19 +112,20 @@ public class CachedNodeOperations implements NodeContentsRepository {
         return timeNodeCache.get(nodeId, id -> node.getTime());
     }
 
-    @Override
-    public IdFor<RouteStation> getRouteStationId(final GraphNode node) {
-        return node.getRouteStationId();
-    }
+//    @Override
+//    public IdFor<RouteStation> getRouteStationId(final GraphNode node) {
+//        return node.getRouteStationId();
+//    }
 
-    public IdFor<Service> getServiceId(final GraphNode node) {
-        return node.getServiceId();
-    }
+//    @Override
+//    public IdFor<Service> getServiceId(final GraphNode node) {
+//        return node.getServiceId();
+//    }
 
-    @Override
-    public IdFor<Trip> getTripId(final GraphNode node) {
-        return node.getTripId();
-    }
+//    @Override
+//    public IdFor<Trip> getTripId(final GraphNode node) {
+//        return node.getTripId();
+//    }
 
     @Override
     public EnumSet<GraphLabel> getLabels(final GraphNode node) {

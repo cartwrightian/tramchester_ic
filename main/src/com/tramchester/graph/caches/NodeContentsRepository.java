@@ -1,10 +1,8 @@
 package com.tramchester.graph.caches;
 
 import com.google.inject.ImplementedBy;
-import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphRelationship;
@@ -16,9 +14,9 @@ import java.util.EnumSet;
 @ImplementedBy(CachedNodeOperations.class)
 public interface NodeContentsRepository  {
 
-    IdFor<RouteStation> getRouteStationId(GraphNode node);
-    IdFor<Service> getServiceId(GraphNode node);
-    IdFor<Trip> getTripId(GraphNode node);
+//    IdFor<RouteStation> getRouteStationId(GraphNode node);
+//    IdFor<Service> getServiceId(GraphNode node);
+//    IdFor<Trip> getTripId(GraphNode node);
 
     TramTime getTime(GraphNode node);
 
