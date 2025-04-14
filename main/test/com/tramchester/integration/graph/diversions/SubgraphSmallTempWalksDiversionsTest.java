@@ -23,6 +23,7 @@ import com.tramchester.graph.StationsWithDiversion;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.ImmutableGraphNode;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
+import com.tramchester.graph.facade.ImmutableGraphTransaction;
 import com.tramchester.graph.filters.GraphFilter;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.graphbuild.StationsAndLinksGraphBuilder;
@@ -70,7 +71,7 @@ class SubgraphSmallTempWalksDiversionsTest {
 
     private RouteCalculatorTestFacade calculator;
     private StationRepository stationRepository;
-    private GraphTransaction txn;
+    private ImmutableGraphTransaction txn;
     private Duration maxJourneyDuration;
     private int maxChanges;
     private StationsWithDiversionRepository diversionRepository;

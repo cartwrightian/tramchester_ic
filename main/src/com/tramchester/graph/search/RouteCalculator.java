@@ -23,6 +23,7 @@ import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.ImmutableGraphTransaction;
 import com.tramchester.graph.search.diagnostics.CreateJourneyDiagnostics;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
 import com.tramchester.graph.search.selectors.BranchSelectorFactory;
@@ -78,7 +79,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
     }
 
     @Override
-    public Stream<Journey> calculateRoute(final GraphTransaction txn, final Location<?> start, final Location<?> destination,
+    public Stream<Journey> calculateRoute(final ImmutableGraphTransaction txn, final Location<?> start, final Location<?> destination,
                                           final JourneyRequest journeyRequest, final Running running) {
         logger.info(format("Finding shortest path for %s (%s) --> %s (%s) for %s",
                 start.getName(), start.getId(), destination.getName(), destination.getId(), journeyRequest));
@@ -119,12 +120,11 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
     }
 
     @Override
-    public Stream<Journey> calculateRouteWalkAtEnd(GraphTransaction txn, Location<?> start, GraphNode endOfWalk, LocationCollection destinations,
+    public Stream<Journey> calculateRouteWalkAtEnd(ImmutableGraphTransaction txn, Location<?> start, GraphNode endOfWalk, LocationCollection destinations,
                                                    JourneyRequest journeyRequest, int numberOfChanges, Running running)
     {
         final GraphNode startNode = getLocationNodeSafe(txn, start);
         final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime());
-        //final TowardsDestination towardsDestination = new TowardsDestination(destinations);
 
         final Duration maxInitialWait = getMaxInitialWaitFor(start, config);
 
@@ -133,7 +133,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
     }
 
     @Override
-    public Stream<Journey> calculateRouteWalkAtStart(GraphTransaction txn, Set<StationWalk> stationWalks, GraphNode startOfWalkNode,
+    public Stream<Journey> calculateRouteWalkAtStart(ImmutableGraphTransaction txn, Set<StationWalk> stationWalks, GraphNode startOfWalkNode,
                                                      Location<?> destination,
                                                      JourneyRequest journeyRequest, int numberOfChanges, Running running) {
 
@@ -152,12 +152,11 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
     }
 
     @Override
-    public Stream<Journey> calculateRouteWalkAtStartAndEnd(GraphTransaction txn, Set<StationWalk> stationWalks, GraphNode startNode, GraphNode endNode,
+    public Stream<Journey> calculateRouteWalkAtStartAndEnd(ImmutableGraphTransaction txn, Set<StationWalk> stationWalks, GraphNode startNode, GraphNode endNode,
                                                            LocationCollection destinations, JourneyRequest journeyRequest,
                                                            int numberOfChanges, Running running) {
 
         final InitialWalksFinished finished = new InitialWalksFinished(journeyRequest, stationWalks);
-        //final TowardsDestination towardsDestination = new TowardsDestination(destinations);
         final List<TramTime> queryTimes = createQueryTimes.generate(journeyRequest.getOriginalTime(), stationWalks);
 
         Duration maxInitialWait = getMaxInitialWaitFor(stationWalks, config);
@@ -220,10 +219,10 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         return results;
     }
 
-    private EnumSet<TransportMode> resolveRealModes(LocationCollection destinations) {
+    private EnumSet<TransportMode> resolveRealModes(final LocationCollection destinations) {
         // need to take into account if a location is an interchange
-        EnumSet<TransportMode> interchangeModes = interchangeRepository.getInterchangeModes(destinations);
-        EnumSet<TransportMode> results = EnumSet.copyOf(destinations.getModes());
+        final EnumSet<TransportMode> interchangeModes = interchangeRepository.getInterchangeModes(destinations);
+        final EnumSet<TransportMode> results = EnumSet.copyOf(destinations.getModes());
         results.addAll(interchangeModes);
         return results;
     }
@@ -238,8 +237,6 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
             // todo fall back to requested max changes in journeyRequest ?
             return Stream.empty();
         }
-
-        //final LocationCollection destinations = towardsDestination.getDestinations();
 
         final EnumSet<TransportMode> requestedModes = journeyRequest.getRequestedModes();
 

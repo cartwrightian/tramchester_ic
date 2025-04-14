@@ -89,7 +89,7 @@ public class GraphDatabase implements DatabaseEventListener {
         return graphTransactionFactory.begin(timeout);
     }
 
-    public GraphTransaction beginTx(int timeout, TimeUnit timeUnit) {
+    public ImmutableGraphTransaction beginTx(int timeout, TimeUnit timeUnit) {
         return beginTx(Duration.of(timeout, timeUnit.toChronoUnit()));
     }
 

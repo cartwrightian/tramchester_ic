@@ -17,8 +17,9 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.WalkingStage;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteCostCalculator;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.MutableGraphTransaction;
-import com.tramchester.graph.search.RouteCalculator;
+import com.tramchester.integration.testSupport.RouteCalculatorTestFacade;
 import com.tramchester.mappers.Geography;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
@@ -37,6 +38,7 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.tramchester.domain.reference.TransportMode.Tram;
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
@@ -52,7 +54,7 @@ class TramRouteTest {
     private static UnitTestOfGraphConfig config;
 
     private TramTransportDataForTestFactory.TramTransportDataForTest transportData;
-    private RouteCalculator calculator;
+    private RouteCalculatorTestFacade calculator;
     private Geography geography;
 
     private TramDate queryDate;
@@ -82,7 +84,7 @@ class TramRouteTest {
     void beforeEachTestRuns() {
         transportData = (TramTransportDataForTestFactory.TramTransportDataForTest) componentContainer.get(TransportData.class);
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
-        calculator = componentContainer.get(RouteCalculator.class);
+        //calculator = componentContainer.get(RouteCalculator.class);
 
         queryDate = TramTransportDataForTestFactory.startDate; //   TramDate.of(2014,6,30);
         queryTime = TramTime.of(7, 57);
@@ -96,6 +98,8 @@ class TramRouteTest {
 
         locationJourneyPlanner = new LocationJourneyPlannerTestFacade(componentContainer.get(LocationJourneyPlanner.class),
                 stationRepo, txn);
+
+        calculator = new RouteCalculatorTestFacade(componentContainer, txn.asImmutable());
     }
 
     @NotNull
@@ -125,8 +129,8 @@ class TramRouteTest {
     void shouldTestSimpleJourneyIsPossible() {
         JourneyRequest journeyRequest = createJourneyRequest(queryTime, 0);
 
-        Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getFirst(),
-                transportData.getSecond(), journeyRequest, () -> true).
+        Set<Journey> journeys = calculateRoute(txn.asImmutable(), transportData.getFirst(),
+                transportData.getSecond(), journeyRequest).
                 collect(Collectors.toSet());
         assertEquals(1, journeys.size());
         assertFirstAndLast(journeys, Station.createId(FIRST_STATION), Station.createId(SECOND_STATION), 0, queryTime);
@@ -143,6 +147,10 @@ class TramRouteTest {
         assertMinutesEquals(11, transportStage.getDuration());
         assertEquals(TramTime.of(8,0), transportStage.getFirstDepartureTime());
         assertEquals(TramTime.of(8,11), transportStage.getExpectedArrivalTime()); // +1 for dep cost
+    }
+
+    private Stream<Journey> calculateRoute(GraphTransaction immutable, Station first, Station second, JourneyRequest journeyRequest) {
+        return calculator.calculateRouteAsList(first, second, journeyRequest).stream();
     }
 
     @Test
@@ -216,7 +224,7 @@ class TramRouteTest {
         assertEquals(1, journeys.size());
         journeys.forEach(journey -> {
             assertEquals(1, journey.getStages().size());
-            TransportStage<?, ?> walk = journey.getStages().get(0);
+            TransportStage<?, ?> walk = journey.getStages().getFirst();
             assertEquals(TransportMode.Walk, walk.getMode());
             assertEquals(destination, walk.getLastStation());
             assertEquals(queryTime, walk.getFirstDepartureTime());
@@ -244,7 +252,7 @@ class TramRouteTest {
         assertEquals(1, journeys.size());
         journeys.forEach(journey -> {
             assertEquals(1, journey.getStages().size());
-            TransportStage<?, ?> walk = journey.getStages().get(0);
+            TransportStage<?, ?> walk = journey.getStages().getFirst();
             assertEquals(TransportMode.Walk, walk.getMode());
             assertEquals(start, walk.getFirstStation());
             assertEquals(queryTime, walk.getFirstDepartureTime());
@@ -342,8 +350,8 @@ class TramRouteTest {
     void shouldTestSimpleJourneyIsPossibleToInterchangeFromSecondStation() {
         JourneyRequest journeyRequest = createJourneyRequest(queryTime, 1);
 
-        Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getSecond(),
-                transportData.getInterchange(), journeyRequest, () -> true).collect(Collectors.toSet());
+        Set<Journey> journeys = calculateRoute(txn, transportData.getSecond(),
+                transportData.getInterchange(), journeyRequest).collect(Collectors.toSet());
 
         assertEquals(2, journeys.size(), journeys.toString());
     }
@@ -352,8 +360,8 @@ class TramRouteTest {
     void shouldTestSimpleJourneyIsPossibleToInterchange() {
         JourneyRequest journeyRequest = createJourneyRequest(queryTime, 0);
 
-        Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getFirst(),
-                transportData.getInterchange(), journeyRequest, () -> true).collect(Collectors.toSet());
+        Set<Journey> journeys = calculateRoute(txn, transportData.getFirst(),
+                transportData.getInterchange(), journeyRequest).collect(Collectors.toSet());
         assertEquals(1, journeys.size());
         assertFirstAndLast(journeys, Station.createId(FIRST_STATION), Station.createId(INTERCHANGE), 1, queryTime);
         checkForPlatforms(journeys);
@@ -369,9 +377,9 @@ class TramRouteTest {
     void shouldTestSimpleJourneyIsNotPossible() {
         JourneyRequest journeyRequest = createJourneyRequest(TramTime.of(10, 0), 1);
 
-        Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getFirst(),
+        Set<Journey> journeys = calculateRoute(txn, transportData.getFirst(),
                 transportData.getInterchange(),
-                journeyRequest, () -> true).collect(Collectors.toSet());
+                journeyRequest).collect(Collectors.toSet());
 
         assertEquals(Collections.emptySet(), journeys);
     }
@@ -380,8 +388,8 @@ class TramRouteTest {
     void shouldTestJourneyEndOverWaitLimitIsPossible() {
         JourneyRequest journeyRequest = createJourneyRequest(queryTime, 0);
 
-        Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getFirst(),
-                transportData.getLast(), journeyRequest, () -> true).collect(Collectors.toSet());
+        Set<Journey> journeys = calculateRoute(txn, transportData.getFirst(),
+                transportData.getLast(), journeyRequest).collect(Collectors.toSet());
         assertEquals(1, journeys.size());
         assertFirstAndLast(journeys, Station.createId(FIRST_STATION), Station.createId(LAST_STATION), 2, queryTime);
         journeys.forEach(journey-> assertEquals(1, journey.getStages().size()));
@@ -391,8 +399,8 @@ class TramRouteTest {
     void shouldTestNoJourneySecondToStart() {
         JourneyRequest journeyRequest = createJourneyRequest(queryTime, 0);
 
-        Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getSecond(),
-                transportData.getFirst(), journeyRequest, () -> true).collect(Collectors.toSet());
+        Set<Journey> journeys = calculateRoute(txn, transportData.getSecond(),
+                transportData.getFirst(), journeyRequest).collect(Collectors.toSet());
         assertEquals(0,journeys.size());
     }
 
@@ -400,13 +408,13 @@ class TramRouteTest {
     void shouldTestJourneyInterchangeToFive() {
         JourneyRequest journeyRequest = createJourneyRequest(TramTime.of(7,56), 0);
 
-        Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getInterchange(),
-                transportData.getFifthStation(), journeyRequest, () -> true).collect(Collectors.toSet());
+        Set<Journey> journeys = calculateRoute(txn, transportData.getInterchange(),
+                transportData.getFifthStation(), journeyRequest).collect(Collectors.toSet());
         assertTrue(journeys.isEmpty());
 
         JourneyRequest journeyRequestB = createJourneyRequest(TramTime.of(8, 10), 3);
-        journeys = calculator.calculateRoute(txn, transportData.getInterchange(),
-                transportData.getFifthStation(), journeyRequestB, () -> true).collect(Collectors.toSet());
+        journeys = calculateRoute(txn, transportData.getInterchange(),
+                transportData.getFifthStation(), journeyRequestB).collect(Collectors.toSet());
         assertFalse(journeys.isEmpty());
         journeys.forEach(journey-> assertEquals(1, journey.getStages().size()));
     }
@@ -415,8 +423,8 @@ class TramRouteTest {
     void shouldTestJourneyEndOverWaitLimitViaInterchangeIsPossible() {
         JourneyRequest journeyRequest = createJourneyRequest(queryTime, 1);
 
-        Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getFirst(),
-                transportData.getFourthStation(), journeyRequest, () -> true).collect(Collectors.toSet());
+        Set<Journey> journeys = calculateRoute(txn, transportData.getFirst(),
+                transportData.getFourthStation(), journeyRequest).collect(Collectors.toSet());
         assertFalse(journeys.isEmpty());
         checkForPlatforms(journeys);
         journeys.forEach(journey-> assertEquals(2, journey.getStages().size()));
@@ -453,7 +461,7 @@ class TramRouteTest {
             assertEquals(3, journey.getStages().size(), journey.getStages().toString());
             assertEquals(transportData.getInterchange(), journey.getStages().get(0).getLastStation());
             assertEquals(transportData.getFifthStation(), journey.getStages().get(1).getLastStation());
-            assertTrue(journey.getStages().get(2) instanceof WalkingStage);
+            assertInstanceOf(WalkingStage.class, journey.getStages().get(2));
         });
     }
 
@@ -463,8 +471,8 @@ class TramRouteTest {
         List<Station> expectedPath = Arrays.asList(transportData.getFirst(),
                 transportData.getSecond(), transportData.getInterchange(), transportData.getFifthStation());
 
-        Set<Journey> journeys = calculator.calculateRoute(txn, transportData.getFirst(),
-                transportData.getFifthStation(), journeyRequest, () -> true).collect(Collectors.toSet());
+        Set<Journey> journeys = calculateRoute(txn, transportData.getFirst(),
+                transportData.getFifthStation(), journeyRequest).collect(Collectors.toSet());
         assertFalse(journeys.isEmpty());
         checkForPlatforms(journeys);
         journeys.forEach(journey-> {
@@ -510,7 +518,7 @@ class TramRouteTest {
                                            int passedStops, TramTime queryTime) {
         Journey journey = (Journey)journeys.toArray()[0];
         List<TransportStage<?,?>> stages = journey.getStages();
-        TransportStage<?,?> vehicleStage = stages.get(0);
+        TransportStage<?,?> vehicleStage = stages.getFirst();
         assertEquals(firstStation, vehicleStage.getFirstStation().getId());
         assertEquals(secondStation, vehicleStage.getLastStation().getId());
         assertEquals(passedStops,  vehicleStage.getPassedStopsCount());

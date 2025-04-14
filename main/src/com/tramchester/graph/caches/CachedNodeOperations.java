@@ -112,21 +112,6 @@ public class CachedNodeOperations implements NodeContentsRepository {
         return timeNodeCache.get(nodeId, id -> node.getTime());
     }
 
-//    @Override
-//    public IdFor<RouteStation> getRouteStationId(final GraphNode node) {
-//        return node.getRouteStationId();
-//    }
-
-//    @Override
-//    public IdFor<Service> getServiceId(final GraphNode node) {
-//        return node.getServiceId();
-//    }
-
-//    @Override
-//    public IdFor<Trip> getTripId(final GraphNode node) {
-//        return node.getTripId();
-//    }
-
     @Override
     public EnumSet<GraphLabel> getLabels(final GraphNode node) {
         final GraphNodeId nodeId = node.getId();

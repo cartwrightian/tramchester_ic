@@ -34,6 +34,14 @@ public class MutableGraphTransaction implements GraphTransaction {
         this.transactionObserver = transactionObserver;
     }
 
+    /***
+     * Use with care, this original transaction must not be used any further but must be closed
+     * @return GraphTransaction
+     */
+    public ImmutableGraphTransaction asImmutable() {
+        return new ImmutableGraphTransaction(this);
+    }
+
     @Override
     public int getTransactionId() {
         return transactionId;
@@ -243,7 +251,7 @@ public class MutableGraphTransaction implements GraphTransaction {
     }
 
     interface TransactionObserver {
-        void onClose(GraphTransaction mutableGraphTransaction);
-        void onCommit(GraphTransaction mutableGraphTransaction);
+        void onClose(GraphTransaction graphTransaction);
+        void onCommit(GraphTransaction graphTransaction);
     }
 }

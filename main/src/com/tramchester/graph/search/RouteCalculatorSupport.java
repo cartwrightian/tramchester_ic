@@ -111,27 +111,14 @@ public class RouteCalculatorSupport {
     protected Stream<Integer> numChangesRange(final JourneyRequest journeyRequest, final int computedMinChanges) {
         final JourneyRequest.MaxNumberOfChanges requestedMaxChanges = journeyRequest.getMaxChanges();
 
-//        final int computedMinChanges = computedChanges.getMin(); // safe
-//        final int computedMaxChanges = computedChanges.getMax(); // unsafe
-
-//        if (requestedMaxChanges.isUseComputed()) {
-//            return IntStream.of(computedMinChanges, computedMaxChanges).boxed();
-//        }
-
         if (fullLogging) {
             if (requestedMaxChanges.get() < computedMinChanges) {
                 logger.error(format("Requested max changes (%s) is less than computed minimum changes (%s) needed",
                         requestedMaxChanges, computedMinChanges));
             }
-
-//            if (computedMaxChanges > requestedMaxChanges.get()) {
-//                logger.info(format("Will exclude some routes, requests changes %s is less then computed max changes %s",
-//                        requestedMaxChanges, computedMaxChanges));
-//            }
         }
 
-        final int max = requestedMaxChanges.get(); //Math.min(computedMaxChanges, requestedMaxChanges.get());
-        //final int min = Math.min(computedMinChanges, requestedMaxChanges.get());
+        final int max = requestedMaxChanges.get();
 
         if (fullLogging) {
             logger.info("Will check journey from " + computedMinChanges + " to " + max + " changes.");

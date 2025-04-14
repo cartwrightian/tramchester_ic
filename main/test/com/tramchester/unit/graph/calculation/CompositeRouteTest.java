@@ -98,7 +98,7 @@ class CompositeRouteTest {
         locationJourneyPlanner = new LocationJourneyPlannerTestFacade(componentContainer.get(LocationJourneyPlanner.class),
                 stationRepository, txn);
 
-        calculator = new RouteCalculatorTestFacade(componentContainer, txn);
+        calculator = new RouteCalculatorTestFacade(componentContainer, txn.asImmutable());
 
     }
 

@@ -71,7 +71,7 @@ class SubgraphSmallClosedStationsDiversionsTest {
 
     private RouteCalculatorTestFacade calculator;
     private StationRepository stationRepository;
-    private GraphTransaction txn;
+    private ImmutableGraphTransaction txn;
     private Duration maxJourneyDuration;
     private int maxChanges;
     private StationsWithDiversionRepository diversionRepository;

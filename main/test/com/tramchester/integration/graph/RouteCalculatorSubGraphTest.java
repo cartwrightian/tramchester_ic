@@ -50,6 +50,8 @@ class RouteCalculatorSubGraphTest {
     private TramTime tramTime;
     private Duration maxJourneyDuration;
     private EnumSet<TransportMode> modes;
+    private LocationJourneyPlannerTestFacade locationJourneyPlannerTestFacade;
+    private StationRepository stationRepository;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() throws IOException {
@@ -78,7 +80,11 @@ class RouteCalculatorSubGraphTest {
     @BeforeEach
     void beforeEachTestRuns() {
         txn = database.beginTxMutable();
-        calculator = new RouteCalculatorTestFacade(componentContainer, txn);
+        calculator = new RouteCalculatorTestFacade(componentContainer, txn.asImmutable());
+
+        LocationJourneyPlanner planner = componentContainer.get(LocationJourneyPlanner.class);
+        stationRepository = componentContainer.get(StationRepository.class);
+        locationJourneyPlannerTestFacade = new LocationJourneyPlannerTestFacade(planner, stationRepository, txn);
 
         tramTime = TramTime.of(8, 0);
         maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
@@ -140,16 +146,12 @@ class RouteCalculatorSubGraphTest {
     @Test
     void shouldHaveWalkAtEnd() {
 
-        LocationJourneyPlanner planner = componentContainer.get(LocationJourneyPlanner.class);
-        StationRepository stationRepository = componentContainer.get(StationRepository.class);
-        LocationJourneyPlannerTestFacade testFacade = new LocationJourneyPlannerTestFacade(planner, stationRepository, txn);
-
         JourneyRequest journeyRequest = new JourneyRequest(when, tramTime, false, 3,
                 maxJourneyDuration,1, modes);
         //journeyRequest.setDiag(true);
 
         final Station station = Cornbrook.from(stationRepository);
-        Set<Journey> results = testFacade.quickestRouteForLocation(station, nearStPetersSquare, journeyRequest, 4);
+        Set<Journey> results = locationJourneyPlannerTestFacade.quickestRouteForLocation(station, nearStPetersSquare, journeyRequest, 4);
         assertFalse(results.isEmpty());
     }
 

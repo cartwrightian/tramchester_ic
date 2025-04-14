@@ -89,7 +89,7 @@ public class NeighbourJourneysTest {
         maxJourneyDuration = Duration.ofMinutes(config.getMaxJourneyDuration());
 
         txn = graphDatabase.beginTxMutable();
-        routeCalculator = new RouteCalculatorTestFacade(componentContainer, txn);
+        routeCalculator = new RouteCalculatorTestFacade(componentContainer, txn.asImmutable());
         planner = componentContainer.get(LocationJourneyPlanner.class);
 
         routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
@@ -212,10 +212,10 @@ public class NeighbourJourneysTest {
         maybeTram.forEach(journey -> {
             final List<TransportStage<?, ?>> stages = journey.getStages();
 
-            TransportStage<?,?> firstStage = stages.get(0);
+            TransportStage<?,?> firstStage = stages.getFirst();
             assertEquals(Tram, firstStage.getMode(), firstStage.toString());
 
-            TransportStage<?,?> last = stages.get(stages.size()-1);
+            TransportStage<?,?> last = stages.getLast();
             assertEquals(TransportMode.Walk, last.getMode(), last.toString());
         });
     }
@@ -231,7 +231,7 @@ public class NeighbourJourneysTest {
         Set<Journey> journeys = allJourneys.stream().filter(Journey::isDirect).collect(Collectors.toSet());
 
         journeys.forEach(journey -> {
-            TransportStage<?,?> stage = journey.getStages().get(0);
+            TransportStage<?,?> stage = journey.getStages().getFirst();
             assertEquals(TransportMode.Connect, stage.getMode());
         });
     }

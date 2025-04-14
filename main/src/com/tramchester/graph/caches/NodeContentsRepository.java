@@ -14,16 +14,12 @@ import java.util.EnumSet;
 @ImplementedBy(CachedNodeOperations.class)
 public interface NodeContentsRepository  {
 
-//    IdFor<RouteStation> getRouteStationId(GraphNode node);
-//    IdFor<Service> getServiceId(GraphNode node);
-//    IdFor<Trip> getTripId(GraphNode node);
-
     TramTime getTime(GraphNode node);
+    EnumSet<GraphLabel> getLabels(GraphNode node);
 
     IdFor<Trip> getTripId(GraphRelationship relationship);
     Duration getCost(GraphRelationship lastRelationship);
     void deleteFromCostCache(GraphRelationship relationship);
 
-    EnumSet<GraphLabel> getLabels(GraphNode node);
 
 }

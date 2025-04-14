@@ -14,21 +14,6 @@ import java.util.EnumSet;
 @SuppressWarnings("unused")
 public class NodeContentsDirect implements NodeContentsRepository {
 
-//    @Override
-//    public IdFor<RouteStation> getRouteStationId(GraphNode node) {
-//        return node.getRouteStationId();
-//    }
-
-//    @Override
-//    public IdFor<Service> getServiceId(GraphNode node) {
-//        return node.getServiceId();
-//    }
-
-//    @Override
-//    public IdFor<Trip> getTripId(GraphNode node) {
-//        return node.getTripId();
-//    }
-
     @Override
     public TramTime getTime(GraphNode node) {
         return node.getTime();

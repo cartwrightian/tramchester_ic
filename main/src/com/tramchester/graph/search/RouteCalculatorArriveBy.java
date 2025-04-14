@@ -2,7 +2,9 @@ package com.tramchester.graph.search;
 
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.domain.*;
+import com.tramchester.domain.Journey;
+import com.tramchester.domain.JourneyRequest;
+import com.tramchester.domain.LocationCollection;
 import com.tramchester.domain.collections.Running;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.StationWalk;
@@ -10,11 +12,11 @@ import com.tramchester.domain.time.InvalidDurationException;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.GraphTransaction;
+import com.tramchester.graph.facade.ImmutableGraphTransaction;
+import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.inject.Inject;
 import java.time.Duration;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -37,15 +39,15 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
     }
 
     @Override
-    public Stream<Journey> calculateRoute(GraphTransaction txn, Location<?> startStation, Location<?> destination, JourneyRequest journeyRequest, Running running) {
+    public Stream<Journey> calculateRoute(ImmutableGraphTransaction txn, Location<?> start, Location<?> destination, JourneyRequest journeyRequest, Running running) {
         try {
-            Duration costToDest = costCalculator.getAverageCostBetween(txn, startStation, destination, journeyRequest.getDate(), journeyRequest.getRequestedModes());
-            Duration maxInitialWait = RouteCalculatorSupport.getMaxInitialWaitFor(startStation, config);
-            JourneyRequest updatedRequest = calcDepartTime(journeyRequest, costToDest, maxInitialWait);
+            final Duration costToDest = costCalculator.getAverageCostBetween(txn, start, destination, journeyRequest.getDate(), journeyRequest.getRequestedModes());
+            final Duration maxInitialWait = RouteCalculatorSupport.getMaxInitialWaitFor(start, config);
+            final JourneyRequest updatedRequest = calcDepartTime(journeyRequest, costToDest, maxInitialWait);
             logger.info(format("Plan journey, arrive by %s so depart by %s", journeyRequest, updatedRequest));
-            return routeCalculator.calculateRoute(txn, startStation, destination, updatedRequest, running);
+            return routeCalculator.calculateRoute(txn, start, destination, updatedRequest, running);
         } catch (InvalidDurationException invalidDurationException) {
-            logger.error("Unable to compute cost from %s to %s for %s".formatted(startStation.getId(), destination.getId(), journeyRequest),
+            logger.error("Unable to compute cost from %s to %s for %s".formatted(start.getId(), destination.getId(), journeyRequest),
                     invalidDurationException);
             return Stream.empty();
         }
@@ -53,12 +55,12 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
     }
 
     @Override
-    public Stream<Journey> calculateRouteWalkAtEnd(GraphTransaction txn, Location<?> start, GraphNode endOfWalk, LocationCollection destStations,
+    public Stream<Journey> calculateRouteWalkAtEnd(ImmutableGraphTransaction txn, Location<?> start, GraphNode endOfWalk, LocationCollection destStations,
                                                    JourneyRequest journeyRequest, int possibleMinChanges, Running running) {
         try {
-            Duration costToDest = costCalculator.getAverageCostBetween(txn, start, endOfWalk, journeyRequest.getDate(), journeyRequest.getRequestedModes());
-            Duration maxInitialWait = RouteCalculatorSupport.getMaxInitialWaitFor(start, config);
-            JourneyRequest departureTime = calcDepartTime(journeyRequest, costToDest, maxInitialWait);
+            final Duration costToDest = costCalculator.getAverageCostBetween(txn, start, endOfWalk, journeyRequest.getDate(), journeyRequest.getRequestedModes());
+            final Duration maxInitialWait = RouteCalculatorSupport.getMaxInitialWaitFor(start, config);
+            final JourneyRequest departureTime = calcDepartTime(journeyRequest, costToDest, maxInitialWait);
             logger.info(format("Plan journey, arrive by %s so depart by %s", journeyRequest, departureTime));
             return routeCalculator.calculateRouteWalkAtEnd(txn, start, endOfWalk, destStations, departureTime, possibleMinChanges, running);
         } catch (InvalidDurationException invalidDurationException) {
@@ -69,12 +71,12 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
     }
 
     @Override
-    public Stream<Journey> calculateRouteWalkAtStart(GraphTransaction txn, Set<StationWalk> stationWalks, GraphNode origin, Location<?> destination,
+    public Stream<Journey> calculateRouteWalkAtStart(ImmutableGraphTransaction txn, Set<StationWalk> stationWalks, GraphNode origin, Location<?> destination,
                                                      JourneyRequest journeyRequest, int possibleMinChanges, Running running) {
         try {
-            Duration costToDest = costCalculator.getAverageCostBetween(txn, origin, destination, journeyRequest.getDate(), journeyRequest.getRequestedModes());
-            Duration maxInitialWait = RouteCalculatorSupport.getMaxInitialWaitFor(stationWalks, config);
-            JourneyRequest departureTime = calcDepartTime(journeyRequest, costToDest, maxInitialWait);
+            final Duration costToDest = costCalculator.getAverageCostBetween(txn, origin, destination, journeyRequest.getDate(), journeyRequest.getRequestedModes());
+            final Duration maxInitialWait = RouteCalculatorSupport.getMaxInitialWaitFor(stationWalks, config);
+            final JourneyRequest departureTime = calcDepartTime(journeyRequest, costToDest, maxInitialWait);
             logger.info(format("Plan journey, arrive by %s so depart by %s", journeyRequest, departureTime));
             return routeCalculator.calculateRouteWalkAtStart(txn, stationWalks, origin, destination, departureTime, possibleMinChanges, running);
         } catch (InvalidDurationException invalidDurationException) {
@@ -85,13 +87,13 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
     }
 
     @Override
-    public Stream<Journey> calculateRouteWalkAtStartAndEnd(GraphTransaction txn, Set<StationWalk> stationWalks, GraphNode startNode,
+    public Stream<Journey> calculateRouteWalkAtStartAndEnd(ImmutableGraphTransaction txn, Set<StationWalk> stationWalks, GraphNode startNode,
                                                            GraphNode endNode, LocationCollection destinationStations,
                                                            JourneyRequest journeyRequest, int possibleMinChanges, Running running) {
         try {
-            Duration costToDest = costCalculator.getAverageCostBetween(txn, startNode, endNode, journeyRequest.getDate(), journeyRequest.getRequestedModes());
-            Duration maxInitialWait = RouteCalculatorSupport.getMaxInitialWaitFor(stationWalks, config);
-            JourneyRequest departureTime = calcDepartTime(journeyRequest, costToDest, maxInitialWait);
+            final Duration costToDest = costCalculator.getAverageCostBetween(txn, startNode, endNode, journeyRequest.getDate(), journeyRequest.getRequestedModes());
+            final Duration maxInitialWait = RouteCalculatorSupport.getMaxInitialWaitFor(stationWalks, config);
+            final JourneyRequest departureTime = calcDepartTime(journeyRequest, costToDest, maxInitialWait);
             logger.info(format("Plan journey, arrive by %s so depart by %s", journeyRequest, departureTime));
             return routeCalculator.calculateRouteWalkAtStartAndEnd(txn, stationWalks, startNode, endNode, destinationStations, departureTime, possibleMinChanges, running);
         } catch (InvalidDurationException invalidDurationException) {
@@ -102,14 +104,14 @@ public class RouteCalculatorArriveBy implements TramRouteCalculator {
     }
 
 
-    private JourneyRequest calcDepartTime(JourneyRequest originalRequest, Duration costToDest, Duration maxInitialWait) {
-        TramTime queryTime = originalRequest.getOriginalTime();
+    private JourneyRequest calcDepartTime(final JourneyRequest originalRequest, final Duration costToDest, final Duration maxInitialWait) {
+        final TramTime queryTime = originalRequest.getOriginalTime();
 
         final TramTime departTime = queryTime.minusRounded(costToDest);
 
         //final int waitTime = config.getMaxInitialWait() / 2;
         final int waitTimeMinutes = Math.toIntExact(maxInitialWait.toMinutes() / 2);
-        TramTime newQueryTime = departTime.minusMinutes(waitTimeMinutes);
+        final TramTime newQueryTime = departTime.minusMinutes(waitTimeMinutes);
 
         return new JourneyRequest(originalRequest, newQueryTime);
     }
