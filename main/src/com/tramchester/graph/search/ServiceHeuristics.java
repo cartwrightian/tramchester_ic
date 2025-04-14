@@ -100,7 +100,7 @@ public class ServiceHeuristics {
                                       final ServiceReasons reasons, final int maxWait) {
         reasons.incrementTotalChecked();
 
-        final TramTime nodeTime = nodeOperations.getTime(node);
+        final TramTime nodeTime = node.getTime(); //nodeOperations.getTime(node);
         if (currentTime.isAfter(nodeTime)) { // already departed
             return reasons.recordReason(HeuristicsReasons.AlreadyDeparted(currentTime, howIGotHere));
         }

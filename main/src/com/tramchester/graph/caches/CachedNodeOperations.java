@@ -9,7 +9,6 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.NumberOfNodesAndRelationshipsRepository;
 import com.tramchester.graph.TransportRelationshipTypes;
-import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphRelationship;
 import com.tramchester.graph.facade.GraphRelationshipId;
@@ -96,10 +95,11 @@ public class CachedNodeOperations implements NodeContentsRepository {
         return tripIdRelationshipCache.get(relationshipId, id -> relationship.getTripId());
     }
 
-    public TramTime getTime(final GraphNode node) {
-        final GraphNodeId nodeId = node.getId();
-        return timeNodeCache.get(nodeId, id -> node.getTime());
-    }
+//    @Override
+//    public TramTime getTime(final GraphNode node) {
+//        final GraphNodeId nodeId = node.getId();
+//        return timeNodeCache.get(nodeId, id -> node.getTime());
+//    }
 
     @Override
     public Duration getCost(final GraphRelationship relationship) {

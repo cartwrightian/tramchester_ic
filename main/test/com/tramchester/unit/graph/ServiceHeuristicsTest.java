@@ -422,7 +422,8 @@ class ServiceHeuristicsTest extends EasyMockSupport {
 
         TramTime tramTime = TramTime.ofHourMins(nodeTime);
 
-        EasyMock.expect(nodeContentsCache.getTime(node)).andReturn(tramTime);
+//        EasyMock.expect(nodeContentsCache.getTime(node)).andReturn(tramTime);
+        EasyMock.expect(node.getTime()).andReturn(tramTime);
         EasyMock.expect(journeyConstraints.getFewestChangesCalculator()).andReturn(fewestHopsForRoutes);
         EasyMock.expect(journeyConstraints.destinationsAvailable(tramTime)).andReturn(true);
 
@@ -451,7 +452,8 @@ class ServiceHeuristicsTest extends EasyMockSupport {
 
         TramTime tramTime = TramTime.ofHourMins(nodeTime);
 
-        EasyMock.expect(nodeContentsCache.getTime(node)).andReturn(tramTime);
+//        EasyMock.expect(nodeContentsCache.getTime(node)).andReturn(tramTime);
+        EasyMock.expect(node.getTime()).andReturn(tramTime);
         EasyMock.expect(journeyConstraints.getFewestChangesCalculator()).andReturn(fewestHopsForRoutes);
         EasyMock.expect(journeyConstraints.destinationsAvailable(tramTime)).andReturn(false);
 
@@ -477,7 +479,8 @@ class ServiceHeuristicsTest extends EasyMockSupport {
 
         TramTime tramTime = nextDay ? TramTime.nextDay(nodeTime.getHour(), nodeTime.getMinute()) : TramTime.ofHourMins(nodeTime);
 
-        EasyMock.expect(nodeContentsCache.getTime(node)).andReturn(tramTime);
+//        EasyMock.expect(nodeContentsCache.getTime(node)).andReturn(tramTime);
+        EasyMock.expect(node.getTime()).andReturn(tramTime);
         EasyMock.expect(journeyConstraints.destinationsAvailable(tramTime)).andStubReturn(true);
 
         replayAll();

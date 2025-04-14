@@ -115,6 +115,7 @@ public class ImmutableGraphNode implements GraphNode {
 
     @Override
     public TramTime getTime() {
+        // todo cache?
         return underlying.getTime();
     }
 
