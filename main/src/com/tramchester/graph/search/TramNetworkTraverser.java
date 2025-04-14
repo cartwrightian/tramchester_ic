@@ -73,7 +73,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
                 destinationNodeIds, nodeContentsRepository, reasons, previousVisits, lowestCostSeen, config,
                 startNode.getId(), txn, running);
 
-        final TraversalOps traversalOps = new TraversalOps(txn, nodeContentsRepository, tripRepository);
+        final TraversalOps traversalOps = new TraversalOps(txn);
 
         final NotStartedState traversalState = new NotStartedState(traversalOps, traversalStateFactory,
                 startNode.getId(), txn);

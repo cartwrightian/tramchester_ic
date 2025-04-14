@@ -2,7 +2,6 @@ package com.tramchester.graph.search.stateMachine.states;
 
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.input.Trip;
-import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphTransaction;
@@ -11,10 +10,13 @@ import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.NodeId;
 import com.tramchester.graph.search.stateMachine.TraversalOps;
+import org.neo4j.graphdb.Direction;
 
 import java.time.Duration;
 import java.util.EnumSet;
 import java.util.stream.Stream;
+
+import static com.tramchester.graph.TransportRelationshipTypes.TO_SERVICE;
 
 public abstract class TraversalState extends EmptyTraversalState implements ImmutableTraversalState, NodeId {
 
@@ -186,7 +188,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
 
             IdFor<Trip> tripId = journeyState.getCurrentTrip();
 
-            if (traversalOps.hasOutboundTripFor(routeStationNode, tripId)) {
+            if (hasOutboundTripFor(routeStationNode, tripId)) {
                 return TraversalStateType.RouteStationStateOnTrip;
             } else {
                 return TraversalStateType.RouteStationStateEndTrip;
@@ -194,6 +196,10 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         } else {
             throw new RuntimeException("Unexpected from state " + currentStateType);
         }
+    }
+
+    private boolean hasOutboundTripFor(final GraphNode node, final IdFor<Trip> tripId) {
+        return node.getRelationships(txn, Direction.OUTGOING, TO_SERVICE).anyMatch(relationship -> relationship.hasTripIdInList(tripId));
     }
 
     public void toDestination(final TraversalState from, final GraphNode finalNode, final Duration cost, final JourneyStateUpdate journeyState) {
@@ -207,15 +213,6 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
     public Duration getCurrentDuration() {
         return costForLastEdge;
     }
-
-    protected TramTime getTimeFrom(final GraphNode graphNode) {
-        return traversalOps.getTimeFrom(graphNode);
-    }
-
-    protected Trip getTrip(final IdFor<Trip> tripId) {
-        return traversalOps.getTrip(tripId);
-    }
-
 
     @Override
     public String toString() {

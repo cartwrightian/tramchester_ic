@@ -80,7 +80,7 @@ public class TraversalStateTest extends EasyMockSupport {
         stationRepository = componentContainer.get(StationRepository.class);
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
         txn = database.beginTx();
-        traversalOps = new TraversalOps(txn, nodeContentsRepository, tripRepository);
+        traversalOps = new TraversalOps(txn);
         when = TestEnv.testDay();
 
         time = TramTime.of(8,42);

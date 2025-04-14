@@ -74,7 +74,7 @@ public class MapPathToStagesViaStates implements PathToStages {
 
         final TraversalStateFactory stateFactory = new TraversalStateFactory(builderParameters);
 
-        final TraversalOps traversalOps = new TraversalOps(txn, nodeContentsRepository, tripRepository);
+        final TraversalOps traversalOps = new TraversalOps(txn);
 
         final MapStatesToStages mapStatesToStages = new MapStatesToStages(stationRepository, platformRepository, tripRepository, queryTime);
 
