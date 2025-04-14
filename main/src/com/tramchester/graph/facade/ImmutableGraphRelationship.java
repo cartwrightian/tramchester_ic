@@ -34,10 +34,12 @@ public class ImmutableGraphRelationship implements GraphRelationship {
     private final MutableGraphRelationship underlying;
 
     private final IdCache<Trip> tripIdCache;
+    private final CostCache costCache;
 
     public ImmutableGraphRelationship(final MutableGraphRelationship underlying) {
         this.underlying = underlying;
         tripIdCache = new IdCache<>(Trip.class);
+        costCache = new CostCache();
     }
 
     public static ResourceIterable<Relationship> convertIterable(final Stream<ImmutableGraphRelationship> stream) {
@@ -74,7 +76,7 @@ public class ImmutableGraphRelationship implements GraphRelationship {
 
     @Override
     public Duration getCost() {
-        return underlying.getCost();
+        return costCache.get();
     }
 
     @Override
@@ -257,13 +259,21 @@ public class ImmutableGraphRelationship implements GraphRelationship {
             }
             return theValue;
         }
+    }
 
-//        synchronized public boolean present() {
-//            if (present==null) {
-//                present = underlying.hasIdFor(theClass);
-//            }
-//            return present;
-//        }
+    private class CostCache {
+        private Duration duration;
+
+        private CostCache() {
+            duration = null;
+        }
+
+        synchronized public Duration get() {
+            if (duration==null) {
+                duration = underlying.getCost();
+            }
+            return duration;
+        }
     }
 
 }

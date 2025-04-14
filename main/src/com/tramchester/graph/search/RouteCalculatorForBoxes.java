@@ -22,7 +22,6 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.NumberOfNodesAndRelationshipsRepository;
 import com.tramchester.graph.RouteCostCalculator;
 import com.tramchester.graph.caches.LowestCostSeen;
-import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.search.diagnostics.CreateJourneyDiagnostics;
@@ -59,16 +58,15 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
                                    TransportData transportData,
                                    GraphDatabase graphDatabaseService,
                                    PathToStages pathToStages,
-                                   NodeContentsRepository nodeContentsRepository,
                                    ProvidesNow providesNow,
                                    MapPathToLocations mapPathToLocations,
                                    BetweenRoutesCostRepository routeToRouteCosts,
                                    ClosedStationsRepository closedStationsRepository, RunningRoutesAndServices runningRoutesAndService,
                                    @SuppressWarnings("unused") RouteCostCalculator routeCostCalculator,
                                    StationAvailabilityRepository stationAvailabilityRepository, CreateJourneyDiagnostics failedJourneyDiagnostics, NumberOfNodesAndRelationshipsRepository countsNodes, InterchangeRepository interchangeRepository) {
-        super(pathToStages, nodeContentsRepository, graphDatabaseService,
+        super(pathToStages, graphDatabaseService,
                 providesNow, mapPathToLocations,
-                transportData, config, transportData, routeToRouteCosts, failedJourneyDiagnostics,
+                transportData, config, routeToRouteCosts, failedJourneyDiagnostics,
                 stationAvailabilityRepository, false, countsNodes);
         this.config = config;
         this.graphDatabaseService = graphDatabaseService;

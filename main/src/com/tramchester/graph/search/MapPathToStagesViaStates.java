@@ -9,7 +9,6 @@ import com.tramchester.domain.presentation.TransportStage;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.domain.transportStages.ConnectingStage;
-import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
@@ -42,17 +41,14 @@ public class MapPathToStagesViaStates implements PathToStages {
 
     private final StationRepository stationRepository;
     private final PlatformRepository platformRepository;
-    private final NodeContentsRepository nodeContentsRepository;
     private final TripRepository tripRepository;
     private final TramchesterConfig config;
 
     @Inject
     public MapPathToStagesViaStates(StationRepository stationRepository, PlatformRepository platformRepository,
-                                    NodeContentsRepository nodeContentsRepository,
                                     TripRepository tripRepository, TramchesterConfig config) {
         this.stationRepository = stationRepository;
         this.platformRepository = platformRepository;
-        this.nodeContentsRepository = nodeContentsRepository;
         this.tripRepository = tripRepository;
 
         this.config = config;
@@ -94,7 +90,7 @@ public class MapPathToStagesViaStates implements PathToStages {
         }, new PathMapper.ForGraphRelationship() {
             @Override
             public Duration getCostFor(final TraversalState current, final GraphRelationship relationship) {
-                final Duration lastRelationshipCost = nodeContentsRepository.getCost(relationship);
+                final Duration lastRelationshipCost = relationship.getCost(); //nodeContentsRepository.getCost(relationship);
 
                 logger.debug("Seen " + relationship.getType().name() + " with cost " + lastRelationshipCost);
 

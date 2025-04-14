@@ -10,8 +10,6 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.ProvidesLocalNow;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.caches.CachedNodeOperations;
-import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.search.JourneyConstraints;
@@ -47,7 +45,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
 //    private final LocationSet<Station> endStations = LocationSet.singleton(TramStations.Deansgate.fake());
 
     private final TramchesterConfig config30MinsWait = new NeedMaxWaitConfig(MAX_WAIT);
-    private NodeContentsRepository nodeContentsCache;
+//    private NodeContentsRepository nodeContentsCache;
     private HowIGotHere howIGotHere;
     private StationRepository stationRepository;
     private ProvidesLocalNow providesLocalNow;
@@ -67,7 +65,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         serviceIdA = Service.createId("serviceIdA");
         serviceIdB = Service.createId("serviceIdB");
 
-        nodeContentsCache = createMock(CachedNodeOperations.class);
+//        nodeContentsCache = createMock(CachedNodeOperations.class);
         howIGotHere = createMock(HowIGotHere.class);
         stationRepository = createMock(StationRepository.class);
         fewestHopsForRoutes = createMock(LowestCostsForDestRoutes.class);
@@ -110,7 +108,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
 //        EasyMock.expect(nodeContentsCache.getServiceId(node)).andReturn(serviceIdB);
 
         replayAll();
-        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeContentsCache,
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository,
                 journeyConstraints, queryTime, MAX_NUM_CHANGES);
 
         HeuristicsReason result = serviceHeuristics.checkServiceDateAndTime(node, howIGotHere, reasons, visitTime, MAX_WAIT);
@@ -141,7 +139,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
 //        EasyMock.expect(nodeContentsCache.getServiceId(node)).andReturn(serviceIdB);
 
         replayAll();
-        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeContentsCache,
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository,
                 journeyConstraints, queryTime, MAX_NUM_CHANGES);
 
         HeuristicsReason result = serviceHeuristics.checkServiceDateAndTime(node, howIGotHere, reasons, visitTime, MAX_WAIT);
@@ -178,7 +176,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         EasyMock.expect(stationRepository.getRouteStationById(routeStationB.getId())).andReturn(routeStationB);
 
         replayAll();
-        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeContentsCache,
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository,
                 journeyConstraints, queryTime, MAX_NUM_CHANGES);
 
         HeuristicsReason result = serviceHeuristics.checkStationOpen(node, howIGotHere, reasons);
@@ -211,7 +209,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         TramTime elapsed = queryTime.plusMinutes(costSoFar);
 
         replayAll();
-        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeContentsCache,
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository,
                 journeyConstraints, queryTime, MAX_NUM_CHANGES);
 
         assertFalse(serviceHeuristics.interestedInHour(howIGotHere, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_8)).isValid());
@@ -239,7 +237,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         TramTime elapsed = TramTime.of(10,29);
 
         replayAll();
-        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeContentsCache,
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository,
                 journeyConstraints, queryTime, MAX_NUM_CHANGES);
 
         assertFalse(serviceHeuristics.interestedInHour(howIGotHere, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_8)).isValid());
@@ -265,7 +263,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         TramTime elapsed = queryTime.plusMinutes(costSoFar);
 
         replayAll();
-        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeContentsCache,
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository,
                 journeyConstraints, queryTime, MAX_NUM_CHANGES);
 
         assertFalse(serviceHeuristics.interestedInHour(howIGotHere, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_22)).isValid());
@@ -293,7 +291,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         TramTime elapsed = queryTime.plusMinutes(costSoFar);
 
         replayAll();
-        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeContentsCache,
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository,
                 journeyConstraints, queryTime, MAX_NUM_CHANGES);
 
         assertFalse(serviceHeuristics.interestedInHour(howIGotHere, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_22)).isValid()); // before
@@ -318,7 +316,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         TramTime elapsed = queryTime.plusMinutes(costSoFar);
 
         replayAll();
-        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeContentsCache,
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository,
                 journeyConstraints, queryTime, MAX_NUM_CHANGES);
 
         assertFalse(serviceHeuristics.interestedInHour(howIGotHere, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_23)).isValid());
@@ -341,7 +339,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         TramTime elapsed = queryTime.plusMinutes(costSoFar);
 
         replayAll();
-        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeContentsCache,
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository,
                 journeyConstraints, queryTime, MAX_NUM_CHANGES);
 
         assertFalse(serviceHeuristics.interestedInHour(howIGotHere, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_23)).isValid());
@@ -358,7 +356,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
 
         EasyMock.expect(journeyConstraints.getFewestChangesCalculator()).andReturn(fewestHopsForRoutes);
 
-        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeContentsCache,
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository,
                 journeyConstraints, baseQueryTime, MAX_NUM_CHANGES);
 
         LocalTime nodeTime = LocalTime.of(8, 0);
@@ -392,7 +390,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
 
         EasyMock.expect(journeyConstraints.getFewestChangesCalculator()).andReturn(fewestHopsForRoutes);
 
-        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeContentsCache,
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository,
                 journeyConstraints, queryTime, MAX_NUM_CHANGES);
 
         checkForNodeTime(serviceHeuristics, queryTime.plusMinutes(9), nodeTime, true, reasons, true);
@@ -428,7 +426,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         EasyMock.expect(journeyConstraints.destinationsAvailable(tramTime)).andReturn(true);
 
         replayAll();
-        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeContentsCache,
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository,
                 journeyConstraints, queryTime, MAX_NUM_CHANGES);
         HeuristicsReason serviceReason = serviceHeuristics.checkTime(howIGotHere, node, currentElapsed, reasons, MAX_WAIT);
         assertTrue(serviceReason.isValid(), format("currentElapsed: %s nodeTime: %s wait: %s reason: %s",
@@ -458,7 +456,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         EasyMock.expect(journeyConstraints.destinationsAvailable(tramTime)).andReturn(false);
 
         replayAll();
-        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeContentsCache,
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository,
                 journeyConstraints, queryTime, MAX_NUM_CHANGES);
         HeuristicsReason serviceReason = serviceHeuristics.checkTime(howIGotHere, node, currentElapsed, reasons, MAX_WAIT);
         assertFalse(serviceReason.isValid(), format("currentElapsed: %s nodeTime: %s wait: %s reason: %s",
@@ -501,7 +499,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         TramTime elapsed = TramTime.of(0,1);
 
         replayAll();
-        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeContentsCache,
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository,
                 journeyConstraints, queryTime, MAX_NUM_CHANGES);
 
         assertFalse(serviceHeuristics.interestedInHour(howIGotHere, elapsed, reasons, MAX_WAIT, EnumSet.of(HOUR_22)).isValid());
@@ -523,7 +521,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         EasyMock.expect(journeyConstraints.getFewestChangesCalculator()).andReturn(fewestHopsForRoutes);
 
         replayAll();
-        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeContentsCache,
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository,
                 journeyConstraints, queryTime, MAX_NUM_CHANGES);
 
         assertTrue(serviceHeuristics.journeyDurationUnderLimit(Duration.ofMinutes(5), howIGotHere, reasons).isValid());
@@ -544,7 +542,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         EasyMock.expect(journeyConstraints.getFewestChangesCalculator()).andReturn(fewestHopsForRoutes);
 
         replayAll();
-        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeContentsCache,
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository,
                 journeyConstraints, queryTime,
                 2);
 
@@ -589,7 +587,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         EasyMock.expect(journeyConstraints.isUnavailable(route, visitTime)).andReturn(true);
 
         replayAll();
-        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeContentsCache,
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository,
                 journeyConstraints, queryTime,
                 2);
 
@@ -610,7 +608,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         int overallMaxLen = config30MinsWait.getMaxJourneyDuration();
 
         replayAll();
-        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeContentsCache,
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository,
                 journeyConstraints, queryTime,
                 MAX_NUM_CHANGES);
 
@@ -631,7 +629,7 @@ class ServiceHeuristicsTest extends EasyMockSupport {
         EasyMock.expect(journeyConstraints.getFewestChangesCalculator()).andReturn(fewestHopsForRoutes);
 
         replayAll();
-        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeContentsCache,
+        ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository,
                 journeyConstraints, queryTime, MAX_NUM_CHANGES);
 
         // always ok if modes match

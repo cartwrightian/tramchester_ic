@@ -19,7 +19,6 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.NumberOfNodesAndRelationshipsRepository;
 import com.tramchester.graph.caches.LowestCostSeen;
-import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.GraphTransaction;
@@ -57,7 +56,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
     // TODO Refactoring here, way too messy and confusing constructor
 
     @Inject
-    public RouteCalculator(TransportData transportData, NodeContentsRepository nodeOperations, PathToStages pathToStages,
+    public RouteCalculator(TransportData transportData, PathToStages pathToStages,
                            TramchesterConfig config, CreateQueryTimes createQueryTimes,
                            GraphDatabase graphDatabaseService,
                            ProvidesNow providesNow, MapPathToLocations mapPathToLocations,
@@ -66,8 +65,8 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
                            CacheMetrics cacheMetrics, BranchSelectorFactory branchSelectorFactory,
                            StationAvailabilityRepository stationAvailabilityRepository, CreateJourneyDiagnostics failedJourneyDiagnostics,
                            NumberOfNodesAndRelationshipsRepository countsNodes, InterchangeRepository interchangeRepository) {
-        super(pathToStages, nodeOperations, graphDatabaseService,
-                providesNow, mapPathToLocations, transportData, config, transportData, routeToRouteCosts,
+        super(pathToStages, graphDatabaseService,
+                providesNow, mapPathToLocations, transportData, config, routeToRouteCosts,
                 failedJourneyDiagnostics, stationAvailabilityRepository, true, countsNodes);
         this.config = config;
         this.createQueryTimes = createQueryTimes;

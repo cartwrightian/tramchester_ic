@@ -8,7 +8,6 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.caches.LowestCostSeen;
-import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
@@ -18,7 +17,6 @@ import com.tramchester.graph.search.stateMachine.states.ImmutableTraversalState;
 import com.tramchester.graph.search.stateMachine.states.NotStartedState;
 import com.tramchester.graph.search.stateMachine.states.StateBuilderParameters;
 import com.tramchester.graph.search.stateMachine.states.TraversalStateFactory;
-import com.tramchester.repository.TripRepository;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.PathExpander;
 import org.neo4j.graphdb.Relationship;
@@ -41,18 +39,14 @@ import static org.neo4j.graphdb.traversal.Uniqueness.NONE;
 public class TramNetworkTraverser implements PathExpander<JourneyState> {
     private static final Logger logger = LoggerFactory.getLogger(TramNetworkTraverser.class);
 
-    private final NodeContentsRepository nodeContentsRepository;
     private final TramchesterConfig config;
     private final GraphTransaction txn;
     private final boolean fullLogging;
 
-    public TramNetworkTraverser(GraphTransaction txn, NodeContentsRepository nodeContentsRepository, TripRepository tripRepository,
-                                TramchesterConfig config, boolean fullLogging) {
+    public TramNetworkTraverser(GraphTransaction txn, TramchesterConfig config, boolean fullLogging) {
         this.txn = txn;
-        this.nodeContentsRepository = nodeContentsRepository;
         this.fullLogging = fullLogging;
         this.config = config;
-
     }
 
     public Stream<Path> findPaths(final GraphTransaction txn, final RouteCalculatorSupport.PathRequest pathRequest,
@@ -70,7 +64,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         final TramTime actualQueryTime = pathRequest.getActualQueryTime();
 
         final TramRouteEvaluator tramRouteEvaluator = new TramRouteEvaluator(pathRequest,
-                destinationNodeIds, nodeContentsRepository, reasons, previousVisits, lowestCostSeen, config,
+                destinationNodeIds, reasons, previousVisits, lowestCostSeen, config,
                 startNode.getId(), txn, running);
 
         final NotStartedState traversalState = new NotStartedState(traversalStateFactory, startNode.getId(), txn);
@@ -120,7 +114,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
 
         final Duration cost;
         if (lastRelationship != null) {
-            cost = nodeContentsRepository.getCost(lastRelationship);
+            cost = lastRelationship.getCost(); //nodeContentsRepository.getCost(lastRelationship);
 
             if (Durations.greaterThan(cost, Duration.ZERO)) {
                 final Duration totalCost = currentJourneyState.getTotalDurationSoFar();

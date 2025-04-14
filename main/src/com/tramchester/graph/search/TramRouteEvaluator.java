@@ -8,7 +8,6 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.caches.LowestCostSeen;
-import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphNodeId;
@@ -35,7 +34,6 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private static final Logger logger = LoggerFactory.getLogger(TramRouteEvaluator.class);
 
     private final ServiceHeuristics serviceHeuristics;
-    private final NodeContentsRepository nodeContentsRepository;
 
     private final Set<GraphNodeId> destinationNodeIds;
     private final ServiceReasons reasons;
@@ -55,25 +53,24 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
     private final EnumSet<GraphLabel> destinationLabels;
 
     public TramRouteEvaluator(final RouteCalculatorSupport.PathRequest pathRequest, final Set<GraphNodeId> destinationNodeIds,
-                              final NodeContentsRepository nodeContentsRepository, final ServiceReasons reasons,
+                              final ServiceReasons reasons,
                               final PreviousVisits previousVisits, final LowestCostSeen bestResultSoFar, final TramchesterConfig config,
                               final GraphNodeId startNodeId,
                               final GraphTransaction txn, Running running) {
-        this(pathRequest.getServiceHeuristics(), destinationNodeIds, nodeContentsRepository, reasons, previousVisits,
+        this(pathRequest.getServiceHeuristics(), destinationNodeIds, reasons, previousVisits,
                 bestResultSoFar, config, startNodeId, pathRequest.getRequestedModes(),
                 pathRequest.getDesintationModes(),
                 pathRequest.getMaxInitialWait(), txn, running);
     }
 
     public TramRouteEvaluator(final ServiceHeuristics serviceHeuristics, final Set<GraphNodeId> destinationNodeIds,
-                              final NodeContentsRepository nodeContentsRepository, final ServiceReasons reasons,
+                              final ServiceReasons reasons,
                               final PreviousVisits previousVisits, final LowestCostSeen bestResultSoFar, final TramchesterConfig config,
                               final GraphNodeId startNodeId, final EnumSet<TransportMode> requestedModes,
                               final EnumSet<TransportMode> destinationModes,
                               final Duration maxInitialWait, final GraphTransaction txn, Running running) {
         this.serviceHeuristics = serviceHeuristics;
         this.destinationNodeIds = destinationNodeIds;
-        this.nodeContentsRepository = nodeContentsRepository;
         this.reasons = reasons;
         this.previousVisits = previousVisits;
         this.bestResultSoFar = bestResultSoFar;

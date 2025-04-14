@@ -11,7 +11,6 @@ import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
-import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.diagnostics.*;
@@ -33,16 +32,14 @@ public class ServiceHeuristics {
     private final JourneyConstraints journeyConstraints;
     private final TramTime actualQueryTime;
     private final StationRepository stationRepository;
-    private final NodeContentsRepository nodeOperations;
     private final int currentChangesLimit;
     private final LowestCostsForDestRoutes lowestCostsForDestRoutes;
     private final int penultimateChange;
 
-    public ServiceHeuristics(StationRepository stationRepository, NodeContentsRepository nodeOperations,
+    public ServiceHeuristics(StationRepository stationRepository,
                              JourneyConstraints journeyConstraints, TramTime actualQueryTime,
                              int currentChangesLimit) {
         this.stationRepository = stationRepository;
-        this.nodeOperations = nodeOperations;
 
         this.journeyConstraints = journeyConstraints;
         this.actualQueryTime = actualQueryTime;

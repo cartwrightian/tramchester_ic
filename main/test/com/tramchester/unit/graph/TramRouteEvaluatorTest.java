@@ -23,7 +23,6 @@ import com.tramchester.domain.time.ProvidesNow;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.graph.caches.LowestCostSeen;
-import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.facade.GraphNodeId;
 import com.tramchester.graph.facade.ImmutableGraphNode;
@@ -67,7 +66,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class TramRouteEvaluatorTest extends EasyMockSupport {
 
     private ServiceHeuristics serviceHeuristics;
-    private NodeContentsRepository contentsRepository;
     private Path path;
     private HowIGotHere howIGotHere;
     private ImmutableGraphNode node;
@@ -102,7 +100,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         previousSuccessfulVisit = createMock(PreviousVisits.class);
         CreateJourneyDiagnostics failedJourneyDiagnostics = createMock(CreateJourneyDiagnostics.class);
 
-        contentsRepository = createMock(NodeContentsRepository.class);
+//        contentsRepository = createMock(NodeContentsRepository.class);
 
         providesNow = createMock(ProvidesNow.class);
 
@@ -174,7 +172,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         // todo into mock
         Running running = () -> isRunning;
         final EnumSet<TransportMode> destinationModes = TramsOnly;
-        return new TramRouteEvaluator(serviceHeuristics, destinationNodeIds, contentsRepository,
+        return new TramRouteEvaluator(serviceHeuristics, destinationNodeIds,
                 reasons, previousSuccessfulVisit, lowestCostSeen, config, startNodeId, TramsOnly,
                 destinationModes,
                 maxInitialWait, txn, running);

@@ -4,7 +4,6 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.places.*;
 import com.tramchester.domain.presentation.LatLong;
-import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.graphbuild.GraphLabel;
@@ -24,14 +23,12 @@ import static java.lang.String.format;
 @LazySingleton
 public class MapPathToLocations {
     private final StationRepository stationRepository;
-    private final NodeContentsRepository nodeContentsRepository;
     private final StationGroupsRepository stationGroupsRepository;
 
     @Inject
-    public MapPathToLocations(StationRepository stationRepository, NodeContentsRepository nodeContentsRepository,
+    public MapPathToLocations(StationRepository stationRepository,
                               StationGroupsRepository stationGroupsRepository) {
         this.stationRepository = stationRepository;
-        this.nodeContentsRepository = nodeContentsRepository;
         this.stationGroupsRepository = stationGroupsRepository;
     }
 

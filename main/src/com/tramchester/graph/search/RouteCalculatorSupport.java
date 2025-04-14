@@ -17,7 +17,6 @@ import com.tramchester.geo.BoundingBoxWithStations;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.NumberOfNodesAndRelationshipsRepository;
 import com.tramchester.graph.caches.LowestCostSeen;
-import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.caches.PreviousVisits;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphNodeId;
@@ -27,7 +26,6 @@ import com.tramchester.graph.search.diagnostics.ServiceReasons;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import com.tramchester.repository.StationAvailabilityRepository;
 import com.tramchester.repository.StationRepository;
-import com.tramchester.repository.TripRepository;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.traversal.BranchOrderingPolicy;
@@ -53,29 +51,25 @@ public class RouteCalculatorSupport {
     private final MapPathToLocations mapPathToLocations;
     private final StationRepository stationRepository;
     private final TramchesterConfig config;
-    private final TripRepository tripRepository;
     protected final BetweenRoutesCostRepository routeToRouteCosts;
-    private final NodeContentsRepository nodeContentsRepository;
     private final CreateJourneyDiagnostics failedJourneyDiagnostics;
     private final StationAvailabilityRepository stationAvailabilityRepository;
     private final boolean fullLogging; // turn down logging for grid searches
     private final NumberOfNodesAndRelationshipsRepository countsNodes;
 
-    protected RouteCalculatorSupport(PathToStages pathToStages, NodeContentsRepository nodeContentsRepository,
+    protected RouteCalculatorSupport(PathToStages pathToStages,
                                      GraphDatabase graphDatabaseService,
                                      ProvidesNow providesNow, MapPathToLocations mapPathToLocations,
-                                     StationRepository stationRepository, TramchesterConfig config, TripRepository tripRepository,
+                                     StationRepository stationRepository, TramchesterConfig config,
                                      BetweenRoutesCostRepository routeToRouteCosts,
                                      CreateJourneyDiagnostics failedJourneyDiagnostics, StationAvailabilityRepository stationAvailabilityRepository,
                                      boolean fullLogging, NumberOfNodesAndRelationshipsRepository countsNodes) {
         this.pathToStages = pathToStages;
-        this.nodeContentsRepository = nodeContentsRepository;
         this.graphDatabaseService = graphDatabaseService;
         this.providesNow = providesNow;
         this.mapPathToLocations = mapPathToLocations;
         this.stationRepository = stationRepository;
         this.config = config;
-        this.tripRepository = tripRepository;
         this.routeToRouteCosts = routeToRouteCosts;
         this.failedJourneyDiagnostics = failedJourneyDiagnostics;
         this.stationAvailabilityRepository = stationAvailabilityRepository;
@@ -138,8 +132,7 @@ public class RouteCalculatorSupport {
             }
         }
 
-        final TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(txn, nodeContentsRepository,
-                tripRepository, config, fullLogging);
+        final TramNetworkTraverser tramNetworkTraverser = new TramNetworkTraverser(txn, config, fullLogging);
 
         final Stream<Path> paths = tramNetworkTraverser.findPaths(txn, pathRequest, previousSuccessfulVisit, reasons, lowestCostSeen,
                 destinationNodeIds, destinations, towardsDestination, running);
@@ -172,7 +165,7 @@ public class RouteCalculatorSupport {
             logger.warn("No stages were mapped, can't get depart time");
             return journeyRequest.getOriginalTime();
         } else {
-            final TransportStage<?, ?> firstStage = stages.get(0);
+            final TransportStage<?, ?> firstStage = stages.getFirst();
             return firstStage.getFirstDepartureTime();
         }
     }
@@ -206,7 +199,7 @@ public class RouteCalculatorSupport {
     public PathRequest createPathRequest(final JourneyRequest journeyRequest, final NodeAndStation nodeAndStation, final int numChanges,
                                          final JourneyConstraints journeyConstraints, final BranchOrderingPolicy selector) {
         final Duration maxInitialWait = getMaxInitialWaitFor(nodeAndStation.location, config);
-        final ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeContentsRepository, journeyConstraints,
+        final ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, journeyConstraints,
                 journeyRequest.getOriginalTime(), numChanges);
         return new PathRequest(journeyRequest, nodeAndStation.node, numChanges, serviceHeuristics, maxInitialWait, selector,
                 journeyConstraints.getDestinationModes());
@@ -216,7 +209,7 @@ public class RouteCalculatorSupport {
                                          EnumSet<TransportMode> requestedModes, int numChanges,
                                          JourneyConstraints journeyConstraints, Duration maxInitialWait,
                                          BranchOrderingPolicy selector) {
-        final ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, nodeContentsRepository, journeyConstraints,
+        final ServiceHeuristics serviceHeuristics = new ServiceHeuristics(stationRepository, journeyConstraints,
                 actualQueryTime, numChanges);
         return new PathRequest(startNode, queryDate, actualQueryTime, numChanges, serviceHeuristics, requestedModes, maxInitialWait, selector,
                 journeyConstraints.getDestinationModes());
@@ -356,7 +349,7 @@ public class RouteCalculatorSupport {
                 throw new RuntimeException("Expected walk to be first stage of " + journey);
             }
 
-            TransportStage<?, ?> walkingStage = journey.getStages().get(0);
+            TransportStage<?, ?> walkingStage = journey.getStages().getFirst();
 
             final Location<?> lastStation = walkingStage.getLastStation();
             long countForStation = journeysPerStation.get(lastStation).incrementAndGet();
