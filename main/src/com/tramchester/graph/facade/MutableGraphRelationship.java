@@ -283,15 +283,23 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
     }
 
     public IdFor<Route> getRouteId() {
-        return getIdFor(Route.class, relationship);
+        return getId(Route.class);
     }
 
     public IdFor<Service> getServiceId() {
-        return getIdFor(Service.class, relationship);
+        return getId(Service.class);
     }
 
     public IdFor<Trip> getTripId() {
-        return getIdFor(Trip.class, relationship);
+        return getId(Trip.class);
+    }
+
+    public IdFor<Station> getStationId() {
+        return getId(Station.class);
+    }
+
+    <T extends CoreDomain> IdFor<T> getId(Class<T> theClass) {
+        return getIdFor(theClass, relationship);
     }
 
     public boolean isType(TransportRelationshipTypes transportRelationshipType) {
@@ -353,11 +361,7 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
         }
     }
 
-    public IdFor<Station> getStationId() {
-        return getIdFor(Station.class, relationship);
-    }
-
-    public boolean hasProperty(GraphPropertyKey propertyKey) {
+    public boolean hasProperty(final GraphPropertyKey propertyKey) {
         return relationship.hasProperty(propertyKey.getText());
     }
 
@@ -413,7 +417,7 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
         final String extra;
         // TODO Include more types here, aids with debug etc
         if (relationshipType==TransportRelationshipTypes.TO_SERVICE) {
-            extra = " serviceId=" + getServiceId().toString()
+            extra = " serviceId=" + getServiceId()
                     + " routeId=" + getRouteId();
         }
         else if (relationshipType==TransportRelationshipTypes.INTERCHANGE_DEPART || relationshipType==TransportRelationshipTypes.DEPART) {

@@ -26,7 +26,6 @@ import java.util.concurrent.TimeUnit;
 public class CachedNodeOperations implements NodeContentsRepository {
     private static final Logger logger = LoggerFactory.getLogger(CachedNodeOperations.class);
 
-//    private final Cache<GraphRelationshipId, IdFor<Trip>> tripIdRelationshipCache;
     private final Cache<GraphRelationshipId, Duration> relationshipCostCache;
 
     private final NumberOfNodesAndRelationshipsRepository numberOfNodesAndRelationshipsRepository;
@@ -36,7 +35,6 @@ public class CachedNodeOperations implements NodeContentsRepository {
         this.numberOfNodesAndRelationshipsRepository = numberOfNodesAndRelationshipsRepository;
 
         relationshipCostCache = createCache("relationshipCostCache", numberFor(TransportRelationshipTypes.haveCosts()));
-//        tripIdRelationshipCache = createCache("tripIdRelationshipCache", numberFor(TransportRelationshipTypes.haveTripId()));
 
         cacheMetrics.register(this::reportStats);
     }
@@ -52,7 +50,6 @@ public class CachedNodeOperations implements NodeContentsRepository {
     public void dispose() {
         logger.info("dispose");
         relationshipCostCache.invalidateAll();
-//        tripIdRelationshipCache.invalidateAll();
     }
 
     @NonNull
@@ -67,7 +64,6 @@ public class CachedNodeOperations implements NodeContentsRepository {
     private List<Pair<String,CacheStats>> reportStats() {
         List<Pair<String,CacheStats>> result = new ArrayList<>();
         result.add(Pair.of("relationshipCostCache",relationshipCostCache.stats()));
-//        result.add(Pair.of("tripIdRelationshipCache", tripIdRelationshipCache.stats()));
 
         return result;
     }

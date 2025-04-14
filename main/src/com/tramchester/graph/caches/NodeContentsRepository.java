@@ -8,7 +8,6 @@ import java.time.Duration;
 @ImplementedBy(CachedNodeOperations.class)
 public interface NodeContentsRepository  {
 
-//    IdFor<Trip> getTripId(GraphRelationship relationship);
     Duration getCost(GraphRelationship lastRelationship);
     void deleteFromCostCache(GraphRelationship relationship);
 

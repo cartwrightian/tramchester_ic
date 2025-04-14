@@ -1,5 +1,6 @@
 package com.tramchester.graph.facade;
 
+import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.dates.DateRange;
@@ -32,8 +33,11 @@ import java.util.stream.Stream;
 public class ImmutableGraphRelationship implements GraphRelationship {
     private final MutableGraphRelationship underlying;
 
+    private final IdCache<Trip> tripIdCache;
+
     public ImmutableGraphRelationship(final MutableGraphRelationship underlying) {
         this.underlying = underlying;
+        tripIdCache = new IdCache<>(Trip.class);
     }
 
     public static ResourceIterable<Relationship> convertIterable(final Stream<ImmutableGraphRelationship> stream) {
@@ -105,7 +109,8 @@ public class ImmutableGraphRelationship implements GraphRelationship {
 
     @Override
     public IdFor<Trip> getTripId() {
-        return underlying.getTripId();
+        return tripIdCache.get();
+        //return underlying.getTripId();
     }
 
     @Override
@@ -234,4 +239,31 @@ public class ImmutableGraphRelationship implements GraphRelationship {
     public GraphNodeId getStartNodeId(GraphTransaction txn) {
         return underlying.getStartNodeId(txn);
     }
+
+    private class IdCache<DT extends CoreDomain> {
+        private final Class<DT> theClass;
+
+        private IdFor<DT> theValue;
+        private Boolean present;
+
+        private IdCache(final Class<DT> theClass) {
+            this.theClass = theClass;
+            theValue = null;
+        }
+
+        synchronized IdFor<DT> get() {
+            if (theValue==null) {
+                theValue=underlying.getId(theClass);
+            }
+            return theValue;
+        }
+
+//        synchronized public boolean present() {
+//            if (present==null) {
+//                present = underlying.hasIdFor(theClass);
+//            }
+//            return present;
+//        }
+    }
+
 }
