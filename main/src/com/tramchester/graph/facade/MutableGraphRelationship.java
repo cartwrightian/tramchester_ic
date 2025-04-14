@@ -64,8 +64,15 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
     }
 
     public Duration getCost() {
-        final long seconds = (long) relationship.getProperty(COST.getText());
-        return Duration.ofSeconds(seconds);
+        final TransportRelationshipTypes relationshipType = getType();
+        if (TransportRelationshipTypes.hasCost(relationshipType)) {
+            final long seconds = (long) relationship.getProperty(COST.getText());
+            return Duration.ofSeconds(seconds);
+        } else {
+            return Duration.ZERO;
+        }
+//        final long seconds = (long) relationship.getProperty(COST.getText());
+//        return Duration.ofSeconds(seconds);
     }
 
     public void setTime(final TramTime tramTime) {

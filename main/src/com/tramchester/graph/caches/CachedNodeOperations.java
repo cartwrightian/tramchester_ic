@@ -18,8 +18,8 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PreDestroy;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 @LazySingleton
@@ -34,13 +34,14 @@ public class CachedNodeOperations implements NodeContentsRepository {
     public CachedNodeOperations(CacheMetrics cacheMetrics, NumberOfNodesAndRelationshipsRepository numberOfNodesAndRelationshipsRepository) {
         this.numberOfNodesAndRelationshipsRepository = numberOfNodesAndRelationshipsRepository;
 
-        relationshipCostCache = createCache("relationshipCostCache", numberFor(TransportRelationshipTypes.haveCosts()));
+        relationshipCostCache = createCache("relationshipCostCache", numberWithCosts());
 
         cacheMetrics.register(this::reportStats);
     }
 
-    private Long numberFor(final Set<TransportRelationshipTypes> types) {
-        return types.stream().
+    private Long numberWithCosts() {
+        return EnumSet.allOf(TransportRelationshipTypes.class).stream().
+                filter(TransportRelationshipTypes::hasCost).
                 map(numberOfNodesAndRelationshipsRepository::numberOf).
                 reduce(Long::sum).orElse(0L);
     }
@@ -70,13 +71,15 @@ public class CachedNodeOperations implements NodeContentsRepository {
 
     @Override
     public Duration getCost(final GraphRelationship relationship) {
-        final TransportRelationshipTypes relationshipType = relationship.getType();
-        if (TransportRelationshipTypes.hasCost(relationshipType)) {
-            final GraphRelationshipId relationshipId = relationship.getId();
-            return relationshipCostCache.get(relationshipId, id ->  relationship.getCost());
-        } else {
-            return Duration.ZERO;
-        }
+        final GraphRelationshipId relationshipId = relationship.getId();
+        return relationshipCostCache.get(relationshipId, id ->  relationship.getCost());
+//        final TransportRelationshipTypes relationshipType = relationship.getType();
+//        if (TransportRelationshipTypes.hasCost(relationshipType)) {
+//            final GraphRelationshipId relationshipId = relationship.getId();
+//            return relationshipCostCache.get(relationshipId, id ->  relationship.getCost());
+//        } else {
+//            return Duration.ZERO;
+//        }
     }
 
     @Override

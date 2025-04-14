@@ -99,7 +99,7 @@ public class MapPathToStagesViaStates implements PathToStages {
                 logger.debug("Seen " + relationship.getType().name() + " with cost " + lastRelationshipCost);
 
                 if (Durations.greaterThan(lastRelationshipCost, Duration.ZERO)) {
-                    Duration total = current.getTotalDuration().plus(lastRelationshipCost);
+                    final Duration total = current.getTotalDuration().plus(lastRelationshipCost);
                     mapStatesToStages.updateTotalCost(total);
                 }
                 if (relationship.hasProperty(STOP_SEQ_NUM)) {

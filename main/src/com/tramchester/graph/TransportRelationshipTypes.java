@@ -52,6 +52,12 @@ public enum TransportRelationshipTypes implements RelationshipType {
         values.toArray(forPlanning);
     }
 
+    public static final EnumSet<TransportRelationshipTypes> NoCost = EnumSet.of(TO_HOUR,TO_MINUTE, TO_SERVICE);
+    private static final EnumSet<TransportRelationshipTypes> HasTripId = EnumSet.of(TRAM_GOES_TO, TRAIN_GOES_TO, BUS_GOES_TO,
+            FERRY_GOES_TO, SUBWAY_GOES_TO, TO_MINUTE);
+    private static final EnumSet<TransportRelationshipTypes> GoesTo = EnumSet.of(TRAM_GOES_TO, BUS_GOES_TO, FERRY_GOES_TO,
+            TRAIN_GOES_TO, SUBWAY_GOES_TO);
+
     public static TransportRelationshipTypes[] forPlanning() {
         return forPlanning;
     }
@@ -68,25 +74,15 @@ public enum TransportRelationshipTypes implements RelationshipType {
     }
 
     public static boolean hasCost(final TransportRelationshipTypes relationshipType) {
-        return switch (relationshipType) {
-            case TO_HOUR,TO_MINUTE, TO_SERVICE -> false;
-            default -> true;
-        };
+        return !NoCost.contains(relationshipType);
     }
 
     public static boolean hasTripId(final TransportRelationshipTypes relationshipType) {
-        return switch (relationshipType) {
-            case TRAM_GOES_TO, TRAIN_GOES_TO, BUS_GOES_TO, FERRY_GOES_TO, SUBWAY_GOES_TO, TO_MINUTE -> true;
-            default -> false;
-        };
+        return HasTripId.contains(relationshipType);
     }
 
-    public static Set<TransportRelationshipTypes> haveCosts() {
-        return Arrays.stream(values()).filter(TransportRelationshipTypes::hasCost).collect(Collectors.toSet());
-    }
-
-    public static Set<TransportRelationshipTypes> haveTripId() {
-        return Arrays.stream(values()).filter(TransportRelationshipTypes::hasTripId).collect(Collectors.toSet());
+    public static boolean goesTo(final ImmutableGraphRelationship relationship) {
+        return GoesTo.contains(relationship.getType());
     }
 
     public static TransportRelationshipTypes from(final Relationship relationship) {
@@ -106,11 +102,6 @@ public enum TransportRelationshipTypes implements RelationshipType {
         return results;
     }
 
-    public static boolean goesTo(ImmutableGraphRelationship relationship) {
-        return switch (relationship.getType()) {
-            case TRAM_GOES_TO, BUS_GOES_TO, FERRY_GOES_TO, TRAIN_GOES_TO, SUBWAY_GOES_TO -> true;
-            default -> false;
-        };
-    }
+
 }
 
