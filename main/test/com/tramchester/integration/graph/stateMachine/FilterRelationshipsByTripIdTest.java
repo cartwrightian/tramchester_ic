@@ -11,9 +11,9 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.domain.places.Station;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.TransportRelationshipTypes;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.ImmutableGraphNode;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
-import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.search.stateMachine.FilterRelationshipsByTripId;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithGroupsEnabled;
@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class FilterRelationshipsByTripIdTest {
     private static GuiceContainerDependencies componentContainer;
-    private MutableGraphTransaction txn;
+    private GraphTransaction txn;
     private StationRepository stationRepository;
     private TramRouteHelper tramRouteHelper;
     private TramDate when;
@@ -64,7 +64,7 @@ public class FilterRelationshipsByTripIdTest {
         componentContainer.get(StagedTransportGraphBuilder.Ready.class);
 
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
-        txn = database.beginTxMutable();
+        txn = database.beginTx();
 
         when = TestEnv.testDay();
     }

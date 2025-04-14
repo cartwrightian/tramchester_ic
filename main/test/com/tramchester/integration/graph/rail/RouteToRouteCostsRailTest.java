@@ -14,7 +14,7 @@ import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TimeRangePartial;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.search.routes.RouteToRouteCosts;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
@@ -41,7 +41,7 @@ public class RouteToRouteCostsRailTest {
 
     private RouteToRouteCosts routeToRouteCosts;
     private StationRepository stationRepository;
-    private MutableGraphTransaction txn;
+    private GraphTransaction txn;
     private Station manPicc;
     private Station stockport;
 //    private Station londonEuston;
@@ -69,7 +69,7 @@ public class RouteToRouteCostsRailTest {
     void beforeEachTestRuns() {
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
 
-        txn = database.beginTxMutable();
+        txn = database.beginTx();
         routeToRouteCosts = componentContainer.get(RouteToRouteCosts.class);
         stationRepository = componentContainer.get(StationRepository.class);
 

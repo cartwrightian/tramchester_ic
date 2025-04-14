@@ -18,8 +18,8 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.facade.GraphNode;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
-import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.FilterRelationshipsByTripId;
@@ -49,7 +49,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class TraversalStateTest extends EasyMockSupport {
     private static GuiceContainerDependencies componentContainer;
     private static TramchesterConfig config;
-    private MutableGraphTransaction txn;
+    private GraphTransaction txn;
     private NodeContentsRepository nodeContentsRepository;
     private StationRepository stationRepository;
     private TraversalOps traversalOps;
@@ -79,7 +79,7 @@ public class TraversalStateTest extends EasyMockSupport {
         tramRouteHelper = new TramRouteHelper(routeRepository);
         stationRepository = componentContainer.get(StationRepository.class);
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
-        txn = database.beginTxMutable();
+        txn = database.beginTx();
         traversalOps = new TraversalOps(txn, nodeContentsRepository, tripRepository);
         when = TestEnv.testDay();
 

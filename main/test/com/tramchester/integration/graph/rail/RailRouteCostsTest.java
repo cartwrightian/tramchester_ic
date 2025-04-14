@@ -9,7 +9,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.InvalidDurationException;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteCostCalculator;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -25,15 +25,11 @@ import static com.tramchester.testSupport.TestEnv.assertMinutesEquals;
 public class RailRouteCostsTest {
     private static ComponentContainer componentContainer;
 
-    private StationRepository stationRepository;
-    private MutableGraphTransaction txn;
+    private GraphTransaction txn;
     private RouteCostCalculator routeCostCalculator;
     private Station stockport;
     private Station manPicc;
-//    private Station londonEuston;
     private Station wilmslow;
-//    private Station crewe;
-//    private Station miltonKeynes;
 
     private final TramDate date = TestEnv.testDay();
     private EnumSet<TransportMode> modes;
@@ -54,16 +50,13 @@ public class RailRouteCostsTest {
     void beforeEachTestRuns() {
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
 
-        txn = database.beginTxMutable();
-        stationRepository = componentContainer.get(StationRepository.class);
+        txn = database.beginTx();
+        StationRepository stationRepository = componentContainer.get(StationRepository.class);
         routeCostCalculator = componentContainer.get(RouteCostCalculator.class);
 
         stockport = Stockport.from(stationRepository);
         manPicc = ManchesterPiccadilly.from(stationRepository);
-//        londonEuston = LondonEuston.from(stationRepository);
         wilmslow = Wilmslow.from(stationRepository);
-//        crewe = Crewe.from(stationRepository);
-//        miltonKeynes = MiltonKeynesCentral.from(stationRepository);
 
         modes = EnumSet.of(TransportMode.Train, TransportMode.RailReplacementBus);
     }

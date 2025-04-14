@@ -11,7 +11,7 @@ import com.tramchester.domain.time.Durations;
 import com.tramchester.domain.time.InvalidDurationException;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteCostCalculator;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.integration.testSupport.bus.IntegrationBusTestConfig;
 import com.tramchester.repository.StationGroupsRepository;
 import com.tramchester.repository.StationRepository;
@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class BusRouteCostCalculatorTest {
     private static ComponentContainer componentContainer;
 
-    private MutableGraphTransaction txn;
+    private GraphTransaction txn;
     private RouteCostCalculator routeCost;
     private StationLocalityGroup altrincham;
     private StationLocalityGroup stockport;
@@ -71,7 +71,7 @@ class BusRouteCostCalculatorTest {
 
         routeCost = componentContainer.get(RouteCostCalculator.class);
 
-        txn = database.beginTxMutable();
+        txn = database.beginTx();
     }
 
     @AfterEach

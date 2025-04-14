@@ -7,14 +7,17 @@ import com.tramchester.domain.JourneyRequest;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.search.RouteCalculator;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UnitTestOfGraphConfig;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -34,7 +37,7 @@ class TramRouteTestCacheIssue {
     private RouteCalculator calculator;
 
     private TramDate queryDate;
-    private MutableGraphTransaction txn;
+    private GraphTransaction txn;
 
     @BeforeEach
     void beforeEachTestRuns() throws IOException {
@@ -52,7 +55,7 @@ class TramRouteTestCacheIssue {
 
         queryDate = TramDate.of(2014,6,30);
 
-        txn = database.beginTxMutable();
+        txn = database.beginTx();
 
     }
 

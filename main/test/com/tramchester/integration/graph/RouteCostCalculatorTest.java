@@ -9,7 +9,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.InvalidDurationException;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.RouteCostCalculator;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
@@ -36,7 +36,7 @@ class RouteCostCalculatorTest {
 
     private RouteCostCalculator routeCostCalculator;
     private StationRepository stationRepository;
-    private MutableGraphTransaction txn;
+    private GraphTransaction txn;
     private final TramDate when = TestEnv.testDay();
     private Station altrincham;
     private Station mediaCity;
@@ -59,7 +59,7 @@ class RouteCostCalculatorTest {
         routeCostCalculator = componentContainer.get(RouteCostCalculator.class);
         stationRepository = componentContainer.get(StationRepository.class);
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
-        txn = database.beginTxMutable();
+        txn = database.beginTx();
 
         altrincham = Altrincham.from(stationRepository);
         mediaCity = MediaCityUK.from(stationRepository);

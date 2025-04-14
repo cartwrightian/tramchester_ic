@@ -56,7 +56,7 @@ class TramGraphBuilderTest {
     private static ComponentContainer componentContainer;
 
     private TransportData transportData;
-    private MutableGraphTransaction txn;
+    private GraphTransaction txn;
     private StationRepository stationRepository;
     private ServiceRepository serviceRepository;
 
@@ -86,7 +86,7 @@ class TramGraphBuilderTest {
 
         StagedTransportGraphBuilder builder = componentContainer.get(StagedTransportGraphBuilder.class);
         builder.getReady();
-        txn = graphDatabase.beginTxMutable();
+        txn = graphDatabase.beginTx();
     }
 
     @AfterEach

@@ -11,8 +11,8 @@ import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphRelationship;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
-import com.tramchester.graph.facade.MutableGraphTransaction;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.integration.testSupport.rail.IntegrationRailTestConfig;
 import com.tramchester.repository.TransportData;
@@ -30,14 +30,15 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.TransportRelationshipTypes.*;
-import static com.tramchester.integration.testSupport.rail.RailStationIds.*;
+import static com.tramchester.integration.testSupport.rail.RailStationIds.ManchesterPiccadilly;
+import static com.tramchester.integration.testSupport.rail.RailStationIds.Stockport;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TrainTest
 class GraphBuilderRailTest {
     private static ComponentContainer componentContainer;
 
-    private MutableGraphTransaction txn;
+    private GraphTransaction txn;
     private TransportData transportData;
 
     @BeforeAll
@@ -56,7 +57,7 @@ class GraphBuilderRailTest {
         StagedTransportGraphBuilder builder = componentContainer.get(StagedTransportGraphBuilder.class);
         builder.getReady();
 
-        txn = service.beginTxMutable();
+        txn = service.beginTx();
     }
 
     @AfterEach

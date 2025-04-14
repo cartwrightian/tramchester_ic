@@ -8,10 +8,7 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.places.StationLocalityGroup;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.GraphRelationship;
-import com.tramchester.graph.facade.ImmutableGraphNode;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.graphbuild.StationGroupsGraphBuilder;
@@ -48,7 +45,7 @@ class AddNeighboursGraphBuilderTest {
     private Station shudehillTram;
 
     private static ComponentContainer componentContainer;
-    private MutableGraphTransaction txn;
+    private GraphTransaction txn;
 
     @BeforeAll
     static void onceBeforeAnyTestsRun() {
@@ -85,7 +82,7 @@ class AddNeighboursGraphBuilderTest {
         // force init of main DB and hence save of VERSION node, so avoid multiple rebuilds of the DB
         componentContainer.get(StagedTransportGraphBuilder.Ready.class);
 
-        txn = graphDatabase.beginTxMutable();
+        txn = graphDatabase.beginTx();
     }
 
     @AfterEach
@@ -182,7 +179,7 @@ class AddNeighboursGraphBuilderTest {
         return node.getRelationships(txn, direction, NEIGHBOUR).collect(Collectors.toSet());
     }
 
-    private boolean seenNode(MutableGraphTransaction txn, Station station, Set<GraphRelationship> relationships, SelectNode selectNode) {
+    private boolean seenNode(GraphTransaction txn, Station station, Set<GraphRelationship> relationships, SelectNode selectNode) {
         GraphNode nodeToFind = txn.findNode(station);
         assertNotNull(nodeToFind, "no node found for " + station);
 

@@ -14,10 +14,10 @@ import com.tramchester.domain.reference.GTFSTransportationType;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.search.RouteCalculator;
-import com.tramchester.integration.testSupport.config.IntegrationTestConfig;
 import com.tramchester.integration.testSupport.TestGroupType;
+import com.tramchester.integration.testSupport.config.IntegrationTestConfig;
 import com.tramchester.integration.testSupport.tfgm.TFGMGTFSSourceTestConfig;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
@@ -44,7 +44,7 @@ class MixedRouteTest {
 
     private TramDate queryDate;
     private TramTime queryTime;
-    private MutableGraphTransaction txn;
+    private GraphTransaction txn;
     private EnumSet<TransportMode> modes;
 
     @BeforeAll
@@ -71,7 +71,7 @@ class MixedRouteTest {
 
     @BeforeEach
     void beforeEachTestRuns() {
-        txn = database.beginTxMutable();
+        txn = database.beginTx();
 
         queryDate = TramDate.of(2014,6,30);
         queryTime = TramTime.of(7, 57);

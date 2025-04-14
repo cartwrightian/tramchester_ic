@@ -36,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class RailAndTramGraphBuilderTest {
     private static ComponentContainer componentContainer;
 
-    private MutableGraphTransaction txn;
+    private GraphTransaction txn;
     private StationRepository stationRepository;
 
     @BeforeAll
@@ -54,7 +54,7 @@ class RailAndTramGraphBuilderTest {
 
         StagedTransportGraphBuilder builder = componentContainer.get(StagedTransportGraphBuilder.class);
         builder.getReady();
-        txn = graphDatabase.beginTxMutable();
+        txn = graphDatabase.beginTx();
     }
 
     @AfterEach
