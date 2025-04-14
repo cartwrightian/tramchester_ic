@@ -5,10 +5,8 @@ import com.tramchester.domain.input.Trip;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphRelationship;
-import com.tramchester.graph.graphbuild.GraphLabel;
 
 import java.time.Duration;
-import java.util.EnumSet;
 
 // KEEP for assisting with debugging
 @SuppressWarnings("unused")
@@ -32,10 +30,5 @@ public class NodeContentsDirect implements NodeContentsRepository {
     @Override
     public void deleteFromCostCache(GraphRelationship relationship) {
         // no-op
-    }
-
-    @Override
-    public EnumSet<GraphLabel> getLabels(GraphNode node) {
-        return node.getLabels();
     }
 }

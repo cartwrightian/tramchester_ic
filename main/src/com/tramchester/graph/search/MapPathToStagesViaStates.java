@@ -87,7 +87,7 @@ public class MapPathToStagesViaStates implements PathToStages {
         pathMapper.process(initial, new PathMapper.ForGraphNode() {
             @Override
             public TraversalState getNextStateFrom(final TraversalState previous, final GraphNode node, final Duration currentCost) {
-                final EnumSet<GraphLabel> labels = nodeContentsRepository.getLabels(node);
+                final EnumSet<GraphLabel> labels = node.getLabels();
                 final TraversalState next = previous.nextState(labels, node, mapStatesToStages, currentCost);
 
                 logger.debug("At state " + previous.getClass().getSimpleName() + " next is " + next.getClass().getSimpleName());

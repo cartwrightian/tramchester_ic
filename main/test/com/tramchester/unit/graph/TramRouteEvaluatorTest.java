@@ -236,7 +236,8 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         branchState.setState(journeyState);
 
         final EnumSet<GraphLabel> labels = EnumSet.of(HOUR);
-        EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
+        //EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
+        EasyMock.expect(node.getLabels()).andReturn(labels);
 
         EasyMock.expect(previousSuccessfulVisit.getPreviousResult(journeyState, labels, howIGotHere)).
                 andReturn(HeuristicsReasons.CacheMiss(howIGotHere));
@@ -263,7 +264,8 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     void shouldStopIfNotRunning() {
 
         final EnumSet<GraphLabel> labels = EnumSet.of(HOUR);
-        EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
+        //EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
+        EasyMock.expect(node.getLabels()).andReturn(labels);
 
         BranchState<JourneyState> branchState = new TestBranchState();
         EasyMock.expect(providesNow.getInstant()).andStubReturn(Instant.now());
@@ -301,7 +303,8 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         branchState.setState(journeyState);
 
         final EnumSet<GraphLabel> labels = EnumSet.of(HOUR);
-        EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
+        //EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
+        EasyMock.expect(node.getLabels()).andReturn(labels);
 
         EasyMock.expect(previousSuccessfulVisit.getPreviousResult(journeyState, labels, howIGotHere)).andReturn(HeuristicsReasons.CacheMiss(howIGotHere));
 
@@ -337,7 +340,8 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         branchState.setState(journeyState);
 
         final EnumSet<GraphLabel> labels = EnumSet.of(HOUR);
-        EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
+        //EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
+        EasyMock.expect(node.getLabels()).andReturn(labels);
 
         EasyMock.expect(previousSuccessfulVisit.getPreviousResult(journeyState, labels, howIGotHere)).andReturn(HeuristicsReasons.CacheMiss(howIGotHere));
         EasyMock.expect(lowestCostSeen.getLowestNumChanges()).andReturn(5);
@@ -366,7 +370,8 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         state.setState(journeyState);
 
         final EnumSet<GraphLabel> labels = EnumSet.of(HOUR);
-        EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
+        //EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
+        EasyMock.expect(node.getLabels()).andReturn(labels);
 
         HeuristicsReason cacheHit = HeuristicsReasons.DoesNotOperateAtHour(time, howIGotHere, 8);
         EasyMock.expect(previousSuccessfulVisit.getPreviousResult(journeyState, labels, howIGotHere)).andReturn(cacheHit);
@@ -391,7 +396,8 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         state.setState(journeyState);
 
         final EnumSet<GraphLabel> labels = EnumSet.of(ROUTE_STATION);
-        EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
+//        EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
+        EasyMock.expect(node.getLabels()).andReturn(labels);
 
         HeuristicsReason cacheHit = HeuristicsReasons.DoesNotOperateOnTime(time, howIGotHere);
         EasyMock.expect(previousSuccessfulVisit.getPreviousResult(journeyState, labels, howIGotHere)).andReturn(cacheHit);
@@ -420,7 +426,8 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(lowestCostSeen.everArrived()).andReturn(false);
         EasyMock.expect(previousSuccessfulVisit.getPreviousResult(journeyState, labels, howIGotHere)).andReturn(HeuristicsReasons.CacheMiss(howIGotHere));
 
-        EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
+//        EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
+        EasyMock.expect(node.getLabels()).andReturn(labels);
 
         EasyMock.expect(path.length()).andReturn(201);
 
@@ -454,7 +461,8 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         BranchState<JourneyState> branchState = new TestBranchState();
 
         final EnumSet<GraphLabel> labels = EnumSet.of(SERVICE);
-        EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
+//        EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
+        EasyMock.expect(node.getLabels()).andReturn(labels);
 
         TramTime time = TramTime.of(8, 15);
 
@@ -555,7 +563,8 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         EasyMock.expect(path.length()).andStubReturn(50);
 
-        EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
+//        EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
+        EasyMock.expect(node.getLabels()).andReturn(labels);
 
         EasyMock.expect(serviceHeuristics.checkStationOpen(node, howIGotHere, reasons)).
                 andReturn(HeuristicsReasons.StationClosed(howIGotHere, Shudehill.getId()));
@@ -604,7 +613,8 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         EasyMock.expect(path.length()).andStubReturn(50);
 
-        EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
+//        EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
+        EasyMock.expect(node.getLabels()).andReturn(labels);
 
         EasyMock.expect(lastRelationship.isType(WALKS_TO_STATION)).andReturn(true);
 
@@ -647,7 +657,8 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(path.length()).andStubReturn(50);
 
         final EnumSet<GraphLabel> labels = EnumSet.of(QUERY_NODE);
-        EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
+//        EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
+        EasyMock.expect(node.getLabels()).andReturn(labels);
 
         EasyMock.expect(lastRelationship.isType(WALKS_TO_STATION)).andReturn(true);
 
@@ -689,7 +700,8 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
                 andReturn(HeuristicsReasons.TookTooLong(time, howIGotHere));
 
         final EnumSet<GraphLabel> labels = EnumSet.of(ROUTE_STATION);
-        EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
+//        EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
+        EasyMock.expect(node.getLabels()).andReturn(labels);
 
         NotStartedState traversalState = getNotStartedState(startNodeId);
         final JourneyState journeyState = new JourneyState(time, traversalState);
@@ -726,7 +738,8 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(previousSuccessfulVisit.getPreviousResult(journeyState, labels, howIGotHere)).
                 andReturn(HeuristicsReasons.CacheMiss(howIGotHere));
 
-        EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
+//        EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
+        EasyMock.expect(node.getLabels()).andReturn(labels);
 
         EasyMock.expect(lowestCostSeen.everArrived()).andReturn(true);
         EasyMock.expect(lowestCostSeen.getLowestDuration()).andReturn(Duration.ofMinutes(10));
@@ -758,7 +771,8 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         branchState.setState(journeyState);
 
         final EnumSet<GraphLabel> labels = EnumSet.of(ROUTE_STATION);
-        EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
+//        EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
+        EasyMock.expect(node.getLabels()).andReturn(labels);
 
         EasyMock.expect(lowestCostSeen.everArrived()).andReturn(false);
 
@@ -791,7 +805,8 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(path.length()).andStubReturn(50);
 
         final EnumSet<GraphLabel> labels = EnumSet.of(HOUR);
-        EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
+//        EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
+        EasyMock.expect(node.getLabels()).andReturn(labels);
 
         NotStartedState traversalState = getNotStartedState(startNodeId);
         TramTime time = TramTime.of(8, 15);
@@ -840,7 +855,8 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(path.length()).andStubReturn(50);
 
         final EnumSet<GraphLabel> labels = EnumSet.of(MINUTE);
-        EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
+//        EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
+        EasyMock.expect(node.getLabels()).andReturn(labels);
 
         journeyState.board(TransportMode.Tram, node, true); // So uses non-initial wait time
         branchState.setState(journeyState);
@@ -888,7 +904,8 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(path.length()).andStubReturn(50);
 
         final EnumSet<GraphLabel> labels = EnumSet.of(MINUTE);
-        EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
+//        EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
+        EasyMock.expect(node.getLabels()).andReturn(labels);
 
         journeyState.board(TransportMode.Tram, node, true); // So uses non-initial wait time
         branchState.setState(journeyState);
@@ -928,7 +945,8 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
         EasyMock.expect(lastRelationship.isType(WALKS_TO_STATION)).andReturn(false);
 
         final EnumSet<GraphLabel> labels = EnumSet.of(GROUPED);
-        EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
+//        EasyMock.expect(contentsRepository.getLabels(node)).andReturn(labels);
+        EasyMock.expect(node.getLabels()).andReturn(labels);
 
         TramTime time = TramTime.of(8, 15);
         NotStartedState traversalState = getNotStartedState(startNodeId);

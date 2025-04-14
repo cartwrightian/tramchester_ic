@@ -107,7 +107,7 @@ public class TramRouteEvaluator implements PathEvaluator<JourneyState> {
         final GraphRelationship last = txn.lastFrom(path);
 
         // reuse these, label operations on nodes are expensive
-        final EnumSet<GraphLabel> labels = nodeContentsRepository.getLabels(nextNode);
+        final EnumSet<GraphLabel> labels = nextNode.getLabels();
 
         final HowIGotHere howIGotHere = new HowIGotHere(journeyState, nextNode.getId(), getPreviousNodeSafe(last));
 

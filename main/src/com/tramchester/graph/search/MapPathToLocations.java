@@ -59,7 +59,7 @@ public class MapPathToLocations {
     }
 
     private Optional<Location<?>> mapNode(final GraphNode node) {
-        EnumSet<GraphLabel> labels = nodeContentsRepository.getLabels(node);
+        final EnumSet<GraphLabel> labels = node.getLabels();
         if (labels.contains(GROUPED)) {
             //return getAreaIdFromGrouped(graphNode.getNode());
             final IdFor<NPTGLocality> areaId = node.getAreaId();

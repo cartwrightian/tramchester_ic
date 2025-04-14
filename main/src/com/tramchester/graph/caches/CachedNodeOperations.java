@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PreDestroy;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -100,11 +99,6 @@ public class CachedNodeOperations implements NodeContentsRepository {
     public TramTime getTime(final GraphNode node) {
         final GraphNodeId nodeId = node.getId();
         return timeNodeCache.get(nodeId, id -> node.getTime());
-    }
-
-    @Override
-    public EnumSet<GraphLabel> getLabels(final GraphNode node) {
-        return node.getLabels();
     }
 
     @Override
