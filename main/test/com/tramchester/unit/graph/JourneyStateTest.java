@@ -59,7 +59,7 @@ class JourneyStateTest extends EasyMockSupport {
 
         TowardsDestination towardsDestination = new TowardsDestination(station);
         StateBuilderParameters builderParams = new StateBuilderParameters(queryDate, queryTime,
-                towardsDestination, nodeContentsRepository, config, TramsOnly);
+                towardsDestination, config, TramsOnly);
         TraversalStateFactory traversalStateFactory = new TraversalStateFactory(builderParams);
 
         MutableGraphTransaction txn = createMock(MutableGraphTransaction.class);

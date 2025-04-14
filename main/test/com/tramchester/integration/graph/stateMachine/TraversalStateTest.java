@@ -16,7 +16,6 @@ import com.tramchester.domain.places.Station;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.TransportRelationshipTypes;
-import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
@@ -48,7 +47,6 @@ public class TraversalStateTest extends EasyMockSupport {
     private static GuiceContainerDependencies componentContainer;
     private static TramchesterConfig config;
     private GraphTransaction txn;
-    private NodeContentsRepository nodeContentsRepository;
     private StationRepository stationRepository;
     private TramDate when;
     private TramTime time;
@@ -70,14 +68,11 @@ public class TraversalStateTest extends EasyMockSupport {
 
     @BeforeEach
     void beforeEachOfTheTestsRun() {
-        nodeContentsRepository = componentContainer.get(NodeContentsRepository.class);
-//        TripRepository tripRepository = componentContainer.get(TripRepository.class);
         RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
         tramRouteHelper = new TramRouteHelper(routeRepository);
         stationRepository = componentContainer.get(StationRepository.class);
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
         txn = database.beginTx();
-//        TraversalOps traversalOps = new TraversalOps(txn);
         when = TestEnv.testDay();
 
         time = TramTime.of(8,42);
@@ -97,7 +92,7 @@ public class TraversalStateTest extends EasyMockSupport {
 
         TowardsDestination towardsDestination = new TowardsDestination(cornbrook);
         StateBuilderParameters builderParameters = new StateBuilderParameters(when, time,
-                towardsDestination, nodeContentsRepository, config, TramsOnly);
+                towardsDestination, config, TramsOnly);
 
         TraversalStateFactory traversalStateFactory = new TraversalStateFactory(builderParameters);
 
@@ -139,7 +134,7 @@ public class TraversalStateTest extends EasyMockSupport {
 
         TowardsDestination towardsDestination = new TowardsDestination(cornbrook);
         StateBuilderParameters builderParameters = new StateBuilderParameters(when, time,
-                towardsDestination, nodeContentsRepository, config, TramsOnly);
+                towardsDestination, config, TramsOnly);
 
         TraversalStateFactory traversalStateFactory = new TraversalStateFactory(builderParameters);
 
@@ -177,7 +172,7 @@ public class TraversalStateTest extends EasyMockSupport {
 
         TowardsDestination towardsDestination = new TowardsDestination(Bury.from(stationRepository));
         StateBuilderParameters builderParameters = new StateBuilderParameters(when, time,
-                towardsDestination, nodeContentsRepository, config, TramsOnly);
+                towardsDestination, config, TramsOnly);
 
         TraversalStateFactory traversalStateFactory = new TraversalStateFactory(builderParameters);
 

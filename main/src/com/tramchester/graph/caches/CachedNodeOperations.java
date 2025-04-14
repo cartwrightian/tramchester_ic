@@ -4,8 +4,6 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.netflix.governator.guice.lazy.LazySingleton;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.input.Trip;
 import com.tramchester.graph.NumberOfNodesAndRelationshipsRepository;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.GraphRelationship;
@@ -28,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 public class CachedNodeOperations implements NodeContentsRepository {
     private static final Logger logger = LoggerFactory.getLogger(CachedNodeOperations.class);
 
-    private final Cache<GraphRelationshipId, IdFor<Trip>> tripIdRelationshipCache;
+//    private final Cache<GraphRelationshipId, IdFor<Trip>> tripIdRelationshipCache;
     private final Cache<GraphRelationshipId, Duration> relationshipCostCache;
 
     private final NumberOfNodesAndRelationshipsRepository numberOfNodesAndRelationshipsRepository;
@@ -38,7 +36,7 @@ public class CachedNodeOperations implements NodeContentsRepository {
         this.numberOfNodesAndRelationshipsRepository = numberOfNodesAndRelationshipsRepository;
 
         relationshipCostCache = createCache("relationshipCostCache", numberFor(TransportRelationshipTypes.haveCosts()));
-        tripIdRelationshipCache = createCache("tripIdRelationshipCache", numberFor(TransportRelationshipTypes.haveTripId()));
+//        tripIdRelationshipCache = createCache("tripIdRelationshipCache", numberFor(TransportRelationshipTypes.haveTripId()));
 
         cacheMetrics.register(this::reportStats);
     }
@@ -54,7 +52,7 @@ public class CachedNodeOperations implements NodeContentsRepository {
     public void dispose() {
         logger.info("dispose");
         relationshipCostCache.invalidateAll();
-        tripIdRelationshipCache.invalidateAll();
+//        tripIdRelationshipCache.invalidateAll();
     }
 
     @NonNull
@@ -69,14 +67,9 @@ public class CachedNodeOperations implements NodeContentsRepository {
     private List<Pair<String,CacheStats>> reportStats() {
         List<Pair<String,CacheStats>> result = new ArrayList<>();
         result.add(Pair.of("relationshipCostCache",relationshipCostCache.stats()));
-        result.add(Pair.of("tripIdRelationshipCache", tripIdRelationshipCache.stats()));
+//        result.add(Pair.of("tripIdRelationshipCache", tripIdRelationshipCache.stats()));
 
         return result;
-    }
-
-    public IdFor<Trip> getTripId(final GraphRelationship relationship) {
-        final GraphRelationshipId relationshipId = relationship.getId();
-        return tripIdRelationshipCache.get(relationshipId, id -> relationship.getTripId());
     }
 
     @Override

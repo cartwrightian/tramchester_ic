@@ -61,7 +61,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
                                   final TowardsDestination towardsDestination, final Running running) {
 
         final StateBuilderParameters builderParameters = new StateBuilderParameters(pathRequest.getQueryDate(), pathRequest.getActualQueryTime(),
-                towardsDestination, nodeContentsRepository, config, pathRequest.getRequestedModes());
+                towardsDestination, config, pathRequest.getRequestedModes());
 
         final TraversalStateFactory traversalStateFactory = new TraversalStateFactory(builderParameters);
 

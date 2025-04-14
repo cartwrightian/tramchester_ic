@@ -2,9 +2,6 @@ package com.tramchester.graph.search.stateMachine.states;
 
 import com.google.common.collect.Streams;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.input.Trip;
-import com.tramchester.graph.caches.NodeContentsRepository;
 import com.tramchester.graph.facade.*;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.FilterByDestinations;
@@ -26,13 +23,11 @@ public abstract class StateBuilder<T extends TraversalState> implements Towards<
     private final TramDate queryDate;
     private final TowardsDestination towardsDestination;
     private final int queryHour;
-    private final NodeContentsRepository nodeContents;
 
-    protected StateBuilder(StateBuilderParameters parameters) {
+    protected StateBuilder(final StateBuilderParameters parameters) {
         this.queryDate = parameters.queryDate();
         this.towardsDestination = parameters.towardsDestination();
         this.queryHour = parameters.queryHour();
-        this.nodeContents = parameters.nodeContents();
     }
 
     public TramDate getQueryDate() {
@@ -65,10 +60,6 @@ public abstract class StateBuilder<T extends TraversalState> implements Towards<
 
     protected int getQueryHour() {
         return queryHour;
-    }
-
-    protected IdFor<Trip> getTripId(ImmutableGraphRelationship relationship) {
-        return nodeContents.getTripId(relationship);
     }
 
     protected <R extends GraphRelationship> Stream<R> filterExcludingNode(final GraphTransaction txn,

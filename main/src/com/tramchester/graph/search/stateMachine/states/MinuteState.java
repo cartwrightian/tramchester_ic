@@ -56,7 +56,7 @@ public class MinuteState extends TraversalState implements HasTowardsStationId {
         }
 
         private Stream<ImmutableGraphRelationship> filterBySingleTripId(final Stream<ImmutableGraphRelationship> relationships, final IdFor<Trip> existingTripId) {
-            return relationships.filter(relationship -> super.getTripId(relationship).equals(existingTripId));
+            return relationships.filter(relationship -> relationship.getTripId().equals(existingTripId));
         }
     }
 

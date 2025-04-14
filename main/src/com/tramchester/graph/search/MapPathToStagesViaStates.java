@@ -69,7 +69,7 @@ public class MapPathToStagesViaStates implements PathToStages {
         }
 
         final StateBuilderParameters builderParameters = new StateBuilderParameters(journeyRequest.getDate(), timedPath.queryTime(),
-                towardsDestination, nodeContentsRepository, config, journeyRequest.getRequestedModes());
+                towardsDestination, config, journeyRequest.getRequestedModes());
 
         final TraversalStateFactory stateFactory = new TraversalStateFactory(builderParameters);
 
