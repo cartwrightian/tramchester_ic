@@ -572,7 +572,7 @@ tasks.register('allStationsTest', Test) {
     maxHeapSize = "1750m"
     useJUnitPlatform()
     filter {
-        includeTestsMatching "com.tramchester.integration.graph.RouteCalculatorTestAllJourneys"
+        includeTestsMatching "com.tramchester.integration.graph.RouteCalculatorAllTramJourneysTest"
     }
     testLogging {
         exceptionFormat "full" // default is "short"

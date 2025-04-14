@@ -246,7 +246,6 @@ public class ImmutableGraphRelationship implements GraphRelationship {
         private final Class<DT> theClass;
 
         private IdFor<DT> theValue;
-        private Boolean present;
 
         private IdCache(final Class<DT> theClass) {
             this.theClass = theClass;

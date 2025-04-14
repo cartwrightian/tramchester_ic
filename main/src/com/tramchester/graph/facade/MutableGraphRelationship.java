@@ -71,8 +71,6 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
         } else {
             return Duration.ZERO;
         }
-//        final long seconds = (long) relationship.getProperty(COST.getText());
-//        return Duration.ofSeconds(seconds);
     }
 
     public void setTime(final TramTime tramTime) {
