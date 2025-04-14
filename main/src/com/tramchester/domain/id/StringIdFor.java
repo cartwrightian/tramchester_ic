@@ -15,7 +15,7 @@ public class StringIdFor<T extends CoreDomain> implements IdFor<T> {
     private final int hashcode;
     private final Class<T> domainType;
 
-    protected StringIdFor(String theId, Class<T> domainType) {
+    protected StringIdFor(final String theId, final Class<T> domainType) {
         this.theId = theId.intern();
         this.domainType = domainType;
         this.hashcode = Objects.hash(theId, domainType);
@@ -23,12 +23,12 @@ public class StringIdFor<T extends CoreDomain> implements IdFor<T> {
 
     // for invalid ids
     // TODO Need better way to handle this, push into i/f?
-    private StringIdFor(Class<T> domainType) {
+    private StringIdFor(final Class<T> domainType) {
         this("", domainType);
     }
 
     // todo package private?
-    public static <C extends CoreDomain> IdFor<C> createId(String text, Class<C> domainType) {
+    public static <C extends CoreDomain> IdFor<C> createId(final String text, final Class<C> domainType) {
         if (text==null) {
             return invalid(domainType);
         }
@@ -38,22 +38,22 @@ public class StringIdFor<T extends CoreDomain> implements IdFor<T> {
         return new StringIdFor<>(text, domainType);
     }
 
-    public static IdFor<Station> createId(IdForDTO idForDTO, Class<Station> klass) {
+    public static IdFor<Station> createId(final IdForDTO idForDTO, final Class<Station> klass) {
         return createId(idForDTO.getActualId(), klass);
     }
 
-    public static <T extends CoreDomain> IdSet<T> createIds(Set<String> items, Class<T> domainClass) {
+    public static <T extends CoreDomain> IdSet<T> createIds(final Set<String> items, final Class<T> domainClass) {
         return items.stream().map(item -> StringIdFor.createId(item, domainClass)).collect(IdSet.idCollector());
     }
 
-    public static <DEST extends CoreDomain, SOURCE extends CoreDomain> StringIdFor<DEST> concat(IdFor<SOURCE> originalId, String text, Class<DEST> domainType) {
-        StringIdFor<SOURCE> originalStringId = (StringIdFor<SOURCE>) originalId;
-        String newId = originalStringId.theId + text;
+    public static <DEST extends CoreDomain, SOURCE extends CoreDomain> StringIdFor<DEST> concat(final IdFor<SOURCE> originalId, final String text, final Class<DEST> domainType) {
+        final StringIdFor<SOURCE> originalStringId = (StringIdFor<SOURCE>) originalId;
+        final String newId = originalStringId.theId + text;
         return new StringIdFor<>(newId, domainType);
     }
 
     public static String removeIdFrom(final String text, final IdFor<?> id) {
-        StringIdFor<?> originalStringId = (StringIdFor<?>) id;
+        final StringIdFor<?> originalStringId = (StringIdFor<?>) id;
         return text.replace(originalStringId.theId, "");
     }
 
@@ -82,7 +82,7 @@ public class StringIdFor<T extends CoreDomain> implements IdFor<T> {
 
     @Override
     public String toString() {
-        String domainName = domainType.getSimpleName();
+        final String domainName = domainType.getSimpleName();
         if (isValid()) {
             return "Id{'" + domainName+ ":" + theId + "'}";
         } else {
@@ -110,7 +110,7 @@ public class StringIdFor<T extends CoreDomain> implements IdFor<T> {
         return domainType;
     }
 
-    public static <CLASS extends CoreDomain> StringIdFor<CLASS> invalid(Class<CLASS> domainType) {
+    public static <CLASS extends CoreDomain> StringIdFor<CLASS> invalid(final Class<CLASS> domainType) {
         return new StringIdFor<>(domainType);
     }
 
@@ -120,9 +120,9 @@ public class StringIdFor<T extends CoreDomain> implements IdFor<T> {
         return createId(other.theId, domainType);
     }
 
-    public static <T extends CoreDomain, S extends CoreDomain> IdFor<T> withPrefix(String prefix, IdFor<S> original, Class<T> domainType) {
+    public static <T extends CoreDomain, S extends CoreDomain> IdFor<T> withPrefix(final String prefix, final IdFor<S> original, final Class<T> domainType) {
         guardForType(original);
-        StringIdFor<S> other = (StringIdFor<S>) original;
+        final StringIdFor<S> other = (StringIdFor<S>) original;
         return createId(prefix+other.theId, domainType);
     }
 

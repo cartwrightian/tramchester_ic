@@ -155,8 +155,8 @@ public class RouteCalculatorForBoxes extends RouteCalculatorSupport {
     private static void scheduleLogging(final Running results, final ServiceReasons serviceReasons) {
         final Timer timer = new Timer("GridSearchLoggingTimer");
 
-        long logFrequency = Duration.ofMinutes(1).toMillis();
-        TimerTask loggingTask = new TimerTask() {
+        final long logFrequency = Duration.ofMinutes(1).toMillis();
+        final TimerTask loggingTask = new TimerTask() {
             @Override
             public void run() {
                 if (results.isRunning()) {

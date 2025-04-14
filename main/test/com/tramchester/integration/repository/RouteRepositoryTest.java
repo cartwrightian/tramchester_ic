@@ -183,7 +183,7 @@ public class RouteRepositoryTest {
 
     }
 
-    @DisabledUntilDate(year = 2025, month = 4, day = 14)
+    @DisabledUntilDate(year = 2025, month = 4, day = 24)
     @Test
     void shouldReproIssueWithUnsymmetricDateOverlap() {
 

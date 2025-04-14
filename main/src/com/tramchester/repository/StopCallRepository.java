@@ -64,14 +64,15 @@ public class StopCallRepository  {
 
         stationRepository.getAllStationStream().forEach(station -> stopCalls.put(station, new HashSet<>()));
 
-        Set<Trip> allTrips = tripRepository.getTrips();
+        final Set<Trip> allTrips = tripRepository.getTrips();
 
-        Set<StopCall> missingStations = allTrips.stream().flatMap(trip -> trip.getStopCalls().stream()).
+        final Set<StopCall> missingStations = allTrips.stream().
+                flatMap(trip -> trip.getStopCalls().stream()).
                 filter(stopCall -> !stationRepository.hasStationId(stopCall.getStationId())).
                 collect(Collectors.toSet());
 
         if (!missingStations.isEmpty()) {
-            final String message = "Missing stations found in stopscall " + missingStations.size();
+            final String message = "Missing stations found in stopcalls " + missingStations.size();
             logger.error(message);
             throw new RuntimeException(message);
         }
@@ -80,7 +81,7 @@ public class StopCallRepository  {
                 flatMap(trip -> trip.getStopCalls().stream()).
                 forEach(stopCall -> stopCalls.get(stopCall.getStation()).add(stopCall));
 
-        long noStops = stopCalls.entrySet().stream().
+        final long noStops = stopCalls.entrySet().stream().
                 filter(entry -> entry.getValue().isEmpty()).
                 count();
 
