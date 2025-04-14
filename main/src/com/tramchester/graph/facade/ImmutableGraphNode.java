@@ -36,14 +36,17 @@ public class ImmutableGraphNode implements GraphNode {
     private final IdCache<Trip> tripId;
     private final IdCache<Service> serviceId;
     private final IdCache<RouteStation> routeStationId;
+    private final LabelsCache labels;
 
     ImmutableGraphNode(final MutableGraphNode underlying) {
         this.underlying = underlying;
         this.nodeId = underlying.getId();
+
         stationId = new IdCache<>(Station.class);
         tripId = new IdCache<>(Trip.class);
         serviceId = new IdCache<>(Service.class);
         routeStationId = new IdCache<>(RouteStation.class);
+        labels = new LabelsCache();
     }
 
     public static WeightedPath findSinglePath(PathFinder<WeightedPath> finder, GraphNode startNode, GraphNode endNode) {
@@ -85,7 +88,8 @@ public class ImmutableGraphNode implements GraphNode {
 
     @Override
     public boolean hasLabel(final GraphLabel graphLabel) {
-        return underlying.hasLabel(graphLabel);
+        return labels.has(graphLabel);
+        //return underlying.hasLabel(graphLabel);
     }
 
     @Override
@@ -136,7 +140,8 @@ public class ImmutableGraphNode implements GraphNode {
 
     @Override
     public EnumSet<GraphLabel> getLabels() {
-        return underlying.getLabels();
+        return labels.get();
+        //return underlying.getLabels();
     }
 
     @Override
@@ -234,6 +239,35 @@ public class ImmutableGraphNode implements GraphNode {
             }
             return present;
         }
+    }
+
+    private class LabelsCache {
+
+        // relying on always having at least one label when creating a node
+        private EnumSet<GraphLabel> contents;
+
+        public LabelsCache() {
+            contents = EnumSet.noneOf(GraphLabel.class);
+        }
+
+        synchronized public boolean has(final GraphLabel graphLabel) {
+            if (contents.isEmpty()) {
+                fetch();
+            }
+            return contents.contains(graphLabel);
+        }
+
+        synchronized public EnumSet<GraphLabel> get() {
+            if (contents.isEmpty()) {
+                fetch();
+            }
+            return contents;
+        }
+
+        private void fetch() {
+            contents = underlying.getLabels();
+        }
+
     }
 
     @Override

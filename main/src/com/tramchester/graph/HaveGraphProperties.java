@@ -65,8 +65,8 @@ public class HaveGraphProperties {
     }
 
     protected TramTime getTime(final Entity entity) {
-        LocalTime localTime = (LocalTime) entity.getProperty(TIME.getText());
-        boolean nextDay = entity.hasProperty(DAY_OFFSET.getText());
+        final LocalTime localTime = (LocalTime) entity.getProperty(TIME.getText());
+        final boolean nextDay = entity.hasProperty(DAY_OFFSET.getText());
         if (nextDay) {
             return TramTime.nextDay(localTime.getHour(), localTime.getMinute());
         }

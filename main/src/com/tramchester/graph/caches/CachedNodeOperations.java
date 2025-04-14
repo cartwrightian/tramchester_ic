@@ -38,7 +38,7 @@ public class CachedNodeOperations implements NodeContentsRepository {
 
     private final Cache<GraphNodeId, TramTime> timeNodeCache;
 
-    private final Cache<GraphNodeId, EnumSet<GraphLabel>> labelCache;
+    //private final Cache<GraphNodeId, EnumSet<GraphLabel>> labelCache;
 
     private final NumberOfNodesAndRelationshipsRepository numberOfNodesAndRelationshipsRepository;
 
@@ -49,15 +49,6 @@ public class CachedNodeOperations implements NodeContentsRepository {
         relationshipCostCache = createCache("relationshipCostCache", numberFor(TransportRelationshipTypes.haveCosts()));
         tripIdRelationshipCache = createCache("tripIdRelationshipCache", numberFor(TransportRelationshipTypes.haveTripId()));
         timeNodeCache = createCache("timeNodeCache", GraphLabel.MINUTE);
-
-        long numberOfNodes = numberOfNodesAndRelationshipsRepository.numberOfNodes();
-
-        // expire after write gives significany perf improvement, less work to do with each get
-        labelCache = Caffeine.newBuilder().
-                maximumSize(numberOfNodes * 3).
-                expireAfterWrite(10, TimeUnit.MINUTES).
-                initialCapacity(40000).
-                recordStats().build();
 
         cacheMetrics.register(this::reportStats);
     }
@@ -75,7 +66,6 @@ public class CachedNodeOperations implements NodeContentsRepository {
         relationshipCostCache.invalidateAll();
         tripIdRelationshipCache.invalidateAll();
         timeNodeCache.invalidateAll();
-        labelCache.invalidateAll();
     }
 
     @NonNull
@@ -97,7 +87,7 @@ public class CachedNodeOperations implements NodeContentsRepository {
         result.add(Pair.of("relationshipCostCache",relationshipCostCache.stats()));
         result.add(Pair.of("tripIdRelationshipCache", tripIdRelationshipCache.stats()));
         result.add(Pair.of("timeNodeCache", timeNodeCache.stats()));
-        result.add(Pair.of("labelCache", labelCache.stats()));
+        //result.add(Pair.of("labelCache", labelCache.stats()));
 
         return result;
     }
@@ -114,8 +104,7 @@ public class CachedNodeOperations implements NodeContentsRepository {
 
     @Override
     public EnumSet<GraphLabel> getLabels(final GraphNode node) {
-        final GraphNodeId nodeId = node.getId();
-        return labelCache.get(nodeId, id -> node.getLabels());
+        return node.getLabels();
     }
 
     @Override

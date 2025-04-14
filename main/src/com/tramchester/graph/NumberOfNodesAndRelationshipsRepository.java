@@ -71,12 +71,12 @@ class NumberOfNodesAndRelationshipsRepository {
     }
 
 
-    public long numberOfNodes() {
-        try (MutableGraphTransaction txn = graphDatabase.beginTxMutable()) {
-            return getCountFromQuery(txn, "MATCH (n)\n" +
-                    "RETURN count(n) as count");
-        }
-    }
+//    public long numberOfNodes() {
+//        try (MutableGraphTransaction txn = graphDatabase.beginTxMutable()) {
+//            return getCountFromQuery(txn, "MATCH (n)\n" +
+//                    "RETURN count(n) as count");
+//        }
+//    }
 
     private long getCountFromQuery(final MutableGraphTransaction txn, final String query) {
         final Result result = txn.execute(query);
