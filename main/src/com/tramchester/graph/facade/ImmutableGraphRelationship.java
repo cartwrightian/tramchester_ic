@@ -180,7 +180,11 @@ public class ImmutableGraphRelationship implements GraphRelationship {
         return underlying.getTripIds();
     }
 
-    @Override
+    /***
+     * Note: Assumes only called for relationships having TRIP_ID_LIST property, i.e. SERVICE_TO relationship type
+     * @param tripId The id for a trip
+     * @return true if trip id is contained in the list
+     */
     public boolean hasTripIdInList(final IdFor<Trip> tripId) {
         // caching here seemed to have minimal impact, likely not seeing repeat calls for the same trip ID
 //        return tripIdPresent.getOrPopulate(tripId, unused -> underlying.hasTripIdInList(tripId));

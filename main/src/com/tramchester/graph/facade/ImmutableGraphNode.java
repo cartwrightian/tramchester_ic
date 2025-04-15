@@ -172,6 +172,16 @@ public class ImmutableGraphNode implements GraphNode {
     }
 
     @Override
+    public boolean hasOutgoingServiceMatching(final GraphTransaction txn, final IdFor<Trip> tripId) {
+        return underlying.hasOutgoingServiceMatching(txn, tripId);
+    }
+
+    @Override
+    public Stream<ImmutableGraphRelationship> getOutgoingServiceMatching(final GraphTransaction txn, final IdFor<Trip> tripId) {
+        return underlying.getOutgoingServiceMatching(txn, tripId);
+    }
+
+    @Override
     public TransportMode getTransportMode() {
         return underlying.getTransportMode();
     }

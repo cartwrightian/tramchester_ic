@@ -461,13 +461,13 @@ class TramGraphBuilderTest {
 
             assertNotNull(routeStationNode);
 
-            List<ImmutableGraphRelationship> toService = routeStationNode.getRelationships(txn, Direction.OUTGOING, TO_SERVICE).
-                    filter(relationship -> relationship.hasTripIdInList(trip.getId())).
-                    toList();
-
+//            List<ImmutableGraphRelationship> toService = routeStationNode.getRelationships(txn, Direction.OUTGOING, TO_SERVICE).
+//                    filter(relationship -> relationship.hasTripIdInList(trip.getId())).
+//                    toList();
+            List<ImmutableGraphRelationship> toService = routeStationNode.getOutgoingServiceMatching(txn, trip.getId()).toList();
             assertEquals(1, toService.size());
 
-            GraphNode serviceNode = toService.get(0).getEndNode(txn);
+            GraphNode serviceNode = toService.getFirst().getEndNode(txn);
 
             assertEquals(trip.getService().getId(), serviceNode.getServiceId());
 
@@ -579,8 +579,10 @@ class TramGraphBuilderTest {
                 List<ImmutableGraphRelationship> toServices = routeStationNode.getRelationships(txn, Direction.OUTGOING, TO_SERVICE).toList();
                 assertFalse(toServices.isEmpty(), "to service links");
 
-                List<ImmutableGraphRelationship> toServicesForTrip = toServices.stream().
-                        filter(toService -> toService.hasTripIdInList(tripId)).toList();
+//                List<ImmutableGraphRelationship> toServicesForTrip = toServices.stream().
+//                        filter(toService -> toService.hasTripIdInList(tripId)).toList();
+
+                List<ImmutableGraphRelationship> toServicesForTrip = routeStationNode.getOutgoingServiceMatching(txn, tripId).toList();
 
                 if (seqNum!=endSeqNum) {
 

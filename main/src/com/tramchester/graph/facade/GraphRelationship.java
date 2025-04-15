@@ -74,8 +74,6 @@ public interface GraphRelationship {
 
     IdSet<Trip> getTripIds();
 
-    boolean hasTripIdInList(IdFor<Trip> tripId);
-
     DateRange getDateRange();
 
     TimeRange getTimeRange();

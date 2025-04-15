@@ -17,10 +17,7 @@ import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.testTags.DualTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.time.Duration;
@@ -66,7 +63,8 @@ class RouteCalculatorAllTramJourneysTest {
         closedRepository = componentContainer.get(ClosedStationsRepository.class);
     }
 
-    @Test
+    @RepeatedTest(5)
+    //@Test
     void shouldFindRouteEachStationToEveryOtherStream() {
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
 

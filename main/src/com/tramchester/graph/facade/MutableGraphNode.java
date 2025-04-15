@@ -27,6 +27,7 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 import static com.tramchester.graph.GraphPropertyKey.*;
+import static com.tramchester.graph.TransportRelationshipTypes.TO_SERVICE;
 
 public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
     private final Node node;
@@ -164,6 +165,18 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
     @Override
     public Stream<ImmutableGraphRelationship> getAllRelationships(final GraphTransaction txn, final Direction direction) {
         return node.getRelationships(direction).stream().map(txn::wrapRelationship);
+    }
+
+    @Override
+    public boolean hasOutgoingServiceMatching(GraphTransaction txn, IdFor<Trip> tripId) {
+        return getRelationships(txn, Direction.OUTGOING, TO_SERVICE).
+                anyMatch(relationship -> relationship.hasTripIdInList(tripId));
+    }
+
+    @Override
+    public Stream<ImmutableGraphRelationship> getOutgoingServiceMatching(GraphTransaction txn, IdFor<Trip> tripId) {
+        return getRelationships(txn, Direction.OUTGOING, TO_SERVICE).
+                filter(relationship -> relationship.hasTripIdInList(tripId));
     }
 
     @Override

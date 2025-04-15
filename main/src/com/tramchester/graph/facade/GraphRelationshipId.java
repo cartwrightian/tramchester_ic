@@ -8,13 +8,13 @@ import java.util.Objects;
 public class GraphRelationshipId {
     private final String internalId;
 
-    GraphRelationshipId(String internalId) {
+    GraphRelationshipId(final String internalId) {
         this.internalId = internalId;
     }
 
-    public static GraphRelationshipId TestOnly(long l) {
-        return new GraphRelationshipId(Long.toString(l));
-    }
+//    public static GraphRelationshipId TestOnly(long l) {
+//        return new GraphRelationshipId(Long.toString(l));
+//    }
 
     @Override
     public boolean equals(Object o) {
@@ -36,7 +36,7 @@ public class GraphRelationshipId {
                 '}';
     }
 
-    Relationship getRelationshipFrom(Transaction txn) {
+    Relationship getRelationshipFrom(final Transaction txn) {
         return txn.getRelationshipByElementId(internalId);
     }
 }

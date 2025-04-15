@@ -377,6 +377,32 @@ public class GraphPropsTest {
     }
 
     @Test
+    void shouldFindRelationshipsBasedOnTripId() {
+        IdFor<Trip> tripA = Trip.createId("tripA");
+        IdFor<Trip> tripB = Trip.createId("tripB");
+
+        MutableGraphNode nodeA = txn.createNode(GraphLabel.ROUTE_STATION);
+        MutableGraphNode nodeB = txn.createNode(GraphLabel.ROUTE_STATION);
+
+        MutableGraphRelationship serviceA = nodeA.createRelationshipTo(txn, nodeB, TransportRelationshipTypes.TO_SERVICE);
+
+        serviceA.addTripId(tripB);
+
+        assertFalse(nodeA.hasOutgoingServiceMatching(txn, tripA));
+        assertEquals(0, nodeA.getOutgoingServiceMatching(txn, tripA).count());
+
+        serviceA.addTripId(tripA);
+
+        assertTrue(nodeA.hasOutgoingServiceMatching(txn, tripA));
+        assertEquals(1, nodeA.getOutgoingServiceMatching(txn, tripA).count());
+    }
+
+//    @Test
+//    void shouldHaveTestComparingTripListPerformance() {
+//        fail();
+//    }
+
+    @Test
     void shouldAddTripIds() {
         MutableGraphRelationship relationship = createRelationship();
 

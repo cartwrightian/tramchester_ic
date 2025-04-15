@@ -9,13 +9,10 @@ import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.NodeId;
-import org.neo4j.graphdb.Direction;
 
 import java.time.Duration;
 import java.util.EnumSet;
 import java.util.stream.Stream;
-
-import static com.tramchester.graph.TransportRelationshipTypes.TO_SERVICE;
 
 public abstract class TraversalState extends EmptyTraversalState implements ImmutableTraversalState, NodeId {
 
@@ -179,7 +176,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
 
             IdFor<Trip> tripId = journeyState.getCurrentTrip();
 
-            if (hasOutboundTripFor(routeStationNode, tripId)) {
+            if (routeStationNode.hasOutgoingServiceMatching(txn, tripId)) {
                 return TraversalStateType.RouteStationStateOnTrip;
             } else {
                 return TraversalStateType.RouteStationStateEndTrip;
@@ -187,10 +184,6 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         } else {
             throw new RuntimeException("Unexpected from state " + currentStateType);
         }
-    }
-
-    private boolean hasOutboundTripFor(final GraphNode node, final IdFor<Trip> tripId) {
-        return node.getRelationships(txn, Direction.OUTGOING, TO_SERVICE).anyMatch(relationship -> relationship.hasTripIdInList(tripId));
     }
 
     public void toDestination(final TraversalState from, final GraphNode finalNode, final Duration cost, final JourneyStateUpdate journeyState) {

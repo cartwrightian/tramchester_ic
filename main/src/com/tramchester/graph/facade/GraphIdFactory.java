@@ -20,8 +20,6 @@ public class GraphIdFactory implements ReportsCacheStats {
 
     private static final EnumSet<GraphLabel> NO_LABELS = EnumSet.noneOf(GraphLabel.class);
 
-    //public static final Duration DEFAULT_EXPIRY = Duration.ofMinutes(5);
-
     private final Cache<String, GraphNodeId> nodeIds;
     private final Cache<String, GraphRelationshipId> relationshipIds;
     private final boolean diagnostics;

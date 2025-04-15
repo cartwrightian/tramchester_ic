@@ -437,6 +437,15 @@ public class TransportDataFromFilesTramTest {
         assertEquals(TramDepartureFactory.TRAFFORD_CENTER_PLATFORM2, platform.getId().getGraphId());
     }
 
+//    @Test
+//    void shouldFindMaxNumberTripsForAService() {
+//
+//        Map<IdFor<Service>, AtomicInteger> tripsPerService = new HashMap<>();
+//
+//        transportData.getServices().forEach(service -> tripsPerService.put(service.getId(), new AtomicInteger(0)));
+//        transportData.getTrips().forEach(trip -> tripsPerService.get(trip.getService().getId()).incrementAndGet());
+//    }
+
     @Disabled("Performance tests")
     @Test
     void shouldLoadData() {

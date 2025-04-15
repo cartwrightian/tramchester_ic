@@ -40,7 +40,7 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
 
         public RouteStationStateOnTrip fromMinuteState(final JourneyStateUpdate journeyState, final MinuteState minuteState,
                                                        final GraphNode routeStationNode, final Duration cost, final boolean isInterchange,
-                                                       final FilterRelationshipsByTripId filterRelationshipsByTripId, // TODO Remove this
+                                                       final GetOutgoingServicesMatchingTripId getOutgoingServicesMatchingTripId, // TODO Remove this
                                                        final GraphTransaction txn) {
             // todo, use label and/or cache this - perf impact currently low
             final TransportMode transportMode = routeStationNode.getTransportMode();
@@ -54,7 +54,7 @@ public class RouteStationStateOnTrip extends RouteStationState implements NodeId
             }
 
             // outbound service relationships that continue the current trip
-            final Stream<ImmutableGraphRelationship> towardsServiceForTrip = filterRelationshipsByTripId.apply(txn, routeStationNode);
+            final Stream<ImmutableGraphRelationship> towardsServiceForTrip = getOutgoingServicesMatchingTripId.apply(txn, routeStationNode);
 
             // now add outgoing to platforms/stations
             final Stream<ImmutableGraphRelationship> outboundsToFollow = getOutboundsToFollow(routeStationNode, isInterchange, txn);

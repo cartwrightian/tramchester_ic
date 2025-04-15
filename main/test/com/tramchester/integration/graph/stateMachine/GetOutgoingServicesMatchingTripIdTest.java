@@ -15,7 +15,7 @@ import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.ImmutableGraphNode;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
-import com.tramchester.graph.search.stateMachine.FilterRelationshipsByTripId;
+import com.tramchester.graph.search.stateMachine.GetOutgoingServicesMatchingTripId;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfigWithGroupsEnabled;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
@@ -33,7 +33,7 @@ import static com.tramchester.testSupport.reference.TramStations.Altrincham;
 import static com.tramchester.testSupport.reference.TramStations.NavigationRoad;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class FilterRelationshipsByTripIdTest {
+public class GetOutgoingServicesMatchingTripIdTest {
     private static GuiceContainerDependencies componentContainer;
     private GraphTransaction txn;
     private StationRepository stationRepository;
@@ -101,9 +101,9 @@ public class FilterRelationshipsByTripIdTest {
 
         assertTrue(callingTrips.size()>1);
 
-        IdFor<Trip> tripId = callingTrips.get(0).getId();
+        IdFor<Trip> tripId = callingTrips.getFirst().getId();
 
-        FilterRelationshipsByTripId filter = new FilterRelationshipsByTripId(tripId);
+        GetOutgoingServicesMatchingTripId filter = new GetOutgoingServicesMatchingTripId(tripId);
 
         List<ImmutableGraphRelationship> results = filter.apply(txn, node).toList();
 

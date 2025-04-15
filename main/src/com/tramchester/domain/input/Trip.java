@@ -14,7 +14,7 @@ import com.tramchester.graph.GraphPropertyKey;
 
 public interface Trip extends HasId<Trip>, HasTransportMode, GraphProperty, CoreDomain {
 
-    static IdFor<Trip> createId(String text) {
+    static IdFor<Trip> createId(final String text) {
         return StringIdFor.createId(text, Trip.class);
     }
 

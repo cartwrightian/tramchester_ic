@@ -41,7 +41,7 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
     private final Relationship relationship;
     private final GraphRelationshipId id;
 
-    private static final String tripIdProperty = TRIP_ID_LIST.getText();
+    private static final String tripIdListProperty = TRIP_ID_LIST.getText();
 
     private ImmutableGraphNode endNode;
 
@@ -195,13 +195,13 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
 
     public void addTripId(final IdFor<Trip> tripId) {
         final String text = tripId.getGraphId();
-        if (!(relationship.hasProperty(tripIdProperty))) {
-            relationship.setProperty(tripIdProperty, new String[]{text});
+        if (!(relationship.hasProperty(tripIdListProperty))) {
+            relationship.setProperty(tripIdListProperty, new String[]{text});
             return;
         }
         // else
 
-        final String[] existing = getTripIdProperty();
+        final String[] existing = getTripIdList();
 
         // depends on the sort below
         if (Arrays.binarySearch(existing, text)>0) {
@@ -216,35 +216,36 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
         final String[] replacement = Arrays.copyOf(existing, existing.length + 1);
         replacement[existing.length] = text;
         Arrays.sort(existing);
-        relationship.setProperty(tripIdProperty, replacement);
+        relationship.setProperty(tripIdListProperty, replacement);
     }
 
 
     public IdSet<Trip> getTripIds() {
-        if (!relationship.hasProperty(tripIdProperty)) {
+        if (!relationship.hasProperty(tripIdListProperty)) {
             return IdSet.emptySet();
         }
-        final String[] existing = getTripIdProperty();
+        final String[] existing = getTripIdList();
 
         return Arrays.stream(existing).map(Trip::createId).collect(IdSet.idCollector());
     }
 
-    @Override
+    /***
+     * Note: Assumes only called for relationships having TRIP_ID_LIST property, i.e. SERVICE_TO relationship type
+     * @param tripId The id for a trip
+     * @return true if trip id is contained in the list
+     */
     public boolean hasTripIdInList(final IdFor<Trip> tripId) {
         final String text = tripId.getGraphId();
 
-        if (!relationship.hasProperty(tripIdProperty)) {
-            throw new RuntimeException("Unexpected for this relationship " + this);
-        }
-        final String[] existing = getTripIdProperty();
+        final String[] existing = getTripIdList();
         // NOTE: assumed sorted
 //        return (Arrays.binarySearch(existing, text)>=0);
         final List<String> existingList = Arrays.asList(existing);
         return existingList.contains(text);
     }
 
-    private String[] getTripIdProperty() {
-        return (String[]) relationship.getProperty(tripIdProperty);
+    private String[] getTripIdList() {
+        return (String[]) relationship.getProperty(tripIdListProperty);
     }
 
     public void delete() {

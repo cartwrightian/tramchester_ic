@@ -22,7 +22,7 @@ import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.JourneyStateUpdate;
-import com.tramchester.graph.search.stateMachine.FilterRelationshipsByTripId;
+import com.tramchester.graph.search.stateMachine.GetOutgoingServicesMatchingTripId;
 import com.tramchester.graph.search.stateMachine.TowardsDestination;
 import com.tramchester.graph.search.stateMachine.states.*;
 import com.tramchester.integration.testSupport.tram.IntegrationTramTestConfig;
@@ -117,7 +117,7 @@ public class TraversalStateTest extends EasyMockSupport {
 
         boolean isInterchange = true;
         Trip trip = findATrip(route, TraffordBar.getId());
-        FilterRelationshipsByTripId filterByTrip = new FilterRelationshipsByTripId(trip.getId());
+        GetOutgoingServicesMatchingTripId filterByTrip = new GetOutgoingServicesMatchingTripId(trip.getId());
 
         replayAll();
         RouteStationStateOnTrip routeStationStateOnTrip = builder.fromMinuteState(updateState, minuteState, routeStationNode, cost, isInterchange,
@@ -205,7 +205,7 @@ public class TraversalStateTest extends EasyMockSupport {
 
         boolean isInterchange = true;
 
-        FilterRelationshipsByTripId filterByTrip = new FilterRelationshipsByTripId(trip.getId());
+        GetOutgoingServicesMatchingTripId filterByTrip = new GetOutgoingServicesMatchingTripId(trip.getId());
 
         replayAll();
         RouteStationStateOnTrip routeStationStateOnTrip = builder.fromMinuteState(updateState, minuteState, routeStationNode,

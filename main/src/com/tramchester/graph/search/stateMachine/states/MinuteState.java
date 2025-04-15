@@ -8,7 +8,7 @@ import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
 import com.tramchester.graph.search.JourneyStateUpdate;
-import com.tramchester.graph.search.stateMachine.FilterRelationshipsByTripId;
+import com.tramchester.graph.search.stateMachine.GetOutgoingServicesMatchingTripId;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
 
@@ -85,8 +85,8 @@ public class MinuteState extends TraversalState implements HasTowardsStationId {
     protected RouteStationStateOnTrip toRouteStationOnTrip(final RouteStationStateOnTrip.Builder towardsRouteStation, JourneyStateUpdate journeyState,
                                                            final GraphNode routeStationNode, final Duration cost, final boolean isInterchange) {
 
-        final FilterRelationshipsByTripId filterRelationshipsByTripId = new FilterRelationshipsByTripId(journeyState.getCurrentTrip());
-        return towardsRouteStation.fromMinuteState(journeyState, this, routeStationNode, cost, isInterchange, filterRelationshipsByTripId, txn);
+        final GetOutgoingServicesMatchingTripId getOutgoingServicesMatchingTripId = new GetOutgoingServicesMatchingTripId(journeyState.getCurrentTrip());
+        return towardsRouteStation.fromMinuteState(journeyState, this, routeStationNode, cost, isInterchange, getOutgoingServicesMatchingTripId, txn);
     }
 
     @Override

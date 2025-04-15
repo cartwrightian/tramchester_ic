@@ -102,7 +102,7 @@ public class GraphTransactionFactory implements MutableGraphTransaction.Transact
         private final Map<Integer,GraphTransaction> openTransactions;
         private final Map<Integer, StackTraceElement[]> diagnostics;
         private final Set<Integer> commited;
-        private AtomicBoolean closed;
+        private final AtomicBoolean closed;
 
         private State() {
             openTransactions = new HashMap<>();
