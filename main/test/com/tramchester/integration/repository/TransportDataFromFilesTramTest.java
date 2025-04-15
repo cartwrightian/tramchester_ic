@@ -42,6 +42,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static com.tramchester.domain.reference.CentralZoneStation.StPetersSquare;
@@ -437,14 +438,20 @@ public class TransportDataFromFilesTramTest {
         assertEquals(TramDepartureFactory.TRAFFORD_CENTER_PLATFORM2, platform.getId().getGraphId());
     }
 
-//    @Test
-//    void shouldFindMaxNumberTripsForAService() {
-//
-//        Map<IdFor<Service>, AtomicInteger> tripsPerService = new HashMap<>();
-//
-//        transportData.getServices().forEach(service -> tripsPerService.put(service.getId(), new AtomicInteger(0)));
-//        transportData.getTrips().forEach(trip -> tripsPerService.get(trip.getService().getId()).incrementAndGet());
-//    }
+    @Test
+    void shouldFindMaxNumberTripsForAService() {
+
+        // here to find how many trips we might see for each service
+
+        Map<IdFor<Service>, AtomicInteger> tripsPerService = new HashMap<>();
+
+        transportData.getServices().forEach(service -> tripsPerService.put(service.getId(), new AtomicInteger(0)));
+        transportData.getTrips().forEach(trip -> tripsPerService.get(trip.getService().getId()).incrementAndGet());
+
+        int maximumNumberOfTrips = tripsPerService.values().stream().map(AtomicInteger::get).max(Integer::compare).orElse(-1);
+
+        assertEquals(1535, maximumNumberOfTrips);
+    }
 
     @Disabled("Performance tests")
     @Test

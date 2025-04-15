@@ -250,6 +250,17 @@ public class MutableGraphTransaction implements GraphTransaction {
         return wrapNodeAsImmutable(relationship.getEndNode());
     }
 
+    /***
+     * Diagnostic support only @See GraphTestHelper
+     * Do not use
+     * @param graphRelationship the relationship we want to find
+     * @return the underlying object
+     */
+    Relationship unwrap(GraphRelationship graphRelationship) {
+        final String elementId = idFactory.getUnderlyingFor(graphRelationship.getId());
+        return txn.getRelationshipByElementId(elementId);
+    }
+
     interface TransactionObserver {
         void onClose(GraphTransaction graphTransaction);
         void onCommit(GraphTransaction graphTransaction);

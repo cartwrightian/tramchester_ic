@@ -14,6 +14,8 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentMap;
 
 public class GraphIdFactory implements ReportsCacheStats {
     private static final Logger logger = LoggerFactory.getLogger(GraphIdFactory.class);
@@ -57,6 +59,28 @@ public class GraphIdFactory implements ReportsCacheStats {
         return relationshipIds.get(internalId, GraphRelationshipId::new);
     }
 
+    /***
+     * Diagnostics support only, see GraphTestHelp
+     * Do not use directly
+     * @param graphRelationshipId the id of the underlying relationship we want to find
+     * @return the ElementId of the neo4 Relationship
+     */
+    String getUnderlyingFor(final GraphRelationshipId graphRelationshipId) {
+        final ConcurrentMap<String, GraphRelationshipId> map = relationshipIds.asMap();
+        final List<String> matching = map.entrySet().stream().
+                filter(entry -> entry.getValue().equals(graphRelationshipId)).
+                map(Map.Entry::getKey).
+                toList();
+        if (matching.size()==1) {
+            return matching.getFirst();
+        }
+        if (matching.isEmpty()) {
+            throw new RuntimeException("Could not find " + graphRelationshipId);
+        } else {
+            throw new RuntimeException("Found too many matching elementIds [" + matching + "] for " + graphRelationshipId);
+        }
+    }
+
     public void close() {
         stats().forEach(pair -> logger.info("Cache stats for " + pair.getLeft() + " " + pair.getRight().toString()));
         relationshipIds.invalidateAll();
@@ -72,5 +96,6 @@ public class GraphIdFactory implements ReportsCacheStats {
 
         return results;
     }
+
 
 }

@@ -168,7 +168,7 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
     }
 
     @Override
-    public boolean hasOutgoingServiceMatching(GraphTransaction txn, IdFor<Trip> tripId) {
+    public boolean hasOutgoingServiceMatching(final GraphTransaction txn, final IdFor<Trip> tripId) {
         return getRelationships(txn, Direction.OUTGOING, TO_SERVICE).
                 anyMatch(relationship -> relationship.hasTripIdInList(tripId));
     }

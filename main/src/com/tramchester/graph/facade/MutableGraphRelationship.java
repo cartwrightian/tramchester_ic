@@ -204,21 +204,17 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
         final String[] existing = getTripIdList();
 
         // depends on the sort below
+        // TODO use the output here to find place to split array, vs copy below?
         if (Arrays.binarySearch(existing, text)>0) {
             return;
         }
-//        final List<String> existingList = Arrays.asList(existing);
-//        if (existingList.contains(text)) {
-//            return;
-//        }
-        //else
 
         final String[] replacement = Arrays.copyOf(existing, existing.length + 1);
         replacement[existing.length] = text;
-        Arrays.sort(existing);
+        // keep array sorted, so can use BinarySearch
+        Arrays.sort(replacement);
         relationship.setProperty(tripIdListProperty, replacement);
     }
-
 
     public IdSet<Trip> getTripIds() {
         if (!relationship.hasProperty(tripIdListProperty)) {
@@ -238,10 +234,9 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
         final String text = tripId.getGraphId();
 
         final String[] existing = getTripIdList();
-        // NOTE: assumed sorted
-//        return (Arrays.binarySearch(existing, text)>=0);
-        final List<String> existingList = Arrays.asList(existing);
-        return existingList.contains(text);
+        // NOTE: array MUST be sorted, see above addTripId
+        // conversion to a list or similar much slower
+        return Arrays.binarySearch(existing, text) >= 0;
     }
 
     private String[] getTripIdList() {

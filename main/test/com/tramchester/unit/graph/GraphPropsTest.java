@@ -25,10 +25,7 @@ import com.tramchester.geo.BoundingBox;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.TransportRelationshipTypes;
-import com.tramchester.graph.facade.GraphNode;
-import com.tramchester.graph.facade.MutableGraphNode;
-import com.tramchester.graph.facade.MutableGraphRelationship;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.integration.testSupport.rail.RailStationIds;
 import com.tramchester.testSupport.TestEnv;
@@ -38,13 +35,13 @@ import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.reference.TramTransportDataForTestFactory;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
+import org.neo4j.graphdb.Relationship;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
+import static com.tramchester.graph.GraphPropertyKey.TRIP_ID_LIST;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class GraphPropsTest {
@@ -55,6 +52,9 @@ public class GraphPropsTest {
     private static UnitTestOfGraphConfig config;
     private MutableGraphTransaction txn;
     private MutableGraphNode node;
+
+    // See TransportDataFromFilesTramTest for test that gets this number
+    private static final int maxTripsForService = 1535;
 
     @BeforeAll
     static void onceBeforeAllTestRuns() throws IOException {
@@ -397,10 +397,56 @@ public class GraphPropsTest {
         assertEquals(1, nodeA.getOutgoingServiceMatching(txn, tripA).count());
     }
 
-//    @Test
-//    void shouldHaveTestComparingTripListPerformance() {
-//        fail();
-//    }
+    @Test
+    void shouldPopulateTripIdsForServiceRelationshipsAsExpected() {
+
+        MutableGraphNode nodeA = txn.createNode(GraphLabel.ROUTE_STATION);
+        MutableGraphNode nodeB = txn.createNode(GraphLabel.ROUTE_STATION);
+
+        MutableGraphRelationship serviceRelationship = nodeA.createRelationshipTo(txn, nodeB, TransportRelationshipTypes.TO_SERVICE);
+
+        // add maxTripsForService trip id's to the relationship
+        IdSet<Trip> unsortedTripIds = addRandomTripIdsToRelationship(serviceRelationship);
+
+        IdSet<Trip> fromService = serviceRelationship.getTripIds();
+        assertEquals(maxTripsForService, fromService.size());
+        assertTrue(unsortedTripIds.containsAll(fromService));
+
+        GraphTestHelper graphTestHelper = new GraphTestHelper();
+
+        final Relationship relationship = graphTestHelper.getUnderlyingUnsafe(txn, serviceRelationship);
+
+        List<IdFor<Trip>> sortedTripIds = unsortedTripIds.stream().
+                sorted(Comparator.comparing(IdFor::getGraphId)).
+                toList();
+
+        String[] directFromRelationship = (String[]) relationship.getProperty(TRIP_ID_LIST.getText());
+        assertEquals(maxTripsForService, directFromRelationship.length);
+
+        // check sorted as expected
+        for (int i = 0; i < directFromRelationship.length; i++) {
+            final String tripIdText = sortedTripIds.get(i).getGraphId();
+            assertEquals(tripIdText, directFromRelationship[i], "mismatch on " + i);
+        }
+
+        unsortedTripIds.forEach(tripId -> assertTrue(nodeA.hasOutgoingServiceMatching(txn, tripId), "Failed for " + tripId));
+    }
+
+    @Disabled("performance testing only")
+    @Test
+    void shouldTryPerformanceOfOutgoingServiceCheck() {
+        MutableGraphNode nodeA = txn.createNode(GraphLabel.ROUTE_STATION);
+        MutableGraphNode nodeB = txn.createNode(GraphLabel.ROUTE_STATION);
+
+        MutableGraphRelationship serviceRelationship = nodeA.createRelationshipTo(txn, nodeB, TransportRelationshipTypes.TO_SERVICE);
+
+        IdSet<Trip> unsortedTripIds = addRandomTripIdsToRelationship(serviceRelationship);
+
+        for (int count = 0; count < 10000; count++) {
+            unsortedTripIds.forEach(tripId -> assertTrue(nodeA.hasOutgoingServiceMatching(txn, tripId), "Failed for " + tripId));
+        }
+
+    }
 
     @Test
     void shouldAddTripIds() {
@@ -500,6 +546,21 @@ public class GraphPropsTest {
         MutableGraphNode nodeB = txn.createNode(GraphLabel.ROUTE_STATION);
 
         return nodeA.createRelationshipTo(txn, nodeB, TransportRelationshipTypes.ON_ROUTE);
+    }
+
+    private @NotNull IdSet<Trip> addRandomTripIdsToRelationship(MutableGraphRelationship serviceRelationship) {
+        IdSet<Trip> unsortedTripIds = IdSet.emptySet();
+        Random random = new Random();
+        random.ints(0, 100000).
+                distinct().
+                limit(maxTripsForService).
+                forEach(number -> {
+                    final IdFor<Trip> tripId = Trip.createId(String.format("trip_%d", number));
+                    serviceRelationship.addTripId(tripId);
+                    unsortedTripIds.add(tripId);
+                });
+        assertEquals(maxTripsForService, unsortedTripIds.size(), "sanity check failed");
+        return unsortedTripIds;
     }
 
 }
