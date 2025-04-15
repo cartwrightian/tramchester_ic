@@ -16,6 +16,7 @@ import com.tramchester.repository.RunningRoutesAndServices;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
+import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import org.apache.commons.collections4.SetUtils;
 import org.junit.jupiter.api.AfterAll;
@@ -159,7 +160,13 @@ public class RunningRoutesAndServicesTest {
         final EnumSet<DayOfWeek> weekdays = EnumSet.of(MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY);
         final EnumSet<DayOfWeek> saturdays = EnumSet.of(SATURDAY);
 
-        final TramDate testDay = TestEnv.nextMonday();
+        TramDate testDay = TestEnv.nextMonday();
+
+        // need to skip over cut-over of services from old to new working pattern
+        TramDate cutOver = UpcomingDates.HighStreetAndChurchStreetWorks.getEndDate();
+        if (testDay.plusDays(3).equals(cutOver)) {
+            testDay = testDay.plusWeeks(1);
+        }
 
         final TramDate tuesdayDate = testDay.plusDays(1);
         final TramDate fridayDate = getFridayAfter(tuesdayDate);
@@ -195,7 +202,6 @@ public class RunningRoutesAndServicesTest {
         // double check contains range does contain next tuesday & friday
         assertTrue(weekdayDateRange.contains(tuesdayDate), weekdayDateRange + " not contain " + tuesdayDate);
         assertTrue(weekdayDateRange.contains(fridayDate), weekdayDateRange + " not contain " + fridayDate);
-
 
         // services operating on tuesday and on nextTuesday
         List<Service> tuesdayServices = weekdayServices.stream().

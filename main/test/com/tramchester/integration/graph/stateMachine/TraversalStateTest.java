@@ -19,6 +19,7 @@ import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
+import com.tramchester.graph.graphbuild.StagedTransportGraphBuilder;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.JourneyStateUpdate;
 import com.tramchester.graph.search.stateMachine.FilterRelationshipsByTripId;
@@ -71,6 +72,7 @@ public class TraversalStateTest extends EasyMockSupport {
         RouteRepository routeRepository = componentContainer.get(RouteRepository.class);
         tramRouteHelper = new TramRouteHelper(routeRepository);
         stationRepository = componentContainer.get(StationRepository.class);
+
         GraphDatabase database = componentContainer.get(GraphDatabase.class);
         txn = database.beginTx();
         when = TestEnv.testDay();
@@ -80,6 +82,8 @@ public class TraversalStateTest extends EasyMockSupport {
 
         cornbrook = Cornbrook.from(stationRepository);
 
+        // need built DB for these tests
+        componentContainer.get(StagedTransportGraphBuilder.Ready.class);
     }
 
     @AfterEach
@@ -91,6 +95,7 @@ public class TraversalStateTest extends EasyMockSupport {
     void shouldHaveDestinationOutboundWhenAvailableOnTrip() {
 
         TowardsDestination towardsDestination = new TowardsDestination(cornbrook);
+
         StateBuilderParameters builderParameters = new StateBuilderParameters(when, time,
                 towardsDestination, config, TramsOnly);
 
@@ -107,6 +112,8 @@ public class TraversalStateTest extends EasyMockSupport {
         RouteStation routeStation = new RouteStation(cornbrook, route);
 
         GraphNode routeStationNode = txn.findNode(routeStation);
+
+        assertNotNull(routeStationNode);
 
         boolean isInterchange = true;
         Trip trip = findATrip(route, TraffordBar.getId());
@@ -150,10 +157,13 @@ public class TraversalStateTest extends EasyMockSupport {
 
         GraphNode routeStationNode = txn.findNode(routeStation);
 
+        assertNotNull(routeStationNode, "is the db built?");
+
         boolean isInterchange = true;
 
         replayAll();
-        RouteStationStateEndTrip routeStationStateOnTrip = builder.fromMinuteState(updateState, minuteState, routeStationNode, cost, isInterchange, txn);
+        RouteStationStateEndTrip routeStationStateOnTrip = builder.fromMinuteState(updateState, minuteState, routeStationNode,
+                cost, isInterchange, txn);
         verifyAll();
 
         List<ImmutableGraphRelationship> outbounds = routeStationStateOnTrip.getOutbounds(txn).toList();
@@ -190,6 +200,8 @@ public class TraversalStateTest extends EasyMockSupport {
         RouteStation routeStation = new RouteStation(cornbrook, route);
 
         GraphNode routeStationNode = txn.findNode(routeStation);
+
+        assertNotNull(routeStationNode);
 
         boolean isInterchange = true;
 

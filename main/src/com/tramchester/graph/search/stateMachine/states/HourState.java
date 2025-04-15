@@ -50,7 +50,7 @@ public class HourState extends TraversalState implements HasTowardsStationId {
             if (depthFirst) {
                 // NOTE: need an ordering here to produce consistent results, time is as good as any and no obvious way to optimise
                 // the order here, unlike for HOURS
-                return unsorted.sorted(Comparator.comparing(relationship -> relationship.getEndNode(txn).getTime()));
+                return unsorted.sorted(Comparator.comparing(relationship -> relationship. getEndNode(txn).getTime()));
             } else {
                 return unsorted;
             }
