@@ -1,9 +1,6 @@
 package com.tramchester.domain;
 
-import com.tramchester.domain.dates.AggregateServiceCalendar;
-import com.tramchester.domain.dates.DateRange;
-import com.tramchester.domain.dates.ServiceCalendar;
-import com.tramchester.domain.dates.TramDate;
+import com.tramchester.domain.dates.*;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
@@ -188,13 +185,13 @@ public class MutableRoute implements Route {
     }
 
     private static class RouteCalendar {
-        private final Route parentRoute;
-        private AggregateServiceCalendar serviceCalendar;
+        private final Route owningRoute;
+        private ServiceCalendar serviceCalendar;
 
         private boolean loaded;
 
-        RouteCalendar(final Route parentRoute) {
-            this.parentRoute = parentRoute;
+        RouteCalendar(final Route owningRoute) {
+            this.owningRoute = owningRoute;
             loaded = false;
         }
 
@@ -208,10 +205,14 @@ public class MutableRoute implements Route {
             if (loaded) {
                 return;
             }
-            final Set<ServiceCalendar> calendars = parentRoute.getServices().stream().
+            final Set<ServiceCalendar> calendars = owningRoute.getServices().stream().
                     map(Service::getCalendar).
                     collect(Collectors.toSet());
-            serviceCalendar = new AggregateServiceCalendar(calendars);
+            if (calendars.isEmpty()) {
+                serviceCalendar = new EmptyServiceCalendar();
+            } else {
+                serviceCalendar = new AggregateServiceCalendar(calendars);
+            }
             loaded = true;
         }
 
@@ -235,7 +236,7 @@ public class MutableRoute implements Route {
         @Override
         public String toString() {
             return "RouteCalendar{" +
-                    "parent=" + parentRoute.getId() +
+                    "parent=" + owningRoute.getId() +
                     ", serviceCalendar=" + serviceCalendar +
                     ", loaded=" + loaded +
                     '}';

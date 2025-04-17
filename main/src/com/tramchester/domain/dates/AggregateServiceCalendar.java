@@ -18,7 +18,7 @@ public class AggregateServiceCalendar implements ServiceCalendar {
     private final boolean cancelled;
     private final DateRange aggregatedRange;
 
-    public AggregateServiceCalendar(Collection<ServiceCalendar> calendars) {
+    public AggregateServiceCalendar(final Collection<ServiceCalendar> calendars) {
 
         if (calendars.isEmpty()) {
             throw new RuntimeException("Cannot create aggregate for no calendars");

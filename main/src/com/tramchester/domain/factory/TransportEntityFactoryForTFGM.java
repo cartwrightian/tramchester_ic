@@ -270,9 +270,14 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
 
         // NOTE: this data issue has been reported to TFGM
         if (isMetrolink && routeType!=GTFSTransportationType.tram) {
-            logger.error("METROLINK Agency seen with transport type " + routeType.name() + " for " + routeData);
-            logger.warn("Setting transport type to " + GTFSTransportationType.tram.name() + " for " + routeData);
-            return GTFSTransportationType.tram;
+            if (routeData.getId().equals("2870")) {
+                logger.warn("Ignoring route with metrolink agency but not a tram " + routeData);
+                return routeType;
+            } else {
+                logger.error("METROLINK Agency seen with transport type " + routeType.name() + " for " + routeData);
+                logger.warn("Setting transport type to " + GTFSTransportationType.tram.name() + " for " + routeData);
+                return GTFSTransportationType.tram;
+            }
         }
 
         // NOTE: this data issue has been reported to TFGM

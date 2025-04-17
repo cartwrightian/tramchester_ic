@@ -177,6 +177,8 @@ public class TransportDataFromFilesTramTest {
 
     @Test
     void shouldHaveRoutesWithStationsAndCallingPoints() {
+        // Note, in logs check for "METROLINK Agency seen with transport type bus for"
+        // when this fails.....
         Set<Route> allTramRoutes = transportData.getRoutes(TramsOnly);
 
         Set<Station> allStations = transportData.getStations(TramsOnly);
