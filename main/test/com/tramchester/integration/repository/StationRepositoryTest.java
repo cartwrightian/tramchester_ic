@@ -83,14 +83,13 @@ public class StationRepositoryTest {
 
         IdSet<Station> dropOffs = allStations.stream().filter(station -> station.servesRouteDropOff(buryToAlty)).collect(IdSet.collector());
 
-        int expectedNumStations = 24;
+        int expectedNumStations = 27;
 
         assertEquals(expectedNumStations, dropOffs.size(), dropOffs.toString());
 
         assertTrue(dropOffs.contains(Altrincham.getId()));
         assertTrue(dropOffs.contains(Cornbrook.getId()));
-        // March/April 2025 closures
-        assertFalse(dropOffs.contains(Shudehill.getId()));
+        assertTrue(dropOffs.contains(Shudehill.getId()));
 
         assertTrue(dropOffs.contains(Bury.getId()));
 
@@ -100,7 +99,7 @@ public class StationRepositoryTest {
         assertTrue(pickUps.contains(Bury.getId()));
         assertTrue(pickUps.contains(Cornbrook.getId()));
         // March/April 2025 closures
-        assertFalse(pickUps.contains(Shudehill.getId()));
+        assertTrue(pickUps.contains(Shudehill.getId()));
         assertTrue(pickUps.contains(Altrincham.getId()));
     }
 
@@ -218,9 +217,8 @@ public class StationRepositoryTest {
                         getGreen(when),
                         getBlue(when),
                         getNavy(when),
-//                CrumpsallManchesterAshton,
                         getRed(when),
-//                        getEtihadPiccadillyAltrincham(when),
+                        getPurple(when),
                         getPink(when));
 
         IdSet<Route> expectedIds = expected.stream().

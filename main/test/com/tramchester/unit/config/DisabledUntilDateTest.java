@@ -14,10 +14,7 @@ import org.reflections.scanners.Scanners;
 import org.reflections.util.ConfigurationBuilder;
 
 import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -41,7 +38,7 @@ public class DisabledUntilDateTest {
 
         List<Method> expired = all.stream().
                 filter(method -> !method.getDeclaringClass().equals(this.getClass())).
-                sorted((a,b) -> a.getDeclaringClass().getName().compareTo(b.getDeclaringClass().getName())).
+                sorted(Comparator.comparing(a -> a.getDeclaringClass().getName())).
                 toList();
 
         assertEquals(Collections.emptyList(), expired, getMethodNamesAndLineNumbers(expired));

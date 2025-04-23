@@ -149,7 +149,7 @@ public class TransportDataFromFilesTramTest {
 
         Set<String> uniqueRouteNames = callingRoutes.stream().map(Route::getName).collect(Collectors.toSet());
 
-        assertEquals(1, uniqueRouteNames.size(), uniqueRouteNames.toString());
+        assertEquals(2, uniqueRouteNames.size(), uniqueRouteNames.toString());
     }
 
     @Test

@@ -535,7 +535,7 @@ public class RouteCalculatorTest {
     @Test
     void shouldReproIssueWithJourneysToEccles() {
 
-        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(9,0), maxNumResults, 1);
+        JourneyRequest journeyRequest = standardJourneyRequest(when, TramTime.of(9,0), maxNumResults, 2);
 
         assertGetAndCheckJourneys(journeyRequest, Bury, Broadway);
         assertGetAndCheckJourneys(journeyRequest, Bury, Eccles);

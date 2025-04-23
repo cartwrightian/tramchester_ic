@@ -64,6 +64,9 @@ public class UpcomingDates {
     }
 
     public static boolean validTestDate(final TramDate date) {
+        if (date.equals(MayDay2025)) {
+            return false;
+        }
         return !(date.isChristmasPeriod());
     }
 

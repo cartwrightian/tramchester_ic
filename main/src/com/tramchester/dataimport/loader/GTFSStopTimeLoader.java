@@ -237,7 +237,7 @@ public class GTFSStopTimeLoader {
             if (!buildable.hasStationId(stationId)) {
                 buildable.addStation(station);
                 if (!station.getLatLong().isValid()) {
-                    logger.warn("Station has invalid position " + station);
+                    logger.warn("Station has invalid position " + stationId);
                 }
             }
 

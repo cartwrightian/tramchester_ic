@@ -105,7 +105,7 @@ public class StationAvailabilityRepositoryTest {
         assertTrue(result.contains(TramTime.of(8,0)));
         assertFalse(result.contains(TramTime.of(3,0)));
 
-        assertEquals(TimeRangePartial.of(TramTime.of(5,10), TramTime.nextDay(0,48)), result);
+        assertEquals(TimeRangePartial.of(TramTime.of(5,12), TramTime.nextDay(0,48)), result);
     }
 
     @Test
@@ -160,7 +160,7 @@ public class StationAvailabilityRepositoryTest {
 
         Set<Route> results = availabilityRepository.getPickupRoutesFor(altrincham, when, timeRange, modes);
 
-        assertEquals(1, results.size(),
+        assertEquals(2, results.size(),
                 timeRange + " missing routes from " + altrincham.getId() + " got " + HasId.asIds(results));
     }
 

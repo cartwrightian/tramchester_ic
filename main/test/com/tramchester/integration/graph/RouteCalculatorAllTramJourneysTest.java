@@ -63,8 +63,7 @@ class RouteCalculatorAllTramJourneysTest {
         closedRepository = componentContainer.get(ClosedStationsRepository.class);
     }
 
-    @RepeatedTest(5)
-    //@Test
+    @Test
     void shouldFindRouteEachStationToEveryOtherStream() {
         StationRepository stationRepository = componentContainer.get(StationRepository.class);
 

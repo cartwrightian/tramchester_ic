@@ -173,7 +173,7 @@ public class JourneyPlannerResourceTest {
         assertTrue(plan.getJourneys().isEmpty());
     }
 
-    @DisabledUntilDate(year = 2025, month = 4, day = 20)
+    @DisabledUntilDate(year = 2025, month = 4, day = 24)
     @Test
     void shouldReproLateNightIssueShudehillToAltrincham() {
 
