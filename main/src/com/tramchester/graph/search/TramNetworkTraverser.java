@@ -40,16 +40,16 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
     private static final Logger logger = LoggerFactory.getLogger(TramNetworkTraverser.class);
 
     private final TramchesterConfig config;
-    private final GraphTransaction txn;
+    private final GraphTraverseTransaction txn;
     private final boolean fullLogging;
 
-    public TramNetworkTraverser(GraphTransaction txn, TramchesterConfig config, boolean fullLogging) {
+    public TramNetworkTraverser(ImmutableGraphTransaction txn, TramchesterConfig config, boolean fullLogging) {
         this.txn = txn;
         this.fullLogging = fullLogging;
         this.config = config;
     }
 
-    public Stream<Path> findPaths(final GraphTransaction txn, final RouteCalculatorSupport.PathRequest pathRequest,
+    public Stream<Path> findPaths(final ImmutableGraphTransaction txn, final RouteCalculatorSupport.PathRequest pathRequest,
                                   final PreviousVisits previousVisits, final ServiceReasons reasons, final LowestCostSeen lowestCostSeen,
                                   final Set<GraphNodeId> destinationNodeIds, final LocationCollection destinations,
                                   final TowardsDestination towardsDestination, final Running running) {
@@ -140,7 +140,7 @@ public class TramNetworkTraverser implements PathExpander<JourneyState> {
         journeyStateForChildren.updateTraversalState(traversalStateForChildren);
 
         graphState.setState(journeyStateForChildren);
-        final Stream<ImmutableGraphRelationship> outbounds = traversalStateForChildren.getOutbounds(txn);
+        final Stream<ImmutableGraphRelationship> outbounds = traversalStateForChildren.getOutbounds();
         return convertToIter(outbounds);
     }
 

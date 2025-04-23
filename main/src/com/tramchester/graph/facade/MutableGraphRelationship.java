@@ -260,7 +260,7 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
     }
 
     @Override
-    public GraphNodeId getStartNodeId(final GraphTransaction txn) {
+    public GraphNodeId getStartNodeId(final ImmutableGraphTransaction txn) {
         return getStartNode(txn).getId();
     }
 

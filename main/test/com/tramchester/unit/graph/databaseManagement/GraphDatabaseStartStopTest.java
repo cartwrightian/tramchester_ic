@@ -4,6 +4,7 @@ import com.tramchester.config.GTFSSourceConfig;
 import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.GraphDatabase;
+import com.tramchester.graph.caches.ImmutableNodeCache;
 import com.tramchester.graph.databaseManagement.GraphDatabaseLifecycleManager;
 import com.tramchester.integration.testSupport.config.IntegrationTestConfig;
 import com.tramchester.integration.testSupport.TestGroupType;
@@ -54,7 +55,8 @@ class GraphDatabaseStartStopTest extends EasyMockSupport {
         graphDatabaseService = createMock(GraphDatabaseService.class);
         dataSourceRepository = createMock(DataSourceRepository.class);
 
-        graphDatabase = new GraphDatabase(config, dataSourceRepository, lifecycleManager);
+        ImmutableNodeCache nodeCache = createMock(ImmutableNodeCache.class);
+        graphDatabase = new GraphDatabase(config, dataSourceRepository, lifecycleManager, nodeCache);
 
 
         Files.deleteIfExists(dbConfig.getDbPath());

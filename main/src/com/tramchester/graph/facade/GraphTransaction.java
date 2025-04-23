@@ -42,12 +42,6 @@ public interface GraphTransaction extends AutoCloseable {
 
     ImmutableGraphRelationship getRelationshipById(GraphRelationshipId graphRelationshipId);
 
-    ImmutableGraphNode fromEnd(Path path);
-
-    ImmutableGraphRelationship lastFrom(Path path);
-
-    ImmutableGraphNode fromStart(Path path);
-
     ImmutableGraphNode getStartNode(Relationship relationship);
 
     ImmutableGraphNode getEndNode(Relationship relationship);

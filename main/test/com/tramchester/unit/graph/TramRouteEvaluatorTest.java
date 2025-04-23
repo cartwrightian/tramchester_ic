@@ -24,10 +24,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.GridPosition;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.caches.PreviousVisits;
-import com.tramchester.graph.facade.GraphNodeId;
-import com.tramchester.graph.facade.ImmutableGraphNode;
-import com.tramchester.graph.facade.ImmutableGraphRelationship;
-import com.tramchester.graph.facade.MutableGraphTransaction;
+import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.JourneyState;
 import com.tramchester.graph.search.ServiceHeuristics;
@@ -78,7 +75,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
     private LowestCostSeen lowestCostSeen;
     private ProvidesNow providesNow;
     private Duration maxInitialWait;
-    private MutableGraphTransaction txn;
+    private ImmutableGraphTransaction txn;
     private LocationSet<Station> destinationStations;
     private TramTime queryTime;
 
@@ -117,7 +114,7 @@ class TramRouteEvaluatorTest extends EasyMockSupport {
 
         maxInitialWait = config.getInitialMaxWaitFor(DataSourceID.tfgm);
 
-        txn = createMock(MutableGraphTransaction.class);
+        txn = createMock(ImmutableGraphTransaction.class);
 
         destinationNodeId = GraphNodeId.TestOnly(88L);
         startNodeId = GraphNodeId.TestOnly(128L);

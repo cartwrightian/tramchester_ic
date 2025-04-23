@@ -21,7 +21,6 @@ import com.tramchester.graph.NumberOfNodesAndRelationshipsRepository;
 import com.tramchester.graph.caches.LowestCostSeen;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphNodeId;
-import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.ImmutableGraphTransaction;
 import com.tramchester.graph.search.diagnostics.CreateJourneyDiagnostics;
 import com.tramchester.graph.search.diagnostics.ServiceReasons;
@@ -164,7 +163,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
     }
 
 
-    private Stream<Journey> getSingleJourneyStream(final GraphTransaction txn, final GraphNode startNode, final GraphNode endNode,
+    private Stream<Journey> getSingleJourneyStream(final ImmutableGraphTransaction txn, final GraphNode startNode, final GraphNode endNode,
                                                    final JourneyRequest journeyRequest, final LocationCollection destinations,
                                                    final Duration maxInitialWait, final Running running) {
 
@@ -226,7 +225,7 @@ public class RouteCalculator extends RouteCalculatorSupport implements TramRoute
         return results;
     }
 
-    private Stream<Journey> getJourneyStream(final GraphTransaction txn, final GraphNode startNode, final GraphNode endNode,
+    private Stream<Journey> getJourneyStream(final ImmutableGraphTransaction txn, final GraphNode startNode, final GraphNode endNode,
                                              final LocationCollection destinations, final JourneyRequest journeyRequest,
                                              final List<TramTime> queryTimes, final int possibleMinNumChanges,
                                              final Duration maxInitialWait, Running running) {

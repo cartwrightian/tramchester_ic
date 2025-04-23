@@ -2,6 +2,7 @@ package com.tramchester.unit.graph.databaseManagement;
 
 import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.graph.caches.ImmutableNodeCache;
 import com.tramchester.graph.databaseManagement.GraphDatabaseLifecycleManager;
 import com.tramchester.graph.databaseManagement.GraphDatabaseServiceFactory;
 import com.tramchester.graph.databaseManagement.GraphDatabaseStoredVersions;
@@ -43,7 +44,8 @@ public class GraphDatabaseLifecycleManagerTest extends EasyMockSupport {
         serviceFactory = createMock(GraphDatabaseServiceFactory.class);
         storedVersions = createMock(GraphDatabaseStoredVersions.class);
         dataSourceRepos = createMock(DataSourceRepository.class);
-        graphDatabaseLifecycleManager = new GraphDatabaseLifecycleManager(config, serviceFactory, storedVersions);
+        ImmutableNodeCache nodeCache = createMock(ImmutableNodeCache.class);
+        graphDatabaseLifecycleManager = new GraphDatabaseLifecycleManager(config, serviceFactory, storedVersions, nodeCache);
     }
 
     @Test

@@ -56,7 +56,7 @@ class TramGraphBuilderTest {
     private static ComponentContainer componentContainer;
 
     private TransportData transportData;
-    private GraphTransaction txn;
+    private ImmutableGraphTransaction txn;
     private StationRepository stationRepository;
     private ServiceRepository serviceRepository;
 

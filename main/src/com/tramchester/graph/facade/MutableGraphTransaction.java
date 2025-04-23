@@ -8,6 +8,7 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.TransportRelationshipTypes;
+import com.tramchester.graph.caches.ImmutableNodeCache;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphalgo.BasicEvaluationContext;
@@ -26,12 +27,15 @@ public class MutableGraphTransaction implements GraphTransaction {
     private final GraphIdFactory idFactory;
     private final TransactionObserver transactionObserver;
     private final int transactionId;
+    private final ImmutableNodeCache nodeCache;
 
-    MutableGraphTransaction(final Transaction txn, final GraphIdFactory idFactory, final int transactionId, final TransactionObserver transactionObserver) {
+    MutableGraphTransaction(final Transaction txn, final GraphIdFactory idFactory, final int transactionId,
+                            final TransactionObserver transactionObserver, ImmutableNodeCache nodeCache) {
         this.txn = txn;
         this.idFactory = idFactory;
         this.transactionId = transactionId;
         this.transactionObserver = transactionObserver;
+        this.nodeCache = nodeCache;
     }
 
     /***
@@ -39,7 +43,7 @@ public class MutableGraphTransaction implements GraphTransaction {
      * @return GraphTransaction
      */
     public ImmutableGraphTransaction asImmutable() {
-        return new ImmutableGraphTransaction(this);
+        return new ImmutableGraphTransaction(this, nodeCache);
     }
 
     @Override
@@ -175,7 +179,7 @@ public class MutableGraphTransaction implements GraphTransaction {
         return wrapNodeAsImmutable(node);
     }
 
-    ImmutableGraphNode wrapNodeAsImmutable(final Node node) {
+    private ImmutableGraphNode wrapNodeAsImmutable(final Node node) {
         final MutableGraphNode underlying = wrapNodeAsMutable(node);
         return new ImmutableGraphNode(underlying);
     }
@@ -209,6 +213,14 @@ public class MutableGraphTransaction implements GraphTransaction {
             return null;
         }
         return wrapNodeAsImmutable(endNode);
+    }
+
+    public GraphNodeId idFromEnd(final Path path) {
+        final Node endNode = path.endNode();
+        if (endNode==null) {
+            throw new RuntimeException("End node of path is null for " + path);
+        }
+        return idFactory.getIdFor(endNode);
     }
 
     public ImmutableGraphRelationship lastFrom(final Path path) {

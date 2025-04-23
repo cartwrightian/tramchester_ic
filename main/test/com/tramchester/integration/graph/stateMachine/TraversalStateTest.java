@@ -125,7 +125,7 @@ public class TraversalStateTest extends EasyMockSupport {
                 txn);
         verifyAll();
 
-        List<ImmutableGraphRelationship> outbounds = routeStationStateOnTrip.getOutbounds(txn).toList();
+        List<ImmutableGraphRelationship> outbounds = routeStationStateOnTrip.getOutbounds().toList();
 
         assertEquals(cornbrook.getPlatforms().size(), outbounds.size(), outbounds.toString());
 
@@ -166,7 +166,7 @@ public class TraversalStateTest extends EasyMockSupport {
                 cost, isInterchange, txn);
         verifyAll();
 
-        List<ImmutableGraphRelationship> outbounds = routeStationStateOnTrip.getOutbounds(txn).toList();
+        List<ImmutableGraphRelationship> outbounds = routeStationStateOnTrip.getOutbounds().toList();
 
         assertEquals(cornbrook.getPlatforms().size(), outbounds.size(), outbounds.toString());
 
@@ -214,7 +214,7 @@ public class TraversalStateTest extends EasyMockSupport {
                 txn);
         verifyAll();
 
-        List<ImmutableGraphRelationship> outbounds = routeStationStateOnTrip.getOutbounds(txn).toList();
+        List<ImmutableGraphRelationship> outbounds = routeStationStateOnTrip.getOutbounds().toList();
 
         int numberOfPlatforms = cornbrook.getPlatforms().size();
 

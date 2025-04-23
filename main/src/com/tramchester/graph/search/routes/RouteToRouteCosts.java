@@ -33,6 +33,8 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -385,6 +387,8 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
         private final StationAvailabilityFacade changeStationOperating;
         private final IndexedBitSet dateOverlaps;
 
+        private final ConcurrentMap<Short, Integer> cache;
+
         public LowestCostForDestinations(BetweenRoutesCostRepository routeToRouteCosts, RouteIndexPairFactory pairFactory,
                                          Set<Route> destinationRoutes,
                                          TramDate date, TimeRange time, EnumSet<TransportMode> requestedModes,
@@ -404,6 +408,7 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
             changeStationOperating = getAvailabilityFacade(availabilityRepository, date, time, requestedModes);
             dateOverlaps = ((RouteToRouteCosts) routeToRouteCosts).costs.createOverlapMatrixFor(date, requestedModes);
 
+            cache = new ConcurrentHashMap<>();
         }
 
         /***
@@ -413,6 +418,13 @@ public class RouteToRouteCosts implements BetweenRoutesCostRepository {
          */
         @Override
         public int getFewestChanges(final Route startingRoute) {
+            final short indexOfStart = routeToRouteCosts.index.indexFor(startingRoute.getId());
+
+            return cache.computeIfAbsent(indexOfStart, key -> getFewestChangesUncached(startingRoute));
+        }
+
+
+        public int getFewestChangesUncached(final Route startingRoute) {
             final short indexOfStart = routeToRouteCosts.index.indexFor(startingRoute.getId());
             if (destinationIndexs.contains(indexOfStart)) {
                 return 0;

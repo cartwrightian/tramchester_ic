@@ -66,7 +66,7 @@ public abstract class TraversalState extends EmptyTraversalState implements Immu
         return txn;
     }
 
-    public Stream<ImmutableGraphRelationship> getOutbounds(GraphTransaction txn) {
+    public Stream<ImmutableGraphRelationship> getOutbounds() {
         return outbounds;
     }
 

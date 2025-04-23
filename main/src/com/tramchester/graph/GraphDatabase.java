@@ -3,6 +3,7 @@ package com.tramchester.graph;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.TramchesterConfig;
+import com.tramchester.graph.caches.ImmutableNodeCache;
 import com.tramchester.graph.databaseManagement.GraphDatabaseLifecycleManager;
 import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
@@ -37,14 +38,16 @@ public class GraphDatabase implements DatabaseEventListener {
 
     private GraphTransactionFactory graphTransactionFactory;
     private GraphDatabaseService databaseService;
+    private final ImmutableNodeCache nodeCache;
 
     @Inject
     public GraphDatabase(TramchesterConfig configuration, DataSourceRepository dataSourceRepository,
-                         GraphDatabaseLifecycleManager lifecycleManager) {
+                         GraphDatabaseLifecycleManager lifecycleManager, ImmutableNodeCache nodeCache) {
         this.dataSourceRepository = dataSourceRepository;
         this.tramchesterConfig = configuration;
         this.graphDBConfig = configuration.getGraphDBConfig();
         this.lifecycleManager = lifecycleManager;
+        this.nodeCache = nodeCache;
         indexesOnline = false;
     }
 
@@ -55,7 +58,7 @@ public class GraphDatabase implements DatabaseEventListener {
             final Path dbPath = graphDBConfig.getDbPath();
             boolean fileExists = Files.exists(dbPath);
             databaseService = lifecycleManager.startDatabase(dataSourceRepository, dbPath, fileExists);
-            graphTransactionFactory = new GraphTransactionFactory(databaseService, graphDBConfig.enableDiagnostics());
+            graphTransactionFactory = new GraphTransactionFactory(databaseService, nodeCache, graphDBConfig.enableDiagnostics());
             logger.info("graph db started ");
         } else {
             logger.warn("Planning is disabled, not starting the graph database");
