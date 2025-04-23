@@ -8,7 +8,7 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.RouteStation;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.TransportRelationshipTypes;
-import com.tramchester.graph.caches.ImmutableNodeCache;
+import com.tramchester.graph.caches.SharedNodeCache;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphalgo.BasicEvaluationContext;
@@ -27,15 +27,15 @@ public class MutableGraphTransaction implements GraphTransaction {
     private final GraphIdFactory idFactory;
     private final TransactionObserver transactionObserver;
     private final int transactionId;
-    private final ImmutableNodeCache nodeCache;
+    private final SharedNodeCache sharedNodeCache;
 
     MutableGraphTransaction(final Transaction txn, final GraphIdFactory idFactory, final int transactionId,
-                            final TransactionObserver transactionObserver, ImmutableNodeCache nodeCache) {
+                            final TransactionObserver transactionObserver, SharedNodeCache sharedNodeCache) {
         this.txn = txn;
         this.idFactory = idFactory;
         this.transactionId = transactionId;
         this.transactionObserver = transactionObserver;
-        this.nodeCache = nodeCache;
+        this.sharedNodeCache = sharedNodeCache;
     }
 
     /***
@@ -43,7 +43,7 @@ public class MutableGraphTransaction implements GraphTransaction {
      * @return GraphTransaction
      */
     public ImmutableGraphTransaction asImmutable() {
-        return new ImmutableGraphTransaction(this, nodeCache);
+        return new ImmutableGraphTransaction(this);
     }
 
     @Override
@@ -181,7 +181,7 @@ public class MutableGraphTransaction implements GraphTransaction {
 
     private ImmutableGraphNode wrapNodeAsImmutable(final Node node) {
         final MutableGraphNode underlying = wrapNodeAsMutable(node);
-        return new ImmutableGraphNode(underlying);
+        return new ImmutableGraphNode(underlying, sharedNodeCache);
     }
 
     private MutableGraphNode wrapNodeAsMutable(final Node node) {

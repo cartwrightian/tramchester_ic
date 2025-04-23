@@ -1,6 +1,6 @@
 package com.tramchester.graph.facade;
 
-import com.tramchester.graph.caches.ImmutableNodeCache;
+import com.tramchester.graph.caches.SharedNodeCache;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
@@ -22,12 +22,12 @@ public class GraphTransactionFactory implements MutableGraphTransaction.Transact
     private static final Logger logger = LoggerFactory.getLogger(GraphTransactionFactory.class);
 
     private final GraphDatabaseService databaseService;
-    private final ImmutableNodeCache nodeCache;
+    private final SharedNodeCache nodeCache;
     private final State state;
     private final AtomicInteger transactionCount;
     private final GraphIdFactory graphIdFactory;
 
-    public GraphTransactionFactory(final GraphDatabaseService databaseService, ImmutableNodeCache nodeCache, final boolean diagnostics) {
+    public GraphTransactionFactory(final GraphDatabaseService databaseService, SharedNodeCache nodeCache, final boolean diagnostics) {
         this.databaseService = databaseService;
         this.nodeCache = nodeCache;
 
@@ -88,7 +88,7 @@ public class GraphTransactionFactory implements MutableGraphTransaction.Transact
     }
 
     public ImmutableGraphTransaction begin(final Duration timeout) {
-        return new ImmutableGraphTransaction(beginMutable(timeout), nodeCache);
+        return new ImmutableGraphTransaction(beginMutable(timeout));
     }
 
     @Override

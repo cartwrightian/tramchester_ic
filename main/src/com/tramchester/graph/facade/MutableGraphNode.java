@@ -140,6 +140,8 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
 
     ///// GET //////////////////////////////////////////////////
 
+    // NOTE: Transaction closed exceptions will occur if keep reference to node beyond lifetime of the original transaction
+
     public EnumSet<GraphLabel> getLabels() {
         return GraphLabel.from(node.getLabels());
     }
@@ -174,7 +176,7 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
     }
 
     @Override
-    public Stream<ImmutableGraphRelationship> getOutgoingServiceMatching(GraphTransaction txn, IdFor<Trip> tripId) {
+    public Stream<ImmutableGraphRelationship> getOutgoingServiceMatching(final GraphTransaction txn, final IdFor<Trip> tripId) {
         return getRelationships(txn, Direction.OUTGOING, TO_SERVICE).
                 filter(relationship -> relationship.hasTripIdInList(tripId));
     }

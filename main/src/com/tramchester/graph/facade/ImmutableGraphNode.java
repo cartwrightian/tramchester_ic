@@ -1,6 +1,5 @@
 package com.tramchester.graph.facade;
 
-import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.id.IdFor;
@@ -15,6 +14,7 @@ import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.geo.BoundingBox;
 import com.tramchester.graph.TransportRelationshipTypes;
+import com.tramchester.graph.caches.SharedNodeCache;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import org.neo4j.graphalgo.PathFinder;
 import org.neo4j.graphalgo.WeightedPath;
@@ -32,22 +32,15 @@ public class ImmutableGraphNode implements GraphNode {
     private final MutableGraphNode underlying;
     private final GraphNodeId nodeId;
 
-    private final IdCache<Station> stationId;
-    private final IdCache<Trip> tripId;
-    private final IdCache<Service> serviceId;
-    private final IdCache<RouteStation> routeStationId;
-    private final LabelsCache labels;
+    private final SharedNodeCache sharedNodeCache;
+
     private final TimeCache timeCache;
 
-    ImmutableGraphNode(final MutableGraphNode underlying) {
+    ImmutableGraphNode(final MutableGraphNode underlying, SharedNodeCache sharedNodeCache) {
         this.underlying = underlying;
         this.nodeId = underlying.getId();
+        this.sharedNodeCache = sharedNodeCache;
 
-        stationId = new IdCache<>(Station.class);
-        tripId = new IdCache<>(Trip.class);
-        serviceId = new IdCache<>(Service.class);
-        routeStationId = new IdCache<>(RouteStation.class);
-        labels = new LabelsCache();
         timeCache = new TimeCache();
     }
 
@@ -90,7 +83,7 @@ public class ImmutableGraphNode implements GraphNode {
 
     @Override
     public boolean hasLabel(final GraphLabel graphLabel) {
-        return labels.has(graphLabel);
+        return sharedNodeCache.hasLabel(nodeId, graphLabel, nodeId -> underlying.getLabels());
     }
 
     @Override
@@ -101,22 +94,21 @@ public class ImmutableGraphNode implements GraphNode {
 
     @Override
     public IdFor<RouteStation> getRouteStationId() {
-        return routeStationId.get();
+        return sharedNodeCache.getRouteStationId(nodeId, nodeId -> underlying.getRouteStationId());
     }
 
     @Override
     public IdFor<Service> getServiceId() {
-        return serviceId.get();
+        return sharedNodeCache.getServiceId(nodeId, nodeId -> underlying.getServiceId());
     }
 
     @Override
     public IdFor<Trip> getTripId() {
-        return tripId.get();
+        return sharedNodeCache.getTripId(nodeId, nodeId -> underlying.getTripId());
     }
 
     @Override
     public TramTime getTime() {
-        // todo cache?
         return timeCache.get();
     }
 
@@ -127,7 +119,7 @@ public class ImmutableGraphNode implements GraphNode {
 
     @Override
     public boolean hasTripId() {
-        return tripId.present();
+        return underlying.hasTripId();
     }
 
     @Override
@@ -137,17 +129,17 @@ public class ImmutableGraphNode implements GraphNode {
 
     @Override
     public boolean hasStationId() {
-        return stationId.present();
+        return underlying.hasStationId();
     }
 
     @Override
     public EnumSet<GraphLabel> getLabels() {
-        return labels.get();
+        return sharedNodeCache.getLabels(nodeId, nodeId -> underlying.getLabels());
     }
 
     @Override
     public IdFor<Station> getStationId() {
-        return stationId.get();
+        return sharedNodeCache.getStationId(nodeId, nodeId -> underlying.getStationId());
     }
 
     @Override
@@ -231,60 +223,6 @@ public class ImmutableGraphNode implements GraphNode {
     @Override
     public int hashCode() {
         return Objects.hash(nodeId);
-    }
-
-    private class IdCache<DT extends CoreDomain> {
-        private final Class<DT> theClass;
-
-        private IdFor<DT> theValue;
-        private Boolean present;
-
-        private IdCache(final Class<DT> theClass) {
-            this.theClass = theClass;
-            theValue = null;
-        }
-
-        synchronized IdFor<DT> get() {
-            if (theValue==null) {
-                theValue=underlying.getId(theClass);
-            }
-            return theValue;
-        }
-
-        synchronized public boolean present() {
-            if (present==null) {
-                present = underlying.hasIdFor(theClass);
-            }
-            return present;
-        }
-    }
-
-    private class LabelsCache {
-
-        // relying on always having at least one label when creating a node
-        private EnumSet<GraphLabel> contents;
-
-        public LabelsCache() {
-            contents = EnumSet.noneOf(GraphLabel.class);
-        }
-
-        synchronized public boolean has(final GraphLabel graphLabel) {
-            if (contents.isEmpty()) {
-                fetch();
-            }
-            return contents.contains(graphLabel);
-        }
-
-        synchronized public EnumSet<GraphLabel> get() {
-            if (contents.isEmpty()) {
-                fetch();
-            }
-            return contents;
-        }
-
-        private void fetch() {
-            contents = underlying.getLabels();
-        }
     }
 
     private class TimeCache {

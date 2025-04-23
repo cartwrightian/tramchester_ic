@@ -3,7 +3,7 @@ package com.tramchester.graph;
 import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.TramchesterConfig;
-import com.tramchester.graph.caches.ImmutableNodeCache;
+import com.tramchester.graph.caches.SharedNodeCache;
 import com.tramchester.graph.databaseManagement.GraphDatabaseLifecycleManager;
 import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
@@ -38,11 +38,11 @@ public class GraphDatabase implements DatabaseEventListener {
 
     private GraphTransactionFactory graphTransactionFactory;
     private GraphDatabaseService databaseService;
-    private final ImmutableNodeCache nodeCache;
+    private final SharedNodeCache nodeCache;
 
     @Inject
     public GraphDatabase(TramchesterConfig configuration, DataSourceRepository dataSourceRepository,
-                         GraphDatabaseLifecycleManager lifecycleManager, ImmutableNodeCache nodeCache) {
+                         GraphDatabaseLifecycleManager lifecycleManager, SharedNodeCache nodeCache) {
         this.dataSourceRepository = dataSourceRepository;
         this.tramchesterConfig = configuration;
         this.graphDBConfig = configuration.getGraphDBConfig();

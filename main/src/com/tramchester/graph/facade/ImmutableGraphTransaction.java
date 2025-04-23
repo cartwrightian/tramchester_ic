@@ -5,7 +5,6 @@ import com.tramchester.domain.GraphProperty;
 import com.tramchester.domain.HasGraphLabel;
 import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.RouteStation;
-import com.tramchester.graph.caches.ImmutableNodeCache;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import org.neo4j.graphalgo.EvaluationContext;
 import org.neo4j.graphdb.*;
@@ -16,11 +15,9 @@ import java.util.stream.Stream;
 public class ImmutableGraphTransaction implements GraphTransaction, GraphTraverseTransaction  {
 
     private final MutableGraphTransaction underlying;
-    private final ImmutableNodeCache nodeCache;
 
-    public ImmutableGraphTransaction(final MutableGraphTransaction underlying, ImmutableNodeCache nodeCache) {
+    public ImmutableGraphTransaction(final MutableGraphTransaction underlying) {
         this.underlying = underlying;
-        this.nodeCache = nodeCache;
     }
 
     @Override
@@ -35,8 +32,7 @@ public class ImmutableGraphTransaction implements GraphTransaction, GraphTravers
 
     @Override
     public ImmutableGraphNode getNodeById(final GraphNodeId nodeId) {
-        return nodeCache.get(nodeId, underlying);
-        //return underlying.getNodeById(nodeId);
+        return underlying.getNodeById(nodeId);
     }
 
     @Override
@@ -91,9 +87,9 @@ public class ImmutableGraphTransaction implements GraphTransaction, GraphTravers
 
     @Override
     public ImmutableGraphNode fromEnd(final Path path) {
-//        GraphNodeId id = underlying.fromEnd(path);
-//        return getNodeById(id);
-        return underlying.fromEnd(path);
+        GraphNodeId id = underlying.idFromEnd(path);
+        return getNodeById(id);
+        //return underlying.fromEnd(path);
     }
 
     @Override
