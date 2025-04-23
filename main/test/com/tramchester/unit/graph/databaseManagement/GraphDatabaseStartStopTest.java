@@ -5,6 +5,7 @@ import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.GraphDatabase;
 import com.tramchester.graph.caches.SharedNodeCache;
+import com.tramchester.graph.caches.SharedRelationshipCache;
 import com.tramchester.graph.databaseManagement.GraphDatabaseLifecycleManager;
 import com.tramchester.integration.testSupport.config.IntegrationTestConfig;
 import com.tramchester.integration.testSupport.TestGroupType;
@@ -56,7 +57,8 @@ class GraphDatabaseStartStopTest extends EasyMockSupport {
         dataSourceRepository = createMock(DataSourceRepository.class);
 
         SharedNodeCache nodeCache = createMock(SharedNodeCache.class);
-        graphDatabase = new GraphDatabase(config, dataSourceRepository, lifecycleManager, nodeCache);
+        SharedRelationshipCache relationshipCache = createMock(SharedRelationshipCache.class);
+        graphDatabase = new GraphDatabase(config, dataSourceRepository, lifecycleManager, nodeCache, relationshipCache);
 
 
         Files.deleteIfExists(dbConfig.getDbPath());

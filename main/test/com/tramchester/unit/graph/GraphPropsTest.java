@@ -126,6 +126,7 @@ public class GraphPropsTest {
         IdFor<Route> result = node.getRouteId();
 
         assertEquals(route.getId(), result);
+
     }
 
     @Test

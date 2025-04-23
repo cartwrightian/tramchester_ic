@@ -4,6 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.caches.SharedNodeCache;
+import com.tramchester.graph.caches.SharedRelationshipCache;
 import com.tramchester.graph.databaseManagement.GraphDatabaseLifecycleManager;
 import com.tramchester.graph.facade.*;
 import com.tramchester.graph.graphbuild.GraphLabel;
@@ -39,15 +40,17 @@ public class GraphDatabase implements DatabaseEventListener {
     private GraphTransactionFactory graphTransactionFactory;
     private GraphDatabaseService databaseService;
     private final SharedNodeCache nodeCache;
+    private final SharedRelationshipCache relationshipCache;
 
     @Inject
     public GraphDatabase(TramchesterConfig configuration, DataSourceRepository dataSourceRepository,
-                         GraphDatabaseLifecycleManager lifecycleManager, SharedNodeCache nodeCache) {
+                         GraphDatabaseLifecycleManager lifecycleManager, SharedNodeCache nodeCache, SharedRelationshipCache relationshipCache) {
         this.dataSourceRepository = dataSourceRepository;
         this.tramchesterConfig = configuration;
         this.graphDBConfig = configuration.getGraphDBConfig();
         this.lifecycleManager = lifecycleManager;
         this.nodeCache = nodeCache;
+        this.relationshipCache = relationshipCache;
         indexesOnline = false;
     }
 
@@ -58,7 +61,7 @@ public class GraphDatabase implements DatabaseEventListener {
             final Path dbPath = graphDBConfig.getDbPath();
             boolean fileExists = Files.exists(dbPath);
             databaseService = lifecycleManager.startDatabase(dataSourceRepository, dbPath, fileExists);
-            graphTransactionFactory = new GraphTransactionFactory(databaseService, nodeCache, graphDBConfig.enableDiagnostics());
+            graphTransactionFactory = new GraphTransactionFactory(databaseService, nodeCache, relationshipCache, graphDBConfig.enableDiagnostics());
             logger.info("graph db started ");
         } else {
             logger.warn("Planning is disabled, not starting the graph database");

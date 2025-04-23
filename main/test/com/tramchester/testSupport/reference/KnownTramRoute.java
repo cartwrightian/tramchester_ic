@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 public class KnownTramRoute {
 
-    public static final TramDate startAprilCutover = TramDate.of(2025,4,7);
+    public static final TramDate startAprilCutover = TramDate.of(2025,4,18);
     public static final TramDate endAprilCutover = TramDate.of(2025, 4, 24);
 
     // missing from tfgm data

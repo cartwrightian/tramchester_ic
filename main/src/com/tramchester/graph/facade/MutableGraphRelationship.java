@@ -21,6 +21,7 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.HaveGraphProperties;
 import com.tramchester.graph.TransportRelationshipTypes;
+import com.tramchester.graph.caches.SharedRelationshipCache;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Relationship;
 
@@ -40,65 +41,65 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
 
     private final Relationship relationship;
     private final GraphRelationshipId id;
+    private final SharedRelationshipCache relationshipCache;
 
     private static final String tripIdListProperty = TRIP_ID_LIST.getText();
 
     private ImmutableGraphNode endNode;
 
-    MutableGraphRelationship(final Relationship relationship, final GraphRelationshipId id) {
+    MutableGraphRelationship(final Relationship relationship, final GraphRelationshipId id, SharedRelationshipCache relationshipCache) {
         this.relationship = relationship;
         this.id = id;
+        this.relationshipCache = relationshipCache;
     }
 
-    public GraphRelationshipId getId() {
-        return id;
+    ///// MUTATE ////////////////////////////////////////////////////////////
+
+    public void delete() {
+        invalidateCache();
+        relationship.delete();
+    }
+
+    private void invalidateCache() {
+        relationshipCache.remove(id);
     }
 
     public void setTransportMode(final TransportMode transportMode) {
         relationship.setProperty(TRANSPORT_MODE.getText(), transportMode.getNumber());
+        invalidateCache();
     }
 
-    public void setCost(final Duration cost) {
-        final long seconds = cost.toSeconds();
-        relationship.setProperty(COST.getText(), seconds);
-    }
-
-    public Duration getCost() {
-        final TransportRelationshipTypes relationshipType = getType();
-        if (TransportRelationshipTypes.hasCost(relationshipType)) {
-            final long seconds = (long) relationship.getProperty(COST.getText());
-            return Duration.ofSeconds(seconds);
-        } else {
-            return Duration.ZERO;
-        }
-    }
 
     public void setTime(final TramTime tramTime) {
         setTime(tramTime, relationship);
+        invalidateCache();
     }
 
     public void setHour(final int hour) {
         relationship.setProperty(HOUR.getText(), hour);
+        invalidateCache();
     }
 
-    public int getHour() {
-        return (int) relationship.getProperty(HOUR.getText());
+
+    public void setCost(final Duration cost) {
+        final long seconds = cost.toSeconds();
+        relationship.setProperty(COST.getText(), seconds);
+        invalidateCache();
     }
 
     public <C extends GraphProperty & CoreDomain & HasId<C>> void set(final C domainItem) {
         super.set(domainItem, relationship);
-    }
-
-    public TramTime getTime() {
-        return getTime(relationship);
+        invalidateCache();
     }
 
     public void setRouteStationId(final IdFor<RouteStation> routeStationId) {
         relationship.setProperty(ROUTE_STATION_ID.getText(), routeStationId.getGraphId());
+        invalidateCache();
     }
 
     public void setStopSeqNum(final int sequenceNumber) {
         relationship.setProperty(STOP_SEQ_NUM.getText(), sequenceNumber);
+        invalidateCache();
     }
 
     public void setDateTimeRange(final DateTimeRange dateTimeRange) {
@@ -114,12 +115,6 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
         setEndDate(range.getEndDate().toLocalDate());
     }
 
-    public DateRange getDateRange() {
-        final LocalDate start = getStartDate();
-        final LocalDate end = getEndDate();
-        return new DateRange(TramDate.of(start), TramDate.of(end));
-    }
-
     public void setTimeRange(final TimeRange timeRange) {
         if (timeRange.allDay()) {
             relationship.setProperty(ALL_DAY.getText(), "");
@@ -130,24 +125,7 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
             setEndTime(timeRange.getEnd());
             relationship.removeProperty(ALL_DAY.getText());
         }
-    }
-
-    @Override
-    public TimeRange getTimeRange() {
-        if (relationship.hasProperty(ALL_DAY.getText())) {
-            return TimeRange.AllDay();
-        } else {
-            final TramTime start = getStartTime();
-            final TramTime end = getEndTime();
-            return TimeRange.of(start, end);
-        }
-    }
-
-    @Override
-    public DateTimeRange getDateTimeRange() {
-        final DateRange dateRange = getDateRange();
-        final TimeRange timeRange = getTimeRange();
-        return DateTimeRange.of(dateRange, timeRange);
+        invalidateCache();
     }
 
     public void setStartTime(final TramTime tramTime) {
@@ -155,6 +133,7 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
             throw new RuntimeException("Not supported for start time next");
         }
         relationship.setProperty(START_TIME.getText(), tramTime.asLocalTime());
+        invalidateCache();
     }
 
     public void setEndTime(final TramTime tramTime) {
@@ -162,17 +141,22 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
             throw new RuntimeException("Not supported for end time next");
         }
         relationship.setProperty(END_TIME.getText(), tramTime.asLocalTime());
+        invalidateCache();
     }
 
     public void setEndDate(final LocalDate localDate) {
         relationship.setProperty(END_DATE.getText(), localDate);
+        invalidateCache();
     }
 
     public void setStartDate(final LocalDate localDate) {
         relationship.setProperty(START_DATE.getText(), localDate);
+        invalidateCache();
     }
 
     public void addTransportMode(final TransportMode mode) {
+        invalidateCache();
+
         final short modeNumber = mode.getNumber();
         if (!(relationship.hasProperty(TRANSPORT_MODES.getText()))) {
             relationship.setProperty(TRANSPORT_MODES.getText(), new short[]{modeNumber});
@@ -192,8 +176,9 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
         relationship.setProperty(TRANSPORT_MODES.getText(), replacement);
     }
 
-
     public void addTripId(final IdFor<Trip> tripId) {
+        invalidateCache();
+
         final String text = tripId.getGraphId();
         if (!(relationship.hasProperty(tripIdListProperty))) {
             relationship.setProperty(tripIdListProperty, new String[]{text});
@@ -214,7 +199,62 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
         // keep array sorted, so can use BinarySearch
         Arrays.sort(replacement);
         relationship.setProperty(tripIdListProperty, replacement);
+
     }
+
+    ////////////////////////////////////////////////////////////////////////
+
+    @Override
+    public Duration getCost() {
+        final TransportRelationshipTypes relationshipType = getType();
+        if (TransportRelationshipTypes.hasCost(relationshipType)) {
+            final long seconds = (long) relationship.getProperty(COST.getText());
+            return Duration.ofSeconds(seconds);
+        } else {
+            return Duration.ZERO;
+        }
+    }
+
+    @Override
+    public DateRange getDateRange() {
+        final LocalDate start = getStartDate();
+        final LocalDate end = getEndDate();
+        return new DateRange(TramDate.of(start), TramDate.of(end));
+    }
+
+    @Override
+    public GraphRelationshipId getId() {
+        return id;
+    }
+
+    @Override
+    public int getHour() {
+        return (int) relationship.getProperty(HOUR.getText());
+    }
+
+    @Override
+    public TramTime getTime() {
+        return getTime(relationship);
+    }
+
+    @Override
+    public TimeRange getTimeRange() {
+        if (relationship.hasProperty(ALL_DAY.getText())) {
+            return TimeRange.AllDay();
+        } else {
+            final TramTime start = getStartTime();
+            final TramTime end = getEndTime();
+            return TimeRange.of(start, end);
+        }
+    }
+
+    @Override
+    public DateTimeRange getDateTimeRange() {
+        final DateRange dateRange = getDateRange();
+        final TimeRange timeRange = getTimeRange();
+        return DateTimeRange.of(dateRange, timeRange);
+    }
+
 
     public IdSet<Trip> getTripIds() {
         if (!relationship.hasProperty(tripIdListProperty)) {
@@ -241,10 +281,6 @@ public class MutableGraphRelationship extends HaveGraphProperties implements Gra
 
     private String[] getTripIdList() {
         return (String[]) relationship.getProperty(tripIdListProperty);
-    }
-
-    public void delete() {
-        relationship.delete();
     }
 
     @Override

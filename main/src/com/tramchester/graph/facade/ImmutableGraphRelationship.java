@@ -1,6 +1,5 @@
 package com.tramchester.graph.facade;
 
-import com.tramchester.domain.CoreDomain;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.Service;
 import com.tramchester.domain.dates.DateRange;
@@ -18,6 +17,7 @@ import com.tramchester.domain.time.TimeRange;
 import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.TransportRelationshipTypes;
+import com.tramchester.graph.caches.SharedRelationshipCache;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.ResourceIterable;
@@ -32,14 +32,16 @@ import java.util.stream.Stream;
 
 public class ImmutableGraphRelationship implements GraphRelationship {
     private final MutableGraphRelationship underlying;
+    private final SharedRelationshipCache sharedRelationshipCache;
 
-    private final IdCache<Trip> tripIdCache;
     private final CostCache costCache;
+    private final GraphRelationshipId relationshipId;
 
-    public ImmutableGraphRelationship(final MutableGraphRelationship underlying) {
+    public ImmutableGraphRelationship(final MutableGraphRelationship underlying, final SharedRelationshipCache sharedRelationshipCache) {
         this.underlying = underlying;
-        tripIdCache = new IdCache<>(Trip.class);
+        this.sharedRelationshipCache = sharedRelationshipCache;
         costCache = new CostCache();
+        relationshipId = underlying.getId();
     }
 
     public static ResourceIterable<Relationship> convertIterable(final Stream<ImmutableGraphRelationship> stream) {
@@ -111,8 +113,7 @@ public class ImmutableGraphRelationship implements GraphRelationship {
 
     @Override
     public IdFor<Trip> getTripId() {
-        return tripIdCache.get();
-        //return underlying.getTripId();
+        return sharedRelationshipCache.getTripId(relationshipId, k -> underlying.getTripId());
     }
 
     @Override
@@ -175,9 +176,13 @@ public class ImmutableGraphRelationship implements GraphRelationship {
         return underlying.getStationGroupId();
     }
 
+    /***
+     * Note: Assumes only called for relationships having TRIP_ID_LIST property, i.e. SERVICE_TO relationship type
+     ***/
     @Override
     public IdSet<Trip> getTripIds() {
-        return underlying.getTripIds();
+        return sharedRelationshipCache.getTripIds(relationshipId, key -> underlying.getTripIds());
+       // return underlying.getTripIds();
     }
 
     /***
@@ -186,9 +191,8 @@ public class ImmutableGraphRelationship implements GraphRelationship {
      * @return true if trip id is contained in the list
      */
     public boolean hasTripIdInList(final IdFor<Trip> tripId) {
-        // caching here seemed to have minimal impact, likely not seeing repeat calls for the same trip ID
-//        return tripIdPresent.getOrPopulate(tripId, unused -> underlying.hasTripIdInList(tripId));
-        return underlying.hasTripIdInList(tripId);
+        return sharedRelationshipCache.hasTripIdInList(tripId, relationshipId, key -> underlying.getTripIds());
+        //return underlying.hasTripIdInList(tripId);
     }
 
     @Override
@@ -244,24 +248,6 @@ public class ImmutableGraphRelationship implements GraphRelationship {
     @Override
     public GraphNodeId getStartNodeId(ImmutableGraphTransaction txn) {
         return underlying.getStartNodeId(txn);
-    }
-
-    private class IdCache<DT extends CoreDomain> {
-        private final Class<DT> theClass;
-
-        private IdFor<DT> theValue;
-
-        private IdCache(final Class<DT> theClass) {
-            this.theClass = theClass;
-            theValue = null;
-        }
-
-        synchronized IdFor<DT> get() {
-            if (theValue==null) {
-                theValue=underlying.getId(theClass);
-            }
-            return theValue;
-        }
     }
 
     private class CostCache {

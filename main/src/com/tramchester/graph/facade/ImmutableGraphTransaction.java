@@ -87,9 +87,9 @@ public class ImmutableGraphTransaction implements GraphTransaction, GraphTravers
 
     @Override
     public ImmutableGraphNode fromEnd(final Path path) {
-        GraphNodeId id = underlying.idFromEnd(path);
-        return getNodeById(id);
-        //return underlying.fromEnd(path);
+//        GraphNodeId id = underlying.idFromEnd(path);
+//        return getNodeById(id);
+        return underlying.fromEnd(path);
     }
 
     @Override

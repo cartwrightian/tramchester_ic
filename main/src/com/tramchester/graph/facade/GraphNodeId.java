@@ -7,7 +7,7 @@ import org.neo4j.graphdb.Transaction;
 import java.util.EnumSet;
 import java.util.Objects;
 
-public class GraphNodeId {
+public class GraphNodeId implements GraphId {
     private final String internalId;
     private final EnumSet<GraphLabel> labels;
     private final int hashCode;

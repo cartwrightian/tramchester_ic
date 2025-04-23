@@ -6,7 +6,6 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.graph.facade.GraphNode;
 import com.tramchester.graph.facade.GraphTransaction;
 import com.tramchester.graph.facade.ImmutableGraphRelationship;
-import com.tramchester.graph.graphbuild.GraphLabel;
 import com.tramchester.graph.search.stateMachine.RegistersFromState;
 import com.tramchester.graph.search.stateMachine.Towards;
 
@@ -91,7 +90,8 @@ public class ServiceState extends TraversalState implements HasTowardsStationId 
     }
 
     private int hourFor(final GraphNode endNode) {
-        return GraphLabel.getHourFrom(endNode.getLabels());
+        return endNode.getHour();
+        //return GraphLabel.getHourFrom(endNode.getLabels());
     }
 
     @Override

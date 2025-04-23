@@ -1,6 +1,7 @@
 package com.tramchester.graph.facade;
 
 import com.tramchester.graph.caches.SharedNodeCache;
+import com.tramchester.graph.caches.SharedRelationshipCache;
 import com.tramchester.metrics.Timing;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.TransientTransactionFailureException;
@@ -16,8 +17,8 @@ public class TimedTransaction extends MutableGraphTransaction implements AutoClo
     private boolean committed;
 
     TimedTransaction(final Transaction txn, final GraphIdFactory idFactory, final int transactionId, final TransactionObserver transactionObserver,
-                     final Logger logger, final String name, SharedNodeCache nodeCache) {
-        super(txn, idFactory, transactionId, transactionObserver, nodeCache);
+                     final Logger logger, final String name, SharedNodeCache nodeCache, SharedRelationshipCache relationshipCache) {
+        super(txn, idFactory, transactionId, transactionObserver, nodeCache, relationshipCache);
         this.logger = logger;
         this.name = name;
         timing = new Timing(logger, "transaction " + name);

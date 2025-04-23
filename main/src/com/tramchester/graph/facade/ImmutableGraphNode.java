@@ -34,14 +34,10 @@ public class ImmutableGraphNode implements GraphNode {
 
     private final SharedNodeCache sharedNodeCache;
 
-    private final TimeCache timeCache;
-
     ImmutableGraphNode(final MutableGraphNode underlying, SharedNodeCache sharedNodeCache) {
         this.underlying = underlying;
         this.nodeId = underlying.getId();
         this.sharedNodeCache = sharedNodeCache;
-
-        timeCache = new TimeCache();
     }
 
     public static WeightedPath findSinglePath(PathFinder<WeightedPath> finder, GraphNode startNode, GraphNode endNode) {
@@ -109,7 +105,7 @@ public class ImmutableGraphNode implements GraphNode {
 
     @Override
     public TramTime getTime() {
-        return timeCache.get();
+        return sharedNodeCache.getTime(nodeId, k -> underlying.getTime());
     }
 
     @Override
@@ -180,7 +176,7 @@ public class ImmutableGraphNode implements GraphNode {
 
     @Override
     public Integer getHour() {
-        return underlying.getHour();
+        return sharedNodeCache.getHour(nodeId, k -> underlying.getHour());
     }
 
     @Override
@@ -223,21 +219,6 @@ public class ImmutableGraphNode implements GraphNode {
     @Override
     public int hashCode() {
         return Objects.hash(nodeId);
-    }
-
-    private class TimeCache {
-        private TramTime time;
-
-        private TimeCache() {
-            time = TramTime.invalid();
-        }
-
-        synchronized public TramTime get() {
-            if (!time.isValid()) {
-                time = underlying.getTime();
-            }
-            return time;
-        }
     }
 
 }

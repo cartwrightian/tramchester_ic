@@ -74,6 +74,7 @@ public enum GraphLabel implements Label {
         return hourLabels[hour];
     }
 
+    // TODO performance
     public static int getHourFrom(final EnumSet<GraphLabel> labels) {
         for (int hour = 0; hour < 24 ; hour++) {
             if (labels.contains(hourLabels[hour])) {

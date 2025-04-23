@@ -1,6 +1,7 @@
 package com.tramchester.graph.facade;
 
 import com.tramchester.graph.caches.SharedNodeCache;
+import com.tramchester.graph.caches.SharedRelationshipCache;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
 import org.slf4j.Logger;
@@ -23,13 +24,15 @@ public class GraphTransactionFactory implements MutableGraphTransaction.Transact
 
     private final GraphDatabaseService databaseService;
     private final SharedNodeCache nodeCache;
+    private final SharedRelationshipCache relationshipCache;
     private final State state;
     private final AtomicInteger transactionCount;
     private final GraphIdFactory graphIdFactory;
 
-    public GraphTransactionFactory(final GraphDatabaseService databaseService, SharedNodeCache nodeCache, final boolean diagnostics) {
+    public GraphTransactionFactory(final GraphDatabaseService databaseService, SharedNodeCache nodeCache, SharedRelationshipCache relationshipCache, final boolean diagnostics) {
         this.databaseService = databaseService;
         this.nodeCache = nodeCache;
+        this.relationshipCache = relationshipCache;
 
         transactionCount = new AtomicInteger(0);
         state = new State();
@@ -67,7 +70,7 @@ public class GraphTransactionFactory implements MutableGraphTransaction.Transact
 
         final int index = transactionCount.incrementAndGet();
         final MutableGraphTransaction graphTransaction = new MutableGraphTransaction(graphDatabaseTxn, graphIdFactory,
-                index,this, nodeCache);
+                index,this, nodeCache, relationshipCache);
 
         state.put(graphTransaction, Thread.currentThread().getStackTrace());
 
@@ -80,7 +83,7 @@ public class GraphTransactionFactory implements MutableGraphTransaction.Transact
         final int index = transactionCount.incrementAndGet();
 
         TimedTransaction graphTransaction = new TimedTransaction(graphDatabaseTxn, graphIdFactory,
-                index,this, logger, text, nodeCache);
+                index,this, logger, text, nodeCache, relationshipCache);
 
         state.put(graphTransaction, Thread.currentThread().getStackTrace());
 

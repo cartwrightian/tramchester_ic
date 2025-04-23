@@ -12,6 +12,7 @@ import com.tramchester.geo.BoundingBox;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.HaveGraphProperties;
 import com.tramchester.graph.TransportRelationshipTypes;
+import com.tramchester.graph.caches.SharedNodeCache;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Label;
@@ -32,8 +33,10 @@ import static com.tramchester.graph.TransportRelationshipTypes.TO_SERVICE;
 public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
     private final Node node;
     private final GraphNodeId graphNodeId;
+    private final SharedNodeCache nodeCache;
 
-    MutableGraphNode(Node node, GraphNodeId graphNodeId) {
+    MutableGraphNode(Node node, GraphNodeId graphNodeId, SharedNodeCache nodeCache) {
+        this.nodeCache = nodeCache;
         if (node == null) {
             throw new RuntimeException("Null node passed");
         }
@@ -50,7 +53,12 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
     }
 
     public void delete() {
+        invalidateCache();
         node.delete();
+    }
+
+    private void invalidateCache() {
+        nodeCache.remove(graphNodeId);
     }
 
     ///// MUTATE ////////////////////////////////////////////////////////////
@@ -63,52 +71,64 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
 
     public void addLabel(final Label label) {
         node.addLabel(label);
+        invalidateCache();
     }
 
     public void setHourProp(final Integer hour) {
         node.setProperty(HOUR.getText(), hour);
+        invalidateCache();
     }
 
     public void setTime(final TramTime tramTime) {
         setTime(tramTime, node);
+        invalidateCache();
     }
 
     public void set(final Station station) {
         set(station, node);
+        invalidateCache();
     }
 
     public void set(final Platform platform) {
         set(platform, node);
+        invalidateCache();
     }
 
     public void set(final Route route) {
         set(route, node);
+        invalidateCache();
     }
 
     public void set(final Service service) {
         set(service, node);
+        invalidateCache();
     }
 
     public void set(final StationLocalityGroup stationGroup) {
         set(stationGroup, node);
+        invalidateCache();
     }
 
     public void set(final RouteStation routeStation) {
         set(routeStation, node);
+        invalidateCache();
     }
 
     public void setTransportMode(final TransportMode first) {
         node.setProperty(TRANSPORT_MODE.getText(), first.getNumber());
+        invalidateCache();
     }
 
     public void set(final DataSourceInfo nameAndVersion) {
         DataSourceID sourceID = nameAndVersion.getID();
         node.setProperty(sourceID.name(), nameAndVersion.getVersion());
+        invalidateCache();
     }
 
     public void setLatLong(final LatLong latLong) {
         node.setProperty(LATITUDE.getText(), latLong.getLat());
         node.setProperty(LONGITUDE.getText(), latLong.getLon());
+        invalidateCache();
     }
 
     public void setBounds(final BoundingBox bounds) {
@@ -116,26 +136,32 @@ public class MutableGraphNode extends HaveGraphProperties implements GraphNode {
         node.setProperty(MAX_NORTHING.getText(), bounds.getMaxNorthings());
         node.setProperty(MIN_EASTING.getText(), bounds.getMinEastings());
         node.setProperty(MIN_NORTHING.getText(), bounds.getMinNorthings());
+        invalidateCache();
     }
 
     public void setWalkId(final LatLong origin, final UUID uid) {
         node.setProperty(GraphPropertyKey.WALK_ID.getText(), origin.toString() + "_" + uid.toString());
+        invalidateCache();
     }
 
     public void setPlatformNumber(final Platform platform) {
         node.setProperty(PLATFORM_NUMBER.getText(), platform.getPlatformNumber());
+        invalidateCache();
     }
 
     public void setSourceName(final String sourceName) {
         node.setProperty(SOURCE_NAME_PROP.getText(), sourceName);
+        invalidateCache();
     }
 
     public void setAreaId(final IdFor<NPTGLocality> localityId) {
         node.setProperty(AREA_ID.getText(), localityId.getGraphId());
+        invalidateCache();
     }
 
     public void setTowards(final IdFor<Station> stationId) {
         node.setProperty(TOWARDS_STATION_ID.getText(), stationId.getGraphId());
+        invalidateCache();
     }
 
     ///// GET //////////////////////////////////////////////////

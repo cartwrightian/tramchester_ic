@@ -9,6 +9,7 @@ import com.tramchester.domain.places.RouteStation;
 import com.tramchester.graph.GraphPropertyKey;
 import com.tramchester.graph.TransportRelationshipTypes;
 import com.tramchester.graph.caches.SharedNodeCache;
+import com.tramchester.graph.caches.SharedRelationshipCache;
 import com.tramchester.graph.graphbuild.GraphLabel;
 import org.jetbrains.annotations.NotNull;
 import org.neo4j.graphalgo.BasicEvaluationContext;
@@ -28,14 +29,17 @@ public class MutableGraphTransaction implements GraphTransaction {
     private final TransactionObserver transactionObserver;
     private final int transactionId;
     private final SharedNodeCache sharedNodeCache;
+    private final SharedRelationshipCache sharedRelationshipCache;
 
     MutableGraphTransaction(final Transaction txn, final GraphIdFactory idFactory, final int transactionId,
-                            final TransactionObserver transactionObserver, SharedNodeCache sharedNodeCache) {
+                            final TransactionObserver transactionObserver, SharedNodeCache sharedNodeCache,
+                            SharedRelationshipCache sharedRelationshipCache) {
         this.txn = txn;
         this.idFactory = idFactory;
         this.transactionId = transactionId;
         this.transactionObserver = transactionObserver;
         this.sharedNodeCache = sharedNodeCache;
+        this.sharedRelationshipCache = sharedRelationshipCache;
     }
 
     /***
@@ -186,17 +190,17 @@ public class MutableGraphTransaction implements GraphTransaction {
 
     private MutableGraphNode wrapNodeAsMutable(final Node node) {
         final GraphNodeId graphNodeId = idFactory.getIdFor(node);
-        return new MutableGraphNode(node, graphNodeId);
+        return new MutableGraphNode(node, graphNodeId, sharedNodeCache);
     }
 
     @Override
     public ImmutableGraphRelationship wrapRelationship(final Relationship relationship) {
-        final MutableGraphRelationship underlying = new MutableGraphRelationship(relationship, idFactory.getIdFor(relationship));
-        return new ImmutableGraphRelationship(underlying);
+        final MutableGraphRelationship underlying = new MutableGraphRelationship(relationship, idFactory.getIdFor(relationship), sharedRelationshipCache);
+        return new ImmutableGraphRelationship(underlying, sharedRelationshipCache);
     }
 
     public MutableGraphRelationship wrapRelationshipMutable(final Relationship relationship) {
-        return new MutableGraphRelationship(relationship, idFactory.getIdFor(relationship));
+        return new MutableGraphRelationship(relationship, idFactory.getIdFor(relationship), sharedRelationshipCache);
     }
 
     public ImmutableGraphNode fromStart(final Path path) {
@@ -213,14 +217,6 @@ public class MutableGraphTransaction implements GraphTransaction {
             return null;
         }
         return wrapNodeAsImmutable(endNode);
-    }
-
-    public GraphNodeId idFromEnd(final Path path) {
-        final Node endNode = path.endNode();
-        if (endNode==null) {
-            throw new RuntimeException("End node of path is null for " + path);
-        }
-        return idFactory.getIdFor(endNode);
     }
 
     public ImmutableGraphRelationship lastFrom(final Path path) {

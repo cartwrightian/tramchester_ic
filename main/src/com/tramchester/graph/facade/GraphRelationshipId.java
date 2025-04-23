@@ -5,16 +5,12 @@ import org.neo4j.graphdb.Transaction;
 
 import java.util.Objects;
 
-public class GraphRelationshipId {
+public class GraphRelationshipId implements GraphId {
     private final String internalId;
 
     GraphRelationshipId(final String internalId) {
         this.internalId = internalId;
     }
-
-//    public static GraphRelationshipId TestOnly(long l) {
-//        return new GraphRelationshipId(Long.toString(l));
-//    }
 
     @Override
     public boolean equals(Object o) {

@@ -4,6 +4,7 @@ import com.netflix.governator.guice.lazy.LazySingleton;
 import com.tramchester.config.GraphDBConfig;
 import com.tramchester.config.TramchesterConfig;
 import com.tramchester.graph.caches.SharedNodeCache;
+import com.tramchester.graph.caches.SharedRelationshipCache;
 import com.tramchester.graph.facade.GraphTransactionFactory;
 import com.tramchester.metrics.Timing;
 import com.tramchester.repository.DataSourceRepository;
@@ -29,14 +30,16 @@ public class GraphDatabaseLifecycleManager {
     private GraphDBConfig graphDBConfig;
     private boolean cleanDB;
     private final SharedNodeCache nodeCache;
+    private final SharedRelationshipCache relationshipCache;
 
     @Inject
     public GraphDatabaseLifecycleManager(TramchesterConfig configuration, GraphDatabaseServiceFactory serviceFactory,
-                                         GraphDatabaseStoredVersions storedVersions, SharedNodeCache nodeCache) {
+                                         GraphDatabaseStoredVersions storedVersions, SharedNodeCache nodeCache, SharedRelationshipCache relationshipCache) {
         this.configuration = configuration;
         this.serviceFactory = serviceFactory;
         this.storedVersions = storedVersions;
         this.nodeCache = nodeCache;
+        this.relationshipCache = relationshipCache;
     }
 
     public GraphDatabaseService startDatabase(final DataSourceRepository dataSourceRepository, final Path graphFile, final boolean fileExists) {
@@ -51,7 +54,7 @@ public class GraphDatabaseLifecycleManager {
 
         cleanDB = !fileExists;
         GraphDatabaseService databaseService = serviceFactory.create();
-        final GraphTransactionFactory transactionFactory = new GraphTransactionFactory(databaseService, nodeCache, graphDBConfig.enableDiagnostics());
+        final GraphTransactionFactory transactionFactory = new GraphTransactionFactory(databaseService, nodeCache, relationshipCache, graphDBConfig.enableDiagnostics());
 
         if (fileExists && !storedVersions.upToDate(transactionFactory, dataSourceRepository)) {
             logger.warn("Graph is out of date, rebuild needed");

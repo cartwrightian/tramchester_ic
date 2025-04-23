@@ -286,7 +286,7 @@ public class LocationJourneyPlanner {
 
         public void delete() {
             logger.info("Removed added walks and walk node(s)");
-            //nodeOperations.deleteFromCostCache(relationship);
+            // cache is updated by the delete methods
             relationships.forEach(MutableGraphRelationship::delete);
             nodes.forEach(MutableGraphNode::delete);
         }
@@ -296,7 +296,7 @@ public class LocationJourneyPlanner {
         }
 
         public MutableGraphNode createWalkingNode(Location<?> location, JourneyRequest journeyRequest) {
-            MutableGraphNode walkingNode = createWalkingNode(txn, location.getLatLong(), journeyRequest.getUid());
+            final MutableGraphNode walkingNode = createWalkingNode(txn, location.getLatLong(), journeyRequest.getUid());
             nodes.add(walkingNode);
             return walkingNode;
         }
