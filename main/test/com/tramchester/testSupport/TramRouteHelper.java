@@ -7,7 +7,7 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.reference.KnownBusRoute;
-import com.tramchester.domain.reference.TFGMTramLines;
+import com.tramchester.domain.reference.TFGMRouteNames;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TestRoute;
 import org.jetbrains.annotations.NotNull;
@@ -52,7 +52,7 @@ public class TramRouteHelper {
         return knownRouteToRoutes.get(knownRoute);
     }
 
-    public Route getOneRoute(final TFGMTramLines line, final TramDate date) {
+    public Route getOneRoute(final TFGMRouteNames line, final TramDate date) {
         TestRoute knownRoute = KnownTramRoute.findFor(line, date);
         return getOneRouteFor(knownRoute, date);
     }
@@ -106,22 +106,22 @@ public class TramRouteHelper {
     }
 
     public Route getRed(TramDate date) {
-        return getOneRoute(TFGMTramLines.Red, date);
+        return getOneRoute(TFGMRouteNames.Red, date);
     }
 
     public Route getNavy(TramDate date) {
-        return getOneRoute(TFGMTramLines.Navy, date);
+        return getOneRoute(TFGMRouteNames.Navy, date);
     }
 
     public Route getBlue(TramDate date) {
-        return getOneRoute(TFGMTramLines.Blue, date);
+        return getOneRoute(TFGMRouteNames.Blue, date);
     }
 
     public Route getPink(TramDate date) {
-        return getOneRoute(TFGMTramLines.Pink, date);
+        return getOneRoute(TFGMRouteNames.Pink, date);
     }
 
     public Route getGreen(TramDate date) {
-        return getOneRoute(TFGMTramLines.Green, date);
+        return getOneRoute(TFGMRouteNames.Green, date);
     }
 }

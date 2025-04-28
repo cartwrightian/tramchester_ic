@@ -1,6 +1,6 @@
 package com.tramchester.domain.reference;
 
-public enum TFGMTramLines {
+public enum TFGMRouteNames {
     BusOne("Replacement Bus 1"),
     BusTwo("Replacement Bus 2"),
     Red("Red Line"),
@@ -14,7 +14,7 @@ public enum TFGMTramLines {
 
     private final String shortName;
 
-    TFGMTramLines(String shortName) {
+    TFGMRouteNames(String shortName) {
         this.shortName = shortName;
     }
 

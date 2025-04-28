@@ -21,7 +21,7 @@ import com.tramchester.repository.*;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.domain.reference.TFGMTramLines;
+import com.tramchester.domain.reference.TFGMRouteNames;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
@@ -118,13 +118,13 @@ public class TripRepositoryTest {
         assertFalse(routes.isEmpty());
         assertEquals(4, routes.size(), HasId.asIds(routes));
 
-        assertTrue(routes.contains(tramRouteHelper.getOneRoute(TFGMTramLines.Green, when)));
-        assertTrue(routes.contains(tramRouteHelper.getOneRoute(TFGMTramLines.Blue, when)));
-        assertTrue(routes.contains(tramRouteHelper.getOneRoute(TFGMTramLines.Navy, when)));
-        assertTrue(routes.contains(tramRouteHelper.getOneRoute(TFGMTramLines.Yellow, when)));
+        assertTrue(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Green, when)));
+        assertTrue(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Blue, when)));
+        assertTrue(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Navy, when)));
+        assertTrue(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Yellow, when)));
 
-        assertFalse(routes.contains(tramRouteHelper.getOneRoute(TFGMTramLines.Red, when)));
-        assertFalse(routes.contains(tramRouteHelper.getOneRoute(TFGMTramLines.Purple, when)));
+        assertFalse(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Red, when)));
+        assertFalse(routes.contains(tramRouteHelper.getOneRoute(TFGMRouteNames.Purple, when)));
 
     }
 

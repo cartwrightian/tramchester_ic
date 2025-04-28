@@ -29,7 +29,7 @@ import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.reference.FakeStation;
-import com.tramchester.domain.reference.TFGMTramLines;
+import com.tramchester.domain.reference.TFGMRouteNames;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
@@ -208,8 +208,8 @@ public class TransportDataFromFilesTramTest {
 
         assertEquals(2, lines.size(), lines.toString());
 
-        assertTrue(lines.contains(TFGMTramLines.Purple.getShortName()));
-        assertTrue(lines.contains(TFGMTramLines.Green.getShortName()));
+        assertTrue(lines.contains(TFGMRouteNames.Purple.getShortName()));
+        assertTrue(lines.contains(TFGMRouteNames.Green.getShortName()));
 
     }
 

@@ -26,7 +26,7 @@ import com.tramchester.testSupport.InMemoryDataCache;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.conditional.DisabledUntilDate;
-import com.tramchester.domain.reference.TFGMTramLines;
+import com.tramchester.domain.reference.TFGMRouteNames;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
 import org.apache.commons.lang3.tuple.Pair;
@@ -99,8 +99,8 @@ public class RouteInterconnectRepositoryTest {
 
     @Test
     void shouldHaveExpectedInterchangeForSimpleInterchange() {
-        Route routeA = getRouteFor(TFGMTramLines.Green);
-        Route routeB = getRouteFor(TFGMTramLines.Navy);
+        Route routeA = getRouteFor(TFGMRouteNames.Green);
+        Route routeB = getRouteFor(TFGMRouteNames.Navy);
 
         RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
 
@@ -117,14 +117,14 @@ public class RouteInterconnectRepositoryTest {
 
     }
 
-    private Route getRouteFor(TFGMTramLines line) {
+    private Route getRouteFor(TFGMRouteNames line) {
         return routeHelper.getOneRoute(line, date);
     }
 
     @Test
     void shouldHaveExpectedInterchangeForSimpleInterchangeFiltered() {
-        Route routeA = getRouteFor(TFGMTramLines.Green);
-        Route routeB = getRouteFor(TFGMTramLines.Navy);
+        Route routeA = getRouteFor(TFGMRouteNames.Green);
+        Route routeB = getRouteFor(TFGMRouteNames.Navy);
 
         RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
 
@@ -146,8 +146,8 @@ public class RouteInterconnectRepositoryTest {
     void shouldHaveExpectedInterchangeForSimpleInterchangeNotOnDate() {
 
         // use date where we can get routes
-        Route routeA = getRouteFor(TFGMTramLines.Green);
-        Route routeB = getRouteFor(TFGMTramLines.Navy);
+        Route routeA = getRouteFor(TFGMRouteNames.Green);
+        Route routeB = getRouteFor(TFGMRouteNames.Navy);
 
         RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
 
@@ -169,8 +169,8 @@ public class RouteInterconnectRepositoryTest {
     @Test
     void shouldCheckFor2Changes() {
 
-        Route routeA = getRouteFor(TFGMTramLines.Yellow);
-        Route routeB = getRouteFor(TFGMTramLines.Red);
+        Route routeA = getRouteFor(TFGMRouteNames.Yellow);
+        Route routeB = getRouteFor(TFGMRouteNames.Red);
 
         assertEquals(2, routeMatrix.getConnectionDepthFor(routeA, routeB));
 
@@ -197,8 +197,8 @@ public class RouteInterconnectRepositoryTest {
 
     @Test
     void shouldHaveExpectedBacktrackFor1Changes() {
-        Route routeA = getRouteFor(TFGMTramLines.Green);
-        Route routeB = getRouteFor(TFGMTramLines.Navy);
+        Route routeA = getRouteFor(TFGMRouteNames.Green);
+        Route routeB = getRouteFor(TFGMRouteNames.Navy);
         RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
 
         assertTrue(interchangeRepository.hasInterchangeFor(indexPair));
@@ -236,8 +236,8 @@ public class RouteInterconnectRepositoryTest {
     @DisabledUntilDate(year = 2025, month = 5, day = 2)
     @Test
     void shouldHaveExpectedBacktrackFor2Changes() {
-        Route routeA = getRouteFor(TFGMTramLines.Yellow);
-        Route routeB = getRouteFor(TFGMTramLines.Red);
+        Route routeA = getRouteFor(TFGMRouteNames.Yellow);
+        Route routeB = getRouteFor(TFGMRouteNames.Red);
         RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
 
         assertFalse(interchangeRepository.hasInterchangeFor(indexPair));
@@ -279,8 +279,8 @@ public class RouteInterconnectRepositoryTest {
     @DisabledUntilDate(year = 2025, month = 5, day = 2)
     @Test
     void shouldCheckFor2ChangesFiltered() {
-        Route routeA = getRouteFor(TFGMTramLines.Yellow);
-        Route routeB = getRouteFor(TFGMTramLines.Red);
+        Route routeA = getRouteFor(TFGMRouteNames.Yellow);
+        Route routeB = getRouteFor(TFGMRouteNames.Red);
         RouteIndexPair indexPair = routeIndex.getPairFor(new RoutePair(routeA, routeB));
 
         IndexedBitSet dateOverlaps = routeMatrix.createOverlapMatrixFor(date, modes);
@@ -318,7 +318,7 @@ public class RouteInterconnectRepositoryTest {
     void shouldReproIssueWithGreenLineRoute() {
         RouteIndexPairFactory pairFactory = componentContainer.get(RouteIndexPairFactory.class);
 
-        Route greenInbound = getRouteFor(TFGMTramLines.Green);
+        Route greenInbound = getRouteFor(TFGMRouteNames.Green);
 
         short greenIndex = routeIndex.indexFor(greenInbound.getId());
 
