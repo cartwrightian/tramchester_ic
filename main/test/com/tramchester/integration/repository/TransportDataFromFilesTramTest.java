@@ -28,8 +28,8 @@ import com.tramchester.repository.ClosedStationsRepository;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.FakeStation;
+import com.tramchester.testSupport.reference.KnownTramLines;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
@@ -101,7 +101,7 @@ public class TransportDataFromFilesTramTest {
         // that station is never loaded
         assertEquals(NUM_TFGM_TRAM_STATIONS, transportData.getStations(TramsOnly).size());
 
-        int expectedPlatforms = 200;
+        int expectedPlatforms = 201;
         assertEquals(expectedPlatforms, transportData.getPlatforms(TramsOnly).size());
     }
 
@@ -196,28 +196,20 @@ public class TransportDataFromFilesTramTest {
         assertTrue(noDropOffs.isEmpty(), noDropOffs.toString());
     }
 
-    @DisabledUntilDate(year = 2025, month = 4,  day = 24)
     @Test
     void shouldGetRouteStationsForStation() {
-        Set<RouteStation> routeStations = transportData.getRouteStationsFor(Shudehill.getId());
+        Set<RouteStation> routeStations = transportData.getRouteStationsFor(OldTrafford.getId());
 
-        Set<Pair<IdFor<Station>, String>> routeStationPairs = routeStations.stream().
-                filter(routeStation -> routeStation.getRoute().isAvailableOn(when)).
-                map(routeStation -> Pair.of(routeStation.getStationId(), routeStation.getRoute().getName())).
-                collect(Collectors.toSet());
-
-        assertEquals(3, routeStationPairs.size(), routeStations.toString());
-
-        IdSet<Route> routeIds =
+        Set<String> lines =
                 routeStations.stream().
-                        map(RouteStation::getRoute).
-                        collect(IdSet.collector());
+                        filter(routeStation -> routeStation.getRoute().isAvailableOn(when)).
+                        map(routeStation -> routeStation.getRoute().getShortName()).
+                        collect(Collectors.toSet());
 
-        assertTrue(routeIds.contains(getYellow(when).getId()), routeIds.toString());
+        assertEquals(2, lines.size(), lines.toString());
 
-        assertTrue(routeIds.contains(getGreen(when).getId()), routeIds.toString());
-
-        assertTrue(routeIds.contains(getYellow(when).getId()), routeIds.toString());
+        assertTrue(lines.contains(KnownTramLines.Purple.getShortName()));
+        assertTrue(lines.contains(KnownTramLines.Green.getShortName()));
 
     }
 
@@ -452,7 +444,7 @@ public class TransportDataFromFilesTramTest {
 
         int maximumNumberOfTrips = tripsPerService.values().stream().map(AtomicInteger::get).max(Integer::compare).orElse(-1);
 
-        assertEquals(1535, maximumNumberOfTrips);
+        assertEquals(1578, maximumNumberOfTrips);
     }
 
     @Disabled("Performance tests")

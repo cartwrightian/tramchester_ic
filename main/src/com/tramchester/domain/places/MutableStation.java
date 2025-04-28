@@ -241,8 +241,8 @@ public class MutableStation implements Station {
                 ", latLong=" + latLong +
                 ", mode=" + getTransportModes() +
                 ", platforms=" + HasId.asIds(platforms) +
-                ", servesRoutesPickup=" + servesRoutesPickup +
-                ", servesRoutesDropoff=" + servesRoutesDropoff +
+                ", servesRoutesPickup=" + HasId.asIds(servesRoutesPickup) +
+                ", servesRoutesDropoff=" + HasId.asIds(servesRoutesDropoff) +
                 ", passedByRoute=" + HasId.asIds(passedByRoute) +
                 ", isCentral=" + isCentral +
                 ", isMarkedInterchange=" + isMarkedInterchange +

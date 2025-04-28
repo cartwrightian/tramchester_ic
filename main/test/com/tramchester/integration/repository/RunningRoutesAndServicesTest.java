@@ -16,7 +16,6 @@ import com.tramchester.repository.RunningRoutesAndServices;
 import com.tramchester.repository.TransportData;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.UpcomingDates;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import org.apache.commons.collections4.SetUtils;
 import org.junit.jupiter.api.AfterAll;
@@ -161,12 +160,6 @@ public class RunningRoutesAndServicesTest {
         final EnumSet<DayOfWeek> saturdays = EnumSet.of(SATURDAY);
 
         TramDate testDay = TestEnv.nextMonday();
-
-        // need to skip over cut-over of services from old to new working pattern
-        TramDate cutOver = UpcomingDates.HighStreetAndChurchStreetWorks.getEndDate();
-        if (testDay.plusDays(3).equals(cutOver)) {
-            testDay = testDay.plusWeeks(1);
-        }
 
         final TramDate tuesdayDate = testDay.plusDays(1);
         final TramDate fridayDate = getFridayAfter(tuesdayDate);

@@ -7,8 +7,10 @@ import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.reference.KnownBusRoute;
+import com.tramchester.testSupport.reference.KnownTramLines;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TestRoute;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.List;
@@ -50,8 +52,12 @@ public class TramRouteHelper {
         return knownRouteToRoutes.get(knownRoute);
     }
 
-    // TODO rework?
-    public Route getOneRoute(final TestRoute knownRoute, final TramDate date) {
+    public Route getOneRoute(final KnownTramLines line, final TramDate date) {
+        TestRoute knownRoute = KnownTramRoute.findFor(line, date);
+        return getOneRouteFor(knownRoute, date);
+    }
+
+    private Route getOneRouteFor(final TestRoute knownRoute, final TramDate date) {
         guard(knownRoute);
         final Set<Route> routes = knownRouteToRoutes.get(knownRoute);
         final List<Route> result = routes.stream().filter(route -> route.isAvailableOn(date)).toList();
@@ -89,4 +95,14 @@ public class TramRouteHelper {
     }
 
 
+    /***
+     * Use version that passes KnownTramLine
+     * @param knownTramRoute
+     * @param when
+     * @return
+     */
+    @Deprecated
+    public Route getOneRoute(@NotNull TestRoute knownTramRoute, TramDate when) {
+        return getOneRouteFor(knownTramRoute, when);
+    }
 }

@@ -10,7 +10,6 @@ import com.tramchester.mappers.MatchLiveTramToJourneyDestination;
 import com.tramchester.mappers.StopOrderChecker;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.TramStations;
 import org.easymock.EasyMock;
 import org.easymock.EasyMockSupport;
@@ -178,7 +177,6 @@ public class MatchLiveTramToJourneyDestinationTest extends EasyMockSupport {
         assertFalse(matches);
     }
 
-    @DisabledUntilDate(year = 2025, month = 4, day = 24)
     @Test
     void shouldNotFindDueTramWhenRoutesDoNotOverlap() {
 

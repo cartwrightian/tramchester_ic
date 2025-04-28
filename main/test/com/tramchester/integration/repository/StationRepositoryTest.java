@@ -30,6 +30,7 @@ import com.tramchester.testSupport.reference.KnownLocality;
 import com.tramchester.testSupport.reference.TestRoute;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -98,9 +99,28 @@ public class StationRepositoryTest {
         assertEquals(expectedNumStations, pickUps.size(), pickUps.toString());
         assertTrue(pickUps.contains(Bury.getId()));
         assertTrue(pickUps.contains(Cornbrook.getId()));
-        // March/April 2025 closures
         assertTrue(pickUps.contains(Shudehill.getId()));
         assertTrue(pickUps.contains(Altrincham.getId()));
+    }
+
+    @Test
+    void shouldReproIssueWithShudehillAppearingOnRedRoute() {
+
+        Station shudehill = Shudehill.from(stationRepository);
+
+        @NotNull Set<String> lines = shudehill.getDropoffRoutes().stream().
+                filter(route -> route.isAvailableOn(when)).
+                map(route -> route.getShortName()).
+                collect(Collectors.toSet());
+
+        assertEquals(4, lines.size(), lines.toString());
+
+        //Route red = routeHelper.getOneRoute(KnownTramLines.Red, when);
+
+//        assertFalse(shudehill.servesRouteDropOff(red),"Found " + red.getId() + " for " + shudehill);
+//        assertFalse(shudehill.servesRoutePickup(red), "Found " + red.getId() + " for " + shudehill);
+//
+
     }
 
     @Test

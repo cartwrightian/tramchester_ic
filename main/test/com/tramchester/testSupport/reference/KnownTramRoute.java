@@ -1,6 +1,8 @@
 package com.tramchester.testSupport.reference;
 
 import com.tramchester.domain.Route;
+import com.tramchester.domain.dates.DateRange;
+import com.tramchester.domain.dates.DateRanges;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import org.jetbrains.annotations.NotNull;
@@ -11,8 +13,14 @@ import java.util.stream.Collectors;
 
 public class KnownTramRoute {
 
-    public static final TramDate startAprilCutover = TramDate.of(2025,4,18);
     public static final TramDate endAprilCutover = TramDate.of(2025, 4, 24);
+    public static final TramDate startMayCutover = TramDate.of(2025,5,3);
+
+    private static final DateRanges replacementBusOneDates = new DateRanges(
+            DateRange.of(TramDate.of(2025,5,3), 2),
+            DateRange.of(TramDate.of(2025, 5, 10), 1),
+            DateRange.of(TramDate.of(2025, 5, 17), 1),
+            DateRange.of(TramDate.of(2025, 5, 24), 2));
 
     // missing from tfgm data
     public static final String MISSING_ROUTE = "";
@@ -20,53 +28,60 @@ public class KnownTramRoute {
     /***
      * @return Yellow route
      */
+    public static @NotNull TestRoute getReplacementBusOne(TramDate date) {
+        return findFor(KnownTramLines.BusOne, date);
+    }
+
+    /***
+     * @return Yellow route
+     */
     public static @NotNull TestRoute getYellow(TramDate date) {
-        return findFor(KnownLines.Yellow, date);
+        return findFor(KnownTramLines.Yellow, date);
     }
 
     /***
      * @return Red route
      */
     public static @NotNull TestRoute getRed(TramDate date) {
-        return findFor(KnownLines.Red, date);
+        return findFor(KnownTramLines.Red, date);
     }
 
     /***
      * @return Purple route
      */
     public static @NotNull TestRoute getPurple(TramDate date) {
-        return findFor(KnownLines.Purple, date);
+        return findFor(KnownTramLines.Purple, date);
     }
 
     /***
      * @return Pink route
      */
     public static @NotNull TestRoute getPink(TramDate date) {
-        return findFor(KnownLines.Pink, date);
+        return findFor(KnownTramLines.Pink, date);
     }
 
     /***
      * @return Navy route
      */
     public static @NotNull TestRoute getNavy(TramDate date) {
-        return findFor(KnownLines.Navy, date);
+        return findFor(KnownTramLines.Navy, date);
     }
 
     /***
      * @return Green route
      */
     public static @NotNull TestRoute getGreen(TramDate date) {
-        return findFor(KnownLines.Green, date);
+        return findFor(KnownTramLines.Green, date);
     }
 
     /***
      * @return Blue route
      */
     public static @NotNull TestRoute getBlue(TramDate date) {
-        return findFor(KnownLines.Blue, date);
+        return findFor(KnownTramLines.Blue, date);
     }
 
-    public static TestRoute findFor(final KnownLines line, final TramDate date) {
+    public static TestRoute findFor(final KnownTramLines line, final TramDate date) {
         List<KnownTramRouteEnum> find = Arrays.stream(KnownTramRouteEnum.values()).
                 filter(knownTramRoute -> knownTramRoute.line().equals(line)).
                 filter(knownTramRoute -> date.isEqual(knownTramRoute.getValidFrom()) || date.isAfter(knownTramRoute.getValidFrom())).
@@ -108,10 +123,16 @@ public class KnownTramRoute {
         final Set<TestRoute> routes = new HashSet<>();
 
         if (date.isAfter(endAprilCutover) || date.equals(endAprilCutover)) {
-            if (date.getDayOfWeek()!= DayOfWeek.SUNDAY) {
-                routes.add(getYellow(date));
-            }
+//            if (date.getDayOfWeek()!= DayOfWeek.SUNDAY) {
+//                routes.add(getYellow(date));
+//            }
             routes.add(getPurple(date));
+        }
+
+        if (date.isAfter(startMayCutover) || date.equals(startMayCutover)) {
+            routes.add(getYellow(date));
+        } else if (date.getDayOfWeek()!= DayOfWeek.SUNDAY) {
+            routes.add(getYellow(date));
         }
 
         routes.add(getGreen(date));
@@ -120,10 +141,15 @@ public class KnownTramRoute {
         routes.add(getNavy(date));
         routes.add(getPink(date));
 
+        if (replacementBusOneDates.contains(date)) {
+            routes.add(getReplacementBusOne(date));
+        }
+
         return routes;
     }
 
     public static TestRoute[] values() {
         return KnownTramRouteEnum.values();
     }
+
 }

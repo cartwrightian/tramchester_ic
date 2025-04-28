@@ -14,7 +14,6 @@ import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
 import org.junit.jupiter.api.AfterAll;
@@ -84,14 +83,13 @@ public class RouteCostMatrixTest {
         assertEquals(1, depth);
     }
 
-    @DisabledUntilDate(year = 2025, month = 4, day=24)
     @Test
     void shouldHaveExpectedIndexWhereNoDirectInterchangePossible() {
         Route routeA = routeHelper.getOneRoute(getYellow(date), date);
         Route routeB = routeHelper.getOneRoute(getRed(date), date);
 
         int depth = routeMatrix.getConnectionDepthFor(routeA, routeB);
-        assertEquals(2, depth);
+        assertEquals(1, depth);
     }
 
     @Test

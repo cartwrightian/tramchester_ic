@@ -15,7 +15,6 @@ import com.tramchester.repository.ServiceRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.repository.StopCallRepository;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import org.junit.jupiter.api.AfterAll;
@@ -120,6 +119,7 @@ public class StopCallRepositoryTest {
 
     }
 
+
     @Test
     void shouldFindUniqueCallingPointsBetweenAdjacentStations() {
         List<IdFor<Station>> stations = stopCallRepository.getClosedBetween(NavigationRoad.getId(), Timperley.getId());
@@ -143,7 +143,6 @@ public class StopCallRepositoryTest {
 
     }
 
-    @DisabledUntilDate(year = 2025, month = 4, day = 24)
     @Test
     void shouldFailToFindUniqueSequenceIfAmbiguous() {
         assertThrows(RuntimeException.class, () -> stopCallRepository.getClosedBetween(StPetersSquare.getId(), Victoria.getId()));

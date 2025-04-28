@@ -17,7 +17,6 @@ import com.tramchester.integration.testSupport.tram.ResourceTramTestConfig;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.resources.JourneyPlannerResource;
 import com.tramchester.testSupport.TestEnv;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.TramStations;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.apache.commons.lang3.tuple.Triple;
@@ -173,11 +172,10 @@ public class JourneyPlannerResourceTest {
         assertTrue(plan.getJourneys().isEmpty());
     }
 
-    @DisabledUntilDate(year = 2025, month = 4, day = 24)
     @Test
     void shouldReproLateNightIssueShudehillToAltrincham() {
 
-        JourneyQueryDTO query = journeyPlanner.getQueryDTO(when, TramTime.of(23,11), Shudehill, Altrincham, false, 3);
+        JourneyQueryDTO query = journeyPlanner.getQueryDTO(when, TramTime.of(23,11), Shudehill, Altrincham, false, 1);
 
         JourneyPlanRepresentation plan = journeyPlanner.getJourneyPlan(query);
 

@@ -8,7 +8,6 @@ import com.tramchester.domain.LocationSet;
 import com.tramchester.domain.Route;
 import com.tramchester.domain.RoutePair;
 import com.tramchester.domain.dates.TramDate;
-import com.tramchester.domain.id.HasId;
 import com.tramchester.domain.places.Location;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -22,7 +21,6 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
@@ -116,7 +114,6 @@ public class RouteToRouteCostsTest {
         assertEquals(0, getMinCost(routesCostRepository.getPossibleMinChanges(routeA, routeA, date, timeRange, modes)));
     }
 
-    @DisabledUntilDate(year = 2025, month = 4, day = 24)
     @Test
     void shouldComputeCostsDifferentRoutesTwoChange() {
         Route routeA = routeHelper.getOneRoute(getRed(date), date);
@@ -128,7 +125,6 @@ public class RouteToRouteCostsTest {
                 "wrong for " + routeB.getId() + " " + routeA.getId());
     }
 
-    @DisabledUntilDate(year = 2025, month = 4, day = 24)
     @Test
     void shouldFailIfOurOfTimeRangeDifferentRoutesTwoChange() {
         Route routeA = routeHelper.getOneRoute(getRed(date), date);
@@ -209,7 +205,6 @@ public class RouteToRouteCostsTest {
         assertEquals(0, getMinCost(result));
     }
 
-    @DisabledUntilDate(year = 2025, month = 4, day = 24)
     @Test
     void shouldSortAsExpected() {
 
@@ -222,13 +217,13 @@ public class RouteToRouteCostsTest {
 
         Stream<Route> toSort = Stream.of(routeC, routeB, routeA);
 
-        Stream<Route> results = sorts.sortByDestinations(toSort);
-        List<HasId<Route>> list = results.collect(Collectors.toList());
+        List<Route> results = sorts.sortByDestinations(toSort).toList();
+        //List<Route> list = results.collect(Collectors.toList());
 
-        assertEquals(3, list.size());
-        assertEquals(routeA.getId(), list.get(0).getId());
-        assertEquals(routeB.getId(), list.get(1).getId());
-        assertEquals(routeC.getId(), list.get(2).getId());
+        assertEquals(3, results.size());
+        assertEquals(routeA.getShortName(), results.get(0).getShortName());
+        assertEquals(routeB.getShortName(), results.get(1).getShortName());
+        assertEquals(routeC.getShortName(), results.get(2).getShortName());
 
     }
 

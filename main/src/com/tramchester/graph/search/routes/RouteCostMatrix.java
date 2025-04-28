@@ -275,6 +275,7 @@ public class RouteCostMatrix extends ComponentThatCaches<CostsPerDegreeData, Rou
         return result;
     }
 
+    // 1 = direct, 2 = 1 change, etc
     public int getConnectionDepthFor(final Route routeA, final Route routeB) {
         final RouteIndexPair routePair = routeIndex.getPairFor(RoutePair.of(routeA, routeB));
         return getDegree(routePair);

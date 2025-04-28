@@ -12,7 +12,7 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.stream.Collectors;
 
-import static com.tramchester.testSupport.reference.KnownLines.*;
+import static com.tramchester.testSupport.reference.KnownTramLines.*;
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 
 /*
@@ -21,40 +21,42 @@ import static com.tramchester.testSupport.reference.KnownTramRoute.*;
  */
 public enum KnownTramRouteEnum implements TestRoute {
 
+    // Replacement Bus
+    ReplacementBus1(BusOne, "Replacement Bus Rochdale - Freehold", "2462", startMayCutover),
+
     // Blue
-    EcclesAshton(Blue, "Eccles - Manchester - Ashton Under Lyne", "2119", startAprilCutover),
-    EcclesAshtonNew(Blue, "Eccles - Manchester - Ashton Under Lyne", "2871", endAprilCutover),
+    EcclesAshtonNew(Blue, "Eccles - Manchester - Ashton Under Lyne", "2119", startMayCutover),
+    EcclesAshton(Blue, "Eccles - Manchester - Ashton Under Lyne", "2871", endAprilCutover),
 
     // Green
-    BuryManchesterAltrincham(Green, "Bury - Manchester - Altrincham", "841", startAprilCutover),
-    BuryManchesterAltrinchamNew(Green, "Bury - Manchester - Altrincham", "2872", endAprilCutover),
+    BuryManchesterAltrinchamNew(Green, "Bury - Manchester - Altrincham", "841", startMayCutover),
+    BuryManchesterAltrincham(Green, "Bury - Manchester - Altrincham", "2872", endAprilCutover),
 
     // Navy
-    DeansgateCastlefieldManchesterAirport(Navy, "Deansgate-Castlefield - Manchester Airport", "2120", startAprilCutover),
+    VictoriaManchesterAirportNew(Navy, "Victoria - Wythenshawe - Manchester Airport", "2120", startMayCutover),
     VictoriaManchesterAirport(Navy, "Victoria - Wythenshawe - Manchester Airport", "2873", endAprilCutover),
 
     // Pink
-    RochdaleShawandCromptonManchesterEastDidisbury(Pink, "Rochdale - Manchester - East Didsbury", "2831", startAprilCutover),
+    RochdaleManchesterEastDidisburyNew(Pink, "Rochdale - Manchester - East Didsbury", "845", startMayCutover),
     RochdaleManchesterEastDidisbury(Pink, "Rochdale - Manchester - East Didsbury", "2874", endAprilCutover),
 
-    // Purple, not in tfgm data as of 28/3/2025
-    EtihadPiccadillyAltrincham(Purple, "Etihad Campus - Piccadilly - Altrincham", MISSING_ROUTE, startAprilCutover),
-    EtihadPiccadillyAltrinchamNew(Purple, "Etihad Campus - Piccadilly - Altrincham", "2875", endAprilCutover),
+    EtihadPiccadillyAltrinchamNew(Purple, "Etihad Campus - Piccadilly - Altrincham", "2173", startMayCutover),
+    EtihadPiccadillyAltrincham(Purple, "Etihad Campus - Piccadilly - Altrincham", "2875", endAprilCutover),
 
     // Red
-    CornbrookTheTraffordCentre(Red, "Etihad Campus - The Trafford Centre", "849", startAprilCutover),
-    CornbrookTheTraffordCentreNew(Red, "Deansgate-Castlefield - The Trafford Centre", "2876", endAprilCutover),
+    CornbrookTheTraffordCentreNew(Red, "Etihad Campus - The Trafford Centre", "849", startMayCutover),
+    CornbrookTheTraffordCentre(Red, "Deansgate-Castlefield - The Trafford Centre", "2876", endAprilCutover),
 
     // Yellow, not in tfgm data as of 28/3/2025
-    PiccadillyVictoriaInvalid(Yellow, "Piccadilly - Victoria", MISSING_ROUTE, startAprilCutover),
+    AshtonCrumpsall(Yellow, "Ashton - Crumpsall Bay", "844", startMayCutover),
     PiccadillyBury(Yellow, "Piccadilly - Bury", "2877", endAprilCutover);
 
-    private final KnownLines line;
+    private final KnownTramLines line;
     private final String longName; // diagnostics only
     private final IdFor<Route> id;
     private final TramDate validFrom;
 
-    KnownTramRouteEnum(KnownLines line, String longName, String id, TramDate validFrom) {
+    KnownTramRouteEnum(KnownTramLines line, String longName, String id, TramDate validFrom) {
         this.longName = longName;
         this.id = Route.createId(id);
         this.validFrom = validFrom;
@@ -83,7 +85,7 @@ public enum KnownTramRouteEnum implements TestRoute {
         return line.getShortName();
     }
 
-    public KnownLines line() {
+    public KnownTramLines line() {
         return line;
     }
 

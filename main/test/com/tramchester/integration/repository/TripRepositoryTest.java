@@ -19,7 +19,9 @@ import com.tramchester.domain.time.TramTime;
 import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.repository.*;
 import com.tramchester.testSupport.TestEnv;
+import com.tramchester.testSupport.TramRouteHelper;
 import com.tramchester.testSupport.UpcomingDates;
+import com.tramchester.testSupport.reference.KnownTramLines;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TramStations;
 import com.tramchester.testSupport.testTags.DataExpiryTest;
@@ -38,8 +40,7 @@ import java.util.stream.Stream;
 import static com.tramchester.testSupport.TestEnv.Modes.TramsOnly;
 import static com.tramchester.testSupport.TransportDataFilter.getTripsFor;
 import static com.tramchester.testSupport.reference.TramStations.*;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(ConfigParameterResolver.class)
 @DualTest
@@ -100,6 +101,33 @@ public class TripRepositoryTest {
         assertTrue(calls.size() > 1);
     }
 
+    @Test
+    void shouldReproIssueWithShudehillAppearingOnRedRoute() {
+
+        RouteRepository routeRespository = componentContainer.get(RouteRepository.class);
+        TramRouteHelper tramRouteHelper = new TramRouteHelper(routeRespository);
+
+        Station shudehill = Shudehill.from(stationRepository);
+
+        Set<Trip> trips = tripRepository.getTripsCallingAt(shudehill, when);
+
+        assertFalse(trips.isEmpty());
+
+        Set<Route> routes = trips.stream().map(Trip::getRoute).collect(Collectors.toSet());
+
+        assertFalse(routes.isEmpty());
+        assertEquals(4, routes.size(), HasId.asIds(routes));
+
+        assertTrue(routes.contains(tramRouteHelper.getOneRoute(KnownTramLines.Green, when)));
+        assertTrue(routes.contains(tramRouteHelper.getOneRoute(KnownTramLines.Blue, when)));
+        assertTrue(routes.contains(tramRouteHelper.getOneRoute(KnownTramLines.Navy, when)));
+        assertTrue(routes.contains(tramRouteHelper.getOneRoute(KnownTramLines.Yellow, when)));
+
+        assertFalse(routes.contains(tramRouteHelper.getOneRoute(KnownTramLines.Red, when)));
+        assertFalse(routes.contains(tramRouteHelper.getOneRoute(KnownTramLines.Purple, when)));
+
+    }
+
     @Disabled("Solved by removing reboarding filter which does not impact depth first performance")
     @Test
     void shouldCheckTripsFinishingAtNonInterchangeStationsOrEndOfLines() {
@@ -121,12 +149,13 @@ public class TripRepositoryTest {
     @Test
     void shouldHaveTripsOnDateForEachStation() {
 
-        Set<Pair<TramDate, IdFor<Station>>> missing = UpcomingDates.getUpcomingDates().
+        List<Pair<TramDate, IdFor<Station>>> missing = UpcomingDates.getUpcomingDates().
                 flatMap(date -> getStations(date).map(station -> Pair.of(date, station))).
                 filter(pair -> isOpen(pair.getLeft(), pair.getRight())).
                 filter(pair -> tripRepository.getTripsCallingAt(pair.getRight(), pair.getLeft()).isEmpty()).
                 map(pair -> Pair.of(pair.getLeft(), pair.getRight().getId())).
-                collect(Collectors.toSet());
+                sorted(Map.Entry.comparingByKey()).
+                toList();
 
         assertTrue(missing.isEmpty(), "Got missing trips for " + missing);
 

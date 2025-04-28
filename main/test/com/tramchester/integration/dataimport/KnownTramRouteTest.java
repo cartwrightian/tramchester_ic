@@ -12,7 +12,6 @@ import com.tramchester.integration.testSupport.config.ConfigParameterResolver;
 import com.tramchester.repository.RouteRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.UpcomingDates;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.KnownTramRouteEnum;
 import com.tramchester.testSupport.reference.TestRoute;
@@ -92,8 +91,6 @@ class KnownTramRouteTest {
         checkRouteIdFor(KnownTramRoute::getPink, false);
     }
 
-    // likely have to disable until end of york street works
-    @DisabledUntilDate(year = 2025, month = 4, day = 24)
     @Test
     void shouldHaveExpectedRouteIdForPurple() {
         checkRouteIdFor(KnownTramRoute::getPurple, false);
@@ -104,10 +101,9 @@ class KnownTramRouteTest {
         checkRouteIdFor(KnownTramRoute::getRed, false);
     }
 
-    @DisabledUntilDate(year = 2025, month = 4, day = 24)
     @Test
     void shouldHaveExpectedRouteIdForYellow() {
-        checkRouteIdFor(KnownTramRoute::getYellow, false);
+        checkRouteIdFor(KnownTramRoute::getYellow, true);
     }
 
     void checkRouteIdFor(Function<TramDate, TestRoute> function, boolean skipSunday) {
@@ -178,7 +174,7 @@ class KnownTramRouteTest {
     void shouldNotHaveUnknownTramRoutes() {
         TramDate start = TramDate.from(TestEnv.LocalNow());
 
-        DateRange dateRange = DateRange.of(start, when.plusWeeks(6));
+        DateRange dateRange = DateRange.of(start, when.plusWeeks(4));
 
         SortedMap<TramDate, IdSet<Route>> unexpectedLoadedForDate = new TreeMap<>();
 
@@ -239,7 +235,6 @@ class KnownTramRouteTest {
         });
     }
 
-    @DisabledUntilDate(year = 2025, month = 4, day = 24)
     @Test
     void shouldCheckForMissingRouteSpring2025Closures() {
         // TODO needed for each route?
@@ -258,7 +253,6 @@ class KnownTramRouteTest {
         assertFalse(foundForDate.isEmpty(), "Not matching date " + when + " for " + HasId.asIds(matching));
     }
 
-    @DisabledUntilDate(year = 2025, month = 4, day = 24)
     @Test
     void shouldCheckForActualDatesYellowRouteIsAvailableFor() {
         TestRoute piccadillyVictoria = getYellow(when);
@@ -268,7 +262,7 @@ class KnownTramRouteTest {
                 filter(route -> route.getShortName().equals(shortName)).
                 toList();
 
-        assertEquals(1, matching.size(), HasId.asIds(matching));
+        assertEquals(2, matching.size(), HasId.asIds(matching));
 
         Route found = matching.getFirst();
 

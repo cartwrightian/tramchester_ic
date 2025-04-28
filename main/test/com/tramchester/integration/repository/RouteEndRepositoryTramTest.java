@@ -2,7 +2,6 @@ package com.tramchester.integration.repository;
 
 import com.tramchester.ComponentContainer;
 import com.tramchester.ComponentsBuilder;
-import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.reference.TransportMode;
@@ -50,11 +49,9 @@ class RouteEndRepositoryTramTest {
         assertTrue(results.contains(Victoria.getId()), results.toString());
         assertTrue(results.contains(ManAirport.getId()), results.toString());
 
-        // rochdale closed
         assertTrue(results.contains(Rochdale.getId()));
 
         IdSet<Station> missing = getEndOfTheLine().stream().map(TramStations::getId).
-                filter(this::workaroundPiccGardensStillClosedInTimetable).
                 filter(eolId -> !results.contains(eolId)).
                 collect(IdSet.idCollector());
 
@@ -64,8 +61,5 @@ class RouteEndRepositoryTramTest {
         //assertEquals(eolIds.size() , results.size(), results.toString());
     }
 
-    private boolean workaroundPiccGardensStillClosedInTimetable(IdFor<Station> id) {
-        return !id.equals(PiccadillyGardens.getId());
-    }
 
 }

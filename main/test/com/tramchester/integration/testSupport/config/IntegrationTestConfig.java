@@ -37,7 +37,7 @@ public abstract class IntegrationTestConfig extends TestConfig {
         DateRange.of(TramDate.of(2025, 3, 25), TramDate.of(2025, 4, 24)),
         true, Collections.emptySet(), Collections.emptySet());
 
-    public static final List<StationClosures> CurrentClosures = List.of(marketStreetApril2025);
+    public static final List<StationClosures> CurrentClosures = Collections.emptyList(); //List.of(marketStreetApril2025);
 
     public static final List<TemporaryStationsWalkIds> CurrentStationWalks = Collections.emptyList();
 

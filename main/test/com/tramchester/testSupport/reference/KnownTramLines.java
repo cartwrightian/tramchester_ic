@@ -1,6 +1,6 @@
 package com.tramchester.testSupport.reference;
 
-public enum KnownLines {
+public enum KnownTramLines {
     BusOne("Replacement Bus 1"),
     BusTwo("Replacement Bus 2"),
     Red("Red Line"),
@@ -14,7 +14,7 @@ public enum KnownLines {
 
     private final String shortName;
 
-    KnownLines(String shortName) {
+    KnownTramLines(String shortName) {
         this.shortName = shortName;
     }
 

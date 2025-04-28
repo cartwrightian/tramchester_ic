@@ -2,9 +2,9 @@ package com.tramchester.testSupport;
 
 import com.tramchester.domain.LocationIdPair;
 import com.tramchester.domain.dates.DateRange;
+import com.tramchester.domain.dates.DateRanges;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
-import com.tramchester.domain.id.IdSet;
 import com.tramchester.domain.places.Station;
 import com.tramchester.testSupport.reference.TramStations;
 
@@ -14,8 +14,6 @@ import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
-
-import static com.tramchester.testSupport.reference.TramStations.*;
 
 public class UpcomingDates {
 
@@ -33,17 +31,13 @@ public class UpcomingDates {
     // use helper methods that handle filtering (i.e. for Christmas) and conversion to dates
     static final int DAYS_AHEAD = 14;
 
-    public static final DateRange HighStreetAndChurchStreetWorks = DateRange.of(TramDate.of(2025,3,25),
-            TramDate.of(2025,4,24));
-
-    // still missing from timetable....
-    public static final DateRange HighStreetAndChurchStreetWorksOngoing = DateRange.of(HighStreetAndChurchStreetWorks.getEndDate(),
-            2);
-
     public static TramDate MayDay2025 = TramDate.of(2025,5,5);
     public static TramDate LateMayBankHold2025 = TramDate.of(2025, 5, 26);
 
-    private static final IdSet<Station> HighStreetAndChurchStreetWorkStations = TramStations.ids(Shudehill, MarketStreet);
+    public static DateRanges RochdaleLineWorksSummer2025 = new DateRanges(
+            DateRange.of(TramDate.of(2025, 5,3),1),
+            DateRange.of(TramDate.of(2025,5,10),1));
+
 
     public static boolean hasClosure(final Station station, final TramDate date) {
         return hasClosure(station.getId(), date);
@@ -54,10 +48,8 @@ public class UpcomingDates {
     }
 
     public static boolean hasClosure(IdFor<Station> stationId, TramDate date) {
-        if (HighStreetAndChurchStreetWorks.contains(date) || HighStreetAndChurchStreetWorksOngoing.contains(date)) {
-            if (HighStreetAndChurchStreetWorkStations.contains(stationId)) {
-                return true;
-            }
+        if (TramStations.OldhamCentral.getId().equals(stationId)) {
+            return RochdaleLineWorksSummer2025.contains(date);
         }
 
         return false;

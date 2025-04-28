@@ -17,11 +17,12 @@ import com.tramchester.repository.RouteRepository;
 import com.tramchester.repository.StationRepository;
 import com.tramchester.testSupport.TestEnv;
 import com.tramchester.testSupport.TramRouteHelper;
-import com.tramchester.testSupport.conditional.DisabledUntilDate;
+import com.tramchester.testSupport.reference.KnownTramLines;
 import com.tramchester.testSupport.reference.KnownTramRoute;
 import com.tramchester.testSupport.reference.TestRoute;
 import com.tramchester.testSupport.testTags.DataUpdateTest;
 import com.tramchester.testSupport.testTags.DualTest;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -112,6 +113,18 @@ public class RouteRepositoryTest {
         assertEquals(fromVictoria.size(), ecclesTripsViaShudehill.size(), ecclesTripsViaShudehill.toString());
     }
 
+    @Test
+    void shouldNotHaveRedRouteServingShudehill() {
+        Route red = routeHelper.getOneRoute(KnownTramLines.Red, when);
+
+        @NotNull Set<Trip> callingTrips = red.getTrips().stream().
+                filter(trip -> trip.callsAt(Shudehill.getId())).
+                filter(trip -> trip.operatesOn(when)).
+                collect(Collectors.toSet());
+
+        assertTrue(callingTrips.isEmpty(), HasId.asIds(callingTrips));
+    }
+
     @Disabled("appear to be no longer present")
     @Test
     void extraRouteAtShudehillFromEcclesToVictoria() {
@@ -183,7 +196,6 @@ public class RouteRepositoryTest {
 
     }
 
-    @DisabledUntilDate(year = 2025, month = 4, day = 24)
     @Test
     void shouldReproIssueWithUnsymmetricDateOverlap() {
 
