@@ -16,6 +16,7 @@ import com.tramchester.domain.places.NaptanRecord;
 import com.tramchester.domain.places.Station;
 import com.tramchester.domain.presentation.LatLong;
 import com.tramchester.domain.reference.GTFSTransportationType;
+import com.tramchester.domain.reference.TFGMRouteNames;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.geo.CoordinateTransforms;
 import com.tramchester.geo.GridPosition;
@@ -68,7 +69,11 @@ public class TransportEntityFactoryForTFGM extends TransportEntityFactory {
         final IdFor<Route> routeId = getCorrectIdFor(routeData);
 
         final String longName = routeData.getLongName();
-        return new MutableRoute(routeId, routeData.getShortName().trim(), longName, agency,
+        final String routeNameText = routeData.getShortName().trim();
+
+        final TFGMRouteNames routeName = TFGMRouteNames.parse(routeNameText);
+
+        return new MutableRoute(routeId, routeName.getShortName(), longName, agency,
                 GTFSTransportationType.toTransportMode(routeType));
     }
 

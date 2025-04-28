@@ -1,5 +1,8 @@
 package com.tramchester.domain.reference;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public enum TFGMRouteNames {
     BusOne("Replacement Bus 1"),
     BusTwo("Replacement Bus 2"),
@@ -12,10 +15,23 @@ public enum TFGMRouteNames {
     Brown("Brown Line"),
     Blue("Blue Line");
 
+    private final static Map<String, TFGMRouteNames> theMap;
+
+    static {
+        theMap = new HashMap<>();
+        for(TFGMRouteNames name : values()) {
+            theMap.put(name.shortName, name);
+        }
+    }
+
     private final String shortName;
 
     TFGMRouteNames(String shortName) {
         this.shortName = shortName;
+    }
+
+    public static TFGMRouteNames parse(String text) {
+        return theMap.get(text);
     }
 
     public String getShortName() {

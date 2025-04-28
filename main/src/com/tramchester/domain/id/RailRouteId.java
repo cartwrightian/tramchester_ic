@@ -13,7 +13,7 @@ import java.util.List;
 /***
  * Note: serializable for RouteIndex cache purposes
  */
-public class RailRouteId extends ContainsId<Route> implements IdFor<Route> {
+public class RailRouteId extends ContainsId<Route> { // implements IdFor<Route> {
 
     private final IdFor<Station> begin;
     private final IdFor<Station> end;
@@ -122,10 +122,6 @@ public class RailRouteId extends ContainsId<Route> implements IdFor<Route> {
     @Override
     public String toString() {
         return "RailRouteId{" +
-//                "begin=" + begin +
-//                ", end=" + end +
-//                ", agencyId=" + agencyId +
-//                ", index=" + index +
                 " containedId=" + containedId +
                 "} ";
     }
