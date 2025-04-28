@@ -1,6 +1,6 @@
-package com.tramchester.testSupport.reference;
+package com.tramchester.domain.reference;
 
-public enum KnownTramLines {
+public enum TFGMTramLines {
     BusOne("Replacement Bus 1"),
     BusTwo("Replacement Bus 2"),
     Red("Red Line"),
@@ -14,7 +14,7 @@ public enum KnownTramLines {
 
     private final String shortName;
 
-    KnownTramLines(String shortName) {
+    TFGMTramLines(String shortName) {
         this.shortName = shortName;
     }
 

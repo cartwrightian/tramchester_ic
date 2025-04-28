@@ -50,7 +50,7 @@ public class Trips implements Iterable<Trip> {
     }
 
     public boolean anyOn(TramDate date) {
-        // TODO likely need to optimise this
+        // Testing showed little performance impact from caching these results for trams
         return trips.stream().anyMatch(trip -> trip.operatesOn(date));
     }
 

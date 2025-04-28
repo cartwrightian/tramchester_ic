@@ -5,6 +5,7 @@ import com.tramchester.domain.Route;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
 import com.tramchester.domain.id.IdForDTO;
+import com.tramchester.domain.reference.TFGMTramLines;
 import com.tramchester.domain.reference.TransportMode;
 import com.tramchester.testSupport.TestEnv;
 
@@ -12,7 +13,7 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.stream.Collectors;
 
-import static com.tramchester.testSupport.reference.KnownTramLines.*;
+import static com.tramchester.domain.reference.TFGMTramLines.*;
 import static com.tramchester.testSupport.reference.KnownTramRoute.*;
 
 /*
@@ -51,12 +52,12 @@ public enum KnownTramRouteEnum implements TestRoute {
     AshtonCrumpsall(Yellow, "Ashton - Crumpsall Bay", "844", startMayCutover),
     PiccadillyBury(Yellow, "Piccadilly - Bury", "2877", endAprilCutover);
 
-    private final KnownTramLines line;
+    private final TFGMTramLines line;
     private final String longName; // diagnostics only
     private final IdFor<Route> id;
     private final TramDate validFrom;
 
-    KnownTramRouteEnum(KnownTramLines line, String longName, String id, TramDate validFrom) {
+    KnownTramRouteEnum(TFGMTramLines line, String longName, String id, TramDate validFrom) {
         this.longName = longName;
         this.id = Route.createId(id);
         this.validFrom = validFrom;
@@ -85,7 +86,7 @@ public enum KnownTramRouteEnum implements TestRoute {
         return line.getShortName();
     }
 
-    public KnownTramLines line() {
+    public TFGMTramLines line() {
         return line;
     }
 

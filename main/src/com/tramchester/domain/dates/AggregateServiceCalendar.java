@@ -129,7 +129,7 @@ public class AggregateServiceCalendar implements ServiceCalendar {
 
     private String reportDays() {
 
-        Set<DayOfWeek> aggregatedDays = getDateRange().stream().
+        final Set<DayOfWeek> aggregatedDays = getDateRange().stream().
                 filter(days::isSet).
                 map(TramDate::getDayOfWeek).collect(Collectors.toSet());
 

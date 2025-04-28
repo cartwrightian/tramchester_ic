@@ -5,6 +5,7 @@ import com.tramchester.domain.dates.DateRange;
 import com.tramchester.domain.dates.DateRanges;
 import com.tramchester.domain.dates.TramDate;
 import com.tramchester.domain.id.IdFor;
+import com.tramchester.domain.reference.TFGMTramLines;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.DayOfWeek;
@@ -29,59 +30,59 @@ public class KnownTramRoute {
      * @return Yellow route
      */
     public static @NotNull TestRoute getReplacementBusOne(TramDate date) {
-        return findFor(KnownTramLines.BusOne, date);
+        return findFor(TFGMTramLines.BusOne, date);
     }
 
     /***
      * @return Yellow route
      */
     public static @NotNull TestRoute getYellow(TramDate date) {
-        return findFor(KnownTramLines.Yellow, date);
+        return findFor(TFGMTramLines.Yellow, date);
     }
 
     /***
      * @return Red route
      */
     public static @NotNull TestRoute getRed(TramDate date) {
-        return findFor(KnownTramLines.Red, date);
+        return findFor(TFGMTramLines.Red, date);
     }
 
     /***
      * @return Purple route
      */
     public static @NotNull TestRoute getPurple(TramDate date) {
-        return findFor(KnownTramLines.Purple, date);
+        return findFor(TFGMTramLines.Purple, date);
     }
 
     /***
      * @return Pink route
      */
     public static @NotNull TestRoute getPink(TramDate date) {
-        return findFor(KnownTramLines.Pink, date);
+        return findFor(TFGMTramLines.Pink, date);
     }
 
     /***
      * @return Navy route
      */
     public static @NotNull TestRoute getNavy(TramDate date) {
-        return findFor(KnownTramLines.Navy, date);
+        return findFor(TFGMTramLines.Navy, date);
     }
 
     /***
      * @return Green route
      */
     public static @NotNull TestRoute getGreen(TramDate date) {
-        return findFor(KnownTramLines.Green, date);
+        return findFor(TFGMTramLines.Green, date);
     }
 
     /***
      * @return Blue route
      */
     public static @NotNull TestRoute getBlue(TramDate date) {
-        return findFor(KnownTramLines.Blue, date);
+        return findFor(TFGMTramLines.Blue, date);
     }
 
-    public static TestRoute findFor(final KnownTramLines line, final TramDate date) {
+    public static TestRoute findFor(final TFGMTramLines line, final TramDate date) {
         List<KnownTramRouteEnum> find = Arrays.stream(KnownTramRouteEnum.values()).
                 filter(knownTramRoute -> knownTramRoute.line().equals(line)).
                 filter(knownTramRoute -> date.isEqual(knownTramRoute.getValidFrom()) || date.isAfter(knownTramRoute.getValidFrom())).
